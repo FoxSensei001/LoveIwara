@@ -7,11 +7,14 @@ import 'dart:io';
 import 'package:dio/dio.dart' as d_dio;
 import 'package:dio/io.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/api_result.model.dart';
+import 'package:i_iwara/app/models/iwara_page.model.dart';
 
 import '../../common/constants.dart';
 import '../../utils/logger_utils.dart';
 import '../ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'auth_service.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 
 /// API 服务配置
 class ApiServiceConfig {
@@ -63,7 +66,10 @@ class ApiService extends GetxService {
           'Content-Type': 'application/json',
           'Accept': 'application/json, text/plain, */*',
           'Connection': 'close',
-          'Referer': CommonConstants.iwaraApiBaseUrl,
+          'x-site': CommonConstants.iwaraSiteHost,
+          // Referer 以站点域名为主（与浏览器行为一致）
+          'Referer': CommonConstants.iwaraBaseUrl,
+          'Origin': CommonConstants.iwaraBaseUrl,
         },
       ),
     );
@@ -541,6 +547,34 @@ class ApiService extends GetxService {
   /// 重置代理设置
   void resetProxy() {
     _dio.httpClientAdapter = IOHttpClientAdapter();
+  }
+
+  /// 获取全站公告（sitewide announcement）
+  Future<ApiResult<IwaraPageModel>> fetchSitewideAnnouncement() async {
+    try {
+      final response = await get(
+        '/page/sitewide-announcement',
+        headers: const {
+          'accept': 'application/json',
+          'content-type': 'application/json',
+          'cache-control': 'no-cache',
+          'pragma': 'no-cache',
+        },
+        options: d_dio.Options(extra: {'skipAuthWait': true}),
+      );
+
+      if (response.data is! Map<String, dynamic>) {
+        return ApiResult.fail('Invalid response data type: ${response.data}');
+      }
+
+      return ApiResult.success(
+        data: IwaraPageModel.fromJson(response.data as Map<String, dynamic>),
+      );
+    } catch (e) {
+      LogUtils.e('获取全站公告失败', tag: _tag, error: e);
+      final errorMessage = CommonUtils.parseExceptionMessage(e);
+      return ApiResult.fail(errorMessage, exception: e);
+    }
   }
 }
 

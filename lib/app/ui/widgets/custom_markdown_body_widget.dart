@@ -31,6 +31,7 @@ class CustomMarkdownBody extends StatefulWidget {
   final bool showTranslationButton; // 是否显示翻译按钮
   final MarkdownTranslationController? translationController; // 外部控制器
   final EdgeInsetsGeometry padding; // 新增的 padding 参数
+  final double? maxImageHeight; // 限制 Markdown 图片最大高度（null 表示不限制）
 
   const CustomMarkdownBody({
     super.key,
@@ -41,6 +42,7 @@ class CustomMarkdownBody extends StatefulWidget {
     this.showTranslationButton = false,
     this.translationController,
     this.padding = EdgeInsets.zero, // 默认 padding 为 0
+    this.maxImageHeight,
   });
 
   @override
@@ -626,6 +628,10 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   @override
   Widget build(BuildContext context) {
     final isDark = Get.theme.brightness == Brightness.dark;
+    final maxImageHeight = widget.maxImageHeight;
+    final normalImagePlaceholderHeight = maxImageHeight != null
+        ? maxImageHeight.clamp(120.0, 260.0).toDouble()
+        : 200.0;
     final config =
         (isDark ? MarkdownConfig.darkConfig : MarkdownConfig.defaultConfig)
             .copy(
@@ -763,56 +769,62 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                               : ClipRRect(
                                   // 普通图片保持原有样式
                                   borderRadius: BorderRadius.circular(12),
-                                  child: CachedNetworkImage(
-                                    imageUrl: url,
-                                    httpHeaders: const {
-                                      'referer': CommonConstants.iwaraBaseUrl,
-                                    },
-                                    placeholder: (context, url) =>
-                                        Shimmer.fromColors(
-                                          baseColor: Colors.grey[300]!,
-                                          highlightColor: Colors.grey[100]!,
-                                          child: Container(
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      maxHeight: maxImageHeight ?? double.infinity,
+                                    ),
+                                    child: CachedNetworkImage(
+                                      imageUrl: url,
+                                      httpHeaders: const {
+                                        'referer': CommonConstants.iwaraBaseUrl,
+                                      },
+                                      placeholder: (context, url) =>
+                                          Shimmer.fromColors(
+                                            baseColor: Colors.grey[300]!,
+                                            highlightColor: Colors.grey[100]!,
+                                            child: Container(
+                                              width: double.infinity,
+                                              height: normalImagePlaceholderHeight,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                            ),
+                                          ),
+                                      errorWidget: (context, url, error) =>
+                                          Container(
                                             width: double.infinity,
-                                            height: 200.0,
+                                            height: normalImagePlaceholderHeight,
                                             decoration: BoxDecoration(
-                                              color: Colors.white,
+                                              color: Colors.grey[200],
                                               borderRadius:
                                                   BorderRadius.circular(12),
                                             ),
-                                          ),
-                                        ),
-                                    errorWidget: (context, url, error) =>
-                                        Container(
-                                          width: double.infinity,
-                                          height: 200.0,
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey[200],
-                                            borderRadius: BorderRadius.circular(
-                                              12,
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(
+                                                  Icons.broken_image_outlined,
+                                                  size: 48,
+                                                  color: Colors.grey[400],
+                                                ),
+                                                const SizedBox(height: 8),
+                                                Text(
+                                                  t.errors.error,
+                                                  style: TextStyle(
+                                                    color: Colors.grey[600],
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Icon(
-                                                Icons.broken_image_outlined,
-                                                size: 48,
-                                                color: Colors.grey[400],
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                t.errors.error,
-                                                style: TextStyle(
-                                                  color: Colors.grey[600],
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                    fit: BoxFit.cover,
+                                      fit: maxImageHeight == null
+                                          ? BoxFit.cover
+                                          : BoxFit.contain,
+                                    ),
                                   ),
                                 ),
                         ),

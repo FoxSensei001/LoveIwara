@@ -2527,6 +2527,7 @@ class TranslationsForumEn {
 	/// en: 'Last Reply'
 	String get lastReply => 'Last Reply';
 
+	late final TranslationsForumSitewideEn sitewide = TranslationsForumSitewideEn._(_root);
 	late final TranslationsForumErrorsEn errors = TranslationsForumErrorsEn._(_root);
 
 	/// en: 'Create Post'
@@ -5522,6 +5523,24 @@ class TranslationsVideoDetailLikeAvatarsEn {
 	String get nextPage => 'Next Page';
 }
 
+// Path: forum.sitewide
+class TranslationsForumSitewideEn {
+	TranslationsForumSitewideEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Sitewide'
+	String get badge => 'Sitewide';
+
+	/// en: 'Sitewide Announcement'
+	String get title => 'Sitewide Announcement';
+
+	/// en: 'Read more'
+	String get readMore => 'Read more';
+}
+
 // Path: forum.errors
 class TranslationsForumErrorsEn {
 	TranslationsForumErrorsEn._(this._root);
@@ -7445,6 +7464,9 @@ extension on Translations {
 			'forum.recent' => 'Recent',
 			'forum.category' => 'Category',
 			'forum.lastReply' => 'Last Reply',
+			'forum.sitewide.badge' => 'Sitewide',
+			'forum.sitewide.title' => 'Sitewide Announcement',
+			'forum.sitewide.readMore' => 'Read more',
 			'forum.errors.pleaseSelectCategory' => 'Please select a category',
 			'forum.errors.threadLocked' => 'This thread is locked, cannot reply',
 			'forum.createPost' => 'Create Post',
@@ -7462,11 +7484,11 @@ extension on Translations {
 			'forum.groups.administration' => 'Administration',
 			'forum.groups.global' => 'Global',
 			'forum.groups.chinese' => 'Chinese',
+			_ => null,
+		} ?? switch (path) {
 			'forum.groups.japanese' => 'Japanese',
 			'forum.groups.korean' => 'Korean',
 			'forum.groups.other' => 'Other',
-			_ => null,
-		} ?? switch (path) {
 			'forum.leafNames.announcements' => 'Announcements',
 			'forum.leafNames.feedback' => 'Feedback',
 			'forum.leafNames.support' => 'Support',
@@ -7976,11 +7998,11 @@ extension on Translations {
 			'mediaPlayer.networkConnectionIssue' => 'Network Connection Issue',
 			'mediaPlayer.insufficientPermission' => 'Insufficient Permission',
 			'mediaPlayer.unsupportedVideoFormat' => 'Unsupported Video Format',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.retry' => 'Retry',
 			'mediaPlayer.externalPlayer' => 'External Player',
 			'mediaPlayer.detailedErrorInfo' => 'Detailed Error Information',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.format' => 'Format',
 			'mediaPlayer.suggestion' => 'Suggestion',
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'Android devices have limited support for WEBM format. It is recommended to use an external player or download a player app that supports WEBM',

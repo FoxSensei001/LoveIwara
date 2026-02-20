@@ -27,13 +27,20 @@ class AuthService extends GetxService {
   late final TokenManager _tokenManager;
 
   // 独立的 Dio 实例用于登录/注册等不需要认证的请求
-  final dio.Dio _dio = dio.Dio(dio.BaseOptions(
-    baseUrl: CommonConstants.iwaraApiBaseUrl,
-    connectTimeout: const Duration(seconds: 15),
-    receiveTimeout: const Duration(seconds: 15),
-    sendTimeout: const Duration(seconds: 15),
-    headers: {'Content-Type': 'application/json'},
-  ))..options.persistentConnection = false;
+  final dio.Dio _dio = dio.Dio(
+    dio.BaseOptions(
+      baseUrl: CommonConstants.iwaraApiBaseUrl,
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 15),
+      sendTimeout: const Duration(seconds: 15),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-site': CommonConstants.iwaraSiteHost,
+        'Referer': CommonConstants.iwaraBaseUrl,
+        'Origin': CommonConstants.iwaraBaseUrl,
+      },
+    ),
+  )..options.persistentConnection = false;
 
   // 统一的认证状态管理
   final RxBool _isAuthenticated = false.obs;
@@ -48,11 +55,14 @@ class AuthService extends GetxService {
   bool get hasToken => _tokenManager.hasToken;
   bool get isAuthTokenExpired => _tokenManager.isAuthTokenExpired;
   bool get isAccessTokenExpired => _tokenManager.isAccessTokenExpired;
-  bool get isAccessTokenActuallyExpired => _tokenManager.isAccessTokenActuallyExpired;
-  int get accessTokenRemainingSeconds => _tokenManager.accessTokenRemainingSeconds;
+  bool get isAccessTokenActuallyExpired =>
+      _tokenManager.isAccessTokenActuallyExpired;
+  int get accessTokenRemainingSeconds =>
+      _tokenManager.accessTokenRemainingSeconds;
 
   /// 检查 token 是否有效（用于 UI 判断）
-  bool get isTokenValid => hasToken && !isAuthTokenExpired && !isAccessTokenActuallyExpired;
+  bool get isTokenValid =>
+      hasToken && !isAuthTokenExpired && !isAccessTokenActuallyExpired;
 
   /// 获取 TokenManager（供 ApiService 使用）
   TokenManager get tokenManager => _tokenManager;
@@ -103,19 +113,22 @@ class AuthService extends GetxService {
   void _startRefreshWithoutWaiting() {
     // 调用 refreshAccessToken()，它会立即设置 isRefreshing = true
     // 然后在后台处理结果
-    _tokenManager.refreshAccessToken().then((result) {
-      if (result.success) {
-        LogUtils.d('$_tag 后台刷新 token 成功');
-      } else if (result.isAuthError) {
-        LogUtils.w('$_tag 后台刷新失败，需要重新登录: ${result.errorMessage}');
-        _handleTokenExpiredSilently();
-      } else {
-        LogUtils.w('$_tag 后台刷新遇到网络错误: ${result.errorMessage}');
-        // 网络错误不清理 token，等待下次重试
-      }
-    }).catchError((e) {
-      LogUtils.e('$_tag 后台刷新异常', error: e);
-    });
+    _tokenManager
+        .refreshAccessToken()
+        .then((result) {
+          if (result.success) {
+            LogUtils.d('$_tag 后台刷新 token 成功');
+          } else if (result.isAuthError) {
+            LogUtils.w('$_tag 后台刷新失败，需要重新登录: ${result.errorMessage}');
+            _handleTokenExpiredSilently();
+          } else {
+            LogUtils.w('$_tag 后台刷新遇到网络错误: ${result.errorMessage}');
+            // 网络错误不清理 token，等待下次重试
+          }
+        })
+        .catchError((e) {
+          LogUtils.e('$_tag 后台刷新异常', error: e);
+        });
   }
 
   /// 刷新 access token（供外部调用）
@@ -144,7 +157,8 @@ class AuthService extends GetxService {
   /// 更新认证状态
   void _updateAuthenticationState() {
     final wasAuthenticated = _isAuthenticated.value;
-    final isNowAuthenticated = _tokenManager.hasToken && !_tokenManager.isAuthTokenExpired;
+    final isNowAuthenticated =
+        _tokenManager.hasToken && !_tokenManager.isAuthTokenExpired;
 
     if (wasAuthenticated != isNowAuthenticated) {
       _isAuthenticated.value = isNowAuthenticated;
@@ -157,10 +171,10 @@ class AuthService extends GetxService {
     try {
       LogUtils.d('$_tag 开始登录...');
 
-      final response = await _dio.post('/user/login', data: {
-        'email': email,
-        'password': password,
-      });
+      final response = await _dio.post(
+        '/user/login',
+        data: {'email': email, 'password': password},
+      );
 
       if (response.statusCode == 200 && response.data['token'] != null) {
         LogUtils.d('$_tag 登录成功，保存 auth token');
@@ -227,10 +241,7 @@ class AuthService extends GetxService {
       LogUtils.e('$_tag 通知 UserService 登出失败', error: e);
     }
 
-    _messageService.showMessage(
-      t.errors.pleaseLoginAgain,
-      MDToastType.warning,
-    );
+    _messageService.showMessage(t.errors.pleaseLoginAgain, MDToastType.warning);
 
     LogUtils.d('$_tag 用户已登出（token 过期）');
   }
@@ -271,15 +282,13 @@ class AuthService extends GetxService {
 
   /// 注册新用户
   Future<ApiResult> register(
-      String email, String captchaId, String captchaAnswer) async {
+    String email,
+    String captchaId,
+    String captchaAnswer,
+  ) async {
     try {
-      final headers = {
-        'X-Captcha': '$captchaId:$captchaAnswer',
-      };
-      final data = {
-        'email': email,
-        'locale': Get.locale?.countryCode ?? 'en',
-      };
+      final headers = {'X-Captcha': '$captchaId:$captchaAnswer'};
+      final data = {'email': email, 'locale': Get.locale?.countryCode ?? 'en'};
       final response = await _dio.post(
         '/user/register',
         data: data,
@@ -287,15 +296,19 @@ class AuthService extends GetxService {
       );
 
       if (response.statusCode == 201 &&
-          response.data['message'] == ApiMessage.registerEmailInstructionsSent.value) {
+          response.data['message'] ==
+              ApiMessage.registerEmailInstructionsSent.value) {
         LogUtils.d('$_tag 注册成功，邮件指令已发送');
         return ApiResult.success();
       }
-      return ApiResult.fail(response.data['message'] ?? t.errors.registerFailed);
+      return ApiResult.fail(
+        response.data['message'] ?? t.errors.registerFailed,
+      );
     } on dio.DioException catch (e) {
       LogUtils.e('$_tag 注册失败: ${e.message}');
       if (e.response?.data != null) {
-        var errorMessage = e.response!.data['errors']?[0]['message'] ??
+        var errorMessage =
+            e.response!.data['errors']?[0]['message'] ??
             e.response!.data['message'] ??
             t.errors.unknownError;
         switch (errorMessage) {

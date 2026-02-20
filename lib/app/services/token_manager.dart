@@ -18,7 +18,7 @@ enum TokenValidationResult {
   expired, // 过期
   invalid, // 无效
   wrongType, // 类型错误
-  malformed // 格式错误
+  malformed, // 格式错误
 }
 
 /// Token 刷新结果
@@ -125,16 +125,21 @@ class TokenManager {
   }
 
   void _initTokenDio() {
-    _tokenDio = dio.Dio(dio.BaseOptions(
-      baseUrl: CommonConstants.iwaraApiBaseUrl,
-      connectTimeout: _tokenRequestTimeout,
-      receiveTimeout: _tokenRequestTimeout,
-      sendTimeout: _tokenRequestTimeout,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    ));
+    _tokenDio = dio.Dio(
+      dio.BaseOptions(
+        baseUrl: CommonConstants.iwaraApiBaseUrl,
+        connectTimeout: _tokenRequestTimeout,
+        receiveTimeout: _tokenRequestTimeout,
+        sendTimeout: _tokenRequestTimeout,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'x-site': CommonConstants.iwaraSiteHost,
+          'Referer': CommonConstants.iwaraBaseUrl,
+          'Origin': CommonConstants.iwaraBaseUrl,
+        },
+      ),
+    );
     _tokenDio.options.persistentConnection = false;
 
     // 配置 HTTP 客户端适配器
@@ -160,24 +165,30 @@ class TokenManager {
         _updateTokenExpireTime(_accessToken!, isAuthToken: false);
       }
 
-      LogUtils.d('$_tag 初始化完成 - '
-          'hasAuthToken: ${_authToken != null}, '
-          'hasAccessToken: ${_accessToken != null}, '
-          'authTokenExpired: $isAuthTokenExpired, '
-          'accessTokenExpired: $isAccessTokenExpired');
+      LogUtils.d(
+        '$_tag 初始化完成 - '
+        'hasAuthToken: ${_authToken != null}, '
+        'hasAccessToken: ${_accessToken != null}, '
+        'authTokenExpired: $isAuthTokenExpired, '
+        'accessTokenExpired: $isAccessTokenExpired',
+      );
     } catch (e) {
       LogUtils.e('$_tag 初始化失败', error: e);
     }
   }
 
   /// 验证 token
-  TokenValidationResult validateToken(String token, {required bool isAuthToken}) {
+  TokenValidationResult validateToken(
+    String token, {
+    required bool isAuthToken,
+  }) {
     try {
       final parts = token.split('.');
       if (parts.length != 3) return TokenValidationResult.malformed;
 
       final payload = jsonDecode(
-          utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))));
+        utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+      );
 
       final type = payload['type'] as String?;
       if (type == null) return TokenValidationResult.invalid;
@@ -211,7 +222,8 @@ class TokenManager {
       if (parts.length != 3) return;
 
       final payload = jsonDecode(
-          utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))));
+        utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+      );
 
       final exp = payload['exp'] as int?;
       if (exp == null) return;
@@ -223,8 +235,10 @@ class TokenManager {
         LogUtils.d('$_tag Auth token 过期时间: $_authTokenExpireTime');
       } else {
         _accessTokenExpireTime = expireTime;
-        LogUtils.d('$_tag Access token 过期时间: $_accessTokenExpireTime '
-            '(剩余 ${accessTokenRemainingSeconds}s)');
+        LogUtils.d(
+          '$_tag Access token 过期时间: $_accessTokenExpireTime '
+          '(剩余 ${accessTokenRemainingSeconds}s)',
+        );
       }
     } catch (e) {
       LogUtils.e('$_tag Token 过期时间解析失败', error: e);
@@ -288,9 +302,7 @@ class TokenManager {
     try {
       final response = await _tokenDio.post(
         '/user/token',
-        options: dio.Options(
-          headers: {'Authorization': 'Bearer $_authToken'},
-        ),
+        options: dio.Options(headers: {'Authorization': 'Bearer $_authToken'}),
       );
 
       if (response.statusCode == 200 && response.data['accessToken'] != null) {
@@ -330,7 +342,8 @@ class TokenManager {
       } else {
         // 其他服务器错误
         result = TokenRefreshResult.networkError(
-            'Server error: ${e.response?.statusCode ?? e.type}');
+          'Server error: ${e.response?.statusCode ?? e.type}',
+        );
       }
 
       _completeRefresh(result);

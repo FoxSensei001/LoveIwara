@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
+import 'package:i_iwara/app/models/iwara_page.model.dart';
+import 'package:i_iwara/app/services/api_service.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_post_dialog.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/thread_list_item_widget.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
@@ -22,6 +26,7 @@ import 'package:i_iwara/app/ui/pages/forum/forum_skeleton_page.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:ui';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ForumPage extends StatefulWidget implements HomeWidgetInterface {
   static final globalKey = GlobalKey<_ForumPageState>();
@@ -42,6 +47,7 @@ class ForumPage extends StatefulWidget implements HomeWidgetInterface {
 
 class _ForumPageState extends State<ForumPage> {
   final ForumService _forumService = Get.find<ForumService>();
+  final ApiService _apiService = Get.find<ApiService>();
   List<ForumCategoryTreeModel>? _categories;
   bool _isLoading = true;
   String? _error;
@@ -53,6 +59,11 @@ class _ForumPageState extends State<ForumPage> {
   // 置顶公告相关
   List<ForumThreadModel> _stickyAnnouncements = [];
   bool _isLoadingStickyAnnouncements = false;
+
+  // 全站公告相关（apiq /page/sitewide-announcement）
+  IwaraPageModel? _sitewideAnnouncement;
+  bool _isLoadingSitewideAnnouncement = false;
+  String? _sitewideAnnouncementError;
 
   void tryRefreshCurrentList() {
     if (mounted) {
@@ -66,6 +77,9 @@ class _ForumPageState extends State<ForumPage> {
     _loadCategories();
     _recentThreadRepository = RecentThreadListRepository();
     _loadStickyAnnouncements();
+    if (CommonConstants.enableForumSitewideAnnouncement) {
+      _loadSitewideAnnouncement();
+    }
   }
 
   @override
@@ -99,11 +113,14 @@ class _ForumPageState extends State<ForumPage> {
 
   Future<void> _refreshAll() async {
     // 刷新分类列表、最近帖子列表、置顶公告（并发执行）
-    await Future.wait([
+    final tasks = <Future<void>>[
       _loadCategories(isRefresh: true),
       _recentThreadRepository.refresh(true),
       _loadStickyAnnouncements(isRefresh: true),
-    ]);
+      if (CommonConstants.enableForumSitewideAnnouncement)
+        _loadSitewideAnnouncement(isRefresh: true),
+    ];
+    await Future.wait(tasks);
   }
 
   Future<void> _loadStickyAnnouncements({bool isRefresh = false}) async {
@@ -125,6 +142,33 @@ class _ForumPageState extends State<ForumPage> {
         }
       });
     }
+  }
+
+  Future<void> _loadSitewideAnnouncement({bool isRefresh = false}) async {
+    if (!mounted) return;
+
+    if (!isRefresh) {
+      setState(() {
+        _isLoadingSitewideAnnouncement = true;
+        _sitewideAnnouncementError = null;
+      });
+    }
+
+    final result = await _apiService.fetchSitewideAnnouncement();
+
+    if (!mounted) return;
+    setState(() {
+      _isLoadingSitewideAnnouncement = false;
+      if (result.isSuccess && result.data != null) {
+        _sitewideAnnouncement = result.data;
+        _sitewideAnnouncementError = null;
+      } else {
+        _sitewideAnnouncement = null;
+        _sitewideAnnouncementError = result.message.isNotEmpty
+            ? result.message
+            : slang.t.errors.failedToFetchData;
+      }
+    });
   }
 
   void _showPostDialog() {
@@ -451,10 +495,22 @@ class _ForumPageState extends State<ForumPage> {
 
   Widget _buildRecentThreads(BuildContext context, double effectivePaddingTop) {
     // 接收 effectivePaddingTop
+    final bool isWideScreen = MediaQuery.of(context).size.width >= 900;
+    final bool enableSitewide = CommonConstants.enableForumSitewideAnnouncement;
+    final bool hasSitewideSection =
+        enableSitewide &&
+        (_isLoadingSitewideAnnouncement ||
+            _sitewideAnnouncement != null ||
+            _sitewideAnnouncementError != null);
+
+    final bool hasStickySection =
+        _isLoadingStickyAnnouncements || _stickyAnnouncements.isNotEmpty;
+
+    final bool hasTopSections = hasSitewideSection || hasStickySection;
+
     return LoadingMoreCustomScrollView(
       slivers: <Widget>[
-        // 置顶公告区域
-        if (_stickyAnnouncements.isNotEmpty)
+        if (hasTopSections)
           SliverPadding(
             padding: EdgeInsets.only(
               top: effectivePaddingTop + 8,
@@ -463,7 +519,25 @@ class _ForumPageState extends State<ForumPage> {
               bottom: 12,
             ),
             sliver: SliverToBoxAdapter(
-              child: _buildStickyAnnouncementsSection(),
+              child: isWideScreen
+                  ? Align(
+                      alignment: Alignment.topLeft,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: hasSitewideSection && hasStickySection
+                              ? 1100
+                              : 720,
+                        ),
+                        child: _buildTopAnnouncementsRowOrSingle(
+                          hasSitewideSection: hasSitewideSection,
+                          hasStickySection: hasStickySection,
+                        ),
+                      ),
+                    )
+                  : _buildTopAnnouncementsColumn(
+                      hasSitewideSection: hasSitewideSection,
+                      hasStickySection: hasStickySection,
+                    ),
             ),
           ),
         LoadingMoreSliverList<ForumThreadModel>(
@@ -484,9 +558,7 @@ class _ForumPageState extends State<ForumPage> {
             ),
             sourceList: _recentThreadRepository,
             padding: EdgeInsets.only(
-              top: _stickyAnnouncements.isEmpty
-                  ? effectivePaddingTop
-                  : 0, // 如果有置顶公告，则不需要顶部边距
+              top: hasTopSections ? 0 : effectivePaddingTop, // 顶部由置顶区域占位
               bottom: MediaQuery.of(context).padding.bottom, // 添加底部安全区域边距
               left: 8, // 统一左右边距
               right: 8,
@@ -509,6 +581,541 @@ class _ForumPageState extends State<ForumPage> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildTopAnnouncementsRowOrSingle({
+    required bool hasSitewideSection,
+    required bool hasStickySection,
+  }) {
+    final bool hasSticky = hasStickySection;
+
+    if (hasSitewideSection && hasSticky) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: _buildSitewideAnnouncementCard()),
+          const SizedBox(width: 12),
+          Expanded(child: _buildStickyAnnouncementsCard()),
+        ],
+      );
+    }
+
+    if (hasSitewideSection) {
+      return _buildSitewideAnnouncementCard();
+    }
+    return _buildStickyAnnouncementsCard();
+  }
+
+  Widget _buildTopAnnouncementsColumn({
+    required bool hasSitewideSection,
+    required bool hasStickySection,
+  }) {
+    final children = <Widget>[];
+    if (hasSitewideSection) {
+      children.add(_buildSitewideAnnouncementCard());
+    }
+    if (hasStickySection) {
+      if (children.isNotEmpty) {
+        children.add(const SizedBox(height: 8));
+      }
+      children.add(_buildStickyAnnouncementsCard());
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: children,
+    );
+  }
+
+  Widget _buildStickyAnnouncementsCard() {
+    if (_isLoadingStickyAnnouncements && _stickyAnnouncements.isEmpty) {
+      return _buildStickyAnnouncementsSkeleton();
+    }
+    if (_stickyAnnouncements.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return _buildStickyAnnouncementsSection();
+  }
+
+  Widget _buildSitewideAnnouncementCard() {
+    final t = slang.Translations.of(context);
+    final bool isWideScreen = MediaQuery.of(context).size.width >= 900;
+
+    if (_isLoadingSitewideAnnouncement) {
+      return _buildSitewideAnnouncementSkeleton();
+    }
+
+    if (_sitewideAnnouncementError != null) {
+      return _buildSitewideAnnouncementErrorCard(
+        title: t.forum.sitewide.title,
+        message: _sitewideAnnouncementError!,
+      );
+    }
+
+    final page = _sitewideAnnouncement;
+    if (page == null) {
+      return const SizedBox.shrink();
+    }
+
+    final languageCode = slang.LocaleSettings.currentLocale.languageCode;
+    final title = t.forum.sitewide.title;
+    final body = page.localizedBody(languageCode);
+
+    return Card(
+      elevation: 2,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.campaign,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 22,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                  if (!isWideScreen)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Chip(
+                        visualDensity: VisualDensity.compact,
+                        label: Text(t.forum.sitewide.badge),
+                      ),
+                    ),
+                  if (page.sensitive)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Chip(
+                        visualDensity: VisualDensity.compact,
+                        label: Text(t.common.sensitive),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 6),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.update,
+                    size: 14,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    CommonUtils.formatFriendlyTimestamp(page.updatedAt),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    tooltip: t.common.refresh,
+                    onPressed: _loadSitewideAnnouncement,
+                    icon: const Icon(Icons.refresh, size: 18),
+                    style: IconButton.styleFrom(
+                      visualDensity: VisualDensity.compact,
+                      padding: const EdgeInsets.all(6),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 16),
+            if (isWideScreen)
+              _buildSitewideAnnouncementPreview(body: body)
+            else
+              CustomMarkdownBody(
+                data: body,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                maxImageHeight: 220,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSitewideAnnouncementPreview({required String body}) {
+    final t = slang.Translations.of(context);
+    final imageUrl = _extractFirstMarkdownImageUrl(body);
+    final previewText = _buildPlainPreviewText(body);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (imageUrl != null) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: CachedNetworkImage(
+                imageUrl: imageUrl,
+                httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
+                width: 160,
+                height: 90,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest,
+                  highlightColor: Theme.of(context).colorScheme.surface,
+                  child: Container(width: 160, height: 90, color: Colors.white),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  width: 160,
+                  height: 90,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  child: Icon(
+                    Icons.broken_image_outlined,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+          ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Chip(
+                      visualDensity: VisualDensity.compact,
+                      label: Text(t.forum.sitewide.badge),
+                    ),
+                    const Spacer(),
+                    TextButton.icon(
+                      onPressed: () =>
+                          _showSitewideAnnouncementDialog(body: body),
+                      icon: const Icon(Icons.open_in_full, size: 16),
+                      label: Text(t.forum.sitewide.readMore),
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  previewText,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    height: 1.35,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSitewideAnnouncementDialog({required String body}) {
+    final t = slang.Translations.of(context);
+    final title = t.forum.sitewide.title;
+    Get.dialog(
+      Dialog(
+        insetPadding: const EdgeInsets.all(20),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 760, maxHeight: 720),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 8, 8),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.campaign,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Get.back(),
+                      icon: const Icon(Icons.close),
+                      tooltip: slang.t.common.close,
+                      style: IconButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: CustomMarkdownBody(
+                    data: body,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    maxImageHeight: 420,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _buildPlainPreviewText(String markdown) {
+    var text = markdown;
+    text = text.replaceAll(RegExp(r'!\[[^\]]*\]\([^)]+\)'), ' ');
+    text = text.replaceAll(RegExp(r'\[([^\]]+)\]\([^)]+\)'), r'$1');
+    text = text.replaceAll('\n', ' ');
+    text = text.replaceAll(RegExp(r'\s+'), ' ').trim();
+    return text;
+  }
+
+  String? _extractFirstMarkdownImageUrl(String markdown) {
+    final match = RegExp(r'!\[[^\]]*\]\(([^)]+)\)').firstMatch(markdown);
+    if (match == null) return null;
+    final url = match.group(1)?.trim();
+    if (url == null || url.isEmpty) return null;
+    return url;
+  }
+
+  Widget _buildSitewideAnnouncementErrorCard({
+    required String title,
+    required String message,
+  }) {
+    final t = slang.Translations.of(context);
+
+    return Card(
+      elevation: 2,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Icon(Icons.campaign, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    message,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            FilledButton.icon(
+              onPressed: _loadSitewideAnnouncement,
+              icon: const Icon(Icons.refresh),
+              label: Text(t.common.retry),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSitewideAnnouncementSkeleton() {
+    final t = slang.Translations.of(context);
+    final baseColor = Theme.of(context).colorScheme.surfaceContainerHighest;
+    final highlightColor = Theme.of(context).colorScheme.surface;
+
+    return Card(
+      elevation: 2,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Shimmer.fromColors(
+          baseColor: baseColor,
+          highlightColor: highlightColor,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 18,
+                width: 160,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                t.forum.sitewide.title,
+                style: const TextStyle(color: Colors.transparent),
+              ),
+              const SizedBox(height: 4),
+              Container(
+                height: 12,
+                width: 120,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Container(
+                height: 12,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                height: 12,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                height: 12,
+                width: 240,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStickyAnnouncementsSkeleton() {
+    final t = slang.Translations.of(context);
+    final baseColor = Theme.of(context).colorScheme.surfaceContainerHighest;
+    final highlightColor = Theme.of(context).colorScheme.surface;
+
+    return Card(
+      elevation: 4,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Shimmer.fromColors(
+          baseColor: baseColor,
+          highlightColor: highlightColor,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 22,
+                    height: 22,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    height: 18,
+                    width: 140,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    t.forum.leafNames.announcements,
+                    style: const TextStyle(color: Colors.transparent),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Container(
+                height: 12,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                height: 12,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                height: 12,
+                width: 220,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

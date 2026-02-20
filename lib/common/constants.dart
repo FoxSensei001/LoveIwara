@@ -32,8 +32,11 @@ class CommonConstants {
   // 网站domain
   static const String iwaraDomain = 'iwara.tv';
 
+  // 站点 host（用于 `x-site` Header）
+  static const String iwaraSiteHost = 'www.iwara.tv';
+
   // api基础URL
-  static const String iwaraApiBaseUrl = 'https://api.iwara.tv';
+  static const String iwaraApiBaseUrl = 'https://apiq.iwara.tv';
 
   // 图片资源基础URL
   static const String iwaraImageBaseUrl = 'https://i.iwara.tv';
@@ -115,6 +118,10 @@ class CommonConstants {
 
   // 是否记录历史记录
   static bool enableHistory = true;
+
+  // 是否在论坛页展示“全站公告”区域（apiq `/page/sitewide-announcement`）
+  // TODO 临时开关
+  static const bool enableForumSitewideAnnouncement = true;
 
   // 视频播放器边缘手势阈值(像素)
   // 用于检测从屏幕边缘开始的滑动手势,避免与系统手势冲突

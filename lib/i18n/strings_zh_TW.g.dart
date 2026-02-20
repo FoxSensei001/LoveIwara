@@ -1046,6 +1046,7 @@ class _TranslationsForumZhTw implements TranslationsForumEn {
 	@override String get recent => '最近';
 	@override String get category => '分類';
 	@override String get lastReply => '最終回覆';
+	@override late final _TranslationsForumSitewideZhTw sitewide = _TranslationsForumSitewideZhTw._(_root);
 	@override late final _TranslationsForumErrorsZhTw errors = _TranslationsForumErrorsZhTw._(_root);
 	@override String get createPost => '建立帖子';
 	@override String get title => '標題';
@@ -2312,6 +2313,18 @@ class _TranslationsVideoDetailLikeAvatarsZhTw implements TranslationsVideoDetail
 	@override String pageInfo({required Object page, required Object totalPages, required Object totalCount}) => '第 ${page} / ${totalPages} 頁 · 共 ${totalCount} 人';
 	@override String get prevPage => '上一頁';
 	@override String get nextPage => '下一頁';
+}
+
+// Path: forum.sitewide
+class _TranslationsForumSitewideZhTw implements TranslationsForumSitewideEn {
+	_TranslationsForumSitewideZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get badge => '全站';
+	@override String get title => '全站公告';
+	@override String get readMore => '查看全文';
 }
 
 // Path: forum.errors
@@ -3711,6 +3724,9 @@ extension on TranslationsZhTw {
 			'forum.recent' => '最近',
 			'forum.category' => '分類',
 			'forum.lastReply' => '最終回覆',
+			'forum.sitewide.badge' => '全站',
+			'forum.sitewide.title' => '全站公告',
+			'forum.sitewide.readMore' => '查看全文',
 			'forum.errors.pleaseSelectCategory' => '請選擇分類',
 			'forum.errors.threadLocked' => '該主題已鎖定，無法回覆',
 			'forum.createPost' => '建立帖子',
@@ -4212,11 +4228,11 @@ extension on TranslationsZhTw {
 			'mediaPlayer.unsupportedImageFormat' => '不支援的圖片格式',
 			'mediaPlayer.tryOtherViewer' => '請嘗試使用其他檢視器',
 			'mediaPlayer.retryingOpenVideoLink' => '影片連結開啟失敗，重試中',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => '無法載入解碼器: ${event}，可在播放器設定切換為軟解，並重新進入頁面嘗試',
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '影片載入錯誤: ${event}',
 			'linkInputDialog.title' => '輸入連結',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.supportedLinksHint' => ({required Object webName}) => '支援智慧識別多個${webName}連結，並快速跳轉到應用內對應頁面(連結與其他文字之間用空格隔開)',
 			'linkInputDialog.inputHint' => ({required Object webName}) => '請輸入${webName}連結',
 			'linkInputDialog.validatorEmptyLink' => '請輸入連結',

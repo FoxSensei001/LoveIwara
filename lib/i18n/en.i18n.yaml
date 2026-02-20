@@ -1079,6 +1079,10 @@ forum:
   recent: Recent
   category: Category
   lastReply: Last Reply
+  sitewide:
+    badge: Sitewide
+    title: Sitewide Announcement
+    readMore: Read more
   errors:
     pleaseSelectCategory: Please select a category
     threadLocked: This thread is locked, cannot reply

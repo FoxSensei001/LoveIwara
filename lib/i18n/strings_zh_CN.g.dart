@@ -1023,6 +1023,7 @@ class _TranslationsForumZhCn implements TranslationsForumEn {
 	@override String get recent => '最近';
 	@override String get category => '分类';
 	@override String get lastReply => '最后回复';
+	@override late final _TranslationsForumSitewideZhCn sitewide = _TranslationsForumSitewideZhCn._(_root);
 	@override late final _TranslationsForumErrorsZhCn errors = _TranslationsForumErrorsZhCn._(_root);
 	@override String get createPost => '创建帖子';
 	@override String get title => '标题';
@@ -2226,6 +2227,18 @@ class _TranslationsVideoDetailLikeAvatarsZhCn implements TranslationsVideoDetail
 	@override String pageInfo({required Object page, required Object totalPages, required Object totalCount}) => '第 ${page} / ${totalPages} 页 · 共 ${totalCount} 人';
 	@override String get prevPage => '上一页';
 	@override String get nextPage => '下一页';
+}
+
+// Path: forum.sitewide
+class _TranslationsForumSitewideZhCn implements TranslationsForumSitewideEn {
+	_TranslationsForumSitewideZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get badge => '全站';
+	@override String get title => '全站公告';
+	@override String get readMore => '查看全文';
 }
 
 // Path: forum.errors
@@ -3688,6 +3701,9 @@ extension on TranslationsZhCn {
 			'forum.recent' => '最近',
 			'forum.category' => '分类',
 			'forum.lastReply' => '最后回复',
+			'forum.sitewide.badge' => '全站',
+			'forum.sitewide.title' => '全站公告',
+			'forum.sitewide.readMore' => '查看全文',
 			'forum.errors.pleaseSelectCategory' => '请选择分类',
 			'forum.errors.threadLocked' => '该主题已锁定，无法回复',
 			'forum.createPost' => '创建帖子',
@@ -3700,11 +3716,11 @@ extension on TranslationsZhCn {
 			'forum.threads' => '主题',
 			'forum.forum' => '论坛',
 			'forum.createThread' => '创建主题',
+			_ => null,
+		} ?? switch (path) {
 			'forum.selectCategory' => '选择分类',
 			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => '冷却剩余时间 ${minutes} 分 ${seconds} 秒',
 			'forum.groups.administration' => '管理',
-			_ => null,
-		} ?? switch (path) {
 			'forum.groups.global' => '全球',
 			'forum.groups.chinese' => '中文',
 			'forum.groups.japanese' => '日语',
@@ -4214,11 +4230,11 @@ extension on TranslationsZhCn {
 			'log.logDatabaseSizeLimit' => '日志数据库大小上限',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => '当前: ${size}',
 			'log.exportCurrentLogs' => '导出当前日志',
+			_ => null,
+		} ?? switch (path) {
 			'log.exportCurrentLogsDesc' => '导出当天应用日志以帮助开发者诊断问题',
 			'log.exportHistoryLogs' => '导出历史日志',
 			'log.exportHistoryLogsDesc' => '导出指定日期范围的日志',
-			_ => null,
-		} ?? switch (path) {
 			'log.exportMergedLogs' => '导出合并日志',
 			'log.exportMergedLogsDesc' => '导出指定日期范围的合并日志',
 			'log.showLogStats' => '显示日志统计信息',

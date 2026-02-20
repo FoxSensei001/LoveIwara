@@ -1082,6 +1082,10 @@ forum:
   recent: 最近
   category: カテゴリ
   lastReply: 最終返信
+  sitewide:
+    badge: 全体
+    title: 全体お知らせ
+    readMore: 全文表示
   errors:
     pleaseSelectCategory: カテゴリを選択してください
     threadLocked: このスレッドはロックされています。

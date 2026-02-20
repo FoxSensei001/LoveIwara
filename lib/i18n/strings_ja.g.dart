@@ -1018,6 +1018,7 @@ class _TranslationsForumJa implements TranslationsForumEn {
 	@override String get recent => '最近';
 	@override String get category => 'カテゴリ';
 	@override String get lastReply => '最終返信';
+	@override late final _TranslationsForumSitewideJa sitewide = _TranslationsForumSitewideJa._(_root);
 	@override late final _TranslationsForumErrorsJa errors = _TranslationsForumErrorsJa._(_root);
 	@override String get title => 'タイトル';
 	@override String get createPost => '投稿を作成';
@@ -2221,6 +2222,18 @@ class _TranslationsVideoDetailLikeAvatarsJa implements TranslationsVideoDetailLi
 	@override String pageInfo({required Object page, required Object totalPages, required Object totalCount}) => '${page} / ${totalPages} ページ · 合計 ${totalCount} 人';
 	@override String get prevPage => '前のページ';
 	@override String get nextPage => '次のページ';
+}
+
+// Path: forum.sitewide
+class _TranslationsForumSitewideJa implements TranslationsForumSitewideEn {
+	_TranslationsForumSitewideJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get badge => '全体';
+	@override String get title => '全体お知らせ';
+	@override String get readMore => '全文表示';
 }
 
 // Path: forum.errors
@@ -3678,6 +3691,9 @@ extension on TranslationsJa {
 			'forum.recent' => '最近',
 			'forum.category' => 'カテゴリ',
 			'forum.lastReply' => '最終返信',
+			'forum.sitewide.badge' => '全体',
+			'forum.sitewide.title' => '全体お知らせ',
+			'forum.sitewide.readMore' => '全文表示',
 			'forum.errors.pleaseSelectCategory' => 'カテゴリを選択してください',
 			'forum.errors.threadLocked' => 'このスレッドはロックされています。',
 			'forum.title' => 'タイトル',
@@ -3695,11 +3711,11 @@ extension on TranslationsJa {
 			'forum.groups.administration' => '管理',
 			'forum.groups.global' => 'グローバル',
 			'forum.groups.chinese' => '中国語',
+			_ => null,
+		} ?? switch (path) {
 			'forum.groups.japanese' => '日本語',
 			'forum.groups.korean' => '韓国語',
 			'forum.groups.other' => 'その他',
-			_ => null,
-		} ?? switch (path) {
 			'forum.leafNames.announcements' => 'お知らせ',
 			'forum.leafNames.feedback' => 'フィードバック',
 			'forum.leafNames.support' => 'サポート',
@@ -4209,11 +4225,11 @@ extension on TranslationsJa {
 			'log.exportHistoryLogsDesc' => '指定された日付範囲内のログをエクスポート',
 			'log.exportMergedLogs' => 'マージログをエクスポート',
 			'log.exportMergedLogsDesc' => '指定された日付範囲内のマージログをエクスポート',
+			_ => null,
+		} ?? switch (path) {
 			'log.showLogStats' => 'ログ統計情報を表示',
 			'log.logExportSuccess' => 'ログエクスポート成功',
 			'log.logExportFailed' => ({required Object error}) => 'ログエクスポート失敗: ${error}',
-			_ => null,
-		} ?? switch (path) {
 			'log.showLogStatsDesc' => '様々なタイプのログの統計情報を表示',
 			'log.logExtractFailed' => ({required Object error}) => 'ログ統計情報の取得に失敗しました: ${error}',
 			'log.clearAllLogs' => 'すべてのログをクリア',
