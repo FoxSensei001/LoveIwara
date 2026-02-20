@@ -14,7 +14,6 @@ import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/batch_download_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
-import 'package:i_iwara/app/services/iwara_server_service.dart';
 import 'package:i_iwara/app/services/light_service.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
 import 'package:i_iwara/app/services/playback_history_service.dart';
@@ -147,8 +146,6 @@ Future<void> _initializeBaseServices() async {
   final dbService = DatabaseService();
   await dbService.init();
   Get.put(dbService);
-
-  Get.put(IwaraServerService());
 
   // 清理旧的日志数据库文件
   await dbService.cleanupLogDatabase();

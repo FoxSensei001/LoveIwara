@@ -41,8 +41,6 @@ import '../../../../services/favorite_service.dart';
 import '../../../../services/play_list_service.dart';
 import '../../../../services/user_service.dart';
 import '../../../../services/download_service.dart';
-import '../../../../services/iwara_server_service.dart';
-import '../../../../models/iwara_status.model.dart';
 import '../../../../models/download/download_task.model.dart';
 import '../../../../models/download/download_task_ext_data.model.dart';
 import '../widgets/player/custom_slider_bar_shape_widget.dart';
@@ -75,16 +73,9 @@ class MyVideoStateController extends GetxController
   final PlaybackHistoryService _playbackHistoryService = Get.find();
   final ApiService _apiService = Get.find();
   final ConfigService _configService = Get.find();
-  final IwaraServerService _serverService = Get.find();
 
   // 缓存相关
   static final VideoCacheManager _cacheManager = VideoCacheManager();
-
-  // CDN 自动选择相关
-  Timer? _cdnTestTimer;
-  String? _lastTestedResolutionTag;
-  bool _isCdnTesting = false;
-  String? _bestTestedCdnServer; // 测速获胜的 CDN 服务器名称
 
   // DLNA 投屏服务
   DlnaCastService get _dlnaCastService => DlnaCastService.instance;
@@ -1030,7 +1021,6 @@ class MyVideoStateController extends GetxController
     _bufferUpdateThrottleTimer?.cancel();
     _previewSeekThrottleTimer?.cancel();
     _videoSourceExpirationTimer?.cancel();
-    _cdnTestTimer?.cancel();
     LogUtils.d('所有定时器已取消', 'MyVideoStateController');
 
     // 取消网络请求
@@ -1650,11 +1640,6 @@ class MyVideoStateController extends GetxController
 
       // 重新设置监听器（包括 buffering 监听器）
       _setupListenersAfterOpen();
-
-      // 如果是网络视频，启动后台 CDN 测试（不阻塞播放）
-      if (!isLocalVideoMode && !finalUrl.startsWith('file://')) {
-        _autoTestAndSwitchToBestCdn(finalUrl, resolutionTag);
-      }
     } catch (e) {
       if (_isDisposed) return;
       LogUtils.e('无缝切换分辨率失败: $e', tag: 'MyVideoStateController', error: e);
@@ -1759,11 +1744,6 @@ class MyVideoStateController extends GetxController
       _setupListenersAfterOpen();
 
       await setShader();
-
-      // 如果是网络视频，启动后台 CDN 测试（不阻塞播放）
-      if (!isLocalVideoMode && !finalUrl.startsWith('file://')) {
-        _autoTestAndSwitchToBestCdn(finalUrl, resolutionTag);
-      }
     } catch (e) {
       if (_isDisposed) return;
       LogUtils.e('设置监听器时出错: $e', tag: 'MyVideoStateController', error: e);
@@ -2032,22 +2012,6 @@ class MyVideoStateController extends GetxController
       List<VideoSource> sources = data
           .map((item) => VideoSource.fromJson(item))
           .toList();
-
-      // 如果有已测速的 CDN 服务器，替换非 Preview 源的域名
-      if (_bestTestedCdnServer != null) {
-        LogUtils.i(
-          '使用已测速的CDN服务器替换源域名: $_bestTestedCdnServer',
-          'MyVideoStateController',
-        );
-        sources = sources.map((source) {
-          // Preview 不替换（使用独立 CDN）
-          if (source.name?.toLowerCase() == 'preview') {
-            return source;
-          }
-          // 其他清晰度使用已测速的 CDN 服务器
-          return source.copyWithServer(_bestTestedCdnServer!);
-        }).toList();
-      }
 
       // 更新缓存
       final cacheKey = videoInfo.value!.fileUrl!;
@@ -3199,371 +3163,6 @@ class MyVideoStateController extends GetxController
     }
   }
 
-  /// 切换当前清晰度的服务器
-  /// [newUrl] 新的视频源 URL
-  /// [serverName] 服务器名称（用于日志）
-  Future<void> switchServerForCurrentResolution(
-    String newUrl,
-    String serverName,
-  ) async {
-    if (_isDisposed) return;
-
-    final currentTag = currentResolutionTag.value;
-    if (currentTag == null) {
-      LogUtils.w('无法切换服务器：当前清晰度标签为空', 'MyVideoStateController');
-      return;
-    }
-
-    // 更新当前清晰度的 URL
-    final updatedResolutions = videoResolutions.map((resolution) {
-      if (resolution.label == currentTag) {
-        return VideoResolution(label: resolution.label, url: newUrl);
-      }
-      return resolution;
-    }).toList();
-
-    videoResolutions.value = updatedResolutions;
-
-    LogUtils.i(
-      '切换服务器: $serverName, 清晰度: $currentTag, 新URL: $newUrl',
-      'MyVideoStateController',
-    );
-
-    // 无缝切换到新的 URL
-    await _switchResolutionSeamlessly(currentTag, newUrl);
-
-    if (Get.context != null) {
-      ScaffoldMessenger.of(Get.context!).showSnackBar(
-        SnackBar(
-          content: Text(
-            slang.t.mediaPlayer.switchedToServer(serverName: serverName),
-          ),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
-  }
-
-  /// 自动测试并切换到最佳 CDN 源
-  /// [originalUrl] 原始播放源 URL
-  /// [resolutionTag] 当前清晰度标签
-  Future<void> _autoTestAndSwitchToBestCdn(
-    String originalUrl,
-    String resolutionTag,
-  ) async {
-    // 只在网络视频模式下进行CDN测试
-    if (isLocalVideoMode || _isDisposed) return;
-
-    // 避免重复测试同一清晰度
-    if (_lastTestedResolutionTag == resolutionTag && _isCdnTesting) {
-      LogUtils.d('跳过重复测试: $resolutionTag', 'MyVideoStateController');
-      return;
-    }
-
-    _lastTestedResolutionTag = resolutionTag;
-    _isCdnTesting = true;
-
-    try {
-      // 获取CDN服务器列表
-      final servers = _serverService.servers;
-      if (servers.isEmpty) {
-        LogUtils.d('CDN服务器列表为空，跳过自动切换', 'MyVideoStateController');
-        return;
-      }
-
-      LogUtils.i(
-        '开始自动CDN测试，清晰度: $resolutionTag, 服务器数量: ${servers.length}',
-        'MyVideoStateController',
-      );
-
-      if (_isDisposed) return;
-
-      // 并发测试原始URL和所有CDN URL
-      final betterUrl = await _testAndSelectBestCdnUrl(originalUrl, servers);
-
-      if (_isDisposed) return;
-
-      // 如果找到更好的CDN源，自动切换
-      if (betterUrl != null && betterUrl != originalUrl) {
-        final uri = Uri.parse(betterUrl);
-        final serverName = uri.host;
-
-        // 存储最佳 CDN 服务器名称
-        _bestTestedCdnServer = serverName;
-
-        LogUtils.i(
-          '发现更优CDN源: $serverName (清晰度: $resolutionTag)，已保存最佳CDN服务器',
-          'MyVideoStateController',
-        );
-
-        // 更新所有非 Preview 清晰度的 URL（Preview 使用独立 CDN，不替换）
-        final updatedResolutions = videoResolutions.map((resolution) {
-          // Preview 不替换
-          if (resolution.label.toLowerCase() == 'preview') {
-            return resolution;
-          }
-          // 其他清晰度都使用最佳 CDN 服务器
-          final newUrl = _replaceServerInUrl(resolution.url, serverName);
-          return VideoResolution(label: resolution.label, url: newUrl);
-        }).toList();
-        videoResolutions.value = updatedResolutions;
-
-        // 无缝切换到新的 URL
-        await _switchResolutionSeamlessly(resolutionTag, betterUrl);
-
-        LogUtils.i(
-          '已自动切换到CDN源: $serverName，并更新所有清晰度URL',
-          'MyVideoStateController',
-        );
-      } else if (betterUrl != null) {
-        // 原始源获胜，保存原始服务器名称
-        final uri = Uri.parse(originalUrl);
-        _bestTestedCdnServer = uri.host;
-        LogUtils.d('当前源已是最优，已保存CDN服务器: ${uri.host}', 'MyVideoStateController');
-      } else {
-        LogUtils.d('CDN测速无结果', 'MyVideoStateController');
-      }
-    } catch (e) {
-      LogUtils.e('CDN自动测试失败: $e', tag: 'MyVideoStateController', error: e);
-    } finally {
-      _isCdnTesting = false;
-    }
-  }
-
-  /// 测试并选择最佳 CDN URL（真·竞速模式 - 先到先得）
-  /// 返回最佳URL，如果原始URL已是最优则返回null
-  Future<String?> _testAndSelectBestCdnUrl(
-    String originalUrl,
-    List<IwaraServer> servers,
-  ) async {
-    // 创建所有测试任务的取消令牌
-    final List<CancelToken> cancelTokens = [];
-    final completer = Completer<String?>();
-
-    try {
-      // 准备所有测试URL
-      final testUrls = <({String url, String serverName})>[
-        (url: originalUrl, serverName: 'original'),
-      ];
-
-      for (final server in servers) {
-        final cdnUrl = _replaceServerInUrl(originalUrl, server.name);
-        if (cdnUrl != originalUrl) {
-          testUrls.add((url: cdnUrl, serverName: server.name));
-        }
-      }
-
-      LogUtils.i(
-        'CDN竞速开始，共${testUrls.length}个源（含原始源）',
-        'MyVideoStateController',
-      );
-
-      // 启动所有并发测试
-      for (final testUrl in testUrls) {
-        // 为每个测试创建独立的取消令牌
-        final cancelToken = CancelToken();
-        cancelTokens.add(cancelToken);
-
-        // 异步执行测试，谁先成功谁赢
-        _testSingleUrl(
-              testUrl.url,
-              testUrl.serverName,
-              cancelToken: cancelToken,
-            )
-            .then((result) {
-              if (_isDisposed || completer.isCompleted) return;
-
-              // 只要有任何一个成功，立即返回并取消其他所有测试
-              if (result.isSuccess) {
-                LogUtils.i(
-                  '🏆 竞速获胜: ${result.serverName} (${result.latency}ms)',
-                  'MyVideoStateController',
-                );
-
-                // 取消所有其他测试
-                _cancelAllTests(cancelTokens);
-
-                // 如果获胜的是原始源，返回 null（表示不需要切换）
-                // 如果获胜的是CDN源，返回该CDN的URL
-                if (!completer.isCompleted) {
-                  if (result.serverName == 'original') {
-                    completer.complete(null); // 原始源成功，不切换
-                  } else {
-                    completer.complete(result.url); // CDN源成功，切换到CDN
-                  }
-                }
-              }
-            })
-            .catchError((e) {
-              // 单个测试失败不影响整体，继续等待其他测试
-              LogUtils.d(
-                '测试失败: ${testUrl.serverName}, 继续等待其他源',
-                'MyVideoStateController',
-              );
-            });
-      }
-
-      // 设置总超时（20秒）
-      return await completer.future.timeout(
-        const Duration(seconds: 20),
-        onTimeout: () {
-          LogUtils.w('CDN竞速超时，所有源均失败', 'MyVideoStateController');
-          _cancelAllTests(cancelTokens);
-          return null; // 超时表示所有源都失败，不切换
-        },
-      );
-    } catch (e) {
-      LogUtils.e('CDN竞速异常: $e', tag: 'MyVideoStateController', error: e);
-      _cancelAllTests(cancelTokens);
-      return null;
-    }
-  }
-
-  /// 取消所有测试
-  void _cancelAllTests(List<CancelToken> cancelTokens) {
-    for (final token in cancelTokens) {
-      if (!token.isCancelled) {
-        token.cancel('Race completed');
-      }
-    }
-  }
-
-  /// 测试单个 URL 的可访问性和延迟
-  Future<_CdnTestResult> _testSingleUrl(
-    String url,
-    String serverName, {
-    CancelToken? cancelToken,
-  }) async {
-    final dio = Dio(
-      BaseOptions(
-        connectTimeout: const Duration(seconds: 15),
-        receiveTimeout: const Duration(seconds: 15),
-        sendTimeout: const Duration(seconds: 15),
-      ),
-    );
-    final stopwatch = Stopwatch()..start();
-    final localCancelToken = cancelToken ?? CancelToken();
-
-    // 15秒强制超时
-    final timeoutTimer = Timer(const Duration(seconds: 15), () {
-      if (!localCancelToken.isCancelled) {
-        localCancelToken.cancel('Timeout');
-      }
-    });
-
-    try {
-      LogUtils.d('开始测试CDN源: $serverName', 'MyVideoStateController');
-
-      final response = await dio.get(
-        url,
-        cancelToken: localCancelToken,
-        options: Options(
-          headers: {
-            'Range': 'bytes=0-1023', // 只请求前1KB
-            'User-Agent':
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          },
-          followRedirects: true,
-          validateStatus: (status) => status != null && status < 500,
-        ),
-        onReceiveProgress: (received, total) {
-          // 收到足够数据后取消请求
-          if (received >= 1024 && !localCancelToken.isCancelled) {
-            localCancelToken.cancel('Test completed');
-          }
-        },
-      );
-
-      stopwatch.stop();
-      final latency = stopwatch.elapsedMilliseconds;
-
-      final isSuccess =
-          response.statusCode == 200 ||
-          response.statusCode == 206 ||
-          response.statusCode == 302 ||
-          response.statusCode == 301;
-
-      LogUtils.d(
-        'CDN源测试完成: $serverName, 延迟: ${latency}ms, 状态: ${response.statusCode}',
-        'MyVideoStateController',
-      );
-
-      return _CdnTestResult(
-        url: url,
-        serverName: serverName,
-        isSuccess: isSuccess,
-        latency: latency,
-      );
-    } on DioException catch (e) {
-      stopwatch.stop();
-      final latency = stopwatch.elapsedMilliseconds;
-
-      // 如果是因为测试完成或竞速完成而取消的请求，也算作成功
-      if (e.type == DioExceptionType.cancel &&
-          (e.error == 'Test completed' || e.error == 'Race completed')) {
-        // Race completed 的情况说明其他源已经赢了，这个可以直接返回失败
-        if (e.error == 'Race completed') {
-          LogUtils.d('CDN源测试被取消（竞速结束）: $serverName', 'MyVideoStateController');
-          return _CdnTestResult(
-            url: url,
-            serverName: serverName,
-            isSuccess: false,
-            latency: 99999,
-          );
-        }
-
-        // Test completed 说明这个源成功了
-        LogUtils.d(
-          'CDN源测试完成（提前取消）: $serverName, 延迟: ${latency}ms',
-          'MyVideoStateController',
-        );
-        return _CdnTestResult(
-          url: url,
-          serverName: serverName,
-          isSuccess: true,
-          latency: latency,
-        );
-      }
-
-      LogUtils.w(
-        'CDN源测试失败: $serverName, 错误: ${e.type}',
-        'MyVideoStateController',
-      );
-
-      return _CdnTestResult(
-        url: url,
-        serverName: serverName,
-        isSuccess: false,
-        latency: 99999,
-      );
-    } catch (e) {
-      stopwatch.stop();
-
-      LogUtils.w('CDN源测试异常: $serverName, $e', 'MyVideoStateController');
-
-      return _CdnTestResult(
-        url: url,
-        serverName: serverName,
-        isSuccess: false,
-        latency: 99999,
-      );
-    } finally {
-      timeoutTimer.cancel();
-      dio.close();
-    }
-  }
-
-  /// 替换 URL 中的服务器域名
-  String _replaceServerInUrl(String originalUrl, String newServerName) {
-    try {
-      final uri = Uri.parse(originalUrl);
-      final newUri = uri.replace(host: newServerName);
-      return newUri.toString();
-    } catch (e) {
-      LogUtils.e('替换服务器域名失败: $e', tag: 'MyVideoStateController', error: e);
-      return originalUrl;
-    }
-  }
 }
 
 /// 视频清晰度模型
@@ -3572,19 +3171,4 @@ class VideoResolution {
   final String url;
 
   VideoResolution({required this.label, required this.url});
-}
-
-/// CDN 测试结果
-class _CdnTestResult {
-  final String url;
-  final String serverName;
-  final bool isSuccess;
-  final int latency;
-
-  _CdnTestResult({
-    required this.url,
-    required this.serverName,
-    required this.isSuccess,
-    required this.latency,
-  });
 }

@@ -49,39 +49,6 @@ class VideoSource {
       'src': src?.toJson(),
     };
   }
-
-  /// 用于替换视频源 URL 中的服务器域名（CDN 策略）
-  VideoSource copyWithServer(String newServer) {
-    return VideoSource(
-      id: id,
-      name: name,
-      view: _replaceServerInUrl(view, newServer),
-      download: _replaceServerInUrl(download, newServer),
-      type: type,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
-      src: src != null ? VideoSrc(
-        view: _replaceServerInUrl(src!.view, newServer),
-        download: _replaceServerInUrl(src!.download, newServer),
-      ) : null,
-    );
-  }
-
-  /// 替换 URL 中的服务器域名
-  static String? _replaceServerInUrl(String? url, String newServer) {
-    if (url == null || url.isEmpty) return url;
-    
-    // URL 格式: https://xxx.iwara.tv/view?... 或 //xxx.iwara.tv/view?...
-    final regex = RegExp(r'(https?:)?//([a-zA-Z0-9\-]+\.iwara\.tv)');
-    final match = regex.firstMatch(url);
-    
-    if (match != null) {
-      final protocol = match.group(1) ?? 'https:';
-      return url.replaceFirst(match.group(0)!, '$protocol//$newServer');
-    }
-    
-    return url;
-  }
 }
 
 class VideoSrc {

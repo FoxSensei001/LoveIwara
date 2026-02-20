@@ -11,7 +11,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:i_iwara/app/ui/widgets/like_button_widget.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/server_selector_dialog.dart';
 
 import '../../../../../../utils/common_utils.dart';
 import '../../../../../services/config_service.dart';
@@ -28,7 +27,6 @@ class BottomToolbar extends StatelessWidget {
   final UserService _userService = Get.find<UserService>();
 
   // 缓存一些常用的组件
-  final Widget _spacer4 = const SizedBox(width: 4.0);
   final Widget _spacer8 = const SizedBox(width: 8.0);
 
   BottomToolbar({
@@ -770,7 +768,6 @@ class BottomToolbar extends StatelessWidget {
       children: [
         _buildPlaybackSpeedSwitcher(context, iconSize),
         _buildResolutionSwitcher(context, iconSize),
-        _buildServerSelectorButton(context, iconSize),
         if (GetPlatform.isDesktop && !currentScreenIsFullScreen)
           _buildIconButton(
             tooltip: myVideoStateController.isDesktopAppFullScreen.value
@@ -839,61 +836,6 @@ class BottomToolbar extends StatelessWidget {
             },
           ),
       ],
-    );
-  }
-
-  /// 服务器选择按钮
-  Widget _buildServerSelectorButton(BuildContext context, double iconSize) {
-    // 只在本地视频模式下隐藏此按钮
-    if (myVideoStateController.isLocalVideoMode) {
-      return const SizedBox.shrink();
-    }
-
-    return Obx(() {
-      // 没获取到分辨率（也就意味着没获取到视频源）时隐藏
-      if (myVideoStateController.videoResolutions.isEmpty) {
-        return const SizedBox.shrink();
-      }
-
-      return _buildIconButton(
-        tooltip: slang.t.mediaPlayer.serverSelector,
-        icon: SvgPicture.asset(
-          'assets/svg/server_selector.svg',
-          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-          width: iconSize,
-          height: iconSize,
-        ),
-        onPressed: () {
-          _showServerSelectorDialog(context);
-        },
-      );
-    });
-  }
-
-  /// 显示服务器选择对话框
-  void _showServerSelectorDialog(BuildContext context) {
-    final currentUrl = myVideoStateController.getCurrentVideoUrl();
-    if (currentUrl == null || currentUrl.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(slang.t.mediaPlayer.cannotGetSource),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
-
-    Get.dialog(
-      ServerSelectorDialog(
-        currentUrl: currentUrl,
-        onServerSelected: (newUrl, serverName) {
-          myVideoStateController.switchServerForCurrentResolution(
-            newUrl,
-            serverName,
-          );
-        },
-      ),
-      barrierDismissible: true,
     );
   }
 }
