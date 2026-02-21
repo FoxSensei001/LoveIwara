@@ -353,6 +353,15 @@ enum ConfigKey {
   SHOW_SUBSCRIPTION_TUTORIAL, // 是否显示订阅页面教程指导
   // 下载相关配置
   LAST_DOWNLOAD_QUALITY, // 上次下载的视频清晰度
+  // 日志系统配置
+  LOGGING_ENABLED, // 日志总开关
+  LOG_PERSISTENCE_ENABLED, // 日志持久化开关
+  LOG_MIN_LEVEL, // 日志最小级别
+  LOG_MAX_FILE_MB, // 单日志文件大小上限（MB）
+  LOG_MAX_ROTATED_FILES, // 日志轮转文件数量
+  LOG_MAX_LOGS_PER_SECOND, // 每秒日志限流
+  LOG_HANG_MAX_FILE_MB, // 卡顿日志文件大小上限（MB）
+  LOG_HANG_MAX_ROTATED_FILES, // 卡顿日志轮转文件数量
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -544,6 +553,22 @@ extension ConfigKeyExtension on ConfigKey {
         return 'show_subscription_tutorial';
       case ConfigKey.LAST_DOWNLOAD_QUALITY:
         return 'last_download_quality';
+      case ConfigKey.LOGGING_ENABLED:
+        return 'logging_enabled';
+      case ConfigKey.LOG_PERSISTENCE_ENABLED:
+        return 'log_persistence_enabled';
+      case ConfigKey.LOG_MIN_LEVEL:
+        return 'log_min_level';
+      case ConfigKey.LOG_MAX_FILE_MB:
+        return 'log_max_file_mb';
+      case ConfigKey.LOG_MAX_ROTATED_FILES:
+        return 'log_max_rotated_files';
+      case ConfigKey.LOG_MAX_LOGS_PER_SECOND:
+        return 'log_max_logs_per_second';
+      case ConfigKey.LOG_HANG_MAX_FILE_MB:
+        return 'log_hang_max_file_mb';
+      case ConfigKey.LOG_HANG_MAX_ROTATED_FILES:
+        return 'log_hang_max_rotated_files';
     }
   }
 
@@ -741,6 +766,22 @@ extension ConfigKeyExtension on ConfigKey {
         return true; // 默认显示订阅页面教程指导
       case ConfigKey.LAST_DOWNLOAD_QUALITY:
         return 'source'; // 默认清晰度为 source
+      case ConfigKey.LOGGING_ENABLED:
+        return true;
+      case ConfigKey.LOG_PERSISTENCE_ENABLED:
+        return true;
+      case ConfigKey.LOG_MIN_LEVEL:
+        return 'INFO';
+      case ConfigKey.LOG_MAX_FILE_MB:
+        return 5;
+      case ConfigKey.LOG_MAX_ROTATED_FILES:
+        return 3;
+      case ConfigKey.LOG_MAX_LOGS_PER_SECOND:
+        return 100;
+      case ConfigKey.LOG_HANG_MAX_FILE_MB:
+        return 2;
+      case ConfigKey.LOG_HANG_MAX_ROTATED_FILES:
+        return 2;
     }
   }
 }

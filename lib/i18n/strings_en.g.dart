@@ -70,6 +70,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsDisplaySettingsEn displaySettings = TranslationsDisplaySettingsEn._(_root);
 	late final TranslationsLayoutSettingsEn layoutSettings = TranslationsLayoutSettingsEn._(_root);
 	late final TranslationsMediaPlayerEn mediaPlayer = TranslationsMediaPlayerEn._(_root);
+	late final TranslationsDiagnosticsEn diagnostics = TranslationsDiagnosticsEn._(_root);
+	late final TranslationsLogViewerEn logViewer = TranslationsLogViewerEn._(_root);
+	late final TranslationsCrashRecoveryDialogEn crashRecoveryDialog = TranslationsCrashRecoveryDialogEn._(_root);
 	late final TranslationsLinkInputDialogEn linkInputDialog = TranslationsLinkInputDialogEn._(_root);
 	late final TranslationsLogEn log = TranslationsLogEn._(_root);
 	late final TranslationsEmojiEn emoji = TranslationsEmojiEn._(_root);
@@ -1594,6 +1597,9 @@ class TranslationsSettingsEn {
 
 	/// en: 'About'
 	String get about => 'About';
+
+	/// en: 'Diagnostics & Feedback'
+	String get diagnosticsAndFeedback => 'Diagnostics & Feedback';
 
 	/// en: 'Current Version'
 	String get currentVersion => 'Current Version';
@@ -3921,6 +3927,12 @@ class TranslationsMediaPlayerEn {
 	/// en: 'Video load error: ${event}'
 	String videoLoadErrorWithDetail({required Object event}) => 'Video load error: ${event}';
 
+	/// en: 'Repeated playback failures detected. Go to Settings > Diagnostics & Feedback to export logs.'
+	String get playbackFailureDiagnosticsHint => 'Repeated playback failures detected. Go to Settings > Diagnostics & Feedback to export logs.';
+
+	/// en: 'View'
+	String get openSettingsAction => 'View';
+
 	/// en: 'Image Load Failed'
 	String get imageLoadFailed => 'Image Load Failed';
 
@@ -3929,6 +3941,189 @@ class TranslationsMediaPlayerEn {
 
 	/// en: 'Please try using other viewers'
 	String get tryOtherViewer => 'Please try using other viewers';
+}
+
+// Path: diagnostics
+class TranslationsDiagnosticsEn {
+	TranslationsDiagnosticsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Diagnostics Info'
+	String get infoSectionTitle => 'Diagnostics Info';
+
+	/// en: 'App Version'
+	String get appVersionLabel => 'App Version';
+
+	/// en: 'Memory usage: ${memMB}MB'
+	String memoryUsage({required Object memMB}) => 'Memory usage: ${memMB}MB';
+
+	/// en: 'Unable to fetch device info'
+	String get deviceInfoUnavailable => 'Unable to fetch device info';
+
+	/// en: 'Log Policy'
+	String get logPolicySectionTitle => 'Log Policy';
+
+	/// en: 'Config service is not initialized. Log policy cannot be adjusted.'
+	String get configServiceUnavailable => 'Config service is not initialized. Log policy cannot be adjusted.';
+
+	/// en: 'Enable logging'
+	String get enableLoggingTitle => 'Enable logging';
+
+	/// en: 'Disable to stop writing new logs'
+	String get enableLoggingSubtitle => 'Disable to stop writing new logs';
+
+	/// en: 'Enable log persistence'
+	String get enableLogPersistenceTitle => 'Enable log persistence';
+
+	/// en: 'Disable to keep logs in memory only and stop disk writes'
+	String get enableLogPersistenceSubtitle => 'Disable to keep logs in memory only and stop disk writes';
+
+	/// en: 'Minimum log level'
+	String get minLogLevelTitle => 'Minimum log level';
+
+	/// en: 'Logs below this level will be filtered out'
+	String get minLogLevelSubtitle => 'Logs below this level will be filtered out';
+
+	/// en: 'Single file size limit'
+	String get maxFileSizeTitle => 'Single file size limit';
+
+	/// en: 'Rotate when threshold is reached'
+	String get maxFileSizeSubtitle => 'Rotate when threshold is reached';
+
+	/// en: 'Main log rotated file count'
+	String get rotatedFileCountTitle => 'Main log rotated file count';
+
+	/// en: 'Number of retained files excluding the current file'
+	String get rotatedFileCountSubtitle => 'Number of retained files excluding the current file';
+
+	/// en: 'Hang log size limit'
+	String get hangFileSizeTitle => 'Hang log size limit';
+
+	/// en: 'Control hang_events file growth'
+	String get hangFileSizeSubtitle => 'Control hang_events file growth';
+
+	/// en: 'Hang log rotated file count'
+	String get hangRotatedFileCountTitle => 'Hang log rotated file count';
+
+	/// en: 'Control retained history for hang_events'
+	String get hangRotatedFileCountSubtitle => 'Control retained history for hang_events';
+
+	/// en: 'Log Health'
+	String get healthSectionTitle => 'Log Health';
+
+	/// en: 'Refresh Metrics'
+	String get refreshMetrics => 'Refresh Metrics';
+
+	/// en: 'Tools'
+	String get toolsSectionTitle => 'Tools';
+
+	/// en: 'Logs may contain sensitive information such as account data and request parameters. Do not post full logs publicly in issues; review first and send by email.'
+	String get privacyNotice => 'Logs may contain sensitive information such as account data and request parameters. Do not post full logs publicly in issues; review first and send by email.';
+
+	/// en: 'Export Logs'
+	String get exportLogsTitle => 'Export Logs';
+
+	/// en: 'Review privacy data before sending to developers'
+	String get exportLogsSubtitle => 'Review privacy data before sending to developers';
+
+	/// en: 'View Logs'
+	String get viewLogsTitle => 'View Logs';
+
+	/// en: 'View runtime logs in real time'
+	String get viewLogsSubtitle => 'View runtime logs in real time';
+
+	/// en: 'Copy Support Email'
+	String get copySupportEmailTitle => 'Copy Support Email';
+
+	/// en: 'Report Issue'
+	String get reportIssueTitle => 'Report Issue';
+
+	/// en: 'Provide reproduction steps on GitHub (do not attach full logs)'
+	String get reportIssueSubtitle => 'Provide reproduction steps on GitHub (do not attach full logs)';
+
+	/// en: 'No log health data yet'
+	String get healthSummaryUnavailable => 'No log health data yet';
+
+	/// en: 'Health metrics have not been collected yet'
+	String get healthMetricsUnavailable => 'Health metrics have not been collected yet';
+
+	/// en: 'No risk indicators detected'
+	String get healthNoRiskIndicators => 'No risk indicators detected';
+
+	late final TranslationsDiagnosticsHealthAlertEn healthAlert = TranslationsDiagnosticsHealthAlertEn._(_root);
+	late final TranslationsDiagnosticsToastEn toast = TranslationsDiagnosticsToastEn._(_root);
+
+	/// en: 'LoveIwara diagnostics logs (contains sensitive data, share carefully)'
+	String get shareSubject => 'LoveIwara diagnostics logs (contains sensitive data, share carefully)';
+}
+
+// Path: logViewer
+class TranslationsLogViewerEn {
+	TranslationsLogViewerEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Log Viewer'
+	String get title => 'Log Viewer';
+
+	/// en: 'Search logs...'
+	String get searchHint => 'Search logs...';
+
+	/// en: 'No logs'
+	String get emptyState => 'No logs';
+
+	/// en: 'Copied to clipboard'
+	String get copiedToClipboard => 'Copied to clipboard';
+}
+
+// Path: crashRecoveryDialog
+class TranslationsCrashRecoveryDialogEn {
+	TranslationsCrashRecoveryDialogEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'App exited unexpectedly'
+	String get title => 'App exited unexpectedly';
+
+	/// en: 'We detected an unclean exit in the last session. Please export diagnostics logs and email them to the developer to help us fix the issue.'
+	String get description => 'We detected an unclean exit in the last session. Please export diagnostics logs and email them to the developer to help us fix the issue.';
+
+	/// en: 'Last version: ${version}'
+	String previousVersion({required Object version}) => 'Last version: ${version}';
+
+	/// en: 'Last launch: ${time}'
+	String previousStart({required Object time}) => 'Last launch: ${time}';
+
+	/// en: 'Last exception: ${message}'
+	String lastException({required Object message}) => 'Last exception: ${message}';
+
+	/// en: 'A UI hang was detected last time and recovered automatically'
+	String get lastHangRecovered => 'A UI hang was detected last time and recovered automatically';
+
+	/// en: 'A possible UI freeze was detected last time, lasting about ${stalledMs}ms'
+	String lastHangStalled({required Object stalledMs}) => 'A possible UI freeze was detected last time, lasting about ${stalledMs}ms';
+
+	/// en: 'Go to Settings > Diagnostics & Feedback > Export Logs.'
+	String get exportGuide => 'Go to Settings > Diagnostics & Feedback > Export Logs.';
+
+	/// en: 'Logs may contain private data. Please review before emailing to:'
+	String get privacyHint => 'Logs may contain private data. Please review before emailing to:';
+
+	/// en: 'Do not attach full logs publicly in GitHub issues'
+	String get issueWarning => 'Do not attach full logs publicly in GitHub issues';
+
+	/// en: 'Got it'
+	String get acknowledge => 'Got it';
+
+	/// en: 'Email copied'
+	String get supportEmailCopied => 'Email copied';
 }
 
 // Path: linkInputDialog
@@ -6048,6 +6243,72 @@ class TranslationsFavoriteErrorsEn {
 	String get folderNameCannotBeEmpty => 'Folder name cannot be empty';
 }
 
+// Path: diagnostics.healthAlert
+class TranslationsDiagnosticsHealthAlertEn {
+	TranslationsDiagnosticsHealthAlertEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Flush failures'
+	String get flushFailureTitle => 'Flush failures';
+
+	/// en: 'Log writing degraded'
+	String get sinkDegradedTitle => 'Log writing degraded';
+
+	/// en: 'File sink is in degraded state'
+	String get sinkDegradedDetail => 'File sink is in degraded state';
+
+	/// en: 'Write queue backlog'
+	String get queueBacklogTitle => 'Write queue backlog';
+
+	/// en: 'queueDepth=${queueDepth} (threshold=${threshold}, may increase memory usage)'
+	String queueBacklogDetail({required Object queueDepth, required Object threshold}) => 'queueDepth=${queueDepth} (threshold=${threshold}, may increase memory usage)';
+
+	/// en: 'High flush latency'
+	String get highFlushLatencyTitle => 'High flush latency';
+
+	/// en: 'Too many dropped logs'
+	String get droppedTooManyTitle => 'Too many dropped logs';
+
+	/// en: 'droppedCount=${droppedCount} (threshold=${threshold})'
+	String droppedTooManyDetail({required Object droppedCount, required Object threshold}) => 'droppedCount=${droppedCount} (threshold=${threshold})';
+
+	/// en: 'Rate limiting triggered'
+	String get rateLimitedTitle => 'Rate limiting triggered';
+
+	/// en: 'Log export failures'
+	String get exportFailedTitle => 'Log export failures';
+
+	/// en: 'Log file near size limit'
+	String get fileNearLimitTitle => 'Log file near size limit';
+
+	/// en: 'currentFileUsage=${usagePercent}% (higher IO rotation pressure)'
+	String fileNearLimitDetail({required Object usagePercent}) => 'currentFileUsage=${usagePercent}% (higher IO rotation pressure)';
+}
+
+// Path: diagnostics.toast
+class TranslationsDiagnosticsToastEn {
+	TranslationsDiagnosticsToastEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Log service is not initialized'
+	String get logServiceNotInitialized => 'Log service is not initialized';
+
+	/// en: 'Logs exported. Please review privacy data before sending by email.'
+	String get exportSuccess => 'Logs exported. Please review privacy data before sending by email.';
+
+	/// en: 'Export failed: ${error}'
+	String exportFailed({required Object error}) => 'Export failed: ${error}';
+
+	/// en: 'Support email copied. Paste it into your mail client and attach logs.'
+	String get supportEmailCopied => 'Support email copied. Paste it into your mail client and attach logs.';
+}
+
 // Path: searchFilter.sortTypes
 class TranslationsSearchFilterSortTypesEn {
 	TranslationsSearchFilterSortTypesEn._(this._root);
@@ -6953,6 +7214,7 @@ extension on Translations {
 			'settings.needRestartToApply' => 'Need to restart the app to apply the settings',
 			'settings.themeNeedRestartDescription' => 'The theme settings need to restart the app to apply the settings',
 			'settings.about' => 'About',
+			'settings.diagnosticsAndFeedback' => 'Diagnostics & Feedback',
 			'settings.currentVersion' => 'Current Version',
 			'settings.latestVersion' => 'Latest Version',
 			'settings.checkForUpdates' => 'Check for Updates',
@@ -6969,9 +7231,9 @@ extension on Translations {
 			'settings.ignoreThisVersion' => 'Ignore This Version',
 			'settings.minVersionUpdateRequired' => 'Current version is too low, please update as soon as possible',
 			'settings.forceUpdateTip' => 'This is a mandatory update. Please update to the latest version as soon as possible',
-			'settings.viewChangelog' => 'View Changelog',
 			_ => null,
 		} ?? switch (path) {
+			'settings.viewChangelog' => 'View Changelog',
 			'settings.alreadyLatestVersion' => 'Already the latest version',
 			'settings.appSettings' => 'App Settings',
 			'settings.configureYourAppSettings' => 'Configure Your App Settings',
@@ -7483,9 +7745,9 @@ extension on Translations {
 			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => 'Cooldown remaining ${minutes} minutes ${seconds} seconds',
 			'forum.groups.administration' => 'Administration',
 			'forum.groups.global' => 'Global',
-			'forum.groups.chinese' => 'Chinese',
 			_ => null,
 		} ?? switch (path) {
+			'forum.groups.chinese' => 'Chinese',
 			'forum.groups.japanese' => 'Japanese',
 			'forum.groups.korean' => 'Korean',
 			'forum.groups.other' => 'Other',
@@ -7997,9 +8259,9 @@ extension on Translations {
 			'mediaPlayer.videoCodecNotSupported' => 'Video Codec Not Supported',
 			'mediaPlayer.networkConnectionIssue' => 'Network Connection Issue',
 			'mediaPlayer.insufficientPermission' => 'Insufficient Permission',
-			'mediaPlayer.unsupportedVideoFormat' => 'Unsupported Video Format',
 			_ => null,
 		} ?? switch (path) {
+			'mediaPlayer.unsupportedVideoFormat' => 'Unsupported Video Format',
 			'mediaPlayer.retry' => 'Retry',
 			'mediaPlayer.externalPlayer' => 'External Player',
 			'mediaPlayer.detailedErrorInfo' => 'Detailed Error Information',
@@ -8040,9 +8302,78 @@ extension on Translations {
 			'mediaPlayer.retryingOpenVideoLink' => 'Video link open failed, retrying',
 			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => 'Unable to load decoder: ${event}. Try switching to software decoding in player settings and re-enter the page',
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => 'Video load error: ${event}',
+			'mediaPlayer.playbackFailureDiagnosticsHint' => 'Repeated playback failures detected. Go to Settings > Diagnostics & Feedback to export logs.',
+			'mediaPlayer.openSettingsAction' => 'View',
 			'mediaPlayer.imageLoadFailed' => 'Image Load Failed',
 			'mediaPlayer.unsupportedImageFormat' => 'Unsupported Image Format',
 			'mediaPlayer.tryOtherViewer' => 'Please try using other viewers',
+			'diagnostics.infoSectionTitle' => 'Diagnostics Info',
+			'diagnostics.appVersionLabel' => 'App Version',
+			'diagnostics.memoryUsage' => ({required Object memMB}) => 'Memory usage: ${memMB}MB',
+			'diagnostics.deviceInfoUnavailable' => 'Unable to fetch device info',
+			'diagnostics.logPolicySectionTitle' => 'Log Policy',
+			'diagnostics.configServiceUnavailable' => 'Config service is not initialized. Log policy cannot be adjusted.',
+			'diagnostics.enableLoggingTitle' => 'Enable logging',
+			'diagnostics.enableLoggingSubtitle' => 'Disable to stop writing new logs',
+			'diagnostics.enableLogPersistenceTitle' => 'Enable log persistence',
+			'diagnostics.enableLogPersistenceSubtitle' => 'Disable to keep logs in memory only and stop disk writes',
+			'diagnostics.minLogLevelTitle' => 'Minimum log level',
+			'diagnostics.minLogLevelSubtitle' => 'Logs below this level will be filtered out',
+			'diagnostics.maxFileSizeTitle' => 'Single file size limit',
+			'diagnostics.maxFileSizeSubtitle' => 'Rotate when threshold is reached',
+			'diagnostics.rotatedFileCountTitle' => 'Main log rotated file count',
+			'diagnostics.rotatedFileCountSubtitle' => 'Number of retained files excluding the current file',
+			'diagnostics.hangFileSizeTitle' => 'Hang log size limit',
+			'diagnostics.hangFileSizeSubtitle' => 'Control hang_events file growth',
+			'diagnostics.hangRotatedFileCountTitle' => 'Hang log rotated file count',
+			'diagnostics.hangRotatedFileCountSubtitle' => 'Control retained history for hang_events',
+			'diagnostics.healthSectionTitle' => 'Log Health',
+			'diagnostics.refreshMetrics' => 'Refresh Metrics',
+			'diagnostics.toolsSectionTitle' => 'Tools',
+			'diagnostics.privacyNotice' => 'Logs may contain sensitive information such as account data and request parameters. Do not post full logs publicly in issues; review first and send by email.',
+			'diagnostics.exportLogsTitle' => 'Export Logs',
+			'diagnostics.exportLogsSubtitle' => 'Review privacy data before sending to developers',
+			'diagnostics.viewLogsTitle' => 'View Logs',
+			'diagnostics.viewLogsSubtitle' => 'View runtime logs in real time',
+			'diagnostics.copySupportEmailTitle' => 'Copy Support Email',
+			'diagnostics.reportIssueTitle' => 'Report Issue',
+			'diagnostics.reportIssueSubtitle' => 'Provide reproduction steps on GitHub (do not attach full logs)',
+			'diagnostics.healthSummaryUnavailable' => 'No log health data yet',
+			'diagnostics.healthMetricsUnavailable' => 'Health metrics have not been collected yet',
+			'diagnostics.healthNoRiskIndicators' => 'No risk indicators detected',
+			'diagnostics.healthAlert.flushFailureTitle' => 'Flush failures',
+			'diagnostics.healthAlert.sinkDegradedTitle' => 'Log writing degraded',
+			'diagnostics.healthAlert.sinkDegradedDetail' => 'File sink is in degraded state',
+			'diagnostics.healthAlert.queueBacklogTitle' => 'Write queue backlog',
+			'diagnostics.healthAlert.queueBacklogDetail' => ({required Object queueDepth, required Object threshold}) => 'queueDepth=${queueDepth} (threshold=${threshold}, may increase memory usage)',
+			'diagnostics.healthAlert.highFlushLatencyTitle' => 'High flush latency',
+			'diagnostics.healthAlert.droppedTooManyTitle' => 'Too many dropped logs',
+			'diagnostics.healthAlert.droppedTooManyDetail' => ({required Object droppedCount, required Object threshold}) => 'droppedCount=${droppedCount} (threshold=${threshold})',
+			'diagnostics.healthAlert.rateLimitedTitle' => 'Rate limiting triggered',
+			'diagnostics.healthAlert.exportFailedTitle' => 'Log export failures',
+			'diagnostics.healthAlert.fileNearLimitTitle' => 'Log file near size limit',
+			'diagnostics.healthAlert.fileNearLimitDetail' => ({required Object usagePercent}) => 'currentFileUsage=${usagePercent}% (higher IO rotation pressure)',
+			'diagnostics.toast.logServiceNotInitialized' => 'Log service is not initialized',
+			'diagnostics.toast.exportSuccess' => 'Logs exported. Please review privacy data before sending by email.',
+			'diagnostics.toast.exportFailed' => ({required Object error}) => 'Export failed: ${error}',
+			'diagnostics.toast.supportEmailCopied' => 'Support email copied. Paste it into your mail client and attach logs.',
+			'diagnostics.shareSubject' => 'LoveIwara diagnostics logs (contains sensitive data, share carefully)',
+			'logViewer.title' => 'Log Viewer',
+			'logViewer.searchHint' => 'Search logs...',
+			'logViewer.emptyState' => 'No logs',
+			'logViewer.copiedToClipboard' => 'Copied to clipboard',
+			'crashRecoveryDialog.title' => 'App exited unexpectedly',
+			'crashRecoveryDialog.description' => 'We detected an unclean exit in the last session. Please export diagnostics logs and email them to the developer to help us fix the issue.',
+			'crashRecoveryDialog.previousVersion' => ({required Object version}) => 'Last version: ${version}',
+			'crashRecoveryDialog.previousStart' => ({required Object time}) => 'Last launch: ${time}',
+			'crashRecoveryDialog.lastException' => ({required Object message}) => 'Last exception: ${message}',
+			'crashRecoveryDialog.lastHangRecovered' => 'A UI hang was detected last time and recovered automatically',
+			'crashRecoveryDialog.lastHangStalled' => ({required Object stalledMs}) => 'A possible UI freeze was detected last time, lasting about ${stalledMs}ms',
+			'crashRecoveryDialog.exportGuide' => 'Go to Settings > Diagnostics & Feedback > Export Logs.',
+			'crashRecoveryDialog.privacyHint' => 'Logs may contain private data. Please review before emailing to:',
+			'crashRecoveryDialog.issueWarning' => 'Do not attach full logs publicly in GitHub issues',
+			'crashRecoveryDialog.acknowledge' => 'Got it',
+			'crashRecoveryDialog.supportEmailCopied' => 'Email copied',
 			'linkInputDialog.title' => 'Input Link',
 			'linkInputDialog.supportedLinksHint' => ({required Object webName}) => 'Support intelligently identify multiple ${webName} links and quickly jump to the corresponding page in the app (separate links from other text with spaces)',
 			'linkInputDialog.inputHint' => ({required Object webName}) => 'Please enter ${webName} link',

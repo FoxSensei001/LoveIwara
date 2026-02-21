@@ -26,6 +26,8 @@ import 'package:i_iwara/utils/proxy/proxy_util.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/logging/log_service.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/crash_recovery_dialog.dart';
 
 import 'dart:ui' show Canvas, PaintingStyle, Picture, PictureRecorder, Rect;
 
@@ -65,6 +67,14 @@ void main() {
       bool isProduction = !kDebugMode;
       await LogUtils.init(isProduction: isProduction);
 
+      // 初始化日志持久化服务
+      final logService = await LogService().init();
+      Get.put(logService, permanent: true);
+
+      // 注册生命周期监听，确保移动端正常退出时清理崩溃标记
+      final lifecycleObserver = _AppLifecycleObserver(logService);
+      WidgetsBinding.instance.addObserver(lifecycleObserver);
+
       // 记录应用启动信息
       LogUtils.i('应用启动', '启动初始化');
 
@@ -82,14 +92,26 @@ void main() {
 
       // 设置Flutter错误处理
       FlutterError.onError = (FlutterErrorDetails details) {
-        LogUtils.e(
-          'Flutter框架错误',
-          tag: '全局错误处理',
+        LogUtils.captureUnhandledException(
+          source: 'FlutterError.onError',
+          message:
+              'Flutter框架错误${details.context != null ? ' (${details.context})' : ''}',
           error: details.exception,
-          stackTrace: details.stack,
+          stackTrace: details.stack ?? StackTrace.current,
         );
 
         FlutterError.presentError(details);
+      };
+
+      // 设置平台错误处理
+      PlatformDispatcher.instance.onError = (error, stack) {
+        LogUtils.captureUnhandledException(
+          source: 'PlatformDispatcher.onError',
+          message: '平台未捕获异常',
+          error: error,
+          stackTrace: stack,
+        );
+        return true;
       };
 
       // 初始化基础服务
@@ -98,8 +120,28 @@ void main() {
       // 初始化业务服务
       await _initializeBusinessServices();
 
+      if (Get.isRegistered<ConfigService>()) {
+        final configService = Get.find<ConfigService>();
+        await logService.applyPolicy(
+          LogService.policyFromConfig(
+            configService,
+            isProduction: isProduction,
+          ),
+        );
+      }
+
       // 运行应用
       runApp(TranslationProvider(child: const MyApp()));
+
+      // 检查崩溃恢复
+      if (logService.lastCrashInfo?.hadUncleanExit == true) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final context = Get.context;
+          if (context != null) {
+            CrashRecoveryDialog.show(context, logService.lastCrashInfo!);
+          }
+        });
+      }
 
       if (GetPlatform.isDesktop) {
         await _initializeDesktop();
@@ -125,7 +167,12 @@ void main() {
     },
     (error, stackTrace) {
       // 在这里处理未捕获的异常
-      LogUtils.e('未捕获的异常: $error', tag: '全局异常处理', stackTrace: stackTrace);
+      LogUtils.captureUnhandledException(
+        source: 'runZonedGuarded',
+        message: '未捕获的Zone异常',
+        error: error,
+        stackTrace: stackTrace,
+      );
 
       // TODO: 可以在这里添加额外处理，例如显示错误页面或重启应用
     },
@@ -183,7 +230,7 @@ Future<void> _initializeBusinessServices() async {
     }
   }
 
-  LogUtils.i('日志系统已简化，仅支持控制台输出', '启动初始化');
+  LogUtils.i('日志持久化服务已启动', '启动初始化');
 
   // 注册 ConfigBackupService 作为 GetxService
   Get.put(ConfigBackupService());
@@ -465,6 +512,30 @@ class DesktopWindowListener extends WindowListener {
   }
 }
 
+class _AppLifecycleObserver extends WidgetsBindingObserver {
+  _AppLifecycleObserver(this._logService);
+  final LogService _logService;
+  bool _marking = false;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.detached) {
+      unawaited(_markCleanExit());
+    }
+  }
+
+  Future<void> _markCleanExit() async {
+    if (_marking) return;
+    _marking = true;
+    try {
+      await _logService.flush();
+      await _logService.crash.markCleanExit();
+    } finally {
+      _marking = false;
+    }
+  }
+}
+
 /// 代理设置与连接策略
 class MyHttpOverrides extends HttpOverrides {
   final String? proxy;
@@ -489,6 +560,13 @@ class MyHttpOverrides extends HttpOverrides {
 /// 确保在应用退出前关闭日志文件
 Future<void> _closeServices() async {
   try {
+    // 标记正常退出并刷新日志
+    if (Get.isRegistered<LogService>()) {
+      final logService = Get.find<LogService>();
+      await logService.flush();
+      await logService.crash.markCleanExit();
+    }
+
     await LogUtils.close();
 
     // 关闭数据库连接

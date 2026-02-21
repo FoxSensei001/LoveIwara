@@ -522,6 +522,7 @@ settings:
   needRestartToApply: Need to restart the app to apply the settings
   themeNeedRestartDescription: The theme settings need to restart the app to apply the settings
   about: About
+  diagnosticsAndFeedback: Diagnostics & Feedback
   currentVersion: Current Version
   latestVersion: Latest Version
   checkForUpdates: Check for Updates
@@ -1699,10 +1700,87 @@ mediaPlayer:
   retryingOpenVideoLink: "Video link open failed, retrying"
   decoderOpenFailedWithSuggestion: "Unable to load decoder: ${event}. Try switching to software decoding in player settings and re-enter the page"
   videoLoadErrorWithDetail: "Video load error: ${event}"
+  playbackFailureDiagnosticsHint: "Repeated playback failures detected. Go to Settings > Diagnostics & Feedback to export logs."
+  openSettingsAction: "View"
   # Image Widget
   imageLoadFailed: "Image Load Failed"
   unsupportedImageFormat: "Unsupported Image Format"
   tryOtherViewer: "Please try using other viewers"
+
+diagnostics:
+  infoSectionTitle: "Diagnostics Info"
+  appVersionLabel: "App Version"
+  memoryUsage: "Memory usage: ${memMB}MB"
+  deviceInfoUnavailable: "Unable to fetch device info"
+  logPolicySectionTitle: "Log Policy"
+  configServiceUnavailable: "Config service is not initialized. Log policy cannot be adjusted."
+  enableLoggingTitle: "Enable logging"
+  enableLoggingSubtitle: "Disable to stop writing new logs"
+  enableLogPersistenceTitle: "Enable log persistence"
+  enableLogPersistenceSubtitle: "Disable to keep logs in memory only and stop disk writes"
+  minLogLevelTitle: "Minimum log level"
+  minLogLevelSubtitle: "Logs below this level will be filtered out"
+  maxFileSizeTitle: "Single file size limit"
+  maxFileSizeSubtitle: "Rotate when threshold is reached"
+  rotatedFileCountTitle: "Main log rotated file count"
+  rotatedFileCountSubtitle: "Number of retained files excluding the current file"
+  hangFileSizeTitle: "Hang log size limit"
+  hangFileSizeSubtitle: "Control hang_events file growth"
+  hangRotatedFileCountTitle: "Hang log rotated file count"
+  hangRotatedFileCountSubtitle: "Control retained history for hang_events"
+  healthSectionTitle: "Log Health"
+  refreshMetrics: "Refresh Metrics"
+  toolsSectionTitle: "Tools"
+  privacyNotice: "Logs may contain sensitive information such as account data and request parameters. Do not post full logs publicly in issues; review first and send by email."
+  exportLogsTitle: "Export Logs"
+  exportLogsSubtitle: "Review privacy data before sending to developers"
+  viewLogsTitle: "View Logs"
+  viewLogsSubtitle: "View runtime logs in real time"
+  copySupportEmailTitle: "Copy Support Email"
+  reportIssueTitle: "Report Issue"
+  reportIssueSubtitle: "Provide reproduction steps on GitHub (do not attach full logs)"
+  healthSummaryUnavailable: "No log health data yet"
+  healthMetricsUnavailable: "Health metrics have not been collected yet"
+  healthNoRiskIndicators: "No risk indicators detected"
+  healthAlert:
+    flushFailureTitle: "Flush failures"
+    sinkDegradedTitle: "Log writing degraded"
+    sinkDegradedDetail: "File sink is in degraded state"
+    queueBacklogTitle: "Write queue backlog"
+    queueBacklogDetail: "queueDepth=${queueDepth} (threshold=${threshold}, may increase memory usage)"
+    highFlushLatencyTitle: "High flush latency"
+    droppedTooManyTitle: "Too many dropped logs"
+    droppedTooManyDetail: "droppedCount=${droppedCount} (threshold=${threshold})"
+    rateLimitedTitle: "Rate limiting triggered"
+    exportFailedTitle: "Log export failures"
+    fileNearLimitTitle: "Log file near size limit"
+    fileNearLimitDetail: "currentFileUsage=${usagePercent}% (higher IO rotation pressure)"
+  toast:
+    logServiceNotInitialized: "Log service is not initialized"
+    exportSuccess: "Logs exported. Please review privacy data before sending by email."
+    exportFailed: "Export failed: ${error}"
+    supportEmailCopied: "Support email copied. Paste it into your mail client and attach logs."
+  shareSubject: "LoveIwara diagnostics logs (contains sensitive data, share carefully)"
+
+logViewer:
+  title: "Log Viewer"
+  searchHint: "Search logs..."
+  emptyState: "No logs"
+  copiedToClipboard: "Copied to clipboard"
+
+crashRecoveryDialog:
+  title: "App exited unexpectedly"
+  description: "We detected an unclean exit in the last session. Please export diagnostics logs and email them to the developer to help us fix the issue."
+  previousVersion: "Last version: ${version}"
+  previousStart: "Last launch: ${time}"
+  lastException: "Last exception: ${message}"
+  lastHangRecovered: "A UI hang was detected last time and recovered automatically"
+  lastHangStalled: "A possible UI freeze was detected last time, lasting about ${stalledMs}ms"
+  exportGuide: "Go to Settings > Diagnostics & Feedback > Export Logs."
+  privacyHint: "Logs may contain private data. Please review before emailing to:"
+  issueWarning: "Do not attach full logs publicly in GitHub issues"
+  acknowledge: "Got it"
+  supportEmailCopied: "Email copied"
 
 linkInputDialog:
   title: "Input Link"

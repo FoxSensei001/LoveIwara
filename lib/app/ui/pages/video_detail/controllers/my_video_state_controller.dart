@@ -220,6 +220,9 @@ class MyVideoStateController extends GetxController
   // 添加随机ID用于节流key，避免与其他视频实例冲突
   late final String randomId;
 
+  // 播放错误计数，用于引导用户反馈
+  int _playbackErrorCount = 0;
+
   // 添加倍速播放防抖定时器
   Timer? _speedChangeDebouncer;
   Timer? _bufferUpdateThrottleTimer;
@@ -249,6 +252,9 @@ class MyVideoStateController extends GetxController
   // 视频源过期管理
   Timer? _videoSourceExpirationTimer; // 视频源过期检查定时器
   DateTime? _currentVideoSourceExpireTime; // 视频源的过期时间（所有清晰度共享）
+
+  // 播放器健康快照定时器（用于崩溃诊断）
+  Timer? _healthSnapshotTimer;
 
   void refreshScrollView() {
     // 触发重建 - 使用更可靠的方法
@@ -506,6 +512,9 @@ class MyVideoStateController extends GetxController
 
       // 启动显示时间更新定时器
       _startDisplayTimer();
+
+      // 启动健康快照定时器（用于崩溃诊断）
+      _startHealthSnapshotTimer();
     } catch (e) {
       LogUtils.e('初始化失败: $e', tag: 'MyVideoStateController', error: e);
       if (!_isDisposed) {
@@ -1021,6 +1030,7 @@ class MyVideoStateController extends GetxController
     _bufferUpdateThrottleTimer?.cancel();
     _previewSeekThrottleTimer?.cancel();
     _videoSourceExpirationTimer?.cancel();
+    _healthSnapshotTimer?.cancel();
     LogUtils.d('所有定时器已取消', 'MyVideoStateController');
 
     // 取消网络请求
@@ -1883,13 +1893,24 @@ class MyVideoStateController extends GetxController
 
       // 其他错误，给出提示与日志
       LogUtils.w('检测到其他类型的播放器错误，将显示用户提示: $event', 'MyVideoStateController');
+      _playbackErrorCount++;
       if (Get.context != null) {
         ScaffoldMessenger.of(Get.context!).showSnackBar(
           SnackBar(
             content: Text(
-              slang.t.mediaPlayer.videoLoadErrorWithDetail(event: event),
+              _playbackErrorCount >= 3
+                  ? '${slang.t.mediaPlayer.videoLoadErrorWithDetail(event: event)}\n${slang.t.mediaPlayer.playbackFailureDiagnosticsHint}'
+                  : slang.t.mediaPlayer.videoLoadErrorWithDetail(event: event),
             ),
-            duration: const Duration(seconds: 5),
+            duration: Duration(seconds: _playbackErrorCount >= 3 ? 8 : 5),
+            action: _playbackErrorCount >= 3
+                ? SnackBarAction(
+                    label: slang.t.mediaPlayer.openSettingsAction,
+                    onPressed: () {
+                      Get.toNamed('/settings_page');
+                    },
+                  )
+                : null,
           ),
         );
       }
@@ -2674,6 +2695,32 @@ class MyVideoStateController extends GetxController
         }
       }
     });
+  }
+
+  void _startHealthSnapshotTimer() {
+    _healthSnapshotTimer?.cancel();
+    _healthSnapshotTimer = Timer.periodic(
+      const Duration(seconds: 30),
+      (_) {
+        if (_isDisposed || !videoPlayerReady.value) return;
+        final pos = currentPosition.inSeconds;
+        final total = totalDuration.value.inSeconds;
+        final res = currentResolutionTag.value ?? '?';
+        final buffering = videoBuffering.value;
+        final playing = videoPlaying.value;
+        final w = sourceVideoWidth.value;
+        final h = sourceVideoHeight.value;
+        final state = pageLoadingState.value.name;
+        final bufCount = buffers.length;
+        final isLocal = isLocalVideoMode;
+        LogUtils.d(
+          'Health: pos=${pos}s/${total}s res=$res ${w}x$h '
+          'playing=$playing buffering=$buffering bufSegs=$bufCount '
+          'state=$state local=$isLocal errors=$_playbackErrorCount',
+          'PlayerHealth',
+        );
+      },
+    );
   }
 
   void _scrollListener() {

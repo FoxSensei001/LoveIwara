@@ -1,14 +1,17 @@
 // ignore_for_file: constant_identifier_names
 
+import 'dart:async';
 import 'package:logger/logger.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:i_iwara/common/constants.dart';
+import 'package:i_iwara/app/services/logging/log_service.dart';
+import 'package:i_iwara/app/services/logging/log_models.dart';
 import 'package:yaml/yaml.dart';
 
-/// 简化的日志工具类，仅提供控制台输出
+/// 日志工具类，提供控制台输出 + 文件持久化
 class LogUtils {
   static late Logger _logger;
   static const String _TAG = "i_iwara";
@@ -21,9 +24,22 @@ class LogUtils {
 
   // 初始化状态
   static bool get isInitialized => _initialized;
-  
+
+  static LogService? get _logService {
+    try {
+      if (Get.isRegistered<LogService>()) {
+        final svc = Get.find<LogService>();
+        if (svc.isInitialized) return svc;
+      }
+    } catch (_) {}
+    return null;
+  }
+
   // 初始化日志系统
-  static Future<void> init({bool isProduction = false, bool enablePersistence = true}) async {
+  static Future<void> init({
+    bool isProduction = false,
+    bool enablePersistence = true,
+  }) async {
     _isProduction = isProduction;
 
     // 设置终端日志打印格式
@@ -59,22 +75,29 @@ class LogUtils {
     if (!_isProduction) {
       _logger.d("[${_getTimeString()}][$tag] $message");
     }
+    _logService?.log(level: LogLevel.debug, message: message, tag: tag);
   }
 
   // 记录信息日志
   static void i(String message, [String tag = _TAG]) {
     _logger.i("[${_getTimeString()}][$tag] $message");
+    _logService?.log(level: LogLevel.info, message: message, tag: tag);
   }
 
   // 记录警告日志
   static void w(String message, [String tag = _TAG]) {
     _logger.w("[${_getTimeString()}][$tag] $message");
+    _logService?.log(level: LogLevel.warning, message: message, tag: tag);
   }
 
   // 记录错误日志
-  static void e(String message,
-      {String tag = _TAG, Object? error, StackTrace? stackTrace, StackTrace? stack}) {
-
+  static void e(
+    String message, {
+    String tag = _TAG,
+    Object? error,
+    StackTrace? stackTrace,
+    StackTrace? stack,
+  }) {
     // 处理错误和堆栈信息
     String? details;
     if (error != null || stackTrace != null || stack != null) {
@@ -91,27 +114,91 @@ class LogUtils {
       details = buffer.toString();
     }
 
-    _logger.e("[${_getTimeString()}][$tag] $message",
-        stackTrace: null, error: details);
+    _logger.e(
+      "[${_getTimeString()}][$tag] $message",
+      stackTrace: null,
+      error: details,
+    );
+
+    _logService?.log(
+      level: LogLevel.error,
+      message: message,
+      tag: tag,
+      error: error,
+      stackTrace: stackTrace ?? stack,
+    );
   }
 
-  // 关闭日志（简化版本）
+  static void captureUnhandledException({
+    required String source,
+    required Object error,
+    required StackTrace stackTrace,
+    String message = '未捕获异常',
+    String tag = '全局错误处理',
+  }) {
+    final details = StringBuffer()
+      ..writeln('来源: $source')
+      ..writeln('错误详情: $error')
+      ..writeln('堆栈跟踪: $stackTrace');
+
+    if (_initialized) {
+      _logger.e(
+        "[${_getTimeString()}][$tag] $message",
+        stackTrace: null,
+        error: details.toString(),
+      );
+    } else {
+      debugPrint('[$tag] $message');
+      debugPrint(details.toString());
+    }
+
+    final svc = _logService;
+    if (svc != null) {
+      svc.captureUnhandledError(
+        source: source,
+        message: message,
+        error: error,
+        stackTrace: stackTrace,
+        tag: tag,
+      );
+    }
+  }
+
+  // 关闭日志
   static Future<void> close() async {
-    // 简化版本，无需特殊处理
+    final svc = _logService;
+    if (svc != null) {
+      await svc.close();
+    }
   }
 
-  // 设置日志持久化状态（保留兼容性，但不执行任何操作）
+  // 设置日志持久化状态（保留兼容性）
   static void setPersistenceEnabled(bool enabled) {
-    // 简化版本，不再支持持久化
-    LogUtils.i('日志持久化功能已移除', '日志系统');
+    final svc = _logService;
+    if (svc == null) return;
+    unawaited(
+      svc.applyPolicy(svc.policy.copyWith(persistenceEnabled: enabled)),
+    );
   }
 
-  // 获取最近的日志内容（简化版本）
+  // 获取最近的日志内容
   static Future<String> getRecentLogs({int maxLines = 1000}) async {
-    return "日志功能已简化，仅支持控制台输出";
+    final svc = _logService;
+    if (svc != null) {
+      final events = svc.getRecentLogs(count: maxLines);
+      if (events.isEmpty) return "暂无日志记录";
+      return events
+          .map(
+            (e) =>
+                '[${e.formattedTime}] [${e.level.label}] [${e.tag}] ${e.message}'
+                '${e.error != null ? '\n  Error: ${e.error}' : ''}',
+          )
+          .join('\n');
+    }
+    return "日志服务未初始化";
   }
 
-  // 简化的日志导出功能
+  // 导出日志文件
   static Future<File> exportLogFileEnhanced({
     required String targetPath,
     DateTime? specificDate,
@@ -120,16 +207,17 @@ class LogUtils {
     String? searchText,
     List<String>? levels,
   }) async {
-    try {
-      final File targetFile = File(targetPath);
-
-      await targetFile.writeAsString(
-        "===== 导出时间: ${DateTime.now()} =====\n\n日志功能已简化，仅支持控制台输出"
-      );
-      return targetFile;
-    } catch (e) {
-      throw Exception("导出日志失败: $e");
+    final svc = _logService;
+    if (svc != null) {
+      return svc.exportLogs();
     }
+
+    // Fallback
+    final File targetFile = File(targetPath);
+    await targetFile.writeAsString(
+      "===== 导出时间: ${DateTime.now()} =====\n\n日志服务未初始化",
+    );
+    return targetFile;
   }
 
   // 读取 pubspec.yaml 文件信息
@@ -158,7 +246,7 @@ class LogUtils {
         final appName = pubspecInfo['name'] ?? 'Unknown';
         final version = pubspecInfo['version'] ?? 'Unknown';
         final description = pubspecInfo['description'] ?? 'Unknown';
-        
+
         i("应用名称: $appName", "设备信息");
         i("应用描述: $description", "设备信息");
         i("版本: $version", "设备信息");
@@ -168,14 +256,17 @@ class LogUtils {
         i("应用描述: A new Flutter project.", "设备信息");
         i("版本: ${CommonConstants.VERSION}", "设备信息");
       }
-      
+
       // 记录设备信息
       DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-      
+
       if (GetPlatform.isAndroid) {
         AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
         i("Android设备: ${androidInfo.brand} ${androidInfo.model}", "设备信息");
-        i("Android版本: ${androidInfo.version.release} (SDK ${androidInfo.version.sdkInt})", "设备信息");
+        i(
+          "Android版本: ${androidInfo.version.release} (SDK ${androidInfo.version.sdkInt})",
+          "设备信息",
+        );
       } else if (GetPlatform.isIOS) {
         IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
         i("iOS设备: ${iosInfo.name} (${iosInfo.model})", "设备信息");
@@ -183,7 +274,10 @@ class LogUtils {
       } else if (GetPlatform.isWindows) {
         WindowsDeviceInfo windowsInfo = await deviceInfo.windowsInfo;
         i("Windows设备: ${windowsInfo.computerName}", "设备信息");
-        i("Windows版本: ${windowsInfo.displayVersion} (${windowsInfo.buildNumber})", "设备信息");
+        i(
+          "Windows版本: ${windowsInfo.displayVersion} (${windowsInfo.buildNumber})",
+          "设备信息",
+        );
       } else if (GetPlatform.isMacOS) {
         MacOsDeviceInfo macOsInfo = await deviceInfo.macOsInfo;
         i("macOS设备: ${macOsInfo.computerName}", "设备信息");
@@ -193,9 +287,12 @@ class LogUtils {
         i("Linux设备: ${linuxInfo.name}", "设备信息");
         i("Linux版本: ${linuxInfo.version}", "设备信息");
       }
-      
+
       // 记录内存信息
-      i("内存总量: ${(Platform.resolvedExecutable.isEmpty ? 'Unknown' : '${(ProcessInfo.currentRss / 1024 / 1024).toStringAsFixed(2)} MB')}", "设备信息");
+      i(
+        "内存总量: ${(Platform.resolvedExecutable.isEmpty ? 'Unknown' : '${(ProcessInfo.currentRss / 1024 / 1024).toStringAsFixed(2)} MB')}",
+        "设备信息",
+      );
     } catch (e) {
       _logger.e("记录设备信息失败: ${e.toString()}");
     }

@@ -523,6 +523,7 @@ settings:
   needRestartToApply: アプリを再起動して設定を適用してください
   themeNeedRestartDescription: テーマ設定はアプリを再起動して設定を適用してください
   about: アバウト
+  diagnosticsAndFeedback: 診断とフィードバック
   currentVersion: 現在のバージョン
   latestVersion: 最新バージョン
   checkForUpdates: 更新をチェック
@@ -1626,6 +1627,83 @@ mediaPlayer:
   retryingOpenVideoLink: "動画リンクのオープンに失敗しました。再試行中"
   decoderOpenFailedWithSuggestion: "デコーダーを読み込めませんでした: ${event}。プレーヤー設定でソフトウェアデコードに切り替え、ページに再入場してお試しください"
   videoLoadErrorWithDetail: "動画読み込みエラー: ${event}"
+  playbackFailureDiagnosticsHint: "再生失敗が続いています。設定 > 診断とフィードバック からログをエクスポートして報告してください"
+  openSettingsAction: "表示"
+
+diagnostics:
+  infoSectionTitle: "診断情報"
+  appVersionLabel: "アプリバージョン"
+  memoryUsage: "メモリ使用量: ${memMB}MB"
+  deviceInfoUnavailable: "デバイス情報を取得できません"
+  logPolicySectionTitle: "ログポリシー"
+  configServiceUnavailable: "設定サービスが未初期化のため、ログポリシーを調整できません"
+  enableLoggingTitle: "ログ記録を有効化"
+  enableLoggingSubtitle: "オフにすると新しいログ記録を停止します"
+  enableLogPersistenceTitle: "ログ永続化を有効化"
+  enableLogPersistenceSubtitle: "オフにするとメモリログのみ保持し、ディスクへ書き込みません"
+  minLogLevelTitle: "最小記録レベル"
+  minLogLevelSubtitle: "このレベル未満のログは除外されます"
+  maxFileSizeTitle: "単一ファイルの上限サイズ"
+  maxFileSizeSubtitle: "しきい値到達でローテーションします"
+  rotatedFileCountTitle: "メインログのローテーション数"
+  rotatedFileCountSubtitle: "現在ファイルを除く保持数"
+  hangFileSizeTitle: "ハングログの上限サイズ"
+  hangFileSizeSubtitle: "hang_events ファイルの増加を制御"
+  hangRotatedFileCountTitle: "ハングログのローテーション数"
+  hangRotatedFileCountSubtitle: "hang_events の履歴保持数を制御"
+  healthSectionTitle: "ログヘルス"
+  refreshMetrics: "指標を更新"
+  toolsSectionTitle: "ツール"
+  privacyNotice: "ログにはアカウント情報やリクエストパラメータなどの機密情報が含まれる可能性があります。Issue に完全なログを公開添付せず、確認後にメールで送信してください。"
+  exportLogsTitle: "ログをエクスポート"
+  exportLogsSubtitle: "送信前にプライバシー情報を確認してください"
+  viewLogsTitle: "ログを表示"
+  viewLogsSubtitle: "アプリの実行ログをリアルタイム表示"
+  copySupportEmailTitle: "サポートメールをコピー"
+  reportIssueTitle: "問題を報告"
+  reportIssueSubtitle: "GitHub に再現手順を記載（完全なログは添付しないでください）"
+  healthSummaryUnavailable: "ログヘルスデータがありません"
+  healthMetricsUnavailable: "ヘルス指標がまだ収集されていません"
+  healthNoRiskIndicators: "現時点でリスク指標はありません"
+  healthAlert:
+    flushFailureTitle: "書き込み失敗"
+    sinkDegradedTitle: "ログ書き込みが劣化"
+    sinkDegradedDetail: "ファイル sink が degraded 状態です"
+    queueBacklogTitle: "書き込みキュー滞留"
+    queueBacklogDetail: "queueDepth=${queueDepth} (しきい値=${threshold}, メモリ使用量が増加する可能性)"
+    highFlushLatencyTitle: "書き込み遅延が高い"
+    droppedTooManyTitle: "破棄ログが多すぎます"
+    droppedTooManyDetail: "droppedCount=${droppedCount} (しきい値=${threshold})"
+    rateLimitedTitle: "レート制限が発生"
+    exportFailedTitle: "ログエクスポート失敗"
+    fileNearLimitTitle: "ログファイルが上限付近"
+    fileNearLimitDetail: "currentFileUsage=${usagePercent}% (IO ローテーション負荷が増加)"
+  toast:
+    logServiceNotInitialized: "ログサービスが初期化されていません"
+    exportSuccess: "ログをエクスポートしました。プライバシーを確認後、メールで送信してください"
+    exportFailed: "エクスポート失敗: ${error}"
+    supportEmailCopied: "メールアドレスをコピーしました。メールクライアントに貼り付けてログを添付してください"
+  shareSubject: "LoveIwara 診断ログ（機密情報を含む可能性があるため共有注意）"
+
+logViewer:
+  title: "ログビューア"
+  searchHint: "ログを検索..."
+  emptyState: "ログはありません"
+  copiedToClipboard: "クリップボードにコピーしました"
+
+crashRecoveryDialog:
+  title: "アプリが異常終了しました"
+  description: "前回セッションで異常終了を検出しました。診断ログをエクスポートして開発者にメール送信すると、問題修正に役立ちます。"
+  previousVersion: "前回バージョン: ${version}"
+  previousStart: "前回起動: ${time}"
+  lastException: "最後の例外: ${message}"
+  lastHangRecovered: "前回は画面フリーズを検出しましたが自動回復しました"
+  lastHangStalled: "前回は画面が約 ${stalledMs}ms フリーズした可能性があります"
+  exportGuide: "設定 > 診断とフィードバック > ログをエクスポート へ進んでください。"
+  privacyHint: "ログには機密情報が含まれる可能性があります。確認後、次の宛先へメール送信してください："
+  issueWarning: "完全なログを Issue に公開添付しないでください"
+  acknowledge: "了解"
+  supportEmailCopied: "メールアドレスをコピーしました"
 linkInputDialog:
   title: "リンクを入力"
   supportedLinksHint: "複数の${webName}リンクをインテリジェントに識別し、アプリ内の対応するページにすばやくジャンプすることをサポートします（リンクと他のテキストはスペースで区切ります）"

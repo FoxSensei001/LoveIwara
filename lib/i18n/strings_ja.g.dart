@@ -64,6 +64,9 @@ class TranslationsJa with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _TranslationsFavoriteJa favorite = _TranslationsFavoriteJa._(_root);
 	@override late final _TranslationsTranslationJa translation = _TranslationsTranslationJa._(_root);
 	@override late final _TranslationsMediaPlayerJa mediaPlayer = _TranslationsMediaPlayerJa._(_root);
+	@override late final _TranslationsDiagnosticsJa diagnostics = _TranslationsDiagnosticsJa._(_root);
+	@override late final _TranslationsLogViewerJa logViewer = _TranslationsLogViewerJa._(_root);
+	@override late final _TranslationsCrashRecoveryDialogJa crashRecoveryDialog = _TranslationsCrashRecoveryDialogJa._(_root);
 	@override late final _TranslationsLinkInputDialogJa linkInputDialog = _TranslationsLinkInputDialogJa._(_root);
 	@override late final _TranslationsLogJa log = _TranslationsLogJa._(_root);
 	@override late final _TranslationsEmojiJa emoji = _TranslationsEmojiJa._(_root);
@@ -659,6 +662,7 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get needRestartToApply => 'アプリを再起動して設定を適用してください';
 	@override String get themeNeedRestartDescription => 'テーマ設定はアプリを再起動して設定を適用してください';
 	@override String get about => 'アバウト';
+	@override String get diagnosticsAndFeedback => '診断とフィードバック';
 	@override String get currentVersion => '現在のバージョン';
 	@override String get latestVersion => '最新バージョン';
 	@override String get checkForUpdates => '更新をチェック';
@@ -1453,6 +1457,88 @@ class _TranslationsMediaPlayerJa implements TranslationsMediaPlayerEn {
 	@override String get retryingOpenVideoLink => '動画リンクのオープンに失敗しました。再試行中';
 	@override String decoderOpenFailedWithSuggestion({required Object event}) => 'デコーダーを読み込めませんでした: ${event}。プレーヤー設定でソフトウェアデコードに切り替え、ページに再入場してお試しください';
 	@override String videoLoadErrorWithDetail({required Object event}) => '動画読み込みエラー: ${event}';
+	@override String get playbackFailureDiagnosticsHint => '再生失敗が続いています。設定 > 診断とフィードバック からログをエクスポートして報告してください';
+	@override String get openSettingsAction => '表示';
+}
+
+// Path: diagnostics
+class _TranslationsDiagnosticsJa implements TranslationsDiagnosticsEn {
+	_TranslationsDiagnosticsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get infoSectionTitle => '診断情報';
+	@override String get appVersionLabel => 'アプリバージョン';
+	@override String memoryUsage({required Object memMB}) => 'メモリ使用量: ${memMB}MB';
+	@override String get deviceInfoUnavailable => 'デバイス情報を取得できません';
+	@override String get logPolicySectionTitle => 'ログポリシー';
+	@override String get configServiceUnavailable => '設定サービスが未初期化のため、ログポリシーを調整できません';
+	@override String get enableLoggingTitle => 'ログ記録を有効化';
+	@override String get enableLoggingSubtitle => 'オフにすると新しいログ記録を停止します';
+	@override String get enableLogPersistenceTitle => 'ログ永続化を有効化';
+	@override String get enableLogPersistenceSubtitle => 'オフにするとメモリログのみ保持し、ディスクへ書き込みません';
+	@override String get minLogLevelTitle => '最小記録レベル';
+	@override String get minLogLevelSubtitle => 'このレベル未満のログは除外されます';
+	@override String get maxFileSizeTitle => '単一ファイルの上限サイズ';
+	@override String get maxFileSizeSubtitle => 'しきい値到達でローテーションします';
+	@override String get rotatedFileCountTitle => 'メインログのローテーション数';
+	@override String get rotatedFileCountSubtitle => '現在ファイルを除く保持数';
+	@override String get hangFileSizeTitle => 'ハングログの上限サイズ';
+	@override String get hangFileSizeSubtitle => 'hang_events ファイルの増加を制御';
+	@override String get hangRotatedFileCountTitle => 'ハングログのローテーション数';
+	@override String get hangRotatedFileCountSubtitle => 'hang_events の履歴保持数を制御';
+	@override String get healthSectionTitle => 'ログヘルス';
+	@override String get refreshMetrics => '指標を更新';
+	@override String get toolsSectionTitle => 'ツール';
+	@override String get privacyNotice => 'ログにはアカウント情報やリクエストパラメータなどの機密情報が含まれる可能性があります。Issue に完全なログを公開添付せず、確認後にメールで送信してください。';
+	@override String get exportLogsTitle => 'ログをエクスポート';
+	@override String get exportLogsSubtitle => '送信前にプライバシー情報を確認してください';
+	@override String get viewLogsTitle => 'ログを表示';
+	@override String get viewLogsSubtitle => 'アプリの実行ログをリアルタイム表示';
+	@override String get copySupportEmailTitle => 'サポートメールをコピー';
+	@override String get reportIssueTitle => '問題を報告';
+	@override String get reportIssueSubtitle => 'GitHub に再現手順を記載（完全なログは添付しないでください）';
+	@override String get healthSummaryUnavailable => 'ログヘルスデータがありません';
+	@override String get healthMetricsUnavailable => 'ヘルス指標がまだ収集されていません';
+	@override String get healthNoRiskIndicators => '現時点でリスク指標はありません';
+	@override late final _TranslationsDiagnosticsHealthAlertJa healthAlert = _TranslationsDiagnosticsHealthAlertJa._(_root);
+	@override late final _TranslationsDiagnosticsToastJa toast = _TranslationsDiagnosticsToastJa._(_root);
+	@override String get shareSubject => 'LoveIwara 診断ログ（機密情報を含む可能性があるため共有注意）';
+}
+
+// Path: logViewer
+class _TranslationsLogViewerJa implements TranslationsLogViewerEn {
+	_TranslationsLogViewerJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'ログビューア';
+	@override String get searchHint => 'ログを検索...';
+	@override String get emptyState => 'ログはありません';
+	@override String get copiedToClipboard => 'クリップボードにコピーしました';
+}
+
+// Path: crashRecoveryDialog
+class _TranslationsCrashRecoveryDialogJa implements TranslationsCrashRecoveryDialogEn {
+	_TranslationsCrashRecoveryDialogJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'アプリが異常終了しました';
+	@override String get description => '前回セッションで異常終了を検出しました。診断ログをエクスポートして開発者にメール送信すると、問題修正に役立ちます。';
+	@override String previousVersion({required Object version}) => '前回バージョン: ${version}';
+	@override String previousStart({required Object time}) => '前回起動: ${time}';
+	@override String lastException({required Object message}) => '最後の例外: ${message}';
+	@override String get lastHangRecovered => '前回は画面フリーズを検出しましたが自動回復しました';
+	@override String lastHangStalled({required Object stalledMs}) => '前回は画面が約 ${stalledMs}ms フリーズした可能性があります';
+	@override String get exportGuide => '設定 > 診断とフィードバック > ログをエクスポート へ進んでください。';
+	@override String get privacyHint => 'ログには機密情報が含まれる可能性があります。確認後、次の宛先へメール送信してください：';
+	@override String get issueWarning => '完全なログを Issue に公開添付しないでください';
+	@override String get acknowledge => '了解';
+	@override String get supportEmailCopied => 'メールアドレスをコピーしました';
 }
 
 // Path: linkInputDialog
@@ -2465,6 +2551,40 @@ class _TranslationsFavoriteErrorsJa implements TranslationsFavoriteErrorsEn {
 	@override String get folderNameCannotBeEmpty => 'フォルダー名を入力してください';
 }
 
+// Path: diagnostics.healthAlert
+class _TranslationsDiagnosticsHealthAlertJa implements TranslationsDiagnosticsHealthAlertEn {
+	_TranslationsDiagnosticsHealthAlertJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get flushFailureTitle => '書き込み失敗';
+	@override String get sinkDegradedTitle => 'ログ書き込みが劣化';
+	@override String get sinkDegradedDetail => 'ファイル sink が degraded 状態です';
+	@override String get queueBacklogTitle => '書き込みキュー滞留';
+	@override String queueBacklogDetail({required Object queueDepth, required Object threshold}) => 'queueDepth=${queueDepth} (しきい値=${threshold}, メモリ使用量が増加する可能性)';
+	@override String get highFlushLatencyTitle => '書き込み遅延が高い';
+	@override String get droppedTooManyTitle => '破棄ログが多すぎます';
+	@override String droppedTooManyDetail({required Object droppedCount, required Object threshold}) => 'droppedCount=${droppedCount} (しきい値=${threshold})';
+	@override String get rateLimitedTitle => 'レート制限が発生';
+	@override String get exportFailedTitle => 'ログエクスポート失敗';
+	@override String get fileNearLimitTitle => 'ログファイルが上限付近';
+	@override String fileNearLimitDetail({required Object usagePercent}) => 'currentFileUsage=${usagePercent}% (IO ローテーション負荷が増加)';
+}
+
+// Path: diagnostics.toast
+class _TranslationsDiagnosticsToastJa implements TranslationsDiagnosticsToastEn {
+	_TranslationsDiagnosticsToastJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get logServiceNotInitialized => 'ログサービスが初期化されていません';
+	@override String get exportSuccess => 'ログをエクスポートしました。プライバシーを確認後、メールで送信してください';
+	@override String exportFailed({required Object error}) => 'エクスポート失敗: ${error}';
+	@override String get supportEmailCopied => 'メールアドレスをコピーしました。メールクライアントに貼り付けてログを添付してください';
+}
+
 // Path: searchFilter.sortTypes
 class _TranslationsSearchFilterSortTypesJa implements TranslationsSearchFilterSortTypesEn {
 	_TranslationsSearchFilterSortTypesJa._(this._root);
@@ -3180,6 +3300,7 @@ extension on TranslationsJa {
 			'settings.needRestartToApply' => 'アプリを再起動して設定を適用してください',
 			'settings.themeNeedRestartDescription' => 'テーマ設定はアプリを再起動して設定を適用してください',
 			'settings.about' => 'アバウト',
+			'settings.diagnosticsAndFeedback' => '診断とフィードバック',
 			'settings.currentVersion' => '現在のバージョン',
 			'settings.latestVersion' => '最新バージョン',
 			'settings.checkForUpdates' => '更新をチェック',
@@ -3196,9 +3317,9 @@ extension on TranslationsJa {
 			'settings.ignoreThisVersion' => 'このバージョンを無視',
 			'settings.minVersionUpdateRequired' => '現在のバージョンが低すぎます。すぐに更新してください',
 			'settings.forceUpdateTip' => 'これは必須アップデートです。できるだけ早く最新バージョンにアップデートしてください',
-			'settings.viewChangelog' => '更新内容を表示',
 			_ => null,
 		} ?? switch (path) {
+			'settings.viewChangelog' => '更新内容を表示',
 			'settings.alreadyLatestVersion' => 'すでに最新バージョンです',
 			'settings.appSettings' => 'アプリ設定',
 			'settings.configureYourAppSettings' => 'アプリ設定を設定',
@@ -3710,9 +3831,9 @@ extension on TranslationsJa {
 			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => 'クールダウン残り時間 ${minutes} 分 ${seconds} 秒',
 			'forum.groups.administration' => '管理',
 			'forum.groups.global' => 'グローバル',
-			'forum.groups.chinese' => '中国語',
 			_ => null,
 		} ?? switch (path) {
+			'forum.groups.chinese' => '中国語',
 			'forum.groups.japanese' => '日本語',
 			'forum.groups.korean' => '韓国語',
 			'forum.groups.other' => 'その他',
@@ -4196,6 +4317,77 @@ extension on TranslationsJa {
 			'mediaPlayer.retryingOpenVideoLink' => '動画リンクのオープンに失敗しました。再試行中',
 			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => 'デコーダーを読み込めませんでした: ${event}。プレーヤー設定でソフトウェアデコードに切り替え、ページに再入場してお試しください',
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '動画読み込みエラー: ${event}',
+			'mediaPlayer.playbackFailureDiagnosticsHint' => '再生失敗が続いています。設定 > 診断とフィードバック からログをエクスポートして報告してください',
+			'mediaPlayer.openSettingsAction' => '表示',
+			'diagnostics.infoSectionTitle' => '診断情報',
+			'diagnostics.appVersionLabel' => 'アプリバージョン',
+			'diagnostics.memoryUsage' => ({required Object memMB}) => 'メモリ使用量: ${memMB}MB',
+			'diagnostics.deviceInfoUnavailable' => 'デバイス情報を取得できません',
+			'diagnostics.logPolicySectionTitle' => 'ログポリシー',
+			'diagnostics.configServiceUnavailable' => '設定サービスが未初期化のため、ログポリシーを調整できません',
+			'diagnostics.enableLoggingTitle' => 'ログ記録を有効化',
+			'diagnostics.enableLoggingSubtitle' => 'オフにすると新しいログ記録を停止します',
+			'diagnostics.enableLogPersistenceTitle' => 'ログ永続化を有効化',
+			'diagnostics.enableLogPersistenceSubtitle' => 'オフにするとメモリログのみ保持し、ディスクへ書き込みません',
+			'diagnostics.minLogLevelTitle' => '最小記録レベル',
+			'diagnostics.minLogLevelSubtitle' => 'このレベル未満のログは除外されます',
+			'diagnostics.maxFileSizeTitle' => '単一ファイルの上限サイズ',
+			'diagnostics.maxFileSizeSubtitle' => 'しきい値到達でローテーションします',
+			'diagnostics.rotatedFileCountTitle' => 'メインログのローテーション数',
+			'diagnostics.rotatedFileCountSubtitle' => '現在ファイルを除く保持数',
+			'diagnostics.hangFileSizeTitle' => 'ハングログの上限サイズ',
+			'diagnostics.hangFileSizeSubtitle' => 'hang_events ファイルの増加を制御',
+			'diagnostics.hangRotatedFileCountTitle' => 'ハングログのローテーション数',
+			'diagnostics.hangRotatedFileCountSubtitle' => 'hang_events の履歴保持数を制御',
+			'diagnostics.healthSectionTitle' => 'ログヘルス',
+			'diagnostics.refreshMetrics' => '指標を更新',
+			'diagnostics.toolsSectionTitle' => 'ツール',
+			'diagnostics.privacyNotice' => 'ログにはアカウント情報やリクエストパラメータなどの機密情報が含まれる可能性があります。Issue に完全なログを公開添付せず、確認後にメールで送信してください。',
+			'diagnostics.exportLogsTitle' => 'ログをエクスポート',
+			'diagnostics.exportLogsSubtitle' => '送信前にプライバシー情報を確認してください',
+			_ => null,
+		} ?? switch (path) {
+			'diagnostics.viewLogsTitle' => 'ログを表示',
+			'diagnostics.viewLogsSubtitle' => 'アプリの実行ログをリアルタイム表示',
+			'diagnostics.copySupportEmailTitle' => 'サポートメールをコピー',
+			'diagnostics.reportIssueTitle' => '問題を報告',
+			'diagnostics.reportIssueSubtitle' => 'GitHub に再現手順を記載（完全なログは添付しないでください）',
+			'diagnostics.healthSummaryUnavailable' => 'ログヘルスデータがありません',
+			'diagnostics.healthMetricsUnavailable' => 'ヘルス指標がまだ収集されていません',
+			'diagnostics.healthNoRiskIndicators' => '現時点でリスク指標はありません',
+			'diagnostics.healthAlert.flushFailureTitle' => '書き込み失敗',
+			'diagnostics.healthAlert.sinkDegradedTitle' => 'ログ書き込みが劣化',
+			'diagnostics.healthAlert.sinkDegradedDetail' => 'ファイル sink が degraded 状態です',
+			'diagnostics.healthAlert.queueBacklogTitle' => '書き込みキュー滞留',
+			'diagnostics.healthAlert.queueBacklogDetail' => ({required Object queueDepth, required Object threshold}) => 'queueDepth=${queueDepth} (しきい値=${threshold}, メモリ使用量が増加する可能性)',
+			'diagnostics.healthAlert.highFlushLatencyTitle' => '書き込み遅延が高い',
+			'diagnostics.healthAlert.droppedTooManyTitle' => '破棄ログが多すぎます',
+			'diagnostics.healthAlert.droppedTooManyDetail' => ({required Object droppedCount, required Object threshold}) => 'droppedCount=${droppedCount} (しきい値=${threshold})',
+			'diagnostics.healthAlert.rateLimitedTitle' => 'レート制限が発生',
+			'diagnostics.healthAlert.exportFailedTitle' => 'ログエクスポート失敗',
+			'diagnostics.healthAlert.fileNearLimitTitle' => 'ログファイルが上限付近',
+			'diagnostics.healthAlert.fileNearLimitDetail' => ({required Object usagePercent}) => 'currentFileUsage=${usagePercent}% (IO ローテーション負荷が増加)',
+			'diagnostics.toast.logServiceNotInitialized' => 'ログサービスが初期化されていません',
+			'diagnostics.toast.exportSuccess' => 'ログをエクスポートしました。プライバシーを確認後、メールで送信してください',
+			'diagnostics.toast.exportFailed' => ({required Object error}) => 'エクスポート失敗: ${error}',
+			'diagnostics.toast.supportEmailCopied' => 'メールアドレスをコピーしました。メールクライアントに貼り付けてログを添付してください',
+			'diagnostics.shareSubject' => 'LoveIwara 診断ログ（機密情報を含む可能性があるため共有注意）',
+			'logViewer.title' => 'ログビューア',
+			'logViewer.searchHint' => 'ログを検索...',
+			'logViewer.emptyState' => 'ログはありません',
+			'logViewer.copiedToClipboard' => 'クリップボードにコピーしました',
+			'crashRecoveryDialog.title' => 'アプリが異常終了しました',
+			'crashRecoveryDialog.description' => '前回セッションで異常終了を検出しました。診断ログをエクスポートして開発者にメール送信すると、問題修正に役立ちます。',
+			'crashRecoveryDialog.previousVersion' => ({required Object version}) => '前回バージョン: ${version}',
+			'crashRecoveryDialog.previousStart' => ({required Object time}) => '前回起動: ${time}',
+			'crashRecoveryDialog.lastException' => ({required Object message}) => '最後の例外: ${message}',
+			'crashRecoveryDialog.lastHangRecovered' => '前回は画面フリーズを検出しましたが自動回復しました',
+			'crashRecoveryDialog.lastHangStalled' => ({required Object stalledMs}) => '前回は画面が約 ${stalledMs}ms フリーズした可能性があります',
+			'crashRecoveryDialog.exportGuide' => '設定 > 診断とフィードバック > ログをエクスポート へ進んでください。',
+			'crashRecoveryDialog.privacyHint' => 'ログには機密情報が含まれる可能性があります。確認後、次の宛先へメール送信してください：',
+			'crashRecoveryDialog.issueWarning' => '完全なログを Issue に公開添付しないでください',
+			'crashRecoveryDialog.acknowledge' => '了解',
+			'crashRecoveryDialog.supportEmailCopied' => 'メールアドレスをコピーしました',
 			'linkInputDialog.title' => 'リンクを入力',
 			'linkInputDialog.supportedLinksHint' => ({required Object webName}) => '複数の${webName}リンクをインテリジェントに識別し、アプリ内の対応するページにすばやくジャンプすることをサポートします（リンクと他のテキストはスペースで区切ります）',
 			'linkInputDialog.inputHint' => ({required Object webName}) => '${webName}リンクを入力してください',
@@ -4225,8 +4417,6 @@ extension on TranslationsJa {
 			'log.exportHistoryLogsDesc' => '指定された日付範囲内のログをエクスポート',
 			'log.exportMergedLogs' => 'マージログをエクスポート',
 			'log.exportMergedLogsDesc' => '指定された日付範囲内のマージログをエクスポート',
-			_ => null,
-		} ?? switch (path) {
 			'log.showLogStats' => 'ログ統計情報を表示',
 			'log.logExportSuccess' => 'ログエクスポート成功',
 			'log.logExportFailed' => ({required Object error}) => 'ログエクスポート失敗: ${error}',

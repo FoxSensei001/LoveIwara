@@ -64,6 +64,9 @@ class TranslationsZhCn with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsFavoriteZhCn favorite = _TranslationsFavoriteZhCn._(_root);
 	@override late final _TranslationsTranslationZhCn translation = _TranslationsTranslationZhCn._(_root);
 	@override late final _TranslationsMediaPlayerZhCn mediaPlayer = _TranslationsMediaPlayerZhCn._(_root);
+	@override late final _TranslationsDiagnosticsZhCn diagnostics = _TranslationsDiagnosticsZhCn._(_root);
+	@override late final _TranslationsLogViewerZhCn logViewer = _TranslationsLogViewerZhCn._(_root);
+	@override late final _TranslationsCrashRecoveryDialogZhCn crashRecoveryDialog = _TranslationsCrashRecoveryDialogZhCn._(_root);
 	@override late final _TranslationsLinkInputDialogZhCn linkInputDialog = _TranslationsLinkInputDialogZhCn._(_root);
 	@override late final _TranslationsLogZhCn log = _TranslationsLogZhCn._(_root);
 	@override late final _TranslationsEmojiZhCn emoji = _TranslationsEmojiZhCn._(_root);
@@ -664,6 +667,7 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get needRestartToApply => '需要重启应用以应用设置';
 	@override String get themeNeedRestartDescription => '主题设置需要重启应用以应用设置';
 	@override String get about => '关于';
+	@override String get diagnosticsAndFeedback => '诊断与反馈';
 	@override String get currentVersion => '当前版本';
 	@override String get latestVersion => '最新版本';
 	@override String get checkForUpdates => '检查更新';
@@ -1458,6 +1462,88 @@ class _TranslationsMediaPlayerZhCn implements TranslationsMediaPlayerEn {
 	@override String get retryingOpenVideoLink => '视频链接打开失败，重试中';
 	@override String decoderOpenFailedWithSuggestion({required Object event}) => '无法加载解码器: ${event}，可以通过在播放器设置里切换至软解，并重新进入页面尝试';
 	@override String videoLoadErrorWithDetail({required Object event}) => '视频加载错误: ${event}';
+	@override String get playbackFailureDiagnosticsHint => '多次播放失败，建议前往 设置 > 诊断与反馈 导出日志反馈';
+	@override String get openSettingsAction => '查看';
+}
+
+// Path: diagnostics
+class _TranslationsDiagnosticsZhCn implements TranslationsDiagnosticsEn {
+	_TranslationsDiagnosticsZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get infoSectionTitle => '诊断信息';
+	@override String get appVersionLabel => '应用版本';
+	@override String memoryUsage({required Object memMB}) => '内存使用: ${memMB}MB';
+	@override String get deviceInfoUnavailable => '无法获取设备信息';
+	@override String get logPolicySectionTitle => '日志策略';
+	@override String get configServiceUnavailable => '配置服务未初始化，无法调整日志策略';
+	@override String get enableLoggingTitle => '启用日志记录';
+	@override String get enableLoggingSubtitle => '关闭后将停止新增日志记录';
+	@override String get enableLogPersistenceTitle => '启用日志持久化';
+	@override String get enableLogPersistenceSubtitle => '关闭后仅保留内存日志，不再写入磁盘';
+	@override String get minLogLevelTitle => '最小记录级别';
+	@override String get minLogLevelSubtitle => '低于该级别的日志会被过滤';
+	@override String get maxFileSizeTitle => '单文件大小上限';
+	@override String get maxFileSizeSubtitle => '达到阈值后执行轮转';
+	@override String get rotatedFileCountTitle => '主日志轮转文件数';
+	@override String get rotatedFileCountSubtitle => '包含当前文件之外的保留份数';
+	@override String get hangFileSizeTitle => '卡顿日志大小上限';
+	@override String get hangFileSizeSubtitle => '控制 hang_events 文件增长';
+	@override String get hangRotatedFileCountTitle => '卡顿日志轮转文件数';
+	@override String get hangRotatedFileCountSubtitle => '控制 hang_events 历史保留份数';
+	@override String get healthSectionTitle => '日志健康';
+	@override String get refreshMetrics => '刷新指标';
+	@override String get toolsSectionTitle => '工具';
+	@override String get privacyNotice => '日志可能包含账号、请求参数等敏感信息。请勿直接公开附加到 Issue，建议检查后通过邮箱发送。';
+	@override String get exportLogsTitle => '导出日志';
+	@override String get exportLogsSubtitle => '导出后请先检查隐私，再发送给开发者';
+	@override String get viewLogsTitle => '查看日志';
+	@override String get viewLogsSubtitle => '实时查看应用运行日志';
+	@override String get copySupportEmailTitle => '复制日志邮箱';
+	@override String get reportIssueTitle => '反馈问题';
+	@override String get reportIssueSubtitle => '在 GitHub 提供复现步骤（请勿附完整日志）';
+	@override String get healthSummaryUnavailable => '暂无日志健康数据';
+	@override String get healthMetricsUnavailable => '尚未采集到健康指标';
+	@override String get healthNoRiskIndicators => '当前未发现风险指标';
+	@override late final _TranslationsDiagnosticsHealthAlertZhCn healthAlert = _TranslationsDiagnosticsHealthAlertZhCn._(_root);
+	@override late final _TranslationsDiagnosticsToastZhCn toast = _TranslationsDiagnosticsToastZhCn._(_root);
+	@override String get shareSubject => 'LoveIwara 诊断日志（含隐私信息，请谨慎分享）';
+}
+
+// Path: logViewer
+class _TranslationsLogViewerZhCn implements TranslationsLogViewerEn {
+	_TranslationsLogViewerZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '日志查看器';
+	@override String get searchHint => '搜索日志...';
+	@override String get emptyState => '暂无日志';
+	@override String get copiedToClipboard => '已复制到剪贴板';
+}
+
+// Path: crashRecoveryDialog
+class _TranslationsCrashRecoveryDialogZhCn implements TranslationsCrashRecoveryDialogEn {
+	_TranslationsCrashRecoveryDialogZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '应用异常退出';
+	@override String get description => '我们检测到应用上次异常退出。请按提示导出诊断日志并邮件发送给开发者，帮助我们修复问题。';
+	@override String previousVersion({required Object version}) => '上次版本: ${version}';
+	@override String previousStart({required Object time}) => '上次启动: ${time}';
+	@override String lastException({required Object message}) => '最后异常: ${message}';
+	@override String get lastHangRecovered => '上次检测到界面卡顿，已自动恢复';
+	@override String lastHangStalled({required Object stalledMs}) => '上次检测到界面可能假死，持续约 ${stalledMs}ms';
+	@override String get exportGuide => '请前往 设置 > 诊断与反馈 > 导出日志。';
+	@override String get privacyHint => '日志可能包含隐私信息，请先检查后再通过邮件发送至：';
+	@override String get issueWarning => '请勿将完整日志直接公开附加在 Issue 中';
+	@override String get acknowledge => '我知道了';
+	@override String get supportEmailCopied => '邮箱已复制';
 }
 
 // Path: linkInputDialog
@@ -2470,6 +2556,40 @@ class _TranslationsFavoriteErrorsZhCn implements TranslationsFavoriteErrorsEn {
 	@override String get folderNameCannotBeEmpty => '文件夹名称不能为空';
 }
 
+// Path: diagnostics.healthAlert
+class _TranslationsDiagnosticsHealthAlertZhCn implements TranslationsDiagnosticsHealthAlertEn {
+	_TranslationsDiagnosticsHealthAlertZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get flushFailureTitle => '写盘失败';
+	@override String get sinkDegradedTitle => '日志写入已降级';
+	@override String get sinkDegradedDetail => '文件 sink 处于 degraded 状态';
+	@override String get queueBacklogTitle => '写队列积压';
+	@override String queueBacklogDetail({required Object queueDepth, required Object threshold}) => 'queueDepth=${queueDepth} (阈值=${threshold}, 可能增加内存占用)';
+	@override String get highFlushLatencyTitle => '落盘延迟偏高';
+	@override String get droppedTooManyTitle => '日志丢弃较多';
+	@override String droppedTooManyDetail({required Object droppedCount, required Object threshold}) => 'droppedCount=${droppedCount} (阈值=${threshold})';
+	@override String get rateLimitedTitle => '触发限流';
+	@override String get exportFailedTitle => '日志导出失败';
+	@override String get fileNearLimitTitle => '日志文件接近上限';
+	@override String fileNearLimitDetail({required Object usagePercent}) => 'currentFileUsage=${usagePercent}% (IO 轮转压力增大)';
+}
+
+// Path: diagnostics.toast
+class _TranslationsDiagnosticsToastZhCn implements TranslationsDiagnosticsToastEn {
+	_TranslationsDiagnosticsToastZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get logServiceNotInitialized => '日志服务未初始化';
+	@override String get exportSuccess => '日志已导出，请检查隐私后再通过邮箱发送';
+	@override String exportFailed({required Object error}) => '导出失败: ${error}';
+	@override String get supportEmailCopied => '邮箱已复制，请粘贴到邮件客户端并附上日志';
+}
+
 // Path: searchFilter.sortTypes
 class _TranslationsSearchFilterSortTypesZhCn implements TranslationsSearchFilterSortTypesEn {
 	_TranslationsSearchFilterSortTypesZhCn._(this._root);
@@ -3190,6 +3310,7 @@ extension on TranslationsZhCn {
 			'settings.needRestartToApply' => '需要重启应用以应用设置',
 			'settings.themeNeedRestartDescription' => '主题设置需要重启应用以应用设置',
 			'settings.about' => '关于',
+			'settings.diagnosticsAndFeedback' => '诊断与反馈',
 			'settings.currentVersion' => '当前版本',
 			'settings.latestVersion' => '最新版本',
 			'settings.checkForUpdates' => '检查更新',
@@ -3201,9 +3322,9 @@ extension on TranslationsZhCn {
 			'settings.openSourceLicense' => '开源许可',
 			'settings.checkForUpdatesFailed' => '检查更新失败，请稍后重试',
 			'settings.autoCheckUpdate' => '自动检查更新',
-			'settings.updateContent' => '更新内容：',
 			_ => null,
 		} ?? switch (path) {
+			'settings.updateContent' => '更新内容：',
 			'settings.releaseDate' => '发布日期',
 			'settings.ignoreThisVersion' => '忽略此版本',
 			'settings.minVersionUpdateRequired' => '当前版本过低，请尽快更新',
@@ -3715,9 +3836,9 @@ extension on TranslationsZhCn {
 			'forum.posts' => '帖子',
 			'forum.threads' => '主题',
 			'forum.forum' => '论坛',
-			'forum.createThread' => '创建主题',
 			_ => null,
 		} ?? switch (path) {
+			'forum.createThread' => '创建主题',
 			'forum.selectCategory' => '选择分类',
 			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => '冷却剩余时间 ${minutes} 分 ${seconds} 秒',
 			'forum.groups.administration' => '管理',
@@ -4206,6 +4327,77 @@ extension on TranslationsZhCn {
 			'mediaPlayer.retryingOpenVideoLink' => '视频链接打开失败，重试中',
 			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => '无法加载解码器: ${event}，可以通过在播放器设置里切换至软解，并重新进入页面尝试',
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '视频加载错误: ${event}',
+			'mediaPlayer.playbackFailureDiagnosticsHint' => '多次播放失败，建议前往 设置 > 诊断与反馈 导出日志反馈',
+			'mediaPlayer.openSettingsAction' => '查看',
+			'diagnostics.infoSectionTitle' => '诊断信息',
+			'diagnostics.appVersionLabel' => '应用版本',
+			'diagnostics.memoryUsage' => ({required Object memMB}) => '内存使用: ${memMB}MB',
+			'diagnostics.deviceInfoUnavailable' => '无法获取设备信息',
+			'diagnostics.logPolicySectionTitle' => '日志策略',
+			'diagnostics.configServiceUnavailable' => '配置服务未初始化，无法调整日志策略',
+			'diagnostics.enableLoggingTitle' => '启用日志记录',
+			'diagnostics.enableLoggingSubtitle' => '关闭后将停止新增日志记录',
+			'diagnostics.enableLogPersistenceTitle' => '启用日志持久化',
+			'diagnostics.enableLogPersistenceSubtitle' => '关闭后仅保留内存日志，不再写入磁盘',
+			'diagnostics.minLogLevelTitle' => '最小记录级别',
+			'diagnostics.minLogLevelSubtitle' => '低于该级别的日志会被过滤',
+			'diagnostics.maxFileSizeTitle' => '单文件大小上限',
+			'diagnostics.maxFileSizeSubtitle' => '达到阈值后执行轮转',
+			'diagnostics.rotatedFileCountTitle' => '主日志轮转文件数',
+			'diagnostics.rotatedFileCountSubtitle' => '包含当前文件之外的保留份数',
+			'diagnostics.hangFileSizeTitle' => '卡顿日志大小上限',
+			'diagnostics.hangFileSizeSubtitle' => '控制 hang_events 文件增长',
+			'diagnostics.hangRotatedFileCountTitle' => '卡顿日志轮转文件数',
+			'diagnostics.hangRotatedFileCountSubtitle' => '控制 hang_events 历史保留份数',
+			'diagnostics.healthSectionTitle' => '日志健康',
+			_ => null,
+		} ?? switch (path) {
+			'diagnostics.refreshMetrics' => '刷新指标',
+			'diagnostics.toolsSectionTitle' => '工具',
+			'diagnostics.privacyNotice' => '日志可能包含账号、请求参数等敏感信息。请勿直接公开附加到 Issue，建议检查后通过邮箱发送。',
+			'diagnostics.exportLogsTitle' => '导出日志',
+			'diagnostics.exportLogsSubtitle' => '导出后请先检查隐私，再发送给开发者',
+			'diagnostics.viewLogsTitle' => '查看日志',
+			'diagnostics.viewLogsSubtitle' => '实时查看应用运行日志',
+			'diagnostics.copySupportEmailTitle' => '复制日志邮箱',
+			'diagnostics.reportIssueTitle' => '反馈问题',
+			'diagnostics.reportIssueSubtitle' => '在 GitHub 提供复现步骤（请勿附完整日志）',
+			'diagnostics.healthSummaryUnavailable' => '暂无日志健康数据',
+			'diagnostics.healthMetricsUnavailable' => '尚未采集到健康指标',
+			'diagnostics.healthNoRiskIndicators' => '当前未发现风险指标',
+			'diagnostics.healthAlert.flushFailureTitle' => '写盘失败',
+			'diagnostics.healthAlert.sinkDegradedTitle' => '日志写入已降级',
+			'diagnostics.healthAlert.sinkDegradedDetail' => '文件 sink 处于 degraded 状态',
+			'diagnostics.healthAlert.queueBacklogTitle' => '写队列积压',
+			'diagnostics.healthAlert.queueBacklogDetail' => ({required Object queueDepth, required Object threshold}) => 'queueDepth=${queueDepth} (阈值=${threshold}, 可能增加内存占用)',
+			'diagnostics.healthAlert.highFlushLatencyTitle' => '落盘延迟偏高',
+			'diagnostics.healthAlert.droppedTooManyTitle' => '日志丢弃较多',
+			'diagnostics.healthAlert.droppedTooManyDetail' => ({required Object droppedCount, required Object threshold}) => 'droppedCount=${droppedCount} (阈值=${threshold})',
+			'diagnostics.healthAlert.rateLimitedTitle' => '触发限流',
+			'diagnostics.healthAlert.exportFailedTitle' => '日志导出失败',
+			'diagnostics.healthAlert.fileNearLimitTitle' => '日志文件接近上限',
+			'diagnostics.healthAlert.fileNearLimitDetail' => ({required Object usagePercent}) => 'currentFileUsage=${usagePercent}% (IO 轮转压力增大)',
+			'diagnostics.toast.logServiceNotInitialized' => '日志服务未初始化',
+			'diagnostics.toast.exportSuccess' => '日志已导出，请检查隐私后再通过邮箱发送',
+			'diagnostics.toast.exportFailed' => ({required Object error}) => '导出失败: ${error}',
+			'diagnostics.toast.supportEmailCopied' => '邮箱已复制，请粘贴到邮件客户端并附上日志',
+			'diagnostics.shareSubject' => 'LoveIwara 诊断日志（含隐私信息，请谨慎分享）',
+			'logViewer.title' => '日志查看器',
+			'logViewer.searchHint' => '搜索日志...',
+			'logViewer.emptyState' => '暂无日志',
+			'logViewer.copiedToClipboard' => '已复制到剪贴板',
+			'crashRecoveryDialog.title' => '应用异常退出',
+			'crashRecoveryDialog.description' => '我们检测到应用上次异常退出。请按提示导出诊断日志并邮件发送给开发者，帮助我们修复问题。',
+			'crashRecoveryDialog.previousVersion' => ({required Object version}) => '上次版本: ${version}',
+			'crashRecoveryDialog.previousStart' => ({required Object time}) => '上次启动: ${time}',
+			'crashRecoveryDialog.lastException' => ({required Object message}) => '最后异常: ${message}',
+			'crashRecoveryDialog.lastHangRecovered' => '上次检测到界面卡顿，已自动恢复',
+			'crashRecoveryDialog.lastHangStalled' => ({required Object stalledMs}) => '上次检测到界面可能假死，持续约 ${stalledMs}ms',
+			'crashRecoveryDialog.exportGuide' => '请前往 设置 > 诊断与反馈 > 导出日志。',
+			'crashRecoveryDialog.privacyHint' => '日志可能包含隐私信息，请先检查后再通过邮件发送至：',
+			'crashRecoveryDialog.issueWarning' => '请勿将完整日志直接公开附加在 Issue 中',
+			'crashRecoveryDialog.acknowledge' => '我知道了',
+			'crashRecoveryDialog.supportEmailCopied' => '邮箱已复制',
 			'linkInputDialog.title' => '输入链接',
 			'linkInputDialog.supportedLinksHint' => ({required Object webName}) => '支持智能识别多个${webName}链接，并快速跳转到应用内对应页面(链接与其他文本之间用空格隔开)',
 			'linkInputDialog.inputHint' => ({required Object webName}) => '请输入${webName}链接',
@@ -4230,8 +4422,6 @@ extension on TranslationsZhCn {
 			'log.logDatabaseSizeLimit' => '日志数据库大小上限',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => '当前: ${size}',
 			'log.exportCurrentLogs' => '导出当前日志',
-			_ => null,
-		} ?? switch (path) {
 			'log.exportCurrentLogsDesc' => '导出当天应用日志以帮助开发者诊断问题',
 			'log.exportHistoryLogs' => '导出历史日志',
 			'log.exportHistoryLogsDesc' => '导出指定日期范围的日志',

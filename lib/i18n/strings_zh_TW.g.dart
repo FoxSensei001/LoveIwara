@@ -66,6 +66,9 @@ class TranslationsZhTw with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsFavoriteZhTw favorite = _TranslationsFavoriteZhTw._(_root);
 	@override late final _TranslationsTranslationZhTw translation = _TranslationsTranslationZhTw._(_root);
 	@override late final _TranslationsMediaPlayerZhTw mediaPlayer = _TranslationsMediaPlayerZhTw._(_root);
+	@override late final _TranslationsDiagnosticsZhTw diagnostics = _TranslationsDiagnosticsZhTw._(_root);
+	@override late final _TranslationsLogViewerZhTw logViewer = _TranslationsLogViewerZhTw._(_root);
+	@override late final _TranslationsCrashRecoveryDialogZhTw crashRecoveryDialog = _TranslationsCrashRecoveryDialogZhTw._(_root);
 	@override late final _TranslationsLinkInputDialogZhTw linkInputDialog = _TranslationsLinkInputDialogZhTw._(_root);
 	@override late final _TranslationsLogZhTw log = _TranslationsLogZhTw._(_root);
 	@override late final _TranslationsEmojiZhTw emoji = _TranslationsEmojiZhTw._(_root);
@@ -659,6 +662,7 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get needRestartToApply => '需要重啟應用以應用設定';
 	@override String get themeNeedRestartDescription => '主題設定需要重啟應用以應用設定';
 	@override String get about => '關於';
+	@override String get diagnosticsAndFeedback => '診斷與回饋';
 	@override String get currentVersion => '目前版本';
 	@override String get latestVersion => '最新版本';
 	@override String get checkForUpdates => '檢查更新';
@@ -1484,6 +1488,88 @@ class _TranslationsMediaPlayerZhTw implements TranslationsMediaPlayerEn {
 	@override String get retryingOpenVideoLink => '影片連結開啟失敗，重試中';
 	@override String decoderOpenFailedWithSuggestion({required Object event}) => '無法載入解碼器: ${event}，可在播放器設定切換為軟解，並重新進入頁面嘗試';
 	@override String videoLoadErrorWithDetail({required Object event}) => '影片載入錯誤: ${event}';
+	@override String get playbackFailureDiagnosticsHint => '多次播放失敗，建議前往 設定 > 診斷與回饋 匯出日誌回報';
+	@override String get openSettingsAction => '查看';
+}
+
+// Path: diagnostics
+class _TranslationsDiagnosticsZhTw implements TranslationsDiagnosticsEn {
+	_TranslationsDiagnosticsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get infoSectionTitle => '診斷資訊';
+	@override String get appVersionLabel => '應用版本';
+	@override String memoryUsage({required Object memMB}) => '記憶體使用量: ${memMB}MB';
+	@override String get deviceInfoUnavailable => '無法取得裝置資訊';
+	@override String get logPolicySectionTitle => '日誌策略';
+	@override String get configServiceUnavailable => '設定服務未初始化，無法調整日誌策略';
+	@override String get enableLoggingTitle => '啟用日誌記錄';
+	@override String get enableLoggingSubtitle => '關閉後將停止新增日誌記錄';
+	@override String get enableLogPersistenceTitle => '啟用日誌持久化';
+	@override String get enableLogPersistenceSubtitle => '關閉後僅保留記憶體日誌，不再寫入磁碟';
+	@override String get minLogLevelTitle => '最小記錄層級';
+	@override String get minLogLevelSubtitle => '低於此層級的日誌將被過濾';
+	@override String get maxFileSizeTitle => '單檔大小上限';
+	@override String get maxFileSizeSubtitle => '達到門檻後執行輪轉';
+	@override String get rotatedFileCountTitle => '主日誌輪轉檔案數';
+	@override String get rotatedFileCountSubtitle => '包含目前檔案之外的保留份數';
+	@override String get hangFileSizeTitle => '卡頓日誌大小上限';
+	@override String get hangFileSizeSubtitle => '控制 hang_events 檔案成長';
+	@override String get hangRotatedFileCountTitle => '卡頓日誌輪轉檔案數';
+	@override String get hangRotatedFileCountSubtitle => '控制 hang_events 歷史保留份數';
+	@override String get healthSectionTitle => '日誌健康';
+	@override String get refreshMetrics => '重新整理指標';
+	@override String get toolsSectionTitle => '工具';
+	@override String get privacyNotice => '日誌可能包含帳號、請求參數等敏感資訊。請勿直接公開附加到 Issue，建議檢查後透過郵件傳送。';
+	@override String get exportLogsTitle => '匯出日誌';
+	@override String get exportLogsSubtitle => '匯出後請先檢查隱私，再傳送給開發者';
+	@override String get viewLogsTitle => '查看日誌';
+	@override String get viewLogsSubtitle => '即時查看應用執行日誌';
+	@override String get copySupportEmailTitle => '複製日誌信箱';
+	@override String get reportIssueTitle => '回報問題';
+	@override String get reportIssueSubtitle => '在 GitHub 提供重現步驟（請勿附完整日誌）';
+	@override String get healthSummaryUnavailable => '暫無日誌健康資料';
+	@override String get healthMetricsUnavailable => '尚未採集到健康指標';
+	@override String get healthNoRiskIndicators => '目前未發現風險指標';
+	@override late final _TranslationsDiagnosticsHealthAlertZhTw healthAlert = _TranslationsDiagnosticsHealthAlertZhTw._(_root);
+	@override late final _TranslationsDiagnosticsToastZhTw toast = _TranslationsDiagnosticsToastZhTw._(_root);
+	@override String get shareSubject => 'LoveIwara 診斷日誌（含隱私資訊，請謹慎分享）';
+}
+
+// Path: logViewer
+class _TranslationsLogViewerZhTw implements TranslationsLogViewerEn {
+	_TranslationsLogViewerZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '日誌檢視器';
+	@override String get searchHint => '搜尋日誌...';
+	@override String get emptyState => '暫無日誌';
+	@override String get copiedToClipboard => '已複製到剪貼簿';
+}
+
+// Path: crashRecoveryDialog
+class _TranslationsCrashRecoveryDialogZhTw implements TranslationsCrashRecoveryDialogEn {
+	_TranslationsCrashRecoveryDialogZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '應用異常退出';
+	@override String get description => '我們偵測到應用上次異常退出。請依提示匯出診斷日誌並郵件傳送給開發者，幫助我們修復問題。';
+	@override String previousVersion({required Object version}) => '上次版本: ${version}';
+	@override String previousStart({required Object time}) => '上次啟動: ${time}';
+	@override String lastException({required Object message}) => '最後異常: ${message}';
+	@override String get lastHangRecovered => '上次偵測到介面卡頓，已自動恢復';
+	@override String lastHangStalled({required Object stalledMs}) => '上次偵測到介面可能假死，持續約 ${stalledMs}ms';
+	@override String get exportGuide => '請前往 設定 > 診斷與回饋 > 匯出日誌。';
+	@override String get privacyHint => '日誌可能包含隱私資訊，請先檢查後再透過郵件傳送至：';
+	@override String get issueWarning => '請勿將完整日誌直接公開附加在 Issue 中';
+	@override String get acknowledge => '我知道了';
+	@override String get supportEmailCopied => '信箱已複製';
 }
 
 // Path: linkInputDialog
@@ -2556,6 +2642,40 @@ class _TranslationsFavoriteErrorsZhTw implements TranslationsFavoriteErrorsEn {
 	@override String get folderNameCannotBeEmpty => '資料夾名稱不能為空';
 }
 
+// Path: diagnostics.healthAlert
+class _TranslationsDiagnosticsHealthAlertZhTw implements TranslationsDiagnosticsHealthAlertEn {
+	_TranslationsDiagnosticsHealthAlertZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get flushFailureTitle => '寫入失敗';
+	@override String get sinkDegradedTitle => '日誌寫入已降級';
+	@override String get sinkDegradedDetail => '檔案 sink 處於 degraded 狀態';
+	@override String get queueBacklogTitle => '寫入佇列積壓';
+	@override String queueBacklogDetail({required Object queueDepth, required Object threshold}) => 'queueDepth=${queueDepth} (門檻=${threshold}, 可能增加記憶體占用)';
+	@override String get highFlushLatencyTitle => '落盤延遲偏高';
+	@override String get droppedTooManyTitle => '日誌丟棄較多';
+	@override String droppedTooManyDetail({required Object droppedCount, required Object threshold}) => 'droppedCount=${droppedCount} (門檻=${threshold})';
+	@override String get rateLimitedTitle => '觸發限流';
+	@override String get exportFailedTitle => '日誌匯出失敗';
+	@override String get fileNearLimitTitle => '日誌檔案接近上限';
+	@override String fileNearLimitDetail({required Object usagePercent}) => 'currentFileUsage=${usagePercent}% (IO 輪轉壓力增加)';
+}
+
+// Path: diagnostics.toast
+class _TranslationsDiagnosticsToastZhTw implements TranslationsDiagnosticsToastEn {
+	_TranslationsDiagnosticsToastZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get logServiceNotInitialized => '日誌服務未初始化';
+	@override String get exportSuccess => '日誌已匯出，請檢查隱私後再透過郵件傳送';
+	@override String exportFailed({required Object error}) => '匯出失敗: ${error}';
+	@override String get supportEmailCopied => '信箱已複製，請貼到郵件客戶端並附上日誌';
+}
+
 // Path: searchFilter.sortTypes
 class _TranslationsSearchFilterSortTypesZhTw implements TranslationsSearchFilterSortTypesEn {
 	_TranslationsSearchFilterSortTypesZhTw._(this._root);
@@ -3183,6 +3303,7 @@ extension on TranslationsZhTw {
 			'settings.needRestartToApply' => '需要重啟應用以應用設定',
 			'settings.themeNeedRestartDescription' => '主題設定需要重啟應用以應用設定',
 			'settings.about' => '關於',
+			'settings.diagnosticsAndFeedback' => '診斷與回饋',
 			'settings.currentVersion' => '目前版本',
 			'settings.latestVersion' => '最新版本',
 			'settings.checkForUpdates' => '檢查更新',
@@ -3199,9 +3320,9 @@ extension on TranslationsZhTw {
 			'settings.ignoreThisVersion' => '忽略此版本',
 			'settings.minVersionUpdateRequired' => '目前版本過低，請盡快更新',
 			'settings.forceUpdateTip' => '此版本為強制更新，請盡快更新到最新版本',
-			'settings.viewChangelog' => '查看更新日誌',
 			_ => null,
 		} ?? switch (path) {
+			'settings.viewChangelog' => '查看更新日誌',
 			'settings.alreadyLatestVersion' => '已是最新版本',
 			'settings.appSettings' => '應用設定',
 			'settings.configureYourAppSettings' => '配置您的應用程式設定',
@@ -3713,9 +3834,9 @@ extension on TranslationsZhTw {
 			'markdown.linkAndImageDescription' => '連結格式：[文字](URL)\n圖片格式：![描述](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[連結文字](${link})\n![圖片描述](${imgUrl})',
 			'markdown.title' => '標題',
-			'markdown.titleDescription' => '使用 # 號建立標題，數量表示級別',
 			_ => null,
 		} ?? switch (path) {
+			'markdown.titleDescription' => '使用 # 號建立標題，數量表示級別',
 			'markdown.titleSyntax' => '# 一級標題\n## 二級標題\n### 三級標題',
 			'markdown.separator' => '分隔線',
 			'markdown.separatorDescription' => '使用三個或更多 - 號建立分隔線',
@@ -4227,11 +4348,80 @@ extension on TranslationsZhTw {
 			'mediaPlayer.imageLoadFailed' => '圖片載入失敗',
 			'mediaPlayer.unsupportedImageFormat' => '不支援的圖片格式',
 			'mediaPlayer.tryOtherViewer' => '請嘗試使用其他檢視器',
-			'mediaPlayer.retryingOpenVideoLink' => '影片連結開啟失敗，重試中',
 			_ => null,
 		} ?? switch (path) {
+			'mediaPlayer.retryingOpenVideoLink' => '影片連結開啟失敗，重試中',
 			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => '無法載入解碼器: ${event}，可在播放器設定切換為軟解，並重新進入頁面嘗試',
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '影片載入錯誤: ${event}',
+			'mediaPlayer.playbackFailureDiagnosticsHint' => '多次播放失敗，建議前往 設定 > 診斷與回饋 匯出日誌回報',
+			'mediaPlayer.openSettingsAction' => '查看',
+			'diagnostics.infoSectionTitle' => '診斷資訊',
+			'diagnostics.appVersionLabel' => '應用版本',
+			'diagnostics.memoryUsage' => ({required Object memMB}) => '記憶體使用量: ${memMB}MB',
+			'diagnostics.deviceInfoUnavailable' => '無法取得裝置資訊',
+			'diagnostics.logPolicySectionTitle' => '日誌策略',
+			'diagnostics.configServiceUnavailable' => '設定服務未初始化，無法調整日誌策略',
+			'diagnostics.enableLoggingTitle' => '啟用日誌記錄',
+			'diagnostics.enableLoggingSubtitle' => '關閉後將停止新增日誌記錄',
+			'diagnostics.enableLogPersistenceTitle' => '啟用日誌持久化',
+			'diagnostics.enableLogPersistenceSubtitle' => '關閉後僅保留記憶體日誌，不再寫入磁碟',
+			'diagnostics.minLogLevelTitle' => '最小記錄層級',
+			'diagnostics.minLogLevelSubtitle' => '低於此層級的日誌將被過濾',
+			'diagnostics.maxFileSizeTitle' => '單檔大小上限',
+			'diagnostics.maxFileSizeSubtitle' => '達到門檻後執行輪轉',
+			'diagnostics.rotatedFileCountTitle' => '主日誌輪轉檔案數',
+			'diagnostics.rotatedFileCountSubtitle' => '包含目前檔案之外的保留份數',
+			'diagnostics.hangFileSizeTitle' => '卡頓日誌大小上限',
+			'diagnostics.hangFileSizeSubtitle' => '控制 hang_events 檔案成長',
+			'diagnostics.hangRotatedFileCountTitle' => '卡頓日誌輪轉檔案數',
+			'diagnostics.hangRotatedFileCountSubtitle' => '控制 hang_events 歷史保留份數',
+			'diagnostics.healthSectionTitle' => '日誌健康',
+			'diagnostics.refreshMetrics' => '重新整理指標',
+			'diagnostics.toolsSectionTitle' => '工具',
+			'diagnostics.privacyNotice' => '日誌可能包含帳號、請求參數等敏感資訊。請勿直接公開附加到 Issue，建議檢查後透過郵件傳送。',
+			'diagnostics.exportLogsTitle' => '匯出日誌',
+			'diagnostics.exportLogsSubtitle' => '匯出後請先檢查隱私，再傳送給開發者',
+			'diagnostics.viewLogsTitle' => '查看日誌',
+			'diagnostics.viewLogsSubtitle' => '即時查看應用執行日誌',
+			'diagnostics.copySupportEmailTitle' => '複製日誌信箱',
+			'diagnostics.reportIssueTitle' => '回報問題',
+			'diagnostics.reportIssueSubtitle' => '在 GitHub 提供重現步驟（請勿附完整日誌）',
+			'diagnostics.healthSummaryUnavailable' => '暫無日誌健康資料',
+			'diagnostics.healthMetricsUnavailable' => '尚未採集到健康指標',
+			'diagnostics.healthNoRiskIndicators' => '目前未發現風險指標',
+			'diagnostics.healthAlert.flushFailureTitle' => '寫入失敗',
+			'diagnostics.healthAlert.sinkDegradedTitle' => '日誌寫入已降級',
+			'diagnostics.healthAlert.sinkDegradedDetail' => '檔案 sink 處於 degraded 狀態',
+			'diagnostics.healthAlert.queueBacklogTitle' => '寫入佇列積壓',
+			'diagnostics.healthAlert.queueBacklogDetail' => ({required Object queueDepth, required Object threshold}) => 'queueDepth=${queueDepth} (門檻=${threshold}, 可能增加記憶體占用)',
+			'diagnostics.healthAlert.highFlushLatencyTitle' => '落盤延遲偏高',
+			'diagnostics.healthAlert.droppedTooManyTitle' => '日誌丟棄較多',
+			'diagnostics.healthAlert.droppedTooManyDetail' => ({required Object droppedCount, required Object threshold}) => 'droppedCount=${droppedCount} (門檻=${threshold})',
+			'diagnostics.healthAlert.rateLimitedTitle' => '觸發限流',
+			'diagnostics.healthAlert.exportFailedTitle' => '日誌匯出失敗',
+			'diagnostics.healthAlert.fileNearLimitTitle' => '日誌檔案接近上限',
+			'diagnostics.healthAlert.fileNearLimitDetail' => ({required Object usagePercent}) => 'currentFileUsage=${usagePercent}% (IO 輪轉壓力增加)',
+			'diagnostics.toast.logServiceNotInitialized' => '日誌服務未初始化',
+			'diagnostics.toast.exportSuccess' => '日誌已匯出，請檢查隱私後再透過郵件傳送',
+			'diagnostics.toast.exportFailed' => ({required Object error}) => '匯出失敗: ${error}',
+			'diagnostics.toast.supportEmailCopied' => '信箱已複製，請貼到郵件客戶端並附上日誌',
+			'diagnostics.shareSubject' => 'LoveIwara 診斷日誌（含隱私資訊，請謹慎分享）',
+			'logViewer.title' => '日誌檢視器',
+			'logViewer.searchHint' => '搜尋日誌...',
+			'logViewer.emptyState' => '暫無日誌',
+			'logViewer.copiedToClipboard' => '已複製到剪貼簿',
+			'crashRecoveryDialog.title' => '應用異常退出',
+			'crashRecoveryDialog.description' => '我們偵測到應用上次異常退出。請依提示匯出診斷日誌並郵件傳送給開發者，幫助我們修復問題。',
+			'crashRecoveryDialog.previousVersion' => ({required Object version}) => '上次版本: ${version}',
+			'crashRecoveryDialog.previousStart' => ({required Object time}) => '上次啟動: ${time}',
+			'crashRecoveryDialog.lastException' => ({required Object message}) => '最後異常: ${message}',
+			'crashRecoveryDialog.lastHangRecovered' => '上次偵測到介面卡頓，已自動恢復',
+			'crashRecoveryDialog.lastHangStalled' => ({required Object stalledMs}) => '上次偵測到介面可能假死，持續約 ${stalledMs}ms',
+			'crashRecoveryDialog.exportGuide' => '請前往 設定 > 診斷與回饋 > 匯出日誌。',
+			'crashRecoveryDialog.privacyHint' => '日誌可能包含隱私資訊，請先檢查後再透過郵件傳送至：',
+			'crashRecoveryDialog.issueWarning' => '請勿將完整日誌直接公開附加在 Issue 中',
+			'crashRecoveryDialog.acknowledge' => '我知道了',
+			'crashRecoveryDialog.supportEmailCopied' => '信箱已複製',
 			'linkInputDialog.title' => '輸入連結',
 			'linkInputDialog.supportedLinksHint' => ({required Object webName}) => '支援智慧識別多個${webName}連結，並快速跳轉到應用內對應頁面(連結與其他文字之間用空格隔開)',
 			'linkInputDialog.inputHint' => ({required Object webName}) => '請輸入${webName}連結',

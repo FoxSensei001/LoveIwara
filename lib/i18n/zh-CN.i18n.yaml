@@ -529,6 +529,7 @@ settings:
   needRestartToApply: 需要重启应用以应用设置
   themeNeedRestartDescription: 主题设置需要重启应用以应用设置
   about: 关于
+  diagnosticsAndFeedback: 诊断与反馈
   currentVersion: 当前版本
   latestVersion: 最新版本
   checkForUpdates: 检查更新
@@ -1629,6 +1630,83 @@ mediaPlayer:
   retryingOpenVideoLink: "视频链接打开失败，重试中"
   decoderOpenFailedWithSuggestion: "无法加载解码器: ${event}，可以通过在播放器设置里切换至软解，并重新进入页面尝试"
   videoLoadErrorWithDetail: "视频加载错误: ${event}"
+  playbackFailureDiagnosticsHint: "多次播放失败，建议前往 设置 > 诊断与反馈 导出日志反馈"
+  openSettingsAction: "查看"
+
+diagnostics:
+  infoSectionTitle: "诊断信息"
+  appVersionLabel: "应用版本"
+  memoryUsage: "内存使用: ${memMB}MB"
+  deviceInfoUnavailable: "无法获取设备信息"
+  logPolicySectionTitle: "日志策略"
+  configServiceUnavailable: "配置服务未初始化，无法调整日志策略"
+  enableLoggingTitle: "启用日志记录"
+  enableLoggingSubtitle: "关闭后将停止新增日志记录"
+  enableLogPersistenceTitle: "启用日志持久化"
+  enableLogPersistenceSubtitle: "关闭后仅保留内存日志，不再写入磁盘"
+  minLogLevelTitle: "最小记录级别"
+  minLogLevelSubtitle: "低于该级别的日志会被过滤"
+  maxFileSizeTitle: "单文件大小上限"
+  maxFileSizeSubtitle: "达到阈值后执行轮转"
+  rotatedFileCountTitle: "主日志轮转文件数"
+  rotatedFileCountSubtitle: "包含当前文件之外的保留份数"
+  hangFileSizeTitle: "卡顿日志大小上限"
+  hangFileSizeSubtitle: "控制 hang_events 文件增长"
+  hangRotatedFileCountTitle: "卡顿日志轮转文件数"
+  hangRotatedFileCountSubtitle: "控制 hang_events 历史保留份数"
+  healthSectionTitle: "日志健康"
+  refreshMetrics: "刷新指标"
+  toolsSectionTitle: "工具"
+  privacyNotice: "日志可能包含账号、请求参数等敏感信息。请勿直接公开附加到 Issue，建议检查后通过邮箱发送。"
+  exportLogsTitle: "导出日志"
+  exportLogsSubtitle: "导出后请先检查隐私，再发送给开发者"
+  viewLogsTitle: "查看日志"
+  viewLogsSubtitle: "实时查看应用运行日志"
+  copySupportEmailTitle: "复制日志邮箱"
+  reportIssueTitle: "反馈问题"
+  reportIssueSubtitle: "在 GitHub 提供复现步骤（请勿附完整日志）"
+  healthSummaryUnavailable: "暂无日志健康数据"
+  healthMetricsUnavailable: "尚未采集到健康指标"
+  healthNoRiskIndicators: "当前未发现风险指标"
+  healthAlert:
+    flushFailureTitle: "写盘失败"
+    sinkDegradedTitle: "日志写入已降级"
+    sinkDegradedDetail: "文件 sink 处于 degraded 状态"
+    queueBacklogTitle: "写队列积压"
+    queueBacklogDetail: "queueDepth=${queueDepth} (阈值=${threshold}, 可能增加内存占用)"
+    highFlushLatencyTitle: "落盘延迟偏高"
+    droppedTooManyTitle: "日志丢弃较多"
+    droppedTooManyDetail: "droppedCount=${droppedCount} (阈值=${threshold})"
+    rateLimitedTitle: "触发限流"
+    exportFailedTitle: "日志导出失败"
+    fileNearLimitTitle: "日志文件接近上限"
+    fileNearLimitDetail: "currentFileUsage=${usagePercent}% (IO 轮转压力增大)"
+  toast:
+    logServiceNotInitialized: "日志服务未初始化"
+    exportSuccess: "日志已导出，请检查隐私后再通过邮箱发送"
+    exportFailed: "导出失败: ${error}"
+    supportEmailCopied: "邮箱已复制，请粘贴到邮件客户端并附上日志"
+  shareSubject: "LoveIwara 诊断日志（含隐私信息，请谨慎分享）"
+
+logViewer:
+  title: "日志查看器"
+  searchHint: "搜索日志..."
+  emptyState: "暂无日志"
+  copiedToClipboard: "已复制到剪贴板"
+
+crashRecoveryDialog:
+  title: "应用异常退出"
+  description: "我们检测到应用上次异常退出。请按提示导出诊断日志并邮件发送给开发者，帮助我们修复问题。"
+  previousVersion: "上次版本: ${version}"
+  previousStart: "上次启动: ${time}"
+  lastException: "最后异常: ${message}"
+  lastHangRecovered: "上次检测到界面卡顿，已自动恢复"
+  lastHangStalled: "上次检测到界面可能假死，持续约 ${stalledMs}ms"
+  exportGuide: "请前往 设置 > 诊断与反馈 > 导出日志。"
+  privacyHint: "日志可能包含隐私信息，请先检查后再通过邮件发送至："
+  issueWarning: "请勿将完整日志直接公开附加在 Issue 中"
+  acknowledge: "我知道了"
+  supportEmailCopied: "邮箱已复制"
 linkInputDialog:
   title: "输入链接"
   supportedLinksHint: "支持智能识别多个${webName}链接，并快速跳转到应用内对应页面(链接与其他文本之间用空格隔开)"
