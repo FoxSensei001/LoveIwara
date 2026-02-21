@@ -231,10 +231,13 @@ class MyVideoStateController extends GetxController
   Player? previewPlayer;
   VideoController? previewVideoController;
   Timer? _previewSeekThrottleTimer;
+  Timer? _previewInitDebounceTimer;
   String? previewVideoUrl;
   final RxBool isPreviewPlayerReady = false.obs;
   StreamSubscription<Duration?>? previewDurationSubscription;
   StreamSubscription<bool>? previewPlayingSubscription;
+  bool _isPreviewPlayerInitializing = false;
+  bool _isPreviewPlayerReinitializeRequested = false;
   // 预览 seek 最新目标位置（与 EasyThrottle 配合使用）
   Duration? _latestPreviewSeekPosition;
 
@@ -434,11 +437,15 @@ class MyVideoStateController extends GetxController
         currentVideoSourceList.listen((sources) {
           if (!_isDisposed && sources.isNotEmpty) {
             // 延迟初始化，避免影响主播放器加载
-            Future.delayed(const Duration(milliseconds: 500), () {
-              if (!_isDisposed) {
-                _initializePreviewPlayer();
-              }
-            });
+            _previewInitDebounceTimer?.cancel();
+            _previewInitDebounceTimer = Timer(
+              const Duration(milliseconds: 500),
+              () {
+                if (!_isDisposed) {
+                  _initializePreviewPlayer();
+                }
+              },
+            );
           }
         });
 
@@ -1029,6 +1036,7 @@ class MyVideoStateController extends GetxController
     _speedChangeDebouncer?.cancel();
     _bufferUpdateThrottleTimer?.cancel();
     _previewSeekThrottleTimer?.cancel();
+    _previewInitDebounceTimer?.cancel();
     _videoSourceExpirationTimer?.cancel();
     _healthSnapshotTimer?.cancel();
     LogUtils.d('所有定时器已取消', 'MyVideoStateController');
@@ -1741,7 +1749,7 @@ class MyVideoStateController extends GetxController
         '播放器即将播放视频源 [重置模式] - 分辨率: $resolutionTag, URL: $finalUrl, 起始位置: ${currentPosition.inSeconds}秒, 是否本地文件: ${finalUrl.startsWith("file://")}',
         'MyVideoStateController',
       );
-      player.open(Media(finalUrl, start: currentPosition), play: true);
+      await player.open(Media(finalUrl, start: currentPosition), play: true);
       pageLoadingState.value = VideoDetailPageLoadingState.addingListeners;
     } catch (e) {
       if (_isDisposed) return;
@@ -2700,28 +2708,25 @@ class MyVideoStateController extends GetxController
 
   void _startHealthSnapshotTimer() {
     _healthSnapshotTimer?.cancel();
-    _healthSnapshotTimer = Timer.periodic(
-      const Duration(seconds: 30),
-      (_) {
-        if (_isDisposed || !videoPlayerReady.value) return;
-        final pos = currentPosition.inSeconds;
-        final total = totalDuration.value.inSeconds;
-        final res = currentResolutionTag.value ?? '?';
-        final buffering = videoBuffering.value;
-        final playing = videoPlaying.value;
-        final w = sourceVideoWidth.value;
-        final h = sourceVideoHeight.value;
-        final state = pageLoadingState.value.name;
-        final bufCount = buffers.length;
-        final isLocal = isLocalVideoMode;
-        LogUtils.d(
-          'Health: pos=${pos}s/${total}s res=$res ${w}x$h '
-          'playing=$playing buffering=$buffering bufSegs=$bufCount '
-          'state=$state local=$isLocal errors=$_playbackErrorCount',
-          'PlayerHealth',
-        );
-      },
-    );
+    _healthSnapshotTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (_isDisposed || !videoPlayerReady.value) return;
+      final pos = currentPosition.inSeconds;
+      final total = totalDuration.value.inSeconds;
+      final res = currentResolutionTag.value ?? '?';
+      final buffering = videoBuffering.value;
+      final playing = videoPlaying.value;
+      final w = sourceVideoWidth.value;
+      final h = sourceVideoHeight.value;
+      final state = pageLoadingState.value.name;
+      final bufCount = buffers.length;
+      final isLocal = isLocalVideoMode;
+      LogUtils.d(
+        'Health: pos=${pos}s/${total}s res=$res ${w}x$h '
+            'playing=$playing buffering=$buffering bufSegs=$bufCount '
+            'state=$state local=$isLocal errors=$_playbackErrorCount',
+        'PlayerHealth',
+      );
+    });
   }
 
   void _scrollListener() {
@@ -2849,19 +2854,26 @@ class MyVideoStateController extends GetxController
   /// 初始化预览播放器
   Future<void> _initializePreviewPlayer() async {
     if (_isDisposed) return;
-
-    // 如果预览播放器已存在，先释放
-    if (previewPlayer != null) {
-      await _disposePreviewPlayer();
-    }
-
-    final previewUrl = await getPreviewVideoUrl();
-    if (previewUrl == null || previewUrl.isEmpty) {
-      LogUtils.d('未找到 preview 视频源，跳过预览播放器初始化', 'MyVideoStateController');
+    if (_isPreviewPlayerInitializing) {
+      _isPreviewPlayerReinitializeRequested = true;
       return;
     }
 
+    _isPreviewPlayerInitializing = true;
+
     try {
+      // 如果预览播放器已存在，先释放
+      if (previewPlayer != null) {
+        await _disposePreviewPlayer();
+      }
+
+      final previewUrl = await getPreviewVideoUrl();
+      if (_isDisposed) return;
+      if (previewUrl == null || previewUrl.isEmpty) {
+        LogUtils.d('未找到 preview 视频源，跳过预览播放器初始化', 'MyVideoStateController');
+        return;
+      }
+
       LogUtils.d('开始初始化预览播放器: $previewUrl', 'MyVideoStateController');
 
       // 创建预览播放器
@@ -2938,6 +2950,12 @@ class MyVideoStateController extends GetxController
     } catch (e) {
       LogUtils.e('初始化预览播放器失败: $e', tag: 'MyVideoStateController', error: e);
       await _disposePreviewPlayer();
+    } finally {
+      _isPreviewPlayerInitializing = false;
+      if (_isPreviewPlayerReinitializeRequested && !_isDisposed) {
+        _isPreviewPlayerReinitializeRequested = false;
+        _initializePreviewPlayer();
+      }
     }
   }
 
@@ -2984,6 +3002,9 @@ class MyVideoStateController extends GetxController
 
   /// 释放预览播放器资源
   Future<void> _disposePreviewPlayer() async {
+    _previewInitDebounceTimer?.cancel();
+    _previewInitDebounceTimer = null;
+
     _previewSeekThrottleTimer?.cancel();
     _previewSeekThrottleTimer = null;
 
@@ -3004,6 +3025,7 @@ class MyVideoStateController extends GetxController
 
     previewVideoController = null;
     previewVideoUrl = null;
+    _isPreviewPlayerReinitializeRequested = false;
     isPreviewPlayerReady.value = false;
 
     LogUtils.d('预览播放器资源已释放', 'MyVideoStateController');
@@ -3210,7 +3232,6 @@ class MyVideoStateController extends GetxController
       }
     }
   }
-
 }
 
 /// 视频清晰度模型

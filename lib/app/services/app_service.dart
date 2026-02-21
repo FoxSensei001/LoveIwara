@@ -27,6 +27,7 @@ import 'package:i_iwara/app/ui/pages/tag_videos/tag_gallery_list_page.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/video_detail_page_v2.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/my_video_screen.dart';
+import 'package:i_iwara/app/ui/pages/home/home_navigation_layout.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
 import 'package:i_iwara/app/ui/pages/download/gallery_download_task_detail_page.dart';
 import 'package:i_iwara/app/ui/pages/tag_videos/tag_video_list_page.dart';
@@ -200,32 +201,47 @@ class NaviService {
     required Widget page,
     Duration transitionDuration = const Duration(milliseconds: 200),
     TransitionType transitionType = TransitionType.slideRight,
+    bool replaceCurrent = false,
   }) {
-    AppService.homeNavigatorKey.currentState?.push(
-      PageRouteBuilder(
-        settings: RouteSettings(name: routeName),
-        pageBuilder: (context, animation, secondaryAnimation) {
-          return page;
-        },
-        transitionDuration: transitionDuration,
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          switch (transitionType) {
-            case TransitionType.slideRight:
-              return SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(1, 0),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
-              );
-            case TransitionType.fade:
-              return FadeTransition(opacity: animation, child: child);
-            case TransitionType.none:
-              return child;
-          }
-        },
-      ),
+    final navigatorState = AppService.homeNavigatorKey.currentState;
+    if (navigatorState == null) return;
+
+    final route = PageRouteBuilder(
+      settings: RouteSettings(name: routeName),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return page;
+      },
+      transitionDuration: transitionDuration,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        switch (transitionType) {
+          case TransitionType.slideRight:
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1, 0),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            );
+          case TransitionType.fade:
+            return FadeTransition(opacity: animation, child: child);
+          case TransitionType.none:
+            return child;
+        }
+      },
     );
+
+    if (replaceCurrent) {
+      navigatorState.pushReplacement(route);
+    } else {
+      navigatorState.push(route);
+    }
+  }
+
+  static bool _isVideoDetailOnTop() {
+    final routes = HomeNavigationLayout.homeNavigatorObserver.routes;
+    if (routes.isEmpty) return false;
+    final currentRouteName = routes.last.settings.name;
+    return currentRouteName?.contains(Routes.VIDEO_DETAIL_PREFIX) ?? false;
   }
 
   /// 跳转到作者个人主页
@@ -250,9 +266,11 @@ class NaviService {
     Map<String, dynamic>? extData,
   ]) {
     // 注意 extData 外面的 []
+    final shouldReplace = _isVideoDetailOnTop();
     _navigateToPage(
       routeName: Routes.VIDEO_DETAIL(id),
       page: MyVideoDetailPage(videoId: id, extData: extData),
+      replaceCurrent: shouldReplace,
     );
   }
 
