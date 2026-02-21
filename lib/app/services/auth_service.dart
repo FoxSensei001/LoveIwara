@@ -15,6 +15,7 @@ import '../../common/constants.dart';
 import '../../utils/logger_utils.dart';
 import '../models/api_result.model.dart';
 import '../models/captcha.model.dart';
+import 'http_client_factory.dart';
 import 'message_service.dart';
 import 'token_manager.dart';
 
@@ -40,7 +41,7 @@ class AuthService extends GetxService {
         'Origin': CommonConstants.iwaraBaseUrl,
       },
     ),
-  )..options.persistentConnection = false;
+  );
 
   // 统一的认证状态管理
   final RxBool _isAuthenticated = false.obs;
@@ -69,6 +70,9 @@ class AuthService extends GetxService {
 
   AuthService() {
     _tokenManager = TokenManager();
+    _dio.httpClientAdapter = IOHttpClientAdapter(
+      createHttpClient: HttpClientFactory.instance.createHttpClient,
+    );
   }
 
   /// 初始化认证服务
@@ -334,12 +338,6 @@ class AuthService extends GetxService {
   /// 验证 token（供外部使用）
   TokenValidationResult validateToken(String token, bool isAuthToken) {
     return _tokenManager.validateToken(token, isAuthToken: isAuthToken);
-  }
-
-  /// 重置代理设置
-  void resetProxy() {
-    _dio.httpClientAdapter = IOHttpClientAdapter();
-    _tokenManager.resetProxy();
   }
 
   /// 获取错误信息

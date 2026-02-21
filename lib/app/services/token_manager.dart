@@ -3,13 +3,13 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:dio/dio.dart' as dio;
 import 'package:dio/io.dart';
 
 import '../../common/constants.dart';
 import '../../utils/logger_utils.dart';
+import 'http_client_factory.dart';
 import 'storage_service.dart';
 
 /// Token 验证结果枚举
@@ -140,15 +140,10 @@ class TokenManager {
         },
       ),
     );
-    _tokenDio.options.persistentConnection = false;
 
-    // 配置 HTTP 客户端适配器
+    // 配置 HTTP 客户端适配器（使用共享 HttpClient 实现连接复用）
     _tokenDio.httpClientAdapter = IOHttpClientAdapter(
-      createHttpClient: () {
-        final client = HttpClient();
-        client.idleTimeout = Duration.zero;
-        return client;
-      },
+      createHttpClient: HttpClientFactory.instance.createHttpClient,
     );
   }
 
@@ -465,11 +460,6 @@ class TokenManager {
     await _storage.deleteSecureData(KeyConstants.accessToken);
 
     LogUtils.d('$_tag 所有 token 已清除');
-  }
-
-  /// 重置代理设置
-  void resetProxy() {
-    _tokenDio.httpClientAdapter = IOHttpClientAdapter();
   }
 
   void dispose() {

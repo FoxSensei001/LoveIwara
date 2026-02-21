@@ -2,7 +2,6 @@
 // API 服务 - 处理所有 HTTP 请求，包括 401 处理和网络重试
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:dio/dio.dart' as d_dio;
 import 'package:dio/io.dart';
@@ -14,21 +13,22 @@ import '../../common/constants.dart';
 import '../../utils/logger_utils.dart';
 import '../ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'auth_service.dart';
+import 'http_client_factory.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
 /// API 服务配置
 class ApiServiceConfig {
   /// 请求超时时间
-  static const Duration requestTimeout = Duration(seconds: 10);
+  static const Duration requestTimeout = Duration(seconds: 20);
 
   /// 最大网络重试次数
-  static const int maxNetworkRetries = 3;
+  static const int maxNetworkRetries = 2;
 
   /// 网络重试基础延迟
   static const Duration baseRetryDelay = Duration(milliseconds: 500);
 
   /// 最大重试延迟
-  static const Duration maxRetryDelay = Duration(seconds: 5);
+  static const Duration maxRetryDelay = Duration(seconds: 3);
 }
 
 /// API 服务
@@ -65,23 +65,13 @@ class ApiService extends GetxService {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json, text/plain, */*',
-          'Connection': 'close',
-          'x-site': CommonConstants.iwaraSiteHost,
-          // Referer 以站点域名为主（与浏览器行为一致）
-          'Referer': CommonConstants.iwaraBaseUrl,
-          'Origin': CommonConstants.iwaraBaseUrl,
         },
       ),
     );
-    _dio.options.persistentConnection = false;
 
-    // 配置 HTTP 客户端适配器
+    // 配置 HTTP 客户端适配器（使用共享 HttpClient 实现连接复用）
     _dio.httpClientAdapter = IOHttpClientAdapter(
-      createHttpClient: () {
-        final client = HttpClient();
-        client.idleTimeout = Duration.zero;
-        return client;
-      },
+      createHttpClient: HttpClientFactory.instance.createHttpClient,
     );
 
     if (_interceptorAdded) {
@@ -327,17 +317,23 @@ class ApiService extends GetxService {
 
     _isProcessingQueue = true;
 
+    // 取出所有等待中的请求，并发执行
+    final pendingCopy = List<_PendingRequest>.from(_pendingRequests);
+    _pendingRequests.clear();
+
     Future.microtask(() async {
-      while (_pendingRequests.isNotEmpty) {
-        final pending = _pendingRequests.removeAt(0);
-        try {
-          final response = await _retryRequest(pending.options);
-          pending.completer.complete(response);
-        } catch (e) {
-          LogUtils.e('$_tag 队列请求重试失败', error: e);
-          pending.completer.complete(null);
-        }
-      }
+      LogUtils.d('$_tag 并发回放 ${pendingCopy.length} 个等待请求');
+      await Future.wait(
+        pendingCopy.map((pending) async {
+          try {
+            final response = await _retryRequest(pending.options);
+            pending.completer.complete(response);
+          } catch (e) {
+            LogUtils.e('$_tag 队列请求重试失败', error: e);
+            pending.completer.complete(null);
+          }
+        }),
+      );
       _isProcessingQueue = false;
     });
   }
@@ -542,11 +538,6 @@ class ApiService extends GetxService {
       LogUtils.e('$_tag PUT 请求失败: ${e.message}', error: e);
       rethrow;
     }
-  }
-
-  /// 重置代理设置
-  void resetProxy() {
-    _dio.httpClientAdapter = IOHttpClientAdapter();
   }
 
   /// 获取全站公告（sitewide announcement）

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -287,8 +286,11 @@ class _ProxyConfigWidgetState extends BaseProxyWidgetState<ProxyConfigWidget> {
                             setFlutterEngineProxy(proxyController.text.trim());
                             LogUtils.i('代理已启用', BaseProxyWidgetState.tag);
                           } else {
-                            HttpOverrides.global = null;
-                            LogUtils.i('代理已禁用', BaseProxyWidgetState.tag);
+                            setFlutterEngineProxy(proxyController.text.trim());
+                            LogUtils.i(
+                              '代理已禁用（重启后生效）',
+                              BaseProxyWidgetState.tag,
+                            );
                           }
                         },
                         activeThumbColor: Get.isDarkMode ? Colors.white : null,
