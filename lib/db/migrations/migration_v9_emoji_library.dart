@@ -43,7 +43,7 @@ class MigrationV9EmojiLibrary extends Migration {
     final stmtSenko = db.prepare('SELECT last_insert_rowid() as group_id;');
     final resultSenko = stmtSenko.select([]);
     final senkoGroupId = resultSenko.first['group_id'] as int;
-    stmtSenko.dispose();
+    stmtSenko.close();
 
     // 插入neko分组
     db.execute('''
@@ -54,7 +54,7 @@ class MigrationV9EmojiLibrary extends Migration {
     final stmt = db.prepare('SELECT last_insert_rowid() as group_id;');
     final result = stmt.select([]);
     final groupId = result.first['group_id'] as int;
-    stmt.dispose();
+    stmt.close();
 
     // senkosan表情包URL列表
     final senkoEmojiUrls = [

@@ -69,7 +69,7 @@ class MyVideoStateController extends GetxController
   final AppService appS = Get.find();
   late Player player;
   late VideoController videoController;
-  late VolumeController? volumeController;
+  VolumeController? volumeController;
   final PlaybackHistoryService _playbackHistoryService = Get.find();
   final ApiService _apiService = Get.find();
   final ConfigService _configService = Get.find();
@@ -390,10 +390,10 @@ class MyVideoStateController extends GetxController
       // 移动端初始化音量控制器
       if (GetPlatform.isAndroid || GetPlatform.isIOS) {
         // 初始化并关闭系统音量UI
-        volumeController = VolumeController();
+        volumeController = VolumeController.instance;
         volumeController?.showSystemUI = false;
         // 添加音量监听
-        _volumeListenerDisposer = volumeController?.listener((volume) {
+        _volumeListenerDisposer = volumeController?.addListener((volume) {
           // 如果当前在long press状态，则不更新音量
           if (isLongPressing.value ||
               isSlidingVolumeZone.value ||
@@ -1041,6 +1041,7 @@ class MyVideoStateController extends GetxController
       // 取消 Stream 订阅
       _cancelSubscriptions();
       _volumeListenerDisposer?.cancel();
+      volumeController?.removeListener();
       _pipStatusSubscription?.cancel();
       errorSubscription?.cancel(); // 取消错误监听订阅
       LogUtils.d('所有订阅已取消', 'MyVideoStateController');

@@ -56,7 +56,7 @@ class MigrationV11EmojiRemoval extends Migration {
       }
     }
 
-    stmt.dispose();
+    stmt.close();
     db.execute('PRAGMA user_version = 10;');
     LogUtils.i('已回滚迁移v11：恢复被删除的表情包链接');
   }

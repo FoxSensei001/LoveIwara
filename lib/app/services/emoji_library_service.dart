@@ -71,7 +71,7 @@ class EmojiLibraryService extends GetxService {
     ''');
     
     final result = stmt.select([]);
-    stmt.dispose();
+    stmt.close();
     
     return result.map((row) => EmojiGroup.fromMap(row)).toList();
   }
@@ -86,7 +86,7 @@ class EmojiLibraryService extends GetxService {
       FROM EmojiGroups
     ''');
     final maxSortResult = maxSortStmt.select([]);
-    maxSortStmt.dispose();
+    maxSortStmt.close();
     
     final nextSort = maxSortResult.first['next_sort'] as int;
     
@@ -95,11 +95,11 @@ class EmojiLibraryService extends GetxService {
     ''');
     
     stmt.execute([name, nextSort]);
-    stmt.dispose();
+    stmt.close();
     
     final lastInsertStmt = db.prepare('SELECT last_insert_rowid() as id');
     final result = lastInsertStmt.select([]);
-    lastInsertStmt.dispose();
+    lastInsertStmt.close();
     
     return result.first['id'] as int;
   }
@@ -114,7 +114,7 @@ class EmojiLibraryService extends GetxService {
     ''');
     
     stmt.execute([name, groupId]);
-    stmt.dispose();
+    stmt.close();
   }
 
   // 删除表情包分组（级联删除所有图片）
@@ -123,7 +123,7 @@ class EmojiLibraryService extends GetxService {
     final stmt = db.prepare('DELETE FROM EmojiGroups WHERE group_id = ?');
     
     stmt.execute([groupId]);
-    stmt.dispose();
+    stmt.close();
   }
 
   // 获取指定分组的表情图片
@@ -136,7 +136,7 @@ class EmojiLibraryService extends GetxService {
     ''');
     
     final result = stmt.select([groupId]);
-    stmt.dispose();
+    stmt.close();
     
     return result.map((row) => EmojiImage.fromMap(row)).toList();
   }
@@ -150,7 +150,7 @@ class EmojiLibraryService extends GetxService {
     ''');
     
     final result = stmt.select([groupId]);
-    stmt.dispose();
+    stmt.close();
     
     return result.first['count'] as int;
   }
@@ -165,7 +165,7 @@ class EmojiLibraryService extends GetxService {
       WHERE group_id = ? AND url = ?
     ''');
     final checkResult = checkStmt.select([groupId, url]);
-    checkStmt.dispose();
+    checkStmt.close();
     
     if ((checkResult.first['count'] as int) > 0) {
       return; // URL已存在，跳过
@@ -177,7 +177,7 @@ class EmojiLibraryService extends GetxService {
       VALUES (?, ?, ?)
     ''');
     insertStmt.execute([groupId, url, thumbnailUrl ?? url]);
-    insertStmt.dispose();
+    insertStmt.close();
     
     // 更新分组封面（如果是第一张图片）
     _updateGroupCoverIfNeeded(groupId);
@@ -208,7 +208,7 @@ class EmojiLibraryService extends GetxService {
       SELECT group_id FROM EmojiImages WHERE image_id = ?
     ''');
     final imageResult = getImageStmt.select([imageId]);
-    getImageStmt.dispose();
+    getImageStmt.close();
     
     if (imageResult.isEmpty) return;
     
@@ -217,7 +217,7 @@ class EmojiLibraryService extends GetxService {
     // 删除图片
     final deleteStmt = db.prepare('DELETE FROM EmojiImages WHERE image_id = ?');
     deleteStmt.execute([imageId]);
-    deleteStmt.dispose();
+    deleteStmt.close();
     
     // 更新分组封面
     _updateGroupCoverIfNeeded(groupId);
@@ -233,7 +233,7 @@ class EmojiLibraryService extends GetxService {
     ''');
     
     stmt.execute([newSortOrder, groupId]);
-    stmt.dispose();
+    stmt.close();
   }
 
   // 批量更新表情包分组排序
@@ -264,7 +264,7 @@ class EmojiLibraryService extends GetxService {
       LIMIT 1
     ''');
     final firstImageResult = firstImageStmt.select([groupId]);
-    firstImageStmt.dispose();
+    firstImageStmt.close();
     
     String? coverUrl;
     if (firstImageResult.isNotEmpty) {
@@ -278,6 +278,6 @@ class EmojiLibraryService extends GetxService {
       WHERE group_id = ?
     ''');
     updateCoverStmt.execute([coverUrl, groupId]);
-    updateCoverStmt.dispose();
+    updateCoverStmt.close();
   }
 }

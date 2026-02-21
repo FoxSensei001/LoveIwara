@@ -172,7 +172,7 @@ class ConfigBackupService extends GetxService {
             final values = columns.map((c) => rowMap[c]).toList();
             stmt.execute(values);
           }
-          stmt.dispose();
+          stmt.close();
         }
         db.execute('COMMIT;');
       } catch (e) {

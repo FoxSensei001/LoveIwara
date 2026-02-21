@@ -21,7 +21,7 @@ dependencies:
   crypto: ^3.0.6
   win32: ^5.14.0
   logger: ^2.5.0
-  flutter_secure_storage: ^9.2.4
+  flutter_secure_storage: ^10.0.0
   get_storage: ^2.1.1
   cached_network_image: ^3.4.1
   shimmer: ^3.0.0
@@ -33,68 +33,56 @@ dependencies:
   flutter_svg: ^2.2.1
   super_clipboard: ^0.9.1
   file_selector: ^1.0.3
-  sqlite3: ^2.7.6
-  sqlite3_flutter_libs: ^0.5.34
+  sqlite3: ^3.1.6
+  sqlite3_flutter_libs: ^0.6.0+eol
   path_provider: ^2.1.5
   path: ^1.9.1
   loading_more_list: ^7.1.0
   waterfall_flow: ^3.1.1
-  share_plus: ^11.0.0
-  slang: ^4.7.2
-  slang_flutter: ^4.7.0
+  share_plus: ^12.0.1
+  slang: ^4.12.1
+  slang_flutter: ^4.12.1
   dynamic_color: ^1.7.0
   oktoast: ^3.4.0
-  app_links: ^6.4.0
+  app_links: ^7.0.0
   floating: ^6.0.0
   flutter_file_dialog: ^3.0.2
   permission_handler: ^12.0.1
   visibility_detector: ^0.4.0+2
   yaml: ^3.1.3
   screen_brightness: ^2.1.4
-  android_intent_plus: ^5.3.0
-  flutter_displaymode: ^0.6.0
+  android_intent_plus: ^6.0.0
+  flutter_displaymode: ^0.7.0
   qr_flutter: ^4.1.0
-  open_file: ^3.5.10
+  open_file: ^3.5.11
   flutter_colorpicker: ^1.1.0
-  archive: ^4.0.7
-  ffi: ^2.1.4
-  volume_controller: ^2.0.7
-  battery_plus: ^6.0.3
-  uuid: any
+  archive: ^4.0.9
+  ffi: ^2.2.0
+  volume_controller: ^3.4.1
+  battery_plus: ^7.0.0
+  uuid: ^4.5.3
   extended_text_field: ^16.0.2
   dlna_dart: ^0.1.0
   tutorial_coach_mark: ^1.3.1
-  connectivity_plus: ^6.1.0
-  network_info_plus: ^6.0.2
+  connectivity_plus: ^7.0.0
+  network_info_plus: ^7.0.0
 
-  media_kit:
-    git:
-      url: https://github.com/Predidit/media-kit.git
-      ref: main
-      path: ./media_kit
-  media_kit_video:
-    git:
-      url: https://github.com/Predidit/media-kit.git
-      ref: main
-      path: ./media_kit_video
-  media_kit_libs_video:
-    git:
-      url: https://github.com/Predidit/media-kit.git
-      ref: main
-      path: ./libs/universal/media_kit_libs_video
+  media_kit: ^1.2.6
+  media_kit_video: ^2.0.1
+  media_kit_libs_video: ^1.0.7
 
 #  flutter_inappwebview: ^6.1.5
-  dio: ^5.8.0+1
+  dio: ^5.9.1
 #  native_dio_adapter: ^1.4.0
   html: ^0.15.6
   desktop_drop: ^0.7.0
 
-  device_info_plus: any
+  device_info_plus: ^11.5.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  slang_build_runner: ^4.4.2
-  build_runner: ^2.7.1
+  slang_build_runner: ^4.12.1
+  build_runner: ^2.11.1
   flutter_launcher_icons: ^0.14.3
   flutter_lints: ^6.0.0
   change_app_package_name: ^1.4.0
@@ -125,47 +113,6 @@ flutter:
     - assets/anime4k_shaders/
 
 dependency_overrides:
-  volume_controller: ^2.0.7
   js: ^0.7.1
-  media_kit:
-    git:
-      url: https://github.com/Predidit/media-kit.git
-      ref: main
-      path: ./media_kit
-  media_kit_video:
-    git:
-      url: https://github.com/Predidit/media-kit.git
-      ref: main
-      path: ./media_kit_video
-  media_kit_libs_video:
-    git:
-      url: https://github.com/Predidit/media-kit.git
-      ref: main
-      path: ./libs/universal/media_kit_libs_video
-  media_kit_libs_linux:
-    git:
-      url: https://github.com/Predidit/media-kit.git
-      ref: main
-      path: ./libs/linux/media_kit_libs_linux
-  media_kit_libs_ios_video:
-    git:
-      url: https://github.com/Predidit/media-kit.git
-      ref: main
-      path: ./libs/ios/media_kit_libs_ios_video
-  media_kit_libs_android_video:
-    git:
-      url: https://github.com/Predidit/media-kit.git
-      ref: main
-      path: ./libs/android/media_kit_libs_android_video
-  media_kit_libs_windows_video:
-    git:
-      url: https://github.com/Predidit/media-kit.git
-      ref: main
-      path: ./libs/windows/media_kit_libs_windows_video
-  media_kit_libs_macos_video:
-    git:
-      url: https://github.com/Predidit/media-kit.git
-      ref: main
-      path: ./libs/macos/media_kit_libs_macos_video
 
 license: MIT

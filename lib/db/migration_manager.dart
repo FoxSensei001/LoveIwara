@@ -45,7 +45,7 @@ class MigrationManager {
   int getCurrentVersion(CommonDatabase db) {
     final stmt = db.prepare('PRAGMA user_version;');
     final ResultSet result = stmt.select([]);
-    stmt.dispose();
+    stmt.close();
     return result.first['user_version'] as int;
   }
 

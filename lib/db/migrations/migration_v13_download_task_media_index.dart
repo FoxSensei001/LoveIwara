@@ -41,7 +41,7 @@ class MigrationV13DownloadTaskMediaIndex extends Migration {
       ''');
 
       final rows = stmt.select([]);
-      stmt.dispose();
+      stmt.close();
 
       for (final row in rows) {
         final id = row['id'] as String;

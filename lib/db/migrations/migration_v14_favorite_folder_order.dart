@@ -25,7 +25,7 @@ class MigrationV14FavoriteFolderOrder extends Migration {
       ''');
 
       final rows = stmt.select();
-      stmt.dispose();
+      stmt.close();
 
       for (var i = 0; i < rows.length; i++) {
         final id = rows[i]['id'] as String;

@@ -71,7 +71,7 @@ class DatabaseService {
 
   /// 关闭数据库
   void close() {
-    _db.dispose();
+    _db.close();
     LogUtils.d('数据库已关闭', 'DatabaseService');
   }
 }

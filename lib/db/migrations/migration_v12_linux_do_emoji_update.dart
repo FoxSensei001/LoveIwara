@@ -19,12 +19,12 @@ class MigrationV12LinuxDoEmojiUpdate extends Migration {
 
     if (result.isEmpty) {
       LogUtils.w('未找到 neko 分组，跳过迁移');
-      stmt.dispose();
+      stmt.close();
       return;
     }
 
     final nekoGroupId = result.first['group_id'] as int;
-    stmt.dispose();
+    stmt.close();
 
     // 删除 neko 分组下所有 linux.do 域名的表情
     final deleteStmt = db.prepare('''
@@ -34,7 +34,7 @@ class MigrationV12LinuxDoEmojiUpdate extends Migration {
 
     final deleteResult = deleteStmt.select([nekoGroupId]);
     final deletedCount = deleteResult.length;
-    deleteStmt.dispose();
+    deleteStmt.close();
 
     LogUtils.i('已删除 neko 分组下 $deletedCount 个 linux.do 域名的表情');
 
@@ -100,7 +100,7 @@ class MigrationV12LinuxDoEmojiUpdate extends Migration {
       LIMIT 1;
     ''');
     final checkResult = checkStmt.select([nekoGroupId]);
-    checkStmt.dispose();
+    checkStmt.close();
 
     if (checkResult.isNotEmpty) {
       final firstImageUrl = checkResult.first['url'] as String;
