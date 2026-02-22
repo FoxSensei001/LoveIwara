@@ -118,7 +118,6 @@ jobs:
         run: |
           mkdir -p result
           mv build/windows/i_iwara-*-windows-setup.exe result/
-          mv build/windows/i_iwara-*-windows.zip result/
         shell: bash
 
       - name: Upload Windows Builds
