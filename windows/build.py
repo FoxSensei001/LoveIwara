@@ -7,21 +7,15 @@ OUTPUT_DIR = Path("build/windows")
 RELEASE_DIR = Path("build/windows/x64/runner/Release")
 APP_EXE_NAME = "i_iwara.exe"
 
-# `media_kit` loads these when video playback starts. Missing files here can
-# lead to "app hangs only when playing video" in portable packages.
-CRITICAL_MEDIA_FILES = (
-    "libmpv-2.dll",
-    "libEGL.dll",
-    "libGLESv2.dll",
-)
-
-
-def run_command(command: list[str], step_name: str) -> None:
+def run_command(command: str, step_name: str) -> None:
     """Run external command and raise with a clear step label on failure."""
-    result = subprocess.run(command, check=False)
+    if not command:
+        raise ValueError(f"{step_name} failed: empty command")
+
+    result = subprocess.run(command, shell=True, check=False)
     if result.returncode != 0:
         raise RuntimeError(
-            f"{step_name} failed with exit code {result.returncode}: {' '.join(command)}"
+            f"{step_name} failed with exit code {result.returncode}: {command}"
         )
 
 def get_version():
@@ -40,18 +34,14 @@ def get_version():
 
 
 def validate_release_bundle() -> None:
-    """Check that release output contains runtime files required for playback."""
+    """Check that release output contains the executable required for installer."""
     if not RELEASE_DIR.exists():
         raise FileNotFoundError(f"Release directory not found: {RELEASE_DIR}")
 
-    missing_files = [
-        name for name in (APP_EXE_NAME, *CRITICAL_MEDIA_FILES)
-        if not (RELEASE_DIR / name).exists()
-    ]
-    if missing_files:
+    app_exe = RELEASE_DIR / APP_EXE_NAME
+    if not app_exe.exists():
         raise FileNotFoundError(
-            "Missing required runtime files in Release bundle: "
-            + ", ".join(missing_files)
+            f"Missing required executable in Release bundle: {APP_EXE_NAME}"
         )
 
 
@@ -61,7 +51,7 @@ def main():
     try:
         # 1. Run Flutter build
         print("\nStep 1/4: Building Flutter app...")
-        run_command(["flutter", "build", "windows", "--release"], "Flutter build")
+        run_command("flutter build windows --release", "Flutter build")
         validate_release_bundle()
 
         # 2. Get version
@@ -105,7 +95,7 @@ def main():
         # 4. Run Inno Setup compilation
         print("\nStep 4/4: Building installer...")
         try:
-            run_command(["iscc", iss_path], "Inno Setup compilation")
+            run_command(f'iscc "{iss_path}"', "Inno Setup compilation")
         finally:
             # Restore build.iss
             with open(iss_path, 'w', encoding='utf-8') as f:

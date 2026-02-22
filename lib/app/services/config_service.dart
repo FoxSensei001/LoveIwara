@@ -767,7 +767,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.LAST_DOWNLOAD_QUALITY:
         return 'source'; // 默认清晰度为 source
       case ConfigKey.LOGGING_ENABLED:
-        return true;
+        return false;
       case ConfigKey.LOG_PERSISTENCE_ENABLED:
         return true;
       case ConfigKey.LOG_MIN_LEVEL:
