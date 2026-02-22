@@ -238,10 +238,12 @@ Future<void> _initializeBusinessServices() async {
       LogUtils.i('代理设置完成: $proxyUrl', '启动初始化');
     } else {
       HttpOverrides.global = MyHttpOverrides(null);
+      HttpClientFactory.instance.setProxy(null);
       LogUtils.i('未启用代理', '启动初始化');
     }
   } else {
     HttpOverrides.global = MyHttpOverrides(null);
+    HttpClientFactory.instance.setProxy(null);
     LogUtils.i('当前平台不支持代理', '启动初始化');
   }
 

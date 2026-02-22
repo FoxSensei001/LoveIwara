@@ -563,8 +563,7 @@ class BottomToolbar extends StatelessWidget {
         ),
         onSelected: (double selected) {
           if (selected != currentSpeed) {
-            myVideoStateController.playerPlaybackSpeed.value = selected;
-            myVideoStateController.videoController.player.setRate(selected);
+            myVideoStateController.setPlaybackSpeed(selected);
           }
         },
         itemBuilder: (BuildContext context) {

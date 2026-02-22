@@ -262,7 +262,9 @@ class GestureAreaState extends State<GestureArea>
     // 使用防抖机制恢复正常播放速度，避免频繁调用
     Timer(const Duration(milliseconds: 50), () {
       if (mounted) {
-        widget.myVideoStateController.player.setRate(1.0);
+        widget.myVideoStateController.setPlaybackSpeed(
+          widget.myVideoStateController.playerPlaybackSpeed.value,
+        );
       }
     });
   }

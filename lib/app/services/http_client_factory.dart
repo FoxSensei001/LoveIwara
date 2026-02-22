@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+
 import '../../utils/logger_utils.dart';
 
 /// 共享 HttpClient 工厂
@@ -32,11 +34,11 @@ class HttpClientFactory {
         _proxyPort = parsed.$2;
         LogUtils.d('$_tag 代理设置: $_proxyHost:$_proxyPort');
       } catch (e, stackTrace) {
-        // 代理配置异常时回退为直连，避免启动阶段中断
+        // 代理配置异常时清空应用代理，避免启动阶段中断
         _proxyHost = null;
         _proxyPort = null;
         LogUtils.e(
-          '$_tag 代理地址无效，已回退为直连: $proxyUrl',
+          '$_tag 代理地址无效，已清空应用代理配置: $proxyUrl',
           tag: _tag,
           error: e,
           stackTrace: stackTrace,
@@ -67,16 +69,25 @@ class HttpClientFactory {
 
   bool get hasProxy => _proxyHost != null && _proxyPort != null;
 
+  String? _buildProxyRule() {
+    if (hasProxy) {
+      return 'PROXY $_proxyHost:$_proxyPort; DIRECT';
+    }
+    return null;
+  }
+
+  @visibleForTesting
+  String? get currentProxyRule => _buildProxyRule();
+
   /// 供 IOHttpClientAdapter(createHttpClient: ...) 使用的回调。
   HttpClient createHttpClient() {
     if (_httpClient != null) return _httpClient!;
 
     _httpClient = HttpClient();
     _httpClient!.idleTimeout = const Duration(seconds: 90);
-
-    if (hasProxy) {
-      _httpClient!.findProxy =
-          (uri) => 'PROXY $_proxyHost:$_proxyPort; DIRECT';
+    final proxyRule = _buildProxyRule();
+    if (proxyRule != null) {
+      _httpClient!.findProxy = (uri) => proxyRule;
     }
 
     LogUtils.d(

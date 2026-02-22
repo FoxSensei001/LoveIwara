@@ -155,6 +155,7 @@ class MyVideoStateController extends GetxController
   StreamSubscription<bool>? playingSubscription;
   StreamSubscription<Duration>? bufferSubscription;
   StreamSubscription<String>? errorSubscription; // 添加错误监听订阅
+  StreamSubscription<dynamic>? repeatSettingSubscription; // 监听循环播放设置变更
 
   Timer? _autoHideTimer;
   final _autoHideDelay = const Duration(seconds: 3); // 3秒后自动隐藏
@@ -381,6 +382,13 @@ class MyVideoStateController extends GetxController
         ),
       );
 
+      // 播放中切换“循环播放”开关时，立即同步到当前播放器实例
+      repeatSettingSubscription =
+          _configService.settings[ConfigKey.REPEAT_KEY]!.listen((_) async {
+            if (_isDisposed) return;
+            await _applyRepeatMode();
+          });
+
       // 初始化滚动相关变量
       final screenSize = Get.size;
       minVideoHeight = max(screenSize.shortestSide * 9 / 16, 250);
@@ -539,6 +547,27 @@ class MyVideoStateController extends GetxController
     }
   }
 
+  /// 根据配置应用循环模式。
+  /// 使用 PlaylistMode.single 实现单视频结束后自动重播。
+  Future<void> _applyRepeatMode() async {
+    if (_isDisposed) return;
+
+    final bool repeatEnabled = _configService[ConfigKey.REPEAT_KEY] == true;
+    final PlaylistMode playlistMode = repeatEnabled
+        ? PlaylistMode.single
+        : PlaylistMode.none;
+
+    try {
+      await player.setPlaylistMode(playlistMode);
+      LogUtils.d(
+        '已应用循环模式: ${repeatEnabled ? "single" : "none"}',
+        'MyVideoStateController',
+      );
+    } catch (e) {
+      LogUtils.w('应用循环模式失败: $e', 'MyVideoStateController');
+    }
+  }
+
   /// 初始化本地视频播放
   /// 从本地文件路径初始化播放，支持从下载任务或纯本地文件进入
   Future<void> _initLocalVideoPlayback() async {
@@ -645,11 +674,7 @@ class MyVideoStateController extends GetxController
       }
 
       // 设置播放模式
-      if (_configService[ConfigKey.REPEAT_KEY]) {
-        player.setPlaylistMode(PlaylistMode.loop);
-      } else {
-        player.setPlaylistMode(PlaylistMode.none);
-      }
+      await _applyRepeatMode();
 
       // 打开本地视频文件
       // 对于 content:// URI，直接使用解码后的 URI
@@ -970,13 +995,13 @@ class MyVideoStateController extends GetxController
     }
   }
 
-  // 获取缓冲区大小
+  // 获取缓冲区大小（针对 1080p Source ~10Mbps：默认约 16s，扩大约 50s）
   int _getBufferSize() {
     bool expandBuffer = _configService[ConfigKey.EXPAND_BUFFER];
     if (expandBuffer) {
-      return 32 * 1024 * 1024; // 32MB
+      return 64 * 1024 * 1024; // 64MB 扩大缓冲区
     } else {
-      return 12 * 1024 * 1024; // 12MB
+      return 20 * 1024 * 1024; // 20MB 默认缓冲区
     }
   }
 
@@ -1146,6 +1171,7 @@ class MyVideoStateController extends GetxController
       playingSubscription?.cancel() ?? Future.value(),
       bufferSubscription?.cancel() ?? Future.value(),
       errorSubscription?.cancel() ?? Future.value(), // 取消错误监听订阅
+      repeatSettingSubscription?.cancel() ?? Future.value(),
     ]);
   }
 
@@ -1654,6 +1680,7 @@ class MyVideoStateController extends GetxController
         Media(finalUrl, start: startPosition ?? currentPosition),
         play: true,
       );
+      await _applyRepeatMode();
 
       if (_isDisposed) return;
 
@@ -1695,11 +1722,7 @@ class MyVideoStateController extends GetxController
     mainErrorWidget.value = null;
 
     // 设置播放模式
-    if (_configService[ConfigKey.REPEAT_KEY]) {
-      player.setPlaylistMode(PlaylistMode.loop);
-    } else {
-      player.setPlaylistMode(PlaylistMode.none);
-    }
+    await _applyRepeatMode();
 
     String? url = CommonUtils.findUrlByResolutionTag(
       videoResolutions,
@@ -2108,6 +2131,7 @@ class MyVideoStateController extends GetxController
 
       // 打开新URL，保持播放状态
       await player.open(Media(newUrl, start: savedPosition), play: isPlaying);
+      await _applyRepeatMode();
 
       LogUtils.i('成功切换到新的视频URL', 'MyVideoStateController');
     } catch (e) {
@@ -2299,8 +2323,10 @@ class MyVideoStateController extends GetxController
   }
 
   // 设置当前视频的播放倍率
-  void setPlaybackSpeed(double d) {
-    player.setRate(d);
+  void setPlaybackSpeed(double speed) {
+    final double clampedSpeed = speed.clamp(0.1, 4.0).toDouble();
+    playerPlaybackSpeed.value = clampedSpeed;
+    player.setRate(clampedSpeed);
   }
 
   void setLongPressPlaybackSpeedByConfiguration() {
@@ -2879,7 +2905,7 @@ class MyVideoStateController extends GetxController
       // 创建预览播放器
       previewPlayer = Player(
         configuration: PlayerConfiguration(
-          bufferSize: 32 * 1024 * 1024, // 32MB 缓冲区（与主播放器默认一致）
+          bufferSize: 20 * 1024 * 1024, // 20MB 与主播放器默认一致
           title: 'i_iwara Preview Player',
           // 注意：在 macOS 上开启 async: true 可能会导致热重启时崩溃，因此在调试模式下关闭
           async: !kDebugMode,
