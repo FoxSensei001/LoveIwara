@@ -27,7 +27,6 @@ import 'package:media_kit/media_kit.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/logging/log_service.dart';
-import 'package:i_iwara/app/ui/pages/settings/widgets/crash_recovery_dialog.dart';
 
 import 'dart:ui' show Canvas, PaintingStyle, Picture, PictureRecorder, Rect;
 
@@ -132,16 +131,6 @@ void main() {
 
       // 运行应用
       runApp(TranslationProvider(child: const MyApp()));
-
-      // 检查崩溃恢复
-      if (logService.lastCrashInfo?.hadUncleanExit == true) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          final context = Get.context;
-          if (context != null) {
-            CrashRecoveryDialog.show(context, logService.lastCrashInfo!);
-          }
-        });
-      }
 
       if (GetPlatform.isDesktop) {
         await _initializeDesktop();
