@@ -147,7 +147,7 @@ abstract class BaseMediaRepository<T> extends ExtendedLoadingMoreBase<T> {
       // 存储错误消息
       lastErrorMessage = CommonUtils.parseExceptionMessage(e);
       logError('加载分页数据失败', e, stack);
-      return [];
+      rethrow;
     }
   }
 

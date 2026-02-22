@@ -43,16 +43,16 @@ class ThreadListRepository extends ExtendedLoadingMoreBase<ForumThreadModel> {
     try {
       final params = buildQueryParams(pageKey, pageSize);
       final response = await fetchDataFromSource(params, pageKey, pageSize);
-      
+
       requestTotalCount = extractTotalCount(response);
       final data = extractDataList(response);
-      
+
       return data;
     } catch (e, stack) {
       // 存储具体的错误消息
       lastErrorMessage = CommonUtils.parseExceptionMessage(e);
       logError('加载分页数据失败', e, stack);
-      return [];
+      rethrow;
     }
   }
 

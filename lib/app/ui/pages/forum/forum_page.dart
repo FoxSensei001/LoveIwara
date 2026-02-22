@@ -12,6 +12,7 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
+import 'package:i_iwara/app/utils/url_utils.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
@@ -749,10 +750,31 @@ class _ForumPageState extends State<ForumPage> {
             if (isWideScreen)
               _buildSitewideAnnouncementPreview(body: body)
             else
-              CustomMarkdownBody(
-                data: body,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                maxImageHeight: 220,
+              Column(
+                children: [
+                  CustomMarkdownBody(
+                    data: body,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    maxImageHeight: 220,
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton.icon(
+                        onPressed: () =>
+                            _showSitewideAnnouncementDialog(body: body),
+                        icon: const Icon(Icons.open_in_full, size: 16),
+                        label: Text(t.forum.sitewide.readMore),
+                        style: TextButton.styleFrom(
+                          visualDensity: VisualDensity.compact,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
           ],
         ),
@@ -871,7 +893,7 @@ class _ForumPageState extends State<ForumPage> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () => Get.back(),
+                      onPressed: AppService.tryPop,
                       icon: const Icon(Icons.close),
                       tooltip: slang.t.common.close,
                       style: IconButton.styleFrom(
@@ -913,7 +935,7 @@ class _ForumPageState extends State<ForumPage> {
     if (match == null) return null;
     final url = match.group(1)?.trim();
     if (url == null || url.isEmpty) return null;
-    return url;
+    return UrlUtils.upgradeIwaraHttpToHttps(url);
   }
 
   Widget _buildSitewideAnnouncementErrorCard({

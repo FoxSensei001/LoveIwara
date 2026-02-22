@@ -32,6 +32,30 @@ class IwaraUrlInfo {
 
 /// URL 工具类
 class UrlUtils {
+  /// 将 Iwara 相关域名的 `http` 链接升级为 `https`。
+  ///
+  /// 背景：部分资源在 `http` 下会返回 404，但 `https` 可正常访问。
+  static String upgradeIwaraHttpToHttps(String url) {
+    try {
+      final uri = Uri.parse(url);
+      if (uri.scheme.toLowerCase() != 'http') {
+        return url;
+      }
+
+      final host = uri.host.toLowerCase();
+      final iwaraDomain = CommonConstants.iwaraDomain.toLowerCase();
+      final isIwaraHost = host == iwaraDomain || host.endsWith('.$iwaraDomain');
+
+      if (!isIwaraHost) {
+        return url;
+      }
+
+      return uri.replace(scheme: 'https').toString();
+    } catch (_) {
+      return url;
+    }
+  }
+
   /// 解析 URL
   static IwaraUrlInfo parseUrl(String url) {
     try {

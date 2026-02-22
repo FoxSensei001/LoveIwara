@@ -116,7 +116,7 @@ abstract class ExtendedLoadingMoreBase<T> extends LoadingMoreBase<T> {
       lastErrorMessage = CommonUtils.parseExceptionMessage(e);
       // 子类可通过覆盖logError方法来自定义错误日志
       logError('加载分页数据失败', e);
-      return [];
+      rethrow;
     }
   }
 

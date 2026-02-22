@@ -201,19 +201,14 @@ abstract class BaseSubscriptionListState<
     }
 
     if (widget.isPaginated) {
-      // 移除这里的 setState，让组件通过 props 变化自然重建
-      // 避免与父组件的 setState 产生竞态条件
-      Future.microtask(() {
-        if (mounted) {
-          try {
-            (repository as ExtendedLoadingMoreBase).loadPageData(0, 20);
-            // 滚动到顶部
-            _scrollToTop();
-          } catch (e) {
-            LogUtils.e('刷新数据失败', error: e);
-          }
-        }
-      });
+      if (!mounted) return;
+      try {
+        await (repository as ExtendedLoadingMoreBase<T>).loadPageData(0, 20);
+        // 滚动到顶部
+        _scrollToTop();
+      } catch (e, stack) {
+        LogUtils.e('刷新数据失败', error: e, stack: stack);
+      }
     } else {
       // 清除缓存
       _itemCache.clear();

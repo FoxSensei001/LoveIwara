@@ -646,13 +646,19 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                 ImgConfig(
                   builder: (url, attributes) {
                     try {
-                      final parsedUri = Uri.tryParse(url);
+                      final normalizedUrl = UrlUtils.upgradeIwaraHttpToHttps(
+                        url,
+                      );
+                      final parsedUri = Uri.tryParse(normalizedUrl);
                       if (parsedUri == null || !parsedUri.hasAbsolutePath) {
                         throw FormatException(t.errors.invalidUrl);
                       }
 
                       // 判断是否为表情包并获取规格
-                      final emojiSize = _getEmojiSize(url, attributes);
+                      final emojiSize = _getEmojiSize(
+                        normalizedUrl,
+                        attributes,
+                      );
                       final isEmoji = emojiSize != null;
 
                       return GestureDetector(
@@ -661,16 +667,16 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                             // 表情包点击时显示预览弹窗
                             EmojiPreviewDialog.show(
                               context: context,
-                              emojiUrl: url,
+                              emojiUrl: normalizedUrl,
                             );
                           } else {
                             // 普通图片进入图片详情页
                             ImageItem item = ImageItem(
-                              url: url,
+                              url: normalizedUrl,
                               data: ImageItemData(
                                 id: '',
-                                url: url,
-                                originalUrl: url,
+                                url: normalizedUrl,
+                                originalUrl: normalizedUrl,
                               ),
                             );
                             final menuItems = [
@@ -720,7 +726,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                                       emojiSize.borderRadius,
                                     ),
                                     child: CachedNetworkImage(
-                                      imageUrl: url,
+                                      imageUrl: normalizedUrl,
                                       httpHeaders: const {
                                         'referer': CommonConstants.iwaraBaseUrl,
                                       },
@@ -771,10 +777,11 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                                   borderRadius: BorderRadius.circular(12),
                                   child: ConstrainedBox(
                                     constraints: BoxConstraints(
-                                      maxHeight: maxImageHeight ?? double.infinity,
+                                      maxHeight:
+                                          maxImageHeight ?? double.infinity,
                                     ),
                                     child: CachedNetworkImage(
-                                      imageUrl: url,
+                                      imageUrl: normalizedUrl,
                                       httpHeaders: const {
                                         'referer': CommonConstants.iwaraBaseUrl,
                                       },
@@ -784,7 +791,8 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                                             highlightColor: Colors.grey[100]!,
                                             child: Container(
                                               width: double.infinity,
-                                              height: normalImagePlaceholderHeight,
+                                              height:
+                                                  normalImagePlaceholderHeight,
                                               decoration: BoxDecoration(
                                                 color: Colors.white,
                                                 borderRadius:
@@ -795,7 +803,8 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                                       errorWidget: (context, url, error) =>
                                           Container(
                                             width: double.infinity,
-                                            height: normalImagePlaceholderHeight,
+                                            height:
+                                                normalImagePlaceholderHeight,
                                             decoration: BoxDecoration(
                                               color: Colors.grey[200],
                                               borderRadius:
