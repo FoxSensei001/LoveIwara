@@ -24,10 +24,10 @@ import 'package:i_iwara/app/ui/pages/settings/navigation_order_settings_page.dar
 import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
 import 'package:i_iwara/app/ui/pages/tag_blacklist/tag_blacklist_page.dart';
 import 'package:i_iwara/app/ui/pages/tag_videos/tag_gallery_list_page.dart';
+import 'package:i_iwara/app/ui/pages/home/home_navigation_layout.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/video_detail_page_v2.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/my_video_screen.dart';
-import 'package:i_iwara/app/ui/pages/home/home_navigation_layout.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
 import 'package:i_iwara/app/ui/pages/download/gallery_download_task_detail_page.dart';
 import 'package:i_iwara/app/ui/pages/tag_videos/tag_video_list_page.dart';
@@ -206,42 +206,41 @@ class NaviService {
     final navigatorState = AppService.homeNavigatorKey.currentState;
     if (navigatorState == null) return;
 
-    final route = PageRouteBuilder(
-      settings: RouteSettings(name: routeName),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return page;
-      },
-      transitionDuration: transitionDuration,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        switch (transitionType) {
-          case TransitionType.slideRight:
-            return SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(1, 0),
-                end: Offset.zero,
-              ).animate(animation),
-              child: child,
-            );
-          case TransitionType.fade:
-            return FadeTransition(opacity: animation, child: child);
-          case TransitionType.none:
-            return child;
-        }
-      },
-    );
+    Route<dynamic> route;
+
+    if (transitionType == TransitionType.slideRight) {
+      // 使用 DialogAwareMaterialPageRoute 以支持 Android 预测式返回手势，
+      // 同时在弹窗打开时让出返回手势给弹窗处理
+      route = DialogAwareMaterialPageRoute(
+        settings: RouteSettings(name: routeName),
+        builder: (context) => page,
+      );
+    } else {
+      // fade / none 等非标准过渡仍使用 PageRouteBuilder
+      route = PageRouteBuilder(
+        settings: RouteSettings(name: routeName),
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return page;
+        },
+        transitionDuration: transitionDuration,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          switch (transitionType) {
+            case TransitionType.fade:
+              return FadeTransition(opacity: animation, child: child);
+            case TransitionType.none:
+              return child;
+            case TransitionType.slideRight:
+              return child; // 不会走到这里
+          }
+        },
+      );
+    }
 
     if (replaceCurrent) {
       navigatorState.pushReplacement(route);
     } else {
       navigatorState.push(route);
     }
-  }
-
-  static bool _isVideoDetailOnTop() {
-    final routes = HomeNavigationLayout.homeNavigatorObserver.routes;
-    if (routes.isEmpty) return false;
-    final currentRouteName = routes.last.settings.name;
-    return currentRouteName?.contains(Routes.VIDEO_DETAIL_PREFIX) ?? false;
   }
 
   /// 跳转到作者个人主页
@@ -261,11 +260,18 @@ class NaviService {
   }
 
   /// 跳转到视频详情页
+  static bool _isVideoDetailOnTop() {
+    final routes = HomeNavigationLayout.homeNavigatorObserver.routes;
+    if (routes.isEmpty) return false;
+    final currentRouteName = routes.last.settings.name;
+    return currentRouteName?.contains(Routes.VIDEO_DETAIL_PREFIX) ?? false;
+  }
+
+  /// 跳转到视频详情页
   static void navigateToVideoDetailPage(
     String id, [
     Map<String, dynamic>? extData,
   ]) {
-    // 注意 extData 外面的 []
     final shouldReplace = _isVideoDetailOnTop();
     _navigateToPage(
       routeName: Routes.VIDEO_DETAIL(id),
@@ -615,5 +621,43 @@ class NaviService {
       routeName: Routes.VIDEO_DETAIL(randomVideoId),
       page: MyVideoDetailPage(videoId: randomVideoId, localPath: filePath),
     );
+  }
+}
+
+/// 感知弹窗状态的 MaterialPageRoute。
+///
+/// 当根 Navigator 上存在 PopupRoute（Dialog / BottomSheet）时，
+/// [popGestureEnabled] 返回 false，使 PredictiveBackPageTransitionsBuilder
+/// 创建的 _PredictiveBackGestureDetector 不再拦截系统返回手势。
+///
+/// 这样返回手势将回退到 handlePopRoute() → GetDelegate.popRoute() →
+/// handlePopupRoutes()，从而正确地先关闭弹窗，再处理页面路由的返回。
+///
+/// 当没有弹窗时，行为与普通 MaterialPageRoute 完全一致，保留预测式返回动画。
+class DialogAwareMaterialPageRoute<T> extends MaterialPageRoute<T> {
+  DialogAwareMaterialPageRoute({
+    required super.builder,
+    super.settings,
+    super.maintainState,
+    super.fullscreenDialog,
+    super.allowSnapshotting,
+  });
+
+  @override
+  bool get popGestureEnabled {
+    // 检查根 Navigator 上是否有 PopupRoute（Dialog / BottomSheet）
+    // 使用与 GetDelegate.handlePopupRoutes() 相同的模式：
+    // popUntil((route) => true) 仅访问栈顶路由，不会实际 pop
+    try {
+      Route? topRoute;
+      Get.key.currentState?.popUntil((route) {
+        topRoute = route;
+        return true;
+      });
+      if (topRoute is PopupRoute) return false;
+    } catch (_) {
+      // Get.key 可能在初始化阶段不可用，安全回退
+    }
+    return super.popGestureEnabled;
   }
 }

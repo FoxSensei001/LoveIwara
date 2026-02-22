@@ -34,19 +34,10 @@ class SettingsPage extends StatefulWidget {
     if (instance != null) {
       if (instance.enableTwoViews) {
         // 宽屏模式：使用内部导航
+        // 使用 DialogAwareMaterialPageRoute 以便在弹窗打开时让出预测式返回手势
         instance._nestedNavigatorKey.currentState?.push(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => page,
-            transitionDuration: const Duration(milliseconds: 200),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(1, 0),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
-              );
-            },
+          DialogAwareMaterialPageRoute(
+            builder: (context) => page,
           ),
         );
       } else {
@@ -215,7 +206,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
     return PopScope(
       canPop: canPop,
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
           return;
         }
@@ -545,20 +536,10 @@ class _SettingsPageState extends State<SettingsPage> {
       return Navigator(
         key: _nestedNavigatorKey,
         onGenerateRoute: (settings) {
-          return PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) {
+          // 使用 DialogAwareMaterialPageRoute 以便在弹窗打开时让出预测式返回手势
+          return DialogAwareMaterialPageRoute(
+            builder: (context) {
               return _getSettingsPage();
-            },
-            transitionDuration: const Duration(milliseconds: 200),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              return SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(1, 0),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
-              );
             },
           );
         },

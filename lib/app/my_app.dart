@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -36,6 +39,40 @@ import 'services/deep_link_service.dart';
 import 'services/auth_service.dart';
 import 'utils/exit_confirm_util.dart';
 import 'package:i_iwara/app/ui/pages/profile/personal_profile_page.dart';
+
+/// Android 预测式返回手势所需的页面过渡主题
+///
+/// 在 Android 13+ 上使用 PredictiveBackPageTransitionsBuilder 实现预测式返回动画，
+/// 其他平台使用 FadeForwardsPageTransitionsBuilder（Material 3 默认）。
+PageTransitionsTheme get _predictiveBackPageTransitionsTheme {
+  // Android 平台且非 Web 环境使用预测式返回
+  if (!kIsWeb && Platform.isAndroid) {
+    return const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+      },
+    );
+  }
+  // 其他平台使用默认
+  return const PageTransitionsTheme(
+    builders: {
+      TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
+      TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+      TargetPlatform.linux: FadeForwardsPageTransitionsBuilder(),
+      TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+      TargetPlatform.windows: FadeForwardsPageTransitionsBuilder(),
+    },
+  );
+}
+
+/// 创建包含预测式返回支持的 ThemeData
+ThemeData buildThemeData({required ColorScheme colorScheme}) {
+  return ThemeData(
+    colorScheme: colorScheme,
+    useMaterial3: true,
+    pageTransitionsTheme: _predictiveBackPageTransitionsTheme,
+  );
+}
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -94,7 +131,7 @@ class _MyAppState extends State<MyApp> {
           }
 
           Get.changeTheme(
-            ThemeData(colorScheme: colorScheme, useMaterial3: true),
+            buildThemeData(colorScheme: colorScheme),
           );
         },
       ),
@@ -169,12 +206,12 @@ class _MyAppState extends State<MyApp> {
                 WidgetsBinding.instance.platformDispatcher.platformBrightness ==
                 Brightness.light;
             if (currentThemeMode == 1) {
-              Get.changeTheme(ThemeData.from(colorScheme: lightColorScheme));
+              Get.changeTheme(buildThemeData(colorScheme: lightColorScheme));
             } else if (currentThemeMode == 2) {
-              Get.changeTheme(ThemeData.from(colorScheme: darkColorScheme));
+              Get.changeTheme(buildThemeData(colorScheme: darkColorScheme));
             } else {
               Get.changeTheme(
-                ThemeData.from(
+                buildThemeData(
                   colorScheme: systemIsLight
                       ? lightColorScheme
                       : darkColorScheme,
@@ -197,16 +234,15 @@ class _MyAppState extends State<MyApp> {
           child: GetMaterialApp(
             debugShowCheckedModeBanner: false,
             title: t.common.appName,
-            theme: ThemeData(colorScheme: lightColorScheme, useMaterial3: true),
-            darkTheme: ThemeData(
-              colorScheme: darkColorScheme,
-              useMaterial3: true,
-            ),
+            theme: buildThemeData(colorScheme: lightColorScheme),
+            darkTheme: buildThemeData(colorScheme: darkColorScheme),
             themeMode: currentThemeMode == 0
                 ? ThemeMode.system
                 : currentThemeMode == 1
                 ? ThemeMode.light
                 : ThemeMode.dark,
+            // 使用平台原生过渡动画，在 Android 13+ 上支持预测式返回手势
+            defaultTransition: Transition.native,
             // 添加本地化支持
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
@@ -233,58 +269,58 @@ class _MyAppState extends State<MyApp> {
               GetPage(
                 name: Routes.PLAYER_SETTINGS_PAGE,
                 page: () => const PlayerSettingsPage(),
-                transition: Transition.rightToLeft,
+                transition: Transition.native,
               ),
               if (ProxyUtil.isSupportedPlatform())
                 GetPage(
                   name: Routes.PROXY_SETTINGS_PAGE,
                   page: () => const ProxySettingsPage(),
-                  transition: Transition.rightToLeft,
+                  transition: Transition.native,
                 ),
               GetPage(
                 name: Routes.AI_TRANSLATION_SETTINGS_PAGE,
                 page: () => const AITranslationSettingsPage(),
-                transition: Transition.rightToLeft,
+                transition: Transition.native,
               ),
               GetPage(
                 name: Routes.THEME_SETTINGS_PAGE,
                 page: () => const ThemeSettingsPage(),
-                transition: Transition.rightToLeft,
+                transition: Transition.native,
               ),
               GetPage(
                 name: Routes.APP_SETTINGS_PAGE,
                 page: () => const AppSettingsPage(),
-                transition: Transition.rightToLeft,
+                transition: Transition.native,
               ),
               GetPage(
                 name: Routes.ABOUT_PAGE,
                 page: () => const AboutPage(),
-                transition: Transition.rightToLeft,
+                transition: Transition.native,
               ),
               GetPage(
                 name: Routes.DOWNLOAD_SETTINGS_PAGE,
                 page: () => const DownloadSettingsPage(),
-                transition: Transition.rightToLeft,
+                transition: Transition.native,
               ),
               GetPage(
                 name: Routes.FORUM_SETTINGS_PAGE,
                 page: () => const ForumSettingsPage(),
-                transition: Transition.rightToLeft,
+                transition: Transition.native,
               ),
               GetPage(
                 name: Routes.LOGIN,
                 page: () => const LoginPage(),
-                transition: Transition.cupertino,
+                transition: Transition.native,
               ),
               GetPage(
                 name: Routes.SIGN_IN,
                 page: () => const SignInPage(),
-                transition: Transition.cupertino,
+                transition: Transition.native,
               ),
               GetPage(
                 name: Routes.PERSONAL_PROFILE,
                 page: () => const PersonalProfilePage(),
-                transition: Transition.rightToLeft,
+                transition: Transition.native,
               ),
             ],
             initialRoute: Routes.HOME,

@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/forum/forum_page.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -132,43 +133,45 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
 
                       if (hasEnoughSpace) {
                         // 高度足够：使用固定布局，按钮在底部
-                        return Obx(() => NavigationRail(
-                          labelType: NavigationRailLabelType.all,
-                          selectedIndex: appService.currentIndex,
-                          // leading: const SizedBox(height: 16), // 移除顶部的空隙
-                          trailing: Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                const Spacer(),
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 16),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.settings),
-                                        tooltip: t.common.settings,
-                                        onPressed: () {
-                                          AppService.switchGlobalDrawer();
-                                        },
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.exit_to_app),
-                                        tooltip: t.common.back,
-                                        onPressed: () {
-                                          AppService.tryPop();
-                                        },
-                                      ),
-                                    ],
+                        return Obx(
+                          () => NavigationRail(
+                            labelType: NavigationRailLabelType.all,
+                            selectedIndex: appService.currentIndex,
+                            // leading: const SizedBox(height: 16), // 移除顶部的空隙
+                            trailing: Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  const Spacer(),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 16),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(Icons.settings),
+                                          tooltip: t.common.settings,
+                                          onPressed: () {
+                                            AppService.switchGlobalDrawer();
+                                          },
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.exit_to_app),
+                                          tooltip: t.common.back,
+                                          onPressed: () {
+                                            AppService.tryPop();
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
+                            onDestinationSelected: handleNavigationTap,
+                            destinations: _buildNavigationRailDestinations(),
                           ),
-                          onDestinationSelected: handleNavigationTap,
-                          destinations: _buildNavigationRailDestinations(),
-                        ));
+                        );
                       } else {
                         // 高度不够：使用滚动布局
                         return SingleChildScrollView(
@@ -177,35 +180,37 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
                               minHeight: railConstraints.maxHeight,
                             ),
                             child: IntrinsicHeight(
-                              child: Obx(() => NavigationRail(
-                                labelType: NavigationRailLabelType.all,
-                                selectedIndex: appService.currentIndex,
-                                trailing: Padding(
-                                  padding: const EdgeInsets.only(bottom: 16),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.settings),
-                                        tooltip: t.common.settings,
-                                        onPressed: () {
-                                          AppService.switchGlobalDrawer();
-                                        },
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.exit_to_app),
-                                        tooltip: t.common.back,
-                                        onPressed: () {
-                                          AppService.tryPop();
-                                        },
-                                      ),
-                                    ],
+                              child: Obx(
+                                () => NavigationRail(
+                                  labelType: NavigationRailLabelType.all,
+                                  selectedIndex: appService.currentIndex,
+                                  trailing: Padding(
+                                    padding: const EdgeInsets.only(bottom: 16),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(Icons.settings),
+                                          tooltip: t.common.settings,
+                                          onPressed: () {
+                                            AppService.switchGlobalDrawer();
+                                          },
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.exit_to_app),
+                                          tooltip: t.common.back,
+                                          onPressed: () {
+                                            AppService.tryPop();
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   ),
+                                  onDestinationSelected: handleNavigationTap,
+                                  destinations:
+                                      _buildNavigationRailDestinations(),
                                 ),
-                                onDestinationSelected: handleNavigationTap,
-                                destinations:
-                                    _buildNavigationRailDestinations(),
-                              )),
+                              ),
                             ),
                           ),
                         );
@@ -216,33 +221,36 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
                 // 主要内容区域：使用 Navigator 和 IndexedStack 结合懒加载页面
                 Expanded(
                   child: Scaffold(
-                    body: Navigator(
-                      key: AppService.homeNavigatorKey,
-                      observers: [HomeNavigationLayout.homeNavigatorObserver],
-                      onGenerateRoute: (settings) {
-                        if (settings.name == Routes.ROOT ||
-                            settings.name == Routes.POPULAR_VIDEOS ||
-                            settings.name == Routes.GALLERY ||
-                            settings.name == Routes.SUBSCRIPTIONS ||
-                            settings.name == Routes.FORUM) {
-                          return PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) {
-                                  return Obx(
-                                    () => LazyIndexedStack(
-                                      key: _lazyStackKey,
-                                      index: appService.currentIndex,
-                                      itemBuilders: _buildPageBuilders(),
-                                    ),
-                                  );
-                                },
-                            settings: settings,
-                            transitionDuration: Duration.zero,
-                          );
-                        }
-                        // 其他路由按照原逻辑处理
-                        return null;
-                      },
+                    body: NavigatorPopHandler(
+                      onPopWithResult: (_) => AppService.tryPop(),
+                      child: Navigator(
+                        key: AppService.homeNavigatorKey,
+                        observers: [HomeNavigationLayout.homeNavigatorObserver],
+                        onGenerateRoute: (settings) {
+                          if (settings.name == Routes.ROOT ||
+                              settings.name == Routes.POPULAR_VIDEOS ||
+                              settings.name == Routes.GALLERY ||
+                              settings.name == Routes.SUBSCRIPTIONS ||
+                              settings.name == Routes.FORUM) {
+                            return PageRouteBuilder(
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) {
+                                    return Obx(
+                                      () => LazyIndexedStack(
+                                        key: _lazyStackKey,
+                                        index: appService.currentIndex,
+                                        itemBuilders: _buildPageBuilders(),
+                                      ),
+                                    );
+                                  },
+                              settings: settings,
+                              transitionDuration: Duration.zero,
+                            );
+                          }
+                          // 其他路由按照原逻辑处理
+                          return null;
+                        },
+                      ),
                     ),
                     // 底部导航栏
                     bottomNavigationBar: Obx(() {
@@ -329,7 +337,7 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
   }
 }
 
-/// [TODO_PLACEHOLDER] HOME 页面路由观察器
+/// HOME 页面路由观察器
 class HomeNavigatorObserver extends NavigatorObserver {
   final AppService appService = Get.find();
   var routes = Queue<Route>();
@@ -347,7 +355,14 @@ class HomeNavigatorObserver extends NavigatorObserver {
 
   @override
   void didPop(Route route, Route? previousRoute) {
-    routes.removeLast();
+    if (routes.isNotEmpty) {
+      routes.removeLast();
+    } else {
+      LogUtils.w(
+        'didPop called but routes is empty, route: ${route.settings.name}',
+        'HomeNavigatorObserver',
+      );
+    }
     _tryHideBottomNavi();
     for (var callback in _routeChangeCallbacks) {
       callback(route, previousRoute);
@@ -374,14 +389,25 @@ class HomeNavigatorObserver extends NavigatorObserver {
 
   @override
   void didReplace({Route? newRoute, Route? oldRoute}) {
-    // 清除旧路由
-    if (oldRoute != null) {
-      routes.remove(oldRoute);
-    }
-    // 当使用 offAllNamed 时，清空所有路由并重新开始
-    if (newRoute != null) {
+    if (oldRoute != null && newRoute != null) {
+      // pushReplacement 场景：仅替换栈顶路由，保留其下方的路由
+      // 找到旧路由在队列中的位置并替换
+      final routesList = routes.toList();
+      final index = routesList.indexOf(oldRoute);
+      if (index != -1) {
+        routesList[index] = newRoute;
+        routes = Queue.of(routesList);
+      } else {
+        // 旧路由不在队列中（异常情况），直接添加新路由
+        routes.addLast(newRoute);
+      }
+    } else if (newRoute != null && oldRoute == null) {
+      // offAllNamed 场景：清空所有路由并重新开始
       routes.clear();
       routes.add(newRoute);
+    } else if (oldRoute != null && newRoute == null) {
+      // 仅移除旧路由
+      routes.remove(oldRoute);
     }
     _tryHideBottomNavi();
     for (var callback in _routeChangeCallbacks) {
@@ -405,7 +431,22 @@ class HomeNavigatorObserver extends NavigatorObserver {
   }
 }
 
-class _NaviPopScope extends StatelessWidget {
+/// 顶层返回手势处理组件
+/// Android: 使用 PopScope 配合动态 canPop 实现预测式返回手势
+/// iOS: 使用自定义边缘滑动手势
+///
+/// 注意 Android 预测式返回的关键机制：
+/// Android 13+ 通过 OnBackInvokedCallback 接收返回手势。Flutter 通过
+/// SystemNavigator.setFrameworkHandlesBack(bool) 控制是否注册该回调。
+/// 当 setFrameworkHandlesBack(false) 时回调被注销，系统返回手势会直接
+/// finish Activity（退出应用），完全绕过 Flutter。
+///
+/// 问题：嵌套 Navigator 在首页根态发出 NavigationNotification(canHandlePop: false)，
+/// 与根路由的 PopScope(canPop: false) 产生的 canHandlePop: true 存在时序竞态，
+/// 可能导致最终 setFrameworkHandlesBack(false)，使返回手势直接退出应用。
+///
+/// 解决方案：在首页根态时主动调用 setFrameworkHandlesBack(true) 确保回调注册。
+class _NaviPopScope extends StatefulWidget {
   const _NaviPopScope({
     required this.child,
     this.popGesture = false,
@@ -416,25 +457,67 @@ class _NaviPopScope extends StatelessWidget {
   final bool popGesture;
   final VoidCallback action;
 
+  @override
+  State<_NaviPopScope> createState() => _NaviPopScopeState();
+}
+
+class _NaviPopScopeState extends State<_NaviPopScope> {
   static bool panStartAtEdge = false;
+
+  /// 确保在首页根态时 Android 系统返回手势回调已注册
+  void _ensureFrameworkHandlesBack(bool isAtHomeRoot) {
+    if (!GetPlatform.isAndroid) return;
+    if (!isAtHomeRoot) return;
+    // 在帧结束后设置，避免在 build 期间产生副作用
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      SystemNavigator.setFrameworkHandlesBack(true);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     Widget res = GetPlatform.isIOS
-        ? child
-        : PopScope(
-            canPop: GetPlatform.isAndroid ? false : true,
-            onPopInvokedWithResult: (value, result) {
-              LogUtils.d(
-                '[顶层Popscope结果, value: $value, result: $result]',
-                'PopScope',
-              );
-              ExitConfirmUtil.handleExit(context, action);
-            },
-            child: child,
-          );
+        ? widget.child
+        : Obx(() {
+            // 动态计算 canPop：
+            // 优先基于 Navigator 实时状态，同时参考 showBottomNavi 作为响应式信号
+            final AppService appService = Get.find<AppService>();
+            // 读取 showBottomNavi 以触发 Obx 响应式重建
+            final bool isBottomNaviVisible = appService.showBottomNavi;
+            // 基于 Navigator 真实能力判断
+            final bool nestedCanPop =
+                AppService.homeNavigatorKey.currentState?.canPop() ?? false;
+            // Home 根态：底部导航可见 且 嵌套 Navigator 不可 pop
+            final bool isAtHomeRoot = isBottomNaviVisible && !nestedCanPop;
+            final bool canPop = !isAtHomeRoot;
 
-    if (popGesture) {
+            // 首页根态时确保 Android 系统返回手势回调已注册，
+            // 防止嵌套 Navigator 的 NavigationNotification 竞态导致回调被注销
+            _ensureFrameworkHandlesBack(isAtHomeRoot);
+
+            return PopScope(
+              canPop: canPop,
+              onPopInvokedWithResult: (didPop, result) {
+                if (didPop) return;
+                // 如果嵌套 Navigator 可以 pop，说明 NavigatorPopHandler 会处理，
+                // 避免与 NavigatorPopHandler 重复执行 pop
+                final nestedCanPop =
+                    AppService.homeNavigatorKey.currentState?.canPop() ?? false;
+                if (nestedCanPop) return;
+                // didPop 为 false 且嵌套不可 pop，说明在 Home 根态
+                // 走双击退出确认逻辑
+                LogUtils.d(
+                  '[顶层Popscope结果, didPop: $didPop, result: $result]',
+                  'PopScope',
+                );
+                ExitConfirmUtil.handleExit(context, widget.action);
+              },
+              child: widget.child,
+            );
+          });
+
+    if (widget.popGesture) {
       res = GestureDetector(
         onPanStart: (details) {
           if (details.globalPosition.dx < 64) {
@@ -443,7 +526,7 @@ class _NaviPopScope extends StatelessWidget {
         },
         onPanEnd: (details) {
           if (details.velocity.pixelsPerSecond.dx.abs() > 0 && panStartAtEdge) {
-            ExitConfirmUtil.handleExit(context, action);
+            ExitConfirmUtil.handleExit(context, widget.action);
           }
           panStartAtEdge = false;
         },

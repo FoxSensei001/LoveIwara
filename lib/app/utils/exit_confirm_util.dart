@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/home/home_navigation_layout.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -14,19 +15,37 @@ class ExitConfirmUtil {
     Routes.FORUM,
   ];
 
-  /// 检查当前路由是否为主页路由
+  /// 安全获取当前路由（空栈返回 null）
+  static Route<dynamic>? _currentRouteOrNull() {
+    final routes = HomeNavigationLayout.homeNavigatorObserver.routes;
+    if (routes.isEmpty) return null;
+    return routes.last;
+  }
+
+  /// 检查当前路由是否为主页路由（带空栈防护）
   static bool isHomeRoute() {
-    final currentRoute = HomeNavigationLayout.homeNavigatorObserver.routes.last;
+    final currentRoute = _currentRouteOrNull();
+    if (currentRoute == null) return false;
     return _homeRoutes.contains(currentRoute.settings.name);
+  }
+
+  /// 判断当前是否处于 Home 根态（需要双击退出的场景）
+  /// 条件：处于主页路由 + 无 overlay + 嵌套 Navigator 不可 pop
+  static bool isHomeRootState() {
+    final hasOverlay =
+        (Get.isDialogOpen ?? false) || (Get.isBottomSheetOpen ?? false);
+    if (hasOverlay) return false;
+
+    final nestedCanPop =
+        AppService.homeNavigatorKey.currentState?.canPop() ?? false;
+    if (nestedCanPop) return false;
+
+    return isHomeRoute();
   }
 
   /// 处理退出操作
   static void handleExit(BuildContext context, VoidCallback action) {
-    // 判断当前有没有 Get 的 overlay
-    final haveOverlay = Get.isDialogOpen ?? Get.isBottomSheetOpen ?? false;
-    if (isHomeRoute() && !haveOverlay) {
-      // final currentRoute = HomeNavigationLayout.homeNavigatorObserver.routes.last;
-      
+    if (isHomeRootState()) {
       if (checkCanExitAndShowMessage(context)) {
         action();
       }
@@ -67,4 +86,4 @@ class ExitConfirmUtil {
       ),
     );
   }
-} 
+}

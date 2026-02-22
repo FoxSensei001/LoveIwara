@@ -799,15 +799,14 @@ class _GridSpeedDialState extends State<GridSpeedDial>
   @override
   Widget build(BuildContext context) {
     return (kIsWeb || !Platform.isIOS) && widget.closeDialOnPop
-        ? WillPopScope(
-            child: _renderButton(),
-            onWillPop: () async {
-              if (_open) {
+        ? PopScope(
+            canPop: !_open,
+            onPopInvokedWithResult: (didPop, _) {
+              if (!didPop && _open) {
                 _toggleChildren();
-                return false;
               }
-              return true;
             },
+            child: _renderButton(),
           )
         : _renderButton();
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/my_app.dart' show buildThemeData;
 import 'package:i_iwara/common/constants.dart';
 import '../models/theme_mode.model.dart';
 
@@ -179,9 +180,8 @@ class ThemeService extends GetxService {
       );
     }
 
-    Get.changeTheme(ThemeData(
+    Get.changeTheme(buildThemeData(
       colorScheme: colorScheme,
-      useMaterial3: true,
     ));
   }
 
