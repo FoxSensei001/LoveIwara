@@ -7,6 +7,7 @@ import 'package:i_iwara/app/services/theme_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class ThemeSettingsPage extends StatelessWidget {
   final bool isWideScreen;
@@ -375,7 +376,7 @@ class ThemeSettingsPage extends StatelessWidget {
   void _showColorPicker(BuildContext context, ThemeService themeService) {
     Color pickerColor =
         CommonConstants.dynamicLightColorScheme?.primary ?? Colors.orange;
-    Get.dialog(
+    showAppDialog(
       AlertDialog(
         title: Text(t.settings.pickColor),
         content: SingleChildScrollView(

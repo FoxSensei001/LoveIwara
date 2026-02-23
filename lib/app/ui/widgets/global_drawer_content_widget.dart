@@ -14,6 +14,7 @@ import '../../services/auth_service.dart';
 import '../../services/user_service.dart';
 import '../../services/login_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class GlobalDrawerColumns extends StatelessWidget {
   GlobalDrawerColumns({super.key});
@@ -31,7 +32,7 @@ class GlobalDrawerColumns extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.symmetric(vertical: 8),
             children: [
-              _buildSectionHeader(slang.t.settings.interaction),
+              _buildSectionHeader(context, slang.t.settings.interaction),
               _buildMenuItem(
                 context,
                 icon: Icons.notifications_outlined,
@@ -66,7 +67,7 @@ class GlobalDrawerColumns extends StatelessWidget {
               const Divider(indent: 16, endIndent: 16, height: 24),
 
               // --- Content Section ---
-              _buildSectionHeader(slang.t.common.history),
+              _buildSectionHeader(context, slang.t.common.history),
               _buildMenuItem(
                 context,
                 icon: Icons.history_outlined,
@@ -119,7 +120,7 @@ class GlobalDrawerColumns extends StatelessWidget {
               const Divider(indent: 16, endIndent: 16, height: 24),
 
               // --- Social Section ---
-              _buildSectionHeader(slang.t.common.followsAndFans),
+              _buildSectionHeader(context, slang.t.common.followsAndFans),
               _buildMenuItem(
                 context,
                 icon: Icons.stars_outlined,
@@ -163,7 +164,7 @@ class GlobalDrawerColumns extends StatelessWidget {
               const Divider(indent: 16, endIndent: 16, height: 24),
 
               // --- Tools Section ---
-              _buildSectionHeader(slang.t.common.more),
+              _buildSectionHeader(context, slang.t.common.more),
               _buildMenuItem(
                 context,
                 icon: Icons.person_outline,
@@ -214,7 +215,7 @@ class GlobalDrawerColumns extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: Text(
@@ -222,7 +223,7 @@ class GlobalDrawerColumns extends StatelessWidget {
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w600,
-          color: Get.theme.colorScheme.primary.withOpacity(0.7),
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.7),
           letterSpacing: 1.1,
         ),
       ),
@@ -248,7 +249,7 @@ class GlobalDrawerColumns extends StatelessWidget {
               Icon(
                 icon,
                 size: 22,
-                color: Get.isDarkMode ? Colors.white70 : Colors.black87,
+                color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.black87,
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -463,7 +464,7 @@ class GlobalDrawerColumns extends StatelessWidget {
 
   void _showLogoutDialog(BuildContext context) {
     AppService.switchGlobalDrawer();
-    Get.dialog(
+    showAppDialog(
       LogoutDialog(userService: userService),
       barrierDismissible: true,
     );

@@ -13,6 +13,7 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/post_tile_list_i
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/post_input_dialog.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class ProfilePostTabListWidget extends StatefulWidget {
   final String userId;
@@ -74,7 +75,7 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
 
   void _showCreatePostDialog() {
     final t = slang.Translations.of(context);
-    Get.dialog(
+    showAppDialog(
       PostInputDialog(
         onSubmit: (title, body) async {
           final result = await _postService.postPost(title, body);
@@ -194,15 +195,13 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
                         );
                       },
                       child: const Icon(Icons.arrow_upward),
-                    ).paddingBottom(Get.context != null
-                      ? MediaQuery.of(Get.context!).padding.bottom
-                      : 0)
+                    ).paddingBottom(MediaQuery.of(context).padding.bottom)
                   : const SizedBox()),
             ],
           ),
         ),
       ],
-    ).paddingOnly(bottom: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0);
+    ).paddingOnly(bottom: MediaQuery.of(context).padding.bottom);
   }
 
   Widget buildItem(BuildContext context, PostModel post, int index) {

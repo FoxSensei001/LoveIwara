@@ -9,6 +9,7 @@ import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class AITranslationSettingsController extends GetxController {
   final ConfigService configService = Get.find();
@@ -201,7 +202,7 @@ class AITranslationSettingsController extends GetxController {
   }
 
   void _showValidationDialog() {
-    Get.dialog(
+    showAppDialog(
       AlertDialog(
         title: Text(slang.t.translation.needVerification),
         content: Text(slang.t.translation.needVerificationContent),

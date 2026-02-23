@@ -10,10 +10,12 @@ import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/models/history_record.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/oreno3d_client.dart' show Oreno3dClient;
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/models/oreno3d_video.model.dart';
 import 'package:i_iwara/app/services/playback_history_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/related_media_controller.dart';
@@ -27,6 +29,7 @@ import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:volume_controller/volume_controller.dart';
+import 'package:window_manager/window_manager.dart';
 
 import '../../../../../utils/common_utils.dart';
 import '../../../../../utils/easy_throttle.dart';
@@ -115,6 +118,11 @@ class MyVideoStateController extends GetxController
   final RxBool sliderDragLoadFinished = true.obs; // 拖动进度条加载完成
   final RxDouble playerPlaybackSpeed = 1.0.obs; // 播放速度
   final RxBool isDesktopAppFullScreen = false.obs; // 是否是应用全屏
+  Size? _desktopWindowSizeBeforeFullscreen;
+  Offset? _desktopWindowPositionBeforeFullscreen;
+  bool _desktopWindowWasMaximized = false;
+  bool _hasDesktopWindowGeometrySnapshot = false;
+  bool _isRestoringDesktopWindowGeometry = false;
   bool firstLoaded = false;
   // 显示用的时间变量
   final Rx<Duration> toShowCurrentPosition = Duration.zero.obs;
@@ -383,8 +391,8 @@ class MyVideoStateController extends GetxController
       );
 
       // 播放中切换“循环播放”开关时，立即同步到当前播放器实例
-      repeatSettingSubscription =
-          _configService.settings[ConfigKey.REPEAT_KEY]!.listen((_) async {
+      repeatSettingSubscription = _configService.settings[ConfigKey.REPEAT_KEY]!
+          .listen((_) async {
             if (_isDisposed) return;
             await _applyRepeatMode();
           });
@@ -1095,7 +1103,9 @@ class MyVideoStateController extends GetxController
       LogUtils.d('生命周期观察者已移除', 'MyVideoStateController');
 
       // 获取当前的主题是否为亮色
-      final isDarkMode = Theme.of(Get.context!).brightness == Brightness.dark;
+      final isDarkMode =
+          Theme.of(rootNavigatorKey.currentContext!).brightness ==
+          Brightness.dark;
 
       // 设置状态栏颜色为黑色字体
       SystemChrome.setSystemUIOverlayStyle(
@@ -1599,8 +1609,8 @@ class MyVideoStateController extends GetxController
       resolutionTag,
     );
     if (url == null || url.isEmpty) {
-      if (Get.context != null) {
-        ScaffoldMessenger.of(Get.context!).showSnackBar(
+      if (rootNavigatorKey.currentContext != null) {
+        ScaffoldMessenger.of(rootNavigatorKey.currentContext!).showSnackBar(
           SnackBar(
             content: Text(slang.t.videoDetail.noVideoSourceFound),
             backgroundColor: Colors.red,
@@ -1878,8 +1888,10 @@ class MyVideoStateController extends GetxController
                 '开始重试刷新播放器，当前缓冲状态: buffering=${videoBuffering.value}, buffers=${buffers.length}',
                 'MyVideoStateController',
               );
-              if (Get.context != null) {
-                ScaffoldMessenger.of(Get.context!).showSnackBar(
+              if (rootNavigatorKey.currentContext != null) {
+                ScaffoldMessenger.of(
+                  rootNavigatorKey.currentContext!,
+                ).showSnackBar(
                   SnackBar(
                     content: Text(slang.t.mediaPlayer.retryingOpenVideoLink),
                     duration: const Duration(seconds: 3),
@@ -1900,8 +1912,8 @@ class MyVideoStateController extends GetxController
       // 解码器错误提示
       if (event.startsWith('Could not open codec')) {
         LogUtils.w('检测到解码器错误: $event', 'MyVideoStateController');
-        if (Get.context != null) {
-          ScaffoldMessenger.of(Get.context!).showSnackBar(
+        if (rootNavigatorKey.currentContext != null) {
+          ScaffoldMessenger.of(rootNavigatorKey.currentContext!).showSnackBar(
             SnackBar(
               content: Text(
                 slang.t.mediaPlayer.decoderOpenFailedWithSuggestion(
@@ -1926,8 +1938,8 @@ class MyVideoStateController extends GetxController
       // 其他错误，给出提示与日志
       LogUtils.w('检测到其他类型的播放器错误，将显示用户提示: $event', 'MyVideoStateController');
       _playbackErrorCount++;
-      if (Get.context != null) {
-        ScaffoldMessenger.of(Get.context!).showSnackBar(
+      if (rootNavigatorKey.currentContext != null) {
+        ScaffoldMessenger.of(rootNavigatorKey.currentContext!).showSnackBar(
           SnackBar(
             content: Text(
               _playbackErrorCount >= 3
@@ -1939,7 +1951,7 @@ class MyVideoStateController extends GetxController
                 ? SnackBarAction(
                     label: slang.t.mediaPlayer.openSettingsAction,
                     onPressed: () {
-                      Get.toNamed('/settings_page');
+                      NaviService.navigateToSettingsPage();
                     },
                   )
                 : null,
@@ -2154,16 +2166,19 @@ class MyVideoStateController extends GetxController
 
   /// 进入全屏模式
   Future<void> enterFullscreen() async {
+    if (isFullscreen.value) return;
     // 保存进入全屏前的播放状态
     final wasPlaying = videoPlaying.value;
+    await cacheDesktopWindowGeometryBeforeFullscreen();
     isFullscreen.value = true;
     appS.hideSystemUI();
     bool renderVerticalVideoInVerticalScreen =
         _configService[ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN];
-    NaviService.navigateToFullScreenVideoPlayerScreenPage(this);
 
     // 获取当前屏幕方向
-    final currentOrientation = MediaQuery.of(Get.context!).orientation;
+    final currentOrientation = MediaQuery.of(
+      rootNavigatorKey.currentContext!,
+    ).orientation;
 
     if (renderVerticalVideoInVerticalScreen && aspectRatio.value < 1) {
       // 窄屏视频保持竖屏
@@ -2187,18 +2202,107 @@ class MyVideoStateController extends GetxController
   }
 
   /// 退出全屏模式
-  void exitFullscreen() async {
+  Future<void> exitFullscreen() async {
+    if (!isFullscreen.value) return;
     // 保存退出全屏前的播放状态
     final wasPlaying = videoPlaying.value;
-    AppService.tryPop();
     appS.showSystemUI();
     await defaultExitNativeFullscreen();
-    isFullscreen.value = false;
+    // Desktop native fullscreen transition is async; wait for
+    // WindowListener.onWindowLeaveFullScreen to sync state & restore geometry.
+    if (!GetPlatform.isDesktop) {
+      isFullscreen.value = false;
+    }
     // 同步播放状态
     if (wasPlaying) {
       await player.play();
     } else {
       await player.pause();
+    }
+  }
+
+  Future<void> cacheDesktopWindowGeometryBeforeFullscreen() async {
+    if (!GetPlatform.isDesktop) return;
+    if (_isRestoringDesktopWindowGeometry) return;
+
+    try {
+      _desktopWindowWasMaximized = await windowManager.isMaximized();
+      if (_desktopWindowWasMaximized) {
+        _desktopWindowSizeBeforeFullscreen = null;
+        _desktopWindowPositionBeforeFullscreen = null;
+      } else {
+        _desktopWindowSizeBeforeFullscreen = await windowManager.getSize();
+        _desktopWindowPositionBeforeFullscreen = await windowManager
+            .getPosition();
+      }
+      _hasDesktopWindowGeometrySnapshot = true;
+      LogUtils.d(
+        '缓存桌面窗口几何: maximized=$_desktopWindowWasMaximized, '
+            'size=${_desktopWindowSizeBeforeFullscreen ?? 'n/a'}, '
+            'position=${_desktopWindowPositionBeforeFullscreen ?? 'n/a'}',
+        'MyVideoStateController',
+      );
+    } catch (e, s) {
+      LogUtils.e(
+        '缓存桌面窗口几何失败',
+        tag: 'MyVideoStateController',
+        error: e,
+        stackTrace: s,
+      );
+    }
+  }
+
+  Future<void> restoreDesktopWindowGeometryAfterFullscreen({
+    required String reason,
+  }) async {
+    if (!GetPlatform.isDesktop) return;
+    if (!_hasDesktopWindowGeometrySnapshot) return;
+    if (_isRestoringDesktopWindowGeometry) return;
+
+    _isRestoringDesktopWindowGeometry = true;
+    try {
+      // 等待系统全屏状态稳定退出，避免 setSize/setPosition 被系统覆盖。
+      for (int i = 0; i < 10; i++) {
+        final stillFullscreen = await windowManager.isFullScreen();
+        if (!stillFullscreen) break;
+        await Future.delayed(const Duration(milliseconds: 20));
+      }
+
+      if (_desktopWindowWasMaximized) {
+        if (!await windowManager.isMaximized()) {
+          await windowManager.maximize();
+        }
+      } else {
+        if (await windowManager.isMaximized()) {
+          await windowManager.unmaximize();
+        }
+        final size = _desktopWindowSizeBeforeFullscreen;
+        if (size != null) {
+          await windowManager.setSize(size);
+        }
+        final position = _desktopWindowPositionBeforeFullscreen;
+        if (position != null) {
+          await windowManager.setPosition(position);
+        }
+      }
+
+      LogUtils.d(
+        '恢复桌面窗口几何完成: reason=$reason, '
+            'maximized=$_desktopWindowWasMaximized, '
+            'size=${_desktopWindowSizeBeforeFullscreen ?? 'n/a'}, '
+            'position=${_desktopWindowPositionBeforeFullscreen ?? 'n/a'}',
+        'MyVideoStateController',
+      );
+      _hasDesktopWindowGeometrySnapshot = false;
+    } catch (e, s) {
+      LogUtils.e(
+        '恢复桌面窗口几何失败: reason=$reason',
+        tag: 'MyVideoStateController',
+        error: e,
+        stackTrace: s,
+      );
+    } finally {
+      _isRestoringDesktopWindowGeometry = false;
     }
   }
 
@@ -2760,8 +2864,8 @@ class MyVideoStateController extends GetxController
 
     final offset = scrollController.offset;
     final screenSize = Get.size;
-    final paddingTop = Get.context != null
-        ? MediaQuery.of(Get.context!).padding.top
+    final paddingTop = rootNavigatorKey.currentContext != null
+        ? MediaQuery.of(rootNavigatorKey.currentContext!).padding.top
         : 0;
     final videoHeight = getCurrentVideoHeight(
       screenSize.width,
@@ -3061,8 +3165,8 @@ class MyVideoStateController extends GetxController
   void showDlnaCastDialog() {
     // 检查平台支持
     if (GetPlatform.isWeb || GetPlatform.isLinux) {
-      if (Get.context != null) {
-        ScaffoldMessenger.of(Get.context!).showSnackBar(
+      if (rootNavigatorKey.currentContext != null) {
+        ScaffoldMessenger.of(rootNavigatorKey.currentContext!).showSnackBar(
           SnackBar(
             content: Text(slang.t.videoDetail.cast.currentPlatformNotSupported),
             duration: const Duration(seconds: 5),
@@ -3077,8 +3181,8 @@ class MyVideoStateController extends GetxController
 
     final videoUrl = getCurrentVideoUrl();
     if (videoUrl == null || videoUrl.isEmpty) {
-      if (Get.context != null) {
-        ScaffoldMessenger.of(Get.context!).showSnackBar(
+      if (rootNavigatorKey.currentContext != null) {
+        ScaffoldMessenger.of(rootNavigatorKey.currentContext!).showSnackBar(
           SnackBar(
             content: Text(slang.t.videoDetail.cast.unableToGetVideoUrl),
             duration: const Duration(seconds: 5),
@@ -3088,10 +3192,9 @@ class MyVideoStateController extends GetxController
       return;
     }
 
-    Get.bottomSheet(
+    showAppBottomSheet(
       DlnaCastSheet(videoUrl: videoUrl, dlnaController: _dlnaCastService),
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       elevation: 0,
     );
   }

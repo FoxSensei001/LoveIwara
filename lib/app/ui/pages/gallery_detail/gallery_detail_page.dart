@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/routes/app_routes.dart';
-import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
@@ -131,17 +130,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
           IconButton(
             icon: const Icon(Icons.home),
             onPressed: () {
-              AppService appService = Get.find();
-              int currentIndex = appService.currentIndex;
-              final routes = [
-                Routes.POPULAR_VIDEOS,
-                Routes.GALLERY,
-                Routes.SUBSCRIPTIONS,
-              ];
-              AppService.homeNavigatorKey.currentState!.pushNamedAndRemoveUntil(
-                routes[currentIndex],
-                (route) => false,
-              );
+              appRouter.go('/');
             },
           ),
         ],

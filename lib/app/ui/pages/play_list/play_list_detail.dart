@@ -9,6 +9,7 @@ import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class PlayListDetailPage extends StatefulWidget {
   final String playlistId;
@@ -79,9 +80,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
                       left: 5.0,
                       right: 5.0,
                       top: 5.0,
-                      bottom: Get.context != null
-                          ? MediaQuery.of(Get.context!).padding.bottom
-                          : 0, // 添加底部安全区域
+                      bottom: MediaQuery.of(context).padding.bottom, // 添加底部安全区域
                     ),
                     lastChildLayoutType: LastChildLayoutType.foot,
                     indicatorBuilder: (context, status) =>
@@ -171,9 +170,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
         ).paddingOnly(
           bottom:
               (isMultiSelect ? 120.0 : 0.0) +
-              (Get.context != null
-                  ? MediaQuery.of(Get.context!).padding.bottom
-                  : 0.0),
+              MediaQuery.of(context).padding.bottom,
         );
       }),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -213,7 +210,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
   }
 
   void _showShareDialog() {
-    Get.dialog(
+    showAppDialog(
       AlertDialog(
         title: Text(slang.t.common.share),
         content: Text(slang.t.common.areYouSureYouWantToShareThisPlaylist),
@@ -352,7 +349,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
       text: controller.playlistTitle.value,
     );
 
-    Get.dialog(
+    showAppDialog(
       AlertDialog(
         title: Text(slang.t.common.editTitle),
         content: TextField(
@@ -383,7 +380,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
   }
 
   void _showDeleteConfirmDialog() {
-    Get.dialog(
+    showAppDialog(
       AlertDialog(
         title: Text(slang.t.common.confirmDelete),
         content: Text(
@@ -417,7 +414,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
   // /// 我靠，iwara压根就没有删除播放列表的功能
   // @Deprecated('此功能已被移除，iwara不支持删除播放列表')
   // void _showDeleteCurPlaylistConfirmDialog() {
-  //   Get.dialog(
+  //   showAppDialog(
   //     AlertDialog(
   //       title: const Text('确认删除'),
   //       content: const Text('确定要删除此播放列表吗？'),

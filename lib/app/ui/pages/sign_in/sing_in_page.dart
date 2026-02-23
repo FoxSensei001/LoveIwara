@@ -9,6 +9,7 @@ import '../../../services/user_service.dart';
 import '../../../services/login_service.dart';
 import 'controllers/sign_in_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -297,7 +298,7 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   void _showSignInDialog() {
-    Get.dialog(SignInDialog(controller: controller), barrierDismissible: false);
+    showAppDialog(SignInDialog(controller: controller), barrierDismissible: false);
   }
 }
 

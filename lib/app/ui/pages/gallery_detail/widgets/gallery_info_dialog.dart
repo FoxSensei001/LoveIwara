@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 /// 图库功能介绍弹窗
 class GalleryInfoDialog {
   static void show(BuildContext context) {
-    Get.dialog(
+    showAppDialog(
       AlertDialog(
         title: Text(slang.t.galleryDetail.imageLibraryFunctionIntroduction),
         content: SingleChildScrollView(

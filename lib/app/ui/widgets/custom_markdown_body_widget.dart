@@ -22,6 +22,7 @@ import 'package:i_iwara/app/utils/markdown_formatter.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 import 'package:i_iwara/app/ui/widgets/emoji_preview_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class CustomMarkdownBody extends StatefulWidget {
   final String data;
@@ -32,6 +33,7 @@ class CustomMarkdownBody extends StatefulWidget {
   final MarkdownTranslationController? translationController; // 外部控制器
   final EdgeInsetsGeometry padding; // 新增的 padding 参数
   final double? maxImageHeight; // 限制 Markdown 图片最大高度（null 表示不限制）
+  final bool skipMarkdownProcessing; // 当内容已预处理时跳过本地格式化
 
   const CustomMarkdownBody({
     super.key,
@@ -43,6 +45,7 @@ class CustomMarkdownBody extends StatefulWidget {
     this.translationController,
     this.padding = EdgeInsets.zero, // 默认 padding 为 0
     this.maxImageHeight,
+    this.skipMarkdownProcessing = false,
   });
 
   @override
@@ -50,8 +53,7 @@ class CustomMarkdownBody extends StatefulWidget {
 }
 
 class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
-  String _displayData = "";
-  bool _isProcessing = false;
+  String _displayData = '';
   bool _showOriginal = false;
   bool _hasProcessedContent = false;
   late final ConfigService _configService;
@@ -59,18 +61,25 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     linesMargin: const EdgeInsets.symmetric(vertical: 4),
   );
   final _markdownFormatter = MarkdownFormatter();
+  int _markdownProcessToken = 0;
+  int _translationProcessToken = 0;
 
   // 内部翻译相关状态
   bool _isTranslating = false;
   String? _translatedText;
   String? _rawTranslatedText; // 存储未格式化的翻译文本
   bool _isTranslationComplete = false; // 标记翻译是否完成
-  late final TranslationService _translationService;
+  TranslationService? _translationService;
   StreamSubscription<String>? _translationStreamSubscription;
+
+  TranslationService get _resolvedTranslationService {
+    return _translationService ??= Get.find<TranslationService>();
+  }
 
   @override
   void dispose() {
-    _isProcessing = false;
+    _markdownProcessToken++;
+    _translationProcessToken++;
     _translationStreamSubscription?.cancel();
     super.dispose();
   }
@@ -80,34 +89,44 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     super.initState();
     _configService = Get.find<ConfigService>();
     if (widget.showTranslationButton) {
-      _translationService = Get.find<TranslationService>();
+      _resolvedTranslationService;
     }
     _displayData = widget.data;
     _showOriginal =
         widget.initialShowUnprocessedText ??
         _configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
-    _processMarkdown(widget.data);
-
-    // 如果提供了外部控制器，监听其变化
-    if (widget.translationController != null) {
-      widget.translationController!.translatedText.listen((translatedText) {
-        // 不需要setState，因为我们在build中使用Obx
-      });
+    if (widget.skipMarkdownProcessing) {
+      _hasProcessedContent = false;
+    } else {
+      _processMarkdown(widget.data);
     }
   }
 
   @override
   void didUpdateWidget(CustomMarkdownBody oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (!oldWidget.showTranslationButton && widget.showTranslationButton) {
+      _resolvedTranslationService;
+    }
+
     if (oldWidget.data != widget.data ||
         oldWidget.originalData != widget.originalData) {
+      _translationProcessToken++;
+      _translationStreamSubscription?.cancel();
+      _translationStreamSubscription = null;
       if (mounted) {
         setState(() {
           _displayData = widget.data;
           _translatedText = null; // 当内容变化时清除翻译结果
+          _rawTranslatedText = null;
+          _isTranslating = false;
+          _isTranslationComplete = false;
+          _hasProcessedContent = false;
         });
       }
-      _processMarkdown(widget.data);
+      if (!widget.skipMarkdownProcessing) {
+        _processMarkdown(widget.data);
+      }
 
       // 如果控制器发生变化或内容变化时有控制器，清除控制器中的翻译结果
       if (widget.translationController != null) {
@@ -116,52 +135,52 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     }
   }
 
+  bool _isCurrentMarkdownTask(int token) {
+    return mounted && token == _markdownProcessToken;
+  }
+
+  bool _isCurrentTranslationTask(int token) {
+    return mounted && token == _translationProcessToken;
+  }
+
   Future<void> _processMarkdown(String data) async {
-    if (!mounted) return;
-    _isProcessing = true;
+    final token = ++_markdownProcessToken;
     String processed = data;
     bool hasChanges = false;
 
     try {
-      String newProcessed = await _markdownFormatter.formatLinks(processed);
+      final newProcessed = await _markdownFormatter.formatLinks(processed);
       if (newProcessed != processed) hasChanges = true;
       processed = newProcessed;
-      if (!mounted || !_isProcessing) return;
+      if (!_isCurrentMarkdownTask(token)) return;
     } catch (e) {
       LogUtils.e('格式化链接时发生错误', error: e, tag: 'CustomMarkdownBody');
     }
 
     try {
-      String newProcessed = _markdownFormatter.formatMarkdownLinks(processed);
+      final newProcessed = _markdownFormatter.formatMarkdownLinks(processed);
       if (newProcessed != processed) hasChanges = true;
       processed = newProcessed;
-      if (mounted && _isProcessing) {
-        setState(() {
-          _displayData = processed;
-        });
-      }
+      if (!_isCurrentMarkdownTask(token)) return;
     } catch (e) {
       LogUtils.e('格式化 Markdown 链接时发生错误', error: e, tag: 'CustomMarkdownBody');
     }
 
     try {
-      String newProcessed = _markdownFormatter.formatMentions(processed);
+      final newProcessed = _markdownFormatter.formatMentions(processed);
       if (newProcessed != processed) hasChanges = true;
       processed = newProcessed;
-      if (mounted && _isProcessing) {
-        setState(() {
-          _displayData = processed;
-        });
-      }
+      if (!_isCurrentMarkdownTask(token)) return;
     } catch (e) {
       LogUtils.e('格式化提及时发生错误', error: e, tag: 'CustomMarkdownBody');
     }
 
     try {
-      String newProcessed = _markdownFormatter.replaceNewlines(processed);
+      final newProcessed = _markdownFormatter.replaceNewlines(processed);
       if (newProcessed != processed) hasChanges = true;
       processed = newProcessed;
-      if (mounted && _isProcessing) {
+      if (_isCurrentMarkdownTask(token) &&
+          (_displayData != processed || _hasProcessedContent != hasChanges)) {
         setState(() {
           _displayData = processed;
           _hasProcessedContent = hasChanges;
@@ -175,13 +194,16 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   // 处理翻译
   Future<void> _handleTranslation() async {
     if (_isTranslating) return;
+    final token = ++_translationProcessToken;
 
-    setState(() {
-      _isTranslating = true;
-      _isTranslationComplete = false;
-      _rawTranslatedText = null;
-      _translatedText = null;
-    });
+    if (_isCurrentTranslationTask(token)) {
+      setState(() {
+        _isTranslating = true;
+        _isTranslationComplete = false;
+        _rawTranslatedText = null;
+        _translatedText = null;
+      });
+    }
 
     // 取消之前的流订阅
     await _translationStreamSubscription?.cancel();
@@ -191,11 +213,11 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     final textToTranslate = widget.originalData ?? widget.data;
 
     // 尝试使用流式翻译
-    final stream = _translationService.translateStream(textToTranslate);
+    final stream = _resolvedTranslationService.translateStream(textToTranslate);
     if (stream != null) {
       _translationStreamSubscription = stream.listen(
         (translatedText) {
-          if (mounted) {
+          if (_isCurrentTranslationTask(token)) {
             setState(() {
               // 在翻译过程中只更新原始文本，不进行格式化
               _rawTranslatedText = translatedText;
@@ -206,7 +228,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
           }
         },
         onError: (error) {
-          if (mounted) {
+          if (_isCurrentTranslationTask(token)) {
             setState(() {
               _rawTranslatedText = t.common.translateFailedPleaseTryAgainLater;
               _translatedText = _rawTranslatedText;
@@ -216,7 +238,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
           }
         },
         onDone: () {
-          if (mounted) {
+          if (_isCurrentTranslationTask(token)) {
             // 翻译完成后，先标记翻译完成，再进行格式化处理
             setState(() {
               _isTranslationComplete = true;
@@ -225,7 +247,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
             });
 
             // 在后台进行格式化处理
-            _processTranslatedText();
+            _processTranslatedText(token);
           }
         },
       );
@@ -233,16 +255,18 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     }
 
     // 如果流式翻译不可用或被禁用，使用普通翻译
-    final result = await _translationService.translate(textToTranslate);
-    if (result.isSuccess && mounted) {
+    final result = await _resolvedTranslationService.translate(textToTranslate);
+    if (!_isCurrentTranslationTask(token)) return;
+
+    if (result.isSuccess) {
       setState(() {
         _rawTranslatedText = result.data;
         _translatedText = _rawTranslatedText;
         _isTranslationComplete = true;
       });
       // 翻译完成后，进行格式化处理
-      _processTranslatedText();
-    } else if (mounted) {
+      _processTranslatedText(token);
+    } else {
       setState(() {
         _rawTranslatedText = t.common.translateFailedPleaseTryAgainLater;
         _translatedText = _rawTranslatedText;
@@ -253,7 +277,8 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   }
 
   // 处理翻译文本的格式化
-  Future<void> _processTranslatedText() async {
+  Future<void> _processTranslatedText(int token) async {
+    if (!_isCurrentTranslationTask(token)) return;
     if (_rawTranslatedText == null ||
         _rawTranslatedText == t.common.translateFailedPleaseTryAgainLater) {
       setState(() {
@@ -267,7 +292,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
         _rawTranslatedText!,
       );
 
-      if (mounted) {
+      if (_isCurrentTranslationTask(token)) {
         setState(() {
           _translatedText = processed;
           _isTranslating = false;
@@ -275,7 +300,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
       }
     } catch (e) {
       LogUtils.e('格式化翻译文本时发生错误', error: e, tag: 'CustomMarkdownBody');
-      if (mounted) {
+      if (_isCurrentTranslationTask(token)) {
         setState(() {
           _translatedText = _rawTranslatedText;
           _isTranslating = false;
@@ -292,7 +317,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   /// 3. alt文本包含"emoji"、"表情"、"贴图"、"sticker"、"emoticon"等关键词
   ///
   /// 返回值：如果是表情包返回对应的EmojiSize，否则返回null
-  EmojiSize? _getEmojiSize(String url, Map<String, String> attributes) {
+  EmojiSize? _getEmojiSize(Map<String, String> attributes) {
     final altText = attributes['alt'] ?? '';
 
     // 检查是否为标准表情格式
@@ -314,174 +339,174 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     return null;
   }
 
-  void _onTapLink(String url) async {
-    try {
-      final urlInfo = UrlUtils.parseUrl(url);
+  bool _handleInternalIwaraLink(IwaraUrlInfo urlInfo) {
+    switch (urlInfo.type) {
+      case IwaraUrlType.profile:
+        if (urlInfo.id == null) return false;
+        NaviService.navigateToAuthorProfilePage(urlInfo.id!);
+        return true;
+      case IwaraUrlType.image:
+        if (urlInfo.id == null) return false;
+        NaviService.navigateToGalleryDetailPage(urlInfo.id!);
+        return true;
+      case IwaraUrlType.video:
+        if (urlInfo.id == null) return false;
+        NaviService.navigateToVideoDetailPage(urlInfo.id!);
+        return true;
+      case IwaraUrlType.playlist:
+        if (urlInfo.id == null) return false;
+        NaviService.navigateToPlayListDetail(urlInfo.id!, isMine: false);
+        return true;
+      case IwaraUrlType.post:
+        if (urlInfo.id == null) return false;
+        NaviService.navigateToPostDetailPage(urlInfo.id!, null);
+        return true;
+      case IwaraUrlType.forum:
+        if (urlInfo.id == null) return false;
+        NaviService.navigateToForumThreadListPage(urlInfo.id!);
+        return true;
+      case IwaraUrlType.forumThread:
+        if (urlInfo.id == null || urlInfo.secondaryId == null) return false;
+        NaviService.navigateToForumThreadDetailPage(
+          urlInfo.id!,
+          urlInfo.secondaryId!,
+        );
+        return true;
+      case IwaraUrlType.rule:
+      case IwaraUrlType.unknown:
+        return false;
+    }
+  }
 
-      if (!widget.clickInternalLinkByUrlLaunch && urlInfo.isIwaraUrl) {
-        switch (urlInfo.type) {
-          case IwaraUrlType.profile:
-            if (urlInfo.id != null) {
-              NaviService.navigateToAuthorProfilePage(urlInfo.id!);
-            }
-            break;
-          case IwaraUrlType.image:
-            if (urlInfo.id != null) {
-              NaviService.navigateToGalleryDetailPage(urlInfo.id!);
-            }
-            break;
-          case IwaraUrlType.video:
-            if (urlInfo.id != null) {
-              NaviService.navigateToVideoDetailPage(urlInfo.id!);
-            }
-            break;
-          case IwaraUrlType.playlist:
-            if (urlInfo.id != null) {
-              NaviService.navigateToPlayListDetail(urlInfo.id!, isMine: false);
-            }
-            break;
-          case IwaraUrlType.post:
-            if (urlInfo.id != null) {
-              NaviService.navigateToPostDetailPage(urlInfo.id!, null);
-            }
-            break;
-          case IwaraUrlType.forum:
-            if (urlInfo.id != null) {
-              NaviService.navigateToForumThreadListPage(urlInfo.id!);
-            }
-            break;
-          case IwaraUrlType.forumThread:
-            if (urlInfo.id != null && urlInfo.secondaryId != null) {
-              NaviService.navigateToForumThreadDetailPage(
-                urlInfo.id!,
-                urlInfo.secondaryId!,
-              );
-            }
-            break;
-          case IwaraUrlType.rule:
-          case IwaraUrlType.unknown:
-            await _launchUrl(Uri.parse(url), url);
-            break;
-        }
-      } else {
-        // Check if it's an external link (non-iwara)
-        if (!urlInfo.isIwaraUrl) {
-          // Extract domain or IP from URL
-          final uri = Uri.tryParse(url);
-          final displayUrl = uri?.host ?? url;
+  Future<bool> _confirmOpenExternalLink(String url) async {
+    // Extract domain or IP from URL
+    final uri = Uri.tryParse(url);
+    final displayUrl = uri?.host ?? url;
 
-          // Show warning dialog for external links
-          final shouldContinue = await Get.dialog<bool>(
-            Builder(
-              builder: (dialogContext) => AlertDialog(
-                title: Text(t.common.externalLinkWarning),
-                content: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+    final shouldContinue = await showAppDialog<bool>(
+      Builder(
+        builder: (dialogContext) => AlertDialog(
+          title: Text(t.common.externalLinkWarning),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(t.common.externalLinkWarningMessage),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      dialogContext,
+                    ).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
                     children: [
-                      Text(t.common.externalLinkWarningMessage),
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            dialogContext,
-                          ).colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.link,
-                              size: 20,
-                              color: Theme.of(
-                                dialogContext,
-                              ).colorScheme.primary,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                displayUrl,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(
-                                    dialogContext,
-                                  ).colorScheme.primary,
-                                ),
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
+                      Icon(
+                        Icons.link,
+                        size: 20,
+                        color: Theme.of(dialogContext).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          displayUrl,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(dialogContext).colorScheme.primary,
+                          ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
                   ),
                 ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(dialogContext).pop(false),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Theme.of(
-                        dialogContext,
-                      ).colorScheme.primary,
-                    ),
-                    child: Text(
-                      t.common.cancelExternalLink,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  FilledButton.icon(
-                    onPressed: () => Navigator.of(dialogContext).pop(true),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Theme.of(
-                        dialogContext,
-                      ).colorScheme.error,
-                      foregroundColor: Theme.of(
-                        dialogContext,
-                      ).colorScheme.onError,
-                    ),
-                    icon: const Icon(Icons.open_in_new, size: 18),
-                    label: Text(t.common.continueToExternalLink),
-                  ),
-                ],
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(dialogContext).colorScheme.primary,
+              ),
+              child: Text(
+                t.common.cancelExternalLink,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
-            barrierDismissible: false,
-          );
+            FilledButton.icon(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(dialogContext).colorScheme.error,
+                foregroundColor: Theme.of(dialogContext).colorScheme.onError,
+              ),
+              icon: const Icon(Icons.open_in_new, size: 18),
+              label: Text(t.common.continueToExternalLink),
+            ),
+          ],
+        ),
+      ),
+      barrierDismissible: false,
+    );
 
-          if (shouldContinue == true) {
-            await _launchUrl(Uri.parse(url), url);
-          }
-        } else {
-          await _launchUrl(Uri.parse(url), url);
-        }
+    return shouldContinue == true;
+  }
+
+  void _showLinkOpenFailedToast(String href) {
+    LogUtils.e('无法打开链接: $href', tag: 'CustomMarkdownBody');
+    showToastWidget(
+      MDToastWidget(
+        message: t.errors.errorWhileOpeningLink(link: href),
+        type: MDToastType.error,
+      ),
+      position: ToastPosition.top,
+    );
+  }
+
+  Future<void> _launchUrlFromString(String href) async {
+    final uri = Uri.tryParse(href);
+    if (uri == null) {
+      _showLinkOpenFailedToast(href);
+      return;
+    }
+    await _launchUrl(uri, href);
+  }
+
+  void _onTapLink(String url) async {
+    try {
+      final urlInfo = UrlUtils.parseUrl(url);
+
+      if (!widget.clickInternalLinkByUrlLaunch &&
+          urlInfo.isIwaraUrl &&
+          _handleInternalIwaraLink(urlInfo)) {
+        return;
       }
+
+      if (!urlInfo.isIwaraUrl) {
+        final shouldContinue = await _confirmOpenExternalLink(url);
+        if (!shouldContinue) return;
+      }
+
+      await _launchUrlFromString(url);
     } catch (e) {
       LogUtils.e('处理链接点击时发生错误', tag: 'CustomMarkdownBody', error: e);
-      showToastWidget(
-        MDToastWidget(
-          message: t.errors.errorWhileOpeningLink(link: url),
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.top,
-      );
+      _showLinkOpenFailedToast(url);
     }
   }
 
   Future<void> _launchUrl(Uri uri, String href) async {
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      LogUtils.e('无法打开链接: $href', tag: 'CustomMarkdownBody');
-      showToastWidget(
-        MDToastWidget(
-          message: t.errors.errorWhileOpeningLink(link: href),
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.top,
-      );
+    try {
+      final didLaunch = await launchUrl(uri);
+      if (!didLaunch) {
+        _showLinkOpenFailedToast(href);
+      }
+    } catch (e) {
+      LogUtils.e('打开链接时发生错误: $href', tag: 'CustomMarkdownBody', error: e);
+      _showLinkOpenFailedToast(href);
     }
   }
 
@@ -526,9 +551,17 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   }
 
   // 构建翻译结果内容
-  Widget _buildTranslatedContent(BuildContext context, {String? customText}) {
+  Widget _buildTranslatedContent(
+    BuildContext context, {
+    String? customText,
+    bool? isTranslating,
+    bool? isTranslationComplete,
+  }) {
     final translatedText = customText ?? _translatedText;
     if (translatedText == null) return const SizedBox.shrink();
+    final effectiveIsTranslating = isTranslating ?? _isTranslating;
+    final effectiveIsTranslationComplete =
+        isTranslationComplete ?? _isTranslationComplete;
 
     return Container(
       decoration: BoxDecoration(
@@ -553,7 +586,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                 ),
               ),
               const Spacer(),
-              if (_isTranslating && _isTranslationComplete)
+              if (effectiveIsTranslating && effectiveIsTranslationComplete)
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -590,12 +623,12 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                 fontSize: 14,
               ),
             )
-          else if (!_isTranslationComplete && _isTranslating)
+          else if (!effectiveIsTranslationComplete && effectiveIsTranslating)
             // 翻译中显示纯文本，不使用Markdown渲染
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (_isTranslating)
+                if (effectiveIsTranslating)
                   LinearProgressIndicator(
                     backgroundColor: Theme.of(
                       context,
@@ -619,379 +652,341 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
             CustomMarkdownBody(
               data: translatedText,
               showTranslationButton: false,
+              skipMarkdownProcessing: true,
+              clickInternalLinkByUrlLaunch: widget.clickInternalLinkByUrlLaunch,
+              maxImageHeight: widget.maxImageHeight,
             ),
         ],
       ),
     );
   }
 
+  ImageItem _buildImageItem(String normalizedUrl) {
+    return ImageItem(
+      url: normalizedUrl,
+      data: ImageItemData(
+        id: '',
+        url: normalizedUrl,
+        originalUrl: normalizedUrl,
+      ),
+    );
+  }
+
+  List<MenuItem> _buildImageMenuItems(ImageItem item) {
+    return [
+      MenuItem(
+        title: t.galleryDetail.copyLink,
+        icon: Icons.copy,
+        onTap: () => ImageUtils.copyLink(item),
+      ),
+      MenuItem(
+        title: t.galleryDetail.copyImage,
+        icon: Icons.copy,
+        onTap: () => ImageUtils.copyImage(item),
+      ),
+      if (GetPlatform.isDesktop)
+        MenuItem(
+          title: t.galleryDetail.saveAs,
+          icon: Icons.download,
+          onTap: () => ImageUtils.downloadImageToAppDirectory(item),
+        ),
+      MenuItem(
+        title: t.galleryDetail.saveToAlbum,
+        icon: Icons.save,
+        onTap: () => ImageUtils.downloadImageToAppDirectory(item),
+      ),
+    ];
+  }
+
+  void _handleMarkdownImageTap(
+    BuildContext context,
+    String normalizedUrl,
+    EmojiSize? emojiSize,
+  ) {
+    if (emojiSize != null) {
+      EmojiPreviewDialog.show(context: context, emojiUrl: normalizedUrl);
+      return;
+    }
+
+    final item = _buildImageItem(normalizedUrl);
+    NaviService.navigateToPhotoViewWrapper(
+      imageItems: [item],
+      initialIndex: 0,
+      menuItemsBuilder: (_, imageItem) => _buildImageMenuItems(imageItem),
+    );
+  }
+
+  Widget _buildEmojiImage(String normalizedUrl, EmojiSize emojiSize) {
+    return Container(
+      margin: emojiSize.margin,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(emojiSize.borderRadius),
+        child: CachedNetworkImage(
+          imageUrl: normalizedUrl,
+          httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
+          placeholder: (context, url) => Container(
+            width: emojiSize.displaySize,
+            height: emojiSize.displaySize,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(emojiSize.borderRadius),
+            ),
+            child: Center(
+              child: SizedBox(
+                width: emojiSize.displaySize * 0.4,
+                height: emojiSize.displaySize * 0.4,
+                child: const CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          ),
+          errorWidget: (context, url, error) => Container(
+            width: emojiSize.displaySize,
+            height: emojiSize.displaySize,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(emojiSize.borderRadius),
+            ),
+            child: Icon(
+              Icons.broken_image_outlined,
+              size: emojiSize.displaySize * 0.5,
+              color: Colors.grey[400],
+            ),
+          ),
+          fit: BoxFit.contain,
+          width: emojiSize.displaySize,
+          height: emojiSize.displaySize,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNormalImage(
+    String normalizedUrl,
+    double? maxImageHeight,
+    double normalImagePlaceholderHeight,
+  ) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: maxImageHeight ?? double.infinity,
+        ),
+        child: CachedNetworkImage(
+          imageUrl: normalizedUrl,
+          httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
+          placeholder: (context, url) => Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              width: double.infinity,
+              height: normalImagePlaceholderHeight,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          errorWidget: (context, url, error) => Container(
+            width: double.infinity,
+            height: normalImagePlaceholderHeight,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.broken_image_outlined,
+                  size: 48,
+                  color: Colors.grey[400],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  t.errors.error,
+                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                ),
+              ],
+            ),
+          ),
+          fit: maxImageHeight == null ? BoxFit.cover : BoxFit.contain,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMarkdownImage(
+    BuildContext context,
+    String url,
+    Map<String, String> attributes,
+    double? maxImageHeight,
+    double normalImagePlaceholderHeight,
+  ) {
+    try {
+      final normalizedUrl = UrlUtils.upgradeIwaraHttpToHttps(url);
+      final parsedUri = Uri.tryParse(normalizedUrl);
+      if (parsedUri == null || !parsedUri.hasAbsolutePath) {
+        throw FormatException(t.errors.invalidUrl);
+      }
+
+      final emojiSize = _getEmojiSize(attributes);
+      final image = emojiSize != null
+          ? _buildEmojiImage(normalizedUrl, emojiSize)
+          : _buildNormalImage(
+              normalizedUrl,
+              maxImageHeight,
+              normalImagePlaceholderHeight,
+            );
+
+      return GestureDetector(
+        onTap: () => _handleMarkdownImageTap(context, normalizedUrl, emojiSize),
+        child: MouseRegion(cursor: SystemMouseCursors.click, child: image),
+      );
+    } catch (e) {
+      LogUtils.e('图片加载失败', tag: 'CustomMarkdownBody', error: e);
+      return const Icon(Icons.error);
+    }
+  }
+
+  MarkdownConfig _buildMarkdownConfig(
+    BuildContext context,
+    bool isDark,
+    double? maxImageHeight,
+    double normalImagePlaceholderHeight,
+  ) {
+    return (isDark ? MarkdownConfig.darkConfig : MarkdownConfig.defaultConfig)
+        .copy(
+          configs: [
+            LinkConfig(
+              onTap: _onTapLink,
+              style: TextStyle(
+                decoration: TextDecoration.none, // 移除下划线
+                color: isDark ? Colors.blue[300] : Colors.blue, // 保持链接颜色
+              ),
+            ),
+            ImgConfig(
+              builder: (url, attributes) => _buildMarkdownImage(
+                context,
+                url,
+                attributes,
+                maxImageHeight,
+                normalImagePlaceholderHeight,
+              ),
+            ),
+          ],
+        );
+  }
+
+  Widget _buildMarkdownContent(MarkdownConfig config) {
+    return SelectionArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: _markdownGenerator.buildWidgets(
+          _showOriginal ? widget.data : _displayData,
+          config: config,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProcessedTextToggle() {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: TextButton.icon(
+        style: TextButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        ),
+        icon: Icon(
+          _showOriginal ? Icons.format_paint : Icons.format_paint_outlined,
+          size: 14,
+        ),
+        iconAlignment: IconAlignment.end,
+        label: Text(
+          _showOriginal
+              ? t.common.showProcessedText
+              : t.common.showOriginalText,
+          style: const TextStyle(fontSize: 12),
+        ),
+        onPressed: () {
+          setState(() {
+            _showOriginal = !_showOriginal;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildTranslationSection(BuildContext context) {
+    if (widget.translationController != null) {
+      return Obx(() {
+        final controller = widget.translationController!;
+        if (!controller.hasTranslation) {
+          return const SizedBox.shrink();
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 8),
+            _buildTranslatedContent(
+              context,
+              customText: controller.translatedText.value,
+              isTranslating: controller.isTranslating.value,
+              isTranslationComplete: controller.isTranslationComplete.value,
+            ),
+          ],
+        );
+      });
+    }
+
+    if (widget.showTranslationButton) {
+      return Column(
+        children: [
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [_buildTranslationButton(context)],
+          ),
+          if (_translatedText != null) ...[
+            const SizedBox(height: 8),
+            _buildTranslatedContent(context),
+          ],
+        ],
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final isDark = Get.theme.brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final maxImageHeight = widget.maxImageHeight;
     final normalImagePlaceholderHeight = maxImageHeight != null
         ? maxImageHeight.clamp(120.0, 260.0).toDouble()
         : 200.0;
-    final config =
-        (isDark ? MarkdownConfig.darkConfig : MarkdownConfig.defaultConfig)
-            .copy(
-              configs: [
-                LinkConfig(
-                  onTap: _onTapLink,
-                  style: TextStyle(
-                    decoration: TextDecoration.none, // 移除下划线
-                    color: isDark ? Colors.blue[300] : Colors.blue, // 保持链接颜色
-                  ),
-                ),
-                ImgConfig(
-                  builder: (url, attributes) {
-                    try {
-                      final normalizedUrl = UrlUtils.upgradeIwaraHttpToHttps(
-                        url,
-                      );
-                      final parsedUri = Uri.tryParse(normalizedUrl);
-                      if (parsedUri == null || !parsedUri.hasAbsolutePath) {
-                        throw FormatException(t.errors.invalidUrl);
-                      }
+    final config = _buildMarkdownConfig(
+      context,
+      isDark,
+      maxImageHeight,
+      normalImagePlaceholderHeight,
+    );
 
-                      // 判断是否为表情包并获取规格
-                      final emojiSize = _getEmojiSize(
-                        normalizedUrl,
-                        attributes,
-                      );
-                      final isEmoji = emojiSize != null;
-
-                      return GestureDetector(
-                        onTap: () {
-                          if (isEmoji) {
-                            // 表情包点击时显示预览弹窗
-                            EmojiPreviewDialog.show(
-                              context: context,
-                              emojiUrl: normalizedUrl,
-                            );
-                          } else {
-                            // 普通图片进入图片详情页
-                            ImageItem item = ImageItem(
-                              url: normalizedUrl,
-                              data: ImageItemData(
-                                id: '',
-                                url: normalizedUrl,
-                                originalUrl: normalizedUrl,
-                              ),
-                            );
-                            final menuItems = [
-                              MenuItem(
-                                title: t.galleryDetail.copyLink,
-                                icon: Icons.copy,
-                                onTap: () => ImageUtils.copyLink(item),
-                              ),
-                              MenuItem(
-                                title: t.galleryDetail.copyImage,
-                                icon: Icons.copy,
-                                onTap: () => ImageUtils.copyImage(item),
-                              ),
-                              if (GetPlatform.isDesktop)
-                                MenuItem(
-                                  title: t.galleryDetail.saveAs,
-                                  icon: Icons.download,
-                                  onTap: () =>
-                                      ImageUtils.downloadImageToAppDirectory(
-                                        item,
-                                      ),
-                                ),
-                              MenuItem(
-                                title: t.galleryDetail.saveToAlbum,
-                                icon: Icons.save,
-                                onTap: () =>
-                                    ImageUtils.downloadImageToAppDirectory(
-                                      item,
-                                    ),
-                              ),
-                            ];
-                            NaviService.navigateToPhotoViewWrapper(
-                              imageItems: [item],
-                              initialIndex: 0,
-                              menuItemsBuilder: (context, item) => menuItems,
-                            );
-                          }
-                        },
-                        child: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: isEmoji
-                              ? Container(
-                                  // 表情包使用动态布局
-                                  margin: emojiSize.margin,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(
-                                      emojiSize.borderRadius,
-                                    ),
-                                    child: CachedNetworkImage(
-                                      imageUrl: normalizedUrl,
-                                      httpHeaders: const {
-                                        'referer': CommonConstants.iwaraBaseUrl,
-                                      },
-                                      placeholder: (context, url) => Container(
-                                        width: emojiSize.displaySize,
-                                        height: emojiSize.displaySize,
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey[200],
-                                          borderRadius: BorderRadius.circular(
-                                            emojiSize.borderRadius,
-                                          ),
-                                        ),
-                                        child: Center(
-                                          child: SizedBox(
-                                            width: emojiSize.displaySize * 0.4,
-                                            height: emojiSize.displaySize * 0.4,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      errorWidget: (context, url, error) =>
-                                          Container(
-                                            width: emojiSize.displaySize,
-                                            height: emojiSize.displaySize,
-                                            decoration: BoxDecoration(
-                                              color: Colors.grey[200],
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                    emojiSize.borderRadius,
-                                                  ),
-                                            ),
-                                            child: Icon(
-                                              Icons.broken_image_outlined,
-                                              size: emojiSize.displaySize * 0.5,
-                                              color: Colors.grey[400],
-                                            ),
-                                          ),
-                                      fit: BoxFit.contain,
-                                      width: emojiSize.displaySize,
-                                      height: emojiSize.displaySize,
-                                    ),
-                                  ),
-                                )
-                              : ClipRRect(
-                                  // 普通图片保持原有样式
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: ConstrainedBox(
-                                    constraints: BoxConstraints(
-                                      maxHeight:
-                                          maxImageHeight ?? double.infinity,
-                                    ),
-                                    child: CachedNetworkImage(
-                                      imageUrl: normalizedUrl,
-                                      httpHeaders: const {
-                                        'referer': CommonConstants.iwaraBaseUrl,
-                                      },
-                                      placeholder: (context, url) =>
-                                          Shimmer.fromColors(
-                                            baseColor: Colors.grey[300]!,
-                                            highlightColor: Colors.grey[100]!,
-                                            child: Container(
-                                              width: double.infinity,
-                                              height:
-                                                  normalImagePlaceholderHeight,
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                            ),
-                                          ),
-                                      errorWidget: (context, url, error) =>
-                                          Container(
-                                            width: double.infinity,
-                                            height:
-                                                normalImagePlaceholderHeight,
-                                            decoration: BoxDecoration(
-                                              color: Colors.grey[200],
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Icon(
-                                                  Icons.broken_image_outlined,
-                                                  size: 48,
-                                                  color: Colors.grey[400],
-                                                ),
-                                                const SizedBox(height: 8),
-                                                Text(
-                                                  t.errors.error,
-                                                  style: TextStyle(
-                                                    color: Colors.grey[600],
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                      fit: maxImageHeight == null
-                                          ? BoxFit.cover
-                                          : BoxFit.contain,
-                                    ),
-                                  ),
-                                ),
-                        ),
-                      );
-                    } catch (e) {
-                      LogUtils.e('图片加载失败', tag: 'CustomMarkdownBody', error: e);
-                      return const Icon(Icons.error);
-                    }
-                  },
-                ),
-              ],
-            );
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Padding(
-          padding: widget.padding,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Markdown内容
-              SelectionArea(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: _markdownGenerator.buildWidgets(
-                    _showOriginal ? widget.data : _displayData,
-                    config: config,
-                  ),
-                ),
-              ),
-
-              // 原始文本显示切换 - 移动到这里，紧跟在Markdown内容之后
-              if (_hasProcessedContent) ...[
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton.icon(
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    ),
-                    icon: Icon(
-                      _showOriginal
-                          ? Icons.format_paint
-                          : Icons.format_paint_outlined,
-                      size: 14,
-                    ),
-                    iconAlignment: IconAlignment.end,
-                    label: Text(
-                      _showOriginal
-                          ? t.common.showProcessedText
-                          : t.common.showOriginalText,
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _showOriginal = !_showOriginal;
-                      });
-                    },
-                  ),
-                ),
-              ],
-
-              // 处理翻译结果显示
-              // 1. 如果使用外部控制器，监听控制器状态
-              if (widget.translationController != null) ...[
-                Obx(() {
-                  final controller = widget.translationController!;
-                  if (controller.hasTranslation) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 8),
-                        if (controller.isTranslating.value &&
-                            !controller.isTranslationComplete.value)
-                          // 翻译中显示纯文本，不使用Markdown渲染
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .surfaceContainerHighest
-                                  .withValues(alpha: 0.3),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Icon(Icons.translate, size: 14),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      t.common.translationResult,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onSurfaceVariant,
-                                      ),
-                                    ),
-                                    const Spacer(),
-                                    translationPoweredByWidget(
-                                      context,
-                                      fontSize: 10,
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                LinearProgressIndicator(
-                                  backgroundColor: Theme.of(
-                                    context,
-                                  ).colorScheme.surfaceContainerHighest,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Theme.of(context).colorScheme.primary,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  controller.translatedText.value ?? '',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        else
-                          _buildTranslatedContent(
-                            context,
-                            customText: controller.translatedText.value,
-                          ),
-                      ],
-                    );
-                  }
-                  return const SizedBox.shrink();
-                }),
-              ]
-              // 2. 如果使用内部翻译功能
-              else if (widget.showTranslationButton) ...[
-                const SizedBox(height: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [_buildTranslationButton(context)],
-                ),
-                if (_translatedText != null) ...[
-                  const SizedBox(height: 8),
-                  _buildTranslatedContent(context),
-                ],
-              ],
-            ],
-          ),
-        );
-      },
+    return Padding(
+      padding: widget.padding,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildMarkdownContent(config),
+          if (_hasProcessedContent) ...[
+            const SizedBox(height: 8),
+            _buildProcessedTextToggle(),
+          ],
+          _buildTranslationSection(context),
+        ],
+      ),
     );
   }
 }

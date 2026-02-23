@@ -5,6 +5,7 @@ import 'package:file_selector/file_selector.dart' as fs;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/db/database_service.dart';
@@ -14,6 +15,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:flutter/foundation.dart'; // 用于 compute()
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 /// 配置备份服务，用于导出和导入数据库中各表的内容（不包含下载记录表）
 class ConfigBackupService extends GetxService {
   // 默认构造函数
@@ -192,14 +194,14 @@ class ConfigBackupService extends GetxService {
   }
   
   void _showLoading() {
-    Get.dialog(
+    showAppDialog(
       const Center(child: CircularProgressIndicator()),
       barrierDismissible: false,
     );
   }
   
   void _hideLoading() {
-    if (Get.isDialogOpen == true) {
+    if (OverlayTracker.instance.hasOverlay) {
       AppService.tryPop();
     }
   }

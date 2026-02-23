@@ -7,6 +7,7 @@ import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:shimmer/shimmer.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class CommonHeader extends StatelessWidget {
   final double avatarRadius;
@@ -145,7 +146,7 @@ class CommonHeader extends StatelessWidget {
                 fillColor: Colors.transparent,
               ),
               onTap: () {
-                Get.dialog(
+                showAppDialog(
                   SearchDialog(
                     userInputKeywords: '',
                     initialSegment: searchSegment,

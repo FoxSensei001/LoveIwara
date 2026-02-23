@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
-import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/ui/pages/home/home_navigation_layout.dart';
+import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/ui/pages/local_video_detail/widgets/local_video_info_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/my_video_screen.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/skeletons/video_detail_info_skeleton_widget.dart';
@@ -49,7 +48,7 @@ class MyVideoDetailPage extends StatefulWidget {
 }
 
 class MyVideoDetailPageState extends State<MyVideoDetailPage>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, RouteAware {
   final String uniqueTag = UniqueKey().toString();
   late String videoId;
   final AppService appService = Get.find();
@@ -112,74 +111,55 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         );
       }
 
-      // 注册路由变化回调
-      HomeNavigationLayout.homeNavigatorObserver.addRouteChangeCallback(
-        _onRouteChange,
-      );
+      // RouteAware 订阅在 didChangeDependencies 中完成
     } catch (e) {
       LogUtils.e('初始化控制器失败', tag: 'video_detail_page_v2', error: e);
     }
   }
 
-  /// 添加路由变化回调
-  /// @params
-  /// - `route`: 当前路由
-  /// - `previousRoute`: 上一个路由
-  void _onRouteChange(Route? route, Route? previousRoute) {
-    // LogUtils.d(
-    //   "当前路由: ${route?.settings.name}, 上一个路由: ${previousRoute?.settings.name}, 操作类型: ${route?.isActive == true ? "进入" : "离开"}",
-    //   '详情页路由监听',
-    // );
-
-    // 如果操作类型是离开，上一个路由contains Routes.VIDEO_DETAIL，则setDefaultBrightness
-    if (route?.isActive == false &&
-        previousRoute?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) ==
-            true) {
-      // LogUtils.d('离开视频详情页，重置屏幕亮度', 'video_detail_page_v2');
-      controller.setDefaultBrightness();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 订阅路由观察者
+    final route = ModalRoute.of(context);
+    if (route != null) {
+      routeObserver.subscribe(this, route);
     }
+  }
 
-    // 如果操作类型是进入，上一个路由contains Routes.VIDEO_DETAIL，则暂停
-    if (route?.isActive == true &&
-        previousRoute?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) ==
-            true) {
-      // 如果当前路由为null，则不pause
-      if (route?.settings.name != null) {
-        // LogUtils.d('进入非视频详情页，暂停播放', 'video_detail_page_v2');
-        controller.player.pause();
-      }
-    }
-
-    // 如果当前路由contains Routes.VIDEO_DETAIL，且操作类型是离开则resetBrightness
-    if (route?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == true &&
-        (previousRoute?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) ??
-                true) ==
-            false) {
-      // LogUtils.d('进入视频详情页，重置屏幕亮度', 'video_detail_page_v2');
-      ScreenBrightness().resetApplicationScreenBrightness();
-    }
-
-    // 如果当前路由是视频详情页，且操作类型是离开，且当前为 应用全屏状态，则恢复UI
-    if (route?.isActive == false &&
-        route?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == true &&
-        controller.isDesktopAppFullScreen.value) {
-      // LogUtils.d('离开视频详情页，恢复系统UI', 'video_detail_page_v2');
+  /// 另一个页面被推入覆盖当前页面时调用（等同于原来的"离开"）
+  @override
+  void didPushNext() {
+    LogUtils.d('didPushNext', 'MyVideoDetailPage');
+    // 暂停播放
+    controller.player.pause();
+    // 重置屏幕亮度
+    controller.setDefaultBrightness();
+    // 如果当前为应用全屏状态，则恢复UI
+    if (controller.isDesktopAppFullScreen.value) {
       appService.showSystemUI();
     }
   }
 
+  /// 从上层页面返回到当前页面时调用（等同于原来的"进入"）
+  @override
+  void didPopNext() {
+    LogUtils.d('didPopNext', 'MyVideoDetailPage');
+    // 返回到视频详情页，重置屏幕亮度
+    ScreenBrightness().resetApplicationScreenBrightness();
+  }
+
   @override
   void dispose() {
+    LogUtils.w('dispose start: uniqueTag=$uniqueTag', 'MyVideoDetailPage');
     // 销毁Tab控制器
     tabController.dispose();
 
-    // 移除路由变化回调
-    try {
-      HomeNavigationLayout.homeNavigatorObserver.removeRouteChangeCallback(
-        _onRouteChange,
-      );
+    // 取消订阅路由观察者
+    routeObserver.unsubscribe(this);
 
-      // 尝试删除controller
+    // 尝试删除controller
+    try {
       Get.delete<MyVideoStateController>(tag: uniqueTag);
       Get.delete<CommentController>(tag: uniqueTag);
       Get.delete<RelatedMediasController>(tag: uniqueTag);
@@ -225,41 +205,96 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     final double screenHeight = screenSize.height;
     final double screenWidth = screenSize.width;
 
-    return Scaffold(
-      body: RepaintBoundary(
-        child: Obx(() {
-          // 添加画中画模式判断
-          if (controller.isPiPMode.value) {
-            return MyVideoScreen(
-              myVideoStateController: controller,
-              isFullScreen: false,
-            );
-          }
+    return Obx(() {
+      final fullscreenActive = controller.isFullscreen.value;
 
-          if (controller.mainErrorWidget.value != null) {
-            return controller.mainErrorWidget.value!;
-          }
-
-          // 优先处理应用内全屏
-          if (controller.isDesktopAppFullScreen.value) {
-            return _buildPureVideoPlayer(screenHeight, paddingTop);
-          }
-
-          // 判断是否使用宽屏布局
-          bool isWide = _shouldUseWideScreenLayout(
-            screenHeight,
-            screenWidth,
-            controller.aspectRatio.value,
+      return PopScope(
+        // Fullscreen is now handled inside the same page route.
+        // When fullscreen is active, back should first exit fullscreen.
+        canPop: !fullscreenActive,
+        onPopInvokedWithResult: (didPop, result) {
+          LogUtils.d(
+            'video detail PopScope: didPop=$didPop, '
+                'controllerFullscreen=${controller.isFullscreen.value}, '
+                'routeCurrent=${ModalRoute.of(context)?.isCurrent}',
+            'MyVideoDetailPage',
           );
 
-          if (isWide) {
-            return _buildWideScreenLayout(context, screenSize, paddingTop, t);
-          } else {
-            return _buildNarrowScreenLayout(context, screenSize, paddingTop, t);
+          if (didPop) return;
+
+          if (controller.isFullscreen.value) {
+            LogUtils.d(
+              'video detail PopScope -> exit fullscreen',
+              'MyVideoDetailPage',
+            );
+            unawaited(controller.exitFullscreen());
+            return;
           }
-        }),
-      ),
-    );
+
+          LogUtils.d(
+            'video detail PopScope fallback -> AppService.tryPop',
+            'MyVideoDetailPage',
+          );
+          AppService.tryPop(context: context);
+        },
+        child: Stack(
+          children: [
+            Scaffold(
+              body: RepaintBoundary(
+                child: Obx(() {
+                  // 添加画中画模式判断
+                  if (controller.isPiPMode.value) {
+                    return MyVideoScreen(
+                      myVideoStateController: controller,
+                      isFullScreen: false,
+                    );
+                  }
+
+                  if (controller.mainErrorWidget.value != null) {
+                    return controller.mainErrorWidget.value!;
+                  }
+
+                  // 优先处理应用内全屏
+                  if (controller.isDesktopAppFullScreen.value) {
+                    return _buildPureVideoPlayer(screenHeight, paddingTop);
+                  }
+
+                  // 判断是否使用宽屏布局
+                  bool isWide = _shouldUseWideScreenLayout(
+                    screenHeight,
+                    screenWidth,
+                    controller.aspectRatio.value,
+                  );
+
+                  if (isWide) {
+                    return _buildWideScreenLayout(
+                      context,
+                      screenSize,
+                      paddingTop,
+                      t,
+                    );
+                  } else {
+                    return _buildNarrowScreenLayout(
+                      context,
+                      screenSize,
+                      paddingTop,
+                      t,
+                    );
+                  }
+                }),
+              ),
+            ),
+            if (fullscreenActive)
+              Positioned.fill(
+                child: MyVideoScreen(
+                  isFullScreen: true,
+                  myVideoStateController: controller,
+                ),
+              ),
+          ],
+        ),
+      );
+    });
   }
 
   // 宽屏布局：播放器在左侧，Tab内容在右侧
@@ -846,7 +881,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                     overflow: TextOverflow.ellipsis,
                   ),
                   leading: IconButton(
-                    onPressed: () => AppService.tryPop(),
+                    onPressed: () => AppService.tryPop(context: context),
                     icon: const Icon(Icons.arrow_back),
                   ),
                   actions: [

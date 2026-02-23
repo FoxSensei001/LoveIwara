@@ -9,6 +9,7 @@ import 'package:i_iwara/app/ui/widgets/enhanced_emoji_text_field.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/rules_agreement_dialog_widget.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 /// 基础输入组件，提供通用的输入功能
 class BaseInputWidget extends StatefulWidget {
@@ -250,7 +251,7 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
               IconButton(
                 onPressed: widget.controller.text.isNotEmpty
                     ? () {
-                        Get.dialog(
+                        showAppDialog(
                           TranslationDialog(
                             text: widget.controller.text,
                             defaultLanguageKeyMode: false,

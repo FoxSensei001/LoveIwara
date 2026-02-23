@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/emoji_library_service.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'dart:convert';
@@ -774,10 +775,9 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
 // 静态方法用于显示 sheet
 class EmojiGroupDetailPage {
   static void show(BuildContext context, EmojiGroup group) {
-    Get.bottomSheet(
+    showAppBottomSheet(
       EmojiGroupDetailSheet(group: group),
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
     );
   }
 }

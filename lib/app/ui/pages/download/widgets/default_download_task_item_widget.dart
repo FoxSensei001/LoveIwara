@@ -14,6 +14,7 @@ import 'package:open_file/open_file.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 import 'package:path/path.dart' as path;
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class DefaultDownloadTaskItem extends StatelessWidget {
   final DownloadTask task;
@@ -657,7 +658,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
 
   void _showDeleteConfirmDialog(BuildContext context, {bool force = false}) {
     final t = slang.Translations.of(context);
-    Get.dialog(
+    showAppDialog(
       Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

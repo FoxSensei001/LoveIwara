@@ -45,7 +45,7 @@ class FriendList extends StatelessWidget {
                 5.0,
                 5.0,
                 5.0,
-                Get.context != null ? MediaQuery.of(Get.context!).padding.bottom + 5.0 : 0,
+                MediaQuery.of(context).padding.bottom + 5.0,
               ),
               indicatorBuilder: (context, status) => myLoadingMoreIndicator(
                 context,

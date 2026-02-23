@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/dto/user_dto.dart';
 import 'package:i_iwara/app/models/user.model.dart';
-import 'package:i_iwara/app/routes/app_routes.dart';
+
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:oktoast/oktoast.dart';
@@ -65,7 +68,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
       _currentUser.id,
     );
 
-    Get.bottomSheet(
+    showAppBottomSheet(
       Obx(
         () => Container(
           padding: const EdgeInsets.symmetric(vertical: 20),
@@ -104,7 +107,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                         type: MDToastType.error,
                       ),
                     );
-                    Get.toNamed(Routes.LOGIN);
+                    LoginService.showLogin();
                     return;
                   }
                   if (likedUser != null) {
@@ -120,8 +123,8 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                       ),
                     );
                   }
-                  if (Get.isBottomSheetOpen ?? false) {
-                    Get.closeAllBottomSheets();
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
                   }
                 },
               ),
@@ -154,6 +157,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                     final result = await _userService.unfollowUser(
                       _currentUser.id,
                     );
+                    if (!mounted) return;
                     if (result.isSuccess) {
                       final likedUser = _userPreferenceService.getLikedUser(
                         _currentUser.id,
@@ -170,8 +174,8 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                         _currentUser = updatedUser;
                       });
                       widget.onUserUpdated?.call(updatedUser);
-                      if (Get.isBottomSheetOpen ?? false) {
-                        Get.closeAllBottomSheets();
+                      if (OverlayTracker.instance.hasOverlay) {
+                        AppService.tryPop();
                       }
                     } else {
                       showToastWidget(
@@ -199,8 +203,6 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
           ),
         ),
       ),
-      isDismissible: !isProcessing.value,
-      enableDrag: !isProcessing.value,
     );
   }
 
@@ -243,14 +245,18 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                 final shouldShow =
                     showFollowTipCount > 0 && random.nextDouble() < 0.5;
                 if (shouldShow) {
-                  Get.showSnackbar(
-                    GetSnackBar(
-                      message:
+                  final ctx = context;
+                  if (ctx.mounted) {
+                    ScaffoldMessenger.of(ctx).showSnackBar(
+                      SnackBar(
+                        content: Text(
                           "🔔 ${t.common.followSuccessClickAgainToSpecialFollow}",
-                      duration: const Duration(seconds: 3),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
+                        ),
+                        duration: const Duration(seconds: 3),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
 
                   final newCount = max(0, showFollowTipCount - 1);
                   configService.setSetting(

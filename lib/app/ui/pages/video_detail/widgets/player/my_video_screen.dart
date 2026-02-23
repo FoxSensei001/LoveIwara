@@ -13,6 +13,7 @@ import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'bottom_toolbar_widget.dart';
 import 'gesture_area_widget.dart';
@@ -38,10 +39,11 @@ class MyVideoScreen extends StatefulWidget {
 }
 
 class _MyVideoScreenState extends State<MyVideoScreen>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WindowListener {
   final FocusNode _focusNode = FocusNode();
   final ConfigService _configService = Get.find();
   final AppService _appService = Get.find();
+  bool _isSyncingDesktopFullscreenExit = false;
 
   Timer? _autoHideTimer;
   Timer? _volumeInfoTimer; // 添加音量提示计时器
@@ -86,6 +88,9 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     // 如果是全屏状态
     if (widget.isFullScreen) {
       _appService.hideSystemUI();
+      if (GetPlatform.isDesktop) {
+        windowManager.addListener(this);
+      }
       // 继续播放
       // 如果当前是非全屏，则继续播放
       if (!widget.myVideoStateController.isFullscreen.value) {
@@ -198,6 +203,9 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     if (widget.isFullScreen) {
       // 恢复系统UI和竖屏模式
       _appService.showSystemUI();
+      if (GetPlatform.isDesktop) {
+        windowManager.removeListener(this);
+      }
       // 恢复播放
       // widget.myVideoStateController.player.play();
     }
@@ -212,6 +220,39 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     _blurUpdateTimer?.cancel(); // 清理模糊背景更新定时器
     _orientationCheckTimer?.cancel(); // 取消重力感应监听
     super.dispose();
+  }
+
+  @override
+  void onWindowLeaveFullScreen() {
+    if (!GetPlatform.isDesktop || !widget.isFullScreen) return;
+    if (_isSyncingDesktopFullscreenExit || !mounted) return;
+
+    final currentRoute = ModalRoute.of(context);
+    if (currentRoute == null || !currentRoute.isCurrent) {
+      return;
+    }
+
+    _isSyncingDesktopFullscreenExit = true;
+    LogUtils.d(
+      'desktop leave native fullscreen -> sync state',
+      'MyVideoScreen',
+    );
+
+    widget.myVideoStateController.isDesktopAppFullScreen.value = false;
+    widget.myVideoStateController.isFullscreen.value = false;
+    _appService.showSystemUI();
+    unawaited(
+      widget.myVideoStateController.restoreDesktopWindowGeometryAfterFullscreen(
+        reason: 'windowListener.onWindowLeaveFullScreen',
+      ),
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      widget.myVideoStateController.isDesktopAppFullScreen.value = false;
+      widget.myVideoStateController.isFullscreen.value = false;
+      _appService.showSystemUI();
+    });
   }
 
   /// 处理左键按下
@@ -356,164 +397,150 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   Widget _buildNormalLayout(BuildContext context) {
     // 缓存屏幕内边距
     final double paddingTop = MediaQuery.paddingOf(context).top;
-    return PopScope(
-      onPopInvokedWithResult: (bool didPop, dynamic result) async {
-        if (widget.isFullScreen) {
-          await defaultExitNativeFullscreen();
-          widget.myVideoStateController.isFullscreen.value = false;
-        }
-      },
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        body: Stack(
-          children: [
-            // 剧院模式背景
-            Obx(() {
-              final isTheaterMode =
-                  _configService[ConfigKey.THEATER_MODE_KEY] as bool;
-              if (!isTheaterMode) {
-                return const SizedBox.shrink();
-              }
+    final playerScaffold = Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          // 剧院模式背景
+          Obx(() {
+            final isTheaterMode =
+                _configService[ConfigKey.THEATER_MODE_KEY] as bool;
+            if (!isTheaterMode) {
+              return const SizedBox.shrink();
+            }
 
-              // 使用 LayoutBuilder 获取精确尺寸
-              return LayoutBuilder(
-                builder: (context, constraints) {
-                  final size = Size(
-                    constraints.maxWidth,
-                    constraints.maxHeight,
-                  );
-                  final thumbnailUrl = widget
-                      .myVideoStateController
-                      .videoInfo
-                      .value
-                      ?.thumbnailUrl;
-                  return _createBlurredBackground(thumbnailUrl, size);
-                },
+            // 使用 LayoutBuilder 获取精确尺寸
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final size = Size(constraints.maxWidth, constraints.maxHeight);
+                final thumbnailUrl =
+                    widget.myVideoStateController.videoInfo.value?.thumbnailUrl;
+                return _createBlurredBackground(thumbnailUrl, size);
+              },
+            );
+          }),
+          // 主要内容
+          LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              // 计算可用尺寸一次获得，避免重复调用 MediaQuery
+              final Size screenSize = Size(
+                constraints.maxWidth,
+                constraints.maxHeight,
               );
-            }),
-            // 主要内容
-            LayoutBuilder(
-              builder: (BuildContext context, BoxConstraints constraints) {
-                // 计算可用尺寸一次获得，避免重复调用 MediaQuery
-                final Size screenSize = Size(
-                  constraints.maxWidth,
-                  constraints.maxHeight,
-                );
-                final double playPauseIconSize = (screenSize.width * 0.15)
-                    .clamp(40.0, 100.0);
-                final double bufferingSize = playPauseIconSize * 0.8;
-                final double maxRadius =
-                    (screenSize.height - paddingTop) * 2 / 3;
+              final double playPauseIconSize = (screenSize.width * 0.15).clamp(
+                40.0,
+                100.0,
+              );
+              final double bufferingSize = playPauseIconSize * 0.8;
+              final double maxRadius = (screenSize.height - paddingTop) * 2 / 3;
 
-                return FocusScope(
-                  autofocus: true,
-                  canRequestFocus: true,
-                  child: MouseRegion(
-                    onEnter: (_) {
-                      // 鼠标进入播放器区域
-                      widget.myVideoStateController.setMouseHoveringPlayer(
-                        true,
-                      );
-                    },
-                    onExit: (_) {
-                      // 鼠标离开播放器区域
-                      widget.myVideoStateController.setMouseHoveringPlayer(
-                        false,
-                      );
-                    },
-                    onHover: (_) {
-                      // 鼠标在播放器区域内移动时，处理移动事件
-                      widget.myVideoStateController.onMouseMoveInPlayer();
-                    },
-                    child: KeyboardListener(
-                      focusNode: _focusNode,
-                      onKeyEvent: (KeyEvent event) {
-                        if (event is KeyDownEvent) {
-                          if (event.logicalKey ==
-                              LogicalKeyboardKey.arrowLeft) {
-                            _handleLeftKeyPress();
-                          } else if (event.logicalKey ==
-                              LogicalKeyboardKey.arrowRight) {
-                            _handleRightKeyPress();
-                          } else if (event.logicalKey ==
-                              LogicalKeyboardKey.space) {
-                            if (widget
-                                .myVideoStateController
-                                .videoPlaying
-                                .value) {
-                              widget.myVideoStateController.player.pause();
-                            } else {
-                              widget.myVideoStateController.player.play();
-                              widget.myVideoStateController.animateToTop();
-                            }
-                          } else if (event.logicalKey ==
-                              LogicalKeyboardKey.arrowUp) {
-                            // 获取当前音量
-                            double currentVolume =
-                                _configService[ConfigKey.VOLUME_KEY];
-                            // 增加音量，每次增加0.1，最大为1.0
-                            double newVolume = (currentVolume + 0.1).clamp(
-                              0.0,
-                              1.0,
-                            );
-                            widget.myVideoStateController.setVolume(newVolume);
-                            // 显示音量提示
-                            _showVolumeInfo();
-                          } else if (event.logicalKey ==
-                              LogicalKeyboardKey.arrowDown) {
-                            // 获取当前音量
-                            double currentVolume =
-                                _configService[ConfigKey.VOLUME_KEY];
-                            // 减少音量，每次减少0.1，最小为0.0
-                            double newVolume = (currentVolume - 0.1).clamp(
-                              0.0,
-                              1.0,
-                            );
-                            widget.myVideoStateController.setVolume(newVolume);
-                            // 显示音量提示
-                            _showVolumeInfo();
+              return FocusScope(
+                autofocus: true,
+                canRequestFocus: true,
+                child: MouseRegion(
+                  onEnter: (_) {
+                    // 鼠标进入播放器区域
+                    widget.myVideoStateController.setMouseHoveringPlayer(true);
+                  },
+                  onExit: (_) {
+                    // 鼠标离开播放器区域
+                    widget.myVideoStateController.setMouseHoveringPlayer(false);
+                  },
+                  onHover: (_) {
+                    // 鼠标在播放器区域内移动时，处理移动事件
+                    widget.myVideoStateController.onMouseMoveInPlayer();
+                  },
+                  child: KeyboardListener(
+                    focusNode: _focusNode,
+                    onKeyEvent: (KeyEvent event) {
+                      if (event is KeyDownEvent) {
+                        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+                          _handleLeftKeyPress();
+                        } else if (event.logicalKey ==
+                            LogicalKeyboardKey.arrowRight) {
+                          _handleRightKeyPress();
+                        } else if (event.logicalKey ==
+                            LogicalKeyboardKey.space) {
+                          if (widget
+                              .myVideoStateController
+                              .videoPlaying
+                              .value) {
+                            widget.myVideoStateController.player.pause();
+                          } else {
+                            widget.myVideoStateController.player.play();
+                            widget.myVideoStateController.animateToTop();
                           }
+                        } else if (event.logicalKey ==
+                            LogicalKeyboardKey.arrowUp) {
+                          // 获取当前音量
+                          double currentVolume =
+                              _configService[ConfigKey.VOLUME_KEY];
+                          // 增加音量，每次增加0.1，最大为1.0
+                          double newVolume = (currentVolume + 0.1).clamp(
+                            0.0,
+                            1.0,
+                          );
+                          widget.myVideoStateController.setVolume(newVolume);
+                          // 显示音量提示
+                          _showVolumeInfo();
+                        } else if (event.logicalKey ==
+                            LogicalKeyboardKey.arrowDown) {
+                          // 获取当前音量
+                          double currentVolume =
+                              _configService[ConfigKey.VOLUME_KEY];
+                          // 减少音量，每次减少0.1，最小为0.0
+                          double newVolume = (currentVolume - 0.1).clamp(
+                            0.0,
+                            1.0,
+                          );
+                          widget.myVideoStateController.setVolume(newVolume);
+                          // 显示音量提示
+                          _showVolumeInfo();
                         }
-                      },
-                      child: Container(
-                        padding: EdgeInsets.only(top: paddingTop),
-                        child: Stack(
-                          children: [
-                            // 视频播放区域
-                            _buildVideoPlayer(),
-                            // 手势监听区域（抽取后减少整体重绘）
-                            ..._buildGestureAreas(screenSize),
-                            // 工具栏部分
-                            ..._buildToolbars(),
-                            // 双击波纹动画等效果
-                            _buildRippleEffects(screenSize, maxRadius),
-                            // 中央控制面板，比如播放/暂停按钮
-                            _buildVideoControlOverlay(
-                              playPauseIconSize,
-                              bufferingSize,
-                            ),
-                            // InfoMessage 提示区域
-                            _buildInfoMessage(),
-                            // 播放速度信息提示（左下角）
-                            _buildPlaybackSpeedInfoMessage(),
-                            // 添加底部进度条
-                            _buildBottomProgressBar(),
-                            // 添加遮罩层
-                            _buildMaskLayer(),
-                            // 添加锁定按钮
-                            _buildLockButton(),
-                          ],
-                        ),
+                      }
+                    },
+                    child: Container(
+                      padding: EdgeInsets.only(top: paddingTop),
+                      child: Stack(
+                        children: [
+                          // 视频播放区域
+                          _buildVideoPlayer(),
+                          // 手势监听区域（抽取后减少整体重绘）
+                          ..._buildGestureAreas(screenSize),
+                          // 工具栏部分
+                          ..._buildToolbars(),
+                          // 双击波纹动画等效果
+                          _buildRippleEffects(screenSize, maxRadius),
+                          // 中央控制面板，比如播放/暂停按钮
+                          _buildVideoControlOverlay(
+                            playPauseIconSize,
+                            bufferingSize,
+                          ),
+                          // InfoMessage 提示区域
+                          _buildInfoMessage(),
+                          // 播放速度信息提示（左下角）
+                          _buildPlaybackSpeedInfoMessage(),
+                          // 添加底部进度条
+                          _buildBottomProgressBar(),
+                          // 添加遮罩层
+                          _buildMaskLayer(),
+                          // 添加锁定按钮
+                          _buildLockButton(),
+                        ],
                       ),
                     ),
                   ),
-                );
-              },
-            ),
-          ],
-        ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
+
+    // 内嵌播放器不参与系统 back 链，避免与页面级返回处理叠加。
+    // 全屏返回由视频详情页的 PopScope 统一处理（先退出全屏，再正常返回）。
+    return playerScaffold;
   }
 
   Widget _buildVideoPlayer() {

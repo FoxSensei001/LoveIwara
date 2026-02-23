@@ -27,6 +27,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constan
 import 'package:url_launcher/url_launcher.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/add_video_to_playlist_dialog.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/share_video_bottom_sheet.dart';
@@ -120,7 +121,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                   padding: const EdgeInsets.only(left: 4),
                   child: IconButton(
                     onPressed: () {
-                      Get.dialog(TranslationDialog(text: title));
+                      showTranslationDialog(context, text: title);
                     },
                     icon: Icon(
                       Icons.translate,
@@ -722,7 +723,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
       return;
     }
 
-    Get.dialog(
+    showAppDialog(
       AddVideoToPlayListDialog(
         videoId: widget.controller.videoInfo.value?.id ?? '',
       ),
@@ -734,7 +735,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
 
   /// 处理收藏操作
   void _handleFavoriteAction(BuildContext context, dynamic videoInfo) {
-    Get.dialog(
+    showAppDialog(
       AddToFavoriteDialog(
         itemId: videoInfo.id,
         onAdd: (folderId) =>
@@ -1144,7 +1145,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
     }
 
     try {
-      Get.dialog(
+      showAppDialog(
         AlertDialog(
           title: Text(t.common.selectQuality),
           content: Column(
@@ -1157,9 +1158,12 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                   AppService.tryPop();
 
                   // 重新从 controller 获取最新的视频源列表，避免使用过期的源
-                  final latestSources = widget.controller.currentVideoSourceList;
+                  final latestSources =
+                      widget.controller.currentVideoSourceList;
                   final latestSource = latestSources.firstWhereOrNull(
-                    (s) => (s.name?.toLowerCase() ?? '') == (source.name?.toLowerCase() ?? ''),
+                    (s) =>
+                        (s.name?.toLowerCase() ?? '') ==
+                        (source.name?.toLowerCase() ?? ''),
                   );
 
                   if (latestSource == null || latestSource.download == null) {

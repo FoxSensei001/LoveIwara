@@ -28,6 +28,7 @@ import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class ForumPage extends StatefulWidget implements HomeWidgetInterface {
   static final globalKey = GlobalKey<_ForumPageState>();
@@ -184,7 +185,7 @@ class _ForumPageState extends State<ForumPage> {
       );
       return;
     }
-    Get.dialog(
+    showAppDialog(
       ForumPostDialog(
         onSubmit: () {
           // 刷新帖子列表
@@ -288,7 +289,7 @@ class _ForumPageState extends State<ForumPage> {
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              Get.dialog(
+              showAppDialog(
                 SearchDialog(
                   userInputKeywords: '',
                   initialSegment: SearchSegment.forum,
@@ -866,7 +867,7 @@ class _ForumPageState extends State<ForumPage> {
   void _showSitewideAnnouncementDialog({required String body}) {
     final t = slang.Translations.of(context);
     final title = t.forum.sitewide.title;
-    Get.dialog(
+    showAppDialog(
       Dialog(
         insetPadding: const EdgeInsets.all(20),
         child: ConstrainedBox(

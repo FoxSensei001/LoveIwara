@@ -16,10 +16,7 @@ import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 class PostInputDialog extends StatefulWidget {
   final Function(String title, String body) onSubmit;
 
-  const PostInputDialog({
-    super.key,
-    required this.onSubmit,
-  });
+  const PostInputDialog({super.key, required this.onSubmit});
 
   @override
   State<PostInputDialog> createState() => _PostInputDialogState();
@@ -33,7 +30,8 @@ class _PostInputDialogState extends State<PostInputDialog> {
   int _currentBodyLength = 0;
   final ConfigService _configService = Get.find<ConfigService>();
   late EmojiSize _selectedEmojiSize;
-  final GlobalKey<EnhancedEmojiTextFieldState> _emojiTextFieldKey = GlobalKey<EnhancedEmojiTextFieldState>();
+  final GlobalKey<EnhancedEmojiTextFieldState> _emojiTextFieldKey =
+      GlobalKey<EnhancedEmojiTextFieldState>();
 
   // 标题最大长度
   static const int maxTitleLength = 100;
@@ -44,23 +42,23 @@ class _PostInputDialogState extends State<PostInputDialog> {
   void initState() {
     super.initState();
     _titleController = TextEditingController();
-    
+
     final configService = Get.find<ConfigService>();
     String initialBody = '';
-    
+
     // 如果启用了小尾巴，则在正文中添加小尾巴
     if (configService[ConfigKey.ENABLE_SIGNATURE_KEY]) {
       initialBody += configService[ConfigKey.SIGNATURE_CONTENT_KEY];
     }
-    
+
     _bodyController = TextEditingController(text: initialBody);
-    
+
     _titleController.addListener(() {
       setState(() {
         _currentTitleLength = _titleController.text.length;
       });
     });
-    
+
     _bodyController.addListener(() {
       setState(() {
         _currentBodyLength = _bodyController.text.length;
@@ -69,7 +67,8 @@ class _PostInputDialogState extends State<PostInputDialog> {
 
     // 初始化表情尺寸
     final savedSizeSuffix = _configService[ConfigKey.DEFAULT_EMOJI_SIZE];
-    _selectedEmojiSize = EmojiSize.fromAltSuffix(savedSizeSuffix) ?? EmojiSize.medium;
+    _selectedEmojiSize =
+        EmojiSize.fromAltSuffix(savedSizeSuffix) ?? EmojiSize.medium;
   }
 
   @override
@@ -81,8 +80,8 @@ class _PostInputDialogState extends State<PostInputDialog> {
 
   void _showPreview() {
     MarkdownPreviewHelper.showPreviewWithTitle(
-      context, 
-      _bodyController.text, 
+      context,
+      _bodyController.text,
       _titleController.text,
     );
   }
@@ -104,9 +103,8 @@ class _PostInputDialogState extends State<PostInputDialog> {
         minChildSize: 0.5,
         maxChildSize: 0.95,
         expand: false,
-        builder: (context, scrollController) => RulesAgreementDialog(
-          scrollController: scrollController,
-        ),
+        builder: (context, scrollController) =>
+            RulesAgreementDialog(scrollController: scrollController),
       ),
     );
 
@@ -120,7 +118,8 @@ class _PostInputDialogState extends State<PostInputDialog> {
 
   void _handleSubmit() async {
     final t = slang.t;
-    if (_currentTitleLength > maxTitleLength || _currentTitleLength == 0) return;
+    if (_currentTitleLength > maxTitleLength || _currentTitleLength == 0)
+      return;
     if (_currentBodyLength > maxBodyLength || _currentBodyLength == 0) return;
 
     // 检查标题是否为空
@@ -220,7 +219,7 @@ class _PostInputDialogState extends State<PostInputDialog> {
                 hintText: t.common.enterTitle,
                 border: const OutlineInputBorder(),
                 counterText: '$_currentTitleLength/$maxTitleLength',
-                errorText: _currentTitleLength > maxTitleLength 
+                errorText: _currentTitleLength > maxTitleLength
                     ? t.errors.exceedsMaxLength(max: maxTitleLength.toString())
                     : null,
               ),
@@ -233,7 +232,7 @@ class _PostInputDialogState extends State<PostInputDialog> {
               maxLength: maxBodyLength,
               decoration: InputDecoration(
                 hintText: t.common.writeYourContentHere,
-                errorText: _currentBodyLength > maxBodyLength 
+                errorText: _currentBodyLength > maxBodyLength
                     ? t.errors.exceedsMaxLength(max: maxBodyLength.toString())
                     : null,
               ),
@@ -251,11 +250,10 @@ class _PostInputDialogState extends State<PostInputDialog> {
                 IconButton(
                   onPressed: _bodyController.text.isNotEmpty
                       ? () {
-                          Get.dialog(
-                            TranslationDialog(
-                              text: _bodyController.text,
-                              defaultLanguageKeyMode: false,
-                            ),
+                          showTranslationDialog(
+                            context,
+                            text: _bodyController.text,
+                            defaultLanguageKeyMode: false,
                           );
                         }
                       : null,
@@ -292,11 +290,14 @@ class _PostInputDialogState extends State<PostInputDialog> {
               runSpacing: 8,
               children: [
                 Obx(() {
-                  final bool hasAgreed = _configService[ConfigKey.RULES_AGREEMENT_KEY];
+                  final bool hasAgreed =
+                      _configService[ConfigKey.RULES_AGREEMENT_KEY];
                   return TextButton.icon(
                     onPressed: () => _showRulesDialog(),
                     icon: Icon(
-                      hasAgreed ? Icons.check_box : Icons.check_box_outline_blank,
+                      hasAgreed
+                          ? Icons.check_box
+                          : Icons.check_box_outline_blank,
                       size: 20,
                     ),
                     label: Text(t.common.agreeToRules),
@@ -310,8 +311,11 @@ class _PostInputDialogState extends State<PostInputDialog> {
                   child: Text(t.common.cancel),
                 ),
                 ElevatedButton(
-                  onPressed: (_currentTitleLength > maxTitleLength || _currentTitleLength == 0) ||
-                           (_currentBodyLength > maxBodyLength || _currentBodyLength == 0)
+                  onPressed:
+                      (_currentTitleLength > maxTitleLength ||
+                              _currentTitleLength == 0) ||
+                          (_currentBodyLength > maxBodyLength ||
+                              _currentBodyLength == 0)
                       ? null
                       : _handleSubmit,
                   child: _isLoading

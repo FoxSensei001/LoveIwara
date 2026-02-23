@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/auth_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
@@ -69,7 +70,7 @@ class LoginDialog extends StatefulWidget {
 
   /// 便捷的静态调用方法
   static Future<bool?> showLoginDialog() {
-    final context = Get.context;
+    final context = rootNavigatorKey.currentContext;
     if (context == null) return Future.value(false);
     return show(context);
   }

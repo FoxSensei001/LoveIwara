@@ -24,6 +24,7 @@ import 'package:flutter/gestures.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/base_media_controller.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 // 定义抽象基类，包含泛型 T (媒体模型), C (特定媒体控制器), R (特定媒体仓库)
 abstract class PopularMediaListPageBase<
@@ -121,7 +122,7 @@ class PopularMediaListPageBaseState<
 
   // 打开搜索对话框
   void _openSearchDialog() {
-    Get.dialog(
+    showAppDialog(
       SearchDialog(
         userInputKeywords: '',
         initialSegment: widget.searchSegment,
@@ -317,7 +318,7 @@ class PopularMediaListPageBaseState<
   }
 
   void _openParamsModal() {
-    Get.dialog(
+    showAppDialog(
       PopularMediaSearchConfig(
         searchTags: tags,
         searchYear: year,

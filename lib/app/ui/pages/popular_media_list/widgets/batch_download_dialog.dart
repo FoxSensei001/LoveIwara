@@ -9,6 +9,7 @@ import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 /// 批量下载对话框
 /// 包含三个阶段：清晰度选择、下载进度、下载结果
@@ -28,7 +29,7 @@ class BatchDownloadDialog<T> extends StatefulWidget {
     required List<T> mediaItems,
     VoidCallback? onComplete,
   }) {
-    return Get.dialog(
+    return showAppDialog(
       BatchDownloadDialog<T>(mediaItems: mediaItems, onComplete: onComplete),
       barrierDismissible: false,
     );

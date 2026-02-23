@@ -4,6 +4,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class LayoutSettingsPage extends StatefulWidget {
   final bool isWideScreen;
@@ -950,7 +951,7 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
     final columnsController = TextEditingController();
     final formKey = GlobalKey<FormState>();
     
-    Get.dialog(
+    showAppDialog(
       AlertDialog(
         title: Text(slang.t.layoutSettings.addBreakpoint),
         content: Form(
@@ -1042,7 +1043,7 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
     final columnsController = TextEditingController(text: columns.toString());
     final formKey = GlobalKey<FormState>();
     
-    Get.dialog(
+    showAppDialog(
       AlertDialog(
         title: Text(slang.t.layoutSettings.editBreakpoint),
         content: Form(
@@ -1150,7 +1151,7 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
 
   /// 显示重置确认对话框
   void _showResetConfirmDialog() {
-    Get.dialog(
+    showAppDialog(
       AlertDialog(
         title: Text(slang.t.layoutSettings.confirmResetLayoutSettings),
         content: Text(slang.t.layoutSettings.confirmResetLayoutSettingsDesc),
@@ -1193,7 +1194,7 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
   }
 
   void _showDeleteBreakpointDialog(String width) {
-    Get.dialog(
+    showAppDialog(
       AlertDialog(
         title: Text(slang.t.layoutSettings.confirmDeleteBreakpoint),
         content: Text(slang.t.layoutSettings.confirmDeleteBreakpointDesc(width: width)),

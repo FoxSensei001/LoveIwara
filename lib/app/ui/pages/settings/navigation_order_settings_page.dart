@@ -4,6 +4,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class NavigationOrderSettingsPage extends StatefulWidget {
   final bool isWideScreen;
@@ -465,7 +466,7 @@ class _NavigationOrderSettingsPageState
   }
 
   void _showResetConfirmDialog() {
-    Get.dialog(
+    showAppDialog(
       AlertDialog(
         title: Text(slang.t.navigationOrderSettings.confirmResetNavigationOrder),
         content: Text(slang.t.navigationOrderSettings.confirmResetNavigationOrderDesc),

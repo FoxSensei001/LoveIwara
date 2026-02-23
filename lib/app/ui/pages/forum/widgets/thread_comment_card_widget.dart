@@ -17,6 +17,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:flutter/services.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/widgets/translation_language_selector.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class ThreadCommentCardWidget extends StatefulWidget {
   final ThreadCommentModel comment;
@@ -391,7 +392,7 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                         );
                         return;
                       }
-                      Get.dialog(
+                      showAppDialog(
                         ForumEditReplyDialog(
                           postId: widget.comment.id,
                           initialContent: widget.comment.body,

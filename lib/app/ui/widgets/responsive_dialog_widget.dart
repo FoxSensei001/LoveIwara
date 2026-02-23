@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class ResponsiveDialogWidget extends StatelessWidget {
   final String title;
@@ -134,7 +135,7 @@ class ResponsiveDialog {
     List<Widget>? actions,
     List<Widget>? headerActions,
   }) {
-    Get.dialog(
+    showAppDialog(
       ResponsiveDialogWidget(
         title: title,
         content: content,

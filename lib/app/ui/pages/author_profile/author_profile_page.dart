@@ -41,6 +41,7 @@ import '../popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class AuthorProfilePage extends StatefulWidget {
   final String username;
@@ -400,7 +401,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                 if (value == 'create') {
                   _showCreatePostDialog();
                 } else if (value == 'message') {
-                  Get.dialog(
+                  showAppDialog(
                     NewConversationDialog(
                       initUserId: profileController.author.value?.id,
                       onSubmit: () {
@@ -1021,9 +1022,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                         child: const SizedBox.shrink(),
                       ),
                       SizedBox(
-                        height: Get.context != null
-                            ? MediaQuery.of(Get.context!).padding.bottom
-                            : 0,
+                        height: MediaQuery.of(context).padding.bottom,
                       ),
                     ],
                   ),
@@ -1218,7 +1217,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     final profilePostTabListWidget = context
         .findAncestorWidgetOfExactType<ProfilePostTabListWidget>();
 
-    Get.dialog(
+    showAppDialog(
       PostInputDialog(
         onSubmit: (title, body) async {
           if (!mounted) return;

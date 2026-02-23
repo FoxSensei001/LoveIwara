@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
@@ -17,6 +18,7 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:i_iwara/app/models/user_notifications.model.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class PersonalProfilePage extends StatefulWidget {
   const PersonalProfilePage({super.key});
@@ -409,7 +411,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
     );
     final RxBool isSaving = false.obs;
 
-    Get.dialog(
+    showAppDialog(
       AlertDialog(
         title: Text(slang.t.personalProfile.editNickname),
         content: Column(
@@ -429,7 +431,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
         actions: [
           TextButton(
             onPressed: () {
-              if (Get.isDialogOpen == true) {
+              if (OverlayTracker.instance.hasOverlay) {
                 AppService.tryPop();
               }
             },
@@ -452,7 +454,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                         return;
                       }
                       if (newName == currentName) {
-                        if (Get.isDialogOpen == true) {
+                        if (OverlayTracker.instance.hasOverlay) {
                           AppService.tryPop();
                         }
                         return;
@@ -471,7 +473,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                             type: MDToastType.success,
                           ),
                         );
-                        if (Get.isDialogOpen == true) {
+                        if (OverlayTracker.instance.hasOverlay) {
                           AppService.tryPop();
                         }
                       } else {
@@ -502,7 +504,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
     String? currentDescription,
   ) {
     // 使用 BaseDialogInput 来提供富文本编辑体验（Markdown、预览、翻译等）
-    Get.dialog(
+    showAppDialog(
       _EditDescriptionDialog(
         initialText: currentDescription,
         userService: _userService,

@@ -5,6 +5,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/common/anime4k_presets.dart';
 import '../pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 /// 通用的 Anime4K 设置组件
 class Anime4KSettingsWidget extends StatelessWidget {
@@ -103,7 +104,7 @@ class Anime4KSettingsWidget extends StatelessWidget {
           onTap: () => _showPresetSelectionDialog(context, configService),
           child: Row(
             children: [
-              Icon(Icons.tune, color: Get.isDarkMode ? Colors.white : null),
+              Icon(Icons.tune, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -136,7 +137,7 @@ class Anime4KSettingsWidget extends StatelessWidget {
               const SizedBox(width: 8),
               Icon(
                 Icons.chevron_right,
-                color: Get.isDarkMode ? Colors.white : null,
+                color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
               ),
             ],
           ),
@@ -152,7 +153,7 @@ class Anime4KSettingsWidget extends StatelessWidget {
     final currentPresetId =
         configService[ConfigKey.ANIME4K_PRESET_ID] as String;
 
-    await Get.dialog<String>(
+    await showAppDialog<String>(
       AlertDialog(
         title: Row(
           children: [

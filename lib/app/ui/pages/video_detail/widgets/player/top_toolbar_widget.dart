@@ -4,7 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart'; // 新增
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import '../../../../../../utils/proxy/proxy_util.dart';
-import '../../../../../routes/app_routes.dart';
+import '../../../../../routes/app_router.dart';
 import '../../../settings/widgets/player_settings_widget.dart';
 import '../../../settings/widgets/proxy_setting_widget.dart';
 import '../../controllers/my_video_state_controller.dart';
@@ -458,18 +458,7 @@ class _TopToolbarState extends State<TopToolbar> {
                             size: iconSize,
                           ),
                           onPressed: () {
-                            AppService appService = Get.find();
-                            int currentIndex = appService.currentIndex;
-                            final routes = [
-                              Routes.POPULAR_VIDEOS,
-                              Routes.GALLERY,
-                              Routes.SUBSCRIPTIONS,
-                            ];
-                            AppService.homeNavigatorKey.currentState!
-                                .pushNamedAndRemoveUntil(
-                                  routes[currentIndex],
-                                  (route) => false,
-                                );
+                            appRouter.go('/');
                           },
                         ),
                       Expanded(

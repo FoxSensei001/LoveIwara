@@ -22,6 +22,7 @@ import 'widgets/thread_comment_card_widget.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_edit_title_dialog.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class ThreadDetailPage extends StatefulWidget {
   final String threadId;
@@ -360,9 +361,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
                 padding: EdgeInsets.only(
                   left: isWideScreen ? 16.0 : 8.0,
                   right: isWideScreen ? 16.0 : 8.0,
-                  bottom: Get.context != null
-                      ? MediaQuery.of(Get.context!).padding.bottom
-                      : 0,
+                  bottom: MediaQuery.of(context).padding.bottom,
                 ),
                 indicatorBuilder: (context, status) => buildIndicator(
                   context,
@@ -727,8 +726,9 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
                     IconButton(
                       icon: const Icon(Icons.translate),
                       onPressed: () {
-                        Get.dialog(
-                          TranslationDialog(text: _thread.value!.title),
+                        showTranslationDialog(
+                          context,
+                          text: _thread.value!.title,
                         );
                       },
                       tooltip: t.common.translate,
@@ -738,7 +738,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
                       IconButton(
                         icon: const Icon(Icons.edit),
                         onPressed: () {
-                          Get.dialog(
+                          showAppDialog(
                             ForumEditTitleDialog(
                               postId: _thread.value!.id,
                               initialTitle: _thread.value!.title,

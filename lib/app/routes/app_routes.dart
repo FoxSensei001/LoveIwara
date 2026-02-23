@@ -35,9 +35,6 @@ abstract class Routes {
 
   static const HISTORY_LIST = _Paths.HISTORY_LIST;
 
-  static const FULL_SCREEN_VIDEO_PLAYER_SCREEN =
-      '/full_screen_video_player_screen';
-
   static String PLAYLIST_DETAIL(String id) =>
       _Paths.PLAYLIST_DETAIL.replaceAll(':id', id);
 

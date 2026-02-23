@@ -16,6 +16,7 @@ import 'package:i_iwara/app/ui/pages/tag_videos/widgets/tag_video_search_config_
 import 'package:i_iwara/app/ui/widgets/grid_speed_dial.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 /// 标签媒体列表页面 - 精简版本
 class TagMediaListPage extends StatefulWidget {
@@ -176,7 +177,7 @@ class _TagMediaListPageState extends State<TagMediaListPage>
   }
 
   void _openParamsModal() {
-    Get.dialog(
+    showAppDialog(
       TagVideoSearchConfigWidget(
         fixedTags: tags,
         searchYear: year,

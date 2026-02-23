@@ -113,7 +113,7 @@ class _FavoriteVideoListState extends State<FavoriteVideoList>
                 5.0,
                 5.0,
                 5.0,
-                Get.context != null ? MediaQuery.of(Get.context!).padding.bottom + 5.0 : 0,
+                MediaQuery.of(context).padding.bottom + 5.0,
               ),
               lastChildLayoutType: LastChildLayoutType.foot,
               indicatorBuilder: (context, status) => myLoadingMoreIndicator(

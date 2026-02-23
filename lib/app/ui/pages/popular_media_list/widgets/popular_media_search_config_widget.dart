@@ -11,6 +11,7 @@ import '../../../widgets/empty_widget.dart';
 import 'add_search_tag_dialog.dart';
 import 'remove_search_tag_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 /// 热门视频的搜索配置
 class PopularMediaSearchConfig extends StatefulWidget {
@@ -382,7 +383,7 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
                 IconButton(
                   icon: const Icon(Icons.remove),
                   onPressed: () {
-                    Get.dialog(
+                    showAppDialog(
                       RemoveSearchTagDialog(
                         onRemoveIds: (List<String> removedTags) {
                           for (var id in removedTags) {
@@ -404,7 +405,7 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
                 IconButton(
                   icon: const Icon(Icons.add),
                   onPressed: () {
-                    Get.dialog(const AddSearchTagDialog());
+                    showAppDialog(const AddSearchTagDialog());
                   },
                 ),
               ],

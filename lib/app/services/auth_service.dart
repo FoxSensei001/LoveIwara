@@ -2,6 +2,7 @@
 // 认证服务 - 负责用户登录、登出和认证状态管理
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:dio/dio.dart' as dio;
 import 'package:dio/io.dart';
@@ -292,7 +293,7 @@ class AuthService extends GetxService {
   ) async {
     try {
       final headers = {'X-Captcha': '$captchaId:$captchaAnswer'};
-      final data = {'email': email, 'locale': Get.locale?.countryCode ?? 'en'};
+      final data = {'email': email, 'locale': PlatformDispatcher.instance.locale.countryCode ?? 'en'};
       final response = await _dio.post(
         '/user/register',
         data: data,

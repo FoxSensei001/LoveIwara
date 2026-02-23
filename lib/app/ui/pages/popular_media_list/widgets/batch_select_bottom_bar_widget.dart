@@ -44,9 +44,7 @@ class BatchSelectBottomBarWidget extends StatelessWidget {
             top: 16.0,
             bottom:
                 16.0 +
-                (Get.context != null
-                    ? MediaQuery.of(Get.context!).padding.bottom
-                    : 0),
+                MediaQuery.of(context).padding.bottom,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,

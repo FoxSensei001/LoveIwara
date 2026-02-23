@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/update_info.model.dart';
+import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -11,6 +12,7 @@ import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yaml/yaml.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class VersionService extends GetxService {
   final ConfigService _configService = Get.find();
@@ -132,10 +134,11 @@ class VersionService extends GetxService {
     }
     final changes = update.getLocalizedChanges(currentLocale);
 
-    Get.dialog(
+    showAppDialog(
       AlertDialog(
-        title:
-        Text('${t.settings.newVersionAvailable}: ${latestVersion.value}'),
+        title: Text(
+          '${t.settings.newVersionAvailable}: ${latestVersion.value}',
+        ),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -149,29 +152,36 @@ class VersionService extends GetxService {
                 children: [
                   Text(t.settings.updateContent),
                   const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.translate),
-                    onPressed: () {
-                      Get.dialog(
-                        TranslationDialog(
+                  Builder(
+                    builder: (dialogContext) => IconButton(
+                      icon: const Icon(Icons.translate),
+                      onPressed: () {
+                        showTranslationDialog(
+                          dialogContext,
                           text: changes.join('\n\n'),
-                        ),
-                        barrierDismissible: true,
-                      );
-                    },
+                          barrierDismissible: true,
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),
-              ...changes.map((change) => Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(change),
-              )),
+              ...changes.map(
+                (change) => Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(change),
+                ),
+              ),
               if (needMinVersionUpdate.value)
                 Padding(
                   padding: const EdgeInsets.only(top: 16),
                   child: Text(
                     t.settings.minVersionUpdateRequired,
-                    style: TextStyle(color: Get.theme.colorScheme.error),
+                    style: TextStyle(
+                      color: Theme.of(
+                        rootNavigatorKey.currentContext!,
+                      ).colorScheme.error,
+                    ),
                   ),
                 ),
             ],
@@ -199,10 +209,14 @@ class VersionService extends GetxService {
   }
 
   bool _compareVersions(String current, String latest) {
-    List<int> currentParts =
-    current.split('.').map((e) => int.tryParse(e) ?? 0).toList();
-    List<int> latestParts =
-    latest.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+    List<int> currentParts = current
+        .split('.')
+        .map((e) => int.tryParse(e) ?? 0)
+        .toList();
+    List<int> latestParts = latest
+        .split('.')
+        .map((e) => int.tryParse(e) ?? 0)
+        .toList();
 
     for (int i = 0; i < 3; i++) {
       int currentPart = i < currentParts.length ? currentParts[i] : 0;

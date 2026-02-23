@@ -13,6 +13,7 @@ import 'package:oktoast/oktoast.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class NotificationListPage extends StatefulWidget {
   const NotificationListPage({super.key});
@@ -181,7 +182,7 @@ class _NotificationListPageState extends State<NotificationListPage> {
                 icon: const Icon(Icons.help_outline),
                 onPressed: () {
                   final ConfigService configService = Get.find<ConfigService>();
-                  Get.dialog(
+                  showAppDialog(
                     AlertDialog(
                       title: Text('ℹ️ ${slang.t.notifications.notificationTypeHelp}'),
                       content: Column(
@@ -229,9 +230,7 @@ class _NotificationListPageState extends State<NotificationListPage> {
                 left: 5.0,
                 right: 5.0,
                 top: 5.0,
-                bottom: Get.context != null
-                    ? MediaQuery.of(Get.context!).padding.bottom
-                    : 0,
+                bottom: MediaQuery.of(context).padding.bottom,
               ),
               indicatorBuilder: (context, status) => myLoadingMoreIndicator(
                 context,
@@ -260,9 +259,7 @@ class _NotificationListPageState extends State<NotificationListPage> {
                       ? Theme.of(context).colorScheme.primary
                       : null,
                   child: const Icon(Icons.arrow_upward),
-                ).paddingBottom(Get.context != null
-                  ? MediaQuery.of(Get.context!).padding.bottom
-                  : 0)
+                ).paddingBottom(MediaQuery.of(context).padding.bottom)
               : const SizedBox()),
     );
   }

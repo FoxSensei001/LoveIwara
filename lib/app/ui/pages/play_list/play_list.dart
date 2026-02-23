@@ -9,6 +9,7 @@ import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class PlayListPage extends StatefulWidget {
   final String userId;
@@ -95,7 +96,7 @@ class _PlayListPageState extends State<PlayListPage> {
                   left: 5.0,
                   right: 5.0,
                   top: 5.0,
-                  bottom: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0, // 添加底部安全区域
+                  bottom: MediaQuery.of(context).padding.bottom, // 添加底部安全区域
                 ),
                 lastChildLayoutType: LastChildLayoutType.foot,
                 indicatorBuilder: (context, status) => myLoadingMoreIndicator(
@@ -116,7 +117,7 @@ class _PlayListPageState extends State<PlayListPage> {
                 );
               },
               child: const Icon(Icons.arrow_upward),
-            ).paddingBottom(Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0)
+            ).paddingBottom(MediaQuery.of(context).padding.bottom)
           : const SizedBox()),
     );
   }
@@ -181,7 +182,7 @@ class _PlayListPageState extends State<PlayListPage> {
     final TextEditingController textController = TextEditingController();
     final RxBool isLoading = false.obs;
 
-    Get.dialog(
+    showAppDialog(
       AlertDialog(
         title: Text(slang.t.common.createPlayList),
         content: TextField(
@@ -226,7 +227,7 @@ class _PlayListPageState extends State<PlayListPage> {
   }
 
   void _showHelpDialog() {
-    Get.dialog(
+    showAppDialog(
       AlertDialog(
         title: Text('💡 ${slang.t.playList.friendlyTips}',
             style: const TextStyle(fontSize: 18)),

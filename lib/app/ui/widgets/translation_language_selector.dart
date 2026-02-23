@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 
 /// 通用语言选择组件
 class TranslationLanguageSelector extends StatelessWidget {
@@ -98,6 +99,10 @@ class TranslationLanguageSelector extends StatelessWidget {
   Widget _buildPopupMenu(BuildContext context) {
     return PopupMenuButton<dynamic>(
       initialValue: selectedLanguage,
+      useRootNavigator: false,
+      onOpened: () {
+        LogUtils.d('popup menu opened', 'TranslationLanguageSelector');
+      },
       child: Card(
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -153,8 +158,15 @@ class TranslationLanguageSelector extends StatelessWidget {
 
   void _showDialogSelector(BuildContext context) {
     final t = slang.Translations.of(context);
+    LogUtils.d(
+      'dialog open requested: rootCanPop=${Navigator.of(context, rootNavigator: true).canPop()}, '
+          'localCanPop=${Navigator.of(context).canPop()}',
+      'TranslationLanguageSelector',
+    );
     showDialog(
       context: context,
+      useRootNavigator: false,
+      requestFocus: true,
       builder: (context) {
         return Dialog(
           shape: RoundedRectangleBorder(
@@ -226,6 +238,8 @@ class TranslationLanguageSelector extends StatelessWidget {
           ),
         );
       },
-    );
+    ).whenComplete(() {
+      LogUtils.d('dialog closed', 'TranslationLanguageSelector');
+    });
   }
 }

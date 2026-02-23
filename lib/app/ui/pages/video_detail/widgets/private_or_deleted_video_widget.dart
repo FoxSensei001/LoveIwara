@@ -102,7 +102,7 @@ class _PrivateOrDeletedVideoWidgetState extends State<PrivateOrDeletedVideoWidge
                     preferBelow: false,
                     child: Icon(
                       Icons.verified,
-                      color: Get.theme.colorScheme.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
               ],
@@ -162,8 +162,8 @@ class _PrivateOrDeletedVideoWidgetState extends State<PrivateOrDeletedVideoWidge
   Widget _buildFriendButton() {
     if (_isLoading) {
       return Shimmer.fromColors(
-        baseColor: Get.theme.colorScheme.primary.withValues(alpha: 0.3),
-        highlightColor: Get.theme.colorScheme.primary.withValues(alpha: 0.6),
+        baseColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+        highlightColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
         child: FilledButton.icon(
           onPressed: null,
           icon: const Icon(Icons.person_add),

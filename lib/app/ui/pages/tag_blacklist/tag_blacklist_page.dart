@@ -6,6 +6,7 @@ import 'package:i_iwara/app/ui/pages/tag_blacklist/widgets/black_list_search_tag
 import 'package:i_iwara/app/ui/pages/tag_blacklist/controllers/tag_blacklist_controller.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class TagBlacklistPage extends StatefulWidget {
   const TagBlacklistPage({super.key});
@@ -149,7 +150,7 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
                     IconButton(
                       icon: const Icon(Icons.add),
                       onPressed: () async {
-                        Get.dialog(
+                        showAppDialog(
                           BlackListTagSearchDialog(
                             onSave: (tags) async {
                               final currentTagIds = controller.blacklistTags
@@ -210,7 +211,7 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
                         IconButton(
                           icon: const Icon(Icons.add),
                           onPressed: () async {
-                            Get.dialog(
+                            showAppDialog(
                               BlackListTagSearchDialog(
                                 onSave: (tags) async {
                                   final currentTagIds = controller.blacklistTags

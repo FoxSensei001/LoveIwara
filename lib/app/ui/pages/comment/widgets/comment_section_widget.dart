@@ -78,14 +78,14 @@ class _CommentSectionState extends State<CommentSection> {
   Widget _buildShimmerItem() {
     return Shimmer.fromColors(
       baseColor: Theme.of(
-        Get.context!,
+        context,
       ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-      highlightColor: Theme.of(Get.context!).colorScheme.surface,
+      highlightColor: Theme.of(context).colorScheme.surface,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         padding: const EdgeInsets.all(12.0),
         decoration: BoxDecoration(
-          color: Theme.of(Get.context!).colorScheme.surface,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(8.0),
         ),
         child: Row(
@@ -97,7 +97,7 @@ class _CommentSectionState extends State<CommentSection> {
               height: 40.0,
               decoration: BoxDecoration(
                 color: Theme.of(
-                  Get.context!,
+                  context,
                 ).colorScheme.surfaceContainerHighest,
                 shape: BoxShape.circle,
               ),
@@ -113,7 +113,7 @@ class _CommentSectionState extends State<CommentSection> {
                     width: 120.0,
                     decoration: BoxDecoration(
                       color: Theme.of(
-                        Get.context!,
+                        context,
                       ).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(4.0),
                     ),
@@ -123,7 +123,7 @@ class _CommentSectionState extends State<CommentSection> {
                     height: 12.0,
                     decoration: BoxDecoration(
                       color: Theme.of(
-                        Get.context!,
+                        context,
                       ).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(4.0),
                     ),
@@ -134,7 +134,7 @@ class _CommentSectionState extends State<CommentSection> {
                     width: 200.0,
                     decoration: BoxDecoration(
                       color: Theme.of(
-                        Get.context!,
+                        context,
                       ).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(4.0),
                     ),
@@ -144,7 +144,7 @@ class _CommentSectionState extends State<CommentSection> {
                     height: 10.0,
                     width: 80.0,
                     decoration: BoxDecoration(
-                      color: Theme.of(Get.context!)
+                      color: Theme.of(context)
                           .colorScheme
                           .surfaceContainerHighest
                           .withValues(alpha: 0.5),

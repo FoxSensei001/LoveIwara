@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/my_app.dart' show buildThemeData;
+import 'package:i_iwara/app/my_app.dart' show buildThemeData, appLightTheme, appDarkTheme, appThemeMode;
 import 'package:i_iwara/common/constants.dart';
 import '../models/theme_mode.model.dart';
 
@@ -134,28 +134,24 @@ class ThemeService extends GetxService {
     _themeMode.value = mode;
     Get.find<ConfigService>()[ConfigKey.THEME_MODE_KEY] = mode.index;
     CommonConstants.themeMode = mode.index;
-    
-    // 更新 GetMaterialApp 的 themeMode
-    Get.changeThemeMode(
-      mode == AppThemeMode.system
-          ? ThemeMode.system
-          : mode == AppThemeMode.light
-              ? ThemeMode.light
-              : ThemeMode.dark
-    );
-    
+
+    // 更新响应式 themeMode 变量
+    appThemeMode.value = mode == AppThemeMode.system
+        ? ThemeMode.system
+        : mode == AppThemeMode.light
+            ? ThemeMode.light
+            : ThemeMode.dark;
+
     // 更新主题颜色
     _updateTheme();
   }
 
   void _updateTheme() {
-    if (Get.context == null) return;
-
     final bool systemIsLight = WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.light;
     ColorScheme colorScheme;
 
-    if (_useDynamicColor.value && 
-        CommonConstants.dynamicLightColorScheme != null && 
+    if (_useDynamicColor.value &&
+        CommonConstants.dynamicLightColorScheme != null &&
         CommonConstants.dynamicDarkColorScheme != null) {
       // 使用动态颜色
       colorScheme = _themeMode.value == AppThemeMode.light
@@ -180,9 +176,8 @@ class ThemeService extends GetxService {
       );
     }
 
-    Get.changeTheme(buildThemeData(
-      colorScheme: colorScheme,
-    ));
+    // 使用响应式变量代替 Get.changeTheme
+    appLightTheme.value = buildThemeData(colorScheme: colorScheme);
   }
 
   Future<ThemeService> init() async {

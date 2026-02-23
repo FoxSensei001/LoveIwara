@@ -13,7 +13,6 @@ import '../models/user_avatar.model.dart';
 import '../models/user_notifications.model.dart';
 import '../models/api_result.model.dart';
 import '../models/user.model.dart';
-import '../routes/app_routes.dart';
 import 'login_service.dart';
 import 'api_service.dart';
 import 'auth_service.dart';
@@ -270,7 +269,7 @@ class UserService extends GetxService {
 
     // 登录
     if (!_authService.hasToken) {
-      Get.toNamed(Routes.LOGIN);
+      LoginService.showLogin();
       return ApiResult.fail(t.errors.pleaseLoginFirst);
     }
 
@@ -292,7 +291,7 @@ class UserService extends GetxService {
 
     // 登录
     if (!_authService.hasToken) {
-      Get.toNamed(Routes.LOGIN);
+      LoginService.showLogin();
       return ApiResult.fail(t.errors.pleaseLoginFirst);
     }
 
@@ -314,7 +313,7 @@ class UserService extends GetxService {
 
     // 登录
     if (!_authService.hasToken) {
-      Get.toNamed(Routes.LOGIN);
+      LoginService.showLogin();
       return ApiResult.fail(t.errors.pleaseLoginFirst);
     }
 

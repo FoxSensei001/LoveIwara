@@ -87,10 +87,12 @@ class _MessageListWidgetState extends State<MessageListWidget> {
 
     return AppBar(
       // 窄屏来的要显示返回按钮
-      leading: widget.fromNarrowScreen ? IconButton(
-        onPressed: () => AppService.tryPop(),
-        icon: const Icon(Icons.arrow_back),
-      ) : const SizedBox.shrink(),
+      leading: widget.fromNarrowScreen
+          ? IconButton(
+              onPressed: () => AppService.tryPop(),
+              icon: const Icon(Icons.arrow_back),
+            )
+          : const SizedBox.shrink(),
       centerTitle: true,
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -100,10 +102,7 @@ class _MessageListWidgetState extends State<MessageListWidget> {
           buildUserName(context, otherParticipant, fontSize: 16),
           Text(
             '@${otherParticipant.username}',
-            style: TextStyle(
-              fontSize: 12,
-              color: Theme.of(context).hintColor,
-            ),
+            style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
           ),
         ],
       ),
@@ -111,18 +110,22 @@ class _MessageListWidgetState extends State<MessageListWidget> {
         StreamBuilder<Iterable<MessageModel>>(
           stream: _messageListRepository.rebuild,
           builder: (context, snapshot) {
-            final isLoading = _messageListRepository.isLoading && _messageListRepository.isEmpty;
+            final isLoading =
+                _messageListRepository.isLoading &&
+                _messageListRepository.isEmpty;
             return IconButton(
-              onPressed: isLoading ? null : () => _messageListRepository.refresh(true),
+              onPressed: isLoading
+                  ? null
+                  : () => _messageListRepository.refresh(true),
               icon: isLoading
-                ? Shimmer.fromColors(
-                    baseColor: Colors.grey[300]!,
-                    highlightColor: Colors.grey[100]!,
-                    child: const Icon(Icons.refresh),
-                  )
-                : const Icon(Icons.refresh),
+                  ? Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: const Icon(Icons.refresh),
+                    )
+                  : const Icon(Icons.refresh),
             );
-          }
+          },
         ),
       ],
     );
@@ -130,7 +133,7 @@ class _MessageListWidgetState extends State<MessageListWidget> {
 
   Widget? _buildIndicator(BuildContext context, IndicatorStatus status) {
     Widget? widget;
-    
+
     switch (status) {
       case IndicatorStatus.none:
         return null;
@@ -162,7 +165,10 @@ class _MessageListWidgetState extends State<MessageListWidget> {
               onTap: () => _messageListRepository.errorRefresh(),
               borderRadius: BorderRadius.circular(12),
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 16,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
@@ -228,10 +234,7 @@ class _MessageListWidgetState extends State<MessageListWidget> {
         return SliverFillRemaining(
           hasScrollBody: false,
           child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: widget,
-            ),
+            child: Padding(padding: const EdgeInsets.all(16.0), child: widget),
           ),
         );
       case IndicatorStatus.noMoreLoad:
@@ -297,17 +300,9 @@ class _MessageListWidgetState extends State<MessageListWidget> {
               children: [
                 Row(
                   children: [
-                    Container(
-                      width: 100,
-                      height: 14,
-                      color: Colors.white,
-                    ),
+                    Container(width: 100, height: 14, color: Colors.white),
                     const SizedBox(width: 8),
-                    Container(
-                      width: 50,
-                      height: 12,
-                      color: Colors.white,
-                    ),
+                    Container(width: 50, height: 12, color: Colors.white),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -329,7 +324,8 @@ class _MessageListWidgetState extends State<MessageListWidget> {
 
   Widget _buildMessageItem(BuildContext context, MessageModel message) {
     final bool isMe = message.user.id == _userService.currentUser.value?.id;
-    final ConversationService conversationService = Get.find<ConversationService>();
+    final ConversationService conversationService =
+        Get.find<ConversationService>();
 
     Future<void> showDeleteConfirmation() async {
       await showModalBottomSheet(
@@ -348,7 +344,9 @@ class _MessageListWidgetState extends State<MessageListWidget> {
                   subtitle: Text(t.conversation.deleteThisMessageSubtitle),
                   onTap: () async {
                     Navigator.pop(context);
-                    final result = await conversationService.deleteMessage(message.id);
+                    final result = await conversationService.deleteMessage(
+                      message.id,
+                    );
                     if (result.isSuccess) {
                       _messageListRepository.refresh(true);
                     }
@@ -366,9 +364,10 @@ class _MessageListWidgetState extends State<MessageListWidget> {
       );
     }
 
-    void showTranslationDialog() {
-      Get.dialog(
-        TranslationDialog(text: message.body),
+    void showMessageTranslationDialog() {
+      showTranslationDialog(
+        context,
+        text: message.body,
         barrierDismissible: true,
       );
     }
@@ -376,26 +375,34 @@ class _MessageListWidgetState extends State<MessageListWidget> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: isMe
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (!isMe) MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: () => NaviService.navigateToAuthorProfilePage(message.user.username),
-              child: _buildAvatar(message.user),
+          if (!isMe)
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () => NaviService.navigateToAuthorProfilePage(
+                  message.user.username,
+                ),
+                child: _buildAvatar(message.user),
+              ),
             ),
-          ),
           const SizedBox(width: 8),
           Flexible(
             child: Column(
-              crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              crossAxisAlignment: isMe
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Column(
-                    crossAxisAlignment:
-                        isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                    crossAxisAlignment: isMe
+                        ? CrossAxisAlignment.end
+                        : CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       // 第一行显示用户名
@@ -403,8 +410,15 @@ class _MessageListWidgetState extends State<MessageListWidget> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           GestureDetector(
-                            onTap: () => NaviService.navigateToAuthorProfilePage(message.user.username),
-                            child: buildUserName(context, message.user, fontSize: 13),
+                            onTap: () =>
+                                NaviService.navigateToAuthorProfilePage(
+                                  message.user.username,
+                                ),
+                            child: buildUserName(
+                              context,
+                              message.user,
+                              fontSize: 13,
+                            ),
                           ),
                         ],
                       ),
@@ -414,7 +428,9 @@ class _MessageListWidgetState extends State<MessageListWidget> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            CommonUtils.formatFriendlyTimestamp(message.createdAt),
+                            CommonUtils.formatFriendlyTimestamp(
+                              message.createdAt,
+                            ),
                             style: TextStyle(
                               fontSize: 12,
                               color: Theme.of(context).hintColor,
@@ -428,7 +444,7 @@ class _MessageListWidgetState extends State<MessageListWidget> {
                                 size: 18,
                                 color: Theme.of(context).hintColor,
                               ),
-                              onPressed: showTranslationDialog,
+                              onPressed: showMessageTranslationDialog,
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(
                                 minWidth: 24,
@@ -457,7 +473,7 @@ class _MessageListWidgetState extends State<MessageListWidget> {
                                 size: 18,
                                 color: Theme.of(context).hintColor,
                               ),
-                              onPressed: showTranslationDialog,
+                              onPressed: showMessageTranslationDialog,
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(
                                 minWidth: 24,
@@ -472,7 +488,9 @@ class _MessageListWidgetState extends State<MessageListWidget> {
                 ),
                 const SizedBox(height: 2),
                 Row(
-                  mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+                  mainAxisAlignment: isMe
+                      ? MainAxisAlignment.end
+                      : MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Flexible(
@@ -480,13 +498,19 @@ class _MessageListWidgetState extends State<MessageListWidget> {
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: isMe
-                              ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
+                              ? Theme.of(
+                                  context,
+                                ).primaryColor.withValues(alpha: 0.1)
                               : Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(16),
-                          border: !isMe ? Border.all(
-                            color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
-                            width: 0.5,
-                          ) : null,
+                          border: !isMe
+                              ? Border.all(
+                                  color: Theme.of(
+                                    context,
+                                  ).dividerColor.withValues(alpha: 0.5),
+                                  width: 0.5,
+                                )
+                              : null,
                         ),
                         child: CustomMarkdownBody(
                           data: message.body,
@@ -502,23 +526,23 @@ class _MessageListWidgetState extends State<MessageListWidget> {
             ),
           ),
           const SizedBox(width: 8),
-          if (isMe) MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: () => NaviService.navigateToAuthorProfilePage(message.user.username),
-              child: _buildAvatar(message.user),
+          if (isMe)
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () => NaviService.navigateToAuthorProfilePage(
+                  message.user.username,
+                ),
+                child: _buildAvatar(message.user),
+              ),
             ),
-          ),
         ],
       ),
     );
   }
 
   Widget _buildAvatar(User user) {
-    return AvatarWidget(
-      user: user,
-      size: 40,
-    );
+    return AvatarWidget(user: user, size: 40);
   }
 
   Widget _buildBottomBar() {
@@ -528,7 +552,7 @@ class _MessageListWidgetState extends State<MessageListWidget> {
           8.0,
           4.0,
           8.0,
-          4.0 + (Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0),
+          4.0 + MediaQuery.of(context).padding.bottom,
         ),
         child: Row(
           children: [
@@ -548,20 +572,19 @@ class _MessageListWidgetState extends State<MessageListWidget> {
                   );
                 },
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24),
-                    side: BorderSide(
-                      color: Theme.of(context).dividerColor,
-                    ),
+                    side: BorderSide(color: Theme.of(context).dividerColor),
                   ),
                   alignment: Alignment.centerLeft,
                 ),
                 child: Text(
                   t.conversation.writeMessageHere,
-                  style: TextStyle(
-                    color: Theme.of(context).hintColor,
-                  ),
+                  style: TextStyle(color: Theme.of(context).hintColor),
                 ),
               ),
             ),
@@ -574,10 +597,11 @@ class _MessageListWidgetState extends State<MessageListWidget> {
 
 class MessageListRepository extends LoadingMoreBase<MessageModel> {
   final String conversationId;
-  final ConversationService _conversationService = Get.find<ConversationService>();
+  final ConversationService _conversationService =
+      Get.find<ConversationService>();
   String? _lastMessageTime;
   bool _hasMoreMessages = true;
-  
+
   MessageListRepository(this.conversationId);
 
   @override
@@ -587,8 +611,10 @@ class MessageListRepository extends LoadingMoreBase<MessageModel> {
   Future<bool> loadData([bool isLoadMoreAction = false]) async {
     try {
       // 第一次加载使用当前时间,之后使用上一次结果的last时间
-      final before = isLoadMoreAction ? _lastMessageTime : DateTime.now().toIso8601String();
-      
+      final before = isLoadMoreAction
+          ? _lastMessageTime
+          : DateTime.now().toIso8601String();
+
       final result = await _conversationService.getMessages(
         conversationId,
         before: before,
@@ -597,7 +623,7 @@ class MessageListRepository extends LoadingMoreBase<MessageModel> {
 
       if (result.isSuccess && result.data != null) {
         final data = result.data!;
-        
+
         if (data.results.isEmpty) {
           _hasMoreMessages = false;
           return true;
@@ -605,11 +631,11 @@ class MessageListRepository extends LoadingMoreBase<MessageModel> {
 
         // 记录最后一条消息的时间，用于下次加载
         _lastMessageTime = data.last.toIso8601String();
-        
+
         // API返回的消息是从旧到新排序，但我们需要新消息在前面
         // 所以每次都需要反转消息顺序
         final reversedMessages = data.results.reversed.toList();
-        
+
         // 第一次加载时，直接添加到列表前面
         // 加载更多时，添加到列表后面
         if (isLoadMoreAction) {
@@ -620,7 +646,7 @@ class MessageListRepository extends LoadingMoreBase<MessageModel> {
 
         // 如果返回的消息数量小于请求的数量，说明没有更多消息了
         _hasMoreMessages = data.results.length >= 2;
-        
+
         return true;
       }
       return false;
@@ -642,4 +668,4 @@ class MessageListRepository extends LoadingMoreBase<MessageModel> {
     super.dispose();
     clear();
   }
-} 
+}

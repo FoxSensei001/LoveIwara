@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/routes/app_routes.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class AITranslationToggleButton extends StatelessWidget {
@@ -26,9 +26,9 @@ class AITranslationToggleButton extends StatelessWidget {
           return ElevatedButton.icon(
             onPressed: () {
               if (closeDialogsBeforeNavigate) {
-                Get.closeAllDialogs();
+                AppService.tryPop(context: context);
               }
-              Get.toNamed(Routes.AI_TRANSLATION_SETTINGS_PAGE);
+              NaviService.navigateToTranslationSettingsPage();
             },
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -52,9 +52,9 @@ class AITranslationToggleButton extends StatelessWidget {
           return ElevatedButton.icon(
             onPressed: () {
               if (closeDialogsBeforeNavigate) {
-                Get.closeAllDialogs();
+                AppService.tryPop(context: context);
               }
-              Get.toNamed(Routes.AI_TRANSLATION_SETTINGS_PAGE);
+              NaviService.navigateToTranslationSettingsPage();
             },
             icon: Icon(
               Icons.auto_awesome,
@@ -121,4 +121,4 @@ class AITranslationToggleButton extends StatelessWidget {
       }
     });
   }
-} 
+}

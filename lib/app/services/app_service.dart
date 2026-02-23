@@ -1,57 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import 'package:i_iwara/app/models/message_and_conversation.model.dart';
-import 'package:i_iwara/app/models/post.model.dart';
-import 'package:i_iwara/app/ui/pages/conversation/conversation_page.dart';
-import 'package:i_iwara/app/ui/pages/conversation/widgets/message_list_widget.dart';
-import 'package:i_iwara/app/ui/pages/favorite/favorite_folder_detail_page.dart';
-import 'package:i_iwara/app/ui/pages/favorite/favorite_list_page.dart';
-import 'package:i_iwara/app/ui/pages/favorites/my_favorites.dart';
-import 'package:i_iwara/app/ui/pages/follows/follows_page.dart';
-import 'package:i_iwara/app/ui/pages/forum/thread_detail_page.dart';
-import 'package:i_iwara/app/ui/pages/forum/thread_list_page.dart';
-import 'package:i_iwara/app/ui/pages/friends/friends_page.dart';
-import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
-import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/my_gallery_photo_view_wrapper.dart';
-import 'package:i_iwara/app/ui/pages/history/history_list_page.dart';
-import 'package:i_iwara/app/ui/pages/notifications/notification_list_page.dart';
-import 'package:i_iwara/app/ui/pages/play_list/play_list.dart';
-import 'package:i_iwara/app/ui/pages/play_list/play_list_detail.dart';
-import 'package:i_iwara/app/ui/pages/settings/layout_settings_page.dart';
-import 'package:i_iwara/app/ui/pages/settings/navigation_order_settings_page.dart';
-import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
-import 'package:i_iwara/app/ui/pages/tag_blacklist/tag_blacklist_page.dart';
-import 'package:i_iwara/app/ui/pages/tag_videos/tag_gallery_list_page.dart';
-import 'package:i_iwara/app/ui/pages/home/home_navigation_layout.dart';
-import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
-import 'package:i_iwara/app/ui/pages/video_detail/video_detail_page_v2.dart';
-import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/my_video_screen.dart';
-import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
-import 'package:i_iwara/app/ui/pages/download/gallery_download_task_detail_page.dart';
-import 'package:i_iwara/app/ui/pages/tag_videos/tag_video_list_page.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
-import 'package:i_iwara/app/ui/pages/emoji_library/emoji_library_page.dart';
+import 'package:i_iwara/app/models/download/download_task.model.dart';
+import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:i_iwara/utils/proxy/proxy_util.dart';
-
-import '../routes/app_routes.dart';
-import '../ui/pages/author_profile/author_profile_page.dart';
-import '../ui/pages/gallery_detail/gallery_detail_page.dart';
-import '../ui/pages/search/search_result.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
-import '../ui/pages/post_detail/post_detail_page.dart';
-import 'package:i_iwara/app/models/download/download_task.model.dart';
-import 'package:i_iwara/app/ui/pages/profile/personal_profile_page.dart';
+import 'package:i_iwara/utils/proxy/proxy_util.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 
-/// 定义转场动画类型
-enum TransitionType {
-  slideRight, // 从右向左滑动
-  fade, // 淡入淡出
-  none, // 无动画
-}
+import '../routes/app_router.dart';
+import 'pop_coordinator.dart';
 
 class AppService extends GetxService {
   // 默认标题栏高度
@@ -61,6 +24,11 @@ class AppService extends GetxService {
   final RxBool _showRailNavi = true.obs; // 是否显示侧边栏 [ Home路由下使用 ]
   final RxBool _showBottomNavi = true.obs; // 是否显示底部导航栏 [ Home路由下使用 ]
   final RxInt _currentIndex = 0.obs; // 当前底部/侧边导航栏索引
+
+  /// StatefulShellRoute 的 navigationShell 引用，
+  /// 由 StatefulShellRoute builder 设置，
+  /// 供 HomeShellScaffold NavigationRail/BottomNav tab 切换使用。
+  StatefulNavigationShell? navigationShell;
 
   // 导航项配置
   static Map<String, NavigationItem> navigationItems = {
@@ -92,11 +60,6 @@ class AppService extends GetxService {
 
   static final GlobalKey<ScaffoldState> globalDrawerKey =
       GlobalKey<ScaffoldState>();
-
-  // 获取Home页面的navigatorKey
-  static final GlobalKey<NavigatorState> homeNavigatorKey = Get.nestedKey(
-    Routes.HOME,
-  )!.navigatorKey;
 
   AppService() {
     if (GetPlatform.isDesktop) {
@@ -142,29 +105,36 @@ class AppService extends GetxService {
     _currentIndex.value = value;
   }
 
-  static void tryPop({bool closeAll = false}) {
-    if (globalDrawerKey.currentState?.isDrawerOpen ?? false) {
-      globalDrawerKey.currentState!.openEndDrawer();
-    } else if (Get.isDialogOpen ?? Get.isBottomSheetOpen ?? false) {
-      if (closeAll) {
-        // 如果需要关闭所有，使用原来的逻辑
-        Get.close(closeAll: true);
-      } else {
-        // 只关闭当前显示的 dialog 或 bottom sheet
-        Get.closeOverlay();
-      }
-    } else if (SettingsPage.canPopInternally()) {
-      // 优先处理SettingsPage的内部返回
-      SettingsPage.popInternally();
-    } else {
-      GetDelegate? homeDele = Get.nestedKey(Routes.HOME);
-      if (homeDele?.navigatorKey.currentState?.canPop() ?? false) {
-        homeDele?.navigatorKey.currentState?.pop();
-      } else {
-        // 退出应用
-        SystemNavigator.pop();
-      }
+  static void tryPop({BuildContext? context, bool closeAll = false}) {
+    final ctx = context ?? rootNavigatorKey.currentContext;
+    if (ctx == null) {
+      LogUtils.w(
+        'tryPop: context is null, fallback SystemNavigator.pop',
+        'AppService',
+      );
+      SystemNavigator.pop();
+      return;
     }
+
+    final route = ModalRoute.of(ctx);
+    LogUtils.d(
+      'tryPop: closeAll=$closeAll, '
+          'routeType=${route?.runtimeType}, '
+          'routeCurrent=${route?.isCurrent}, '
+          'rootCanPop=${rootNavigatorKey.currentState?.canPop() ?? false}, '
+          'shellCanPop=${shellNavigatorKey.currentState?.canPop() ?? false}, '
+          'appRouterCanPop=${appRouter.canPop()}',
+      'AppService',
+    );
+
+    if (closeAll) {
+      // Close overlays/drawer/internal panels until none remains.
+      var safety = 16;
+      while (safety-- > 0 && PopCoordinator.tryCloseOverlayOrDrawer()) {}
+      return;
+    }
+
+    PopCoordinator.handleBack(ctx);
   }
 
   void hideSystemUI({bool hideTitleBar = true, bool hideRailNavi = true}) {
@@ -195,76 +165,14 @@ class NavigationItem {
 }
 
 class NaviService {
-  /// 通用页面导航方法
-  static void _navigateToPage({
-    required String routeName,
-    required Widget page,
-    Duration transitionDuration = const Duration(milliseconds: 200),
-    TransitionType transitionType = TransitionType.slideRight,
-    bool replaceCurrent = false,
-  }) {
-    final navigatorState = AppService.homeNavigatorKey.currentState;
-    if (navigatorState == null) return;
-
-    Route<dynamic> route;
-
-    if (transitionType == TransitionType.slideRight) {
-      // 使用 DialogAwareMaterialPageRoute 以支持 Android 预测式返回手势，
-      // 同时在弹窗打开时让出返回手势给弹窗处理
-      route = DialogAwareMaterialPageRoute(
-        settings: RouteSettings(name: routeName),
-        builder: (context) => page,
-      );
-    } else {
-      // fade / none 等非标准过渡仍使用 PageRouteBuilder
-      route = PageRouteBuilder(
-        settings: RouteSettings(name: routeName),
-        pageBuilder: (context, animation, secondaryAnimation) {
-          return page;
-        },
-        transitionDuration: transitionDuration,
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          switch (transitionType) {
-            case TransitionType.fade:
-              return FadeTransition(opacity: animation, child: child);
-            case TransitionType.none:
-              return child;
-            case TransitionType.slideRight:
-              return child; // 不会走到这里
-          }
-        },
-      );
-    }
-
-    if (replaceCurrent) {
-      navigatorState.pushReplacement(route);
-    } else {
-      navigatorState.push(route);
-    }
-  }
-
   /// 跳转到作者个人主页
   static void navigateToAuthorProfilePage(String username) {
-    _navigateToPage(
-      routeName: Routes.AUTHOR_PROFILE(username),
-      page: AuthorProfilePage(username: username),
-    );
+    appRouter.push('/author_profile/$username');
   }
 
   /// 跳转到图库详情页
   static void navigateToGalleryDetailPage(String id) {
-    _navigateToPage(
-      routeName: Routes.GALLERY_DETAIL(id),
-      page: GalleryDetailPage(imageModelId: id),
-    );
-  }
-
-  /// 跳转到视频详情页
-  static bool _isVideoDetailOnTop() {
-    final routes = HomeNavigationLayout.homeNavigatorObserver.routes;
-    if (routes.isEmpty) return false;
-    final currentRouteName = routes.last.settings.name;
-    return currentRouteName?.contains(Routes.VIDEO_DETAIL_PREFIX) ?? false;
+    appRouter.push('/gallery_detail/$id');
   }
 
   /// 跳转到视频详情页
@@ -272,17 +180,15 @@ class NaviService {
     String id, [
     Map<String, dynamic>? extData,
   ]) {
-    final shouldReplace = _isVideoDetailOnTop();
-    _navigateToPage(
-      routeName: Routes.VIDEO_DETAIL(id),
-      page: MyVideoDetailPage(videoId: id, extData: extData),
-      replaceCurrent: shouldReplace,
+    appRouter.push(
+      '/video_detail/$id',
+      extra: extData != null ? VideoDetailExtra(extData: extData) : null,
     );
   }
 
   /// 跳转到登录页
   static void navigateToSignInPage() {
-    Get.toNamed(Routes.SIGN_IN);
+    appRouter.push('/sign_in');
   }
 
   /// 跳转到搜索结果页
@@ -294,66 +200,48 @@ class NaviService {
     List<Filter>? filters,
     String? sort,
   }) {
-    _navigateToPage(
-      routeName: Routes.SEARCH_RESULT,
-      page: SearchResult(
-        initialSearch: searchInfo,
-        initialSegment: segment,
-        initialSearchType: searchType,
+    appRouter.push(
+      '/search_result',
+      extra: SearchResultExtra(
+        searchInfo: searchInfo,
+        segment: segment,
+        searchType: searchType,
         extData: extData,
-        initialFilters: filters,
-        initialSort: sort,
+        filters: filters,
+        sort: sort,
       ),
     );
   }
 
   /// 跳转到播放列表详情页
   static void navigateToPlayListDetail(String id, {bool isMine = false}) {
-    _navigateToPage(
-      routeName: Routes.PLAYLIST_DETAIL(id),
-      page: PlayListDetailPage(playlistId: id, isMine: isMine),
+    appRouter.push(
+      '/playlist_detail/$id',
+      extra: PlayListDetailExtra(isMine: isMine),
     );
   }
 
   /// 跳转到播放列表页
   static void navigateToPlayListPage(String userId, {bool isMine = false}) {
-    _navigateToPage(
-      routeName: Routes.PLAY_LIST,
-      page: PlayListPage(userId: userId, isMine: isMine),
+    appRouter.push(
+      '/play_list',
+      extra: PlayListExtra(userId: userId, isMine: isMine),
     );
   }
 
   /// 跳转到最爱页
   static void navigateToFavoritePage() {
-    _navigateToPage(routeName: Routes.FAVORITE, page: const MyFavorites());
+    appRouter.push('/favorite');
   }
 
   /// 跳转到好友列表页
   static void navigateToFriendsPage() {
-    _navigateToPage(routeName: Routes.FRIENDS, page: const FriendsPage());
+    appRouter.push('/friends');
   }
 
   /// 跳转到历史记录列表页
   static void navigateToHistoryListPage() {
-    _navigateToPage(
-      routeName: Routes.HISTORY_LIST,
-      page: const HistoryListPage(),
-    );
-  }
-
-  /// 跳转到全屏视频播放页
-  static void navigateToFullScreenVideoPlayerScreenPage(
-    MyVideoStateController myVideoStateController,
-  ) {
-    _navigateToPage(
-      routeName: Routes.FULL_SCREEN_VIDEO_PLAYER_SCREEN,
-      page: MyVideoScreen(
-        isFullScreen: true,
-        myVideoStateController: myVideoStateController,
-      ),
-      transitionType: TransitionType.none,
-      transitionDuration: Duration.zero,
-    );
+    appRouter.push('/history_list');
   }
 
   static void navigateToFollowingListPage(
@@ -361,10 +249,9 @@ class NaviService {
     String name,
     String username,
   ) {
-    _navigateToPage(
-      routeName: Routes.FOLLOWING_LIST(userId),
-      page: FollowsPage(
-        userId: userId,
+    appRouter.push(
+      '/following_list/$userId',
+      extra: FollowsPageExtra(
         name: name,
         username: username,
         initIsFollowing: true,
@@ -377,10 +264,9 @@ class NaviService {
     String name,
     String username,
   ) {
-    _navigateToPage(
-      routeName: Routes.FOLLOWERS_LIST(userId),
-      page: FollowsPage(
-        userId: userId,
+    appRouter.push(
+      '/followers_list/$userId',
+      extra: FollowsPageExtra(
         name: name,
         username: username,
         initIsFollowing: false,
@@ -393,10 +279,9 @@ class NaviService {
     String name,
     String username,
   ) {
-    _navigateToPage(
-      routeName: Routes.FOLLOWING_LIST(userId), // Reusing following list route
-      page: FollowsPage(
-        userId: userId,
+    appRouter.push(
+      '/following_list/$userId',
+      extra: FollowsPageExtra(
         name: name,
         username: username,
         initIsFollowing: true,
@@ -406,11 +291,8 @@ class NaviService {
   }
 
   /// 跳转到帖子详情页
-  static void navigateToPostDetailPage(String id, PostModel? post) {
-    _navigateToPage(
-      routeName: Routes.POST_DETAIL(id),
-      page: PostDetailPage(postId: id),
-    );
+  static void navigateToPostDetailPage(String id, dynamic post) {
+    appRouter.push('/post/$id');
   }
 
   /// 跳转到图片详情页
@@ -421,41 +303,30 @@ class NaviService {
     menuItemsBuilder,
     bool enableMenu = true,
   }) {
-    _navigateToPage(
-      routeName: Routes.PHOTO_VIEW_WRAPPER,
-      page: MyGalleryPhotoViewWrapper(
-        galleryItems: imageItems,
+    appRouter.push(
+      '/photo_view_wrapper',
+      extra: PhotoViewExtra(
+        imageItems: imageItems,
         initialIndex: initialIndex,
         menuItemsBuilder: menuItemsBuilder,
         enableMenu: enableMenu,
       ),
-      transitionDuration: const Duration(milliseconds: 300),
-      transitionType: TransitionType.fade,
     );
   }
 
   /// 跳转到标签黑名单页
   static void navigateToTagBlacklistPage() {
-    _navigateToPage(
-      routeName: Routes.TAG_BLACKLIST,
-      page: const TagBlacklistPage(),
-    );
+    appRouter.push('/tag_blacklist');
   }
 
   /// 跳转到个人资料页
   static void navigateToPersonalProfilePage() {
-    _navigateToPage(
-      routeName: Routes.PERSONAL_PROFILE,
-      page: const PersonalProfilePage(),
-    );
+    appRouter.push('/personal_profile');
   }
 
   /// 跳转到论坛帖子列表页
   static void navigateToForumThreadListPage(String categoryId) {
-    _navigateToPage(
-      routeName: Routes.FORUM_THREAD_LIST(categoryId),
-      page: ThreadListPage(categoryId: categoryId),
-    );
+    appRouter.push('/forum_threads/$categoryId');
   }
 
   /// 跳转到论坛帖子详情页
@@ -463,61 +334,37 @@ class NaviService {
     String categoryId,
     String threadId,
   ) {
-    _navigateToPage(
-      routeName: Routes.FORUM_THREAD_DETAIL(categoryId, threadId),
-      page: ThreadDetailPage(categoryId: categoryId, threadId: threadId),
-    );
+    appRouter.push('/forum_threads/$categoryId/$threadId');
   }
 
   /// 跳转到通知列表页
   static void navigateToNotificationListPage() {
-    _navigateToPage(
-      routeName: Routes.NOTIFICATION_LIST,
-      page: const NotificationListPage(),
-    );
+    appRouter.push('/notification_list');
   }
 
   /// 跳转到会话列表页
   static void navigateToConversationPage() {
-    _navigateToPage(
-      routeName: Routes.CONVERSATION,
-      page: const ConversationPage(),
-    );
+    appRouter.push('/conversation');
   }
 
   // 跳转到下载任务列表页
   static void navigateToDownloadTaskListPage() {
-    _navigateToPage(
-      routeName: Routes.DOWNLOAD_TASK_LIST,
-      page: const DownloadTaskListPage(),
-    );
+    appRouter.push('/download_task_list');
   }
 
   // 跳转到图库下载任务详情页
   static void navigateToGalleryDownloadTaskDetailPage(String taskId) {
-    _navigateToPage(
-      routeName: Routes.GALLERY_DOWNLOAD_TASK_DETAIL,
-      page: GalleryDownloadTaskDetailPage(taskId: taskId),
-    );
+    appRouter.push('/gallery_download_task_detail/$taskId');
   }
 
   /// 跳转到消息详情页
   static void navigateToMessagePage(ConversationModel conversation) {
-    _navigateToPage(
-      routeName: Routes.MESSAGE_DETAIL(conversation.id),
-      page: MessageListWidget(
-        conversation: conversation,
-        fromNarrowScreen: true,
-      ),
-    );
+    appRouter.push('/message_detail/${conversation.id}', extra: conversation);
   }
 
   /// 跳转到本地收藏页
   static void navigateToLocalFavoritePage() {
-    _navigateToPage(
-      routeName: Routes.LOCAL_FAVORITE,
-      page: const FavoriteListPage(),
-    );
+    appRouter.push('/local_favorite');
   }
 
   /// 跳转到本地收藏夹详情页
@@ -525,69 +372,50 @@ class NaviService {
     String folderId,
     String? folderTitle,
   ) {
-    _navigateToPage(
-      routeName: Routes.LOCAL_FAVORITE_DETAIL(folderId),
-      page: FavoriteFolderDetailPage(
-        folderId: folderId,
-        folderTitle: folderTitle,
-      ),
+    appRouter.push(
+      '/local_favorite_detail/$folderId',
+      extra: LocalFavoriteDetailExtra(folderTitle: folderTitle),
     );
   }
 
   /// 跳转到标签视频列表页
   static void navigateToTagVideoListPage(Tag tag) {
-    _navigateToPage(
-      routeName: Routes.TAG_VIDEOS(tag.id),
-      page: TagVideoListPage(tag: tag),
-    );
+    appRouter.push('/tag_videos/${tag.id}', extra: tag);
   }
 
   /// 跳转到标签图库列表页
   static void navigateToTagGalleryListPage(Tag tag) {
-    _navigateToPage(
-      routeName: Routes.TAG_GALLERIES(tag.id),
-      page: TagGalleryListPage(tag: tag),
-    );
+    appRouter.push('/tag_galleries/${tag.id}', extra: tag);
   }
 
   /// 跳转到表情包库页面
   static void navigateToEmojiLibraryPage() {
-    _navigateToPage(
-      routeName: Routes.EMOJI_LIBRARY,
-      page: const EmojiLibraryPage(),
-    );
+    appRouter.push('/emoji_library');
   }
 
   // 跳转到设置页
   static void navigateToSettingsPage() {
-    _navigateToPage(
-      routeName: Routes.SETTINGS_PAGE,
-      page: const SettingsPage(),
-    );
+    appRouter.push('/settings_page');
   }
 
   // 跳转到翻译设置页
   static void navigateToTranslationSettingsPage() {
-    _navigateToPage(
-      routeName: Routes.SETTINGS_PAGE,
-      page: SettingsPage(initialPage: ProxyUtil.isSupportedPlatform() ? 1 : 0),
+    appRouter.push(
+      '/settings_page',
+      extra: SettingsPageExtra(
+        initialPage: ProxyUtil.isSupportedPlatform() ? 1 : 0,
+      ),
     );
   }
 
   // 跳转到布局设置页
   static void navigateToLayoutSettingsPage() {
-    _navigateToPage(
-      routeName: Routes.LAYOUT_SETTINGS_PAGE,
-      page: const LayoutSettingsPage(),
-    );
+    appRouter.push('/layout_settings_page');
   }
 
   // 跳转到导航排序设置页
   static void navigateToNavigationOrderSettingsPage() {
-    _navigateToPage(
-      routeName: Routes.NAVIGATION_ORDER_SETTINGS_PAGE,
-      page: const NavigationOrderSettingsPage(),
-    );
+    appRouter.push('/navigation_order_settings_page');
   }
 
   /// 跳转到本地视频播放页面（从下载任务进入）
@@ -596,14 +424,12 @@ class NaviService {
     DownloadTask? task,
     List<DownloadTask>? allQualityTasks,
   }) {
-    // 生成随机 videoId 用于本地视频
     final uuid = Uuid();
     final randomVideoId = 'local_${uuid.v4()}';
 
-    _navigateToPage(
-      routeName: Routes.VIDEO_DETAIL(randomVideoId),
-      page: MyVideoDetailPage(
-        videoId: randomVideoId,
+    appRouter.push(
+      '/video_detail/$randomVideoId',
+      extra: VideoDetailExtra(
         localPath: localPath,
         localTask: task,
         localAllQualityTasks: allQualityTasks,
@@ -613,51 +439,12 @@ class NaviService {
 
   /// 跳转到本地视频播放页面（从外部文件路径进入）
   static void navigateToLocalVideoPlayerPageFromPath(String filePath) {
-    // 生成随机 videoId 用于本地视频
     final uuid = Uuid();
     final randomVideoId = 'local_${uuid.v4()}';
 
-    _navigateToPage(
-      routeName: Routes.VIDEO_DETAIL(randomVideoId),
-      page: MyVideoDetailPage(videoId: randomVideoId, localPath: filePath),
+    appRouter.push(
+      '/video_detail/$randomVideoId',
+      extra: VideoDetailExtra(localPath: filePath),
     );
-  }
-}
-
-/// 感知弹窗状态的 MaterialPageRoute。
-///
-/// 当根 Navigator 上存在 PopupRoute（Dialog / BottomSheet）时，
-/// [popGestureEnabled] 返回 false，使 PredictiveBackPageTransitionsBuilder
-/// 创建的 _PredictiveBackGestureDetector 不再拦截系统返回手势。
-///
-/// 这样返回手势将回退到 handlePopRoute() → GetDelegate.popRoute() →
-/// handlePopupRoutes()，从而正确地先关闭弹窗，再处理页面路由的返回。
-///
-/// 当没有弹窗时，行为与普通 MaterialPageRoute 完全一致，保留预测式返回动画。
-class DialogAwareMaterialPageRoute<T> extends MaterialPageRoute<T> {
-  DialogAwareMaterialPageRoute({
-    required super.builder,
-    super.settings,
-    super.maintainState,
-    super.fullscreenDialog,
-    super.allowSnapshotting,
-  });
-
-  @override
-  bool get popGestureEnabled {
-    // 检查根 Navigator 上是否有 PopupRoute（Dialog / BottomSheet）
-    // 使用与 GetDelegate.handlePopupRoutes() 相同的模式：
-    // popUntil((route) => true) 仅访问栈顶路由，不会实际 pop
-    try {
-      Route? topRoute;
-      Get.key.currentState?.popUntil((route) {
-        topRoute = route;
-        return true;
-      });
-      if (topRoute is PopupRoute) return false;
-    } catch (_) {
-      // Get.key 可能在初始化阶段不可用，安全回退
-    }
-    return super.popGestureEnabled;
   }
 }

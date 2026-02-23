@@ -8,6 +8,7 @@ import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/layouts.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class WelcomeStepWidget extends StatelessWidget {
   final String title;
@@ -28,12 +29,18 @@ class WelcomeStepWidget extends StatelessWidget {
     final configService = Get.find<ConfigService>();
 
     return StepResponsiveScaffold(
-      desktopBuilder: (context, theme) => _buildDesktopLayout(context, theme, configService),
-      mobileBuilder: (context, theme, isNarrow) => _buildMobileLayout(context, theme, isNarrow, configService),
+      desktopBuilder: (context, theme) =>
+          _buildDesktopLayout(context, theme, configService),
+      mobileBuilder: (context, theme, isNarrow) =>
+          _buildMobileLayout(context, theme, isNarrow, configService),
     );
   }
 
-  Widget _buildDesktopLayout(BuildContext context, ThemeData theme, ConfigService configService) {
+  Widget _buildDesktopLayout(
+    BuildContext context,
+    ThemeData theme,
+    ConfigService configService,
+  ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -83,7 +90,12 @@ class WelcomeStepWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildMobileLayout(BuildContext context, ThemeData theme, bool isNarrow, ConfigService configService) {
+  Widget _buildMobileLayout(
+    BuildContext context,
+    ThemeData theme,
+    bool isNarrow,
+    ConfigService configService,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -100,13 +112,17 @@ class WelcomeStepWidget extends StatelessWidget {
           ),
         ),
         SizedBox(height: isNarrow ? 20 : 32),
-            // 副标题
+        // 副标题
         Text(
           subtitle,
-          style: (isNarrow ? theme.textTheme.titleMedium : theme.textTheme.headlineSmall)?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: theme.colorScheme.onSurface,
-          ),
+          style:
+              (isNarrow
+                      ? theme.textTheme.titleMedium
+                      : theme.textTheme.headlineSmall)
+                  ?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.onSurface,
+                  ),
         ),
         SizedBox(height: isNarrow ? 20 : 32),
         // 描述
@@ -131,13 +147,16 @@ class WelcomeStepWidget extends StatelessWidget {
     ConfigService configService,
   ) {
     return Obx(() {
-      final currentLabel = _languageOptions[_currentLocaleKey(configService)] ?? '';
+      final currentLabel =
+          _languageOptions[_currentLocaleKey(configService)] ?? '';
       return Container(
         padding: EdgeInsets.all(isNarrow ? 12 : 16),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(isNarrow ? 12 : 16),
-          border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+          border: Border.all(
+            color: theme.colorScheme.outline.withValues(alpha: 0.2),
+          ),
         ),
         child: Row(
           children: [
@@ -160,10 +179,14 @@ class WelcomeStepWidget extends StatelessWidget {
                 children: [
                   Text(
                     slang.t.settings.language,
-                    style: (isNarrow ? theme.textTheme.bodyMedium : theme.textTheme.titleSmall)?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.onSurface,
-                    ),
+                    style:
+                        (isNarrow
+                                ? theme.textTheme.bodyMedium
+                                : theme.textTheme.titleSmall)
+                            ?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.onSurface,
+                            ),
                   ),
                   SizedBox(height: isNarrow ? 2 : 4),
                   Text(
@@ -213,7 +236,7 @@ class WelcomeStepWidget extends StatelessWidget {
   }
 
   void _showLanguageDialog(BuildContext context, ConfigService configService) {
-    Get.dialog(
+    showAppDialog(
       AlertDialog(
         title: Row(
           children: [
@@ -228,32 +251,40 @@ class WelcomeStepWidget extends StatelessWidget {
             () => ConstrainedBox(
               constraints: const BoxConstraints(maxHeight: 360),
               child: RadioGroup<String>(
-                    groupValue: configService[ConfigKey.APPLICATION_LOCALE],
-                    onChanged: (String? value) async {
-                      if (value != null) {
-                        configService.updateApplicationLocale(value);
-                        if (value == 'system') {
-                          slang.LocaleSettings.useDeviceLocale();
-                        } else {
-                          slang.AppLocale? targetLocale;
-                          for (final locale in slang.AppLocale.values) {
-                            if (locale.languageTag.toLowerCase() == value.toLowerCase()) {
-                              targetLocale = locale;
-                              break;
-                            }
-                          }
-                          if (targetLocale != null) {
-                            slang.LocaleSettings.setLocale(targetLocale);
-                          }
+                groupValue: configService[ConfigKey.APPLICATION_LOCALE],
+                onChanged: (String? value) async {
+                  if (value != null) {
+                    configService.updateApplicationLocale(value);
+                    if (value == 'system') {
+                      slang.LocaleSettings.useDeviceLocale();
+                    } else {
+                      slang.AppLocale? targetLocale;
+                      for (final locale in slang.AppLocale.values) {
+                        if (locale.languageTag.toLowerCase() ==
+                            value.toLowerCase()) {
+                          targetLocale = locale;
+                          break;
                         }
-                        Get.forceAppUpdate();
-
-                        final String message = _resolveLanguageChangedMessage(value);
-                        showToastWidget(MDToastWidget(message: message, type: MDToastType.success));
-
-                        AppService.tryPop();
                       }
-                    },
+                      if (targetLocale != null) {
+                        slang.LocaleSettings.setLocale(targetLocale);
+                      }
+                    }
+                    Get.forceAppUpdate();
+
+                    final String message = _resolveLanguageChangedMessage(
+                      value,
+                    );
+                    showToastWidget(
+                      MDToastWidget(
+                        message: message,
+                        type: MDToastType.success,
+                      ),
+                    );
+
+                    AppService.tryPop();
+                  }
+                },
                 child: ListView(
                   shrinkWrap: true,
                   children: _languageOptions.entries.map((entry) {
@@ -262,8 +293,8 @@ class WelcomeStepWidget extends StatelessWidget {
                       value: entry.key,
                       dense: true,
                       contentPadding: EdgeInsets.zero,
-                  );
-                }).toList(),
+                    );
+                  }).toList(),
                 ),
               ),
             ),
@@ -271,7 +302,7 @@ class WelcomeStepWidget extends StatelessWidget {
         ),
         actions: <Widget>[
           TextButton(
-            onPressed: () => Get.back(),
+            onPressed: () => AppService.tryPop(context: context),
             child: Text(slang.t.common.cancel),
           ),
         ],
@@ -282,7 +313,8 @@ class WelcomeStepWidget extends StatelessWidget {
 
   // 与设置页一致：根据选择值/系统语言确定提示文案
   static const Map<String, String> _languageChangedMessages = {
-    'en': 'Language changed successfully, some features require restarting the app to take effect.',
+    'en':
+        'Language changed successfully, some features require restarting the app to take effect.',
     'ja': '言語が正常に変更されました。一部の機能はアプリを再起動して有効にする必要があります。',
     'zh-CN': '语言切换成功，部分功能需重启应用生效',
     'zh-TW': '語言切換成功，部分功能需重啟應用生效',
@@ -298,6 +330,7 @@ class WelcomeStepWidget extends StatelessWidget {
         localeKey = 'en';
       }
     }
-    return _languageChangedMessages[localeKey] ?? _languageChangedMessages['en']!;
+    return _languageChangedMessages[localeKey] ??
+        _languageChangedMessages['en']!;
   }
 }

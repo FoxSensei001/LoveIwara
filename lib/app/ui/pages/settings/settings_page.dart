@@ -34,11 +34,8 @@ class SettingsPage extends StatefulWidget {
     if (instance != null) {
       if (instance.enableTwoViews) {
         // 宽屏模式：使用内部导航
-        // 使用 DialogAwareMaterialPageRoute 以便在弹窗打开时让出预测式返回手势
         instance._nestedNavigatorKey.currentState?.push(
-          DialogAwareMaterialPageRoute(
-            builder: (context) => page,
-          ),
+          MaterialPageRoute(builder: (context) => page),
         );
       } else {
         // 窄屏模式：使用页面栈
@@ -53,9 +50,10 @@ class SettingsPage extends StatefulWidget {
     if (instance == null) {
       return false;
     }
-    return (instance.enableTwoViews && (instance._nestedNavigatorKey.currentState?.canPop() ?? false)) ||
-           (!instance.enableTwoViews && instance._pageStack.isNotEmpty) ||
-           instance.currentPage != -1;
+    return (instance.enableTwoViews &&
+            (instance._nestedNavigatorKey.currentState?.canPop() ?? false)) ||
+        (!instance.enableTwoViews && instance._pageStack.isNotEmpty) ||
+        instance.currentPage != -1;
   }
 
   // 新增静态方法，用于外部触发内部pop
@@ -160,7 +158,7 @@ class _SettingsPageState extends State<SettingsPage> {
       // 重置偏移量
       offset = 0;
     });
-    
+
     // 如果是宽屏模式，清除嵌套导航器的所有路由
     if (enableTwoViews) {
       _nestedNavigatorKey.currentState?.popUntil((route) => route.isFirst);
@@ -169,7 +167,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _handlePop() {
     // 宽屏模式下，先检查嵌套的Navigator是否可以pop
-    if (enableTwoViews && (_nestedNavigatorKey.currentState?.canPop() ?? false)) {
+    if (enableTwoViews &&
+        (_nestedNavigatorKey.currentState?.canPop() ?? false)) {
       _nestedNavigatorKey.currentState!.pop();
       return;
     }
@@ -190,19 +189,19 @@ class _SettingsPageState extends State<SettingsPage> {
     }
     // 如果已经在主设置列表，则pop整个SettingsPage
     if (Navigator.canPop(context)) {
-      Navigator.pop(context);
+      AppService.tryPop(context: context);
     } else {
-      AppService.tryPop();
+      AppService.tryPop(context: context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool canPop = !(
-      (enableTwoViews && (_nestedNavigatorKey.currentState?.canPop() ?? false)) ||
-      (!enableTwoViews && _pageStack.isNotEmpty) ||
-      currentPage != -1
-    );
+    final bool canPop =
+        !((enableTwoViews &&
+                (_nestedNavigatorKey.currentState?.canPop() ?? false)) ||
+            (!enableTwoViews && _pageStack.isNotEmpty) ||
+            currentPage != -1);
 
     return PopScope(
       canPop: canPop,
@@ -284,7 +283,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 AnimatedPositioned(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
-                  left: currentPage == -1 && _pageStack.isEmpty ? 0 : -constraints.maxWidth * 0.3,
+                  left: currentPage == -1 && _pageStack.isEmpty
+                      ? 0
+                      : -constraints.maxWidth * 0.3,
                   width: constraints.maxWidth,
                   top: 0,
                   bottom: 0,
@@ -312,7 +313,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     width: constraints.maxWidth,
                     top: 0,
                     bottom: 0,
-                    child: Material(elevation: 8 + index.toDouble(), child: page),
+                    child: Material(
+                      elevation: 8 + index.toDouble(),
+                      child: page,
+                    ),
                   );
                 }),
               ],
@@ -454,7 +458,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         Material(
                           color: isSelected
                               ? Theme.of(context).colorScheme.secondaryContainer
-                              .withValues(alpha: 0.3)
+                                    .withValues(alpha: 0.3)
                               : Colors.transparent,
                           child: InkWell(
                             onTap: () {
@@ -477,8 +481,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                     color: isSelected
                                         ? Theme.of(context).colorScheme.primary
                                         : Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
@@ -488,15 +492,15 @@ class _SettingsPageState extends State<SettingsPage> {
                                           .textTheme
                                           .bodyMedium
                                           ?.copyWith(
-                                        fontWeight: isSelected
-                                            ? FontWeight.w500
-                                            : FontWeight.normal,
-                                        color: isSelected
-                                            ? Theme.of(
-                                          context,
-                                        ).colorScheme.primary
-                                            : null,
-                                      ),
+                                            fontWeight: isSelected
+                                                ? FontWeight.w500
+                                                : FontWeight.normal,
+                                            color: isSelected
+                                                ? Theme.of(
+                                                    context,
+                                                  ).colorScheme.primary
+                                                : null,
+                                          ),
                                     ),
                                   ),
                                 ],
@@ -530,14 +534,13 @@ class _SettingsPageState extends State<SettingsPage> {
     if (currentPage == -1 && _pageStack.isEmpty) {
       return const SizedBox(); // 空页面
     }
-    
+
     // 如果是宽屏模式，使用Navigator来管理深层页面
     if (enableTwoViews) {
       return Navigator(
         key: _nestedNavigatorKey,
         onGenerateRoute: (settings) {
-          // 使用 DialogAwareMaterialPageRoute 以便在弹窗打开时让出预测式返回手势
-          return DialogAwareMaterialPageRoute(
+          return MaterialPageRoute(
             builder: (context) {
               return _getSettingsPage();
             },

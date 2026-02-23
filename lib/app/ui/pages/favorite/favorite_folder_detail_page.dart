@@ -238,7 +238,7 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
                       left: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
                       right: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
                       top: MediaQuery.of(context).size.width <= 600 ? 2.0 : 3.0,
-                      bottom: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0,
+                      bottom: MediaQuery.of(context).padding.bottom,
                     ),
                     lastChildLayoutType: LastChildLayoutType.foot,
                     indicatorBuilder: _buildIndicator,

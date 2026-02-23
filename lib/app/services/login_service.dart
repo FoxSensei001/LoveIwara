@@ -1,5 +1,5 @@
 // services/login_service.dart
-import 'package:get/get.dart';
+import 'package:i_iwara/app/routes/app_router.dart';
 import '../ui/pages/login/login_page_v2.dart';
 
 /// 全局登录服务，用于统一管理登录弹窗
@@ -12,7 +12,7 @@ class LoginService {
   /// 显示登录对话框
   /// 返回 true 表示登录成功，false 表示取消或失败
   static Future<bool> showLogin() async {
-    final context = Get.context;
+    final context = rootNavigatorKey.currentContext;
     if (context == null) return false;
 
     final result = await LoginDialog.show(context);

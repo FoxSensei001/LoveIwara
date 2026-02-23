@@ -37,7 +37,7 @@ class PlayerSettingsWidget extends StatelessWidget {
       children: [
         if (showInfoCard && infoMessage != null)
           Card(
-            color: Theme.of(Get.context!).primaryColor,
+            color: Theme.of(context).primaryColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -47,7 +47,7 @@ class PlayerSettingsWidget extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.info_outline,
-                    color: Get.isDarkMode ? Colors.white : null,
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -70,7 +70,7 @@ class PlayerSettingsWidget extends StatelessWidget {
           () => Container(
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             decoration: BoxDecoration(
-              color: Theme.of(Get.context!).cardColor,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
@@ -82,12 +82,12 @@ class PlayerSettingsWidget extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(iconData, color: Get.isDarkMode ? Colors.white : null),
+                Icon(iconData, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     label,
-                    style: Theme.of(Get.context!).textTheme.titleMedium
+                    style: Theme.of(context).textTheme.titleMedium
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -125,7 +125,7 @@ class PlayerSettingsWidget extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Theme.of(Get.context!).cardColor,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -147,7 +147,7 @@ class PlayerSettingsWidget extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(iconData, color: Get.isDarkMode ? Colors.white : null),
+            Icon(iconData, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -155,14 +155,14 @@ class PlayerSettingsWidget extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: Theme.of(Get.context!).textTheme.titleMedium
+                    style: Theme.of(context).textTheme.titleMedium
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   if (subtitle != null)
                     Text(
                       subtitle,
                       style: Theme.of(
-                        Get.context!,
+                        context,
                       ).textTheme.bodySmall?.copyWith(color: Colors.grey),
                     ),
                 ],
@@ -170,14 +170,14 @@ class PlayerSettingsWidget extends StatelessWidget {
             ),
             Text(
               optionLabels?[currentValue] ?? currentValue,
-              style: Theme.of(Get.context!).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(Get.context!).primaryColor,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).primaryColor,
               ),
             ),
             const SizedBox(width: 8),
             Icon(
               Icons.chevron_right,
-              color: Get.isDarkMode ? Colors.white : null,
+              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
             ),
           ],
         ),
@@ -294,12 +294,12 @@ class PlayerSettingsWidget extends StatelessWidget {
                       },
                       icon: Icon(
                         Icons.fast_forward,
-                        color: Get.isDarkMode ? Colors.white : null,
+                        color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
                       ),
                       inputDecoration: InputDecoration(
                         suffixText: t.common.seconds,
                         suffixStyle: TextStyle(
-                          color: Get.isDarkMode ? Colors.white : null,
+                          color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
                         ),
                         border: const OutlineInputBorder(),
                       ),
@@ -329,12 +329,12 @@ class PlayerSettingsWidget extends StatelessWidget {
                       },
                       icon: Icon(
                         Icons.fast_rewind,
-                        color: Get.isDarkMode ? Colors.white : null,
+                        color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
                       ),
                       inputDecoration: InputDecoration(
                         suffixText: t.common.seconds,
                         suffixStyle: TextStyle(
-                          color: Get.isDarkMode ? Colors.white : null,
+                          color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
                         ),
                         border: const OutlineInputBorder(),
                       ),
@@ -370,12 +370,12 @@ class PlayerSettingsWidget extends StatelessWidget {
                       ),
                       icon: Icon(
                         Icons.speed,
-                        color: Get.isDarkMode ? Colors.white : null,
+                        color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
                       ),
                       inputDecoration: InputDecoration(
                         suffixText: 'x',
                         suffixStyle: TextStyle(
-                          color: Get.isDarkMode ? Colors.white : null,
+                          color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
                         ),
                         border: const OutlineInputBorder(),
                       ),
@@ -522,7 +522,7 @@ class PlayerSettingsWidget extends StatelessWidget {
                       horizontal: 16,
                     ),
                     decoration: BoxDecoration(
-                      color: Theme.of(Get.context!).cardColor,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
@@ -539,13 +539,13 @@ class PlayerSettingsWidget extends StatelessWidget {
                           children: [
                             Icon(
                               Icons.lock,
-                              color: Get.isDarkMode ? Colors.white : null,
+                              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
                                 t.settings.lockButtonPosition,
-                                style: Theme.of(Get.context!)
+                                style: Theme.of(context)
                                     .textTheme
                                     .titleMedium
                                     ?.copyWith(fontWeight: FontWeight.bold),
@@ -623,7 +623,7 @@ class PlayerSettingsWidget extends StatelessWidget {
                         horizontal: 16,
                       ),
                       decoration: BoxDecoration(
-                        color: Theme.of(Get.context!).cardColor,
+                        color: Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -640,13 +640,13 @@ class PlayerSettingsWidget extends StatelessWidget {
                             children: [
                               Icon(
                                 Icons.screen_rotation,
-                                color: Get.isDarkMode ? Colors.white : null,
+                                color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
                                   t.settings.fullscreenOrientation,
-                                  style: Theme.of(Get.context!)
+                                  style: Theme.of(context)
                                       .textTheme
                                       .titleMedium
                                       ?.copyWith(fontWeight: FontWeight.bold),
@@ -657,7 +657,7 @@ class PlayerSettingsWidget extends StatelessWidget {
                           const SizedBox(height: 8),
                           Text(
                             t.settings.fullscreenOrientationDesc,
-                            style: Theme.of(Get.context!).textTheme.bodySmall
+                            style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(color: Colors.grey[600]),
                           ),
                           const SizedBox(height: 12),
@@ -1068,9 +1068,7 @@ class PlayerSettingsWidget extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           SizedBox(
-            height: Get.context != null
-                ? MediaQuery.of(Get.context!).padding.bottom
-                : 0,
+            height: MediaQuery.of(context).padding.bottom,
           ),
         ],
       ),

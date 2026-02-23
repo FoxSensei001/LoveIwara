@@ -18,6 +18,7 @@ import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 /// Status filter options for download tasks
 enum DownloadStatusFilter { all, failed, downloaded }
@@ -992,7 +993,7 @@ void showDownloadDetailDialog(BuildContext context, DownloadTask task) async {
     '  ',
   ).convert(fullTaskInfo);
 
-  Get.dialog(
+  showAppDialog(
     Dialog(
       child: Container(
         constraints: BoxConstraints(

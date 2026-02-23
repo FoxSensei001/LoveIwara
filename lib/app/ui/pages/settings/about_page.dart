@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/history_update_logs_page.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class AboutPage extends StatefulWidget {
   final bool isWideScreen;
@@ -59,7 +60,7 @@ class _AboutPageState extends State<AboutPage> {
     final t = slang.Translations.of(context);
     final theme = Theme.of(context);
 
-    Get.dialog(
+    showAppDialog(
       Dialog(
         child: Container(
           width: double.infinity,
@@ -78,18 +79,23 @@ class _AboutPageState extends State<AboutPage> {
                       style: theme.textTheme.titleMedium,
                     ),
                     const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.translate),
-                      onPressed: () {
-                        Get.dialog(
-                          TranslationDialog(text: changes.join('\n\n')),
-                          barrierDismissible: true,
-                        );
-                      },
+                    Builder(
+                      builder: (dialogContext) => IconButton(
+                        icon: const Icon(Icons.translate),
+                        onPressed: () {
+                          showTranslationDialog(
+                            dialogContext,
+                            text: changes.join('\n\n'),
+                            barrierDismissible: true,
+                          );
+                        },
+                      ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Get.back(),
+                    Builder(
+                      builder: (dialogContext) => IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                      ),
                     ),
                   ],
                 ),
@@ -370,11 +376,7 @@ class _AboutPageState extends State<AboutPage> {
                 _buildUpdateSection(),
                 _buildHistoryUpdatesSection(),
                 _buildLinksSection(),
-                SizedBox(
-                  height: Get.context != null
-                      ? MediaQuery.of(Get.context!).padding.bottom
-                      : 0,
-                ),
+                SizedBox(height: MediaQuery.of(context).padding.bottom),
               ]),
             ),
           ),

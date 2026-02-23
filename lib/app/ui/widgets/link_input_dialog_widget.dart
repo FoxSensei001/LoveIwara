@@ -7,13 +7,14 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class LinkInputDialogWidget extends StatefulWidget {
   const LinkInputDialogWidget({super.key});
 
   static void show() {
     AppService.hideGlobalDrawer();
-    Get.dialog(
+    showAppDialog(
       const LinkInputDialogWidget(),
       barrierDismissible: true,
     );
@@ -277,7 +278,7 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
 
   // 显示不支持的链接对话框
   void _showUnsupportedLinkDialog(String link) {
-    Get.dialog(
+    showAppDialog(
       _CustomDialogWithScrollView(
         title: slang.t.linkInputDialog.unsupportedLinkDialogTitle,
         content: Text(slang.t.linkInputDialog.unsupportedLinkDialogContent),
@@ -301,7 +302,7 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
 
   // 二次确认是否用浏览器打开
   void _confirmBrowserOpen(String link) {
-    Get.dialog(
+    showAppDialog(
       _CustomDialogWithScrollView(
         title: slang.t.linkInputDialog.confirmOpenBrowserDialogTitle,
         content: Column(
@@ -313,14 +314,14 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Get.isDarkMode ? Colors.grey[800] : Colors.grey[200],
+                color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[800] : Colors.grey[200],
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
                 link,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Get.isDarkMode ? Colors.white : Colors.black87,
+                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87,
                 ),
               ),
             ),

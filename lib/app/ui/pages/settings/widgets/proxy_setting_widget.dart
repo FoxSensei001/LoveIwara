@@ -58,7 +58,7 @@ class _ProxySettingsWidgetState extends BaseProxyWidgetState<ProxySettingsWidget
                         children: [
                           Icon(
                             Icons.info_outline,
-                            color: Get.isDarkMode ? Colors.white : null,
+                            color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
                           ),
                           const SizedBox(width: 8),
                           Expanded(
@@ -98,7 +98,7 @@ class _ProxySettingsWidgetState extends BaseProxyWidgetState<ProxySettingsWidget
                       }
                     },
                     icon: Icon(Icons.computer,
-                        color: Get.isDarkMode ? Colors.white : null),
+                        color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null),
                     splitTwoLine: true,
                     inputDecoration: InputDecoration(
                       hintText: t.settings
@@ -113,9 +113,7 @@ class _ProxySettingsWidgetState extends BaseProxyWidgetState<ProxySettingsWidget
             ),
           ),
           SizedBox(
-              height: Get.context != null
-                  ? MediaQuery.of(Get.context!).padding.bottom
-                  : 0),
+              height: MediaQuery.of(context).padding.bottom),
         ],
       ),
     );

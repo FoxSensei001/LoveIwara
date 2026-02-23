@@ -15,12 +15,14 @@ import 'package:i_iwara/app/ui/pages/search/widgets/filter_button_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 
 import 'search_dialog.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class SearchResultController extends GetxController {
   // 搜索状态管理
@@ -424,10 +426,9 @@ class _SearchResultState extends State<SearchResult> {
 
   // 显示翻译对话框
   void _showTranslationDialog() {
-    Get.dialog(
-      TranslationDialog(
-        text: searchController.currentSingleTagNameBehindSearchInput.value,
-      ),
+    showTranslationDialog(
+      context,
+      text: searchController.currentSingleTagNameBehindSearchInput.value,
     );
   }
 
@@ -447,7 +448,7 @@ class _SearchResultState extends State<SearchResult> {
 
   // 显示搜索对话框
   void _showSearchDialog() {
-    Get.dialog(
+    showAppDialog(
       SearchDialog(
         userInputKeywords: searchController.currentSearch.value,
         initialSegment: searchController.selectedSegment.value,
@@ -476,7 +477,7 @@ class _SearchResultState extends State<SearchResult> {
     searchController.refreshSearch();
 
     // 关闭对话框
-    Get.back();
+    AppService.tryPop(context: context);
   }
 
   // 构建分段选择器

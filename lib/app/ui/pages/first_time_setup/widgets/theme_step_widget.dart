@@ -8,6 +8,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/layouts.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/step_container.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class ThemeStepWidget extends StatelessWidget {
   final String title;
@@ -475,7 +476,7 @@ class ThemeStepWidget extends StatelessWidget {
   void _showColorPicker(BuildContext context, ThemeService themeService) {
     Color pickerColor =
         CommonConstants.dynamicLightColorScheme?.primary ?? Colors.orange;
-    Get.dialog(
+    showAppDialog(
       AlertDialog(
         title: Text(slang.t.settings.pickColor),
         content: SingleChildScrollView(

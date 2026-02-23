@@ -194,7 +194,7 @@ class _ProxyConfigWidgetState extends BaseProxyWidgetState<ProxyConfigWidget> {
                     children: [
                       Icon(
                         Icons.info_outline,
-                        color: Get.isDarkMode ? Colors.white : null,
+                        color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -235,7 +235,7 @@ class _ProxyConfigWidgetState extends BaseProxyWidgetState<ProxyConfigWidget> {
                 }
               },
               icon:
-                  Icon(Icons.computer, color: Get.isDarkMode ? Colors.white : null),
+                  Icon(Icons.computer, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null),
               splitTwoLine: true,
               inputDecoration: InputDecoration(
                 hintText: t.settings
@@ -263,7 +263,7 @@ class _ProxyConfigWidgetState extends BaseProxyWidgetState<ProxyConfigWidget> {
                 children: [
                   Icon(
                     Icons.vpn_key,
-                    color: Get.isDarkMode ? Colors.white : null,
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -293,7 +293,7 @@ class _ProxyConfigWidgetState extends BaseProxyWidgetState<ProxyConfigWidget> {
                             );
                           }
                         },
-                        activeThumbColor: Get.isDarkMode ? Colors.white : null,
+                        activeThumbColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
                       )),
                 ],
               ),

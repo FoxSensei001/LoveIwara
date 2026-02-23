@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/routes/app_routes.dart';
+import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/post_detail/widgets/post_detail_content_widget.dart';
@@ -130,7 +130,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                     message: slang.t.errors.pleaseLoginFirst,
                                     type: MDToastType.error,
                                   ));
-                                  Get.toNamed(Routes.LOGIN);
+                                  LoginService.showLogin();
                                   return;
                                 }
                                 await commentController.postComment(text);

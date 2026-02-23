@@ -5,22 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/routes/app_routes.dart';
+import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/version_service.dart';
-import 'package:i_iwara/app/ui/pages/home/home_navigation_layout.dart';
-import 'package:i_iwara/app/ui/pages/login/login_page_wrapper.dart';
-import 'package:i_iwara/app/ui/pages/settings/about_page.dart';
-import 'package:i_iwara/app/ui/pages/settings/app_settings_page.dart';
-import 'package:i_iwara/app/ui/pages/settings/player_settings_page.dart';
-import 'package:i_iwara/app/ui/pages/settings/proxy_settings_page.dart';
-import 'package:i_iwara/app/ui/pages/settings/theme_settings_page.dart';
-import 'package:i_iwara/app/ui/pages/settings/download_settings_page.dart';
-import 'package:i_iwara/app/ui/pages/settings/forum_settings_page.dart';
-import 'package:i_iwara/app/ui/pages/settings/widgets/ai_translation_setting_widget.dart';
-import 'package:i_iwara/app/ui/pages/sign_in/sing_in_page.dart';
-import 'package:i_iwara/app/ui/pages/first_time_setup/first_time_setup_page.dart';
 import 'package:i_iwara/app/ui/widgets/global_drawer_content_widget.dart';
 import 'package:i_iwara/app/ui/widgets/privacy_over_lay_widget.dart';
 import 'package:i_iwara/app/ui/widgets/window_layout_widget.dart';
@@ -31,14 +19,13 @@ import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 
-import '../utils/proxy/proxy_util.dart';
 import 'models/dto/escape_intent.dart';
 import 'services/theme_service.dart';
 import 'services/message_service.dart';
 import 'services/deep_link_service.dart';
 import 'services/auth_service.dart';
+import 'services/pop_coordinator.dart';
 import 'utils/exit_confirm_util.dart';
-import 'package:i_iwara/app/ui/pages/profile/personal_profile_page.dart';
 
 /// Android 预测式返回手势所需的页面过渡主题
 ///
@@ -74,6 +61,12 @@ ThemeData buildThemeData({required ColorScheme colorScheme}) {
   );
 }
 
+/// Global reactive theme state – written by ThemeService / DynamicColorBuilder,
+/// read by the Obx-wrapped MaterialApp.router.
+final Rx<ThemeData> appLightTheme = ThemeData().obs;
+final Rx<ThemeData> appDarkTheme = ThemeData.dark().obs;
+final Rx<ThemeMode> appThemeMode = ThemeMode.system.obs;
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -89,14 +82,14 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    // Initialize back button interception (ChildBackButtonDispatcher on GoRouter)
+    // so overlay/drawer close runs before GoRouter's route-pop handling.
+    PopCoordinator.init();
     Get.find<VersionService>().doAutoCheckUpdate();
     Get.find<MessageService>().markReady();
     Get.find<DeepLinkService>().markReady();
 
-    // 检查首次设置状态
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkFirstTimeSetup();
-    });
+    // 首次设置检查现在由 GoRouter redirect 处理，不需要手动跳转
 
     // 平台亮度监听
     WidgetsBinding.instance.addObserver(
@@ -130,35 +123,11 @@ class _MyAppState extends State<MyApp> {
             ).harmonized();
           }
 
-          Get.changeTheme(
-            buildThemeData(colorScheme: colorScheme),
-          );
+          // 使用响应式变量代替 Get.changeTheme
+          appLightTheme.value = buildThemeData(colorScheme: colorScheme);
         },
       ),
     );
-  }
-
-  /// 检查首次设置状态
-  void _checkFirstTimeSetup() {
-    try {
-      final configService = Get.find<ConfigService>();
-      final bool isFirstTimeSetupCompleted =
-          configService[ConfigKey.FIRST_TIME_SETUP_COMPLETED];
-      LogUtils.i('检查首次设置状态: $isFirstTimeSetupCompleted', '首次设置检测');
-
-      if (!isFirstTimeSetupCompleted) {
-        LogUtils.i('首次设置未完成，准备跳转到首次设置页面', '首次设置检测');
-        // 使用延迟确保应用完全初始化后再跳转
-        Future.delayed(const Duration(milliseconds: 500), () {
-          LogUtils.i('开始跳转到首次设置页面', '首次设置检测');
-          Get.offAllNamed(Routes.FIRST_TIME_SETUP);
-        });
-      } else {
-        LogUtils.i('首次设置已完成，继续正常流程', '首次设置检测');
-      }
-    } catch (e) {
-      LogUtils.e('检查首次设置状态时发生错误', tag: '首次设置检测', error: e);
-    }
   }
 
   @override
@@ -187,38 +156,18 @@ class _MyAppState extends State<MyApp> {
                 seedColor: dynamicSeedLight,
                 brightness: Brightness.light,
               ).harmonized().copyWith(
-                surface: Colors.white, // 根据设计需求调整亮色表面色，使用 white 作为亮色背景
+                surface: Colors.white,
               );
           darkColorScheme =
               ColorScheme.fromSeed(
                 seedColor: dynamicSeedDark,
                 brightness: Brightness.dark,
               ).harmonized().copyWith(
-                surface: Colors.black, // 根据设计需求调整暗色表面色，默认使用黑色
+                surface: Colors.black,
               );
           // 保存到常量中
           CommonConstants.dynamicLightColorScheme = lightColorScheme;
           CommonConstants.dynamicDarkColorScheme = darkColorScheme;
-
-          // 只在非初始化时更新主题
-          if (Get.context != null) {
-            bool systemIsLight =
-                WidgetsBinding.instance.platformDispatcher.platformBrightness ==
-                Brightness.light;
-            if (currentThemeMode == 1) {
-              Get.changeTheme(buildThemeData(colorScheme: lightColorScheme));
-            } else if (currentThemeMode == 2) {
-              Get.changeTheme(buildThemeData(colorScheme: darkColorScheme));
-            } else {
-              Get.changeTheme(
-                buildThemeData(
-                  colorScheme: systemIsLight
-                      ? lightColorScheme
-                      : darkColorScheme,
-                ),
-              );
-            }
-          }
         } else {
           // 使用自定义颜色，通过 seed 生成后再 harmonized，确保色彩协调性
           lightColorScheme = ColorScheme.fromSeed(
@@ -230,19 +179,22 @@ class _MyAppState extends State<MyApp> {
           ).harmonized();
         }
 
+        // 更新响应式主题变量
+        appLightTheme.value = buildThemeData(colorScheme: lightColorScheme);
+        appDarkTheme.value = buildThemeData(colorScheme: darkColorScheme);
+        appThemeMode.value = currentThemeMode == 0
+            ? ThemeMode.system
+            : currentThemeMode == 1
+            ? ThemeMode.light
+            : ThemeMode.dark;
+
         return OKToast(
-          child: GetMaterialApp(
+          child: Obx(() => MaterialApp.router(
             debugShowCheckedModeBanner: false,
             title: t.common.appName,
-            theme: buildThemeData(colorScheme: lightColorScheme),
-            darkTheme: buildThemeData(colorScheme: darkColorScheme),
-            themeMode: currentThemeMode == 0
-                ? ThemeMode.system
-                : currentThemeMode == 1
-                ? ThemeMode.light
-                : ThemeMode.dark,
-            // 使用平台原生过渡动画，在 Android 13+ 上支持预测式返回手势
-            defaultTransition: Transition.native,
+            theme: appLightTheme.value,
+            darkTheme: appDarkTheme.value,
+            themeMode: appThemeMode.value,
             // 添加本地化支持
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
@@ -256,81 +208,14 @@ class _MyAppState extends State<MyApp> {
               Locale('zh', 'TW'), // Chinese (Traditional)
             ],
             locale: LocaleSettings.currentLocale.flutterLocale,
-            getPages: [
-              GetPage(
-                name: Routes.HOME,
-                page: () => const HomeNavigationLayout(),
-              ),
-              GetPage(
-                name: Routes.FIRST_TIME_SETUP,
-                page: () => const FirstTimeSetupPage(),
-                transition: Transition.fadeIn,
-              ),
-              GetPage(
-                name: Routes.PLAYER_SETTINGS_PAGE,
-                page: () => const PlayerSettingsPage(),
-                transition: Transition.native,
-              ),
-              if (ProxyUtil.isSupportedPlatform())
-                GetPage(
-                  name: Routes.PROXY_SETTINGS_PAGE,
-                  page: () => const ProxySettingsPage(),
-                  transition: Transition.native,
-                ),
-              GetPage(
-                name: Routes.AI_TRANSLATION_SETTINGS_PAGE,
-                page: () => const AITranslationSettingsPage(),
-                transition: Transition.native,
-              ),
-              GetPage(
-                name: Routes.THEME_SETTINGS_PAGE,
-                page: () => const ThemeSettingsPage(),
-                transition: Transition.native,
-              ),
-              GetPage(
-                name: Routes.APP_SETTINGS_PAGE,
-                page: () => const AppSettingsPage(),
-                transition: Transition.native,
-              ),
-              GetPage(
-                name: Routes.ABOUT_PAGE,
-                page: () => const AboutPage(),
-                transition: Transition.native,
-              ),
-              GetPage(
-                name: Routes.DOWNLOAD_SETTINGS_PAGE,
-                page: () => const DownloadSettingsPage(),
-                transition: Transition.native,
-              ),
-              GetPage(
-                name: Routes.FORUM_SETTINGS_PAGE,
-                page: () => const ForumSettingsPage(),
-                transition: Transition.native,
-              ),
-              GetPage(
-                name: Routes.LOGIN,
-                page: () => const LoginPage(),
-                transition: Transition.native,
-              ),
-              GetPage(
-                name: Routes.SIGN_IN,
-                page: () => const SignInPage(),
-                transition: Transition.native,
-              ),
-              GetPage(
-                name: Routes.PERSONAL_PROFILE,
-                page: () => const PersonalProfilePage(),
-                transition: Transition.native,
-              ),
-            ],
-            initialRoute: Routes.HOME,
+            routerConfig: appRouter,
             builder: (context, child) {
               if (null == child) {
                 return const SizedBox.shrink();
               }
               return MyAppLayout(child: child);
             },
-          ),
+          )),
         );
       },
     );
@@ -564,8 +449,9 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
     }
 
     // 如果没有找到支持的视频文件，显示提示
-    if (Get.context != null) {
-      ScaffoldMessenger.of(Get.context!).showSnackBar(
+    final ctx = rootNavigatorKey.currentContext;
+    if (ctx != null) {
+      ScaffoldMessenger.of(ctx).showSnackBar(
         SnackBar(
           content: Text(t.mediaPlayer.noSupportedVideoFile),
           duration: const Duration(seconds: 3),
@@ -583,7 +469,11 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
         actions: {
           EscapeIntent: CallbackAction<EscapeIntent>(
             onInvoke: (intent) {
-              ExitConfirmUtil.handleExit(context, () => AppService.tryPop());
+              if (PopCoordinator.shouldConfirmExitAtHomeRoot()) {
+                ExitConfirmUtil.handleExit(context, () => SystemNavigator.pop());
+              } else {
+                PopCoordinator.handleBack(context);
+              }
               return null;
             },
           ),

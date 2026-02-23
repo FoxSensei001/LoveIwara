@@ -9,6 +9,7 @@ import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 import '../../../../../models/user.model.dart';
 
@@ -179,7 +180,7 @@ class _LikeAvatarsWidgetState extends State<LikeAvatarsWidget> {
 
   Future<void> _openLikedUsersDialog() async {
     if (!mounted) return;
-    await Get.dialog(
+    await showAppDialog(
       _LikedUsersDialog(
         mediaId: widget.mediaId,
         mediaType: widget.mediaType,

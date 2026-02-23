@@ -21,6 +21,7 @@ import '../widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/translation_language_selector.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_replies_bottom_sheet.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class CommentItem extends StatefulWidget {
   final Comment comment;
@@ -344,7 +345,7 @@ class _CommentItemState extends State<CommentItem> {
       return;
     }
 
-    Get.dialog(
+    showAppDialog(
       CommentRemoveDialog(
         onDelete: () async {
           await widget.controller!.deleteComment(widget.comment.id);

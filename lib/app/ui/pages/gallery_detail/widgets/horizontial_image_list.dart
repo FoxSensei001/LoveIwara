@@ -11,6 +11,7 @@ import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 enum MediaItemType {
   image,
@@ -190,8 +191,8 @@ class _HorizontalImageListState extends State<HorizontalImageList>
     // 如果没有菜单项，不显示对话框
     if (menuItems.isEmpty) return;
 
-    // 使用 Get.dialog 显示菜单
-    Get.dialog(
+    // 使用 showAppDialog 显示菜单
+    showAppDialog(
       Dialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),

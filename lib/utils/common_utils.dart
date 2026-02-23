@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/models/video_source.model.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -115,7 +117,7 @@ class CommonUtils {
   /// 根据重力感应获取屏幕方向
   static Future<List<DeviceOrientation>> _getGravityBasedOrientations() async {
     try {
-      final context = Get.context;
+      final context = rootNavigatorKey.currentContext;
       if (context == null) {
         return await _getConfigBasedOrientations();
       }
@@ -145,7 +147,7 @@ class CommonUtils {
   /// 获取当前设备方向
   static Future<DeviceOrientation?> _getCurrentDeviceOrientation() async {
     try {
-      final context = Get.context;
+      final context = rootNavigatorKey.currentContext;
       if (context == null) {
         return null;
       }
@@ -182,7 +184,7 @@ class CommonUtils {
         return; // 仅移动端支持
       }
       
-      final context = Get.context;
+      final context = rootNavigatorKey.currentContext;
       if (context == null) {
         return;
       }
@@ -429,7 +431,7 @@ class CommonUtils {
   }
 
   static String getDeviceLocale() {
-    final locale = Get.deviceLocale?.languageCode ?? 'en';
+    final locale = PlatformDispatcher.instance.locale.languageCode;
     switch (locale) {
       case 'zh':
         return 'zh-CN';

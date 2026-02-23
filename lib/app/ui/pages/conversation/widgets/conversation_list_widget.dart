@@ -11,6 +11,7 @@ import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class ConversationListWidget extends StatefulWidget {
   final Function(ConversationModel) onConversationSelected;
@@ -58,7 +59,7 @@ class _ConversationListWidgetState extends State<ConversationListWidget> {
                 left: 5.0,
                 right: 5.0,
                 top: 5.0,
-                bottom: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0,
+                bottom: MediaQuery.of(context).padding.bottom,
               ),
               indicatorBuilder: _buildIndicator,
             ),
@@ -75,7 +76,7 @@ class _ConversationListWidgetState extends State<ConversationListWidget> {
       actions: [
         IconButton(
           onPressed: () {
-            Get.dialog(
+            showAppDialog(
               NewConversationDialog(
                 onSubmit: () {
                   listSourceRepository.refresh(true);

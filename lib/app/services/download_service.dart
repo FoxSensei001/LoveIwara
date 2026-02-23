@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
@@ -1328,7 +1329,7 @@ class DownloadService extends GetxService {
   void _showMessage(String message, Color color) {
     // 改用 Flutter 自带的 ScaffoldMessenger + 当前 context 来展示 SnackBar，
     // 避免依赖 Overlay 直接抛出 “No Overlay widget found”。
-    final context = Get.context ?? Get.key.currentContext;
+    final context = rootNavigatorKey.currentContext;
     if (context == null) {
       LogUtils.w(
         '当前没有可用的 BuildContext，跳过 SnackBar 提示: $message',

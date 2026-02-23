@@ -12,7 +12,7 @@ import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:oktoast/oktoast.dart';
 
 import '../../../../../utils/logger_utils.dart';
-import '../../../../routes/app_routes.dart';
+import '../../../../services/app_service.dart';
 import '../../../../services/gallery_service.dart';
 import 'base_media_controller.dart';
 import 'popular_gallery_repository.dart';
@@ -94,7 +94,7 @@ class PopularGalleryController extends BaseMediaController<ImageModel> {
         children: [
           if (ProxyUtil.isSupportedPlatform())
             ElevatedButton(
-              onPressed: () => {Get.toNamed(Routes.PROXY_SETTINGS_PAGE)},
+              onPressed: () => {NaviService.navigateToSettingsPage()},
               child: Text(t.common.checkNetworkSettings),
             ).paddingRight(10),
           ElevatedButton(

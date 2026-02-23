@@ -11,6 +11,24 @@ import 'package:i_iwara/app/ui/widgets/translation_language_selector.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_translation_controller.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 
+Future<T?> showTranslationDialog<T>(
+  BuildContext context, {
+  required String text,
+  bool defaultLanguageKeyMode = true,
+  bool barrierDismissible = true,
+  bool useRootNavigator = false,
+}) {
+  return showDialog<T>(
+    context: context,
+    useRootNavigator: useRootNavigator,
+    barrierDismissible: barrierDismissible,
+    builder: (_) => TranslationDialog(
+      text: text,
+      defaultLanguageKeyMode: defaultLanguageKeyMode,
+    ),
+  );
+}
+
 class TranslationDialog extends StatefulWidget {
   final String text;
   final bool defaultLanguageKeyMode;
@@ -31,12 +49,16 @@ class _TranslationDialogState extends State<TranslationDialog> {
   String? _error;
 
   Future<void> _handleTranslation() async {
-    final targetLanguage = widget.defaultLanguageKeyMode 
-        ? null 
+    final targetLanguage = widget.defaultLanguageKeyMode
+        ? null
         : _configService.currentTargetLanguage;
-        
+
     try {
-      await _translationController.translate(widget.text, targetLanguage: targetLanguage, originalText: widget.text);
+      await _translationController.translate(
+        widget.text,
+        targetLanguage: targetLanguage,
+        originalText: widget.text,
+      );
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -50,13 +72,13 @@ class _TranslationDialogState extends State<TranslationDialog> {
   void initState() {
     super.initState();
     _translationController = MarkdownTranslationController();
-    
+
     // 弹窗出现后自动开始翻译
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _handleTranslation();
     });
   }
-  
+
   @override
   void dispose() {
     _translationController.dispose();
@@ -78,7 +100,7 @@ class _TranslationDialogState extends State<TranslationDialog> {
       (sort) => sort.extData == currentLanguage,
       orElse: () => CommonConstants.translationSorts.first,
     );
-    
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -105,15 +127,14 @@ class _TranslationDialogState extends State<TranslationDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Container(
           width: double.infinity,
           constraints: title == t.common.originalText
-              ? BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.15)
+              ? BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.15,
+                )
               : null,
           decoration: BoxDecoration(
             border: Border.all(
@@ -132,14 +153,14 @@ class _TranslationDialogState extends State<TranslationDialog> {
                   ),
                 )
               else
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: content,
-                ),
+                Padding(padding: const EdgeInsets.all(12), child: content),
               Align(
                 alignment: Alignment.centerRight,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   child: Wrap(
                     alignment: WrapAlignment.end,
                     crossAxisAlignment: WrapCrossAlignment.center,
@@ -149,19 +170,26 @@ class _TranslationDialogState extends State<TranslationDialog> {
                         translationPoweredByWidget(context, fontSize: 12),
                       if (title == t.common.translationResult)
                         Obx(() {
-                          final translatedText = _translationController.translatedText.value;
+                          final translatedText =
+                              _translationController.translatedText.value;
                           if (translatedText != null) {
                             return Tooltip(
                               message: t.download.copy,
                               child: IconButton(
                                 icon: const Icon(Icons.content_copy, size: 18),
                                 onPressed: () async {
-                                  await Clipboard.setData(ClipboardData(text: translatedText));
+                                  await Clipboard.setData(
+                                    ClipboardData(text: translatedText),
+                                  );
                                   VibrateUtils.vibrate();
-                                  Get.showSnackbar(GetSnackBar(
-                                    message: t.download.copySuccess,
-                                    duration: const Duration(seconds: 2),
-                                  ));
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(t.download.copySuccess),
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+                                  }
                                 },
                               ),
                             );
@@ -196,8 +224,8 @@ class _TranslationDialogState extends State<TranslationDialog> {
           ),
           const SizedBox(height: 8),
           Container(
-            width: '80%'.toString().contains('%') 
-                ? MediaQuery.of(context).size.width * 0.8 
+            width: '80%'.toString().contains('%')
+                ? MediaQuery.of(context).size.width * 0.8
                 : double.infinity,
             height: 16,
             decoration: BoxDecoration(
@@ -207,8 +235,8 @@ class _TranslationDialogState extends State<TranslationDialog> {
           ),
           const SizedBox(height: 8),
           Container(
-            width: '60%'.toString().contains('%') 
-                ? MediaQuery.of(context).size.width * 0.6 
+            width: '60%'.toString().contains('%')
+                ? MediaQuery.of(context).size.width * 0.6
                 : double.infinity,
             height: 16,
             decoration: BoxDecoration(
@@ -278,12 +306,16 @@ class _TranslationDialogState extends State<TranslationDialog> {
                         content: _error != null
                             ? Text(
                                 _error!,
-                                style: TextStyle(color: theme.colorScheme.error),
+                                style: TextStyle(
+                                  color: theme.colorScheme.error,
+                                ),
                               )
                             : Obx(() {
-                                final isTranslating = _translationController.isTranslating.value;
-                                final translatedText = _translationController.translatedText.value;
-                                
+                                final isTranslating =
+                                    _translationController.isTranslating.value;
+                                final translatedText =
+                                    _translationController.translatedText.value;
+
                                 if (isTranslating && translatedText == null) {
                                   return _buildShimmerLoading(theme);
                                 } else {

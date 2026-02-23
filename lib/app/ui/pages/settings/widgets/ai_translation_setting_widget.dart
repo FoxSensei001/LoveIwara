@@ -14,6 +14,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:waterfall_flow/waterfall_flow.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class AITranslationSettingsPage extends StatelessWidget {
   final bool isWideScreen;
@@ -107,7 +108,7 @@ class _AITranslationSettingsWidgetState
   }
 
   void _showValidationDialog() {
-    Get.dialog(
+    showAppDialog(
       AlertDialog(
         // title: Text('需要验证'),
         title: Text(slang.t.translation.needVerification),
@@ -519,7 +520,7 @@ class _AITranslationSettingsWidgetState
             Icon(
               Icons.edit_note,
               size: 20,
-              color: Get.isDarkMode ? Colors.white70 : Colors.grey[600],
+              color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.grey[600],
             ),
             const SizedBox(width: 8),
             Text(
@@ -755,7 +756,7 @@ class _AITranslationSettingsWidgetState
     Color? successColor,
     Color? errorColor,
   }) {
-    final colorScheme = Get.context!.theme.colorScheme;
+    final colorScheme = context.theme.colorScheme;
     final effectiveSuccessColor = successColor ?? colorScheme.primary;
     final effectiveErrorColor = errorColor ?? colorScheme.error;
 
@@ -1059,7 +1060,7 @@ class _AITranslationSettingsWidgetState
             Icon(
               icon,
               size: 20,
-              color: Get.isDarkMode ? Colors.white70 : Colors.grey[600],
+              color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.grey[600],
             ),
             const SizedBox(width: 8),
             Text(label, style: Theme.of(context).textTheme.labelLarge),
@@ -1116,7 +1117,7 @@ class _AITranslationSettingsWidgetState
             Icon(
               Icons.key,
               size: 20,
-              color: Get.isDarkMode ? Colors.white70 : Colors.grey[600],
+              color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.grey[600],
             ),
             const SizedBox(width: 8),
             Text(

@@ -19,11 +19,7 @@ import 'package:i_iwara/app/ui/widgets/emoji_picker_sheet.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 
 class ForumPostDialog extends StatefulWidget {
-  const ForumPostDialog({
-    super.key,
-    this.onSubmit,
-    this.initCategoryId,
-  });
+  const ForumPostDialog({super.key, this.onSubmit, this.initCategoryId});
 
   final VoidCallback? onSubmit;
   final String? initCategoryId;
@@ -48,7 +44,8 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
   bool _isLoadingCategories = true;
   String? _loadError;
   late EmojiSize _selectedEmojiSize;
-  final GlobalKey<EnhancedEmojiTextFieldState> _emojiTextFieldKey = GlobalKey<EnhancedEmojiTextFieldState>();
+  final GlobalKey<EnhancedEmojiTextFieldState> _emojiTextFieldKey =
+      GlobalKey<EnhancedEmojiTextFieldState>();
 
   // 标题最大长度
   static const int maxTitleLength = 100;
@@ -82,7 +79,8 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
 
     // 初始化表情尺寸
     final savedSizeSuffix = _configService[ConfigKey.DEFAULT_EMOJI_SIZE];
-    _selectedEmojiSize = EmojiSize.fromAltSuffix(savedSizeSuffix) ?? EmojiSize.medium;
+    _selectedEmojiSize =
+        EmojiSize.fromAltSuffix(savedSizeSuffix) ?? EmojiSize.medium;
   }
 
   Future<void> _loadInitialData() async {
@@ -175,8 +173,8 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
 
   void _showPreview() {
     MarkdownPreviewHelper.showPreviewWithTitle(
-      context, 
-      _bodyController.text, 
+      context,
+      _bodyController.text,
       _titleController.text,
     );
   }
@@ -198,9 +196,8 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
         minChildSize: 0.5,
         maxChildSize: 0.95,
         expand: false,
-        builder: (context, scrollController) => RulesAgreementDialog(
-          scrollController: scrollController,
-        ),
+        builder: (context, scrollController) =>
+            RulesAgreementDialog(scrollController: scrollController),
       ),
     );
 
@@ -285,10 +282,7 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
       }
     } else {
       showToastWidget(
-        MDToastWidget(
-          message: result.message,
-          type: MDToastType.error,
-        ),
+        MDToastWidget(message: result.message, type: MDToastType.error),
       );
     }
   }
@@ -304,9 +298,7 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
         child: SizedBox(
           width: 24,
           height: 24,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-          ),
+          child: CircularProgressIndicator(strokeWidth: 2),
         ),
       ),
     );
@@ -342,9 +334,7 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
           ),
           Container(
             decoration: BoxDecoration(
-              border: Border(
-                left: BorderSide(color: Colors.red[200]!),
-              ),
+              border: Border(left: BorderSide(color: Colors.red[200]!)),
             ),
             child: IconButton(
               onPressed: _loadInitialData,
@@ -426,7 +416,9 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
                       context: context,
                       isScrollControlled: true,
                       shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(16),
+                        ),
                       ),
                       builder: (context) => DraggableScrollableSheet(
                         initialChildSize: 0.6,
@@ -463,10 +455,16 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
                                 itemBuilder: (context, index) {
                                   final category = _categories![index];
                                   return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Padding(
-                                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                                        padding: const EdgeInsets.fromLTRB(
+                                          16,
+                                          16,
+                                          16,
+                                          8,
+                                        ),
                                         child: Text(
                                           category.name,
                                           style: const TextStyle(
@@ -475,33 +473,49 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
                                           ),
                                         ),
                                       ),
-                                      ...category.children.where((sub) => !sub.locked).map((sub) => 
-                                        ListTile(
-                                          selected: _selectedCategoryId == sub.id,
-                                          selectedTileColor: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.1),
-                                          contentPadding: const EdgeInsets.fromLTRB(32, 4, 16, 4),
-                                          title: Text(
-                                            sub.label,
-                                            style: const TextStyle(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w500,
+                                      ...category.children
+                                          .where((sub) => !sub.locked)
+                                          .map(
+                                            (sub) => ListTile(
+                                              selected:
+                                                  _selectedCategoryId == sub.id,
+                                              selectedTileColor:
+                                                  Theme.of(context)
+                                                      .colorScheme
+                                                      .primaryContainer
+                                                      .withValues(alpha: 0.1),
+                                              contentPadding:
+                                                  const EdgeInsets.fromLTRB(
+                                                    32,
+                                                    4,
+                                                    16,
+                                                    4,
+                                                  ),
+                                              title: Text(
+                                                sub.label,
+                                                style: const TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              subtitle:
+                                                  sub.description.isNotEmpty
+                                                  ? Text(
+                                                      sub.description,
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        color: Colors.grey[600],
+                                                      ),
+                                                    )
+                                                  : null,
+                                              onTap: () {
+                                                setState(() {
+                                                  _selectedCategoryId = sub.id;
+                                                });
+                                                Navigator.pop(context);
+                                              },
                                             ),
                                           ),
-                                          subtitle: sub.description.isNotEmpty ? Text(
-                                            sub.description,
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              color: Colors.grey[600],
-                                            ),
-                                          ) : null,
-                                          onTap: () {
-                                            setState(() {
-                                              _selectedCategoryId = sub.id;
-                                            });
-                                            Navigator.pop(context);
-                                          },
-                                        ),
-                                      ),
                                     ],
                                   );
                                 },
@@ -513,7 +527,10 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
                     );
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey[400]!),
                       borderRadius: BorderRadius.circular(4),
@@ -534,11 +551,14 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
                             Expanded(
                               child: Text(
                                 _selectedCategoryId != null
-                                  ? _categories!
-                                      .expand((cat) => cat.children)
-                                      .firstWhere((sub) => sub.id == _selectedCategoryId)
-                                      .label
-                                  : t.forum.selectCategory,
+                                    ? _categories!
+                                          .expand((cat) => cat.children)
+                                          .firstWhere(
+                                            (sub) =>
+                                                sub.id == _selectedCategoryId,
+                                          )
+                                          .label
+                                    : t.forum.selectCategory,
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: _selectedCategoryId != null
@@ -569,7 +589,9 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
                   border: const OutlineInputBorder(),
                   counterText: '$_currentTitleLength/$maxTitleLength',
                   errorText: _currentTitleLength > maxTitleLength
-                      ? t.errors.exceedsMaxLength(max: maxTitleLength.toString())
+                      ? t.errors.exceedsMaxLength(
+                          max: maxTitleLength.toString(),
+                        )
                       : null,
                 ),
               ),
@@ -604,11 +626,10 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
                   IconButton(
                     onPressed: _bodyController.text.isNotEmpty
                         ? () {
-                            Get.dialog(
-                              TranslationDialog(
-                                text: _bodyController.text,
-                                defaultLanguageKeyMode: false,
-                              ),
+                            showTranslationDialog(
+                              context,
+                              text: _bodyController.text,
+                              defaultLanguageKeyMode: false,
                             );
                           }
                         : null,
@@ -669,7 +690,8 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
                     child: Text(t.common.cancel),
                   ),
                   ElevatedButton(
-                    onPressed: isCoolingDown ||
+                    onPressed:
+                        isCoolingDown ||
                             (_currentTitleLength > maxTitleLength ||
                                 _currentTitleLength == 0) ||
                             (_currentBodyLength > maxBodyLength ||

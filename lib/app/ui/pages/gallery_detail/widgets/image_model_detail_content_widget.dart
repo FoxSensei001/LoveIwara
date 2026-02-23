@@ -23,8 +23,10 @@ import '../../video_detail/widgets/detail/tags_display_widget.dart';
 import '../../video_detail/widgets/detail/like_avatars_widget.dart';
 import '../controllers/gallery_detail_controller.dart';
 import '../../../widgets/follow_button_widget.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:i_iwara/app/ui/widgets/split_button_widget.dart' show FilledActionButton, FilledLikeButton;
+import 'package:i_iwara/app/ui/widgets/split_button_widget.dart'
+    show FilledActionButton, FilledLikeButton;
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/ui/widgets/add_to_favorite_dialog.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart';
@@ -32,19 +34,14 @@ import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constan
 class ImageModelDetailContent extends StatelessWidget {
   final GalleryDetailController controller;
 
-  const ImageModelDetailContent({
-    super.key,
-    required this.controller,
-  });
+  const ImageModelDetailContent({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildGalleryDetails(context),
-      ],
+      children: [_buildGalleryDetails(context)],
     );
   }
 
@@ -120,7 +117,7 @@ class ImageModelDetailContent extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 4),
                   child: IconButton(
                     onPressed: () {
-                      Get.dialog(TranslationDialog(text: title));
+                      showTranslationDialog(context, text: title);
                     },
                     icon: Icon(
                       Icons.translate,
@@ -195,9 +192,10 @@ class ImageModelDetailContent extends StatelessWidget {
             child: FollowButtonWidget(
               user: controller.imageModelInfo.value!.user!,
               onUserUpdated: (updatedUser) {
-                controller.imageModelInfo.value = controller.imageModelInfo.value?.copyWith(
-                  user: updatedUser,
-                );
+                controller.imageModelInfo.value = controller
+                    .imageModelInfo
+                    .value
+                    ?.copyWith(user: updatedUser);
               },
             ),
           ),
@@ -372,74 +370,82 @@ class ImageModelDetailContent extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(UIConstants.cardPadding),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Wrap(
         spacing: UIConstants.listSpacing, // Horizontal space between buttons
         runSpacing: UIConstants.listSpacing, // Vertical space between rows
         children: [
-                FilledLikeButton(
-                  mediaId: imageModelInfo.id,
-                  liked: imageModelInfo.liked,
-                  likeCount: imageModelInfo.numLikes,
-                  onLike: (id) async {
-                    final result = await Get.find<GalleryService>().likeImage(id);
-                    return result.isSuccess;
-                  },
-                  onUnlike: (id) async {
-                    final result = await Get.find<GalleryService>().unlikeImage(id);
-                    return result.isSuccess;
-                  },
-                  onLikeChanged: (liked) {
-                    controller.imageModelInfo.value = controller.imageModelInfo.value?.copyWith(
-                      liked: liked,
-                      numLikes: (controller.imageModelInfo.value?.numLikes ?? 0) + (liked ? 1 : -1),
-                    );
-                  },
-                ),
-                Obx(() => FilledActionButton(
-                  icon: controller.isInAnyFavorite.value 
-                      ? Icons.bookmark 
-                      : Icons.bookmark_border,
-                  label: t.favorite.localizeFavorite,
-                  onTap: () => _addToFavorite(context),
-                  accentColor: controller.isInAnyFavorite.value 
-                      ? Theme.of(context).primaryColor 
-                      : null,
-                )),
-                Obx(
-                  () => FilledActionButton(
-                    icon: Icons.download,
-                    label: t.download.download,
-                    onTap: () => _downloadGallery(context),
-                    accentColor: controller.hasAnyDownloadTask.value
-                        ? Theme.of(context).primaryColor
-                        : null,
-                  ),
-                ),
-                FilledActionButton(
-                  icon: Icons.share,
-                  label: slang.t.common.share,
-                  onTap: () {
-                    showModalBottomSheet(
-                      backgroundColor: Colors.transparent,
-                      isScrollControlled: true,
-                      builder: (context) {
-                        // Ensure imageModelInfo is not null before accessing its properties
-                        final info = controller.imageModelInfo.value;
-                        if (info == null) return const SizedBox.shrink(); // Or return an error/placeholder
-                        return ShareGalleryBottomSheet(
-                          galleryId: info.id,
-                          galleryTitle: info.title,
-                          authorName: info.user?.name ?? '',
-                          previewUrl: info.thumbnailUrl,
-                        );
-                      },
-                      context: context,
-                    );
-                  },
-                ),
+          FilledLikeButton(
+            mediaId: imageModelInfo.id,
+            liked: imageModelInfo.liked,
+            likeCount: imageModelInfo.numLikes,
+            onLike: (id) async {
+              final result = await Get.find<GalleryService>().likeImage(id);
+              return result.isSuccess;
+            },
+            onUnlike: (id) async {
+              final result = await Get.find<GalleryService>().unlikeImage(id);
+              return result.isSuccess;
+            },
+            onLikeChanged: (liked) {
+              controller.imageModelInfo.value = controller.imageModelInfo.value
+                  ?.copyWith(
+                    liked: liked,
+                    numLikes:
+                        (controller.imageModelInfo.value?.numLikes ?? 0) +
+                        (liked ? 1 : -1),
+                  );
+            },
+          ),
+          Obx(
+            () => FilledActionButton(
+              icon: controller.isInAnyFavorite.value
+                  ? Icons.bookmark
+                  : Icons.bookmark_border,
+              label: t.favorite.localizeFavorite,
+              onTap: () => _addToFavorite(context),
+              accentColor: controller.isInAnyFavorite.value
+                  ? Theme.of(context).primaryColor
+                  : null,
+            ),
+          ),
+          Obx(
+            () => FilledActionButton(
+              icon: Icons.download,
+              label: t.download.download,
+              onTap: () => _downloadGallery(context),
+              accentColor: controller.hasAnyDownloadTask.value
+                  ? Theme.of(context).primaryColor
+                  : null,
+            ),
+          ),
+          FilledActionButton(
+            icon: Icons.share,
+            label: slang.t.common.share,
+            onTap: () {
+              showModalBottomSheet(
+                backgroundColor: Colors.transparent,
+                isScrollControlled: true,
+                builder: (context) {
+                  // Ensure imageModelInfo is not null before accessing its properties
+                  final info = controller.imageModelInfo.value;
+                  if (info == null)
+                    return const SizedBox.shrink(); // Or return an error/placeholder
+                  return ShareGalleryBottomSheet(
+                    galleryId: info.id,
+                    galleryTitle: info.title,
+                    authorName: info.user?.name ?? '',
+                    previewUrl: info.thumbnailUrl,
+                  );
+                },
+                context: context,
+              );
+            },
+          ),
         ],
       ),
     );
@@ -447,14 +453,16 @@ class ImageModelDetailContent extends StatelessWidget {
 
   // 下载图库
   void _downloadGallery(BuildContext context) async {
-
     final t = slang.Translations.of(context);
     try {
       final imageModel = controller.imageModelInfo.value;
       if (imageModel == null) {
-        showToastWidget(MDToastWidget(
+        showToastWidget(
+          MDToastWidget(
             message: t.download.errors.imageModelNotFound,
-            type: MDToastType.error));
+            type: MDToastType.error,
+          ),
+        );
         return;
       }
 
@@ -462,14 +470,16 @@ class ImageModelDetailContent extends StatelessWidget {
       final extData = GalleryDownloadExtData(
         id: imageModel.id,
         title: imageModel.title,
-        previewUrls: imageModel.files.take(3).map((e) => e.getLargeImageUrl()).toList(),
+        previewUrls: imageModel.files
+            .take(3)
+            .map((e) => e.getLargeImageUrl())
+            .toList(),
         authorName: imageModel.user?.name,
         authorUsername: imageModel.user?.username,
         authorAvatar: imageModel.user?.avatar?.avatarUrl,
         totalImages: imageModel.files.length,
         imageList: {
-          for (var e in imageModel.files) 
-            e.id: e.getOriginalImageUrl(),
+          for (var e in imageModel.files) e.id: e.getOriginalImageUrl(),
         },
         localPaths: {},
       );
@@ -477,16 +487,19 @@ class ImageModelDetailContent extends StatelessWidget {
       // 创建下载任务
       final savePath = await _getSavePath(imageModel.title, imageModel.id);
       if (savePath == null) {
-        showToastWidget(MDToastWidget(
+        showToastWidget(
+          MDToastWidget(
             message: t.common.operationCancelled,
-            type: MDToastType.info));
+            type: MDToastType.info,
+          ),
+        );
         return;
       }
       final task = DownloadTask(
         url: imageModel.files.first.getOriginalImageUrl(), // 使用第一张图片的URL
         downloadedBytes: 0, // 已下载图片数量
         totalBytes: imageModel.files.length, // 总图片数量
-        savePath: savePath,  // 保存路径 [下载文件夹/galleries/图库标题_图库id]
+        savePath: savePath, // 保存路径 [下载文件夹/galleries/图库标题_图库id]
         fileName: '${imageModel.title}_${imageModel.id}', // 文件名
         extData: DownloadTaskExtData(
           type: DownloadTaskExtDataType.gallery,
@@ -501,17 +514,23 @@ class ImageModelDetailContent extends StatelessWidget {
       // 标记图库有下载任务
       controller.markGalleryHasDownloadTask();
 
-      showToastWidget(MDToastWidget(
+      showToastWidget(
+        MDToastWidget(
           message: t.download.startDownloading,
-          type: MDToastType.success));
+          type: MDToastType.success,
+        ),
+      );
 
       // 打开下载管理页面
       NaviService.navigateToDownloadTaskListPage();
     } catch (e) {
       LogUtils.e('添加下载任务失败', tag: 'ImageModelDetailContent', error: e);
-      showToastWidget(MDToastWidget(
+      showToastWidget(
+        MDToastWidget(
           message: t.download.errors.downloadFailed,
-          type: MDToastType.error));
+          type: MDToastType.error,
+        ),
+      );
     }
   }
 
@@ -537,11 +556,14 @@ class ImageModelDetailContent extends StatelessWidget {
     final imageModelInfo = controller.imageModelInfo.value;
     if (imageModelInfo == null) return;
 
-    Get.dialog(
+    showAppDialog(
       AddToFavoriteDialog(
         itemId: imageModelInfo.id,
         onAdd: (folderId) async {
-          return await FavoriteService.to.addImageToFolder(imageModelInfo, folderId);
+          return await FavoriteService.to.addImageToFolder(
+            imageModelInfo,
+            folderId,
+          );
         },
       ),
     ).then((_) {

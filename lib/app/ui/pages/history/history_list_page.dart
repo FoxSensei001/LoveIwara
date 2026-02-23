@@ -14,6 +14,7 @@ import 'package:oktoast/oktoast.dart';
 import 'controllers/history_list_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/post_card_list_item_widget.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class HistoryListPage extends StatefulWidget {
   const HistoryListPage({super.key});
@@ -463,9 +464,7 @@ class _HistoryListPageState extends State<HistoryListPage>
         ).paddingOnly(
           bottom:
               (isMultiSelect ? 120.0 : 0.0) +
-              (Get.context != null
-                  ? MediaQuery.of(Get.context!).padding.bottom
-                  : 0.0),
+              MediaQuery.of(context).padding.bottom,
         );
       }),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -529,9 +528,7 @@ class _HistoryListPageState extends State<HistoryListPage>
               5.0,
               5.0,
               5.0,
-              Get.context != null
-                  ? MediaQuery.of(Get.context!).padding.bottom + 5.0
-                  : 0,
+              MediaQuery.of(context).padding.bottom + 5.0,
             ),
             lastChildLayoutType: LastChildLayoutType.foot,
             indicatorBuilder: (context, status) => myLoadingMoreIndicator(
@@ -738,7 +735,7 @@ class _HistoryListPageState extends State<HistoryListPage>
     HistoryRecord record,
     HistoryListController controller,
   ) {
-    Get.dialog(
+    showAppDialog(
       AlertDialog(
         title: Text(slang.t.common.confirmDelete),
         content: Text(
@@ -772,7 +769,7 @@ class _HistoryListPageState extends State<HistoryListPage>
   }
 
   void _showDeleteConfirmDialog(HistoryListController controller) {
-    Get.dialog(
+    showAppDialog(
       AlertDialog(
         title: Text(slang.t.common.confirmDelete),
         content: Text(
@@ -820,7 +817,7 @@ class _HistoryListPageState extends State<HistoryListPage>
     final controller = _getControllerForIndex(_tabController.index);
     final itemType = controller.itemType;
 
-    Get.dialog(
+    showAppDialog(
       AlertDialog(
         title: Text(slang.t.common.clearAllHistory),
         content: Text(slang.t.common.clearAllHistoryConfirm),

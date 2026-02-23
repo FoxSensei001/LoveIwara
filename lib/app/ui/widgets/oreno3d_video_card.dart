@@ -21,14 +21,15 @@ class Oreno3dVideoCard extends StatefulWidget {
 class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
   final SearchService _searchService = Get.find<SearchService>();
   bool _isLoading = false;
+  bool _isLoadingDialogVisible = false;
   CancelToken? _cancelToken;
 
   @override
   void dispose() {
     // 如果组件销毁时还在loading，取消请求并关闭dialog
-    if (_isLoading && mounted) {
+    if (_isLoading) {
       _cancelToken?.cancel('组件销毁');
-      Navigator.of(context, rootNavigator: true).pop();
+      _closeLoadingDialogIfNeeded();
     }
     super.dispose();
   }
@@ -199,13 +200,14 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
   }
 
   void _showLoadingDialog() {
+    _isLoadingDialogVisible = true;
     showDialog(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
         return PopScope(
           canPop: false,
-          onPopInvoked: (didPop) {
+          onPopInvokedWithResult: (didPop, result) {
             if (didPop) return;
             // 用户点击返回键或点击弹窗外面时取消操作
             _cancelToken?.cancel('用户取消');
@@ -302,7 +304,17 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
           ),
         );
       },
-    );
+    ).whenComplete(() {
+      _isLoadingDialogVisible = false;
+    });
+  }
+
+  void _closeLoadingDialogIfNeeded() {
+    if (!_isLoadingDialogVisible) {
+      return;
+    }
+    AppService.tryPop();
+    _isLoadingDialogVisible = false;
   }
 
   Future<void> _handleVideoTap() async {
@@ -327,7 +339,7 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
 
       // 关闭loading dialog
       if (mounted && _isLoading) {
-        Navigator.of(context, rootNavigator: true).pop();
+        _closeLoadingDialogIfNeeded();
         setState(() {
           _isLoading = false;
         });
@@ -373,7 +385,7 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
 
       // 关闭loading dialog
       if (mounted && _isLoading) {
-        Navigator.of(context, rootNavigator: true).pop();
+        _closeLoadingDialogIfNeeded();
         setState(() {
           _isLoading = false;
         });

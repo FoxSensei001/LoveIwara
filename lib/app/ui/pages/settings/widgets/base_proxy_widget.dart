@@ -192,7 +192,7 @@ abstract class BaseProxyWidgetState<T extends BaseProxyWidget> extends State<T> 
         children: [
           Icon(
             Icons.vpn_key,
-            color: Get.isDarkMode ? Colors.white : null,
+            color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -219,7 +219,7 @@ abstract class BaseProxyWidgetState<T extends BaseProxyWidget> extends State<T> 
                     LogUtils.i('代理已禁用（重启后生效）', tag);
                   }
                 },
-                activeThumbColor: Get.isDarkMode ? Colors.white : null,
+                activeThumbColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
               )),
         ],
       ),

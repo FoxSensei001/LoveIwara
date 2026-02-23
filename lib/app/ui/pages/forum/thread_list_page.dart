@@ -15,6 +15,7 @@ import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class ThreadListPage extends StatefulWidget {
   final String categoryId;
@@ -108,7 +109,7 @@ class _ThreadListPageState extends State<ThreadListPage>
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              Get.dialog(
+              showAppDialog(
                 SearchDialog(
                   userInputKeywords: '',
                   initialSegment: SearchSegment.forum,
@@ -192,9 +193,7 @@ class _ThreadListPageState extends State<ThreadListPage>
                     left: 5.0,
                     right: 5.0,
                     top: 5.0,
-                    bottom: Get.context != null
-                        ? MediaQuery.of(Get.context!).padding.bottom
-                        : 0,
+                    bottom: MediaQuery.of(context).padding.bottom,
                   ),
                   indicatorBuilder: (context, status) => myLoadingMoreIndicator(
                     context,
@@ -224,7 +223,7 @@ class _ThreadListPageState extends State<ThreadListPage>
       );
       return;
     }
-    Get.dialog(
+    showAppDialog(
       ForumPostDialog(
         onSubmit: () {
           // 刷新帖子列表

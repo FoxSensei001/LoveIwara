@@ -16,6 +16,7 @@ import 'image_widget.dart';
 import 'navigation_controls.dart';
 import 'gallery_controls.dart';
 import 'gallery_info_dialog.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class MyGalleryPhotoViewWrapper extends StatefulWidget {
   const MyGalleryPhotoViewWrapper({
@@ -314,8 +315,8 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     // 如果没有菜单项，不显示对话框
     if (menuItems.isEmpty) return;
 
-    // 使用 Get.dialog 显示菜单
-    Get.dialog(
+    // 使用 showAppDialog 显示菜单
+    showAppDialog(
       Dialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),

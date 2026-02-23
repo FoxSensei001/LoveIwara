@@ -7,6 +7,7 @@ import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/step_contai
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/setting_tiles.dart';
 import 'package:i_iwara/app/ui/widgets/anime4k_settings_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class PlayerSettingsStepWidget extends StatefulWidget {
   final String title;
@@ -300,7 +301,7 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
 
   Future<String?> _showNumberInputDialog(BuildContext context, String title, {required String initial}) async {
     final controller = TextEditingController(text: initial);
-    return Get.dialog<String>(
+    return showAppDialog<String>(
       AlertDialog(
         title: Text(title),
         content: TextField(
@@ -310,7 +311,7 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
         ),
         actions: [
           TextButton(onPressed: () => AppService.tryPop(), child: Text(slang.t.common.cancel)),
-          TextButton(onPressed: () { Get.back(result: controller.text.trim()); }, child: Text(slang.t.common.confirm)),
+          TextButton(onPressed: () { Navigator.of(context).pop(controller.text.trim()); }, child: Text(slang.t.common.confirm)),
         ],
       ),
       barrierDismissible: true,

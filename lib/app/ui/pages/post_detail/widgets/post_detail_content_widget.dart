@@ -27,18 +27,15 @@ class PostDetailContent extends StatelessWidget {
       children: [
         IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => AppService.tryPop(context: context),
         ),
         const Spacer(),
-        IconButton(
-          icon: const Icon(Icons.share),
-          onPressed: onShare,
-        ),
+        IconButton(icon: const Icon(Icons.share), onPressed: onShare),
       ],
     );
   }
 
-  Widget _buildTitle() {
+  Widget _buildTitle(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
@@ -55,10 +52,9 @@ class PostDetailContent extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.translate),
               onPressed: () {
-                Get.dialog(
-                  TranslationDialog(
-                    text: controller.postInfo.value!.title,
-                  ),
+                showTranslationDialog(
+                  context,
+                  text: controller.postInfo.value!.title,
                 );
               },
             ),
@@ -101,10 +97,7 @@ class PostDetailContent extends StatelessWidget {
           }
         },
         behavior: HitTestBehavior.opaque,
-        child: AvatarWidget(
-          user: user,
-          size: 40
-        ),
+        child: AvatarWidget(user: user, size: 40),
       ),
     );
 
@@ -124,10 +117,7 @@ class PostDetailContent extends StatelessWidget {
               end: Alignment.bottomRight,
             ),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: avatar,
-          ),
+          child: Padding(padding: const EdgeInsets.all(4.0), child: avatar),
         ),
       );
     }
@@ -168,10 +158,7 @@ class PostDetailContent extends StatelessWidget {
               ),
               Text(
                 '@${user?.username ?? ''}',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -198,10 +185,7 @@ class PostDetailContent extends StatelessWidget {
             ),
             Text(
               '@${user?.username ?? ''}',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -263,10 +247,7 @@ class PostDetailContent extends StatelessWidget {
         children: [
           Text(
             slang.t.mediaList.personalIntroduction,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           CustomMarkdownBody(
@@ -288,7 +269,7 @@ class PostDetailContent extends StatelessWidget {
         Container(height: paddingTop),
         _buildHeader(context),
         _buildAuthorInfo(),
-        _buildTitle(),
+        _buildTitle(context),
         _buildContent(context),
         _buildTimeInfo(context),
       ],

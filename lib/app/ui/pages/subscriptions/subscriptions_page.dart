@@ -23,6 +23,7 @@ import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/services/tutorial_service.dart';
 
 import 'controllers/media_list_controller.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import '../popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
@@ -99,7 +100,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
         segment = SearchSegment.video;
     }
 
-    Get.dialog(
+    showAppDialog(
       SearchDialog(
         userInputKeywords: '',
         initialSegment: segment,
@@ -129,7 +130,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
       return;
     }
 
-    Get.dialog(
+    showAppDialog(
       Dialog(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 400, maxHeight: 500),
@@ -151,8 +152,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                     ),
                     IconButton(
                       icon: const Icon(Icons.close),
-                      onPressed: () =>
-                          Navigator.of(context, rootNavigator: true).pop(),
+                      onPressed: () => AppService.tryPop(context: context),
                     ),
                   ],
                 ),
@@ -196,7 +196,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                         selected: isSelected,
                         onTap: () {
                           _onUserSelected(''); // 传递空字符串表示选择全部
-                          Navigator.of(context, rootNavigator: true).pop();
+                          AppService.tryPop(context: context);
                         },
                       );
                     }
@@ -226,11 +226,11 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                         } else {
                           _onUserSelected(user.id);
                         }
-                        Navigator.of(context, rootNavigator: true).pop();
+                        AppService.tryPop(context: context);
                       },
                       onLongPress: () {
                         NaviService.navigateToAuthorProfilePage(user.username);
-                        Navigator.of(context, rootNavigator: true).pop();
+                        AppService.tryPop(context: context);
                       },
                     );
                   },

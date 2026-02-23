@@ -1,4 +1,4 @@
-import 'package:get/get.dart';
+import 'dart:ui';
 
 class RulesModel {
   final String id;
@@ -39,7 +39,7 @@ class RulesModel {
   }
 
   String getLocalizedTitle() {
-    final languageCode = Get.deviceLocale?.languageCode ?? 'en';
+    final languageCode = PlatformDispatcher.instance.locale.languageCode;
     // 如果当前语言存在对应的内容，则返回当前语言的内容
     if (title.containsKey(languageCode)) {
       return title[languageCode]!;
@@ -53,7 +53,7 @@ class RulesModel {
   }
 
   String getLocalizedBody() {
-    final languageCode = Get.deviceLocale?.languageCode ?? 'en';
+    final languageCode = PlatformDispatcher.instance.locale.languageCode;
     // 如果当前语言存在对应的内容，则返回当前语言的内容
     if (body.containsKey(languageCode)) {
       return body[languageCode]!;
