@@ -3,6 +3,7 @@ import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
@@ -79,6 +80,7 @@ class _NavigationOrderSettingsPageState
 
   @override
   Widget build(BuildContext context) {
+    final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -91,7 +93,7 @@ class _NavigationOrderSettingsPageState
               16,
               16,
               16,
-              16 + MediaQuery.of(context).padding.bottom,
+              16 + bottomInset,
             ),
             sliver: SliverList(
               delegate: SliverChildListDelegate([

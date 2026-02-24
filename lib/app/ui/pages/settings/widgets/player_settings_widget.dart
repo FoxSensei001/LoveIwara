@@ -4,6 +4,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/setting_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/three_section_slider.dart';
 import 'package:i_iwara/app/ui/widgets/anime4k_settings_widget.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -1068,7 +1069,7 @@ class PlayerSettingsWidget extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           SizedBox(
-            height: MediaQuery.of(context).padding.bottom,
+            height: computeBottomSafeInset(MediaQuery.of(context)),
           ),
         ],
       ),

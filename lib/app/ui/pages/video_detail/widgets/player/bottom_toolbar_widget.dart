@@ -14,6 +14,7 @@ import 'package:i_iwara/app/services/user_service.dart';
 
 import '../../../../../../utils/common_utils.dart';
 import '../../../../../services/config_service.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import '../../controllers/my_video_state_controller.dart';
 import 'custom_slider_bar_shape_widget.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
@@ -22,6 +23,7 @@ class BottomToolbar extends StatelessWidget {
   final MyVideoStateController myVideoStateController;
   final Logger logger = Logger();
   final bool currentScreenIsFullScreen;
+  final bool applyBottomSafeAreaPadding;
   final ConfigService _configService = Get.find();
   final AppService appService = Get.find();
   final UserService _userService = Get.find<UserService>();
@@ -33,12 +35,16 @@ class BottomToolbar extends StatelessWidget {
     super.key,
     required this.myVideoStateController,
     required this.currentScreenIsFullScreen,
+    this.applyBottomSafeAreaPadding = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     final bool isSmallScreen = MediaQuery.of(context).size.width < 600;
+    final double bottomInset = applyBottomSafeAreaPadding
+        ? computeBottomSafeInset(MediaQuery.of(context))
+        : 0;
     // 如果是非全屏，图标更小一些
     final double iconSize = currentScreenIsFullScreen
         ? (isSmallScreen ? 18 : 20)
@@ -51,7 +57,7 @@ class BottomToolbar extends StatelessWidget {
         children: [
           if (currentScreenIsFullScreen)
             _buildTopInteractionLayer(context, isSmallScreen),
-          _buildBottomToolbar(context, isSmallScreen, iconSize, t),
+          _buildBottomToolbar(context, isSmallScreen, iconSize, t, bottomInset),
         ],
       ),
     );
@@ -97,6 +103,7 @@ class BottomToolbar extends StatelessWidget {
     bool isSmallScreen,
     double iconSize,
     slang.Translations t,
+    double bottomInset,
   ) {
     return SlideTransition(
       position: myVideoStateController.bottomBarAnimation,
@@ -104,7 +111,7 @@ class BottomToolbar extends StatelessWidget {
         onEnter: (_) => myVideoStateController.setToolbarHovering(true),
         onExit: (_) => myVideoStateController.setToolbarHovering(false),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+          padding: EdgeInsets.fromLTRB(12.0, 4.0, 12.0, 4.0 + bottomInset),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.transparent, Colors.black.withValues(alpha: 0.7)],

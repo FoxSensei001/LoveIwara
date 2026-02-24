@@ -26,6 +26,7 @@ import 'services/deep_link_service.dart';
 import 'services/auth_service.dart';
 import 'services/pop_coordinator.dart';
 import 'utils/exit_confirm_util.dart';
+import 'ui/widgets/media_query_insets_fix.dart';
 
 /// Android 预测式返回手势所需的页面过渡主题
 ///
@@ -151,20 +152,14 @@ class _MyAppState extends State<MyApp> {
           final Color dynamicSeedLight = lightDynamic.primary;
           final Color dynamicSeedDark = darkDynamic.primary;
 
-          lightColorScheme =
-              ColorScheme.fromSeed(
-                seedColor: dynamicSeedLight,
-                brightness: Brightness.light,
-              ).harmonized().copyWith(
-                surface: Colors.white,
-              );
-          darkColorScheme =
-              ColorScheme.fromSeed(
-                seedColor: dynamicSeedDark,
-                brightness: Brightness.dark,
-              ).harmonized().copyWith(
-                surface: Colors.black,
-              );
+          lightColorScheme = ColorScheme.fromSeed(
+            seedColor: dynamicSeedLight,
+            brightness: Brightness.light,
+          ).harmonized().copyWith(surface: Colors.white);
+          darkColorScheme = ColorScheme.fromSeed(
+            seedColor: dynamicSeedDark,
+            brightness: Brightness.dark,
+          ).harmonized().copyWith(surface: Colors.black);
           // 保存到常量中
           CommonConstants.dynamicLightColorScheme = lightColorScheme;
           CommonConstants.dynamicDarkColorScheme = darkColorScheme;
@@ -189,33 +184,35 @@ class _MyAppState extends State<MyApp> {
             : ThemeMode.dark;
 
         return OKToast(
-          child: Obx(() => MaterialApp.router(
-            debugShowCheckedModeBanner: false,
-            title: t.common.appName,
-            theme: appLightTheme.value,
-            darkTheme: appDarkTheme.value,
-            themeMode: appThemeMode.value,
-            // 添加本地化支持
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: const [
-              Locale('en', ''), // English
-              Locale('ja', ''), // Japanese
-              Locale('zh', 'CN'), // Chinese (Simplified)
-              Locale('zh', 'TW'), // Chinese (Traditional)
-            ],
-            locale: LocaleSettings.currentLocale.flutterLocale,
-            routerConfig: appRouter,
-            builder: (context, child) {
-              if (null == child) {
-                return const SizedBox.shrink();
-              }
-              return MyAppLayout(child: child);
-            },
-          )),
+          child: Obx(
+            () => MaterialApp.router(
+              debugShowCheckedModeBanner: false,
+              title: t.common.appName,
+              theme: appLightTheme.value,
+              darkTheme: appDarkTheme.value,
+              themeMode: appThemeMode.value,
+              // 添加本地化支持
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [
+                Locale('en', ''), // English
+                Locale('ja', ''), // Japanese
+                Locale('zh', 'CN'), // Chinese (Simplified)
+                Locale('zh', 'TW'), // Chinese (Traditional)
+              ],
+              locale: LocaleSettings.currentLocale.flutterLocale,
+              routerConfig: appRouter,
+              builder: (context, child) {
+                if (null == child) {
+                  return const SizedBox.shrink();
+                }
+                return MyAppLayout(child: child);
+              },
+            ),
+          ),
         );
       },
     );
@@ -370,7 +367,7 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
       );
     }
 
-    return content;
+    return ApplyFixedMediaQueryInsets(child: content);
   }
 
   /// 构建拖拽悬浮提示
@@ -470,7 +467,10 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
           EscapeIntent: CallbackAction<EscapeIntent>(
             onInvoke: (intent) {
               if (PopCoordinator.shouldConfirmExitAtHomeRoot()) {
-                ExitConfirmUtil.handleExit(context, () => SystemNavigator.pop());
+                ExitConfirmUtil.handleExit(
+                  context,
+                  () => SystemNavigator.pop(),
+                );
               } else {
                 PopCoordinator.handleBack(context);
               }

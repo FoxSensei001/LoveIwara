@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/proxy_config_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class ProxySettingsPage extends StatelessWidget {
@@ -14,6 +15,7 @@ class ProxySettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     final configService = Get.find<ConfigService>();
+    final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
 
     return Scaffold(
       body: CustomScrollView(
@@ -24,6 +26,7 @@ class ProxySettingsPage extends StatelessWidget {
           ),
           SliverFillRemaining(
             child: SingleChildScrollView(
+              padding: EdgeInsets.only(bottom: bottomInset),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

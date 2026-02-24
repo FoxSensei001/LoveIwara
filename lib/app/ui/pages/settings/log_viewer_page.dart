@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/logging/log_service.dart';
 import 'package:i_iwara/app/services/logging/log_models.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class LogViewerPage extends StatefulWidget {
@@ -121,6 +122,7 @@ class _LogViewerPageState extends State<LogViewerPage> {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
     final t = slang.t;
+    final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
 
     return Scaffold(
       appBar: AppBar(
@@ -157,8 +159,10 @@ class _LogViewerPageState extends State<LogViewerPage> {
           ),
         ),
       ),
-      body: Column(
-        children: [
+      body: Padding(
+        padding: EdgeInsets.only(bottom: bottomInset),
+        child: Column(
+          children: [
           // Filter area
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -290,15 +294,19 @@ class _LogViewerPageState extends State<LogViewerPage> {
                     },
                   ),
           ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: !_autoScroll
-          ? FloatingActionButton.small(
-              onPressed: () {
-                setState(() => _autoScroll = true);
-                _scrollToBottom();
-              },
-              child: const Icon(Icons.arrow_downward, size: 18),
+          ? Padding(
+              padding: EdgeInsets.only(bottom: bottomInset),
+              child: FloatingActionButton.small(
+                onPressed: () {
+                  setState(() => _autoScroll = true);
+                  _scrollToBottom();
+                },
+                child: const Icon(Icons.arrow_downward, size: 18),
+              ),
             )
           : null,
     );

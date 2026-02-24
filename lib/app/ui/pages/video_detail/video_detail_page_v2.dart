@@ -16,6 +16,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/comments_tab_widg
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/related_videos_tab_widget.dart';
 import 'package:i_iwara/app/ui/widgets/error_widget.dart'
     show CommonErrorWidget;
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
@@ -286,9 +287,11 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
             ),
             if (fullscreenActive)
               Positioned.fill(
-                child: MyVideoScreen(
-                  isFullScreen: true,
-                  myVideoStateController: controller,
+                child: RestoreRawMediaQueryInsets(
+                  child: MyVideoScreen(
+                    isFullScreen: true,
+                    myVideoStateController: controller,
+                  ),
                 ),
               ),
           ],
@@ -327,13 +330,18 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
             // 站外、站内视频都显示播放器
             if (controller.videoInfo.value?.isExternalVideo == true ||
                 controller.videoPlayerReady.value) {
-              return _buildPureVideoPlayer(screenSize.height, paddingTop);
+              return _buildPureVideoPlayer(
+                screenSize.height,
+                paddingTop,
+                applyBottomSafeArea: true,
+              );
             }
             // 否则显示播放器（包含加载状态）
             else {
               return MyVideoScreen(
                 myVideoStateController: controller,
                 isFullScreen: false,
+                enableBottomSafeArea: true,
               );
             }
           }),
@@ -451,7 +459,11 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   }
 
   // 构建纯播放器（宽屏时使用，占满整个容器）
-  Widget _buildPureVideoPlayer(double screenHeight, double paddingTop) {
+  Widget _buildPureVideoPlayer(
+    double screenHeight,
+    double paddingTop, {
+    bool applyBottomSafeArea = false,
+  }) {
     return Container(
       height: screenHeight,
       color: Colors.black,
@@ -468,6 +480,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         else if (!controller.isFullscreen.value) {
           return MyVideoScreen(
             isFullScreen: false,
+            enableBottomSafeArea: applyBottomSafeArea,
             myVideoStateController: controller,
           );
         } else {

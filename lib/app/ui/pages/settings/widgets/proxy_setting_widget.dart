@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/setting_item_widget.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 import '../../../../../utils/logger_utils.dart';
 import '../../../../services/config_service.dart';
@@ -112,8 +113,7 @@ class _ProxySettingsWidgetState extends BaseProxyWidgetState<ProxySettingsWidget
               ),
             ),
           ),
-          SizedBox(
-              height: MediaQuery.of(context).padding.bottom),
+          SizedBox(height: computeBottomSafeInset(MediaQuery.of(context))),
         ],
       ),
     );

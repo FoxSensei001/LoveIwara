@@ -19,6 +19,7 @@ import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/ui/widgets/top_padding_height_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
@@ -1022,7 +1023,9 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                         child: const SizedBox.shrink(),
                       ),
                       SizedBox(
-                        height: MediaQuery.of(context).padding.bottom,
+                        height: MediaQuery.sizeOf(context).width >= 800
+                            ? computeBottomSafeInset(MediaQuery.of(context))
+                            : 0,
                       ),
                     ],
                   ),

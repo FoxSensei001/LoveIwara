@@ -21,6 +21,7 @@ import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 
 import 'package:i_iwara/app/services/tutorial_service.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 import 'controllers/media_list_controller.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
@@ -455,6 +456,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
+          final bool isWideLayout = constraints.maxWidth > 600;
           return Stack(
             children: [
               // 使用 Column 替代 Stack + dynamic padding
@@ -653,6 +655,8 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                       final isPaginated = mediaListController.isPaginated.value;
                       final rebuildKey = mediaListController.rebuildKey.value
                           .toString();
+                      final bool shouldApplyBottomSafeAreaPadding =
+                          !Get.find<AppService>().showBottomNavi || isWideLayout;
 
                       // 同步分页模式状态到批量选择控制器
                       _videoBatchController.setPaginatedMode(isPaginated);
@@ -671,6 +675,8 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                                 userId: selectedId,
                                 isPaginated: isPaginated,
                                 paddingTop: 0, // 使用 Column 布局，不需要 paddingTop
+                                showBottomPadding:
+                                    shouldApplyBottomSafeAreaPadding,
                                 isMultiSelectMode:
                                     _videoBatchController.isMultiSelect.value,
                                 selectedItemIds: _videoBatchController
@@ -690,6 +696,8 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                                 userId: selectedId,
                                 isPaginated: isPaginated,
                                 paddingTop: 0, // 使用 Column 布局，不需要 paddingTop
+                                showBottomPadding:
+                                    shouldApplyBottomSafeAreaPadding,
                                 isMultiSelectMode:
                                     _imageBatchController.isMultiSelect.value,
                                 selectedItemIds: _imageBatchController
@@ -708,6 +716,8 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                               userId: selectedId,
                               isPaginated: isPaginated,
                               paddingTop: 0, // 使用 Column 布局，不需要 paddingTop
+                              showBottomPadding:
+                                  shouldApplyBottomSafeAreaPadding,
                             ),
                           ),
                         ],
@@ -738,7 +748,11 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                 // 不再直接使用 SizedBox.shrink()，而是通过动画控制显示
 
                 final isPaginatedNow = mediaListController.isPaginated.value;
-                final bottomSafeNow = MediaQuery.of(context).padding.bottom;
+                final bool shouldApplyBottomSafeAreaPadding =
+                    !Get.find<AppService>().showBottomNavi || isWideLayout;
+                final bottomSafeNow = shouldApplyBottomSafeAreaPadding
+                    ? computeBottomSafeInset(MediaQuery.of(context))
+                    : 0.0;
                 final double extraBottomNow = isPaginatedNow
                     ? (46 + bottomSafeNow + 20)
                     : 20;

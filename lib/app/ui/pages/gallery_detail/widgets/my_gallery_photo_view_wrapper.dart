@@ -17,6 +17,7 @@ import 'navigation_controls.dart';
 import 'gallery_controls.dart';
 import 'gallery_info_dialog.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class MyGalleryPhotoViewWrapper extends StatefulWidget {
   const MyGalleryPhotoViewWrapper({
@@ -206,7 +207,9 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
 
   /// 根据当前是否是视频来更新音量键监听状态
   void _updateVolumeKeyListener() {
-    final isCurrentVideo = _isVideo(widget.galleryItems[currentIndex].data.originalUrl);
+    final isCurrentVideo = _isVideo(
+      widget.galleryItems[currentIndex].data.originalUrl,
+    );
 
     if (isCurrentVideo) {
       // 如果当前是视频，禁用音量键监听，让系统处理音量调节
@@ -222,8 +225,14 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     if (!mounted) return;
 
     // 计算预加载范围
-    final startIndex = (centerIndex - _preloadRange).clamp(0, widget.galleryItems.length - 1);
-    final endIndex = (centerIndex + _preloadRange).clamp(0, widget.galleryItems.length - 1);
+    final startIndex = (centerIndex - _preloadRange).clamp(
+      0,
+      widget.galleryItems.length - 1,
+    );
+    final endIndex = (centerIndex + _preloadRange).clamp(
+      0,
+      widget.galleryItems.length - 1,
+    );
 
     for (int i = startIndex; i <= endIndex; i++) {
       // 跳过已经预加载的
@@ -244,7 +253,11 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   }
 
   /// 预加载单张图片
-  Future<void> _preloadImage(int index, String imageUrl, Map<String, String>? headers) async {
+  Future<void> _preloadImage(
+    int index,
+    String imageUrl,
+    Map<String, String>? headers,
+  ) async {
     if (!mounted) return;
 
     try {
@@ -262,7 +275,11 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
 
       LogUtils.d('预加载图片成功: 索引=$index', 'GalleryPreload');
     } catch (e) {
-      LogUtils.e('预加载图片失败: 索引=$index, URL=$imageUrl', tag: 'GalleryPreload', error: e);
+      LogUtils.e(
+        '预加载图片失败: 索引=$index, URL=$imageUrl',
+        tag: 'GalleryPreload',
+        error: e,
+      );
       // 预加载失败时从集合中移除，允许后续重试
       _preloadedImages.remove(index);
     }
@@ -318,9 +335,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     // 使用 showAppDialog 显示菜单
     showAppDialog(
       Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 300),
           child: Column(
@@ -342,8 +357,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                       },
                     ),
                     // 添加分隔线，最后一项不添加
-                    if (index < menuItems.length - 1)
-                      const Divider(height: 1),
+                    if (index < menuItems.length - 1) const Divider(height: 1),
                   ],
                 );
               }),
@@ -364,164 +378,157 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
         ? _screenWidth * 0.2
         : _screenWidth * 0.25;
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: KeyboardListener(
-        focusNode: FocusNode()..requestFocus(),
-        onKeyEvent: _handleKeyPress,
-        child: Listener(
-          onPointerSignal: _galleryControls.handlePointerSignal,
-          onPointerDown: _onPointerDown,
-          onPointerUp: _onPointerUp,
-          child: GestureDetector(
-            onLongPressStart: (details) {
-              if (!widget.enableMenu) return;
-              setState(() {
-                _showNavigationOverlay = true;
-              });
-              _showImageMenu(
-                context,
-                widget.galleryItems[currentIndex],
-              );
-            },
-            onLongPressEnd: (details) {
-              if (!widget.enableMenu) return;
-              setState(() {
-                _showNavigationOverlay = false;
-              });
-            },
-            onSecondaryTapDown: (details) {
-              if (!widget.enableMenu) return;
-              _showImageMenu(
-                context,
-                widget.galleryItems[currentIndex],
-              );
-            },
-            child: Stack(
-              alignment: Alignment.topCenter,
-              children: [
-                PhotoViewGallery.builder(
-                  scrollPhysics: const BouncingScrollPhysics(),
-                  allowImplicitScrolling: true,
-                  wantKeepAlive: true,
-                  builder: (BuildContext context, int index) {
-                    String imageUrl = _reloadTimestamps.containsKey(index)
-                        ? '${widget.galleryItems[index].data.originalUrl}?reload=${_reloadTimestamps[index]}'
-                        : widget.galleryItems[index].data.originalUrl;
+    return RestoreRawMediaQueryInsets(
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: KeyboardListener(
+          focusNode: FocusNode()..requestFocus(),
+          onKeyEvent: _handleKeyPress,
+          child: Listener(
+            onPointerSignal: _galleryControls.handlePointerSignal,
+            onPointerDown: _onPointerDown,
+            onPointerUp: _onPointerUp,
+            child: GestureDetector(
+              onLongPressStart: (details) {
+                if (!widget.enableMenu) return;
+                setState(() {
+                  _showNavigationOverlay = true;
+                });
+                _showImageMenu(context, widget.galleryItems[currentIndex]);
+              },
+              onLongPressEnd: (details) {
+                if (!widget.enableMenu) return;
+                setState(() {
+                  _showNavigationOverlay = false;
+                });
+              },
+              onSecondaryTapDown: (details) {
+                if (!widget.enableMenu) return;
+                _showImageMenu(context, widget.galleryItems[currentIndex]);
+              },
+              child: Stack(
+                alignment: Alignment.topCenter,
+                children: [
+                  PhotoViewGallery.builder(
+                    scrollPhysics: const BouncingScrollPhysics(),
+                    allowImplicitScrolling: true,
+                    wantKeepAlive: true,
+                    builder: (BuildContext context, int index) {
+                      String imageUrl = _reloadTimestamps.containsKey(index)
+                          ? '${widget.galleryItems[index].data.originalUrl}?reload=${_reloadTimestamps[index]}'
+                          : widget.galleryItems[index].data.originalUrl;
 
-                    // 检查是否为视频文件
-                    bool isVideo = _isVideo(imageUrl);
+                      // 检查是否为视频文件
+                      bool isVideo = _isVideo(imageUrl);
 
-                    return PhotoViewGalleryPageOptions.customChild(
-                      child: GestureDetector(
-                        onDoubleTap: () =>
-                            _galleryControls.handleDoubleTap(index),
-                        child: Container(
-                          color: Colors.transparent,
-                          child: Center(
-                            child: KeyedSubtree(
-                              key: ValueKey(
-                                '${widget.galleryItems[index]}_${_reloadTimestamps[index] ?? 0}',
-                              ),
-                              child: isVideo
-                                  ? VideoPlayerWidget(
-                                      key: _getVideoPlayerKey(index),
-                                      videoUrl: imageUrl,
-                                      headers:
-                                          widget.galleryItems[index].headers,
-                                    )
-                                  : imageUrl.startsWith('file://')
-                                  ? Image.file(
-                                      File(
-                                        imageUrl.replaceFirst('file://', ''),
+                      return PhotoViewGalleryPageOptions.customChild(
+                        child: GestureDetector(
+                          onDoubleTap: () =>
+                              _galleryControls.handleDoubleTap(index),
+                          child: Container(
+                            color: Colors.transparent,
+                            child: Center(
+                              child: KeyedSubtree(
+                                key: ValueKey(
+                                  '${widget.galleryItems[index]}_${_reloadTimestamps[index] ?? 0}',
+                                ),
+                                child: isVideo
+                                    ? VideoPlayerWidget(
+                                        key: _getVideoPlayerKey(index),
+                                        videoUrl: imageUrl,
+                                        headers:
+                                            widget.galleryItems[index].headers,
+                                      )
+                                    : imageUrl.startsWith('file://')
+                                    ? Image.file(
+                                        File(
+                                          imageUrl.replaceFirst('file://', ''),
+                                        ),
+                                        fit: BoxFit.contain,
+                                      )
+                                    : ImageWidget(
+                                        imageUrl: imageUrl,
+                                        headers:
+                                            widget.galleryItems[index].headers,
                                       ),
-                                      fit: BoxFit.contain,
-                                    )
-                                  : ImageWidget(
-                                      imageUrl: imageUrl,
-                                      headers:
-                                          widget.galleryItems[index].headers,
-                                    ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      minScale: PhotoViewComputedScale.contained * 0.5,
-                      maxScale: PhotoViewComputedScale.covered * 3,
-                      initialScale: PhotoViewComputedScale.contained,
-                      controller: controllers[index],
-                    );
-                  },
-                  itemCount: widget.galleryItems.length,
-                  pageController: pageController,
-                  onPageChanged: _onPageChanged,
-                ),
-                // 导航控制组件
-                NavigationControls(
-                  tapAreaWidth: _tapAreaWidth,
-                  showOverlay: _showNavigationOverlay,
-                  // 这里只负责「显示」左右渐变与箭头，真正的点击逻辑在 _onPointerDown/_onPointerUp 中处理
-                  canGoPrevious: currentIndex > 0,
-                  canGoNext: currentIndex < widget.galleryItems.length - 1,
-                ),
-                SafeArea(
-                  child: Container(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.close, color: Colors.white),
-                          onPressed: () => Navigator.of(context).pop(),
-                        ),
-                        Row(
-                          children: [
-                            // 问号信息按钮
-                            IconButton(
-                              tooltip: slang
-                                  .t
-                                  .common
-                                  .tips, // Assuming slang is available
-                              icon: const Icon(
-                                Icons.help_outline,
-                                color: Colors.white,
-                              ),
-                              onPressed: () {
-                                _showInfoModal(context);
-                              },
-                            ),
-                            // 三个点菜单按钮
-                        if (widget.enableMenu)
+                        minScale: PhotoViewComputedScale.contained * 0.5,
+                        maxScale: PhotoViewComputedScale.covered * 3,
+                        initialScale: PhotoViewComputedScale.contained,
+                        controller: controllers[index],
+                      );
+                    },
+                    itemCount: widget.galleryItems.length,
+                    pageController: pageController,
+                    onPageChanged: _onPageChanged,
+                  ),
+                  // 导航控制组件
+                  NavigationControls(
+                    tapAreaWidth: _tapAreaWidth,
+                    showOverlay: _showNavigationOverlay,
+                    // 这里只负责「显示」左右渐变与箭头，真正的点击逻辑在 _onPointerDown/_onPointerUp 中处理
+                    canGoPrevious: currentIndex > 0,
+                    canGoNext: currentIndex < widget.galleryItems.length - 1,
+                  ),
+                  SafeArea(
+                    child: Container(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
                           IconButton(
-                            key: _menuButtonKey,
-                            icon: const Icon(
-                              Icons.more_vert,
-                              color: Colors.white,
-                            ),
-                            onPressed: () {
-                              _showImageMenu(
-                                context,
-                                widget.galleryItems[currentIndex],
-                              );
-                            },
+                            icon: const Icon(Icons.close, color: Colors.white),
+                            onPressed: () => Navigator.of(context).pop(),
                           ),
-                            // 页码显示
-                            const SizedBox(width: 8),
-                            Text(
-                              '${currentIndex + 1}/${widget.galleryItems.length}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                          Row(
+                            children: [
+                              // 问号信息按钮
+                              IconButton(
+                                tooltip: slang.t.common.tips,
+                                icon: const Icon(
+                                  Icons.help_outline,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () {
+                                  _showInfoModal(context);
+                                },
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                              // 三个点菜单按钮
+                              if (widget.enableMenu)
+                                IconButton(
+                                  key: _menuButtonKey,
+                                  icon: const Icon(
+                                    Icons.more_vert,
+                                    color: Colors.white,
+                                  ),
+                                  onPressed: () {
+                                    _showImageMenu(
+                                      context,
+                                      widget.galleryItems[currentIndex],
+                                    );
+                                  },
+                                ),
+                              // 页码显示
+                              const SizedBox(width: 8),
+                              Text(
+                                '${currentIndex + 1}/${widget.galleryItems.length}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

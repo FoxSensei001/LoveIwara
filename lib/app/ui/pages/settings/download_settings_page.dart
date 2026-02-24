@@ -9,6 +9,7 @@ import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/recommended_paths_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/download_test_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart' show showToastWidget, ToastPosition;
@@ -103,6 +104,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
+    final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
 
     return Scaffold(
       body: CustomScrollView(
@@ -116,7 +118,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
               16,
               16,
               16,
-              16 + MediaQuery.of(context).padding.bottom,
+              16 + bottomInset,
             ),
             sliver: SliverList(
               delegate: SliverChildListDelegate([

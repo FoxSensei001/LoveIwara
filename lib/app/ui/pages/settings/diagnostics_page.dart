@@ -16,6 +16,7 @@ import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/log_viewer_page.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -179,6 +180,7 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
   Widget build(BuildContext context) {
     final t = slang.t;
     final theme = Theme.of(context);
+    final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
     final hasConfig = _configService != null;
     final logEnabled = _configBool(ConfigKey.LOGGING_ENABLED, true);
     final persistenceEnabled = _configBool(
@@ -214,7 +216,7 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
               left: 12,
               right: 12,
               top: 8,
-              bottom: 8 + MediaQuery.of(context).padding.bottom,
+              bottom: 8 + bottomInset,
             ),
             sliver: SliverList(
               delegate: SliverChildListDelegate([

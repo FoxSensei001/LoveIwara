@@ -20,6 +20,7 @@ import 'package:i_iwara/app/ui/widgets/grid_speed_dial.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' show t;
 import 'package:i_iwara/common/enums/media_enums.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:flutter/gestures.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -535,6 +536,9 @@ class PopularMediaListPageBaseState<
                     child: Obx(() {
                       final isPaginated =
                           _mediaListController.isPaginated.value;
+                      final shouldApplyBottomSafeAreaPadding =
+                          !Get.find<AppService>().showBottomNavi ||
+                          MediaQuery.sizeOf(context).width > 600;
                       final rebuildKey = _mediaListController.rebuildKey.value
                           .toString();
                       final isMultiSelectMode =
@@ -553,6 +557,7 @@ class PopularMediaListPageBaseState<
                             repository: _repositories[sort.id]!,
                             emptyIcon: widget.emptyIcon,
                             isPaginated: isPaginated,
+                            showBottomPadding: shouldApplyBottomSafeAreaPadding,
                             rebuildKey: rebuildKey,
                             paddingTop: 0, // 使用 Column 布局，不需要 paddingTop
                             mediaListController: _mediaListController,
@@ -577,7 +582,12 @@ class PopularMediaListPageBaseState<
                 // 不再直接返回 SizedBox.shrink()，而是通过动画隐藏
 
                 final isPaginatedNow = _mediaListController.isPaginated.value;
-                final bottomSafeNow = MediaQuery.of(context).padding.bottom;
+                final shouldApplyBottomSafeAreaPadding =
+                    !Get.find<AppService>().showBottomNavi ||
+                    MediaQuery.sizeOf(context).width > 600;
+                final bottomSafeNow = shouldApplyBottomSafeAreaPadding
+                    ? computeBottomSafeInset(MediaQuery.of(context))
+                    : 0.0;
                 final double extraBottomNow = isPaginatedNow
                     ? (46 + bottomSafeNow + 20)
                     : 20;

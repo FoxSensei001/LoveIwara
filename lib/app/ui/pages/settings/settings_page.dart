@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'translation_settings_page.dart';
 
 import '../../../../utils/proxy/proxy_util.dart';
@@ -417,10 +418,11 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
     ];
 
+    final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
     return SliverPadding(
       padding: EdgeInsets.only(
         top: 8,
-        bottom: 8 + MediaQuery.of(context).padding.bottom,
+        bottom: 8 + bottomInset,
       ),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate((context, groupIndex) {

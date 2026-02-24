@@ -6,6 +6,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:oktoast/oktoast.dart';
@@ -169,7 +170,9 @@ class _AITranslationSettingsWidgetState
                   _buildPreviewSection(context),
                   _buildTestConnectionSection(context),
                   _buildEnableSection(context),
-                  SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
+                  SizedBox(
+                    height: computeBottomSafeInset(MediaQuery.of(context)) + 16,
+                  ),
                 ];
 
                 return SliverWaterfallFlow(

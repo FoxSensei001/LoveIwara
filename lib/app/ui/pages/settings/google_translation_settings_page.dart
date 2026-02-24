@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class GoogleTranslationSettingsPage extends StatelessWidget {
@@ -13,6 +14,7 @@ class GoogleTranslationSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final configService = Get.find<ConfigService>();
+    final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
 
     return Scaffold(
       body: CustomScrollView(
@@ -26,7 +28,7 @@ class GoogleTranslationSettingsPage extends StatelessWidget {
               16,
               16,
               16,
-              16 + MediaQuery.of(context).padding.bottom,
+              16 + bottomInset,
             ),
             sliver: SliverList(
               delegate: SliverChildListDelegate([

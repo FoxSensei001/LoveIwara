@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/update_info.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/version_service.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
 
@@ -49,6 +50,7 @@ class _HistoryUpdateLogsPageState extends State<HistoryUpdateLogsPage> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
+    final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
     return Scaffold(
       appBar: AppBar(title: Text(t.settings.historyUpdateLogs)),
       body: _isLoading
@@ -67,17 +69,18 @@ class _HistoryUpdateLogsPageState extends State<HistoryUpdateLogsPage> {
                 ],
               ),
             )
-          : _buildLogsList(),
+          : _buildLogsList(bottomInset),
     );
   }
 
-  Widget _buildLogsList() {
+  Widget _buildLogsList(double bottomInset) {
     final t = slang.Translations.of(context);
     if (_updateLogs.isEmpty) {
       return Center(child: Text(t.settings.noUpdateLogs));
     }
     return ListView.builder(
       itemCount: _updateLogs.length,
+      padding: EdgeInsets.only(bottom: bottomInset),
       itemBuilder: (context, index) {
         final update = _updateLogs[index];
         final configService = Get.find<ConfigService>();

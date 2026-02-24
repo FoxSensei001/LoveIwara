@@ -4,6 +4,7 @@ import 'package:i_iwara/utils/logger_utils.dart' show LogUtils;
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'package:i_iwara/utils/common_utils.dart' show CommonUtils;
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'common_media_list_widgets.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/rendering.dart'; // 用于 ScrollDirection
@@ -568,7 +569,9 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
               top: widget.paddingTop,
               left: 5.0,
               right: 5.0,
-              bottom: MediaQuery.of(context).padding.bottom,
+              bottom: widget.showBottomPadding
+                  ? computeBottomSafeInset(MediaQuery.of(context))
+                  : 0,
             ),
             lastChildLayoutType: LastChildLayoutType.foot,
             indicatorBuilder: (context, status) {
@@ -624,7 +627,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
 
   Widget _buildPaginatedView(BuildContext context) {
     // 获取系统底部安全区域高度
-    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
     // 计算分页栏所需的底部边距（PaginationBar内部已处理paddingBottom，这里只需要基础高度）
     final paginationBarHeight = 46;
 
@@ -660,6 +663,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                   child: _buildPaginatedContent(
                     context,
                     paginationBarHeight,
+                    bottomInset,
                     maxCrossAxisExtent,
                     skeletonLayoutConfig,
                   ),
@@ -667,6 +671,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
               : _buildPaginatedContent(
                   context,
                   paginationBarHeight,
+                  bottomInset,
                   maxCrossAxisExtent,
                   skeletonLayoutConfig,
                 ),
@@ -684,7 +689,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
             isLoading: isLoading,
             onPageChanged: _loadPaginatedData,
             useBlurEffect: true,
-            paddingBottom: bottomPadding.toDouble(),
+            paddingBottom: bottomInset,
             showBottomPadding: widget.showBottomPadding,
           ),
         ),
@@ -695,6 +700,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   Widget _buildPaginatedContent(
     BuildContext context,
     int paginationBarHeight,
+    double bottomInset,
     double maxCrossAxisExtent,
     SkeletonLayoutConfig skeletonLayoutConfig,
   ) {
@@ -735,6 +741,11 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     }
 
     // 数据已加载，显示内容
+    final reservedBottom =
+        paginationBarHeight.toDouble() +
+        (widget.showBottomPadding ? bottomInset : 0) +
+        4; // 为分页控制栏留出空间
+
     return LoadingMoreCustomScrollView(
       controller: widget.scrollController,
       physics: const ClampingScrollPhysics(),
@@ -744,7 +755,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
             top: widget.paddingTop,
             left: 5.0,
             right: 5.0,
-            bottom: paginationBarHeight + 4, // 为分页控制栏留出空间
+            bottom: reservedBottom,
           ),
           sliver: SliverWaterfallFlow(
             delegate: SliverChildBuilderDelegate(

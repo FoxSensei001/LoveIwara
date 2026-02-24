@@ -27,10 +27,12 @@ import '../../../../../../i18n/strings.g.dart' as slang;
 class MyVideoScreen extends StatefulWidget {
   final bool isFullScreen;
   final MyVideoStateController myVideoStateController;
+  final bool enableBottomSafeArea;
 
   const MyVideoScreen({
     super.key,
     this.isFullScreen = false,
+    this.enableBottomSafeArea = false,
     required this.myVideoStateController,
   });
 
@@ -871,6 +873,13 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   }
 
   List<Widget> _buildToolbars() {
+    final bottomToolbar = BottomToolbar(
+      myVideoStateController: widget.myVideoStateController,
+      currentScreenIsFullScreen: widget.isFullScreen,
+      applyBottomSafeAreaPadding:
+          (!widget.isFullScreen && widget.enableBottomSafeArea),
+    );
+
     return [
       Positioned(
         top: -MediaQuery.paddingOf(context).top,
@@ -881,15 +890,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
           currentScreenIsFullScreen: widget.isFullScreen,
         ),
       ),
-      Positioned(
-        bottom: 0,
-        left: 0,
-        right: 0,
-        child: BottomToolbar(
-          myVideoStateController: widget.myVideoStateController,
-          currentScreenIsFullScreen: widget.isFullScreen,
-        ),
-      ),
+      Positioned(bottom: 0, left: 0, right: 0, child: bottomToolbar),
     ];
   }
 

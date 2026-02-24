@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/version_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -360,6 +361,7 @@ class _AboutPageState extends State<AboutPage> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
+    final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
 
     return Scaffold(
       body: CustomScrollView(
@@ -376,7 +378,7 @@ class _AboutPageState extends State<AboutPage> {
                 _buildUpdateSection(),
                 _buildHistoryUpdatesSection(),
                 _buildLinksSection(),
-                SizedBox(height: MediaQuery.of(context).padding.bottom),
+                SizedBox(height: bottomInset),
               ]),
             ),
           ),
