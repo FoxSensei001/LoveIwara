@@ -4,6 +4,7 @@ import 'package:i_iwara/app/models/favorite/favorite_folder.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -154,11 +155,14 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
     final result = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: Container(
+      builder: (context) {
+        final mq = MediaQuery.of(context);
+        final bottomInset = mq.viewInsets.bottom;
+        final bottomSafeInset = computeBottomSafeInset(mq);
+
+        return Padding(
+          padding: EdgeInsets.only(bottom: bottomInset + bottomSafeInset),
+          child: Container(
           padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -204,8 +208,9 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
               ),
             ],
           ),
-        ),
-      ),
+          ),
+        );
+      },
     );
 
     if (result != null && result.trim().isNotEmpty) {

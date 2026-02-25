@@ -5,6 +5,7 @@ import 'package:i_iwara/app/models/play_list.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_controller.dart';
 import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_repository.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:loading_more_list/loading_more_list.dart';
@@ -83,7 +84,7 @@ class _PlayListPageState extends State<PlayListPage> {
           controller: _scrollController,
           slivers: <Widget>[
             LoadingMoreSliverList<PlaylistModel>(
-              SliverListConfig<PlaylistModel>(
+	              SliverListConfig<PlaylistModel>(
                 extendedListDelegate:
                     const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: 300,
@@ -92,35 +93,35 @@ class _PlayListPageState extends State<PlayListPage> {
                 ),
                 itemBuilder: buildItem,
                 sourceList: listSourceRepository,
-                padding: EdgeInsets.only(
-                  left: 5.0,
-                  right: 5.0,
-                  top: 5.0,
-                  bottom: MediaQuery.of(context).padding.bottom, // 添加底部安全区域
-                ),
-                lastChildLayoutType: LastChildLayoutType.foot,
-                indicatorBuilder: (context, status) => myLoadingMoreIndicator(
-                    context, status,
-                    isSliver: true, loadingMoreBase: listSourceRepository),
+	                padding: EdgeInsets.only(
+	                  left: 5.0,
+	                  right: 5.0,
+	                  top: 5.0,
+	                  bottom: computeBottomSafeInset(MediaQuery.of(context)),
+	                ),
+	                lastChildLayoutType: LastChildLayoutType.foot,
+	                indicatorBuilder: (context, status) => myLoadingMoreIndicator(
+	                    context, status,
+	                    isSliver: true, loadingMoreBase: listSourceRepository),
               ),
             ),
           ],
         ),
       ),
-      floatingActionButton: Obx(() => _showBackToTop.value
-          ? FloatingActionButton(
-              onPressed: () {
-                _scrollController.animateTo(
-                  0,
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeInOut,
-                );
-              },
-              child: const Icon(Icons.arrow_upward),
-            ).paddingBottom(MediaQuery.of(context).padding.bottom)
-          : const SizedBox()),
-    );
-  }
+	      floatingActionButton: Obx(() => _showBackToTop.value
+	          ? FloatingActionButton(
+	              onPressed: () {
+	                _scrollController.animateTo(
+	                  0,
+	                  duration: const Duration(milliseconds: 500),
+	                  curve: Curves.easeInOut,
+	                );
+	              },
+	              child: const Icon(Icons.arrow_upward),
+	            ).paddingBottom(computeBottomSafeInset(MediaQuery.of(context)))
+	          : const SizedBox()),
+	    );
+	  }
 
   Widget buildItem(BuildContext c, PlaylistModel playlist, int index) {
     return Card(

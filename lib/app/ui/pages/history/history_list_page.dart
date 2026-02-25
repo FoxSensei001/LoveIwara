@@ -8,6 +8,7 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:oktoast/oktoast.dart';
@@ -224,7 +225,7 @@ class _HistoryListPageState extends State<HistoryListPage>
       builder: (context) {
         final media = MediaQuery.of(context);
         final double bottomInset = media.viewInsets.bottom;
-        final double bottomPadding = media.padding.bottom;
+        final double bottomPadding = computeBottomSafeInset(media);
 
         return DraggableScrollableSheet(
           expand: false,
@@ -232,20 +233,19 @@ class _HistoryListPageState extends State<HistoryListPage>
           minChildSize: 0.25,
           maxChildSize: 0.75,
           builder: (context, scrollController) {
-            return SafeArea(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: 16,
-                  right: 16,
-                  bottom: bottomInset + bottomPadding + 16,
-                  top: 8,
-                ),
-                child: SingleChildScrollView(
-                  controller: scrollController,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                bottom: bottomInset + bottomPadding + 16,
+                top: 8,
+              ),
+              child: SingleChildScrollView(
+                controller: scrollController,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                       Row(
                         children: [
                           Text(
@@ -319,8 +319,7 @@ class _HistoryListPageState extends State<HistoryListPage>
                         );
                       }),
                       const SizedBox(height: 8),
-                    ],
-                  ),
+                  ],
                 ),
               ),
             );
@@ -464,7 +463,7 @@ class _HistoryListPageState extends State<HistoryListPage>
         ).paddingOnly(
           bottom:
               (isMultiSelect ? 120.0 : 0.0) +
-              MediaQuery.of(context).padding.bottom,
+              computeBottomSafeInset(MediaQuery.of(context)),
         );
       }),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -528,7 +527,7 @@ class _HistoryListPageState extends State<HistoryListPage>
               5.0,
               5.0,
               5.0,
-              MediaQuery.of(context).padding.bottom + 5.0,
+              computeBottomSafeInset(MediaQuery.of(context)) + 5.0,
             ),
             lastChildLayoutType: LastChildLayoutType.foot,
             indicatorBuilder: (context, status) => myLoadingMoreIndicator(

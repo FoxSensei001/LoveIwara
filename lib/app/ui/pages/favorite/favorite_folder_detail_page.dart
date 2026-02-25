@@ -9,6 +9,7 @@ import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
@@ -238,7 +239,7 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
                       left: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
                       right: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
                       top: MediaQuery.of(context).size.width <= 600 ? 2.0 : 3.0,
-                      bottom: MediaQuery.of(context).padding.bottom,
+                      bottom: computeBottomSafeInset(MediaQuery.of(context)),
                     ),
                     lastChildLayoutType: LastChildLayoutType.foot,
                     indicatorBuilder: _buildIndicator,
@@ -758,47 +759,53 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
     final t = slang.Translations.of(context);
     final result = await showModalBottomSheet<bool>(
       context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Text(
-                    t.favorite.removeItemTitle,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(t.favorite.removeItemConfirmWithTitle(title: item.title)),
-                ],
-              ),
-            ),
-            const Divider(height: 1),
-            Row(
-              children: [
-                Expanded(
-                  child: TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: Text(t.common.cancel),
-                  ),
+      builder: (context) {
+        final mq = MediaQuery.of(context);
+        final bottomSafeInset = computeBottomSafeInset(mq);
+
+        return Padding(
+          padding: EdgeInsets.only(bottom: bottomSafeInset),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Text(
+                      t.favorite.removeItemTitle,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(t.favorite.removeItemConfirmWithTitle(title: item.title)),
+                  ],
                 ),
-                const VerticalDivider(width: 1),
-                Expanded(
-                  child: TextButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    child: Text(
-                      t.common.confirm,
-                      style: const TextStyle(color: Colors.red),
+              ),
+              const Divider(height: 1),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: Text(t.common.cancel),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+                  const VerticalDivider(width: 1),
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: Text(
+                        t.common.confirm,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
 
     if (result == true) {
@@ -892,11 +899,14 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: Container(
+      builder: (context) {
+        final mq = MediaQuery.of(context);
+        final bottomInset = mq.viewInsets.bottom;
+        final bottomSafeInset = computeBottomSafeInset(mq);
+
+        return Padding(
+          padding: EdgeInsets.only(bottom: bottomInset + bottomSafeInset),
+          child: Container(
           padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -964,8 +974,9 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
               ),
             ],
           ),
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
