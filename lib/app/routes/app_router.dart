@@ -8,6 +8,7 @@ import 'package:i_iwara/app/models/message_and_conversation.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
+import 'package:i_iwara/app/models/cloudflare_challenge.model.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
@@ -20,6 +21,7 @@ import 'package:i_iwara/app/ui/pages/forum/forum_page.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/first_time_setup_page.dart';
 import 'package:i_iwara/app/ui/pages/login/login_page_wrapper.dart';
 import 'package:i_iwara/app/ui/pages/sign_in/sing_in_page.dart';
+import 'package:i_iwara/app/ui/pages/cloudflare/cloudflare_challenge_page.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/video_detail_page_v2.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/gallery_detail_page.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/author_profile_page.dart';
@@ -96,6 +98,30 @@ final GoRouter appRouter = GoRouter(
       path: '/sign_in',
       name: 'sign_in',
       builder: (context, state) => const SignInPage(),
+    ),
+
+    // Cloudflare 人机验证页 —— 顶层路由，不在 Shell 中
+    GoRoute(
+      path: '/cloudflare_challenge',
+      name: 'cloudflare_challenge',
+      pageBuilder: (context, state) {
+        final extra = state.extra;
+        if (extra is! CloudflareChallengeRequest) {
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: const SizedBox.shrink(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) =>
+                    FadeTransition(opacity: animation, child: child),
+          );
+        }
+        return CustomTransitionPage(
+          key: state.pageKey,
+          child: CloudflareChallengePage(request: extra),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+              FadeTransition(opacity: animation, child: child),
+        );
+      },
     ),
 
     // 图片浏览包装页 —— 顶层全屏路由，覆盖 Shell
@@ -569,8 +595,12 @@ String? _guardRedirect(BuildContext context, GoRouterState state) {
         configService[ConfigKey.FIRST_TIME_SETUP_COMPLETED];
 
     final isOnSetupPage = state.matchedLocation == '/first_time_setup';
+    final isOnCloudflareChallengePage =
+        state.matchedLocation == '/cloudflare_challenge';
 
-    if (!isFirstTimeSetupCompleted && !isOnSetupPage) {
+    if (!isFirstTimeSetupCompleted &&
+        !isOnSetupPage &&
+        !isOnCloudflareChallengePage) {
       LogUtils.i('首次设置未完成，重定向到首次设置页面', 'AppRouter');
       return '/first_time_setup';
     }
@@ -595,10 +625,7 @@ Tag _resolveTag(GoRouterState state) {
     return Tag(id: '', type: '');
   }
 
-  LogUtils.w(
-    '标签路由缺少 Tag extra，使用 tagId=$tagId 回退构造 Tag',
-    'AppRouter',
-  );
+  LogUtils.w('标签路由缺少 Tag extra，使用 tagId=$tagId 回退构造 Tag', 'AppRouter');
   return Tag(id: tagId, type: '');
 }
 
@@ -611,10 +638,7 @@ FollowsPageExtra _resolveFollowsExtra(
   final extra = state.extra;
   if (extra is FollowsPageExtra) return extra;
 
-  LogUtils.w(
-    '关注/粉丝路由缺少 FollowsPageExtra，使用 userId=$userId 回退构造',
-    'AppRouter',
-  );
+  LogUtils.w('关注/粉丝路由缺少 FollowsPageExtra，使用 userId=$userId 回退构造', 'AppRouter');
 
   return FollowsPageExtra(
     name: userId,

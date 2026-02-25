@@ -19,6 +19,7 @@ import '../models/captcha.model.dart';
 import 'http_client_factory.dart';
 import 'message_service.dart';
 import 'token_manager.dart';
+import 'cloudflare_service.dart';
 
 /// 认证服务
 /// 使用 TokenManager 管理 token，专注于用户登录/登出逻辑
@@ -73,6 +74,45 @@ class AuthService extends GetxService {
     _tokenManager = TokenManager();
     _dio.httpClientAdapter = IOHttpClientAdapter(
       createHttpClient: HttpClientFactory.instance.createHttpClient,
+    );
+
+    // Cloudflare 403 质询处理：注入 UA/Cookie，并在必要时拉起 WebView 验证后重试一次
+    _dio.interceptors.add(
+      dio.InterceptorsWrapper(
+        onRequest: (options, handler) {
+          if (Get.isRegistered<CloudflareService>()) {
+            try {
+              final cf = Get.find<CloudflareService>();
+              cf.applyHeadersForRequest(
+                headers: options.headers,
+                uri: options.uri,
+              );
+            } catch (_) {}
+          }
+          handler.next(options);
+        },
+        onError: (error, handler) async {
+          if (Get.isRegistered<CloudflareService>()) {
+            try {
+              final cf = Get.find<CloudflareService>();
+              final options = error.requestOptions;
+              final bool alreadyRetried = options.extra['cfRetry'] == true;
+              if (!alreadyRetried && cf.isCloudflareChallenge(error)) {
+                final ok = await cf.ensureVerified(
+                  triggerUri: options.uri,
+                  reason: '登录/认证请求需要通过 Cloudflare 验证',
+                );
+                if (ok) {
+                  options.extra['cfRetry'] = true;
+                  final response = await _dio.fetch(options);
+                  return handler.resolve(response);
+                }
+              }
+            } catch (_) {}
+          }
+          handler.next(error);
+        },
+      ),
     );
   }
 
@@ -293,7 +333,10 @@ class AuthService extends GetxService {
   ) async {
     try {
       final headers = {'X-Captcha': '$captchaId:$captchaAnswer'};
-      final data = {'email': email, 'locale': PlatformDispatcher.instance.locale.countryCode ?? 'en'};
+      final data = {
+        'email': email,
+        'locale': PlatformDispatcher.instance.locale.countryCode ?? 'en',
+      };
       final response = await _dio.post(
         '/user/register',
         data: data,

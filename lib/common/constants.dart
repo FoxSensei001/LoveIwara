@@ -172,6 +172,8 @@ class KeyConstants {
   static const String cfClearance = 'cfClearance';
 
   static const String userAgent = 'userAgent';
+
+  static const String cloudflareCookieStore = 'cloudflare_cookie_store';
 }
 
 class ApiConstants {

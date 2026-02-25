@@ -72,7 +72,7 @@ dependencies:
   media_kit_video: ^2.0.1
   media_kit_libs_video: ^1.0.7
 
-#  flutter_inappwebview: ^6.1.5
+  flutter_inappwebview: ^6.1.5
   dio: ^5.9.1
 #  native_dio_adapter: ^1.4.0
   html: ^0.15.6

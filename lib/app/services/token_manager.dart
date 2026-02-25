@@ -6,9 +6,11 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart' as dio;
 import 'package:dio/io.dart';
+import 'package:get/get.dart';
 
 import '../../common/constants.dart';
 import '../../utils/logger_utils.dart';
+import 'cloudflare_service.dart';
 import 'http_client_factory.dart';
 import 'storage_service.dart';
 
@@ -144,6 +146,44 @@ class TokenManager {
     // 配置 HTTP 客户端适配器（使用共享 HttpClient 实现连接复用）
     _tokenDio.httpClientAdapter = IOHttpClientAdapter(
       createHttpClient: HttpClientFactory.instance.createHttpClient,
+    );
+
+    _tokenDio.interceptors.add(
+      dio.InterceptorsWrapper(
+        onRequest: (options, handler) {
+          if (Get.isRegistered<CloudflareService>()) {
+            try {
+              final cf = Get.find<CloudflareService>();
+              cf.applyHeadersForRequest(
+                headers: options.headers,
+                uri: options.uri,
+              );
+            } catch (_) {}
+          }
+          handler.next(options);
+        },
+        onError: (error, handler) async {
+          if (Get.isRegistered<CloudflareService>()) {
+            try {
+              final cf = Get.find<CloudflareService>();
+              final options = error.requestOptions;
+              final bool alreadyRetried = options.extra['cfRetry'] == true;
+              if (!alreadyRetried && cf.isCloudflareChallenge(error)) {
+                final ok = await cf.ensureVerified(
+                  triggerUri: options.uri,
+                  reason: '刷新令牌需要通过 Cloudflare 验证',
+                );
+                if (ok) {
+                  options.extra['cfRetry'] = true;
+                  final response = await _tokenDio.fetch(options);
+                  return handler.resolve(response);
+                }
+              }
+            } catch (_) {}
+          }
+          handler.next(error);
+        },
+      ),
     );
   }
 

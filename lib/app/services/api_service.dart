@@ -13,6 +13,7 @@ import '../../common/constants.dart';
 import '../../utils/logger_utils.dart';
 import '../ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'auth_service.dart';
+import 'cloudflare_service.dart';
 import 'http_client_factory.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
@@ -65,6 +66,9 @@ class ApiService extends GetxService {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json, text/plain, */*',
+          'x-site': CommonConstants.iwaraSiteHost,
+          'Referer': CommonConstants.iwaraBaseUrl,
+          'Origin': CommonConstants.iwaraBaseUrl,
         },
       ),
     );
@@ -111,6 +115,16 @@ class ApiService extends GetxService {
 
     if (accessToken != null) {
       options.headers['Authorization'] = 'Bearer $accessToken';
+    }
+
+    // 注入 Cloudflare clearance / UA 等信息（如已存在）
+    if (Get.isRegistered<CloudflareService>()) {
+      try {
+        final cf = Get.find<CloudflareService>();
+        cf.applyHeadersForRequest(headers: options.headers, uri: options.uri);
+      } catch (_) {
+        // ignore
+      }
     }
 
     // 标记请求开始时间，用于判断 token 有效性
@@ -181,12 +195,37 @@ class ApiService extends GetxService {
     d_dio.DioException error,
     d_dio.ErrorInterceptorHandler handler,
   ) async {
-    // 处理 Cloudflare 403 质询
-    if (error.response?.statusCode == 403) {
-      final cfMitigated = error.response?.headers['cf-mitigated']?.firstOrNull;
-      if (cfMitigated == 'challenge') {
-        LogUtils.w('$_tag Cloudflare 403 质询，跳过 token 刷新');
-        return handler.next(error);
+    // 处理 Cloudflare 403 质询：拉起 WebView 让用户完成验证后重试一次
+    if (Get.isRegistered<CloudflareService>()) {
+      try {
+        final cf = Get.find<CloudflareService>();
+        final options = error.requestOptions;
+        final bool alreadyRetried = options.extra['cfRetry'] == true;
+        final bool skip = options.extra['skipCfChallenge'] == true;
+
+        if (!skip && !alreadyRetried && cf.isCloudflareChallenge(error)) {
+          LogUtils.w('$_tag Cloudflare 403 质询，尝试拉起验证: ${options.uri}', _tag);
+
+          final ok = await cf.ensureVerified(
+            triggerUri: options.uri,
+            reason: '访问 ${options.uri.host} 需要通过 Cloudflare 验证',
+          );
+
+          if (ok) {
+            options.extra['cfRetry'] = true;
+            try {
+              final response = await _dio.fetch(options);
+              return handler.resolve(response);
+            } catch (e) {
+              LogUtils.w('$_tag Cloudflare 验证后重试失败: $e', _tag);
+              return handler.next(error);
+            }
+          }
+
+          return handler.next(error);
+        }
+      } catch (_) {
+        // ignore
       }
     }
 
