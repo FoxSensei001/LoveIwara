@@ -2,11 +2,15 @@ package m.c.g.a.i_iwara
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.KeyEvent
 import android.view.WindowManager
 import android.webkit.MimeTypeMap
+import android.window.OnBackInvokedCallback
+import android.window.OnBackInvokedDispatcher
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -21,10 +25,12 @@ class MainActivity : FlutterActivity() {
     private val CHANNEL = "i_iwara/volume_key"
     private val SCREENSHOT_CHANNEL = "i_iwara/screenshot"
     private val FILE_HANDLER_CHANNEL = "com.example.i_iwara/file_handler"
+    private val SYSTEM_SETTINGS_CHANNEL = "i_iwara/system_settings"
 
     private var volumeKeyEnabled = false
     private var fileHandlerChannel: MethodChannel? = null
     private val mainScope = CoroutineScope(Dispatchers.Main)
+    private var flutterBackInvokedCallback: OnBackInvokedCallback? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -84,6 +90,32 @@ class MainActivity : FlutterActivity() {
                 }
             }
         }
+
+        // Android system settings & back gesture bridge
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, SYSTEM_SETTINGS_CHANNEL)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "getEnableBackAnimation" -> {
+                        // Settings.Global.enable_back_animation: 1 enabled, 0 disabled
+                        val enabled = try {
+                            Settings.Global.getInt(contentResolver, "enable_back_animation", 0)
+                        } catch (_: Exception) {
+                            0
+                        }
+                        result.success(enabled)
+                    }
+                    "setFlutterBackCallbackEnabled" -> {
+                        val enabled = call.argument<Boolean>("enabled") ?: true
+                        if (enabled) {
+                            registerFlutterBackCallbackIfNeeded()
+                        } else {
+                            unregisterFlutterBackCallbackIfNeeded()
+                        }
+                        result.success(null)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
     }
 
     /**
@@ -211,6 +243,63 @@ class MainActivity : FlutterActivity() {
         
         // 处理启动时的 Intent（从文件管理器打开）
         handleIntent(intent)
+    }
+
+    private fun registerFlutterBackCallbackIfNeeded() {
+        if (Build.VERSION.SDK_INT < 33) return
+        if (flutterBackInvokedCallback != null) return
+
+        flutterBackInvokedCallback = OnBackInvokedCallback {
+            try {
+                val engine = flutterEngine
+                if (engine != null) {
+                    engine.navigationChannel.popRoute()
+                } else {
+                    // Fallback: if engine is not available, exit normally.
+                    finishAfterTransition()
+                }
+            } catch (e: Exception) {
+                Log.w("MainActivity", "onBackInvoked dispatch failed: ${e.message}", e)
+                finishAfterTransition()
+            }
+        }
+
+        try {
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(
+                OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+                flutterBackInvokedCallback!!
+            )
+            Log.d("MainActivity", "Registered Flutter OnBackInvokedCallback")
+        } catch (e: Exception) {
+            Log.w("MainActivity", "Failed to register OnBackInvokedCallback: ${e.message}", e)
+        }
+    }
+
+    private fun unregisterFlutterBackCallbackIfNeeded() {
+        if (Build.VERSION.SDK_INT < 33) return
+        val callback = flutterBackInvokedCallback ?: return
+        try {
+            onBackInvokedDispatcher.unregisterOnBackInvokedCallback(callback)
+        } catch (e: Exception) {
+            Log.w("MainActivity", "Failed to unregister OnBackInvokedCallback: ${e.message}", e)
+        } finally {
+            flutterBackInvokedCallback = null
+        }
+    }
+
+    override fun onDestroy() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            val callback = flutterBackInvokedCallback
+            if (callback != null) {
+                try {
+                    onBackInvokedDispatcher.unregisterOnBackInvokedCallback(callback)
+                } catch (e: Exception) {
+                    Log.w("MainActivity", "Failed to unregister OnBackInvokedCallback: ${e.message}", e)
+                }
+            }
+            flutterBackInvokedCallback = null
+        }
+        super.onDestroy()
     }
 
     override fun onNewIntent(intent: Intent) {

@@ -3138,22 +3138,31 @@ class MyVideoStateController extends GetxController
     _previewSeekThrottleTimer?.cancel();
     _previewSeekThrottleTimer = null;
 
-    previewDurationSubscription?.cancel();
+    final durationSub = previewDurationSubscription;
     previewDurationSubscription = null;
 
-    previewPlayingSubscription?.cancel();
+    final playingSub = previewPlayingSubscription;
     previewPlayingSubscription = null;
 
+    // 先把字段置空，避免与初始化/销毁并发导致二次 dispose。
+    final playerToDispose = previewPlayer;
+    previewPlayer = null;
+    previewVideoController = null;
+
     try {
-      if (previewPlayer != null) {
-        await previewPlayer!.dispose();
-        previewPlayer = null;
+      await durationSub?.cancel();
+      await playingSub?.cancel();
+
+      if (playerToDispose != null) {
+        try {
+          playerToDispose.pause();
+        } catch (_) {}
+        await playerToDispose.dispose();
       }
     } catch (e) {
       LogUtils.w('释放预览播放器失败: $e', 'MyVideoStateController');
     }
 
-    previewVideoController = null;
     previewVideoUrl = null;
     _isPreviewPlayerReinitializeRequested = false;
     isPreviewPlayerReady.value = false;

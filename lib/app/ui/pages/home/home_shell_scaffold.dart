@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:i_iwara/app/services/android_back_gesture_bridge.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
@@ -62,6 +65,12 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     userService.startNotificationTimer();
+    unawaited(
+      AndroidBackGestureBridge.loadBackAnimationEnabledOnce().then((_) {
+        if (!mounted) return;
+        _ensureFrameworkHandlesBack(reason: 'loadBackAnimationEnabledOnce');
+      }),
+    );
     _ensureFrameworkHandlesBack(reason: 'initState');
   }
 
@@ -195,6 +204,9 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
 
   /// Whether we are at the true home root (tab root, no overlay, no detail page).
   bool get _isAtHomeRoot {
+    // If current route isn't a tab root, we're definitely not at home root.
+    // This avoids transient false positives during route transitions.
+    if (!_isTabRootRoute) return false;
     if (OverlayTracker.instance.hasOverlay) return false;
     final shellNav = shellNavigatorKey.currentState;
     if (shellNav != null && shellNav.canPop()) return false;
@@ -214,10 +226,25 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
           final rootState = isAtHomeRoot ?? _isAtHomeRoot;
-          SystemNavigator.setFrameworkHandlesBack(true);
+          final backAnimationEnabled =
+              AndroidBackGestureBridge.backAnimationEnabled ?? false;
+
+          // Strategy (方案 1):
+          // - 非 Home root：始终由 Flutter 接管返回，避免 OEM 走系统 finish。
+          // - Home root：
+          //   - 若系统预测返回动画可用（enable_back_animation=1）→ 交回系统处理（获得系统手势返回动画）
+          //   - 否则 → 仍由 Flutter 接管（保留 ExitConfirmUtil 二次确认拦截）
+          final shouldHandleBack = !rootState || !backAnimationEnabled;
+
+          AndroidBackGestureBridge.syncFrameworkHandlesBack(
+            shouldHandleBack: shouldHandleBack,
+            reason:
+                'HomeShellScaffold.$reason path=${widget.currentPath} isAtHomeRoot=$rootState backAnimationEnabled=$backAnimationEnabled',
+          );
           LogUtils.d(
-            'setFrameworkHandlesBack(true): reason=$reason, '
-                'path=${widget.currentPath}, isAtHomeRoot=$rootState',
+            'setFrameworkHandlesBack($shouldHandleBack): reason=$reason, '
+                'path=${widget.currentPath}, isAtHomeRoot=$rootState, '
+                'backAnimationEnabled=$backAnimationEnabled',
             'HomeShellScaffold',
           );
         });
@@ -274,6 +301,23 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
 
           // At home root → double-confirm exit
           if (isAtRoot) {
+            // On Android (especially with predictive back), let the system exit
+            // immediately. Other platforms keep the confirm behavior.
+            if (GetPlatform.isAndroid) {
+              final backAnimationEnabled =
+                  AndroidBackGestureBridge.backAnimationEnabled ?? false;
+              if (backAnimationEnabled) {
+                // Ideally, home root should be handled by system (frameworkHandlesBack=false)
+                // so this callback should rarely run. Keep a direct-exit fallback here.
+                SystemNavigator.pop();
+              } else {
+                ExitConfirmUtil.handleExit(
+                  context,
+                  () => SystemNavigator.pop(),
+                );
+              }
+              return;
+            }
             ExitConfirmUtil.handleExit(context, () => SystemNavigator.pop());
             return;
           }

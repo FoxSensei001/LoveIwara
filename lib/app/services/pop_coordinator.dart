@@ -52,13 +52,32 @@ class PopCoordinator {
   /// 系统返回键的回调，在 GoRouter 处理之前触发。
   static Future<bool> _handleSystemBack() async {
     final consumed = tryCloseOverlayOrDrawer();
+    final rootCanPop = rootNavigatorKey.currentState?.canPop() ?? false;
+    final shellCanPop = shellNavigatorKey.currentState?.canPop() ?? false;
+    final routerCanPop = appRouter.canPop();
     LogUtils.d(
       '系统返回键：已消费=$consumed, overlayCount=${OverlayTracker.instance.overlayCount}, '
-          'rootCanPop=${rootNavigatorKey.currentState?.canPop() ?? false}, '
-          'shellCanPop=${shellNavigatorKey.currentState?.canPop() ?? false}',
+          'rootCanPop=$rootCanPop, shellCanPop=$shellCanPop, routerCanPop=$routerCanPop',
       'PopCoordinator',
     );
-    return consumed;
+
+    if (consumed) return true;
+
+    // 在 Android 预测返回场景里，有些“Dialog pop -> push detail -> back”的快速序列下，
+    // back 事件可能落到系统默认 finish（Activity$2.navigateBack），导致直接退出应用。
+    // 这里做一个兜底：只要 Flutter 侧任意导航栈可返回，就由 PopCoordinator 统一执行 pop，
+    // 并显式消费这次系统 back，避免系统 finish。
+    if (rootCanPop || shellCanPop || routerCanPop) {
+      final ctx = rootNavigatorKey.currentContext;
+      if (ctx != null) {
+        LogUtils.d('系统返回键：兜底消费 -> handleBack()', 'PopCoordinator');
+        handleBack(ctx);
+        return true;
+      }
+    }
+
+    // 让 GoRouter / PopScope 再走一遍默认链路（例如首页根路由的退出确认）。
+    return false;
   }
 
   /// ESC/返回键是否应该显示“再按一次退出”的二次确认。

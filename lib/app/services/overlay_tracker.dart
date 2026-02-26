@@ -4,10 +4,20 @@ import 'package:get/get.dart';
 /// NavigatorObserver that tracks the count of PopupRoute overlays (dialogs, bottom sheets).
 /// Replaces Get.isDialogOpen / Get.isBottomSheetOpen.
 class OverlayTracker extends NavigatorObserver {
-  OverlayTracker._();
-  static final OverlayTracker instance = OverlayTracker._();
+  OverlayTracker._(this.scope);
 
-  final RxInt _overlayCount = 0.obs;
+  /// One NavigatorObserver instance can only be attached to a single Navigator.
+  /// We use two observers (root + shell) but share a global counter.
+  static final OverlayTracker root = OverlayTracker._('root');
+  static final OverlayTracker shell = OverlayTracker._('shell');
+
+  /// Backward-compatible accessor for read-only usage.
+  /// Do NOT attach [instance] to another Navigator.
+  static OverlayTracker get instance => root;
+
+  final String scope;
+
+  static final RxInt _overlayCount = 0.obs;
 
   /// Whether any overlay (dialog / bottom sheet) is currently visible.
   bool get hasOverlay => _overlayCount.value > 0;

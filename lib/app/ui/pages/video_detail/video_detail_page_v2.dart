@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
+import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/ui/pages/local_video_detail/widgets/local_video_info_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/my_video_screen.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/skeletons/video_detail_info_skeleton_widget.dart';
@@ -208,20 +209,36 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
 
     return Obx(() {
       final fullscreenActive = controller.isFullscreen.value;
+      final overlayActive = OverlayTracker.instance.hasOverlay;
 
       return PopScope(
         // Fullscreen is now handled inside the same page route.
         // When fullscreen is active, back should first exit fullscreen.
-        canPop: !fullscreenActive,
+        // On Android predictive back, when a dialog (PopupRoute) is visible,
+        // allowing the page route to pop can leave the dialog behind.
+        // Block page pop while an overlay is present, and delegate to
+        // PopCoordinator via AppService.tryPop to close the overlay first.
+        canPop: !fullscreenActive && !overlayActive,
         onPopInvokedWithResult: (didPop, result) {
+          final overlayActiveNow = OverlayTracker.instance.hasOverlay;
           LogUtils.d(
             'video detail PopScope: didPop=$didPop, '
                 'controllerFullscreen=${controller.isFullscreen.value}, '
+                'overlayActive=$overlayActiveNow, '
                 'routeCurrent=${ModalRoute.of(context)?.isCurrent}',
             'MyVideoDetailPage',
           );
 
           if (didPop) return;
+
+          if (overlayActiveNow) {
+            LogUtils.d(
+              'video detail PopScope -> close overlay via AppService.tryPop',
+              'MyVideoDetailPage',
+            );
+            AppService.tryPop(context: context);
+            return;
+          }
 
           if (controller.isFullscreen.value) {
             LogUtils.d(

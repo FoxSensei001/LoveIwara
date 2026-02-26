@@ -14,6 +14,7 @@ import 'package:i_iwara/utils/proxy/proxy_util.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 import '../routes/app_router.dart';
+import 'android_back_gesture_bridge.dart';
 import 'pop_coordinator.dart';
 
 class AppService extends GetxService {
@@ -165,14 +166,46 @@ class NavigationItem {
 }
 
 class NaviService {
+  static void _ensureAndroidFrameworkHandlesBack(String reason) {
+    if (!GetPlatform.isAndroid) return;
+
+    void apply(String phase) {
+      AndroidBackGestureBridge.syncFrameworkHandlesBack(
+        shouldHandleBack: true,
+        reason: 'NaviService $reason ($phase)',
+      );
+      PopCoordinator.ensureDispatcherPriority('NaviService $reason ($phase)');
+      LogUtils.d(
+        'ensureFrameworkHandlesBack(true): reason=$reason, phase=$phase, '
+            'rootCanPop=${rootNavigatorKey.currentState?.canPop() ?? false}, '
+            'shellCanPop=${shellNavigatorKey.currentState?.canPop() ?? false}, '
+            'appRouterCanPop=${appRouter.canPop()}',
+        'NaviService',
+      );
+    }
+
+    // Apply immediately (best-effort), then again after upcoming frame(s).
+    // This helps in fast sequences like "dialog pop -> push detail" where
+    // Android predictive back can temporarily fall back to system finish.
+    apply('immediate');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      apply('postFrame1');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        apply('postFrame2');
+      });
+    });
+  }
+
   /// 跳转到作者个人主页
   static void navigateToAuthorProfilePage(String username) {
     appRouter.push('/author_profile/$username');
+    _ensureAndroidFrameworkHandlesBack('push author_profile/$username');
   }
 
   /// 跳转到图库详情页
   static void navigateToGalleryDetailPage(String id) {
     appRouter.push('/gallery_detail/$id');
+    _ensureAndroidFrameworkHandlesBack('push gallery_detail/$id');
   }
 
   /// 跳转到视频详情页
@@ -184,6 +217,7 @@ class NaviService {
       '/video_detail/$id',
       extra: extData != null ? VideoDetailExtra(extData: extData) : null,
     );
+    _ensureAndroidFrameworkHandlesBack('push video_detail/$id');
   }
 
   /// 跳转到登录页
@@ -435,6 +469,7 @@ class NaviService {
         localAllQualityTasks: allQualityTasks,
       ),
     );
+    _ensureAndroidFrameworkHandlesBack('push video_detail/$randomVideoId');
   }
 
   /// 跳转到本地视频播放页面（从外部文件路径进入）
@@ -446,5 +481,6 @@ class NaviService {
       '/video_detail/$randomVideoId',
       extra: VideoDetailExtra(localPath: filePath),
     );
+    _ensureAndroidFrameworkHandlesBack('push video_detail/$randomVideoId');
   }
 }
