@@ -112,6 +112,7 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
       sourceList: widget.repository,
       emptyIcon: widget.emptyIcon,
       isPaginated: widget.isPaginated,
+      forceTotalCountUnknown: widget.isPaginated,
       scrollController: _scrollController,
       paddingTop: widget.paddingTop,
       showBottomPadding: widget.showBottomPadding,

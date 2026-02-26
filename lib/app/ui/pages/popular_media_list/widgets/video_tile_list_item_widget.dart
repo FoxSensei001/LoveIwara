@@ -404,11 +404,24 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
     if (!context.mounted) return;
 
     // 显示预览模态框
-    showDialog(
+    final result = await showDialog<VideoPreviewModalResult>(
       context: context,
       builder: (BuildContext context) {
         return VideoPreviewDetailModal(video: widget.video);
       },
     );
+
+    if (!mounted || result == null) return;
+
+    switch (result.type) {
+      case VideoPreviewModalActionType.openVideo:
+        if (result.videoId?.isNotEmpty ?? false) {
+          NaviService.navigateToVideoDetailPage(result.videoId!);
+        }
+        break;
+      case VideoPreviewModalActionType.openAuthor:
+        NaviService.navigateToAuthorProfilePage(result.username ?? '');
+        break;
+    }
   }
 }

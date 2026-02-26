@@ -5,6 +5,7 @@ import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'package:i_iwara/utils/common_utils.dart' show CommonUtils;
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'common_media_list_widgets.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/rendering.dart'; // 用于 ScrollDirection
@@ -177,6 +178,7 @@ class MediaListView<T> extends StatefulWidget {
   final bool enablePerformanceLogging;
   final bool showBottomPadding;
   final bool enablePullToRefresh;
+  final bool forceTotalCountUnknown;
 
   /// 分页切换时的回调（用于多选模式下重置选择）
   final VoidCallback? onPageChanged;
@@ -193,6 +195,7 @@ class MediaListView<T> extends StatefulWidget {
     this.enablePerformanceLogging = false,
     this.showBottomPadding = true,
     this.enablePullToRefresh = true,
+    this.forceTotalCountUnknown = false,
     this.onPageChanged,
   });
 
@@ -218,6 +221,10 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   // 添加一个标志来跟踪模式是否已切换
   bool _modeSwitched = false;
 
+  // 当接口不返回 total(count) 时，用于记录“已知最后一页”
+  // null 表示未知最后一页；非 null 表示最后一页（含）索引
+  int? _unknownTotalMaxPageIndex;
+
   final ScrollThrottler _scrollThrottler = ScrollThrottler();
 
   // 添加 MediaListController 引用
@@ -234,6 +241,19 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   }
 
   int get totalPages => totalItems > 0 ? (totalItems / itemsPerPage).ceil() : 1;
+
+  bool get _isTotalCountUnknown =>
+      widget.forceTotalCountUnknown ||
+      (totalItems <= 0 && paginatedItems.isNotEmpty);
+
+  bool get _canGoNextWhenTotalUnknown {
+    if (!_isTotalCountUnknown) return false;
+    if (_unknownTotalMaxPageIndex != null) {
+      return currentPage < _unknownTotalMaxPageIndex!;
+    }
+    // 没有 total 时：用 pageSize 做启发式判断，满页才认为可能有下一页
+    return paginatedItems.isNotEmpty && paginatedItems.length >= itemsPerPage;
+  }
 
   @override
   void initState() {
@@ -346,6 +366,11 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   Future<void> _loadPaginatedData(int page) async {
     if (isLoading) return;
 
+    // page=0 时通常意味着刷新/重载，清空“未知 total 的最后页”缓存
+    if (page == 0) {
+      _unknownTotalMaxPageIndex = null;
+    }
+
     setState(() {
       isLoading = true;
       // 根据是否是首次加载或模式切换来设置适当的指示器状态
@@ -366,6 +391,30 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
 
         // 确保组件仍然挂载
         if (!mounted) return;
+
+        final bool isTotalUnknownThisFetch =
+            widget.forceTotalCountUnknown ||
+            (repo.requestTotalCount <= 0 &&
+                (items.isNotEmpty || paginatedItems.isNotEmpty));
+
+        // 无 total 时：如果尝试加载“下一页”却返回空列表，说明已经到最后一页
+        if (isTotalUnknownThisFetch &&
+            page > currentPage &&
+            items.isEmpty &&
+            paginatedItems.isNotEmpty) {
+          setState(() {
+            isLoading = false;
+            _isFirstLoad = false;
+            _modeSwitched = false;
+            _unknownTotalMaxPageIndex = currentPage;
+            _indicatorStatus = IndicatorStatus.noMoreLoad;
+          });
+          final messenger = ScaffoldMessenger.maybeOf(context);
+          messenger?.showSnackBar(
+            SnackBar(content: Text(slang.t.common.noMoreDatas)),
+          );
+          return;
+        }
 
         // 添加过渡动画效果
         if (items.isNotEmpty &&
@@ -391,10 +440,17 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
           // 根据结果设置适当的状态
           if (items.isEmpty && page == 0) {
             _indicatorStatus = IndicatorStatus.empty;
-          } else if (items.isEmpty) {
-            _indicatorStatus = IndicatorStatus.noMoreLoad;
           } else {
-            _indicatorStatus = IndicatorStatus.none;
+            if (isTotalUnknownThisFetch &&
+                items.isNotEmpty &&
+                items.length < itemsPerPage) {
+              _unknownTotalMaxPageIndex = page;
+              _indicatorStatus = IndicatorStatus.noMoreLoad;
+            } else if (items.isEmpty) {
+              _indicatorStatus = IndicatorStatus.noMoreLoad;
+            } else {
+              _indicatorStatus = IndicatorStatus.none;
+            }
           }
         });
 
@@ -691,6 +747,8 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
             useBlurEffect: true,
             paddingBottom: bottomInset,
             showBottomPadding: widget.showBottomPadding,
+            isTotalCountUnknown: _isTotalCountUnknown,
+            canGoNext: _isTotalCountUnknown ? _canGoNextWhenTotalUnknown : true,
           ),
         ),
       ],

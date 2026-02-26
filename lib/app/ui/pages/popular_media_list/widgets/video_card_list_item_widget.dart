@@ -106,12 +106,25 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
     );
   }
 
-  void _showDetailsModal() {
+  Future<void> _showDetailsModal() async {
     if (!mounted) return;
-    showDialog(
+    final result = await showDialog<VideoPreviewModalResult>(
       context: context,
       builder: (_) => VideoPreviewDetailModal(video: widget.video),
     );
+
+    if (!mounted || result == null) return;
+
+    switch (result.type) {
+      case VideoPreviewModalActionType.openVideo:
+        if (result.videoId?.isNotEmpty ?? false) {
+          NaviService.navigateToVideoDetailPage(result.videoId!);
+        }
+        break;
+      case VideoPreviewModalActionType.openAuthor:
+        NaviService.navigateToAuthorProfilePage(result.username ?? '');
+        break;
+    }
   }
 }
 

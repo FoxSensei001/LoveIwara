@@ -68,10 +68,15 @@ class GalleryService extends GetxService {
           .map((imageModel) => ImageModel.fromJson(imageModel))
           .toList();
 
+      final pageDataMap = response.data as Map<String, dynamic>;
+      final int safePage = (pageDataMap['page'] as num?)?.toInt() ?? page;
+      final int safeLimit = (pageDataMap['limit'] as num?)?.toInt() ?? limit;
+      final int safeCount = (pageDataMap['count'] as num?)?.toInt() ?? 0;
+
       final PageData<ImageModel> pageData = PageData(
-        page: response.data['page'],
-        limit: response.data['limit'],
-        count: response.data['count'],
+        page: safePage,
+        limit: safeLimit,
+        count: safeCount,
         results: results,
       );
 
@@ -136,10 +141,15 @@ class GalleryService extends GetxService {
           .map((userJson) => User.fromJson(userJson['user']))
           .toList();
 
+      final pageDataMap = response.data as Map<String, dynamic>;
+      final int safePage = (pageDataMap['page'] as num?)?.toInt() ?? page;
+      final int safeLimit = (pageDataMap['limit'] as num?)?.toInt() ?? limit;
+      final int safeCount = (pageDataMap['count'] as num?)?.toInt() ?? 0;
+
       final PageData<User> pageData = PageData(
-        page: response.data['page'],
-        limit: response.data['limit'],
-        count: response.data['count'],
+        page: safePage,
+        limit: safeLimit,
+        count: safeCount,
         results: results,
       );
 
@@ -166,10 +176,15 @@ class GalleryService extends GetxService {
           .map((item) => ImageModel.fromJson(item['image']))
           .toList();
 
+      final pageDataMap = response.data as Map<String, dynamic>;
+      final int safePage = (pageDataMap['page'] as num?)?.toInt() ?? page;
+      final int safeLimit = (pageDataMap['limit'] as num?)?.toInt() ?? limit;
+      final int safeCount = (pageDataMap['count'] as num?)?.toInt() ?? 0;
+
       final PageData<ImageModel> pageData = PageData(
-        page: response.data['page'],
-        limit: response.data['limit'],
-        count: response.data['count'],
+        page: safePage,
+        limit: safeLimit,
+        count: safeCount,
         results: results,
       );
 

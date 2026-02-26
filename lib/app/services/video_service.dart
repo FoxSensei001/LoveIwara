@@ -56,10 +56,15 @@ class VideoService extends GetxService {
           .map((video) => Video.fromJson(video))
           .toList();
 
+      final pageDataMap = response.data as Map<String, dynamic>;
+      final int safePage = (pageDataMap['page'] as num?)?.toInt() ?? page;
+      final int safeLimit = (pageDataMap['limit'] as num?)?.toInt() ?? limit;
+      final int safeCount = (pageDataMap['count'] as num?)?.toInt() ?? 0;
+
       final PageData<Video> pageData = PageData(
-        page: response.data['page'],
-        limit: response.data['limit'],
-        count: response.data['count'],
+        page: safePage,
+        limit: safeLimit,
+        count: safeCount,
         results: results,
       );
 
@@ -125,10 +130,15 @@ class VideoService extends GetxService {
           .map((userJson) => User.fromJson(userJson['user']))
           .toList();
 
+      final pageDataMap = response.data as Map<String, dynamic>;
+      final int safePage = (pageDataMap['page'] as num?)?.toInt() ?? page;
+      final int safeLimit = (pageDataMap['limit'] as num?)?.toInt() ?? limit;
+      final int safeCount = (pageDataMap['count'] as num?)?.toInt() ?? 0;
+
       final PageData<User> pageData = PageData(
-        page: response.data['page'],
-        limit: response.data['limit'],
-        count: response.data['count'],
+        page: safePage,
+        limit: safeLimit,
+        count: safeCount,
         results: results,
       );
 
@@ -155,10 +165,15 @@ class VideoService extends GetxService {
           .map((item) => Video.fromJson(item['video']))
           .toList();
 
+      final pageDataMap = response.data as Map<String, dynamic>;
+      final int safePage = (pageDataMap['page'] as num?)?.toInt() ?? page;
+      final int safeLimit = (pageDataMap['limit'] as num?)?.toInt() ?? limit;
+      final int safeCount = (pageDataMap['count'] as num?)?.toInt() ?? 0;
+
       final PageData<Video> pageData = PageData(
-        page: response.data['page'],
-        limit: response.data['limit'],
-        count: response.data['count'],
+        page: safePage,
+        limit: safeLimit,
+        count: safeCount,
         results: results,
       );
 

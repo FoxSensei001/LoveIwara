@@ -411,6 +411,8 @@ class PaginationBar extends StatefulWidget {
   final bool useBlurEffect;
   final double paddingBottom;
   final bool showBottomPadding;
+  final bool isTotalCountUnknown;
+  final bool canGoNext;
 
   const PaginationBar({
     super.key,
@@ -423,6 +425,8 @@ class PaginationBar extends StatefulWidget {
     this.useBlurEffect = false,
     this.paddingBottom = 0,
     this.showBottomPadding = true,
+    this.isTotalCountUnknown = false,
+    this.canGoNext = true,
   });
 
   @override
@@ -545,21 +549,33 @@ class _PaginationBarState extends State<PaginationBar>
 
     try {
       final targetPage = int.parse(_pageController.text);
-      if (targetPage >= 1 && targetPage <= widget.totalPages) {
+      final bool hasValidLowerBound = targetPage >= 1;
+      final bool hasValidUpperBound =
+          widget.isTotalCountUnknown || targetPage <= widget.totalPages;
+      if (hasValidLowerBound && hasValidUpperBound) {
         widget.onPageChanged(targetPage - 1);
         FocusScope.of(context).unfocus();
       } else {
         // 显示错误提示
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              slang.t.common.pagination.invalidPageNumber(
-                max: widget.totalPages,
-              ),
+        if (!hasValidLowerBound) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(slang.t.common.pagination.invalidInput),
+              duration: const Duration(seconds: 2),
             ),
-            duration: const Duration(seconds: 2),
-          ),
-        );
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                slang.t.common.pagination.invalidPageNumber(
+                  max: widget.totalPages,
+                ),
+              ),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
       }
     } catch (e) {
       // 输入非数字时显示错误提示
@@ -583,11 +599,12 @@ class _PaginationBarState extends State<PaginationBar>
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              slang.t.common.pagination.pleaseEnterPageNumber(
-                max: widget.totalPages,
+            if (!widget.isTotalCountUnknown)
+              Text(
+                slang.t.common.pagination.pleaseEnterPageNumber(
+                  max: widget.totalPages,
+                ),
               ),
-            ),
             const SizedBox(height: 16),
             TextField(
               controller: _pageController,
@@ -647,6 +664,11 @@ class _PaginationBarState extends State<PaginationBar>
               LayoutBuilder(
                 builder: (context, constraints) {
                   final isNarrow = constraints.maxWidth < 600;
+                  if (widget.isTotalCountUnknown) {
+                    return isNarrow
+                        ? _buildUnknownTotalCompactPaginationBar(context)
+                        : _buildUnknownTotalFullPaginationBar(context);
+                  }
                   return isNarrow
                       ? _buildCompactPaginationBar(context)
                       : _buildFullPaginationBar(context);
@@ -702,6 +724,148 @@ class _PaginationBarState extends State<PaginationBar>
       // 直接返回常规内容
       return barContent;
     }
+  }
+
+  Widget _buildUnknownTotalFullPaginationBar(BuildContext context) {
+    final pageNumberText =
+        '${slang.t.common.pagination.pageNumber}: ${widget.currentPage + 1}';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // 左侧：页码信息（总量未知时不显示总数）
+          Container(
+            constraints: const BoxConstraints(maxWidth: 140),
+            child: Text(
+              pageNumberText,
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+
+          // 中间：上一页/下一页导航
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildNavButton(
+                icon: Icons.chevron_left,
+                enabled: widget.currentPage > 0 && !widget.isLoading,
+                onPressed: () => widget.onPageChanged(widget.currentPage - 1),
+              ),
+              const SizedBox(width: 8),
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(18),
+                  onTap: widget.isLoading ? null : _showJumpPageDialog,
+                  child: Container(
+                    constraints: const BoxConstraints(minWidth: 68),
+                    height: 36,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${widget.currentPage + 1}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              _wrapWithTooltipIfNeeded(
+                widget.canGoNext,
+                child: _buildNavButton(
+                  icon: Icons.chevron_right,
+                  enabled: widget.canGoNext && !widget.isLoading,
+                  onPressed: () => widget.onPageChanged(widget.currentPage + 1),
+                ),
+              ),
+            ],
+          ),
+
+          // 右侧占位，保持布局平衡
+          const SizedBox(width: 140),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUnknownTotalCompactPaginationBar(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // 左侧：页码信息（不可点击跳转）
+          Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+            child: InkWell(
+              onTap: widget.isLoading ? null : _showJumpPageDialog,
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  '${slang.t.common.pagination.pageNumber}: ${widget.currentPage + 1}',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          // 右侧：上一页和下一页按钮
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildNavButton(
+                icon: Icons.chevron_left,
+                enabled: widget.currentPage > 0 && !widget.isLoading,
+                onPressed: () => widget.onPageChanged(widget.currentPage - 1),
+              ),
+              const SizedBox(width: 12),
+              _wrapWithTooltipIfNeeded(
+                widget.canGoNext,
+                child: _buildNavButton(
+                  icon: Icons.chevron_right,
+                  enabled: widget.canGoNext && !widget.isLoading,
+                  onPressed: () => widget.onPageChanged(widget.currentPage + 1),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _wrapWithTooltipIfNeeded(bool enabled, {required Widget child}) {
+    if (enabled) return child;
+    return Tooltip(message: slang.t.common.noMoreDatas, child: child);
   }
 
   // 构建已完成的进度指示器 (100%)

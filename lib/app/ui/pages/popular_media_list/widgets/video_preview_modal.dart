@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:shimmer/shimmer.dart';
@@ -7,6 +6,24 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../models/video.model.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+
+enum VideoPreviewModalActionType { openVideo, openAuthor }
+
+@immutable
+class VideoPreviewModalResult {
+  final VideoPreviewModalActionType type;
+  final String? videoId;
+  final String? username;
+
+  const VideoPreviewModalResult._(this.type, {this.videoId, this.username});
+
+  const VideoPreviewModalResult.openVideo(String id)
+      : this._(VideoPreviewModalActionType.openVideo, videoId: id);
+
+  const VideoPreviewModalResult.openAuthor(String username)
+      : this._(VideoPreviewModalActionType.openAuthor, username: username);
+}
+
 class VideoPreviewDetailModal extends StatelessWidget {
   final Video video;
 
@@ -46,9 +63,10 @@ class VideoPreviewDetailModal extends StatelessWidget {
                           children: [
                             GestureDetector(
                               onTap: () {
-                                // 关闭弹窗
-                                Navigator.of(context).pop();
-                                NaviService.navigateToVideoDetailPage(video.id);
+                                // 关闭弹窗并返回动作，由调用方执行导航，避免在 Dialog context 内直接 push。
+                                Navigator.of(context).pop(
+                                  VideoPreviewModalResult.openVideo(video.id),
+                                );
                               },
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,12 +156,10 @@ class VideoPreviewDetailModal extends StatelessWidget {
                             const SizedBox(height: 8),
                             InkWell(
                               onTap: () {
-                                // 关闭弹窗
-                                Navigator.of(context).pop();
-
-                                // 跳转
-                                NaviService.navigateToAuthorProfilePage(
-                                  video.user?.username ?? '',
+                                Navigator.of(context).pop(
+                                  VideoPreviewModalResult.openAuthor(
+                                    video.user?.username ?? '',
+                                  ),
                                 );
                               },
                               hoverColor: Colors.transparent,

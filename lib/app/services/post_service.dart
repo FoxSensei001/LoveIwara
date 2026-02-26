@@ -1,4 +1,3 @@
-
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
@@ -9,6 +8,7 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+
 class PostService extends GetxService {
   final ApiService _apiService = Get.find();
 
@@ -37,18 +37,21 @@ class PostService extends GetxService {
     int limit = 20,
   }) async {
     try {
-      var response = await _apiService.get(ApiConstants.posts(), queryParameters: {
-        ...params,
-        'page': page,
-        'limit': limit,
-      });
+      var response = await _apiService.get(
+        ApiConstants.posts(),
+        queryParameters: {...params, 'page': page, 'limit': limit},
+      );
       final List<PostModel> results = (response.data['results'] as List)
           .map((postModel) => PostModel.fromJson(postModel))
           .toList();
+      final pageDataMap = response.data as Map<String, dynamic>;
+      final int safePage = (pageDataMap['page'] as num?)?.toInt() ?? page;
+      final int safeLimit = (pageDataMap['limit'] as num?)?.toInt() ?? limit;
+      final int safeCount = (pageDataMap['count'] as num?)?.toInt() ?? 0;
       final PageData<PostModel> pageData = PageData(
-        page: response.data['page'],
-        limit: response.data['limit'],
-        count: response.data['count'],
+        page: safePage,
+        limit: safeLimit,
+        count: safeCount,
         results: results,
       );
       return ApiResult.success(data: pageData);
@@ -64,15 +67,24 @@ class PostService extends GetxService {
     int page = 0,
     int limit = 20,
   }) async {
-    return await fetchPostList(params: {'subscribed': true}, page: page, limit: limit);
+    return await fetchPostList(
+      params: {'subscribed': true},
+      page: page,
+      limit: limit,
+    );
   }
 
   /// 获取用户的帖子列表
-  Future<ApiResult<PageData<PostModel>>> fetchUserPostList(String userId, {
+  Future<ApiResult<PageData<PostModel>>> fetchUserPostList(
+    String userId, {
     int page = 0,
     int limit = 20,
   }) async {
-    return await fetchPostList(params: {'user': userId}, page: page, limit: limit);
+    return await fetchPostList(
+      params: {'user': userId},
+      page: page,
+      limit: limit,
+    );
   }
 
   /// 发送帖子
@@ -80,7 +92,10 @@ class PostService extends GetxService {
   /// @param body 内容
   Future<ApiResult<void>> postPost(String title, String body) async {
     try {
-      await _apiService.post(ApiConstants.posts(), data: {'title': title, 'body': body, 'rulesAgreement': true});
+      await _apiService.post(
+        ApiConstants.posts(),
+        data: {'title': title, 'body': body, 'rulesAgreement': true},
+      );
       return ApiResult.success();
     } catch (e) {
       if (e is DioException) {
@@ -115,4 +130,3 @@ class PostService extends GetxService {
     }
   }
 }
-

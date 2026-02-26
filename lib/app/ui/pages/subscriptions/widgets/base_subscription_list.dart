@@ -229,6 +229,7 @@ abstract class BaseSubscriptionListState<
       sourceList: repository,
       emptyIcon: emptyIcon,
       isPaginated: widget.isPaginated,
+      forceTotalCountUnknown: widget.isPaginated,
       extendedListDelegate: extendedListDelegate,
       scrollController: _scrollController,
       paddingTop: widget.paddingTop,
