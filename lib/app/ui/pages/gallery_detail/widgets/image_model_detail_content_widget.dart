@@ -77,16 +77,35 @@ class ImageModelDetailContent extends StatelessWidget {
         _buildGalleryDescriptionSection(context),
         const SizedBox(height: UIConstants.sectionSpacing),
 
+        // 操作按钮区域（紧跟个人简介）
+        _buildActionButtonsSection(context),
+        const SizedBox(height: UIConstants.sectionSpacing),
+
         // 图库标签
         _buildTagsSection(context),
         const SizedBox(height: UIConstants.sectionSpacing),
 
-        // 操作按钮区域
-        _buildActionButtonsSection(context),
-        const SizedBox(height: UIConstants.sectionSpacing),
         // 点赞头像区域
         _buildLikeAvatarsSection(context),
       ],
+    );
+  }
+
+  Widget _buildSectionCard(
+    BuildContext context, {
+    required Widget child,
+    EdgeInsetsGeometry padding = const EdgeInsets.all(UIConstants.cardPadding),
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      padding: padding,
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.15)),
+      ),
+      child: child,
     );
   }
 
@@ -210,12 +229,8 @@ class ImageModelDetailContent extends StatelessWidget {
       final imageModelInfo = controller.imageModelInfo.value;
       if (imageModelInfo == null) return const SizedBox.shrink();
 
-      return Container(
-        padding: const EdgeInsets.all(UIConstants.cardPadding),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(12),
-        ),
+      return _buildSectionCard(
+        context,
         child: Row(
           children: [
             Expanded(
@@ -264,9 +279,12 @@ class ImageModelDetailContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: UIConstants.listSpacing),
-          MediaDescriptionWidget(
-            description: description,
-            isDescriptionExpanded: controller.isDescriptionExpanded,
+          _buildSectionCard(
+            context,
+            child: MediaDescriptionWidget(
+              description: description,
+              isDescriptionExpanded: controller.isDescriptionExpanded,
+            ),
           ),
         ],
       );
@@ -301,32 +319,35 @@ class ImageModelDetailContent extends StatelessWidget {
       final imageModelId = controller.imageModelInfo.value?.id;
       if (imageModelId == null) return const SizedBox.shrink();
 
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.favorite, size: 16, color: Colors.grey[600]),
-              const SizedBox(width: UIConstants.iconTextSpacing),
-              Text(
-                t.common.likeThisVideo,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey[700],
+      return _buildSectionCard(
+        context,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.favorite, size: 16, color: Colors.grey[600]),
+                const SizedBox(width: UIConstants.iconTextSpacing),
+                Text(
+                  t.common.likeThisVideo,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[700],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: UIConstants.listSpacing),
-          SizedBox(
-            height: 40,
-            child: LikeAvatarsWidget(
-              mediaId: imageModelId,
-              mediaType: MediaType.IMAGE,
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: UIConstants.listSpacing),
+            SizedBox(
+              height: 40,
+              child: LikeAvatarsWidget(
+                mediaId: imageModelId,
+                mediaType: MediaType.IMAGE,
+              ),
+            ),
+          ],
+        ),
       );
     });
   }
@@ -337,26 +358,29 @@ class ImageModelDetailContent extends StatelessWidget {
     final imageModelInfo = controller.imageModelInfo.value;
     if (imageModelInfo == null) return const SizedBox.shrink();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(Icons.build, size: 16, color: Colors.grey[600]),
-            const SizedBox(width: UIConstants.iconTextSpacing),
-            Text(
-              t.common.operation,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[700],
+    return _buildSectionCard(
+      context,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.build, size: 16, color: Colors.grey[600]),
+              const SizedBox(width: UIConstants.iconTextSpacing),
+              Text(
+                t.common.operation,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[700],
+                ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: UIConstants.interElementSpacing),
-        _buildActionButtons(context),
-      ],
+            ],
+          ),
+          const SizedBox(height: UIConstants.interElementSpacing),
+          _buildActionButtons(context),
+        ],
+      ),
     );
   }
 
@@ -366,88 +390,84 @@ class ImageModelDetailContent extends StatelessWidget {
     final imageModelInfo = controller.imageModelInfo.value;
     if (imageModelInfo == null) return const SizedBox.shrink();
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(UIConstants.cardPadding),
-      decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Wrap(
-        spacing: UIConstants.listSpacing, // Horizontal space between buttons
-        runSpacing: UIConstants.listSpacing, // Vertical space between rows
-        children: [
-          FilledLikeButton(
-            mediaId: imageModelInfo.id,
-            liked: imageModelInfo.liked,
-            likeCount: imageModelInfo.numLikes,
-            onLike: (id) async {
-              final result = await Get.find<GalleryService>().likeImage(id);
-              return result.isSuccess;
-            },
-            onUnlike: (id) async {
-              final result = await Get.find<GalleryService>().unlikeImage(id);
-              return result.isSuccess;
-            },
-            onLikeChanged: (liked) {
-              controller.imageModelInfo.value = controller.imageModelInfo.value
-                  ?.copyWith(
-                    liked: liked,
-                    numLikes:
-                        (controller.imageModelInfo.value?.numLikes ?? 0) +
-                        (liked ? 1 : -1),
-                  );
-            },
-          ),
-          Obx(
-            () => FilledActionButton(
-              icon: controller.isInAnyFavorite.value
-                  ? Icons.bookmark
-                  : Icons.bookmark_border,
-              label: t.favorite.localizeFavorite,
-              onTap: () => _addToFavorite(context),
-              accentColor: controller.isInAnyFavorite.value
-                  ? Theme.of(context).primaryColor
-                  : null,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        FilledActionButton(
+          icon: Icons.download,
+          label: t.download.download,
+          onTap: () => _downloadGallery(context),
+          // 下载作为主操作，默认高亮；已有下载任务时保持高亮状态。
+          accentColor: Theme.of(context).primaryColor,
+        ),
+        const SizedBox(height: UIConstants.listSpacing),
+        Wrap(
+          spacing: UIConstants.listSpacing, // Horizontal space between buttons
+          runSpacing: UIConstants.listSpacing, // Vertical space between rows
+          children: [
+            FilledLikeButton(
+              mediaId: imageModelInfo.id,
+              liked: imageModelInfo.liked,
+              likeCount: imageModelInfo.numLikes,
+              onLike: (id) async {
+                final result = await Get.find<GalleryService>().likeImage(id);
+                return result.isSuccess;
+              },
+              onUnlike: (id) async {
+                final result = await Get.find<GalleryService>().unlikeImage(id);
+                return result.isSuccess;
+              },
+              onLikeChanged: (liked) {
+                controller.imageModelInfo.value = controller
+                    .imageModelInfo
+                    .value
+                    ?.copyWith(
+                      liked: liked,
+                      numLikes:
+                          (controller.imageModelInfo.value?.numLikes ?? 0) +
+                          (liked ? 1 : -1),
+                    );
+              },
             ),
-          ),
-          Obx(
-            () => FilledActionButton(
-              icon: Icons.download,
-              label: t.download.download,
-              onTap: () => _downloadGallery(context),
-              accentColor: controller.hasAnyDownloadTask.value
-                  ? Theme.of(context).primaryColor
-                  : null,
+            Obx(
+              () => FilledActionButton(
+                icon: controller.isInAnyFavorite.value
+                    ? Icons.bookmark
+                    : Icons.bookmark_border,
+                label: t.favorite.localizeFavorite,
+                onTap: () => _addToFavorite(context),
+                accentColor: controller.isInAnyFavorite.value
+                    ? Theme.of(context).primaryColor
+                    : null,
+              ),
             ),
-          ),
-          FilledActionButton(
-            icon: Icons.share,
-            label: slang.t.common.share,
-            onTap: () {
-              showModalBottomSheet(
-                backgroundColor: Colors.transparent,
-                isScrollControlled: true,
-                builder: (context) {
-                  // Ensure imageModelInfo is not null before accessing its properties
-                  final info = controller.imageModelInfo.value;
-                  if (info == null)
-                    return const SizedBox.shrink(); // Or return an error/placeholder
-                  return ShareGalleryBottomSheet(
-                    galleryId: info.id,
-                    galleryTitle: info.title,
-                    authorName: info.user?.name ?? '',
-                    previewUrl: info.thumbnailUrl,
-                  );
-                },
-                context: context,
-              );
-            },
-          ),
-        ],
-      ),
+            FilledActionButton(
+              icon: Icons.share,
+              label: slang.t.common.share,
+              onTap: () {
+                showModalBottomSheet(
+                  backgroundColor: Colors.transparent,
+                  isScrollControlled: true,
+                  builder: (context) {
+                    // Ensure imageModelInfo is not null before accessing its properties
+                    final info = controller.imageModelInfo.value;
+                    if (info == null) {
+                      return const SizedBox.shrink(); // Or return an error/placeholder
+                    }
+                    return ShareGalleryBottomSheet(
+                      galleryId: info.id,
+                      galleryTitle: info.title,
+                      authorName: info.user?.name ?? '',
+                      previewUrl: info.thumbnailUrl,
+                    );
+                  },
+                  context: context,
+                );
+              },
+            ),
+          ],
+        ),
+      ],
     );
   }
 

@@ -83,10 +83,7 @@ class _FilledActionButtonState extends State<FilledActionButton> {
     const radiusValue = 20.0;
 
     // 边框定义
-    final border = Border.all(
-      color: borderColor,
-      width: 1,
-    );
+    final border = Border.all(color: borderColor, width: 1);
 
     // 内部 Padding
     const internalPadding = EdgeInsets.symmetric(
@@ -123,11 +120,7 @@ class _FilledActionButtonState extends State<FilledActionButton> {
                       child: Icon(widget.icon, size: 20),
                     )
                   else
-                    Icon(
-                      widget.icon,
-                      size: 20,
-                      color: contentColor,
-                    ),
+                    Icon(widget.icon, size: 20, color: contentColor),
                   const SizedBox(width: UIConstants.iconTextSpacing),
                   Text(
                     widget.label,
@@ -232,10 +225,7 @@ class _FilledLikeButtonState extends State<FilledLikeButton> {
       // 使用 CommonUtils.parseExceptionMessage 来获取详细的错误信息
       final errorMessage = CommonUtils.parseExceptionMessage(e);
       showToastWidget(
-        MDToastWidget(
-          message: errorMessage,
-          type: MDToastType.error,
-        ),
+        MDToastWidget(message: errorMessage, type: MDToastType.error),
         position: ToastPosition.top,
       );
     } finally {
@@ -252,7 +242,9 @@ class _FilledLikeButtonState extends State<FilledLikeButton> {
     // 如果 liked 为 null，显示 loading 状态
     final bool isLoadingState = _isLiked == null || _isLoading;
     final bool isLiked = _isLiked == true;
-    final Color? accentColor = isLiked ? Theme.of(context).colorScheme.error : null;
+    final Color? accentColor = isLiked
+        ? Theme.of(context).colorScheme.error
+        : null;
 
     return FilledActionButton(
       icon: isLiked ? Icons.favorite : Icons.favorite_border,
@@ -274,6 +266,7 @@ class SplitFilledButton extends StatelessWidget {
   final bool isDisabled;
   final IconData? icon; // 左侧按钮的图标
   final Color? accentColor; // 高亮颜色，用于已下载等状态
+  final bool isPrimary; // 主操作样式（用于强调关键按钮）
 
   const SplitFilledButton({
     super.key,
@@ -284,6 +277,7 @@ class SplitFilledButton extends StatelessWidget {
     this.isDisabled = false,
     this.icon,
     this.accentColor,
+    this.isPrimary = false,
   });
 
   @override
@@ -294,14 +288,23 @@ class SplitFilledButton extends StatelessWidget {
 
     // 1. 颜色定义：确保边框颜色清晰
     // 使用 outline 并提高不透明度确保可见，或者使用 accentColor
+    final defaultBorderColor = isPrimary
+        ? colorScheme.primary.withValues(alpha: 0.35)
+        : colorScheme.outline.withValues(alpha: 0.4);
+    final defaultBackgroundColor = isPrimary
+        ? colorScheme.primary.withValues(alpha: 0.14)
+        : colorScheme.surfaceContainerHighest;
+    final defaultContentColor = isPrimary
+        ? colorScheme.primary
+        : colorScheme.onSurface;
     final borderColor = hasAccentColor
         ? accentColor!.withValues(alpha: 0.3)
-        : colorScheme.outline.withValues(alpha: 0.4);
+        : defaultBorderColor;
     final backgroundColor = hasAccentColor
         ? accentColor!.withValues(alpha: 0.1)
-        : colorScheme.surfaceContainerHighest;
+        : defaultBackgroundColor;
     final contentColor = isEnabled
-        ? (hasAccentColor ? accentColor : colorScheme.onSurface)
+        ? (hasAccentColor ? accentColor : defaultContentColor)
         : colorScheme.onSurface.withValues(alpha: 0.38);
 
     // 2. 圆角定义
@@ -364,11 +367,7 @@ class SplitFilledButton extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (icon != null) ...[
-                        Icon(
-                          icon,
-                          size: 20,
-                          color: contentColor,
-                        ),
+                        Icon(icon, size: 20, color: contentColor),
                         const SizedBox(width: UIConstants.iconTextSpacing),
                       ],
                       Text(
@@ -389,10 +388,7 @@ class SplitFilledButton extends StatelessWidget {
           // =======================
           // 2. 中间：分割线
           // =======================
-          Container(
-            width: 1,
-            color: borderColor,
-          ),
+          Container(width: 1, color: borderColor),
 
           // =======================
           // 3. 右侧：下拉菜单按钮
@@ -447,4 +443,3 @@ class SplitFilledButton extends StatelessWidget {
     );
   }
 }
-

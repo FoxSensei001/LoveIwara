@@ -113,7 +113,10 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
 
   Future<void> _handleTranslation() async {
     // 直接使用原始description进行翻译
-    await _translationController.translate(widget.description ?? '', originalText: widget.description);
+    await _translationController.translate(
+      widget.description ?? '',
+      originalText: widget.description,
+    );
     // 翻译后重新检测溢出
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkOverflow();
@@ -171,71 +174,63 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
             ),
           ),
           ClipRect(
-            child: Stack(
-              children: [
-                AnimatedSize(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  alignment: Alignment.topCenter,
-                  child: Container(
-                    width: double.infinity,
-                    constraints: BoxConstraints(
-                      maxHeight: expanded || !_hasOverflow 
-                          ? double.infinity 
-                          : _defaultMaxHeight,
-                    ),
-                    child: SingleChildScrollView(
-                      physics: const NeverScrollableScrollPhysics(),
-                      key: _contentKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          CustomMarkdownBody(
-                            data: widget.description ?? '',
-                            originalData: widget.description,
-                            showTranslationButton: false,
-                            translationController: _translationController,
-                          ),
-                          if (!expanded && _hasOverflow) const SizedBox(height: 60),
-                        ],
-                      ),
-                    ),
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              alignment: Alignment.topCenter,
+              child: Container(
+                width: double.infinity,
+                constraints: BoxConstraints(
+                  maxHeight: expanded || !_hasOverflow
+                      ? double.infinity
+                      : _defaultMaxHeight,
+                ),
+                child: SingleChildScrollView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  key: _contentKey,
+                  child: CustomMarkdownBody(
+                    data: widget.description ?? '',
+                    originalData: widget.description,
+                    showTranslationButton: false,
+                    translationController: _translationController,
                   ),
                 ),
-                if (!expanded && _hasOverflow)
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    child: Material(
+              ),
+            ),
+          ),
+          if (_hasOverflow) const SizedBox(height: 8),
+          if (_hasOverflow)
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 280),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              transitionBuilder: (child, animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: SizeTransition(
+                    sizeFactor: animation,
+                    axisAlignment: -1.0,
+                    child: child,
+                  ),
+                );
+              },
+              child: expanded
+                  ? Material(
+                      key: const ValueKey('collapse_text_button'),
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: () {
-                          widget.isDescriptionExpanded.value = true;
-                          _checkOverflow();
+                          widget.isDescriptionExpanded.value = false;
                         },
                         child: Container(
-                          height: 60,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Theme.of(
-                                  context,
-                                ).colorScheme.surface.withValues(alpha: 0.0),
-                                Theme.of(
-                                  context,
-                                ).colorScheme.surface.withValues(alpha: 0.9),
-                              ],
-                            ),
-                          ),
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
                           child: Center(
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  t.common.expand,
+                                  t.common.collapse,
                                   style: TextStyle(
                                     color: Theme.of(
                                       context,
@@ -244,7 +239,7 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                                   ),
                                 ),
                                 Icon(
-                                  Icons.keyboard_arrow_down,
+                                  Icons.keyboard_arrow_up,
                                   color: Theme.of(context).colorScheme.primary,
                                 ),
                               ],
@@ -252,42 +247,36 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                           ),
                         ),
                       ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          if (_hasOverflow) const SizedBox(height: 4),
-          if (expanded && _hasOverflow)
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  widget.isDescriptionExpanded.value = false;
-                },
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          t.common.collapse,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontWeight: FontWeight.bold,
+                    )
+                  : SizedBox(
+                      key: const ValueKey('expand_material_button'),
+                      width: double.infinity,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          widget.isDescriptionExpanded.value = true;
+                          _checkOverflow();
+                        },
+                        child: Center(
+                          child: FilledButton.icon(
+                            onPressed: () {
+                              widget.isDescriptionExpanded.value = true;
+                              _checkOverflow();
+                            },
+                            icon: const Icon(Icons.keyboard_arrow_down),
+                            label: Text(t.common.expand),
+                            style: FilledButton.styleFrom(
+                              visualDensity: VisualDensity.compact,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
+                              shape: const StadiumBorder(),
+                            ),
                           ),
                         ),
-                        Icon(
-                          Icons.keyboard_arrow_up,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-              ),
             ),
         ],
       );

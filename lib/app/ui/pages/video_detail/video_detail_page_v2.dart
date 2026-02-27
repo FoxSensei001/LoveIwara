@@ -133,6 +133,14 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   @override
   void didPushNext() {
     LogUtils.d('didPushNext', 'MyVideoDetailPage');
+    // 弹窗/菜单（PopupRoute）覆盖时不自动暂停，避免工具栏弹层打断播放。
+    if (OverlayTracker.instance.hasOverlay) {
+      LogUtils.d(
+        'didPushNext ignored because popup overlay is active',
+        'MyVideoDetailPage',
+      );
+      return;
+    }
     // 暂停播放
     controller.player.pause();
     // 重置屏幕亮度

@@ -67,7 +67,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
     return Obx(() {
       if (widget.controller.pageLoadingState.value ==
           VideoDetailPageLoadingState.loadingVideoInfo) {
-        return const Center(child: CircularProgressIndicator());
+        return _buildVideoInfoLoadingSkeleton(context);
       }
       if (widget.controller.mainErrorWidget.value != null) {
         return widget.controller.mainErrorWidget.value!;
@@ -93,6 +93,165 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
         ),
       );
     });
+  }
+
+  Widget _buildSectionCard(
+    BuildContext context, {
+    required Widget child,
+    EdgeInsetsGeometry padding = const EdgeInsets.all(UIConstants.cardPadding),
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      padding: padding,
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.15)),
+      ),
+      child: child,
+    );
+  }
+
+  Widget _buildVideoInfoLoadingSkeleton(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(UIConstants.pagePadding),
+      child: Shimmer.fromColors(
+        baseColor: colorScheme.surfaceContainerHighest,
+        highlightColor: colorScheme.surfaceContainerLow,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 26,
+              width: MediaQuery.of(context).size.width * 0.68,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            const SizedBox(height: UIConstants.sectionSpacing),
+            Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: UIConstants.pagePadding),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        height: 14,
+                        width: 140,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                      const SizedBox(height: UIConstants.smallSpacing),
+                      Container(
+                        height: 12,
+                        width: 90,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: UIConstants.sectionSpacing),
+            _buildSectionCard(
+              context,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: List.generate(
+                  3,
+                  (index) => Padding(
+                    padding: EdgeInsets.only(
+                      bottom: index == 2 ? 0 : UIConstants.listSpacing,
+                    ),
+                    child: Container(
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: UIConstants.sectionSpacing),
+            _buildSectionCard(
+              context,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 14,
+                    width: 100,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  const SizedBox(height: UIConstants.interElementSpacing),
+                  Wrap(
+                    spacing: UIConstants.listSpacing,
+                    runSpacing: UIConstants.listSpacing,
+                    children: List.generate(
+                      4,
+                      (_) => Container(
+                        width: 90,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: UIConstants.sectionSpacing),
+            _buildSectionCard(
+              context,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: List.generate(
+                  4,
+                  (index) => Padding(
+                    padding: EdgeInsets.only(
+                      bottom: index == 3 ? 0 : UIConstants.smallSpacing,
+                    ),
+                    child: Container(
+                      height: 12,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SafeArea(child: SizedBox.shrink()),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildVideoTitle(BuildContext context) {
@@ -216,15 +375,16 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
         // 视频描述
         _buildVideoDescriptionSection(context),
 
+        // 操作按钮区域（紧跟个人简介）
+        const SizedBox(height: UIConstants.sectionSpacing),
+        _buildActionButtonsSection(context),
+
         // 视频标签
         _buildVideoTagsSection(context),
 
         // Oreno3D信息区域
         _buildOreno3dSection(context),
 
-        // 操作按钮区域
-        const SizedBox(height: UIConstants.sectionSpacing),
-        _buildActionButtonsSection(context),
         const SizedBox(height: UIConstants.sectionSpacing),
         // 点赞头像区域
         _buildLikeAvatarsSection(context),
@@ -239,12 +399,8 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
       final videoInfo = widget.controller.videoInfo.value;
       if (videoInfo == null) return const SizedBox.shrink();
 
-      return Container(
-        padding: const EdgeInsets.all(UIConstants.cardPadding),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(12),
-        ),
+      return _buildSectionCard(
+        context,
         child: Row(
           children: [
             Expanded(
@@ -324,10 +480,14 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: UIConstants.listSpacing),
-          VideoDescriptionWidget(
-            description: description,
-            isDescriptionExpanded: widget.controller.isDescriptionExpanded,
-            onToggleDescription: widget.controller.isDescriptionExpanded.toggle,
+          _buildSectionCard(
+            context,
+            child: VideoDescriptionWidget(
+              description: description,
+              isDescriptionExpanded: widget.controller.isDescriptionExpanded,
+              onToggleDescription:
+                  widget.controller.isDescriptionExpanded.toggle,
+            ),
           ),
         ],
       );
@@ -567,32 +727,35 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
       final videoId = widget.controller.videoInfo.value?.id;
       if (videoId == null) return const SizedBox.shrink();
 
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.favorite, size: 16, color: Colors.grey[600]),
-              const SizedBox(width: UIConstants.iconTextSpacing),
-              Text(
-                t.common.likeThisVideo,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey[700],
+      return _buildSectionCard(
+        context,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.favorite, size: 16, color: Colors.grey[600]),
+                const SizedBox(width: UIConstants.iconTextSpacing),
+                Text(
+                  t.common.likeThisVideo,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[700],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: UIConstants.listSpacing),
-          SizedBox(
-            height: 40,
-            child: LikeAvatarsWidget(
-              mediaId: videoId,
-              mediaType: MediaType.VIDEO,
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: UIConstants.listSpacing),
+            SizedBox(
+              height: 40,
+              child: LikeAvatarsWidget(
+                mediaId: videoId,
+                mediaType: MediaType.VIDEO,
+              ),
+            ),
+          ],
+        ),
       );
     });
   }
@@ -602,26 +765,29 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
     final videoInfo = widget.controller.videoInfo.value;
     if (videoInfo == null) return const SizedBox.shrink();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(Icons.build, size: 16, color: Colors.grey[600]),
-            const SizedBox(width: UIConstants.iconTextSpacing),
-            Text(
-              t.common.operation,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[700],
+    return _buildSectionCard(
+      context,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.build, size: 16, color: Colors.grey[600]),
+              const SizedBox(width: UIConstants.iconTextSpacing),
+              Text(
+                t.common.operation,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[700],
+                ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: UIConstants.interElementSpacing),
-        _buildActionButtons(context),
-      ],
+            ],
+          ),
+          const SizedBox(height: UIConstants.interElementSpacing),
+          _buildActionButtons(context),
+        ],
+      ),
     );
   }
 
@@ -631,78 +797,74 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
     final videoInfo = widget.controller.videoInfo.value;
     if (videoInfo == null) return const SizedBox.shrink();
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(UIConstants.cardPadding),
-      decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Wrap(
-        spacing: UIConstants.listSpacing, // Horizontal space between buttons
-        runSpacing: UIConstants.listSpacing, // Vertical space between rows
-        children: [
-          FilledLikeButton(
-            mediaId: videoInfo.id,
-            liked: videoInfo.liked,
-            likeCount: videoInfo.numLikes ?? 0,
-            onLike: (id) async =>
-                (await Get.find<VideoService>().likeVideo(id)).isSuccess,
-            onUnlike: (id) async =>
-                (await Get.find<VideoService>().unlikeVideo(id)).isSuccess,
-            onLikeChanged: (liked) {
-              widget.controller.videoInfo.value = widget
-                  .controller
-                  .videoInfo
-                  .value
-                  ?.copyWith(
-                    liked: liked,
-                    numLikes:
-                        (widget.controller.videoInfo.value?.numLikes ?? 0) +
-                        (liked ? 1 : -1),
-                  );
-              // 更新缓存中的点赞信息
-              widget.controller.updateCachedVideoLikeInfo(
-                videoInfo.id,
-                liked,
-                widget.controller.videoInfo.value?.numLikes ?? 0,
-              );
-            },
-          ),
-          Obx(
-            () => FilledActionButton(
-              icon: widget.controller.isInAnyPlaylist.value
-                  ? Icons.playlist_add_check
-                  : Icons.playlist_add,
-              label: t.common.playList,
-              onTap: () => _handlePlaylistAction(context),
-              accentColor: widget.controller.isInAnyPlaylist.value
-                  ? Theme.of(context).primaryColor
-                  : null,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildDownloadSplitButton(context, isPrimary: true),
+        const SizedBox(height: UIConstants.listSpacing),
+        Wrap(
+          spacing: UIConstants.listSpacing, // Horizontal space between buttons
+          runSpacing: UIConstants.listSpacing, // Vertical space between rows
+          children: [
+            FilledLikeButton(
+              mediaId: videoInfo.id,
+              liked: videoInfo.liked,
+              likeCount: videoInfo.numLikes ?? 0,
+              onLike: (id) async =>
+                  (await Get.find<VideoService>().likeVideo(id)).isSuccess,
+              onUnlike: (id) async =>
+                  (await Get.find<VideoService>().unlikeVideo(id)).isSuccess,
+              onLikeChanged: (liked) {
+                widget.controller.videoInfo.value = widget
+                    .controller
+                    .videoInfo
+                    .value
+                    ?.copyWith(
+                      liked: liked,
+                      numLikes:
+                          (widget.controller.videoInfo.value?.numLikes ?? 0) +
+                          (liked ? 1 : -1),
+                    );
+                // 更新缓存中的点赞信息
+                widget.controller.updateCachedVideoLikeInfo(
+                  videoInfo.id,
+                  liked,
+                  widget.controller.videoInfo.value?.numLikes ?? 0,
+                );
+              },
             ),
-          ),
-          Obx(
-            () => FilledActionButton(
-              icon: widget.controller.isInAnyFavorite.value
-                  ? Icons.bookmark
-                  : Icons.bookmark_border,
-              label: t.favorite.localizeFavorite,
-              onTap: () => _handleFavoriteAction(context, videoInfo),
-              accentColor: widget.controller.isInAnyFavorite.value
-                  ? Theme.of(context).primaryColor
-                  : null,
+            Obx(
+              () => FilledActionButton(
+                icon: widget.controller.isInAnyPlaylist.value
+                    ? Icons.playlist_add_check
+                    : Icons.playlist_add,
+                label: t.common.playList,
+                onTap: () => _handlePlaylistAction(context),
+                accentColor: widget.controller.isInAnyPlaylist.value
+                    ? Theme.of(context).primaryColor
+                    : null,
+              ),
             ),
-          ),
-          _buildDownloadSplitButton(context),
-          FilledActionButton(
-            icon: Icons.share,
-            label: t.common.share,
-            onTap: () => _handleShareAction(context),
-          ),
-        ],
-      ),
+            Obx(
+              () => FilledActionButton(
+                icon: widget.controller.isInAnyFavorite.value
+                    ? Icons.bookmark
+                    : Icons.bookmark_border,
+                label: t.favorite.localizeFavorite,
+                onTap: () => _handleFavoriteAction(context, videoInfo),
+                accentColor: widget.controller.isInAnyFavorite.value
+                    ? Theme.of(context).primaryColor
+                    : null,
+              ),
+            ),
+            FilledActionButton(
+              icon: Icons.share,
+              label: t.common.share,
+              onTap: () => _handleShareAction(context),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -790,7 +952,10 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
   }
 
   /// 构建下载 Split Button
-  Widget _buildDownloadSplitButton(BuildContext context) {
+  Widget _buildDownloadSplitButton(
+    BuildContext context, {
+    bool isPrimary = false,
+  }) {
     final t = slang.Translations.of(context);
     final configService = Get.find<ConfigService>();
 
@@ -821,6 +986,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
       return SplitFilledButton(
         label: '${t.common.download} $qualityLabel',
         icon: downloadIcon,
+        isPrimary: isPrimary,
         onPressed: isDisabled
             ? null
             : () => _handleDownloadWithQuality(context, currentQuality),
