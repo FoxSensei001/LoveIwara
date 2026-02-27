@@ -26,6 +26,10 @@ class UserService extends GetxService {
 
   final String _tag = '[UserService]';
 
+  bool _isReady = false;
+  bool _pendingBackgroundRefresh = false;
+  bool _pendingNotificationRefresh = false;
+
   Rxn<User> currentUser = Rxn<User>();
   RxInt notificationCount = RxInt(0);
   RxInt friendRequestsCount = RxInt(0);
@@ -79,7 +83,15 @@ class UserService extends GetxService {
       });
       // 立即执行一次
       if (_authService.hasToken) {
-        refreshNotificationCount();
+        if (_isReady) {
+          Future.delayed(const Duration(milliseconds: 800), () {
+            if (_authService.hasToken) {
+              refreshNotificationCount();
+            }
+          });
+        } else {
+          _pendingNotificationRefresh = true;
+        }
       }
     }
   }
@@ -127,6 +139,21 @@ class UserService extends GetxService {
     // 如果当前已经认证，初始化用户数据
     if (_authService.isAuthenticated) {
       _initializeUserData();
+    }
+  }
+
+  /// 标记 App UI 已就绪（首帧渲染完成），允许后台网络刷新。
+  void markReady() {
+    if (_isReady) return;
+    _isReady = true;
+
+    if (_pendingBackgroundRefresh) {
+      _pendingBackgroundRefresh = false;
+      _refreshUserDataInBackground();
+    }
+    if (_pendingNotificationRefresh) {
+      _pendingNotificationRefresh = false;
+      refreshNotificationCount();
     }
   }
 
@@ -770,10 +797,18 @@ class UserService extends GetxService {
 
   // 后台异步刷新用户数据
   void _refreshUserDataInBackground() {
+    if (!_isReady) {
+      _pendingBackgroundRefresh = true;
+      LogUtils.d('$_tag App UI 未就绪，延后后台刷新用户数据');
+      return;
+    }
+
     Future.microtask(() async {
       if (_authService.hasToken) {
         try {
           LogUtils.d('$_tag 开始后台刷新用户数据');
+          // 启动阶段短暂延后，确保网络栈（Cloudflare context）已绑定
+          await Future.delayed(const Duration(milliseconds: 800));
           await _fetchUserProfileSilently();
         } catch (e) {
           LogUtils.w('$_tag 后台刷新用户数据失败: $e');

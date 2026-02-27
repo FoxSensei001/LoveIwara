@@ -9,6 +9,8 @@
 # packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 analyzer:
+  exclude:
+    - third_party/**
   enable-experiment:
     - macros
 linter:

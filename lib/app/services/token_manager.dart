@@ -10,6 +10,7 @@ import 'package:dio/io.dart';
 import '../../common/constants.dart';
 import '../../utils/logger_utils.dart';
 import 'http_client_factory.dart';
+import 'iwara_network_service.dart';
 import 'storage_service.dart';
 
 /// Token 验证结果枚举
@@ -122,6 +123,10 @@ class TokenManager {
 
   TokenManager() {
     _initTokenDio();
+  }
+
+  void attachNetworkService(IwaraNetworkService networkService) {
+    networkService.registerDio(_tokenDio);
   }
 
   void _initTokenDio() {
@@ -300,8 +305,33 @@ class TokenManager {
         options: dio.Options(headers: {'Authorization': 'Bearer $_authToken'}),
       );
 
-      if (response.statusCode == 200 && response.data['accessToken'] != null) {
-        final newAccessToken = response.data['accessToken'] as String;
+      final data = response.data;
+
+      if (response.statusCode == 403) {
+        final cfMitigated = response.headers.value('cf-mitigated');
+        if (cfMitigated != null && cfMitigated.contains('challenge')) {
+          LogUtils.w('$_tag Token 刷新遇到 Cloudflare challenge (403)，稍后重试');
+          final result = TokenRefreshResult.networkError(
+            'Cloudflare challenge (403)',
+          );
+          _completeRefresh(result);
+          return result;
+        }
+      }
+
+      if (response.statusCode == 401) {
+        // Refresh token 已失效，需要重新登录
+        final result = TokenRefreshResult.authError(
+          'Refresh token invalid (401)',
+        );
+        _completeRefresh(result);
+        return result;
+      }
+
+      if (response.statusCode == 200 &&
+          data is Map<String, dynamic> &&
+          data['accessToken'] != null) {
+        final newAccessToken = data['accessToken'] as String;
 
         final validation = validateToken(newAccessToken, isAuthToken: false);
         if (validation == TokenValidationResult.valid) {
@@ -319,8 +349,13 @@ class TokenManager {
         }
       }
 
-      LogUtils.e('$_tag Token 刷新响应无效');
-      final result = TokenRefreshResult.authError('Invalid refresh response');
+      LogUtils.e(
+        '$_tag Token 刷新响应无效 '
+        '(status: ${response.statusCode}, dataType: ${data.runtimeType})',
+      );
+      final result = TokenRefreshResult.authError(
+        'Invalid refresh response (status: ${response.statusCode})',
+      );
       _completeRefresh(result);
       return result;
     } on dio.DioException catch (e) {
@@ -384,11 +419,13 @@ class TokenManager {
   }
 
   /// 启动后台刷新定时器
-  void startBackgroundRefresh() {
+  void startBackgroundRefresh({bool immediateCheck = true}) {
     stopBackgroundRefresh();
 
-    // 立即检查是否需要刷新
-    _checkAndRefreshIfNeeded();
+    // 立即检查是否需要刷新（可在启动阶段延后到 UI Ready 之后执行）
+    if (immediateCheck) {
+      _checkAndRefreshIfNeeded();
+    }
 
     // 定期检查
     _backgroundRefreshTimer = Timer.periodic(
@@ -396,7 +433,7 @@ class TokenManager {
       (_) => _checkAndRefreshIfNeeded(),
     );
 
-    LogUtils.d('$_tag 后台刷新定时器已启动');
+    LogUtils.d('$_tag 后台刷新定时器已启动 (immediateCheck=$immediateCheck)');
   }
 
   /// 停止后台刷新定时器

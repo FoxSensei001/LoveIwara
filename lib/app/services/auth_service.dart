@@ -19,6 +19,7 @@ import '../models/captcha.model.dart';
 import 'http_client_factory.dart';
 import 'message_service.dart';
 import 'token_manager.dart';
+import 'iwara_network_service.dart';
 
 /// 认证服务
 /// 使用 TokenManager 管理 token，专注于用户登录/登出逻辑
@@ -47,6 +48,9 @@ class AuthService extends GetxService {
   // 统一的认证状态管理
   final RxBool _isAuthenticated = false.obs;
   bool get isAuthenticated => _isAuthenticated.value;
+
+  bool _isReady = false;
+  bool _pendingInitialRefresh = false;
 
   // 认证状态变化流
   Stream<bool> get authStateStream => _isAuthenticated.stream;
@@ -79,6 +83,15 @@ class AuthService extends GetxService {
   /// 初始化认证服务
   Future<AuthService> init() async {
     try {
+      // Attach shared CookieJar + Cloudflare handler (iwrqk-style network stack).
+      try {
+        final networkService = Get.find<IwaraNetworkService>();
+        networkService.registerDio(_dio);
+        _tokenManager.attachNetworkService(networkService);
+      } catch (e) {
+        LogUtils.w('$_tag 网络服务未就绪，跳过 Cloudflare/Cookie 注入: $e');
+      }
+
       // 初始化 TokenManager
       await _tokenManager.init();
 
@@ -94,15 +107,22 @@ class AuthService extends GetxService {
         // 这样 isRefreshing 标志会立即设置为 true
         if (_tokenManager.isAccessTokenExpired) {
           LogUtils.i('$_tag Access token 需要刷新，开始刷新');
-          // 同步调用，让 isRefreshing 立即变为 true
-          _startRefreshWithoutWaiting();
+          // 启动阶段延后到 UI Ready（避免 Cloudflare challenge 在无 context 时发生）
+          if (_canRunCloudflareChallengeNow()) {
+            _startRefreshWithoutWaiting();
+          } else {
+            _pendingInitialRefresh = true;
+            LogUtils.d('$_tag UI 未就绪，延后 access token 刷新');
+          }
         }
 
         // 设置认证状态
         _isAuthenticated.value = true;
 
         // 启动后台刷新定时器
-        _tokenManager.startBackgroundRefresh();
+        _tokenManager.startBackgroundRefresh(
+          immediateCheck: _canRunCloudflareChallengeNow(),
+        );
       }
 
       LogUtils.d('$_tag 初始化完成 - isAuthenticated: ${_isAuthenticated.value}');
@@ -111,6 +131,33 @@ class AuthService extends GetxService {
       await _handleTokenExpiredSilently();
     }
     return this;
+  }
+
+  /// App 首帧就绪后调用（允许展示 Cloudflare challenge）。
+  void markReady() {
+    if (_isReady) return;
+    _isReady = true;
+
+    if (_pendingInitialRefresh && _tokenManager.isAccessTokenExpired) {
+      _pendingInitialRefresh = false;
+      LogUtils.d('$_tag UI Ready，开始延后的 access token 刷新');
+      _startRefreshWithoutWaiting();
+    }
+
+    // Ensure the background refresh timer is active and run the first check
+    // only after UI is ready (Cloudflare challenge needs a valid context).
+    if (_tokenManager.hasToken && !_tokenManager.isAuthTokenExpired) {
+      _tokenManager.startBackgroundRefresh(immediateCheck: true);
+    }
+  }
+
+  bool _canRunCloudflareChallengeNow() {
+    try {
+      if (!Get.isRegistered<IwaraNetworkService>()) return false;
+      return Get.find<IwaraNetworkService>().hasContext;
+    } catch (_) {
+      return false;
+    }
   }
 
   /// 开始刷新 token，但不等待结果
@@ -181,11 +228,14 @@ class AuthService extends GetxService {
         data: {'email': email, 'password': password},
       );
 
-      if (response.statusCode == 200 && response.data['token'] != null) {
+      final data = response.data;
+      if (response.statusCode == 200 &&
+          data is Map<String, dynamic> &&
+          data['token'] != null) {
         LogUtils.d('$_tag 登录成功，保存 auth token');
 
         // 保存 auth token
-        await _tokenManager.saveAuthToken(response.data['token']);
+        await _tokenManager.saveAuthToken(data['token']);
 
         // 刷新获取 access token
         LogUtils.d('$_tag 获取 access token...');
@@ -207,7 +257,8 @@ class AuthService extends GetxService {
         return ApiResult.success();
       }
 
-      return ApiResult.fail(response.data['message'] ?? t.errors.loginFailed);
+      final message = (data is Map<String, dynamic>) ? data['message'] : null;
+      return ApiResult.fail(message ?? t.errors.loginFailed);
     } catch (e) {
       LogUtils.e('$_tag 登录失败', error: e);
       return ApiResult.fail(_getErrorMessage(e));
@@ -271,9 +322,10 @@ class AuthService extends GetxService {
   Future<ApiResult<Captcha>> fetchCaptcha() async {
     try {
       final response = await _dio.get('/captcha');
-      if (response.statusCode == 200) {
+      final data = response.data;
+      if (response.statusCode == 200 && data is Map<String, dynamic>) {
         LogUtils.d('$_tag 成功获取验证码');
-        return ApiResult.success(data: Captcha.fromJson(response.data));
+        return ApiResult.success(data: Captcha.fromJson(data));
       }
       return ApiResult.fail(t.errors.failedToFetchCaptcha);
     } on dio.DioException catch (e) {
@@ -293,25 +345,31 @@ class AuthService extends GetxService {
   ) async {
     try {
       final headers = {'X-Captcha': '$captchaId:$captchaAnswer'};
-      final data = {'email': email, 'locale': PlatformDispatcher.instance.locale.countryCode ?? 'en'};
+      final data = {
+        'email': email,
+        'locale': PlatformDispatcher.instance.locale.countryCode ?? 'en',
+      };
       final response = await _dio.post(
         '/user/register',
         data: data,
         options: dio.Options(headers: headers),
       );
 
+      final responseData = response.data;
       if (response.statusCode == 201 &&
-          response.data['message'] ==
+          responseData is Map<String, dynamic> &&
+          responseData['message'] ==
               ApiMessage.registerEmailInstructionsSent.value) {
         LogUtils.d('$_tag 注册成功，邮件指令已发送');
         return ApiResult.success();
       }
-      return ApiResult.fail(
-        response.data['message'] ?? t.errors.registerFailed,
-      );
+      final message = (responseData is Map<String, dynamic>)
+          ? responseData['message']
+          : null;
+      return ApiResult.fail(message ?? t.errors.registerFailed);
     } on dio.DioException catch (e) {
       LogUtils.e('$_tag 注册失败: ${e.message}');
-      if (e.response?.data != null) {
+      if (e.response?.data is Map<String, dynamic>) {
         var errorMessage =
             e.response!.data['errors']?[0]['message'] ??
             e.response!.data['message'] ??

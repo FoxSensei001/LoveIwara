@@ -74,6 +74,9 @@ dependencies:
 
 #  flutter_inappwebview: ^6.1.5
   dio: ^5.9.1
+  cookie_jar: ^4.0.8
+  dio_cookie_manager: ^3.3.0
+  cloudflare_interceptor: ^0.0.3
 #  native_dio_adapter: ^1.4.0
   html: ^0.15.6
   desktop_drop: ^0.7.0

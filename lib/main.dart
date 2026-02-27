@@ -34,6 +34,7 @@ import 'app/my_app.dart';
 import 'app/services/api_service.dart';
 import 'app/services/auth_service.dart';
 import 'app/services/http_client_factory.dart';
+import 'app/services/iwara_network_service.dart';
 import 'app/services/storage_service.dart';
 import 'app/services/user_preference_service.dart';
 import 'app/services/user_service.dart';
@@ -250,6 +251,9 @@ Future<void> _initializeBusinessServices() async {
   // 初始化用户相关服务
   var userPreferenceService = await UserPreferenceService().init();
   Get.put(userPreferenceService);
+
+  // 初始化网络基础设施（CookieJar + Cloudflare challenge handler）
+  Get.put(IwaraNetworkService());
 
   // 初始化认证服务和API服务
   try {

@@ -24,7 +24,9 @@ import 'services/theme_service.dart';
 import 'services/message_service.dart';
 import 'services/deep_link_service.dart';
 import 'services/auth_service.dart';
+import 'services/iwara_network_service.dart';
 import 'services/pop_coordinator.dart';
+import 'services/user_service.dart';
 import 'utils/exit_confirm_util.dart';
 import 'ui/widgets/media_query_insets_fix.dart';
 
@@ -80,6 +82,56 @@ class _MyAppState extends State<MyApp> {
   late ColorScheme darkColorScheme;
   ThemeService themeService = Get.find<ThemeService>();
 
+  void _ensureNetworkAndUserServiceReady({int attempt = 0}) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final ctx = rootNavigatorKey.currentContext;
+      if (ctx != null && ctx.mounted) {
+        if (Get.isRegistered<IwaraNetworkService>()) {
+          Get.find<IwaraNetworkService>().setContext(ctx);
+        }
+        if (Get.isRegistered<AuthService>()) {
+          Get.find<AuthService>().markReady();
+        }
+        if (Get.isRegistered<UserService>()) {
+          Get.find<UserService>().markReady();
+        }
+        LogUtils.d(
+          'Network/Auth/User services marked ready (attempt=$attempt)',
+          'MyApp',
+        );
+        return;
+      }
+
+      if (ctx != null && !ctx.mounted) {
+        LogUtils.w(
+          'Found root navigator context but not mounted, retrying (attempt=$attempt)',
+          'MyApp',
+        );
+      } else if (attempt == 0) {
+        LogUtils.d('Waiting for root navigator context...', 'MyApp');
+      } else {
+        LogUtils.d('Retrying to get root navigator context (attempt=$attempt)', 'MyApp');
+      }
+
+      // Even if we cannot obtain a Navigator context, don't block background refresh forever.
+      if (attempt >= 5) {
+        LogUtils.w(
+          'Failed to get root navigator context after $attempt attempts; marking services ready without context',
+          'MyApp',
+        );
+        if (Get.isRegistered<AuthService>()) {
+          Get.find<AuthService>().markReady();
+        }
+        if (Get.isRegistered<UserService>()) {
+          Get.find<UserService>().markReady();
+        }
+        return;
+      }
+
+      _ensureNetworkAndUserServiceReady(attempt: attempt + 1);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -89,6 +141,7 @@ class _MyAppState extends State<MyApp> {
     Get.find<VersionService>().doAutoCheckUpdate();
     Get.find<MessageService>().markReady();
     Get.find<DeepLinkService>().markReady();
+    _ensureNetworkAndUserServiceReady();
 
     // 首次设置检查现在由 GoRouter redirect 处理，不需要手动跳转
 

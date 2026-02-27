@@ -57,3 +57,6 @@ android/app/.gradle/
 android/app/build/
 android/.gradle/
 android/build/
+
+# Local reference repositories (not committed)
+/third_party/network_demo/
