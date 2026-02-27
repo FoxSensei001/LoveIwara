@@ -21,6 +21,26 @@ class PopCoordinator {
   PopCoordinator._();
 
   static ChildBackButtonDispatcher? _backDispatcher;
+  static DateTime? _lastSystemBackConsumedAt;
+
+  /// Whether the last Android system back event was consumed by [PopCoordinator]
+  /// very recently.
+  ///
+  /// This is used as a best-effort guard to prevent higher-level PopScopes from
+  /// running their own "home root" back logic right after we already consumed
+  /// the same system back (e.g. root-level overlay pop).
+  static bool wasSystemBackConsumedRecently([
+    Duration window = const Duration(milliseconds: 250),
+  ]) {
+    final t = _lastSystemBackConsumedAt;
+    if (t == null) return false;
+    return DateTime.now().difference(t) <= window;
+  }
+
+  static void _markSystemBackConsumed(String reason) {
+    _lastSystemBackConsumedAt = DateTime.now();
+    LogUtils.d('markSystemBackConsumed: reason=$reason', 'PopCoordinator');
+  }
 
   /// 初始化系统返回键拦截。
   /// 必须在 [appRouter] 可用后调用一次（例如在 MyApp.initState 中）。
@@ -51,6 +71,11 @@ class PopCoordinator {
 
   /// 系统返回键的回调，在 GoRouter 处理之前触发。
   static Future<bool> _handleSystemBack() async {
+    if (wasSystemBackConsumedRecently()) {
+      LogUtils.d('系统返回键：忽略短时间重复触发', 'PopCoordinator');
+      return true;
+    }
+
     final consumed = tryCloseOverlayOrDrawer();
     final rootCanPop = rootNavigatorKey.currentState?.canPop() ?? false;
     final shellCanPop = shellNavigatorKey.currentState?.canPop() ?? false;
@@ -61,7 +86,10 @@ class PopCoordinator {
       'PopCoordinator',
     );
 
-    if (consumed) return true;
+    if (consumed) {
+      _markSystemBackConsumed('tryCloseOverlayOrDrawer');
+      return true;
+    }
 
     // 在 Android 预测返回场景里，有些“Dialog pop -> push detail -> back”的快速序列下，
     // back 事件可能落到系统默认 finish（Activity$2.navigateBack），导致直接退出应用。
@@ -71,6 +99,7 @@ class PopCoordinator {
       final ctx = rootNavigatorKey.currentContext;
       if (ctx != null) {
         LogUtils.d('系统返回键：兜底消费 -> handleBack()', 'PopCoordinator');
+        _markSystemBackConsumed('fallback->handleBack');
         handleBack(ctx);
         return true;
       }

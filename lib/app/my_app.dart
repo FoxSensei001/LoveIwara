@@ -27,7 +27,6 @@ import 'services/auth_service.dart';
 import 'services/iwara_network_service.dart';
 import 'services/pop_coordinator.dart';
 import 'services/user_service.dart';
-import 'utils/exit_confirm_util.dart';
 import 'ui/widgets/media_query_insets_fix.dart';
 
 /// Android 预测式返回手势所需的页面过渡主题
@@ -520,10 +519,7 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
           EscapeIntent: CallbackAction<EscapeIntent>(
             onInvoke: (intent) {
               if (PopCoordinator.shouldConfirmExitAtHomeRoot()) {
-                ExitConfirmUtil.handleExit(
-                  context,
-                  () => SystemNavigator.pop(),
-                );
+                SystemNavigator.pop();
               } else {
                 PopCoordinator.handleBack(context);
               }

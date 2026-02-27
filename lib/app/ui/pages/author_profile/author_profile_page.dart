@@ -17,6 +17,7 @@ import 'package:i_iwara/app/ui/pages/author_profile/widgets/profile_video_tab_li
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/profile_playlist_tab_list_widget.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
+import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
@@ -452,18 +453,17 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
               GestureDetector(
                 onTap: () {
                   // 进入图片详情页
+                  final headerUrl =
+                      profileController.headerBackgroundUrl.value ??
+                      CommonConstants.defaultProfileHeaderUrl;
+                  final headerHeroTag =
+                      'author_header:${profileController.author.value?.id ?? headerUrl}';
                   ImageItem item = ImageItem(
-                    url:
-                        profileController.headerBackgroundUrl.value ??
-                        CommonConstants.defaultProfileHeaderUrl,
+                    url: headerUrl,
                     data: ImageItemData(
                       id: profileController.author.value?.id ?? '',
-                      url:
-                          profileController.headerBackgroundUrl.value ??
-                          CommonConstants.defaultProfileHeaderUrl,
-                      originalUrl:
-                          profileController.headerBackgroundUrl.value ??
-                          CommonConstants.defaultProfileHeaderUrl,
+                      url: headerUrl,
+                      originalUrl: headerUrl,
                     ),
                   );
                   final t = slang.Translations.of(context);
@@ -490,21 +490,27 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                       onTap: () => ImageUtils.downloadImageToAppDirectory(item),
                     ),
                   ];
-                  NaviService.navigateToPhotoViewWrapper(
+                  pushPhotoViewWrapperOverlay(
+                    context: context,
                     imageItems: [item],
                     initialIndex: 0,
                     menuItemsBuilder: (context, item) => menuItems,
+                    heroTagBuilder: (_) => headerHeroTag,
                   );
                 },
                 child: MouseRegion(
                   cursor: SystemMouseCursors.click,
-                  child: CachedNetworkImage(
-                    imageUrl:
-                        profileController.headerBackgroundUrl.value ??
-                        CommonConstants.defaultProfileHeaderUrl,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
+                  child: Hero(
+                    tag:
+                        'author_header:${profileController.author.value?.id ?? (profileController.headerBackgroundUrl.value ?? CommonConstants.defaultProfileHeaderUrl)}',
+                    child: CachedNetworkImage(
+                      imageUrl:
+                          profileController.headerBackgroundUrl.value ??
+                          CommonConstants.defaultProfileHeaderUrl,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                    ),
                   ),
                 ),
               ),
@@ -612,66 +618,75 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Center(
-                        child: AvatarWidget(
-                          user: profileController.author.value,
-                          size: 70,
-                          onTap: () {
-                            // 进入图片详情页
-                            final avatarUrl = profileController
-                                .author
-                                .value
-                                ?.avatar
-                                ?.avatarUrl;
-                            if (avatarUrl != null) {
-                              ImageItem item = ImageItem(
+                        child: (() {
+                          final avatarUrl =
+                              profileController.author.value?.avatar?.avatarUrl;
+                          final avatarHeroTag = avatarUrl == null
+                              ? null
+                              : 'author_avatar:${profileController.author.value?.id ?? avatarUrl}';
+
+                          void openAvatar() {
+                            if (avatarUrl == null) return;
+                            ImageItem item = ImageItem(
+                              url: avatarUrl,
+                              data: ImageItemData(
+                                id: profileController.author.value?.id ?? '',
                                 url: avatarUrl,
-                                data: ImageItemData(
-                                  id: profileController.author.value?.id ?? '',
-                                  url: avatarUrl,
-                                  originalUrl: avatarUrl,
-                                ),
-                                headers: const {
-                                  'referer': CommonConstants.iwaraBaseUrl,
-                                },
-                              );
-                              final t = slang.Translations.of(context);
-                              final menuItems = [
+                                originalUrl: avatarUrl,
+                              ),
+                              headers: const {
+                                'referer': CommonConstants.iwaraBaseUrl,
+                              },
+                            );
+                            final t = slang.Translations.of(context);
+                            final menuItems = [
+                              MenuItem(
+                                title: t.galleryDetail.copyLink,
+                                icon: Icons.copy,
+                                onTap: () => ImageUtils.copyLink(item),
+                              ),
+                              MenuItem(
+                                title: t.galleryDetail.copyImage,
+                                icon: Icons.copy,
+                                onTap: () => ImageUtils.copyImage(item),
+                              ),
+                              if (GetPlatform.isDesktop)
                                 MenuItem(
-                                  title: t.galleryDetail.copyLink,
-                                  icon: Icons.copy,
-                                  onTap: () => ImageUtils.copyLink(item),
-                                ),
-                                MenuItem(
-                                  title: t.galleryDetail.copyImage,
-                                  icon: Icons.copy,
-                                  onTap: () => ImageUtils.copyImage(item),
-                                ),
-                                if (GetPlatform.isDesktop)
-                                  MenuItem(
-                                    title: t.galleryDetail.saveAs,
-                                    icon: Icons.download,
-                                    onTap: () =>
-                                        ImageUtils.downloadImageForDesktop(
-                                          item,
-                                        ),
-                                  ),
-                                MenuItem(
-                                  title: t.download.saveToAppDirectory,
-                                  icon: Icons.save,
+                                  title: t.galleryDetail.saveAs,
+                                  icon: Icons.download,
                                   onTap: () =>
-                                      ImageUtils.downloadImageToAppDirectory(
-                                        item,
-                                      ),
+                                      ImageUtils.downloadImageForDesktop(item),
                                 ),
-                              ];
-                              NaviService.navigateToPhotoViewWrapper(
-                                imageItems: [item],
-                                initialIndex: 0,
-                                menuItemsBuilder: (context, item) => menuItems,
-                              );
-                            }
-                          },
-                        ),
+                              MenuItem(
+                                title: t.download.saveToAppDirectory,
+                                icon: Icons.save,
+                                onTap: () =>
+                                    ImageUtils.downloadImageToAppDirectory(
+                                      item,
+                                    ),
+                              ),
+                            ];
+                            pushPhotoViewWrapperOverlay(
+                              context: context,
+                              imageItems: [item],
+                              initialIndex: 0,
+                              menuItemsBuilder: (context, item) => menuItems,
+                              heroTagBuilder: avatarHeroTag == null
+                                  ? null
+                                  : (_) => avatarHeroTag,
+                            );
+                          }
+
+                          final avatar = AvatarWidget(
+                            user: profileController.author.value,
+                            size: 70,
+                            onTap: openAvatar,
+                          );
+
+                          return avatarHeroTag == null
+                              ? avatar
+                              : Hero(tag: avatarHeroTag, child: avatar);
+                        })(),
                       ),
                       const SizedBox(width: 16),
                       // 用户名、粉丝数、关注数

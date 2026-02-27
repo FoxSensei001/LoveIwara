@@ -333,8 +333,9 @@ class NaviService {
   static void navigateToPhotoViewWrapper({
     required List<ImageItem> imageItems,
     required int initialIndex,
-    required List<MenuItem> Function(dynamic context, dynamic item)
+    required List<MenuItem> Function(BuildContext context, ImageItem item)
     menuItemsBuilder,
+    Object? Function(ImageItem item)? heroTagBuilder,
     bool enableMenu = true,
   }) {
     appRouter.push(
@@ -344,6 +345,7 @@ class NaviService {
         initialIndex: initialIndex,
         menuItemsBuilder: menuItemsBuilder,
         enableMenu: enableMenu,
+        heroTagBuilder: heroTagBuilder,
       ),
     );
   }

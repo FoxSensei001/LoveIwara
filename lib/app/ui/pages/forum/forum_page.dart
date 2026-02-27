@@ -867,8 +867,10 @@ class _ForumPageState extends State<ForumPage> {
   void _showSitewideAnnouncementDialog({required String body}) {
     final t = slang.Translations.of(context);
     final title = t.forum.sitewide.title;
-    showAppDialog(
-      Dialog(
+    showDialog<void>(
+      context: context,
+      useRootNavigator: false,
+      builder: (dialogContext) => Dialog(
         insetPadding: const EdgeInsets.all(20),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 760, maxHeight: 720),
@@ -894,7 +896,7 @@ class _ForumPageState extends State<ForumPage> {
                       ),
                     ),
                     IconButton(
-                      onPressed: AppService.tryPop,
+                      onPressed: () => Navigator.of(dialogContext).pop(),
                       icon: const Icon(Icons.close),
                       tooltip: slang.t.common.close,
                       style: IconButton.styleFrom(

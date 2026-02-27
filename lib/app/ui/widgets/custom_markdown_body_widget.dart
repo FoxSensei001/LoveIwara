@@ -5,6 +5,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
+import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_translation_controller.dart';
 import 'package:i_iwara/app/ui/widgets/translation_language_selector.dart';
@@ -702,6 +703,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     BuildContext context,
     String normalizedUrl,
     EmojiSize? emojiSize,
+    Object? heroTag,
   ) {
     if (emojiSize != null) {
       EmojiPreviewDialog.show(context: context, emojiUrl: normalizedUrl);
@@ -709,10 +711,12 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     }
 
     final item = _buildImageItem(normalizedUrl);
-    NaviService.navigateToPhotoViewWrapper(
+    pushPhotoViewWrapperOverlay(
+      context: context,
       imageItems: [item],
       initialIndex: 0,
       menuItemsBuilder: (_, imageItem) => _buildImageMenuItems(imageItem),
+      heroTagBuilder: heroTag == null ? null : (_) => heroTag,
     );
   }
 
@@ -838,9 +842,18 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
               normalImagePlaceholderHeight,
             );
 
+      final Object? heroTag = emojiSize == null ? Object() : null;
+      final imageWithOptionalHero = heroTag == null
+          ? image
+          : Hero(tag: heroTag, child: image);
+
       return GestureDetector(
-        onTap: () => _handleMarkdownImageTap(context, normalizedUrl, emojiSize),
-        child: MouseRegion(cursor: SystemMouseCursors.click, child: image),
+        onTap: () =>
+            _handleMarkdownImageTap(context, normalizedUrl, emojiSize, heroTag),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: imageWithOptionalHero,
+        ),
       );
     } catch (e) {
       LogUtils.e('图片加载失败', tag: 'CustomMarkdownBody', error: e);

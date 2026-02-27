@@ -1,5 +1,6 @@
 import 'dart:io';
-import 'package:flutter/gestures.dart' show PointerSignalEvent, PointerScrollEvent;
+import 'package:flutter/gestures.dart'
+    show PointerSignalEvent, PointerScrollEvent;
 import 'package:flutter/services.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:photo_view/photo_view.dart';
@@ -7,16 +8,16 @@ import 'package:photo_view/photo_view.dart';
 /// 图库控制逻辑类，处理键盘、音量键等控制
 class GalleryControls {
   static const platform = MethodChannel('i_iwara/volume_key');
-  
+
   final List<PhotoViewController> controllers;
   final VoidCallback? onNext;
   final VoidCallback? onPrevious;
   final Function(bool fine)? onZoomIn;
   final Function(bool fine)? onZoomOut;
-  
+
   bool isCtrlPressed = false;
   int currentIndex = 0;
-  
+
   final double _zoomInterval = 0.2;
   final double _fineZoomInterval = 0.1;
 
@@ -31,7 +32,7 @@ class GalleryControls {
   /// 初始化音量键监听（仅移动平台）
   Future<void> initVolumeKeyListener() async {
     if (!Platform.isAndroid && !Platform.isIOS) return;
-    
+
     try {
       // 设置方法调用处理器
       platform.setMethodCallHandler((call) async {
@@ -63,32 +64,54 @@ class GalleryControls {
   }
 
   /// 处理键盘按键事件
-  void handleKeyPress(KeyEvent event) {
+  ///
+  /// 返回值表示本次事件是否触发了「实际动作」（翻页/缩放/重置等），便于调用方决定是否刷新 UI。
+  bool handleKeyPress(KeyEvent event) {
     if (event is KeyDownEvent &&
-        event.logicalKey == LogicalKeyboardKey.controlLeft) {
+        (event.logicalKey == LogicalKeyboardKey.controlLeft ||
+            event.logicalKey == LogicalKeyboardKey.controlRight)) {
       isCtrlPressed = true;
+      return false;
     }
     if (event is KeyUpEvent &&
-        event.logicalKey == LogicalKeyboardKey.controlLeft) {
+        (event.logicalKey == LogicalKeyboardKey.controlLeft ||
+            event.logicalKey == LogicalKeyboardKey.controlRight)) {
       isCtrlPressed = false;
+      return false;
     }
 
-    if (event is KeyDownEvent) {
-      switch (event.logicalKey) {
-        case LogicalKeyboardKey.arrowRight:
-          onNext?.call();
-          break;
-        case LogicalKeyboardKey.arrowLeft:
-          onPrevious?.call();
-          break;
-        case LogicalKeyboardKey.arrowUp:
-          zoomIn();
-          break;
-        case LogicalKeyboardKey.arrowDown:
-          zoomOut();
-          break;
-      }
+    if (event is! KeyDownEvent) return false;
+
+    switch (event.logicalKey) {
+      case LogicalKeyboardKey.arrowRight:
+      case LogicalKeyboardKey.pageDown:
+        onNext?.call();
+        return true;
+      case LogicalKeyboardKey.arrowLeft:
+      case LogicalKeyboardKey.pageUp:
+        onPrevious?.call();
+        return true;
+      case LogicalKeyboardKey.arrowUp:
+        zoomIn();
+        return true;
+      case LogicalKeyboardKey.arrowDown:
+        zoomOut();
+        return true;
+      case LogicalKeyboardKey.equal:
+      case LogicalKeyboardKey.numpadAdd:
+        zoomIn();
+        return true;
+      case LogicalKeyboardKey.minus:
+      case LogicalKeyboardKey.numpadSubtract:
+        zoomOut();
+        return true;
+      case LogicalKeyboardKey.digit0:
+      case LogicalKeyboardKey.numpad0:
+        resetZoom();
+        return true;
     }
+
+    return false;
   }
 
   /// 处理鼠标滚轮事件
@@ -113,7 +136,7 @@ class GalleryControls {
   /// 放大
   void zoomIn({bool fine = false}) {
     if (currentIndex >= controllers.length) return;
-    
+
     final scale = controllers[currentIndex].scale;
     if (scale != null) {
       controllers[currentIndex].scale =
@@ -125,7 +148,7 @@ class GalleryControls {
   /// 缩小
   void zoomOut({bool fine = false}) {
     if (currentIndex >= controllers.length) return;
-    
+
     final scale = controllers[currentIndex].scale;
     if (scale != null && scale > 0.5) {
       controllers[currentIndex].scale =
@@ -134,10 +157,18 @@ class GalleryControls {
     onZoomOut?.call(fine);
   }
 
+  /// 重置缩放与位置（Telegram Desktop 常见 0 键行为）
+  void resetZoom() {
+    if (currentIndex >= controllers.length) return;
+    controllers[currentIndex]
+      ..scale = 1.0
+      ..position = Offset.zero;
+  }
+
   /// 双击缩放处理
   void handleDoubleTap(int index) {
     if (index >= controllers.length) return;
-    
+
     final scale = controllers[index].scale;
     if (scale != null) {
       if (scale > 1.0) {

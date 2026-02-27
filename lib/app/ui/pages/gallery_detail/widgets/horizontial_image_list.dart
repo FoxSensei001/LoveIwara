@@ -13,10 +13,7 @@ import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
-enum MediaItemType {
-  image,
-  video,
-}
+enum MediaItemType { image, video }
 
 class ImageItem {
   final String url;
@@ -41,7 +38,16 @@ class ImageItem {
     final extension = CommonUtils.getFileExtension(url).toLowerCase();
 
     // 视频格式
-    if (['mp4', 'webm', 'mov', 'avi', 'mkv', 'flv', 'wmv', 'm4v'].contains(extension)) {
+    if ([
+      'mp4',
+      'webm',
+      'mov',
+      'avi',
+      'mkv',
+      'flv',
+      'wmv',
+      'm4v',
+    ].contains(extension)) {
       return MediaItemType.video;
     }
 
@@ -72,11 +78,7 @@ class MenuItem {
   final String title;
   final VoidCallback onTap;
 
-  MenuItem({
-    required this.icon,
-    required this.title,
-    required this.onTap,
-  });
+  MenuItem({required this.icon, required this.title, required this.onTap});
 }
 
 class HorizontalImageList extends StatefulWidget {
@@ -85,6 +87,7 @@ class HorizontalImageList extends StatefulWidget {
   final double? itemSpacing;
   final BoxDecoration? itemDecoration;
   final Function(ImageItem item)? onItemTap;
+  final Object? Function(ImageItem item)? heroTagBuilder;
   final Widget Function(BuildContext, String)? placeholderBuilder;
   final Widget Function(BuildContext, String, dynamic)? errorBuilder;
   final BoxFit imageFit;
@@ -93,9 +96,9 @@ class HorizontalImageList extends StatefulWidget {
   final Color? backgroundColor; // 背景色
   final double wheelScrollFactor; // 滚轮滚动系数
   final Widget Function(BuildContext, ImageItem, Offset)?
-      menuBuilder; // 自定义菜单构建器
+  menuBuilder; // 自定义菜单构建器
   final List<MenuItem> Function(BuildContext, ImageItem)?
-      menuItemsBuilder; // 动态菜单项生成器
+  menuItemsBuilder; // 动态菜单项生成器
 
   const HorizontalImageList({
     super.key,
@@ -104,6 +107,7 @@ class HorizontalImageList extends StatefulWidget {
     this.itemSpacing = 8.0, // 减小默认间距
     this.itemDecoration,
     this.onItemTap,
+    this.heroTagBuilder,
     this.placeholderBuilder,
     this.errorBuilder,
     this.imageFit = BoxFit.contain,
@@ -120,7 +124,8 @@ class HorizontalImageList extends StatefulWidget {
 }
 
 class _HorizontalImageListState extends State<HorizontalImageList>
-    with TickerProviderStateMixin { // Mixin TickerProvider
+    with TickerProviderStateMixin {
+  // Mixin TickerProvider
   final FocusNode _focusNode = FocusNode(); // Add FocusNode
   final ScrollController _scrollController = ScrollController();
   bool _showLeftButton = false;
@@ -194,9 +199,7 @@ class _HorizontalImageListState extends State<HorizontalImageList>
     // 使用 showAppDialog 显示菜单
     showAppDialog(
       Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 300),
           child: Column(
@@ -218,8 +221,7 @@ class _HorizontalImageListState extends State<HorizontalImageList>
                       },
                     ),
                     // 添加分隔线，最后一项不添加
-                    if (index < menuItems.length - 1)
-                      const Divider(height: 1),
+                    if (index < menuItems.length - 1) const Divider(height: 1),
                   ],
                 );
               }),
@@ -241,8 +243,10 @@ class _HorizontalImageListState extends State<HorizontalImageList>
           autofocus: true, // Automatically request focus
           canRequestFocus: true,
           onKeyEvent: (node, event) {
-            final bool isArrowLeft = event.logicalKey == LogicalKeyboardKey.arrowLeft;
-            final bool isArrowRight = event.logicalKey == LogicalKeyboardKey.arrowRight;
+            final bool isArrowLeft =
+                event.logicalKey == LogicalKeyboardKey.arrowLeft;
+            final bool isArrowRight =
+                event.logicalKey == LogicalKeyboardKey.arrowRight;
 
             if (event is KeyDownEvent) {
               if (isArrowLeft) {
@@ -270,51 +274,55 @@ class _HorizontalImageListState extends State<HorizontalImageList>
             return KeyEventResult.ignored; // Ignore other keys
           },
           child: ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Use Listener for mouse wheel scroll
-                  Listener(
-                    onPointerSignal: _handleMouseScroll,
-                    child: ListView.builder(
-                      controller: _scrollController,
-                      scrollDirection: Axis.horizontal,
-                      itemCount: widget.images.length,
-                      itemBuilder: (context, index) {
-                        final imageItem = widget.images[index];
-                        return _buildImageItem(context, imageItem, index,
-                            Size(constraints.maxWidth, constraints.maxHeight));
-                      },
+            borderRadius: BorderRadius.circular(8.0),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Use Listener for mouse wheel scroll
+                Listener(
+                  onPointerSignal: _handleMouseScroll,
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    scrollDirection: Axis.horizontal,
+                    itemCount: widget.images.length,
+                    itemBuilder: (context, index) {
+                      final imageItem = widget.images[index];
+                      return _buildImageItem(
+                        context,
+                        imageItem,
+                        index,
+                        Size(constraints.maxWidth, constraints.maxHeight),
+                      );
+                    },
+                  ),
+                ),
+                // Scroll buttons (visibility handled by listener)
+                if (_showLeftButton)
+                  Positioned(
+                    left: 8,
+                    child: _buildScrollButton(
+                      Icons.arrow_back_ios_rounded,
+                      () => _scrollController.animateTo(
+                        _scrollController.offset - widget.scrollOffset,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOutCubic,
+                      ),
                     ),
                   ),
-                  // Scroll buttons (visibility handled by listener)
-                  if (_showLeftButton)
-                    Positioned(
-                      left: 8,
-                      child: _buildScrollButton(
-                        Icons.arrow_back_ios_rounded,
-                        () => _scrollController.animateTo(
-                          _scrollController.offset - widget.scrollOffset,
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOutCubic,
-                        ),
+                if (_showRightButton)
+                  Positioned(
+                    right: 8,
+                    child: _buildScrollButton(
+                      Icons.arrow_forward_ios_rounded,
+                      () => _scrollController.animateTo(
+                        _scrollController.offset + widget.scrollOffset,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOutCubic,
                       ),
                     ),
-                  if (_showRightButton)
-                    Positioned(
-                      right: 8,
-                      child: _buildScrollButton(
-                        Icons.arrow_forward_ios_rounded,
-                        () => _scrollController.animateTo(
-                          _scrollController.offset + widget.scrollOffset,
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOutCubic,
-                        ),
-                      ),
-                    ),
-                ],
-              )
+                  ),
+              ],
+            ),
           ),
         );
       },
@@ -341,10 +349,19 @@ class _HorizontalImageListState extends State<HorizontalImageList>
     );
   }
 
-  Widget _buildImageItem(BuildContext context, ImageItem imageItem, int index,
-      Size containerSize) {
+  Widget _buildImageItem(
+    BuildContext context,
+    ImageItem imageItem,
+    int index,
+    Size containerSize,
+  ) {
     final aspectRatio =
         _loadedAspectRatios[imageItem.url] ?? widget.defaultAspectRatio;
+
+    final heroTag = widget.heroTagBuilder?.call(imageItem);
+    final mediaContent = heroTag != null
+        ? Hero(tag: heroTag, child: _buildMediaContent(context, imageItem))
+        : _buildMediaContent(context, imageItem);
 
     return GestureDetector(
       onLongPressStart: (details) {
@@ -367,7 +384,7 @@ class _HorizontalImageListState extends State<HorizontalImageList>
               clipBehavior: Clip.antiAlias, // 确保圆角裁剪生效
               child: InkWell(
                 onTap: () => widget.onItemTap?.call(imageItem),
-                child: _buildMediaContent(context, imageItem),
+                child: mediaContent,
               ),
             ),
           ),
@@ -391,17 +408,19 @@ class _HorizontalImageListState extends State<HorizontalImageList>
 
   void _updateImageSize(ImageProvider provider, String url) {
     // 获取图片实际尺寸并更新状态
-    provider.resolve(const ImageConfiguration()).addListener(
-      ImageStreamListener((ImageInfo info, bool _) {
-        final double width = info.image.width.toDouble();
-        final double height = info.image.height.toDouble();
-        if (_loadedAspectRatios[url] != width / height) {
-          setState(() {
-            _loadedAspectRatios[url] = width / height;
-          });
-        }
-      }),
-    );
+    provider
+        .resolve(const ImageConfiguration())
+        .addListener(
+          ImageStreamListener((ImageInfo info, bool _) {
+            final double width = info.image.width.toDouble();
+            final double height = info.image.height.toDouble();
+            if (_loadedAspectRatios[url] != width / height) {
+              setState(() {
+                _loadedAspectRatios[url] = width / height;
+              });
+            }
+          }),
+        );
   }
 
   // --- Ticker Callback for Continuous Scroll ---
@@ -411,7 +430,8 @@ class _HorizontalImageListState extends State<HorizontalImageList>
     double delta = 0.0;
     // Calculate scroll delta based on elapsed time and velocity
     // Assume ~60 FPS for frame time calculation if needed, or use actual elapsed
-    final double frameTime = elapsed.inMilliseconds / 1000.0; // Time since last tick in seconds
+    final double frameTime =
+        elapsed.inMilliseconds / 1000.0; // Time since last tick in seconds
 
     if (_isScrollingLeft) {
       delta = -_scrollVelocity * frameTime;
@@ -420,15 +440,18 @@ class _HorizontalImageListState extends State<HorizontalImageList>
     }
 
     if (delta != 0) {
-      final targetOffset = (_scrollController.offset + delta)
-          .clamp(0.0, _scrollController.position.maxScrollExtent);
+      final targetOffset = (_scrollController.offset + delta).clamp(
+        0.0,
+        _scrollController.position.maxScrollExtent,
+      );
       // Use jumpTo for immediate response within the ticker loop
       _scrollController.jumpTo(targetOffset);
       // If jumpTo reaches the boundary, stop scrolling in that direction
       if (targetOffset == 0.0 && _isScrollingLeft) {
         _isScrollingLeft = false;
         _stopScrollingIfIdle();
-      } else if (targetOffset == _scrollController.position.maxScrollExtent && _isScrollingRight) {
+      } else if (targetOffset == _scrollController.position.maxScrollExtent &&
+          _isScrollingRight) {
         _isScrollingRight = false;
         _stopScrollingIfIdle();
       }
@@ -469,7 +492,8 @@ class _HorizontalImageListState extends State<HorizontalImageList>
         LogUtils.e('加载图片失败: $url', tag: 'ImageList', error: error);
 
         final fileExtension = CommonUtils.getFileExtension(url);
-        final isUnsupportedFormat = error is Exception &&
+        final isUnsupportedFormat =
+            error is Exception &&
             error.toString().contains('Invalid image data');
 
         return widget.errorBuilder?.call(context, url, error) ??
@@ -477,10 +501,9 @@ class _HorizontalImageListState extends State<HorizontalImageList>
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .errorContainer
-                      .withValues(alpha: 0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.errorContainer.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
@@ -494,7 +517,9 @@ class _HorizontalImageListState extends State<HorizontalImageList>
                     const SizedBox(height: 8),
                     Text(
                       isUnsupportedFormat
-                          ? t.download.errors.unsupportedImageFormatWithMessage(extension: fileExtension.toUpperCase())
+                          ? t.download.errors.unsupportedImageFormatWithMessage(
+                              extension: fileExtension.toUpperCase(),
+                            )
                           : t.download.errors.imageLoadFailed,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.error,
@@ -506,10 +531,9 @@ class _HorizontalImageListState extends State<HorizontalImageList>
                       Text(
                         t.download.errors.pleaseTryOtherViewer,
                         style: TextStyle(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .error
-                              .withValues(alpha: 0.7),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.error.withValues(alpha: 0.7),
                           fontSize: 12,
                         ),
                       ),
@@ -523,29 +547,29 @@ class _HorizontalImageListState extends State<HorizontalImageList>
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _updateImageSize(imageProvider, imageItem.url);
         });
-        return Hero(
-            tag: imageItem.data.id,
-            child: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: imageProvider,
-                  fit: widget.imageFit,
-                ),
-              ),
-            ));
+        return Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: imageProvider,
+              fit: widget.imageFit,
+            ),
+          ),
+        );
       },
     );
   }
 
   // 构建视频内容
   Widget _buildVideoContent(BuildContext context, ImageItem imageItem) {
-    final fileExtension = CommonUtils.getFileExtension(imageItem.url).toLowerCase();
-    
+    final fileExtension = CommonUtils.getFileExtension(
+      imageItem.url,
+    ).toLowerCase();
+
     // 对于webm格式，直接显示静态预览而不是实际加载视频
     if (fileExtension == 'webm') {
       return _buildWebmPlaceholder(context, imageItem);
     }
-    
+
     // 对于其他视频格式，使用原来的视频缩略图组件
     return _VideoThumbnailWidget(
       videoUrl: imageItem.url,
@@ -573,15 +597,12 @@ class _HorizontalImageListState extends State<HorizontalImageList>
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  Colors.grey[800]!,
-                  Colors.grey[900]!,
-                ],
+                colors: [Colors.grey[800]!, Colors.grey[900]!],
               ),
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          
+
           // 视频图标和文字
           Center(
             child: Column(
@@ -618,11 +639,7 @@ class _HorizontalImageListState extends State<HorizontalImageList>
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.videocam,
-                    color: Colors.white,
-                    size: 12,
-                  ),
+                  Icon(Icons.videocam, color: Colors.white, size: 12),
                   SizedBox(width: 2),
                   Text(
                     'WEBM',
@@ -684,7 +701,6 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
         if (mounted) {
           setState(() {
             _hasError = true;
-
           });
           widget.onError?.call(error);
         }
@@ -699,19 +715,21 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
       });
 
       // 添加额外的配置来支持 webm 格式
-      await _player.setAudioTrack(AudioTrack.no());  // 禁用音频避免权限问题
-      
+      await _player.setAudioTrack(AudioTrack.no()); // 禁用音频避免权限问题
+
       // 打开视频但不自动播放
       final media = Media(widget.videoUrl);
       await _player.open(media);
       await _player.pause(); // 确保暂停状态
-
     } catch (e) {
-      LogUtils.e('视频初始化失败: ${widget.videoUrl}', tag: 'VideoThumbnail', error: e);
+      LogUtils.e(
+        '视频初始化失败: ${widget.videoUrl}',
+        tag: 'VideoThumbnail',
+        error: e,
+      );
       if (mounted) {
         setState(() {
           _hasError = true;
-
         });
         widget.onError?.call(e);
       }
@@ -796,11 +814,7 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.videocam,
-                    color: Colors.white,
-                    size: 12,
-                  ),
+                  Icon(Icons.videocam, color: Colors.white, size: 12),
                   SizedBox(width: 2),
                   Text(
                     'VIDEO',
@@ -822,9 +836,7 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
   Widget _buildLoadingWidget() {
     return Container(
       color: Colors.grey[300],
-      child: const Center(
-        child: CircularProgressIndicator(),
-      ),
+      child: const Center(child: CircularProgressIndicator()),
     );
   }
 
@@ -839,11 +851,7 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.video_library,
-              color: Colors.orange,
-              size: 48,
-            ),
+            const Icon(Icons.video_library, color: Colors.orange, size: 48),
             const SizedBox(height: 8),
             Text(
               'WEBM',

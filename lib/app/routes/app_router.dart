@@ -99,27 +99,6 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const SignInPage(),
     ),
 
-    // 图片浏览包装页 —— 顶层全屏路由，覆盖 Shell
-    GoRoute(
-      path: '/photo_view_wrapper',
-      name: 'photo_view_wrapper',
-      pageBuilder: (context, state) {
-        final extra = state.extra as PhotoViewExtra;
-        return CustomTransitionPage(
-          key: state.pageKey,
-          child: MyGalleryPhotoViewWrapper(
-            galleryItems: extra.imageItems,
-            initialIndex: extra.initialIndex,
-            menuItemsBuilder: extra.menuItemsBuilder,
-            enableMenu: extra.enableMenu,
-          ),
-          transitionDuration: const Duration(milliseconds: 300),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-              FadeTransition(opacity: animation, child: child),
-        );
-      },
-    ),
-
     // ====================================================================
     // 外层 ShellRoute：提供带 NavigationRail + BottomNav 的整体框架。
     // 详情页会推入到该 Shell 的 Navigator 中，从而让框架（包含 NavigationRail）
@@ -190,6 +169,32 @@ final GoRouter appRouter = GoRouter(
         ),
 
         // ========== 详情类页面（挂在 Shell 内部，导航栏保持可见） ==========
+
+        // 图片浏览包装页 —— 挂在 Shell 内部，避免 root/shell 双栈竞争返回。
+        GoRoute(
+          path: '/photo_view_wrapper',
+          name: 'photo_view_wrapper',
+          pageBuilder: (context, state) {
+            final extra = state.extra as PhotoViewExtra;
+            return CustomTransitionPage(
+              key: state.pageKey,
+              opaque: false,
+              barrierColor: Colors.transparent,
+              child: MyGalleryPhotoViewWrapper(
+                galleryItems: extra.imageItems,
+                initialIndex: extra.initialIndex,
+                menuItemsBuilder: extra.menuItemsBuilder,
+                enableMenu: extra.enableMenu,
+                heroTagBuilder: extra.heroTagBuilder,
+              ),
+              transitionDuration: const Duration(milliseconds: 300),
+              reverseTransitionDuration: const Duration(milliseconds: 300),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) =>
+                      FadeTransition(opacity: animation, child: child),
+            );
+          },
+        ),
 
         // 视频详情
         GoRoute(
@@ -770,13 +775,16 @@ class LocalFavoriteDetailExtra {
 class PhotoViewExtra {
   final List<ImageItem> imageItems;
   final int initialIndex;
-  final List<MenuItem> Function(dynamic context, dynamic item) menuItemsBuilder;
+  final List<MenuItem> Function(BuildContext context, ImageItem item)
+  menuItemsBuilder;
   final bool enableMenu;
+  final Object? Function(ImageItem item)? heroTagBuilder;
 
   const PhotoViewExtra({
     required this.imageItems,
     required this.initialIndex,
     required this.menuItemsBuilder,
     this.enableMenu = true,
+    this.heroTagBuilder,
   });
 }

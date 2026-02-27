@@ -10,7 +10,6 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/services/pop_coordinator.dart';
-import 'package:i_iwara/app/utils/exit_confirm_util.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:i_iwara/utils/easy_throttle.dart';
@@ -213,7 +212,7 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     return !GoRouter.of(context).canPop();
   }
 
-  /// Keep Android back dispatch routed to Flutter.
+  /// Keep Android back dispatch routed to Flutter when not at home root.
   void _ensureFrameworkHandlesBack({
     required String reason,
     bool? isAtHomeRoot,
@@ -226,25 +225,20 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
           final rootState = isAtHomeRoot ?? _isAtHomeRoot;
-          final backAnimationEnabled =
-              AndroidBackGestureBridge.backAnimationEnabled ?? false;
 
           // Strategy (方案 1):
           // - 非 Home root：始终由 Flutter 接管返回，避免 OEM 走系统 finish。
-          // - Home root：
-          //   - 若系统预测返回动画可用（enable_back_animation=1）→ 交回系统处理（获得系统手势返回动画）
-          //   - 否则 → 仍由 Flutter 接管（保留 ExitConfirmUtil 二次确认拦截）
-          final shouldHandleBack = !rootState || !backAnimationEnabled;
+          // - Home root：交回系统处理（不做二次确认拦截）
+          final shouldHandleBack = !rootState;
 
           AndroidBackGestureBridge.syncFrameworkHandlesBack(
             shouldHandleBack: shouldHandleBack,
             reason:
-                'HomeShellScaffold.$reason path=${widget.currentPath} isAtHomeRoot=$rootState backAnimationEnabled=$backAnimationEnabled',
+                'HomeShellScaffold.$reason path=${widget.currentPath} isAtHomeRoot=$rootState',
           );
           LogUtils.d(
             'setFrameworkHandlesBack($shouldHandleBack): reason=$reason, '
                 'path=${widget.currentPath}, isAtHomeRoot=$rootState, '
-                'backAnimationEnabled=$backAnimationEnabled',
             'HomeShellScaffold',
           );
         });
@@ -260,13 +254,19 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     // - Intercept all back events inside Shell.
     // - Delegate to PopCoordinator for unified order:
     //   overlay/drawer -> internal page -> route pop.
-    // - At home root: show double-confirm exit.
+    // - At home root: exit immediately.
     Widget body = Obx(() {
       // Read showBottomNavi to trigger Obx rebuild when navigation visibility changes
       // ignore: unused_local_variable
       final _ = appService.showBottomNavi;
 
       final bool isAtRoot = _isAtHomeRoot;
+      final ModalRoute<dynamic>? shellRouteInBuild = ModalRoute.of(context);
+      final bool isShellRouteCurrent = shellRouteInBuild?.isCurrent ?? true;
+      final bool canAutoPopInShell = !isAtRoot && isShellRouteCurrent;
+      final bool useManualBackDispatch = GetPlatform.isAndroid;
+      final bool canPopViaNavigator =
+          useManualBackDispatch ? false : canAutoPopInShell;
       _ensureFrameworkHandlesBack(reason: 'build', isAtHomeRoot: isAtRoot);
       EasyThrottle.throttle(
         _backDispatcherPriorityThrottleTag,
@@ -277,14 +277,15 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
       );
 
       return PopScope(
-        // Only intercept at home root for exit confirmation.
-        // Non-root routes should use normal navigator pop to avoid double-pop
-        // when a top-level route is being closed by the root navigator.
-        canPop: !isAtRoot,
+        // Android: disable navigator auto-pop and always dispatch by
+        // PopCoordinator to avoid duplicated predictive-back dispatch that can
+        // pop shell and root in one gesture.
+        // Other platforms: keep navigator auto-pop behavior.
+        canPop: canPopViaNavigator,
         onPopInvokedWithResult: (didPop, result) {
           LogUtils.d(
-            'PopScope: didPop=$didPop, isAtRoot=$isAtRoot, canPop=${!isAtRoot}, '
-                'routeCurrent=${ModalRoute.of(context)?.isCurrent}, '
+            'PopScope: didPop=$didPop, isAtRoot=$isAtRoot, canPop=$canPopViaNavigator, '
+                'manualDispatch=$useManualBackDispatch, routeCurrent=$isShellRouteCurrent, '
                 'rootCanPop=${rootNavigatorKey.currentState?.canPop() ?? false}, '
                 'shellCanPop=${shellNavigatorKey.currentState?.canPop() ?? false}',
             'HomeShellScaffold',
@@ -299,26 +300,21 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
           final shellRoute = ModalRoute.of(context);
           if (shellRoute != null && !shellRoute.isCurrent) return;
 
-          // At home root → double-confirm exit
+          // If PopCoordinator already consumed this system back (e.g. by popping
+          // a root-level overlay route), ignore this callback to avoid running
+          // fallback logic again in shell.
+          if (PopCoordinator.wasSystemBackConsumedRecently()) {
+            LogUtils.d(
+              'PopScope ignored: recent system back was consumed by PopCoordinator',
+              'HomeShellScaffold',
+            );
+            return;
+          }
+
+          // At home root → exit immediately
           if (isAtRoot) {
-            // On Android (especially with predictive back), let the system exit
-            // immediately. Other platforms keep the confirm behavior.
-            if (GetPlatform.isAndroid) {
-              final backAnimationEnabled =
-                  AndroidBackGestureBridge.backAnimationEnabled ?? false;
-              if (backAnimationEnabled) {
-                // Ideally, home root should be handled by system (frameworkHandlesBack=false)
-                // so this callback should rarely run. Keep a direct-exit fallback here.
-                SystemNavigator.pop();
-              } else {
-                ExitConfirmUtil.handleExit(
-                  context,
-                  () => SystemNavigator.pop(),
-                );
-              }
-              return;
-            }
-            ExitConfirmUtil.handleExit(context, () => SystemNavigator.pop());
+            // Home root: exit immediately (no "press again" confirmation).
+            SystemNavigator.pop();
             return;
           }
 
