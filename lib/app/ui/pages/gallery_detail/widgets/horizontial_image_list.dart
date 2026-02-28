@@ -88,6 +88,9 @@ class HorizontalImageList extends StatefulWidget {
   final BoxDecoration? itemDecoration;
   final Function(ImageItem item)? onItemTap;
   final Object? Function(ImageItem item)? heroTagBuilder;
+  final CreateRectTween? heroCreateRectTween;
+  final HeroFlightShuttleBuilder? heroFlightShuttleBuilder;
+  final bool heroTransitionOnUserGestures;
   final Widget Function(BuildContext, String)? placeholderBuilder;
   final Widget Function(BuildContext, String, dynamic)? errorBuilder;
   final BoxFit imageFit;
@@ -108,6 +111,9 @@ class HorizontalImageList extends StatefulWidget {
     this.itemDecoration,
     this.onItemTap,
     this.heroTagBuilder,
+    this.heroCreateRectTween,
+    this.heroFlightShuttleBuilder,
+    this.heroTransitionOnUserGestures = false,
     this.placeholderBuilder,
     this.errorBuilder,
     this.imageFit = BoxFit.contain,
@@ -360,7 +366,13 @@ class _HorizontalImageListState extends State<HorizontalImageList>
 
     final heroTag = widget.heroTagBuilder?.call(imageItem);
     final mediaContent = heroTag != null
-        ? Hero(tag: heroTag, child: _buildMediaContent(context, imageItem))
+        ? Hero(
+            tag: heroTag,
+            createRectTween: widget.heroCreateRectTween,
+            flightShuttleBuilder: widget.heroFlightShuttleBuilder,
+            transitionOnUserGestures: widget.heroTransitionOnUserGestures,
+            child: _buildMediaContent(context, imageItem),
+          )
         : _buildMediaContent(context, imageItem);
 
     return GestureDetector(
@@ -549,10 +561,7 @@ class _HorizontalImageListState extends State<HorizontalImageList>
         });
         return Container(
           decoration: BoxDecoration(
-            image: DecorationImage(
-              image: imageProvider,
-              fit: widget.imageFit,
-            ),
+            image: DecorationImage(image: imageProvider, fit: widget.imageFit),
           ),
         );
       },

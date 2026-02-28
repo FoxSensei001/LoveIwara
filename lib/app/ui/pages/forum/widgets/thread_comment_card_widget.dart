@@ -111,6 +111,17 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
     );
   }
 
+  ShapeBorder _commentCardShape(BuildContext context) {
+    return RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(14),
+      side: BorderSide(
+        color: Theme.of(
+          context,
+        ).colorScheme.outlineVariant.withValues(alpha: 0.35),
+      ),
+    );
+  }
+
   Widget _buildCommentTag(String text, IconData icon) {
     final colorScheme = Theme.of(context).colorScheme;
     Color tagColor;
@@ -156,7 +167,10 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
     final bool isThreadAuthor = widget.threadAuthorId == widget.comment.user.id;
 
     return Card(
+      elevation: 0,
       margin: const EdgeInsets.symmetric(vertical: 4.0),
+      shape: _commentCardShape(context),
+      clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(0),
         child: Column(
@@ -166,10 +180,12 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                color: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(8),
-                  topRight: Radius.circular(8),
+                  topLeft: Radius.circular(14),
+                  topRight: Radius.circular(14),
                 ),
               ),
               child: Row(

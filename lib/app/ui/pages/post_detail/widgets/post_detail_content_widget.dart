@@ -1,193 +1,300 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/models/post.model.dart';
+import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
+import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:get/get.dart';
 
 import '../../../widgets/custom_markdown_body_widget.dart';
 import '../controllers/post_detail_controller.dart';
 
 class PostDetailContent extends StatelessWidget {
   final PostDetailController controller;
-  final double paddingTop;
-  final VoidCallback onShare;
+  final int commentCount;
+  final bool showOverviewCard;
+  final bool showContentCard;
+  final bool includeTopSpacing;
+  final double horizontalPadding;
+  final String? overviewHeroTag;
 
   const PostDetailContent({
     super.key,
     required this.controller,
-    required this.paddingTop,
-    required this.onShare,
+    required this.commentCount,
+    this.showOverviewCard = true,
+    this.showContentCard = true,
+    this.includeTopSpacing = true,
+    this.horizontalPadding = 12,
+    this.overviewHeroTag,
   });
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildActionButton({
+    required BuildContext context,
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    final theme = Theme.of(context);
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        shape: BoxShape.circle,
+      ),
+      child: IconButton(icon: Icon(icon, size: 20), onPressed: onPressed),
+    );
+  }
+
+  Widget _buildMetaChip({
+    required BuildContext context,
+    required IconData icon,
+    required String text,
+  }) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: theme.colorScheme.onSurfaceVariant),
+          const SizedBox(width: 6),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 280),
+            child: Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTitle(BuildContext context, PostModel post) {
+    final theme = Theme.of(context);
+    final isSmallScreen = MediaQuery.sizeOf(context).width <= 600;
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => AppService.tryPop(context: context),
+        Expanded(
+          child: SelectableText(
+            post.title,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w800,
+              height: 1.25,
+              fontSize: isSmallScreen ? 20 : 22,
+            ),
+          ),
         ),
-        const Spacer(),
-        IconButton(icon: const Icon(Icons.share), onPressed: onShare),
+        if (post.title.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(left: 8),
+            child: _buildActionButton(
+              context: context,
+              icon: Icons.translate,
+              onPressed: () {
+                showTranslationDialog(context, text: post.title);
+              },
+            ),
+          ),
       ],
     );
   }
 
-  Widget _buildTitle(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: SelectableText(
-              controller.postInfo.value?.title ?? '',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-          ),
-          if (controller.postInfo.value?.title.isNotEmpty == true)
-            IconButton(
-              icon: const Icon(Icons.translate),
-              onPressed: () {
-                showTranslationDialog(
-                  context,
-                  text: controller.postInfo.value!.title,
-                );
-              },
-            ),
-        ],
-      ),
+  Widget _buildAuthorInfo(BuildContext context, PostModel post) {
+    final user = post.user;
+    final followButton = FollowButtonWidget(
+      user: user,
+      onUserUpdated: (updatedUser) {
+        controller.postInfo.value = controller.postInfo.value?.copyWith(
+          user: updatedUser,
+        );
+      },
+    );
+
+    return LayoutBuilder(
+      builder: (context, _) {
+        final identity = _buildAuthorIdentity(context, user);
+        return Row(
+          children: [
+            Expanded(child: identity),
+            Align(alignment: Alignment.centerRight, child: followButton),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildAuthorInfo() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Row(
-        children: [
-          _buildAuthorAvatar(),
-          const SizedBox(width: 8),
-          _buildAuthorNameButton(),
-          const Spacer(),
-          if (controller.postInfo.value?.user != null)
-            FollowButtonWidget(
-              user: controller.postInfo.value!.user,
-              onUserUpdated: (updatedUser) {
-                controller.postInfo.value = controller.postInfo.value?.copyWith(
-                  user: updatedUser,
-                );
-              },
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAuthorAvatar() {
-    final user = controller.postInfo.value?.user;
-    Widget avatar = MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: () {
-          if (user != null) {
-            NaviService.navigateToAuthorProfilePage(user.username);
-          }
-        },
-        behavior: HitTestBehavior.opaque,
-        child: AvatarWidget(user: user, size: 40),
-      ),
-    );
-
-    if (user?.premium == true) {
-      return MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              colors: [
-                Colors.purple.shade200,
-                Colors.blue.shade200,
-                Colors.pink.shade200,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: Padding(padding: const EdgeInsets.all(4.0), child: avatar),
+  Widget _buildAuthorIdentity(BuildContext context, User user) {
+    return InkWell(
+      onTap: () => NaviService.navigateToAuthorProfilePage(user.username),
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Row(
+          children: [
+            _buildAuthorAvatar(user),
+            const SizedBox(width: 10),
+            Expanded(child: _buildAuthorNameButton(context, user)),
+          ],
         ),
-      );
-    }
-
-    return avatar;
+      ),
+    );
   }
 
-  Widget _buildAuthorNameButton() {
-    final user = controller.postInfo.value?.user;
-    if (user?.premium == true) {
-      return MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: () {
-            NaviService.navigateToAuthorProfilePage(user?.username ?? '');
-          },
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ShaderMask(
-                shaderCallback: (bounds) => LinearGradient(
-                  colors: [
-                    Colors.purple.shade300,
-                    Colors.blue.shade300,
-                    Colors.pink.shade300,
-                  ],
-                ).createShader(bounds),
-                child: Text(
-                  user?.name ?? '',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              Text(
-                '@${user?.username ?? ''}',
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+  Widget _buildAuthorAvatar(User user) {
+    if (user.premium) {
+      return Container(
+        padding: const EdgeInsets.all(2),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            colors: [
+              Colors.purple.shade200,
+              Colors.blue.shade200,
+              Colors.pink.shade200,
             ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
+        child: AvatarWidget(user: user, size: 42),
       );
     }
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: () {
-          NaviService.navigateToAuthorProfilePage(user?.username ?? '');
-        },
+    return AvatarWidget(user: user, size: 42);
+  }
+
+  Widget _buildAuthorNameButton(BuildContext context, User user) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        buildUserName(context, user, bold: true, fontSize: 16),
+        Text(
+          '@${user.username}',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+            fontSize: 12.5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTimeInfo(BuildContext context, PostModel post) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        _buildMetaChip(
+          context: context,
+          icon: Icons.calendar_today_rounded,
+          text: CommonUtils.formatFriendlyTimestamp(post.createdAt),
+        ),
+        if (post.updatedAt != post.createdAt)
+          _buildMetaChip(
+            context: context,
+            icon: Icons.edit_calendar_rounded,
+            text: CommonUtils.formatFriendlyTimestamp(post.updatedAt),
+          ),
+        _buildMetaChip(
+          context: context,
+          icon: Icons.forum_outlined,
+          text: CommonUtils.formatFriendlyNumber(commentCount),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOverviewCard(BuildContext context, PostModel post) {
+    final theme = Theme.of(context);
+    final card = Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.45),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: theme.colorScheme.shadow.withValues(alpha: 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              user?.name ?? '',
-              style: const TextStyle(fontSize: 16),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            _buildTitle(context, post),
+            const SizedBox(height: 12),
+            _buildAuthorInfo(context, post),
+            const SizedBox(height: 12),
+            _buildTimeInfo(context, post),
+          ],
+        ),
+      ),
+    );
+    if (overviewHeroTag == null) {
+      return card;
+    }
+    return Hero(tag: overviewHeroTag!, child: card);
+  }
+
+  Widget _buildContentCard(BuildContext context, PostModel post) {
+    final theme = Theme.of(context);
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.45),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.article_outlined,
+                  size: 18,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  slang.t.common.content,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
             ),
-            Text(
-              '@${user?.username ?? ''}',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            const SizedBox(height: 10),
+            CustomMarkdownBody(
+              data: post.body,
+              originalData: post.body,
+              showTranslationButton: true,
+              translationButtonAtTop: true,
             ),
           ],
         ),
@@ -195,83 +302,37 @@ class PostDetailContent extends StatelessWidget {
     );
   }
 
-  Widget _buildTimeInfo(BuildContext context) {
-    final t = slang.Translations.of(context);
-    final post = controller.postInfo.value;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 23.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
-              const SizedBox(width: 4),
-              Text(
-                '${t.common.publishedAt}: ${CommonUtils.formatFriendlyTimestamp(post?.createdAt)}',
-                style: const TextStyle(color: Colors.grey),
-              ),
-            ],
-          ),
-          if (post?.updatedAt != null && post!.updatedAt != post.createdAt)
-            Row(
-              children: [
-                const Icon(Icons.update, size: 16, color: Colors.grey),
-                const SizedBox(width: 4),
-                Text(
-                  '${t.common.updatedAt}: ${CommonUtils.formatFriendlyTimestamp(post.updatedAt)}',
-                  style: const TextStyle(color: Colors.grey),
-                ),
-              ],
-            ),
-          Row(
-            children: [
-              const Icon(Icons.remove_red_eye, size: 16, color: Colors.grey),
-              const SizedBox(width: 4),
-              Text(
-                '${t.common.numViews}: ${CommonUtils.formatFriendlyNumber(post?.numViews ?? 0)}',
-                style: const TextStyle(color: Colors.grey),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildContent(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            slang.t.mediaList.personalIntroduction,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          CustomMarkdownBody(
-            data: controller.postInfo.value?.body ?? '',
-            originalData: controller.postInfo.value?.body,
-            showTranslationButton: true,
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final post = controller.postInfo.value;
+    if (post == null) {
+      return const SizedBox.shrink();
+    }
+
+    final children = <Widget>[];
+    if (showOverviewCard) {
+      children.add(_buildOverviewCard(context, post));
+    }
+    if (showOverviewCard && showContentCard) {
+      children.add(const SizedBox(height: 12));
+    }
+    if (showContentCard) {
+      children.add(_buildContentCard(context, post));
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(height: paddingTop),
-        _buildHeader(context),
-        _buildAuthorInfo(),
-        _buildTitle(context),
-        _buildContent(context),
-        _buildTimeInfo(context),
+        if (includeTopSpacing) const SizedBox(height: 10),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: children,
+          ),
+        ),
+        const SizedBox(height: 6),
       ],
     );
   }

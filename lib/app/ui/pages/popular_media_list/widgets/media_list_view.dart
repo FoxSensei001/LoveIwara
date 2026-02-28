@@ -579,16 +579,24 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isPaginated) {
-      return _buildPaginatedView(context);
-    } else {
-      return _buildInfiniteScrollView(context);
-    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // 防止瀑布流在宽度为0或无限时布局崩溃
+        if (!constraints.maxWidth.isFinite || constraints.maxWidth <= 0) {
+          return const SizedBox.shrink();
+        }
+        if (widget.isPaginated) {
+          return _buildPaginatedView(context, constraints.maxWidth);
+        } else {
+          return _buildInfiniteScrollView(context, constraints.maxWidth);
+        }
+      },
+    );
   }
 
-  Widget _buildInfiniteScrollView(BuildContext context) {
-    // 获取屏幕宽度
-    final screenWidth = MediaQuery.of(context).size.width;
+  Widget _buildInfiniteScrollView(BuildContext context, double availableWidth) {
+    // 使用实际可用宽度（来自 LayoutBuilder），而非屏幕宽度
+    final screenWidth = availableWidth;
 
     // 使用工具类计算列数和最大交叉轴范围
     final int crossAxisCount = MediaLayoutUtils.calculateCrossAxisCount(
@@ -681,14 +689,14 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     );
   }
 
-  Widget _buildPaginatedView(BuildContext context) {
+  Widget _buildPaginatedView(BuildContext context, double availableWidth) {
     // 获取系统底部安全区域高度
     final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
     // 计算分页栏所需的底部边距（PaginationBar内部已处理paddingBottom，这里只需要基础高度）
     final paginationBarHeight = 46;
 
-    // 获取屏幕宽度
-    final screenWidth = MediaQuery.of(context).size.width;
+    // 使用实际可用宽度（来自 LayoutBuilder），而非屏幕宽度
+    final screenWidth = availableWidth;
 
     // 使用工具类计算列数和最大交叉轴范围
     final int crossAxisCount = MediaLayoutUtils.calculateCrossAxisCount(

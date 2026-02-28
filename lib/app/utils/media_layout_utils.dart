@@ -8,11 +8,17 @@ class MediaLayoutUtils {
 
   /// 根据屏幕宽度计算瀑布流列数
   static int calculateCrossAxisCount(double screenWidth) {
+    // 安全检查：确保 screenWidth 有效
+    if (!screenWidth.isFinite || screenWidth <= 0) {
+      return 2; // 默认列数
+    }
+
     final layoutMode = _configService[ConfigKey.LAYOUT_MODE] as String;
-    
+
     if (layoutMode == 'manual') {
       // 手动模式：使用用户设置的固定列数
-      return _configService[ConfigKey.MANUAL_COLUMNS_COUNT] as int;
+      final count = _configService[ConfigKey.MANUAL_COLUMNS_COUNT] as int;
+      return count < 1 ? 1 : count; // 确保至少1列
     } else {
       // 自动模式：根据断点配置计算
       final breakpointsRaw = _configService[ConfigKey.LAYOUT_BREAKPOINTS];
@@ -45,12 +51,15 @@ class MediaLayoutUtils {
       // 根据屏幕宽度找到对应的列数
       for (final entry in sortedBreakpoints) {
         if (screenWidth <= entry.key) {
-          return entry.value;
+          return entry.value < 1 ? 1 : entry.value;
         }
       }
       
       // 如果没有找到匹配的断点，返回最后一个配置的列数
-      return sortedBreakpoints.last.value;
+      final lastValue = sortedBreakpoints.isNotEmpty
+          ? sortedBreakpoints.last.value
+          : 2;
+      return lastValue < 1 ? 1 : lastValue;
     }
   }
 

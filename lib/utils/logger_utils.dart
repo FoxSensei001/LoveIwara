@@ -1,6 +1,7 @@
 // ignore_for_file: constant_identifier_names
 
 import 'dart:async';
+import 'dart:developer' as developer;
 import 'package:logger/logger.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -70,23 +71,48 @@ class LogUtils {
     return DateTime.now().toString().substring(0, 19);
   }
 
+  // 额外写入 developer.log，确保 adb logcat 可见关键日志。
+  static void _mirrorToDeveloperLog(
+    String message, {
+    required String tag,
+    required int level,
+    Object? error,
+    StackTrace? stackTrace,
+  }) {
+    if (kIsWeb) return;
+    try {
+      developer.log(
+        message,
+        name: tag,
+        level: level,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    } catch (_) {
+      // 忽略镜像日志失败，避免影响主流程
+    }
+  }
+
   // 记录调试日志
   static void d(String message, [String tag = _TAG]) {
     if (!_isProduction) {
       _logger.d("[${_getTimeString()}][$tag] $message");
     }
+    _mirrorToDeveloperLog(message, tag: tag, level: 500);
     _logService?.log(level: LogLevel.debug, message: message, tag: tag);
   }
 
   // 记录信息日志
   static void i(String message, [String tag = _TAG]) {
     _logger.i("[${_getTimeString()}][$tag] $message");
+    _mirrorToDeveloperLog(message, tag: tag, level: 800);
     _logService?.log(level: LogLevel.info, message: message, tag: tag);
   }
 
   // 记录警告日志
   static void w(String message, [String tag = _TAG]) {
     _logger.w("[${_getTimeString()}][$tag] $message");
+    _mirrorToDeveloperLog(message, tag: tag, level: 900);
     _logService?.log(level: LogLevel.warning, message: message, tag: tag);
   }
 
@@ -118,6 +144,13 @@ class LogUtils {
       "[${_getTimeString()}][$tag] $message",
       stackTrace: null,
       error: details,
+    );
+    _mirrorToDeveloperLog(
+      message,
+      tag: tag,
+      level: 1000,
+      error: error,
+      stackTrace: stackTrace ?? stack,
     );
 
     _logService?.log(

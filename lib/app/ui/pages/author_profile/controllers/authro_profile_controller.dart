@@ -35,6 +35,17 @@ class AuthorProfileController extends GetxController {
 
   AuthorProfileController({required this.username});
 
+  void _bindCommentController(String authorId) {
+    if (Get.isRegistered<CommentController>(tag: authorId)) {
+      commentController = Get.find<CommentController>(tag: authorId);
+      return;
+    }
+    commentController = Get.put(
+      CommentController(id: authorId, type: CommentType.profile),
+      tag: authorId,
+    );
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -67,20 +78,16 @@ class AuthorProfileController extends GetxController {
   /// 抓取作者详情
   Future<void> fetchAuthorDescription() async {
     try {
-      final authorData =
-          await _apiService.get(ApiConstants.userProfile(username));
-      author.value = User.fromJson(authorData.data['user']);
-      commentController = Get.put(
-        CommentController(
-          id: author.value!.id,
-          type: CommentType.profile,
-        ),
-        tag: author.value!.id,
+      final authorData = await _apiService.get(
+        ApiConstants.userProfile(username),
       );
+      author.value = User.fromJson(authorData.data['user']);
+      _bindCommentController(author.value!.id);
       authorDescription.value = authorData.data['body'];
       var header = authorData.data['header'];
-      headerBackgroundUrl.value =
-          CommonConstants.userProfileHeaderUrl(header?['id']);
+      headerBackgroundUrl.value = CommonConstants.userProfileHeaderUrl(
+        header?['id'],
+      );
       // LogUtils.d('获取的用户信息: $authorData', 'AuthorProfileController');
     } catch (e) {
       LogUtils.e('抓取作者详情失败', tag: 'AuthorProfileController', error: e);
@@ -97,11 +104,14 @@ class AuthorProfileController extends GetxController {
     }
     String userId = author.value!.id;
     try {
-      final followerData = await _apiService
-          .get('${ApiConstants.userFollowers(userId)}?limit=1');
+      final followerData = await _apiService.get(
+        '${ApiConstants.userFollowers(userId)}?limit=1',
+      );
       followerCounts.value = followerData.data['count'];
       LogUtils.d(
-          '粉丝数: ${followerData.data['count']}', 'AuthorProfileController');
+        '粉丝数: ${followerData.data['count']}',
+        'AuthorProfileController',
+      );
     } catch (e) {
       LogUtils.e('抓取作者粉丝数失败', tag: 'AuthorProfileController', error: e);
     }
@@ -114,11 +124,14 @@ class AuthorProfileController extends GetxController {
     }
     String userId = author.value!.id;
     try {
-      final followingData = await _apiService
-          .get('${ApiConstants.userFollowing(userId)}?limit=1');
+      final followingData = await _apiService.get(
+        '${ApiConstants.userFollowing(userId)}?limit=1',
+      );
       followingCounts.value = followingData.data['count'];
       LogUtils.d(
-          '关注数: ${followingData.data['count']}', 'AuthorProfileController');
+        '关注数: ${followingData.data['count']}',
+        'AuthorProfileController',
+      );
     } catch (e) {
       LogUtils.e('抓取作者关注数失败', tag: 'AuthorProfileController', error: e);
     }
@@ -133,8 +146,9 @@ class AuthorProfileController extends GetxController {
 
     String userId = author.value!.id;
     try {
-      final response =
-          await _apiService.get(ApiConstants.userRelationshipStatus(userId));
+      final response = await _apiService.get(
+        ApiConstants.userRelationshipStatus(userId),
+      );
       isFriendRequestPending.value = response.data['status'] == 'pending';
     } catch (e) {
       LogUtils.e('获取关系状态失败', tag: 'AuthorProfileController', error: e);
@@ -148,11 +162,15 @@ class AuthorProfileController extends GetxController {
     try {
       ApiResult res = await _userService.followUser(userId);
       if (!res.isSuccess) {
-        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error), position: ToastPosition.bottom);
+        showToastWidget(
+          MDToastWidget(message: res.message, type: MDToastType.error),
+          position: ToastPosition.bottom,
+        );
         return;
       }
-      final authorData =
-          await _apiService.get(ApiConstants.userProfile(username));
+      final authorData = await _apiService.get(
+        ApiConstants.userProfile(username),
+      );
       author.value = User.fromJson(authorData.data['user']);
       followingCounts.value += 1;
     } finally {
@@ -167,12 +185,16 @@ class AuthorProfileController extends GetxController {
     try {
       ApiResult res = await _userService.unfollowUser(userId);
       if (!res.isSuccess) {
-        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error), position: ToastPosition.bottom);
+        showToastWidget(
+          MDToastWidget(message: res.message, type: MDToastType.error),
+          position: ToastPosition.bottom,
+        );
         return;
       }
       // 刷新页面
-      final authorData =
-          await _apiService.get(ApiConstants.userProfile(username));
+      final authorData = await _apiService.get(
+        ApiConstants.userProfile(username),
+      );
       author.value = User.fromJson(authorData.data['user']);
       followingCounts.value -= 1;
     } finally {

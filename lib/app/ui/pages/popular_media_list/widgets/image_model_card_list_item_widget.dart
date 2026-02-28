@@ -1,11 +1,46 @@
-// ignore_for_file: unnecessary_underscores
-
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/base_card_list_item_widget.dart'
+    show BaseTag;
+import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
-import 'package:i_iwara/app/ui/widgets/base_card_list_item_widget.dart';
+
+String _galleryCoverHeroTag(String imageModelId) =>
+    'gallery_cover:$imageModelId';
+
+String _galleryCardHeroTag(String imageModelId) => 'gallery_card:$imageModelId';
+
+String _galleryTitleHeroTag(String imageModelId) =>
+    'gallery_title:$imageModelId';
+
+String _galleryAuthorAvatarHeroTag(String imageModelId) =>
+    'gallery_author_avatar:$imageModelId';
+
+String _galleryAuthorNameHeroTag(String imageModelId) =>
+    'gallery_author_name:$imageModelId';
+
+RectTween _createGalleryCoverRectTween(Rect? begin, Rect? end) {
+  return MaterialRectArcTween(begin: begin, end: end);
+}
+
+Widget _galleryCoverFlightShuttleBuilder(
+  BuildContext flightContext,
+  Animation<double> animation,
+  HeroFlightDirection flightDirection,
+  BuildContext fromHeroContext,
+  BuildContext toHeroContext,
+) {
+  final fromHero = fromHeroContext.widget as Hero;
+  final toHero = toHeroContext.widget as Hero;
+  return flightDirection == HeroFlightDirection.push
+      ? fromHero.child
+      : toHero.child;
+}
 
 class ImageModelCardListItemWidget extends StatefulWidget {
   final ImageModel imageModel;
@@ -36,39 +71,21 @@ class ImageModelCardListItemWidget extends StatefulWidget {
 
 class _ImageModelCardListItemWidgetState
     extends State<ImageModelCardListItemWidget> {
-  // 缓存标签组件
-  late List<Widget> _cachedTags;
-  bool _tagsInitialized = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_tagsInitialized) {
-      final thumbnail = _Thumbnail(
-        imageModel: widget.imageModel,
-        width: widget.width,
-      );
-      _cachedTags = thumbnail.buildTags(context);
-      _tagsInitialized = true;
-    }
-  }
+  bool _isHovering = false;
+  static const Duration _hoverAnimationDuration = Duration(milliseconds: 220);
 
   @override
   Widget build(BuildContext context) {
-    // 确保标签已初始化
-    if (!_tagsInitialized) {
-      final thumbnail = _Thumbnail(
-        imageModel: widget.imageModel,
-        width: widget.width,
-      );
-      _cachedTags = thumbnail.buildTags(context);
-      _tagsInitialized = true;
-    }
+    final theme = Theme.of(context);
+    final radius = BorderRadius.circular(14);
+    final bool enableHover = !widget.isMultiSelectMode && _isDesktopPlatform();
+    final bool showHoverState = enableHover && _isHovering;
 
-    // 多选模式下的遮罩
     final Widget? overlay = widget.isMultiSelectMode
         ? Container(
-            color: widget.isSelected ? Colors.black38 : Colors.black12,
+            color: widget.isSelected
+                ? Colors.black.withValues(alpha: 0.45)
+                : Colors.black.withValues(alpha: 0.2),
             child: Center(
               child: Icon(
                 widget.isSelected ? Icons.check_circle : Icons.circle_outlined,
@@ -80,72 +97,211 @@ class _ImageModelCardListItemWidgetState
         : null;
 
     return RepaintBoundary(
-      child: BaseCardListItem(
+      child: SizedBox(
         width: widget.width,
-        thumbnail: _buildCachedThumbnail(),
-        title: widget.imageModel.title,
-        createdAt: widget.imageModel.createdAt,
-        user: widget.imageModel.user,
-        onTap: widget.isMultiSelectMode && widget.onSelect != null
-            ? widget.onSelect!
-            : () =>
-                  NaviService.navigateToGalleryDetailPage(widget.imageModel.id),
-        contentOverlay: overlay,
+        child: MouseRegion(
+          onEnter: enableHover
+              ? (_) => setState(() => _isHovering = true)
+              : null,
+          onExit: enableHover
+              ? (_) => setState(() => _isHovering = false)
+              : null,
+          child: AnimatedContainer(
+            duration: _hoverAnimationDuration,
+            curve: Curves.easeOutCubic,
+            decoration: BoxDecoration(
+              borderRadius: radius,
+              boxShadow: [
+                BoxShadow(
+                  color: theme.colorScheme.shadow.withValues(
+                    alpha: showHoverState ? 0.2 : 0.08,
+                  ),
+                  blurRadius: showHoverState ? 18 : 8,
+                  offset: Offset(0, showHoverState ? 8 : 3),
+                ),
+              ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: radius,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: Hero(
+                      tag: _galleryCardHeroTag(widget.imageModel.id),
+                      transitionOnUserGestures: true,
+                      placeholderBuilder: (context, size, child) {
+                        return Material(
+                          color: Colors.transparent,
+                          borderRadius: radius,
+                          child: Ink(
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surface,
+                              borderRadius: radius,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Material(
+                        color: Colors.transparent,
+                        borderRadius: radius,
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.surface,
+                            borderRadius: radius,
+                            border: Border.all(
+                              color: theme.colorScheme.outlineVariant
+                                  .withValues(
+                                    alpha: showHoverState ? 0.6 : 0.3,
+                                  ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    borderRadius: radius,
+                    onTap: widget.isMultiSelectMode && widget.onSelect != null
+                        ? widget.onSelect!
+                        : () => NaviService.navigateToGalleryDetailPage(
+                            widget.imageModel.id,
+                            coverUrl: widget.imageModel.thumbnailUrl,
+                            title: widget.imageModel.title,
+                            imageCount: widget.imageModel.numImages,
+                            authorName: widget.imageModel.user?.name,
+                            authorUsername: widget.imageModel.user?.username,
+                            authorAvatarUrl:
+                                widget.imageModel.user?.avatar?.avatarUrl,
+                          ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _Thumbnail(
+                          imageModel: widget.imageModel,
+                          width: widget.width,
+                          isHovering: showHoverState,
+                          overlay: overlay,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 10, 10, 9),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Hero(
+                                tag: _galleryTitleHeroTag(widget.imageModel.id),
+                                transitionOnUserGestures: true,
+                                child: Material(
+                                  type: MaterialType.transparency,
+                                  child: Text(
+                                    widget.imageModel.title.isEmpty
+                                        ? slang.t.common.noTitle
+                                        : widget.imageModel.title,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: theme.textTheme.titleMedium
+                                        ?.copyWith(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          height: 1.22,
+                                        ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              _MetaLine(imageModel: widget.imageModel),
+                              const SizedBox(height: 8),
+                              _AuthorLine(
+                                imageModel: widget.imageModel,
+                                isMultiSelectMode: widget.isMultiSelectMode,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildCachedThumbnail() {
-    return _Thumbnail(
-      imageModel: widget.imageModel,
-      width: widget.width,
-      cachedTags: _cachedTags,
-    );
+  bool _isDesktopPlatform() {
+    return !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.windows ||
+            defaultTargetPlatform == TargetPlatform.linux ||
+            defaultTargetPlatform == TargetPlatform.macOS);
   }
 }
 
 class _Thumbnail extends StatelessWidget {
   final ImageModel imageModel;
   final double width;
-  final List<Widget>? cachedTags;
+  final bool isHovering;
+  final Widget? overlay;
 
   const _Thumbnail({
     required this.imageModel,
     required this.width,
-    this.cachedTags,
+    required this.isHovering,
+    this.overlay,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [_buildImage(), ...(cachedTags ?? buildTags(context))],
+    const radius = BorderRadius.vertical(top: Radius.circular(14));
+    return Hero(
+      tag: _galleryCoverHeroTag(imageModel.id),
+      createRectTween: _createGalleryCoverRectTween,
+      flightShuttleBuilder: _galleryCoverFlightShuttleBuilder,
+      transitionOnUserGestures: true,
+      child: ClipRRect(
+        borderRadius: radius,
+        child: AspectRatio(
+          aspectRatio: 16 / 9,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              CachedNetworkImage(
+                imageUrl: imageModel.thumbnailUrl,
+                fit: BoxFit.cover,
+                memCacheWidth: (width * 1.5).toInt(),
+                fadeInDuration: const Duration(milliseconds: 50),
+                placeholderFadeInDuration: const Duration(milliseconds: 0),
+                fadeOutDuration: const Duration(milliseconds: 0),
+                maxWidthDiskCache: 400,
+                maxHeightDiskCache: 400,
+                placeholder: _buildPlaceholder,
+                errorWidget: (context, url, error) => _buildErrorPlaceholder(),
+              ),
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: const [0.52, 1],
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withValues(alpha: 0.35),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              ..._buildTags(context),
+              if (overlay != null) Positioned.fill(child: overlay!),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
-  Widget _buildImage() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: _buildOptimizedImage(),
-    );
-  }
-
-  Widget _buildOptimizedImage() {
-    return CachedNetworkImage(
-      imageUrl: imageModel.thumbnailUrl,
-      fit: BoxFit.cover,
-      memCacheWidth: (width * 1.5).toInt(),
-      fadeInDuration: const Duration(milliseconds: 50),
-      placeholderFadeInDuration: const Duration(milliseconds: 0),
-      fadeOutDuration: const Duration(milliseconds: 0),
-      maxWidthDiskCache: 400,
-      maxHeightDiskCache: 400,
-      placeholder: _buildPlaceholder,
-      errorWidget: (_, __, ___) => _buildErrorPlaceholder(),
-    );
-  }
-
-  // 使用更高效的占位符
   Widget _buildPlaceholder(BuildContext context, String url) {
     return const SizedBox.expand(
       child: DecoratedBox(decoration: BoxDecoration(color: Color(0xFFE0E0E0))),
@@ -167,94 +323,229 @@ class _Thumbnail extends StatelessWidget {
     );
   }
 
-  List<Widget> buildTags(BuildContext context) {
-    return [
-      if (imageModel.rating == 'ecchi')
-        Positioned(left: 0, bottom: 0, child: _buildRatingTag(context)),
-      Positioned(
-        right: 0,
-        top: 0,
-        child: _ImageTag(
-          text: '${imageModel.numImages}',
-          icon: Icons.image,
-          borderRadius: BaseTagBorderRadius.imageNumTagBorderRadius,
-        ),
-      ),
+  List<Widget> _buildTags(BuildContext context) {
+    final List<Widget> tags = [];
+    tags.add(
       Positioned(
         right: 0,
         bottom: 0,
-        child: _ImageTag(
-          text: CommonUtils.formatFriendlyNumber(imageModel.numViews),
-          icon: Icons.remove_red_eye,
-          borderRadius: BaseTagBorderRadius.viewTagBorderRadius,
-        ),
-      ),
-      Positioned(
-        left: 0,
-        top: 0,
-        child: _ImageTag(
-          text: CommonUtils.formatFriendlyNumber(imageModel.numLikes),
-          icon: Icons.favorite,
-          borderRadius: BaseTagBorderRadius.likeTagBorderRadius,
-        ),
-      ),
-    ];
-  }
-
-  Widget _buildRatingTag(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BaseTagBorderRadius.tagBorderRadius,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-        color: Colors.red,
-        child: Text(
-          'R18',
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSecondary,
-            fontWeight: FontWeight.bold,
-            fontSize: 10,
-            decoration: TextDecoration.none,
+        child: BaseTag(
+          text: CommonUtils.formatFriendlyNumber(imageModel.numImages),
+          icon: Icons.image,
+          backgroundColor: Colors.black54,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(6),
+            bottomRight: Radius.circular(4),
           ),
         ),
+      ),
+    );
+
+    if (imageModel.rating == 'ecchi') {
+      tags.add(
+        Positioned(
+          left: 0,
+          bottom: 0,
+          child: BaseTag(
+            text: 'R18',
+            backgroundColor: Colors.red,
+            textColor: Theme.of(context).colorScheme.onSecondary,
+            borderRadius: const BorderRadius.only(
+              topRight: Radius.circular(6),
+              bottomLeft: Radius.zero,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return tags;
+  }
+}
+
+class _MetaLine extends StatelessWidget {
+  final ImageModel imageModel;
+
+  const _MetaLine({required this.imageModel});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 210;
+        final chipTextMaxWidth = ((constraints.maxWidth - 55) / 2).clamp(
+          24.0,
+          56.0,
+        );
+
+        return Wrap(
+          spacing: compact ? 5 : 6,
+          runSpacing: 5,
+          children: [
+            _StatChip(
+              icon: Icons.visibility,
+              value: CommonUtils.formatFriendlyNumber(imageModel.numViews),
+              color: theme.colorScheme.onSurfaceVariant,
+              maxTextWidth: chipTextMaxWidth,
+            ),
+            _StatChip(
+              icon: Icons.favorite,
+              value: CommonUtils.formatFriendlyNumber(imageModel.numLikes),
+              color: theme.colorScheme.onSurfaceVariant,
+              maxTextWidth: chipTextMaxWidth,
+            ),
+            if (!compact && imageModel.numComments > 0)
+              _StatChip(
+                icon: Icons.forum,
+                value: CommonUtils.formatFriendlyNumber(imageModel.numComments),
+                color: theme.colorScheme.onSurfaceVariant,
+                maxTextWidth: chipTextMaxWidth,
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _StatChip extends StatelessWidget {
+  final IconData icon;
+  final String value;
+  final Color color;
+  final double maxTextWidth;
+
+  const _StatChip({
+    required this.icon,
+    required this.value,
+    required this.color,
+    required this.maxTextWidth,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: BoxConstraints(maxWidth: maxTextWidth + 24),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 11, color: color),
+          const SizedBox(width: 2),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxTextWidth),
+            child: Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: color,
+                fontSize: 10.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _ImageTag extends StatelessWidget {
-  final String text;
-  final IconData icon;
-  final BorderRadius borderRadius;
+class _AuthorLine extends StatelessWidget {
+  final ImageModel imageModel;
+  final bool isMultiSelectMode;
 
-  const _ImageTag({
-    required this.text,
-    required this.icon,
-    required this.borderRadius,
+  const _AuthorLine({
+    required this.imageModel,
+    required this.isMultiSelectMode,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: borderRadius,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-        decoration: const BoxDecoration(color: Colors.black54),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+    final theme = Theme.of(context);
+    final createdAtText = CommonUtils.formatFriendlyTimestamp(
+      imageModel.createdAt,
+    );
+    final timeStyle = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+      fontSize: 11,
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 210;
+        if (compact) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildAuthorName(context),
+              const SizedBox(height: 4),
+              Text(
+                createdAtText,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: timeStyle,
+              ),
+            ],
+          );
+        }
+
+        return Row(
           children: [
-            Icon(icon, size: 10, color: Colors.white),
-            const SizedBox(width: 2),
-            Text(
-              text,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
-                fontSize: 10,
-                decoration: TextDecoration.none,
+            Expanded(child: _buildAuthorName(context)),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  createdAtText,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: timeStyle,
+                ),
               ),
             ),
           ],
-        ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAuthorName(BuildContext context) {
+    final user = imageModel.user;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: isMultiSelectMode
+          ? null
+          : () {
+              final username = user?.username;
+              if (username != null && username.isNotEmpty) {
+                NaviService.navigateToAuthorProfilePage(username);
+              }
+            },
+      child: Row(
+        children: [
+          Hero(
+            tag: _galleryAuthorAvatarHeroTag(imageModel.id),
+            transitionOnUserGestures: true,
+            child: AvatarWidget(user: user, size: 22),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Hero(
+              tag: _galleryAuthorNameHeroTag(imageModel.id),
+              transitionOnUserGestures: true,
+              child: Material(
+                type: MaterialType.transparency,
+                child: buildUserName(context, user, bold: true, fontSize: 12.5),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -17,7 +17,6 @@ import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
-import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:oktoast/oktoast.dart';
@@ -66,6 +65,83 @@ class _ForumPageState extends State<ForumPage> {
   IwaraPageModel? _sitewideAnnouncement;
   bool _isLoadingSitewideAnnouncement = false;
   String? _sitewideAnnouncementError;
+
+  ShapeBorder _forumCardShape(BuildContext context, {double radius = 14}) {
+    return RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(radius),
+      side: BorderSide(
+        color: Theme.of(
+          context,
+        ).colorScheme.outlineVariant.withValues(alpha: 0.35),
+      ),
+    );
+  }
+
+  Widget _buildForumLabelChip({
+    required String text,
+    Color? foregroundColor,
+    Color? backgroundColor,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final fg = foregroundColor ?? colorScheme.onSurfaceVariant;
+    final bg = backgroundColor ?? fg.withValues(alpha: 0.1);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        text,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: fg,
+          fontSize: 10.5,
+          fontWeight: FontWeight.w600,
+          height: 1.2,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildForumMetaChip({
+    required IconData icon,
+    required String text,
+    Color? foregroundColor,
+    Color? backgroundColor,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final fg = foregroundColor ?? colorScheme.onSurfaceVariant;
+    final bg = backgroundColor ?? fg.withValues(alpha: 0.08);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 11.5, color: fg),
+          const SizedBox(width: 3),
+          Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: fg,
+              fontSize: 10.5,
+              fontWeight: FontWeight.w600,
+              height: 1.2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   void tryRefreshCurrentList() {
     if (mounted) {
@@ -556,6 +632,7 @@ class _ForumPageState extends State<ForumPage> {
               onTap: () => NaviService.navigateToForumThreadDetailPage(
                 thread.section,
                 thread.id,
+                initialThread: thread,
               ),
             ),
             sourceList: _recentThreadRepository,
@@ -642,6 +719,7 @@ class _ForumPageState extends State<ForumPage> {
 
   Widget _buildSitewideAnnouncementCard() {
     final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
     final bool isWideScreen = MediaQuery.of(context).size.width >= 900;
 
     if (_isLoadingSitewideAnnouncement) {
@@ -665,89 +743,81 @@ class _ForumPageState extends State<ForumPage> {
     final body = page.localizedBody(languageCode);
 
     return Card(
-      elevation: 2,
+      elevation: 0,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: _forumCardShape(context),
+      clipBehavior: Clip.antiAlias,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.campaign,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 22,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.campaign_rounded,
+                  color: colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          _buildForumLabelChip(
+                            text: t.forum.sitewide.badge,
+                            foregroundColor: colorScheme.primary,
+                            backgroundColor: colorScheme.primary.withValues(
+                              alpha: 0.12,
+                            ),
+                          ),
+                          if (page.sensitive)
+                            _buildForumLabelChip(
+                              text: t.common.sensitive,
+                              foregroundColor: colorScheme.error,
+                              backgroundColor: colorScheme.error.withValues(
+                                alpha: 0.12,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
+                ),
+                const SizedBox(width: 4),
+                IconButton(
+                  tooltip: t.common.refresh,
+                  onPressed: _loadSitewideAnnouncement,
+                  icon: const Icon(Icons.refresh, size: 18),
+                  style: IconButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    padding: const EdgeInsets.all(6),
                   ),
-                  if (!isWideScreen)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Chip(
-                        visualDensity: VisualDensity.compact,
-                        label: Text(t.forum.sitewide.badge),
-                      ),
-                    ),
-                  if (page.sensitive)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Chip(
-                        visualDensity: VisualDensity.compact,
-                        label: Text(t.common.sensitive),
-                      ),
-                    ),
-                ],
-              ),
+                ),
+              ],
             ),
-            const SizedBox(height: 6),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.update,
-                    size: 14,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    CommonUtils.formatFriendlyTimestamp(page.updatedAt),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    tooltip: t.common.refresh,
-                    onPressed: _loadSitewideAnnouncement,
-                    icon: const Icon(Icons.refresh, size: 18),
-                    style: IconButton.styleFrom(
-                      visualDensity: VisualDensity.compact,
-                      padding: const EdgeInsets.all(6),
-                    ),
-                  ),
-                ],
-              ),
+            const SizedBox(height: 8),
+            _buildForumMetaChip(
+              icon: Icons.schedule_rounded,
+              text: CommonUtils.formatFriendlyTimestamp(page.updatedAt),
             ),
-            const Divider(height: 16),
+            const Divider(height: 18),
             if (isWideScreen)
               _buildSitewideAnnouncementPreview(body: body)
             else
@@ -755,23 +825,20 @@ class _ForumPageState extends State<ForumPage> {
                 children: [
                   CustomMarkdownBody(
                     data: body,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.zero,
                     maxImageHeight: 220,
                   ),
                   const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton.icon(
-                        onPressed: () =>
-                            _showSitewideAnnouncementDialog(body: body),
-                        icon: const Icon(Icons.open_in_full, size: 16),
-                        label: Text(t.forum.sitewide.readMore),
-                        style: TextButton.styleFrom(
-                          visualDensity: VisualDensity.compact,
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                        ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      onPressed: () =>
+                          _showSitewideAnnouncementDialog(body: body),
+                      icon: const Icon(Icons.open_in_full, size: 16),
+                      label: Text(t.forum.sitewide.readMore),
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
                       ),
                     ),
                   ),
@@ -785,82 +852,83 @@ class _ForumPageState extends State<ForumPage> {
 
   Widget _buildSitewideAnnouncementPreview({required String body}) {
     final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
     final imageUrl = _extractFirstMarkdownImageUrl(body);
     final previewText = _buildPlainPreviewText(body);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (imageUrl != null) ...[
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: CachedNetworkImage(
-                imageUrl: imageUrl,
-                httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (imageUrl != null) ...[
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: CachedNetworkImage(
+              imageUrl: imageUrl,
+              httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
+              width: 160,
+              height: 90,
+              fit: BoxFit.cover,
+              placeholder: (context, url) => Shimmer.fromColors(
+                baseColor: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest,
+                highlightColor: Theme.of(context).colorScheme.surface,
+                child: Container(width: 160, height: 90, color: Colors.white),
+              ),
+              errorWidget: (context, url, error) => Container(
                 width: 160,
                 height: 90,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Shimmer.fromColors(
-                  baseColor: Theme.of(
-                    context,
-                  ).colorScheme.surfaceContainerHighest,
-                  highlightColor: Theme.of(context).colorScheme.surface,
-                  child: Container(width: 160, height: 90, color: Colors.white),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  width: 160,
-                  height: 90,
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  child: Icon(
-                    Icons.broken_image_outlined,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                child: Icon(
+                  Icons.broken_image_outlined,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
-            const SizedBox(width: 12),
-          ],
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Chip(
-                      visualDensity: VisualDensity.compact,
-                      label: Text(t.forum.sitewide.badge),
-                    ),
-                    const Spacer(),
-                    TextButton.icon(
-                      onPressed: () =>
-                          _showSitewideAnnouncementDialog(body: body),
-                      icon: const Icon(Icons.open_in_full, size: 16),
-                      label: Text(t.forum.sitewide.readMore),
-                      style: TextButton.styleFrom(
-                        visualDensity: VisualDensity.compact,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  previewText,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 13,
-                    height: 1.35,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-              ],
-            ),
           ),
+          const SizedBox(width: 12),
         ],
-      ),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  _buildForumLabelChip(
+                    text: t.forum.sitewide.badge,
+                    foregroundColor: colorScheme.primary,
+                    backgroundColor: colorScheme.primary.withValues(
+                      alpha: 0.12,
+                    ),
+                  ),
+                  const Spacer(),
+                  TextButton.icon(
+                    onPressed: () =>
+                        _showSitewideAnnouncementDialog(body: body),
+                    icon: const Icon(Icons.open_in_full, size: 16),
+                    label: Text(t.forum.sitewide.readMore),
+                    style: TextButton.styleFrom(
+                      visualDensity: VisualDensity.compact,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                previewText,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 13,
+                  height: 1.35,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -948,9 +1016,10 @@ class _ForumPageState extends State<ForumPage> {
     final t = slang.Translations.of(context);
 
     return Card(
-      elevation: 2,
+      elevation: 0,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: _forumCardShape(context),
+      clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
@@ -1000,9 +1069,10 @@ class _ForumPageState extends State<ForumPage> {
     final highlightColor = Theme.of(context).colorScheme.surface;
 
     return Card(
-      elevation: 2,
+      elevation: 0,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: _forumCardShape(context),
+      clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Shimmer.fromColors(
@@ -1073,9 +1143,10 @@ class _ForumPageState extends State<ForumPage> {
     final highlightColor = Theme.of(context).colorScheme.surface;
 
     return Card(
-      elevation: 4,
+      elevation: 0,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: _forumCardShape(context),
+      clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Shimmer.fromColors(
@@ -1153,11 +1224,13 @@ class _ForumPageState extends State<ForumPage> {
     final bool isNarrowScreen = MediaQuery.of(context).size.width < 260;
     // 移除外部 Padding，因为父级 SingleChildScrollView 或 TabBarView 已处理顶部边距
     return Card(
-      elevation: 2,
+      elevation: 0,
       margin: isNarrowScreen
           ? EdgeInsets
                 .zero // 窄屏模式下不需要边距
           : const EdgeInsets.only(bottom: 16.0), // 宽屏模式只需要底部边距
+      shape: _forumCardShape(context),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1167,21 +1240,22 @@ class _ForumPageState extends State<ForumPage> {
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(12),
+                top: Radius.circular(14),
               ),
             ),
             child: Row(
               children: [
                 Icon(
                   _getCategoryIcon(category.name),
+                  size: 20,
                   color: Theme.of(context).colorScheme.primary,
                 ),
                 const SizedBox(width: 8),
                 Text(
                   category.name,
                   style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
@@ -1239,8 +1313,8 @@ class _ForumPageState extends State<ForumPage> {
       child: Text(
         text,
         style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
           color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
       ),
@@ -1253,7 +1327,6 @@ class _ForumPageState extends State<ForumPage> {
     bool isNarrowTabLayout,
   ) {
     // 接收 isNarrowTabLayout
-    final t = slang.Translations.of(context);
     final bool isWideScreen = MediaQuery.of(context).size.width > 900;
     // final bool isNarrowTabLayout = MediaQuery.of(context).size.width < 260; // 使用传入的参数
 
@@ -1376,6 +1449,7 @@ class _ForumPageState extends State<ForumPage> {
                                         NaviService.navigateToForumThreadDetailPage(
                                           subCategory.id,
                                           subCategory.lastThread!.id,
+                                          initialThread: subCategory.lastThread,
                                         );
                                       },
                                       child: Text(
@@ -1393,52 +1467,21 @@ class _ForumPageState extends State<ForumPage> {
                                   ),
                                 ],
                               ),
-                              Row(
+                              const SizedBox(height: 4),
+                              Wrap(
+                                spacing: 6,
+                                runSpacing: 6,
                                 children: [
-                                  Flexible(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        NaviService.navigateToAuthorProfilePage(
-                                          subCategory
-                                              .lastThread!
-                                              .lastPost!
-                                              .user
-                                              .username,
-                                        );
-                                      },
-                                      child: buildUserName(
-                                        context,
-                                        subCategory.lastThread!.lastPost!.user,
-                                      ),
+                                  _buildForumMetaChip(
+                                    icon: Icons.schedule_rounded,
+                                    text: CommonUtils.formatFriendlyTimestamp(
+                                      subCategory.lastThread!.updatedAt,
                                     ),
                                   ),
-                                  Text(
-                                    ' · ${CommonUtils.formatFriendlyTimestamp(subCategory.lastThread!.updatedAt)}',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Icon(
-                                    Icons.remove_red_eye,
-                                    size: 12,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    CommonUtils.formatFriendlyNumber(
+                                  _buildForumMetaChip(
+                                    icon: Icons.visibility_rounded,
+                                    text: CommonUtils.formatFriendlyNumber(
                                       subCategory.lastThread!.numViews,
-                                    ),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
                                     ),
                                   ),
                                 ],
@@ -1490,32 +1533,36 @@ class _ForumPageState extends State<ForumPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              subCategory.label,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          // 只在非窄屏Tab布局时显示统计信息
-                          if (!isNarrowTabLayout)
-                            Text(
-                              '${t.forum.threads}: ${CommonUtils.formatFriendlyNumber(subCategory.numThreads)}  ${t.forum.posts}: ${CommonUtils.formatFriendlyNumber(subCategory.numPosts)}',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                        ],
+                      Text(
+                        subCategory.label,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
+                      if (!isNarrowTabLayout) ...[
+                        const SizedBox(height: 6),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            _buildForumMetaChip(
+                              icon: Icons.forum_outlined,
+                              text: CommonUtils.formatFriendlyNumber(
+                                subCategory.numThreads,
+                              ),
+                            ),
+                            _buildForumMetaChip(
+                              icon: Icons.chat_bubble_outline_rounded,
+                              text: CommonUtils.formatFriendlyNumber(
+                                subCategory.numPosts,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                       if (subCategory.description.isNotEmpty) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         Text(
                           subCategory.description,
                           style: TextStyle(
@@ -1541,6 +1588,7 @@ class _ForumPageState extends State<ForumPage> {
                     user: subCategory.lastThread!.lastPost?.user,
                     size: 32,
                   ),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1550,6 +1598,7 @@ class _ForumPageState extends State<ForumPage> {
                             NaviService.navigateToForumThreadDetailPage(
                               subCategory.id,
                               subCategory.lastThread!.id,
+                              initialThread: subCategory.lastThread,
                             );
                           },
                           child: Text(
@@ -1562,37 +1611,15 @@ class _ForumPageState extends State<ForumPage> {
                             ),
                           ),
                         ),
-                        if (subCategory.lastThread!.lastPost != null)
-                          Row(
-                            children: [
-                              Flexible(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    NaviService.navigateToAuthorProfilePage(
-                                      subCategory
-                                          .lastThread!
-                                          .lastPost!
-                                          .user
-                                          .username,
-                                    );
-                                  },
-                                  child: buildUserName(
-                                    context,
-                                    subCategory.lastThread!.lastPost!.user,
-                                  ),
-                                ),
-                              ),
-                              Text(
-                                ' · ${CommonUtils.formatFriendlyTimestamp(subCategory.lastThread!.updatedAt)}',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
+                        if (subCategory.lastThread!.lastPost != null) ...[
+                          const SizedBox(height: 4),
+                          _buildForumMetaChip(
+                            icon: Icons.schedule_rounded,
+                            text: CommonUtils.formatFriendlyTimestamp(
+                              subCategory.lastThread!.updatedAt,
+                            ),
                           ),
+                        ],
                       ],
                     ),
                   ),
@@ -1657,175 +1684,125 @@ class _ForumPageState extends State<ForumPage> {
 
   Widget _buildStickyAnnouncementsSection() {
     final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
-      elevation: 4,
+      elevation: 0,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Theme.of(context).colorScheme.primaryContainer,
-              Theme.of(context).colorScheme.secondaryContainer,
-            ],
-          ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 标题栏
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.campaign,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 24,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
+      shape: _forumCardShape(context),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.campaign_rounded,
+                  color: colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
                     t.forum.leafNames.announcements,
                     style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: colorScheme.onSurface,
                     ),
                   ),
-                  const Spacer(),
-                  Icon(
-                    Icons.push_pin,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 20,
-                  ),
-                ],
-              ),
+                ),
+                Icon(
+                  Icons.push_pin_rounded,
+                  color: colorScheme.primary,
+                  size: 18,
+                ),
+              ],
             ),
-            const Divider(height: 1),
-            // 公告列表
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.zero,
-              itemCount: _stickyAnnouncements.length,
-              separatorBuilder: (context, index) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                final announcement = _stickyAnnouncements[index];
-                return InkWell(
-                  onTap: () {
-                    NaviService.navigateToForumThreadDetailPage(
-                      announcement.section,
-                      announcement.id,
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 12.0,
-                    ),
-                    child: Row(
-                      children: [
-                        // 内容
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                announcement.title,
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onPrimaryContainer,
+          ),
+          const Divider(height: 1),
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.zero,
+            itemCount: _stickyAnnouncements.length,
+            separatorBuilder: (context, index) => const Divider(height: 1),
+            itemBuilder: (context, index) {
+              final announcement = _stickyAnnouncements[index];
+              return InkWell(
+                onTap: () {
+                  NaviService.navigateToForumThreadDetailPage(
+                    announcement.section,
+                    announcement.id,
+                    initialThread: announcement,
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14.0,
+                    vertical: 11.0,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              announcement.title,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: colorScheme.onSurface,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 6),
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 6,
+                              children: [
+                                _buildForumMetaChip(
+                                  icon: Icons.visibility_rounded,
+                                  text: CommonUtils.formatFriendlyNumber(
+                                    announcement.numViews,
+                                  ),
                                 ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.visibility,
-                                    size: 14,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimaryContainer
-                                        .withValues(alpha: 0.7),
+                                _buildForumMetaChip(
+                                  icon: Icons.chat_bubble_outline_rounded,
+                                  text: CommonUtils.formatFriendlyNumber(
+                                    announcement.numPosts,
                                   ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    CommonUtils.formatFriendlyNumber(
-                                      announcement.numViews,
-                                    ),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimaryContainer
-                                          .withValues(alpha: 0.7),
-                                    ),
+                                ),
+                                _buildForumMetaChip(
+                                  icon: Icons.schedule_rounded,
+                                  text: CommonUtils.formatFriendlyTimestamp(
+                                    announcement.updatedAt,
                                   ),
-                                  const SizedBox(width: 12),
-                                  Icon(
-                                    Icons.comment,
-                                    size: 14,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimaryContainer
-                                        .withValues(alpha: 0.7),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    CommonUtils.formatFriendlyNumber(
-                                      announcement.numPosts,
-                                    ),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimaryContainer
-                                          .withValues(alpha: 0.7),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    CommonUtils.formatFriendlyTimestamp(
-                                      announcement.updatedAt,
-                                    ),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimaryContainer
-                                          .withValues(alpha: 0.7),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                        // 箭头
-                        Icon(
-                          Icons.chevron_right,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onPrimaryContainer
-                              .withValues(alpha: 0.5),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        color: colorScheme.onSurfaceVariant.withValues(
+                          alpha: 0.55,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                );
-              },
-            ),
-          ],
-        ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

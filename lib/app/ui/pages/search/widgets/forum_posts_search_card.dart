@@ -12,10 +12,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class ForumPostsSearchCard extends StatefulWidget {
   final ThreadCommentModel comment;
 
-  const ForumPostsSearchCard({
-    super.key,
-    required this.comment,
-  });
+  const ForumPostsSearchCard({super.key, required this.comment});
 
   @override
   State<ForumPostsSearchCard> createState() => _ForumPostsSearchCardState();
@@ -40,10 +37,7 @@ class _ForumPostsSearchCardState extends State<ForumPostsSearchCard> {
       decoration: BoxDecoration(
         color: tagColor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: tagColor.withValues(alpha: 0.12),
-          width: 0.5,
-        ),
+        border: Border.all(color: tagColor.withValues(alpha: 0.12), width: 0.5),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -65,17 +59,22 @@ class _ForumPostsSearchCardState extends State<ForumPostsSearchCard> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isCurrentUser = _userService.currentUser.value?.id == widget.comment.user.id;
+    final bool isCurrentUser =
+        _userService.currentUser.value?.id == widget.comment.user.id;
     final thread = widget.comment.thread;
     ForumThreadModel? threadModel;
-    
+
     // 安全地解析thread数据
     if (thread != null && thread is Map<String, dynamic>) {
       try {
         threadModel = ForumThreadModel.fromJson(thread);
       } catch (e) {
         // 如果解析失败，threadModel保持为null
-        LogUtils.e('Failed to parse thread data', error: e, tag: 'ForumPostsSearchCard');
+        LogUtils.e(
+          'Failed to parse thread data',
+          error: e,
+          tag: 'ForumPostsSearchCard',
+        );
       }
     }
 
@@ -88,7 +87,9 @@ class _ForumPostsSearchCardState extends State<ForumPostsSearchCard> {
           if (threadModel != null)
             Container(
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                color: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(8),
                   topRight: Radius.circular(8),
@@ -98,14 +99,21 @@ class _ForumPostsSearchCardState extends State<ForumPostsSearchCard> {
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: () {
-                    NaviService.navigateToForumThreadDetailPage(threadModel!.section, threadModel.id);
+                    NaviService.navigateToForumThreadDetailPage(
+                      threadModel!.section,
+                      threadModel.id,
+                      initialThread: threadModel,
+                    );
                   },
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(8),
                     topRight: Radius.circular(8),
                   ),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 6,
+                      horizontal: 12,
+                    ),
                     child: Row(
                       children: [
                         Icon(
@@ -141,7 +149,11 @@ class _ForumPostsSearchCardState extends State<ForumPostsSearchCard> {
           InkWell(
             onTap: () {
               if (threadModel != null) {
-                NaviService.navigateToForumThreadDetailPage(threadModel.section, threadModel.id);
+                NaviService.navigateToForumThreadDetailPage(
+                  threadModel.section,
+                  threadModel.id,
+                  initialThread: threadModel,
+                );
               }
             },
             child: Container(
@@ -176,12 +188,11 @@ class _ForumPostsSearchCardState extends State<ForumPostsSearchCard> {
                   cursor: SystemMouseCursors.click,
                   child: GestureDetector(
                     onTap: () {
-                      NaviService.navigateToAuthorProfilePage(widget.comment.user.username);
+                      NaviService.navigateToAuthorProfilePage(
+                        widget.comment.user.username,
+                      );
                     },
-                    child: AvatarWidget(
-                      user: widget.comment.user,
-                      size: 32
-                    ),
+                    child: AvatarWidget(user: widget.comment.user, size: 32),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -198,10 +209,16 @@ class _ForumPostsSearchCardState extends State<ForumPostsSearchCard> {
                               cursor: SystemMouseCursors.click,
                               child: GestureDetector(
                                 onTap: () {
-                                  NaviService.navigateToAuthorProfilePage(widget.comment.user.username);
+                                  NaviService.navigateToAuthorProfilePage(
+                                    widget.comment.user.username,
+                                  );
                                 },
-                                child: buildUserName(context, widget.comment.user,
-                                    fontSize: 14, bold: true),
+                                child: buildUserName(
+                                  context,
+                                  widget.comment.user,
+                                  fontSize: 14,
+                                  bold: true,
+                                ),
                               ),
                             ),
                           ),
@@ -222,20 +239,32 @@ class _ForumPostsSearchCardState extends State<ForumPostsSearchCard> {
                           Icon(Icons.schedule, size: 10),
                           const SizedBox(width: 2),
                           Text(
-                            CommonUtils.formatFriendlyTimestamp(widget.comment.createdAt),
+                            CommonUtils.formatFriendlyTimestamp(
+                              widget.comment.createdAt,
+                            ),
                             style: TextStyle(
                               fontSize: 10,
-                              color: Theme.of(context).textTheme.bodySmall?.color,
+                              color: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.color,
                             ),
                           ),
                           const SizedBox(width: 8),
                           // 标签
                           if (!widget.comment.approved || isCurrentUser)
                             ...(!widget.comment.approved
-                                ? [_buildCommentTag(slang.t.forum.pendingReview, Icons.pending_outlined)]
+                                ? [
+                                    _buildCommentTag(
+                                      slang.t.forum.pendingReview,
+                                      Icons.pending_outlined,
+                                    ),
+                                  ]
                                 : []),
                           if (isCurrentUser)
-                            _buildCommentTag(slang.t.common.me, Icons.person_outline),
+                            _buildCommentTag(
+                              slang.t.common.me,
+                              Icons.person_outline,
+                            ),
                         ],
                       ),
                     ],
@@ -249,4 +278,3 @@ class _ForumPostsSearchCardState extends State<ForumPostsSearchCard> {
     );
   }
 }
-

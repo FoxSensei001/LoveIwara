@@ -123,8 +123,12 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                       ),
                     );
                   }
-                  if (Navigator.of(context).canPop()) {
-                    Navigator.of(context).pop();
+                  final rootNavigator = Navigator.of(
+                    context,
+                    rootNavigator: true,
+                  );
+                  if (rootNavigator.canPop()) {
+                    rootNavigator.pop();
                   }
                 },
               ),

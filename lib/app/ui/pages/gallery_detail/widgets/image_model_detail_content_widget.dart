@@ -33,8 +33,13 @@ import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constan
 
 class ImageModelDetailContent extends StatelessWidget {
   final GalleryDetailController controller;
+  final bool showHeader;
 
-  const ImageModelDetailContent({super.key, required this.controller});
+  const ImageModelDetailContent({
+    super.key,
+    required this.controller,
+    this.showHeader = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -55,9 +60,10 @@ class ImageModelDetailContent extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildGalleryTitle(),
-            _buildAuthorInfo(context),
-            const SizedBox(height: UIConstants.sectionSpacing),
+            if (showHeader) _buildGalleryTitle(),
+            if (showHeader) _buildAuthorInfo(context),
+            if (showHeader)
+              const SizedBox(height: UIConstants.sectionSpacing),
             _buildGalleryDetailsSection(context),
           ],
         ),

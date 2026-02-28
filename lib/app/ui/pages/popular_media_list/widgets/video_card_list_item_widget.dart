@@ -1,11 +1,14 @@
-// ignore_for_file: unnecessary_underscores
-
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_preview_modal.dart';
-import 'package:i_iwara/app/ui/widgets/base_card_list_item_widget.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/base_card_list_item_widget.dart'
+    show BaseTag;
+import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/utils/common_utils.dart';
 
 import '../../../../models/video.model.dart';
 
@@ -37,40 +40,22 @@ class VideoCardListItemWidget extends StatefulWidget {
 }
 
 class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
-  // 缓存Tag组件以避免重建
-  late List<Widget> _cachedTags;
-  bool _tagsInitialized = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_tagsInitialized) {
-      // 在didChangeDependencies中安全地访问InheritedWidget
-      final thumbnail = _Thumbnail(video: widget.video, width: widget.width);
-      _cachedTags = thumbnail.buildTags(
-        context,
-        slang.Translations.of(context),
-      );
-      _tagsInitialized = true;
-    }
-  }
+  bool _isHovering = false;
+  static const Duration _hoverAnimationDuration = Duration(milliseconds: 220);
 
   @override
   Widget build(BuildContext context) {
-    // 确保tags已初始化
-    if (!_tagsInitialized) {
-      final thumbnail = _Thumbnail(video: widget.video, width: widget.width);
-      _cachedTags = thumbnail.buildTags(
-        context,
-        slang.Translations.of(context),
-      );
-      _tagsInitialized = true;
-    }
+    final theme = Theme.of(context);
+    final radius = BorderRadius.circular(14);
+    final bool enableHover = !widget.isMultiSelectMode && _isDesktopPlatform();
+    final bool showHoverState = enableHover && _isHovering;
 
     // 多选模式下的遮罩
     final Widget? overlay = widget.isMultiSelectMode
         ? Container(
-            color: widget.isSelected ? Colors.black38 : Colors.black12,
+            color: widget.isSelected
+                ? Colors.black.withValues(alpha: 0.45)
+                : Colors.black.withValues(alpha: 0.2),
             child: Center(
               child: Icon(
                 widget.isSelected ? Icons.check_circle : Icons.circle_outlined,
@@ -82,28 +67,107 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
         : null;
 
     return RepaintBoundary(
-      child: BaseCardListItem(
+      child: SizedBox(
         width: widget.width,
-        thumbnail: _buildCachedThumbnail(),
-        title: widget.video.title ?? '',
-        createdAt: widget.video.createdAt,
-        user: widget.video.user,
-        onTap: widget.isMultiSelectMode && widget.onSelect != null
-            ? widget.onSelect!
-            : () => NaviService.navigateToVideoDetailPage(widget.video.id),
-        onSecondaryTap: widget.isMultiSelectMode ? null : _showDetailsModal,
-        onLongPress: widget.isMultiSelectMode ? null : _showDetailsModal,
-        contentOverlay: overlay,
+        child: MouseRegion(
+          onEnter: enableHover
+              ? (_) => setState(() => _isHovering = true)
+              : null,
+          onExit: enableHover
+              ? (_) => setState(() => _isHovering = false)
+              : null,
+          child: AnimatedContainer(
+            duration: _hoverAnimationDuration,
+            curve: Curves.easeOutCubic,
+            decoration: BoxDecoration(
+              borderRadius: radius,
+              boxShadow: [
+                BoxShadow(
+                  color: theme.colorScheme.shadow.withValues(
+                    alpha: showHoverState ? 0.2 : 0.08,
+                  ),
+                  blurRadius: showHoverState ? 18 : 8,
+                  offset: Offset(0, showHoverState ? 8 : 3),
+                ),
+              ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: radius,
+              child: Ink(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  borderRadius: radius,
+                  border: Border.all(
+                    color: theme.colorScheme.outlineVariant.withValues(
+                      alpha: showHoverState ? 0.6 : 0.3,
+                    ),
+                    width: 1,
+                  ),
+                ),
+                child: InkWell(
+                  borderRadius: radius,
+                  onTap: widget.isMultiSelectMode && widget.onSelect != null
+                      ? widget.onSelect!
+                      : () => NaviService.navigateToVideoDetailPage(
+                          widget.video.id,
+                        ),
+                  onSecondaryTap: widget.isMultiSelectMode
+                      ? null
+                      : _showDetailsModal,
+                  onLongPress: widget.isMultiSelectMode
+                      ? null
+                      : _showDetailsModal,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _Thumbnail(
+                        video: widget.video,
+                        width: widget.width,
+                        isHovering: showHoverState,
+                        overlay: overlay,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 9),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.video.title ?? slang.t.common.noTitle,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                height: 1.22,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            _MetaLine(video: widget.video),
+                            const SizedBox(height: 8),
+                            _AuthorLine(
+                              video: widget.video,
+                              isMultiSelectMode: widget.isMultiSelectMode,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildCachedThumbnail() {
-    return _Thumbnail(
-      video: widget.video,
-      width: widget.width,
-      cachedTags: _cachedTags,
-    );
+  bool _isDesktopPlatform() {
+    return !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.windows ||
+            defaultTargetPlatform == TargetPlatform.linux ||
+            defaultTargetPlatform == TargetPlatform.macOS);
   }
 
   Future<void> _showDetailsModal() async {
@@ -131,25 +195,54 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
 class _Thumbnail extends StatelessWidget {
   final Video video;
   final double width;
-  final List<Widget>? cachedTags;
+  final bool isHovering;
+  final Widget? overlay;
 
-  const _Thumbnail({required this.video, required this.width, this.cachedTags});
+  const _Thumbnail({
+    required this.video,
+    required this.width,
+    required this.isHovering,
+    this.overlay,
+  });
 
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
+    const radius = BorderRadius.vertical(top: Radius.circular(14));
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [_buildImage(), ...(cachedTags ?? buildTags(context, t))],
+    return ClipRRect(
+      borderRadius: radius,
+      child: AspectRatio(
+        aspectRatio: 16 / 9,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            _buildImage(),
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: const [0.52, 1],
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.35),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            ...buildTags(context, t),
+            if (overlay != null) Positioned.fill(child: overlay!),
+          ],
+        ),
+      ),
     );
   }
 
   Widget _buildImage() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: _buildThumbnailImage(),
-    );
+    return _buildThumbnailImage();
   }
 
   Widget _buildThumbnailImage() {
@@ -160,7 +253,7 @@ class _Thumbnail extends StatelessWidget {
       fadeInDuration: const Duration(milliseconds: 50),
       placeholderFadeInDuration: const Duration(milliseconds: 0),
       placeholder: _buildPlaceholder,
-      errorWidget: (_, __, ___) => _buildErrorPlaceholder(),
+      errorWidget: (context, url, error) => _buildErrorPlaceholder(),
       maxWidthDiskCache: 400,
       maxHeightDiskCache: 400,
       fadeOutDuration: const Duration(milliseconds: 0),
@@ -188,24 +281,6 @@ class _Thumbnail extends StatelessWidget {
     );
   }
 
-  /// 格式化数字显示（如1.2K、1.5M等）
-  String _formatNumber(int? number) {
-    if (number == null || number == 0) return '0';
-
-    if (number < 1000) {
-      return number.toString();
-    } else if (number < 1000000) {
-      double k = number / 1000.0;
-      return k >= 10 ? '${k.toInt()}K' : '${k.toStringAsFixed(1)}K';
-    } else if (number < 1000000000) {
-      double m = number / 1000000.0;
-      return m >= 10 ? '${m.toInt()}M' : '${m.toStringAsFixed(1)}M';
-    } else {
-      double b = number / 1000000000.0;
-      return b >= 10 ? '${b.toInt()}B' : '${b.toStringAsFixed(1)}B';
-    }
-  }
-
   List<Widget> buildTags(BuildContext context, slang.Translations t) {
     const durationTagBorderRadius = BorderRadius.only(
       topLeft: Radius.circular(6),
@@ -214,94 +289,12 @@ class _Thumbnail extends StatelessWidget {
 
     List<Widget> tags = [];
 
-    // 点赞数和播放量标签组（左上角）
-    bool hasLikes = video.numLikes != null && video.numLikes! > 0;
-    bool hasViews = video.numViews != null && video.numViews! > 0;
-
-    if (hasLikes || hasViews) {
-      tags.add(
-        Positioned(
-          left: 0,
-          top: 0,
-          child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.black54,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(8),
-                bottomRight: Radius.circular(4),
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (hasLikes) ...[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 4,
-                      vertical: 1,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.favorite,
-                          size: 10,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(width: 2),
-                        Text(
-                          _formatNumber(video.numLikes),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 10,
-                            decoration: TextDecoration.none,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-                if (hasViews) ...[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 4,
-                      vertical: 1,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.visibility,
-                          size: 10,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(width: 2),
-                        Text(
-                          _formatNumber(video.numViews),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 10,
-                            decoration: TextDecoration.none,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
     // Private标签和R18标签组（左下角）
     bool isPrivate = video.private == true;
     bool isR18 = video.rating == 'ecchi';
 
     if (isPrivate || isR18) {
+      final bottomLeftRadius = isR18 ? Radius.zero : const Radius.circular(4);
       // 如果有R18或private，整个标签组使用红色背景
       Color backgroundColor = (isR18 || isPrivate)
           ? Colors.red
@@ -317,9 +310,9 @@ class _Thumbnail extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               color: backgroundColor,
-              borderRadius: const BorderRadius.only(
+              borderRadius: BorderRadius.only(
                 topRight: Radius.circular(6),
-                bottomLeft: Radius.circular(4),
+                bottomLeft: bottomLeftRadius,
               ),
             ),
             child: Row(
@@ -403,5 +396,198 @@ class _Thumbnail extends StatelessWidget {
     }
 
     return tags;
+  }
+}
+
+class _MetaLine extends StatelessWidget {
+  final Video video;
+
+  const _MetaLine({required this.video});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 210;
+        final chipTextMaxWidth = ((constraints.maxWidth - 55) / 2).clamp(
+          24.0,
+          56.0,
+        );
+
+        return Wrap(
+          spacing: compact ? 5 : 6,
+          runSpacing: 5,
+          children: [
+            _StatChip(
+              icon: Icons.visibility,
+              value: CommonUtils.formatFriendlyNumber(video.numViews ?? 0),
+              color: theme.colorScheme.onSurfaceVariant,
+              maxTextWidth: chipTextMaxWidth,
+            ),
+            _StatChip(
+              icon: Icons.favorite,
+              value: CommonUtils.formatFriendlyNumber(video.numLikes ?? 0),
+              color: theme.colorScheme.onSurfaceVariant,
+              maxTextWidth: chipTextMaxWidth,
+            ),
+            if (!compact && (video.numComments ?? 0) > 0)
+              _StatChip(
+                icon: Icons.forum,
+                value: CommonUtils.formatFriendlyNumber(video.numComments ?? 0),
+                color: theme.colorScheme.onSurfaceVariant,
+                maxTextWidth: chipTextMaxWidth,
+              ),
+            if (video.isExternalVideo)
+              Container(
+                constraints: BoxConstraints(maxWidth: compact ? 92 : 140),
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(99),
+                ),
+                child: Text(
+                  video.externalVideoDomain.isEmpty
+                      ? slang.t.common.externalVideo
+                      : video.externalVideoDomain,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _StatChip extends StatelessWidget {
+  final IconData icon;
+  final String value;
+  final Color color;
+  final double maxTextWidth;
+
+  const _StatChip({
+    required this.icon,
+    required this.value,
+    required this.color,
+    required this.maxTextWidth,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: BoxConstraints(maxWidth: maxTextWidth + 24),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 11, color: color),
+          const SizedBox(width: 2),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxTextWidth),
+            child: Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: color,
+                fontSize: 10.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AuthorLine extends StatelessWidget {
+  final Video video;
+  final bool isMultiSelectMode;
+
+  const _AuthorLine({required this.video, required this.isMultiSelectMode});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final createdAtText = CommonUtils.formatFriendlyTimestamp(video.createdAt);
+    final timeStyle = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+      fontSize: 11,
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 210;
+        if (compact) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildAuthorName(context),
+              const SizedBox(height: 4),
+              Text(
+                createdAtText,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: timeStyle,
+              ),
+            ],
+          );
+        }
+
+        return Row(
+          children: [
+            Expanded(child: _buildAuthorName(context)),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  createdAtText,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: timeStyle,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildAuthorName(BuildContext context) {
+    final user = video.user;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: isMultiSelectMode
+          ? null
+          : () {
+              final username = user?.username;
+              if (username != null && username.isNotEmpty) {
+                NaviService.navigateToAuthorProfilePage(username);
+              }
+            },
+      child: Row(
+        children: [
+          AvatarWidget(user: user, size: 22),
+          const SizedBox(width: 6),
+          Expanded(
+            child: buildUserName(context, user, bold: true, fontSize: 12.5),
+          ),
+        ],
+      ),
+    );
   }
 }

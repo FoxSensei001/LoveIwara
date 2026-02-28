@@ -23,15 +23,18 @@ import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_edit_title_dialog.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'dart:ui';
 
 class ThreadDetailPage extends StatefulWidget {
   final String threadId;
   final String categoryId;
+  final ForumThreadModel? initialThread;
 
   const ThreadDetailPage({
     super.key,
     required this.threadId,
     required this.categoryId,
+    this.initialThread,
   });
 
   @override
@@ -40,6 +43,7 @@ class ThreadDetailPage extends StatefulWidget {
 
 class _ThreadDetailPageState extends State<ThreadDetailPage>
     with SingleTickerProviderStateMixin {
+  final double appBarHeight = 56.0;
   late ThreadDetailRepository listSourceRepository;
   final ScrollController _scrollController = ScrollController();
   final Rx<ForumThreadModel?> _thread = Rx<ForumThreadModel?>(null);
@@ -60,6 +64,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
   @override
   void initState() {
     super.initState();
+    _thread.value = widget.initialThread;
     listSourceRepository = ThreadDetailRepository(
       categoryId: widget.categoryId,
       threadId: widget.threadId,
@@ -177,11 +182,89 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
   int get totalItems => listSourceRepository.requestTotalCount;
   int get totalPages => totalItems > 0 ? (totalItems / itemsPerPage).ceil() : 1;
 
+  ShapeBorder _forumCardShape(BuildContext context, {double radius = 14}) {
+    return RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(radius),
+      side: BorderSide(
+        color: Theme.of(
+          context,
+        ).colorScheme.outlineVariant.withValues(alpha: 0.35),
+      ),
+    );
+  }
+
+  String _threadHeroTag(String threadId) => 'forum-thread-card-$threadId';
+
+  Widget _buildThreadMetaChip({
+    required IconData icon,
+    required String text,
+    Color? foregroundColor,
+    Color? backgroundColor,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final fg = foregroundColor ?? colorScheme.onSurfaceVariant;
+    final bg = backgroundColor ?? fg.withValues(alpha: 0.08);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 11.5, color: fg),
+          const SizedBox(width: 3),
+          Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: fg,
+              fontSize: 10.5,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildThreadStatusChip({
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      constraints: const BoxConstraints(minHeight: 19, minWidth: 27),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Icon(icon, size: 13, color: color),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
+    final double effectivePaddingTop =
+        MediaQuery.of(context).padding.top + appBarHeight;
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
+        elevation: 0,
+        toolbarHeight: appBarHeight,
+        backgroundColor: Theme.of(
+          context,
+        ).colorScheme.surface.withValues(alpha: 0.7),
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(color: Colors.transparent),
+          ),
+        ),
         title: Obx(
           () => _thread.value == null
               ? Shimmer.fromColors(
@@ -207,7 +290,10 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
                   children: [
                     Text(
                       _thread.value?.title ?? '',
-                      style: const TextStyle(fontSize: 16),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
                       overflow: TextOverflow.ellipsis,
                     ),
                     if (_thread.value != null)
@@ -232,9 +318,20 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
                   ? slang.t.common.pagination.waterfall
                   : slang.t.common.pagination.pagination,
               onPressed: _togglePaginationMode,
+              style: IconButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                padding: const EdgeInsets.all(8),
+              ),
             ),
           ),
-          IconButton(icon: const Icon(Icons.refresh), onPressed: _refresh),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _refresh,
+            style: IconButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.all(8),
+            ),
+          ),
           Obx(() {
             if (_thread.value == null) return const SizedBox.shrink();
             return IconButton(
@@ -271,6 +368,10 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
                   ),
                 );
               },
+              style: IconButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                padding: const EdgeInsets.all(8),
+              ),
             );
           }),
           Obx(() {
@@ -286,20 +387,64 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
                   context: context,
                 );
               },
+              style: IconButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                padding: const EdgeInsets.all(8),
+              ),
             );
           }),
         ],
       ),
       body: Obx(
         () => isPaginated.value
-            ? _buildPaginatedBody(context)
-            : _buildWaterfallBody(context),
+            ? _buildPaginatedBody(context, effectivePaddingTop)
+            : _buildWaterfallBody(context, effectivePaddingTop),
+      ),
+    );
+  }
+
+  Widget _buildBreadcrumb(
+    BuildContext context,
+    bool isWideScreen, {
+    required double topPadding,
+  }) {
+    if (_thread.value == null) {
+      return SizedBox(height: topPadding);
+    }
+
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        isWideScreen ? 16.0 : 8.0,
+        topPadding,
+        isWideScreen ? 16.0 : 8.0,
+        8,
+      ),
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 6,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          _buildThreadMetaChip(
+            icon: Icons.forum_outlined,
+            text: slang.t.forum.forum,
+            foregroundColor: colorScheme.primary,
+            backgroundColor: colorScheme.primary.withValues(alpha: 0.12),
+          ),
+          _buildThreadMetaChip(
+            icon: Icons.label_rounded,
+            text:
+                idNames[replaceUnderline(_thread.value!.section)] ?? 'Unknown',
+            foregroundColor: colorScheme.primary,
+            backgroundColor: colorScheme.primary.withValues(alpha: 0.12),
+          ),
+        ],
       ),
     );
   }
 
   /// 构建瀑布流模式的 body
-  Widget _buildWaterfallBody(BuildContext context) {
+  Widget _buildWaterfallBody(BuildContext context, double effectivePaddingTop) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isWideScreen = constraints.maxWidth > 600;
@@ -310,33 +455,10 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
             // 添加面包屑导航
             SliverToBoxAdapter(
               child: Obx(() {
-                if (_thread.value == null) return const SizedBox.shrink();
-
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isWideScreen ? 16.0 : 8.0,
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        '${slang.t.forum.forum} / ',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        idNames[replaceUnderline(_thread.value!.section)] ??
-                            'Unknown',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
+                return _buildBreadcrumb(
+                  context,
+                  isWideScreen,
+                  topPadding: effectivePaddingTop + 8,
                 );
               }),
             ),
@@ -380,7 +502,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
   }
 
   /// 构建分页模式的 body
-  Widget _buildPaginatedBody(BuildContext context) {
+  Widget _buildPaginatedBody(BuildContext context, double effectivePaddingTop) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     const paginationBarHeight = 46;
 
@@ -397,6 +519,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
                 context,
                 isWideScreen,
                 paginationBarHeight,
+                effectivePaddingTop,
               ),
             ),
 
@@ -427,6 +550,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
     BuildContext context,
     bool isWideScreen,
     int paginationBarHeight,
+    double effectivePaddingTop,
   ) {
     // 全屏状态显示指示器
     if (_indicatorStatus == IndicatorStatus.fullScreenBusying ||
@@ -439,33 +563,10 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
           // 帖子头部
           SliverToBoxAdapter(
             child: Obx(() {
-              if (_thread.value == null) return const SizedBox.shrink();
-
-              return Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isWideScreen ? 16.0 : 8.0,
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      '${slang.t.forum.forum} / ',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      idNames[replaceUnderline(_thread.value!.section)] ??
-                          'Unknown',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
+              return _buildBreadcrumb(
+                context,
+                isWideScreen,
+                topPadding: effectivePaddingTop + 8,
               );
             }),
           ),
@@ -502,33 +603,10 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
         // 面包屑导航
         SliverToBoxAdapter(
           child: Obx(() {
-            if (_thread.value == null) return const SizedBox.shrink();
-
-            return Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: isWideScreen ? 16.0 : 8.0,
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    '${slang.t.forum.forum} / ',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    idNames[replaceUnderline(_thread.value!.section)] ??
-                        'Unknown',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
+            return _buildBreadcrumb(
+              context,
+              isWideScreen,
+              topPadding: effectivePaddingTop + 8,
             );
           }),
         ),
@@ -568,263 +646,206 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
   /// 构建帖子卡片
   Widget _buildThreadCard(BuildContext context, bool isWideScreen) {
     final t = slang.Translations.of(context);
-
-    return Card(
-      margin: EdgeInsets.symmetric(
-        horizontal: isWideScreen ? 16.0 : 8.0,
-        vertical: 4.0,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Header：作者信息区域
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(8),
-                topRight: Radius.circular(8),
-              ),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    onTap: () {
-                      NaviService.navigateToAuthorProfilePage(
-                        _thread.value!.user.username,
-                      );
-                    },
-                    child: AvatarWidget(user: _thread.value!.user, size: 40),
-                  ),
+    final colorScheme = Theme.of(context).colorScheme;
+    final thread = _thread.value!;
+    return Hero(
+      tag: _threadHeroTag(thread.id),
+      child: Card(
+        elevation: 0,
+        margin: EdgeInsets.symmetric(
+          horizontal: isWideScreen ? 16.0 : 8.0,
+          vertical: 4.0,
+        ),
+        shape: _forumCardShape(context),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.5,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: GestureDetector(
-                                onTap: () {
-                                  NaviService.navigateToAuthorProfilePage(
-                                    _thread.value!.user.username,
-                                  );
-                                },
-                                child: buildUserName(
-                                  context,
-                                  _thread.value!.user,
-                                  fontSize: 15,
-                                  bold: true,
-                                ),
-                              ),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(14),
+                  topRight: Radius.circular(14),
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () {
+                        NaviService.navigateToAuthorProfilePage(
+                          thread.user.username,
+                        );
+                      },
+                      child: AvatarWidget(user: thread.user, size: 40),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            onTap: () {
+                              NaviService.navigateToAuthorProfilePage(
+                                thread.user.username,
+                              );
+                            },
+                            child: buildUserName(
+                              context,
+                              thread.user,
+                              fontSize: 15,
+                              bold: true,
                             ),
                           ),
-                          // 锁和图钉图标
-                          if (_thread.value!.sticky)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 4),
-                              child: Icon(
-                                Icons.push_pin,
-                                size: 18,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          if (_thread.value!.locked)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 4),
-                              child: Icon(
-                                Icons.lock,
-                                size: 18,
-                                color: Theme.of(context).colorScheme.error,
-                              ),
-                            ),
-                        ],
-                      ),
-                      Row(
-                        spacing: 8,
-                        children: [
-                          Expanded(
-                            child: MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: GestureDetector(
-                                onTap: () {
-                                  Clipboard.setData(
-                                    ClipboardData(
-                                      text: _thread.value!.user.username,
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Clipboard.setData(
+                                      ClipboardData(text: thread.user.username),
+                                    );
+                                    showToastWidget(
+                                      MDToastWidget(
+                                        message: slang.t.forum
+                                            .copySuccessForMessage(
+                                              str: thread.user.username,
+                                            ),
+                                        type: MDToastType.success,
+                                      ),
+                                    );
+                                  },
+                                  child: Text(
+                                    '@${thread.user.username}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: colorScheme.onSurfaceVariant,
                                     ),
-                                  );
-                                  showToastWidget(
-                                    MDToastWidget(
-                                      message: slang.t.forum
-                                          .copySuccessForMessage(
-                                            str: _thread.value!.user.username,
-                                          ),
-                                      type: MDToastType.success,
-                                    ),
-                                  );
-                                },
-                                child: Text(
-                                  '@${_thread.value!.user.username}',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall?.color,
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          const Icon(Icons.schedule, size: 14),
-                          Text(
-                            CommonUtils.formatFriendlyTimestamp(
-                              _thread.value!.createdAt,
+                            const SizedBox(width: 8),
+                            _buildThreadMetaChip(
+                              icon: Icons.schedule_rounded,
+                              text: CommonUtils.formatFriendlyTimestamp(
+                                thread.createdAt,
+                              ),
                             ),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(
-                                context,
-                              ).textTheme.bodySmall?.color,
-                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          thread.title,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: colorScheme.onSurface,
                           ),
-                        ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.translate),
+                        onPressed: () {
+                          showTranslationDialog(
+                            context,
+                            text: _thread.value!.title,
+                          );
+                        },
+                        tooltip: t.common.translate,
+                        style: IconButton.styleFrom(
+                          visualDensity: VisualDensity.compact,
+                          padding: const EdgeInsets.all(6),
+                        ),
+                      ),
+                      if (_userService.currentUser.value?.id == thread.user.id)
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: () {
+                            showAppDialog(
+                              ForumEditTitleDialog(
+                                postId: thread.id,
+                                initialTitle: thread.title,
+                                repository: listSourceRepository,
+                                onSubmit: () {
+                                  _refresh();
+                                },
+                              ),
+                            );
+                          },
+                          tooltip: t.forum.editTitle,
+                          style: IconButton.styleFrom(
+                            visualDensity: VisualDensity.compact,
+                            padding: const EdgeInsets.all(6),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      if (thread.sticky)
+                        _buildThreadStatusChip(
+                          icon: Icons.push_pin_rounded,
+                          color: colorScheme.primary,
+                        ),
+                      if (thread.locked)
+                        _buildThreadStatusChip(
+                          icon: Icons.lock_rounded,
+                          color: colorScheme.error,
+                        ),
+                      _buildThreadMetaChip(
+                        icon: Icons.visibility_rounded,
+                        text: CommonUtils.formatFriendlyNumber(thread.numViews),
+                      ),
+                      _buildThreadMetaChip(
+                        icon: Icons.chat_bubble_outline_rounded,
+                        text: CommonUtils.formatFriendlyNumber(thread.numPosts),
+                      ),
+                      _buildThreadMetaChip(
+                        icon: Icons.update_rounded,
+                        text: CommonUtils.formatFriendlyTimestamp(
+                          thread.updatedAt,
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          // 内容部分：标题、状态、统计信息及更新时间
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 8,
-              children: [
-                // 标题
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        _thread.value!.title,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.translate),
-                      onPressed: () {
-                        showTranslationDialog(
-                          context,
-                          text: _thread.value!.title,
-                        );
-                      },
-                      tooltip: t.common.translate,
-                    ),
-                    if (_userService.currentUser.value?.id ==
-                        _thread.value!.user.id)
-                      IconButton(
-                        icon: const Icon(Icons.edit),
-                        onPressed: () {
-                          showAppDialog(
-                            ForumEditTitleDialog(
-                              postId: _thread.value!.id,
-                              initialTitle: _thread.value!.title,
-                              repository: listSourceRepository,
-                              onSubmit: () {
-                                _refresh();
-                              },
-                            ),
-                          );
-                        },
-                        tooltip: t.forum.editTitle,
-                      ),
-                  ],
-                ),
-                // 统计信息和更新时间
-                Row(
-                  spacing: 16,
-                  children: [
-                    Expanded(
-                      child: Wrap(
-                        spacing: 12,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            spacing: 4,
-                            children: [
-                              Icon(
-                                Icons.remove_red_eye,
-                                size: 16,
-                                color: Theme.of(
-                                  context,
-                                ).textTheme.bodySmall?.color,
-                              ),
-                              Text(
-                                CommonUtils.formatFriendlyNumber(
-                                  _thread.value!.numViews,
-                                ),
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Theme.of(
-                                    context,
-                                  ).textTheme.bodySmall?.color,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            spacing: 4,
-                            children: [
-                              Icon(
-                                Icons.comment,
-                                size: 16,
-                                color: Theme.of(
-                                  context,
-                                ).textTheme.bodySmall?.color,
-                              ),
-                              Text(
-                                CommonUtils.formatFriendlyNumber(
-                                  _thread.value!.numPosts,
-                                ),
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Theme.of(
-                                    context,
-                                  ).textTheme.bodySmall?.color,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    Text(
-                      '${t.common.updatedAt}: ${CommonUtils.formatFriendlyTimestamp(_thread.value!.updatedAt)}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).textTheme.bodySmall?.color,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -844,59 +865,69 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
   }
 
   Widget _buildShimmerLoading(bool isWideScreen) {
-    return Card(
-      margin: EdgeInsets.all(isWideScreen ? 16.0 : 8.0),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Shimmer.fromColors(
-          baseColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-          highlightColor: Theme.of(context).colorScheme.surface,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 16,
-            children: [
-              // 作者信息
-              Row(
-                spacing: 12,
-                children: [
-                  // 头像
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
+    return Hero(
+      tag: _threadHeroTag(widget.threadId),
+      child: Card(
+        elevation: 0,
+        margin: EdgeInsets.all(isWideScreen ? 16.0 : 8.0),
+        shape: _forumCardShape(context),
+        clipBehavior: Clip.antiAlias,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Shimmer.fromColors(
+            baseColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+            highlightColor: Theme.of(context).colorScheme.surface,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 16,
+              children: [
+                // 作者信息
+                Row(
+                  spacing: 12,
+                  children: [
+                    // 头像
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 4,
-                      children: [
-                        // 用户名
-                        Container(width: 100, height: 14, color: Colors.white),
-                        // 时间
-                        Container(width: 80, height: 12, color: Colors.white),
-                      ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 4,
+                        children: [
+                          // 用户名
+                          Container(
+                            width: 100,
+                            height: 14,
+                            color: Colors.white,
+                          ),
+                          // 时间
+                          Container(width: 80, height: 12, color: Colors.white),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              // 标题
-              Container(
-                width: double.infinity,
-                height: 20,
-                color: Colors.white,
-              ),
-              // 统计信息
-              Row(
-                spacing: 16,
-                children: [
-                  Container(width: 60, height: 14, color: Colors.white),
-                  Container(width: 60, height: 14, color: Colors.white),
-                ],
-              ),
-            ],
+                  ],
+                ),
+                // 标题
+                Container(
+                  width: double.infinity,
+                  height: 20,
+                  color: Colors.white,
+                ),
+                // 统计信息
+                Row(
+                  spacing: 16,
+                  children: [
+                    Container(width: 60, height: 14, color: Colors.white),
+                    Container(width: 60, height: 14, color: Colors.white),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

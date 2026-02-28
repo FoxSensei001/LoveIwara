@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import 'package:i_iwara/app/models/message_and_conversation.model.dart';
+import 'package:i_iwara/app/models/forum.model.dart';
+import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
@@ -203,8 +205,36 @@ class NaviService {
   }
 
   /// 跳转到图库详情页
-  static void navigateToGalleryDetailPage(String id) {
-    appRouter.push('/gallery_detail/$id');
+  static void navigateToGalleryDetailPage(
+    String id, {
+    String? coverUrl,
+    String? title,
+    int? imageCount,
+    String? authorName,
+    String? authorUsername,
+    String? authorAvatarUrl,
+  }) {
+    final shouldAttachExtra =
+        coverUrl != null ||
+        title != null ||
+        imageCount != null ||
+        authorName != null ||
+        authorUsername != null ||
+        authorAvatarUrl != null;
+
+    appRouter.push(
+      '/gallery_detail/$id',
+      extra: shouldAttachExtra
+          ? GalleryDetailExtra(
+              coverUrl: coverUrl,
+              title: title,
+              imageCount: imageCount,
+              authorName: authorName,
+              authorUsername: authorUsername,
+              authorAvatarUrl: authorAvatarUrl,
+            )
+          : null,
+    );
     _ensureAndroidFrameworkHandlesBack('push gallery_detail/$id');
   }
 
@@ -326,7 +356,7 @@ class NaviService {
 
   /// 跳转到帖子详情页
   static void navigateToPostDetailPage(String id, dynamic post) {
-    appRouter.push('/post/$id');
+    appRouter.push('/post/$id', extra: post is PostModel ? post : null);
   }
 
   /// 跳转到图片详情页
@@ -368,9 +398,13 @@ class NaviService {
   /// 跳转到论坛帖子详情页
   static void navigateToForumThreadDetailPage(
     String categoryId,
-    String threadId,
-  ) {
-    appRouter.push('/forum_threads/$categoryId/$threadId');
+    String threadId, {
+    ForumThreadModel? initialThread,
+  }) {
+    appRouter.push(
+      '/forum_threads/$categoryId/$threadId',
+      extra: initialThread,
+    );
   }
 
   /// 跳转到通知列表页

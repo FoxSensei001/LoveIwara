@@ -1,4 +1,3 @@
-
 import 'package:i_iwara/app/models/user.model.dart';
 
 class PostModel {
@@ -9,7 +8,6 @@ class PostModel {
   final DateTime createdAt;
   final DateTime updatedAt;
   final User user;
-
 
   PostModel({
     required this.id,
@@ -22,15 +20,24 @@ class PostModel {
   });
 
   factory PostModel.fromJson(Map<String, dynamic> json) {
+    final userJson = json['user'];
     return PostModel(
-      id: json['id'],
-      title: json['title'],
-      body: json['body'],
-      numViews: json['numViews'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-      user: User.fromJson(json['user']),
+      id: json['id']?.toString() ?? '',
+      title: json['title']?.toString() ?? '',
+      body: json['body']?.toString() ?? '',
+      numViews: (json['numViews'] as num?)?.toInt(),
+      createdAt: _parseDateTime(json['createdAt']),
+      updatedAt: _parseDateTime(json['updatedAt']),
+      user: userJson is Map<String, dynamic>
+          ? User.fromJson(userJson)
+          : User(id: ''),
     );
+  }
+
+  static DateTime _parseDateTime(dynamic value) {
+    final DateTime fallback = DateTime.fromMillisecondsSinceEpoch(0);
+    if (value == null) return fallback;
+    return DateTime.tryParse(value.toString()) ?? fallback;
   }
 
   Map<String, dynamic> toJson() {
@@ -68,10 +75,7 @@ class PostCooldownModel {
   final bool limited;
   final int remaining;
 
-  PostCooldownModel({
-    required this.limited,
-    required this.remaining,
-  });
+  PostCooldownModel({required this.limited, required this.remaining});
 
   factory PostCooldownModel.fromJson(Map<String, dynamic> json) {
     return PostCooldownModel(
@@ -81,9 +85,6 @@ class PostCooldownModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'limited': limited,
-      'remaining': remaining,
-    };
+    return {'limited': limited, 'remaining': remaining};
   }
 }

@@ -258,9 +258,31 @@ class AuthService extends GetxService {
       }
 
       final message = (data is Map<String, dynamic>) ? data['message'] : null;
-      return ApiResult.fail(message ?? t.errors.loginFailed);
+      final dataSummary = data is Map<String, dynamic>
+          ? 'keys=${data.keys.take(8).join(",")}'
+          : 'type=${data.runtimeType}';
+      LogUtils.w(
+        '$_tag 登录接口返回非成功结果 '
+        '(status=${response.statusCode}, message=${message ?? "null"}, $dataSummary)',
+      );
+      return ApiResult.fail(
+        _resolveLoginErrorMessage(
+          statusCode: response.statusCode,
+          data: data,
+          fallback: t.errors.loginFailed,
+        ),
+      );
     } catch (e) {
-      LogUtils.e('$_tag 登录失败', error: e);
+      if (e is dio.DioException) {
+        LogUtils.e(
+          '$_tag 登录请求异常 '
+          '(type=${e.type}, status=${e.response?.statusCode}, uri=${e.requestOptions.uri})',
+          error: e.response?.data ?? e.message ?? e.error,
+          stackTrace: e.stackTrace,
+        );
+      } else {
+        LogUtils.e('$_tag 登录失败', error: e);
+      }
       return ApiResult.fail(_getErrorMessage(e));
     }
   }
@@ -402,19 +424,79 @@ class AuthService extends GetxService {
   /// 获取错误信息
   String _getErrorMessage(Object e) {
     if (e is dio.DioException) {
-      if (e.response?.data is Map && e.response!.data.containsKey('message')) {
-        final message = e.response!.data['message'] as String?;
-        switch (message) {
-          case "errors.invalidLogin":
-            return t.errors.invalidLogin;
-          case "errors.invalidCaptcha":
-            return t.errors.invalidCaptcha;
-          case "errors.tooManyRequests":
-            return t.errors.tooManyRequests;
-        }
+      final resolved = _resolveLoginErrorMessage(
+        statusCode: e.response?.statusCode,
+        data: e.response?.data,
+      );
+      if (resolved != t.errors.loginFailed) {
+        return resolved;
       }
     }
     return CommonUtils.parseExceptionMessage(e);
+  }
+
+  String _resolveLoginErrorMessage({
+    int? statusCode,
+    dynamic data,
+    String? fallback,
+  }) {
+    if (statusCode == 429) {
+      return t.errors.tooManyRequests;
+    }
+
+    final String? serverMessage = _extractServerMessage(data);
+    final String? mappedMessage = _mapServerMessage(serverMessage);
+    if (mappedMessage != null) {
+      return mappedMessage;
+    }
+
+    if (serverMessage != null &&
+        serverMessage.isNotEmpty &&
+        !_looksLikeHtml(serverMessage)) {
+      return serverMessage;
+    }
+
+    if (statusCode != null) {
+      return '${t.errors.network.basicPrefix}${t.errors.network.serverError} ($statusCode)';
+    }
+
+    return fallback ?? t.errors.loginFailed;
+  }
+
+  String? _extractServerMessage(dynamic data) {
+    if (data is Map<String, dynamic>) {
+      final errors = data['errors'];
+      if (errors is List && errors.isNotEmpty) {
+        final first = errors.first;
+        if (first is Map<String, dynamic> && first['message'] is String) {
+          return first['message'] as String;
+        }
+      }
+      if (data['message'] is String) return data['message'] as String;
+      if (data['error'] is String) return data['error'] as String;
+    }
+    if (data is String) return data;
+    return null;
+  }
+
+  String? _mapServerMessage(String? message) {
+    if (message == null || message.isEmpty) return null;
+    switch (message) {
+      case 'errors.invalidLogin':
+        return t.errors.invalidLogin;
+      case 'errors.invalidCaptcha':
+        return t.errors.invalidCaptcha;
+      case 'errors.tooManyRequests':
+        return t.errors.tooManyRequests;
+      default:
+        return null;
+    }
+  }
+
+  bool _looksLikeHtml(String text) {
+    final normalized = text.trimLeft().toLowerCase();
+    return normalized.startsWith('<!doctype html') ||
+        normalized.startsWith('<html');
   }
 
   @override

@@ -278,6 +278,7 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
         NaviService.navigateToForumThreadDetailPage(
           result.data!.section,
           result.data!.id,
+          initialThread: result.data,
         );
       }
     } else {

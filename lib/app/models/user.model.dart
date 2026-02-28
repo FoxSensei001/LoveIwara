@@ -48,34 +48,52 @@ class User {
        updatedAt = updatedAt ?? DateTime.now();
 
   factory User.fromJson(Map<String, dynamic> json) {
+    final avatarJson = json['avatar'];
+    final headerJson = json['header'];
+    final notificationsJson = json['notifications'];
+
     return User(
-      id: json['id'],
-      name: json['name'] ?? '',
-      username: json['username'] ?? '',
-      status: json['status'] ?? '',
-      role: json['role'] ?? '',
-      followedBy: json['followedBy'] ?? false,
-      following: json['following'] ?? false,
-      friend: json['friend'] ?? false,
-      premium: json['premium'] ?? false,
-      creatorProgram: json['creatorProgram'] ?? false,
-      locale: json['locale'],
-      seenAt: json['seenAt'] != null ? DateTime.parse(json['seenAt']) : null,
-      avatar: json['avatar'] != null
-          ? UserAvatar.fromJson(json['avatar'])
+      id: json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      username: json['username']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+      role: json['role']?.toString() ?? '',
+      followedBy: _toBool(json['followedBy']),
+      following: _toBool(json['following']),
+      friend: _toBool(json['friend']),
+      premium: _toBool(json['premium']),
+      creatorProgram: _toBool(json['creatorProgram']),
+      locale: json['locale']?.toString(),
+      seenAt: _parseDateTime(json['seenAt']),
+      avatar: avatarJson is Map<String, dynamic>
+          ? UserAvatar.fromJson(avatarJson)
           : null,
-      header: json['header'] != null
-          ? UserAvatar.fromJson(json['header'])
+      header: headerJson is Map<String, dynamic>
+          ? UserAvatar.fromJson(headerJson)
           : null,
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'])
+      createdAt: _parseDateTime(json['createdAt']),
+      updatedAt: _parseDateTime(json['updatedAt']),
+      description: json['body']?.toString(),
+      hideSensitive: _toBool(json['hideSensitive']),
+      notifications: notificationsJson is Map<String, dynamic>
+          ? UserNotifications.fromJson(notificationsJson)
           : null,
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.parse(json['updatedAt'])
-          : null,
-      description: json['body'],
-      hideSensitive: json['hideSensitive'] ?? false,
     );
+  }
+
+  static DateTime? _parseDateTime(dynamic value) {
+    if (value == null) return null;
+    return DateTime.tryParse(value.toString());
+  }
+
+  static bool _toBool(dynamic value) {
+    if (value is bool) return value;
+    if (value is num) return value != 0;
+    if (value is String) {
+      final lowered = value.toLowerCase();
+      return lowered == 'true' || lowered == '1';
+    }
+    return false;
   }
 
   Map<String, dynamic> toJson() {

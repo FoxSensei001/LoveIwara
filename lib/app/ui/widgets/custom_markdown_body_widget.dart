@@ -31,6 +31,7 @@ class CustomMarkdownBody extends StatefulWidget {
   final bool? initialShowUnprocessedText;
   final bool clickInternalLinkByUrlLaunch; // 当为true时，内部链接也使用urllaunch打开
   final bool showTranslationButton; // 是否显示翻译按钮
+  final bool translationButtonAtTop; // 翻译按钮是否显示在正文上方
   final MarkdownTranslationController? translationController; // 外部控制器
   final EdgeInsetsGeometry padding; // 新增的 padding 参数
   final double? maxImageHeight; // 限制 Markdown 图片最大高度（null 表示不限制）
@@ -43,6 +44,7 @@ class CustomMarkdownBody extends StatefulWidget {
     this.initialShowUnprocessedText,
     this.clickInternalLinkByUrlLaunch = false,
     this.showTranslationButton = false,
+    this.translationButtonAtTop = false,
     this.translationController,
     this.padding = EdgeInsets.zero, // 默认 padding 为 0
     this.maxImageHeight,
@@ -380,6 +382,8 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   }
 
   Future<bool> _confirmOpenExternalLink(String url) async {
+    if (!mounted) return false;
+
     // Extract domain or IP from URL
     final uri = Uri.tryParse(url);
     final displayUrl = uri?.host ?? url;
@@ -451,7 +455,9 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
           ],
         ),
       ),
+      dialogContext: context,
       barrierDismissible: false,
+      useRootNavigator: false,
     );
 
     return shouldContinue == true;
@@ -953,23 +959,29 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
       });
     }
 
-    if (widget.showTranslationButton) {
+    if (widget.showTranslationButton && _translatedText != null) {
       return Column(
-        children: [
-          const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [_buildTranslationButton(context)],
-          ),
-          if (_translatedText != null) ...[
-            const SizedBox(height: 8),
-            _buildTranslatedContent(context),
-          ],
-        ],
+        children: [const SizedBox(height: 8), _buildTranslatedContent(context)],
       );
     }
 
     return const SizedBox.shrink();
+  }
+
+  Widget _buildTranslationControls(BuildContext context) {
+    if (!widget.showTranslationButton) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      children: [
+        const SizedBox(height: 4),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [_buildTranslationButton(context)],
+        ),
+      ],
+    );
   }
 
   @override
@@ -992,11 +1004,14 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (widget.translationButtonAtTop) _buildTranslationControls(context),
           _buildMarkdownContent(config),
           if (_hasProcessedContent) ...[
             const SizedBox(height: 8),
             _buildProcessedTextToggle(),
           ],
+          if (!widget.translationButtonAtTop)
+            _buildTranslationControls(context),
           _buildTranslationSection(context),
         ],
       ),

@@ -16,6 +16,7 @@ import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'dart:ui';
 
 class ThreadListPage extends StatefulWidget {
   final String categoryId;
@@ -33,6 +34,7 @@ class ThreadListPage extends StatefulWidget {
 
 class _ThreadListPageState extends State<ThreadListPage>
     with SingleTickerProviderStateMixin {
+  final double appBarHeight = 56.0;
   late ThreadListRepository listSourceRepository;
   late ForumListController _forumListController;
 
@@ -85,14 +87,35 @@ class _ThreadListPageState extends State<ThreadListPage>
 
   @override
   Widget build(BuildContext context) {
+    final double effectivePaddingTop =
+        MediaQuery.of(context).padding.top + appBarHeight;
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
+        elevation: 0,
+        toolbarHeight: appBarHeight,
+        backgroundColor: Theme.of(
+          context,
+        ).colorScheme.surface.withValues(alpha: 0.7),
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(color: Colors.transparent),
+          ),
+        ),
         title: Obx(
           () => Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(_categoryName.value, overflow: TextOverflow.ellipsis),
+              Text(
+                _categoryName.value,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
               if (_categoryDescription.value.isNotEmpty)
                 Text(
                   _categoryDescription.value,
@@ -163,6 +186,7 @@ class _ThreadListPageState extends State<ThreadListPage>
             isPaginated: true,
             scrollController: _scrollController,
             emptyIcon: Icons.forum_outlined,
+            paddingTop: effectivePaddingTop + 8,
             itemBuilder: (context, thread, index) => ThreadListItemWidget(
               thread: thread,
               categoryId: widget.categoryId,
@@ -190,9 +214,9 @@ class _ThreadListPageState extends State<ThreadListPage>
                   ),
                   sourceList: listSourceRepository,
                   padding: EdgeInsets.only(
-                    left: 5.0,
-                    right: 5.0,
-                    top: 5.0,
+                    left: 8,
+                    right: 8,
+                    top: effectivePaddingTop + 8,
                     bottom: MediaQuery.of(context).padding.bottom,
                   ),
                   indicatorBuilder: (context, status) => myLoadingMoreIndicator(
@@ -236,6 +260,10 @@ class _ThreadListPageState extends State<ThreadListPage>
 
   void _navigateToThreadDetail(ForumThreadModel thread) {
     // 导航到帖子详情页
-    NaviService.navigateToForumThreadDetailPage(widget.categoryId, thread.id);
+    NaviService.navigateToForumThreadDetailPage(
+      widget.categoryId,
+      thread.id,
+      initialThread: thread,
+    );
   }
 }

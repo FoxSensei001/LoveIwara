@@ -6,6 +6,8 @@ import 'package:i_iwara/app/services/android_back_gesture_bridge.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/models/message_and_conversation.model.dart';
+import 'package:i_iwara/app/models/forum.model.dart';
+import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
@@ -223,7 +225,17 @@ final GoRouter appRouter = GoRouter(
           name: 'gallery_detail',
           builder: (context, state) {
             final galleryId = state.pathParameters['galleryId']!;
-            return GalleryDetailPage(imageModelId: galleryId);
+            final extra = state.extra;
+            final galleryExtra = extra is GalleryDetailExtra ? extra : null;
+            return GalleryDetailPage(
+              imageModelId: galleryId,
+              initialCoverUrl: galleryExtra?.coverUrl,
+              initialTitle: galleryExtra?.title,
+              initialImageCount: galleryExtra?.imageCount,
+              initialAuthorName: galleryExtra?.authorName,
+              initialAuthorUsername: galleryExtra?.authorUsername,
+              initialAuthorAvatarUrl: galleryExtra?.authorAvatarUrl,
+            );
           },
         ),
 
@@ -366,7 +378,10 @@ final GoRouter appRouter = GoRouter(
           name: 'post_detail',
           builder: (context, state) {
             final id = state.pathParameters['id']!;
-            return PostDetailPage(postId: id);
+            final initialPost = state.extra is PostModel
+                ? state.extra as PostModel
+                : null;
+            return PostDetailPage(postId: id, initialPost: initialPost);
           },
         ),
 
@@ -387,7 +402,14 @@ final GoRouter appRouter = GoRouter(
           builder: (context, state) {
             final categoryId = state.pathParameters['categoryId']!;
             final threadId = state.pathParameters['threadId']!;
-            return ThreadDetailPage(categoryId: categoryId, threadId: threadId);
+            final initialThread = state.extra is ForumThreadModel
+                ? state.extra as ForumThreadModel
+                : null;
+            return ThreadDetailPage(
+              categoryId: categoryId,
+              threadId: threadId,
+              initialThread: initialThread,
+            );
           },
         ),
 
@@ -704,6 +726,24 @@ ConversationModel _resolveConversationForMessageDetail(
 }
 
 // ========== 供复杂参数路由使用的额外数据类 ==========
+
+class GalleryDetailExtra {
+  final String? coverUrl;
+  final String? title;
+  final int? imageCount;
+  final String? authorName;
+  final String? authorUsername;
+  final String? authorAvatarUrl;
+
+  const GalleryDetailExtra({
+    this.coverUrl,
+    this.title,
+    this.imageCount,
+    this.authorName,
+    this.authorUsername,
+    this.authorAvatarUrl,
+  });
+}
 
 class VideoDetailExtra {
   final Map<String, dynamic>? extData;

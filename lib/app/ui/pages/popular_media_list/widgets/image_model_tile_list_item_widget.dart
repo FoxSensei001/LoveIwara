@@ -193,6 +193,14 @@ class ImageModelTileListItem extends StatelessWidget {
 
   /// 导航到详情页
   void _navigateToDetailPage() {
-    NaviService.navigateToGalleryDetailPage(imageModel.id);
+    NaviService.navigateToGalleryDetailPage(
+      imageModel.id,
+      coverUrl: imageModel.thumbnailUrl,
+      title: imageModel.title,
+      imageCount: imageModel.numImages,
+      authorName: imageModel.user?.name,
+      authorUsername: imageModel.user?.username,
+      authorAvatarUrl: imageModel.user?.avatar?.avatarUrl,
+    );
   }
 }

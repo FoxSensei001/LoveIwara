@@ -29,22 +29,23 @@ class UserAvatar {
 
   factory UserAvatar.fromJson(Map<String, dynamic> json) {
     return UserAvatar(
-      id: json['id'],
-      type: json['type'],
-      path: json['path'],
-      name: json['name'],
-      mime: json['mime'],
-      size: json['size'],
-      width: json['width'],
-      height: json['height'],
-      createdAt: json['createdAt'] == null
-          ? DateTime.now()
-          : DateTime.parse(json['createdAt']),
-      updatedAt: json['updatedAt'] == null
-          ? DateTime.now()
-          : DateTime.parse(json['updatedAt']),
-      hash: json['hash'],
+      id: json['id']?.toString() ?? '',
+      type: json['type']?.toString() ?? '',
+      path: json['path']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      mime: json['mime']?.toString() ?? '',
+      size: (json['size'] as num?)?.toInt(),
+      width: (json['width'] as num?)?.toInt(),
+      height: (json['height'] as num?)?.toInt(),
+      createdAt: _parseDateTime(json['createdAt']),
+      updatedAt: _parseDateTime(json['updatedAt']),
+      hash: json['hash']?.toString(),
     );
+  }
+
+  static DateTime _parseDateTime(dynamic value) {
+    if (value == null) return DateTime.now();
+    return DateTime.tryParse(value.toString()) ?? DateTime.now();
   }
 
   Map<String, dynamic> toJson() {

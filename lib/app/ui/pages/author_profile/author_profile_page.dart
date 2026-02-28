@@ -250,7 +250,8 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     return Obx(() {
       if (profileController.errorWidget.value != null) {
         return _buildErrorWidget(context);
-      } else if (profileController.isProfileLoading.value) {
+      } else if (profileController.isProfileLoading.value &&
+          profileController.author.value == null) {
         return const AuthorProfileSkeleton();
       } else if (!profileController.isProfileLoading.value &&
           profileController.author.value == null) {

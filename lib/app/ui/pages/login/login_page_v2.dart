@@ -231,13 +231,19 @@ class _LoginDialogState extends State<LoginDialog> {
           Navigator.of(context).pop(true);
         }
       } else {
+        LogUtils.w('登录失败（业务返回）: ${result.message}', 'LoginDialogV2');
         showToastWidget(
           MDToastWidget(message: result.message, type: MDToastType.error),
           position: ToastPosition.bottom,
         );
       }
-    } catch (error) {
-      LogUtils.e('登录失败: $error', tag: 'LoginDialogV2');
+    } catch (error, stackTrace) {
+      LogUtils.e(
+        '登录失败（异常）',
+        tag: 'LoginDialogV2',
+        error: error,
+        stackTrace: stackTrace,
+      );
       showToastWidget(
         MDToastWidget(
           message: slang.t.errors.unknownError,

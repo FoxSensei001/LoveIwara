@@ -8,10 +8,7 @@ import 'package:i_iwara/utils/common_utils.dart';
 class PostTileListItemWidget extends StatelessWidget {
   final PostModel post;
 
-  const PostTileListItemWidget({
-    super.key,
-    required this.post,
-  });
+  const PostTileListItemWidget({super.key, required this.post});
 
   @override
   Widget build(BuildContext context) {
@@ -97,10 +94,7 @@ class PostTileListItemWidget extends StatelessWidget {
   }
 
   Widget _buildAvatar(User user) {
-    return AvatarWidget(
-      user: user,
-      size: 30
-    );
+    return AvatarWidget(user: user, size: 30);
   }
 
   Widget _buildDisplayName(User user) {
@@ -132,4 +126,4 @@ class PostTileListItemWidget extends StatelessWidget {
       ),
     );
   }
-} 
+}

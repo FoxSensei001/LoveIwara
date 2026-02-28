@@ -5,6 +5,7 @@ import 'package:i_iwara/app/routes/app_router.dart';
 /// 使用全局 root navigator key 的 context 来展示对话框。
 Future<T?> showAppDialog<T>(
   Widget dialog, {
+  BuildContext? dialogContext,
   bool barrierDismissible = true,
   Color? barrierColor,
   String? barrierLabel,
@@ -12,7 +13,7 @@ Future<T?> showAppDialog<T>(
   bool useRootNavigator = true,
   RouteSettings? routeSettings,
 }) {
-  final context = rootNavigatorKey.currentContext;
+  final context = dialogContext ?? rootNavigatorKey.currentContext;
   if (context == null) {
     return Future.value(null);
   }
