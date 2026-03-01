@@ -10,38 +10,6 @@ import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
 
-String _galleryCoverHeroTag(String imageModelId) =>
-    'gallery_cover:$imageModelId';
-
-String _galleryCardHeroTag(String imageModelId) => 'gallery_card:$imageModelId';
-
-String _galleryTitleHeroTag(String imageModelId) =>
-    'gallery_title:$imageModelId';
-
-String _galleryAuthorAvatarHeroTag(String imageModelId) =>
-    'gallery_author_avatar:$imageModelId';
-
-String _galleryAuthorNameHeroTag(String imageModelId) =>
-    'gallery_author_name:$imageModelId';
-
-RectTween _createGalleryCoverRectTween(Rect? begin, Rect? end) {
-  return MaterialRectArcTween(begin: begin, end: end);
-}
-
-Widget _galleryCoverFlightShuttleBuilder(
-  BuildContext flightContext,
-  Animation<double> animation,
-  HeroFlightDirection flightDirection,
-  BuildContext fromHeroContext,
-  BuildContext toHeroContext,
-) {
-  final fromHero = fromHeroContext.widget as Hero;
-  final toHero = toHeroContext.widget as Hero;
-  return flightDirection == HeroFlightDirection.push
-      ? fromHero.child
-      : toHero.child;
-}
-
 class ImageModelCardListItemWidget extends StatefulWidget {
   final ImageModel imageModel;
   final double width;
@@ -127,33 +95,16 @@ class _ImageModelCardListItemWidgetState
               child: Stack(
                 children: [
                   Positioned.fill(
-                    child: Hero(
-                      tag: _galleryCardHeroTag(widget.imageModel.id),
-                      transitionOnUserGestures: true,
-                      placeholderBuilder: (context, size, child) {
-                        return Material(
-                          color: Colors.transparent,
+                    child: Material(
+                      color: Colors.transparent,
+                      borderRadius: radius,
+                      child: Ink(
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surface,
                           borderRadius: radius,
-                          child: Ink(
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.surface,
-                              borderRadius: radius,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Material(
-                        color: Colors.transparent,
-                        borderRadius: radius,
-                        child: Ink(
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.surface,
-                            borderRadius: radius,
-                            border: Border.all(
-                              color: theme.colorScheme.outlineVariant
-                                  .withValues(
-                                    alpha: showHoverState ? 0.6 : 0.3,
-                                  ),
+                          border: Border.all(
+                            color: theme.colorScheme.outlineVariant.withValues(
+                              alpha: showHoverState ? 0.6 : 0.3,
                             ),
                           ),
                         ),
@@ -188,24 +139,16 @@ class _ImageModelCardListItemWidgetState
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Hero(
-                                tag: _galleryTitleHeroTag(widget.imageModel.id),
-                                transitionOnUserGestures: true,
-                                child: Material(
-                                  type: MaterialType.transparency,
-                                  child: Text(
-                                    widget.imageModel.title.isEmpty
-                                        ? slang.t.common.noTitle
-                                        : widget.imageModel.title,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: theme.textTheme.titleMedium
-                                        ?.copyWith(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w700,
-                                          height: 1.22,
-                                        ),
-                                  ),
+                              Text(
+                                widget.imageModel.title.isEmpty
+                                    ? slang.t.common.noTitle
+                                    : widget.imageModel.title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.22,
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -254,49 +197,28 @@ class _Thumbnail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const radius = BorderRadius.vertical(top: Radius.circular(14));
-    return Hero(
-      tag: _galleryCoverHeroTag(imageModel.id),
-      createRectTween: _createGalleryCoverRectTween,
-      flightShuttleBuilder: _galleryCoverFlightShuttleBuilder,
-      transitionOnUserGestures: true,
-      child: ClipRRect(
-        borderRadius: radius,
-        child: AspectRatio(
-          aspectRatio: 16 / 9,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              CachedNetworkImage(
-                imageUrl: imageModel.thumbnailUrl,
-                fit: BoxFit.cover,
-                memCacheWidth: (width * 1.5).toInt(),
-                fadeInDuration: const Duration(milliseconds: 50),
-                placeholderFadeInDuration: const Duration(milliseconds: 0),
-                fadeOutDuration: const Duration(milliseconds: 0),
-                maxWidthDiskCache: 400,
-                maxHeightDiskCache: 400,
-                placeholder: _buildPlaceholder,
-                errorWidget: (context, url, error) => _buildErrorPlaceholder(),
-              ),
-              Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: const [0.52, 1],
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withValues(alpha: 0.35),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              ..._buildTags(context),
-              if (overlay != null) Positioned.fill(child: overlay!),
-            ],
-          ),
+    return ClipRRect(
+      borderRadius: radius,
+      child: AspectRatio(
+        aspectRatio: 16 / 9,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            CachedNetworkImage(
+              imageUrl: imageModel.thumbnailUrl,
+              fit: BoxFit.cover,
+              memCacheWidth: (width * 1.5).toInt(),
+              fadeInDuration: const Duration(milliseconds: 50),
+              placeholderFadeInDuration: const Duration(milliseconds: 0),
+              fadeOutDuration: const Duration(milliseconds: 0),
+              maxWidthDiskCache: 400,
+              maxHeightDiskCache: 400,
+              placeholder: _buildPlaceholder,
+              errorWidget: (context, url, error) => _buildErrorPlaceholder(),
+            ),
+            ..._buildTags(context),
+            if (overlay != null) Positioned.fill(child: overlay!),
+          ],
         ),
       ),
     );
@@ -524,26 +446,18 @@ class _AuthorLine extends StatelessWidget {
           : () {
               final username = user?.username;
               if (username != null && username.isNotEmpty) {
-                NaviService.navigateToAuthorProfilePage(username);
+                NaviService.navigateToAuthorProfilePage(
+                  username,
+                  initialUser: user,
+                );
               }
             },
       child: Row(
         children: [
-          Hero(
-            tag: _galleryAuthorAvatarHeroTag(imageModel.id),
-            transitionOnUserGestures: true,
-            child: AvatarWidget(user: user, size: 22),
-          ),
+          AvatarWidget(user: user, size: 22),
           const SizedBox(width: 6),
           Expanded(
-            child: Hero(
-              tag: _galleryAuthorNameHeroTag(imageModel.id),
-              transitionOnUserGestures: true,
-              child: Material(
-                type: MaterialType.transparency,
-                child: buildUserName(context, user, bold: true, fontSize: 12.5),
-              ),
-            ),
+            child: buildUserName(context, user, bold: true, fontSize: 12.5),
           ),
         ],
       ),

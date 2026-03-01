@@ -33,7 +33,7 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
   /// 格式化数字显示（如1.2K、1.5M等）
   String _formatNumber(int? number) {
     if (number == null || number == 0) return '0';
-    
+
     if (number < 1000) {
       return number.toString();
     } else if (number < 1000000) {
@@ -55,8 +55,9 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
     return InkWell(
       onTap: () => _navigateToDetailPage(context),
       onLongPress: () => _handleLongPress(context),
-      onSecondaryTap:
-          isDesktopPlatform ? () => _handleLongPress(context) : null,
+      onSecondaryTap: isDesktopPlatform
+          ? () => _handleLongPress(context)
+          : null,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         child: Row(
@@ -105,30 +106,46 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: (_showAnimatedPreview && !widget.video.isExternalVideo)
-                ? CachedNetworkImage(
-                    imageUrl: widget.video.previewUrl,
-                    width: 120,
-                    height: 90,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) =>
-                        Container(width: 120, height: 90, color: Colors.grey[300]),
-                    errorWidget: (context, url, error) => Container(
-                      color: Colors.grey[200],
-                      child: Icon(Icons.image_not_supported, size: 40, color: Colors.grey[600])
+                  ? CachedNetworkImage(
+                      imageUrl: widget.video.previewUrl,
+                      width: 120,
+                      height: 90,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        width: 120,
+                        height: 90,
+                        color: Colors.grey[300],
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.grey[200],
+                        child: Icon(
+                          Icons.image_not_supported,
+                          size: 40,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    )
+                  : CachedNetworkImage(
+                      imageUrl: widget.video.isExternalVideo
+                          ? widget.video.externalVideoThumbnail
+                          : widget.video.thumbnailUrl,
+                      width: 120,
+                      height: 90,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        width: 120,
+                        height: 90,
+                        color: Colors.grey[300],
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.grey[200],
+                        child: Icon(
+                          Icons.image_not_supported,
+                          size: 40,
+                          color: Colors.grey[600],
+                        ),
+                      ),
                     ),
-                  )
-                : CachedNetworkImage(
-                    imageUrl: widget.video.isExternalVideo ? widget.video.externalVideoThumbnail : widget.video.thumbnailUrl,
-                    width: 120,
-                    height: 90,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) =>
-                        Container(width: 120, height: 90, color: Colors.grey[300]),
-                    errorWidget: (context, url, error) => Container(
-                      color: Colors.grey[200],
-                      child: Icon(Icons.image_not_supported, size: 40, color: Colors.grey[600])
-                    ),
-                  ),
             ),
           ),
         ),
@@ -146,7 +163,7 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
   List<Widget> _buildStatsTagsGroup(BuildContext context) {
     bool hasLikes = widget.video.numLikes != null && widget.video.numLikes! > 0;
     bool hasViews = widget.video.numViews != null && widget.video.numViews! > 0;
-    
+
     if (!hasLikes && !hasViews) return [];
 
     return [
@@ -166,7 +183,10 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
             children: [
               if (hasLikes) ...[
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 1,
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -187,11 +207,18 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
               ],
               if (hasViews) ...[
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 1,
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.visibility, size: 10, color: Colors.white),
+                      const Icon(
+                        Icons.visibility,
+                        size: 10,
+                        color: Colors.white,
+                      ),
                       const SizedBox(width: 2),
                       Text(
                         _formatNumber(widget.video.numViews),
@@ -213,20 +240,18 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
     ];
   }
 
-
-
   /// 构建左下角标签组（Private和R18）
   List<Widget> _buildBottomLeftTagsGroup(BuildContext context) {
     final t = slang.Translations.of(context);
     bool isPrivate = widget.video.private == true;
     bool isR18 = widget.video.rating == 'ecchi';
-    
+
     if (!isPrivate && !isR18) return [];
-    
+
     // 如果有R18，整个标签组使用红色背景，否则使用黑色背景
     Color backgroundColor = isR18 ? Colors.red : Colors.black54;
     Color textColor = Colors.white;
-    
+
     return [
       Positioned(
         left: 0,
@@ -241,7 +266,10 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
             children: [
               if (isR18) ...[
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 1,
+                  ),
                   child: Text(
                     'R18',
                     style: TextStyle(
@@ -255,7 +283,10 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
               ],
               if (isPrivate) ...[
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 1,
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -287,7 +318,9 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
     // 格式化创建时间
     String formattedDate = '';
     if (widget.video.createdAt != null) {
-      formattedDate = CommonUtils.formatFriendlyTimestamp(widget.video.createdAt);
+      formattedDate = CommonUtils.formatFriendlyTimestamp(
+        widget.video.createdAt,
+      );
     }
 
     return Expanded(
@@ -326,15 +359,17 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
     );
   }
 
-
-
   /// 构建站外视频标签
   Widget _buildExternalVideoTag(BuildContext context) {
     final t = slang.Translations.of(context);
     return Positioned(
       right: 0,
       bottom: 0,
-      child: _buildTag(label: t.common.externalVideo, backgroundColor: Colors.black54, icon: Icons.link),
+      child: _buildTag(
+        label: t.common.externalVideo,
+        backgroundColor: Colors.black54,
+        icon: Icons.link,
+      ),
     );
   }
 
@@ -356,7 +391,7 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
             Text(
               widget.video.minutesDuration!,
               style: const TextStyle(
-                color: Colors.white, 
+                color: Colors.white,
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
               ),
@@ -368,7 +403,11 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
   }
 
   /// 通用标签构建方法
-  Widget _buildTag({required String label, required Color backgroundColor, IconData? icon}) {
+  Widget _buildTag({
+    required String label,
+    required Color backgroundColor,
+    IconData? icon,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
       decoration: BoxDecoration(
@@ -383,7 +422,7 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
           Text(
             label,
             style: const TextStyle(
-              color: Colors.white, 
+              color: Colors.white,
               fontSize: 10,
               fontWeight: FontWeight.w500,
             ),
@@ -400,7 +439,6 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
 
   /// 处理长按和右键事件
   void _handleLongPress(BuildContext context) async {
-
     if (!context.mounted) return;
 
     // 显示预览模态框
@@ -420,7 +458,13 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
         }
         break;
       case VideoPreviewModalActionType.openAuthor:
-        NaviService.navigateToAuthorProfilePage(result.username ?? '');
+        final username = (result.username ?? '').trim();
+        if (username.isNotEmpty) {
+          NaviService.navigateToAuthorProfilePage(
+            username,
+            initialUser: widget.video.user,
+          );
+        }
         break;
     }
   }

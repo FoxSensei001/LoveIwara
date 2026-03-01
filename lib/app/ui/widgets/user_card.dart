@@ -36,7 +36,10 @@ class _UserCardState extends State<UserCard> {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => NaviService.navigateToAuthorProfilePage(user.username),
+        onTap: () => NaviService.navigateToAuthorProfilePage(
+          user.username,
+          initialUser: user,
+        ),
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Row(
@@ -70,7 +73,7 @@ class _UserCardState extends State<UserCard> {
                       user = updatedUser;
                     });
                   },
-                )
+                ),
               ],
             ],
           ),
@@ -80,30 +83,21 @@ class _UserCardState extends State<UserCard> {
   }
 
   Widget _buildAvatar() {
-    return AvatarWidget(
-      user: user,
-      size: 40
-    );
+    return AvatarWidget(user: user, size: 40);
   }
 
   Widget _buildUserName() {
     if (user.name.isEmpty) {
       return Text(
         '@${user.username}',
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-        ),
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       );
     }
     return Text(
       '@${user.username}',
-      style: const TextStyle(
-        fontSize: 14,
-        color: Colors.grey,
-      ),
+      style: const TextStyle(fontSize: 14, color: Colors.grey),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
     );

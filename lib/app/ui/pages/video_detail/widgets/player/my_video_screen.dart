@@ -503,33 +503,44 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                     },
                     child: Container(
                       padding: EdgeInsets.only(top: paddingTop),
-                      child: Stack(
-                        children: [
-                          // 视频播放区域
-                          _buildVideoPlayer(),
-                          // 手势监听区域（抽取后减少整体重绘）
-                          ..._buildGestureAreas(screenSize),
-                          // 工具栏部分
-                          ..._buildToolbars(),
-                          // 双击波纹动画等效果
-                          _buildRippleEffects(screenSize, maxRadius),
-                          // 中央控制面板，比如播放/暂停按钮
-                          _buildVideoControlOverlay(
-                            playPauseIconSize,
-                            bufferingSize,
-                          ),
-                          // InfoMessage 提示区域
-                          _buildInfoMessage(),
-                          // 播放速度信息提示（左下角）
-                          _buildPlaybackSpeedInfoMessage(),
-                          // 添加底部进度条
-                          _buildBottomProgressBar(),
-                          // 添加遮罩层
-                          _buildMaskLayer(),
-                          // 添加锁定按钮
-                          _buildLockButton(),
-                        ],
-                      ),
+                      child: Obx(() {
+                        final controller = widget.myVideoStateController;
+                        final hasVideoInfo =
+                            controller.isLocalVideoMode ||
+                            controller.videoInfo.value != null;
+
+                        return Stack(
+                          children: [
+                            // 视频播放区域
+                            _buildVideoPlayer(),
+                            // 手势监听区域（抽取后减少整体重绘）
+                            if (hasVideoInfo)
+                              ..._buildGestureAreas(screenSize),
+                            // 工具栏部分
+                            if (hasVideoInfo) ..._buildToolbars(),
+                            // 双击波纹动画等效果
+                            if (hasVideoInfo)
+                              _buildRippleEffects(screenSize, maxRadius),
+                            // 中央控制面板，比如播放/暂停按钮
+                            _buildVideoControlOverlay(
+                              playPauseIconSize,
+                              bufferingSize,
+                            ),
+                            if (!hasVideoInfo) _buildLoadingBackButton(),
+                            // InfoMessage 提示区域
+                            if (hasVideoInfo) _buildInfoMessage(),
+                            // 播放速度信息提示（左下角）
+                            if (hasVideoInfo)
+                              _buildPlaybackSpeedInfoMessage(),
+                            // 添加底部进度条
+                            if (hasVideoInfo) _buildBottomProgressBar(),
+                            // 添加遮罩层
+                            if (hasVideoInfo) _buildMaskLayer(),
+                            // 添加锁定按钮
+                            if (hasVideoInfo) _buildLockButton(),
+                          ],
+                        );
+                      }),
                     ),
                   ),
                 ),
@@ -554,6 +565,30 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             controller: widget.myVideoStateController.videoController,
             controls: null,
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingBackButton() {
+    final t = slang.Translations.of(context);
+    final double paddingTop = MediaQuery.paddingOf(context).top;
+    final double iconSize = widget.isFullScreen ? 24.0 : 20.0;
+    return Positioned(
+      top: -paddingTop,
+      left: 0,
+      child: SafeArea(
+        bottom: false,
+        child: IconButton(
+          tooltip: t.common.back,
+          icon: Icon(Icons.arrow_back, color: Colors.white, size: iconSize),
+          onPressed: () {
+            if (widget.isFullScreen) {
+              unawaited(widget.myVideoStateController.exitFullscreen());
+            } else {
+              AppService.tryPop(context: context);
+            }
+          },
         ),
       ),
     );
@@ -975,6 +1010,17 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       );
     }
 
+    final isLoadingVideoInfo =
+        !controller.isLocalVideoMode &&
+        controller.videoInfo.value == null &&
+        (controller.pageLoadingState.value ==
+                VideoDetailPageLoadingState.loadingVideoInfo ||
+            controller.pageLoadingState.value ==
+                VideoDetailPageLoadingState.init);
+    if (isLoadingVideoInfo) {
+      return Center(child: _buildCenterOnlySpinner(playPauseIconSize));
+    }
+
     // 如果播放器未准备好，显示加载状态
     if (!controller.videoPlayerReady.value) {
       return Center(
@@ -989,6 +1035,28 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     return controller.videoBuffering.value
         ? Center(child: _buildBufferingAnimation(controller, bufferingSize))
         : Center(child: _buildPlayPauseIcon(controller, playPauseIconSize));
+  }
+
+  Widget _buildCenterOnlySpinner(double size) {
+    final indicatorSize = (size * 0.32).clamp(18.0, 34.0);
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.5),
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: SizedBox(
+          width: indicatorSize,
+          height: indicatorSize,
+          child: const CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            strokeWidth: 3,
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildPlayPauseIcon(
@@ -1806,22 +1874,29 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
   // 修改 _createBlurredBackground 方法
   Widget _createBlurredBackground(String? thumbnailUrl, Size size) {
-    // 如果缓存不存在，触发异步更新
-    if (_sizedBlurredBackground == null ||
+    final shouldUpdate =
+        _sizedBlurredBackground == null ||
         _lastSize != size ||
-        _lastThumbnailUrl != thumbnailUrl) {
+        _lastThumbnailUrl != thumbnailUrl;
+    if (shouldUpdate) {
       _updateBlurredBackground(thumbnailUrl, size);
-
-      // 返回一个占位的黑色背景
-      return Container(
-        width: size.width,
-        height: size.height,
-        color: Colors.black,
-      );
     }
 
-    // 返回缓存的模糊背景
-    return _sizedBlurredBackground!;
+    final placeholder = Container(
+      width: size.width,
+      height: size.height,
+      color: Colors.black,
+    );
+
+    final child = _sizedBlurredBackground ?? placeholder;
+    final key = ValueKey(_sizedBlurredBackground == null ? 'black' : 'blur');
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 240),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      child: KeyedSubtree(key: key, child: child),
+    );
   }
 }
 

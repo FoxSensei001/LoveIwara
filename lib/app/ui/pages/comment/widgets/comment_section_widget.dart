@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 
 import '../../../../models/comment.model.dart';
 import '../controllers/comment_controller.dart';
 import 'comment_item_widget.dart';
+import 'comment_skeleton_item_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class CommentSection extends StatefulWidget {
@@ -65,96 +65,21 @@ class _CommentSectionState extends State<CommentSection> {
 
   // 构建Shimmer骨架屏列表
   Widget _buildShimmerList() {
-    return ListView.builder(
-      padding: EdgeInsets.only(top: widget.topPadding),
+    return ListView.separated(
+      padding: EdgeInsets.only(top: widget.topPadding + 4.0, bottom: 4.0),
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemCount: 5,
-      itemBuilder: (context, index) => _buildShimmerItem(),
-    );
-  }
-
-  // 构建单个Shimmer骨架屏项
-  Widget _buildShimmerItem() {
-    return Shimmer.fromColors(
-      baseColor: Theme.of(
-        context,
-      ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-      highlightColor: Theme.of(context).colorScheme.surface,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        padding: const EdgeInsets.all(12.0),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 头像占位
-            Container(
-              width: 40.0,
-              height: 40.0,
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerHighest,
-                shape: BoxShape.circle,
-              ),
-            ),
-            const SizedBox(width: 12.0),
-            // 文本占位
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 14.0,
-                    width: 120.0,
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
-                  ),
-                  const SizedBox(height: 8.0),
-                  Container(
-                    height: 12.0,
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
-                  ),
-                  const SizedBox(height: 6.0),
-                  Container(
-                    height: 12.0,
-                    width: 200.0,
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
-                  ),
-                  const SizedBox(height: 8.0),
-                  Container(
-                    height: 10.0,
-                    width: 80.0,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest
-                          .withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+      itemBuilder: (context, index) => Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4.0),
+        child: const CommentSkeletonItem(),
+      ),
+      separatorBuilder: (context, index) => Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: Divider(
+          height: 1,
+          thickness: 0.5,
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
         ),
       ),
     );

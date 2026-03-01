@@ -30,6 +30,7 @@ class PostTileListItemWidget extends StatelessWidget {
                   GestureDetector(
                     onTap: () => NaviService.navigateToAuthorProfilePage(
                       post.user.username,
+                      initialUser: post.user,
                     ),
                     child: _buildAvatar(post.user),
                   ),
@@ -42,6 +43,7 @@ class PostTileListItemWidget extends StatelessWidget {
                         GestureDetector(
                           onTap: () => NaviService.navigateToAuthorProfilePage(
                             post.user.username,
+                            initialUser: post.user,
                           ),
                           child: _buildDisplayName(post.user),
                         ),

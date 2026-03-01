@@ -7,6 +7,7 @@ import 'package:i_iwara/app/models/message_and_conversation.model.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
+import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -199,8 +200,16 @@ class NaviService {
   }
 
   /// 跳转到作者个人主页
-  static void navigateToAuthorProfilePage(String username) {
-    appRouter.push('/author_profile/$username');
+  static void navigateToAuthorProfilePage(
+    String username, {
+    User? initialUser,
+  }) {
+    appRouter.push(
+      '/author_profile/$username',
+      extra: initialUser == null
+          ? null
+          : AuthorProfileExtra(initialUser: initialUser),
+    );
     _ensureAndroidFrameworkHandlesBack('push author_profile/$username');
   }
 
@@ -243,11 +252,24 @@ class NaviService {
     String id, [
     Map<String, dynamic>? extData,
   ]) {
+    final normalizedId = id.trim();
+    if (normalizedId.isEmpty) return;
+
+    try {
+      final currentPath = appRouter.routeInformationProvider.value.uri.path;
+      final targetPath = '/video_detail/$normalizedId';
+      if (currentPath == targetPath) {
+        return;
+      }
+    } catch (_) {
+      // ignore and continue push
+    }
+
     appRouter.push(
-      '/video_detail/$id',
+      '/video_detail/$normalizedId',
       extra: extData != null ? VideoDetailExtra(extData: extData) : null,
     );
-    _ensureAndroidFrameworkHandlesBack('push video_detail/$id');
+    _ensureAndroidFrameworkHandlesBack('push video_detail/$normalizedId');
   }
 
   /// 跳转到登录页

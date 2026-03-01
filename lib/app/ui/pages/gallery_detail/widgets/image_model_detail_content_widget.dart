@@ -54,7 +54,9 @@ class ImageModelDetailContent extends StatelessWidget {
   Widget _buildGalleryDetails(BuildContext context) {
     return Obx(() {
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(
+          horizontal: UIConstants.pagePadding,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -62,8 +64,7 @@ class ImageModelDetailContent extends StatelessWidget {
           children: [
             if (showHeader) _buildGalleryTitle(),
             if (showHeader) _buildAuthorInfo(context),
-            if (showHeader)
-              const SizedBox(height: UIConstants.sectionSpacing),
+            if (showHeader) const SizedBox(height: UIConstants.sectionSpacing),
             _buildGalleryDetailsSection(context),
           ],
         ),
@@ -170,6 +171,7 @@ class ImageModelDetailContent extends StatelessWidget {
           child: GestureDetector(
             onTap: () => NaviService.navigateToAuthorProfilePage(
               controller.imageModelInfo.value!.user!.username,
+              initialUser: controller.imageModelInfo.value!.user!,
             ),
             child: AvatarWidget(
               user: controller.imageModelInfo.value?.user,
@@ -184,6 +186,7 @@ class ImageModelDetailContent extends StatelessWidget {
             child: GestureDetector(
               onTap: () => NaviService.navigateToAuthorProfilePage(
                 controller.imageModelInfo.value!.user!.username,
+                initialUser: controller.imageModelInfo.value!.user!,
               ),
               behavior: HitTestBehavior.opaque,
               child: Column(

@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/image.model.dart';
+import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/image_model_detail_content_widget.dart';
-import 'package:i_iwara/app/ui/pages/video_detail/widgets/skeletons/media_tile_list_skeleton_widget.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
@@ -16,6 +17,9 @@ import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:shimmer/shimmer.dart';
+
+import '../../widgets/infinite_scroll_waterfall_tab.dart';
 
 import '../../../../common/enums/media_enums.dart';
 import '../../../../utils/logger_utils.dart';
@@ -24,7 +28,7 @@ import '../../widgets/error_widget.dart';
 import '../comment/controllers/comment_controller.dart';
 import '../comment/widgets/comment_entry_area_widget.dart';
 import '../comment/widgets/comment_section_widget.dart';
-import '../popular_media_list/widgets/image_model_tile_list_item_widget.dart';
+import '../popular_media_list/widgets/image_model_card_list_item_widget.dart';
 import '../video_detail/controllers/related_media_controller.dart';
 import 'controllers/gallery_detail_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -33,16 +37,7 @@ import 'widgets/gallery_image_scroller_widget.dart';
 String _galleryCoverHeroTag(String imageModelId) =>
     'gallery_cover:$imageModelId';
 
-String _galleryCardHeroTag(String imageModelId) => 'gallery_card:$imageModelId';
-
-String _galleryTitleHeroTag(String imageModelId) =>
-    'gallery_title:$imageModelId';
-
-String _galleryAuthorAvatarHeroTag(String imageModelId) =>
-    'gallery_author_avatar:$imageModelId';
-
-String _galleryAuthorNameHeroTag(String imageModelId) =>
-    'gallery_author_name:$imageModelId';
+const int _galleryDetailSideListCrossAxisCount = 2;
 
 class GalleryDetailPage extends StatefulWidget {
   final String imageModelId;
@@ -68,12 +63,14 @@ class GalleryDetailPage extends StatefulWidget {
   GalleryDetailPageState createState() => GalleryDetailPageState();
 }
 
-class GalleryDetailPageState extends State<GalleryDetailPage> {
+class GalleryDetailPageState extends State<GalleryDetailPage>
+    with SingleTickerProviderStateMixin {
   late String imageModelId;
   late GalleryDetailController detailController;
   late CommentController commentController;
   late RelatedMediasController relatedMediasController;
   late String uniqueTag;
+  late TabController _relatedTabController;
 
   // 布局计算器
   final LayoutCalculator _layoutCalculator = LayoutCalculator();
@@ -90,6 +87,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
   // dispose
   @override
   void dispose() {
+    _relatedTabController.dispose();
     Get.delete<GalleryDetailController>(tag: uniqueTag);
     Get.delete<CommentController>(tag: uniqueTag);
     Get.delete<RelatedMediasController>(tag: uniqueTag);
@@ -103,6 +101,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
     super.initState();
     imageModelId = widget.imageModelId;
     uniqueTag = UniqueKey().toString();
+    _relatedTabController = TabController(length: 2, vsync: this);
 
     if (imageModelId.isEmpty) {
       return;
@@ -162,9 +161,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
           ),
           IconButton(
             icon: const Icon(Icons.home),
-            onPressed: () {
-              appRouter.go('/');
-            },
+            onPressed: () => appRouter.go('/'),
           ),
         ],
       ),
@@ -340,29 +337,19 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
   Widget _buildHeroScrollerSection(
     BuildContext context, {
     required String coverHeroTag,
-    required String? coverUrl,
     required int? imageCount,
     required double height,
   }) {
     const borderRadius = BorderRadius.vertical(top: Radius.circular(14));
-    final theme = Theme.of(context);
     return SizedBox(
       height: height,
       child: ClipRRect(
         borderRadius: borderRadius,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest.withValues(
-              alpha: 0.2,
-            ),
-          ),
-          child: GalleryImageScrollerWidget(
-            controller: detailController,
-            maxHeight: height,
-            coverHeroTag: coverHeroTag,
-            initialCoverUrl: coverUrl,
-            initialImageCount: imageCount,
-          ),
+        child: GalleryImageScrollerWidget(
+          controller: detailController,
+          maxHeight: height,
+          coverHeroTag: coverHeroTag,
+          initialImageCount: imageCount,
         ),
       ),
     );
@@ -370,9 +357,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
 
   Widget _buildHeroOverviewCard(
     BuildContext context, {
-    required String imageModelId,
     required String coverHeroTag,
-    required String? coverUrl,
     required int? imageCount,
     required double height,
     required ImageModel? imageModelInfo,
@@ -383,57 +368,37 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
     final radius = BorderRadius.circular(14);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: UIConstants.pagePadding),
       child: Stack(
         children: [
           Positioned.fill(
-            child: Hero(
-              tag: _galleryCardHeroTag(imageModelId),
-              transitionOnUserGestures: true,
-              placeholderBuilder: (context, size, child) {
-                return Material(
-                  color: Colors.transparent,
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: radius,
+              child: Ink(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
                   borderRadius: radius,
-                  child: Ink(
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.surface,
-                      borderRadius: radius,
-                    ),
-                  ),
-                );
-              },
-              child: Material(
-                color: Colors.transparent,
-                borderRadius: radius,
-                child: Ink(
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surface,
-                    borderRadius: radius,
-                  ),
                 ),
               ),
             ),
           ),
-          ClipRRect(
-            borderRadius: radius,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeroScrollerSection(
-                  context,
-                  coverHeroTag: coverHeroTag,
-                  coverUrl: coverUrl,
-                  imageCount: imageCount,
-                  height: height,
-                ),
-                _buildMainDetailSection(
-                  context,
-                  imageModelInfo: imageModelInfo,
-                  isLoading: isLoading,
-                  errorMessage: errorMessage,
-                ),
-              ],
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeroScrollerSection(
+                context,
+                coverHeroTag: coverHeroTag,
+                imageCount: imageCount,
+                height: height,
+              ),
+              _buildMainDetailSection(
+                context,
+                imageModelInfo: imageModelInfo,
+                isLoading: isLoading,
+                errorMessage: errorMessage,
+              ),
+            ],
           ),
         ],
       ),
@@ -442,7 +407,6 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
 
   Widget _buildHeroHeaderSection(
     BuildContext context, {
-    required String imageModelId,
     required ImageModel? imageModelInfo,
   }) {
     final t = slang.Translations.of(context);
@@ -460,42 +424,39 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
         : (username.isNotEmpty ? username : t.common.unknownUser);
     final avatarUrl = user?.avatar?.avatarUrl ?? widget.initialAuthorAvatarUrl;
 
+    final User effectiveUser =
+        user ?? User(id: 'unknown', name: displayName, username: username);
+
     VoidCallback? onTapAuthor;
     if (username.isNotEmpty) {
       onTapAuthor = () => NaviService.navigateToAuthorProfilePage(username);
     }
 
-    final nameWidget = user != null
-        ? buildUserName(context, user, bold: true, fontSize: 16)
-        : Text(
-            displayName,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
-          );
+    final nameWidget = buildUserName(
+      context,
+      effectiveUser,
+      bold: true,
+      fontSize: 16,
+      defaultNameColor: theme.textTheme.titleMedium?.color,
+    );
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.fromLTRB(
+        UIConstants.pagePadding,
+        10,
+        UIConstants.pagePadding,
+        0,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Hero(
-            tag: _galleryTitleHeroTag(imageModelId),
-            transitionOnUserGestures: true,
-            child: Material(
-              type: MaterialType.transparency,
-              child: Text(
-                displayTitle,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  height: 1.2,
-                ),
-              ),
+          Text(
+            displayTitle,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w700,
+              height: 1.2,
             ),
           ),
           const SizedBox(height: 12),
@@ -503,14 +464,10 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
             children: [
               GestureDetector(
                 onTap: onTapAuthor,
-                child: Hero(
-                  tag: _galleryAuthorAvatarHeroTag(imageModelId),
-                  transitionOnUserGestures: true,
-                  child: AvatarWidget(
-                    user: user,
-                    avatarUrl: avatarUrl,
-                    size: 40,
-                  ),
+                child: AvatarWidget(
+                  user: effectiveUser,
+                  avatarUrl: avatarUrl,
+                  size: 40,
                 ),
               ),
               const SizedBox(width: 12),
@@ -521,14 +478,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Hero(
-                        tag: _galleryAuthorNameHeroTag(imageModelId),
-                        transitionOnUserGestures: true,
-                        child: Material(
-                          type: MaterialType.transparency,
-                          child: nameWidget,
-                        ),
-                      ),
+                      nameWidget,
                       if (username.isNotEmpty)
                         Text(
                           '@$username',
@@ -573,7 +523,6 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
 
     final header = _buildHeroHeaderSection(
       context,
-      imageModelId: imageModelId,
       imageModelInfo: imageModelInfo,
     );
 
@@ -589,7 +538,9 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
           ),
           const SizedBox(height: 16),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(
+              horizontal: UIConstants.pagePadding,
+            ),
             child: CommentEntryAreaButtonWidget(
               commentController: commentController,
               onClickButton: () => showCommentModal(context),
@@ -642,74 +593,90 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
     );
   }
 
-  Widget _buildOtherAuthorGalleriesList() {
-    final controller = detailController.otherAuthorzImageModelsController;
-    if (controller == null) {
-      return const MediaTileListSkeletonWidget();
-    }
+  Widget _buildGalleryCardSkeleton(BuildContext context, double width) {
+    return _GalleryCardSkeleton(width: width);
+  }
 
-    if (controller.isLoading.value) {
-      return const MediaTileListSkeletonWidget();
-    }
-
-    if (controller.imageModels.isEmpty) {
-      return const MyEmptyWidget();
-    }
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: controller.imageModels
-          .map((imageModel) => ImageModelTileListItem(imageModel: imageModel))
-          .toList(),
+  Widget _buildRelatedTabBar(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Material(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: TabBar(
+        controller: _relatedTabController,
+        tabs: [
+          Tab(text: t.galleryDetail.authorOtherGalleries),
+          Tab(text: t.galleryDetail.relatedGalleries),
+        ],
+        labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+        unselectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.normal,
+          fontSize: 14,
+        ),
+        indicatorSize: TabBarIndicatorSize.label,
+        dividerHeight: 0,
+      ),
     );
   }
 
-  Widget _buildRelatedGalleriesList() {
-    if (relatedMediasController.isLoading.value) {
-      return const MediaTileListSkeletonWidget();
-    }
-
-    if (relatedMediasController.imageModels.isEmpty) {
-      return const MyEmptyWidget();
-    }
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: relatedMediasController.imageModels
-          .map((imageModel) => ImageModelTileListItem(imageModel: imageModel))
-          .toList(),
-    );
-  }
-
-  Widget _buildSideSectionHeader(BuildContext context, String title) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Text(title, style: const TextStyle(fontSize: 18)),
+  Widget _buildRelatedTabBarView(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return TabBarView(
+      controller: _relatedTabController,
+      children: [
+        // Tab 1: Author's Other Galleries
+        Obx(() {
+          // Always access imageModelInfo so GetX registers a listener
+          // even when otherController is still null.
+          final _ = detailController.imageModelInfo.value;
+          final ctrl = detailController.otherAuthorzImageModelsController;
+          return InfiniteScrollWaterfallTab<ImageModel>(
+            items: ctrl?.imageModels.toList() ?? const [],
+            isLoading: ctrl?.isLoading.value ?? false,
+            isLoadingMore: ctrl?.isLoadingMore.value ?? false,
+            hasMore: ctrl?.hasMore.value ?? false,
+            onLoadMore: () => ctrl?.loadMore(),
+            available: ctrl != null,
+            crossAxisCount: _galleryDetailSideListCrossAxisCount,
+            emptyMessage: t.galleryDetail.authorNoOtherGalleries,
+            skeletonBuilder: _buildGalleryCardSkeleton,
+            itemBuilder: (context, imageModel, itemWidth) {
+              return ImageModelCardListItemWidget(
+                imageModel: imageModel,
+                width: itemWidth,
+              );
+            },
+          );
+        }),
+        // Tab 2: Related Galleries
+        Obx(
+          () => InfiniteScrollWaterfallTab<ImageModel>(
+            items: relatedMediasController.imageModels.toList(),
+            isLoading: relatedMediasController.isLoading.value,
+            isLoadingMore: relatedMediasController.isLoadingMore.value,
+            hasMore: relatedMediasController.hasMore.value,
+            onLoadMore: relatedMediasController.loadMore,
+            crossAxisCount: _galleryDetailSideListCrossAxisCount,
+            emptyMessage: t.galleryDetail.noRelatedGalleries,
+            skeletonBuilder: _buildGalleryCardSkeleton,
+            itemBuilder: (context, imageModel, itemWidth) {
+              return ImageModelCardListItemWidget(
+                imageModel: imageModel,
+                width: itemWidth,
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildWideSideColumn(BuildContext context) {
-    final t = slang.Translations.of(context);
-
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 16),
-          _buildSideSectionHeader(
-            context,
-            t.galleryDetail.authorOtherGalleries,
-          ),
-          const SizedBox(height: 16),
-          _buildOtherAuthorGalleriesList(),
-          const SizedBox(height: 16),
-          _buildSideSectionHeader(context, t.galleryDetail.relatedGalleries),
-          const SizedBox(height: 16),
-          _buildRelatedGalleriesList(),
-          const SafeArea(child: SizedBox.shrink()),
-        ],
-      ),
+    return Column(
+      children: [
+        const SizedBox(height: UIConstants.pagePadding),
+        _buildRelatedTabBar(context),
+        Expanded(child: _buildRelatedTabBarView(context)),
+      ],
     );
   }
 
@@ -762,16 +729,12 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
           final imageModelInfo = detailController.imageModelInfo.value;
           final isLoading = detailController.isImageModelInfoLoading.value;
           final errorMessage = detailController.errorMessage.value;
-          final coverUrl =
-              imageModelInfo?.thumbnailUrl ?? widget.initialCoverUrl;
           final imageCount =
               imageModelInfo?.numImages ?? widget.initialImageCount;
 
           final overviewCard = _buildHeroOverviewCard(
             context,
-            imageModelId: imageModelId,
             coverHeroTag: coverHeroTag,
-            coverUrl: coverUrl,
             imageCount: imageCount,
             height: imageScrollerMaxHeight,
             imageModelInfo: imageModelInfo,
@@ -820,36 +783,19 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
               ],
             );
           } else {
-            // Narrow Screen Layout
-            return SingleChildScrollView(
-              // 整个页面可滚动
+            // Narrow Screen Layout — NestedScrollView so overview scrolls
+            // away while TabBar pins at the top.
+            return NestedScrollView(
               physics: detailController.isHoveringHorizontalList.value
                   ? const NeverScrollableScrollPhysics()
                   : null,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
+              headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                SliverToBoxAdapter(child: overviewCard),
+              ],
+              body: Column(
                 children: [
-                  overviewCard,
-                  // 5. Author's Other Galleries Title
-                  _buildSideSectionHeader(
-                    context,
-                    t.galleryDetail.authorOtherGalleries,
-                  ),
-                  const SizedBox(height: 16),
-                  // 6. Author's Other Galleries List (logic remains)
-                  _buildOtherAuthorGalleriesList(),
-                  // 7. Related Galleries Title
-                  const SizedBox(height: 16),
-                  _buildSideSectionHeader(
-                    context,
-                    t.galleryDetail.relatedGalleries,
-                  ),
-                  const SizedBox(height: 16),
-                  // 8. Related Galleries List (logic remains)
-                  _buildRelatedGalleriesList(),
-                  // 9. Safe Area Bottom Padding
-                  const SafeArea(child: SizedBox.shrink()),
+                  _buildRelatedTabBar(context),
+                  Expanded(child: _buildRelatedTabBarView(context)),
                 ],
               ),
             );
@@ -885,7 +831,10 @@ class _GalleryDetailInfoSkeleton extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: const EdgeInsets.symmetric(
+        horizontal: UIConstants.pagePadding,
+        vertical: 16,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -905,6 +854,93 @@ class _GalleryDetailInfoSkeleton extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// 单个图库卡片骨架
+class _GalleryCardSkeleton extends StatelessWidget {
+  final double width;
+
+  const _GalleryCardSkeleton({required this.width});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final baseColor = isDark ? Colors.grey[800]! : Colors.grey[300]!;
+    final highlightColor = isDark ? Colors.grey[700]! : Colors.grey[100]!;
+    final radius = BorderRadius.circular(14);
+
+    return SizedBox(
+      width: width,
+      child: Shimmer.fromColors(
+        baseColor: baseColor,
+        highlightColor: highlightColor,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: radius.topLeft),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 9),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 14,
+                    width: width * 0.8,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    height: 12,
+                    width: width * 0.5,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Container(
+                        height: 22,
+                        width: 22,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Container(
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

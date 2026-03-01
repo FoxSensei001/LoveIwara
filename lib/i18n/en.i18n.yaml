@@ -418,6 +418,8 @@ galleryDetail:
   moreFeaturesToBeDiscovered: More Features to Be Discovered...
   authorOtherGalleries: Author's Other Galleries
   relatedGalleries: Related Galleries
+  authorNoOtherGalleries: No other galleries from this author
+  noRelatedGalleries: No related galleries
   clickLeftAndRightEdgeToSwitchImage: Click Left and Right Edge to Switch Image
 
 playList:

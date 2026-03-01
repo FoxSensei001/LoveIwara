@@ -44,6 +44,7 @@ class ThreadDetailPage extends StatefulWidget {
 class _ThreadDetailPageState extends State<ThreadDetailPage>
     with SingleTickerProviderStateMixin {
   final double appBarHeight = 56.0;
+  static const double _cardRadius = 14.0;
   late ThreadDetailRepository listSourceRepository;
   final ScrollController _scrollController = ScrollController();
   final Rx<ForumThreadModel?> _thread = Rx<ForumThreadModel?>(null);
@@ -182,13 +183,17 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
   int get totalItems => listSourceRepository.requestTotalCount;
   int get totalPages => totalItems > 0 ? (totalItems / itemsPerPage).ceil() : 1;
 
-  ShapeBorder _forumCardShape(BuildContext context, {double radius = 14}) {
+  ShapeBorder _forumCardShape(
+    BuildContext context, {
+    double radius = _cardRadius,
+    double borderAlpha = 0.3,
+  }) {
     return RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(radius),
       side: BorderSide(
         color: Theme.of(
           context,
-        ).colorScheme.outlineVariant.withValues(alpha: 0.35),
+        ).colorScheme.outlineVariant.withValues(alpha: borderAlpha),
       ),
     );
   }
@@ -224,6 +229,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
               color: fg,
               fontSize: 10.5,
               fontWeight: FontWeight.w600,
+              height: 1.2,
             ),
           ),
         ],
@@ -662,14 +668,14 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+              padding: const EdgeInsets.fromLTRB(12, 11, 12, 11),
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest.withValues(
                   alpha: 0.5,
                 ),
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(14),
-                  topRight: Radius.circular(14),
+                  topLeft: Radius.circular(_cardRadius),
+                  topRight: Radius.circular(_cardRadius),
                 ),
               ),
               child: Row(
@@ -681,6 +687,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
                       onTap: () {
                         NaviService.navigateToAuthorProfilePage(
                           thread.user.username,
+                          initialUser: thread.user,
                         );
                       },
                       child: AvatarWidget(user: thread.user, size: 40),
@@ -697,6 +704,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
                             onTap: () {
                               NaviService.navigateToAuthorProfilePage(
                                 thread.user.username,
+                                initialUser: thread.user,
                               );
                             },
                             child: buildUserName(
@@ -756,59 +764,89 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          thread.title,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: colorScheme.onSurface,
-                          ),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final compact = constraints.maxWidth < 420;
+                      final titleText = Text(
+                        thread.title,
+                        maxLines: compact ? 3 : 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          height: 1.22,
+                          color: colorScheme.onSurface,
                         ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.translate),
-                        onPressed: () {
-                          showTranslationDialog(
-                            context,
-                            text: _thread.value!.title,
-                          );
-                        },
-                        tooltip: t.common.translate,
-                        style: IconButton.styleFrom(
-                          visualDensity: VisualDensity.compact,
-                          padding: const EdgeInsets.all(6),
-                        ),
-                      ),
-                      if (_userService.currentUser.value?.id == thread.user.id)
+                      );
+
+                      final actions = <Widget>[
                         IconButton(
-                          icon: const Icon(Icons.edit),
+                          icon: const Icon(Icons.translate),
                           onPressed: () {
-                            showAppDialog(
-                              ForumEditTitleDialog(
-                                postId: thread.id,
-                                initialTitle: thread.title,
-                                repository: listSourceRepository,
-                                onSubmit: () {
-                                  _refresh();
-                                },
-                              ),
+                            showTranslationDialog(
+                              context,
+                              text: _thread.value!.title,
                             );
                           },
-                          tooltip: t.forum.editTitle,
+                          tooltip: t.common.translate,
                           style: IconButton.styleFrom(
                             visualDensity: VisualDensity.compact,
                             padding: const EdgeInsets.all(6),
                           ),
                         ),
-                    ],
+                        if (_userService.currentUser.value?.id ==
+                            thread.user.id)
+                          IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () {
+                              showAppDialog(
+                                ForumEditTitleDialog(
+                                  postId: thread.id,
+                                  initialTitle: thread.title,
+                                  repository: listSourceRepository,
+                                  onSubmit: () {
+                                    _refresh();
+                                  },
+                                ),
+                              );
+                            },
+                            tooltip: t.forum.editTitle,
+                            style: IconButton.styleFrom(
+                              visualDensity: VisualDensity.compact,
+                              padding: const EdgeInsets.all(6),
+                            ),
+                          ),
+                      ];
+
+                      if (compact) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            titleText,
+                            const SizedBox(height: 6),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: actions,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: titleText),
+                          ...actions,
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 8),
                   Wrap(

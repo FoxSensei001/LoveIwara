@@ -149,7 +149,10 @@ class _AuthorLine extends StatelessWidget {
 
   Widget _buildAuthorIdentity(BuildContext context) {
     return InkWell(
-      onTap: () => NaviService.navigateToAuthorProfilePage(post.user.username),
+      onTap: () => NaviService.navigateToAuthorProfilePage(
+        post.user.username,
+        initialUser: post.user,
+      ),
       borderRadius: BorderRadius.circular(8),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 1),

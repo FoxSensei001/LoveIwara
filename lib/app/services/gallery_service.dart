@@ -111,11 +111,13 @@ class GalleryService extends GetxService {
   Future<ApiResult<PageData<ImageModel>>> fetchAuthorImages(
     String userId, {
     required String excludeImageId,
+    int page = 0,
     int limit = 6,
   }) async {
     try {
       return await fetchImageModelsByParams(
         params: {'user': userId, 'exclude': excludeImageId},
+        page: page,
         limit: limit,
       );
     } catch (e) {

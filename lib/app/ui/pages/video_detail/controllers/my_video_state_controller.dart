@@ -222,6 +222,9 @@ class MyVideoStateController extends GetxController
   Timer? _lockButtonHideTimer;
   final RxBool isLockButtonVisible = true.obs;
 
+  /// 首次获取到 `videoInfo` 后再展示工具栏，避免在 loading 阶段误导用户可操作。
+  bool _initialToolbarsShownAfterVideoInfoReady = false;
+
   // 添加 Dio CancelToken
   final CancelToken _cancelToken = CancelToken();
   // 添加 disposed 标志位
@@ -336,17 +339,23 @@ class MyVideoStateController extends GetxController
             CurvedAnimation(parent: animationController, curve: Curves.easeOut),
           );
 
-      // 初始状态显示工具栏
-      animationController.forward();
-      if (!_configService[ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE]) {
-        // 添加自动隐藏工具栏的定时器
-        _resetAutoHideTimer();
-        // 添加自动隐藏锁定按钮的定时器
-        _lockButtonHideTimer = Timer(const Duration(seconds: 3), () {
-          if (isToolbarsLocked.value) {
-            isLockButtonVisible.value = false;
-          }
-        });
+      if (isLocalVideoMode) {
+        // 本地播放模式：保持原行为，初始显示工具栏
+        animationController.forward();
+        if (!_configService[ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE]) {
+          // 添加自动隐藏工具栏的定时器
+          _resetAutoHideTimer();
+          // 添加自动隐藏锁定按钮的定时器
+          _lockButtonHideTimer = Timer(const Duration(seconds: 3), () {
+            if (isToolbarsLocked.value) {
+              isLockButtonVisible.value = false;
+            }
+          });
+        }
+      } else {
+        // 在线模式：在视频信息未获取前仅显示 loading（避免用户误以为可控制）
+        animationController.value = 0.0;
+        isLockButtonVisible.value = false;
       }
 
       // 初始化 VideoController
@@ -1199,6 +1208,7 @@ class MyVideoStateController extends GetxController
     if (cachedVideoInfo != null) {
       // 缓存命中时，先将 liked 和 numLikes 设置为 null 表示 loading 状态
       videoInfo.value = cachedVideoInfo.copyWith(liked: null, numLikes: null);
+      _showInitialToolbarsAfterVideoInfoReadyIfNeeded();
 
       // 缓存命中时，立即开始并行任务
       final List<Future<void>> parallelTasks = [];
@@ -1268,6 +1278,8 @@ class MyVideoStateController extends GetxController
 
         // 缓存视频信息
         _cacheManager.cacheVideoInfo(videoId, videoInfo.value!);
+
+        _showInitialToolbarsAfterVideoInfoReadyIfNeeded();
 
         if (videoInfo.value == null) {
           if (!_isDisposed) {
@@ -1391,6 +1403,31 @@ class MyVideoStateController extends GetxController
         }
       }
     }
+  }
+
+  void _showInitialToolbarsAfterVideoInfoReadyIfNeeded() {
+    if (_isDisposed || isLocalVideoMode) return;
+    if (_initialToolbarsShownAfterVideoInfoReady) return;
+    if (videoInfo.value == null) return;
+    if (mainErrorWidget.value != null) return;
+
+    _initialToolbarsShownAfterVideoInfoReady = true;
+    showToolbars();
+
+    // keep-visible 配置下不应启动自动隐藏相关定时器
+    if (_configService[ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE]) {
+      _autoHideTimer?.cancel();
+      return;
+    }
+
+    // 添加自动隐藏锁定按钮的定时器（与 onInit 的行为保持一致）
+    _lockButtonHideTimer?.cancel();
+    _lockButtonHideTimer = Timer(const Duration(seconds: 3), () {
+      if (_isDisposed) return;
+      if (isToolbarsLocked.value) {
+        isLockButtonVisible.value = false;
+      }
+    });
   }
 
   /// 添加历史记录（异步）

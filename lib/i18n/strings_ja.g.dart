@@ -529,6 +529,8 @@ class _TranslationsGalleryDetailJa implements TranslationsGalleryDetailEn {
 	@override String get moreFeaturesToBeDiscovered => 'さらに機能が発見されます...';
 	@override String get authorOtherGalleries => '作者の他のギャラリー';
 	@override String get relatedGalleries => '関連ギャラリー';
+	@override String get authorNoOtherGalleries => '他のギャラリーはありません';
+	@override String get noRelatedGalleries => '関連するギャラリーはありません';
 	@override String get clickLeftAndRightEdgeToSwitchImage => '左端と右端をクリックして切り替え';
 }
 
@@ -3203,6 +3205,8 @@ extension on TranslationsJa {
 			'galleryDetail.moreFeaturesToBeDiscovered' => 'さらに機能が発見されます...',
 			'galleryDetail.authorOtherGalleries' => '作者の他のギャラリー',
 			'galleryDetail.relatedGalleries' => '関連ギャラリー',
+			'galleryDetail.authorNoOtherGalleries' => '他のギャラリーはありません',
+			'galleryDetail.noRelatedGalleries' => '関連するギャラリーはありません',
 			'galleryDetail.clickLeftAndRightEdgeToSwitchImage' => '左端と右端をクリックして切り替え',
 			'playList.myPlayList' => '私のプレイリスト',
 			'playList.friendlyTips' => 'フレンドリーティップス',
@@ -3315,10 +3319,10 @@ extension on TranslationsJa {
 			'settings.updateContent' => '更新内容',
 			'settings.releaseDate' => 'リリース日',
 			'settings.ignoreThisVersion' => 'このバージョンを無視',
-			'settings.minVersionUpdateRequired' => '現在のバージョンが低すぎます。すぐに更新してください',
-			'settings.forceUpdateTip' => 'これは必須アップデートです。できるだけ早く最新バージョンにアップデートしてください',
 			_ => null,
 		} ?? switch (path) {
+			'settings.minVersionUpdateRequired' => '現在のバージョンが低すぎます。すぐに更新してください',
+			'settings.forceUpdateTip' => 'これは必須アップデートです。できるだけ早く最新バージョンにアップデートしてください',
 			'settings.viewChangelog' => '更新内容を表示',
 			'settings.alreadyLatestVersion' => 'すでに最新バージョンです',
 			'settings.appSettings' => 'アプリ設定',
@@ -3829,10 +3833,10 @@ extension on TranslationsJa {
 			'forum.createThread' => 'スレッドを作成',
 			'forum.selectCategory' => 'カテゴリを選択',
 			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => 'クールダウン残り時間 ${minutes} 分 ${seconds} 秒',
-			'forum.groups.administration' => '管理',
-			'forum.groups.global' => 'グローバル',
 			_ => null,
 		} ?? switch (path) {
+			'forum.groups.administration' => '管理',
+			'forum.groups.global' => 'グローバル',
 			'forum.groups.chinese' => '中国語',
 			'forum.groups.japanese' => '日本語',
 			'forum.groups.korean' => '韓国語',
@@ -4343,10 +4347,10 @@ extension on TranslationsJa {
 			'diagnostics.refreshMetrics' => '指標を更新',
 			'diagnostics.toolsSectionTitle' => 'ツール',
 			'diagnostics.privacyNotice' => 'ログにはアカウント情報やリクエストパラメータなどの機密情報が含まれる可能性があります。Issue に完全なログを公開添付せず、確認後にメールで送信してください。',
-			'diagnostics.exportLogsTitle' => 'ログをエクスポート',
-			'diagnostics.exportLogsSubtitle' => '送信前にプライバシー情報を確認してください',
 			_ => null,
 		} ?? switch (path) {
+			'diagnostics.exportLogsTitle' => 'ログをエクスポート',
+			'diagnostics.exportLogsSubtitle' => '送信前にプライバシー情報を確認してください',
 			'diagnostics.viewLogsTitle' => 'ログを表示',
 			'diagnostics.viewLogsSubtitle' => 'アプリの実行ログをリアルタイム表示',
 			'diagnostics.copySupportEmailTitle' => 'サポートメールをコピー',

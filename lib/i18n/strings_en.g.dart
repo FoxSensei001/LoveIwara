@@ -1271,6 +1271,12 @@ class TranslationsGalleryDetailEn {
 	/// en: 'Related Galleries'
 	String get relatedGalleries => 'Related Galleries';
 
+	/// en: 'No other galleries from this author'
+	String get authorNoOtherGalleries => 'No other galleries from this author';
+
+	/// en: 'No related galleries'
+	String get noRelatedGalleries => 'No related galleries';
+
 	/// en: 'Click Left and Right Edge to Switch Image'
 	String get clickLeftAndRightEdgeToSwitchImage => 'Click Left and Right Edge to Switch Image';
 }
@@ -7117,6 +7123,8 @@ extension on Translations {
 			'galleryDetail.moreFeaturesToBeDiscovered' => 'More Features to Be Discovered...',
 			'galleryDetail.authorOtherGalleries' => 'Author\'s Other Galleries',
 			'galleryDetail.relatedGalleries' => 'Related Galleries',
+			'galleryDetail.authorNoOtherGalleries' => 'No other galleries from this author',
+			'galleryDetail.noRelatedGalleries' => 'No related galleries',
 			'galleryDetail.clickLeftAndRightEdgeToSwitchImage' => 'Click Left and Right Edge to Switch Image',
 			'playList.myPlayList' => 'My Play List',
 			'playList.friendlyTips' => 'Friendly Tips',
@@ -7229,10 +7237,10 @@ extension on Translations {
 			'settings.updateContent' => 'Update Content',
 			'settings.releaseDate' => 'Release Date',
 			'settings.ignoreThisVersion' => 'Ignore This Version',
-			'settings.minVersionUpdateRequired' => 'Current version is too low, please update as soon as possible',
-			'settings.forceUpdateTip' => 'This is a mandatory update. Please update to the latest version as soon as possible',
 			_ => null,
 		} ?? switch (path) {
+			'settings.minVersionUpdateRequired' => 'Current version is too low, please update as soon as possible',
+			'settings.forceUpdateTip' => 'This is a mandatory update. Please update to the latest version as soon as possible',
 			'settings.viewChangelog' => 'View Changelog',
 			'settings.alreadyLatestVersion' => 'Already the latest version',
 			'settings.appSettings' => 'App Settings',
@@ -7743,10 +7751,10 @@ extension on Translations {
 			'forum.createThread' => 'Create Thread',
 			'forum.selectCategory' => 'Select Category',
 			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => 'Cooldown remaining ${minutes} minutes ${seconds} seconds',
-			'forum.groups.administration' => 'Administration',
-			'forum.groups.global' => 'Global',
 			_ => null,
 		} ?? switch (path) {
+			'forum.groups.administration' => 'Administration',
+			'forum.groups.global' => 'Global',
 			'forum.groups.chinese' => 'Chinese',
 			'forum.groups.japanese' => 'Japanese',
 			'forum.groups.korean' => 'Korean',
@@ -8257,10 +8265,10 @@ extension on Translations {
 			'mediaPlayer.videoPlayerError' => 'Video Player Error',
 			'mediaPlayer.videoLoadFailed' => 'Video Load Failed',
 			'mediaPlayer.videoCodecNotSupported' => 'Video Codec Not Supported',
-			'mediaPlayer.networkConnectionIssue' => 'Network Connection Issue',
-			'mediaPlayer.insufficientPermission' => 'Insufficient Permission',
 			_ => null,
 		} ?? switch (path) {
+			'mediaPlayer.networkConnectionIssue' => 'Network Connection Issue',
+			'mediaPlayer.insufficientPermission' => 'Insufficient Permission',
 			'mediaPlayer.unsupportedVideoFormat' => 'Unsupported Video Format',
 			'mediaPlayer.retry' => 'Retry',
 			'mediaPlayer.externalPlayer' => 'External Player',

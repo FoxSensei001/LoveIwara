@@ -9,6 +9,7 @@ import 'package:i_iwara/app/ui/widgets/base_card_list_item_widget.dart'
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
+import 'package:get/get.dart';
 
 import '../../../../models/video.model.dart';
 
@@ -42,6 +43,20 @@ class VideoCardListItemWidget extends StatefulWidget {
 class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
   bool _isHovering = false;
   static const Duration _hoverAnimationDuration = Duration(milliseconds: 220);
+
+  Map<String, dynamic> _buildVideoDetailExtData() {
+    final user = widget.video.user;
+    return {
+      'thumbnailUrl': widget.video.thumbnailUrl,
+      'title': widget.video.title,
+      'authorId': user?.id,
+      'authorName': user?.name,
+      'authorUsername': user?.username,
+      'authorAvatarUrl': user?.avatar?.avatarUrl,
+      'authorRole': user?.role,
+      'authorPremium': user?.premium,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,67 +109,78 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
             child: Material(
               color: Colors.transparent,
               borderRadius: radius,
-              child: Ink(
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surface,
-                  borderRadius: radius,
-                  border: Border.all(
-                    color: theme.colorScheme.outlineVariant.withValues(
-                      alpha: showHoverState ? 0.6 : 0.3,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: Material(
+                      color: Colors.transparent,
+                      borderRadius: radius,
+                      child: Ink(
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surface,
+                          borderRadius: radius,
+                          border: Border.all(
+                            color: theme.colorScheme.outlineVariant.withValues(
+                              alpha: showHoverState ? 0.6 : 0.3,
+                            ),
+                            width: 1,
+                          ),
+                        ),
+                      ),
                     ),
-                    width: 1,
                   ),
-                ),
-                child: InkWell(
-                  borderRadius: radius,
-                  onTap: widget.isMultiSelectMode && widget.onSelect != null
-                      ? widget.onSelect!
-                      : () => NaviService.navigateToVideoDetailPage(
-                          widget.video.id,
+                  InkWell(
+                    borderRadius: radius,
+                    onTap: widget.isMultiSelectMode && widget.onSelect != null
+                        ? widget.onSelect!
+                        : () => NaviService.navigateToVideoDetailPage(
+                            widget.video.id,
+                            _buildVideoDetailExtData(),
+                          ),
+                    onSecondaryTap: widget.isMultiSelectMode
+                        ? null
+                        : _showDetailsModal,
+                    onLongPress: widget.isMultiSelectMode
+                        ? null
+                        : _showDetailsModal,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _Thumbnail(
+                          video: widget.video,
+                          width: widget.width,
+                          isHovering: showHoverState,
+                          overlay: overlay,
                         ),
-                  onSecondaryTap: widget.isMultiSelectMode
-                      ? null
-                      : _showDetailsModal,
-                  onLongPress: widget.isMultiSelectMode
-                      ? null
-                      : _showDetailsModal,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _Thumbnail(
-                        video: widget.video,
-                        width: widget.width,
-                        isHovering: showHoverState,
-                        overlay: overlay,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 9),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.video.title ?? slang.t.common.noTitle,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                height: 1.22,
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 10, 10, 9),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.video.title ?? slang.t.common.noTitle,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.22,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            _MetaLine(video: widget.video),
-                            const SizedBox(height: 8),
-                            _AuthorLine(
-                              video: widget.video,
-                              isMultiSelectMode: widget.isMultiSelectMode,
-                            ),
-                          ],
+                              const SizedBox(height: 8),
+                              _MetaLine(video: widget.video),
+                              const SizedBox(height: 8),
+                              _AuthorLine(
+                                video: widget.video,
+                                isMultiSelectMode: widget.isMultiSelectMode,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ),
@@ -182,11 +208,21 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
     switch (result.type) {
       case VideoPreviewModalActionType.openVideo:
         if (result.videoId?.isNotEmpty ?? false) {
-          NaviService.navigateToVideoDetailPage(result.videoId!);
+          final videoId = result.videoId!;
+          NaviService.navigateToVideoDetailPage(
+            videoId,
+            videoId == widget.video.id ? _buildVideoDetailExtData() : null,
+          );
         }
         break;
       case VideoPreviewModalActionType.openAuthor:
-        NaviService.navigateToAuthorProfilePage(result.username ?? '');
+        final username = (result.username ?? '').trim();
+        if (username.isNotEmpty) {
+          NaviService.navigateToAuthorProfilePage(
+            username,
+            initialUser: widget.video.user,
+          );
+        }
         break;
     }
   }
@@ -218,21 +254,6 @@ class _Thumbnail extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             _buildImage(),
-            Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: const [0.52, 1],
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withValues(alpha: 0.35),
-                    ],
-                  ),
-                ),
-              ),
-            ),
             ...buildTags(context, t),
             if (overlay != null) Positioned.fill(child: overlay!),
           ],
@@ -569,6 +590,8 @@ class _AuthorLine extends StatelessWidget {
 
   Widget _buildAuthorName(BuildContext context) {
     final user = video.user;
+    final avatar = AvatarWidget(user: user, size: 22);
+    final name = buildUserName(context, user, bold: true, fontSize: 12.5);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: isMultiSelectMode
@@ -576,16 +599,17 @@ class _AuthorLine extends StatelessWidget {
           : () {
               final username = user?.username;
               if (username != null && username.isNotEmpty) {
-                NaviService.navigateToAuthorProfilePage(username);
+                NaviService.navigateToAuthorProfilePage(
+                  username,
+                  initialUser: user,
+                );
               }
             },
       child: Row(
         children: [
-          AvatarWidget(user: user, size: 22),
+          avatar,
           const SizedBox(width: 6),
-          Expanded(
-            child: buildUserName(context, user, bold: true, fontSize: 12.5),
-          ),
+          Expanded(child: name),
         ],
       ),
     );

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/post.model.dart';
+import 'package:i_iwara/app/models/user.model.dart';
 
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/post_service.dart';
@@ -47,9 +48,10 @@ import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class AuthorProfilePage extends StatefulWidget {
   final String username;
+  final User? initialUser;
   final String uniqueTag = DateTime.now().millisecondsSinceEpoch.toString();
 
-  AuthorProfilePage({super.key, required this.username});
+  AuthorProfilePage({super.key, required this.username, this.initialUser});
 
   @override
   State<AuthorProfilePage> createState() => _AuthorProfilePageState();
@@ -81,7 +83,10 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     uniqueTag = widget.uniqueTag;
     username = widget.username;
     profileController = Get.put(
-      AuthorProfileController(username: username),
+      AuthorProfileController(
+        username: username,
+        initialUser: widget.initialUser,
+      ),
       tag: uniqueTag,
     );
     primaryTC = TabController(length: 4, vsync: this);
@@ -159,6 +164,20 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
           builder: (context, scrollController) {
             return Column(
               children: [
+                // 拖拽条
+                Center(
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 12, bottom: 4),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
                 // 顶部标题栏
                 Container(
                   padding: const EdgeInsets.all(16),
@@ -229,6 +248,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                     () => CommentSection(
                       controller: profileController.commentController,
                       authorUserId: profileController.author.value?.id,
+                      scrollController: scrollController,
                     ),
                   ),
                 ),

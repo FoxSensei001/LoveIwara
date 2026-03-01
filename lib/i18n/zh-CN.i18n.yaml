@@ -425,6 +425,8 @@ galleryDetail:
   moreFeaturesToBeDiscovered: 更多功能待发现...
   authorOtherGalleries: 作者的其他图库
   relatedGalleries: 相关图库
+  authorNoOtherGalleries: 作者暂无其他图库
+  noRelatedGalleries: 暂无相关图库
   clickLeftAndRightEdgeToSwitchImage: 点击左右边缘以切换图片
 
 playList:

@@ -14,6 +14,7 @@ import '../../comment/controllers/comment_controller.dart';
 
 class AuthorProfileController extends GetxController {
   final String username;
+  final User? initialUser;
   final ApiService _apiService = Get.find();
   final UserService _userService = Get.find();
   late CommentController commentController;
@@ -33,7 +34,7 @@ class AuthorProfileController extends GetxController {
   final RxBool isCommentSheetVisible = false.obs;
   Worker? worker;
 
-  AuthorProfileController({required this.username});
+  AuthorProfileController({required this.username, this.initialUser});
 
   void _bindCommentController(String authorId) {
     if (Get.isRegistered<CommentController>(tag: authorId)) {
@@ -49,6 +50,7 @@ class AuthorProfileController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _applyInitialUserIfNeeded();
 
     initFetch();
 
@@ -73,6 +75,20 @@ class AuthorProfileController extends GetxController {
     fetchFollowingCounts();
     fetchFollowerCounts();
     fetchRelationshipStatus(); // 获取关系状态
+  }
+
+  void _applyInitialUserIfNeeded() {
+    final preset = initialUser;
+    if (preset == null) return;
+    final presetId = preset.id.trim();
+    if (presetId.isEmpty || presetId.toLowerCase() == 'unknown') return;
+
+    author.value = preset;
+    authorDescription.value = preset.description;
+    if (preset.header != null) {
+      headerBackgroundUrl.value = preset.header!.headerUrl;
+    }
+    _bindCommentController(presetId);
   }
 
   /// 抓取作者详情

@@ -56,6 +56,8 @@ class CustomMarkdownBody extends StatefulWidget {
 }
 
 class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
+  static const _normalImageFadeInDuration = Duration(milliseconds: 120);
+  static const _normalImageResizeDuration = Duration(milliseconds: 180);
   String _displayData = '';
   bool _showOriginal = false;
   bool _hasProcessedContent = false;
@@ -775,51 +777,53 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     double? maxImageHeight,
     double normalImagePlaceholderHeight,
   ) {
+    const borderRadius = BorderRadius.all(Radius.circular(12));
+
     return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: borderRadius,
       child: ConstrainedBox(
         constraints: BoxConstraints(
           maxHeight: maxImageHeight ?? double.infinity,
         ),
-        child: CachedNetworkImage(
-          imageUrl: normalizedUrl,
-          httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
-          placeholder: (context, url) => Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
-            child: Container(
+        child: AnimatedSize(
+          duration: _normalImageResizeDuration,
+          curve: Curves.easeOutCubic,
+          alignment: Alignment.topCenter,
+          child: CachedNetworkImage(
+            imageUrl: normalizedUrl,
+            httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
+            fadeInDuration: _normalImageFadeInDuration,
+            placeholderFadeInDuration: Duration.zero,
+            fadeOutDuration: Duration.zero,
+            placeholder: (context, url) => _DelayedMarkdownImagePlaceholder(
+              height: normalImagePlaceholderHeight,
+              borderRadius: borderRadius,
+            ),
+            errorWidget: (context, url, error) => Container(
               width: double.infinity,
               height: normalImagePlaceholderHeight,
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                color: Colors.grey[200],
+                borderRadius: borderRadius,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.broken_image_outlined,
+                    size: 48,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    t.errors.error,
+                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                  ),
+                ],
               ),
             ),
+            fit: maxImageHeight == null ? BoxFit.cover : BoxFit.contain,
           ),
-          errorWidget: (context, url, error) => Container(
-            width: double.infinity,
-            height: normalImagePlaceholderHeight,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.broken_image_outlined,
-                  size: 48,
-                  color: Colors.grey[400],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  t.errors.error,
-                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                ),
-              ],
-            ),
-          ),
-          fit: maxImageHeight == null ? BoxFit.cover : BoxFit.contain,
         ),
       ),
     );
@@ -1014,6 +1018,65 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
             _buildTranslationControls(context),
           _buildTranslationSection(context),
         ],
+      ),
+    );
+  }
+}
+
+class _DelayedMarkdownImagePlaceholder extends StatefulWidget {
+  static const _delay = Duration(milliseconds: 120);
+
+  final double height;
+  final BorderRadius borderRadius;
+
+  const _DelayedMarkdownImagePlaceholder({
+    required this.height,
+    required this.borderRadius,
+  });
+
+  @override
+  State<_DelayedMarkdownImagePlaceholder> createState() =>
+      _DelayedMarkdownImagePlaceholderState();
+}
+
+class _DelayedMarkdownImagePlaceholderState
+    extends State<_DelayedMarkdownImagePlaceholder> {
+  Timer? _timer;
+  bool _showShimmer = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer(_DelayedMarkdownImagePlaceholder._delay, () {
+      if (!mounted) return;
+      setState(() {
+        _showShimmer = true;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_showShimmer) {
+      return SizedBox(width: double.infinity, height: widget.height);
+    }
+
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        width: double.infinity,
+        height: widget.height,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: widget.borderRadius,
+        ),
       ),
     );
   }

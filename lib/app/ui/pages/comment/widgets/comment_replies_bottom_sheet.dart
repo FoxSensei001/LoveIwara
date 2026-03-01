@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/comment/controllers/comment_controller.dart';
-import 'package:shimmer/shimmer.dart';
 
 import '../../../../models/comment.model.dart';
 import '../../../../services/comment_service.dart';
 import 'comment_item_widget.dart';
+import 'comment_skeleton_item_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'comment_input_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
@@ -235,64 +235,6 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
             );
           }
         },
-      ),
-    );
-  }
-
-  Widget _buildShimmerItem() {
-    return Shimmer.fromColors(
-      baseColor: Theme.of(
-        context,
-      ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-      highlightColor: Theme.of(context).colorScheme.surface,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        padding: const EdgeInsets.all(12.0),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 32.0,
-              height: 32.0,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                shape: BoxShape.circle,
-              ),
-            ),
-            const SizedBox(width: 12.0),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 12.0,
-                    width: 100.0,
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
-                  ),
-                  const SizedBox(height: 8.0),
-                  Container(
-                    height: 10.0,
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -562,11 +504,20 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
 
   Widget _buildContent(ScrollController scrollController) {
     if (_isLoading && _replies.isEmpty) {
-      return ListView.builder(
+      return ListView.separated(
         controller: scrollController,
         padding: const EdgeInsets.all(8.0),
         itemCount: 5,
-        itemBuilder: (context, index) => _buildShimmerItem(),
+        itemBuilder: (context, index) =>
+            const CommentSkeletonItem(isReply: true),
+        separatorBuilder: (context, index) => Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Divider(
+            height: 1,
+            thickness: 0.5,
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+          ),
+        ),
       );
     } else if (_errorMessage != null && _replies.isEmpty) {
       return _buildErrorState();

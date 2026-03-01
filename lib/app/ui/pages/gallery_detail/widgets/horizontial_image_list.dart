@@ -94,6 +94,18 @@ class HorizontalImageList extends StatefulWidget {
   final Widget Function(BuildContext, String)? placeholderBuilder;
   final Widget Function(BuildContext, String, dynamic)? errorBuilder;
   final BoxFit imageFit;
+  final BorderRadius clipBorderRadius; // 列表整体裁剪圆角
+  final BorderRadius Function(ImageItem item)?
+  itemBorderRadiusBuilder; // 单个item圆角
+  final double Function(
+    ImageItem item,
+    double defaultAspectRatio,
+    double? loadedAspectRatio,
+  )?
+  aspectRatioBuilder; // 单个item宽高比覆盖
+  final BoxFit Function(ImageItem item)? imageFitBuilder; // 单个item fit 覆盖
+  final Widget Function(BuildContext, ImageItem, Widget)?
+  mediaContentBuilder; // 单个item内容包装器
   final Color? scrollButtonColor;
   final double scrollOffset;
   final Color? backgroundColor; // 背景色
@@ -117,6 +129,11 @@ class HorizontalImageList extends StatefulWidget {
     this.placeholderBuilder,
     this.errorBuilder,
     this.imageFit = BoxFit.contain,
+    this.clipBorderRadius = const BorderRadius.all(Radius.circular(8.0)),
+    this.itemBorderRadiusBuilder,
+    this.aspectRatioBuilder,
+    this.imageFitBuilder,
+    this.mediaContentBuilder,
     this.scrollButtonColor,
     this.scrollOffset = 300,
     this.backgroundColor,
@@ -280,7 +297,7 @@ class _HorizontalImageListState extends State<HorizontalImageList>
             return KeyEventResult.ignored; // Ignore other keys
           },
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
+            borderRadius: widget.clipBorderRadius,
             child: Stack(
               alignment: Alignment.center,
               children: [
@@ -361,19 +378,37 @@ class _HorizontalImageListState extends State<HorizontalImageList>
     int index,
     Size containerSize,
   ) {
+    final backgroundColor = widget.backgroundColor;
+    final bool hasBackground = backgroundColor != null;
+
+    final loadedAspectRatio = _loadedAspectRatios[imageItem.url];
     final aspectRatio =
-        _loadedAspectRatios[imageItem.url] ?? widget.defaultAspectRatio;
+        widget.aspectRatioBuilder?.call(
+          imageItem,
+          widget.defaultAspectRatio,
+          loadedAspectRatio,
+        ) ??
+        (loadedAspectRatio ?? widget.defaultAspectRatio);
 
     final heroTag = widget.heroTagBuilder?.call(imageItem);
+    final BorderRadius itemBorderRadius =
+        widget.itemBorderRadiusBuilder?.call(imageItem) ??
+        BorderRadius.circular(8);
+
+    final baseContent = _buildMediaContent(context, imageItem);
+    final content =
+        widget.mediaContentBuilder?.call(context, imageItem, baseContent) ??
+        baseContent;
+
     final mediaContent = heroTag != null
         ? Hero(
             tag: heroTag,
             createRectTween: widget.heroCreateRectTween,
             flightShuttleBuilder: widget.heroFlightShuttleBuilder,
             transitionOnUserGestures: widget.heroTransitionOnUserGestures,
-            child: _buildMediaContent(context, imageItem),
+            child: content,
           )
-        : _buildMediaContent(context, imageItem);
+        : content;
 
     return GestureDetector(
       onLongPressStart: (details) {
@@ -391,8 +426,11 @@ class _HorizontalImageListState extends State<HorizontalImageList>
           child: AspectRatio(
             aspectRatio: aspectRatio,
             child: Material(
-              color: widget.backgroundColor ?? Colors.transparent,
-              borderRadius: BorderRadius.circular(8), // 添加圆角
+              type: hasBackground
+                  ? MaterialType.canvas
+                  : MaterialType.transparency,
+              color: hasBackground ? backgroundColor : null,
+              borderRadius: itemBorderRadius, // 添加圆角
               clipBehavior: Clip.antiAlias, // 确保圆角裁剪生效
               child: InkWell(
                 onTap: () => widget.onItemTap?.call(imageItem),
@@ -405,14 +443,14 @@ class _HorizontalImageListState extends State<HorizontalImageList>
     );
   }
 
-  Widget _buildPlaceholder(BuildContext context, String url) {
+  Widget _buildPlaceholder(BuildContext context, BorderRadius borderRadius) {
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(8), // 占位图也添加圆角
+          borderRadius: borderRadius, // 占位图也添加圆角
         ),
       ),
     );
@@ -494,12 +532,18 @@ class _HorizontalImageListState extends State<HorizontalImageList>
 
   // 构建图片内容
   Widget _buildImageContent(BuildContext context, ImageItem imageItem) {
+    final BorderRadius itemBorderRadius =
+        widget.itemBorderRadiusBuilder?.call(imageItem) ??
+        BorderRadius.circular(8);
+    final BoxFit fit =
+        widget.imageFitBuilder?.call(imageItem) ?? widget.imageFit;
+
     return CachedNetworkImage(
       imageUrl: imageItem.url,
       placeholder: (context, url) =>
           widget.placeholderBuilder?.call(context, url) ??
-          _buildPlaceholder(context, url),
-      fit: widget.imageFit,
+          _buildPlaceholder(context, itemBorderRadius),
+      fit: fit,
       errorWidget: (context, url, error) {
         LogUtils.e('加载图片失败: $url', tag: 'ImageList', error: error);
 
@@ -516,7 +560,7 @@ class _HorizontalImageListState extends State<HorizontalImageList>
                   color: Theme.of(
                     context,
                   ).colorScheme.errorContainer.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: itemBorderRadius,
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -561,7 +605,7 @@ class _HorizontalImageListState extends State<HorizontalImageList>
         });
         return Container(
           decoration: BoxDecoration(
-            image: DecorationImage(image: imageProvider, fit: widget.imageFit),
+            image: DecorationImage(image: imageProvider, fit: fit),
           ),
         );
       },
@@ -570,6 +614,9 @@ class _HorizontalImageListState extends State<HorizontalImageList>
 
   // 构建视频内容
   Widget _buildVideoContent(BuildContext context, ImageItem imageItem) {
+    final BoxFit fit =
+        widget.imageFitBuilder?.call(imageItem) ?? widget.imageFit;
+
     final fileExtension = CommonUtils.getFileExtension(
       imageItem.url,
     ).toLowerCase();
@@ -583,7 +630,7 @@ class _HorizontalImageListState extends State<HorizontalImageList>
     return _VideoThumbnailWidget(
       videoUrl: imageItem.url,
       imageItem: imageItem,
-      fit: widget.imageFit,
+      fit: fit,
       onError: (error) {
         LogUtils.e('加载视频失败: ${imageItem.url}', tag: 'ImageList', error: error);
       },
@@ -592,41 +639,37 @@ class _HorizontalImageListState extends State<HorizontalImageList>
 
   // 构建webm占位符
   Widget _buildWebmPlaceholder(BuildContext context, ImageItem imageItem) {
-    return Container(
+    final BorderRadius itemBorderRadius =
+        widget.itemBorderRadiusBuilder?.call(imageItem) ??
+        BorderRadius.circular(8);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: colorScheme.outline.withValues(alpha: 0.2),
+          width: 1,
+        ),
+        borderRadius: itemBorderRadius,
       ),
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // 背景渐变
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Colors.grey[800]!, Colors.grey[900]!],
-              ),
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-
           // 视频图标和文字
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
+                Icon(
                   Icons.play_circle_outline,
-                  color: Colors.white,
+                  color: colorScheme.primary,
                   size: 48,
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'WEBM',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: colorScheme.onSurfaceVariant,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
@@ -642,18 +685,28 @@ class _HorizontalImageListState extends State<HorizontalImageList>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.7),
+                color: colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.85,
+                ),
                 borderRadius: BorderRadius.circular(4),
+                border: Border.all(
+                  color: colorScheme.outline.withValues(alpha: 0.2),
+                  width: 0.5,
+                ),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.videocam, color: Colors.white, size: 12),
-                  SizedBox(width: 2),
+                  Icon(
+                    Icons.videocam,
+                    color: colorScheme.onSurfaceVariant,
+                    size: 12,
+                  ),
+                  const SizedBox(width: 2),
                   Text(
                     'WEBM',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: colorScheme.onSurfaceVariant,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                     ),
@@ -843,29 +896,41 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
   }
 
   Widget _buildLoadingWidget() {
-    return Container(
-      color: Colors.grey[300],
-      child: const Center(child: CircularProgressIndicator()),
+    final colorScheme = Theme.of(context).colorScheme;
+    return Center(
+      child: SizedBox(
+        width: 24,
+        height: 24,
+        child: CircularProgressIndicator(
+          strokeWidth: 2.5,
+          color: colorScheme.primary,
+        ),
+      ),
     );
   }
 
   Widget _buildErrorWidget() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Center(
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.red.withValues(alpha: 0.1),
+          color: colorScheme.errorContainer.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: colorScheme.error.withValues(alpha: 0.2),
+            width: 0.5,
+          ),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.video_library, color: Colors.orange, size: 48),
+            Icon(Icons.video_library, color: colorScheme.error, size: 48),
             const SizedBox(height: 8),
             Text(
               'WEBM',
               style: TextStyle(
-                color: Colors.orange,
+                color: colorScheme.error,
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),

@@ -17,8 +17,11 @@ class LikeAvatarsWidget extends StatefulWidget {
   final String mediaId;
   final MediaType mediaType;
 
-  const LikeAvatarsWidget(
-      {super.key, required this.mediaId, required this.mediaType});
+  const LikeAvatarsWidget({
+    super.key,
+    required this.mediaId,
+    required this.mediaType,
+  });
 
   @override
   State<LikeAvatarsWidget> createState() => _LikeAvatarsWidgetState();
@@ -47,16 +50,18 @@ class _LikeAvatarsWidgetState extends State<LikeAvatarsWidget> {
     try {
       switch (widget.mediaType) {
         case MediaType.VIDEO:
-          final response =
-              await _videoService.fetchLikeVideoUsers(widget.mediaId);
+          final response = await _videoService.fetchLikeVideoUsers(
+            widget.mediaId,
+          );
           if (response.isSuccess) {
             _users = response.data!.results;
             count = response.data!.count;
           }
           break;
         case MediaType.IMAGE:
-          final response =
-              await _galleryService.fetchLikeImageUsers(widget.mediaId);
+          final response = await _galleryService.fetchLikeImageUsers(
+            widget.mediaId,
+          );
           if (response.isSuccess) {
             _users = response.data!.results;
             count = response.data!.count;
@@ -132,10 +137,9 @@ class _LikeAvatarsWidgetState extends State<LikeAvatarsWidget> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .surfaceContainerHighest
-                      .withValues(alpha: 0.8),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.8),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
@@ -159,10 +163,7 @@ class _LikeAvatarsWidgetState extends State<LikeAvatarsWidget> {
 
     return Text(
       '$count',
-      style: const TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-      ),
+      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
     );
   }
 
@@ -173,9 +174,13 @@ class _LikeAvatarsWidgetState extends State<LikeAvatarsWidget> {
 
   Widget _buildAvatarCircle(User user) {
     return AvatarWidget(
-        user: user,
-        size: 40,
-        onTap: () => NaviService.navigateToAuthorProfilePage(user.username));
+      user: user,
+      size: 40,
+      onTap: () => NaviService.navigateToAuthorProfilePage(
+        user.username,
+        initialUser: user,
+      ),
+    );
   }
 
   Future<void> _openLikedUsersDialog() async {
@@ -234,10 +239,16 @@ class _LikedUsersDialogState extends State<_LikedUsersDialog> {
     });
 
     final result = switch (widget.mediaType) {
-      MediaType.VIDEO => await widget.videoService
-          .fetchLikeVideoUsers(widget.mediaId, page: page, limit: _limit),
-      MediaType.IMAGE => await widget.galleryService
-          .fetchLikeImageUsers(widget.mediaId, page: page, limit: _limit),
+      MediaType.VIDEO => await widget.videoService.fetchLikeVideoUsers(
+        widget.mediaId,
+        page: page,
+        limit: _limit,
+      ),
+      MediaType.IMAGE => await widget.galleryService.fetchLikeImageUsers(
+        widget.mediaId,
+        page: page,
+        limit: _limit,
+      ),
     };
 
     if (!mounted) return;
@@ -266,10 +277,7 @@ class _LikedUsersDialogState extends State<_LikedUsersDialog> {
         builder: (context, constraints) {
           final maxHeight = MediaQuery.of(context).size.height * 0.85;
           return ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: 760,
-              maxHeight: maxHeight,
-            ),
+            constraints: BoxConstraints(maxWidth: 760, maxHeight: maxHeight),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -289,32 +297,35 @@ class _LikedUsersDialogState extends State<_LikedUsersDialog> {
                                   child: CircularProgressIndicator.adaptive(),
                                 )
                               : _error != null
-                                  ? Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 16),
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            _error!,
-                                            style: TextStyle(
-                                                color: colorScheme.error,
-                                                fontSize: 14),
-                                          ),
-                                          const SizedBox(height: 12),
-                                          FilledButton.tonal(
-                                            onPressed: () => _loadPage(_page),
-                                            child: Text(slang.t.common.retry),
-                                          ),
-                                        ],
+                              ? Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        _error!,
+                                        style: TextStyle(
+                                          color: colorScheme.error,
+                                          fontSize: 14,
+                                        ),
                                       ),
-                                    )
-                                  : _users.isEmpty
-                                      ? Padding(
-                                          padding: EdgeInsets.symmetric(
-                                              vertical: 24),
-                                          child: Text(slang.t.videoDetail.likeAvatars.noLikesYet),
-                                        )
-                                      : _buildUserGrid(context),
+                                      const SizedBox(height: 12),
+                                      FilledButton.tonal(
+                                        onPressed: () => _loadPage(_page),
+                                        child: Text(slang.t.common.retry),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : _users.isEmpty
+                              ? Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 24),
+                                  child: Text(
+                                    slang.t.videoDetail.likeAvatars.noLikesYet,
+                                  ),
+                                )
+                              : _buildUserGrid(context),
                         ),
                         const SizedBox(height: 12),
                         _buildPagination(context, totalPages),
@@ -401,8 +412,9 @@ class _LikedUsersDialogState extends State<_LikedUsersDialog> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final cardWidth =
-            constraints.maxWidth > 640 ? constraints.maxWidth / 3 - 18 : 240.0;
+        final cardWidth = constraints.maxWidth > 640
+            ? constraints.maxWidth / 3 - 18
+            : 240.0;
         return Wrap(
           spacing: 12,
           runSpacing: 12,
@@ -410,8 +422,13 @@ class _LikedUsersDialogState extends State<_LikedUsersDialog> {
             for (int i = 0; i < _users.length; i++)
               Transform.rotate(
                 angle: i.isEven ? -0.05 : 0.05,
-                child: _buildUserCard(context, _users[i], colorScheme, cardWidth,
-                    highlight: Random().nextBool()),
+                child: _buildUserCard(
+                  context,
+                  _users[i],
+                  colorScheme,
+                  cardWidth,
+                  highlight: Random().nextBool(),
+                ),
               ),
           ],
         );
@@ -419,13 +436,20 @@ class _LikedUsersDialogState extends State<_LikedUsersDialog> {
     );
   }
 
-  Widget _buildUserCard(BuildContext context, User user,
-      ColorScheme colorScheme, double width,
-      {bool highlight = false}) {
+  Widget _buildUserCard(
+    BuildContext context,
+    User user,
+    ColorScheme colorScheme,
+    double width, {
+    bool highlight = false,
+  }) {
     return InkWell(
       onTap: () {
         AppService.tryPop();
-        NaviService.navigateToAuthorProfilePage(user.username);
+        NaviService.navigateToAuthorProfilePage(
+          user.username,
+          initialUser: user,
+        );
       },
       borderRadius: BorderRadius.circular(16),
       child: AnimatedContainer(
@@ -440,10 +464,7 @@ class _LikedUsersDialogState extends State<_LikedUsersDialog> {
                     colorScheme.primary.withValues(alpha: 0.12),
                     colorScheme.secondary.withValues(alpha: 0.08),
                   ]
-                : [
-                    colorScheme.surfaceContainerHighest,
-                    colorScheme.surface,
-                  ],
+                : [colorScheme.surfaceContainerHighest, colorScheme.surface],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -488,14 +509,14 @@ class _LikedUsersDialogState extends State<_LikedUsersDialog> {
                           fontSize: 12,
                           color:
                               Theme.of(context).textTheme.bodySmall?.color ??
-                                  Colors.grey[600],
+                              Colors.grey[600],
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
-                )
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -513,7 +534,11 @@ class _LikedUsersDialogState extends State<_LikedUsersDialog> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          slang.t.videoDetail.likeAvatars.pageInfo(page: _page + 1, totalPages: totalPages, totalCount: _total),
+          slang.t.videoDetail.likeAvatars.pageInfo(
+            page: _page + 1,
+            totalPages: totalPages,
+            totalCount: _total,
+          ),
           style: TextStyle(
             fontSize: 12,
             color: Theme.of(context).textTheme.bodySmall?.color,
@@ -537,4 +562,3 @@ class _LikedUsersDialogState extends State<_LikedUsersDialog> {
     );
   }
 }
-

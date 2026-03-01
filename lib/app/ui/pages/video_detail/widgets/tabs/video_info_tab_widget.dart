@@ -35,6 +35,7 @@ import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
+import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/models/video_source.model.dart';
@@ -60,13 +61,43 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
   @override
   bool get wantKeepAlive => true;
 
+  String? _getExtDataString(String key) {
+    final value = widget.controller.extData?[key];
+    if (value == null) return null;
+    final text = value.toString().trim();
+    return text.isEmpty ? null : text;
+  }
+
+  bool _getExtDataBool(String key) {
+    final value = widget.controller.extData?[key];
+    if (value is bool) return value;
+    return false;
+  }
+
+  User? _buildInitialAuthorUser() {
+    final name = _getExtDataString('authorName') ?? '';
+    final username = _getExtDataString('authorUsername') ?? '';
+    if (name.isEmpty && username.isEmpty) return null;
+
+    final displayName = name.isNotEmpty ? name : username;
+    return User(
+      id: _getExtDataString('authorId') ?? '',
+      name: displayName,
+      username: username,
+      role: _getExtDataString('authorRole') ?? '',
+      premium: _getExtDataBool('authorPremium'),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context); // 必须调用 super.build
 
     return Obx(() {
       if (widget.controller.pageLoadingState.value ==
-          VideoDetailPageLoadingState.loadingVideoInfo) {
+              VideoDetailPageLoadingState.loadingVideoInfo ||
+          widget.controller.pageLoadingState.value ==
+              VideoDetailPageLoadingState.init) {
         return _buildVideoInfoLoadingSkeleton(context);
       }
       if (widget.controller.mainErrorWidget.value != null) {
@@ -114,142 +145,207 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
   }
 
   Widget _buildVideoInfoLoadingSkeleton(BuildContext context) {
+    final t = slang.Translations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(UIConstants.pagePadding),
-      child: Shimmer.fromColors(
-        baseColor: colorScheme.surfaceContainerHighest,
-        highlightColor: colorScheme.surfaceContainerLow,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 26,
-              width: MediaQuery.of(context).size.width * 0.68,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
+    final videoId = widget.controller.videoId;
+
+    final initialTitle = _getExtDataString('title') ?? '';
+    final displayTitle = initialTitle.isNotEmpty
+        ? initialTitle
+        : t.common.noTitle;
+
+    final authorUser = _buildInitialAuthorUser();
+    final authorAvatarUrl = _getExtDataString('authorAvatarUrl');
+
+    Widget titleWidget;
+    if (videoId == null || videoId.isEmpty) {
+      titleWidget = Container(
+        height: 26,
+        width: MediaQuery.of(context).size.width * 0.68,
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(8),
+        ),
+      );
+    } else {
+      titleWidget = Text(
+        displayTitle,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          height: 1.3,
+          color: Theme.of(context).textTheme.bodyLarge?.color,
+        ),
+      );
+    }
+
+    Widget authorWidget = const SizedBox.shrink();
+    if (!widget.controller.isLocalVideoMode &&
+        videoId != null &&
+        videoId.isNotEmpty &&
+        authorUser != null) {
+      final username = (authorUser.username).trim();
+      VoidCallback? onTapAuthor;
+      if (username.isNotEmpty) {
+        onTapAuthor = () => NaviService.navigateToAuthorProfilePage(
+          username,
+          initialUser: authorUser,
+        );
+      }
+
+      authorWidget = Row(
+        children: [
+          MouseRegion(
+            cursor: onTapAuthor != null
+                ? SystemMouseCursors.click
+                : SystemMouseCursors.basic,
+            child: GestureDetector(
+              onTap: onTapAuthor,
+              child: AvatarWidget(
+                user: authorUser,
+                avatarUrl: authorAvatarUrl,
+                size: 40,
               ),
             ),
-            const SizedBox(height: UIConstants.sectionSpacing),
-            Row(
+          ),
+          const SizedBox(width: UIConstants.pagePadding),
+          Expanded(
+            child: MouseRegion(
+              cursor: onTapAuthor != null
+                  ? SystemMouseCursors.click
+                  : SystemMouseCursors.basic,
+              child: GestureDetector(
+                onTap: onTapAuthor,
+                behavior: HitTestBehavior.opaque,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    buildUserName(
+                      context,
+                      authorUser,
+                      fontSize: 16,
+                      bold: true,
+                    ),
+                    if (username.isNotEmpty)
+                      Text(
+                        '@$username',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey[600],
+                          height: 1.2,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(UIConstants.pagePadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          titleWidget,
+          const SizedBox(height: UIConstants.sectionSpacing),
+          if (authorWidget is! SizedBox) authorWidget,
+          const SizedBox(height: UIConstants.sectionSpacing),
+          Shimmer.fromColors(
+            baseColor: colorScheme.surfaceContainerHighest,
+            highlightColor: colorScheme.surfaceContainerLow,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
+                _buildSectionCard(
+                  context,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: List.generate(
+                      3,
+                      (index) => Padding(
+                        padding: EdgeInsets.only(
+                          bottom: index == 2 ? 0 : UIConstants.listSpacing,
+                        ),
+                        child: Container(
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(width: UIConstants.pagePadding),
-                Expanded(
+                const SizedBox(height: UIConstants.sectionSpacing),
+                _buildSectionCard(
+                  context,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
                         height: 14,
-                        width: 140,
+                        width: 100,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(6),
                         ),
                       ),
-                      const SizedBox(height: UIConstants.smallSpacing),
-                      Container(
-                        height: 12,
-                        width: 90,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(6),
+                      const SizedBox(height: UIConstants.interElementSpacing),
+                      Wrap(
+                        spacing: UIConstants.listSpacing,
+                        runSpacing: UIConstants.listSpacing,
+                        children: List.generate(
+                          4,
+                          (_) => Container(
+                            width: 90,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: UIConstants.sectionSpacing),
-            _buildSectionCard(
-              context,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: List.generate(
-                  3,
-                  (index) => Padding(
-                    padding: EdgeInsets.only(
-                      bottom: index == 2 ? 0 : UIConstants.listSpacing,
-                    ),
-                    child: Container(
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: UIConstants.sectionSpacing),
-            _buildSectionCard(
-              context,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 14,
-                    width: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
-                  const SizedBox(height: UIConstants.interElementSpacing),
-                  Wrap(
-                    spacing: UIConstants.listSpacing,
-                    runSpacing: UIConstants.listSpacing,
+                const SizedBox(height: UIConstants.sectionSpacing),
+                _buildSectionCard(
+                  context,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: List.generate(
                       4,
-                      (_) => Container(
-                        width: 90,
-                        height: 30,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(18),
+                      (index) => Padding(
+                        padding: EdgeInsets.only(
+                          bottom: index == 3 ? 0 : UIConstants.smallSpacing,
+                        ),
+                        child: Container(
+                          height: 12,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: UIConstants.sectionSpacing),
-            _buildSectionCard(
-              context,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: List.generate(
-                  4,
-                  (index) => Padding(
-                    padding: EdgeInsets.only(
-                      bottom: index == 3 ? 0 : UIConstants.smallSpacing,
-                    ),
-                    child: Container(
-                      height: 12,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    ),
-                  ),
                 ),
-              ),
+                const SafeArea(child: SizedBox.shrink()),
+              ],
             ),
-            const SafeArea(child: SizedBox.shrink()),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -257,10 +353,14 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
   Widget _buildVideoTitle(BuildContext context) {
     return Builder(
       builder: (context) {
-        final title = widget.controller.videoInfo.value?.title ?? '';
-        if (title.isEmpty) {
-          return const SizedBox.shrink();
-        }
+        final t = slang.Translations.of(context);
+        final title =
+            widget.controller.videoInfo.value?.title ??
+            _getExtDataString('title') ??
+            '';
+        final displayTitle = title.trim().isEmpty
+            ? t.common.noTitle
+            : title.trim();
 
         final textStyle = TextStyle(
           fontSize: 20,
@@ -269,18 +369,18 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
           color: Theme.of(context).textTheme.bodyLarge?.color,
         );
 
-        return SelectableText.rich(
+        final titleWidget = SelectableText.rich(
           TextSpan(
             style: textStyle,
             children: [
-              TextSpan(text: title),
+              TextSpan(text: displayTitle),
               WidgetSpan(
                 alignment: PlaceholderAlignment.middle,
                 child: Padding(
                   padding: const EdgeInsets.only(left: 4),
                   child: IconButton(
                     onPressed: () {
-                      showTranslationDialog(context, text: title);
+                      showTranslationDialog(context, text: displayTitle);
                     },
                     icon: Icon(
                       Icons.translate,
@@ -295,6 +395,8 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
             ],
           ),
         );
+
+        return titleWidget;
       },
     );
   }
@@ -305,18 +407,22 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
       return const SizedBox.shrink();
     }
 
+    final videoId = widget.controller.videoId;
+    final user = widget.controller.videoInfo.value?.user;
+    if (videoId == null || videoId.isEmpty || user == null) {
+      return const SizedBox.shrink();
+    }
+
     return Row(
       children: [
         MouseRegion(
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             onTap: () => NaviService.navigateToAuthorProfilePage(
-              widget.controller.videoInfo.value!.user!.username,
+              user.username,
+              initialUser: user,
             ),
-            child: AvatarWidget(
-              user: widget.controller.videoInfo.value?.user,
-              size: 40,
-            ),
+            child: AvatarWidget(user: user, size: 40),
           ),
         ),
         const SizedBox(width: UIConstants.pagePadding),
@@ -325,21 +431,17 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
               onTap: () => NaviService.navigateToAuthorProfilePage(
-                widget.controller.videoInfo.value!.user!.username,
+                user.username,
+                initialUser: user,
               ),
               behavior: HitTestBehavior.opaque,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  buildUserName(
-                    context,
-                    widget.controller.videoInfo.value?.user,
-                    fontSize: 16,
-                    bold: true,
-                  ),
+                  buildUserName(context, user, fontSize: 16, bold: true),
                   Text(
-                    '@${widget.controller.videoInfo.value?.user?.username ?? ''}',
+                    '@${user.username}',
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey[600],
@@ -1171,7 +1273,8 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
       // 标记视频有下载任务
       widget.controller.markVideoHasDownloadTask();
 
-      _showDownloadStartedSnackBar(context);
+      if (!mounted) return;
+      _showDownloadStartedSnackBar();
     } catch (e) {
       LogUtils.e('添加下载任务失败: $e', tag: 'VideoInfoTabWidget', error: e);
       String message;
@@ -1193,8 +1296,9 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
   }
 
   /// 统一展示“开始下载”的 SnackBar，确保旧提示被清理并按时消失
-  void _showDownloadStartedSnackBar(BuildContext context) {
-    final t = slang.Translations.of(context);
+  void _showDownloadStartedSnackBar() {
+    final currentContext = context;
+    final t = slang.Translations.of(currentContext);
 
     // 使用 showToastWidget 自定义一个类似 SnackBar 的 UI
     showToastWidget(
@@ -1203,7 +1307,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: Theme.of(
-            context,
+            currentContext,
           ).colorScheme.inverseSurface, // 通常 SnackBar 是深色的
           borderRadius: BorderRadius.circular(4),
           boxShadow: const [BoxShadow(blurRadius: 8, color: Colors.black26)],
@@ -1215,7 +1319,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
               child: Text(
                 t.videoDetail.startDownloading,
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.onInverseSurface,
+                  color: Theme.of(currentContext).colorScheme.onInverseSurface,
                 ),
               ),
             ),
@@ -1229,7 +1333,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
               child: Text(
                 t.download.viewDownloadList,
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.inversePrimary,
+                  color: Theme.of(currentContext).colorScheme.inversePrimary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -1438,7 +1542,8 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                       latestSource.name ?? 'unknown',
                     );
 
-                    _showDownloadStartedSnackBar(context);
+                    if (!mounted) return;
+                    _showDownloadStartedSnackBar();
                   } catch (e) {
                     LogUtils.e(
                       '添加下载任务失败: $e',

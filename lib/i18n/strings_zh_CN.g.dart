@@ -534,6 +534,8 @@ class _TranslationsGalleryDetailZhCn implements TranslationsGalleryDetailEn {
 	@override String get moreFeaturesToBeDiscovered => '更多功能待发现...';
 	@override String get authorOtherGalleries => '作者的其他图库';
 	@override String get relatedGalleries => '相关图库';
+	@override String get authorNoOtherGalleries => '作者暂无其他图库';
+	@override String get noRelatedGalleries => '暂无相关图库';
 	@override String get clickLeftAndRightEdgeToSwitchImage => '点击左右边缘以切换图片';
 }
 
@@ -3213,6 +3215,8 @@ extension on TranslationsZhCn {
 			'galleryDetail.moreFeaturesToBeDiscovered' => '更多功能待发现...',
 			'galleryDetail.authorOtherGalleries' => '作者的其他图库',
 			'galleryDetail.relatedGalleries' => '相关图库',
+			'galleryDetail.authorNoOtherGalleries' => '作者暂无其他图库',
+			'galleryDetail.noRelatedGalleries' => '暂无相关图库',
 			'galleryDetail.clickLeftAndRightEdgeToSwitchImage' => '点击左右边缘以切换图片',
 			'playList.myPlayList' => '我的播放列表',
 			'playList.friendlyTips' => '友情提示',
@@ -3320,10 +3324,10 @@ extension on TranslationsZhCn {
 			'settings.release' => '版本发布',
 			'settings.issueReport' => '问题反馈',
 			'settings.openSourceLicense' => '开源许可',
-			'settings.checkForUpdatesFailed' => '检查更新失败，请稍后重试',
-			'settings.autoCheckUpdate' => '自动检查更新',
 			_ => null,
 		} ?? switch (path) {
+			'settings.checkForUpdatesFailed' => '检查更新失败，请稍后重试',
+			'settings.autoCheckUpdate' => '自动检查更新',
 			'settings.updateContent' => '更新内容：',
 			'settings.releaseDate' => '发布日期',
 			'settings.ignoreThisVersion' => '忽略此版本',
@@ -3834,10 +3838,10 @@ extension on TranslationsZhCn {
 			'forum.enterContent' => '输入内容',
 			'forum.writeYourContentHere' => '在此输入内容...',
 			'forum.posts' => '帖子',
-			'forum.threads' => '主题',
-			'forum.forum' => '论坛',
 			_ => null,
 		} ?? switch (path) {
+			'forum.threads' => '主题',
+			'forum.forum' => '论坛',
 			'forum.createThread' => '创建主题',
 			'forum.selectCategory' => '选择分类',
 			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => '冷却剩余时间 ${minutes} 分 ${seconds} 秒',
@@ -4348,10 +4352,10 @@ extension on TranslationsZhCn {
 			'diagnostics.hangFileSizeTitle' => '卡顿日志大小上限',
 			'diagnostics.hangFileSizeSubtitle' => '控制 hang_events 文件增长',
 			'diagnostics.hangRotatedFileCountTitle' => '卡顿日志轮转文件数',
-			'diagnostics.hangRotatedFileCountSubtitle' => '控制 hang_events 历史保留份数',
-			'diagnostics.healthSectionTitle' => '日志健康',
 			_ => null,
 		} ?? switch (path) {
+			'diagnostics.hangRotatedFileCountSubtitle' => '控制 hang_events 历史保留份数',
+			'diagnostics.healthSectionTitle' => '日志健康',
 			'diagnostics.refreshMetrics' => '刷新指标',
 			'diagnostics.toolsSectionTitle' => '工具',
 			'diagnostics.privacyNotice' => '日志可能包含账号、请求参数等敏感信息。请勿直接公开附加到 Issue，建议检查后通过邮箱发送。',

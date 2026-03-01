@@ -55,6 +55,8 @@ class _ForumPageState extends State<ForumPage> {
   final UserService userService = Get.find<UserService>();
   int _selectedRailIndex = 0; // 修改变量名称：选中 rail 的索引（0 为 最近，其余从 _categories 中获取）
   late RecentThreadListRepository _recentThreadRepository;
+  static const double _cardRadius = 14.0;
+  static const double _pageSidePadding = 8.0;
   final appBarHeight = 56.0;
 
   // 置顶公告相关
@@ -66,13 +68,17 @@ class _ForumPageState extends State<ForumPage> {
   bool _isLoadingSitewideAnnouncement = false;
   String? _sitewideAnnouncementError;
 
-  ShapeBorder _forumCardShape(BuildContext context, {double radius = 14}) {
+  ShapeBorder _forumCardShape(
+    BuildContext context, {
+    double radius = _cardRadius,
+    double borderAlpha = 0.3,
+  }) {
     return RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(radius),
       side: BorderSide(
         color: Theme.of(
           context,
-        ).colorScheme.outlineVariant.withValues(alpha: 0.35),
+        ).colorScheme.outlineVariant.withValues(alpha: borderAlpha),
       ),
     );
   }
@@ -780,13 +786,6 @@ class _ForumPageState extends State<ForumPage> {
                         spacing: 6,
                         runSpacing: 6,
                         children: [
-                          _buildForumLabelChip(
-                            text: t.forum.sitewide.badge,
-                            foregroundColor: colorScheme.primary,
-                            backgroundColor: colorScheme.primary.withValues(
-                              alpha: 0.12,
-                            ),
-                          ),
                           if (page.sensitive)
                             _buildForumLabelChip(
                               text: t.common.sensitive,
@@ -894,13 +893,6 @@ class _ForumPageState extends State<ForumPage> {
             children: [
               Row(
                 children: [
-                  _buildForumLabelChip(
-                    text: t.forum.sitewide.badge,
-                    foregroundColor: colorScheme.primary,
-                    backgroundColor: colorScheme.primary.withValues(
-                      alpha: 0.12,
-                    ),
-                  ),
                   const Spacer(),
                   TextButton.icon(
                     onPressed: () =>
@@ -1222,13 +1214,15 @@ class _ForumPageState extends State<ForumPage> {
     // 接收 isInTabView
     final bool isWideScreen = MediaQuery.of(context).size.width > 900;
     final bool isNarrowScreen = MediaQuery.of(context).size.width < 260;
+    final colorScheme = Theme.of(context).colorScheme;
+    final accentColor = _getCategoryAccentColor(category.name);
     // 移除外部 Padding，因为父级 SingleChildScrollView 或 TabBarView 已处理顶部边距
     return Card(
       elevation: 0,
       margin: isNarrowScreen
           ? EdgeInsets
                 .zero // 窄屏模式下不需要边距
-          : const EdgeInsets.only(bottom: 16.0), // 宽屏模式只需要底部边距
+          : const EdgeInsets.only(bottom: 16.0, left: _pageSidePadding),
       shape: _forumCardShape(context),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -1236,56 +1230,47 @@ class _ForumPageState extends State<ForumPage> {
         children: [
           // 分类标题栏
           Container(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              color: colorScheme.surfaceContainerHighest.withValues(
+                alpha: 0.55,
+              ),
               borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(14),
+                top: Radius.circular(_cardRadius),
               ),
             ),
             child: Row(
               children: [
+                Container(
+                  width: 3,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: accentColor,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+                const SizedBox(width: 10),
                 Icon(
                   _getCategoryIcon(category.name),
                   size: 20,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: accentColor,
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  category.name,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                Expanded(
+                  child: Text(
+                    category.name,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: colorScheme.onSurface,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
           // 子分类列表
-          if (isWideScreen)
-            Table(
-              columnWidths: const {
-                0: FlexColumnWidth(4), // 标题
-                1: FlexColumnWidth(1), // 主题数
-                2: FlexColumnWidth(1), // 回复数
-                3: FlexColumnWidth(3), // 最后回复
-              },
-              children: [
-                TableRow(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest
-                        .withValues(alpha: 0.5),
-                  ),
-                  children: [
-                    _buildTableHeader(context, slang.t.forum.category),
-                    _buildTableHeader(context, slang.t.forum.threads),
-                    _buildTableHeader(context, slang.t.forum.posts),
-                    _buildTableHeader(context, slang.t.forum.lastReply),
-                  ],
-                ),
-              ],
-            ),
+          if (isWideScreen) _buildWideSubCategoryHeaderRow(context),
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -1307,16 +1292,40 @@ class _ForumPageState extends State<ForumPage> {
     );
   }
 
-  Widget _buildTableHeader(BuildContext context, String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
+  Widget _buildWideSubCategoryHeaderRow(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+    final textStyle = TextStyle(
+      fontSize: 12.5,
+      fontWeight: FontWeight.w700,
+      color: colorScheme.onSurfaceVariant,
+      height: 1.2,
+    );
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.45),
+      child: Row(
+        children: [
+          Expanded(flex: 4, child: Text(t.forum.category, style: textStyle)),
+          Expanded(
+            flex: 1,
+            child: Text(
+              t.forum.threads,
+              style: textStyle,
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              t.forum.posts,
+              style: textStyle,
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(flex: 3, child: Text(t.forum.lastReply, style: textStyle)),
+        ],
       ),
     );
   }
@@ -1331,246 +1340,269 @@ class _ForumPageState extends State<ForumPage> {
     // final bool isNarrowTabLayout = MediaQuery.of(context).size.width < 260; // 使用传入的参数
 
     if (isWideScreen) {
-      return InkWell(
-        onTap: () {
-          NaviService.navigateToForumThreadListPage(subCategory.id);
-        },
-        child: Table(
-          columnWidths: const {
-            0: FlexColumnWidth(4), // 标题
-            1: FlexColumnWidth(1), // 主题数
-            2: FlexColumnWidth(1), // 回复数
-            3: FlexColumnWidth(3), // 最后回复
-          },
+      final colorScheme = Theme.of(context).colorScheme;
+      final titleStyle = Theme.of(context).textTheme.titleMedium?.copyWith(
+        fontSize: 14,
+        fontWeight: FontWeight.w700,
+        height: 1.22,
+      );
+      final descriptionStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
+        fontSize: 12,
+        color: colorScheme.onSurfaceVariant,
+        height: 1.2,
+      );
+      final statStyle = Theme.of(context).textTheme.titleSmall?.copyWith(
+        fontSize: 13,
+        fontWeight: FontWeight.w700,
+        color: colorScheme.onSurfaceVariant,
+        height: 1.2,
+      );
+
+      final lastThread = subCategory.lastThread;
+      final Widget lastReplyWidget;
+      if (lastThread != null && lastThread.lastPost != null) {
+        final thread = lastThread;
+        final lastPost = thread.lastPost!;
+        lastReplyWidget = Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TableRow(
-              children: [
-                // 标题列
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
+            GestureDetector(
+              onTap: () => NaviService.navigateToAuthorProfilePage(
+                lastPost.user.username,
+                initialUser: lastPost.user,
+              ),
+              child: AvatarWidget(user: lastPost.user, size: 28),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Icon(
-                        subCategory.locked
-                            ? Icons.lock
-                            : _getSubCategoryIcon(subCategory.id),
-                        size: 16,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 8),
+                      if (thread.sticky)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 4),
+                          child: Icon(
+                            Icons.push_pin_rounded,
+                            size: 14,
+                            color: colorScheme.primary,
+                          ),
+                        ),
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              subCategory.label,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
+                        child: GestureDetector(
+                          onTap: () =>
+                              NaviService.navigateToForumThreadDetailPage(
+                                subCategory.id,
+                                thread.id,
+                                initialThread: thread,
                               ),
+                          child: Text(
+                            thread.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              height: 1.2,
+                              color: colorScheme.primary,
                             ),
-                            if (subCategory.description.isNotEmpty) ...[
-                              const SizedBox(height: 4),
-                              Text(
-                                subCategory.description,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
-                          ],
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ),
-                // 主题数列
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    CommonUtils.formatFriendlyNumber(subCategory.numThreads),
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-                // 回复数列
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    CommonUtils.formatFriendlyNumber(subCategory.numPosts),
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-                // 最后回复列
-                if (subCategory.lastThread?.lastPost != null)
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            NaviService.navigateToAuthorProfilePage(
-                              subCategory.lastThread!.lastPost!.user.username,
-                            );
-                          },
-                          child: AvatarWidget(
-                            user: subCategory.lastThread!.lastPost?.user,
-                          ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      _buildForumMetaChip(
+                        icon: Icons.schedule_rounded,
+                        text: CommonUtils.formatFriendlyTimestamp(
+                          thread.updatedAt,
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  if (subCategory.lastThread!.sticky)
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 4),
-                                      child: Icon(
-                                        Icons.push_pin,
-                                        size: 14,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.primary,
-                                      ),
-                                    ),
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        NaviService.navigateToForumThreadDetailPage(
-                                          subCategory.id,
-                                          subCategory.lastThread!.id,
-                                          initialThread: subCategory.lastThread,
-                                        );
-                                      },
-                                      child: Text(
-                                        subCategory.lastThread!.title,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.primary,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Wrap(
-                                spacing: 6,
-                                runSpacing: 6,
-                                children: [
-                                  _buildForumMetaChip(
-                                    icon: Icons.schedule_rounded,
-                                    text: CommonUtils.formatFriendlyTimestamp(
-                                      subCategory.lastThread!.updatedAt,
-                                    ),
-                                  ),
-                                  _buildForumMetaChip(
-                                    icon: Icons.visibility_rounded,
-                                    text: CommonUtils.formatFriendlyNumber(
-                                      subCategory.lastThread!.numViews,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                else
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(slang.t.common.tmpNoReplies),
+                      ),
+                      _buildForumMetaChip(
+                        icon: Icons.visibility_rounded,
+                        text: CommonUtils.formatFriendlyNumber(thread.numViews),
+                      ),
+                    ],
                   ),
-              ],
+                ],
+              ),
             ),
           ],
+        );
+      } else {
+        lastReplyWidget = Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Text(
+            slang.t.common.tmpNoReplies,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: descriptionStyle,
+          ),
+        );
+      }
+
+      return InkWell(
+        onTap: () => NaviService.navigateToForumThreadListPage(subCategory.id),
+        hoverColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.22),
+        highlightColor: colorScheme.surfaceContainerHighest.withValues(
+          alpha: 0.18,
+        ),
+        splashColor: colorScheme.primary.withValues(alpha: 0.08),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 4,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      subCategory.locked
+                          ? Icons.lock_rounded
+                          : _getSubCategoryIcon(subCategory.id),
+                      size: 18,
+                      color: subCategory.locked
+                          ? colorScheme.error
+                          : colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            subCategory.label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: titleStyle,
+                          ),
+                          if (subCategory.description.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              subCategory.description,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: descriptionStyle,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: Text(
+                    CommonUtils.formatFriendlyNumber(subCategory.numThreads),
+                    style: statStyle,
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: Text(
+                    CommonUtils.formatFriendlyNumber(subCategory.numPosts),
+                    style: statStyle,
+                  ),
+                ),
+              ),
+              Expanded(flex: 3, child: lastReplyWidget),
+            ],
+          ),
         ),
       );
     }
 
     // 窄屏布局
+    final colorScheme = Theme.of(context).colorScheme;
+    final titleStyle = Theme.of(context).textTheme.titleMedium?.copyWith(
+      fontSize: 15,
+      fontWeight: FontWeight.w700,
+      height: 1.22,
+    );
+    final descriptionStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
+      fontSize: 12,
+      color: colorScheme.onSurfaceVariant,
+      height: 1.2,
+    );
+
     return InkWell(
-      onTap: () {
-        NaviService.navigateToForumThreadListPage(subCategory.id);
-      },
+      onTap: () => NaviService.navigateToForumThreadListPage(subCategory.id),
+      hoverColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.22),
+      highlightColor: colorScheme.surfaceContainerHighest.withValues(
+        alpha: 0.18,
+      ),
+      splashColor: colorScheme.primary.withValues(alpha: 0.08),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  width: 32,
-                  child: Center(
-                    child: Icon(
-                      subCategory.locked
-                          ? Icons.lock
-                          : _getSubCategoryIcon(subCategory.id),
-                      size: 20,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 1),
+                  child: Icon(
+                    subCategory.locked
+                        ? Icons.lock_rounded
+                        : _getSubCategoryIcon(subCategory.id),
+                    size: 20,
+                    color: subCategory.locked
+                        ? colorScheme.error
+                        : colorScheme.onSurfaceVariant,
                   ),
                 ),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         subCategory.label,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: titleStyle,
                       ),
-                      if (!isNarrowTabLayout) ...[
-                        const SizedBox(height: 6),
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
-                          children: [
-                            _buildForumMetaChip(
-                              icon: Icons.forum_outlined,
-                              text: CommonUtils.formatFriendlyNumber(
-                                subCategory.numThreads,
-                              ),
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          _buildForumMetaChip(
+                            icon: Icons.forum_outlined,
+                            text: CommonUtils.formatFriendlyNumber(
+                              subCategory.numThreads,
                             ),
+                          ),
+                          if (!isNarrowTabLayout)
                             _buildForumMetaChip(
                               icon: Icons.chat_bubble_outline_rounded,
                               text: CommonUtils.formatFriendlyNumber(
                                 subCategory.numPosts,
                               ),
                             ),
-                          ],
-                        ),
-                      ],
+                        ],
+                      ),
                       if (subCategory.description.isNotEmpty) ...[
                         const SizedBox(height: 6),
                         Text(
                           subCategory.description,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
-                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: descriptionStyle,
                         ),
                       ],
                     ],
@@ -1579,16 +1611,15 @@ class _ForumPageState extends State<ForumPage> {
               ],
             ),
             if (subCategory.lastThread != null) ...[
-              const SizedBox(height: 8),
-              // 最后发帖信息
+              const SizedBox(height: 10),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AvatarWidget(
                     user: subCategory.lastThread!.lastPost?.user,
-                    size: 32,
+                    size: 28,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1606,20 +1637,32 @@ class _ForumPageState extends State<ForumPage> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: 14,
-                              color: Theme.of(context).colorScheme.primary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              height: 1.2,
+                              color: colorScheme.primary,
                             ),
                           ),
                         ),
-                        if (subCategory.lastThread!.lastPost != null) ...[
-                          const SizedBox(height: 4),
-                          _buildForumMetaChip(
-                            icon: Icons.schedule_rounded,
-                            text: CommonUtils.formatFriendlyTimestamp(
-                              subCategory.lastThread!.updatedAt,
+                        const SizedBox(height: 6),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            _buildForumMetaChip(
+                              icon: Icons.schedule_rounded,
+                              text: CommonUtils.formatFriendlyTimestamp(
+                                subCategory.lastThread!.updatedAt,
+                              ),
                             ),
-                          ),
-                        ],
+                            _buildForumMetaChip(
+                              icon: Icons.visibility_rounded,
+                              text: CommonUtils.formatFriendlyNumber(
+                                subCategory.lastThread!.numViews,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -1645,6 +1688,22 @@ class _ForumPageState extends State<ForumPage> {
     } else {
       return Icons.forum;
     }
+  }
+
+  Color _getCategoryAccentColor(String categoryName) {
+    final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    if (categoryName == t.forum.groups.chinese) {
+      return colorScheme.secondary;
+    }
+    if (categoryName == t.forum.groups.japanese) {
+      return colorScheme.tertiary;
+    }
+    if (categoryName == t.forum.groups.global) {
+      return colorScheme.primary;
+    }
+    return colorScheme.primary;
   }
 
   IconData _getSubCategoryIcon(String id) {

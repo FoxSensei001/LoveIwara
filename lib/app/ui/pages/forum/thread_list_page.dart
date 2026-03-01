@@ -7,11 +7,11 @@ import 'package:i_iwara/app/ui/pages/forum/controllers/forum_list_controller.dar
 import 'package:i_iwara/app/ui/pages/forum/controllers/thread_list_repository.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_post_dialog.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/thread_list_item_widget.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:oktoast/oktoast.dart';
@@ -89,6 +89,7 @@ class _ThreadListPageState extends State<ThreadListPage>
   Widget build(BuildContext context) {
     final double effectivePaddingTop =
         MediaQuery.of(context).padding.top + appBarHeight;
+    final double listTopPadding = effectivePaddingTop + 8;
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -186,7 +187,7 @@ class _ThreadListPageState extends State<ThreadListPage>
             isPaginated: true,
             scrollController: _scrollController,
             emptyIcon: Icons.forum_outlined,
-            paddingTop: effectivePaddingTop + 8,
+            paddingTop: listTopPadding,
             itemBuilder: (context, thread, index) => ThreadListItemWidget(
               thread: thread,
               categoryId: widget.categoryId,
@@ -195,18 +196,19 @@ class _ThreadListPageState extends State<ThreadListPage>
           );
         } else {
           // 瀑布流模式
+          const waterfallDelegate =
+              SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 300,
+                crossAxisSpacing: 5,
+                mainAxisSpacing: 5,
+              );
           return LoadingMoreCustomScrollView(
             key: ValueKey('thread_waterfall_$rebuildKey'),
             controller: _scrollController,
             slivers: <Widget>[
               LoadingMoreSliverList<ForumThreadModel>(
                 SliverListConfig<ForumThreadModel>(
-                  extendedListDelegate:
-                      const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 300,
-                        crossAxisSpacing: 5,
-                        mainAxisSpacing: 5,
-                      ),
+                  extendedListDelegate: waterfallDelegate,
                   itemBuilder: (context, thread, index) => ThreadListItemWidget(
                     thread: thread,
                     categoryId: widget.categoryId,
@@ -216,16 +218,37 @@ class _ThreadListPageState extends State<ThreadListPage>
                   padding: EdgeInsets.only(
                     left: 8,
                     right: 8,
-                    top: effectivePaddingTop + 8,
+                    top: listTopPadding,
                     bottom: MediaQuery.of(context).padding.bottom,
                   ),
-                  indicatorBuilder: (context, status) => myLoadingMoreIndicator(
-                    context,
-                    status,
-                    isSliver: true,
-                    loadingMoreBase: listSourceRepository,
-                    emptyIcon: Icons.forum_outlined,
-                  ),
+                  indicatorBuilder: (context, status) {
+                    final errorMessage = listSourceRepository.lastErrorMessage;
+
+                    IndicatorStatus actualStatus = status;
+                    if (errorMessage != null &&
+                        errorMessage.isNotEmpty &&
+                        status == IndicatorStatus.empty &&
+                        listSourceRepository.isEmpty) {
+                      actualStatus = IndicatorStatus.fullScreenError;
+                    }
+
+                    final bool isFullScreenIndicator =
+                        actualStatus == IndicatorStatus.fullScreenBusying ||
+                        actualStatus == IndicatorStatus.fullScreenError ||
+                        actualStatus == IndicatorStatus.empty;
+
+                    return buildIndicator(
+                      context,
+                      actualStatus,
+                      () => listSourceRepository.errorRefresh(),
+                      emptyIcon: Icons.forum_outlined,
+                      paddingTop: isFullScreenIndicator ? listTopPadding : 0,
+                      errorMessage: errorMessage,
+                      skeletonLayoutConfig: SkeletonLayoutConfig.fromDelegate(
+                        waterfallDelegate,
+                      ),
+                    );
+                  },
                 ),
               ),
             ],

@@ -197,6 +197,7 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                       onTap: () {
                         NaviService.navigateToAuthorProfilePage(
                           widget.comment.user.username,
+                          initialUser: widget.comment.user,
                         );
                       },
                       child: AvatarWidget(user: widget.comment.user, size: 40),
@@ -217,6 +218,7 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                                   onTap: () {
                                     NaviService.navigateToAuthorProfilePage(
                                       widget.comment.user.username,
+                                      initialUser: widget.comment.user,
                                     );
                                   },
                                   child: buildUserName(

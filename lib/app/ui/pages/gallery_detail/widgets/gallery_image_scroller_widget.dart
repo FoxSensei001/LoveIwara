@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/image.model.dart'; // Assuming ImageModel path, adjust if necessary
@@ -8,7 +7,6 @@ import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_o
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/utils/image_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:shimmer/shimmer.dart';
 
@@ -25,16 +23,23 @@ Widget _galleryCoverFlightShuttleBuilder(
 ) {
   final fromHero = fromHeroContext.widget as Hero;
   final toHero = toHeroContext.widget as Hero;
-  return flightDirection == HeroFlightDirection.push
-      ? fromHero.child
-      : toHero.child;
+  final fadeIn = CurvedAnimation(
+    parent: animation,
+    curve: const Interval(0.75, 1.0, curve: Curves.easeOut),
+  );
+  return Stack(
+    fit: StackFit.expand,
+    children: [
+      FadeTransition(opacity: ReverseAnimation(fadeIn), child: fromHero.child),
+      FadeTransition(opacity: fadeIn, child: toHero.child),
+    ],
+  );
 }
 
 class GalleryImageScrollerWidget extends StatelessWidget {
   final GalleryDetailController controller;
   final double maxHeight; // Max height constraint for the image area
   final String coverHeroTag;
-  final String? initialCoverUrl;
   final int? initialImageCount;
 
   const GalleryImageScrollerWidget({
@@ -42,7 +47,6 @@ class GalleryImageScrollerWidget extends StatelessWidget {
     required this.controller,
     required this.maxHeight,
     required this.coverHeroTag,
-    this.initialCoverUrl,
     this.initialImageCount,
   });
 
@@ -86,13 +90,12 @@ class GalleryImageScrollerWidget extends StatelessWidget {
                   child: _GalleryHorizontalListSkeleton(
                     height: maxHeight,
                     coverHeroTag: coverHeroTag,
-                    coverUrl: initialCoverUrl,
                     itemCount: _resolveSkeletonItemCount(
                       initialImageCount: initialImageCount,
                     ),
                     reduceMotion: reduceMotion,
                   ),
-                ).paddingHorizontal(12)
+                )
               : Center(
                   child: MyEmptyWidget(
                     message: t.errors.howCouldThereBeNoDataItCantBePossible,
@@ -102,23 +105,40 @@ class GalleryImageScrollerWidget extends StatelessWidget {
       }
 
       // Prepare Image Items
-      List<ImageItem> imageItems = im.files
-          .map(
-            (e) => ImageItem(
-              url: e.getLargeImageUrl(),
-              data: ImageItemData(
-                id: e.id,
-                title: e.name,
-                url: e.getLargeImageUrl(),
-                originalUrl: e.getOriginalImageUrl(),
-              ),
-              headers: {},
-            ),
-          )
-          .toList();
+      ImageItem? coverItem;
+      final List<ImageItem> restItems = [];
+
+      for (final file in im.files) {
+        final largeUrl = file.getLargeImageUrl();
+        final item = ImageItem(
+          url: largeUrl,
+          data: ImageItemData(
+            id: file.id,
+            title: file.name,
+            url: largeUrl,
+            originalUrl: file.getOriginalImageUrl(),
+          ),
+          headers: {},
+        );
+
+        if (coverItem == null && !item.isVideo) {
+          coverItem = item;
+        } else {
+          restItems.add(item);
+        }
+      }
+
+      final List<ImageItem> imageItems = [
+        if (coverItem != null) coverItem,
+        ...restItems,
+      ];
 
       // Build Constrained Horizontal Image List
-      final String? coverFileId = _resolveCoverFileId(imageItems);
+      final String? coverFileId = coverItem?.data.id;
+      final BorderRadius radius8 = BorderRadius.circular(8);
+      final BorderRadius coverRadius = BorderRadius.circular(14);
+      bool isCoverItem(ImageItem item) =>
+          coverFileId != null && item.data.id == coverFileId;
 
       return SizedBox(
         height: maxHeight,
@@ -134,10 +154,15 @@ class GalleryImageScrollerWidget extends StatelessWidget {
             heroCreateRectTween: _createGalleryCoverRectTween,
             heroFlightShuttleBuilder: _galleryCoverFlightShuttleBuilder,
             heroTransitionOnUserGestures: true,
+            clipBorderRadius: BorderRadius.zero,
+            itemBorderRadiusBuilder: (item) =>
+                isCoverItem(item) ? coverRadius : radius8,
+            aspectRatioBuilder: (item, defaultAspectRatio, loadedAspectRatio) =>
+                loadedAspectRatio ?? defaultAspectRatio,
             menuItemsBuilder: (context, item) =>
                 _buildImageMenuItems(context, item),
           ),
-        ).paddingHorizontal(12), // Apply horizontal padding here
+        ),
       );
     });
   }
@@ -219,14 +244,12 @@ String? _resolveCoverFileId(List<ImageItem> imageItems) {
 class _GalleryHorizontalListSkeleton extends StatelessWidget {
   final double height;
   final String coverHeroTag;
-  final String? coverUrl;
   final int itemCount;
   final bool reduceMotion;
 
   const _GalleryHorizontalListSkeleton({
     required this.height,
     required this.coverHeroTag,
-    required this.coverUrl,
     required this.itemCount,
     required this.reduceMotion,
   });
@@ -259,20 +282,7 @@ class _GalleryHorizontalListSkeleton extends StatelessWidget {
     }
 
     Widget coverItem() {
-      final imageUrl = (coverUrl ?? '').trim();
       final placeholder = skeletonBox();
-
-      final image = imageUrl.isEmpty
-          ? placeholder
-          : CachedNetworkImage(
-              imageUrl: imageUrl,
-              fit: BoxFit.cover,
-              fadeInDuration: const Duration(milliseconds: 50),
-              placeholderFadeInDuration: const Duration(milliseconds: 0),
-              fadeOutDuration: const Duration(milliseconds: 0),
-              placeholder: (context, url) => placeholder,
-              errorWidget: (context, url, error) => placeholder,
-            );
 
       return Hero(
         tag: coverHeroTag,
@@ -280,28 +290,8 @@ class _GalleryHorizontalListSkeleton extends StatelessWidget {
         flightShuttleBuilder: _galleryCoverFlightShuttleBuilder,
         transitionOnUserGestures: true,
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              image,
-              Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: const [0.52, 1],
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withValues(alpha: 0.35),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          borderRadius: BorderRadius.circular(14),
+          child: placeholder,
         ),
       );
     }

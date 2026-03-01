@@ -9,10 +9,10 @@ import 'dart:math';
 import 'package:i_iwara/app/models/search_record.model.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/search_common_widgets.dart';
-import 'package:i_iwara/app/ui/pages/search/widgets/filter_button_widget.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/app/ui/widgets/responsive_dialog_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
+import 'package:i_iwara/app/ui/pages/search/widgets/filter_builder_widget.dart';
 
 class SearchDialog extends StatelessWidget {
   final String userInputKeywords;
@@ -33,7 +33,7 @@ class SearchDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    
+
     return ResponsiveDialogWidget(
       title: t.common.search,
       maxWidth: 800,
@@ -77,7 +77,7 @@ class _SearchContentState extends State<_SearchContent> {
   final RxString _searchErrorText = ''.obs;
   final Rx<SearchSegment> _selectedSegment = SearchSegment.video.obs;
   final RxString _selectedSort = ''.obs;
-  
+
   // 筛选项状态
   final RxList<Filter> _filters = <Filter>[].obs;
 
@@ -92,7 +92,9 @@ class _SearchContentState extends State<_SearchContent> {
     // 设置初始搜索内容和 segment
     _controller.text = widget.userInputKeywords;
     _selectedSegment.value = widget.initialSegment;
-    _selectedSort.value = widget.initialSort ?? FilterConfig.getDefaultSortForSegment(widget.initialSegment);
+    _selectedSort.value =
+        widget.initialSort ??
+        FilterConfig.getDefaultSortForSegment(widget.initialSegment);
 
     // 设置初始筛选项
     if (widget.initialFilters != null) {
@@ -164,9 +166,16 @@ class _SearchContentState extends State<_SearchContent> {
       userPreferenceService.addVideoSearchHistory(value);
     }
 
-    LogUtils.d('搜索内容: $value, 类型: ${_selectedSegment.value}, sort: ${_selectedSort.value}, filters: ${_filters.toList()}');
+    LogUtils.d(
+      '搜索内容: $value, 类型: ${_selectedSegment.value}, sort: ${_selectedSort.value}, filters: ${_filters.toList()}',
+    );
     _dismiss();
-    widget.onSearch(value, _selectedSegment.value, _filters.toList(), _selectedSort.value);
+    widget.onSearch(
+      value,
+      _selectedSegment.value,
+      _filters.toList(),
+      _selectedSort.value,
+    );
   }
 
   void _dismiss() {
@@ -181,6 +190,7 @@ class _SearchContentState extends State<_SearchContent> {
     Widget searchContent = SingleChildScrollView(
       controller: _scrollController,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _SearchInputSection(
             controller: _controller,
@@ -200,7 +210,9 @@ class _SearchContentState extends State<_SearchContent> {
             selectedSegment: _selectedSegment,
             onSegmentChanged: (segment) {
               _selectedSegment.value = segment;
-              _selectedSort.value = FilterConfig.getDefaultSortForSegment(segment);
+              _selectedSort.value = FilterConfig.getDefaultSortForSegment(
+                segment,
+              );
             },
             onSearch: () => _handleSubmit(_controller.text),
             filters: _filters,
@@ -263,23 +275,27 @@ class _SearchInputSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-      child: Obx(() => SearchInputField(
-        controller: controller,
-        focusNode: focusNode,
-        hintText: searchPlaceholder.value.isEmpty
-            ? t.search.pleaseEnterSearchContent
-            : '${t.search.searchSuggestion}: ${searchPlaceholder.value}',
-        errorText: searchErrorText.value.isEmpty ? null : searchErrorText.value,
-        onChanged: onChanged,
-        onSubmitted: onSubmitted,
-        onClear: onClear,
-        autofocus: true,
-        backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-        elevation: 1,
-      )),
+      child: Obx(
+        () => SearchInputField(
+          controller: controller,
+          focusNode: focusNode,
+          hintText: searchPlaceholder.value.isEmpty
+              ? t.search.pleaseEnterSearchContent
+              : '${t.search.searchSuggestion}: ${searchPlaceholder.value}',
+          errorText: searchErrorText.value.isEmpty
+              ? null
+              : searchErrorText.value,
+          onChanged: onChanged,
+          onSubmitted: onSubmitted,
+          onClear: onClear,
+          autofocus: true,
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+          elevation: 1,
+        ),
+      ),
     );
   }
 }
@@ -303,57 +319,462 @@ class _SearchControlsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 排序选项由下方 Obx 动态读取，这里无需预取
-    return Container(
+    final t = slang.Translations.of(context);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final radius = BorderRadius.circular(12);
+    const controlHeight = 44.0;
+    final iconButtonConstraints = BoxConstraints.tightFor(
+      width: controlHeight,
+      height: controlHeight,
+    );
+
+    ButtonStyle tonalButtonStyle() {
+      return FilledButton.styleFrom(
+        backgroundColor: colorScheme.surfaceContainer,
+        foregroundColor: colorScheme.onSurfaceVariant,
+        minimumSize: const Size(0, controlHeight),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        visualDensity: VisualDensity.compact,
+        shape: RoundedRectangleBorder(borderRadius: radius),
+        elevation: 0,
+      );
+    }
+
+    ButtonStyle iconButtonStyle({
+      required Color backgroundColor,
+      required Color foregroundColor,
+    }) {
+      return IconButton.styleFrom(
+        backgroundColor: backgroundColor,
+        foregroundColor: foregroundColor,
+        padding: const EdgeInsets.all(10),
+        visualDensity: VisualDensity.compact,
+        shape: RoundedRectangleBorder(borderRadius: radius),
+      );
+    }
+
+    return Padding(
       padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Obx(() => SearchSegmentSelector(
-            selectedSegment: selectedSegment.value,
-            onSegmentChanged: onSegmentChanged,
-            showLabel: true,
-            backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-            elevation: 1,
-          )),
-          const SizedBox(width: 4),
-          // Oreno3D 使用专用排序器；其他分段使用通用排序器
-          Obx(() {
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 520;
+
+          return Obx(() {
             final seg = selectedSegment.value;
-            if (seg == SearchSegment.oreno3d) {
-              return SortSelector(
-                selectedSort: selectedSort.value,
-                onSortChanged: (v) => selectedSort.value = v,
-                backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-                elevation: 1,
-              );
-            } else {
-              final options = FilterConfig.getSortOptionsForSegment(seg);
-              if (options.isEmpty) return const SizedBox.shrink();
-              return CommonSortSelector(
-                selectedSort: selectedSort.value,
-                options: options,
-                onSortChanged: (v) => selectedSort.value = v,
-                backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-                elevation: 1,
+            final sort = selectedSort.value;
+
+            PopupMenuItem<SearchSegment> segmentMenuItem(
+              SearchSegment segment,
+              IconData icon,
+              String label,
+            ) {
+              return PopupMenuItem<SearchSegment>(
+                value: segment,
+                child: Row(
+                  children: [
+                    Icon(icon, size: 20),
+                    const SizedBox(width: 8),
+                    Text(label),
+                  ],
+                ),
               );
             }
-          }),
-          const SizedBox(width: 4),
-          Obx(() => FilterButtonWidget(
-            currentSegment: selectedSegment.value,
-            filters: filters.toList(),
-            onFiltersChanged: onFiltersChanged,
-            backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-            elevation: 1,
-          )),
-          const SizedBox(width: 4),
-          SearchButton(
-            onSearch: onSearch,
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            elevation: 1,
-          ),
-        ],
+
+            String segmentLabel(SearchSegment segment) {
+              return switch (segment) {
+                SearchSegment.video => t.common.video,
+                SearchSegment.image => t.common.gallery,
+                SearchSegment.user => t.common.user,
+                SearchSegment.playlist => t.common.playlist,
+                SearchSegment.post => t.common.post,
+                SearchSegment.forum => t.forum.forum,
+                SearchSegment.forum_posts => t.forum.posts,
+                SearchSegment.oreno3d => 'Oreno3D',
+              };
+            }
+
+            IconData segmentIcon(SearchSegment segment) {
+              return switch (segment) {
+                SearchSegment.video => Icons.video_library,
+                SearchSegment.image => Icons.image,
+                SearchSegment.user => Icons.person,
+                SearchSegment.playlist => Icons.playlist_play,
+                SearchSegment.post => Icons.article,
+                SearchSegment.forum => Icons.forum,
+                SearchSegment.forum_posts => Icons.comment,
+                SearchSegment.oreno3d => Icons.view_in_ar,
+              };
+            }
+
+            IconData sortIconFor(String value) {
+              if (seg == SearchSegment.oreno3d) {
+                switch (value) {
+                  case 'hot':
+                    return Icons.trending_up;
+                  case 'favorites':
+                    return Icons.favorite;
+                  case 'latest':
+                    return Icons.schedule;
+                  case 'popularity':
+                    return Icons.star;
+                  default:
+                    return Icons.sort;
+                }
+              }
+
+              switch (value) {
+                case 'relevance':
+                  return Icons.recommend;
+                case 'date':
+                  return Icons.schedule;
+                case 'views':
+                  return Icons.visibility;
+                case 'likes':
+                  return Icons.favorite;
+                default:
+                  return Icons.sort;
+              }
+            }
+
+            List<PopupMenuEntry<String>> buildSortMenuItems() {
+              if (seg == SearchSegment.oreno3d) {
+                return [
+                  PopupMenuItem<String>(
+                    value: 'hot',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.trending_up, size: 20),
+                        const SizedBox(width: 8),
+                        Text(t.oreno3d.sortTypes.hot),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'favorites',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.favorite, size: 20),
+                        const SizedBox(width: 8),
+                        Text(t.oreno3d.sortTypes.favorites),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'latest',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.schedule, size: 20),
+                        const SizedBox(width: 8),
+                        Text(t.oreno3d.sortTypes.latest),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'popularity',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.star, size: 20),
+                        const SizedBox(width: 8),
+                        Text(t.oreno3d.sortTypes.popularity),
+                      ],
+                    ),
+                  ),
+                ];
+              }
+
+              final options = FilterConfig.getSortOptionsForSegment(seg);
+              return options
+                  .map(
+                    (opt) => PopupMenuItem<String>(
+                      value: opt.value,
+                      child: Row(
+                        children: [
+                          Icon(sortIconFor(opt.value), size: 20),
+                          const SizedBox(width: 8),
+                          Text(opt.label),
+                        ],
+                      ),
+                    ),
+                  )
+                  .toList();
+            }
+
+            final sortOptions = FilterConfig.getSortOptionsForSegment(seg);
+            final showSortButton =
+                seg == SearchSegment.oreno3d || sortOptions.isNotEmpty;
+
+            String sortLabelFor(String value) {
+              if (seg == SearchSegment.oreno3d) {
+                return switch (value) {
+                  'hot' => t.oreno3d.sortTypes.hot,
+                  'favorites' => t.oreno3d.sortTypes.favorites,
+                  'latest' => t.oreno3d.sortTypes.latest,
+                  'popularity' => t.oreno3d.sortTypes.popularity,
+                  _ => t.common.sort,
+                };
+              }
+
+              for (final opt in sortOptions) {
+                if (opt.value == value) return opt.label;
+              }
+              return t.common.sort;
+            }
+
+            final currentSortLabel = sortLabelFor(sort);
+            final filterCount = filters.length;
+
+            Widget segmentButton() {
+              return PopupMenuButton<SearchSegment>(
+                shape: RoundedRectangleBorder(borderRadius: radius),
+                initialValue: seg,
+                onSelected: onSegmentChanged,
+                itemBuilder: (context) => [
+                  segmentMenuItem(
+                    SearchSegment.video,
+                    Icons.video_library,
+                    t.common.video,
+                  ),
+                  segmentMenuItem(
+                    SearchSegment.image,
+                    Icons.image,
+                    t.common.gallery,
+                  ),
+                  segmentMenuItem(
+                    SearchSegment.user,
+                    Icons.person,
+                    t.common.user,
+                  ),
+                  segmentMenuItem(
+                    SearchSegment.playlist,
+                    Icons.playlist_play,
+                    t.common.playlist,
+                  ),
+                  segmentMenuItem(
+                    SearchSegment.post,
+                    Icons.article,
+                    t.common.post,
+                  ),
+                  segmentMenuItem(
+                    SearchSegment.forum,
+                    Icons.forum,
+                    t.forum.forum,
+                  ),
+                  segmentMenuItem(
+                    SearchSegment.forum_posts,
+                    Icons.comment,
+                    t.forum.posts,
+                  ),
+                  segmentMenuItem(
+                    SearchSegment.oreno3d,
+                    Icons.view_in_ar,
+                    'Oreno3D',
+                  ),
+                ],
+                child: AbsorbPointer(
+                  child: compact
+                      ? IconButton(
+                          onPressed: () {},
+                          icon: Icon(segmentIcon(seg)),
+                          tooltip: segmentLabel(seg),
+                          constraints: iconButtonConstraints,
+                          style: iconButtonStyle(
+                            backgroundColor: colorScheme.surfaceContainer,
+                            foregroundColor: colorScheme.onSurfaceVariant,
+                          ),
+                        )
+                      : FilledButton.tonal(
+                          onPressed: () {},
+                          style: tonalButtonStyle(),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(segmentIcon(seg), size: 20),
+                              const SizedBox(width: 6),
+                              Text(segmentLabel(seg)),
+                              const SizedBox(width: 4),
+                              const Icon(Icons.arrow_drop_down, size: 20),
+                            ],
+                          ),
+                        ),
+                ),
+              );
+            }
+
+            Widget sortButton() {
+              return PopupMenuButton<String>(
+                shape: RoundedRectangleBorder(borderRadius: radius),
+                initialValue: sort,
+                onSelected: (v) => selectedSort.value = v,
+                itemBuilder: (context) => buildSortMenuItems(),
+                child: AbsorbPointer(
+                  child: compact
+                      ? IconButton(
+                          onPressed: () {},
+                          icon: Icon(sortIconFor(sort)),
+                          tooltip: '${t.common.sort}: $currentSortLabel',
+                          constraints: iconButtonConstraints,
+                          style: iconButtonStyle(
+                            backgroundColor: colorScheme.surfaceContainer,
+                            foregroundColor: colorScheme.onSurfaceVariant,
+                          ),
+                        )
+                      : FilledButton.tonal(
+                          onPressed: () {},
+                          style: tonalButtonStyle(),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(sortIconFor(sort), size: 20),
+                              const SizedBox(width: 6),
+                              Text(currentSortLabel),
+                              const SizedBox(width: 4),
+                              const Icon(Icons.arrow_drop_down, size: 20),
+                            ],
+                          ),
+                        ),
+                ),
+              );
+            }
+
+            Widget filterButton() {
+              final tooltip = filterCount == 0
+                  ? t.searchFilter.filterSettings
+                  : '${t.searchFilter.filterSettings}: $filterCount';
+
+              if (compact) {
+                final icon = IconButton(
+                  onPressed: () => _showFilterDialog(context, seg, t),
+                  icon: const Icon(Icons.filter_list),
+                  tooltip: tooltip,
+                  constraints: iconButtonConstraints,
+                  style: iconButtonStyle(
+                    backgroundColor: colorScheme.surfaceContainer,
+                    foregroundColor: colorScheme.onSurfaceVariant,
+                  ),
+                );
+
+                if (filterCount <= 0) return icon;
+
+                return Badge.count(
+                  count: filterCount,
+                  backgroundColor: colorScheme.primary,
+                  child: icon,
+                );
+              }
+
+              return FilledButton.tonal(
+                onPressed: () => _showFilterDialog(context, seg, t),
+                style: tonalButtonStyle(),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.filter_list, size: 20),
+                    const SizedBox(width: 6),
+                    Text(
+                      filterCount == 0
+                          ? t.searchFilter.filterSettings
+                          : '${t.searchFilter.filterSettings} ($filterCount)',
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            Widget searchButton() {
+              if (compact) {
+                return IconButton(
+                  onPressed: onSearch,
+                  icon: const Icon(Icons.search),
+                  tooltip: t.common.search,
+                  constraints: iconButtonConstraints,
+                  style: iconButtonStyle(
+                    backgroundColor: colorScheme.primary,
+                    foregroundColor: colorScheme.onPrimary,
+                  ),
+                );
+              }
+
+              return FilledButton(
+                onPressed: onSearch,
+                style: FilledButton.styleFrom(
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                  minimumSize: const Size(0, controlHeight),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  visualDensity: VisualDensity.compact,
+                  shape: RoundedRectangleBorder(borderRadius: radius),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.search, size: 20),
+                    const SizedBox(width: 6),
+                    Text(t.common.search),
+                  ],
+                ),
+              );
+            }
+
+            final leftControls = <Widget>[
+              segmentButton(),
+              if (showSortButton) ...[const SizedBox(width: 6), sortButton()],
+              if (seg != SearchSegment.oreno3d) ...[
+                const SizedBox(width: 6),
+                filterButton(),
+              ],
+            ];
+
+            return Row(
+              children: [
+                Expanded(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: controlHeight),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      clipBehavior: Clip.none,
+                      child: Row(children: leftControls),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                searchButton(),
+              ],
+            );
+          });
+        },
+      ),
+    );
+  }
+
+  void _showFilterDialog(
+    BuildContext context,
+    SearchSegment currentSegment,
+    slang.Translations t,
+  ) {
+    List<Filter> tempFilters = filters.map((f) => f.copyWith()).toList();
+
+    ResponsiveDialog.show(
+      context: context,
+      title: t.searchFilter.filterSettings,
+      maxWidth: 800,
+      headerActions: [
+        FilledButton(
+          onPressed: () {
+            onFiltersChanged(tempFilters.map((f) => f.copyWith()).toList());
+            AppService.tryPop();
+          },
+          style: FilledButton.styleFrom(visualDensity: VisualDensity.compact),
+          child: Text(t.common.confirm),
+        ),
+      ],
+      content: FilterBuilderWidget(
+        initialSegment: currentSegment,
+        initialFilters: filters.toList(),
+        onFiltersChanged: (newFilters) {
+          tempFilters = newFilters;
+        },
+        destroyOnClose: true,
       ),
     );
   }
@@ -367,7 +788,7 @@ class _GoogleSearchSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(6, 0, 6, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: GoogleSearchPanelWidget(scrollController: scrollController),
     );
   }
@@ -416,40 +837,54 @@ class _SearchHistoryHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Wrap(
-        spacing: 12,
-        runSpacing: 12,
-        alignment: WrapAlignment.center,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                t.search.searchHistory,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+    final theme = Theme.of(context);
+
+    return Obx(() {
+      final hasHistory = userPreferenceService.videoSearchHistory.isNotEmpty;
+
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final compact = constraints.maxWidth < 420;
+
+            final title = Text(
+              t.search.searchHistory,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
               ),
-            ],
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _RecordingToggleButton(userPreferenceService: userPreferenceService),
-              if (userPreferenceService.videoSearchHistory.isNotEmpty) ...[
-                const SizedBox(width: 8),
-                _ClearHistoryButton(onClearHistory: onClearHistory),
+            );
+
+            final actions = Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                _RecordingToggleButton(
+                  userPreferenceService: userPreferenceService,
+                ),
+                if (hasHistory)
+                  _ClearHistoryButton(onClearHistory: onClearHistory),
               ],
-            ],
-          ),
-        ],
-      ),
-    );
+            );
+
+            if (compact) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [title, const SizedBox(height: 10), actions],
+              );
+            }
+
+            return Row(
+              children: [
+                Expanded(child: title),
+                actions,
+              ],
+            );
+          },
+        ),
+      );
+    });
   }
 }
 
@@ -461,48 +896,58 @@ class _RecordingToggleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    
-    return Obx(() => Material(
-      color: Colors.grey[100],
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: () {
-          userPreferenceService.setSearchRecordEnabled(
-            !userPreferenceService.searchRecordEnabled.value,
-          );
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                userPreferenceService.searchRecordEnabled.value
-                    ? Icons.history
-                    : Icons.history_toggle_off,
-                size: 18,
-                color: userPreferenceService.searchRecordEnabled.value
-                    ? Theme.of(context).primaryColor
-                    : Colors.grey,
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final radius = BorderRadius.circular(999);
+
+    return Obx(() {
+      final enabled = userPreferenceService.searchRecordEnabled.value;
+      final fg = enabled ? colorScheme.primary : colorScheme.onSurfaceVariant;
+      final bg = fg.withValues(alpha: enabled ? 0.12 : 0.08);
+
+      return Material(
+        color: Colors.transparent,
+        borderRadius: radius,
+        child: Ink(
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: radius,
+            border: Border.all(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.35),
+            ),
+          ),
+          child: InkWell(
+            borderRadius: radius,
+            onTap: () {
+              userPreferenceService.setSearchRecordEnabled(!enabled);
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    enabled ? Icons.history : Icons.history_toggle_off,
+                    size: 18,
+                    color: fg,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    enabled ? t.common.recording : t.common.paused,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
+                      color: fg,
+                      height: 1.1,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 4),
-              Text(
-                userPreferenceService.searchRecordEnabled.value
-                    ? t.common.recording
-                    : t.common.paused,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: userPreferenceService.searchRecordEnabled.value
-                      ? Theme.of(context).primaryColor
-                      : Colors.grey,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
-      ),
-    ));
+      );
+    });
   }
 }
 
@@ -514,7 +959,7 @@ class _ClearHistoryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    
+
     return TextButton.icon(
       onPressed: onClearHistory,
       icon: const Icon(Icons.delete_outline, size: 18),
@@ -540,7 +985,7 @@ class _SearchHistoryList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    
+
     return Obx(() {
       if (userPreferenceService.videoSearchHistory.isEmpty) {
         return Center(
@@ -582,19 +1027,78 @@ class _SearchHistoryItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    
-    return ListTile(
-      leading: const Icon(Icons.history),
-      title: Text(record.keyword),
-      subtitle: Text(
-        '${t.search.usedTimes}: ${record.usedTimes} · ${t.search.lastUsed}: ${record.lastUsedAt.toString().split('.')[0]}',
-        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final radius = BorderRadius.circular(14);
+    final subtitleText =
+        '${t.search.usedTimes}: ${record.usedTimes} · ${t.search.lastUsed}: ${record.lastUsedAt.toString().split('.')[0]}';
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: radius,
+        child: Ink(
+          decoration: BoxDecoration(
+            color: colorScheme.surface,
+            borderRadius: radius,
+            border: Border.all(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+            ),
+          ),
+          child: InkWell(
+            borderRadius: radius,
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 6, 10),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.history,
+                    size: 18,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          record.keyword,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitleText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            fontSize: 11,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.close,
+                      size: 18,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                    onPressed: onRemove,
+                    tooltip: t.common.delete,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
-      trailing: IconButton(
-        icon: const Icon(Icons.close, size: 18),
-        onPressed: onRemove,
-      ),
-      onTap: onTap,
     );
   }
 }

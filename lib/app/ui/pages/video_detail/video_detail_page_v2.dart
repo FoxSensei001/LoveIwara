@@ -9,9 +9,7 @@ import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/ui/pages/local_video_detail/widgets/local_video_info_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/my_video_screen.dart';
-import 'package:i_iwara/app/ui/pages/video_detail/widgets/skeletons/video_detail_info_skeleton_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
-import 'package:i_iwara/app/ui/pages/video_detail/widgets/skeletons/video_detail_wide_skeleton_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/video_info_tab_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/comments_tab_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/related_videos_tab_widget.dart';
@@ -194,6 +192,16 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     return videoHeight > screenHeight * 0.7;
   }
 
+  Widget _buildVideoArea(BuildContext context, {required Widget player}) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        const ColoredBox(color: Colors.black),
+        player,
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
@@ -334,12 +342,6 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   ) {
     const double tabsAreaWidth = 350.0; // 固定Tab区域宽度，适当缩窄以优化播放器显示区域
 
-    if (controller.pageLoadingState.value ==
-            VideoDetailPageLoadingState.loadingVideoInfo ||
-        controller.pageLoadingState.value == VideoDetailPageLoadingState.init) {
-      return VideoDetailWideSkeletonWidget(controller: controller);
-    }
-
     // 如果是私有视频但没有fileUrl（无访问权限），则不显示内容
     if (controller.videoInfo.value?.private == true &&
         controller.videoInfo.value?.fileUrl == null) {
@@ -351,25 +353,28 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       children: [
         // 左侧纯播放器区域（自适应宽度）
         Expanded(
-          child: Obx(() {
-            // 站外、站内视频都显示播放器
-            if (controller.videoInfo.value?.isExternalVideo == true ||
-                controller.videoPlayerReady.value) {
-              return _buildPureVideoPlayer(
-                screenSize.height,
-                paddingTop,
-                applyBottomSafeArea: true,
-              );
-            }
-            // 否则显示播放器（包含加载状态）
-            else {
-              return MyVideoScreen(
-                myVideoStateController: controller,
-                isFullScreen: false,
-                enableBottomSafeArea: true,
-              );
-            }
-          }),
+          child: SizedBox.expand(
+            child: _buildVideoArea(
+              context,
+              player: Obx(() {
+                // 站外、站内视频都显示播放器
+                if (controller.videoInfo.value?.isExternalVideo == true ||
+                    controller.videoPlayerReady.value) {
+                  return _buildPureVideoPlayer(
+                    screenSize.height,
+                    paddingTop,
+                    applyBottomSafeArea: true,
+                  );
+                }
+                // 否则显示播放器（包含加载状态）
+                return MyVideoScreen(
+                  myVideoStateController: controller,
+                  isFullScreen: false,
+                  enableBottomSafeArea: true,
+                );
+              }),
+            ),
+          ),
         ),
 
         // 右侧Tab内容区域（固定宽度）
@@ -388,12 +393,6 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     double paddingTop,
     slang.Translations t,
   ) {
-    if (controller.pageLoadingState.value ==
-            VideoDetailPageLoadingState.loadingVideoInfo ||
-        controller.pageLoadingState.value == VideoDetailPageLoadingState.init) {
-      return const MediaDetailInfoSkeletonWidget();
-    }
-
     return Obx(() {
       // 使用 Obx 包装整个 ExtendedNestedScrollView，确保 videoPlaying 状态变化时重建
       LogUtils.d('${controller.videoPlaying.value}', 'refresh');
@@ -441,31 +440,35 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                   children: [
                     // 视频播放器
                     Obx(() {
+                      final videoHeight = controller.getCurrentVideoHeight(
+                        screenSize.width,
+                        screenSize.height,
+                        paddingTop,
+                      );
+
                       // 站外、站内视频都显示播放器
                       if (controller.videoInfo.value?.isExternalVideo == true ||
                           controller.videoPlayerReady.value) {
                         return SizedBox(
                           width: screenSize.width,
-                          height: controller.getCurrentVideoHeight(
-                            screenSize.width,
-                            screenSize.height,
-                            paddingTop,
+                          height: videoHeight,
+                          child: _buildVideoArea(
+                            context,
+                            player: _buildVideoPlayerContent(),
                           ),
-                          child: _buildVideoPlayerContent(),
                         );
                       }
                       // 否则显示骨架屏
                       else {
                         return SizedBox(
                           width: screenSize.width,
-                          height: controller.getCurrentVideoHeight(
-                            screenSize.width,
-                            screenSize.height,
-                            paddingTop,
-                          ),
-                          child: MyVideoScreen(
-                            myVideoStateController: controller,
-                            isFullScreen: false,
+                          height: videoHeight,
+                          child: _buildVideoArea(
+                            context,
+                            player: MyVideoScreen(
+                              myVideoStateController: controller,
+                              isFullScreen: false,
+                            ),
                           ),
                         );
                       }
@@ -888,6 +891,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
               RelatedVideosTabWidget(
                 videoController: controller,
                 relatedVideoController: relatedVideoController!,
+                outerTabController: tabController,
               ),
             ],
     );

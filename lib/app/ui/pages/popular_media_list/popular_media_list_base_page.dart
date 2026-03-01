@@ -14,7 +14,6 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_tab_view.d
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
 import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/common_header.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/grid_speed_dial.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -109,6 +108,20 @@ class PopularMediaListPageBaseState<
   // 浮动按钮状态
   static const double _edgePadding = 16.0;
 
+  // Tab bar scroll indicators for gradient fade
+  final RxBool _tabBarAtStart = true.obs;
+  final RxBool _tabBarAtEnd = true.obs;
+
+  // Current tab index for dropdown sync
+  final RxInt _currentTabIndex = 0.obs;
+
+  void _updateTabBarScrollIndicators() {
+    if (!_tabBarScrollController.hasClients) return;
+    final pos = _tabBarScrollController.position;
+    _tabBarAtStart.value = pos.pixels <= pos.minScrollExtent;
+    _tabBarAtEnd.value = pos.pixels >= pos.maxScrollExtent - 1;
+  }
+
   void tryRefreshCurrentSort() {
     if (mounted) {
       var sortId = sorts[_tabController.index].id;
@@ -164,6 +177,8 @@ class PopularMediaListPageBaseState<
     }
     _tabController = TabController(length: sorts.length, vsync: this);
     _tabBarScrollController = ScrollController();
+    _tabBarScrollController.addListener(_updateTabBarScrollIndicators);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateTabBarScrollIndicators());
     _tabController.addListener(_onTabChange);
 
     // 监听 PopularMediaListController 的滚动变化
@@ -214,6 +229,7 @@ class PopularMediaListPageBaseState<
     _scrollListenerDisposer?.call(); // 销毁滚动监听器
     _tabController.removeListener(_onTabChange);
     _tabController.dispose();
+    _tabBarScrollController.removeListener(_updateTabBarScrollIndicators);
     _tabBarScrollController.dispose();
     Get.delete<PopularMediaListController>(tag: widget.controllerTag);
     Get.delete<BatchSelectController<T>>(tag: '${widget.controllerTag}_batch');
@@ -268,6 +284,7 @@ class PopularMediaListPageBaseState<
   }
 
   void _onTabChange() {
+    _currentTabIndex.value = _tabController.index;
     _scrollToSelectedTab();
   }
 
@@ -331,6 +348,154 @@ class PopularMediaListPageBaseState<
     );
   }
 
+  Widget _buildTabDropdown(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final index = _currentTabIndex.value;
+    final currentSort = sorts[index];
+
+    return Theme(
+      data: Theme.of(context).copyWith(
+        splashFactory: NoSplash.splashFactory,
+        highlightColor: Colors.transparent,
+      ),
+      child: PopupMenuButton<int>(
+        initialValue: index,
+        onSelected: (newIndex) {
+          _tabController.animateTo(newIndex);
+        },
+        position: PopupMenuPosition.under,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: colorScheme.secondaryContainer,
+          ),
+          child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              switchInCurve: Curves.easeInOut,
+              switchOutCurve: Curves.easeInOut,
+              child: Row(
+                key: ValueKey(index),
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (currentSort.icon != null) ...[
+                    IconTheme(
+                      data: IconThemeData(
+                        size: 16,
+                        color: colorScheme.onSecondaryContainer,
+                      ),
+                      child: currentSort.icon!,
+                    ),
+                    const SizedBox(width: 4),
+                  ],
+                  Text(
+                    currentSort.label,
+                    style: TextStyle(color: colorScheme.onSecondaryContainer),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 2),
+            Icon(
+              Icons.arrow_drop_down,
+              size: 20,
+              color: colorScheme.onSecondaryContainer,
+            ),
+          ],
+        ),
+      ),
+      itemBuilder: (context) => sorts.asMap().entries.map((entry) {
+        return PopupMenuItem<int>(
+          value: entry.key,
+          child: Row(
+            children: [
+              if (entry.value.icon != null) ...[
+                entry.value.icon!,
+                const SizedBox(width: 8),
+              ],
+              Text(entry.value.label),
+              if (entry.key == index) ...[
+                const Spacer(),
+                Icon(Icons.check, size: 18, color: colorScheme.primary),
+              ],
+            ],
+          ),
+        );
+      }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildCollapsedDrawerButton(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Obx(() {
+      if (userService.isLogin && userService.currentUser.value != null) {
+        return SizedBox(
+          width: 40,
+          height: 40,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              AvatarWidget(
+                user: userService.currentUser.value,
+                size: 28,
+                onTap: () {
+                  AppService.switchGlobalDrawer();
+                },
+              ),
+              Positioned(
+                right: 4,
+                top: 4,
+                child: Obx(() {
+                  final count =
+                      userService.notificationCount.value +
+                      userService.messagesCount.value;
+                  if (count > 0) {
+                    return Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: colorScheme.error,
+                        shape: BoxShape.circle,
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                }),
+              ),
+            ],
+          ),
+        );
+      }
+
+      return IconButton(
+        icon: const Icon(Icons.account_circle),
+        onPressed: () {
+          AppService.switchGlobalDrawer();
+        },
+        tooltip: t.common.me,
+      );
+    });
+  }
+
+  Widget _buildCollapsedSearchButton() {
+    return SizedBox(
+      width: 40,
+      height: 40,
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        icon: const Icon(Icons.search, size: 22),
+        onPressed: _openSearchDialog,
+        tooltip: t.common.search,
+      ),
+    );
+  }
+
   // 创建可动画的 IconButton
   Widget _buildAnimatedIconButton({
     required Widget child,
@@ -342,7 +507,7 @@ class PopularMediaListPageBaseState<
     // 如果是桌面平台，则始终可见，禁用动画收缩效果
     if (isDesktop) {
       return SizedBox(
-        width: 48.0, // 固定宽度
+        width: 40.0,
         child: child,
       );
     }
@@ -351,7 +516,7 @@ class PopularMediaListPageBaseState<
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
-        width: isVisible ? 48.0 : 0.0,
+        width: isVisible ? 40.0 : 0.0,
         child: child,
       ),
     );
@@ -359,8 +524,8 @@ class PopularMediaListPageBaseState<
 
   @override
   Widget build(BuildContext context) {
-    const double tabBarHeight = 48.0;
-    const double headerHeight = 56.0;
+    const double tabBarHeight = 40.0;
+    const double headerHeight = 44.0;
     final systemStatusBarHeight = MediaQuery.of(context).padding.top;
 
     return Scaffold(
@@ -392,17 +557,129 @@ class PopularMediaListPageBaseState<
                               child: AnimatedOpacity(
                                 opacity: showHeader ? 1.0 : 0.0,
                                 duration: const Duration(milliseconds: 200),
-                                child: CommonHeader(
-                                  searchSegment: widget.searchSegment,
-                                  avatarRadius: 20,
-                                  trailing: [
-                                    IconButton(
-                                      icon: const Icon(Icons.refresh),
-                                      onPressed: tryRefreshCurrentSort,
-                                      tooltip: t.common.refresh,
-                                    ),
-                                    const SizedBox(width: 4),
-                                  ],
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      // Compact avatar
+                                      Obx(() {
+                                        if (userService.isLogin &&
+                                            userService.currentUser.value !=
+                                                null) {
+                                          return Stack(
+                                            children: [
+                                              AvatarWidget(
+                                                user: userService
+                                                    .currentUser
+                                                    .value,
+                                                size: 36,
+                                                onTap: () => AppService
+                                                    .switchGlobalDrawer(),
+                                              ),
+                                              Positioned(
+                                                right: 0,
+                                                top: 0,
+                                                child: Obx(() {
+                                                  final count = userService
+                                                          .notificationCount
+                                                          .value +
+                                                      userService
+                                                          .messagesCount
+                                                          .value;
+                                                  if (count > 0) {
+                                                    return Container(
+                                                      width: 8,
+                                                      height: 8,
+                                                      decoration: BoxDecoration(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .error,
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                    );
+                                                  }
+                                                  return const SizedBox
+                                                      .shrink();
+                                                }),
+                                              ),
+                                            ],
+                                          );
+                                        }
+                                        return SizedBox(
+                                          width: 36,
+                                          height: 36,
+                                          child: IconButton(
+                                            padding: EdgeInsets.zero,
+                                            icon: const Icon(
+                                              Icons.account_circle,
+                                              size: 24,
+                                            ),
+                                            onPressed: () => AppService
+                                                .switchGlobalDrawer(),
+                                          ),
+                                        );
+                                      }),
+                                      const SizedBox(width: 8),
+                                      // Compact search pill
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: _openSearchDialog,
+                                          child: Container(
+                                            height: 32,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .surfaceContainerHighest
+                                                  .withValues(alpha: 0.5),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.search,
+                                                  size: 18,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  t.common.search,
+                                                  style: TextStyle(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      // Compact refresh button
+                                      SizedBox(
+                                        width: 36,
+                                        height: 36,
+                                        child: IconButton(
+                                          padding: EdgeInsets.zero,
+                                          icon: const Icon(
+                                            Icons.refresh,
+                                            size: 20,
+                                          ),
+                                          onPressed: tryRefreshCurrentSort,
+                                          tooltip: t.common.refresh,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -416,119 +693,253 @@ class PopularMediaListPageBaseState<
                     color: Theme.of(context).colorScheme.surface,
                     child: SizedBox(
                       height: tabBarHeight,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: MouseRegion(
-                              child: Listener(
-                                onPointerSignal: (pointerSignal) {
-                                  if (pointerSignal is PointerScrollEvent) {
-                                    _handleScroll(pointerSignal.scrollDelta.dy);
-                                  }
-                                },
-                                child: SingleChildScrollView(
-                                  controller: _tabBarScrollController,
-                                  scrollDirection: Axis.horizontal,
-                                  physics: const ClampingScrollPhysics(),
-                                  child: TabBar(
-                                    isScrollable: true,
-                                    overlayColor: WidgetStateProperty.all(
-                                      Colors.transparent,
-                                    ),
-                                    tabAlignment: TabAlignment.start,
-                                    dividerColor: Colors.transparent,
-                                    padding: EdgeInsets.zero,
-                                    controller: _tabController,
-                                    tabs: sorts.asMap().entries.map((entry) {
-                                      int index = entry.key;
-                                      Sort sort = entry.value;
-                                      return Container(
-                                        key: _tabKeys[index],
-                                        child: Tab(
-                                          child: Row(
-                                            children: [
-                                              sort.icon ?? const SizedBox(),
-                                              const SizedBox(width: 4),
-                                              Text(sort.label),
-                                            ],
+                      child: Obx(() {
+                        final showHeader =
+                            _mediaListController.showHeader.value;
+                        final showCollapsedQuickActions =
+                            !showHeader && constraints.maxWidth >= 420;
+
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Row(
+                            children: [
+                              if (showCollapsedQuickActions) ...[
+                                _buildCollapsedDrawerButton(context),
+                                const SizedBox(width: 4),
+                                _buildCollapsedSearchButton(),
+                                const SizedBox(width: 8),
+                              ],
+                              if (constraints.maxWidth < 600)
+                                Expanded(
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Obx(() => _buildTabDropdown(context)),
+                                  ),
+                                )
+                              else
+                                Expanded(
+                                  child: Obx(() {
+                                    final atStart = _tabBarAtStart.value;
+                                    final atEnd = _tabBarAtEnd.value;
+
+                                    Widget tabContent = MouseRegion(
+                                      child: Listener(
+                                        onPointerSignal: (pointerSignal) {
+                                          if (pointerSignal is PointerScrollEvent) {
+                                            _handleScroll(
+                                              pointerSignal.scrollDelta.dy,
+                                            );
+                                          }
+                                        },
+                                        child: SingleChildScrollView(
+                                          controller: _tabBarScrollController,
+                                          scrollDirection: Axis.horizontal,
+                                          physics: const ClampingScrollPhysics(),
+                                          child: TabBar(
+                                            isScrollable: true,
+                                            overlayColor: WidgetStateProperty.all(
+                                              Colors.transparent,
+                                            ),
+                                            tabAlignment: TabAlignment.start,
+                                            dividerColor: Colors.transparent,
+                                            padding: EdgeInsets.zero,
+                                            controller: _tabController,
+                                            tabs: sorts.asMap().entries.map((
+                                              entry,
+                                            ) {
+                                              int index = entry.key;
+                                              Sort sort = entry.value;
+                                              return Container(
+                                                key: _tabKeys[index],
+                                                child: Tab(
+                                                  child: Row(
+                                                    children: [
+                                                      sort.icon ?? const SizedBox(),
+                                                      const SizedBox(width: 4),
+                                                      Text(sort.label),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            }).toList(),
                                           ),
                                         ),
-                                      );
-                                    }).toList(),
+                                      ),
+                                    );
+
+                                    if (atStart && atEnd) return tabContent;
+
+                                    return ShaderMask(
+                                      shaderCallback: (Rect rect) {
+                                        return LinearGradient(
+                                          colors: [
+                                            atStart ? Colors.white : Colors.transparent,
+                                            Colors.white,
+                                            Colors.white,
+                                            atEnd ? Colors.white : Colors.transparent,
+                                          ],
+                                          stops: const [0.0, 0.05, 0.85, 1.0],
+                                        ).createShader(rect);
+                                      },
+                                      blendMode: BlendMode.dstIn,
+                                      child: tabContent,
+                                    );
+                                  }),
+                                ),
+                              _buildAnimatedIconButton(
+                                isVisible: showHeader,
+                                child: IconButton(
+                                  icon: const Icon(Icons.vertical_align_top),
+                                  onPressed: () =>
+                                      _mediaListController.scrollToTop(),
+                                  tooltip: t.common.scrollToTop,
+                                ),
+                              ),
+                              if (constraints.maxWidth < 600)
+                                _buildAnimatedIconButton(
+                                  isVisible: showHeader,
+                                  child: PopupMenuButton<String>(
+                                    icon: const Icon(Icons.more_vert),
+                                    position: PopupMenuPosition.under,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    onSelected: (value) {
+                                      switch (value) {
+                                        case 'toggle_pagination':
+                                          _mediaListController.setPaginatedMode(
+                                            !_mediaListController
+                                                .isPaginated
+                                                .value,
+                                          );
+                                          break;
+                                        case 'filter':
+                                          _openParamsModal();
+                                          break;
+                                        case 'toggle_batch':
+                                          _batchSelectController
+                                              .toggleMultiSelect();
+                                          break;
+                                      }
+                                    },
+                                    itemBuilder: (context) => [
+                                      PopupMenuItem<String>(
+                                        value: 'toggle_pagination',
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              _mediaListController
+                                                      .isPaginated
+                                                      .value
+                                                  ? Icons.grid_view
+                                                  : Icons.view_stream,
+                                            ),
+                                            const SizedBox(width: 12),
+                                            Text(
+                                              _mediaListController
+                                                      .isPaginated
+                                                      .value
+                                                  ? t.common.pagination.waterfall
+                                                  : t.common.pagination
+                                                      .pagination,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      PopupMenuItem<String>(
+                                        value: 'filter',
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.filter_list),
+                                            const SizedBox(width: 12),
+                                            Text(t.common.search),
+                                          ],
+                                        ),
+                                      ),
+                                      PopupMenuItem<String>(
+                                        value: 'toggle_batch',
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              _batchSelectController
+                                                      .isMultiSelect
+                                                      .value
+                                                  ? Icons.close
+                                                  : Icons.checklist,
+                                            ),
+                                            const SizedBox(width: 12),
+                                            Text(
+                                              _batchSelectController
+                                                      .isMultiSelect
+                                                      .value
+                                                  ? t.common.exitEditMode
+                                                  : t.common.editMode,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              else ...[
+                                Obx(() {
+                                  return _buildAnimatedIconButton(
+                                    isVisible: showHeader,
+                                    child: IconButton(
+                                      icon: Icon(
+                                        _mediaListController.isPaginated.value
+                                            ? Icons.grid_view
+                                            : Icons.view_stream,
+                                      ),
+                                      onPressed: () {
+                                        _mediaListController.setPaginatedMode(
+                                          !_mediaListController
+                                              .isPaginated
+                                              .value,
+                                        );
+                                      },
+                                      tooltip:
+                                          _mediaListController.isPaginated.value
+                                          ? t.common.pagination.waterfall
+                                          : t.common.pagination.pagination,
+                                    ),
+                                  );
+                                }),
+                                _buildAnimatedIconButton(
+                                  isVisible: showHeader,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.filter_list),
+                                    onPressed: _openParamsModal,
+                                    tooltip: t.common.search,
                                   ),
                                 ),
-                              ),
-                            ),
-                          ),
-                          Obx(() {
-                            final bool showHeader =
-                                _mediaListController.showHeader.value;
-                            return _buildAnimatedIconButton(
-                              isVisible: showHeader,
-                              child: IconButton(
-                                icon: const Icon(Icons.vertical_align_top),
-                                onPressed: () =>
-                                    _mediaListController.scrollToTop(),
-                                tooltip: t.common.scrollToTop,
-                              ),
-                            );
-                          }),
-                          Obx(() {
-                            final bool showHeader =
-                                _mediaListController.showHeader.value;
-                            return _buildAnimatedIconButton(
-                              isVisible: showHeader,
-                              child: IconButton(
-                                icon: Icon(
-                                  _mediaListController.isPaginated.value
-                                      ? Icons.grid_view
-                                      : Icons.view_stream,
-                                ),
-                                onPressed: () {
-                                  _mediaListController.setPaginatedMode(
-                                    !_mediaListController.isPaginated.value,
+                                Obx(() {
+                                  return _buildAnimatedIconButton(
+                                    isVisible: showHeader,
+                                    child: IconButton(
+                                      icon: Icon(
+                                        _batchSelectController
+                                                .isMultiSelect
+                                                .value
+                                            ? Icons.close
+                                            : Icons.checklist,
+                                      ),
+                                      onPressed: () => _batchSelectController
+                                          .toggleMultiSelect(),
+                                      tooltip:
+                                          _batchSelectController
+                                              .isMultiSelect
+                                              .value
+                                          ? t.common.exitEditMode
+                                          : t.common.editMode,
+                                    ),
                                   );
-                                },
-                                tooltip: _mediaListController.isPaginated.value
-                                    ? t.common.pagination.waterfall
-                                    : t.common.pagination.pagination,
-                              ),
-                            );
-                          }),
-                          Obx(() {
-                            final bool showHeader =
-                                _mediaListController.showHeader.value;
-                            return _buildAnimatedIconButton(
-                              isVisible: showHeader,
-                              child: IconButton(
-                                icon: const Icon(Icons.filter_list),
-                                onPressed: _openParamsModal,
-                                tooltip: t.common.search,
-                              ),
-                            );
-                          }),
-                          Obx(() {
-                            final bool showHeader =
-                                _mediaListController.showHeader.value;
-                            return _buildAnimatedIconButton(
-                              isVisible: showHeader,
-                              child: IconButton(
-                                icon: Icon(
-                                  _batchSelectController.isMultiSelect.value
-                                      ? Icons.close
-                                      : Icons.checklist,
-                                ),
-                                onPressed: () =>
-                                    _batchSelectController.toggleMultiSelect(),
-                                tooltip:
-                                    _batchSelectController.isMultiSelect.value
-                                    ? t.common.exitEditMode
-                                    : t.common.editMode,
-                              ),
-                            );
-                          }),
-                        ],
-                      ),
+                                }),
+                              ],
+                            ],
+                          ),
+                        );
+                      }),
                     ),
                   ),
                   // 内容区域

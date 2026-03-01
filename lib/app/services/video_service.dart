@@ -100,11 +100,13 @@ class VideoService extends GetxService {
   Future<ApiResult<PageData<Video>>> fetchAuthorVideos(
     String userId, {
     required String excludeVideoId,
+    int page = 0,
     int limit = 6,
   }) async {
     try {
       return await fetchVideosByParams(
         params: {'user': userId, 'exclude': excludeVideoId},
+        page: page,
         limit: limit,
       );
     } catch (e) {

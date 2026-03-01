@@ -529,6 +529,8 @@ class _TranslationsGalleryDetailZhTw implements TranslationsGalleryDetailEn {
 	@override String get moreFeaturesToBeDiscovered => '更多功能待發掘...';
 	@override String get authorOtherGalleries => '作者的其他圖庫';
 	@override String get relatedGalleries => '相關圖庫';
+	@override String get authorNoOtherGalleries => '作者暫無其他圖庫';
+	@override String get noRelatedGalleries => '暫無相關圖庫';
 	@override String get clickLeftAndRightEdgeToSwitchImage => '點擊左右邊緣以切換圖片';
 }
 
@@ -3206,6 +3208,8 @@ extension on TranslationsZhTw {
 			'galleryDetail.moreFeaturesToBeDiscovered' => '更多功能待發掘...',
 			'galleryDetail.authorOtherGalleries' => '作者的其他圖庫',
 			'galleryDetail.relatedGalleries' => '相關圖庫',
+			'galleryDetail.authorNoOtherGalleries' => '作者暫無其他圖庫',
+			'galleryDetail.noRelatedGalleries' => '暫無相關圖庫',
 			'galleryDetail.clickLeftAndRightEdgeToSwitchImage' => '點擊左右邊緣以切換圖片',
 			'playList.myPlayList' => '我的播放清單',
 			'playList.friendlyTips' => '友情提示',
@@ -3318,10 +3322,10 @@ extension on TranslationsZhTw {
 			'settings.updateContent' => '更新內容',
 			'settings.releaseDate' => '發布日期',
 			'settings.ignoreThisVersion' => '忽略此版本',
-			'settings.minVersionUpdateRequired' => '目前版本過低，請盡快更新',
-			'settings.forceUpdateTip' => '此版本為強制更新，請盡快更新到最新版本',
 			_ => null,
 		} ?? switch (path) {
+			'settings.minVersionUpdateRequired' => '目前版本過低，請盡快更新',
+			'settings.forceUpdateTip' => '此版本為強制更新，請盡快更新到最新版本',
 			'settings.viewChangelog' => '查看更新日誌',
 			'settings.alreadyLatestVersion' => '已是最新版本',
 			'settings.appSettings' => '應用設定',
@@ -3832,10 +3836,10 @@ extension on TranslationsZhTw {
 			'markdown.listSyntax' => '1. 第一項\n2. 第二項\n\n- 無序項\n  - 子項\n  - 另一個子項',
 			'markdown.linkAndImage' => '連結與圖片',
 			'markdown.linkAndImageDescription' => '連結格式：[文字](URL)\n圖片格式：![描述](URL)',
-			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[連結文字](${link})\n![圖片描述](${imgUrl})',
-			'markdown.title' => '標題',
 			_ => null,
 		} ?? switch (path) {
+			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[連結文字](${link})\n![圖片描述](${imgUrl})',
+			'markdown.title' => '標題',
 			'markdown.titleDescription' => '使用 # 號建立標題，數量表示級別',
 			'markdown.titleSyntax' => '# 一級標題\n## 二級標題\n### 三級標題',
 			'markdown.separator' => '分隔線',
@@ -4346,10 +4350,10 @@ extension on TranslationsZhTw {
 			'mediaPlayer.supportedFormats' => '支援格式: MP4, MKV, AVI, MOV, WEBM 等',
 			'mediaPlayer.noSupportedVideoFile' => '未找到支援的影片檔案',
 			'mediaPlayer.imageLoadFailed' => '圖片載入失敗',
-			'mediaPlayer.unsupportedImageFormat' => '不支援的圖片格式',
-			'mediaPlayer.tryOtherViewer' => '請嘗試使用其他檢視器',
 			_ => null,
 		} ?? switch (path) {
+			'mediaPlayer.unsupportedImageFormat' => '不支援的圖片格式',
+			'mediaPlayer.tryOtherViewer' => '請嘗試使用其他檢視器',
 			'mediaPlayer.retryingOpenVideoLink' => '影片連結開啟失敗，重試中',
 			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => '無法載入解碼器: ${event}，可在播放器設定切換為軟解，並重新進入頁面嘗試',
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '影片載入錯誤: ${event}',

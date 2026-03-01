@@ -167,8 +167,10 @@ class _AuthorLine extends StatelessWidget {
 
   Widget _buildAuthorIdentity(BuildContext context) {
     return InkWell(
-      onTap: () =>
-          NaviService.navigateToAuthorProfilePage(thread.user.username),
+      onTap: () => NaviService.navigateToAuthorProfilePage(
+        thread.user.username,
+        initialUser: thread.user,
+      ),
       borderRadius: BorderRadius.circular(8),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 1),
@@ -282,8 +284,10 @@ class _LastReplyLine extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           InkWell(
-            onTap: () =>
-                NaviService.navigateToAuthorProfilePage(lastPost.user.username),
+            onTap: () => NaviService.navigateToAuthorProfilePage(
+              lastPost.user.username,
+              initialUser: lastPost.user,
+            ),
             borderRadius: BorderRadius.circular(99),
             child: AvatarWidget(user: lastPost.user, size: 24),
           ),
@@ -298,6 +302,7 @@ class _LastReplyLine extends StatelessWidget {
                       child: InkWell(
                         onTap: () => NaviService.navigateToAuthorProfilePage(
                           lastPost.user.username,
+                          initialUser: lastPost.user,
                         ),
                         child: buildUserName(
                           context,

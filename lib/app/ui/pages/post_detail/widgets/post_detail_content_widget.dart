@@ -139,7 +139,10 @@ class PostDetailContent extends StatelessWidget {
 
   Widget _buildAuthorIdentity(BuildContext context, User user) {
     return InkWell(
-      onTap: () => NaviService.navigateToAuthorProfilePage(user.username),
+      onTap: () => NaviService.navigateToAuthorProfilePage(
+        user.username,
+        initialUser: user,
+      ),
       borderRadius: BorderRadius.circular(12),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 2),

@@ -245,7 +245,14 @@ final GoRouter appRouter = GoRouter(
           name: 'author_profile',
           builder: (context, state) {
             final username = state.pathParameters['userName']!;
-            return AuthorProfilePage(username: username);
+            final extra = state.extra;
+            final authorProfileExtra = extra is AuthorProfileExtra
+                ? extra
+                : null;
+            return AuthorProfilePage(
+              username: username,
+              initialUser: authorProfileExtra?.initialUser,
+            );
           },
         ),
 
@@ -743,6 +750,12 @@ class GalleryDetailExtra {
     this.authorUsername,
     this.authorAvatarUrl,
   });
+}
+
+class AuthorProfileExtra {
+  final User? initialUser;
+
+  const AuthorProfileExtra({this.initialUser});
 }
 
 class VideoDetailExtra {
