@@ -1,5 +1,5 @@
 # 最新版本
-currentVersion: "0.4.2"
+currentVersion: "0.4.3"
 # 更新日志
 # 格式介绍
 # 1. version: 版本号
@@ -7,6 +7,28 @@ currentVersion: "0.4.2"
 # 3. changes: 更新内容
 # 4. minVersion: 最小版本号
 updates:
+  - version: "0.4.3"
+    date: "2026-03-02"
+    minVersion: "0.3.0"
+    changes:
+      zh-CN:
+        - "重构路由体系，为开启预测性返回手势动画的安卓设备提供支持，为 iOS 提供更接近原生的手势返回交互，整体导航更快更流畅"
+        - "优化常用列表、详情页的布局和交互"
+        - "修复部分机型因 Impeller 配置错误导致的闪退问题"
+        - "Windows 版本移除 zip 构建产物，统一使用安装器进行安装，解决视频播放卡死问题"
+        - "其他优化和错误修复"
+      en:
+        - "Refactored routing system to support predictive back gesture animations on Android, and provide more native-like swipe-back interactions on iOS, with smoother overall navigation"
+        - "Improved layouts and interactions for common lists and detail pages"
+        - "Fixed crashes on some devices caused by incorrect Impeller configuration"
+        - "Removed Windows zip build artifacts; now using installer only, fixing video playback freeze issues"
+        - "Other optimizations and bug fixes"
+      ja:
+        - "ルーティングを再構築し、Android の予測戻るジェスチャーアニメーションに対応、iOS ではよりネイティブに近いスワイプバック操作を提供、全体的なナビゲーションがよりスムーズに"
+        - "一覧ページと詳細ページのレイアウトと操作性を改善"
+        - "Impeller 設定の誤りによる一部端末でのクラッシュを修正"
+        - "Windows 版で zip ビルドを廃止し、インストーラーに統一、動画再生時のフリーズ問題を解決"
+        - "その他の最適化とバグ修正"
   - version: "0.4.2"
     date: "2026-02-20"
     minVersion: "0.3.0"
