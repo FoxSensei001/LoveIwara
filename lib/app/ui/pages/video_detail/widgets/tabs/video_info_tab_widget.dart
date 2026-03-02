@@ -915,7 +915,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildDownloadSplitButton(context, isPrimary: true),
+        _buildDownloadSplitButton(context),
         const SizedBox(height: UIConstants.listSpacing),
         Wrap(
           spacing: UIConstants.listSpacing, // Horizontal space between buttons

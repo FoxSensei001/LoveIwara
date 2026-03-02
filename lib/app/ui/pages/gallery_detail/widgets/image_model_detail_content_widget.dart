@@ -54,9 +54,7 @@ class ImageModelDetailContent extends StatelessWidget {
   Widget _buildGalleryDetails(BuildContext context) {
     return Obx(() {
       return Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 0,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -402,12 +400,15 @@ class ImageModelDetailContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        FilledActionButton(
-          icon: Icons.download,
-          label: t.download.download,
-          onTap: () => _downloadGallery(context),
-          // 下载作为主操作，默认高亮；已有下载任务时保持高亮状态。
-          accentColor: Theme.of(context).primaryColor,
+        Obx(
+          () => FilledActionButton(
+            icon: Icons.download,
+            label: t.download.download,
+            onTap: () => _downloadGallery(context),
+            accentColor: controller.hasAnyDownloadTask.value
+                ? Theme.of(context).primaryColor
+                : null,
+          ),
         ),
         const SizedBox(height: UIConstants.listSpacing),
         Wrap(

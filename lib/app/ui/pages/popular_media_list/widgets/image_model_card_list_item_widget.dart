@@ -120,10 +120,13 @@ class _ImageModelCardListItemWidgetState
                             coverUrl: widget.imageModel.thumbnailUrl,
                             title: widget.imageModel.title,
                             imageCount: widget.imageModel.numImages,
+                            authorId: widget.imageModel.user?.id,
                             authorName: widget.imageModel.user?.name,
                             authorUsername: widget.imageModel.user?.username,
                             authorAvatarUrl:
                                 widget.imageModel.user?.avatar?.avatarUrl,
+                            authorRole: widget.imageModel.user?.role,
+                            authorPremium: widget.imageModel.user?.premium,
                           ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

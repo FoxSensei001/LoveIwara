@@ -232,9 +232,12 @@ final GoRouter appRouter = GoRouter(
               initialCoverUrl: galleryExtra?.coverUrl,
               initialTitle: galleryExtra?.title,
               initialImageCount: galleryExtra?.imageCount,
+              initialAuthorId: galleryExtra?.authorId,
               initialAuthorName: galleryExtra?.authorName,
               initialAuthorUsername: galleryExtra?.authorUsername,
               initialAuthorAvatarUrl: galleryExtra?.authorAvatarUrl,
+              initialAuthorRole: galleryExtra?.authorRole,
+              initialAuthorPremium: galleryExtra?.authorPremium,
             );
           },
         ),
@@ -738,17 +741,23 @@ class GalleryDetailExtra {
   final String? coverUrl;
   final String? title;
   final int? imageCount;
+  final String? authorId;
   final String? authorName;
   final String? authorUsername;
   final String? authorAvatarUrl;
+  final String? authorRole;
+  final bool? authorPremium;
 
   const GalleryDetailExtra({
     this.coverUrl,
     this.title,
     this.imageCount,
+    this.authorId,
     this.authorName,
     this.authorUsername,
     this.authorAvatarUrl,
+    this.authorRole,
+    this.authorPremium,
   });
 }
 

@@ -45,9 +45,13 @@ class ImageModelTileListItem extends StatelessWidget {
               placeholder: (context, url) =>
                   Container(width: 120, height: 90, color: Colors.grey[300]),
               errorWidget: (context, url, error) => Container(
-                      color: Colors.grey[200],
-                      child: Icon(Icons.image_not_supported, size: 40, color: Colors.grey[600])
-                    ),
+                color: Colors.grey[200],
+                child: Icon(
+                  Icons.image_not_supported,
+                  size: 40,
+                  color: Colors.grey[600],
+                ),
+              ),
             ),
           ),
         ),
@@ -61,7 +65,7 @@ class ImageModelTileListItem extends StatelessWidget {
           _buildViewsNums(context, imageModel.numViews),
         // 左上角显示点赞数量
         if (imageModel.numLikes > 0)
-          _buildLikeNums(context, imageModel.numLikes)
+          _buildLikeNums(context, imageModel.numLikes),
       ],
     );
   }
@@ -71,10 +75,7 @@ class ImageModelTileListItem extends StatelessWidget {
     return Positioned(
       left: 0,
       bottom: 0,
-      child: _buildTag(
-        label: 'R18',
-        backgroundColor: Colors.red,
-      ),
+      child: _buildTag(label: 'R18', backgroundColor: Colors.red),
     );
   }
 
@@ -118,8 +119,11 @@ class ImageModelTileListItem extends StatelessWidget {
   }
 
   /// 通用标签构建方法
-  Widget _buildTag(
-      {required String label, required Color backgroundColor, Widget? icon}) {
+  Widget _buildTag({
+    required String label,
+    required Color backgroundColor,
+    Widget? icon,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
       decoration: BoxDecoration(
@@ -129,14 +133,11 @@ class ImageModelTileListItem extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (icon != null) ...[
-            icon,
-            const SizedBox(width: 2),
-          ],
+          if (icon != null) ...[icon, const SizedBox(width: 2)],
           Text(
             label,
             style: const TextStyle(
-              color: Colors.white, 
+              color: Colors.white,
               fontSize: 10,
               fontWeight: FontWeight.w500,
             ),
@@ -198,9 +199,12 @@ class ImageModelTileListItem extends StatelessWidget {
       coverUrl: imageModel.thumbnailUrl,
       title: imageModel.title,
       imageCount: imageModel.numImages,
+      authorId: imageModel.user?.id,
       authorName: imageModel.user?.name,
       authorUsername: imageModel.user?.username,
       authorAvatarUrl: imageModel.user?.avatar?.avatarUrl,
+      authorRole: imageModel.user?.role,
+      authorPremium: imageModel.user?.premium,
     );
   }
 }

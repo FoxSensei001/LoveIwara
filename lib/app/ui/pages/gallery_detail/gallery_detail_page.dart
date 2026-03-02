@@ -44,9 +44,12 @@ class GalleryDetailPage extends StatefulWidget {
   final String? initialCoverUrl;
   final String? initialTitle;
   final int? initialImageCount;
+  final String? initialAuthorId;
   final String? initialAuthorName;
   final String? initialAuthorUsername;
   final String? initialAuthorAvatarUrl;
+  final String? initialAuthorRole;
+  final bool? initialAuthorPremium;
 
   const GalleryDetailPage({
     super.key,
@@ -54,9 +57,12 @@ class GalleryDetailPage extends StatefulWidget {
     this.initialCoverUrl,
     this.initialTitle,
     this.initialImageCount,
+    this.initialAuthorId,
     this.initialAuthorName,
     this.initialAuthorUsername,
     this.initialAuthorAvatarUrl,
+    this.initialAuthorRole,
+    this.initialAuthorPremium,
   });
 
   @override
@@ -419,13 +425,24 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
     final username = (user?.username ?? widget.initialAuthorUsername ?? '')
         .trim();
     final authorName = (user?.name ?? widget.initialAuthorName ?? '').trim();
+    final authorId = (user?.id ?? widget.initialAuthorId ?? '').trim();
+    final authorRole = (user?.role ?? widget.initialAuthorRole ?? '').trim();
+    final authorPremium =
+        user?.premium ?? (widget.initialAuthorPremium ?? false);
     final displayName = authorName.isNotEmpty
         ? authorName
         : (username.isNotEmpty ? username : t.common.unknownUser);
     final avatarUrl = user?.avatar?.avatarUrl ?? widget.initialAuthorAvatarUrl;
 
     final User effectiveUser =
-        user ?? User(id: 'unknown', name: displayName, username: username);
+        user ??
+        User(
+          id: authorId.isNotEmpty ? authorId : 'unknown',
+          name: displayName,
+          username: username,
+          role: authorRole,
+          premium: authorPremium,
+        );
 
     VoidCallback? onTapAuthor;
     if (username.isNotEmpty) {
@@ -538,9 +555,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
           ),
           const SizedBox(height: 16),
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 0
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 0),
             child: CommentEntryAreaButtonWidget(
               commentController: commentController,
               onClickButton: () => showCommentModal(context),

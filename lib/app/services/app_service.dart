@@ -219,17 +219,23 @@ class NaviService {
     String? coverUrl,
     String? title,
     int? imageCount,
+    String? authorId,
     String? authorName,
     String? authorUsername,
     String? authorAvatarUrl,
+    String? authorRole,
+    bool? authorPremium,
   }) {
     final shouldAttachExtra =
         coverUrl != null ||
         title != null ||
         imageCount != null ||
+        authorId != null ||
         authorName != null ||
         authorUsername != null ||
-        authorAvatarUrl != null;
+        authorAvatarUrl != null ||
+        authorRole != null ||
+        authorPremium != null;
 
     appRouter.push(
       '/gallery_detail/$id',
@@ -238,9 +244,12 @@ class NaviService {
               coverUrl: coverUrl,
               title: title,
               imageCount: imageCount,
+              authorId: authorId,
               authorName: authorName,
               authorUsername: authorUsername,
               authorAvatarUrl: authorAvatarUrl,
+              authorRole: authorRole,
+              authorPremium: authorPremium,
             )
           : null,
     );

@@ -22,6 +22,7 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
   final SearchService _searchService = Get.find<SearchService>();
   bool _isLoading = false;
   bool _isLoadingDialogVisible = false;
+  BuildContext? _loadingDialogContext;
   CancelToken? _cancelToken;
 
   @override
@@ -204,24 +205,32 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
     showDialog(
       context: context,
       barrierDismissible: true,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
+        _loadingDialogContext = dialogContext;
         return PopScope(
           canPop: false,
           onPopInvokedWithResult: (didPop, result) {
-            if (didPop) return;
-            // 用户点击返回键或点击弹窗外面时取消操作
-            _cancelToken?.cancel('用户取消');
-            setState(() {
-              _isLoading = false;
-            });
-            Navigator.of(context).pop();
+            // 弹窗被系统返回链或用户手势关闭后，也必须取消请求，避免继续跳转。
+            if (_isLoading) {
+              _cancelToken?.cancel('用户取消');
+              if (mounted) {
+                setState(() {
+                  _isLoading = false;
+                });
+              } else {
+                _isLoading = false;
+              }
+            }
+            if (!didPop) {
+              Navigator.of(dialogContext).pop();
+            }
           },
           child: Dialog(
             backgroundColor: Colors.transparent,
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
+                color: Theme.of(dialogContext).colorScheme.surface,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
@@ -239,7 +248,9 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer,
+                      color: Theme.of(
+                        dialogContext,
+                      ).colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(30),
                     ),
                     child: Center(
@@ -249,7 +260,7 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
                         child: CircularProgressIndicator(
                           strokeWidth: 3,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            Theme.of(context).colorScheme.primary,
+                            Theme.of(dialogContext).colorScheme.primary,
                           ),
                         ),
                       ),
@@ -260,7 +271,7 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
                   Text(
                     slang.t.oreno3d.loading.gettingVideoInfo,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
+                      color: Theme.of(dialogContext).colorScheme.onSurface,
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                     ),
@@ -272,10 +283,12 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
                     onPressed: () {
                       // 取消网络请求
                       _cancelToken?.cancel('用户取消');
-                      setState(() {
-                        _isLoading = false;
-                      });
-                      Navigator.of(context).pop();
+                      if (mounted) {
+                        setState(() {
+                          _isLoading = false;
+                        });
+                      }
+                      Navigator.of(dialogContext).pop();
                     },
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
@@ -286,7 +299,7 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       side: BorderSide(
-                        color: Theme.of(context).colorScheme.outline,
+                        color: Theme.of(dialogContext).colorScheme.outline,
                       ),
                     ),
                     child: Text(
@@ -294,7 +307,7 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onSurface,
+                        color: Theme.of(dialogContext).colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -305,7 +318,18 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
         );
       },
     ).whenComplete(() {
+      if (_isLoading) {
+        _cancelToken?.cancel('用户取消');
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        } else {
+          _isLoading = false;
+        }
+      }
       _isLoadingDialogVisible = false;
+      _loadingDialogContext = null;
     });
   }
 
@@ -313,8 +337,14 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
     if (!_isLoadingDialogVisible) {
       return;
     }
-    AppService.tryPop();
-    _isLoadingDialogVisible = false;
+
+    final dialogContext = _loadingDialogContext;
+    if (dialogContext != null && dialogContext.mounted) {
+      AppService.tryPop(context: dialogContext);
+      return;
+    }
+
+    AppService.tryPop(context: context);
   }
 
   Future<void> _handleVideoTap() async {
@@ -337,12 +367,17 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
         cancelToken: _cancelToken,
       );
 
+      // 用户已取消（例如返回键关闭弹窗）时，即使请求晚到也不再继续后续跳转。
+      if (!_isLoading) {
+        return;
+      }
+
       // 关闭loading dialog
       if (mounted && _isLoading) {
-        _closeLoadingDialogIfNeeded();
         setState(() {
           _isLoading = false;
         });
+        _closeLoadingDialogIfNeeded();
       }
 
       if (detail == null) {
@@ -385,10 +420,10 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
 
       // 关闭loading dialog
       if (mounted && _isLoading) {
-        _closeLoadingDialogIfNeeded();
         setState(() {
           _isLoading = false;
         });
+        _closeLoadingDialogIfNeeded();
       }
 
       // 处理错误
