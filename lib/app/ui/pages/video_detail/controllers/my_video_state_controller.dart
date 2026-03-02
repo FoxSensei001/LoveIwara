@@ -484,29 +484,21 @@ class MyVideoStateController extends GetxController
         // });
       }
 
-      // 音量初始化逻辑
-      bool keepLastVolumeKey = _configService[ConfigKey.KEEP_LAST_VOLUME_KEY];
-      if (keepLastVolumeKey) {
-        // 保持之前的音量
-        double lastVolume = _configService[ConfigKey.VOLUME_KEY];
-        setVolume(lastVolume, save: false);
-        LogUtils.d('使用记住的音量: $lastVolume', 'MyVideoStateController');
+      // 音量初始化逻辑（不再使用“记住音量”配置）
+      if (GetPlatform.isAndroid || GetPlatform.isIOS) {
+        // 更新配置为当前的系统音量
+        double currentVolume = await volumeController?.getVolume() ?? 0.4;
+        _configService.setSetting(
+          ConfigKey.VOLUME_KEY,
+          currentVolume,
+          save: true,
+        );
+        LogUtils.d('使用系统音量: $currentVolume', 'MyVideoStateController');
       } else {
-        if (GetPlatform.isAndroid || GetPlatform.isIOS) {
-          // 更新配置为当前的系统音量
-          double currentVolume = await volumeController?.getVolume() ?? 0.4;
-          _configService.setSetting(
-            ConfigKey.VOLUME_KEY,
-            currentVolume,
-            save: true,
-          );
-          LogUtils.d('使用系统音量: $currentVolume', 'MyVideoStateController');
-        } else {
-          // 桌面平台使用配置中的默认音量
-          double defaultVolume = 1;
-          setVolume(defaultVolume, save: false);
-          LogUtils.d('使用默认音量: $defaultVolume', 'MyVideoStateController');
-        }
+        // 桌面平台使用默认音量
+        double defaultVolume = 1;
+        setVolume(defaultVolume, save: false);
+        LogUtils.d('使用默认音量: $defaultVolume', 'MyVideoStateController');
       }
 
       // 设置亮度

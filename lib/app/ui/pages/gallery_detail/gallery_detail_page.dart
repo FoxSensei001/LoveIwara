@@ -539,7 +539,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
           const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: UIConstants.pagePadding,
+              horizontal: 0
             ),
             child: CommentEntryAreaButtonWidget(
               commentController: commentController,

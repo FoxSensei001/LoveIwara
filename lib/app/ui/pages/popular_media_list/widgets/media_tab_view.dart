@@ -6,10 +6,12 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/popular_medi
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
 import 'package:i_iwara/app/utils/media_layout_utils.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'media_list_view.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 
 class MediaTabView<T> extends StatefulWidget {
+  final SortId sortId;
   final LoadingMoreBase<T> repository;
   final IconData emptyIcon;
   final bool isPaginated;
@@ -32,6 +34,7 @@ class MediaTabView<T> extends StatefulWidget {
 
   const MediaTabView({
     super.key,
+    required this.sortId,
     required this.repository,
     required this.emptyIcon,
     this.isPaginated = false,
@@ -65,9 +68,8 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
   void _setupScrollListener() {
     if (widget.mediaListController != null) {
       // 注册滚动控制器
-      final controllerKey = '${widget.rebuildKey}_${widget.hashCode}';
       widget.mediaListController!.registerScrollController(
-        controllerKey,
+        widget.sortId,
         _scrollController,
       );
 
@@ -86,7 +88,11 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
         }
 
         // 更新控制器的滚动信息
-        controller.updateScrollInfo(currentOffset, direction);
+        controller.updateScrollInfo(
+          sortId: widget.sortId,
+          offset: currentOffset,
+          direction: direction,
+        );
       });
     }
   }
@@ -95,8 +101,10 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
   void dispose() {
     if (widget.mediaListController != null) {
       // 注销滚动控制器
-      final controllerKey = '${widget.rebuildKey}_${widget.hashCode}';
-      widget.mediaListController!.unregisterScrollController(controllerKey);
+      widget.mediaListController!.unregisterScrollController(
+        widget.sortId,
+        _scrollController,
+      );
     }
     _scrollController.dispose();
     super.dispose();

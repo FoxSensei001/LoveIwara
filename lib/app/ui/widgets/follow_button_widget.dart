@@ -40,6 +40,22 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
     _currentUser = widget.user;
   }
 
+  @override
+  void didUpdateWidget(covariant FollowButtonWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_shouldSyncUser(oldWidget.user, widget.user)) {
+      _currentUser = widget.user;
+    }
+  }
+
+  bool _shouldSyncUser(User oldUser, User newUser) {
+    if (oldUser.id != newUser.id) return true;
+    if (oldUser.following != newUser.following) return true;
+    if (oldUser.followedBy != newUser.followedBy) return true;
+    if (oldUser.friend != newUser.friend) return true;
+    return false;
+  }
+
   // 构建加载中的按钮
   Widget _buildLoadingButton({
     bool isFollowing = false,

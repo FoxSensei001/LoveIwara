@@ -150,8 +150,9 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
     final videoId = widget.controller.videoId;
 
     final initialTitle = _getExtDataString('title') ?? '';
-    final displayTitle = initialTitle.isNotEmpty
-        ? initialTitle
+    final hasInitialTitle = initialTitle.trim().isNotEmpty;
+    final displayTitle = hasInitialTitle
+        ? initialTitle.trim()
         : t.common.noTitle;
 
     final authorUser = _buildInitialAuthorUser();
@@ -167,6 +168,9 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
           borderRadius: BorderRadius.circular(8),
         ),
       );
+    } else if (hasInitialTitle) {
+      // 有初始标题信息时复用正式标题组件，确保字号/按钮/内边距与正式态一致
+      titleWidget = _buildVideoTitle(context);
     } else {
       titleWidget = Text(
         displayTitle,
@@ -245,6 +249,16 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
               ),
             ),
           ),
+          Container(
+            width: 72,
+            height: 32,
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest.withValues(
+                alpha: 0.55,
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
         ],
       );
     }
@@ -255,8 +269,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           titleWidget,
-          const SizedBox(height: UIConstants.sectionSpacing),
-          if (authorWidget is! SizedBox) authorWidget,
+          authorWidget,
           const SizedBox(height: UIConstants.sectionSpacing),
           Shimmer.fromColors(
             baseColor: colorScheme.surfaceContainerHighest,

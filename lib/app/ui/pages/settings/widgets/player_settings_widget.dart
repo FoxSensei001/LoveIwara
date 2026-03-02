@@ -48,7 +48,9 @@ class PlayerSettingsWidget extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.info_outline,
-                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : null,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -83,13 +85,19 @@ class PlayerSettingsWidget extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(iconData, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null),
+                Icon(
+                  iconData,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : null,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     label,
-                    style: Theme.of(context).textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 IgnorePointer(
@@ -148,7 +156,12 @@ class PlayerSettingsWidget extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(iconData, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null),
+            Icon(
+              iconData,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : null,
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -156,8 +169,9 @@ class PlayerSettingsWidget extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: Theme.of(context).textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   if (subtitle != null)
                     Text(
@@ -178,7 +192,9 @@ class PlayerSettingsWidget extends StatelessWidget {
             const SizedBox(width: 8),
             Icon(
               Icons.chevron_right,
-              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : null,
             ),
           ],
         ),
@@ -295,12 +311,16 @@ class PlayerSettingsWidget extends StatelessWidget {
                       },
                       icon: Icon(
                         Icons.fast_forward,
-                        color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : null,
                       ),
                       inputDecoration: InputDecoration(
                         suffixText: t.common.seconds,
                         suffixStyle: TextStyle(
-                          color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white
+                              : null,
                         ),
                         border: const OutlineInputBorder(),
                       ),
@@ -330,12 +350,16 @@ class PlayerSettingsWidget extends StatelessWidget {
                       },
                       icon: Icon(
                         Icons.fast_rewind,
-                        color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : null,
                       ),
                       inputDecoration: InputDecoration(
                         suffixText: t.common.seconds,
                         suffixStyle: TextStyle(
-                          color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white
+                              : null,
                         ),
                         border: const OutlineInputBorder(),
                       ),
@@ -371,12 +395,16 @@ class PlayerSettingsWidget extends StatelessWidget {
                       ),
                       icon: Icon(
                         Icons.speed,
-                        color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : null,
                       ),
                       inputDecoration: InputDecoration(
                         suffixText: 'x',
                         suffixStyle: TextStyle(
-                          color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white
+                              : null,
                         ),
                         border: const OutlineInputBorder(),
                       ),
@@ -415,21 +443,6 @@ class PlayerSettingsWidget extends StatelessWidget {
                     rxValue: _configService.settings[ConfigKey.REPEAT_KEY]!,
                     onChanged: (value) {
                       _configService[ConfigKey.REPEAT_KEY] = value;
-                    },
-                  ),
-                  // 记住音量
-                  _buildSwitchSetting(
-                    context: context,
-                    iconData: Icons.volume_up,
-                    label: t.settings.rememberVolume,
-                    showInfoCard: true,
-                    infoMessage: t
-                        .settings
-                        .thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain,
-                    rxValue: _configService
-                        .settings[ConfigKey.KEEP_LAST_VOLUME_KEY]!,
-                    onChanged: (value) {
-                      _configService[ConfigKey.KEEP_LAST_VOLUME_KEY] = value;
                     },
                   ),
                   // 记住亮度（仅限特定平台）
@@ -540,15 +553,17 @@ class PlayerSettingsWidget extends StatelessWidget {
                           children: [
                             Icon(
                               Icons.lock,
-                              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
+                              color:
+                                  Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? Colors.white
+                                  : null,
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
                                 t.settings.lockButtonPosition,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
+                                style: Theme.of(context).textTheme.titleMedium
                                     ?.copyWith(fontWeight: FontWeight.bold),
                               ),
                             ),
@@ -641,15 +656,17 @@ class PlayerSettingsWidget extends StatelessWidget {
                             children: [
                               Icon(
                                 Icons.screen_rotation,
-                                color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
+                                color:
+                                    Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? Colors.white
+                                    : null,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
                                   t.settings.fullscreenOrientation,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
+                                  style: Theme.of(context).textTheme.titleMedium
                                       ?.copyWith(fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -1068,9 +1085,7 @@ class PlayerSettingsWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          SizedBox(
-            height: computeBottomSafeInset(MediaQuery.of(context)),
-          ),
+          SizedBox(height: computeBottomSafeInset(MediaQuery.of(context))),
         ],
       ),
     );

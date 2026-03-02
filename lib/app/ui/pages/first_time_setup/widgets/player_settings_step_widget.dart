@@ -24,7 +24,8 @@ class PlayerSettingsStepWidget extends StatefulWidget {
   });
 
   @override
-  State<PlayerSettingsStepWidget> createState() => _PlayerSettingsStepWidgetState();
+  State<PlayerSettingsStepWidget> createState() =>
+      _PlayerSettingsStepWidgetState();
 }
 
 class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
@@ -35,7 +36,6 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
   late int rewindSeconds;
   late double longPressPlaybackSpeed;
   late bool repeat;
-  late bool rememberVolume;
   late bool rememberBrightness;
   late bool recordAndRestoreProgress;
   late bool showBottomProgressBarWhenToolbarHidden;
@@ -53,37 +53,54 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
     theaterMode = configService[ConfigKey.THEATER_MODE_KEY];
     fastForwardSeconds = configService[ConfigKey.FAST_FORWARD_SECONDS_KEY];
     rewindSeconds = configService[ConfigKey.REWIND_SECONDS_KEY];
-    longPressPlaybackSpeed = configService[ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY];
+    longPressPlaybackSpeed =
+        configService[ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY];
     repeat = configService[ConfigKey.REPEAT_KEY];
-    rememberVolume = configService[ConfigKey.KEEP_LAST_VOLUME_KEY];
     rememberBrightness = configService[ConfigKey.KEEP_LAST_BRIGHTNESS_KEY];
-    recordAndRestoreProgress = configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS];
-    showBottomProgressBarWhenToolbarHidden = configService[ConfigKey.SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN];
-    keepToolbarVisibleByDefault = configService[ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE];
-    enableMouseHoverShowToolbar = configService[ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR];
+    recordAndRestoreProgress =
+        configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS];
+    showBottomProgressBarWhenToolbarHidden =
+        configService[ConfigKey
+            .SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN];
+    keepToolbarVisibleByDefault =
+        configService[ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE];
+    enableMouseHoverShowToolbar =
+        configService[ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR];
   }
 
-  Future<void> _setBool(ConfigKey key, bool value, void Function(bool) localSet) async {
+  Future<void> _setBool(
+    ConfigKey key,
+    bool value,
+    void Function(bool) localSet,
+  ) async {
     setState(() => localSet(value));
     await configService.setSetting(key, value);
   }
 
-  Future<void> _setInt(ConfigKey key, int value, void Function(int) localSet) async {
+  Future<void> _setInt(
+    ConfigKey key,
+    int value,
+    void Function(int) localSet,
+  ) async {
     setState(() => localSet(value));
     await configService.setSetting(key, value);
   }
 
-  Future<void> _setDouble(ConfigKey key, double value, void Function(double) localSet) async {
+  Future<void> _setDouble(
+    ConfigKey key,
+    double value,
+    void Function(double) localSet,
+  ) async {
     setState(() => localSet(value));
     await configService.setSetting(key, value);
   }
-
 
   @override
   Widget build(BuildContext context) {
     return StepResponsiveScaffold(
       desktopBuilder: (context, theme) => _buildDesktopLayout(context, theme),
-      mobileBuilder: (context, theme, isNarrow) => _buildMobileLayout(context, theme, isNarrow),
+      mobileBuilder: (context, theme, isNarrow) =>
+          _buildMobileLayout(context, theme, isNarrow),
     );
   }
 
@@ -91,10 +108,7 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          flex: 1,
-          child: _buildLeftContent(context, theme),
-        ),
+        Expanded(flex: 1, child: _buildLeftContent(context, theme)),
         const SizedBox(width: 80),
         Expanded(
           flex: 1,
@@ -104,7 +118,11 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
     );
   }
 
-  Widget _buildMobileLayout(BuildContext context, ThemeData theme, bool isNarrow) {
+  Widget _buildMobileLayout(
+    BuildContext context,
+    ThemeData theme,
+    bool isNarrow,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: isNarrow ? 16 : 24,
@@ -144,14 +162,22 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
   Widget _buildSubtitle(BuildContext context, ThemeData theme, bool isNarrow) {
     return Text(
       widget.subtitle,
-      style: (isNarrow ? theme.textTheme.titleMedium : theme.textTheme.headlineSmall)?.copyWith(
-        fontWeight: FontWeight.w600,
-        color: theme.colorScheme.onSurface,
-      ),
+      style:
+          (isNarrow
+                  ? theme.textTheme.titleMedium
+                  : theme.textTheme.headlineSmall)
+              ?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: theme.colorScheme.onSurface,
+              ),
     );
   }
 
-  Widget _buildSettingsContainer(BuildContext context, ThemeData theme, bool isNarrow) {
+  Widget _buildSettingsContainer(
+    BuildContext context,
+    ThemeData theme,
+    bool isNarrow,
+  ) {
     return StepSectionCard(
       isNarrow: isNarrow,
       child: Column(
@@ -161,15 +187,13 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
             title: slang.t.settings.theaterMode,
             subtitle: slang.t.settings.theaterModeDesc,
             value: theaterMode,
-            onChanged: (v) => _setBool(ConfigKey.THEATER_MODE_KEY, v, (x) => theaterMode = x),
+            onChanged: (v) =>
+                _setBool(ConfigKey.THEATER_MODE_KEY, v, (x) => theaterMode = x),
             isNarrow: isNarrow,
           ),
           const StepDivider(),
           // Anime4K 设置
-          const Anime4KSettingsWidget(
-            showInfoCard: false,
-            isNarrow: false,
-          ),
+          const Anime4KSettingsWidget(showInfoCard: false, isNarrow: false),
           const StepDivider(),
           NumberSettingTile(
             icon: Icons.fast_forward,
@@ -177,11 +201,19 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
             subtitle: slang.t.common.seconds,
             valueText: '$fastForwardSeconds',
             onTap: () async {
-              final v = await _showNumberInputDialog(context, slang.t.settings.fastForwardTime, initial: fastForwardSeconds.toString());
+              final v = await _showNumberInputDialog(
+                context,
+                slang.t.settings.fastForwardTime,
+                initial: fastForwardSeconds.toString(),
+              );
               if (v != null) {
                 final parsed = int.tryParse(v);
                 if (parsed != null && parsed > 0) {
-                  _setInt(ConfigKey.FAST_FORWARD_SECONDS_KEY, parsed, (x) => fastForwardSeconds = x);
+                  _setInt(
+                    ConfigKey.FAST_FORWARD_SECONDS_KEY,
+                    parsed,
+                    (x) => fastForwardSeconds = x,
+                  );
                 }
               }
             },
@@ -194,11 +226,19 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
             subtitle: slang.t.common.seconds,
             valueText: '$rewindSeconds',
             onTap: () async {
-              final v = await _showNumberInputDialog(context, slang.t.settings.rewindTime, initial: rewindSeconds.toString());
+              final v = await _showNumberInputDialog(
+                context,
+                slang.t.settings.rewindTime,
+                initial: rewindSeconds.toString(),
+              );
               if (v != null) {
                 final parsed = int.tryParse(v);
                 if (parsed != null && parsed > 0) {
-                  _setInt(ConfigKey.REWIND_SECONDS_KEY, parsed, (x) => rewindSeconds = x);
+                  _setInt(
+                    ConfigKey.REWIND_SECONDS_KEY,
+                    parsed,
+                    (x) => rewindSeconds = x,
+                  );
                 }
               }
             },
@@ -211,11 +251,19 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
             subtitle: '1.5 = 1.5x',
             valueText: '$longPressPlaybackSpeed',
             onTap: () async {
-              final v = await _showNumberInputDialog(context, slang.t.settings.longPressPlaybackSpeed, initial: longPressPlaybackSpeed.toString());
+              final v = await _showNumberInputDialog(
+                context,
+                slang.t.settings.longPressPlaybackSpeed,
+                initial: longPressPlaybackSpeed.toString(),
+              );
               if (v != null) {
                 final parsed = double.tryParse(v);
                 if (parsed != null && parsed > 0) {
-                  _setDouble(ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY, parsed, (x) => longPressPlaybackSpeed = x);
+                  _setDouble(
+                    ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY,
+                    parsed,
+                    (x) => longPressPlaybackSpeed = x,
+                  );
                 }
               }
             },
@@ -227,16 +275,8 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
             title: slang.t.settings.repeat,
             subtitle: slang.t.videoDetail.autoRewind,
             value: repeat,
-            onChanged: (v) => _setBool(ConfigKey.REPEAT_KEY, v, (x) => repeat = x),
-            isNarrow: isNarrow,
-          ),
-          const StepDivider(),
-          SwitchSettingTile(
-            icon: Icons.volume_up,
-            title: slang.t.settings.rememberVolume,
-            subtitle: slang.t.settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain,
-            value: rememberVolume,
-            onChanged: (v) => _setBool(ConfigKey.KEEP_LAST_VOLUME_KEY, v, (x) => rememberVolume = x),
+            onChanged: (v) =>
+                _setBool(ConfigKey.REPEAT_KEY, v, (x) => repeat = x),
             isNarrow: isNarrow,
           ),
           if (GetPlatform.isAndroid || GetPlatform.isIOS) ...[
@@ -244,9 +284,16 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
             SwitchSettingTile(
               icon: Icons.brightness_medium,
               title: slang.t.settings.rememberBrightness,
-              subtitle: slang.t.settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain,
+              subtitle: slang
+                  .t
+                  .settings
+                  .thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain,
               value: rememberBrightness,
-              onChanged: (v) => _setBool(ConfigKey.KEEP_LAST_BRIGHTNESS_KEY, v, (x) => rememberBrightness = x),
+              onChanged: (v) => _setBool(
+                ConfigKey.KEEP_LAST_BRIGHTNESS_KEY,
+                v,
+                (x) => rememberBrightness = x,
+              ),
               isNarrow: isNarrow,
             ),
           ],
@@ -254,18 +301,31 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
           SwitchSettingTile(
             icon: Icons.play_circle_outline,
             title: slang.t.settings.recordAndRestorePlaybackProgress,
-            subtitle: slang.t.videoDetail.resumeFromLastPosition(position: '10'),
+            subtitle: slang.t.videoDetail.resumeFromLastPosition(
+              position: '10',
+            ),
             value: recordAndRestoreProgress,
-            onChanged: (v) => _setBool(ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS, v, (x) => recordAndRestoreProgress = x),
+            onChanged: (v) => _setBool(
+              ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS,
+              v,
+              (x) => recordAndRestoreProgress = x,
+            ),
             isNarrow: isNarrow,
           ),
           const StepDivider(),
           SwitchSettingTile(
             icon: Icons.linear_scale,
             title: slang.t.settings.showVideoProgressBottomBarWhenToolbarHidden,
-            subtitle: slang.t.settings.showVideoProgressBottomBarWhenToolbarHiddenDesc,
+            subtitle: slang
+                .t
+                .settings
+                .showVideoProgressBottomBarWhenToolbarHiddenDesc,
             value: showBottomProgressBarWhenToolbarHidden,
-            onChanged: (v) => _setBool(ConfigKey.SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN, v, (x) => showBottomProgressBarWhenToolbarHidden = x),
+            onChanged: (v) => _setBool(
+              ConfigKey.SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN,
+              v,
+              (x) => showBottomProgressBarWhenToolbarHidden = x,
+            ),
             isNarrow: isNarrow,
           ),
           const StepDivider(),
@@ -274,7 +334,11 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
             title: slang.t.settings.defaultKeepVideoToolbarVisible,
             subtitle: slang.t.settings.defaultKeepVideoToolbarVisibleDesc,
             value: keepToolbarVisibleByDefault,
-            onChanged: (v) => _setBool(ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE, v, (x) => keepToolbarVisibleByDefault = x),
+            onChanged: (v) => _setBool(
+              ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE,
+              v,
+              (x) => keepToolbarVisibleByDefault = x,
+            ),
             isNarrow: isNarrow,
           ),
           const StepDivider(),
@@ -283,7 +347,11 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
             title: slang.t.settings.enableMouseHoverShowToolbar,
             subtitle: slang.t.settings.enableMouseHoverShowToolbarInfo,
             value: enableMouseHoverShowToolbar,
-            onChanged: (v) => _setBool(ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR, v, (x) => enableMouseHoverShowToolbar = x),
+            onChanged: (v) => _setBool(
+              ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR,
+              v,
+              (x) => enableMouseHoverShowToolbar = x,
+            ),
             isNarrow: isNarrow,
           ),
         ],
@@ -291,7 +359,11 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
     );
   }
 
-  Widget _buildTipContainer(BuildContext context, ThemeData theme, bool isNarrow) {
+  Widget _buildTipContainer(
+    BuildContext context,
+    ThemeData theme,
+    bool isNarrow,
+  ) {
     return StepTipBanner(
       icon: Icons.tips_and_updates,
       text: slang.t.firstTimeSetup.common.settingsChangeableTip,
@@ -299,7 +371,11 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
     );
   }
 
-  Future<String?> _showNumberInputDialog(BuildContext context, String title, {required String initial}) async {
+  Future<String?> _showNumberInputDialog(
+    BuildContext context,
+    String title, {
+    required String initial,
+  }) async {
     final controller = TextEditingController(text: initial);
     return showAppDialog<String>(
       AlertDialog(
@@ -310,14 +386,19 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
           decoration: const InputDecoration(border: OutlineInputBorder()),
         ),
         actions: [
-          TextButton(onPressed: () => AppService.tryPop(), child: Text(slang.t.common.cancel)),
-          TextButton(onPressed: () { Navigator.of(context).pop(controller.text.trim()); }, child: Text(slang.t.common.confirm)),
+          TextButton(
+            onPressed: () => AppService.tryPop(),
+            child: Text(slang.t.common.cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(controller.text.trim());
+            },
+            child: Text(slang.t.common.confirm),
+          ),
         ],
       ),
       barrierDismissible: true,
     );
   }
-
 }
-
-

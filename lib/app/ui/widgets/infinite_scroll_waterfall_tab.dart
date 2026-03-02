@@ -22,7 +22,7 @@ class InfiniteScrollWaterfallTab<T> extends StatelessWidget {
 
   /// Builds the card widget for each item.
   final Widget Function(BuildContext context, T item, double itemWidth)
-      itemBuilder;
+  itemBuilder;
 
   /// Number of columns in the waterfall grid.
   final int crossAxisCount;
@@ -36,10 +36,14 @@ class InfiniteScrollWaterfallTab<T> extends StatelessWidget {
 
   /// Optional skeleton card builder for the loading state.
   final Widget Function(BuildContext context, double itemWidth)?
-      skeletonBuilder;
+  skeletonBuilder;
 
   /// Number of skeleton items to show during loading.
   final int skeletonCount;
+
+  /// Extra top inset inside the scrollable content. Useful when a header
+  /// (e.g. a floating segmented switch) is overlaid above the list.
+  final double topInset;
 
   static const double _horizontalPadding = 5.0;
 
@@ -56,6 +60,7 @@ class InfiniteScrollWaterfallTab<T> extends StatelessWidget {
     this.available = true,
     this.skeletonBuilder,
     this.skeletonCount = 6,
+    this.topInset = 0,
   });
 
   @override
@@ -68,9 +73,11 @@ class InfiniteScrollWaterfallTab<T> extends StatelessWidget {
         physics: const ClampingScrollPhysics(),
         slivers: [
           SliverPadding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: _horizontalPadding,
-              vertical: _horizontalPadding,
+            padding: EdgeInsets.fromLTRB(
+              _horizontalPadding,
+              _horizontalPadding + topInset,
+              _horizontalPadding,
+              _horizontalPadding,
             ),
             sliver: _buildSkeletonSliver(),
           ),
@@ -112,9 +119,11 @@ class InfiniteScrollWaterfallTab<T> extends StatelessWidget {
         physics: const ClampingScrollPhysics(),
         slivers: [
           SliverPadding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: _horizontalPadding,
-              vertical: _horizontalPadding,
+            padding: EdgeInsets.fromLTRB(
+              _horizontalPadding,
+              _horizontalPadding + topInset,
+              _horizontalPadding,
+              _horizontalPadding,
             ),
             sliver: MediaWaterfallSliver(
               crossAxisCount: crossAxisCount,

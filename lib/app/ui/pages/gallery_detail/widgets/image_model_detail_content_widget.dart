@@ -55,7 +55,7 @@ class ImageModelDetailContent extends StatelessWidget {
     return Obx(() {
       return Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: UIConstants.pagePadding,
+          horizontal: 0,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

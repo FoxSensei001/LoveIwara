@@ -64,10 +64,7 @@ class _TagMediaListPageState extends State<TagMediaListPage>
         'tag_${widget.mediaType.name.toLowerCase()}_list_${widget.tag.id}';
 
     // 初始化控制器
-    _mediaListController = Get.put(
-      PopularMediaListController(),
-      tag: baseTag,
-    );
+    _mediaListController = Get.put(PopularMediaListController(), tag: baseTag);
 
     // 初始化tab相关
     for (var sort in sorts) {
@@ -99,6 +96,7 @@ class _TagMediaListPageState extends State<TagMediaListPage>
     _tabController = TabController(length: sorts.length, vsync: this);
     _tabBarScrollController = ScrollController();
     _tabController.addListener(_onTabChange);
+    _mediaListController.setActiveSort(sorts[_tabController.index].id);
   }
 
   @override
@@ -108,9 +106,7 @@ class _TagMediaListPageState extends State<TagMediaListPage>
     _tabBarScrollController.dispose();
     final String baseTag =
         'tag_${widget.mediaType.name.toLowerCase()}_list_${widget.tag.id}';
-    Get.delete<PopularMediaListController>(
-      tag: baseTag,
-    );
+    Get.delete<PopularMediaListController>(tag: baseTag);
 
     for (var sort in sorts) {
       final String controllerTag = '${baseTag}_${sort.id.name}';
@@ -127,6 +123,7 @@ class _TagMediaListPageState extends State<TagMediaListPage>
 
   void _onTabChange() {
     _scrollToSelectedTab();
+    _mediaListController.setActiveSort(sorts[_tabController.index].id);
   }
 
   void _scrollToSelectedTab() {
@@ -258,8 +255,10 @@ class _TagMediaListPageState extends State<TagMediaListPage>
                       if (widget.mediaType == MediaType.VIDEO) {
                         return MediaTabView<Video>(
                           key: ValueKey('${sort.id}_$isPaginated$rebuildKey'),
-                          repository: _repositories[sort.id]!
-                              as BaseMediaRepository<Video>,
+                          sortId: sort.id,
+                          repository:
+                              _repositories[sort.id]!
+                                  as BaseMediaRepository<Video>,
                           emptyIcon: Icons.video_library_outlined,
                           isPaginated: isPaginated,
                           rebuildKey: rebuildKey,
@@ -270,8 +269,10 @@ class _TagMediaListPageState extends State<TagMediaListPage>
                       } else {
                         return MediaTabView<ImageModel>(
                           key: ValueKey('${sort.id}_$isPaginated$rebuildKey'),
-                          repository: _repositories[sort.id]!
-                              as BaseMediaRepository<ImageModel>,
+                          sortId: sort.id,
+                          repository:
+                              _repositories[sort.id]!
+                                  as BaseMediaRepository<ImageModel>,
                           emptyIcon: Icons.photo_library_outlined,
                           isPaginated: isPaginated,
                           rebuildKey: rebuildKey,
@@ -294,10 +295,9 @@ class _TagMediaListPageState extends State<TagMediaListPage>
                     filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                     child: Container(
                       height: systemStatusBarHeight + topBarVisibleHeight,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surface
-                          .withValues(alpha: 0.85),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surface.withValues(alpha: 0.85),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -347,8 +347,7 @@ class _TagMediaListPageState extends State<TagMediaListPage>
                                     dividerColor: Colors.transparent,
                                     padding: EdgeInsets.zero,
                                     controller: _tabController,
-                                    tabs:
-                                        sorts.asMap().entries.map((entry) {
+                                    tabs: sorts.asMap().entries.map((entry) {
                                       int index = entry.key;
                                       Sort sort = entry.value;
                                       return Container(
@@ -388,14 +387,17 @@ class _TagMediaListPageState extends State<TagMediaListPage>
                 final double minY = _edgePadding;
                 final double maxX =
                     constraints.maxWidth - _fabSize - _edgePadding;
-                final double maxY = constraints.maxHeight -
+                final double maxY =
+                    constraints.maxHeight -
                     _fabSize -
                     _edgePadding -
                     extraBottomNow;
-                final double showLeft =
-                    (_fabOffset?.dx ?? maxX).clamp(minX, maxX).toDouble();
-                final double showTop =
-                    (_fabOffset?.dy ?? maxY).clamp(minY, maxY).toDouble();
+                final double showLeft = (_fabOffset?.dx ?? maxX)
+                    .clamp(minX, maxX)
+                    .toDouble();
+                final double showTop = (_fabOffset?.dy ?? maxY)
+                    .clamp(minY, maxY)
+                    .toDouble();
 
                 return Positioned(
                   left: showLeft,
@@ -417,10 +419,8 @@ class _TagMediaListPageState extends State<TagMediaListPage>
                     child: GridSpeedDial(
                       icon: Icons.menu,
                       activeIcon: Icons.close,
-                      backgroundColor:
-                          Theme.of(context).colorScheme.primary,
-                      foregroundColor:
-                          Theme.of(context).colorScheme.onPrimary,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
                       spacing: 6,
                       spaceBetweenChildren: 4,
                       direction: SpeedDialDirection.up,
@@ -433,12 +433,12 @@ class _TagMediaListPageState extends State<TagMediaListPage>
                                   ? Icons.grid_view
                                   : Icons.view_stream,
                             ),
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .secondaryContainer,
-                            foregroundColor: Theme.of(context)
-                                .colorScheme
-                                .onSecondaryContainer,
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.secondaryContainer,
+                            foregroundColor: Theme.of(
+                              context,
+                            ).colorScheme.onSecondaryContainer,
                             onTap: () {
                               if (!_mediaListController.isPaginated.value) {
                                 var sortId = sorts[_tabController.index].id;
@@ -452,34 +452,34 @@ class _TagMediaListPageState extends State<TagMediaListPage>
                           ),
                           SpeedDialChild(
                             child: const Icon(Icons.filter_list),
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .primaryContainer,
-                            foregroundColor: Theme.of(context)
-                                .colorScheme
-                                .onPrimaryContainer,
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer,
+                            foregroundColor: Theme.of(
+                              context,
+                            ).colorScheme.onPrimaryContainer,
                             onTap: _openParamsModal,
                           ),
                         ],
                         [
                           SpeedDialChild(
                             child: const Icon(Icons.vertical_align_top),
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .primaryContainer,
-                            foregroundColor: Theme.of(context)
-                                .colorScheme
-                                .onPrimaryContainer,
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer,
+                            foregroundColor: Theme.of(
+                              context,
+                            ).colorScheme.onPrimaryContainer,
                             onTap: () => _mediaListController.scrollToTop(),
                           ),
                           SpeedDialChild(
                             child: const Icon(Icons.refresh),
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .primaryContainer,
-                            foregroundColor: Theme.of(context)
-                                .colorScheme
-                                .onPrimaryContainer,
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer,
+                            foregroundColor: Theme.of(
+                              context,
+                            ).colorScheme.onPrimaryContainer,
                             onTap: _tryRefreshCurrentSort,
                           ),
                         ],
