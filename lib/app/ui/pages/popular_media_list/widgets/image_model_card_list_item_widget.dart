@@ -10,6 +10,8 @@ import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
 
+import 'media_like_override_utils.dart';
+
 class ImageModelCardListItemWidget extends StatefulWidget {
   final ImageModel imageModel;
   final double width;
@@ -40,7 +42,67 @@ class ImageModelCardListItemWidget extends StatefulWidget {
 class _ImageModelCardListItemWidgetState
     extends State<ImageModelCardListItemWidget> {
   bool _isHovering = false;
+  bool? _likedOverride;
+  int? _likeCountOverride;
   static const Duration _hoverAnimationDuration = Duration(milliseconds: 220);
+
+  bool get _effectiveLiked => _likedOverride ?? widget.imageModel.liked;
+  int get _effectiveLikeCount =>
+      _likeCountOverride ?? widget.imageModel.numLikes;
+
+  @override
+  void didUpdateWidget(covariant ImageModelCardListItemWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (shouldResetLikeOverride(
+      oldId: oldWidget.imageModel.id,
+      newId: widget.imageModel.id,
+      oldLiked: oldWidget.imageModel.liked,
+      newLiked: widget.imageModel.liked,
+      oldLikeCount: oldWidget.imageModel.numLikes,
+      newLikeCount: widget.imageModel.numLikes,
+    )) {
+      _likedOverride = null;
+      _likeCountOverride = null;
+    }
+  }
+
+  Map<String, dynamic> _buildGalleryDetailExtData() => <String, dynamic>{};
+
+  Future<void> _openGalleryDetail() async {
+    final extData = _buildGalleryDetailExtData();
+    await NaviService.navigateToGalleryDetailPage(
+      widget.imageModel.id,
+      coverUrl: widget.imageModel.thumbnailUrl,
+      title: widget.imageModel.title,
+      imageCount: widget.imageModel.numImages,
+      authorId: widget.imageModel.user?.id,
+      authorName: widget.imageModel.user?.name,
+      authorUsername: widget.imageModel.user?.username,
+      authorAvatarUrl: widget.imageModel.user?.avatar?.avatarUrl,
+      authorRole: widget.imageModel.user?.role,
+      authorPremium: widget.imageModel.user?.premium,
+      extData: extData,
+    );
+    if (!mounted) return;
+    _applyLikePatch(extData);
+  }
+
+  void _applyLikePatch(Map<String, dynamic>? extData) {
+    if (extData == null) return;
+    final liked = extData[NaviService.mediaLikePatchLikedKey];
+    final likeCount = extData[NaviService.mediaLikePatchCountKey];
+    if (liked is! bool || likeCount is! num) return;
+
+    final normalizedLikeCount = likeCount.toInt() < 0 ? 0 : likeCount.toInt();
+    if (_effectiveLiked == liked &&
+        _effectiveLikeCount == normalizedLikeCount) {
+      return;
+    }
+    setState(() {
+      _likedOverride = liked;
+      _likeCountOverride = normalizedLikeCount;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,19 +177,7 @@ class _ImageModelCardListItemWidgetState
                     borderRadius: radius,
                     onTap: widget.isMultiSelectMode && widget.onSelect != null
                         ? widget.onSelect!
-                        : () => NaviService.navigateToGalleryDetailPage(
-                            widget.imageModel.id,
-                            coverUrl: widget.imageModel.thumbnailUrl,
-                            title: widget.imageModel.title,
-                            imageCount: widget.imageModel.numImages,
-                            authorId: widget.imageModel.user?.id,
-                            authorName: widget.imageModel.user?.name,
-                            authorUsername: widget.imageModel.user?.username,
-                            authorAvatarUrl:
-                                widget.imageModel.user?.avatar?.avatarUrl,
-                            authorRole: widget.imageModel.user?.role,
-                            authorPremium: widget.imageModel.user?.premium,
-                          ),
+                        : _openGalleryDetail,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -155,7 +205,11 @@ class _ImageModelCardListItemWidgetState
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              _MetaLine(imageModel: widget.imageModel),
+                              ImageModelCardMetaLine(
+                                imageModel: widget.imageModel,
+                                isLiked: _effectiveLiked,
+                                likeCount: _effectiveLikeCount,
+                              ),
                               const SizedBox(height: 8),
                               _AuthorLine(
                                 imageModel: widget.imageModel,
@@ -288,13 +342,34 @@ class _Thumbnail extends StatelessWidget {
   }
 }
 
-class _MetaLine extends StatelessWidget {
+class ImageModelCardMetaLine extends StatelessWidget {
   final ImageModel imageModel;
+  final bool? isLiked;
+  final int? likeCount;
 
-  const _MetaLine({required this.imageModel});
+  const ImageModelCardMetaLine({
+    super.key,
+    required this.imageModel,
+    this.isLiked,
+    this.likeCount,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final resolvedIsLiked = isLiked ?? imageModel.liked;
+    final resolvedLikeCount = likeCount ?? imageModel.numLikes;
+    return _buildMetaLine(
+      context,
+      isLiked: resolvedIsLiked,
+      likeCount: resolvedLikeCount < 0 ? 0 : resolvedLikeCount,
+    );
+  }
+
+  Widget _buildMetaLine(
+    BuildContext context, {
+    required bool isLiked,
+    required int likeCount,
+  }) {
     final theme = Theme.of(context);
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -303,6 +378,12 @@ class _MetaLine extends StatelessWidget {
           24.0,
           56.0,
         );
+        final IconData likeIcon = isLiked
+            ? Icons.favorite
+            : Icons.favorite_border;
+        final Color likeColor = isLiked
+            ? Colors.pink
+            : theme.colorScheme.onSurfaceVariant;
 
         return Wrap(
           spacing: compact ? 5 : 6,
@@ -315,9 +396,9 @@ class _MetaLine extends StatelessWidget {
               maxTextWidth: chipTextMaxWidth,
             ),
             _StatChip(
-              icon: Icons.favorite,
-              value: CommonUtils.formatFriendlyNumber(imageModel.numLikes),
-              color: theme.colorScheme.onSurfaceVariant,
+              icon: likeIcon,
+              value: CommonUtils.formatFriendlyNumber(likeCount),
+              color: likeColor,
               maxTextWidth: chipTextMaxWidth,
             ),
             if (!compact && imageModel.numComments > 0)

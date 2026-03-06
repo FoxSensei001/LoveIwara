@@ -238,6 +238,7 @@ final GoRouter appRouter = GoRouter(
               initialAuthorAvatarUrl: galleryExtra?.authorAvatarUrl,
               initialAuthorRole: galleryExtra?.authorRole,
               initialAuthorPremium: galleryExtra?.authorPremium,
+              extData: galleryExtra?.extData,
             );
           },
         ),
@@ -747,6 +748,7 @@ class GalleryDetailExtra {
   final String? authorAvatarUrl;
   final String? authorRole;
   final bool? authorPremium;
+  final Map<String, dynamic>? extData;
 
   const GalleryDetailExtra({
     this.coverUrl,
@@ -758,6 +760,7 @@ class GalleryDetailExtra {
     this.authorAvatarUrl,
     this.authorRole,
     this.authorPremium,
+    this.extData,
   });
 }
 

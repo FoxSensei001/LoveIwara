@@ -10,6 +10,7 @@ import 'package:i_iwara/utils/common_utils.dart';
 
 import '../../../../models/video.model.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'media_like_override_utils.dart';
 
 class VideoTileListItem extends StatefulWidget {
   final Video video;
@@ -23,11 +24,73 @@ class VideoTileListItem extends StatefulWidget {
 class _VideoTileListItemState extends State<VideoTileListItem> {
   bool _showAnimatedPreview = false;
   Timer? _hoverTimer;
+  bool? _likedOverride;
+  int? _likeCountOverride;
+
+  bool get _effectiveLiked => _likedOverride ?? (widget.video.liked == true);
+  int get _effectiveLikeCount =>
+      _likeCountOverride ?? (widget.video.numLikes ?? 0);
+
+  @override
+  void didUpdateWidget(covariant VideoTileListItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (shouldResetLikeOverride(
+      oldId: oldWidget.video.id,
+      newId: widget.video.id,
+      oldLiked: oldWidget.video.liked,
+      newLiked: widget.video.liked,
+      oldLikeCount: oldWidget.video.numLikes,
+      newLikeCount: widget.video.numLikes,
+    )) {
+      _likedOverride = null;
+      _likeCountOverride = null;
+    }
+  }
 
   @override
   void dispose() {
     _hoverTimer?.cancel();
     super.dispose();
+  }
+
+  Map<String, dynamic> _buildVideoDetailExtData() {
+    final user = widget.video.user;
+    return {
+      'thumbnailUrl': widget.video.thumbnailUrl,
+      'title': widget.video.title,
+      'authorId': user?.id,
+      'authorName': user?.name,
+      'authorUsername': user?.username,
+      'authorAvatarUrl': user?.avatar?.avatarUrl,
+      'authorRole': user?.role,
+      'authorPremium': user?.premium,
+    };
+  }
+
+  Future<void> _openVideoDetail(
+    String videoId, {
+    Map<String, dynamic>? extData,
+  }) async {
+    await NaviService.navigateToVideoDetailPage(videoId, extData);
+    if (!mounted) return;
+    _applyLikePatch(extData);
+  }
+
+  void _applyLikePatch(Map<String, dynamic>? extData) {
+    if (extData == null) return;
+    final liked = extData[NaviService.mediaLikePatchLikedKey];
+    final likeCount = extData[NaviService.mediaLikePatchCountKey];
+    if (liked is! bool || likeCount is! num) return;
+
+    final normalizedLikeCount = likeCount.toInt() < 0 ? 0 : likeCount.toInt();
+    if (_effectiveLiked == liked &&
+        _effectiveLikeCount == normalizedLikeCount) {
+      return;
+    }
+    setState(() {
+      _likedOverride = liked;
+      _likeCountOverride = normalizedLikeCount;
+    });
   }
 
   /// 格式化数字显示（如1.2K、1.5M等）
@@ -53,7 +116,7 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
     final bool isDesktopPlatform = _isDesktop();
 
     return InkWell(
-      onTap: () => _navigateToDetailPage(context),
+      onTap: _navigateToDetailPage,
       onLongPress: () => _handleLongPress(context),
       onSecondaryTap: isDesktopPlatform
           ? () => _handleLongPress(context)
@@ -83,7 +146,7 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
     return Stack(
       children: [
         GestureDetector(
-          onTap: () => _navigateToDetailPage(context),
+          onTap: _navigateToDetailPage,
           child: MouseRegion(
             onEnter: (_) {
               _hoverTimer?.cancel();
@@ -150,7 +213,7 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
           ),
         ),
         // 点赞数和播放量标签组（左上角）
-        ..._buildStatsTagsGroup(context),
+        _buildStatsTagsGroup(context),
         // Private标签和R18标签组
         ..._buildBottomLeftTagsGroup(context),
         if (widget.video.minutesDuration != null) _buildDurationTag(context),
@@ -160,84 +223,87 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
   }
 
   /// 构建统计数据标签组
-  List<Widget> _buildStatsTagsGroup(BuildContext context) {
-    bool hasLikes = widget.video.numLikes != null && widget.video.numLikes! > 0;
-    bool hasViews = widget.video.numViews != null && widget.video.numViews! > 0;
+  Widget _buildStatsTagsGroup(BuildContext context) {
+    return _buildStatsTagsGroupWithState(
+      isLiked: _effectiveLiked,
+      likeCount: _effectiveLikeCount,
+    );
+  }
 
-    if (!hasLikes && !hasViews) return [];
+  Widget _buildStatsTagsGroupWithState({
+    required bool isLiked,
+    required int likeCount,
+  }) {
+    final bool hasLikes = (likeCount > 0) || isLiked;
+    final bool hasViews =
+        widget.video.numViews != null && widget.video.numViews! > 0;
 
-    return [
-      Positioned(
-        left: 0,
-        top: 0,
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.black54,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(8),
-              bottomRight: Radius.circular(4),
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (hasLikes) ...[
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 1,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.favorite, size: 10, color: Colors.white),
-                      const SizedBox(width: 2),
-                      Text(
-                        _formatNumber(widget.video.numLikes),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 10,
-                          decoration: TextDecoration.none,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-              if (hasViews) ...[
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 1,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.visibility,
-                        size: 10,
-                        color: Colors.white,
-                      ),
-                      const SizedBox(width: 2),
-                      Text(
-                        _formatNumber(widget.video.numViews),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 10,
-                          decoration: TextDecoration.none,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ],
+    if (!hasLikes && !hasViews) return const SizedBox.shrink();
+
+    return Positioned(
+      left: 0,
+      top: 0,
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.black54,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(8),
+            bottomRight: Radius.circular(4),
           ),
         ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (hasLikes) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isLiked ? Icons.favorite : Icons.favorite_border,
+                      size: 10,
+                      color: isLiked ? Colors.pink : Colors.white,
+                    ),
+                    const SizedBox(width: 2),
+                    Text(
+                      _formatNumber(likeCount),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 10,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            if (hasViews) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.visibility, size: 10, color: Colors.white),
+                    const SizedBox(width: 2),
+                    Text(
+                      _formatNumber(widget.video.numViews),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 10,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
-    ];
+    );
   }
 
   /// 构建左下角标签组（Private和R18）
@@ -433,8 +499,11 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
   }
 
   /// 导航到详情页
-  void _navigateToDetailPage(BuildContext context) {
-    NaviService.navigateToVideoDetailPage(widget.video.id);
+  Future<void> _navigateToDetailPage() async {
+    await _openVideoDetail(
+      widget.video.id,
+      extData: _buildVideoDetailExtData(),
+    );
   }
 
   /// 处理长按和右键事件
@@ -445,7 +514,11 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
     final result = await showDialog<VideoPreviewModalResult>(
       context: context,
       builder: (BuildContext context) {
-        return VideoPreviewDetailModal(video: widget.video);
+        return VideoPreviewDetailModal(
+          video: widget.video,
+          isLiked: _effectiveLiked,
+          likeCount: _effectiveLikeCount,
+        );
       },
     );
 
@@ -454,7 +527,13 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
     switch (result.type) {
       case VideoPreviewModalActionType.openVideo:
         if (result.videoId?.isNotEmpty ?? false) {
-          NaviService.navigateToVideoDetailPage(result.videoId!);
+          final videoId = result.videoId!;
+          await _openVideoDetail(
+            videoId,
+            extData: videoId == widget.video.id
+                ? _buildVideoDetailExtData()
+                : null,
+          );
         }
         break;
       case VideoPreviewModalActionType.openAuthor:

@@ -428,15 +428,22 @@ class ImageModelDetailContent extends StatelessWidget {
                 return result.isSuccess;
               },
               onLikeChanged: (liked) {
+                final updatedLikeCount =
+                    (controller.imageModelInfo.value?.numLikes ?? 0) +
+                    (liked ? 1 : -1);
+                final normalizedLikeCount = updatedLikeCount < 0
+                    ? 0
+                    : updatedLikeCount;
                 controller.imageModelInfo.value = controller
                     .imageModelInfo
                     .value
-                    ?.copyWith(
-                      liked: liked,
-                      numLikes:
-                          (controller.imageModelInfo.value?.numLikes ?? 0) +
-                          (liked ? 1 : -1),
-                    );
+                    ?.copyWith(liked: liked, numLikes: normalizedLikeCount);
+                try {
+                  controller.extData?[NaviService.mediaLikePatchLikedKey] =
+                      liked;
+                  controller.extData?[NaviService.mediaLikePatchCountKey] =
+                      normalizedLikeCount;
+                } catch (_) {}
               },
             ),
             Obx(

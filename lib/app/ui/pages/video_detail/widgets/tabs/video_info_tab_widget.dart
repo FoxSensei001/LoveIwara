@@ -930,22 +930,31 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
               onUnlike: (id) async =>
                   (await Get.find<VideoService>().unlikeVideo(id)).isSuccess,
               onLikeChanged: (liked) {
+                final updatedLikeCount =
+                    (widget.controller.videoInfo.value?.numLikes ?? 0) +
+                    (liked ? 1 : -1);
+                final normalizedLikeCount = updatedLikeCount < 0
+                    ? 0
+                    : updatedLikeCount;
                 widget.controller.videoInfo.value = widget
                     .controller
                     .videoInfo
                     .value
-                    ?.copyWith(
-                      liked: liked,
-                      numLikes:
-                          (widget.controller.videoInfo.value?.numLikes ?? 0) +
-                          (liked ? 1 : -1),
-                    );
+                    ?.copyWith(liked: liked, numLikes: normalizedLikeCount);
                 // 更新缓存中的点赞信息
                 widget.controller.updateCachedVideoLikeInfo(
                   videoInfo.id,
                   liked,
-                  widget.controller.videoInfo.value?.numLikes ?? 0,
+                  normalizedLikeCount,
                 );
+                try {
+                  widget.controller.extData?[NaviService
+                          .mediaLikePatchLikedKey] =
+                      liked;
+                  widget.controller.extData?[NaviService
+                          .mediaLikePatchCountKey] =
+                      normalizedLikeCount;
+                } catch (_) {}
               },
             ),
             Obx(

@@ -13,13 +13,15 @@ import 'package:oktoast/oktoast.dart';
 
 import '../../../../../common/enums/media_enums.dart';
 import '../../video_detail/controllers/related_media_controller.dart';
+
 class GalleryDetailController extends GetxController {
   final String imageModelId;
+  final Map<String, dynamic>? extData;
   final GalleryService _galleryService = Get.find();
   final HistoryRepository _historyRepository = HistoryRepository();
   bool isInfoInitialized = false;
 
-  GalleryDetailController(this.imageModelId);
+  GalleryDetailController(this.imageModelId, {this.extData});
 
   final Rxn<String> errorMessage = Rxn<String>(); // 错误信息
   final Rxn<ImageModel> imageModelInfo = Rxn<ImageModel>(); // 图片模型
@@ -48,10 +50,14 @@ class GalleryDetailController extends GetxController {
       if (imageModelInfo.value != null) {
         // 延迟3秒后再添加历史记录，确保用户真正在浏览内容
         await Future.delayed(const Duration(seconds: 3));
-        if (isInfoInitialized) {  // 确保页面还在活跃状态
+        if (isInfoInitialized) {
+          // 确保页面还在活跃状态
           ImageModel imageModel = imageModelInfo.value!.copyWith(files: []);
           final historyRecord = HistoryRecord.fromImageModel(imageModel);
-          LogUtils.d('添加历史记录: ${historyRecord.toJson()}', 'GalleryDetailController');
+          LogUtils.d(
+            '添加历史记录: ${historyRecord.toJson()}',
+            'GalleryDetailController',
+          );
           await _historyRepository.addRecordWithCheck(historyRecord);
         }
       }
@@ -67,11 +73,15 @@ class GalleryDetailController extends GetxController {
       errorMessage.value = null;
 
       // 获取视频基本信息
-      ApiResult<ImageModel> res =
-          await _galleryService.fetchGalleryDetail(imageModelId);
+      ApiResult<ImageModel> res = await _galleryService.fetchGalleryDetail(
+        imageModelId,
+      );
       if (!res.isSuccess) {
         errorMessage.value = res.message;
-        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error), position: ToastPosition.bottom);
+        showToastWidget(
+          MDToastWidget(message: res.message, type: MDToastType.error),
+          position: ToastPosition.bottom,
+        );
         return;
       }
 
@@ -88,7 +98,6 @@ class GalleryDetailController extends GetxController {
 
       // 检查下载状态
       checkDownloadTaskStatus();
-
     } finally {
       LogUtils.d('图片详情信息加载完成', 'GalleryDetailController');
       isImageModelInfoLoading.value = false;
@@ -109,7 +118,9 @@ class GalleryDetailController extends GetxController {
       }
 
       final favoriteService = Get.find<FavoriteService>();
-      final favoriteFolders = await favoriteService.getItemFolders(imageModelId);
+      final favoriteFolders = await favoriteService.getItemFolders(
+        imageModelId,
+      );
 
       // 检查收藏状态
       isInAnyFavorite.value = favoriteFolders.isNotEmpty;
@@ -119,10 +130,7 @@ class GalleryDetailController extends GetxController {
         'GalleryDetailController',
       );
     } catch (e) {
-      LogUtils.w(
-        '检查图库收藏状态失败: $e',
-        'GalleryDetailController',
-      );
+      LogUtils.w('检查图库收藏状态失败: $e', 'GalleryDetailController');
       // 出错时重置状态
       isInAnyFavorite.value = false;
     }
@@ -133,8 +141,9 @@ class GalleryDetailController extends GetxController {
     if (imageModelId.isEmpty) return;
 
     try {
-      final hasTask =
-          await DownloadService.to.hasAnyGalleryDownloadTask(imageModelId);
+      final hasTask = await DownloadService.to.hasAnyGalleryDownloadTask(
+        imageModelId,
+      );
       hasAnyDownloadTask.value = hasTask;
 
       LogUtils.d(
@@ -142,10 +151,7 @@ class GalleryDetailController extends GetxController {
         'GalleryDetailController',
       );
     } catch (e) {
-      LogUtils.w(
-        '检查图库下载状态失败: $e',
-        'GalleryDetailController',
-      );
+      LogUtils.w('检查图库下载状态失败: $e', 'GalleryDetailController');
       hasAnyDownloadTask.value = false;
     }
   }
@@ -153,10 +159,7 @@ class GalleryDetailController extends GetxController {
   /// 标记当前图库已有下载任务
   void markGalleryHasDownloadTask() {
     hasAnyDownloadTask.value = true;
-    LogUtils.d(
-      '标记图库有下载任务: $imageModelId',
-      'GalleryDetailController',
-    );
+    LogUtils.d('标记图库有下载任务: $imageModelId', 'GalleryDetailController');
   }
 
   @override

@@ -50,6 +50,7 @@ class GalleryDetailPage extends StatefulWidget {
   final String? initialAuthorAvatarUrl;
   final String? initialAuthorRole;
   final bool? initialAuthorPremium;
+  final Map<String, dynamic>? extData;
 
   const GalleryDetailPage({
     super.key,
@@ -63,6 +64,7 @@ class GalleryDetailPage extends StatefulWidget {
     this.initialAuthorAvatarUrl,
     this.initialAuthorRole,
     this.initialAuthorPremium,
+    this.extData,
   });
 
   @override
@@ -116,7 +118,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
 
     // 初始化控制器
     detailController = Get.put(
-      GalleryDetailController(imageModelId),
+      GalleryDetailController(imageModelId, extData: widget.extData),
       tag: uniqueTag,
     );
 

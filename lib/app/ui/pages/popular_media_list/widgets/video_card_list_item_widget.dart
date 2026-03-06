@@ -9,9 +9,9 @@ import 'package:i_iwara/app/ui/widgets/base_card_list_item_widget.dart'
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
-import 'package:get/get.dart';
 
 import '../../../../models/video.model.dart';
+import 'media_like_override_utils.dart';
 
 class VideoCardListItemWidget extends StatefulWidget {
   final Video video;
@@ -42,7 +42,29 @@ class VideoCardListItemWidget extends StatefulWidget {
 
 class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
   bool _isHovering = false;
+  bool? _likedOverride;
+  int? _likeCountOverride;
   static const Duration _hoverAnimationDuration = Duration(milliseconds: 220);
+
+  bool get _effectiveLiked => _likedOverride ?? (widget.video.liked == true);
+  int get _effectiveLikeCount =>
+      _likeCountOverride ?? (widget.video.numLikes ?? 0);
+
+  @override
+  void didUpdateWidget(covariant VideoCardListItemWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (shouldResetLikeOverride(
+      oldId: oldWidget.video.id,
+      newId: widget.video.id,
+      oldLiked: oldWidget.video.liked,
+      newLiked: widget.video.liked,
+      oldLikeCount: oldWidget.video.numLikes,
+      newLikeCount: widget.video.numLikes,
+    )) {
+      _likedOverride = null;
+      _likeCountOverride = null;
+    }
+  }
 
   Map<String, dynamic> _buildVideoDetailExtData() {
     final user = widget.video.user;
@@ -56,6 +78,32 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
       'authorRole': user?.role,
       'authorPremium': user?.premium,
     };
+  }
+
+  Future<void> _openVideoDetail(
+    String videoId, {
+    Map<String, dynamic>? extData,
+  }) async {
+    await NaviService.navigateToVideoDetailPage(videoId, extData);
+    if (!mounted) return;
+    _applyLikePatch(extData);
+  }
+
+  void _applyLikePatch(Map<String, dynamic>? extData) {
+    if (extData == null) return;
+    final liked = extData[NaviService.mediaLikePatchLikedKey];
+    final likeCount = extData[NaviService.mediaLikePatchCountKey];
+    if (liked is! bool || likeCount is! num) return;
+
+    final normalizedLikeCount = likeCount.toInt() < 0 ? 0 : likeCount.toInt();
+    if (_effectiveLiked == liked &&
+        _effectiveLikeCount == normalizedLikeCount) {
+      return;
+    }
+    setState(() {
+      _likedOverride = liked;
+      _likeCountOverride = normalizedLikeCount;
+    });
   }
 
   @override
@@ -133,9 +181,9 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
                     borderRadius: radius,
                     onTap: widget.isMultiSelectMode && widget.onSelect != null
                         ? widget.onSelect!
-                        : () => NaviService.navigateToVideoDetailPage(
+                        : () => _openVideoDetail(
                             widget.video.id,
-                            _buildVideoDetailExtData(),
+                            extData: _buildVideoDetailExtData(),
                           ),
                     onSecondaryTap: widget.isMultiSelectMode
                         ? null
@@ -168,7 +216,11 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              _MetaLine(video: widget.video),
+                              VideoCardMetaLine(
+                                video: widget.video,
+                                isLiked: _effectiveLiked,
+                                likeCount: _effectiveLikeCount,
+                              ),
                               const SizedBox(height: 8),
                               _AuthorLine(
                                 video: widget.video,
@@ -200,7 +252,11 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
     if (!mounted) return;
     final result = await showDialog<VideoPreviewModalResult>(
       context: context,
-      builder: (_) => VideoPreviewDetailModal(video: widget.video),
+      builder: (_) => VideoPreviewDetailModal(
+        video: widget.video,
+        isLiked: _effectiveLiked,
+        likeCount: _effectiveLikeCount,
+      ),
     );
 
     if (!mounted || result == null) return;
@@ -209,9 +265,11 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
       case VideoPreviewModalActionType.openVideo:
         if (result.videoId?.isNotEmpty ?? false) {
           final videoId = result.videoId!;
-          NaviService.navigateToVideoDetailPage(
+          await _openVideoDetail(
             videoId,
-            videoId == widget.video.id ? _buildVideoDetailExtData() : null,
+            extData: videoId == widget.video.id
+                ? _buildVideoDetailExtData()
+                : null,
           );
         }
         break;
@@ -420,13 +478,34 @@ class _Thumbnail extends StatelessWidget {
   }
 }
 
-class _MetaLine extends StatelessWidget {
+class VideoCardMetaLine extends StatelessWidget {
   final Video video;
+  final bool? isLiked;
+  final int? likeCount;
 
-  const _MetaLine({required this.video});
+  const VideoCardMetaLine({
+    super.key,
+    required this.video,
+    this.isLiked,
+    this.likeCount,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final resolvedIsLiked = isLiked ?? (video.liked == true);
+    final resolvedLikeCount = likeCount ?? (video.numLikes ?? 0);
+    return _buildMetaLine(
+      context,
+      isLiked: resolvedIsLiked,
+      likeCount: resolvedLikeCount < 0 ? 0 : resolvedLikeCount,
+    );
+  }
+
+  Widget _buildMetaLine(
+    BuildContext context, {
+    required bool isLiked,
+    required int likeCount,
+  }) {
     final theme = Theme.of(context);
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -435,6 +514,12 @@ class _MetaLine extends StatelessWidget {
           24.0,
           56.0,
         );
+        final IconData likeIcon = isLiked
+            ? Icons.favorite
+            : Icons.favorite_border;
+        final Color likeColor = isLiked
+            ? Colors.pink
+            : theme.colorScheme.onSurfaceVariant;
 
         return Wrap(
           spacing: compact ? 5 : 6,
@@ -447,9 +532,9 @@ class _MetaLine extends StatelessWidget {
               maxTextWidth: chipTextMaxWidth,
             ),
             _StatChip(
-              icon: Icons.favorite,
-              value: CommonUtils.formatFriendlyNumber(video.numLikes ?? 0),
-              color: theme.colorScheme.onSurfaceVariant,
+              icon: likeIcon,
+              value: CommonUtils.formatFriendlyNumber(likeCount),
+              color: likeColor,
               maxTextWidth: chipTextMaxWidth,
             ),
             if (!compact && (video.numComments ?? 0) > 0)

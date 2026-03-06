@@ -169,6 +169,9 @@ class NavigationItem {
 }
 
 class NaviService {
+  static const String mediaLikePatchLikedKey = '__media_like_patch_liked';
+  static const String mediaLikePatchCountKey = '__media_like_patch_count';
+
   static void _ensureAndroidFrameworkHandlesBack(String reason) {
     if (!GetPlatform.isAndroid) return;
 
@@ -214,7 +217,7 @@ class NaviService {
   }
 
   /// 跳转到图库详情页
-  static void navigateToGalleryDetailPage(
+  static Future<Object?> navigateToGalleryDetailPage(
     String id, {
     String? coverUrl,
     String? title,
@@ -225,6 +228,7 @@ class NaviService {
     String? authorAvatarUrl,
     String? authorRole,
     bool? authorPremium,
+    Map<String, dynamic>? extData,
   }) {
     final shouldAttachExtra =
         coverUrl != null ||
@@ -235,9 +239,10 @@ class NaviService {
         authorUsername != null ||
         authorAvatarUrl != null ||
         authorRole != null ||
-        authorPremium != null;
+        authorPremium != null ||
+        extData != null;
 
-    appRouter.push(
+    final future = appRouter.push(
       '/gallery_detail/$id',
       extra: shouldAttachExtra
           ? GalleryDetailExtra(
@@ -250,35 +255,38 @@ class NaviService {
               authorAvatarUrl: authorAvatarUrl,
               authorRole: authorRole,
               authorPremium: authorPremium,
+              extData: extData,
             )
           : null,
     );
     _ensureAndroidFrameworkHandlesBack('push gallery_detail/$id');
+    return future;
   }
 
   /// 跳转到视频详情页
-  static void navigateToVideoDetailPage(
+  static Future<Object?> navigateToVideoDetailPage(
     String id, [
     Map<String, dynamic>? extData,
   ]) {
     final normalizedId = id.trim();
-    if (normalizedId.isEmpty) return;
+    if (normalizedId.isEmpty) return Future<Object?>.value();
 
     try {
       final currentPath = appRouter.routeInformationProvider.value.uri.path;
       final targetPath = '/video_detail/$normalizedId';
       if (currentPath == targetPath) {
-        return;
+        return Future<Object?>.value();
       }
     } catch (_) {
       // ignore and continue push
     }
 
-    appRouter.push(
+    final future = appRouter.push(
       '/video_detail/$normalizedId',
       extra: extData != null ? VideoDetailExtra(extData: extData) : null,
     );
     _ensureAndroidFrameworkHandlesBack('push video_detail/$normalizedId');
+    return future;
   }
 
   /// 跳转到登录页
