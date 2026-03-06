@@ -2236,10 +2236,29 @@ class MyVideoStateController extends GetxController
     // 保存退出全屏前的播放状态
     final wasPlaying = videoPlaying.value;
     appS.showSystemUI();
-    await defaultExitNativeFullscreen();
-    // Desktop native fullscreen transition is async; wait for
-    // WindowListener.onWindowLeaveFullScreen to sync state & restore geometry.
-    if (!GetPlatform.isDesktop) {
+    try {
+      await defaultExitNativeFullscreen();
+    } catch (e, s) {
+      LogUtils.e(
+        '退出系统全屏失败（仍将尝试恢复UI状态）',
+        tag: 'MyVideoStateController',
+        error: e,
+        stackTrace: s,
+      );
+    }
+
+    if (GetPlatform.isDesktop) {
+      // Some desktop environments may not fire WindowListener callbacks
+      // reliably when leaving native fullscreen. Ensure Flutter-side state
+      // always returns to the normal video detail layout.
+      isDesktopAppFullScreen.value = false;
+      isFullscreen.value = false;
+      unawaited(
+        restoreDesktopWindowGeometryAfterFullscreen(
+          reason: 'exitFullscreen() fallback',
+        ),
+      );
+    } else {
       isFullscreen.value = false;
     }
     // 同步播放状态
