@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/popular_media_list_controller.dart';
@@ -62,38 +61,16 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
   @override
   void initState() {
     super.initState();
-    _setupScrollListener();
+    _registerScrollController();
   }
 
-  void _setupScrollListener() {
+  void _registerScrollController() {
     if (widget.mediaListController != null) {
       // 注册滚动控制器
       widget.mediaListController!.registerScrollController(
         widget.sortId,
         _scrollController,
       );
-
-      _scrollController.addListener(() {
-        final controller = widget.mediaListController!;
-        final currentOffset = _scrollController.offset;
-
-        // 确定滚动方向
-        ScrollDirection direction = ScrollDirection.idle;
-        if (_scrollController.position.userScrollDirection ==
-            ScrollDirection.reverse) {
-          direction = ScrollDirection.reverse; // 向上滚动
-        } else if (_scrollController.position.userScrollDirection ==
-            ScrollDirection.forward) {
-          direction = ScrollDirection.forward; // 向下滚动
-        }
-
-        // 更新控制器的滚动信息
-        controller.updateScrollInfo(
-          sortId: widget.sortId,
-          offset: currentOffset,
-          direction: direction,
-        );
-      });
     }
   }
 
@@ -125,6 +102,14 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
       paddingTop: widget.paddingTop,
       showBottomPadding: widget.showBottomPadding,
       onPageChanged: widget.onPageChanged,
+      onScrollMetricsChanged: (offset, delta, direction) {
+        widget.mediaListController?.updateScrollInfo(
+          sortId: widget.sortId,
+          offset: offset,
+          direction: direction,
+          delta: delta,
+        );
+      },
       itemBuilder: (context, item, index) {
         // 多选模式下不使用缓存，因为选中状态会变化
         if (widget.isMultiSelectMode) {

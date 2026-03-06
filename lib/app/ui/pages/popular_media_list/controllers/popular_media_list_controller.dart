@@ -6,8 +6,6 @@ import 'package:i_iwara/common/constants.dart';
 
 /// 流行媒体列表控制器：统一管理分页/瀑布流切换和数据加载逻辑
 class PopularMediaListController extends GetxController {
-  static const double _headerCollapseThreshold = 50.0;
-
   // 分页模式状态
   final RxBool isPaginated = CommonConstants.isPaginated.obs;
 
@@ -17,14 +15,48 @@ class PopularMediaListController extends GetxController {
   // 当前激活 tab 的滚动状态（用于 UI 联动）
   final Rx<double> currentScrollOffset = 0.0.obs;
   final Rx<ScrollDirection> lastScrollDirection = ScrollDirection.idle.obs;
+  final RxDouble headerOffset = 0.0.obs;
   final RxBool showHeader = true.obs;
 
   SortId? _activeSortId;
+  double _maxHeaderOffset = 0.0;
 
   // 每个 tab 的滚动快照（切换 tab 时同步 Header 折叠状态）
   final Map<SortId, double> _tabScrollOffsets = {};
   final Map<SortId, ScrollDirection> _tabScrollDirections = {};
-  final Map<SortId, bool> _tabShowHeader = {};
+
+  void configureHeaderExtent(double maxOffset) {
+    _maxHeaderOffset = maxOffset;
+    _syncShowHeader();
+  }
+
+  void _syncShowHeader() {
+    if (_maxHeaderOffset <= 0) {
+      showHeader.value = true;
+      return;
+    }
+    showHeader.value = headerOffset.value < _maxHeaderOffset - 0.5;
+  }
+
+  void resetHeaderState() {
+    headerOffset.value = 0.0;
+    showHeader.value = true;
+  }
+
+  void _applyHeaderDelta(double delta) {
+    if (_maxHeaderOffset <= 0 || delta == 0) {
+      _syncShowHeader();
+      return;
+    }
+
+    final double nextOffset = (headerOffset.value + delta)
+        .clamp(0.0, _maxHeaderOffset)
+        .toDouble();
+    if ((nextOffset - headerOffset.value).abs() >= 0.01) {
+      headerOffset.value = nextOffset;
+    }
+    _syncShowHeader();
+  }
 
   // 设置分页模式
   void setPaginatedMode(bool value) {
@@ -46,46 +78,10 @@ class PopularMediaListController extends GetxController {
 
     final offset = _tabScrollOffsets[sortId] ?? 0.0;
     final direction = _tabScrollDirections[sortId] ?? ScrollDirection.idle;
-    final shouldShowHeader =
-        _tabShowHeader[sortId] ?? (offset <= _headerCollapseThreshold);
 
     currentScrollOffset.value = offset;
     lastScrollDirection.value = direction;
-    showHeader.value = shouldShowHeader;
-  }
-
-  bool _computeShowHeader({
-    required bool currentShowHeader,
-    required double offset,
-    required ScrollDirection direction,
-  }) {
-    bool shouldShowHeader = currentShowHeader;
-
-    // 向上滚动：需要滚动超过阈值才隐藏
-    if (direction == ScrollDirection.reverse) {
-      if (offset > _headerCollapseThreshold && shouldShowHeader) {
-        shouldShowHeader = false;
-      }
-    } else if (direction == ScrollDirection.forward) {
-      // 向下滚动：更灵敏地显示
-      if (!shouldShowHeader) {
-        shouldShowHeader = true;
-      }
-    }
-
-    // 接近顶部时始终显示
-    if (offset <= 5.0 && !shouldShowHeader) {
-      shouldShowHeader = true;
-    }
-
-    // 切换标签或数据重置时显示
-    if (offset == 0.0 &&
-        direction == ScrollDirection.idle &&
-        !shouldShowHeader) {
-      shouldShowHeader = true;
-    }
-
-    return shouldShowHeader;
+    _syncShowHeader();
   }
 
   // 更新某个 tab 的滚动状态
@@ -93,25 +89,16 @@ class PopularMediaListController extends GetxController {
     required SortId sortId,
     required double offset,
     required ScrollDirection direction,
+    double delta = 0.0,
   }) {
     _tabScrollOffsets[sortId] = offset;
     _tabScrollDirections[sortId] = direction;
-
-    final bool prevShowHeader = _tabShowHeader[sortId] ?? true;
-    final bool nextShowHeader = _computeShowHeader(
-      currentShowHeader: prevShowHeader,
-      offset: offset,
-      direction: direction,
-    );
-    _tabShowHeader[sortId] = nextShowHeader;
 
     // 仅当前激活 tab 驱动 UI
     if (_activeSortId == sortId) {
       currentScrollOffset.value = offset;
       lastScrollDirection.value = direction;
-      if (showHeader.value != nextShowHeader) {
-        showHeader.value = nextShowHeader;
-      }
+      _applyHeaderDelta(delta);
     }
   }
 
@@ -148,12 +135,11 @@ class PopularMediaListController extends GetxController {
       // 同步该 tab 的快照
       _tabScrollOffsets[activeSortId] = 0.0;
       _tabScrollDirections[activeSortId] = ScrollDirection.idle;
-      _tabShowHeader[activeSortId] = true;
     }
 
     // 重置滚动状态
     currentScrollOffset.value = 0.0;
     lastScrollDirection.value = ScrollDirection.idle;
-    showHeader.value = true;
+    resetHeaderState();
   }
 }

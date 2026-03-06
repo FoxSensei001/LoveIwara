@@ -179,6 +179,8 @@ class MediaListView<T> extends StatefulWidget {
   final bool showBottomPadding;
   final bool enablePullToRefresh;
   final bool forceTotalCountUnknown;
+  final void Function(double offset, double delta, ScrollDirection direction)?
+  onScrollMetricsChanged;
 
   /// 分页切换时的回调（用于多选模式下重置选择）
   final VoidCallback? onPageChanged;
@@ -197,6 +199,7 @@ class MediaListView<T> extends StatefulWidget {
     this.enablePullToRefresh = true,
     this.forceTotalCountUnknown = false,
     this.onPageChanged,
+    this.onScrollMetricsChanged,
   });
 
   @override
@@ -534,31 +537,43 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
       return false;
     }
 
-    // 向 MediaListController 报告滚动事件，用于头部动画
-    if (notification is ScrollUpdateNotification &&
-        _mediaListController != null) {
+    final bool isVerticalScrollNotification =
+        notification is ScrollUpdateNotification ||
+        notification is OverscrollNotification;
+
+    if (isVerticalScrollNotification) {
+      final double delta = switch (notification) {
+        ScrollUpdateNotification update => update.scrollDelta ?? 0.0,
+        OverscrollNotification overscroll => overscroll.overscroll,
+        _ => 0.0,
+      };
+
       ScrollDirection direction = ScrollDirection.idle;
-      if (notification.scrollDelta! > 0.1) {
-        // 阈值，避免噪音
-        direction = ScrollDirection.reverse; // 向上滚动，内容向上移动
-      } else if (notification.scrollDelta! < -0.1) {
-        // 阈值
-        direction = ScrollDirection.forward; // 向下滚动，内容向下移动
+      if (delta > 0.1) {
+        direction = ScrollDirection.reverse;
+      } else if (delta < -0.1) {
+        direction = ScrollDirection.forward;
       }
-      // 仅在确定方向或到达顶部/底部时通知
-      if (direction != ScrollDirection.idle ||
+
+      final bool shouldNotifyScroll =
+          direction != ScrollDirection.idle ||
           notification.metrics.pixels == 0 ||
-          notification.metrics.pixels == notification.metrics.maxScrollExtent) {
-        _mediaListController!.notifyListScroll(
+          notification.metrics.pixels == notification.metrics.maxScrollExtent;
+
+      if (shouldNotifyScroll) {
+        _mediaListController?.notifyListScroll(
           notification.metrics.pixels,
+          direction,
+          delta: delta,
+        );
+        widget.onScrollMetricsChanged?.call(
+          notification.metrics.pixels,
+          delta,
           direction,
         );
       }
-    }
 
-    // 达到加载更多的像素点
-    if (notification is ScrollUpdateNotification ||
-        notification is OverscrollNotification) {
+      // 达到加载更多的像素点
       if (notification.metrics.pixels + 200 >=
               notification.metrics.maxScrollExtent &&
           notification.metrics.maxScrollExtent > 0) {

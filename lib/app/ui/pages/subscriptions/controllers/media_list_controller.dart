@@ -14,15 +14,48 @@ class MediaListController extends GetxController {
 
   // 存储可能的滚动回调
   final List<Function()> _scrollToTopCallbacks = [];
-  // 滚动监听回调集合 - 用于通知顶部组件滚动事件
-  final List<void Function(double)> _listScrollCallbacks = [];
 
   // 页面变化回调
   final List<VoidCallback> _onPageChangedCallbacks = [];
 
   final RxDouble currentScrollOffset = 0.0.obs;
   final Rx<ScrollDirection> lastScrollDirection = ScrollDirection.idle.obs;
+  final RxDouble headerOffset = 0.0.obs;
   final RxBool showHeader = true.obs;
+  double _maxHeaderOffset = 0.0;
+
+  void configureHeaderExtent(double maxOffset) {
+    _maxHeaderOffset = maxOffset;
+    _syncShowHeader();
+  }
+
+  void _syncShowHeader() {
+    if (_maxHeaderOffset <= 0) {
+      showHeader.value = true;
+      return;
+    }
+    showHeader.value = headerOffset.value < _maxHeaderOffset - 0.5;
+  }
+
+  void resetHeaderState() {
+    headerOffset.value = 0.0;
+    showHeader.value = true;
+  }
+
+  void _applyHeaderDelta(double delta) {
+    if (_maxHeaderOffset <= 0 || delta == 0) {
+      _syncShowHeader();
+      return;
+    }
+
+    final double nextOffset = (headerOffset.value + delta)
+        .clamp(0.0, _maxHeaderOffset)
+        .toDouble();
+    if ((nextOffset - headerOffset.value).abs() >= 0.01) {
+      headerOffset.value = nextOffset;
+    }
+    _syncShowHeader();
+  }
 
   // 注册滚动到顶部的回调函数
   void registerScrollToTopCallback(Function() callback) {
@@ -34,16 +67,6 @@ class MediaListController extends GetxController {
   // 注销滚动到顶部的回调函数
   void unregisterScrollToTopCallback(Function() callback) {
     _scrollToTopCallbacks.remove(callback);
-  }
-
-  // 注册列表滚动回调 - 新增
-  void registerListScrollCallback(void Function(double) callback) {
-    _listScrollCallbacks.add(callback);
-  }
-
-  // 注销列表滚动回调 - 新增
-  void unregisterListScrollCallback(void Function(double) callback) {
-    _listScrollCallbacks.remove(callback);
   }
 
   // 注册页面变化回调
@@ -62,12 +85,14 @@ class MediaListController extends GetxController {
     }
   }
 
-  void notifyListScroll(double offset, ScrollDirection direction) {
+  void notifyListScroll(
+    double offset,
+    ScrollDirection direction, {
+    double delta = 0.0,
+  }) {
     currentScrollOffset.value = offset;
     lastScrollDirection.value = direction;
-    for (final callback in _listScrollCallbacks) {
-      callback(offset);
-    }
+    _applyHeaderDelta(delta);
   }
 
   // 执行所有滚动到顶部的回调
@@ -75,6 +100,7 @@ class MediaListController extends GetxController {
     // First, reset scroll state immediately for header animation
     currentScrollOffset.value = 0.0;
     lastScrollDirection.value = ScrollDirection.idle;
+    resetHeaderState();
 
     // Then execute scroll callbacks
     for (var callback in _scrollToTopCallbacks) {
@@ -100,6 +126,7 @@ class MediaListController extends GetxController {
     rebuildKey.value++;
     currentScrollOffset.value = 0.0;
     lastScrollDirection.value = ScrollDirection.idle;
+    resetHeaderState();
   }
 
   // 刷新页面UI并滚动到顶部

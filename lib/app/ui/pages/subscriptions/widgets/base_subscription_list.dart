@@ -196,6 +196,7 @@ abstract class BaseSubscriptionListState<
   Future<void> refresh() async {
     // 重置 MediaListController 的滚动状态，这会触发父组件的头部展开
     if (_mediaListController != null) {
+      _mediaListController!.resetHeaderState();
       _mediaListController!.currentScrollOffset.value = 0.0;
       _mediaListController!.lastScrollDirection.value = ScrollDirection.idle;
     }

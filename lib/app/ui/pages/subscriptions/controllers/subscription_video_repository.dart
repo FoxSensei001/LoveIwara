@@ -1,24 +1,13 @@
-import 'package:flutter/rendering.dart'; // 用于 ScrollDirection
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
-import 'package:i_iwara/app/ui/pages/subscriptions/controllers/media_list_controller.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 class SubscriptionVideoRepository extends ExtendedLoadingMoreBase<Video> {
   final VideoService _videoService = Get.find<VideoService>();
   final String userId;
-  MediaListController? _mediaListController;
-
-  SubscriptionVideoRepository({required this.userId}) {
-    // 尝试获取 MediaListController 实例
-    try {
-      _mediaListController = Get.find<MediaListController>();
-    } catch (e) {
-      _mediaListController = null;
-    }
-  }
+  SubscriptionVideoRepository({required this.userId});
 
   @override
   Map<String, dynamic> buildQueryParams(int page, int limit) {
@@ -77,17 +66,5 @@ class SubscriptionVideoRepository extends ExtendedLoadingMoreBase<Video> {
       stack: stackTrace,
       tag: 'SubscriptionVideoRepository',
     );
-  }
-
-  @override
-  Future<bool> refresh([bool notifyStateChanged = false]) async {
-    // 重置 MediaListController 的滚动状态，这会触发父组件的头部展开
-    if (_mediaListController != null) {
-      _mediaListController!.currentScrollOffset.value = 0.0;
-      _mediaListController!.lastScrollDirection.value = ScrollDirection.idle;
-    }
-
-    // 调用父类的 refresh 方法
-    return super.refresh(notifyStateChanged);
   }
 }

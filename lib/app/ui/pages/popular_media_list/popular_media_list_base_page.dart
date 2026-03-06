@@ -607,7 +607,7 @@ class PopularMediaListPageBaseState<
     addMenuItem(
       value: _menuActionFilter,
       icon: Icons.filter_list,
-      label: t.common.search,
+      label: t.searchFilter.filterSettings,
     );
     addMenuItem(
       value: _menuActionToggleBatch,
@@ -645,6 +645,7 @@ class PopularMediaListPageBaseState<
     const double tabBarHeight = 40.0;
     const double headerHeight = 44.0;
     final systemStatusBarHeight = MediaQuery.of(context).padding.top;
+    _mediaListController.configureHeaderExtent(headerHeight);
 
     return Scaffold(
       body: LayoutBuilder(
@@ -654,12 +655,12 @@ class PopularMediaListPageBaseState<
               // 内容区域 - 填充整个Stack，列表通过paddingTop留出头部空间
               Obx(() {
                 final isPaginated = _mediaListController.isPaginated.value;
+                final bool showHeader = _mediaListController.showHeader.value;
                 final shouldApplyBottomSafeAreaPadding =
                     !Get.find<AppService>().showBottomNavi ||
                     MediaQuery.sizeOf(context).width > 600;
                 final rebuildKey = _mediaListController.rebuildKey.value
                     .toString();
-                final showHeader = _mediaListController.showHeader.value;
                 final isMultiSelectMode =
                     _batchSelectController.isMultiSelect.value;
                 final selectedMediaIds = _batchSelectController.selectedMediaIds
@@ -667,30 +668,37 @@ class PopularMediaListPageBaseState<
 
                 _batchSelectController.setPaginatedMode(isPaginated);
 
-                return TabBarView(
-                  controller: _tabController,
-                  children: sorts.map((sort) {
-                    return MediaTabView<T>(
-                      key: ValueKey('${sort.id}_$isPaginated$rebuildKey'),
-                      sortId: sort.id,
-                      repository: _repositories[sort.id]!,
-                      emptyIcon: widget.emptyIcon,
-                      isPaginated: isPaginated,
-                      showBottomPadding: shouldApplyBottomSafeAreaPadding,
-                      rebuildKey: rebuildKey,
-                      paddingTop:
-                          systemStatusBarHeight +
-                          tabBarHeight +
-                          (showHeader ? headerHeight : 0),
-                      mediaListController: _mediaListController,
-                      isMultiSelectMode: isMultiSelectMode,
-                      selectedItemIds: selectedMediaIds,
-                      onItemSelect: (media) =>
-                          _batchSelectController.toggleSelection(media),
-                      onPageChanged: () =>
-                          _batchSelectController.onPageChanged(),
-                    );
-                  }).toList(),
+                return AnimatedPadding(
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeInOut,
+                  padding: EdgeInsets.only(
+                    top:
+                        systemStatusBarHeight +
+                        tabBarHeight +
+                        (showHeader ? headerHeight : 0),
+                  ),
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: sorts.map((sort) {
+                      return MediaTabView<T>(
+                        key: ValueKey('${sort.id}_$isPaginated$rebuildKey'),
+                        sortId: sort.id,
+                        repository: _repositories[sort.id]!,
+                        emptyIcon: widget.emptyIcon,
+                        isPaginated: isPaginated,
+                        showBottomPadding: shouldApplyBottomSafeAreaPadding,
+                        rebuildKey: rebuildKey,
+                        paddingTop: 0,
+                        mediaListController: _mediaListController,
+                        isMultiSelectMode: isMultiSelectMode,
+                        selectedItemIds: selectedMediaIds,
+                        onItemSelect: (media) =>
+                            _batchSelectController.toggleSelection(media),
+                        onPageChanged: () =>
+                            _batchSelectController.onPageChanged(),
+                      );
+                    }).toList(),
+                  ),
                 );
               }),
               // 毛玻璃头部叠加层
@@ -708,7 +716,7 @@ class PopularMediaListPageBaseState<
                         final bool showHeader =
                             _mediaListController.showHeader.value;
                         return AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
+                          duration: const Duration(milliseconds: 220),
                           curve: Curves.easeInOut,
                           clipBehavior: Clip.hardEdge,
                           height: showHeader
@@ -723,7 +731,7 @@ class PopularMediaListPageBaseState<
                                   ignoring: !showHeader,
                                   child: AnimatedOpacity(
                                     opacity: showHeader ? 1.0 : 0.0,
-                                    duration: const Duration(milliseconds: 200),
+                                    duration: const Duration(milliseconds: 180),
                                     child: Padding(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 12,

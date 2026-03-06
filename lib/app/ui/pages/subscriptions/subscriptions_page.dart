@@ -73,12 +73,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   DateTime _lastScrollTime = DateTime.now();
   static const Duration _scrollThrottleDuration = Duration(milliseconds: 16);
 
-  // 头部折叠状态
-  final double _headerCollapseThreshold = 50.0; // 触发折叠/展开的滚动阈值（像素）
-
-  // 头部滚动监听器
-  VoidCallback? _scrollListenerDisposer;
-
   static const double _topBarBlurSigma = 10.0;
   static const double _topBarSurfaceAlpha = 0.8;
 
@@ -445,47 +439,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
         TutorialService().showSubscriptionTutorial(context);
       }
     });
-
-    // 监听 MediaListController 的滚动变化
-    _scrollListenerDisposer = ever(mediaListController.currentScrollOffset, (
-      double offset,
-    ) {
-      final direction = mediaListController.lastScrollDirection.value;
-      bool shouldShowHeader = mediaListController.showHeader.value;
-
-      // 改进的折叠逻辑：
-      // 1. 向上滚动且超过阈值时隐藏
-      // 2. 向下滚动时显示
-      // 3. 接近顶部时始终显示
-
-      if (direction == ScrollDirection.reverse) {
-        // 向上滚动：需要滚动超过阈值才隐藏
-        if (offset > _headerCollapseThreshold && shouldShowHeader) {
-          shouldShowHeader = false;
-        }
-      } else if (direction == ScrollDirection.forward) {
-        // 向下滚动：更灵敏地显示
-        if (!shouldShowHeader) {
-          shouldShowHeader = true;
-        }
-      }
-
-      // 特殊情况：接近顶部时始终显示
-      if (offset <= 5.0 && !shouldShowHeader) {
-        shouldShowHeader = true;
-      }
-
-      // 特殊情况：切换标签或数据时显示
-      if (offset == 0.0 &&
-          direction == ScrollDirection.idle &&
-          !shouldShowHeader) {
-        shouldShowHeader = true;
-      }
-
-      if (mounted && mediaListController.showHeader.value != shouldShowHeader) {
-        mediaListController.showHeader.value = shouldShowHeader;
-      }
-    }).call;
   }
 
   void _onTabChange() {
@@ -562,7 +515,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
         selectedId = '';
       });
       // Reset scroll state when switching users
-      mediaListController.showHeader.value = true;
+      mediaListController.resetHeaderState();
       mediaListController.currentScrollOffset.value = 0.0;
       mediaListController.lastScrollDirection.value = ScrollDirection.idle;
     } else if (selectedId != id) {
@@ -570,19 +523,15 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
         selectedId = id;
       });
       // Reset scroll state when switching users
-      mediaListController.showHeader.value = true;
+      mediaListController.resetHeaderState();
       mediaListController.currentScrollOffset.value = 0.0;
       mediaListController.lastScrollDirection.value = ScrollDirection.idle;
     }
   }
 
   Future<void> refreshCurrentList() async {
-    // Reset scroll state when refreshing
-    mediaListController.showHeader.value = true;
     // 使用 Future.microtask 确保状态更新后再触发刷新
     await Future.microtask(() {
-      mediaListController.currentScrollOffset.value = 0.0;
-      mediaListController.lastScrollDirection.value = ScrollDirection.idle;
       mediaListController.refreshList();
     });
   }
@@ -593,7 +542,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
 
   @override
   void dispose() {
-    _scrollListenerDisposer?.call(); // 销毁监听器
     _tabController.removeListener(_onTabChange);
     _tabController.dispose();
     _tabBarScrollController.dispose();
@@ -621,6 +569,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     const double tabBarHeight = 48.0;
     const double headerHeight = 48.0;
     final systemStatusBarHeight = MediaQuery.of(context).padding.top;
+    mediaListController.configureHeaderExtent(headerHeight);
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -630,6 +579,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
               // 内容区域 - 填充整个Stack，列表通过paddingTop留出头部空间
               Obx(() {
                 final isPaginated = mediaListController.isPaginated.value;
+                final bool showHeader = mediaListController.showHeader.value;
                 final rebuildKey = mediaListController.rebuildKey.value
                     .toString();
                 final bool shouldApplyBottomSafeAreaPadding =
@@ -639,68 +589,72 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                 _videoBatchController.setPaginatedMode(isPaginated);
                 _imageBatchController.setPaginatedMode(isPaginated);
 
-                return TabBarView(
-                  controller: _tabController,
-                  physics: const ClampingScrollPhysics(),
-                  children: [
-                    GlowNotificationWidget(
-                      key: ValueKey(
-                        'video_${selectedId}_${isPaginated}_$rebuildKey',
-                      ),
-                      child: Obx(
-                        () => SubscriptionVideoList(
-                          userId: selectedId,
-                          isPaginated: isPaginated,
-                          paddingTop:
-                              systemStatusBarHeight +
-                              headerHeight +
-                              tabBarHeight,
-                          showBottomPadding: shouldApplyBottomSafeAreaPadding,
-                          isMultiSelectMode:
-                              _videoBatchController.isMultiSelect.value,
-                          selectedItemIds: _videoBatchController
-                              .selectedMediaIds
-                              .toSet(),
-                          onItemSelect: (video) =>
-                              _videoBatchController.toggleSelection(video),
+                return AnimatedPadding(
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeInOut,
+                  padding: EdgeInsets.only(
+                    top:
+                        systemStatusBarHeight +
+                        tabBarHeight +
+                        (showHeader ? headerHeight : 0),
+                  ),
+                  child: TabBarView(
+                    controller: _tabController,
+                    physics: const ClampingScrollPhysics(),
+                    children: [
+                      GlowNotificationWidget(
+                        key: ValueKey(
+                          'video_${selectedId}_${isPaginated}_$rebuildKey',
+                        ),
+                        child: Obx(
+                          () => SubscriptionVideoList(
+                            userId: selectedId,
+                            isPaginated: isPaginated,
+                            paddingTop: 0,
+                            showBottomPadding: shouldApplyBottomSafeAreaPadding,
+                            isMultiSelectMode:
+                                _videoBatchController.isMultiSelect.value,
+                            selectedItemIds: _videoBatchController
+                                .selectedMediaIds
+                                .toSet(),
+                            onItemSelect: (video) =>
+                                _videoBatchController.toggleSelection(video),
+                          ),
                         ),
                       ),
-                    ),
-                    GlowNotificationWidget(
-                      key: ValueKey(
-                        'image_${selectedId}_${isPaginated}_$rebuildKey',
-                      ),
-                      child: Obx(
-                        () => SubscriptionImageList(
-                          userId: selectedId,
-                          isPaginated: isPaginated,
-                          paddingTop:
-                              systemStatusBarHeight +
-                              headerHeight +
-                              tabBarHeight,
-                          showBottomPadding: shouldApplyBottomSafeAreaPadding,
-                          isMultiSelectMode:
-                              _imageBatchController.isMultiSelect.value,
-                          selectedItemIds: _imageBatchController
-                              .selectedMediaIds
-                              .toSet(),
-                          onItemSelect: (image) =>
-                              _imageBatchController.toggleSelection(image),
+                      GlowNotificationWidget(
+                        key: ValueKey(
+                          'image_${selectedId}_${isPaginated}_$rebuildKey',
+                        ),
+                        child: Obx(
+                          () => SubscriptionImageList(
+                            userId: selectedId,
+                            isPaginated: isPaginated,
+                            paddingTop: 0,
+                            showBottomPadding: shouldApplyBottomSafeAreaPadding,
+                            isMultiSelectMode:
+                                _imageBatchController.isMultiSelect.value,
+                            selectedItemIds: _imageBatchController
+                                .selectedMediaIds
+                                .toSet(),
+                            onItemSelect: (image) =>
+                                _imageBatchController.toggleSelection(image),
+                          ),
                         ),
                       ),
-                    ),
-                    GlowNotificationWidget(
-                      key: ValueKey(
-                        'post_${selectedId}_${isPaginated}_$rebuildKey',
+                      GlowNotificationWidget(
+                        key: ValueKey(
+                          'post_${selectedId}_${isPaginated}_$rebuildKey',
+                        ),
+                        child: SubscriptionPostList(
+                          userId: selectedId,
+                          isPaginated: isPaginated,
+                          paddingTop: 0,
+                          showBottomPadding: shouldApplyBottomSafeAreaPadding,
+                        ),
                       ),
-                      child: SubscriptionPostList(
-                        userId: selectedId,
-                        isPaginated: isPaginated,
-                        paddingTop: systemStatusBarHeight + tabBarHeight,
-                        showBottomPadding: shouldApplyBottomSafeAreaPadding,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 );
               }),
               // 毛玻璃头部叠加层
@@ -718,7 +672,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                         final bool showHeader =
                             mediaListController.showHeader.value;
                         return AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
+                          duration: const Duration(milliseconds: 220),
                           curve: Curves.easeInOut,
                           clipBehavior: Clip.hardEdge,
                           height: showHeader
@@ -733,7 +687,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                                   ignoring: !showHeader,
                                   child: AnimatedOpacity(
                                     opacity: showHeader ? 1.0 : 0.0,
-                                    duration: const Duration(milliseconds: 200),
+                                    duration: const Duration(milliseconds: 180),
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 4.0,
