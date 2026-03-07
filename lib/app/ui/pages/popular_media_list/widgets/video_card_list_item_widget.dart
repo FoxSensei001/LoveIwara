@@ -41,6 +41,10 @@ class VideoCardListItemWidget extends StatefulWidget {
 }
 
 class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
+  static const double _titleFontSize = 14;
+  static const double _titleLineHeight = 1.22;
+  static const double _titleHeight = _titleFontSize * _titleLineHeight * 2;
+
   bool _isHovering = false;
   bool? _likedOverride;
   int? _likeCountOverride;
@@ -49,6 +53,14 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
   bool get _effectiveLiked => _likedOverride ?? (widget.video.liked == true);
   int get _effectiveLikeCount =>
       _likeCountOverride ?? (widget.video.numLikes ?? 0);
+
+  String get _displayTitle {
+    final title = widget.video.title?.trim();
+    if (title == null || title.isEmpty) {
+      return slang.t.common.noTitle;
+    }
+    return title;
+  }
 
   @override
   void didUpdateWidget(covariant VideoCardListItemWidget oldWidget) {
@@ -110,6 +122,11 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final radius = BorderRadius.circular(14);
+    final titleStyle = theme.textTheme.titleMedium?.copyWith(
+      fontSize: _titleFontSize,
+      fontWeight: FontWeight.w700,
+      height: _titleLineHeight,
+    );
     final bool enableHover = !widget.isMultiSelectMode && _isDesktopPlatform();
     final bool showHoverState = enableHover && _isHovering;
 
@@ -205,14 +222,21 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                widget.video.title ?? slang.t.common.noTitle,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  height: 1.22,
+                              SizedBox(
+                                height: _titleHeight,
+                                child: Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Text(
+                                    _displayTitle,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    strutStyle: const StrutStyle(
+                                      fontSize: _titleFontSize,
+                                      height: _titleLineHeight,
+                                      forceStrutHeight: true,
+                                    ),
+                                    style: titleStyle,
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 8),
