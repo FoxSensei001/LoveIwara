@@ -2133,3 +2133,14 @@ anime4k:
     mode_a_fast_darken: "Mode A (Fast) + ライン暗化"
     mode_a_hq_thin: "Mode A (HQ) + ライン細化"
   performanceTip: "💡 ヒント：デバイスのパフォーマンスに基づいて適切なプリセットを選択してください。ローエンドデバイスでは軽量プリセットをお勧めします。"
+
+siteMode:
+  title: サイトモード
+  mainSite: メイン
+  aiSite: AI
+  drawerSubtitle: '現在 ${currentSite} ・ タップして ${nextSite} に切り替え'
+  dialogTitle: サイトモードを切り替え
+  dialogDescription: 切り替えると、アプリ全体が再読み込みされ、これまでに読み込んだリストやページ状態がリセットされます。
+  alreadyUsing: すでにこのサイトモードを使用しています。
+  confirmUsing: '確認すると、以降のリクエストは ${site} モードを使用します。'
+  switched: '${site} に切り替えました。アプリは再読み込みされました。'

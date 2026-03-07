@@ -6,11 +6,14 @@ import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/link_input_dialog_widget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/iwara_site_badge.dart';
+import 'package:i_iwara/app/ui/widgets/iwara_site_switcher.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 
 import '../../../common/constants.dart';
 
 import '../../services/auth_service.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 import '../../services/user_service.dart';
 import '../../services/login_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -23,173 +26,190 @@ class GlobalDrawerColumns extends StatelessWidget {
   final AuthService authService = Get.find();
   final AppService appService = Get.find();
 
+  IwaraSite _alternateSite(IwaraSite site) {
+    return site == IwaraSite.ai ? IwaraSite.main : IwaraSite.ai;
+  }
+
+  String _siteLabel(slang.Translations t, IwaraSite site) {
+    return site == IwaraSite.ai ? t.siteMode.aiSite : t.siteMode.mainSite;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Obx(() => _buildHeader(context)),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SizedBox(
+          height: constraints.maxHeight,
+          child: Column(
             children: [
-              _buildSectionHeader(context, slang.t.settings.interaction),
-              _buildMenuItem(
-                context,
-                icon: Icons.notifications_outlined,
-                title: slang.t.notifications.notifications,
-                onTap: () => _handleLoginRequiredNavi(
-                  NaviService.navigateToNotificationListPage,
-                  context,
-                ),
-                trailing: _buildNotificationBadge(),
-              ),
-              _buildMenuItem(
-                context,
-                icon: Icons.chat_outlined,
-                title: slang.t.conversation.conversation,
-                onTap: () => _handleLoginRequiredNavi(
-                  NaviService.navigateToConversationPage,
-                  context,
-                ),
-                trailing: _buildMessageBadge(),
-              ),
-              _buildMenuItem(
-                context,
-                icon: Icons.people_outline,
-                title: slang.t.common.friends,
-                onTap: () => _handleLoginRequiredNavi(
-                  NaviService.navigateToFriendsPage,
-                  context,
-                ),
-                trailing: _buildFriendRequestBadge(),
-              ),
+              Obx(() => _buildHeader(context)),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  children: [
+                    Obx(() => _buildSiteModePanel(context)),
+                    const SizedBox(height: 8),
+                    _buildSectionHeader(context, slang.t.settings.interaction),
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.notifications_outlined,
+                      title: slang.t.notifications.notifications,
+                      onTap: () => _handleLoginRequiredNavi(
+                        NaviService.navigateToNotificationListPage,
+                        context,
+                      ),
+                      trailing: _buildNotificationBadge(),
+                    ),
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.chat_outlined,
+                      title: slang.t.conversation.conversation,
+                      onTap: () => _handleLoginRequiredNavi(
+                        NaviService.navigateToConversationPage,
+                        context,
+                      ),
+                      trailing: _buildMessageBadge(),
+                    ),
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.people_outline,
+                      title: slang.t.common.friends,
+                      onTap: () => _handleLoginRequiredNavi(
+                        NaviService.navigateToFriendsPage,
+                        context,
+                      ),
+                      trailing: _buildFriendRequestBadge(),
+                    ),
 
-              const Divider(indent: 16, endIndent: 16, height: 24),
+                    const Divider(indent: 16, endIndent: 16, height: 24),
 
-              // --- Content Section ---
-              _buildSectionHeader(context, slang.t.common.history),
-              _buildMenuItem(
-                context,
-                icon: Icons.history_outlined,
-                title: slang.t.common.history,
-                onTap: () {
-                  NaviService.navigateToHistoryListPage();
-                  AppService.switchGlobalDrawer();
-                },
-              ),
-              _buildMenuItem(
-                context,
-                icon: Icons.download_outlined,
-                title: slang.t.download.downloadList,
-                onTap: () {
-                  NaviService.navigateToDownloadTaskListPage();
-                  AppService.switchGlobalDrawer();
-                },
-              ),
-              _buildMenuItem(
-                context,
-                icon: Icons.favorite_outline,
-                title: slang.t.common.favorites,
-                onTap: () => _handleLoginRequiredNavi(
-                  NaviService.navigateToFavoritePage,
-                  context,
-                ),
-              ),
-              _buildMenuItem(
-                context,
-                icon: Icons.bookmark_outline,
-                title: slang.t.favorite.localizeFavorite,
-                onTap: () {
-                  NaviService.navigateToLocalFavoritePage();
-                  AppService.switchGlobalDrawer();
-                },
-              ),
-              _buildMenuItem(
-                context,
-                icon: Icons.playlist_play_outlined,
-                title: slang.t.common.playList,
-                onTap: () => _handleLoginRequiredNavi(
-                  () => NaviService.navigateToPlayListPage(
-                    userService.currentUser.value!.id,
-                    isMine: true,
-                  ),
-                  context,
-                ),
-              ),
+                    // --- Content Section ---
+                    _buildSectionHeader(context, slang.t.common.history),
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.history_outlined,
+                      title: slang.t.common.history,
+                      onTap: () {
+                        NaviService.navigateToHistoryListPage();
+                        AppService.switchGlobalDrawer();
+                      },
+                    ),
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.download_outlined,
+                      title: slang.t.download.downloadList,
+                      onTap: () {
+                        NaviService.navigateToDownloadTaskListPage();
+                        AppService.switchGlobalDrawer();
+                      },
+                    ),
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.favorite_outline,
+                      title: slang.t.common.favorites,
+                      onTap: () => _handleLoginRequiredNavi(
+                        NaviService.navigateToFavoritePage,
+                        context,
+                      ),
+                    ),
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.bookmark_outline,
+                      title: slang.t.favorite.localizeFavorite,
+                      onTap: () {
+                        NaviService.navigateToLocalFavoritePage();
+                        AppService.switchGlobalDrawer();
+                      },
+                    ),
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.playlist_play_outlined,
+                      title: slang.t.common.playList,
+                      onTap: () => _handleLoginRequiredNavi(
+                        () => NaviService.navigateToPlayListPage(
+                          userService.currentUser.value!.id,
+                          isMine: true,
+                        ),
+                        context,
+                      ),
+                    ),
 
-              const Divider(indent: 16, endIndent: 16, height: 24),
+                    const Divider(indent: 16, endIndent: 16, height: 24),
 
-              // --- Social Section ---
-              _buildSectionHeader(context, slang.t.common.followsAndFans),
-              _buildMenuItem(
-                context,
-                icon: Icons.stars_outlined,
-                title: slang.t.common.specialFollow,
-                onTap: () => _handleLoginRequiredNavi(
-                  () => NaviService.navigateToSpecialFollowsListPage(
-                    userService.currentUser.value!.id,
-                    userService.currentUser.value!.name,
-                    userService.currentUser.value!.username,
-                  ),
-                  context,
-                ),
-              ),
-              _buildMenuItem(
-                context,
-                icon: Icons.person_add_alt_1_outlined,
-                title: slang.t.common.followingList,
-                onTap: () => _handleLoginRequiredNavi(
-                  () => NaviService.navigateToFollowingListPage(
-                    userService.currentUser.value!.id,
-                    userService.currentUser.value!.name,
-                    userService.currentUser.value!.username,
-                  ),
-                  context,
-                ),
-              ),
-              _buildMenuItem(
-                context,
-                icon: Icons.group_outlined,
-                title: slang.t.common.followersList,
-                onTap: () => _handleLoginRequiredNavi(
-                  () => NaviService.navigateToFollowersListPage(
-                    userService.currentUser.value!.id,
-                    userService.currentUser.value!.name,
-                    userService.currentUser.value!.username,
-                  ),
-                  context,
-                ),
-              ),
+                    // --- Social Section ---
+                    _buildSectionHeader(context, slang.t.common.followsAndFans),
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.stars_outlined,
+                      title: slang.t.common.specialFollow,
+                      onTap: () => _handleLoginRequiredNavi(
+                        () => NaviService.navigateToSpecialFollowsListPage(
+                          userService.currentUser.value!.id,
+                          userService.currentUser.value!.name,
+                          userService.currentUser.value!.username,
+                        ),
+                        context,
+                      ),
+                    ),
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.person_add_alt_1_outlined,
+                      title: slang.t.common.followingList,
+                      onTap: () => _handleLoginRequiredNavi(
+                        () => NaviService.navigateToFollowingListPage(
+                          userService.currentUser.value!.id,
+                          userService.currentUser.value!.name,
+                          userService.currentUser.value!.username,
+                        ),
+                        context,
+                      ),
+                    ),
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.group_outlined,
+                      title: slang.t.common.followersList,
+                      onTap: () => _handleLoginRequiredNavi(
+                        () => NaviService.navigateToFollowersListPage(
+                          userService.currentUser.value!.id,
+                          userService.currentUser.value!.name,
+                          userService.currentUser.value!.username,
+                        ),
+                        context,
+                      ),
+                    ),
 
-              const Divider(indent: 16, endIndent: 16, height: 24),
+                    const Divider(indent: 16, endIndent: 16, height: 24),
 
-              // --- Tools Section ---
-              _buildSectionHeader(context, slang.t.common.more),
-              _buildMenuItem(
-                context,
-                icon: Icons.person_outline,
-                title: slang.t.personalProfile.personalProfile,
-                onTap: () => _handleLoginRequiredNavi(
-                  NaviService.navigateToPersonalProfilePage,
-                  context,
+                    // --- Tools Section ---
+                    _buildSectionHeader(context, slang.t.common.more),
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.person_outline,
+                      title: slang.t.personalProfile.personalProfile,
+                      onTap: () => _handleLoginRequiredNavi(
+                        NaviService.navigateToPersonalProfilePage,
+                        context,
+                      ),
+                    ),
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.block_flipped,
+                      title: slang.t.common.tagBlacklist,
+                      onTap: () => _handleLoginRequiredNavi(
+                        NaviService.navigateToTagBlacklistPage,
+                        context,
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+                  ],
                 ),
               ),
-              _buildMenuItem(
-                context,
-                icon: Icons.block_flipped,
-                title: slang.t.common.tagBlacklist,
-                onTap: () => _handleLoginRequiredNavi(
-                  NaviService.navigateToTagBlacklistPage,
-                  context,
-                ),
-              ),
-
-              const SizedBox(height: 16),
+              Obx(() => _buildBottomActions(context)),
             ],
           ),
-        ),
-        Obx(() => _buildBottomActions(context)),
-      ],
+        );
+      },
     );
   }
 
@@ -215,6 +235,84 @@ class GlobalDrawerColumns extends StatelessWidget {
     );
   }
 
+  Widget _buildSiteModePanel(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final site = appService.currentSiteMode;
+    final nextSite = _alternateSite(site);
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Material(
+        color: theme.colorScheme.surfaceContainerHighest.withValues(
+          alpha: 0.32,
+        ),
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () => _showSiteModeDialog(context, initialSite: nextSite),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+            child: Row(
+              children: [
+                Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    site.isAi ? Icons.auto_awesome : Icons.public,
+                    color: theme.colorScheme.onPrimaryContainer,
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        t.siteMode.title,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        t.siteMode.drawerSubtitle(
+                          currentSite: _siteLabel(t, site),
+                          nextSite: _siteLabel(t, nextSite),
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IwaraSiteBadge(site: site, showForMain: true),
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 20,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildSectionHeader(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -223,7 +321,7 @@ class GlobalDrawerColumns extends StatelessWidget {
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w600,
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.7),
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
           letterSpacing: 1.1,
         ),
       ),
@@ -249,7 +347,9 @@ class GlobalDrawerColumns extends StatelessWidget {
               Icon(
                 icon,
                 size: 22,
-                color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.black87,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white70
+                    : Colors.black87,
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -306,8 +406,8 @@ class GlobalDrawerColumns extends StatelessWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.black.withOpacity(0.1),
-                        Colors.black.withOpacity(0.6),
+                        Colors.black.withValues(alpha: 0.1),
+                        Colors.black.withValues(alpha: 0.6),
                       ],
                     ),
                   ),
@@ -344,7 +444,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                             Text(
                               '@${user!.username}',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
+                                color: Colors.white.withValues(alpha: 0.8),
                                 fontSize: 13,
                               ),
                               overflow: TextOverflow.ellipsis,
@@ -362,7 +462,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                             Text(
                               slang.t.auth.clickToLogin,
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
+                                color: Colors.white.withValues(alpha: 0.8),
                                 fontSize: 13,
                               ),
                             ),
@@ -421,7 +521,7 @@ class GlobalDrawerColumns extends StatelessWidget {
         color: Theme.of(context).cardColor,
         border: Border(
           top: BorderSide(
-            color: Theme.of(context).dividerColor.withOpacity(0.1),
+            color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
           ),
         ),
       ),
@@ -462,6 +562,28 @@ class GlobalDrawerColumns extends StatelessWidget {
     );
   }
 
+  void _showSiteModeDialog(BuildContext context, {IwaraSite? initialSite}) {
+    AppService.switchGlobalDrawer();
+    final t = slang.Translations.of(context);
+    showAppDialog(
+      _SiteModeConfirmDialog(
+        currentSite: appService.currentSiteMode,
+        initialSite: initialSite,
+        onConfirm: (site) async {
+          await appService.applyGlobalSiteMode(site);
+          showToastWidget(
+            MDToastWidget(
+              message: t.siteMode.switched(site: _siteLabel(t, site)),
+              type: MDToastType.success,
+            ),
+            position: ToastPosition.top,
+          );
+        },
+      ),
+      barrierDismissible: true,
+    );
+  }
+
   void _showLogoutDialog(BuildContext context) {
     AppService.switchGlobalDrawer();
     showAppDialog(
@@ -489,9 +611,9 @@ class _BottomActionItem extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-        hoverColor: theme.colorScheme.primary.withOpacity(0.08),
-        highlightColor: theme.colorScheme.primary.withOpacity(0.12),
-        splashColor: theme.colorScheme.primary.withOpacity(0.12),
+        hoverColor: theme.colorScheme.primary.withValues(alpha: 0.08),
+        highlightColor: theme.colorScheme.primary.withValues(alpha: 0.12),
+        splashColor: theme.colorScheme.primary.withValues(alpha: 0.12),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: Column(
@@ -513,6 +635,102 @@ class _BottomActionItem extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _SiteModeConfirmDialog extends StatefulWidget {
+  final IwaraSite currentSite;
+  final IwaraSite? initialSite;
+  final Future<void> Function(IwaraSite site) onConfirm;
+
+  const _SiteModeConfirmDialog({
+    required this.currentSite,
+    this.initialSite,
+    required this.onConfirm,
+  });
+
+  @override
+  State<_SiteModeConfirmDialog> createState() => _SiteModeConfirmDialogState();
+}
+
+class _SiteModeConfirmDialogState extends State<_SiteModeConfirmDialog> {
+  late IwaraSite _selectedSite;
+
+  String _siteLabel(slang.Translations t, IwaraSite site) {
+    return site == IwaraSite.ai ? t.siteMode.aiSite : t.siteMode.mainSite;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedSite = widget.initialSite ?? widget.currentSite;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return AlertDialog(
+      title: Text(t.siteMode.dialogTitle),
+      content: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: 420,
+          maxHeight: MediaQuery.sizeOf(context).height * 0.5,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(t.siteMode.dialogDescription),
+              const SizedBox(height: 12),
+              IwaraSiteSwitcher(
+                currentSite: _selectedSite,
+                forceCompact: false,
+                compactBreakpoint: 0,
+                onChanged: (site) {
+                  setState(() {
+                    _selectedSite = site;
+                  });
+                },
+              ),
+              const SizedBox(height: 12),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _selectedSite == widget.currentSite
+                        ? t.siteMode.alreadyUsing
+                        : t.siteMode.confirmUsing(
+                            site: _siteLabel(t, _selectedSite),
+                          ),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(t.common.cancel),
+        ),
+        FilledButton(
+          onPressed: _selectedSite == widget.currentSite
+              ? null
+              : () async {
+                  Navigator.of(context).pop();
+                  await widget.onConfirm(_selectedSite);
+                },
+          child: Text(t.common.confirm),
+        ),
+      ],
     );
   }
 }

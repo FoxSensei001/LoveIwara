@@ -2129,3 +2129,14 @@ anime4k:
     mode_a_fast_darken: "Mode A (Fast) + Line Darkening"
     mode_a_hq_thin: "Mode A (HQ) + Line Thinning"
   performanceTip: "💡 Tip: Choose appropriate presets based on device performance. Low-end devices are recommended to use lightweight presets."
+
+siteMode:
+  title: Site Mode
+  mainSite: Main
+  aiSite: AI
+  drawerSubtitle: 'Current ${currentSite} · Tap to switch to ${nextSite}'
+  dialogTitle: Switch Site Mode
+  dialogDescription: Switching will refresh the entire app and reset previously loaded lists and page state.
+  alreadyUsing: You are already using this site mode.
+  confirmUsing: 'After confirming, future requests will use ${site} mode.'
+  switched: 'Switched to ${site}. The app has been refreshed.'

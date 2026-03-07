@@ -81,6 +81,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsProxyHelperEn proxyHelper = TranslationsProxyHelperEn._(_root);
 	late final TranslationsTagSelectorEn tagSelector = TranslationsTagSelectorEn._(_root);
 	late final TranslationsAnime4kEn anime4k = TranslationsAnime4kEn._(_root);
+	late final TranslationsSiteModeEn siteMode = TranslationsSiteModeEn._(_root);
 }
 
 // Path: personalProfile
@@ -4898,6 +4899,42 @@ class TranslationsAnime4kEn {
 	String get performanceTip => '💡 Tip: Choose appropriate presets based on device performance. Low-end devices are recommended to use lightweight presets.';
 }
 
+// Path: siteMode
+class TranslationsSiteModeEn {
+	TranslationsSiteModeEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Site Mode'
+	String get title => 'Site Mode';
+
+	/// en: 'Main'
+	String get mainSite => 'Main';
+
+	/// en: 'AI'
+	String get aiSite => 'AI';
+
+	/// en: 'Current ${currentSite} · Tap to switch to ${nextSite}'
+	String drawerSubtitle({required Object currentSite, required Object nextSite}) => 'Current ${currentSite} · Tap to switch to ${nextSite}';
+
+	/// en: 'Switch Site Mode'
+	String get dialogTitle => 'Switch Site Mode';
+
+	/// en: 'Switching will refresh the entire app and reset previously loaded lists and page state.'
+	String get dialogDescription => 'Switching will refresh the entire app and reset previously loaded lists and page state.';
+
+	/// en: 'You are already using this site mode.'
+	String get alreadyUsing => 'You are already using this site mode.';
+
+	/// en: 'After confirming, future requests will use ${site} mode.'
+	String confirmUsing({required Object site}) => 'After confirming, future requests will use ${site} mode.';
+
+	/// en: 'Switched to ${site}. The app has been refreshed.'
+	String switched({required Object site}) => 'Switched to ${site}. The app has been refreshed.';
+}
+
 // Path: common.pagination
 class TranslationsCommonPaginationEn {
 	TranslationsCommonPaginationEn._(this._root);
@@ -8681,6 +8718,15 @@ extension on Translations {
 			'anime4k.presetNames.mode_a_fast_darken' => 'Mode A (Fast) + Line Darkening',
 			'anime4k.presetNames.mode_a_hq_thin' => 'Mode A (HQ) + Line Thinning',
 			'anime4k.performanceTip' => '💡 Tip: Choose appropriate presets based on device performance. Low-end devices are recommended to use lightweight presets.',
+			'siteMode.title' => 'Site Mode',
+			'siteMode.mainSite' => 'Main',
+			'siteMode.aiSite' => 'AI',
+			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'Current ${currentSite} · Tap to switch to ${nextSite}',
+			'siteMode.dialogTitle' => 'Switch Site Mode',
+			'siteMode.dialogDescription' => 'Switching will refresh the entire app and reset previously loaded lists and page state.',
+			'siteMode.alreadyUsing' => 'You are already using this site mode.',
+			'siteMode.confirmUsing' => ({required Object site}) => 'After confirming, future requests will use ${site} mode.',
+			'siteMode.switched' => ({required Object site}) => 'Switched to ${site}. The app has been refreshed.',
 			_ => null,
 		};
 	}

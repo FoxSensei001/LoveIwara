@@ -78,6 +78,7 @@ class TranslationsJa with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _TranslationsProxyHelperJa proxyHelper = _TranslationsProxyHelperJa._(_root);
 	@override late final _TranslationsTagSelectorJa tagSelector = _TranslationsTagSelectorJa._(_root);
 	@override late final _TranslationsAnime4kJa anime4k = _TranslationsAnime4kJa._(_root);
+	@override late final _TranslationsSiteModeJa siteMode = _TranslationsSiteModeJa._(_root);
 }
 
 // Path: personalProfile
@@ -1950,6 +1951,24 @@ class _TranslationsAnime4kJa implements TranslationsAnime4kEn {
 	@override late final _TranslationsAnime4kPresetDescriptionsJa presetDescriptions = _TranslationsAnime4kPresetDescriptionsJa._(_root);
 	@override late final _TranslationsAnime4kPresetNamesJa presetNames = _TranslationsAnime4kPresetNamesJa._(_root);
 	@override String get performanceTip => '💡 ヒント：デバイスのパフォーマンスに基づいて適切なプリセットを選択してください。ローエンドデバイスでは軽量プリセットをお勧めします。';
+}
+
+// Path: siteMode
+class _TranslationsSiteModeJa implements TranslationsSiteModeEn {
+	_TranslationsSiteModeJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'サイトモード';
+	@override String get mainSite => 'メイン';
+	@override String get aiSite => 'AI';
+	@override String drawerSubtitle({required Object currentSite, required Object nextSite}) => '現在 ${currentSite} ・ タップして ${nextSite} に切り替え';
+	@override String get dialogTitle => 'サイトモードを切り替え';
+	@override String get dialogDescription => '切り替えると、アプリ全体が再読み込みされ、これまでに読み込んだリストやページ状態がリセットされます。';
+	@override String get alreadyUsing => 'すでにこのサイトモードを使用しています。';
+	@override String confirmUsing({required Object site}) => '確認すると、以降のリクエストは ${site} モードを使用します。';
+	@override String switched({required Object site}) => '${site} に切り替えました。アプリは再読み込みされました。';
 }
 
 // Path: common.pagination
@@ -4763,6 +4782,15 @@ extension on TranslationsJa {
 			'anime4k.presetNames.mode_a_fast_darken' => 'Mode A (Fast) + ライン暗化',
 			'anime4k.presetNames.mode_a_hq_thin' => 'Mode A (HQ) + ライン細化',
 			'anime4k.performanceTip' => '💡 ヒント：デバイスのパフォーマンスに基づいて適切なプリセットを選択してください。ローエンドデバイスでは軽量プリセットをお勧めします。',
+			'siteMode.title' => 'サイトモード',
+			'siteMode.mainSite' => 'メイン',
+			'siteMode.aiSite' => 'AI',
+			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => '現在 ${currentSite} ・ タップして ${nextSite} に切り替え',
+			'siteMode.dialogTitle' => 'サイトモードを切り替え',
+			'siteMode.dialogDescription' => '切り替えると、アプリ全体が再読み込みされ、これまでに読み込んだリストやページ状態がリセットされます。',
+			'siteMode.alreadyUsing' => 'すでにこのサイトモードを使用しています。',
+			'siteMode.confirmUsing' => ({required Object site}) => '確認すると、以降のリクエストは ${site} モードを使用します。',
+			'siteMode.switched' => ({required Object site}) => '${site} に切り替えました。アプリは再読み込みされました。',
 			_ => null,
 		};
 	}

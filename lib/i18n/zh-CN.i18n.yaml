@@ -2136,3 +2136,14 @@ anime4k:
     mode_a_fast_darken: "Mode A (Fast) + 线条加深"
     mode_a_hq_thin: "Mode A (HQ) + 线条细化"
   performanceTip: "💡 提示：根据设备性能选择合适的预设，低端设备建议选择轻量级预设。"
+
+siteMode:
+  title: 站点模式
+  mainSite: 主站
+  aiSite: AI站
+  drawerSubtitle: '当前 ${currentSite} · 点击切换到 ${nextSite}'
+  dialogTitle: 切换站点模式
+  dialogDescription: 切换后会刷新整个应用，并重置之前已加载的列表和页面状态。
+  alreadyUsing: 当前已是该站点模式。
+  confirmUsing: '确认后，后续请求将统一使用 ${site} 模式。'
+  switched: '已切换到 ${site}，应用已刷新。'

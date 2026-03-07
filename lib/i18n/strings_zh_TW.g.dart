@@ -78,6 +78,7 @@ class TranslationsZhTw with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsSearchFilterZhTw searchFilter = _TranslationsSearchFilterZhTw._(_root);
 	@override late final _TranslationsTagSelectorZhTw tagSelector = _TranslationsTagSelectorZhTw._(_root);
 	@override late final _TranslationsAnime4kZhTw anime4k = _TranslationsAnime4kZhTw._(_root);
+	@override late final _TranslationsSiteModeZhTw siteMode = _TranslationsSiteModeZhTw._(_root);
 }
 
 // Path: personalProfile
@@ -1953,6 +1954,24 @@ class _TranslationsAnime4kZhTw implements TranslationsAnime4kEn {
 	@override late final _TranslationsAnime4kPresetDescriptionsZhTw presetDescriptions = _TranslationsAnime4kPresetDescriptionsZhTw._(_root);
 	@override late final _TranslationsAnime4kPresetNamesZhTw presetNames = _TranslationsAnime4kPresetNamesZhTw._(_root);
 	@override String get performanceTip => '💡 提示：根據裝置性能選擇合適的預設，低端裝置建議選擇輕量級預設。';
+}
+
+// Path: siteMode
+class _TranslationsSiteModeZhTw implements TranslationsSiteModeEn {
+	_TranslationsSiteModeZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '站點模式';
+	@override String get mainSite => '主站';
+	@override String get aiSite => 'AI站';
+	@override String drawerSubtitle({required Object currentSite, required Object nextSite}) => '目前 ${currentSite} · 點擊切換到 ${nextSite}';
+	@override String get dialogTitle => '切換站點模式';
+	@override String get dialogDescription => '切換後會重新整理整個應用，並重設先前已載入的清單與頁面狀態。';
+	@override String get alreadyUsing => '目前已是此站點模式。';
+	@override String confirmUsing({required Object site}) => '確認後，後續請求將統一使用 ${site} 模式。';
+	@override String switched({required Object site}) => '已切換到 ${site}，應用已重新整理。';
 }
 
 // Path: common.pagination
@@ -4769,6 +4788,15 @@ extension on TranslationsZhTw {
 			'anime4k.presetNames.mode_a_fast_darken' => 'Mode A (Fast) + 線條加深',
 			'anime4k.presetNames.mode_a_hq_thin' => 'Mode A (HQ) + 線條細化',
 			'anime4k.performanceTip' => '💡 提示：根據裝置性能選擇合適的預設，低端裝置建議選擇輕量級預設。',
+			'siteMode.title' => '站點模式',
+			'siteMode.mainSite' => '主站',
+			'siteMode.aiSite' => 'AI站',
+			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => '目前 ${currentSite} · 點擊切換到 ${nextSite}',
+			'siteMode.dialogTitle' => '切換站點模式',
+			'siteMode.dialogDescription' => '切換後會重新整理整個應用，並重設先前已載入的清單與頁面狀態。',
+			'siteMode.alreadyUsing' => '目前已是此站點模式。',
+			'siteMode.confirmUsing' => ({required Object site}) => '確認後，後續請求將統一使用 ${site} 模式。',
+			'siteMode.switched' => ({required Object site}) => '已切換到 ${site}，應用已重新整理。',
 			_ => null,
 		};
 	}

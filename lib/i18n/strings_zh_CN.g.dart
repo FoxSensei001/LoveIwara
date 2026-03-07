@@ -78,6 +78,7 @@ class TranslationsZhCn with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsProxyHelperZhCn proxyHelper = _TranslationsProxyHelperZhCn._(_root);
 	@override late final _TranslationsTagSelectorZhCn tagSelector = _TranslationsTagSelectorZhCn._(_root);
 	@override late final _TranslationsAnime4kZhCn anime4k = _TranslationsAnime4kZhCn._(_root);
+	@override late final _TranslationsSiteModeZhCn siteMode = _TranslationsSiteModeZhCn._(_root);
 }
 
 // Path: personalProfile
@@ -1955,6 +1956,24 @@ class _TranslationsAnime4kZhCn implements TranslationsAnime4kEn {
 	@override late final _TranslationsAnime4kPresetDescriptionsZhCn presetDescriptions = _TranslationsAnime4kPresetDescriptionsZhCn._(_root);
 	@override late final _TranslationsAnime4kPresetNamesZhCn presetNames = _TranslationsAnime4kPresetNamesZhCn._(_root);
 	@override String get performanceTip => '💡 提示：根据设备性能选择合适的预设，低端设备建议选择轻量级预设。';
+}
+
+// Path: siteMode
+class _TranslationsSiteModeZhCn implements TranslationsSiteModeEn {
+	_TranslationsSiteModeZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '站点模式';
+	@override String get mainSite => '主站';
+	@override String get aiSite => 'AI站';
+	@override String drawerSubtitle({required Object currentSite, required Object nextSite}) => '当前 ${currentSite} · 点击切换到 ${nextSite}';
+	@override String get dialogTitle => '切换站点模式';
+	@override String get dialogDescription => '切换后会刷新整个应用，并重置之前已加载的列表和页面状态。';
+	@override String get alreadyUsing => '当前已是该站点模式。';
+	@override String confirmUsing({required Object site}) => '确认后，后续请求将统一使用 ${site} 模式。';
+	@override String switched({required Object site}) => '已切换到 ${site}，应用已刷新。';
 }
 
 // Path: common.pagination
@@ -4773,6 +4792,15 @@ extension on TranslationsZhCn {
 			'anime4k.presetNames.mode_a_fast_darken' => 'Mode A (Fast) + 线条加深',
 			'anime4k.presetNames.mode_a_hq_thin' => 'Mode A (HQ) + 线条细化',
 			'anime4k.performanceTip' => '💡 提示：根据设备性能选择合适的预设，低端设备建议选择轻量级预设。',
+			'siteMode.title' => '站点模式',
+			'siteMode.mainSite' => '主站',
+			'siteMode.aiSite' => 'AI站',
+			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => '当前 ${currentSite} · 点击切换到 ${nextSite}',
+			'siteMode.dialogTitle' => '切换站点模式',
+			'siteMode.dialogDescription' => '切换后会刷新整个应用，并重置之前已加载的列表和页面状态。',
+			'siteMode.alreadyUsing' => '当前已是该站点模式。',
+			'siteMode.confirmUsing' => ({required Object site}) => '确认后，后续请求将统一使用 ${site} 模式。',
+			'siteMode.switched' => ({required Object site}) => '已切换到 ${site}，应用已刷新。',
 			_ => null,
 		};
 	}
