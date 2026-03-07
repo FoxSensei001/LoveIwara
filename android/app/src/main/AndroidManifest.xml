@@ -42,7 +42,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="iwara" />
             </intent-filter>
-            
+
             <!-- App Links -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
@@ -64,7 +64,7 @@
                 <data android:pathPattern="/post/.*" />
                 <data android:pathPattern="/post/.*/.*" />
             </intent-filter>
-            
+
             <!-- Video file handling - allows app to open video files -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

@@ -1,10 +1,7 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import 'package:i_iwara/app/services/android_back_gesture_bridge.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
@@ -36,13 +33,10 @@ class HomeShellScaffold extends StatefulWidget {
 
 class _HomeShellScaffoldState extends State<HomeShellScaffold>
     with WidgetsBindingObserver {
-  static const String _frameworkBackThrottleTag =
-      'home_shell_framework_handles_back_refresh';
-  static const String _backDispatcherPriorityThrottleTag =
-      'home_shell_back_dispatcher_take_priority';
   final AppService appService = Get.find<AppService>();
   final UserService userService = Get.find<UserService>();
   final ConfigService configService = Get.find<ConfigService>();
+  bool _hasSyncedInitialBranch = false;
 
   /// Fixed branch key → branch index mapping (compile-time fixed).
   static const Map<String, int> _branchIndexMap = {
@@ -64,13 +58,9 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     userService.startNotificationTimer();
-    unawaited(
-      AndroidBackGestureBridge.loadBackAnimationEnabledOnce().then((_) {
-        if (!mounted) return;
-        _ensureFrameworkHandlesBack(reason: 'loadBackAnimationEnabledOnce');
-      }),
-    );
-    _ensureFrameworkHandlesBack(reason: 'initState');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _syncInitialBranchWithNavigationOrder();
+    });
   }
 
   @override
@@ -78,8 +68,6 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     userService.stopNotificationTimer();
     EasyThrottle.cancel('refresh_page');
     EasyThrottle.cancel('switch_page');
-    EasyThrottle.cancel(_frameworkBackThrottleTag);
-    EasyThrottle.cancel(_backDispatcherPriorityThrottleTag);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -136,6 +124,42 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
   }
 
   bool get _isTabRootRoute => _branchIndexFromPath(widget.currentPath) != null;
+
+  int get _preferredInitialBranchIndex => _displayIndexToBranchIndex(0);
+
+  void _syncInitialBranchWithNavigationOrder() {
+    if (!mounted || _hasSyncedInitialBranch) return;
+
+    final normalizedPath = _normalizePath(widget.currentPath);
+    if (normalizedPath != '/') {
+      _hasSyncedInitialBranch = true;
+      final currentBranch =
+          _branchIndexFromPath(widget.currentPath) ??
+          appService.navigationShell?.currentIndex ??
+          appService.currentIndex;
+      appService.currentIndex = currentBranch;
+      return;
+    }
+
+    final shell = appService.navigationShell;
+    if (shell == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _syncInitialBranchWithNavigationOrder();
+      });
+      return;
+    }
+
+    _hasSyncedInitialBranch = true;
+    final preferredBranch = _preferredInitialBranchIndex;
+    final currentBranch = shell.currentIndex;
+    if (preferredBranch == currentBranch) {
+      appService.currentIndex = currentBranch;
+      return;
+    }
+
+    shell.goBranch(preferredBranch, initialLocation: true);
+    appService.currentIndex = preferredBranch;
+  }
 
   /// Convert a display index (from navigation bar tap) to a go_router branch index.
   int _displayIndexToBranchIndex(int displayIndex) {
@@ -212,40 +236,6 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     return !GoRouter.of(context).canPop();
   }
 
-  /// Keep Android back dispatch routed to Flutter when not at home root.
-  void _ensureFrameworkHandlesBack({
-    required String reason,
-    bool? isAtHomeRoot,
-  }) {
-    if (!GetPlatform.isAndroid) return;
-    EasyThrottle.throttle(
-      _frameworkBackThrottleTag,
-      const Duration(milliseconds: 250),
-      () {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted) return;
-          final rootState = isAtHomeRoot ?? _isAtHomeRoot;
-
-          // Strategy (方案 1):
-          // - 非 Home root：始终由 Flutter 接管返回，避免 OEM 走系统 finish。
-          // - Home root：交回系统处理（不做二次确认拦截）
-          final shouldHandleBack = !rootState;
-
-          AndroidBackGestureBridge.syncFrameworkHandlesBack(
-            shouldHandleBack: shouldHandleBack,
-            reason:
-                'HomeShellScaffold.$reason path=${widget.currentPath} isAtHomeRoot=$rootState',
-          );
-          LogUtils.d(
-            'setFrameworkHandlesBack($shouldHandleBack): reason=$reason, '
-                'path=${widget.currentPath}, isAtHomeRoot=$rootState, '
-            'HomeShellScaffold',
-          );
-        });
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
@@ -265,21 +255,13 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
       final bool isShellRouteCurrent = shellRouteInBuild?.isCurrent ?? true;
       final bool canAutoPopInShell = !isAtRoot && isShellRouteCurrent;
       final bool useManualBackDispatch = GetPlatform.isAndroid;
-      final bool canPopViaNavigator =
-          useManualBackDispatch ? false : canAutoPopInShell;
-      _ensureFrameworkHandlesBack(reason: 'build', isAtHomeRoot: isAtRoot);
-      EasyThrottle.throttle(
-        _backDispatcherPriorityThrottleTag,
-        const Duration(milliseconds: 250),
-        () => PopCoordinator.ensureDispatcherPriority(
-          'HomeShellScaffold.build path=${widget.currentPath}',
-        ),
-      );
-
+      final bool canPopViaNavigator = useManualBackDispatch
+          ? false
+          : canAutoPopInShell;
       return PopScope(
         // Android: disable navigator auto-pop and always dispatch by
-        // PopCoordinator to avoid duplicated predictive-back dispatch that can
-        // pop shell and root in one gesture.
+        // PopCoordinator to avoid duplicated back dispatch that can pop shell
+        // and root in one gesture.
         // Other platforms: keep navigator auto-pop behavior.
         canPop: canPopViaNavigator,
         onPopInvokedWithResult: (didPop, result) {

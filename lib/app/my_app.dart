@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -29,38 +26,11 @@ import 'services/pop_coordinator.dart';
 import 'services/user_service.dart';
 import 'ui/widgets/media_query_insets_fix.dart';
 
-/// Android 预测式返回手势所需的页面过渡主题
+/// 创建默认 `ThemeData`。
 ///
-/// 在 Android 13+ 上使用 PredictiveBackPageTransitionsBuilder 实现预测式返回动画，
-/// 其他平台使用 FadeForwardsPageTransitionsBuilder（Material 3 默认）。
-PageTransitionsTheme get _predictiveBackPageTransitionsTheme {
-  // Android 平台且非 Web 环境使用预测式返回
-  if (!kIsWeb && Platform.isAndroid) {
-    return const PageTransitionsTheme(
-      builders: {
-        TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
-      },
-    );
-  }
-  // 其他平台使用默认
-  return const PageTransitionsTheme(
-    builders: {
-      TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
-      TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-      TargetPlatform.linux: FadeForwardsPageTransitionsBuilder(),
-      TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-      TargetPlatform.windows: FadeForwardsPageTransitionsBuilder(),
-    },
-  );
-}
-
-/// 创建包含预测式返回支持的 ThemeData
+/// Android 不再显式指定 predictive back 页面转场，恢复 Flutter 默认行为。
 ThemeData buildThemeData({required ColorScheme colorScheme}) {
-  return ThemeData(
-    colorScheme: colorScheme,
-    useMaterial3: true,
-    pageTransitionsTheme: _predictiveBackPageTransitionsTheme,
-  );
+  return ThemeData(colorScheme: colorScheme, useMaterial3: true);
 }
 
 /// Global reactive theme state – written by ThemeService / DynamicColorBuilder,
@@ -109,7 +79,10 @@ class _MyAppState extends State<MyApp> {
       } else if (attempt == 0) {
         LogUtils.d('Waiting for root navigator context...', 'MyApp');
       } else {
-        LogUtils.d('Retrying to get root navigator context (attempt=$attempt)', 'MyApp');
+        LogUtils.d(
+          'Retrying to get root navigator context (attempt=$attempt)',
+          'MyApp',
+        );
       }
 
       // Even if we cannot obtain a Navigator context, don't block background refresh forever.

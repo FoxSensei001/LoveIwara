@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/services/android_back_gesture_bridge.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/models/message_and_conversation.model.dart';
@@ -553,48 +552,6 @@ class _NavigationLogObserver extends NavigatorObserver {
 
   final String scope;
 
-  void _syncAndroidFrameworkHandlesBack(String reason) {
-    if (!GetPlatform.isAndroid) return;
-
-    // Route callbacks can be invoked during transitions; NavigatorState.canPop()
-    // might not reflect the final stack yet. Sync it after the frame so Android
-    // predictive back won't accidentally fall back to system finish.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final rootCanPop = rootNavigatorKey.currentState?.canPop() ?? false;
-      final shellCanPop = shellNavigatorKey.currentState?.canPop() ?? false;
-      final routerCanPop = appRouter.canPop();
-
-      // Let Flutter handle predictive back whenever there is anything to pop
-      // (including Shell navigator pages), or when an overlay is visible.
-      // Otherwise, allow system back (home root) for predictive back gesture.
-      final hasAnythingToPop =
-          OverlayTracker.instance.hasOverlay ||
-          rootCanPop ||
-          shellCanPop ||
-          routerCanPop;
-      final backAnimationEnabled =
-          AndroidBackGestureBridge.backAnimationEnabled ?? false;
-      final shouldHandleBack = hasAnythingToPop || !backAnimationEnabled;
-
-      AndroidBackGestureBridge.syncFrameworkHandlesBack(
-        shouldHandleBack: shouldHandleBack,
-        reason:
-            'NavObserver scope=$scope, reason=$reason, '
-            'overlay=${OverlayTracker.instance.hasOverlay}, '
-            'rootCanPop=$rootCanPop, shellCanPop=$shellCanPop, routerCanPop=$routerCanPop, '
-            'backAnimationEnabled=$backAnimationEnabled',
-      );
-
-      LogUtils.d(
-        'setFrameworkHandlesBack($shouldHandleBack): scope=$scope, reason=$reason, '
-            'overlay=${OverlayTracker.instance.hasOverlay}, '
-            'rootCanPop=$rootCanPop, shellCanPop=$shellCanPop, routerCanPop=$routerCanPop, '
-            'backAnimationEnabled=$backAnimationEnabled',
-        'NavObserver',
-      );
-    });
-  }
-
   String _describeRoute(Route<dynamic>? route) {
     if (route == null) return 'null';
     final name = route.settings.name;
@@ -603,7 +560,6 @@ class _NavigationLogObserver extends NavigatorObserver {
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    _syncAndroidFrameworkHandlesBack('didPush');
     LogUtils.d(
       '路由 didPush: scope=$scope, route=${_describeRoute(route)}, '
           'previous=${_describeRoute(previousRoute)}',
@@ -614,7 +570,6 @@ class _NavigationLogObserver extends NavigatorObserver {
 
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    _syncAndroidFrameworkHandlesBack('didPop');
     LogUtils.d(
       '路由 didPop: scope=$scope, route=${_describeRoute(route)}, '
           'previous=${_describeRoute(previousRoute)}',
@@ -625,7 +580,6 @@ class _NavigationLogObserver extends NavigatorObserver {
 
   @override
   void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    _syncAndroidFrameworkHandlesBack('didRemove');
     LogUtils.d(
       '路由 didRemove: scope=$scope, route=${_describeRoute(route)}, '
           'previous=${_describeRoute(previousRoute)}',
@@ -636,7 +590,6 @@ class _NavigationLogObserver extends NavigatorObserver {
 
   @override
   void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
-    _syncAndroidFrameworkHandlesBack('didReplace');
     LogUtils.d(
       '路由 didReplace: scope=$scope, new=${_describeRoute(newRoute)}, '
           'old=${_describeRoute(oldRoute)}',

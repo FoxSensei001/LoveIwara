@@ -17,7 +17,6 @@ import 'package:i_iwara/utils/proxy/proxy_util.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 import '../routes/app_router.dart';
-import 'android_back_gesture_bridge.dart';
 import 'pop_coordinator.dart';
 
 class AppService extends GetxService {
@@ -172,17 +171,13 @@ class NaviService {
   static const String mediaLikePatchLikedKey = '__media_like_patch_liked';
   static const String mediaLikePatchCountKey = '__media_like_patch_count';
 
-  static void _ensureAndroidFrameworkHandlesBack(String reason) {
+  static void _ensureAndroidBackDispatcherPriority(String reason) {
     if (!GetPlatform.isAndroid) return;
 
     void apply(String phase) {
-      AndroidBackGestureBridge.syncFrameworkHandlesBack(
-        shouldHandleBack: true,
-        reason: 'NaviService $reason ($phase)',
-      );
       PopCoordinator.ensureDispatcherPriority('NaviService $reason ($phase)');
       LogUtils.d(
-        'ensureFrameworkHandlesBack(true): reason=$reason, phase=$phase, '
+        'ensureDispatcherPriority: reason=$reason, phase=$phase, '
             'rootCanPop=${rootNavigatorKey.currentState?.canPop() ?? false}, '
             'shellCanPop=${shellNavigatorKey.currentState?.canPop() ?? false}, '
             'appRouterCanPop=${appRouter.canPop()}',
@@ -192,7 +187,7 @@ class NaviService {
 
     // Apply immediately (best-effort), then again after upcoming frame(s).
     // This helps in fast sequences like "dialog pop -> push detail" where
-    // Android predictive back can temporarily fall back to system finish.
+    // route transitions can temporarily disturb the dispatcher priority.
     apply('immediate');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       apply('postFrame1');
@@ -213,7 +208,7 @@ class NaviService {
           ? null
           : AuthorProfileExtra(initialUser: initialUser),
     );
-    _ensureAndroidFrameworkHandlesBack('push author_profile/$username');
+    _ensureAndroidBackDispatcherPriority('push author_profile/$username');
   }
 
   /// 跳转到图库详情页
@@ -259,7 +254,7 @@ class NaviService {
             )
           : null,
     );
-    _ensureAndroidFrameworkHandlesBack('push gallery_detail/$id');
+    _ensureAndroidBackDispatcherPriority('push gallery_detail/$id');
     return future;
   }
 
@@ -285,7 +280,7 @@ class NaviService {
       '/video_detail/$normalizedId',
       extra: extData != null ? VideoDetailExtra(extData: extData) : null,
     );
-    _ensureAndroidFrameworkHandlesBack('push video_detail/$normalizedId');
+    _ensureAndroidBackDispatcherPriority('push video_detail/$normalizedId');
     return future;
   }
 
@@ -544,7 +539,7 @@ class NaviService {
         localAllQualityTasks: allQualityTasks,
       ),
     );
-    _ensureAndroidFrameworkHandlesBack('push video_detail/$randomVideoId');
+    _ensureAndroidBackDispatcherPriority('push video_detail/$randomVideoId');
   }
 
   /// 跳转到本地视频播放页面（从外部文件路径进入）
@@ -556,6 +551,6 @@ class NaviService {
       '/video_detail/$randomVideoId',
       extra: VideoDetailExtra(localPath: filePath),
     );
-    _ensureAndroidFrameworkHandlesBack('push video_detail/$randomVideoId');
+    _ensureAndroidBackDispatcherPriority('push video_detail/$randomVideoId');
   }
 }
