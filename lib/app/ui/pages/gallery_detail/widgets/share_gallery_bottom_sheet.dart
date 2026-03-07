@@ -5,7 +5,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/services/share_service.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:path_provider/path_provider.dart';
@@ -29,12 +28,15 @@ class ShareGalleryBottomSheet extends StatefulWidget {
   });
 
   @override
-  State<ShareGalleryBottomSheet> createState() => _ShareGalleryBottomSheetState();
+  State<ShareGalleryBottomSheet> createState() =>
+      _ShareGalleryBottomSheetState();
 }
 
 class _ShareGalleryBottomSheetState extends State<ShareGalleryBottomSheet> {
   final GlobalKey _globalKey = GlobalKey();
   bool _isGeneratingImage = false;
+
+  String get _shareUrl => ShareService.buildUrl('/image/${widget.galleryId}');
 
   Future<void> _shareAsImage() async {
     if (_isGeneratingImage) return;
@@ -44,25 +46,34 @@ class _ShareGalleryBottomSheetState extends State<ShareGalleryBottomSheet> {
     });
 
     try {
-      RenderRepaintBoundary boundary = _globalKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      RenderRepaintBoundary boundary =
+          _globalKey.currentContext!.findRenderObject()
+              as RenderRepaintBoundary;
       ui.Image image = await boundary.toImage(pixelRatio: 3.0);
-      ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      
+      ByteData? byteData = await image.toByteData(
+        format: ui.ImageByteFormat.png,
+      );
+
       if (byteData != null) {
         final tempDir = await getTemporaryDirectory();
-        final file = await File('${tempDir.path}/share_gallery_${DateTime.now().millisecondsSinceEpoch}.png').create();
+        final file = await File(
+          '${tempDir.path}/share_gallery_${DateTime.now().millisecondsSinceEpoch}.png',
+        ).create();
         await file.writeAsBytes(byteData.buffer.asUint8List());
-        
+
         await SharePlus.instance.share(
-          ShareParams(
-            files: [XFile(file.path)],
-            text: '${CommonConstants.iwaraBaseUrl}/image/${widget.galleryId}',
-          ),
+          ShareParams(files: [XFile(file.path)], text: _shareUrl),
         );
       }
     } catch (e) {
       LogUtils.e('生成分享图片失败', error: e, tag: 'ShareGalleryBottomSheet');
-      showToastWidget(MDToastWidget(message: slang.t.errors.failedToOperate, type: MDToastType.error), position: ToastPosition.bottom);
+      showToastWidget(
+        MDToastWidget(
+          message: slang.t.errors.failedToOperate,
+          type: MDToastType.error,
+        ),
+        position: ToastPosition.bottom,
+      );
     } finally {
       setState(() {
         _isGeneratingImage = false;
@@ -79,24 +90,23 @@ class _ShareGalleryBottomSheetState extends State<ShareGalleryBottomSheet> {
   }
 
   Future<void> _copyLink() async {
-    final String url = '${CommonConstants.iwaraBaseUrl}/image/${widget.galleryId}';
     try {
-      await ShareService.copyToClipboard(url);
+      await ShareService.copyToClipboard(_shareUrl);
       showToastWidget(
         MDToastWidget(
           message: slang.t.galleryDetail.copyLink,
-          type: MDToastType.success
+          type: MDToastType.success,
         ),
-        position: ToastPosition.bottom
+        position: ToastPosition.bottom,
       );
     } catch (e) {
       LogUtils.e('复制链接失败', error: e, tag: 'ShareGalleryBottomSheet');
       showToastWidget(
         MDToastWidget(
           message: slang.t.errors.failedToOperate,
-          type: MDToastType.error
+          type: MDToastType.error,
         ),
-        position: ToastPosition.bottom
+        position: ToastPosition.bottom,
       );
     }
   }
@@ -207,7 +217,7 @@ class _ShareGalleryBottomSheetState extends State<ShareGalleryBottomSheet> {
                         ),
                         padding: const EdgeInsets.all(8),
                         child: QrImageView(
-                          data: '${CommonConstants.iwaraBaseUrl}/image/${widget.galleryId}',
+                          data: _shareUrl,
                           version: QrVersions.auto,
                           size: 80,
                           backgroundColor: Colors.white,
@@ -230,12 +240,12 @@ class _ShareGalleryBottomSheetState extends State<ShareGalleryBottomSheet> {
                 IconButton(
                   onPressed: _isGeneratingImage ? null : _shareAsImage,
                   icon: _isGeneratingImage
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.image),
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.image),
                   tooltip: t.share.shareAsImage,
                   padding: const EdgeInsets.all(16),
                 ),
@@ -261,4 +271,4 @@ class _ShareGalleryBottomSheetState extends State<ShareGalleryBottomSheet> {
       ),
     );
   }
-} 
+}

@@ -530,7 +530,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   }
 
   Future<void> refreshCurrentList() async {
-    // 使用 Future.microtask 确保状态更新后再触发刷新
     await Future.microtask(() {
       mediaListController.refreshList();
     });

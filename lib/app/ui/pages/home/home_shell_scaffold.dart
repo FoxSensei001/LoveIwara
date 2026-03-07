@@ -169,6 +169,22 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     return _branchIndexMap[key] ?? 0;
   }
 
+
+  String _branchIndexToPath(int branchIndex) {
+    switch (branchIndex) {
+      case 0:
+        return '/';
+      case 1:
+        return '/gallery';
+      case 2:
+        return '/subscriptions';
+      case 3:
+        return '/forum';
+      default:
+        return '/';
+    }
+  }
+
   /// Convert the current go_router branch index to a display index.
   int get _currentDisplayIndex {
     final currentBranch =
@@ -205,10 +221,14 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
       const Duration(milliseconds: 300),
       () {
         VibrateUtils.vibrate();
-        shell?.goBranch(
-          branchIndex,
-          initialLocation: branchIndex == currentBranch,
-        );
+        if (shell != null) {
+          shell.goBranch(
+            branchIndex,
+            initialLocation: branchIndex == currentBranch,
+          );
+        } else {
+          appRouter.go(_branchIndexToPath(branchIndex));
+        }
         // Sync appService.currentIndex for Obx consumers
         appService.currentIndex = branchIndex;
       },

@@ -40,4 +40,4 @@ abstract class BaseMediaController<T> extends GetxController {
       searchRating: this.searchRating,
     );
   }
-} 
+}

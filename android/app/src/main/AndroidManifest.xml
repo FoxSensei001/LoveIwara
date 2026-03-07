@@ -51,6 +51,8 @@
                 <data android:scheme="https" />
                 <data android:host="iwara.tv" />
                 <data android:host="www.iwara.tv" />
+                <data android:host="iwara.ai" />
+                <data android:host="www.iwara.ai" />
                 <data android:pathPattern="/video/.*" />
                 <data android:pathPattern="/video/.*/.*" />
                 <data android:pathPattern="/profile/.*" />

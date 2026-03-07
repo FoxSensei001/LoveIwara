@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart' as d_dio;
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
@@ -39,6 +40,7 @@ class VideoService extends GetxService {
     int limit = 20,
     String? url,
     bool skipAuthWait = false,
+    IwaraSite site = IwaraSite.main,
   }) async {
     try {
       // [HACK_IMPLEMENT] 如果params里有的值为空字符串，则去掉key
@@ -50,6 +52,7 @@ class VideoService extends GetxService {
         url,
         queryParameters: {...params, 'page': page, 'limit': limit},
         options: d_dio.Options(extra: {'skipAuthWait': skipAuthWait}),
+        site: site,
       );
 
       final List<Video> results = (response.data['results'] as List)
@@ -82,12 +85,14 @@ class VideoService extends GetxService {
     String mediaId, {
     int page = 0,
     int limit = 20,
+    IwaraSite site = IwaraSite.main,
   }) async {
     try {
       return await fetchVideosByParams(
         page: page,
         limit: limit,
         url: ApiConstants.relatedVideos(mediaId),
+        site: site,
       );
     } catch (e) {
       LogUtils.e('获取相关视频列表失败', tag: 'VideoService', error: e);
@@ -102,12 +107,14 @@ class VideoService extends GetxService {
     required String excludeVideoId,
     int page = 0,
     int limit = 6,
+    IwaraSite site = IwaraSite.main,
   }) async {
     try {
       return await fetchVideosByParams(
         params: {'user': userId, 'exclude': excludeVideoId},
         page: page,
         limit: limit,
+        site: site,
       );
     } catch (e) {
       LogUtils.e('获取作者视频列表失败', tag: 'VideoService', error: e);
@@ -121,11 +128,13 @@ class VideoService extends GetxService {
     String videoId, {
     int page = 0,
     int limit = 6,
+    IwaraSite site = IwaraSite.main,
   }) async {
     try {
       final response = await _apiService.get(
         ApiConstants.videoLikes(videoId),
         queryParameters: {'page': page, 'limit': limit},
+        site: site,
       );
 
       final List<User> results = (response.data['results'] as List)
@@ -156,11 +165,13 @@ class VideoService extends GetxService {
   Future<ApiResult<PageData<Video>>> fetchFavoriteVideos({
     int page = 0,
     int limit = 20,
+    IwaraSite site = IwaraSite.main,
   }) async {
     try {
       final response = await _apiService.get(
         ApiConstants.favoriteVideos(),
         queryParameters: {'page': page, 'limit': limit},
+        site: site,
       );
 
       final List<Video> results = (response.data['results'] as List)
@@ -188,9 +199,9 @@ class VideoService extends GetxService {
   }
 
   /// 取消最爱
-  Future<ApiResult<void>> cancelFavoriteVideo(String mediaId) async {
+  Future<ApiResult<void>> cancelFavoriteVideo(String mediaId, {IwaraSite site = IwaraSite.main}) async {
     try {
-      await _apiService.delete(ApiConstants.likeVideo(mediaId));
+      await _apiService.delete(ApiConstants.likeVideo(mediaId), site: site);
       return ApiResult.success();
     } catch (e) {
       LogUtils.e('取消最爱视频失败', tag: 'VideoService', error: e);
@@ -200,9 +211,9 @@ class VideoService extends GetxService {
   }
 
   /// 设为最爱
-  Future<ApiResult<void>> setFavoriteVideo(String mediaId) async {
+  Future<ApiResult<void>> setFavoriteVideo(String mediaId, {IwaraSite site = IwaraSite.main}) async {
     try {
-      await _apiService.post(ApiConstants.likeVideo(mediaId));
+      await _apiService.post(ApiConstants.likeVideo(mediaId), site: site);
       return ApiResult.success();
     } catch (e) {
       LogUtils.e('设为最爱视频失败', tag: 'VideoService', error: e);
@@ -212,24 +223,24 @@ class VideoService extends GetxService {
   }
 
   /// 点赞视频
-  Future<ApiResult<void>> likeVideo(String mediaId) async {
-    await _apiService.post(ApiConstants.likeVideo(mediaId));
+  Future<ApiResult<void>> likeVideo(String mediaId, {IwaraSite site = IwaraSite.main}) async {
+    await _apiService.post(ApiConstants.likeVideo(mediaId), site: site);
     return ApiResult.success();
   }
 
   /// 取消点赞视频
-  Future<ApiResult<void>> unlikeVideo(String mediaId) async {
-    await _apiService.delete(ApiConstants.likeVideo(mediaId));
+  Future<ApiResult<void>> unlikeVideo(String mediaId, {IwaraSite site = IwaraSite.main}) async {
+    await _apiService.delete(ApiConstants.likeVideo(mediaId), site: site);
     return ApiResult.success();
   }
 
   /// 获取视频详情
-  Future<Video?> getVideoInfoByVideoId(String? videoId) async {
+  Future<Video?> getVideoInfoByVideoId(String? videoId, {IwaraSite site = IwaraSite.main}) async {
     if (videoId == null) {
       return null;
     }
     try {
-      final response = await _apiService.get(ApiConstants.video(videoId));
+      final response = await _apiService.get(ApiConstants.video(videoId), site: site);
       return Video.fromJson(response.data);
     } catch (e) {
       LogUtils.e('获取视频详情失败', tag: 'VideoService', error: e);

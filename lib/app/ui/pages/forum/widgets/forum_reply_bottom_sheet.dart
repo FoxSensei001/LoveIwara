@@ -35,10 +35,7 @@ class _ForumReplyBottomSheetState extends State<ForumReplyBottomSheet> {
       });
     }
 
-    final result = await _forumService.postReply(
-      widget.threadId,
-      text,
-    );
+    final result = await _forumService.postReply(widget.threadId, text);
 
     if (mounted) {
       setState(() {
@@ -53,10 +50,7 @@ class _ForumReplyBottomSheetState extends State<ForumReplyBottomSheet> {
       }
     } else {
       showToastWidget(
-        MDToastWidget(
-          message: result.message,
-          type: MDToastType.error,
-        ),
+        MDToastWidget(message: result.message, type: MDToastType.error),
       );
     }
   }
@@ -68,7 +62,7 @@ class _ForumReplyBottomSheetState extends State<ForumReplyBottomSheet> {
       hintText: t.common.writeYourContentHere,
       maxLength: widget.maxBodyInputLimit,
       maxLines: 5,
-      showEmojiPicker: true,  // 启用表情包功能
+      showEmojiPicker: true, // 启用表情包功能
       showTranslation: true,
       showMarkdownHelp: true,
       showPreview: true,

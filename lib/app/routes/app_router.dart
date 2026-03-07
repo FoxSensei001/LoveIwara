@@ -388,9 +388,10 @@ final GoRouter appRouter = GoRouter(
           name: 'post_detail',
           builder: (context, state) {
             final id = state.pathParameters['id']!;
-            final initialPost = state.extra is PostModel
-                ? state.extra as PostModel
-                : null;
+            final extra = state.extra;
+            final postExtra = extra is PostDetailExtra ? extra : null;
+            final initialPost =
+                postExtra?.initialPost ?? (extra is PostModel ? extra : null);
             return PostDetailPage(postId: id, initialPost: initialPost);
           },
         ),
@@ -401,7 +402,11 @@ final GoRouter appRouter = GoRouter(
           name: 'forum_thread_list',
           builder: (context, state) {
             final categoryId = state.pathParameters['categoryId']!;
-            return ThreadListPage(categoryId: categoryId);
+            final extra = state.extra as ForumThreadListExtra?;
+            return ThreadListPage(
+              categoryId: categoryId,
+              categoryName: extra?.categoryName ?? '',
+            );
           },
         ),
 
@@ -412,9 +417,11 @@ final GoRouter appRouter = GoRouter(
           builder: (context, state) {
             final categoryId = state.pathParameters['categoryId']!;
             final threadId = state.pathParameters['threadId']!;
-            final initialThread = state.extra is ForumThreadModel
-                ? state.extra as ForumThreadModel
-                : null;
+            final extra = state.extra;
+            final threadExtra = extra is ForumThreadDetailExtra ? extra : null;
+            final initialThread =
+                threadExtra?.initialThread ??
+                (extra is ForumThreadModel ? extra : null);
             return ThreadDetailPage(
               categoryId: categoryId,
               threadId: threadId,
@@ -735,6 +742,24 @@ class VideoDetailExtra {
     this.localTask,
     this.localAllQualityTasks,
   });
+}
+
+class PostDetailExtra {
+  final PostModel? initialPost;
+
+  const PostDetailExtra({this.initialPost});
+}
+
+class ForumThreadListExtra {
+  final String? categoryName;
+
+  const ForumThreadListExtra({this.categoryName});
+}
+
+class ForumThreadDetailExtra {
+  final ForumThreadModel? initialThread;
+
+  const ForumThreadDetailExtra({this.initialThread});
 }
 
 class SearchResultExtra {

@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/favorites/controllers/favorites_controller.dart';
 import 'package:i_iwara/app/ui/pages/favorites/widgets/favorite_video_list.dart';
 import 'package:i_iwara/app/ui/pages/favorites/widgets/favorite_image_list.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+
+import 'package:i_iwara/app/ui/widgets/iwara_site_badge.dart';
+
 class MyFavorites extends StatefulWidget {
   const MyFavorites({super.key});
 
@@ -84,39 +89,49 @@ class _MyFavoritesState extends State<MyFavorites>
       // 否则先滚动到顶部，然后刷新
       activeController
           .animateTo(
-        0,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      )
+            0,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          )
           .then((_) async {
-        isLoading.value = true;
-        await repository.refresh();
-        isLoading.value = false;
-      });
+            isLoading.value = true;
+            await repository.refresh();
+            isLoading.value = false;
+          });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
+    final currentSite = Get.find<AppService>().currentSiteMode;
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.favorites.myFavorites),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(t.favorites.myFavorites),
+            if (currentSite.isAi) ...[
+              const SizedBox(width: 8),
+              IwaraSiteBadge(site: currentSite),
+            ],
+          ],
+        ),
         actions: [
           // 使用 GetBuilder 替代 Obx
-          Obx(() => AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: isLoading.value
-                    ? Container(
-                        margin: const EdgeInsets.only(right: 16),
-                        width: 20,
-                        height: 20,
-                        child: const CircularProgressIndicator(
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-              )),
+          Obx(
+            () => AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: isLoading.value
+                  ? Container(
+                      margin: const EdgeInsets.only(right: 16),
+                      width: 20,
+                      height: 20,
+                      child: const CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          ),
           IconButton(
             onPressed: () {
               if (_tabController.index == 0) {
@@ -148,15 +163,11 @@ class _MyFavoritesState extends State<MyFavorites>
     final t = slang.Translations.of(context);
     return Container(
       width: 400,
-      margin: const EdgeInsets.symmetric(
-        horizontal: 0,
-        vertical: 8,
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context)
-            .colorScheme
-            .surfaceContainerHighest
-            .withValues(alpha: 0.3),
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(25),
       ),
       child: TabBar(
@@ -173,10 +184,7 @@ class _MyFavoritesState extends State<MyFavorites>
         // 标签样式
         labelColor: Theme.of(context).colorScheme.onPrimary,
         unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
-        labelStyle: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 16,
-        ),
+        labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         // 取消标签的内边距，让整个区域都可点击
         padding: EdgeInsets.zero,
         tabs: [

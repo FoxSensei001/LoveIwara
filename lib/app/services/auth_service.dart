@@ -8,6 +8,8 @@ import 'package:dio/dio.dart' as dio;
 import 'package:dio/io.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/user_service.dart';
+import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart' show CommonUtils;
@@ -38,9 +40,10 @@ class AuthService extends GetxService {
       sendTimeout: const Duration(seconds: 15),
       headers: {
         'Content-Type': 'application/json',
-        'x-site': CommonConstants.iwaraSiteHost,
-        'Referer': CommonConstants.iwaraBaseUrl,
-        'Origin': CommonConstants.iwaraBaseUrl,
+        ...((Get.isRegistered<AppService>()
+                ? Get.find<AppService>().currentSiteMode
+                : IwaraSite.main)
+            .requestHeaders),
       },
     ),
   );
@@ -78,6 +81,12 @@ class AuthService extends GetxService {
     _dio.httpClientAdapter = IOHttpClientAdapter(
       createHttpClient: HttpClientFactory.instance.createHttpClient,
     );
+  }
+
+
+  void updateSiteMode(IwaraSite site) {
+    _dio.options.headers.addAll(site.requestHeaders);
+    _tokenManager.updateSiteMode(site);
   }
 
   /// 初始化认证服务

@@ -7,7 +7,6 @@ import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/services/share_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
@@ -19,10 +18,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class ShareThreadBottomSheet extends StatefulWidget {
   final ForumThreadModel thread;
 
-  const ShareThreadBottomSheet({
-    super.key,
-    required this.thread,
-  });
+  const ShareThreadBottomSheet({super.key, required this.thread});
 
   @override
   State<ShareThreadBottomSheet> createState() => _ShareThreadBottomSheetState();
@@ -32,25 +28,28 @@ class _ShareThreadBottomSheetState extends State<ShareThreadBottomSheet> {
   final GlobalKey _globalKey = GlobalKey();
   bool _isGeneratingImage = false;
 
+  String get _shareUrl => ShareService.buildUrl(
+    '/forum/${widget.thread.section}/${widget.thread.id}',
+  );
+
   Future<void> _copyLink() async {
-    final String url = '${CommonConstants.iwaraBaseUrl}/forum/${widget.thread.section}/${widget.thread.id}';
     try {
-      await ShareService.copyToClipboard(url);
+      await ShareService.copyToClipboard(_shareUrl);
       showToastWidget(
         MDToastWidget(
           message: slang.t.galleryDetail.copyLink,
-          type: MDToastType.success
+          type: MDToastType.success,
         ),
-        position: ToastPosition.bottom
+        position: ToastPosition.bottom,
       );
     } catch (e) {
       LogUtils.e('复制链接失败', error: e, tag: 'ShareThreadBottomSheet');
       showToastWidget(
         MDToastWidget(
           message: slang.t.errors.failedToOperate,
-          type: MDToastType.error
+          type: MDToastType.error,
         ),
-        position: ToastPosition.bottom
+        position: ToastPosition.bottom,
       );
     }
   }
@@ -58,7 +57,7 @@ class _ShareThreadBottomSheetState extends State<ShareThreadBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    final url = '${CommonConstants.iwaraBaseUrl}/forum/${widget.thread.section}/${widget.thread.id}';
+    final url = _shareUrl;
 
     return Container(
       decoration: BoxDecoration(
@@ -103,13 +102,16 @@ class _ShareThreadBottomSheetState extends State<ShareThreadBottomSheet> {
                       // 头像
                       AvatarWidget(
                         avatarUrl: widget.thread.user.avatar?.avatarUrl,
-                        size: 70
+                        size: 70,
                       ),
                       const SizedBox(width: 16),
                       // 统计信息
                       Expanded(
                         child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 8,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.grey[100],
                             borderRadius: BorderRadius.circular(12),
@@ -128,7 +130,9 @@ class _ShareThreadBottomSheetState extends State<ShareThreadBottomSheet> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                CommonUtils.formatFriendlyNumber(widget.thread.numViews),
+                                CommonUtils.formatFriendlyNumber(
+                                  widget.thread.numViews,
+                                ),
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -149,7 +153,9 @@ class _ShareThreadBottomSheetState extends State<ShareThreadBottomSheet> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                CommonUtils.formatFriendlyNumber(widget.thread.numPosts),
+                                CommonUtils.formatFriendlyNumber(
+                                  widget.thread.numPosts,
+                                ),
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -240,25 +246,30 @@ class _ShareThreadBottomSheetState extends State<ShareThreadBottomSheet> {
                           });
                           try {
                             // 获取RenderRepaintBoundary
-                            final boundary = _globalKey.currentContext!
-                                .findRenderObject() as RenderRepaintBoundary;
+                            final boundary =
+                                _globalKey.currentContext!.findRenderObject()
+                                    as RenderRepaintBoundary;
                             // 转换为图片
                             final image = await boundary.toImage(
-                                pixelRatio: View.of(context).devicePixelRatio);
+                              pixelRatio: View.of(context).devicePixelRatio,
+                            );
                             final byteData = await image.toByteData(
-                                format: ui.ImageByteFormat.png);
+                              format: ui.ImageByteFormat.png,
+                            );
                             final bytes = byteData!.buffer.asUint8List();
 
                             // 保存到临时文件
                             final tempDir = await getTemporaryDirectory();
                             final file = File(
-                                '${tempDir.path}/share_thread_${DateTime.now().millisecondsSinceEpoch}.png');
+                              '${tempDir.path}/share_thread_${DateTime.now().millisecondsSinceEpoch}.png',
+                            );
                             await file.writeAsBytes(bytes);
 
                             // 分享
                             await SharePlus.instance.share(
                               ShareParams(
-                                text: '${t.share.wowDidYouSeeThis}\n'
+                                text:
+                                    '${t.share.wowDidYouSeeThis}\n'
                                     '${t.share.nameIs}: ${widget.thread.title}\n'
                                     '${t.share.authorIs}: ${widget.thread.user.name}\n'
                                     '${t.share.clickLinkToView}: $url\n\n'
@@ -273,12 +284,12 @@ class _ShareThreadBottomSheetState extends State<ShareThreadBottomSheet> {
                           }
                         },
                   icon: _isGeneratingImage
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.image),
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.image),
                   tooltip: t.share.shareAsImage,
                   padding: const EdgeInsets.all(16),
                 ),
@@ -312,6 +323,4 @@ class _ShareThreadBottomSheetState extends State<ShareThreadBottomSheet> {
       ),
     );
   }
-
-
-} 
+}

@@ -6,13 +6,11 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+
 class FavoriteImageList extends StatefulWidget {
   final ScrollController scrollController;
 
-  const FavoriteImageList({
-    super.key,
-    required this.scrollController,
-  });
+  const FavoriteImageList({super.key, required this.scrollController});
 
   @override
   State<FavoriteImageList> createState() => _FavoriteImageListState();
@@ -29,7 +27,7 @@ class _FavoriteImageListState extends State<FavoriteImageList>
   Widget build(BuildContext context) {
     super.build(context);
     final t = slang.Translations.of(context);
-    
+
     return RefreshIndicator(
       onRefresh: () => controller.imageRepository.refresh(true),
       child: LoadingMoreCustomScrollView(
@@ -39,14 +37,14 @@ class _FavoriteImageListState extends State<FavoriteImageList>
             SliverListConfig<ImageModel>(
               extendedListDelegate:
                   const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 220,
-                crossAxisSpacing: 5,
-                mainAxisSpacing: 5,
-              ),
+                    maxCrossAxisExtent: 220,
+                    crossAxisSpacing: 5,
+                    mainAxisSpacing: 5,
+                  ),
               itemBuilder: (context, image, index) {
                 return Obx(() {
-                  final bool isCanceled =
-                      controller.canceledFavoriteGalleryIds.contains(image.id);
+                  final bool isCanceled = controller.canceledFavoriteGalleryIds
+                      .contains(image.id);
                   return Stack(
                     children: [
                       ImageModelCardListItemWidget(
@@ -58,7 +56,8 @@ class _FavoriteImageListState extends State<FavoriteImageList>
                           child: Material(
                             color: Colors.black54,
                             child: InkWell(
-                              onTap: () => controller.toggleImageFavorite(image),
+                              onTap: () =>
+                                  controller.toggleImageFavorite(image),
                               child: Center(
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
@@ -74,9 +73,7 @@ class _FavoriteImageListState extends State<FavoriteImageList>
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodyMedium
-                                          ?.copyWith(
-                                            color: Colors.white,
-                                          ),
+                                          ?.copyWith(color: Colors.white),
                                     ),
                                   ],
                                 ),
@@ -91,7 +88,8 @@ class _FavoriteImageListState extends State<FavoriteImageList>
                           child: Material(
                             color: Colors.transparent,
                             child: InkWell(
-                              onTap: () => controller.toggleImageFavorite(image),
+                              onTap: () =>
+                                  controller.toggleImageFavorite(image),
                               borderRadius: BorderRadius.circular(20),
                               child: const Padding(
                                 padding: EdgeInsets.all(8.0),
@@ -128,4 +126,4 @@ class _FavoriteImageListState extends State<FavoriteImageList>
       ),
     );
   }
-} 
+}

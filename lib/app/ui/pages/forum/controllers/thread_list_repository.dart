@@ -12,14 +12,22 @@ class ThreadListRepository extends ExtendedLoadingMoreBase<ForumThreadModel> {
   final String categoryId;
   final Function(dynamic name, dynamic description)? updateCategoryName;
   final int maxLength;
-  
-  ThreadListRepository({required this.categoryId, this.updateCategoryName, this.maxLength = 300});
-  
+
+  ThreadListRepository({
+    required this.categoryId,
+    this.updateCategoryName,
+    this.maxLength = 300,
+  });
+
   @override
   bool get hasMore => (super.hasMore && length < maxLength) || forceRefresh;
-  
+
   @override
-  Future<Map<String, dynamic>> fetchDataFromSource(Map<String, dynamic> params, int page, int limit) async {
+  Future<Map<String, dynamic>> fetchDataFromSource(
+    Map<String, dynamic> params,
+    int page,
+    int limit,
+  ) async {
     final result = await _forumService.fetchForumThreads(
       categoryId,
       page: page,
@@ -34,10 +42,10 @@ class ThreadListRepository extends ExtendedLoadingMoreBase<ForumThreadModel> {
 
     final section = result.data?['section'] as ForumThreadSectionDto;
     updateCategoryName?.call(section.name, section.description);
-    
+
     return result.data!;
   }
-  
+
   @override
   Future<List<ForumThreadModel>> loadPageData(int pageKey, int pageSize) async {
     try {
@@ -58,25 +66,27 @@ class ThreadListRepository extends ExtendedLoadingMoreBase<ForumThreadModel> {
 
   @override
   Map<String, dynamic> buildQueryParams(int page, int limit) {
-    return <String, dynamic>{
-      'page': page,
-      'limit': limit
-    };
+    return <String, dynamic>{'page': page, 'limit': limit};
   }
-  
+
   @override
   List<ForumThreadModel> extractDataList(Map<String, dynamic> response) {
     return response['results'] as List<ForumThreadModel>;
   }
-  
+
   @override
   int extractTotalCount(Map<String, dynamic> response) {
     final threads = response['results'] as List<ForumThreadModel>;
     return response['count'] as int? ?? threads.length;
   }
-  
+
   @override
   void logError(String message, dynamic error, [StackTrace? stackTrace]) {
-    LogUtils.e(message, error: error, stack: stackTrace, tag: 'ThreadListRepository');
+    LogUtils.e(
+      message,
+      error: error,
+      stack: stackTrace,
+      tag: 'ThreadListRepository',
+    );
   }
-} 
+}

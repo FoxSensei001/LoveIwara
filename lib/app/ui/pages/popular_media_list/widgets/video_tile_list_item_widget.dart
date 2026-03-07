@@ -71,7 +71,7 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
     String videoId, {
     Map<String, dynamic>? extData,
   }) async {
-    await NaviService.navigateToVideoDetailPage(videoId, extData);
+    await NaviService.navigateToVideoDetailPage(videoId, extData: extData);
     if (!mounted) return;
     _applyLikePatch(extData);
   }

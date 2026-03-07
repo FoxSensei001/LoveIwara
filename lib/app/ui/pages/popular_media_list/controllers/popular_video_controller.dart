@@ -5,7 +5,6 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/base_media_r
 import 'base_media_controller.dart';
 import 'popular_video_repository.dart';
 
-
 class PopularVideoController extends BaseMediaController<Video> {
   final VideoService _videoService = Get.find<VideoService>();
 
@@ -13,9 +12,6 @@ class PopularVideoController extends BaseMediaController<Video> {
 
   @override
   BaseMediaRepository<Video> createRepository() {
-    return PopularVideoRepository(
-      videoService: _videoService,
-      sortId: sortId,
-    );
+    return PopularVideoRepository(videoService: _videoService, sortId: sortId);
   }
 }

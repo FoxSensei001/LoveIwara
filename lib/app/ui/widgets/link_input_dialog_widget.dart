@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/deep_link_service.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:oktoast/oktoast.dart';
@@ -246,7 +247,7 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
       final uri = Uri.parse(link);
       
       // 检查是否是有效的iwara链接
-      if (!uri.host.contains("iwara")) {
+      if (!IwaraSiteUtils.isIwaraHost(uri.host)) {
         showToastWidget(MDToastWidget(
           message: slang.t.linkInputDialog.notIwaraLink(webName: CommonConstants.webName),
           type: MDToastType.error,

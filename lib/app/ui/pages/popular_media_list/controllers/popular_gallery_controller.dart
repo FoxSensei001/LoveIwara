@@ -55,24 +55,27 @@ class PopularGalleryController extends BaseMediaController<ImageModel> {
       // 刷新时重置所有状态
       reset();
     }
-    
+
     if (!hasMore.value || isLoading.value) return;
 
     isLoading.value = true;
 
-    LogUtils.d('当前的查询参数: tags: $searchTagIds, date: $searchDate, rating: $searchRating', 'PopularImageModelController');
+    LogUtils.d(
+      '当前的查询参数: tags: $searchTagIds, date: $searchDate, rating: $searchRating',
+      'PopularImageModelController',
+    );
     try {
-      ApiResult<PageData<ImageModel>> result =
-          await _galleryService.fetchImageModelsByParams(
-        params: {
-          'sort': sortId,
-          'tags': searchTagIds.join(','),
-          'date': searchDate,
-          'rating': searchRating,
-        },
-        page: page,
-        limit: pageSize,
-      );
+      ApiResult<PageData<ImageModel>> result = await _galleryService
+          .fetchImageModelsByParams(
+            params: {
+              'sort': sortId,
+              'tags': searchTagIds.join(','),
+              'date': searchDate,
+              'rating': searchRating,
+            },
+            page: page,
+            limit: pageSize,
+          );
 
       if (result.isFail) {
         throw result.message;
@@ -88,7 +91,13 @@ class PopularGalleryController extends BaseMediaController<ImageModel> {
       page++;
     } catch (e) {
       LogUtils.e('获取图片列表失败', tag: 'PopularImageModelController', error: e);
-      showToastWidget(MDToastWidget(message: t.errors.errorWhileFetching, type: MDToastType.error), position: ToastPosition.bottom);
+      showToastWidget(
+        MDToastWidget(
+          message: t.errors.errorWhileFetching,
+          type: MDToastType.error,
+        ),
+        position: ToastPosition.bottom,
+      );
       errorWidget.value = CommonErrorWidget(
         text: t.errors.errorWhileFetching,
         children: [

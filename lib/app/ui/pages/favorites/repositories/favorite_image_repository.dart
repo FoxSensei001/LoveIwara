@@ -5,11 +5,11 @@ import 'package:loading_more_list/loading_more_list.dart';
 
 class FavoriteImageRepository extends LoadingMoreBase<ImageModel> {
   final GalleryService _galleryService = Get.find<GalleryService>();
-  
+
   int _pageIndex = 0;
   bool _hasMore = true;
   bool forceRefresh = false;
-  
+
   @override
   bool get hasMore => _hasMore || forceRefresh;
 
@@ -49,4 +49,4 @@ class FavoriteImageRepository extends LoadingMoreBase<ImageModel> {
     }
     return isSuccess;
   }
-} 
+}

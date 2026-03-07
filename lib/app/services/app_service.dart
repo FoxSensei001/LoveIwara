@@ -9,6 +9,7 @@ import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/common/enums/media_enums.dart';
@@ -17,6 +18,12 @@ import 'package:i_iwara/utils/proxy/proxy_util.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 import '../routes/app_router.dart';
+import 'config_service.dart';
+import '../ui/widgets/restart_app_widget.dart';
+import '../ui/pages/subscriptions/subscriptions_page.dart';
+import '../ui/pages/popular_media_list/popular_gallery_list_page.dart';
+import '../ui/pages/popular_media_list/popular_video_list_page.dart';
+import 'auth_service.dart';
 import 'pop_coordinator.dart';
 
 class AppService extends GetxService {
@@ -27,6 +34,8 @@ class AppService extends GetxService {
   final RxBool _showRailNavi = true.obs; // 是否显示侧边栏 [ Home路由下使用 ]
   final RxBool _showBottomNavi = true.obs; // 是否显示底部导航栏 [ Home路由下使用 ]
   final RxInt _currentIndex = 0.obs; // 当前底部/侧边导航栏索引
+  final Rx<IwaraSite> _currentSiteMode = IwaraSite.main.obs;
+  final RxInt _siteModeVersion = 0.obs;
 
   /// StatefulShellRoute 的 navigationShell 引用，
   /// 由 StatefulShellRoute builder 设置，
@@ -88,6 +97,10 @@ class AppService extends GetxService {
 
   set currentIndex(int value) => _currentIndex.value = value;
 
+  IwaraSite get currentSiteMode => _currentSiteMode.value;
+
+  int get siteModeVersion => _siteModeVersion.value;
+
   static void switchGlobalDrawer() {
     if (globalDrawerKey.currentState!.isDrawerOpen) {
       globalDrawerKey.currentState!.openEndDrawer();
@@ -106,6 +119,132 @@ class AppService extends GetxService {
 
   void updateIndex(int value) {
     _currentIndex.value = value;
+  }
+
+  static const List<String> _defaultNavigationOrder = [
+    'video',
+    'gallery',
+    'subscription',
+    'forum',
+  ];
+
+  List<String> get navigationDisplayOrder {
+    if (!Get.isRegistered<ConfigService>()) {
+      return List<String>.from(_defaultNavigationOrder);
+    }
+
+    final orderRaw = Get.find<ConfigService>()[ConfigKey.NAVIGATION_ORDER];
+    final raw = orderRaw is List ? orderRaw : const <dynamic>[];
+    final result = <String>[];
+
+    for (final item in raw) {
+      if (item is! String) continue;
+      if (!navigationItems.containsKey(item)) continue;
+      if (result.contains(item)) continue;
+      result.add(item);
+    }
+
+    for (final item in _defaultNavigationOrder) {
+      if (!result.contains(item)) {
+        result.add(item);
+      }
+    }
+
+    return result;
+  }
+
+  int get preferredHomeBranchIndex {
+    final order = navigationDisplayOrder;
+    if (order.isEmpty) {
+      return 0;
+    }
+    return navigationItems[order.first]?.pageIndex ?? 0;
+  }
+
+  String get preferredHomePath {
+    switch (preferredHomeBranchIndex) {
+      case 0:
+        return '/';
+      case 1:
+        return '/gallery';
+      case 2:
+        return '/subscriptions';
+      case 3:
+        return '/forum';
+      default:
+        return '/';
+    }
+  }
+
+  void syncSiteModeFromConfig(ConfigService configService) {
+    final savedMode = configService[ConfigKey.APP_SITE_MODE] as String?;
+    _currentSiteMode.value = IwaraSiteUtils.fromExtra(savedMode);
+  }
+
+  Future<void> applyGlobalSiteMode(
+    IwaraSite site, {
+    bool resetNavigation = true,
+    Future<void> Function()? onApplied,
+  }) async {
+    if (_currentSiteMode.value == site) {
+      return;
+    }
+
+    if (Get.isRegistered<ConfigService>()) {
+      await Get.find<ConfigService>().setSetting(
+        ConfigKey.APP_SITE_MODE,
+        site.name,
+      );
+    }
+
+    _currentSiteMode.value = site;
+    _siteModeVersion.value++;
+
+    try {
+      if (Get.isRegistered<AuthService>()) {
+        Get.find<AuthService>().updateSiteMode(site);
+      }
+    } catch (_) {}
+
+    try {
+      hideGlobalDrawer();
+    } catch (_) {}
+
+    if (resetNavigation) {
+      final preferredBranch = preferredHomeBranchIndex;
+      final preferredPath = preferredHomePath;
+
+      try {
+        appRouter.go(preferredPath);
+      } catch (_) {}
+
+      try {
+        navigationShell?.goBranch(preferredBranch, initialLocation: true);
+      } catch (_) {}
+
+      _currentIndex.value = preferredBranch;
+    }
+
+    RestartApp.restartApp();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (resetNavigation) {
+        try {
+          PopularVideoListPage.globalKey.currentState?.tryRefreshCurrentSort();
+        } catch (_) {}
+        try {
+          PopularGalleryListPage.globalKey.currentState
+              ?.tryRefreshCurrentSort();
+        } catch (_) {}
+        try {
+          SubscriptionsPage.globalKey.currentState?.refreshCurrentList();
+        } catch (_) {}
+      }
+
+      if (onApplied != null) {
+        await onApplied();
+      }
+    });
   }
 
   static void tryPop({BuildContext? context, bool closeAll = false}) {
@@ -260,9 +399,9 @@ class NaviService {
 
   /// 跳转到视频详情页
   static Future<Object?> navigateToVideoDetailPage(
-    String id, [
+    String id, {
     Map<String, dynamic>? extData,
-  ]) {
+  }) {
     final normalizedId = id.trim();
     if (normalizedId.isEmpty) return Future<Object?>.value();
 
@@ -390,7 +529,10 @@ class NaviService {
 
   /// 跳转到帖子详情页
   static void navigateToPostDetailPage(String id, dynamic post) {
-    appRouter.push('/post/$id', extra: post is PostModel ? post : null);
+    appRouter.push(
+      '/post/$id',
+      extra: PostDetailExtra(initialPost: post is PostModel ? post : null),
+    );
   }
 
   /// 跳转到图片详情页
@@ -425,8 +567,14 @@ class NaviService {
   }
 
   /// 跳转到论坛帖子列表页
-  static void navigateToForumThreadListPage(String categoryId) {
-    appRouter.push('/forum_threads/$categoryId');
+  static void navigateToForumThreadListPage(
+    String categoryId, {
+    String? categoryName,
+  }) {
+    appRouter.push(
+      '/forum_threads/$categoryId',
+      extra: ForumThreadListExtra(categoryName: categoryName),
+    );
   }
 
   /// 跳转到论坛帖子详情页
@@ -437,7 +585,24 @@ class NaviService {
   }) {
     appRouter.push(
       '/forum_threads/$categoryId/$threadId',
-      extra: initialThread,
+      extra: ForumThreadDetailExtra(initialThread: initialThread),
+    );
+  }
+
+  static Future<void> navigateInSiteMode(
+    IwaraSite site,
+    Future<void> Function() navigate,
+  ) async {
+    final appService = Get.find<AppService>();
+    if (appService.currentSiteMode == site) {
+      await navigate();
+      return;
+    }
+
+    await appService.applyGlobalSiteMode(
+      site,
+      resetNavigation: false,
+      onApplied: navigate,
     );
   }
 

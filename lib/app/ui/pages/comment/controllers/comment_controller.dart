@@ -17,8 +17,7 @@ enum CommentType {
   post,
   video,
   profile,
-  image,
-  ;
+  image;
 
   const CommentType();
 
@@ -50,17 +49,15 @@ class CommentController<T extends CommentType> extends GetxController {
   final CommentService _commentService = Get.find<CommentService>();
   final ConfigService _configService = Get.find<ConfigService>();
 
-  CommentController({
-    required this.id,
-    required this.type,
-  });
+  CommentController({required this.id, required this.type});
 
   @override
   void onInit() {
     super.onInit();
     LogUtils.d('初始化', 'CommentController<${type.toString()}>');
     // 从配置中获取排序方式
-    sortOrder.value = _configService.settings[ConfigKey.COMMENT_SORT_ORDER]!.value;
+    sortOrder.value =
+        _configService.settings[ConfigKey.COMMENT_SORT_ORDER]!.value;
     fetchComments(refresh: true);
   }
 
@@ -96,7 +93,8 @@ class CommentController<T extends CommentType> extends GetxController {
 
         if (firstPageResult.isSuccess) {
           totalComments.value = firstPageResult.data!.count;
-          pendingCount.value = firstPageResult.data!.extras?['pendingCount'] ?? 0;
+          pendingCount.value =
+              firstPageResult.data!.extras?['pendingCount'] ?? 0;
         } else {
           // 如果获取总数失败，直接抛出异常，让外层catch处理
           throw Exception(firstPageResult.message);
@@ -150,13 +148,18 @@ class CommentController<T extends CommentType> extends GetxController {
               if (sortOrder.value) {
                 // 倒序：从总数开始递减
                 // 使用已加载的顶级评论数量来计算
-                floorNumber = totalComments.value - loadedTopLevelComments - topLevelCommentIndex;
+                floorNumber =
+                    totalComments.value -
+                    loadedTopLevelComments -
+                    topLevelCommentIndex;
               } else {
                 // 正序：从1开始递增
                 // 使用已加载的顶级评论数量来计算
                 floorNumber = loadedTopLevelComments + topLevelCommentIndex + 1;
               }
-              commentsWithFloorNumber.add(comment.copyWith(floorNumber: floorNumber));
+              commentsWithFloorNumber.add(
+                comment.copyWith(floorNumber: floorNumber),
+              );
               topLevelCommentIndex++; // 顶级评论索引递增
             } else {
               commentsWithFloorNumber.add(comment);
@@ -183,8 +186,11 @@ class CommentController<T extends CommentType> extends GetxController {
         errorMessage.value = result.message;
       }
     } catch (e) {
-      LogUtils.e('获取评论时出错',
-          tag: 'CommentController<${type.toString()}>', error: e);
+      LogUtils.e(
+        '获取评论时出错',
+        tag: 'CommentController<${type.toString()}>',
+        error: e,
+      );
       errorMessage.value = CommonUtils.parseExceptionMessage(e);
     } finally {
       isLoading.value = false;
@@ -210,10 +216,11 @@ class CommentController<T extends CommentType> extends GetxController {
     await refreshComments();
   }
 
-
-
   // 发表评论
-  Future<ApiResult<Comment>> postComment(String body, {String? parentId}) async {
+  Future<ApiResult<Comment>> postComment(
+    String body, {
+    String? parentId,
+  }) async {
     final result = await _commentService.postComment(
       type: type.name,
       id: id,
@@ -226,18 +233,26 @@ class CommentController<T extends CommentType> extends GetxController {
         final parentComment = comments.firstWhere((c) => c.id == parentId);
         final index = comments.indexOf(parentComment);
         comments[index] = parentComment.copyWith(
-          numReplies: parentComment.numReplies + 1
+          numReplies: parentComment.numReplies + 1,
         );
       } else {
         comments.insert(0, result.data!);
       }
       totalComments.value++;
-      showToastWidget(MDToastWidget(message: t.common.commentPostedSuccessfully, type: MDToastType.success));
+      showToastWidget(
+        MDToastWidget(
+          message: t.common.commentPostedSuccessfully,
+          type: MDToastType.success,
+        ),
+      );
       AppService.tryPop();
     } else {
-      showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
+      showToastWidget(
+        MDToastWidget(message: result.message, type: MDToastType.error),
+        position: ToastPosition.bottom,
+      );
     }
-    
+
     return result;
   }
 
@@ -247,9 +262,17 @@ class CommentController<T extends CommentType> extends GetxController {
     if (result.isSuccess) {
       comments.removeWhere((comment) => comment.id == commentId);
       totalComments.value--;
-      showToastWidget(MDToastWidget(message: t.common.commentDeletedSuccessfully, type: MDToastType.success));
+      showToastWidget(
+        MDToastWidget(
+          message: t.common.commentDeletedSuccessfully,
+          type: MDToastType.success,
+        ),
+      );
     } else {
-      showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
+      showToastWidget(
+        MDToastWidget(message: result.message, type: MDToastType.error),
+        position: ToastPosition.bottom,
+      );
     }
   }
 
@@ -263,11 +286,19 @@ class CommentController<T extends CommentType> extends GetxController {
           body: newBody,
           updatedAt: DateTime.now(),
         );
-        showToastWidget(MDToastWidget(message: t.common.commentUpdatedSuccessfully, type: MDToastType.success));
+        showToastWidget(
+          MDToastWidget(
+            message: t.common.commentUpdatedSuccessfully,
+            type: MDToastType.success,
+          ),
+        );
         AppService.tryPop();
       }
     } else {
-      showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
+      showToastWidget(
+        MDToastWidget(message: result.message, type: MDToastType.error),
+        position: ToastPosition.bottom,
+      );
     }
   }
 

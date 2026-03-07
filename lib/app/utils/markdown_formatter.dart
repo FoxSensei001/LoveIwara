@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/light_service.dart';
 import 'package:i_iwara/app/utils/url_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
@@ -15,6 +17,13 @@ class MarkdownFormatter {
 
   // 内部构造函数
   MarkdownFormatter._internal();
+
+  String get _currentBaseUrl {
+    if (Get.isRegistered<AppService>()) {
+      return Get.find<AppService>().currentSiteMode.baseUrl;
+    }
+    return IwaraSite.main.baseUrl;
+  }
 
   /// 格式化链接
   Future<String> formatLinks(String data) async {
@@ -314,7 +323,7 @@ class MarkdownFormatter {
       final username = match.group(1);
       if (username == null) return mention ?? '';
       // 给提及也加上默认的用户图标
-      return '👤 [$mention](https://www.iwara.tv/profile/$username)';
+      return '👤 [$mention]($_currentBaseUrl/profile/$username)';
     });
   }
 

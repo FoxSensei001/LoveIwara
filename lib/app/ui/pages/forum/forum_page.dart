@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/iwara_page.model.dart';
 import 'package:i_iwara/app/services/api_service.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
@@ -58,6 +59,10 @@ class _ForumPageState extends State<ForumPage> {
   static const double _cardRadius = 14.0;
   static const double _pageSidePadding = 8.0;
   final appBarHeight = 56.0;
+
+  Map<String, String> get _iwaraImageHeaders => {
+    'referer': Get.find<AppService>().currentSiteMode.baseUrl,
+  };
 
   // 置顶公告相关
   List<ForumThreadModel> _stickyAnnouncements = [];
@@ -863,7 +868,7 @@ class _ForumPageState extends State<ForumPage> {
             borderRadius: BorderRadius.circular(12),
             child: CachedNetworkImage(
               imageUrl: imageUrl,
-              httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
+              httpHeaders: _iwaraImageHeaders,
               width: 160,
               height: 90,
               fit: BoxFit.cover,

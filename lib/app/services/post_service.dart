@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/services/api_service.dart';
@@ -14,9 +15,9 @@ class PostService extends GetxService {
 
   /// 获取帖子详情
   /// @param id 帖子ID
-  Future<ApiResult<PostModel>> fetchPostDetail(String id) async {
+  Future<ApiResult<PostModel>> fetchPostDetail(String id, {IwaraSite site = IwaraSite.main}) async {
     try {
-      var response = await _apiService.get(ApiConstants.post(id));
+      var response = await _apiService.get(ApiConstants.post(id), site: site);
       return ApiResult.success(data: PostModel.fromJson(response.data));
     } catch (e) {
       LogUtils.e('获取帖子详情失败', tag: 'PostService', error: e);
@@ -35,11 +36,13 @@ class PostService extends GetxService {
     Map<String, dynamic> params = const {},
     int page = 0,
     int limit = 20,
+    IwaraSite site = IwaraSite.main,
   }) async {
     try {
       var response = await _apiService.get(
         ApiConstants.posts(),
         queryParameters: {...params, 'page': page, 'limit': limit},
+        site: site,
       );
       final List<PostModel> results = (response.data['results'] as List)
           .map((postModel) => PostModel.fromJson(postModel))
@@ -66,11 +69,13 @@ class PostService extends GetxService {
   Future<ApiResult<PageData<PostModel>>> fetchSubscribedPostList({
     int page = 0,
     int limit = 20,
+    IwaraSite site = IwaraSite.main,
   }) async {
     return await fetchPostList(
       params: {'subscribed': true},
       page: page,
       limit: limit,
+      site: site,
     );
   }
 
@@ -79,22 +84,25 @@ class PostService extends GetxService {
     String userId, {
     int page = 0,
     int limit = 20,
+    IwaraSite site = IwaraSite.main,
   }) async {
     return await fetchPostList(
       params: {'user': userId},
       page: page,
       limit: limit,
+      site: site,
     );
   }
 
   /// 发送帖子
   /// @param title 标题
   /// @param body 内容
-  Future<ApiResult<void>> postPost(String title, String body) async {
+  Future<ApiResult<void>> postPost(String title, String body, {IwaraSite site = IwaraSite.main}) async {
     try {
       await _apiService.post(
         ApiConstants.posts(),
         data: {'title': title, 'body': body, 'rulesAgreement': true},
+        site: site,
       );
       return ApiResult.success();
     } catch (e) {
@@ -119,9 +127,9 @@ class PostService extends GetxService {
   ///   "limited": true,
   ///   "remaining": 3136 // 剩余时间 秒
   /// }
-  Future<ApiResult<PostCooldownModel>> fetchPostCollingInfo() async {
+  Future<ApiResult<PostCooldownModel>> fetchPostCollingInfo({IwaraSite site = IwaraSite.main}) async {
     try {
-      var response = await _apiService.get(ApiConstants.userPostCooldown());
+      var response = await _apiService.get(ApiConstants.userPostCooldown(), site: site);
       return ApiResult.success(data: PostCooldownModel.fromJson(response.data));
     } catch (e) {
       LogUtils.e('获取冷却时间失败', tag: 'PostService', error: e);

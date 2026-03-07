@@ -266,6 +266,7 @@ enum ConfigKey {
   RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN,
   ACTIVE_BACKGROUND_PRIVACY_MODE,
   DEFAULT_LANGUAGE_KEY,
+  APP_SITE_MODE, // 应用站点模式：main / ai
   USER_TARGET_LANGUAGE_KEY,
   THEATER_MODE_KEY,
   REMOTE_REPO_RELEASE_URL,
@@ -401,6 +402,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'active_background_privacy_mode';
       case ConfigKey.DEFAULT_LANGUAGE_KEY:
         return 'default_language';
+      case ConfigKey.APP_SITE_MODE:
+        return 'app_site_mode';
       case ConfigKey.THEATER_MODE_KEY:
         return 'theater_mode';
       case ConfigKey.REMOTE_REPO_RELEASE_URL:
@@ -608,6 +611,8 @@ extension ConfigKeyExtension on ConfigKey {
         return false;
       case ConfigKey.DEFAULT_LANGUAGE_KEY:
         return 'zh-CN';
+      case ConfigKey.APP_SITE_MODE:
+        return 'main';
       case ConfigKey.USER_TARGET_LANGUAGE_KEY:
         return 'en-US';
       case ConfigKey.THEATER_MODE_KEY:

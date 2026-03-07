@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
@@ -47,7 +48,7 @@ class DeepLinkService extends GetxService {
     try {
       final uri = Uri.parse(link);
       // 检查是否是iwara链接
-      if (!uri.host.contains("iwara")) return false;
+      if (!IwaraSiteUtils.isIwaraHost(uri.host)) return false;
 
       return canHandleInternally(uri);
     } catch (e) {
@@ -103,11 +104,14 @@ class DeepLinkService extends GetxService {
 
     // 通知原生端 Flutter 已准备好（macOS）
     if (GetPlatform.isMacOS) {
-      _fileHandlerChannel.invokeMethod('ready').then((_) {
-        LogUtils.d('已通知 macOS 端 Flutter 准备就绪', 'DeepLinkService');
-      }).catchError((e) {
-        LogUtils.w('通知 macOS 端时出错: $e', 'DeepLinkService');
-      });
+      _fileHandlerChannel
+          .invokeMethod('ready')
+          .then((_) {
+            LogUtils.d('已通知 macOS 端 Flutter 准备就绪', 'DeepLinkService');
+          })
+          .catchError((e) {
+            LogUtils.w('通知 macOS 端时出错: $e', 'DeepLinkService');
+          });
     }
 
     // 处理待处理的初始链接
@@ -152,6 +156,7 @@ class DeepLinkService extends GetxService {
 
     // 处理不同类型的链接
     final pathSegments = uri.pathSegments;
+    final site = IwaraSiteUtils.fromHost(uri.host);
 
     // 处理本地文件 URI (file:// 或 content://)
     if (uri.scheme == 'file' || uri.scheme == 'content') {
@@ -179,7 +184,10 @@ class DeepLinkService extends GetxService {
         // 视频详情页 目前url可以识别 iwara.tv/video/id 和 iwara.tv/video/id/subId 两种路径
         if (pathSegments.length > 1) {
           final videoId = pathSegments[1];
-          NaviService.navigateToVideoDetailPage(videoId);
+          NaviService.navigateInSiteMode(
+            site,
+            () => NaviService.navigateToVideoDetailPage(videoId),
+          );
         }
         break;
 
@@ -187,11 +195,13 @@ class DeepLinkService extends GetxService {
         // 用户主页 目前url可以识别 iwara.tv/profile/userName 和 iwara.tv/profile/userName/playlists 两种路径
         if (pathSegments.length > 1) {
           final userName = pathSegments[1];
-          if (pathSegments.length > 2 && pathSegments[2] == 'playlists') {
-            NaviService.navigateToPlayListPage(userName);
-          } else {
-            NaviService.navigateToAuthorProfilePage(userName);
-          }
+          NaviService.navigateInSiteMode(site, () async {
+            if (pathSegments.length > 2 && pathSegments[2] == 'playlists') {
+              NaviService.navigateToPlayListPage(userName);
+            } else {
+              NaviService.navigateToAuthorProfilePage(userName);
+            }
+          });
         }
         break;
 
@@ -199,7 +209,11 @@ class DeepLinkService extends GetxService {
         // 播放列表详情页 目前url可以识别 iwara.tv/playlist/id 和 iwara.tv/playlist/id/subId 两种路径
         if (pathSegments.length > 1) {
           final playlistId = pathSegments[1];
-          NaviService.navigateToPlayListDetail(playlistId, isMine: false);
+          NaviService.navigateInSiteMode(
+            site,
+            () async =>
+                NaviService.navigateToPlayListDetail(playlistId, isMine: false),
+          );
         }
         break;
 
@@ -207,7 +221,10 @@ class DeepLinkService extends GetxService {
         // 图片详情页 目前url可以识别 iwara.tv/image/id 和 iwara.tv/image/id/subId 两种路径
         if (pathSegments.length > 1) {
           final imageId = pathSegments[1];
-          NaviService.navigateToGalleryDetailPage(imageId);
+          NaviService.navigateInSiteMode(
+            site,
+            () => NaviService.navigateToGalleryDetailPage(imageId),
+          );
         }
         break;
 
@@ -216,12 +233,14 @@ class DeepLinkService extends GetxService {
         // https://www.iwara.tv/forum/announcements/895468a8-bdd9-401d-a8d1-2fd4d2d68c7d/2025-q1-small-updateoror-rule-changes-recent-issues-and-other-topics
         if (pathSegments.length > 1) {
           final categoryId = pathSegments[1];
-          if (pathSegments.length > 2) {
-            final threadId = pathSegments[2];
-            NaviService.navigateToForumThreadDetailPage(categoryId, threadId);
-          } else {
-            NaviService.navigateToForumThreadListPage(categoryId);
-          }
+          NaviService.navigateInSiteMode(site, () async {
+            if (pathSegments.length > 2) {
+              final threadId = pathSegments[2];
+              NaviService.navigateToForumThreadDetailPage(categoryId, threadId);
+            } else {
+              NaviService.navigateToForumThreadListPage(categoryId);
+            }
+          });
         }
         break;
 
@@ -229,7 +248,10 @@ class DeepLinkService extends GetxService {
         // 帖子详情页 目前url可以识别 iwara.tv/post/id 和 iwara.tv/post/id/subId 两种路径
         if (pathSegments.length > 1) {
           final postId = pathSegments[1];
-          NaviService.navigateToPostDetailPage(postId, null);
+          NaviService.navigateInSiteMode(
+            site,
+            () async => NaviService.navigateToPostDetailPage(postId, null),
+          );
         }
         break;
     }

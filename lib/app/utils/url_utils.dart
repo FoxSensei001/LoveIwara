@@ -1,4 +1,5 @@
 import 'package:i_iwara/common/constants.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 
 /// URL 类型枚举
 enum IwaraUrlType {
@@ -19,15 +20,17 @@ class IwaraUrlInfo {
   final String? id;
   final String? secondaryId; // 用于论坛帖子等需要两个ID的情况
   final String originalUrl;
+  final IwaraSite site;
 
   IwaraUrlInfo({
     required this.type,
     this.id,
     this.secondaryId,
     required this.originalUrl,
+    this.site = IwaraSite.main,
   });
 
-  bool get isIwaraUrl => originalUrl.startsWith(CommonConstants.iwaraBaseUrl);
+  bool get isIwaraUrl => IwaraSiteUtils.isIwaraHost(Uri.tryParse(originalUrl)?.host);
 }
 
 /// URL 工具类
@@ -44,7 +47,12 @@ class UrlUtils {
 
       final host = uri.host.toLowerCase();
       final iwaraDomain = CommonConstants.iwaraDomain.toLowerCase();
-      final isIwaraHost = host == iwaraDomain || host.endsWith('.$iwaraDomain');
+      final iwaraAiDomain = CommonConstants.iwaraAiDomain.toLowerCase();
+      final isIwaraHost =
+          host == iwaraDomain ||
+          host.endsWith('.$iwaraDomain') ||
+          host == iwaraAiDomain ||
+          host.endsWith('.$iwaraAiDomain');
 
       if (!isIwaraHost) {
         return url;
@@ -61,14 +69,14 @@ class UrlUtils {
     try {
       final uri = Uri.parse(url);
 
-      // 如果不是 iwara 域名，直接返回 unknown
-      if (!url.startsWith(CommonConstants.iwaraBaseUrl)) {
-        return IwaraUrlInfo(type: IwaraUrlType.unknown, originalUrl: url);
+      final site = IwaraSiteUtils.fromHost(uri.host);
+      if (!IwaraSiteUtils.isIwaraHost(uri.host)) {
+        return IwaraUrlInfo(type: IwaraUrlType.unknown, originalUrl: url, site: site);
       }
 
       final pathSegments = uri.pathSegments;
       if (pathSegments.isEmpty) {
-        return IwaraUrlInfo(type: IwaraUrlType.unknown, originalUrl: url);
+        return IwaraUrlInfo(type: IwaraUrlType.unknown, originalUrl: url, site: site);
       }
 
       // 根据路径第一段判断类型
@@ -78,18 +86,21 @@ class UrlUtils {
             type: IwaraUrlType.profile,
             id: pathSegments.length > 1 ? pathSegments[1] : null,
             originalUrl: url,
+            site: site,
           );
         case 'video':
           return IwaraUrlInfo(
             type: IwaraUrlType.video,
             id: pathSegments.length > 1 ? pathSegments[1] : null,
             originalUrl: url,
+            site: site,
           );
         case 'image':
           return IwaraUrlInfo(
             type: IwaraUrlType.image,
             id: pathSegments.length > 1 ? pathSegments[1] : null,
             originalUrl: url,
+            site: site,
           );
         case 'forum':
           if (pathSegments.length >= 3) {
@@ -98,35 +109,40 @@ class UrlUtils {
               id: pathSegments[1],
               secondaryId: pathSegments[2],
               originalUrl: url,
+              site: site,
             );
           } else if (pathSegments.length == 2) {
             return IwaraUrlInfo(
               type: IwaraUrlType.forum,
               id: pathSegments[1],
               originalUrl: url,
+              site: site,
             );
           }
-          return IwaraUrlInfo(type: IwaraUrlType.forum, originalUrl: url);
+          return IwaraUrlInfo(type: IwaraUrlType.forum, originalUrl: url, site: site);
         case 'playlist':
           return IwaraUrlInfo(
             type: IwaraUrlType.playlist,
             id: pathSegments.length > 1 ? pathSegments[1] : null,
             originalUrl: url,
+            site: site,
           );
         case 'post':
           return IwaraUrlInfo(
             type: IwaraUrlType.post,
             id: pathSegments.length > 1 ? pathSegments[1] : null,
             originalUrl: url,
+            site: site,
           );
         case 'rule':
           return IwaraUrlInfo(
             type: IwaraUrlType.rule,
             id: pathSegments.length > 1 ? pathSegments[1] : null,
             originalUrl: url,
+            site: site,
           );
         default:
-          return IwaraUrlInfo(type: IwaraUrlType.unknown, originalUrl: url);
+          return IwaraUrlInfo(type: IwaraUrlType.unknown, originalUrl: url, site: site);
       }
     } catch (e) {
       return IwaraUrlInfo(type: IwaraUrlType.unknown, originalUrl: url);

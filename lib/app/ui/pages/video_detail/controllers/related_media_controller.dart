@@ -67,13 +67,15 @@ class RelatedMediasController extends GetxController {
               hasMore.value = false;
             }
           } else {
-            LogUtils.e('相关: 获取相关图片失败',
-                tag: 'RelatedMediasController', error: response.message);
+            LogUtils.e(
+              '相关: 获取相关图片失败',
+              tag: 'RelatedMediasController',
+              error: response.message,
+            );
             errorMessage.value = response.message;
           }
       }
-      LogUtils.d(
-          '相关: 获取到的数量有 ${videos.length}', 'RelatedMediasController');
+      LogUtils.d('相关: 获取到的数量有 ${videos.length}', 'RelatedMediasController');
     } finally {
       isLoading.value = false;
     }
@@ -151,8 +153,11 @@ class OtherAuthorzMediasController extends GetxController {
 
   int _currentPage = 0;
 
-  OtherAuthorzMediasController(
-      {required this.mediaId, required this.userId, required this.mediaType});
+  OtherAuthorzMediasController({
+    required this.mediaId,
+    required this.userId,
+    required this.mediaType,
+  });
 
   @override
   void onInit() {
@@ -182,8 +187,7 @@ class OtherAuthorzMediasController extends GetxController {
               hasMore.value = false;
             }
           } else {
-            LogUtils.e('其他: 获取作者其他视频失败',
-                tag: 'OtherAuthorzMediasController');
+            LogUtils.e('其他: 获取作者其他视频失败', tag: 'OtherAuthorzMediasController');
             hasError.value = true;
             errorMessage.value = response.message;
           }
@@ -199,15 +203,16 @@ class OtherAuthorzMediasController extends GetxController {
               hasMore.value = false;
             }
           } else {
-            LogUtils.e('其他: 获取作者其他图片失败',
-                tag: 'OtherAuthorzMediasController');
+            LogUtils.e('其他: 获取作者其他图片失败', tag: 'OtherAuthorzMediasController');
             hasError.value = true;
             errorMessage.value = response.message;
           }
       }
 
-      LogUtils.d('其他: 获取到的数量有 ${videos.length}',
-          'OtherAuthorzMediasController');
+      LogUtils.d(
+        '其他: 获取到的数量有 ${videos.length}',
+        'OtherAuthorzMediasController',
+      );
     } finally {
       isLoading.value = false;
     }
@@ -235,8 +240,7 @@ class OtherAuthorzMediasController extends GetxController {
             }
           } else {
             _currentPage--;
-            LogUtils.e('其他: 加载更多作者视频失败',
-                tag: 'OtherAuthorzMediasController');
+            LogUtils.e('其他: 加载更多作者视频失败', tag: 'OtherAuthorzMediasController');
           }
         case MediaType.IMAGE:
           final response = await _galleryService.fetchAuthorImages(
@@ -252,14 +256,12 @@ class OtherAuthorzMediasController extends GetxController {
             }
           } else {
             _currentPage--;
-            LogUtils.e('其他: 加载更多作者图片失败',
-                tag: 'OtherAuthorzMediasController');
+            LogUtils.e('其他: 加载更多作者图片失败', tag: 'OtherAuthorzMediasController');
           }
       }
     } catch (e) {
       _currentPage--;
-      LogUtils.e('其他: 加载更多失败',
-          tag: 'OtherAuthorzMediasController', error: e);
+      LogUtils.e('其他: 加载更多失败', tag: 'OtherAuthorzMediasController', error: e);
     } finally {
       isLoadingMore.value = false;
     }

@@ -7,7 +7,6 @@ import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/services/share_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
-import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -17,10 +16,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class SharePostBottomSheet extends StatefulWidget {
   final PostModel post;
 
-  const SharePostBottomSheet({
-    super.key,
-    required this.post,
-  });
+  const SharePostBottomSheet({super.key, required this.post});
 
   @override
   State<SharePostBottomSheet> createState() => _SharePostBottomSheetState();
@@ -33,7 +29,7 @@ class _SharePostBottomSheetState extends State<SharePostBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    final url = '${CommonConstants.iwaraBaseUrl}/post/${widget.post.id}';
+    final url = ShareService.buildUrl('/post/${widget.post.id}');
 
     return Container(
       decoration: BoxDecoration(
@@ -79,13 +75,16 @@ class _SharePostBottomSheetState extends State<SharePostBottomSheet> {
                       // 头像
                       AvatarWidget(
                         avatarUrl: widget.post.user.avatar?.avatarUrl,
-                        size: 40
+                        size: 40,
                       ),
                       const SizedBox(width: 16),
                       // 统计信息
                       Expanded(
                         child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 8,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.grey[100],
                             borderRadius: BorderRadius.circular(12),
@@ -104,7 +103,9 @@ class _SharePostBottomSheetState extends State<SharePostBottomSheet> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                CommonUtils.formatFriendlyNumber(widget.post.numViews ?? 0),
+                                CommonUtils.formatFriendlyNumber(
+                                  widget.post.numViews ?? 0,
+                                ),
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -164,7 +165,12 @@ class _SharePostBottomSheetState extends State<SharePostBottomSheet> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
-                      buildUserName(context, widget.post.user, bold: true, fontSize: 14),
+                      buildUserName(
+                        context,
+                        widget.post.user,
+                        bold: true,
+                        fontSize: 14,
+                      ),
                     ],
                   ),
                 ],
@@ -187,19 +193,23 @@ class _SharePostBottomSheetState extends State<SharePostBottomSheet> {
                             });
                             try {
                               // 获取RenderRepaintBoundary
-                              final boundary = _globalKey.currentContext!
-                                  .findRenderObject() as RenderRepaintBoundary;
+                              final boundary =
+                                  _globalKey.currentContext!.findRenderObject()
+                                      as RenderRepaintBoundary;
                               // 转换为图片
                               final image = await boundary.toImage(
-                                  pixelRatio: View.of(context).devicePixelRatio);
+                                pixelRatio: View.of(context).devicePixelRatio,
+                              );
                               final byteData = await image.toByteData(
-                                  format: ui.ImageByteFormat.png);
+                                format: ui.ImageByteFormat.png,
+                              );
                               final bytes = byteData!.buffer.asUint8List();
 
                               // 保存到临时文件
                               final tempDir = await getTemporaryDirectory();
                               final file = File(
-                                  '${tempDir.path}/share_post_${DateTime.now().millisecondsSinceEpoch}.png');
+                                '${tempDir.path}/share_post_${DateTime.now().millisecondsSinceEpoch}.png',
+                              );
                               await file.writeAsBytes(bytes);
 
                               // 分享
@@ -248,6 +258,4 @@ class _SharePostBottomSheetState extends State<SharePostBottomSheet> {
       ),
     );
   }
-
-
-} 
+}

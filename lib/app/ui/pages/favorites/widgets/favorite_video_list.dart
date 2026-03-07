@@ -6,13 +6,11 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+
 class FavoriteVideoList extends StatefulWidget {
   final ScrollController scrollController;
 
-  const FavoriteVideoList({
-    super.key,
-    required this.scrollController,
-  });
+  const FavoriteVideoList({super.key, required this.scrollController});
 
   @override
   State<FavoriteVideoList> createState() => _FavoriteVideoListState();
@@ -29,7 +27,7 @@ class _FavoriteVideoListState extends State<FavoriteVideoList>
   Widget build(BuildContext context) {
     super.build(context);
     final t = slang.Translations.of(context);
-    
+
     return RefreshIndicator(
       onRefresh: () => controller.videoRepository.refresh(true),
       child: LoadingMoreCustomScrollView(
@@ -39,26 +37,24 @@ class _FavoriteVideoListState extends State<FavoriteVideoList>
             SliverListConfig<Video>(
               extendedListDelegate:
                   const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 220,
-                crossAxisSpacing: 5,
-                mainAxisSpacing: 5,
-              ),
+                    maxCrossAxisExtent: 220,
+                    crossAxisSpacing: 5,
+                    mainAxisSpacing: 5,
+                  ),
               itemBuilder: (context, video, index) {
                 return Obx(() {
-                  final bool isCanceled =
-                      controller.canceledFavoriteVideoIds.contains(video.id);
+                  final bool isCanceled = controller.canceledFavoriteVideoIds
+                      .contains(video.id);
                   return Stack(
                     children: [
-                      VideoCardListItemWidget(
-                        video: video,
-                        width: 220,
-                      ),
+                      VideoCardListItemWidget(video: video, width: 220),
                       if (isCanceled)
                         Positioned.fill(
                           child: Material(
                             color: Colors.black54,
                             child: InkWell(
-                              onTap: () => controller.toggleVideoFavorite(video),
+                              onTap: () =>
+                                  controller.toggleVideoFavorite(video),
                               child: Center(
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
@@ -74,9 +70,7 @@ class _FavoriteVideoListState extends State<FavoriteVideoList>
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodyMedium
-                                          ?.copyWith(
-                                            color: Colors.white,
-                                          ),
+                                          ?.copyWith(color: Colors.white),
                                     ),
                                   ],
                                 ),
@@ -91,7 +85,8 @@ class _FavoriteVideoListState extends State<FavoriteVideoList>
                           child: Material(
                             color: Colors.transparent,
                             child: InkWell(
-                              onTap: () => controller.toggleVideoFavorite(video),
+                              onTap: () =>
+                                  controller.toggleVideoFavorite(video),
                               borderRadius: BorderRadius.circular(20),
                               child: const Padding(
                                 padding: EdgeInsets.all(8.0),
@@ -128,4 +123,4 @@ class _FavoriteVideoListState extends State<FavoriteVideoList>
       ),
     );
   }
-} 
+}

@@ -6,7 +6,6 @@ import 'package:flutter/rendering.dart';
 import 'package:i_iwara/app/services/share_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
@@ -45,25 +44,26 @@ class _ShareUserBottomSheetState extends State<ShareUserBottomSheet> {
   final GlobalKey _globalKey = GlobalKey();
   bool _isGeneratingImage = false;
 
+  String get _shareUrl => ShareService.buildUrl('/profile/${widget.username}');
+
   Future<void> _copyLink() async {
-    final String url = '${CommonConstants.iwaraBaseUrl}/profile/${widget.username}';
     try {
-      await ShareService.copyToClipboard(url);
+      await ShareService.copyToClipboard(_shareUrl);
       showToastWidget(
         MDToastWidget(
           message: slang.t.galleryDetail.copyLink,
-          type: MDToastType.success
+          type: MDToastType.success,
         ),
-        position: ToastPosition.bottom
+        position: ToastPosition.bottom,
       );
     } catch (e) {
       LogUtils.e('复制链接失败', error: e, tag: 'ShareUserBottomSheet');
       showToastWidget(
         MDToastWidget(
           message: slang.t.errors.failedToOperate,
-          type: MDToastType.error
+          type: MDToastType.error,
         ),
-        position: ToastPosition.bottom
+        position: ToastPosition.bottom,
       );
     }
   }
@@ -71,7 +71,7 @@ class _ShareUserBottomSheetState extends State<ShareUserBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    final url = '${CommonConstants.iwaraBaseUrl}/profile/${widget.username}';
+    final url = _shareUrl;
 
     return Container(
       decoration: BoxDecoration(
@@ -115,10 +115,7 @@ class _ShareUserBottomSheetState extends State<ShareUserBottomSheet> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // 头像
-                      AvatarWidget(
-                        avatarUrl: widget.avatarUrl,
-                        size: 70
-                      ),
+                      AvatarWidget(avatarUrl: widget.avatarUrl, size: 70),
                       const SizedBox(width: 16),
                       // 用户信息
                       Expanded(
@@ -181,7 +178,10 @@ class _ShareUserBottomSheetState extends State<ShareUserBottomSheet> {
                   const SizedBox(height: 16),
                   // 统计信息
                   Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 16,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.grey[100],
                       borderRadius: BorderRadius.circular(12),
@@ -190,16 +190,22 @@ class _ShareUserBottomSheetState extends State<ShareUserBottomSheet> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         _buildStatItem(
-                          CommonUtils.formatFriendlyNumber(widget.followerCount),
+                          CommonUtils.formatFriendlyNumber(
+                            widget.followerCount,
+                          ),
                           t.common.follower,
                         ),
                         _buildStatItem(
-                          CommonUtils.formatFriendlyNumber(widget.followingCount),
+                          CommonUtils.formatFriendlyNumber(
+                            widget.followingCount,
+                          ),
                           t.common.following,
                         ),
                         if (widget.videoCount != null)
                           _buildStatItem(
-                            CommonUtils.formatFriendlyNumber(widget.videoCount!),
+                            CommonUtils.formatFriendlyNumber(
+                              widget.videoCount!,
+                            ),
                             t.common.video,
                           ),
                         _buildStatItem(
@@ -230,27 +236,28 @@ class _ShareUserBottomSheetState extends State<ShareUserBottomSheet> {
                           });
                           try {
                             // 获取RenderRepaintBoundary
-                            final boundary = _globalKey.currentContext!
-                                .findRenderObject() as RenderRepaintBoundary;
+                            final boundary =
+                                _globalKey.currentContext!.findRenderObject()
+                                    as RenderRepaintBoundary;
                             // 转换为图片
                             final image = await boundary.toImage(
-                                pixelRatio: View.of(context).devicePixelRatio);
+                              pixelRatio: View.of(context).devicePixelRatio,
+                            );
                             final byteData = await image.toByteData(
-                                format: ui.ImageByteFormat.png);
+                              format: ui.ImageByteFormat.png,
+                            );
                             final bytes = byteData!.buffer.asUint8List();
 
                             // 保存到临时文件
                             final tempDir = await getTemporaryDirectory();
                             final file = File(
-                                '${tempDir.path}/share_user_${DateTime.now().millisecondsSinceEpoch}.png');
+                              '${tempDir.path}/share_user_${DateTime.now().millisecondsSinceEpoch}.png',
+                            );
                             await file.writeAsBytes(bytes);
 
                             // 分享
                             await SharePlus.instance.share(
-                              ShareParams(
-                                files: [XFile(file.path)],
-                                text: url,
-                              ),
+                              ShareParams(files: [XFile(file.path)], text: url),
                             );
                           } finally {
                             setState(() {
@@ -310,14 +317,8 @@ class _ShareUserBottomSheetState extends State<ShareUserBottomSheet> {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 13,
-            color: Colors.grey,
-          ),
-        ),
+        Text(label, style: const TextStyle(fontSize: 13, color: Colors.grey)),
       ],
     );
   }
-} 
+}

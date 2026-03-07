@@ -31,6 +31,7 @@ import 'package:i_iwara/app/services/logging/log_service.dart';
 import 'dart:ui' show Canvas, PaintingStyle, Picture, PictureRecorder, Rect;
 
 import 'app/my_app.dart';
+import 'app/ui/widgets/restart_app_widget.dart';
 import 'app/services/api_service.dart';
 import 'app/services/auth_service.dart';
 import 'app/services/http_client_factory.dart';
@@ -131,7 +132,11 @@ void main() {
       }
 
       // 运行应用
-      runApp(TranslationProvider(child: const MyApp()));
+      runApp(
+        RestartApp.scope(
+          child: TranslationProvider(child: const MyApp()),
+        ),
+      );
 
       if (GetPlatform.isDesktop) {
         await _initializeDesktop();
@@ -200,6 +205,7 @@ Future<void> _initializeBusinessServices() async {
   // 初始化配置服务
   var configService = await ConfigService().init();
   Get.put(configService);
+  Get.find<AppService>().syncSiteModeFromConfig(configService);
 
   // 初始化语言设置
   String applicationLocale = configService[ConfigKey.APPLICATION_LOCALE];

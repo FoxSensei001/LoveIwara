@@ -408,7 +408,7 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
       }
 
       // 跳转到视频详情页
-      NaviService.navigateToVideoDetailPage(iwaraId, {
+      NaviService.navigateToVideoDetailPage(iwaraId, extData: {
         'oreno3dVideoDetailInfo': detail.toJson(),
       });
     } catch (e) {

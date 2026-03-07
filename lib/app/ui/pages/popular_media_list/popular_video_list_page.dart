@@ -7,14 +7,19 @@ import 'controllers/popular_video_controller.dart';
 import 'controllers/popular_video_repository.dart';
 
 // 继承基类，并指定泛型参数
-class PopularVideoListPage extends PopularMediaListPageBase<Video, PopularVideoController, PopularVideoRepository> {
-
+class PopularVideoListPage
+    extends
+        PopularMediaListPageBase<
+          Video,
+          PopularVideoController,
+          PopularVideoRepository
+        > {
   const PopularVideoListPage({super.key})
-      : super(
-          controllerTag: 'video',
-          searchSegment: SearchSegment.video,
-          emptyIcon: Icons.video_library_outlined,
-        );
+    : super(
+        controllerTag: 'video',
+        searchSegment: SearchSegment.video,
+        emptyIcon: Icons.video_library_outlined,
+      );
 
   // 实现创建 Controller 的方法
   @override
@@ -24,17 +29,26 @@ class PopularVideoListPage extends PopularMediaListPageBase<Video, PopularVideoC
 
   // 实现获取 Repository 的方法
   @override
-  PopularVideoRepository getSpecificRepository(PopularVideoController controller) {
+  PopularVideoRepository getSpecificRepository(
+    PopularVideoController controller,
+  ) {
     // 假设 Controller 有一个 repository 属性
     return controller.repository as PopularVideoRepository;
   }
 
   // 实现必要的createState方法
   @override
-  State<PopularVideoListPage> createState() => PopularMediaListPageBaseState<Video, PopularVideoController, PopularVideoRepository, PopularVideoListPage>();
+  State<PopularVideoListPage> createState() =>
+      PopularMediaListPageBaseState<
+        Video,
+        PopularVideoController,
+        PopularVideoRepository,
+        PopularVideoListPage
+      >();
 
   // 全局key，用于访问State
-  static final GlobalKey<PopularMediaListPageBaseState> globalKey = GlobalKey<PopularMediaListPageBaseState>();
+  static final GlobalKey<PopularMediaListPageBaseState> globalKey =
+      GlobalKey<PopularMediaListPageBaseState>();
 
   @override
   void refreshCurrent() {

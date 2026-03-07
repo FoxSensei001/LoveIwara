@@ -209,8 +209,10 @@ class _MyAppState extends State<MyApp> {
             : ThemeMode.dark;
 
         return OKToast(
-          child: Obx(
-            () => MaterialApp.router(
+          child: Obx(() {
+            final siteModeVersion = Get.find<AppService>().siteModeVersion;
+            return MaterialApp.router(
+              key: ValueKey('app-site-mode-$siteModeVersion'),
               debugShowCheckedModeBanner: false,
               title: t.common.appName,
               theme: appLightTheme.value,
@@ -236,8 +238,8 @@ class _MyAppState extends State<MyApp> {
                 }
                 return MyAppLayout(child: child);
               },
-            ),
-          ),
+            );
+          }),
         );
       },
     );
@@ -515,6 +517,10 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
   }
 
   Widget _buildDrawer() {
-    return Drawer(child: GlobalDrawerColumns());
+    return Drawer(
+      child: SizedBox.expand(
+        child: GlobalDrawerColumns(),
+      ),
+    );
   }
 }

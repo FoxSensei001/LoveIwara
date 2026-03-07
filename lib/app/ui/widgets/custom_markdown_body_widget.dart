@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
@@ -22,7 +23,6 @@ import 'dart:async';
 import 'package:i_iwara/app/utils/markdown_formatter.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 import 'package:i_iwara/app/ui/widgets/emoji_preview_dialog.dart';
-import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class CustomMarkdownBody extends StatefulWidget {
@@ -66,6 +66,10 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     linesMargin: const EdgeInsets.symmetric(vertical: 4),
   );
   final _markdownFormatter = MarkdownFormatter();
+
+  Map<String, String> get _iwaraImageHeaders => {
+    'referer': Get.find<AppService>().currentSiteMode.baseUrl,
+  };
   int _markdownProcessToken = 0;
   int _translationProcessToken = 0;
 
@@ -348,33 +352,55 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     switch (urlInfo.type) {
       case IwaraUrlType.profile:
         if (urlInfo.id == null) return false;
-        NaviService.navigateToAuthorProfilePage(urlInfo.id!);
+        NaviService.navigateInSiteMode(
+          urlInfo.site,
+          () async => NaviService.navigateToAuthorProfilePage(urlInfo.id!),
+        );
         return true;
       case IwaraUrlType.image:
         if (urlInfo.id == null) return false;
-        NaviService.navigateToGalleryDetailPage(urlInfo.id!);
+        NaviService.navigateInSiteMode(
+          urlInfo.site,
+          () => NaviService.navigateToGalleryDetailPage(urlInfo.id!),
+        );
         return true;
       case IwaraUrlType.video:
         if (urlInfo.id == null) return false;
-        NaviService.navigateToVideoDetailPage(urlInfo.id!);
+        NaviService.navigateInSiteMode(
+          urlInfo.site,
+          () => NaviService.navigateToVideoDetailPage(urlInfo.id!),
+        );
         return true;
       case IwaraUrlType.playlist:
         if (urlInfo.id == null) return false;
-        NaviService.navigateToPlayListDetail(urlInfo.id!, isMine: false);
+        NaviService.navigateInSiteMode(
+          urlInfo.site,
+          () async =>
+              NaviService.navigateToPlayListDetail(urlInfo.id!, isMine: false),
+        );
         return true;
       case IwaraUrlType.post:
         if (urlInfo.id == null) return false;
-        NaviService.navigateToPostDetailPage(urlInfo.id!, null);
+        NaviService.navigateInSiteMode(
+          urlInfo.site,
+          () async => NaviService.navigateToPostDetailPage(urlInfo.id!, null),
+        );
         return true;
       case IwaraUrlType.forum:
         if (urlInfo.id == null) return false;
-        NaviService.navigateToForumThreadListPage(urlInfo.id!);
+        NaviService.navigateInSiteMode(
+          urlInfo.site,
+          () async => NaviService.navigateToForumThreadListPage(urlInfo.id!),
+        );
         return true;
       case IwaraUrlType.forumThread:
         if (urlInfo.id == null || urlInfo.secondaryId == null) return false;
-        NaviService.navigateToForumThreadDetailPage(
-          urlInfo.id!,
-          urlInfo.secondaryId!,
+        NaviService.navigateInSiteMode(
+          urlInfo.site,
+          () async => NaviService.navigateToForumThreadDetailPage(
+            urlInfo.id!,
+            urlInfo.secondaryId!,
+          ),
         );
         return true;
       case IwaraUrlType.rule:
@@ -735,7 +761,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
         borderRadius: BorderRadius.circular(emojiSize.borderRadius),
         child: CachedNetworkImage(
           imageUrl: normalizedUrl,
-          httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
+          httpHeaders: _iwaraImageHeaders,
           placeholder: (context, url) => Container(
             width: emojiSize.displaySize,
             height: emojiSize.displaySize,
@@ -791,7 +817,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
           alignment: Alignment.topCenter,
           child: CachedNetworkImage(
             imageUrl: normalizedUrl,
-            httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
+            httpHeaders: _iwaraImageHeaders,
             fadeInDuration: _normalImageFadeInDuration,
             placeholderFadeInDuration: Duration.zero,
             fadeOutDuration: Duration.zero,

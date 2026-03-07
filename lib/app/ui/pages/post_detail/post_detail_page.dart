@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/login_service.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/ui/pages/post_detail/widgets/post_detail_content_widget.dart';
 import 'package:i_iwara/app/ui/pages/post_detail/widgets/share_post_bottom_sheet.dart';
@@ -19,6 +21,7 @@ import '../comment/widgets/comment_entry_area_widget.dart';
 import '../comment/widgets/comment_section_widget.dart';
 import 'controllers/post_detail_controller.dart';
 import 'widgets/post_detail_shimmer.dart';
+import '../../widgets/iwara_site_badge.dart';
 
 class PostDetailPage extends StatefulWidget {
   final String postId;
@@ -217,6 +220,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     final t = slang.Translations.of(context);
     final theme = Theme.of(context);
+    final currentSite = Get.find<AppService>().currentSiteMode;
     return AppBar(
       elevation: 0,
       scrolledUnderElevation: 0,
@@ -234,16 +238,26 @@ class _PostDetailPageState extends State<PostDetailPage> {
       ),
       titleSpacing: 0,
       title: Obx(
-        () => Text(
-          detailController.postInfo.value?.title.isNotEmpty == true
-              ? detailController.postInfo.value!.title
-              : t.common.post,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-            fontSize: 16,
-          ),
+        () => Row(
+          children: [
+            Expanded(
+              child: Text(
+                detailController.postInfo.value?.title.isNotEmpty == true
+                    ? detailController.postInfo.value!.title
+                    : t.common.post,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+            if (currentSite.isAi) ...[
+              const SizedBox(width: 8),
+              IwaraSiteBadge(site: currentSite),
+            ],
+          ],
         ),
       ),
       actions: [

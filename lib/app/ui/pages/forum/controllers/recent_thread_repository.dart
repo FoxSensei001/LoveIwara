@@ -8,6 +8,8 @@ class RecentThreadListRepository extends LoadingMoreBase<ForumThreadModel> {
   int _pageIndex = 0;
   bool _hasMore = true;
 
+  RecentThreadListRepository();
+
   @override
   bool get hasMore => _hasMore;
 
@@ -42,4 +44,4 @@ class RecentThreadListRepository extends LoadingMoreBase<ForumThreadModel> {
     _hasMore = true;
     return super.refresh(notifyStateChanged);
   }
-} 
+}

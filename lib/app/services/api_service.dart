@@ -8,11 +8,13 @@ import 'package:dio/io.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/iwara_page.model.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 
 import '../../common/constants.dart';
 import '../../utils/logger_utils.dart';
 import '../ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'auth_service.dart';
+import 'app_service.dart';
 import 'http_client_factory.dart';
 import 'iwara_network_service.dart';
 import 'package:i_iwara/utils/common_utils.dart';
@@ -65,9 +67,6 @@ class ApiService extends GetxService {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json, text/plain, */*',
-          'x-site': CommonConstants.iwaraSiteHost,
-          'Referer': CommonConstants.iwaraBaseUrl,
-          'Origin': CommonConstants.iwaraBaseUrl,
         },
       ),
     );
@@ -109,6 +108,32 @@ class ApiService extends GetxService {
     );
   }
 
+  IwaraSite _resolveRequestSite(d_dio.RequestOptions options) {
+    if (Get.isRegistered<AppService>()) {
+      return Get.find<AppService>().currentSiteMode;
+    }
+    return IwaraSiteUtils.fromExtra(options.extra['site']);
+  }
+
+  d_dio.Options _prepareRequestOptions(
+    d_dio.Options? options, {
+    IwaraSite site = IwaraSite.main,
+    Map<String, dynamic>? headers,
+  }) {
+    final requestOptions = options ?? d_dio.Options();
+    requestOptions.extra = {
+      ...?requestOptions.extra,
+      'site': site.name,
+    };
+    if (headers != null) {
+      requestOptions.headers = {
+        ...?requestOptions.headers,
+        ...headers,
+      };
+    }
+    return requestOptions;
+  }
+
   /// 请求拦截
   void _onRequest(
     d_dio.RequestOptions options,
@@ -121,6 +146,7 @@ class ApiService extends GetxService {
 
     // Check if the request should skip waiting for auth refresh
     final bool skipAuthWait = options.extra['skipAuthWait'] == true;
+    final site = _resolveRequestSite(options);
 
     final requestId = _ensureRequestId(options);
 
@@ -130,6 +156,8 @@ class ApiService extends GetxService {
       return;
     }
 
+    options.headers.addAll(site.requestHeaders);
+
     if (accessToken != null) {
       options.headers['Authorization'] = 'Bearer $accessToken';
     }
@@ -138,9 +166,9 @@ class ApiService extends GetxService {
     options.extra['requestStartTime'] = DateTime.now().millisecondsSinceEpoch;
 
     if (skipAuthWait) {
-      LogUtils.d('$_tag[$requestId] 请求: ${options.method} ${options.path} (跳过鉴权等待)');
+      LogUtils.d('$_tag[$requestId] 请求: ${options.method} ${options.path} (跳过鉴权等待, site=${site.name})');
     } else {
-      LogUtils.d('$_tag[$requestId] 请求: ${options.method} ${options.path}');
+      LogUtils.d('$_tag[$requestId] 请求: ${options.method} ${options.path} (site=${site.name})');
     }
     handler.next(options);
   }
@@ -490,13 +518,14 @@ class ApiService extends GetxService {
     Map<String, dynamic>? headers,
     d_dio.CancelToken? cancelToken,
     d_dio.Options? options,
+    IwaraSite site = IwaraSite.main,
   }) async {
     try {
-      // 合并 headers 和 options
-      var requestOptions = options ?? d_dio.Options();
-      if (headers != null) {
-        requestOptions.headers = {...?requestOptions.headers, ...headers};
-      }
+      final requestOptions = _prepareRequestOptions(
+        options,
+        site: site,
+        headers: headers,
+      );
 
       final response = await _dio.get<dynamic>(
         path,
@@ -519,13 +548,14 @@ class ApiService extends GetxService {
     dynamic data,
     Map<String, dynamic>? queryParameters,
     d_dio.Options? options,
+    IwaraSite site = IwaraSite.main,
   }) async {
     try {
       final response = await _dio.post<dynamic>(
         path,
         data: data,
         queryParameters: queryParameters,
-        options: options,
+        options: _prepareRequestOptions(options, site: site),
       );
       _throwIfNotSuccess(response);
       return _castResponse<T>(response);
@@ -541,12 +571,13 @@ class ApiService extends GetxService {
     String path, {
     Map<String, dynamic>? queryParameters,
     d_dio.Options? options,
+    IwaraSite site = IwaraSite.main,
   }) async {
     try {
       final response = await _dio.delete<dynamic>(
         path,
         queryParameters: queryParameters,
-        options: options,
+        options: _prepareRequestOptions(options, site: site),
       );
       _throwIfNotSuccess(response);
       return _castResponse<T>(response);
@@ -563,13 +594,14 @@ class ApiService extends GetxService {
     dynamic data,
     Map<String, dynamic>? queryParameters,
     d_dio.Options? options,
+    IwaraSite site = IwaraSite.main,
   }) async {
     try {
       final response = await _dio.put<dynamic>(
         path,
         data: data,
         queryParameters: queryParameters,
-        options: options,
+        options: _prepareRequestOptions(options, site: site),
       );
       _throwIfNotSuccess(response);
       return _castResponse<T>(response);

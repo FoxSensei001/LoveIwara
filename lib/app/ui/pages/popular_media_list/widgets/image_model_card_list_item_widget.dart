@@ -263,6 +263,7 @@ class _ImageModelCardListItemWidgetState
 class _Thumbnail extends StatelessWidget {
   final ImageModel imageModel;
   final double width;
+
   final bool isHovering;
   final Widget? overlay;
 

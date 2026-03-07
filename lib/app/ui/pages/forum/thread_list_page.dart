@@ -109,13 +109,19 @@ class _ThreadListPageState extends State<ThreadListPage>
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                _categoryName.value,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _categoryName.value,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               if (_categoryDescription.value.isNotEmpty)
                 Text(
@@ -273,7 +279,6 @@ class _ThreadListPageState extends State<ThreadListPage>
     showAppDialog(
       ForumPostDialog(
         onSubmit: () {
-          // 刷新帖子列表
           listSourceRepository.refresh();
         },
         initCategoryId: categoryId,
@@ -282,7 +287,6 @@ class _ThreadListPageState extends State<ThreadListPage>
   }
 
   void _navigateToThreadDetail(ForumThreadModel thread) {
-    // 导航到帖子详情页
     NaviService.navigateToForumThreadDetailPage(
       widget.categoryId,
       thread.id,

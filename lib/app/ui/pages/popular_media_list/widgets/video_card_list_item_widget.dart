@@ -96,7 +96,7 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
     String videoId, {
     Map<String, dynamic>? extData,
   }) async {
-    await NaviService.navigateToVideoDetailPage(videoId, extData);
+    await NaviService.navigateToVideoDetailPage(videoId, extData: extData);
     if (!mounted) return;
     _applyLikePatch(extData);
   }
@@ -313,6 +313,7 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
 class _Thumbnail extends StatelessWidget {
   final Video video;
   final double width;
+
   final bool isHovering;
   final Widget? overlay;
 

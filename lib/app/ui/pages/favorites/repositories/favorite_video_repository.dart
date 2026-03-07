@@ -5,11 +5,11 @@ import 'package:loading_more_list/loading_more_list.dart';
 
 class FavoriteVideoRepository extends LoadingMoreBase<Video> {
   final VideoService _videoService = Get.find<VideoService>();
-  
+
   int _pageIndex = 0;
   bool _hasMore = true;
   bool forceRefresh = false;
-  
+
   @override
   bool get hasMore => _hasMore || forceRefresh;
 
@@ -27,9 +27,7 @@ class FavoriteVideoRepository extends LoadingMoreBase<Video> {
   Future<bool> loadData([bool isLoadMoreAction = false]) async {
     bool isSuccess = false;
     try {
-      final result = await _videoService.fetchFavoriteVideos(
-        page: _pageIndex,
-      );
+      final result = await _videoService.fetchFavoriteVideos(page: _pageIndex);
 
       if (result.isSuccess && result.data != null) {
         if (_pageIndex == 0) {
@@ -49,4 +47,4 @@ class FavoriteVideoRepository extends LoadingMoreBase<Video> {
     }
     return isSuccess;
   }
-} 
+}

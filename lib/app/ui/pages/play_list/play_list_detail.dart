@@ -6,7 +6,6 @@ import 'package:i_iwara/app/services/share_service.dart';
 import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_detail_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
-import 'package:i_iwara/common/constants.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
@@ -235,8 +234,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
   }
 
   void _copyPlaylistLink() async {
-    final String url =
-        '${CommonConstants.iwaraBaseUrl}/playlist/${widget.playlistId}';
+    final String url = ShareService.buildUrl('/playlist/${widget.playlistId}');
     try {
       await ShareService.copyToClipboard(url);
       Get.snackbar(

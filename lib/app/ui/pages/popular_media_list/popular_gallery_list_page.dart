@@ -7,34 +7,51 @@ import 'controllers/popular_gallery_controller.dart';
 import 'controllers/popular_gallery_repository.dart';
 
 // 继承基类，并指定泛型参数
-class PopularGalleryListPage extends PopularMediaListPageBase<ImageModel, PopularGalleryController, PopularGalleryRepository> {
-
+class PopularGalleryListPage
+    extends
+        PopularMediaListPageBase<
+          ImageModel,
+          PopularGalleryController,
+          PopularGalleryRepository
+        > {
   const PopularGalleryListPage({super.key})
-      : super(
-          controllerTag: 'gallery',
-          searchSegment: SearchSegment.image,
-          emptyIcon: Icons.photo_library_outlined,
-        );
+    : super(
+        controllerTag: 'gallery',
+        searchSegment: SearchSegment.image,
+        emptyIcon: Icons.photo_library_outlined,
+      );
 
   // 实现创建 Controller 的方法
   @override
   PopularGalleryController createSpecificController(String sortIdName) {
-    return Get.put(PopularGalleryController(sortId: sortIdName), tag: sortIdName);
+    return Get.put(
+      PopularGalleryController(sortId: sortIdName),
+      tag: sortIdName,
+    );
   }
 
   // 实现获取 Repository 的方法
   @override
-  PopularGalleryRepository getSpecificRepository(PopularGalleryController controller) {
+  PopularGalleryRepository getSpecificRepository(
+    PopularGalleryController controller,
+  ) {
     // 假设 Controller 有一个 repository 属性
     return controller.repository as PopularGalleryRepository;
   }
 
   // 实现必要的createState方法
   @override
-  State<PopularGalleryListPage> createState() => PopularMediaListPageBaseState<ImageModel, PopularGalleryController, PopularGalleryRepository, PopularGalleryListPage>();
+  State<PopularGalleryListPage> createState() =>
+      PopularMediaListPageBaseState<
+        ImageModel,
+        PopularGalleryController,
+        PopularGalleryRepository,
+        PopularGalleryListPage
+      >();
 
   // 全局key，用于访问State
-  static final GlobalKey<PopularMediaListPageBaseState> globalKey = GlobalKey<PopularMediaListPageBaseState>();
+  static final GlobalKey<PopularMediaListPageBaseState> globalKey =
+      GlobalKey<PopularMediaListPageBaseState>();
 
   @override
   void refreshCurrent() {

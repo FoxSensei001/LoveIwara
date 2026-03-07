@@ -6,10 +6,13 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart' as dio;
 import 'package:dio/io.dart';
+import 'package:get/get.dart';
 
 import '../../common/constants.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 import '../../utils/logger_utils.dart';
 import 'http_client_factory.dart';
+import 'app_service.dart';
 import 'iwara_network_service.dart';
 import 'storage_service.dart';
 
@@ -129,6 +132,11 @@ class TokenManager {
     networkService.registerDio(_tokenDio);
   }
 
+
+  void updateSiteMode(IwaraSite site) {
+    _tokenDio.options.headers.addAll(site.requestHeaders);
+  }
+
   void _initTokenDio() {
     _tokenDio = dio.Dio(
       dio.BaseOptions(
@@ -139,9 +147,10 @@ class TokenManager {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'x-site': CommonConstants.iwaraSiteHost,
-          'Referer': CommonConstants.iwaraBaseUrl,
-          'Origin': CommonConstants.iwaraBaseUrl,
+          ...((Get.isRegistered<AppService>()
+                  ? Get.find<AppService>().currentSiteMode
+                  : IwaraSite.main)
+              .requestHeaders),
         },
       ),
     );
