@@ -61,6 +61,7 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
   @override
   void initState() {
     super.initState();
+    widget.mediaListController?.markSortLoaded(widget.sortId);
     _registerScrollController();
   }
 

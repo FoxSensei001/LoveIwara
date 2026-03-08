@@ -10,6 +10,7 @@ class SubscriptionPostList
   const SubscriptionPostList({
     super.key,
     required super.userId,
+    required super.tabIndex,
     super.isPaginated = false,
     super.paddingTop = 0,
     super.showBottomPadding = false,

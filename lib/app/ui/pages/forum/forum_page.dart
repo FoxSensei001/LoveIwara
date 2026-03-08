@@ -32,8 +32,9 @@ import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class ForumPage extends StatefulWidget implements HomeWidgetInterface {
   static final globalKey = GlobalKey<_ForumPageState>();
+  final int contentResetVersion;
 
-  const ForumPage({super.key});
+  const ForumPage({super.key, this.contentResetVersion = 0});
 
   @override
   State<ForumPage> createState() => _ForumPageState();
@@ -175,6 +176,33 @@ class _ForumPageState extends State<ForumPage> {
   void dispose() {
     _recentThreadRepository.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant ForumPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.contentResetVersion != widget.contentResetVersion) {
+      _resetForContentChange();
+    }
+  }
+
+  void _resetForContentChange() {
+    _recentThreadRepository.clear();
+
+    setState(() {
+      _selectedRailIndex = 0;
+      _categories = null;
+      _error = null;
+      _isLoading = true;
+      _stickyAnnouncements = [];
+      _isLoadingStickyAnnouncements = false;
+      _sitewideAnnouncement = null;
+      _sitewideAnnouncementError = null;
+      _isLoadingSitewideAnnouncement = false;
+    });
+
+    _refreshAll();
   }
 
   Future<void> _loadCategories({bool isRefresh = false}) async {
@@ -458,6 +486,7 @@ class _ForumPageState extends State<ForumPage> {
         displacement: effectivePaddingTop, // 设置下拉指示器的偏移量
         onRefresh: _refreshAll,
         child: DefaultTabController(
+          key: ValueKey('forum-tabs-${widget.contentResetVersion}'),
           length: _categories!.length + 1,
           child: Column(
             children: [

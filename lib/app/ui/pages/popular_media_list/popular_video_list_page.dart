@@ -14,7 +14,7 @@ class PopularVideoListPage
           PopularVideoController,
           PopularVideoRepository
         > {
-  const PopularVideoListPage({super.key})
+  const PopularVideoListPage({super.key, super.contentResetVersion = 0})
     : super(
         controllerTag: 'video',
         searchSegment: SearchSegment.video,

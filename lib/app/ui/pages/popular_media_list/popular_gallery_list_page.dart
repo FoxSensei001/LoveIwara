@@ -14,7 +14,7 @@ class PopularGalleryListPage
           PopularGalleryController,
           PopularGalleryRepository
         > {
-  const PopularGalleryListPage({super.key})
+  const PopularGalleryListPage({super.key, super.contentResetVersion = 0})
     : super(
         controllerTag: 'gallery',
         searchSegment: SearchSegment.image,

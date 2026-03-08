@@ -23,6 +23,10 @@ class MediaListController extends GetxController {
   final RxDouble headerOffset = 0.0.obs;
   final RxBool showHeader = true.obs;
   double _maxHeaderOffset = 0.0;
+  final RxInt _activeTabIndex = 0.obs;
+  final RxSet<int> _loadedTabs = <int>{}.obs;
+  final RxSet<int> _pendingReloadTabs = <int>{}.obs;
+  final RxMap<int, int> _tabReloadVersions = <int, int>{}.obs;
 
   void configureHeaderExtent(double maxOffset) {
     _maxHeaderOffset = maxOffset;
@@ -93,6 +97,41 @@ class MediaListController extends GetxController {
     currentScrollOffset.value = offset;
     lastScrollDirection.value = direction;
     _applyHeaderDelta(delta);
+  }
+
+  void setActiveTab(int tabIndex) {
+    _activeTabIndex.value = tabIndex;
+    _consumePendingReload(tabIndex);
+  }
+
+  void markTabLoaded(int tabIndex) {
+    _loadedTabs.add(tabIndex);
+    _tabReloadVersions.putIfAbsent(tabIndex, () => 0);
+  }
+
+  void invalidateLoadedTabs({required int activeTabIndex}) {
+    _activeTabIndex.value = activeTabIndex;
+    final loadedTabs = _loadedTabs.toList(growable: false);
+    for (final tabIndex in loadedTabs) {
+      if (tabIndex == activeTabIndex) {
+        _bumpReloadVersion(tabIndex);
+        _pendingReloadTabs.remove(tabIndex);
+      } else {
+        _pendingReloadTabs.add(tabIndex);
+      }
+    }
+  }
+
+  int reloadVersionForTab(int tabIndex) => _tabReloadVersions[tabIndex] ?? 0;
+
+  void _consumePendingReload(int tabIndex) {
+    if (_pendingReloadTabs.remove(tabIndex)) {
+      _bumpReloadVersion(tabIndex);
+    }
+  }
+
+  void _bumpReloadVersion(int tabIndex) {
+    _tabReloadVersions[tabIndex] = (_tabReloadVersions[tabIndex] ?? 0) + 1;
   }
 
   // 执行所有滚动到顶部的回调

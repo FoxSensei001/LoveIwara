@@ -240,73 +240,72 @@ class GlobalDrawerColumns extends StatelessWidget {
     final site = appService.currentSiteMode;
     final nextSite = _alternateSite(site);
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final leadingIconColor = theme.brightness == Brightness.dark
+        ? Colors.white70
+        : Colors.black87;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Material(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(
-          alpha: 0.32,
-        ),
-        borderRadius: BorderRadius.circular(14),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: () => _showSiteModeDialog(context, initialSite: nextSite),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-            child: Row(
-              children: [
-                Container(
-                  width: 34,
-                  height: 34,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    site.isAi ? Icons.auto_awesome : Icons.public,
-                    color: theme.colorScheme.onPrimaryContainer,
-                    size: 18,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        t.siteMode.title,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+      child: InkWell(
+        onTap: () => _showSiteModeDialog(context, initialSite: nextSite),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            children: [
+              Icon(
+                site.isAi ? Icons.auto_awesome : Icons.public,
+                size: 22,
+                color: leadingIconColor,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            t.siteMode.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
+                        const SizedBox(width: 8),
+                        IwaraSiteBadge(site: site, showForMain: true),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      t.siteMode.drawerSubtitle(
+                        currentSite: _siteLabel(t, site),
+                        nextSite: _siteLabel(t, nextSite),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        t.siteMode.drawerSubtitle(
-                          currentSite: _siteLabel(t, site),
-                          nextSite: _siteLabel(t, nextSite),
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: colorScheme.onSurfaceVariant,
+                        height: 1.25,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                IwaraSiteBadge(site: site, showForMain: true),
-                const SizedBox(width: 4),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  size: 20,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 8),
+              Icon(
+                Icons.swap_horiz_rounded,
+                size: 20,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ],
           ),
         ),
       ),

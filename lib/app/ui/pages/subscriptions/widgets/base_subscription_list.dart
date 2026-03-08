@@ -12,6 +12,7 @@ import 'package:loading_more_list/loading_more_list.dart';
 abstract class BaseSubscriptionList<T, R extends ExtendedLoadingMoreBase<T>>
     extends StatefulWidget {
   final String userId;
+  final int tabIndex;
   final bool isPaginated;
   final double paddingTop;
   final bool showBottomPadding;
@@ -19,6 +20,7 @@ abstract class BaseSubscriptionList<T, R extends ExtendedLoadingMoreBase<T>>
   const BaseSubscriptionList({
     super.key,
     required this.userId,
+    required this.tabIndex,
     this.isPaginated = false,
     this.paddingTop = 0,
     this.showBottomPadding = false,
@@ -56,7 +58,6 @@ abstract class BaseSubscriptionListState<
 
   // 添加 MediaListController 引用和监听器
   MediaListController? _mediaListController;
-  VoidCallback? _rebuildKeyListener;
 
   @override
   void initState() {
@@ -70,11 +71,7 @@ abstract class BaseSubscriptionListState<
     try {
       _mediaListController = Get.find<MediaListController>();
       if (_mediaListController != null) {
-        _rebuildKeyListener = ever(_mediaListController!.rebuildKey, (int key) {
-          if (mounted) {
-            refresh();
-          }
-        }).call;
+        _mediaListController!.markTabLoaded(widget.tabIndex);
       }
     } catch (e) {
       // 未找到 MediaListController，继续执行
@@ -166,8 +163,6 @@ abstract class BaseSubscriptionListState<
     _itemCache.clear();
     // 取消该滚动器相关的节流任务
     EasyThrottle.cancel('scroll_${widget.userId}');
-    // 清理 rebuildKey 监听器
-    _rebuildKeyListener?.call();
     super.dispose();
   }
 

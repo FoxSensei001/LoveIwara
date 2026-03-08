@@ -30,6 +30,7 @@ abstract class BaseMediaController<T> extends GetxController {
     List<String> searchTagIds = const [],
     String searchDate = '',
     String searchRating = '',
+    bool refreshImmediately = true,
   }) {
     this.searchTagIds = searchTagIds;
     this.searchDate = searchDate;
@@ -38,6 +39,14 @@ abstract class BaseMediaController<T> extends GetxController {
       searchTagIds: this.searchTagIds,
       searchDate: this.searchDate,
       searchRating: this.searchRating,
+      refreshImmediately: refreshImmediately,
     );
+  }
+
+  void resetState() {
+    searchTagIds = [];
+    searchDate = '';
+    searchRating = '';
+    repository.resetState();
   }
 }

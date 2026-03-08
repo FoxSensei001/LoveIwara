@@ -127,8 +127,14 @@ final GoRouter appRouter = GoRouter(
                 GoRoute(
                   path: '/',
                   name: 'popular_videos',
-                  builder: (context, state) =>
-                      PopularVideoListPage(key: PopularVideoListPage.globalKey),
+                  builder: (context, state) => Obx(() {
+                    final homeContentVersion =
+                        Get.find<AppService>().homeContentVersion;
+                    return PopularVideoListPage(
+                      key: PopularVideoListPage.globalKey,
+                      contentResetVersion: homeContentVersion,
+                    );
+                  }),
                 ),
               ],
             ),
@@ -138,9 +144,14 @@ final GoRouter appRouter = GoRouter(
                 GoRoute(
                   path: '/gallery',
                   name: 'gallery',
-                  builder: (context, state) => PopularGalleryListPage(
-                    key: PopularGalleryListPage.globalKey,
-                  ),
+                  builder: (context, state) => Obx(() {
+                    final homeContentVersion =
+                        Get.find<AppService>().homeContentVersion;
+                    return PopularGalleryListPage(
+                      key: PopularGalleryListPage.globalKey,
+                      contentResetVersion: homeContentVersion,
+                    );
+                  }),
                 ),
               ],
             ),
@@ -150,8 +161,14 @@ final GoRouter appRouter = GoRouter(
                 GoRoute(
                   path: '/subscriptions',
                   name: 'subscriptions',
-                  builder: (context, state) =>
-                      SubscriptionsPage(key: SubscriptionsPage.globalKey),
+                  builder: (context, state) => Obx(() {
+                    final homeContentVersion =
+                        Get.find<AppService>().homeContentVersion;
+                    return SubscriptionsPage(
+                      key: SubscriptionsPage.globalKey,
+                      contentResetVersion: homeContentVersion,
+                    );
+                  }),
                 ),
               ],
             ),
@@ -161,8 +178,14 @@ final GoRouter appRouter = GoRouter(
                 GoRoute(
                   path: '/forum',
                   name: 'forum_home',
-                  builder: (context, state) =>
-                      ForumPage(key: ForumPage.globalKey),
+                  builder: (context, state) => Obx(() {
+                    final homeContentVersion =
+                        Get.find<AppService>().homeContentVersion;
+                    return ForumPage(
+                      key: ForumPage.globalKey,
+                      contentResetVersion: homeContentVersion,
+                    );
+                  }),
                 ),
               ],
             ),

@@ -20,9 +20,6 @@ import 'package:i_iwara/utils/logger_utils.dart';
 import '../routes/app_router.dart';
 import 'config_service.dart';
 import '../ui/widgets/restart_app_widget.dart';
-import '../ui/pages/subscriptions/subscriptions_page.dart';
-import '../ui/pages/popular_media_list/popular_gallery_list_page.dart';
-import '../ui/pages/popular_media_list/popular_video_list_page.dart';
 import 'auth_service.dart';
 import 'pop_coordinator.dart';
 
@@ -36,6 +33,7 @@ class AppService extends GetxService {
   final RxInt _currentIndex = 0.obs; // 当前底部/侧边导航栏索引
   final Rx<IwaraSite> _currentSiteMode = IwaraSite.main.obs;
   final RxInt _siteModeVersion = 0.obs;
+  final RxInt _homeContentVersion = 0.obs;
 
   /// StatefulShellRoute 的 navigationShell 引用，
   /// 由 StatefulShellRoute builder 设置，
@@ -100,6 +98,12 @@ class AppService extends GetxService {
   IwaraSite get currentSiteMode => _currentSiteMode.value;
 
   int get siteModeVersion => _siteModeVersion.value;
+
+  int get homeContentVersion => _homeContentVersion.value;
+
+  void invalidateHomeContent() {
+    _homeContentVersion.value++;
+  }
 
   static void switchGlobalDrawer() {
     if (globalDrawerKey.currentState!.isDrawerOpen) {
@@ -199,6 +203,7 @@ class AppService extends GetxService {
 
     _currentSiteMode.value = site;
     _siteModeVersion.value++;
+    invalidateHomeContent();
 
     try {
       if (Get.isRegistered<AuthService>()) {
@@ -228,19 +233,6 @@ class AppService extends GetxService {
     RestartApp.restartApp();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (resetNavigation) {
-        try {
-          PopularVideoListPage.globalKey.currentState?.tryRefreshCurrentSort();
-        } catch (_) {}
-        try {
-          PopularGalleryListPage.globalKey.currentState
-              ?.tryRefreshCurrentSort();
-        } catch (_) {}
-        try {
-          SubscriptionsPage.globalKey.currentState?.refreshCurrentList();
-        } catch (_) {}
-      }
-
       if (onApplied != null) {
         await onApplied();
       }

@@ -24,6 +24,9 @@ class PopularMediaListController extends GetxController {
   // 每个 tab 的滚动快照（切换 tab 时同步 Header 折叠状态）
   final Map<SortId, double> _tabScrollOffsets = {};
   final Map<SortId, ScrollDirection> _tabScrollDirections = {};
+  final RxSet<SortId> _loadedSorts = <SortId>{}.obs;
+  final RxSet<SortId> _pendingReloadSorts = <SortId>{}.obs;
+  final RxMap<SortId, int> _sortReloadVersions = <SortId, int>{}.obs;
 
   void configureHeaderExtent(double maxOffset) {
     _maxHeaderOffset = maxOffset;
@@ -75,6 +78,7 @@ class PopularMediaListController extends GetxController {
 
   void setActiveSort(SortId sortId) {
     _activeSortId = sortId;
+    _consumePendingReload(sortId);
 
     final offset = _tabScrollOffsets[sortId] ?? 0.0;
     final direction = _tabScrollDirections[sortId] ?? ScrollDirection.idle;
@@ -82,6 +86,36 @@ class PopularMediaListController extends GetxController {
     currentScrollOffset.value = offset;
     lastScrollDirection.value = direction;
     _syncShowHeader();
+  }
+
+  void markSortLoaded(SortId sortId) {
+    _loadedSorts.add(sortId);
+    _sortReloadVersions.putIfAbsent(sortId, () => 0);
+  }
+
+  void invalidateLoadedSorts({required SortId activeSortId}) {
+    _activeSortId = activeSortId;
+    final loadedSorts = _loadedSorts.toList(growable: false);
+    for (final sortId in loadedSorts) {
+      if (sortId == activeSortId) {
+        _bumpReloadVersion(sortId);
+        _pendingReloadSorts.remove(sortId);
+      } else {
+        _pendingReloadSorts.add(sortId);
+      }
+    }
+  }
+
+  int reloadVersionFor(SortId sortId) => _sortReloadVersions[sortId] ?? 0;
+
+  void _consumePendingReload(SortId sortId) {
+    if (_pendingReloadSorts.remove(sortId)) {
+      _bumpReloadVersion(sortId);
+    }
+  }
+
+  void _bumpReloadVersion(SortId sortId) {
+    _sortReloadVersions[sortId] = (_sortReloadVersions[sortId] ?? 0) + 1;
   }
 
   // 更新某个 tab 的滚动状态

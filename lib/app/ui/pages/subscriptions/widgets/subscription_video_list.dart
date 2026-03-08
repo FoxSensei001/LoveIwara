@@ -10,6 +10,7 @@ class SubscriptionVideoList
   const SubscriptionVideoList({
     super.key,
     required super.userId,
+    required super.tabIndex,
     super.isPaginated,
     super.paddingTop,
     super.showBottomPadding,

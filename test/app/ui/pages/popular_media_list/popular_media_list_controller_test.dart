@@ -5,27 +5,54 @@ import 'package:i_iwara/common/constants.dart';
 
 void main() {
   group('PopularMediaListController header sync', () {
-    test('tracks showHeader per tab and restores on setActiveSort', () {
+    test('tracks scroll snapshot per tab and restores on setActiveSort', () {
       final controller = PopularMediaListController();
+      controller.configureHeaderExtent(48);
 
       controller.setActiveSort(SortId.trending);
-      expect(controller.showHeader.value, isTrue);
 
-      // Simulate user scrolling up in the active tab enough to collapse header.
       controller.updateScrollInfo(
         sortId: SortId.trending,
         offset: 100,
         direction: ScrollDirection.reverse,
+        delta: 100,
       );
-      expect(controller.showHeader.value, isFalse);
+      expect(controller.currentScrollOffset.value, 100);
+      expect(controller.lastScrollDirection.value, ScrollDirection.reverse);
 
-      // Switch to another tab that has not been scrolled.
+      controller.updateScrollInfo(
+        sortId: SortId.date,
+        offset: 12,
+        direction: ScrollDirection.forward,
+        delta: -12,
+      );
       controller.setActiveSort(SortId.date);
-      expect(controller.showHeader.value, isTrue);
+      expect(controller.currentScrollOffset.value, 12);
+      expect(controller.lastScrollDirection.value, ScrollDirection.forward);
 
-      // Switching back should restore the previous state for that tab.
       controller.setActiveSort(SortId.trending);
-      expect(controller.showHeader.value, isFalse);
+      expect(controller.currentScrollOffset.value, 100);
+      expect(controller.lastScrollDirection.value, ScrollDirection.reverse);
+    });
+
+    test('invalidates only active loaded sort immediately', () {
+      final controller = PopularMediaListController();
+
+      controller.markSortLoaded(SortId.trending);
+      controller.markSortLoaded(SortId.date);
+      controller.setActiveSort(SortId.trending);
+
+      controller.invalidateLoadedSorts(activeSortId: SortId.trending);
+
+      expect(controller.reloadVersionFor(SortId.trending), 1);
+      expect(controller.reloadVersionFor(SortId.date), 0);
+
+      controller.setActiveSort(SortId.date);
+
+      expect(controller.reloadVersionFor(SortId.date), 1);
+
+      controller.setActiveSort(SortId.date);
+      expect(controller.reloadVersionFor(SortId.date), 1);
     });
   });
 }

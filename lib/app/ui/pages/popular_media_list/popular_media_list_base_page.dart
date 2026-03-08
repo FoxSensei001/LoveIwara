@@ -19,6 +19,7 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' show t;
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/base_media_controller.dart';
@@ -35,12 +36,14 @@ abstract class PopularMediaListPageBase<
   final String controllerTag;
   final SearchSegment searchSegment;
   final IconData emptyIcon;
+  final int contentResetVersion;
 
   const PopularMediaListPageBase({
     super.key,
     required this.controllerTag,
     required this.searchSegment,
     required this.emptyIcon,
+    this.contentResetVersion = 0,
   });
 
   // 抽象方法，由子类实现以创建特定的 Controller
@@ -193,6 +196,48 @@ class PopularMediaListPageBaseState<
     _controllers.clear();
     _repositories.clear();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant W oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.contentResetVersion != widget.contentResetVersion) {
+      _resetForContentChange();
+    }
+  }
+
+  void _resetForContentChange() {
+    tags = [];
+    year = '';
+    rating = '';
+
+    for (final controller in _controllers.values) {
+      if (controller is BaseMediaController) {
+        controller.resetState();
+      }
+    }
+
+    _batchSelectController.exitMultiSelect();
+
+    if (_tabController.index != 0) {
+      _tabController.index = 0;
+    }
+    _mediaListController.setActiveSort(sorts[_tabController.index].id);
+    if (_tabBarScrollController.hasClients) {
+      _tabBarScrollController.jumpTo(0);
+    }
+    _currentTabIndex.value = 0;
+    _mediaListController.invalidateLoadedSorts(
+      activeSortId: sorts[_tabController.index].id,
+    );
+    _mediaListController.resetHeaderState();
+    _mediaListController.currentScrollOffset.value = 0.0;
+    _mediaListController.lastScrollDirection.value = ScrollDirection.idle;
+
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void setParams({
@@ -680,8 +725,12 @@ class PopularMediaListPageBaseState<
                   child: TabBarView(
                     controller: _tabController,
                     children: sorts.map((sort) {
+                      final sortReloadVersion = _mediaListController
+                          .reloadVersionFor(sort.id);
                       return MediaTabView<T>(
-                        key: ValueKey('${sort.id}_$isPaginated$rebuildKey'),
+                        key: ValueKey(
+                          '${sort.id}_${sortReloadVersion}_$isPaginated$rebuildKey',
+                        ),
                         sortId: sort.id,
                         repository: _repositories[sort.id]!,
                         emptyIcon: widget.emptyIcon,

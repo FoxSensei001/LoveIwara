@@ -155,10 +155,31 @@ abstract class BaseMediaRepository<T> extends ExtendedLoadingMoreBase<T> {
     List<String> searchTagIds = const [],
     String searchDate = '',
     String searchRating = '',
+    bool refreshImmediately = true,
   }) {
     this.searchTagIds = searchTagIds;
     this.searchDate = searchDate;
     this.searchRating = searchRating;
-    refresh(true);
+    if (refreshImmediately) {
+      refresh(true);
+    }
+  }
+
+  void resetState({
+    List<String> searchTagIds = const [],
+    String searchDate = '',
+    String searchRating = '',
+  }) {
+    updateSearchParams(
+      searchTagIds: searchTagIds,
+      searchDate: searchDate,
+      searchRating: searchRating,
+      refreshImmediately: false,
+    );
+    _pageIndex = 0;
+    _hasMore = true;
+    requestTotalCount = 0;
+    forceRefresh = false;
+    clear();
   }
 }

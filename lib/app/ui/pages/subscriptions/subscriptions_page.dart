@@ -31,8 +31,9 @@ import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
 
 class SubscriptionsPage extends StatefulWidget implements HomeWidgetInterface {
   static final globalKey = GlobalKey<SubscriptionsPageState>();
+  final int contentResetVersion;
 
-  const SubscriptionsPage({super.key});
+  const SubscriptionsPage({super.key, this.contentResetVersion = 0});
 
   @override
   State<SubscriptionsPage> createState() => SubscriptionsPageState();
@@ -432,6 +433,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
       _videoBatchController.onPageChanged();
       _imageBatchController.onPageChanged();
     });
+    mediaListController.setActiveTab(_tabController.index);
 
     // 显示教程指导（延迟执行，确保页面完全加载）
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -443,6 +445,40 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
 
   void _onTabChange() {
     _scrollToSelectedTab();
+    mediaListController.setActiveTab(_tabController.index);
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant SubscriptionsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.contentResetVersion != widget.contentResetVersion) {
+      _resetForContentChange();
+    }
+  }
+
+  void _resetForContentChange() {
+    selectedId = '';
+    _videoBatchController.exitMultiSelect();
+    _imageBatchController.exitMultiSelect();
+    mediaListController.resetHeaderState();
+    mediaListController.currentScrollOffset.value = 0.0;
+    mediaListController.lastScrollDirection.value = ScrollDirection.idle;
+
+    if (_tabController.index != 0) {
+      _tabController.index = 0;
+    }
+    mediaListController.setActiveTab(_tabController.index);
+    mediaListController.invalidateLoadedTabs(
+      activeTabIndex: _tabController.index,
+    );
+    if (_tabBarScrollController.hasClients) {
+      _tabBarScrollController.jumpTo(0);
+    }
+
     if (mounted) {
       setState(() {});
     }
@@ -581,6 +617,12 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                 final bool showHeader = mediaListController.showHeader.value;
                 final rebuildKey = mediaListController.rebuildKey.value
                     .toString();
+                final videoReloadVersion = mediaListController
+                    .reloadVersionForTab(0);
+                final imageReloadVersion = mediaListController
+                    .reloadVersionForTab(1);
+                final postReloadVersion = mediaListController
+                    .reloadVersionForTab(2);
                 final bool shouldApplyBottomSafeAreaPadding =
                     !Get.find<AppService>().showBottomNavi || isWideLayout;
 
@@ -603,11 +645,12 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                     children: [
                       GlowNotificationWidget(
                         key: ValueKey(
-                          'video_${selectedId}_${isPaginated}_$rebuildKey',
+                          'video_${selectedId}_${isPaginated}_${videoReloadVersion}_$rebuildKey',
                         ),
                         child: Obx(
                           () => SubscriptionVideoList(
                             userId: selectedId,
+                            tabIndex: 0,
                             isPaginated: isPaginated,
                             paddingTop: 0,
                             showBottomPadding: shouldApplyBottomSafeAreaPadding,
@@ -623,11 +666,12 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                       ),
                       GlowNotificationWidget(
                         key: ValueKey(
-                          'image_${selectedId}_${isPaginated}_$rebuildKey',
+                          'image_${selectedId}_${isPaginated}_${imageReloadVersion}_$rebuildKey',
                         ),
                         child: Obx(
                           () => SubscriptionImageList(
                             userId: selectedId,
+                            tabIndex: 1,
                             isPaginated: isPaginated,
                             paddingTop: 0,
                             showBottomPadding: shouldApplyBottomSafeAreaPadding,
@@ -643,10 +687,11 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                       ),
                       GlowNotificationWidget(
                         key: ValueKey(
-                          'post_${selectedId}_${isPaginated}_$rebuildKey',
+                          'post_${selectedId}_${isPaginated}_${postReloadVersion}_$rebuildKey',
                         ),
                         child: SubscriptionPostList(
                           userId: selectedId,
+                          tabIndex: 2,
                           isPaginated: isPaginated,
                           paddingTop: 0,
                           showBottomPadding: shouldApplyBottomSafeAreaPadding,
