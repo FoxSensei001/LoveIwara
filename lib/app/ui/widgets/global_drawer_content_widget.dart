@@ -12,7 +12,6 @@ import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 
 import '../../../common/constants.dart';
 
-import '../../services/auth_service.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
 import '../../services/user_service.dart';
 import '../../services/login_service.dart';
@@ -23,15 +22,10 @@ class GlobalDrawerColumns extends StatelessWidget {
   GlobalDrawerColumns({super.key});
 
   final UserService userService = Get.find();
-  final AuthService authService = Get.find();
   final AppService appService = Get.find();
 
   IwaraSite _alternateSite(IwaraSite site) {
     return site == IwaraSite.ai ? IwaraSite.main : IwaraSite.ai;
-  }
-
-  String _siteLabel(slang.Translations t, IwaraSite site) {
-    return site == IwaraSite.ai ? t.siteMode.aiSite : t.siteMode.mainSite;
   }
 
   @override
@@ -236,7 +230,6 @@ class GlobalDrawerColumns extends StatelessWidget {
   }
 
   Widget _buildSiteModePanel(BuildContext context) {
-    final t = slang.Translations.of(context);
     final site = appService.currentSiteMode;
     final nextSite = _alternateSite(site);
     final theme = Theme.of(context);
@@ -269,7 +262,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                       children: [
                         Flexible(
                           child: Text(
-                            t.siteMode.title,
+                            slang.Translations.of(context).siteMode.title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
@@ -281,20 +274,6 @@ class GlobalDrawerColumns extends StatelessWidget {
                         const SizedBox(width: 8),
                         IwaraSiteBadge(site: site, showForMain: true),
                       ],
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      t.siteMode.drawerSubtitle(
-                        currentSite: _siteLabel(t, site),
-                        nextSite: _siteLabel(t, nextSite),
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: colorScheme.onSurfaceVariant,
-                        height: 1.25,
-                      ),
                     ),
                   ],
                 ),
@@ -563,20 +542,12 @@ class GlobalDrawerColumns extends StatelessWidget {
 
   void _showSiteModeDialog(BuildContext context, {IwaraSite? initialSite}) {
     AppService.switchGlobalDrawer();
-    final t = slang.Translations.of(context);
     showAppDialog(
       _SiteModeConfirmDialog(
         currentSite: appService.currentSiteMode,
         initialSite: initialSite,
         onConfirm: (site) async {
           await appService.applyGlobalSiteMode(site);
-          showToastWidget(
-            MDToastWidget(
-              message: t.siteMode.switched(site: _siteLabel(t, site)),
-              type: MDToastType.success,
-            ),
-            position: ToastPosition.top,
-          );
         },
       ),
       barrierDismissible: true,

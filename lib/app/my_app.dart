@@ -50,9 +50,14 @@ class _MyAppState extends State<MyApp> {
   late ColorScheme lightColorScheme;
   late ColorScheme darkColorScheme;
   ThemeService themeService = Get.find<ThemeService>();
+  late final _ThemeModeObserver _themeModeObserver;
 
   void _ensureNetworkAndUserServiceReady({int attempt = 0}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+
       final ctx = rootNavigatorKey.currentContext;
       if (ctx != null && ctx.mounted) {
         if (Get.isRegistered<IwaraNetworkService>()) {
@@ -85,22 +90,12 @@ class _MyAppState extends State<MyApp> {
         );
       }
 
-      // Even if we cannot obtain a Navigator context, don't block background refresh forever.
-      if (attempt >= 5) {
-        LogUtils.w(
-          'Failed to get root navigator context after $attempt attempts; marking services ready without context',
-          'MyApp',
-        );
-        if (Get.isRegistered<AuthService>()) {
-          Get.find<AuthService>().markReady();
+      Future<void>.delayed(const Duration(milliseconds: 120), () {
+        if (!mounted) {
+          return;
         }
-        if (Get.isRegistered<UserService>()) {
-          Get.find<UserService>().markReady();
-        }
-        return;
-      }
-
-      _ensureNetworkAndUserServiceReady(attempt: attempt + 1);
+        _ensureNetworkAndUserServiceReady(attempt: attempt + 1);
+      });
     });
   }
 
@@ -111,49 +106,52 @@ class _MyAppState extends State<MyApp> {
     // so overlay/drawer close runs before GoRouter's route-pop handling.
     PopCoordinator.init();
     Get.find<VersionService>().doAutoCheckUpdate();
-    Get.find<MessageService>().markReady();
     Get.find<DeepLinkService>().markReady();
     _ensureNetworkAndUserServiceReady();
 
     // 首次设置检查现在由 GoRouter redirect 处理，不需要手动跳转
 
     // 平台亮度监听
-    WidgetsBinding.instance.addObserver(
-      _ThemeModeObserver(
-        // 当系统亮度发生变化时，更新主题
-        onThemeModeChange: (brightness) {
-          int currentThemeMode =
-              CommonConstants.themeMode; // 0: system(动态主题), 1: light, 2: dark
-          final bool useDynamicColor = themeService.useDynamicColor;
-          ColorScheme? colorScheme;
+    _themeModeObserver = _ThemeModeObserver(
+      onThemeModeChange: (brightness) {
+        int currentThemeMode =
+            CommonConstants.themeMode; // 0: system(动态主题), 1: light, 2: dark
+        final bool useDynamicColor = themeService.useDynamicColor;
+        ColorScheme? colorScheme;
 
-          if (useDynamicColor) {
-            // 使用动态颜色
-            colorScheme = currentThemeMode == 1
-                ? lightColorScheme
+        if (useDynamicColor) {
+          // 使用动态颜色
+          colorScheme = currentThemeMode == 1
+              ? lightColorScheme
+              : currentThemeMode == 2
+              ? darkColorScheme
+              : brightness == Brightness.light
+              ? lightColorScheme
+              : darkColorScheme;
+        } else {
+          // 使用自定义颜色，通过 seed 生成后再 harmonized，确保色彩协调性
+          final Color seedColor = themeService.getCurrentThemeColor();
+          colorScheme = ColorScheme.fromSeed(
+            seedColor: seedColor,
+            brightness: currentThemeMode == 1
+                ? Brightness.light
                 : currentThemeMode == 2
-                ? darkColorScheme
-                : brightness == Brightness.light
-                ? lightColorScheme
-                : darkColorScheme;
-          } else {
-            // 使用自定义颜色，通过 seed 生成后再 harmonized，确保色彩协调性
-            final Color seedColor = themeService.getCurrentThemeColor();
-            colorScheme = ColorScheme.fromSeed(
-              seedColor: seedColor,
-              brightness: currentThemeMode == 1
-                  ? Brightness.light
-                  : currentThemeMode == 2
-                  ? Brightness.dark
-                  : brightness,
-            ).harmonized();
-          }
+                ? Brightness.dark
+                : brightness,
+          ).harmonized();
+        }
 
-          // 使用响应式变量代替 Get.changeTheme
-          appLightTheme.value = buildThemeData(colorScheme: colorScheme);
-        },
-      ),
+        // 使用响应式变量代替 Get.changeTheme
+        appLightTheme.value = buildThemeData(colorScheme: colorScheme);
+      },
     );
+    WidgetsBinding.instance.addObserver(_themeModeObserver);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(_themeModeObserver);
+    super.dispose();
   }
 
   @override
@@ -295,6 +293,14 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
     super.initState();
     _configService = Get.find<ConfigService>();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      final messageService = Get.find<MessageService>();
+      messageService.markReady();
+      messageService.showPendingSiteModeToastIfAny();
+    });
   }
 
   @override
@@ -517,10 +523,6 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
   }
 
   Widget _buildDrawer() {
-    return Drawer(
-      child: SizedBox.expand(
-        child: GlobalDrawerColumns(),
-      ),
-    );
+    return Drawer(child: SizedBox.expand(child: GlobalDrawerColumns()));
   }
 }

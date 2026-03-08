@@ -4925,8 +4925,20 @@ class TranslationsSiteModeEn {
 	/// en: 'Switching will refresh the entire app and reset previously loaded lists and page state.'
 	String get dialogDescription => 'Switching will refresh the entire app and reset previously loaded lists and page state.';
 
+	/// en: 'Choose Target Site'
+	String get chooseLinkTargetTitle => 'Choose Target Site';
+
+	/// en: 'This link does not include a domain. Please choose whether to open it in Main or AI.'
+	String get chooseLinkTargetDescription => 'This link does not include a domain. Please choose whether to open it in Main or AI.';
+
+	/// en: 'Once opened, this page and its follow-up detail requests will continue using the selected site.'
+	String get chooseLinkTargetHint => 'Once opened, this page and its follow-up detail requests will continue using the selected site.';
+
 	/// en: 'You are already using this site mode.'
 	String get alreadyUsing => 'You are already using this site mode.';
+
+	/// en: 'Open in ${site}'
+	String openInSite({required Object site}) => 'Open in ${site}';
 
 	/// en: 'After confirming, future requests will use ${site} mode.'
 	String confirmUsing({required Object site}) => 'After confirming, future requests will use ${site} mode.';
@@ -8724,7 +8736,11 @@ extension on Translations {
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'Current ${currentSite} · Tap to switch to ${nextSite}',
 			'siteMode.dialogTitle' => 'Switch Site Mode',
 			'siteMode.dialogDescription' => 'Switching will refresh the entire app and reset previously loaded lists and page state.',
+			'siteMode.chooseLinkTargetTitle' => 'Choose Target Site',
+			'siteMode.chooseLinkTargetDescription' => 'This link does not include a domain. Please choose whether to open it in Main or AI.',
+			'siteMode.chooseLinkTargetHint' => 'Once opened, this page and its follow-up detail requests will continue using the selected site.',
 			'siteMode.alreadyUsing' => 'You are already using this site mode.',
+			'siteMode.openInSite' => ({required Object site}) => 'Open in ${site}',
 			'siteMode.confirmUsing' => ({required Object site}) => 'After confirming, future requests will use ${site} mode.',
 			'siteMode.switched' => ({required Object site}) => 'Switched to ${site}. The app has been refreshed.',
 			_ => null,

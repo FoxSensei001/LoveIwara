@@ -11,6 +11,7 @@ import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
@@ -21,6 +22,7 @@ import '../routes/app_router.dart';
 import 'config_service.dart';
 import '../ui/widgets/restart_app_widget.dart';
 import 'auth_service.dart';
+import 'message_service.dart';
 import 'pop_coordinator.dart';
 
 class AppService extends GetxService {
@@ -195,9 +197,19 @@ class AppService extends GetxService {
     }
 
     if (Get.isRegistered<ConfigService>()) {
-      await Get.find<ConfigService>().setSetting(
-        ConfigKey.APP_SITE_MODE,
-        site.name,
+      final configService = Get.find<ConfigService>();
+      await configService.setSetting(ConfigKey.APP_SITE_MODE, site.name);
+    }
+
+    if (Get.isRegistered<MessageService>()) {
+      final messageService = Get.find<MessageService>();
+      final t = slang.t;
+      final siteLabel = site == IwaraSite.ai
+          ? t.siteMode.aiSite
+          : t.siteMode.mainSite;
+      messageService.queuePendingSiteModeToast(
+        t.siteMode.switched(site: siteLabel),
+        MDToastType.success,
       );
     }
 

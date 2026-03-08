@@ -1966,7 +1966,11 @@ class _TranslationsSiteModeJa implements TranslationsSiteModeEn {
 	@override String drawerSubtitle({required Object currentSite, required Object nextSite}) => '現在 ${currentSite} ・ タップして ${nextSite} に切り替え';
 	@override String get dialogTitle => 'サイトモードを切り替え';
 	@override String get dialogDescription => '切り替えると、アプリ全体が再読み込みされ、これまでに読み込んだリストやページ状態がリセットされます。';
+	@override String get chooseLinkTargetTitle => 'リンク先サイトを選択';
+	@override String get chooseLinkTargetDescription => 'このリンクにはドメインが含まれていません。メインサイトか AI サイトのどちらで開くか選択してください。';
+	@override String get chooseLinkTargetHint => '開いた後、このページと後続の詳細リクエストは選択したサイトを使い続けます。';
 	@override String get alreadyUsing => 'すでにこのサイトモードを使用しています。';
+	@override String openInSite({required Object site}) => '${site} で開く';
 	@override String confirmUsing({required Object site}) => '確認すると、以降のリクエストは ${site} モードを使用します。';
 	@override String switched({required Object site}) => '${site} に切り替えました。アプリは再読み込みされました。';
 }
@@ -4788,7 +4792,11 @@ extension on TranslationsJa {
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => '現在 ${currentSite} ・ タップして ${nextSite} に切り替え',
 			'siteMode.dialogTitle' => 'サイトモードを切り替え',
 			'siteMode.dialogDescription' => '切り替えると、アプリ全体が再読み込みされ、これまでに読み込んだリストやページ状態がリセットされます。',
+			'siteMode.chooseLinkTargetTitle' => 'リンク先サイトを選択',
+			'siteMode.chooseLinkTargetDescription' => 'このリンクにはドメインが含まれていません。メインサイトか AI サイトのどちらで開くか選択してください。',
+			'siteMode.chooseLinkTargetHint' => '開いた後、このページと後続の詳細リクエストは選択したサイトを使い続けます。',
 			'siteMode.alreadyUsing' => 'すでにこのサイトモードを使用しています。',
+			'siteMode.openInSite' => ({required Object site}) => '${site} で開く',
 			'siteMode.confirmUsing' => ({required Object site}) => '確認すると、以降のリクエストは ${site} モードを使用します。',
 			'siteMode.switched' => ({required Object site}) => '${site} に切り替えました。アプリは再読み込みされました。',
 			_ => null,

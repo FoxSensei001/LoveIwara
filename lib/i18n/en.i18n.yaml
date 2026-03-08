@@ -2137,6 +2137,10 @@ siteMode:
   drawerSubtitle: 'Current ${currentSite} · Tap to switch to ${nextSite}'
   dialogTitle: Switch Site Mode
   dialogDescription: Switching will refresh the entire app and reset previously loaded lists and page state.
+  chooseLinkTargetTitle: Choose Target Site
+  chooseLinkTargetDescription: This link does not include a domain. Please choose whether to open it in Main or AI.
+  chooseLinkTargetHint: Once opened, this page and its follow-up detail requests will continue using the selected site.
   alreadyUsing: You are already using this site mode.
+  openInSite: 'Open in ${site}'
   confirmUsing: 'After confirming, future requests will use ${site} mode.'
   switched: 'Switched to ${site}. The app has been refreshed.'

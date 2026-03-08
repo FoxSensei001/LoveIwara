@@ -111,21 +111,33 @@ class PlayListDetailController extends GetxController {
     }
   }
 
-  void deleteCurPlaylist() {
-    _playListService.deletePlaylist(playlistId: playlistId).then((result) {
-      if (result.isSuccess) {
-        showToastWidget(
-          MDToastWidget(
-            message: slang.t.common.success,
-            type: MDToastType.success,
-          ),
-        );
-      } else {
+  Future<bool> deletePlaylist() async {
+    if (isDeleting.value) {
+      return false;
+    }
+
+    isDeleting.value = true;
+    try {
+      final result = await _playListService.deletePlaylist(
+        playlistId: playlistId,
+      );
+      if (!result.isSuccess) {
         showToastWidget(
           MDToastWidget(message: result.message, type: MDToastType.error),
           position: ToastPosition.bottom,
         );
+        return false;
       }
-    });
+
+      showToastWidget(
+        MDToastWidget(
+          message: slang.t.common.success,
+          type: MDToastType.success,
+        ),
+      );
+      return true;
+    } finally {
+      isDeleting.value = false;
+    }
   }
 }

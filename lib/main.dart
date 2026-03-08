@@ -1,61 +1,21 @@
-import 'dart:io';
 import 'dart:async';
-import 'package:flutter/foundation.dart';
+import 'dart:io';
+import 'dart:ui' show Canvas, PaintingStyle, Picture, PictureRecorder, Rect;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/services/comment_service.dart';
-import 'package:i_iwara/app/services/conversation_service.dart';
-import 'package:i_iwara/app/services/deep_link_service.dart';
-import 'package:i_iwara/app/services/forum_service.dart';
-import 'package:i_iwara/app/services/download_service.dart';
-import 'package:i_iwara/app/services/batch_download_service.dart';
-import 'package:i_iwara/app/services/gallery_service.dart';
-import 'package:i_iwara/app/services/light_service.dart';
-import 'package:i_iwara/app/services/play_list_service.dart';
-import 'package:i_iwara/app/services/playback_history_service.dart';
-import 'package:i_iwara/app/services/post_service.dart';
-import 'package:i_iwara/app/services/search_service.dart';
-import 'package:i_iwara/app/services/tag_service.dart';
-import 'package:i_iwara/app/services/video_service.dart';
-import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:i_iwara/utils/proxy/proxy_util.dart';
-import 'package:media_kit/media_kit.dart';
-import 'package:window_manager/window_manager.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/logging/log_service.dart';
-
-import 'dart:ui' show Canvas, PaintingStyle, Picture, PictureRecorder, Rect;
-
-import 'app/my_app.dart';
+import 'package:i_iwara/app/startup/app_startup.dart';
+import 'package:i_iwara/app/startup/app_startup_shell.dart';
+import 'package:i_iwara/db/database_service.dart';
+import 'package:i_iwara/i18n/strings.g.dart';
 import 'app/ui/widgets/restart_app_widget.dart';
-import 'app/services/api_service.dart';
-import 'app/services/auth_service.dart';
-import 'app/services/http_client_factory.dart';
-import 'app/services/iwara_network_service.dart';
-import 'app/services/storage_service.dart';
-import 'app/services/user_preference_service.dart';
-import 'app/services/user_service.dart';
-import 'db/database_service.dart';
-import 'app/services/translation_service.dart';
-import 'i18n/strings.g.dart';
-import 'app/services/theme_service.dart';
-import 'app/services/version_service.dart';
-import 'app/repositories/history_repository.dart';
-import 'app/services/message_service.dart';
-import 'app/services/favorite_service.dart';
-import 'app/services/download_path_service.dart';
-import 'app/services/filename_template_service.dart';
-import 'app/services/permission_service.dart';
-import 'app/services/upload_service.dart';
-import 'package:i_iwara/app/services/config_backup_service.dart';
-import 'package:i_iwara/app/services/emoji_library_service.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/refresh_rate_helper.dart';
-import 'package:i_iwara/utils/glsl_shader_service.dart';
-import 'package:i_iwara/app/ui/pages/video_detail/controllers/dlna_cast_service.dart';
+import 'package:window_manager/window_manager.dart';
 
 void main() {
   // 确保Flutter初始化
@@ -115,31 +75,19 @@ void main() {
         return true;
       };
 
-      // 初始化基础服务
-      await _initializeBaseServices();
+      await appStartupCoordinator.initializeCore(
+        logService: logService,
+        isProduction: isProduction,
+      );
 
-      // 初始化业务服务
-      await _initializeBusinessServices();
-
-      if (Get.isRegistered<ConfigService>()) {
-        final configService = Get.find<ConfigService>();
-        await logService.applyPolicy(
-          LogService.policyFromConfig(
-            configService,
-            isProduction: isProduction,
-          ),
-        );
-      }
-
-      // 运行应用
       runApp(
         RestartApp.scope(
-          child: TranslationProvider(child: const MyApp()),
+          child: TranslationProvider(child: const AppStartupShell()),
         ),
       );
 
       if (GetPlatform.isDesktop) {
-        await _initializeDesktop();
+        await _initializeDesktopSafely();
       }
 
       // 在应用启动时配置图片缓存
@@ -174,164 +122,30 @@ void main() {
   );
 }
 
-/// 初始化基础服务
-Future<void> _initializeBaseServices() async {
-  // 初始化深度链接服务
-  final deepLinkService = DeepLinkService();
-  await deepLinkService.init();
-  Get.put(deepLinkService);
-
-  // 初始化存储服务
-  await GetStorage.init();
-  await StorageService().init();
-
-  // 初始化数据库服务
-  final dbService = DatabaseService();
-  await dbService.init();
-  Get.put(dbService);
-
-  // 清理旧的日志数据库文件
-  await dbService.cleanupLogDatabase();
-
-  // 初始化消息服务
-  Get.put(MessageService());
-}
-
-/// 初始化业务服务
-Future<void> _initializeBusinessServices() async {
-  // 初始化应用服务
-  Get.put(AppService());
-
-  // 初始化配置服务
-  var configService = await ConfigService().init();
-  Get.put(configService);
-  Get.find<AppService>().syncSiteModeFromConfig(configService);
-
-  // 初始化语言设置
-  String applicationLocale = configService[ConfigKey.APPLICATION_LOCALE];
-  if (applicationLocale == 'system') {
-    LocaleSettings.useDeviceLocale();
-  } else {
-    AppLocale? targetLocale;
-    for (final locale in AppLocale.values) {
-      if (locale.languageTag.toLowerCase() == applicationLocale.toLowerCase()) {
-        targetLocale = locale;
-        break;
-      }
-    }
-    if (targetLocale != null) {
-      LocaleSettings.setLocale(targetLocale);
-    } else {
-      LocaleSettings.useDeviceLocale();
-    }
-  }
-
-  LogUtils.i('日志持久化服务已启动', '启动初始化');
-
-  // 注册 ConfigBackupService 作为 GetxService
-  Get.put(ConfigBackupService());
-
-  // 设置代理 - 在runApp前设置全局HttpOverrides
-  if (ProxyUtil.isSupportedPlatform()) {
-    bool useProxy = configService.settings[ConfigKey.USE_PROXY]?.value ?? false;
-    String? proxyUrl;
-    if (useProxy) {
-      proxyUrl = configService.settings[ConfigKey.PROXY_URL]?.value;
-    }
-
-    if (useProxy && proxyUrl != null && proxyUrl.isNotEmpty) {
-      HttpOverrides.global = MyHttpOverrides(proxyUrl);
-      HttpClientFactory.instance.setProxy(proxyUrl);
-      LogUtils.i('代理设置完成: $proxyUrl', '启动初始化');
-    } else {
-      HttpOverrides.global = MyHttpOverrides(null);
-      HttpClientFactory.instance.setProxy(null);
-      LogUtils.i('未启用代理', '启动初始化');
-    }
-  } else {
-    HttpOverrides.global = MyHttpOverrides(null);
-    HttpClientFactory.instance.setProxy(null);
-    LogUtils.i('当前平台不支持代理', '启动初始化');
-  }
-
-  // 初始化用户相关服务
-  var userPreferenceService = await UserPreferenceService().init();
-  Get.put(userPreferenceService);
-
-  // 初始化网络基础设施（CookieJar + Cloudflare challenge handler）
-  Get.put(IwaraNetworkService());
-
-  // 初始化认证服务和API服务
+/// 初始化桌面端设置
+Future<void> _initializeDesktopSafely() async {
   try {
-    LogUtils.d('开始初始化认证服务', '启动初始化');
-    AuthService authService = await AuthService().init();
-    Get.put(authService);
+    await _initializeDesktop();
+  } catch (error, stackTrace) {
+    LogUtils.e(
+      '桌面初始化失败，回退到默认窗口显示',
+      tag: '桌面初始化',
+      error: error,
+      stackTrace: stackTrace,
+    );
 
-    LogUtils.d('开始初始化API服务', '启动初始化');
-    ApiService apiService = await ApiService.getInstance();
-    Get.put(apiService);
-
-    // 初始化用户服务 - 改进：不再依赖网络请求成功
     try {
-      LogUtils.d('开始初始化用户服务', '启动初始化');
-      UserService userService = UserService();
-      Get.put(userService);
-      LogUtils.d('用户服务初始化完成', '启动初始化');
-    } catch (e) {
-      LogUtils.e('用户服务初始化失败', tag: '启动初始化', error: e);
-      // 即使初始化失败，也要注册基本服务，不清理认证状态
-      Get.put(UserService());
+      await windowManager.show();
+      await windowManager.focus();
+    } catch (fallbackError, fallbackStackTrace) {
+      LogUtils.e(
+        '桌面初始化回退失败',
+        tag: '桌面初始化',
+        error: fallbackError,
+        stackTrace: fallbackStackTrace,
+      );
     }
-  } catch (e) {
-    LogUtils.e('认证相关服务初始化失败', tag: '启动初始化', error: e);
-    // 即使认证失败，也要注册基本服务，但不清理认证状态
-    Get.put(UserService());
   }
-
-  // 初始化其他服务
-  var versionService = await VersionService().init();
-  Get.put(versionService);
-
-  var themeService = await ThemeService().init();
-  Get.put(themeService);
-
-  // 初始化懒加载服务
-  Get.lazyPut(() => VideoService());
-  Get.lazyPut(() => CommentService());
-  Get.lazyPut(() => SearchService());
-  Get.lazyPut(() => GalleryService());
-  Get.lazyPut(() => PostService());
-  Get.lazyPut(() => TagService());
-  Get.lazyPut(() => LightService());
-  Get.lazyPut(() => PlayListService());
-  Get.lazyPut(() => ForumService());
-  Get.lazyPut(() => ConversationService());
-  Get.put(PermissionService());
-  Get.put(DownloadService());
-  Get.put(DownloadPathService());
-  Get.put(FilenameTemplateService());
-  Get.put(BatchDownloadService());
-  Get.put(TranslationService());
-  Get.put(FavoriteService());
-  Get.put(PlaybackHistoryService());
-  Get.put(EmojiLibraryService());
-
-  // 初始化上传服务
-  final uploadService = await UploadService.getInstance();
-  Get.put(uploadService);
-
-  // 初始化媒体服务
-  MediaKit.ensureInitialized();
-
-  // 初始化 GLSL 着色器服务
-  final glslShaderService = await GlslShaderService().init();
-  Get.put(glslShaderService);
-
-  // 初始化 DLNA 投屏服务
-  Get.put(DlnaCastService());
-
-  // 注册历史记录仓库
-  Get.put(HistoryRepository());
 }
 
 /// 初始化桌面端设置
@@ -534,27 +348,6 @@ class _AppLifecycleObserver extends WidgetsBindingObserver {
     } finally {
       _marking = false;
     }
-  }
-}
-
-/// 代理设置与连接策略
-class MyHttpOverrides extends HttpOverrides {
-  final String? proxy;
-
-  MyHttpOverrides(this.proxy);
-
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    final client = super.createHttpClient(context);
-
-    // 启用连接复用（keep-alive)
-    client.idleTimeout = const Duration(seconds: 90);
-
-    if (proxy != null && proxy!.isNotEmpty) {
-      client.findProxy = (uri) => 'PROXY $proxy; DIRECT';
-    }
-
-    return client;
   }
 }
 

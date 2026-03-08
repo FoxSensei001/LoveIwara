@@ -1969,7 +1969,11 @@ class _TranslationsSiteModeZhTw implements TranslationsSiteModeEn {
 	@override String drawerSubtitle({required Object currentSite, required Object nextSite}) => '目前 ${currentSite} · 點擊切換到 ${nextSite}';
 	@override String get dialogTitle => '切換站點模式';
 	@override String get dialogDescription => '切換後會重新整理整個應用，並重設先前已載入的清單與頁面狀態。';
+	@override String get chooseLinkTargetTitle => '選擇連結目標站點';
+	@override String get chooseLinkTargetDescription => '此連結未包含網域，請選擇要前往主站還是 AI 站。';
+	@override String get chooseLinkTargetHint => '進入後，此頁面及其後續詳情請求會沿用你選擇的站點。';
 	@override String get alreadyUsing => '目前已是此站點模式。';
+	@override String openInSite({required Object site}) => '開啟到 ${site}';
 	@override String confirmUsing({required Object site}) => '確認後，後續請求將統一使用 ${site} 模式。';
 	@override String switched({required Object site}) => '已切換到 ${site}，應用已重新整理。';
 }
@@ -4794,7 +4798,11 @@ extension on TranslationsZhTw {
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => '目前 ${currentSite} · 點擊切換到 ${nextSite}',
 			'siteMode.dialogTitle' => '切換站點模式',
 			'siteMode.dialogDescription' => '切換後會重新整理整個應用，並重設先前已載入的清單與頁面狀態。',
+			'siteMode.chooseLinkTargetTitle' => '選擇連結目標站點',
+			'siteMode.chooseLinkTargetDescription' => '此連結未包含網域，請選擇要前往主站還是 AI 站。',
+			'siteMode.chooseLinkTargetHint' => '進入後，此頁面及其後續詳情請求會沿用你選擇的站點。',
 			'siteMode.alreadyUsing' => '目前已是此站點模式。',
+			'siteMode.openInSite' => ({required Object site}) => '開啟到 ${site}',
 			'siteMode.confirmUsing' => ({required Object site}) => '確認後，後續請求將統一使用 ${site} 模式。',
 			'siteMode.switched' => ({required Object site}) => '已切換到 ${site}，應用已重新整理。',
 			_ => null,

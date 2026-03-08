@@ -4,6 +4,7 @@ import 'package:oktoast/oktoast.dart';
 
 class MessageService extends GetxService {
   final List<_QueuedMessage> _messageQueue = [];
+  _QueuedMessage? _pendingSiteModeToast;
   bool _isReady = false;
 
   void markReady() {
@@ -19,6 +20,24 @@ class MessageService extends GetxService {
     }
   }
 
+  void queueMessage(String message, MDToastType type) {
+    _messageQueue.add(_QueuedMessage(message, type));
+  }
+
+  void queuePendingSiteModeToast(String message, MDToastType type) {
+    _pendingSiteModeToast = _QueuedMessage(message, type);
+  }
+
+  void showPendingSiteModeToastIfAny() {
+    final pendingToast = _pendingSiteModeToast;
+    if (pendingToast == null) {
+      return;
+    }
+
+    _pendingSiteModeToast = null;
+    _showToast(pendingToast.message, pendingToast.type);
+  }
+
   void _processQueue() {
     if (!_isReady) return;
 
@@ -29,12 +48,7 @@ class MessageService extends GetxService {
   }
 
   void _showToast(String message, MDToastType type) {
-    showToastWidget(
-      MDToastWidget(
-        message: message,
-        type: type,
-      ),
-    );
+    showToastWidget(MDToastWidget(message: message, type: type));
   }
 }
 
@@ -43,4 +57,4 @@ class _QueuedMessage {
   final MDToastType type;
 
   _QueuedMessage(this.message, this.type);
-} 
+}

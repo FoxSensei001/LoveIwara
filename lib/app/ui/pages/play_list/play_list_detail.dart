@@ -270,7 +270,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
                 controller.toggleMultiSelect();
                 break;
               case 'deleteCurPlaylist':
-                // 删除播放列表功能已被移除
+                _showDeleteCurPlaylistConfirmDialog();
                 break;
               case 'share':
                 _showShareDialog();
@@ -294,6 +294,20 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
               ),
             if (widget.isMine)
               PopupMenuItem(
+                value: 'deleteCurPlaylist',
+                child: Row(
+                  children: [
+                    const Icon(Icons.delete, color: Colors.red),
+                    const SizedBox(width: 8),
+                    Text(
+                      t.common.delete,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ],
+                ),
+              ),
+            if (widget.isMine)
+              PopupMenuItem(
                 value: 'multiSelect',
                 child: Row(
                   children: [
@@ -303,17 +317,6 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
                   ],
                 ),
               ),
-            // 删除
-            // const PopupMenuItem(
-            //   value: 'deleteCurPlaylist',
-            //   child: Row(
-            //     children: [
-            //       Icon(Icons.delete),
-            //       SizedBox(width: 8),
-            //       Text('删除此播放列表'),
-            //     ],
-            //   ),
-            // ),
             // 分享
             PopupMenuItem(
               value: 'share',
@@ -409,27 +412,55 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
     );
   }
 
-  // /// 我靠，iwara压根就没有删除播放列表的功能
-  // @Deprecated('此功能已被移除，iwara不支持删除播放列表')
-  // void _showDeleteCurPlaylistConfirmDialog() {
-  //   showAppDialog(
-  //     AlertDialog(
-  //       title: const Text('确认删除'),
-  //       content: const Text('确定要删除此播放列表吗？'),
-  //       actions: [
-  //         TextButton(
-  //           onPressed: () => Navigator.pop(context),
-  //           child: const Text('取消'),
-  //         ),
-  //         TextButton(
-  //           onPressed: () {
-  //             controller.deleteCurPlaylist();
-  //           },
-  //           style: TextButton.styleFrom(foregroundColor: Colors.red),
-  //           child: const Text('删除'),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
+  void _showDeleteCurPlaylistConfirmDialog() {
+    final RxBool isLoading = false.obs;
+
+    showAppDialog(
+      Obx(
+        () => PopScope(
+          canPop: !isLoading.value,
+          child: AlertDialog(
+            title: Text(slang.t.common.confirmDelete),
+            content: Text(
+              slang.t.favorite.removeItemConfirmWithTitle(
+                title: controller.playlistTitle.value,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: isLoading.value ? null : () => AppService.tryPop(),
+                child: Text(slang.t.common.cancel),
+              ),
+              TextButton(
+                onPressed: isLoading.value
+                    ? null
+                    : () async {
+                        isLoading.value = true;
+                        final deleted = await controller.deletePlaylist();
+                        if (!mounted) {
+                          return;
+                        }
+                        if (deleted) {
+                          Navigator.of(context, rootNavigator: true).pop();
+                          Navigator.of(context).pop(true);
+                          return;
+                        }
+                        isLoading.value = false;
+                      },
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: isLoading.value
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                    : Text(slang.t.common.delete),
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
+  }
 }

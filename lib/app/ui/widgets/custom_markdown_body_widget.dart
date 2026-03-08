@@ -511,9 +511,109 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     await _launchUrl(uri, href);
   }
 
+  Future<IwaraSite?> _pickSiteForRelativeIwaraLink(String url) async {
+    if (!mounted) {
+      return null;
+    }
+
+    final displayPath = url.trim();
+
+    return showAppDialog<IwaraSite>(
+      Builder(
+        builder: (dialogContext) {
+          final colorScheme = Theme.of(dialogContext).colorScheme;
+
+          Widget buildSiteButton(IwaraSite site) {
+            final label = site == IwaraSite.ai
+                ? t.siteMode.aiSite
+                : t.siteMode.mainSite;
+
+            return FilledButton.icon(
+              onPressed: () => Navigator.of(dialogContext).pop(site),
+              icon: Icon(
+                site == IwaraSite.ai ? Icons.auto_awesome : Icons.public,
+              ),
+              label: Text(t.siteMode.openInSite(site: label)),
+            );
+          }
+
+          return AlertDialog(
+            title: Text(t.siteMode.chooseLinkTargetTitle),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(t.siteMode.chooseLinkTargetDescription),
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      displayPath,
+                      style: TextStyle(
+                        color: colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    t.siteMode.chooseLinkTargetHint,
+                    style: TextStyle(color: colorScheme.onSurfaceVariant),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: Text(t.common.cancel),
+              ),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  buildSiteButton(IwaraSite.main),
+                  buildSiteButton(IwaraSite.ai),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+      dialogContext: context,
+      barrierDismissible: false,
+      useRootNavigator: false,
+    );
+  }
+
+  Future<String?> _resolveTapTargetUrl(String url) async {
+    final normalizedUrl = url.trim();
+    if (!UrlUtils.isRelativeIwaraPath(normalizedUrl)) {
+      return normalizedUrl;
+    }
+
+    final selectedSite = await _pickSiteForRelativeIwaraLink(normalizedUrl);
+    if (selectedSite == null) {
+      return null;
+    }
+
+    return UrlUtils.resolveRelativeIwaraUrl(normalizedUrl, selectedSite);
+  }
+
   void _onTapLink(String url) async {
     try {
-      final urlInfo = UrlUtils.parseUrl(url);
+      final resolvedUrl = await _resolveTapTargetUrl(url);
+      if (resolvedUrl == null || resolvedUrl.isEmpty) {
+        return;
+      }
+
+      final urlInfo = UrlUtils.parseUrl(resolvedUrl);
 
       if (!widget.clickInternalLinkByUrlLaunch &&
           urlInfo.isIwaraUrl &&
@@ -522,11 +622,11 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
       }
 
       if (!urlInfo.isIwaraUrl) {
-        final shouldContinue = await _confirmOpenExternalLink(url);
+        final shouldContinue = await _confirmOpenExternalLink(resolvedUrl);
         if (!shouldContinue) return;
       }
 
-      await _launchUrlFromString(url);
+      await _launchUrlFromString(resolvedUrl);
     } catch (e) {
       LogUtils.e('处理链接点击时发生错误', tag: 'CustomMarkdownBody', error: e);
       _showLinkOpenFailedToast(url);
