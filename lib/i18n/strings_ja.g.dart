@@ -747,10 +747,6 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get defaultKeepVideoToolbarVisible => 'ツールバーを常に表示';
 	@override String get defaultKeepVideoToolbarVisibleDesc => 'この設定は、動画ページに入った時にツールバーを常に表示するかどうかを決定します。';
 	@override String get theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt => 'モバイル端でシアターモードを有効にすると、パフォーマンスの問題が発生する可能性があるため、状況に応じてご利用ください。';
-	@override String get lockButtonPosition => 'ロックボタンの位置';
-	@override String get lockButtonPositionBothSides => '両側に表示';
-	@override String get lockButtonPositionLeftSide => '左側のみ表示';
-	@override String get lockButtonPositionRightSide => '右側のみ表示';
 	@override String get fullscreenOrientation => 'フルスクリーン時のデフォルト画面方向';
 	@override String get fullscreenOrientationDesc => 'この設定は、フルスクリーン時のデフォルト画面方向を決定します（モバイルのみ）';
 	@override String get fullscreenOrientationLeftLandscape => '左横画面';
@@ -3431,10 +3427,6 @@ extension on TranslationsJa {
 			'settings.defaultKeepVideoToolbarVisible' => 'ツールバーを常に表示',
 			'settings.defaultKeepVideoToolbarVisibleDesc' => 'この設定は、動画ページに入った時にツールバーを常に表示するかどうかを決定します。',
 			'settings.theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt' => 'モバイル端でシアターモードを有効にすると、パフォーマンスの問題が発生する可能性があるため、状況に応じてご利用ください。',
-			'settings.lockButtonPosition' => 'ロックボタンの位置',
-			'settings.lockButtonPositionBothSides' => '両側に表示',
-			'settings.lockButtonPositionLeftSide' => '左側のみ表示',
-			'settings.lockButtonPositionRightSide' => '右側のみ表示',
 			'settings.fullscreenOrientation' => 'フルスクリーン時のデフォルト画面方向',
 			'settings.fullscreenOrientationDesc' => 'この設定は、フルスクリーン時のデフォルト画面方向を決定します（モバイルのみ）',
 			'settings.fullscreenOrientationLeftLandscape' => '左横画面',
@@ -3877,12 +3869,12 @@ extension on TranslationsJa {
 			'forum.enterContent' => 'コンテンツを入力してください',
 			'forum.writeYourContentHere' => 'ここにコンテンツを入力...',
 			'forum.posts' => '投稿',
-			_ => null,
-		} ?? switch (path) {
 			'forum.threads' => 'スレッド',
 			'forum.forum' => 'フォーラム',
 			'forum.createThread' => 'スレッドを作成',
 			'forum.selectCategory' => 'カテゴリを選択',
+			_ => null,
+		} ?? switch (path) {
 			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => 'クールダウン残り時間 ${minutes} 分 ${seconds} 秒',
 			'forum.groups.administration' => '管理',
 			'forum.groups.global' => 'グローバル',
@@ -4391,12 +4383,12 @@ extension on TranslationsJa {
 			'diagnostics.hangFileSizeTitle' => 'ハングログの上限サイズ',
 			'diagnostics.hangFileSizeSubtitle' => 'hang_events ファイルの増加を制御',
 			'diagnostics.hangRotatedFileCountTitle' => 'ハングログのローテーション数',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.hangRotatedFileCountSubtitle' => 'hang_events の履歴保持数を制御',
 			'diagnostics.healthSectionTitle' => 'ログヘルス',
 			'diagnostics.refreshMetrics' => '指標を更新',
 			'diagnostics.toolsSectionTitle' => 'ツール',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.privacyNotice' => 'ログにはアカウント情報やリクエストパラメータなどの機密情報が含まれる可能性があります。Issue に完全なログを公開添付せず、確認後にメールで送信してください。',
 			'diagnostics.exportLogsTitle' => 'ログをエクスポート',
 			'diagnostics.exportLogsSubtitle' => '送信前にプライバシー情報を確認してください',

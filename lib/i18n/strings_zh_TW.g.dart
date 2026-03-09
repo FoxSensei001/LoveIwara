@@ -747,10 +747,6 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get defaultKeepVideoToolbarVisible => '保持工具列常駐';
 	@override String get defaultKeepVideoToolbarVisibleDesc => '此設定決定首次進入影片頁面時是否保持工具列常駐顯示。';
 	@override String get theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt => '行動端開啟劇院模式可能會造成性能問題，可酌情開啟。';
-	@override String get lockButtonPosition => '鎖定按鈕位置';
-	@override String get lockButtonPositionBothSides => '兩側顯示';
-	@override String get lockButtonPositionLeftSide => '僅左側顯示';
-	@override String get lockButtonPositionRightSide => '僅右側顯示';
 	@override String get fullscreenOrientation => '豎屏進入全螢幕後的螢幕方向';
 	@override String get fullscreenOrientationDesc => '此設定決定豎屏進入全螢幕時螢幕的預設方向（僅行動端有效）';
 	@override String get fullscreenOrientationLeftLandscape => '左側橫螢幕';
@@ -3434,10 +3430,6 @@ extension on TranslationsZhTw {
 			'settings.defaultKeepVideoToolbarVisible' => '保持工具列常駐',
 			'settings.defaultKeepVideoToolbarVisibleDesc' => '此設定決定首次進入影片頁面時是否保持工具列常駐顯示。',
 			'settings.theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt' => '行動端開啟劇院模式可能會造成性能問題，可酌情開啟。',
-			'settings.lockButtonPosition' => '鎖定按鈕位置',
-			'settings.lockButtonPositionBothSides' => '兩側顯示',
-			'settings.lockButtonPositionLeftSide' => '僅左側顯示',
-			'settings.lockButtonPositionRightSide' => '僅右側顯示',
 			'settings.fullscreenOrientation' => '豎屏進入全螢幕後的螢幕方向',
 			'settings.fullscreenOrientationDesc' => '此設定決定豎屏進入全螢幕時螢幕的預設方向（僅行動端有效）',
 			'settings.fullscreenOrientationLeftLandscape' => '左側橫螢幕',
@@ -3880,12 +3872,12 @@ extension on TranslationsZhTw {
 			'markdown.quote' => '引用',
 			'markdown.quoteDescription' => '使用 > 符號建立引用，多個 > 建立多級引用',
 			'markdown.quoteSyntax' => '> 這是一級引用\n>> 這是二級引用',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.list' => '列表',
 			'markdown.listDescription' => '使用數字+點號建立有序列表，使用 - 建立無序列表',
 			'markdown.listSyntax' => '1. 第一項\n2. 第二項\n\n- 無序項\n  - 子項\n  - 另一個子項',
 			'markdown.linkAndImage' => '連結與圖片',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.linkAndImageDescription' => '連結格式：[文字](URL)\n圖片格式：![描述](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[連結文字](${link})\n![圖片描述](${imgUrl})',
 			'markdown.title' => '標題',
@@ -4394,12 +4386,12 @@ extension on TranslationsZhTw {
 			'mediaPlayer.unknown' => '未知',
 			'mediaPlayer.localVideoPathEmpty' => '本地影片路徑為空',
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => '本地影片檔案不存在: ${path}',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => '無法播放本地影片: ${error}',
 			'mediaPlayer.dropVideoFileHere' => '拖放影片檔案至此處播放',
 			'mediaPlayer.supportedFormats' => '支援格式: MP4, MKV, AVI, MOV, WEBM 等',
 			'mediaPlayer.noSupportedVideoFile' => '未找到支援的影片檔案',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.imageLoadFailed' => '圖片載入失敗',
 			'mediaPlayer.unsupportedImageFormat' => '不支援的圖片格式',
 			'mediaPlayer.tryOtherViewer' => '請嘗試使用其他檢視器',

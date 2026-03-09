@@ -606,10 +606,6 @@ settings:
   defaultKeepVideoToolbarVisible: 保持工具列常駐
   defaultKeepVideoToolbarVisibleDesc: 此設定決定首次進入影片頁面時是否保持工具列常駐顯示。
   theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt: 行動端開啟劇院模式可能會造成性能問題，可酌情開啟。
-  lockButtonPosition: 鎖定按鈕位置
-  lockButtonPositionBothSides: 兩側顯示
-  lockButtonPositionLeftSide: 僅左側顯示
-  lockButtonPositionRightSide: 僅右側顯示
   fullscreenOrientation: 豎屏進入全螢幕後的螢幕方向
   fullscreenOrientationDesc: 此設定決定豎屏進入全螢幕時螢幕的預設方向（僅行動端有效）
   fullscreenOrientationLeftLandscape: 左側橫螢幕

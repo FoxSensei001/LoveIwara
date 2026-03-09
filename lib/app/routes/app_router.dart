@@ -719,8 +719,10 @@ class _NavigationLogObserver extends NavigatorObserver {
 String? _guardRedirect(BuildContext context, GoRouterState state) {
   try {
     final configService = Get.find<ConfigService>();
+    final appService = Get.find<AppService>();
     final bool isFirstTimeSetupCompleted =
         configService[ConfigKey.FIRST_TIME_SETUP_COMPLETED];
+    final preferredHomePath = appService.preferredHomePath;
 
     final isOnSetupPage = state.matchedLocation == '/first_time_setup';
 
@@ -731,7 +733,14 @@ String? _guardRedirect(BuildContext context, GoRouterState state) {
 
     if (isFirstTimeSetupCompleted && isOnSetupPage) {
       LogUtils.i('首次设置已完成，重定向到首页', 'AppRouter');
-      return '/';
+      return preferredHomePath;
+    }
+
+    if (isFirstTimeSetupCompleted &&
+        state.matchedLocation == '/' &&
+        preferredHomePath != '/') {
+      LogUtils.i('根据导航顺序重定向首页: / -> $preferredHomePath', 'AppRouter');
+      return preferredHomePath;
     }
   } catch (e) {
     LogUtils.e('路由守卫检查首次设置状态出错', tag: 'AppRouter', error: e);

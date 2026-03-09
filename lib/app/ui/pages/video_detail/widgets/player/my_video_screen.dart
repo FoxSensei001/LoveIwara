@@ -398,11 +398,11 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         const <InnerPlaylistItemSnapshot>[];
   }
 
-  bool _canShowInnerPlaylistOverlay(Size screenSize) {
+  bool _canShowInnerPlaylistOverlay() {
     final hintEnabled =
         _configService[ConfigKey.SHOW_FULLSCREEN_UP_NEXT_HINT] as bool;
+    // 竖屏全屏视频同样需要保留“接着看”入口，不能只在横屏时渲染。
     return widget.isFullScreen &&
-        screenSize.width > screenSize.height &&
         _orderedInnerPlaylistItems.isNotEmpty &&
         (_innerPlaylistExpanded || hintEnabled);
   }
@@ -1108,7 +1108,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   }
 
   Widget _buildInnerPlaylistOverlay(Size screenSize) {
-    if (!_canShowInnerPlaylistOverlay(screenSize)) {
+    if (!_canShowInnerPlaylistOverlay()) {
       return const SizedBox.shrink();
     }
 
@@ -1122,7 +1122,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
           items: _orderedInnerPlaylistItems,
           isExpanded: _innerPlaylistExpanded,
           showHint:
-              (_configService[ConfigKey.SHOW_FULLSCREEN_UP_NEXT_HINT] as bool) &&
+              (_configService[ConfigKey.SHOW_FULLSCREEN_UP_NEXT_HINT]
+                  as bool) &&
               toolbarVisible &&
               !_innerPlaylistExpanded &&
               !_isSwitchingInnerPlaylistVideo,
@@ -1904,131 +1905,58 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   }
 
   Widget _buildLockButton() {
-    final lockButtonPosition =
-        _configService[ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION] as int;
+    final leftInset = MediaQuery.paddingOf(context).left + 16;
 
-    return Stack(
-      children: [
-        // 左侧按钮
-        if (lockButtonPosition == 1 || lockButtonPosition == 2)
-          Positioned(
-            left: 16,
-            top: 0,
-            bottom: 0,
-            child: Center(
-              child: Obx(() {
-                final isVisible =
-                    widget.myVideoStateController.isLockButtonVisible.value;
-                final isLocked =
-                    widget.myVideoStateController.isToolbarsLocked.value;
+    return Positioned(
+      left: leftInset,
+      top: 0,
+      bottom: 0,
+      child: Center(
+        child: Obx(() {
+          final isVisible =
+              widget.myVideoStateController.isLockButtonVisible.value;
+          final isLocked = widget.myVideoStateController.isToolbarsLocked.value;
 
-                return IgnorePointer(
-                  ignoring: !isVisible,
-                  child: AnimatedOpacity(
-                    opacity: isVisible ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 200),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.6),
-                        shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(8),
-                        child: InkWell(
-                          onTap: () {
-                            widget.myVideoStateController.toggleLockState();
-                            // 添加震动反馈
-                            VibrateUtils.vibrate();
-                            // 如果当前处于未锁定，且视频暂停，则播放视频
-                            if (!isLocked &&
-                                !widget
-                                    .myVideoStateController
-                                    .videoPlaying
-                                    .value) {
-                              widget.myVideoStateController.player.play();
-                            }
-                          },
-                          borderRadius: BorderRadius.circular(8),
-                          child: Icon(
-                            isLocked
-                                ? Icons.lock_rounded
-                                : Icons.lock_open_rounded,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                      ),
+          return IgnorePointer(
+            ignoring: !isVisible,
+            child: AnimatedOpacity(
+              opacity: isVisible ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.6),
+                  shape: BoxShape.rectangle,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                  child: InkWell(
+                    onTap: () {
+                      widget.myVideoStateController.toggleLockState();
+                      // 添加震动反馈
+                      VibrateUtils.vibrate();
+                      // 如果当前处于未锁定，且视频暂停，则播放视频
+                      if (!isLocked &&
+                          !widget.myVideoStateController.videoPlaying.value) {
+                        widget.myVideoStateController.player.play();
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Icon(
+                      isLocked ? Icons.lock_rounded : Icons.lock_open_rounded,
+                      color: Colors.white,
+                      size: 24,
                     ),
                   ),
-                );
-              }),
+                ),
+              ),
             ),
-          ),
-
-        // 右侧按钮
-        if (lockButtonPosition == 1 || lockButtonPosition == 3)
-          Positioned(
-            right: 16,
-            top: 0,
-            bottom: 0,
-            child: Center(
-              child: Obx(() {
-                final isVisible =
-                    widget.myVideoStateController.isLockButtonVisible.value;
-                final isLocked =
-                    widget.myVideoStateController.isToolbarsLocked.value;
-
-                return IgnorePointer(
-                  ignoring: !isVisible,
-                  child: AnimatedOpacity(
-                    opacity: isVisible ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 200),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.6),
-                        shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(8),
-                        child: InkWell(
-                          onTap: () {
-                            widget.myVideoStateController.toggleLockState();
-                            // 添加震动反馈
-                            VibrateUtils.vibrate();
-                            // 如果当前处于未锁定，且视频暂停，则播放视频
-                            if (!isLocked &&
-                                !widget
-                                    .myVideoStateController
-                                    .videoPlaying
-                                    .value) {
-                              widget.myVideoStateController.player.play();
-                            }
-                          },
-                          borderRadius: BorderRadius.circular(8),
-                          child: Icon(
-                            isLocked
-                                ? Icons.lock_rounded
-                                : Icons.lock_open_rounded,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }),
-            ),
-          ),
-      ],
+          );
+        }),
+      ),
     );
   }
 

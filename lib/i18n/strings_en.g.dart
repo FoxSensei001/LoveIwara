@@ -1849,18 +1849,6 @@ class TranslationsSettingsEn {
 	/// en: 'Mobile devices enable theater mode, which may cause performance issues. You can choose to enable it.'
 	String get theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt => 'Mobile devices enable theater mode, which may cause performance issues. You can choose to enable it.';
 
-	/// en: 'Lock Button Position'
-	String get lockButtonPosition => 'Lock Button Position';
-
-	/// en: 'Both Sides'
-	String get lockButtonPositionBothSides => 'Both Sides';
-
-	/// en: 'Left Side'
-	String get lockButtonPositionLeftSide => 'Left Side';
-
-	/// en: 'Right Side'
-	String get lockButtonPositionRightSide => 'Right Side';
-
 	/// en: 'Vertical Screen Orientation After Entering Fullscreen'
 	String get fullscreenOrientation => 'Vertical Screen Orientation After Entering Fullscreen';
 
@@ -7397,10 +7385,6 @@ extension on Translations {
 			'settings.defaultKeepVideoToolbarVisible' => 'Keep Video Toolbar Visible',
 			'settings.defaultKeepVideoToolbarVisibleDesc' => 'This setting determines whether the video toolbar remains visible when first entering the video page.',
 			'settings.theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt' => 'Mobile devices enable theater mode, which may cause performance issues. You can choose to enable it.',
-			'settings.lockButtonPosition' => 'Lock Button Position',
-			'settings.lockButtonPositionBothSides' => 'Both Sides',
-			'settings.lockButtonPositionLeftSide' => 'Left Side',
-			'settings.lockButtonPositionRightSide' => 'Right Side',
 			'settings.fullscreenOrientation' => 'Vertical Screen Orientation After Entering Fullscreen',
 			'settings.fullscreenOrientationDesc' => 'This setting determines the default screen orientation when entering fullscreen (mobile only)',
 			'settings.fullscreenOrientationLeftLandscape' => 'Left Landscape',
@@ -7843,12 +7827,12 @@ extension on Translations {
 			'forum.enterContent' => 'Enter Content',
 			'forum.writeYourContentHere' => 'Write your content here...',
 			'forum.posts' => 'Posts',
-			_ => null,
-		} ?? switch (path) {
 			'forum.threads' => 'Threads',
 			'forum.forum' => 'Forum',
 			'forum.createThread' => 'Create Thread',
 			'forum.selectCategory' => 'Select Category',
+			_ => null,
+		} ?? switch (path) {
 			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => 'Cooldown remaining ${minutes} minutes ${seconds} seconds',
 			'forum.groups.administration' => 'Administration',
 			'forum.groups.global' => 'Global',
@@ -8357,12 +8341,12 @@ extension on Translations {
 			'layoutSettings.confirmDeleteBreakpoint' => 'Delete Breakpoint',
 			'layoutSettings.confirmDeleteBreakpointDesc' => ({required Object width}) => 'Are you sure you want to delete the ${width}px breakpoint?',
 			'layoutSettings.noCustomBreakpoints' => 'No custom breakpoints, using default columns',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.breakpointRange' => 'Breakpoint Range',
 			'layoutSettings.breakpointRangeDesc' => ({required Object range}) => '${range}px',
 			'layoutSettings.breakpointRangeDescFirst' => ({required Object width}) => '≤${width}px',
 			'layoutSettings.breakpointRangeDescMiddle' => ({required Object start, required Object end}) => '${start}-${end}px',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.edit' => 'Edit',
 			'layoutSettings.delete' => 'Delete',
 			'layoutSettings.cancel' => 'Cancel',

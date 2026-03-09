@@ -52,8 +52,9 @@ class MigrationManager {
   /// 运行所有需要的迁移
   void runMigrations(CommonDatabase db) {
     final currentVersion = getCurrentVersion(db);
-    final pendingMigrations = migrations.where((m) => m.version > currentVersion).toList()
-      ..sort((a, b) => a.version.compareTo(b.version));
+    final pendingMigrations =
+        migrations.where((m) => m.version > currentVersion).toList()
+          ..sort((a, b) => a.version.compareTo(b.version));
 
     if (pendingMigrations.isEmpty) {
       LogUtils.i('当前数据库版本为 v$currentVersion，无需迁移');

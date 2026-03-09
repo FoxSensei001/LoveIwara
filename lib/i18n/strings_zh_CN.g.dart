@@ -752,10 +752,6 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get defaultKeepVideoToolbarVisible => '保持工具栏常驻';
 	@override String get defaultKeepVideoToolbarVisibleDesc => '此设置决定首次进入视频页面时是否保持工具栏常驻显示。';
 	@override String get theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt => '移动端开启剧院模式可能会造成性能问题，可酌情开启。';
-	@override String get lockButtonPosition => '锁定按钮位置';
-	@override String get lockButtonPositionBothSides => '两侧显示';
-	@override String get lockButtonPositionLeftSide => '仅左侧显示';
-	@override String get lockButtonPositionRightSide => '仅右侧显示';
 	@override String get fullscreenOrientation => '竖屏进入全屏后的屏幕方向';
 	@override String get fullscreenOrientationDesc => '此设置决定竖屏进入全屏时屏幕的默认方向（仅移动端有效）';
 	@override String get fullscreenOrientationLeftLandscape => '左侧横屏';
@@ -3441,10 +3437,6 @@ extension on TranslationsZhCn {
 			'settings.defaultKeepVideoToolbarVisible' => '保持工具栏常驻',
 			'settings.defaultKeepVideoToolbarVisibleDesc' => '此设置决定首次进入视频页面时是否保持工具栏常驻显示。',
 			'settings.theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt' => '移动端开启剧院模式可能会造成性能问题，可酌情开启。',
-			'settings.lockButtonPosition' => '锁定按钮位置',
-			'settings.lockButtonPositionBothSides' => '两侧显示',
-			'settings.lockButtonPositionLeftSide' => '仅左侧显示',
-			'settings.lockButtonPositionRightSide' => '仅右侧显示',
 			'settings.fullscreenOrientation' => '竖屏进入全屏后的屏幕方向',
 			'settings.fullscreenOrientationDesc' => '此设置决定竖屏进入全屏时屏幕的默认方向（仅移动端有效）',
 			'settings.fullscreenOrientationLeftLandscape' => '左侧横屏',
@@ -3882,12 +3874,12 @@ extension on TranslationsZhCn {
 			'forum.errors.threadLocked' => '该主题已锁定，无法回复',
 			'forum.createPost' => '创建帖子',
 			'forum.title' => '标题',
-			_ => null,
-		} ?? switch (path) {
 			'forum.enterTitle' => '输入标题',
 			'forum.content' => '内容',
 			'forum.enterContent' => '输入内容',
 			'forum.writeYourContentHere' => '在此输入内容...',
+			_ => null,
+		} ?? switch (path) {
 			'forum.posts' => '帖子',
 			'forum.threads' => '主题',
 			'forum.forum' => '论坛',
@@ -4396,12 +4388,12 @@ extension on TranslationsZhCn {
 			'diagnostics.minLogLevelSubtitle' => '低于该级别的日志会被过滤',
 			'diagnostics.maxFileSizeTitle' => '单文件大小上限',
 			'diagnostics.maxFileSizeSubtitle' => '达到阈值后执行轮转',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.rotatedFileCountTitle' => '主日志轮转文件数',
 			'diagnostics.rotatedFileCountSubtitle' => '包含当前文件之外的保留份数',
 			'diagnostics.hangFileSizeTitle' => '卡顿日志大小上限',
 			'diagnostics.hangFileSizeSubtitle' => '控制 hang_events 文件增长',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.hangRotatedFileCountTitle' => '卡顿日志轮转文件数',
 			'diagnostics.hangRotatedFileCountSubtitle' => '控制 hang_events 历史保留份数',
 			'diagnostics.healthSectionTitle' => '日志健康',

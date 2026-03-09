@@ -974,6 +974,7 @@ class PopularMediaListPageBaseState<
                         child: Obx(() {
                           final showHeader =
                               _mediaListController.showHeader.value;
+                          final showScrollToTopButton = !showHeader;
                           final showCollapsedQuickActions =
                               !showHeader && constraints.maxWidth >= 420;
 
@@ -1077,7 +1078,7 @@ class PopularMediaListPageBaseState<
                                     }),
                                   ),
                                 _buildAnimatedIconButton(
-                                  isVisible: showHeader,
+                                  isVisible: showScrollToTopButton,
                                   child: IconButton(
                                     icon: const Icon(Icons.vertical_align_top),
                                     onPressed: () =>

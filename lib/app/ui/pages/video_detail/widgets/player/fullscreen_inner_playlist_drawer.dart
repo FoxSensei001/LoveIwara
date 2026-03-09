@@ -1,10 +1,8 @@
-import 'dart:math' as math;
-
+import 'package:flutter/gestures.dart'
+    show PointerScrollEvent, PointerSignalEvent;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
-import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
 
@@ -48,24 +46,11 @@ class FullscreenInnerPlaylistDrawer extends StatelessWidget {
     final drawerWidth = (size.width * 0.72).clamp(280.0, 460.0);
     const drawerHeight = 176.0;
     final horizontalPadding = mediaPadding.right + 12.0;
-    final configService = Get.find<ConfigService>();
-    final lockButtonPosition =
-        configService[ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION] as int;
-    final hasRightLockButton =
-        lockButtonPosition == 1 || lockButtonPosition == 3;
     final defaultHintTop = (size.height * 0.62).clamp(
       mediaPadding.top + 48.0,
       size.height - mediaPadding.bottom - 136.0 - 24.0,
     );
-    final hintTop = hasRightLockButton
-        ? math.max(
-            mediaPadding.top + 88.0,
-            (size.height * 0.56).clamp(
-              mediaPadding.top + 88.0,
-              size.height - mediaPadding.bottom - 136.0 - 24.0,
-            ),
-          )
-        : defaultHintTop;
+    final hintTop = defaultHintTop;
     final drawerTop = (hintTop - (drawerHeight - 136.0) / 2).clamp(
       mediaPadding.top + 20.0,
       size.height - mediaPadding.bottom - drawerHeight - 20.0,
@@ -239,7 +224,7 @@ class _DrawerHint extends StatelessWidget {
   }
 }
 
-class _DrawerSurface extends StatelessWidget {
+class _DrawerSurface extends StatefulWidget {
   final List<InnerPlaylistItemSnapshot> items;
   final double width;
   final double height;
@@ -257,14 +242,45 @@ class _DrawerSurface extends StatelessWidget {
   });
 
   @override
+  State<_DrawerSurface> createState() => _DrawerSurfaceState();
+}
+
+class _DrawerSurfaceState extends State<_DrawerSurface> {
+  final ScrollController _scrollController = ScrollController();
+
+  void _handlePointerSignal(PointerSignalEvent event) {
+    if (event is! PointerScrollEvent || !_scrollController.hasClients) {
+      return;
+    }
+
+    final scrollDelta = event.scrollDelta.dx.abs() > event.scrollDelta.dy.abs()
+        ? event.scrollDelta.dx
+        : event.scrollDelta.dy;
+    if (scrollDelta.abs() < 1) {
+      return;
+    }
+
+    final targetOffset = (_scrollController.offset + scrollDelta)
+        .clamp(0.0, _scrollController.position.maxScrollExtent)
+        .toDouble();
+    _scrollController.jumpTo(targetOffset);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     const borderRadius = BorderRadius.all(Radius.circular(26));
 
     return ClipRRect(
       borderRadius: borderRadius,
       child: SizedBox(
-        width: width,
-        height: height,
+        width: widget.width,
+        height: widget.height,
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: borderRadius,
@@ -272,26 +288,33 @@ class _DrawerSurface extends StatelessWidget {
           ),
           child: Stack(
             children: [
-              ListView.separated(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.fromLTRB(12, 8, 74, 8),
-                physics: const BouncingScrollPhysics(
-                  parent: AlwaysScrollableScrollPhysics(),
+              Listener(
+                behavior: HitTestBehavior.opaque,
+                onPointerSignal: _handlePointerSignal,
+                child: ListView.separated(
+                  controller: _scrollController,
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.fromLTRB(12, 8, 74, 8),
+                  physics: const BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics(),
+                  ),
+                  itemBuilder: (context, index) {
+                    return Align(
+                      alignment: Alignment.topLeft,
+                      child: _DrawerCard(
+                        item: widget.items[index],
+                        isLoading:
+                            widget.loadingItemId == widget.items[index].id,
+                        onTap: widget.onSelectItem == null
+                            ? null
+                            : () => widget.onSelectItem!(widget.items[index]),
+                      ),
+                    );
+                  },
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: 12),
+                  itemCount: widget.items.length,
                 ),
-                itemBuilder: (context, index) {
-                  return Align(
-                    alignment: Alignment.topLeft,
-                    child: _DrawerCard(
-                      item: items[index],
-                      isLoading: loadingItemId == items[index].id,
-                      onTap: onSelectItem == null
-                          ? null
-                          : () => onSelectItem!(items[index]),
-                    ),
-                  );
-                },
-                separatorBuilder: (context, index) => const SizedBox(width: 12),
-                itemCount: items.length,
               ),
               Positioned(
                 right: 10,
@@ -299,7 +322,7 @@ class _DrawerSurface extends StatelessWidget {
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
-                    onTap: onCollapse,
+                    onTap: widget.onCollapse,
                     borderRadius: BorderRadius.circular(22),
                     child: Container(
                       width: 44,
