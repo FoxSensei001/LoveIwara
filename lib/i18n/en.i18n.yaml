@@ -576,6 +576,8 @@ settings:
   confirm: Confirm
   noCustomColors: No custom colors
   recordAndRestorePlaybackProgress: Record and Restore Playback Progress
+  autoPlayVideoOnFirstEnter: Auto Play Video on First Enter
+  autoPlayVideoOnFirstEnterDesc: This setting determines whether the video starts playing automatically when first entering the video page.
   signature: Signature
   enableSignature: Enable Signature
   enableSignatureDesc: This configuration determines whether the app will add signature when replying

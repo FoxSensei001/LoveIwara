@@ -477,6 +477,19 @@ class PlayerSettingsWidget extends StatelessWidget {
                           value;
                     },
                   ),
+                  _buildSwitchSetting(
+                    context: context,
+                    iconData: Icons.play_arrow,
+                    label: t.settings.autoPlayVideoOnFirstEnter,
+                    showInfoCard: true,
+                    infoMessage: t.settings.autoPlayVideoOnFirstEnterDesc,
+                    rxValue: _configService
+                        .settings[ConfigKey.AUTO_PLAY_VIDEO_ON_FIRST_ENTER]!,
+                    onChanged: (value) {
+                      _configService[ConfigKey.AUTO_PLAY_VIDEO_ON_FIRST_ENTER] =
+                          value;
+                    },
+                  ),
                   // 添加显示底部进度条的设置
                   _buildSwitchSetting(
                     context: context,

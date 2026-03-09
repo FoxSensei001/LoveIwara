@@ -723,6 +723,8 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get confirm => '确认';
 	@override String get noCustomColors => '没有自定义颜色';
 	@override String get recordAndRestorePlaybackProgress => '记录和恢复播放进度';
+	@override String get autoPlayVideoOnFirstEnter => '首次进入页面自动播放视频';
+	@override String get autoPlayVideoOnFirstEnterDesc => '此设置决定首次进入视频页面时是否自动开始播放视频。';
 	@override String get signature => '小尾巴';
 	@override String get enableSignature => '小尾巴启用';
 	@override String get enableSignatureDesc => '此配置决定回复时是否自动添加小尾巴';
@@ -3408,6 +3410,8 @@ extension on TranslationsZhCn {
 			'settings.confirm' => '确认',
 			'settings.noCustomColors' => '没有自定义颜色',
 			'settings.recordAndRestorePlaybackProgress' => '记录和恢复播放进度',
+			'settings.autoPlayVideoOnFirstEnter' => '首次进入页面自动播放视频',
+			'settings.autoPlayVideoOnFirstEnterDesc' => '此设置决定首次进入视频页面时是否自动开始播放视频。',
 			'settings.signature' => '小尾巴',
 			'settings.enableSignature' => '小尾巴启用',
 			'settings.enableSignatureDesc' => '此配置决定回复时是否自动添加小尾巴',
@@ -3876,10 +3880,10 @@ extension on TranslationsZhCn {
 			'forum.title' => '标题',
 			'forum.enterTitle' => '输入标题',
 			'forum.content' => '内容',
-			'forum.enterContent' => '输入内容',
-			'forum.writeYourContentHere' => '在此输入内容...',
 			_ => null,
 		} ?? switch (path) {
+			'forum.enterContent' => '输入内容',
+			'forum.writeYourContentHere' => '在此输入内容...',
 			'forum.posts' => '帖子',
 			'forum.threads' => '主题',
 			'forum.forum' => '论坛',
@@ -4390,10 +4394,10 @@ extension on TranslationsZhCn {
 			'diagnostics.maxFileSizeSubtitle' => '达到阈值后执行轮转',
 			'diagnostics.rotatedFileCountTitle' => '主日志轮转文件数',
 			'diagnostics.rotatedFileCountSubtitle' => '包含当前文件之外的保留份数',
-			'diagnostics.hangFileSizeTitle' => '卡顿日志大小上限',
-			'diagnostics.hangFileSizeSubtitle' => '控制 hang_events 文件增长',
 			_ => null,
 		} ?? switch (path) {
+			'diagnostics.hangFileSizeTitle' => '卡顿日志大小上限',
+			'diagnostics.hangFileSizeSubtitle' => '控制 hang_events 文件增长',
 			'diagnostics.hangRotatedFileCountTitle' => '卡顿日志轮转文件数',
 			'diagnostics.hangRotatedFileCountSubtitle' => '控制 hang_events 历史保留份数',
 			'diagnostics.healthSectionTitle' => '日志健康',

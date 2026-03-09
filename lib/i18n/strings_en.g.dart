@@ -1762,6 +1762,12 @@ class TranslationsSettingsEn {
 	/// en: 'Record and Restore Playback Progress'
 	String get recordAndRestorePlaybackProgress => 'Record and Restore Playback Progress';
 
+	/// en: 'Auto Play Video on First Enter'
+	String get autoPlayVideoOnFirstEnter => 'Auto Play Video on First Enter';
+
+	/// en: 'This setting determines whether the video starts playing automatically when first entering the video page.'
+	String get autoPlayVideoOnFirstEnterDesc => 'This setting determines whether the video starts playing automatically when first entering the video page.';
+
 	/// en: 'Signature'
 	String get signature => 'Signature';
 
@@ -7356,6 +7362,8 @@ extension on Translations {
 			'settings.confirm' => 'Confirm',
 			'settings.noCustomColors' => 'No custom colors',
 			'settings.recordAndRestorePlaybackProgress' => 'Record and Restore Playback Progress',
+			'settings.autoPlayVideoOnFirstEnter' => 'Auto Play Video on First Enter',
+			'settings.autoPlayVideoOnFirstEnterDesc' => 'This setting determines whether the video starts playing automatically when first entering the video page.',
 			'settings.signature' => 'Signature',
 			'settings.enableSignature' => 'Enable Signature',
 			'settings.enableSignatureDesc' => 'This configuration determines whether the app will add signature when replying',
@@ -7829,10 +7837,10 @@ extension on Translations {
 			'forum.posts' => 'Posts',
 			'forum.threads' => 'Threads',
 			'forum.forum' => 'Forum',
-			'forum.createThread' => 'Create Thread',
-			'forum.selectCategory' => 'Select Category',
 			_ => null,
 		} ?? switch (path) {
+			'forum.createThread' => 'Create Thread',
+			'forum.selectCategory' => 'Select Category',
 			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => 'Cooldown remaining ${minutes} minutes ${seconds} seconds',
 			'forum.groups.administration' => 'Administration',
 			'forum.groups.global' => 'Global',
@@ -8343,10 +8351,10 @@ extension on Translations {
 			'layoutSettings.noCustomBreakpoints' => 'No custom breakpoints, using default columns',
 			'layoutSettings.breakpointRange' => 'Breakpoint Range',
 			'layoutSettings.breakpointRangeDesc' => ({required Object range}) => '${range}px',
-			'layoutSettings.breakpointRangeDescFirst' => ({required Object width}) => '≤${width}px',
-			'layoutSettings.breakpointRangeDescMiddle' => ({required Object start, required Object end}) => '${start}-${end}px',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.breakpointRangeDescFirst' => ({required Object width}) => '≤${width}px',
+			'layoutSettings.breakpointRangeDescMiddle' => ({required Object start, required Object end}) => '${start}-${end}px',
 			'layoutSettings.edit' => 'Edit',
 			'layoutSettings.delete' => 'Delete',
 			'layoutSettings.cancel' => 'Cancel',

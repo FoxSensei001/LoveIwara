@@ -577,6 +577,8 @@ settings:
   confirm: 確認
   noCustomColors: カスタムカラーがありません
   recordAndRestorePlaybackProgress: 再生進度を記録して復元
+  autoPlayVideoOnFirstEnter: 初回入場時に動画を自動再生
+  autoPlayVideoOnFirstEnterDesc: この設定は、動画ページに初めて入った時に動画を自動再生するかどうかを決定します。
   signature: 小尾巴
   enableSignature: 小尾巴を有効にする
   enableSignatureDesc: この設定はアプリが回覆時に小尾巴を有効にするかどうかを決定します

@@ -152,7 +152,10 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   /// 从上层页面返回到当前页面时调用（等同于原来的"进入"）
   @override
   void didPopNext() {
-    LogUtils.d('didPopNext', 'MyVideoDetailPage');
+    LogUtils.d(
+      'didPopNext: keep current playback state on route return',
+      'MyVideoDetailPage',
+    );
     // 返回到视频详情页，重置屏幕亮度
     ScreenBrightness().resetApplicationScreenBrightness();
   }
@@ -405,7 +408,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         onlyOneScrollInBody: true,
         pinnedHeaderSliverHeightBuilder: () {
           // 核心逻辑：播放时返回视频高度，暂停时返回工具栏高度
-          if (controller.videoPlaying.value) {
+          if (controller.videoPlaying.value ||
+              controller.shouldShowInitialPlaybackCover) {
             return controller.getCurrentVideoHeight(
               screenSize.width,
               screenSize.height,
@@ -448,7 +452,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
 
                       // 站外、站内视频都显示播放器
                       if (controller.videoInfo.value?.isExternalVideo == true ||
-                          controller.videoPlayerReady.value) {
+                          controller.videoPlayerReady.value ||
+                          controller.shouldShowInitialPlaybackCover) {
                         return SizedBox(
                           width: screenSize.width,
                           height: videoHeight,

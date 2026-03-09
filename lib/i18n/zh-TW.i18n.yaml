@@ -577,6 +577,8 @@ settings:
   confirm: 確認
   noCustomColors: 沒有自訂顏色
   recordAndRestorePlaybackProgress: 記錄和復原播放進度
+  autoPlayVideoOnFirstEnter: 首次進入頁面自動播放影片
+  autoPlayVideoOnFirstEnterDesc: 此設定決定首次進入影片頁面時是否自動開始播放影片。
   signature: 小尾巴
   enableSignature: 小尾巴啟用
   enableSignatureDesc: 此配置決定回覆時是否自動添加小尾巴

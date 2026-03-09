@@ -38,6 +38,7 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
   late bool repeat;
   late bool rememberBrightness;
   late bool recordAndRestoreProgress;
+  late bool autoPlayVideoOnFirstEnter;
   late bool showBottomProgressBarWhenToolbarHidden;
   late bool keepToolbarVisibleByDefault;
   late bool enableMouseHoverShowToolbar;
@@ -59,6 +60,8 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
     rememberBrightness = configService[ConfigKey.KEEP_LAST_BRIGHTNESS_KEY];
     recordAndRestoreProgress =
         configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS];
+    autoPlayVideoOnFirstEnter =
+        configService[ConfigKey.AUTO_PLAY_VIDEO_ON_FIRST_ENTER];
     showBottomProgressBarWhenToolbarHidden =
         configService[ConfigKey
             .SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN];
@@ -309,6 +312,19 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
               ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS,
               v,
               (x) => recordAndRestoreProgress = x,
+            ),
+            isNarrow: isNarrow,
+          ),
+          const StepDivider(),
+          SwitchSettingTile(
+            icon: Icons.play_arrow,
+            title: slang.t.settings.autoPlayVideoOnFirstEnter,
+            subtitle: slang.t.settings.autoPlayVideoOnFirstEnterDesc,
+            value: autoPlayVideoOnFirstEnter,
+            onChanged: (v) => _setBool(
+              ConfigKey.AUTO_PLAY_VIDEO_ON_FIRST_ENTER,
+              v,
+              (x) => autoPlayVideoOnFirstEnter = x,
             ),
             isNarrow: isNarrow,
           ),

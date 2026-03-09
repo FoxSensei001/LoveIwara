@@ -124,6 +124,11 @@ class MyVideoStateController extends GetxController
   bool _hasDesktopWindowGeometrySnapshot = false;
   bool _isRestoringDesktopWindowGeometry = false;
   bool firstLoaded = false;
+  bool _initialPlaybackDecisionResolved = false;
+  final RxBool hasRequestedInitialPlayback = false.obs;
+  Future<void>? _videoSourceFetchFuture;
+  Duration _deferredInitialPlaybackPosition = Duration.zero;
+  bool _isStartingDeferredInitialPlayback = false;
   // 显示用的时间变量
   final Rx<Duration> toShowCurrentPosition = Duration.zero.obs;
   Timer? _displayUpdateTimer;
@@ -577,6 +582,107 @@ class MyVideoStateController extends GetxController
     }
   }
 
+  bool _resolvePlayStateForInitialEntry() {
+    if (_initialPlaybackDecisionResolved) {
+      return videoPlaying.value;
+    }
+
+    _initialPlaybackDecisionResolved = true;
+    final shouldAutoPlay =
+        _configService[ConfigKey.AUTO_PLAY_VIDEO_ON_FIRST_ENTER] as bool;
+    LogUtils.d('首次进入视频详情页自动播放: $shouldAutoPlay', 'MyVideoStateController');
+    return shouldAutoPlay;
+  }
+
+  bool get _shouldKeepInitialPlaybackDeferred =>
+      !isLocalVideoMode &&
+      videoInfo.value != null &&
+      videoInfo.value?.isExternalVideo != true &&
+      !_configService[ConfigKey.AUTO_PLAY_VIDEO_ON_FIRST_ENTER] &&
+      !videoPlayerReady.value &&
+      !hasRequestedInitialPlayback.value;
+
+  bool get shouldShowInitialPlaybackCover =>
+      !_isDisposed &&
+      !isLocalVideoMode &&
+      videoInfo.value != null &&
+      videoInfo.value?.isExternalVideo != true &&
+      !_configService[ConfigKey.AUTO_PLAY_VIDEO_ON_FIRST_ENTER] &&
+      !videoPlayerReady.value &&
+      videoSourceErrorMessage.value == null;
+
+  bool get isWaitingForInitialPlaybackStart =>
+      shouldShowInitialPlaybackCover && hasRequestedInitialPlayback.value;
+
+  Future<void> requestInitialPlayback() async {
+    if (_isDisposed ||
+        isLocalVideoMode ||
+        videoInfo.value?.isExternalVideo == true) {
+      return;
+    }
+
+    if (videoPlayerReady.value) {
+      if (!videoPlaying.value) {
+        await player.play();
+        animateToTop();
+      }
+      return;
+    }
+
+    hasRequestedInitialPlayback.value = true;
+
+    if (currentVideoSourceList.isNotEmpty) {
+      await _startDeferredInitialPlayback(playOnOpen: true);
+      return;
+    }
+
+    await fetchVideoSource(openPlayerAfterFetch: true);
+  }
+
+  Future<void> _startDeferredInitialPlayback({required bool playOnOpen}) async {
+    if (_isDisposed ||
+        _isStartingDeferredInitialPlayback ||
+        currentVideoSourceList.isEmpty ||
+        videoInfo.value == null) {
+      return;
+    }
+
+    _isStartingDeferredInitialPlayback = true;
+    try {
+      final resolvedVideoResolutions =
+          CommonUtils.convertVideoSourcesToResolutions(
+            currentVideoSourceList,
+            filterPreview: true,
+          );
+      if (resolvedVideoResolutions.isEmpty) {
+        videoSourceErrorMessage.value = slang.t.videoDetail.noVideoSourceFound;
+        return;
+      }
+
+      final defaultResolutionTag =
+          _configService[ConfigKey.DEFAULT_QUALITY_KEY] as String;
+      final hasPreferredResolution =
+          CommonUtils.findUrlByResolutionTag(
+            resolvedVideoResolutions,
+            defaultResolutionTag,
+          ) !=
+          null;
+      final targetResolutionTag = hasPreferredResolution
+          ? defaultResolutionTag
+          : resolvedVideoResolutions.first.label;
+
+      await resetVideoInfo(
+        title: videoInfo.value!.title ?? '',
+        resolutionTag: targetResolutionTag,
+        videoResolutions: resolvedVideoResolutions,
+        position: _deferredInitialPlaybackPosition,
+        playOnOpen: playOnOpen,
+      );
+    } finally {
+      _isStartingDeferredInitialPlayback = false;
+    }
+  }
+
   /// 初始化本地视频播放
   /// 从本地文件路径初始化播放，支持从下载任务或纯本地文件进入
   Future<void> _initLocalVideoPlayback() async {
@@ -702,7 +808,9 @@ class MyVideoStateController extends GetxController
       }
 
       LogUtils.i('准备打开视频文件: $mediaPath', 'MyVideoStateController');
-      await player.open(Media(mediaPath));
+      final shouldAutoPlay = _resolvePlayStateForInitialEntry();
+      videoPlaying.value = shouldAutoPlay;
+      await player.open(Media(mediaPath), play: shouldAutoPlay);
       LogUtils.i('视频文件已打开', 'MyVideoStateController');
 
       // 设置监听器（必须在 player.open 之后调用）
@@ -1459,21 +1567,55 @@ class MyVideoStateController extends GetxController
   }
 
   /// 获取视频源信息
-  Future<void> fetchVideoSource({bool forceRefresh = false}) async {
-    if (_isDisposed) return;
-    if (videoInfo.value?.fileUrl == null) {
-      return;
+  Future<void> fetchVideoSource({
+    bool forceRefresh = false,
+    bool? openPlayerAfterFetch,
+  }) async {
+    if (_isDisposed || videoInfo.value?.fileUrl == null) return;
+
+    final shouldOpenPlayerAfterFetch =
+        openPlayerAfterFetch ?? !_shouldKeepInitialPlaybackDeferred;
+
+    if (_videoSourceFetchFuture != null) {
+      if (shouldOpenPlayerAfterFetch) {
+        hasRequestedInitialPlayback.value = true;
+      }
+      LogUtils.d('视频源请求已在进行中，复用当前请求', 'MyVideoStateController');
+      return _videoSourceFetchFuture!;
+    }
+
+    final future = _fetchVideoSourceInternal(
+      forceRefresh: forceRefresh,
+      openPlayerAfterFetch: shouldOpenPlayerAfterFetch,
+    );
+    _videoSourceFetchFuture = future;
+    try {
+      await future;
+    } finally {
+      if (identical(_videoSourceFetchFuture, future)) {
+        _videoSourceFetchFuture = null;
+      }
+    }
+  }
+
+  Future<void> _fetchVideoSourceInternal({
+    required bool forceRefresh,
+    required bool openPlayerAfterFetch,
+  }) async {
+    if (_isDisposed || videoInfo.value?.fileUrl == null) return;
+
+    if (openPlayerAfterFetch) {
+      hasRequestedInitialPlayback.value = true;
     }
 
     pageLoadingState.value = VideoDetailPageLoadingState.loadingVideoSource;
     videoErrorMessage.value = null;
     videoSourceErrorMessage.value = null;
 
-    // 检查缓存
     final cacheKey = videoInfo.value!.fileUrl!;
     final cachedSources = _cacheManager.getVideoSources(cacheKey);
     final logVideoUrl = videoInfo.value!.fileUrl!;
-    // 尝试还原历史记录
+
     Duration targetDuration = Duration.zero;
     try {
       if (!firstLoaded &&
@@ -1486,7 +1628,6 @@ class MyVideoStateController extends GetxController
         if (history != null) {
           final playedDuration = history['played_duration'] as int;
           final totalDurationMs = history['total_duration'] as int;
-          // 目标时播放位置 = 当前播放位置 - 4秒
           targetDuration = Duration(
             milliseconds: (playedDuration - 4000).clamp(0, totalDurationMs),
           );
@@ -1495,6 +1636,8 @@ class MyVideoStateController extends GetxController
     } catch (e) {
       LogUtils.e('还原历史记录失败: $e', tag: 'MyVideoStateController', error: e);
     }
+
+    _deferredInitialPlaybackPosition = targetDuration;
 
     if (cachedSources != null && !forceRefresh) {
       final serializedSources = cachedSources
@@ -1513,22 +1656,21 @@ class MyVideoStateController extends GetxController
         'MyVideoStateController',
       );
       currentVideoSourceList.value = cachedSources;
-
-      var lastUserSelectedResolution =
-          _configService[ConfigKey.DEFAULT_QUALITY_KEY];
+      videoResolutions.value = CommonUtils.convertVideoSourcesToResolutions(
+        cachedSources,
+        filterPreview: true,
+      );
       videoInfo.value = videoInfo.value!.copyWith(videoSources: cachedSources);
 
       if (_isDisposed) return;
 
-      await resetVideoInfo(
-        title: videoInfo.value!.title ?? '',
-        resolutionTag: lastUserSelectedResolution,
-        videoResolutions: CommonUtils.convertVideoSourcesToResolutions(
-          videoInfo.value!.videoSources,
-          filterPreview: true,
-        ),
-        position: targetDuration,
-      );
+      if (openPlayerAfterFetch) {
+        await _startDeferredInitialPlayback(
+          playOnOpen:
+              _resolvePlayStateForInitialEntry() ||
+              hasRequestedInitialPlayback.value,
+        );
+      }
       return;
     }
 
@@ -1537,7 +1679,7 @@ class MyVideoStateController extends GetxController
         LogUtils.i('强制刷新视频源，忽略缓存: $logVideoUrl', 'MyVideoStateController');
       }
 
-      var res = await _apiService.get(
+      final res = await _apiService.get(
         videoInfo.value!.fileUrl!,
         headers: {
           'X-Version': XVersionCalculatorUtil.calculateXVersion(
@@ -1550,8 +1692,8 @@ class MyVideoStateController extends GetxController
 
       if (_isDisposed) return;
 
-      List<dynamic> data = res.data;
-      List<VideoSource> sources = data
+      final List<dynamic> data = res.data;
+      final List<VideoSource> sources = data
           .map((item) => VideoSource.fromJson(item))
           .toList();
 
@@ -1571,43 +1713,40 @@ class MyVideoStateController extends GetxController
         'MyVideoStateController',
       );
 
-      // 缓存结果
       _cacheManager.cacheVideoSources(cacheKey, sources);
-
       currentVideoSourceList.value = sources;
+      videoResolutions.value = CommonUtils.convertVideoSourcesToResolutions(
+        sources,
+        filterPreview: true,
+      );
 
-      // 解析视频源过期时间（所有清晰度的过期时间都一样，只需解析一次）
       _currentVideoSourceExpireTime = null;
-      for (var source in sources) {
+      for (final source in sources) {
         if (source.view != null) {
           final expireTime = CommonUtils.getVideoLinkExpireTime(source.view!);
           if (expireTime != null) {
             _currentVideoSourceExpireTime = expireTime;
             LogUtils.d('视频源过期时间: $expireTime', 'MyVideoStateController');
-            break; // 找到一个有效的过期时间即可
+            break;
           }
         }
       }
 
-      var lastUserSelectedResolution =
-          _configService[ConfigKey.DEFAULT_QUALITY_KEY];
       videoInfo.value = videoInfo.value!.copyWith(videoSources: sources);
 
       if (_isDisposed) return;
-      await resetVideoInfo(
-        title: videoInfo.value!.title ?? '',
-        resolutionTag: lastUserSelectedResolution,
-        videoResolutions: CommonUtils.convertVideoSourcesToResolutions(
-          videoInfo.value!.videoSources,
-          filterPreview: true,
-        ),
-        position: targetDuration,
-      );
 
-      // 设置视频源过期定时器
+      if (openPlayerAfterFetch) {
+        await _startDeferredInitialPlayback(
+          playOnOpen:
+              _resolvePlayStateForInitialEntry() ||
+              hasRequestedInitialPlayback.value,
+        );
+      }
+
       _setupVideoSourceExpirationTimer();
     } catch (e) {
-      String errorMessage = CommonUtils.parseExceptionMessage(e);
+      final errorMessage = CommonUtils.parseExceptionMessage(e);
       if (!_isDisposed) {
         LogUtils.e(
           '获取视频源失败 (Other): $e',
@@ -1654,7 +1793,11 @@ class MyVideoStateController extends GetxController
 
     // 如果播放器已经准备好，使用无缝切换模式
     if (videoPlayerReady.value) {
-      await _switchResolutionSeamlessly(resolutionTag, url);
+      await _switchResolutionSeamlessly(
+        resolutionTag,
+        url,
+        playOnOpen: videoPlaying.value,
+      );
     } else {
       // 如果播放器还未准备好，使用原有的重置模式
       await resetVideoInfo(
@@ -1662,6 +1805,7 @@ class MyVideoStateController extends GetxController
         resolutionTag: resolutionTag,
         videoResolutions: videoResolutions.toList(),
         position: currentPosition,
+        playOnOpen: videoPlaying.value,
       );
     }
   }
@@ -1671,6 +1815,7 @@ class MyVideoStateController extends GetxController
     String resolutionTag,
     String url, {
     Duration? startPosition,
+    bool playOnOpen = true,
   }) async {
     if (_isDisposed) return;
 
@@ -1713,13 +1858,14 @@ class MyVideoStateController extends GetxController
 
     try {
       // 打开新的视频源
+      videoPlaying.value = playOnOpen;
       LogUtils.i(
         '播放器即将播放视频源 [无缝切换] - 分辨率: $resolutionTag, URL: $finalUrl, 起始位置: ${startPosition?.inSeconds ?? currentPosition.inSeconds}秒, 是否本地文件: ${finalUrl.startsWith("file://")}',
         'MyVideoStateController',
       );
       await player.open(
         Media(finalUrl, start: startPosition ?? currentPosition),
-        play: true,
+        play: playOnOpen,
       );
       await _applyRepeatMode();
 
@@ -1746,6 +1892,7 @@ class MyVideoStateController extends GetxController
     required String resolutionTag,
     required List<VideoResolution> videoResolutions,
     Duration position = Duration.zero,
+    bool playOnOpen = true,
   }) async {
     if (_isDisposed) return;
     pageLoadingState.value = VideoDetailPageLoadingState.applyingSolution;
@@ -1758,7 +1905,7 @@ class MyVideoStateController extends GetxController
     currentResolutionTag.value = resolutionTag;
     sliderDragLoadFinished.value = true;
     videoBuffering.value = true;
-    videoPlaying.value = true;
+    videoPlaying.value = playOnOpen;
     videoErrorMessage.value = null; // 清空之前的错误信息
     mainErrorWidget.value = null;
 
@@ -1813,7 +1960,10 @@ class MyVideoStateController extends GetxController
         '播放器即将播放视频源 [重置模式] - 分辨率: $resolutionTag, URL: $finalUrl, 起始位置: ${currentPosition.inSeconds}秒, 是否本地文件: ${finalUrl.startsWith("file://")}',
         'MyVideoStateController',
       );
-      await player.open(Media(finalUrl, start: currentPosition), play: true);
+      await player.open(
+        Media(finalUrl, start: currentPosition),
+        play: playOnOpen,
+      );
       pageLoadingState.value = VideoDetailPageLoadingState.addingListeners;
     } catch (e) {
       if (_isDisposed) return;
@@ -2012,6 +2162,7 @@ class MyVideoStateController extends GetxController
               (_configService[ConfigKey.DEFAULT_QUALITY_KEY] as String),
           videoResolutions: videoResolutions.toList(),
           position: seekTo ?? currentPosition,
+          playOnOpen: videoPlaying.value,
         );
         return true;
       }
@@ -2033,6 +2184,7 @@ class MyVideoStateController extends GetxController
           resolutionTag: currentResolutionTag.value ?? defaultTag,
           videoResolutions: videoResolutions.toList(),
           position: seekTo ?? currentPosition,
+          playOnOpen: videoPlaying.value,
         );
         return true;
       }
@@ -2041,6 +2193,7 @@ class MyVideoStateController extends GetxController
         resolvedTag,
         url,
         startPosition: seekTo,
+        playOnOpen: videoPlaying.value,
       );
       return true;
     } catch (e) {

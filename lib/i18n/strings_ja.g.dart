@@ -718,6 +718,8 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get confirm => '確認';
 	@override String get noCustomColors => 'カスタムカラーがありません';
 	@override String get recordAndRestorePlaybackProgress => '再生進度を記録して復元';
+	@override String get autoPlayVideoOnFirstEnter => '初回入場時に動画を自動再生';
+	@override String get autoPlayVideoOnFirstEnterDesc => 'この設定は、動画ページに初めて入った時に動画を自動再生するかどうかを決定します。';
 	@override String get signature => '小尾巴';
 	@override String get enableSignature => '小尾巴を有効にする';
 	@override String get enableSignatureDesc => 'この設定はアプリが回覆時に小尾巴を有効にするかどうかを決定します';
@@ -3398,6 +3400,8 @@ extension on TranslationsJa {
 			'settings.confirm' => '確認',
 			'settings.noCustomColors' => 'カスタムカラーがありません',
 			'settings.recordAndRestorePlaybackProgress' => '再生進度を記録して復元',
+			'settings.autoPlayVideoOnFirstEnter' => '初回入場時に動画を自動再生',
+			'settings.autoPlayVideoOnFirstEnterDesc' => 'この設定は、動画ページに初めて入った時に動画を自動再生するかどうかを決定します。',
 			'settings.signature' => '小尾巴',
 			'settings.enableSignature' => '小尾巴を有効にする',
 			'settings.enableSignatureDesc' => 'この設定はアプリが回覆時に小尾巴を有効にするかどうかを決定します',
@@ -3871,10 +3875,10 @@ extension on TranslationsJa {
 			'forum.posts' => '投稿',
 			'forum.threads' => 'スレッド',
 			'forum.forum' => 'フォーラム',
-			'forum.createThread' => 'スレッドを作成',
-			'forum.selectCategory' => 'カテゴリを選択',
 			_ => null,
 		} ?? switch (path) {
+			'forum.createThread' => 'スレッドを作成',
+			'forum.selectCategory' => 'カテゴリを選択',
 			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => 'クールダウン残り時間 ${minutes} 分 ${seconds} 秒',
 			'forum.groups.administration' => '管理',
 			'forum.groups.global' => 'グローバル',
@@ -4385,10 +4389,10 @@ extension on TranslationsJa {
 			'diagnostics.hangRotatedFileCountTitle' => 'ハングログのローテーション数',
 			'diagnostics.hangRotatedFileCountSubtitle' => 'hang_events の履歴保持数を制御',
 			'diagnostics.healthSectionTitle' => 'ログヘルス',
-			'diagnostics.refreshMetrics' => '指標を更新',
-			'diagnostics.toolsSectionTitle' => 'ツール',
 			_ => null,
 		} ?? switch (path) {
+			'diagnostics.refreshMetrics' => '指標を更新',
+			'diagnostics.toolsSectionTitle' => 'ツール',
 			'diagnostics.privacyNotice' => 'ログにはアカウント情報やリクエストパラメータなどの機密情報が含まれる可能性があります。Issue に完全なログを公開添付せず、確認後にメールで送信してください。',
 			'diagnostics.exportLogsTitle' => 'ログをエクスポート',
 			'diagnostics.exportLogsSubtitle' => '送信前にプライバシー情報を確認してください',

@@ -718,6 +718,8 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get confirm => '確認';
 	@override String get noCustomColors => '沒有自訂顏色';
 	@override String get recordAndRestorePlaybackProgress => '記錄和復原播放進度';
+	@override String get autoPlayVideoOnFirstEnter => '首次進入頁面自動播放影片';
+	@override String get autoPlayVideoOnFirstEnterDesc => '此設定決定首次進入影片頁面時是否自動開始播放影片。';
 	@override String get signature => '小尾巴';
 	@override String get enableSignature => '小尾巴啟用';
 	@override String get enableSignatureDesc => '此配置決定回覆時是否自動添加小尾巴';
@@ -3401,6 +3403,8 @@ extension on TranslationsZhTw {
 			'settings.confirm' => '確認',
 			'settings.noCustomColors' => '沒有自訂顏色',
 			'settings.recordAndRestorePlaybackProgress' => '記錄和復原播放進度',
+			'settings.autoPlayVideoOnFirstEnter' => '首次進入頁面自動播放影片',
+			'settings.autoPlayVideoOnFirstEnterDesc' => '此設定決定首次進入影片頁面時是否自動開始播放影片。',
 			'settings.signature' => '小尾巴',
 			'settings.enableSignature' => '小尾巴啟用',
 			'settings.enableSignatureDesc' => '此配置決定回覆時是否自動添加小尾巴',
@@ -3874,10 +3878,10 @@ extension on TranslationsZhTw {
 			'markdown.quoteSyntax' => '> 這是一級引用\n>> 這是二級引用',
 			'markdown.list' => '列表',
 			'markdown.listDescription' => '使用數字+點號建立有序列表，使用 - 建立無序列表',
-			'markdown.listSyntax' => '1. 第一項\n2. 第二項\n\n- 無序項\n  - 子項\n  - 另一個子項',
-			'markdown.linkAndImage' => '連結與圖片',
 			_ => null,
 		} ?? switch (path) {
+			'markdown.listSyntax' => '1. 第一項\n2. 第二項\n\n- 無序項\n  - 子項\n  - 另一個子項',
+			'markdown.linkAndImage' => '連結與圖片',
 			'markdown.linkAndImageDescription' => '連結格式：[文字](URL)\n圖片格式：![描述](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[連結文字](${link})\n![圖片描述](${imgUrl})',
 			'markdown.title' => '標題',
@@ -4388,10 +4392,10 @@ extension on TranslationsZhTw {
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => '本地影片檔案不存在: ${path}',
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => '無法播放本地影片: ${error}',
 			'mediaPlayer.dropVideoFileHere' => '拖放影片檔案至此處播放',
-			'mediaPlayer.supportedFormats' => '支援格式: MP4, MKV, AVI, MOV, WEBM 等',
-			'mediaPlayer.noSupportedVideoFile' => '未找到支援的影片檔案',
 			_ => null,
 		} ?? switch (path) {
+			'mediaPlayer.supportedFormats' => '支援格式: MP4, MKV, AVI, MOV, WEBM 等',
+			'mediaPlayer.noSupportedVideoFile' => '未找到支援的影片檔案',
 			'mediaPlayer.imageLoadFailed' => '圖片載入失敗',
 			'mediaPlayer.unsupportedImageFormat' => '不支援的圖片格式',
 			'mediaPlayer.tryOtherViewer' => '請嘗試使用其他檢視器',

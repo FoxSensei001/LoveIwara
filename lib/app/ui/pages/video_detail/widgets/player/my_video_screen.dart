@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -456,6 +457,17 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                     focusNode: _focusNode,
                     onKeyEvent: (KeyEvent event) {
                       if (event is KeyDownEvent) {
+                        if (widget
+                            .myVideoStateController
+                            .shouldShowInitialPlaybackCover) {
+                          if (event.logicalKey == LogicalKeyboardKey.space) {
+                            unawaited(
+                              widget.myVideoStateController
+                                  .requestInitialPlayback(),
+                            );
+                          }
+                          return;
+                        }
                         if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
                           _handleLeftKeyPress();
                         } else if (event.logicalKey ==
@@ -508,36 +520,46 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                         final hasVideoInfo =
                             controller.isLocalVideoMode ||
                             controller.videoInfo.value != null;
+                        final showInitialPlaybackCover =
+                            controller.shouldShowInitialPlaybackCover;
 
                         return Stack(
                           children: [
                             // 视频播放区域
                             _buildVideoPlayer(),
+                            if (showInitialPlaybackCover)
+                              _buildInitialPlaybackCover(),
                             // 手势监听区域（抽取后减少整体重绘）
-                            if (hasVideoInfo)
+                            if (hasVideoInfo && !showInitialPlaybackCover)
                               ..._buildGestureAreas(screenSize),
                             // 工具栏部分
-                            if (hasVideoInfo) ..._buildToolbars(),
+                            if (hasVideoInfo && !showInitialPlaybackCover)
+                              ..._buildToolbars(),
                             // 双击波纹动画等效果
-                            if (hasVideoInfo)
+                            if (hasVideoInfo && !showInitialPlaybackCover)
                               _buildRippleEffects(screenSize, maxRadius),
                             // 中央控制面板，比如播放/暂停按钮
                             _buildVideoControlOverlay(
                               playPauseIconSize,
                               bufferingSize,
                             ),
-                            if (!hasVideoInfo) _buildLoadingBackButton(),
+                            if (!hasVideoInfo || showInitialPlaybackCover)
+                              _buildLoadingBackButton(),
                             // InfoMessage 提示区域
-                            if (hasVideoInfo) _buildInfoMessage(),
+                            if (hasVideoInfo && !showInitialPlaybackCover)
+                              _buildInfoMessage(),
                             // 播放速度信息提示（左下角）
-                            if (hasVideoInfo)
+                            if (hasVideoInfo && !showInitialPlaybackCover)
                               _buildPlaybackSpeedInfoMessage(),
                             // 添加底部进度条
-                            if (hasVideoInfo) _buildBottomProgressBar(),
+                            if (hasVideoInfo && !showInitialPlaybackCover)
+                              _buildBottomProgressBar(),
                             // 添加遮罩层
-                            if (hasVideoInfo) _buildMaskLayer(),
+                            if (hasVideoInfo && !showInitialPlaybackCover)
+                              _buildMaskLayer(),
                             // 添加锁定按钮
-                            if (hasVideoInfo) _buildLockButton(),
+                            if (hasVideoInfo && !showInitialPlaybackCover)
+                              _buildLockButton(),
                           ],
                         );
                       }),
@@ -572,23 +594,27 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
   Widget _buildLoadingBackButton() {
     final t = slang.Translations.of(context);
-    final double paddingTop = MediaQuery.paddingOf(context).top;
+    final double statusBarHeight = MediaQuery.paddingOf(context).top;
+    final double toolbarHeight = widget.isFullScreen ? 60.0 : 48.0;
     final double iconSize = widget.isFullScreen ? 24.0 : 20.0;
     return Positioned(
-      top: -paddingTop,
+      top: -statusBarHeight,
       left: 0,
-      child: SafeArea(
-        bottom: false,
-        child: IconButton(
-          tooltip: t.common.back,
-          icon: Icon(Icons.arrow_back, color: Colors.white, size: iconSize),
-          onPressed: () {
-            if (widget.isFullScreen) {
-              unawaited(widget.myVideoStateController.exitFullscreen());
-            } else {
-              AppService.tryPop(context: context);
-            }
-          },
+      child: SizedBox(
+        height: toolbarHeight + statusBarHeight,
+        child: Padding(
+          padding: EdgeInsets.only(top: statusBarHeight),
+          child: IconButton(
+            tooltip: t.common.back,
+            icon: Icon(Icons.arrow_back, color: Colors.white, size: iconSize),
+            onPressed: () {
+              if (widget.isFullScreen) {
+                unawaited(widget.myVideoStateController.exitFullscreen());
+              } else {
+                AppService.tryPop(context: context);
+              }
+            },
+          ),
         ),
       ),
     );
@@ -1021,6 +1047,18 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       return Center(child: _buildCenterOnlySpinner(playPauseIconSize));
     }
 
+    if (controller.shouldShowInitialPlaybackCover) {
+      if (controller.isWaitingForInitialPlaybackStart) {
+        return Center(
+          child: LoadingStateWidget(
+            controller: controller,
+            size: playPauseIconSize,
+          ),
+        );
+      }
+      return const SizedBox.shrink();
+    }
+
     // 如果播放器未准备好，显示加载状态
     if (!controller.videoPlayerReady.value) {
       return Center(
@@ -1054,6 +1092,75 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
             strokeWidth: 3,
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInitialPlaybackCover() {
+    final controller = widget.myVideoStateController;
+    final videoInfo = controller.videoInfo.value;
+    final coverUrl = videoInfo?.thumbnailUrl;
+    final canTapToStart = !controller.hasRequestedInitialPlayback.value;
+
+    return Positioned.fill(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: canTapToStart
+            ? () {
+                VibrateUtils.vibrate();
+                unawaited(controller.requestInitialPlayback());
+              }
+            : null,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (coverUrl != null && coverUrl.isNotEmpty)
+              CachedNetworkImage(
+                imageUrl: coverUrl,
+                fit: BoxFit.contain,
+                placeholder: (context, url) =>
+                    const ColoredBox(color: Colors.black),
+                errorWidget: (context, url, error) =>
+                    const ColoredBox(color: Colors.black),
+              )
+            else
+              const ColoredBox(color: Colors.black),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withValues(alpha: 0.12),
+                    Colors.black.withValues(alpha: 0.18),
+                    Colors.black.withValues(alpha: 0.42),
+                  ],
+                ),
+              ),
+            ),
+            if (canTapToStart)
+              Positioned(
+                right: 18,
+                bottom: 18,
+                child: Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.7),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.18),
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.play_arrow_rounded,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

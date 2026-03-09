@@ -308,6 +308,7 @@ enum ConfigKey {
   SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN, // 是否在工具栏隐藏时显示进度条
   SHOW_FOLLOW_TIP_COUNT, // 告诉用户关注功能的次数，默认两次
   DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE, // 默认是否保持刚进入视频页时工具栏常驻
+  AUTO_PLAY_VIDEO_ON_FIRST_ENTER, // 首次进入视频详情页时自动播放
   VIDEO_TOOLBAR_LOCK_BUTTON_POSITION, // 视频工具栏锁定按钮位置
   DEFAULT_PAGINATION_MODE, // 默认分页模式
   WINDOW_WIDTH, // 窗口宽度
@@ -484,6 +485,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'show_follow_tip_count';
       case ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE:
         return 'default_keep_video_toolbar_visable';
+      case ConfigKey.AUTO_PLAY_VIDEO_ON_FIRST_ENTER:
+        return 'auto_play_video_on_first_enter';
       case ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION:
         return 'video_toolbar_lock_button_position';
       case ConfigKey.DEFAULT_PAGINATION_MODE:
@@ -693,6 +696,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 2;
       case ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE:
         return true;
+      case ConfigKey.AUTO_PLAY_VIDEO_ON_FIRST_ENTER:
+        return false;
       case ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION:
         return 2;
       case ConfigKey.DEFAULT_PAGINATION_MODE:
@@ -760,7 +765,13 @@ extension ConfigKeyExtension on ConfigKey {
           '9999': 6,
         }; // 默认断点配置
       case ConfigKey.NAVIGATION_ORDER:
-        return <String>['video', 'gallery', 'subscription', 'forum', 'news']; // 默认导航顺序
+        return <String>[
+          'video',
+          'gallery',
+          'subscription',
+          'forum',
+          'news',
+        ]; // 默认导航顺序
       case ConfigKey.FULLSCREEN_ORIENTATION:
         return 'landscape_left'; // 默认左侧横屏
       case ConfigKey.FIRST_TIME_SETUP_COMPLETED:
