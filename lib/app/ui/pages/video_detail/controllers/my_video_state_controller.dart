@@ -38,6 +38,7 @@ import '../../../../../utils/x_version_calculator_utils.dart';
 import '../../../../models/user.model.dart';
 import '../../../../models/video_source.model.dart';
 import '../../../../models/video.model.dart' as video_model;
+import '../../../../models/video_fullscreen_handoff.model.dart';
 import '../../../../services/api_service.dart';
 import '../../../../services/config_service.dart';
 import '../../../../services/favorite_service.dart';
@@ -69,6 +70,9 @@ class MyVideoStateController extends GetxController
     with GetSingleTickerProviderStateMixin, WidgetsBindingObserver {
   final String? videoId;
   final Map<String, dynamic>? extData;
+  final bool forceAutoPlay;
+  final video_model.Video? initialVideoInfo;
+  final VideoFullscreenHandoff? fullscreenHandoff;
   final AppService appS = Get.find();
   late Player player;
   late VideoController videoController;
@@ -123,6 +127,7 @@ class MyVideoStateController extends GetxController
   bool _desktopWindowWasMaximized = false;
   bool _hasDesktopWindowGeometrySnapshot = false;
   bool _isRestoringDesktopWindowGeometry = false;
+  bool _suppressFullscreenCleanupOnce = false;
   bool firstLoaded = false;
   bool _initialPlaybackDecisionResolved = false;
   final RxBool hasRequestedInitialPlayback = false.obs;
@@ -288,11 +293,16 @@ class MyVideoStateController extends GetxController
     }
   }
 
-  MyVideoStateController(this.videoId, {this.extData})
-    : isLocalVideoMode = false,
-      localVideoPath = null,
-      localVideoTask = null,
-      localVideoAllQualityTasks = const [];
+  MyVideoStateController(
+    this.videoId, {
+    this.extData,
+    this.forceAutoPlay = false,
+    this.initialVideoInfo,
+    this.fullscreenHandoff,
+  }) : isLocalVideoMode = false,
+       localVideoPath = null,
+       localVideoTask = null,
+       localVideoAllQualityTasks = const [];
 
   /// 本地视频播放模式构造函数
   /// [localPath] 本地视频文件路径
@@ -306,6 +316,9 @@ class MyVideoStateController extends GetxController
            ? VideoDownloadExtData.fromJson(task.extData!.data).id
            : null,
        extData = null,
+       forceAutoPlay = false,
+       initialVideoInfo = null,
+       fullscreenHandoff = null,
        isLocalVideoMode = true,
        localVideoPath = localPath,
        localVideoTask = task,
@@ -361,6 +374,17 @@ class MyVideoStateController extends GetxController
         // 在线模式：在视频信息未获取前仅显示 loading（避免用户误以为可控制）
         animationController.value = 0.0;
         isLockButtonVisible.value = false;
+      }
+
+      if (fullscreenHandoff != null) {
+        _desktopWindowSizeBeforeFullscreen =
+            fullscreenHandoff!.desktopWindowSizeBeforeFullscreen;
+        _desktopWindowPositionBeforeFullscreen =
+            fullscreenHandoff!.desktopWindowPositionBeforeFullscreen;
+        _desktopWindowWasMaximized =
+            fullscreenHandoff!.desktopWindowWasMaximized;
+        _hasDesktopWindowGeometrySnapshot =
+            fullscreenHandoff!.hasDesktopWindowGeometrySnapshot;
       }
 
       // 初始化 VideoController
@@ -462,6 +486,18 @@ class MyVideoStateController extends GetxController
 
       // 在线视频模式的初始化逻辑
       if (!shouldSkipOnlineVideoInit) {
+        if (initialVideoInfo != null) {
+          videoInfo.value = initialVideoInfo!;
+          _showInitialToolbarsAfterVideoInfoReadyIfNeeded();
+        }
+
+        if (videoId != null &&
+            initialVideoInfo != null &&
+            (initialVideoInfo!.fileUrl != null ||
+                initialVideoInfo!.isExternalVideo)) {
+          _cacheManager.cacheVideoInfo(videoId!, initialVideoInfo!);
+        }
+
         // 监听 currentVideoSourceList 变化，初始化预览播放器
         // 提前到发起网络/缓存请求之前，避免缓存命中时事件在监听注册之前就触发导致丢失
         currentVideoSourceList.listen((sources) {
@@ -588,17 +624,20 @@ class MyVideoStateController extends GetxController
     }
 
     _initialPlaybackDecisionResolved = true;
-    final shouldAutoPlay =
-        _configService[ConfigKey.AUTO_PLAY_VIDEO_ON_FIRST_ENTER] as bool;
+    final shouldAutoPlay = _shouldAutoPlayOnInitialEntry;
     LogUtils.d('首次进入视频详情页自动播放: $shouldAutoPlay', 'MyVideoStateController');
     return shouldAutoPlay;
   }
+
+  bool get _shouldAutoPlayOnInitialEntry =>
+      forceAutoPlay ||
+      (_configService[ConfigKey.AUTO_PLAY_VIDEO_ON_FIRST_ENTER] as bool);
 
   bool get _shouldKeepInitialPlaybackDeferred =>
       !isLocalVideoMode &&
       videoInfo.value != null &&
       videoInfo.value?.isExternalVideo != true &&
-      !_configService[ConfigKey.AUTO_PLAY_VIDEO_ON_FIRST_ENTER] &&
+      !_shouldAutoPlayOnInitialEntry &&
       !videoPlayerReady.value &&
       !hasRequestedInitialPlayback.value;
 
@@ -607,7 +646,7 @@ class MyVideoStateController extends GetxController
       !isLocalVideoMode &&
       videoInfo.value != null &&
       videoInfo.value?.isExternalVideo != true &&
-      !_configService[ConfigKey.AUTO_PLAY_VIDEO_ON_FIRST_ENTER] &&
+      !_shouldAutoPlayOnInitialEntry &&
       !videoPlayerReady.value &&
       videoSourceErrorMessage.value == null;
 
@@ -1306,61 +1345,72 @@ class MyVideoStateController extends GetxController
     // 检查视频信息缓存
     final cachedVideoInfo = _cacheManager.getVideoInfo(videoId);
     if (cachedVideoInfo != null) {
+      final bool cachedHasPlayableDetail =
+          cachedVideoInfo.fileUrl != null || cachedVideoInfo.isExternalVideo;
+
       // 缓存命中时，先将 liked 和 numLikes 设置为 null 表示 loading 状态
       videoInfo.value = cachedVideoInfo.copyWith(liked: null, numLikes: null);
       _showInitialToolbarsAfterVideoInfoReadyIfNeeded();
 
-      // 缓存命中时，立即开始并行任务
-      final List<Future<void>> parallelTasks = [];
+      if (cachedHasPlayableDetail) {
+        // 缓存命中时，立即开始并行任务
+        final List<Future<void>> parallelTasks = [];
 
-      // 1. 添加历史记录（可以并行执行）
-      parallelTasks.add(_addHistoryRecord());
+        // 1. 添加历史记录（可以并行执行）
+        parallelTasks.add(_addHistoryRecord());
 
-      // 2. 获取作者其他视频（可以并行执行）
-      String? authorId = cachedVideoInfo.user?.id;
-      if (authorId != null) {
-        parallelTasks.add(_initializeAuthorVideosController(authorId));
+        // 2. 获取作者其他视频（可以并行执行）
+        String? authorId = cachedVideoInfo.user?.id;
+        if (authorId != null) {
+          parallelTasks.add(_initializeAuthorVideosController(authorId));
+        }
+
+        // 3. Oreno3D匹配（可以并行执行，但只在没有extData的情况下）
+        if (oreno3dVideoDetail.value == null &&
+            (extData == null ||
+                !extData!.containsKey('oreno3dVideoDetailInfo'))) {
+          parallelTasks.add(_tryMatchOreno3dVideo());
+        }
+
+        // 4. 异步请求最新视频信息（不阻塞UI渲染）
+        parallelTasks.add(_refreshVideoLikeInfo(videoId, cachedVideoInfo));
+
+        // 5. 检查收藏和播放列表状态（不阻塞UI渲染）
+        parallelTasks.add(checkFavoriteAndPlaylistStatus());
+
+        // 6. 检查下载任务状态（不阻塞UI渲染）
+        parallelTasks.add(checkDownloadTaskStatus());
+
+        // 继续获取视频源 - 仅对站内视频
+        if (cachedVideoInfo.fileUrl != null &&
+            !cachedVideoInfo.isExternalVideo) {
+          fetchVideoSource();
+        } else if (cachedVideoInfo.isExternalVideo) {
+          // 对于站外视频，直接设置为idle状态
+          pageLoadingState.value = VideoDetailPageLoadingState.idle;
+          // 设置站外视频的默认宽高比（16:9）
+          aspectRatio.value = 16 / 9;
+          // 站外视频不需要播放器准备，直接设置为true
+          videoPlayerReady.value = true;
+          LogUtils.d('站外视频（缓存命中），直接设置为idle状态', 'MyVideoStateController');
+        }
+
+        // 并行执行其他任务，但不等待
+        if (parallelTasks.isNotEmpty) {
+          Future.wait(parallelTasks).catchError((e) {
+            if (!_isDisposed) {
+              LogUtils.w('并行任务执行失败: $e', 'MyVideoStateController');
+            }
+            return <void>[];
+          });
+        }
+
+        return;
       }
 
-      // 3. Oreno3D匹配（可以并行执行，但只在没有extData的情况下）
-      if (oreno3dVideoDetail.value == null &&
-          (extData == null ||
-              !extData!.containsKey('oreno3dVideoDetailInfo'))) {
-        parallelTasks.add(_tryMatchOreno3dVideo());
-      }
-
-      // 4. 异步请求最新视频信息（不阻塞UI渲染）
-      parallelTasks.add(_refreshVideoLikeInfo(videoId, cachedVideoInfo));
-
-      // 5. 检查收藏和播放列表状态（不阻塞UI渲染）
-      parallelTasks.add(checkFavoriteAndPlaylistStatus());
-
-      // 6. 检查下载任务状态（不阻塞UI渲染）
-      parallelTasks.add(checkDownloadTaskStatus());
-
-      // 继续获取视频源 - 仅对站内视频
-      if (cachedVideoInfo.fileUrl != null && !cachedVideoInfo.isExternalVideo) {
-        fetchVideoSource();
-      } else if (cachedVideoInfo.isExternalVideo) {
-        // 对于站外视频，直接设置为idle状态
-        pageLoadingState.value = VideoDetailPageLoadingState.idle;
-        // 设置站外视频的默认宽高比（16:9）
-        aspectRatio.value = 16 / 9;
-        // 站外视频不需要播放器准备，直接设置为true
-        videoPlayerReady.value = true;
-        LogUtils.d('站外视频（缓存命中），直接设置为idle状态', 'MyVideoStateController');
-      }
-
-      // 并行执行其他任务，但不等待
-      if (parallelTasks.isNotEmpty) {
-        Future.wait(parallelTasks).catchError((e) {
-          if (!_isDisposed) {
-            LogUtils.w('并行任务执行失败: $e', 'MyVideoStateController');
-          }
-          return <void>[];
-        });
-      }
-
+      LogUtils.d('缓存命中但缺少可播放详情，继续请求完整视频详情: $videoId', 'MyVideoStateController');
+      _cacheManager.clearVideoCache(videoId);
+      fetchVideoDetail(videoId);
       return;
     } else {
       try {
@@ -2347,6 +2397,34 @@ class MyVideoStateController extends GetxController
       '[更新后的宽高比] $aspectRatio, 视频高度: $sourceVideoHeight, 视频宽度: $sourceVideoWidth',
       'MyVideoStateController',
     );
+    if (isFullscreen.value && (GetPlatform.isAndroid || GetPlatform.isIOS)) {
+      unawaited(_syncNativeFullscreenOrientation());
+    }
+  }
+
+  Future<void> _syncNativeFullscreenOrientation() async {
+    if (!isFullscreen.value || (!GetPlatform.isAndroid && !GetPlatform.isIOS)) {
+      return;
+    }
+
+    final context = rootNavigatorKey.currentContext;
+    if (context == null) {
+      return;
+    }
+
+    final bool renderVerticalVideoInVerticalScreen =
+        _configService[ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN];
+    final currentOrientation = MediaQuery.of(context).orientation;
+
+    if (renderVerticalVideoInVerticalScreen && aspectRatio.value < 1) {
+      await CommonUtils.defaultEnterNativeFullscreen(toVerticalScreen: true);
+    } else if (currentOrientation == Orientation.landscape) {
+      await CommonUtils.defaultEnterNativeFullscreen();
+    } else {
+      await CommonUtils.defaultEnterNativeFullscreen(
+        useGravityOrientation: true,
+      );
+    }
   }
 
   /// 进入全屏模式
@@ -2354,28 +2432,26 @@ class MyVideoStateController extends GetxController
     if (isFullscreen.value) return;
     // 保存进入全屏前的播放状态
     final wasPlaying = videoPlaying.value;
-    await cacheDesktopWindowGeometryBeforeFullscreen();
+    var reuseNativeFullscreen =
+        fullscreenHandoff?.nativeFullscreenActive == true;
+    if (reuseNativeFullscreen && GetPlatform.isDesktop) {
+      try {
+        reuseNativeFullscreen = await windowManager.isFullScreen();
+      } catch (_) {
+        reuseNativeFullscreen = false;
+      }
+    }
+
+    if (!reuseNativeFullscreen) {
+      await cacheDesktopWindowGeometryBeforeFullscreen();
+    }
     isFullscreen.value = true;
     appS.hideSystemUI();
-    bool renderVerticalVideoInVerticalScreen =
-        _configService[ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN];
 
-    // 获取当前屏幕方向
-    final currentOrientation = MediaQuery.of(
-      rootNavigatorKey.currentContext!,
-    ).orientation;
-
-    if (renderVerticalVideoInVerticalScreen && aspectRatio.value < 1) {
-      // 窄屏视频保持竖屏
-      await CommonUtils.defaultEnterNativeFullscreen(toVerticalScreen: true);
-    } else if (currentOrientation == Orientation.landscape) {
-      // 如果当前已经是横屏，正常触发全屏，不改变方向
+    if (GetPlatform.isAndroid || GetPlatform.isIOS) {
+      await _syncNativeFullscreenOrientation();
+    } else if (!reuseNativeFullscreen) {
       await CommonUtils.defaultEnterNativeFullscreen();
-    } else {
-      // 当前是竖屏，根据配置选择横屏方向
-      await CommonUtils.defaultEnterNativeFullscreen(
-        useGravityOrientation: true,
-      );
     }
 
     // 同步播放状态
@@ -2423,6 +2499,36 @@ class MyVideoStateController extends GetxController
     } else {
       await player.pause();
     }
+  }
+
+  VideoFullscreenHandoff? buildFullscreenHandoff() {
+    if (!isFullscreen.value) {
+      return null;
+    }
+
+    return VideoFullscreenHandoff(
+      nativeFullscreenActive: true,
+      desktopWindowSizeBeforeFullscreen: _desktopWindowSizeBeforeFullscreen,
+      desktopWindowPositionBeforeFullscreen:
+          _desktopWindowPositionBeforeFullscreen,
+      desktopWindowWasMaximized: _desktopWindowWasMaximized,
+      hasDesktopWindowGeometrySnapshot: _hasDesktopWindowGeometrySnapshot,
+    );
+  }
+
+  void relinquishFullscreenForRouteHandoff() {
+    if (!isFullscreen.value) {
+      return;
+    }
+
+    _suppressFullscreenCleanupOnce = true;
+    isFullscreen.value = false;
+  }
+
+  bool consumeFullscreenCleanupSuppression() {
+    final suppressed = _suppressFullscreenCleanupOnce;
+    _suppressFullscreenCleanupOnce = false;
+    return suppressed;
   }
 
   Future<void> cacheDesktopWindowGeometryBeforeFullscreen() async {
@@ -2628,6 +2734,14 @@ class MyVideoStateController extends GetxController
       // 如果已经显示，仅重置定时器
       _resetAutoHideTimer();
     }
+  }
+
+  void hideToolbars() {
+    if (!animationController.isDismissed) {
+      animationController.reverse();
+    }
+    _autoHideTimer?.cancel();
+    isLockButtonVisible.value = false;
   }
 
   // 设置当前视频的播放倍率

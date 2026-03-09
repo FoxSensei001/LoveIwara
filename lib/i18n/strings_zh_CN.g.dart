@@ -620,6 +620,8 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get useTraditionalPaginationModeDesc => '开启后列表将使用传统分页模式，关闭则使用瀑布流模式。重新渲染页面或重启应用后生效';
 	@override String get showVideoProgressBottomBarWhenToolbarHidden => '显示底部进度条';
 	@override String get showVideoProgressBottomBarWhenToolbarHiddenDesc => '此配置决定是否在工具栏隐藏时显示底部进度条';
+	@override String get showFullscreenUpNextHint => '显示“接着看”侧边提示';
+	@override String get showFullscreenUpNextHintDesc => '全屏播放时在右侧显示一个小提示条，用来快速展开“接着看”列表。';
 	@override String get basicSettings => '基础设置';
 	@override String get personalizedSettings => '个性化设置';
 	@override String get otherSettings => '其他设置';
@@ -3305,6 +3307,8 @@ extension on TranslationsZhCn {
 			'settings.useTraditionalPaginationModeDesc' => '开启后列表将使用传统分页模式，关闭则使用瀑布流模式。重新渲染页面或重启应用后生效',
 			'settings.showVideoProgressBottomBarWhenToolbarHidden' => '显示底部进度条',
 			'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc' => '此配置决定是否在工具栏隐藏时显示底部进度条',
+			'settings.showFullscreenUpNextHint' => '显示“接着看”侧边提示',
+			'settings.showFullscreenUpNextHintDesc' => '全屏播放时在右侧显示一个小提示条，用来快速展开“接着看”列表。',
 			'settings.basicSettings' => '基础设置',
 			'settings.personalizedSettings' => '个性化设置',
 			'settings.otherSettings' => '其他设置',
@@ -3364,10 +3368,10 @@ extension on TranslationsZhCn {
 			'settings.newVersionAvailable' => '发现新版本',
 			'settings.projectHome' => '开源地址',
 			'settings.release' => '版本发布',
-			'settings.issueReport' => '问题反馈',
-			'settings.openSourceLicense' => '开源许可',
 			_ => null,
 		} ?? switch (path) {
+			'settings.issueReport' => '问题反馈',
+			'settings.openSourceLicense' => '开源许可',
 			'settings.checkForUpdatesFailed' => '检查更新失败，请稍后重试',
 			'settings.autoCheckUpdate' => '自动检查更新',
 			'settings.updateContent' => '更新内容：',
@@ -3878,10 +3882,10 @@ extension on TranslationsZhCn {
 			'forum.errors.threadLocked' => '该主题已锁定，无法回复',
 			'forum.createPost' => '创建帖子',
 			'forum.title' => '标题',
-			'forum.enterTitle' => '输入标题',
-			'forum.content' => '内容',
 			_ => null,
 		} ?? switch (path) {
+			'forum.enterTitle' => '输入标题',
+			'forum.content' => '内容',
 			'forum.enterContent' => '输入内容',
 			'forum.writeYourContentHere' => '在此输入内容...',
 			'forum.posts' => '帖子',
@@ -4392,10 +4396,10 @@ extension on TranslationsZhCn {
 			'diagnostics.minLogLevelSubtitle' => '低于该级别的日志会被过滤',
 			'diagnostics.maxFileSizeTitle' => '单文件大小上限',
 			'diagnostics.maxFileSizeSubtitle' => '达到阈值后执行轮转',
-			'diagnostics.rotatedFileCountTitle' => '主日志轮转文件数',
-			'diagnostics.rotatedFileCountSubtitle' => '包含当前文件之外的保留份数',
 			_ => null,
 		} ?? switch (path) {
+			'diagnostics.rotatedFileCountTitle' => '主日志轮转文件数',
+			'diagnostics.rotatedFileCountSubtitle' => '包含当前文件之外的保留份数',
 			'diagnostics.hangFileSizeTitle' => '卡顿日志大小上限',
 			'diagnostics.hangFileSizeSubtitle' => '控制 hang_events 文件增长',
 			'diagnostics.hangRotatedFileCountTitle' => '卡顿日志轮转文件数',

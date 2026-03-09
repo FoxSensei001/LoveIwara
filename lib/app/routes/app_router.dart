@@ -6,9 +6,12 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/models/message_and_conversation.model.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
+import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
+import 'package:i_iwara/app/models/video.model.dart';
+import 'package:i_iwara/app/models/video_fullscreen_handoff.model.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/iwara_news.model.dart';
 import 'package:i_iwara/app/utils/iwara_deep_link_utils.dart';
@@ -308,6 +311,11 @@ final GoRouter appRouter = GoRouter(
                 localPath: extra.localPath,
                 localTask: extra.localTask,
                 localAllQualityTasks: extra.localAllQualityTasks,
+                innerPlaylistContext: extra.innerPlaylistContext,
+                forceAutoPlay: extra.forceAutoPlay,
+                forceEnterFullscreen: extra.forceEnterFullscreen,
+                initialVideoInfo: extra.initialVideoInfo,
+                fullscreenHandoff: extra.fullscreenHandoff,
               );
             }
             final extData = extra is Map<String, dynamic> ? extra : null;
@@ -836,12 +844,22 @@ class VideoDetailExtra {
   final String? localPath;
   final DownloadTask? localTask;
   final List<DownloadTask>? localAllQualityTasks;
+  final InnerPlaylistContext? innerPlaylistContext;
+  final bool forceAutoPlay;
+  final bool forceEnterFullscreen;
+  final Video? initialVideoInfo;
+  final VideoFullscreenHandoff? fullscreenHandoff;
 
   const VideoDetailExtra({
     this.extData,
     this.localPath,
     this.localTask,
     this.localAllQualityTasks,
+    this.innerPlaylistContext,
+    this.forceAutoPlay = false,
+    this.forceEnterFullscreen = false,
+    this.initialVideoInfo,
+    this.fullscreenHandoff,
   });
 }
 

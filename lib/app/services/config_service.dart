@@ -306,6 +306,7 @@ enum ConfigKey {
   SIGNATURE_CONTENT_KEY, // 小尾巴内容
   ENABLE_VIBRATION, // 是否开启震动
   SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN, // 是否在工具栏隐藏时显示进度条
+  SHOW_FULLSCREEN_UP_NEXT_HINT, // 是否在全屏时显示“接着看”侧边提示
   SHOW_FOLLOW_TIP_COUNT, // 告诉用户关注功能的次数，默认两次
   DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE, // 默认是否保持刚进入视频页时工具栏常驻
   AUTO_PLAY_VIDEO_ON_FIRST_ENTER, // 首次进入视频详情页时自动播放
@@ -481,6 +482,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'enable_vibration';
       case ConfigKey.SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN:
         return 'show_video_progress_bottom_bar_when_toolbar_hidden';
+      case ConfigKey.SHOW_FULLSCREEN_UP_NEXT_HINT:
+        return 'show_fullscreen_up_next_hint';
       case ConfigKey.SHOW_FOLLOW_TIP_COUNT:
         return 'show_follow_tip_count';
       case ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE:
@@ -692,12 +695,14 @@ extension ConfigKeyExtension on ConfigKey {
         return true;
       case ConfigKey.SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN:
         return true;
+      case ConfigKey.SHOW_FULLSCREEN_UP_NEXT_HINT:
+        return true;
       case ConfigKey.SHOW_FOLLOW_TIP_COUNT:
         return 2;
       case ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE:
         return true;
       case ConfigKey.AUTO_PLAY_VIDEO_ON_FIRST_ENTER:
-        return false;
+        return true;
       case ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION:
         return 2;
       case ConfigKey.DEFAULT_PAGINATION_MODE:

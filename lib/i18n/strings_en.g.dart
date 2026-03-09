@@ -1453,6 +1453,12 @@ class TranslationsSettingsEn {
 	/// en: 'This configuration determines whether the video progress bottom bar will be shown when the toolbar is hidden.'
 	String get showVideoProgressBottomBarWhenToolbarHiddenDesc => 'This configuration determines whether the video progress bottom bar will be shown when the toolbar is hidden.';
 
+	/// en: 'Show Up Next Edge Hint'
+	String get showFullscreenUpNextHint => 'Show Up Next Edge Hint';
+
+	/// en: 'Show a small edge tab in fullscreen so you can quickly open the Up Next drawer.'
+	String get showFullscreenUpNextHintDesc => 'Show a small edge tab in fullscreen so you can quickly open the Up Next drawer.';
+
 	/// en: 'Basic Settings'
 	String get basicSettings => 'Basic Settings';
 
@@ -7257,6 +7263,8 @@ extension on Translations {
 			'settings.useTraditionalPaginationModeDesc' => 'Enable traditional pagination mode, disable waterfall mode. Takes effect after re-rendering the page or restarting the app',
 			'settings.showVideoProgressBottomBarWhenToolbarHidden' => 'Show Video Progress Bottom Bar When Toolbar Hidden',
 			'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc' => 'This configuration determines whether the video progress bottom bar will be shown when the toolbar is hidden.',
+			'settings.showFullscreenUpNextHint' => 'Show Up Next Edge Hint',
+			'settings.showFullscreenUpNextHintDesc' => 'Show a small edge tab in fullscreen so you can quickly open the Up Next drawer.',
 			'settings.basicSettings' => 'Basic Settings',
 			'settings.personalizedSettings' => 'Personalized Settings',
 			'settings.otherSettings' => 'Other Settings',
@@ -7321,10 +7329,10 @@ extension on Translations {
 			'settings.checkForUpdatesFailed' => 'Check for updates failed, please try again later',
 			'settings.autoCheckUpdate' => 'Auto Check Update',
 			'settings.updateContent' => 'Update Content',
-			'settings.releaseDate' => 'Release Date',
-			'settings.ignoreThisVersion' => 'Ignore This Version',
 			_ => null,
 		} ?? switch (path) {
+			'settings.releaseDate' => 'Release Date',
+			'settings.ignoreThisVersion' => 'Ignore This Version',
 			'settings.minVersionUpdateRequired' => 'Current version is too low, please update as soon as possible',
 			'settings.forceUpdateTip' => 'This is a mandatory update. Please update to the latest version as soon as possible',
 			'settings.viewChangelog' => 'View Changelog',
@@ -7835,10 +7843,10 @@ extension on Translations {
 			'forum.enterContent' => 'Enter Content',
 			'forum.writeYourContentHere' => 'Write your content here...',
 			'forum.posts' => 'Posts',
-			'forum.threads' => 'Threads',
-			'forum.forum' => 'Forum',
 			_ => null,
 		} ?? switch (path) {
+			'forum.threads' => 'Threads',
+			'forum.forum' => 'Forum',
 			'forum.createThread' => 'Create Thread',
 			'forum.selectCategory' => 'Select Category',
 			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => 'Cooldown remaining ${minutes} minutes ${seconds} seconds',
@@ -8349,10 +8357,10 @@ extension on Translations {
 			'layoutSettings.confirmDeleteBreakpoint' => 'Delete Breakpoint',
 			'layoutSettings.confirmDeleteBreakpointDesc' => ({required Object width}) => 'Are you sure you want to delete the ${width}px breakpoint?',
 			'layoutSettings.noCustomBreakpoints' => 'No custom breakpoints, using default columns',
-			'layoutSettings.breakpointRange' => 'Breakpoint Range',
-			'layoutSettings.breakpointRangeDesc' => ({required Object range}) => '${range}px',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.breakpointRange' => 'Breakpoint Range',
+			'layoutSettings.breakpointRangeDesc' => ({required Object range}) => '${range}px',
 			'layoutSettings.breakpointRangeDescFirst' => ({required Object width}) => '≤${width}px',
 			'layoutSettings.breakpointRangeDescMiddle' => ({required Object start, required Object end}) => '${start}-${end}px',
 			'layoutSettings.edit' => 'Edit',

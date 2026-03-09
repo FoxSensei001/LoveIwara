@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
+import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 
@@ -1183,6 +1184,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                                 _videoBatchController.onPageChanged(),
                             onMultiSelectToggle: () =>
                                 _videoBatchController.toggleMultiSelect(),
+                            onOpenVideo: _openVideoFromAuthorProfile,
                           )
                         : const SizedBox.shrink(),
                   ),
@@ -1324,6 +1326,33 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
         },
       ),
       barrierDismissible: true,
+    );
+  }
+
+  Future<void> _openVideoFromAuthorProfile({
+    required String videoId,
+    required List<Video> loadedVideos,
+    Map<String, dynamic>? extData,
+  }) async {
+    Video? initialVideoInfo;
+    for (final video in loadedVideos) {
+      if (video.id == videoId) {
+        initialVideoInfo = video;
+        break;
+      }
+    }
+
+    final playlistContext = InnerPlaylistContext.fromVideos(
+      source: InnerPlaylistSource.authorProfile,
+      videos: loadedVideos,
+      currentVideoId: videoId,
+    );
+
+    await NaviService.navigateToVideoDetailPage(
+      videoId,
+      extData: extData,
+      innerPlaylistContext: playlistContext,
+      initialVideoInfo: initialVideoInfo,
     );
   }
 }

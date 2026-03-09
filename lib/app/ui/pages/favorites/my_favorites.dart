@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
+import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/favorites/controllers/favorites_controller.dart';
 import 'package:i_iwara/app/ui/pages/favorites/widgets/favorite_video_list.dart';
@@ -101,6 +103,26 @@ class _MyFavoritesState extends State<MyFavorites>
     }
   }
 
+  Future<void> _openFavoriteVideo({
+    required String videoId,
+    required List<Video> loadedVideos,
+    required Video initialVideo,
+    Map<String, dynamic>? extData,
+  }) async {
+    final playlistContext = InnerPlaylistContext.fromVideos(
+      source: InnerPlaylistSource.favoritesVideoList,
+      videos: loadedVideos,
+      currentVideoId: videoId,
+    );
+
+    await NaviService.navigateToVideoDetailPage(
+      videoId,
+      extData: extData,
+      innerPlaylistContext: playlistContext,
+      initialVideoInfo: initialVideo,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
@@ -152,7 +174,10 @@ class _MyFavoritesState extends State<MyFavorites>
       body: TabBarView(
         controller: _tabController,
         children: [
-          FavoriteVideoList(scrollController: _videoScrollController),
+          FavoriteVideoList(
+            scrollController: _videoScrollController,
+            onOpenVideo: _openFavoriteVideo,
+          ),
           FavoriteImageList(scrollController: _imageScrollController),
         ],
       ),

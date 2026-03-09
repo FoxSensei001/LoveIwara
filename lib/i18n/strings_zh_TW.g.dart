@@ -615,6 +615,8 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get useTraditionalPaginationModeDesc => '開啟後列表將使用傳統分頁模式，關閉則使用瀑布流模式。重新渲染頁面或重啟應用後生效';
 	@override String get showVideoProgressBottomBarWhenToolbarHidden => '顯示底部進度條';
 	@override String get showVideoProgressBottomBarWhenToolbarHiddenDesc => '此設定決定是否在工具列隱藏時顯示底部進度條';
+	@override String get showFullscreenUpNextHint => '顯示「接著看」側邊提示';
+	@override String get showFullscreenUpNextHintDesc => '全螢幕播放時在右側顯示一個小提示條，用來快速展開「接著看」列表。';
 	@override String get basicSettings => '基礎設定';
 	@override String get personalizedSettings => '個性化設定';
 	@override String get otherSettings => '其他設定';
@@ -3298,6 +3300,8 @@ extension on TranslationsZhTw {
 			'settings.useTraditionalPaginationModeDesc' => '開啟後列表將使用傳統分頁模式，關閉則使用瀑布流模式。重新渲染頁面或重啟應用後生效',
 			'settings.showVideoProgressBottomBarWhenToolbarHidden' => '顯示底部進度條',
 			'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc' => '此設定決定是否在工具列隱藏時顯示底部進度條',
+			'settings.showFullscreenUpNextHint' => '顯示「接著看」側邊提示',
+			'settings.showFullscreenUpNextHintDesc' => '全螢幕播放時在右側顯示一個小提示條，用來快速展開「接著看」列表。',
 			'settings.basicSettings' => '基礎設定',
 			'settings.personalizedSettings' => '個性化設定',
 			'settings.otherSettings' => '其他設定',
@@ -3362,10 +3366,10 @@ extension on TranslationsZhTw {
 			'settings.checkForUpdatesFailed' => '檢查更新失敗，請稍後重試',
 			'settings.autoCheckUpdate' => '自動檢查更新',
 			'settings.updateContent' => '更新內容',
-			'settings.releaseDate' => '發布日期',
-			'settings.ignoreThisVersion' => '忽略此版本',
 			_ => null,
 		} ?? switch (path) {
+			'settings.releaseDate' => '發布日期',
+			'settings.ignoreThisVersion' => '忽略此版本',
 			'settings.minVersionUpdateRequired' => '目前版本過低，請盡快更新',
 			'settings.forceUpdateTip' => '此版本為強制更新，請盡快更新到最新版本',
 			'settings.viewChangelog' => '查看更新日誌',
@@ -3876,10 +3880,10 @@ extension on TranslationsZhTw {
 			'markdown.quote' => '引用',
 			'markdown.quoteDescription' => '使用 > 符號建立引用，多個 > 建立多級引用',
 			'markdown.quoteSyntax' => '> 這是一級引用\n>> 這是二級引用',
-			'markdown.list' => '列表',
-			'markdown.listDescription' => '使用數字+點號建立有序列表，使用 - 建立無序列表',
 			_ => null,
 		} ?? switch (path) {
+			'markdown.list' => '列表',
+			'markdown.listDescription' => '使用數字+點號建立有序列表，使用 - 建立無序列表',
 			'markdown.listSyntax' => '1. 第一項\n2. 第二項\n\n- 無序項\n  - 子項\n  - 另一個子項',
 			'markdown.linkAndImage' => '連結與圖片',
 			'markdown.linkAndImageDescription' => '連結格式：[文字](URL)\n圖片格式：![描述](URL)',
@@ -4390,10 +4394,10 @@ extension on TranslationsZhTw {
 			'mediaPlayer.unknown' => '未知',
 			'mediaPlayer.localVideoPathEmpty' => '本地影片路徑為空',
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => '本地影片檔案不存在: ${path}',
-			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => '無法播放本地影片: ${error}',
-			'mediaPlayer.dropVideoFileHere' => '拖放影片檔案至此處播放',
 			_ => null,
 		} ?? switch (path) {
+			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => '無法播放本地影片: ${error}',
+			'mediaPlayer.dropVideoFileHere' => '拖放影片檔案至此處播放',
 			'mediaPlayer.supportedFormats' => '支援格式: MP4, MKV, AVI, MOV, WEBM 等',
 			'mediaPlayer.noSupportedVideoFile' => '未找到支援的影片檔案',
 			'mediaPlayer.imageLoadFailed' => '圖片載入失敗',

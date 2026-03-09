@@ -9,8 +9,19 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class FavoriteVideoList extends StatefulWidget {
   final ScrollController scrollController;
+  final Future<void> Function({
+    required String videoId,
+    required List<Video> loadedVideos,
+    required Video initialVideo,
+    Map<String, dynamic>? extData,
+  })?
+  onOpenVideo;
 
-  const FavoriteVideoList({super.key, required this.scrollController});
+  const FavoriteVideoList({
+    super.key,
+    required this.scrollController,
+    this.onOpenVideo,
+  });
 
   @override
   State<FavoriteVideoList> createState() => _FavoriteVideoListState();
@@ -47,7 +58,25 @@ class _FavoriteVideoListState extends State<FavoriteVideoList>
                       .contains(video.id);
                   return Stack(
                     children: [
-                      VideoCardListItemWidget(video: video, width: 220),
+                      VideoCardListItemWidget(
+                        video: video,
+                        width: 220,
+                        onOpenVideo: widget.onOpenVideo == null
+                            ? null
+                            : ({
+                                required videoId,
+                                Map<String, dynamic>? extData,
+                              }) {
+                                return widget.onOpenVideo!(
+                                  videoId: videoId,
+                                  loadedVideos: List<Video>.of(
+                                    controller.videoRepository,
+                                  ),
+                                  initialVideo: video,
+                                  extData: extData,
+                                );
+                              },
+                      ),
                       if (isCanceled)
                         Positioned.fill(
                           child: Material(

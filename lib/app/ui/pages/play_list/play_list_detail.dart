@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/share_service.dart';
@@ -185,7 +186,16 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
         clipBehavior: Clip.antiAlias,
         child: Stack(
           children: [
-            VideoCardListItemWidget(video: video, width: 300),
+            VideoCardListItemWidget(
+              video: video,
+              width: 300,
+              onOpenVideo: ({required videoId, Map<String, dynamic>? extData}) {
+                return _openVideoFromPlaylist(
+                  videoId: videoId,
+                  extData: extData,
+                );
+              },
+            ),
             if (isMultiSelect)
               Positioned.fill(
                 child: Material(
@@ -206,6 +216,34 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
         ),
       );
     });
+  }
+
+  Future<void> _openVideoFromPlaylist({
+    required String videoId,
+    required Map<String, dynamic>? extData,
+  }) async {
+    final loadedVideos = List<Video>.of(controller.repository);
+
+    Video? initialVideoInfo;
+    for (final video in loadedVideos) {
+      if (video.id == videoId) {
+        initialVideoInfo = video;
+        break;
+      }
+    }
+
+    final playlistContext = InnerPlaylistContext.fromVideos(
+      source: InnerPlaylistSource.playlistDetail,
+      videos: loadedVideos,
+      currentVideoId: videoId,
+    );
+
+    await NaviService.navigateToVideoDetailPage(
+      videoId,
+      extData: extData,
+      innerPlaylistContext: playlistContext,
+      initialVideoInfo: initialVideoInfo,
+    );
   }
 
   void _showShareDialog() {

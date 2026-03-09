@@ -473,6 +473,8 @@ settings:
   useTraditionalPaginationModeDesc: Enable traditional pagination mode, disable waterfall mode. Takes effect after re-rendering the page or restarting the app
   showVideoProgressBottomBarWhenToolbarHidden: Show Video Progress Bottom Bar When Toolbar Hidden
   showVideoProgressBottomBarWhenToolbarHiddenDesc: This configuration determines whether the video progress bottom bar will be shown when the toolbar is hidden.
+  showFullscreenUpNextHint: Show Up Next Edge Hint
+  showFullscreenUpNextHintDesc: Show a small edge tab in fullscreen so you can quickly open the Up Next drawer.
   basicSettings: Basic Settings
   personalizedSettings: Personalized Settings
   otherSettings: Other Settings

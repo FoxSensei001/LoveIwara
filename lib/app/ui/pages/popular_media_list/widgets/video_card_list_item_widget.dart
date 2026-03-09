@@ -25,6 +25,11 @@ class VideoCardListItemWidget extends StatefulWidget {
 
   /// 选中状态变化回调
   final VoidCallback? onSelect;
+  final Future<void> Function({
+    required String videoId,
+    Map<String, dynamic>? extData,
+  })?
+  onOpenVideo;
 
   const VideoCardListItemWidget({
     super.key,
@@ -33,6 +38,7 @@ class VideoCardListItemWidget extends StatefulWidget {
     this.isMultiSelectMode = false,
     this.isSelected = false,
     this.onSelect,
+    this.onOpenVideo,
   });
 
   @override
@@ -96,7 +102,11 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
     String videoId, {
     Map<String, dynamic>? extData,
   }) async {
-    await NaviService.navigateToVideoDetailPage(videoId, extData: extData);
+    if (widget.onOpenVideo != null) {
+      await widget.onOpenVideo!(videoId: videoId, extData: extData);
+    } else {
+      await NaviService.navigateToVideoDetailPage(videoId, extData: extData);
+    }
     if (!mounted) return;
     _applyLikePatch(extData);
   }

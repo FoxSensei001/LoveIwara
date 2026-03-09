@@ -615,6 +615,8 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get useTraditionalPaginationModeDesc => '従来のページネーションモードを使用すると、ページネーションモードが無効になります。ページを再レンダリングまたはアプリを再起動した後に有効になります';
 	@override String get showVideoProgressBottomBarWhenToolbarHidden => '底部プログレスバー';
 	@override String get showVideoProgressBottomBarWhenToolbarHiddenDesc => 'この設定は、ツールバーが非表示のときに底部プログレスバーを表示するかどうかを決定します。';
+	@override String get showFullscreenUpNextHint => '「次に見る」エッジヒントを表示';
+	@override String get showFullscreenUpNextHintDesc => '全画面時に小さなエッジタブを表示し、「次に見る」ドロワーをすばやく開けます。';
 	@override String get basicSettings => '基本設定';
 	@override String get personalizedSettings => '個性化設定';
 	@override String get otherSettings => 'その他設定';
@@ -3295,6 +3297,8 @@ extension on TranslationsJa {
 			'settings.useTraditionalPaginationModeDesc' => '従来のページネーションモードを使用すると、ページネーションモードが無効になります。ページを再レンダリングまたはアプリを再起動した後に有効になります',
 			'settings.showVideoProgressBottomBarWhenToolbarHidden' => '底部プログレスバー',
 			'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc' => 'この設定は、ツールバーが非表示のときに底部プログレスバーを表示するかどうかを決定します。',
+			'settings.showFullscreenUpNextHint' => '「次に見る」エッジヒントを表示',
+			'settings.showFullscreenUpNextHintDesc' => '全画面時に小さなエッジタブを表示し、「次に見る」ドロワーをすばやく開けます。',
 			'settings.basicSettings' => '基本設定',
 			'settings.personalizedSettings' => '個性化設定',
 			'settings.otherSettings' => 'その他設定',
@@ -3359,10 +3363,10 @@ extension on TranslationsJa {
 			'settings.checkForUpdatesFailed' => '更新のチェックに失敗しました。後でもう一度お試しください',
 			'settings.autoCheckUpdate' => '自動更新',
 			'settings.updateContent' => '更新内容',
-			'settings.releaseDate' => 'リリース日',
-			'settings.ignoreThisVersion' => 'このバージョンを無視',
 			_ => null,
 		} ?? switch (path) {
+			'settings.releaseDate' => 'リリース日',
+			'settings.ignoreThisVersion' => 'このバージョンを無視',
 			'settings.minVersionUpdateRequired' => '現在のバージョンが低すぎます。すぐに更新してください',
 			'settings.forceUpdateTip' => 'これは必須アップデートです。できるだけ早く最新バージョンにアップデートしてください',
 			'settings.viewChangelog' => '更新内容を表示',
@@ -3873,10 +3877,10 @@ extension on TranslationsJa {
 			'forum.enterContent' => 'コンテンツを入力してください',
 			'forum.writeYourContentHere' => 'ここにコンテンツを入力...',
 			'forum.posts' => '投稿',
-			'forum.threads' => 'スレッド',
-			'forum.forum' => 'フォーラム',
 			_ => null,
 		} ?? switch (path) {
+			'forum.threads' => 'スレッド',
+			'forum.forum' => 'フォーラム',
 			'forum.createThread' => 'スレッドを作成',
 			'forum.selectCategory' => 'カテゴリを選択',
 			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => 'クールダウン残り時間 ${minutes} 分 ${seconds} 秒',
@@ -4387,10 +4391,10 @@ extension on TranslationsJa {
 			'diagnostics.hangFileSizeTitle' => 'ハングログの上限サイズ',
 			'diagnostics.hangFileSizeSubtitle' => 'hang_events ファイルの増加を制御',
 			'diagnostics.hangRotatedFileCountTitle' => 'ハングログのローテーション数',
-			'diagnostics.hangRotatedFileCountSubtitle' => 'hang_events の履歴保持数を制御',
-			'diagnostics.healthSectionTitle' => 'ログヘルス',
 			_ => null,
 		} ?? switch (path) {
+			'diagnostics.hangRotatedFileCountSubtitle' => 'hang_events の履歴保持数を制御',
+			'diagnostics.healthSectionTitle' => 'ログヘルス',
 			'diagnostics.refreshMetrics' => '指標を更新',
 			'diagnostics.toolsSectionTitle' => 'ツール',
 			'diagnostics.privacyNotice' => 'ログにはアカウント情報やリクエストパラメータなどの機密情報が含まれる可能性があります。Issue に完全なログを公開添付せず、確認後にメールで送信してください。',

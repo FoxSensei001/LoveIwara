@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
+import 'package:i_iwara/app/models/inner_playlist.model.dart';
+import 'package:i_iwara/app/models/video.model.dart' as video_model;
+import 'package:i_iwara/app/models/video_fullscreen_handoff.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
@@ -33,6 +36,11 @@ class MyVideoDetailPage extends StatefulWidget {
   final String? localPath;
   final DownloadTask? localTask;
   final List<DownloadTask>? localAllQualityTasks;
+  final InnerPlaylistContext? innerPlaylistContext;
+  final bool forceAutoPlay;
+  final bool forceEnterFullscreen;
+  final video_model.Video? initialVideoInfo;
+  final VideoFullscreenHandoff? fullscreenHandoff;
 
   const MyVideoDetailPage({
     super.key,
@@ -41,6 +49,11 @@ class MyVideoDetailPage extends StatefulWidget {
     this.localPath,
     this.localTask,
     this.localAllQualityTasks,
+    this.innerPlaylistContext,
+    this.forceAutoPlay = false,
+    this.forceEnterFullscreen = false,
+    this.initialVideoInfo,
+    this.fullscreenHandoff,
   });
 
   @override
@@ -59,6 +72,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   late MyVideoStateController controller;
   CommentController? commentController;
   RelatedMediasController? relatedVideoController;
+  Worker? _forceEnterFullscreenWorker;
+  bool _hasTriggeredForcedFullscreen = false;
 
   // Tab控制器
   late TabController tabController;
@@ -95,7 +110,13 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       } else {
         // 在线视频模式：使用普通构造函数
         controller = Get.put(
-          MyVideoStateController(videoId, extData: widget.extData),
+          MyVideoStateController(
+            videoId,
+            extData: widget.extData,
+            forceAutoPlay: widget.forceAutoPlay,
+            initialVideoInfo: widget.initialVideoInfo,
+            fullscreenHandoff: widget.fullscreenHandoff,
+          ),
           tag: uniqueTag,
         );
 
@@ -109,12 +130,66 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
           RelatedMediasController(mediaId: videoId, mediaType: MediaType.VIDEO),
           tag: uniqueTag,
         );
+
+        if (widget.forceEnterFullscreen) {
+          _scheduleForcedFullscreenEntry();
+        }
       }
 
       // RouteAware 订阅在 didChangeDependencies 中完成
     } catch (e) {
       LogUtils.e('初始化控制器失败', tag: 'video_detail_page_v2', error: e);
     }
+  }
+
+  void _scheduleForcedFullscreenEntry() {
+    void tryEnterFullscreen() {
+      if (!mounted || _hasTriggeredForcedFullscreen) {
+        return;
+      }
+      if (controller.isFullscreen.value) {
+        _hasTriggeredForcedFullscreen = true;
+        return;
+      }
+
+      final reusingNativeFullscreen =
+          widget.fullscreenHandoff?.nativeFullscreenActive == true;
+      if (!reusingNativeFullscreen && !controller.videoPlayerReady.value) {
+        return;
+      }
+
+      _hasTriggeredForcedFullscreen = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) {
+          return;
+        }
+        unawaited(controller.enterFullscreen());
+      });
+    }
+
+    _forceEnterFullscreenWorker = ever<bool>(
+      controller.videoPlayerReady,
+      (_) => tryEnterFullscreen(),
+    );
+    tryEnterFullscreen();
+  }
+
+  InnerPlaylistContext? _resolveInnerPlaylistContext() {
+    final context = widget.innerPlaylistContext;
+    if (context?.source != InnerPlaylistSource.relatedVideosTab || isLocalMode) {
+      return context;
+    }
+
+    final relatedVideos = relatedVideoController?.videos;
+    if (relatedVideos == null || relatedVideos.isEmpty) {
+      return null;
+    }
+
+    return InnerPlaylistContext.fromVideos(
+      source: InnerPlaylistSource.relatedVideosTab,
+      videos: relatedVideos,
+      currentVideoId: videoId,
+    );
   }
 
   @override
@@ -158,6 +233,9 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     );
     // 返回到视频详情页，重置屏幕亮度
     ScreenBrightness().resetApplicationScreenBrightness();
+    if (controller.isFullscreen.value) {
+      appService.hideSystemUI();
+    }
   }
 
   @override
@@ -165,6 +243,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     LogUtils.w('dispose start: uniqueTag=$uniqueTag', 'MyVideoDetailPage');
     // 销毁Tab控制器
     tabController.dispose();
+    _forceEnterFullscreenWorker?.dispose();
 
     // 取消订阅路由观察者
     routeObserver.unsubscribe(this);
@@ -229,6 +308,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     return Obx(() {
       final fullscreenActive = controller.isFullscreen.value;
       final overlayActive = OverlayTracker.instance.hasOverlay;
+      final effectiveInnerPlaylistContext = _resolveInnerPlaylistContext();
 
       return PopScope(
         // Fullscreen is now handled inside the same page route.
@@ -284,6 +364,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                     return MyVideoScreen(
                       myVideoStateController: controller,
                       isFullScreen: false,
+                      innerPlaylistContext: effectiveInnerPlaylistContext,
                     );
                   }
 
@@ -293,7 +374,11 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
 
                   // 优先处理应用内全屏
                   if (controller.isDesktopAppFullScreen.value) {
-                    return _buildPureVideoPlayer(screenHeight, paddingTop);
+                    return _buildPureVideoPlayer(
+                      screenHeight,
+                      paddingTop,
+                      innerPlaylistContext: effectiveInnerPlaylistContext,
+                    );
                   }
 
                   // 判断是否使用宽屏布局
@@ -309,6 +394,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                       screenSize,
                       paddingTop,
                       t,
+                      effectiveInnerPlaylistContext,
                     );
                   } else {
                     return _buildNarrowScreenLayout(
@@ -316,6 +402,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                       screenSize,
                       paddingTop,
                       t,
+                      effectiveInnerPlaylistContext,
                     );
                   }
                 }),
@@ -327,6 +414,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                   child: MyVideoScreen(
                     isFullScreen: true,
                     myVideoStateController: controller,
+                    innerPlaylistContext: effectiveInnerPlaylistContext,
                   ),
                 ),
               ),
@@ -342,6 +430,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     Size screenSize,
     double paddingTop,
     slang.Translations t,
+    InnerPlaylistContext? innerPlaylistContext,
   ) {
     const double tabsAreaWidth = 350.0; // 固定Tab区域宽度，适当缩窄以优化播放器显示区域
 
@@ -367,6 +456,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                     screenSize.height,
                     paddingTop,
                     applyBottomSafeArea: true,
+                    innerPlaylistContext: innerPlaylistContext,
                   );
                 }
                 // 否则显示播放器（包含加载状态）
@@ -374,6 +464,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                   myVideoStateController: controller,
                   isFullScreen: false,
                   enableBottomSafeArea: true,
+                  innerPlaylistContext: innerPlaylistContext,
                 );
               }),
             ),
@@ -395,6 +486,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     Size screenSize,
     double paddingTop,
     slang.Translations t,
+    InnerPlaylistContext? innerPlaylistContext,
   ) {
     return Obx(() {
       // 使用 Obx 包装整个 ExtendedNestedScrollView，确保 videoPlaying 状态变化时重建
@@ -459,7 +551,9 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                           height: videoHeight,
                           child: _buildVideoArea(
                             context,
-                            player: _buildVideoPlayerContent(),
+                            player: _buildVideoPlayerContent(
+                              innerPlaylistContext,
+                            ),
                           ),
                         );
                       }
@@ -473,6 +567,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                             player: MyVideoScreen(
                               myVideoStateController: controller,
                               isFullScreen: false,
+                              innerPlaylistContext: innerPlaylistContext,
                             ),
                           ),
                         );
@@ -496,6 +591,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     double screenHeight,
     double paddingTop, {
     bool applyBottomSafeArea = false,
+    InnerPlaylistContext? innerPlaylistContext,
   }) {
     return Container(
       height: screenHeight,
@@ -515,6 +611,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
             isFullScreen: false,
             enableBottomSafeArea: applyBottomSafeArea,
             myVideoStateController: controller,
+            innerPlaylistContext: innerPlaylistContext,
           );
         } else {
           return const SizedBox.shrink();
@@ -524,7 +621,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   }
 
   // 构建播放器内容
-  Widget _buildVideoPlayerContent() {
+  Widget _buildVideoPlayerContent(InnerPlaylistContext? innerPlaylistContext) {
     return Obx(() {
       // 如果视频加载出错，显示错误组件
       if (controller.videoErrorMessage.value != null) {
@@ -539,6 +636,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         return MyVideoScreen(
           isFullScreen: false,
           myVideoStateController: controller,
+          innerPlaylistContext: innerPlaylistContext,
         );
       } else {
         return const SizedBox.shrink();

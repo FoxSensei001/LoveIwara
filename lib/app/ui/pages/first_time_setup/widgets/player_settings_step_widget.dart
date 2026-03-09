@@ -40,6 +40,7 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
   late bool recordAndRestoreProgress;
   late bool autoPlayVideoOnFirstEnter;
   late bool showBottomProgressBarWhenToolbarHidden;
+  late bool showFullscreenUpNextHint;
   late bool keepToolbarVisibleByDefault;
   late bool enableMouseHoverShowToolbar;
 
@@ -65,6 +66,8 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
     showBottomProgressBarWhenToolbarHidden =
         configService[ConfigKey
             .SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN];
+    showFullscreenUpNextHint =
+        configService[ConfigKey.SHOW_FULLSCREEN_UP_NEXT_HINT];
     keepToolbarVisibleByDefault =
         configService[ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE];
     enableMouseHoverShowToolbar =
@@ -341,6 +344,19 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
               ConfigKey.SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN,
               v,
               (x) => showBottomProgressBarWhenToolbarHidden = x,
+            ),
+            isNarrow: isNarrow,
+          ),
+          const StepDivider(),
+          SwitchSettingTile(
+            icon: Icons.queue_play_next,
+            title: slang.t.settings.showFullscreenUpNextHint,
+            subtitle: slang.t.settings.showFullscreenUpNextHintDesc,
+            value: showFullscreenUpNextHint,
+            onChanged: (v) => _setBool(
+              ConfigKey.SHOW_FULLSCREEN_UP_NEXT_HINT,
+              v,
+              (x) => showFullscreenUpNextHint = x,
             ),
             isNarrow: isNarrow,
           ),

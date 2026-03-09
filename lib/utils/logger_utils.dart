@@ -51,6 +51,7 @@ class LogUtils {
         lineLength: 120,
         colors: true,
         printEmojis: true,
+        noBoxingByDefault: true,
       ),
       // 根据生产环境设置过滤器
       filter: isProduction ? ProductionFilter() : DevelopmentFilter(),

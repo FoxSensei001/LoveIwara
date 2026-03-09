@@ -474,6 +474,8 @@ settings:
   useTraditionalPaginationModeDesc: 従来のページネーションモードを使用すると、ページネーションモードが無効になります。ページを再レンダリングまたはアプリを再起動した後に有効になります
   showVideoProgressBottomBarWhenToolbarHidden: 底部プログレスバー
   showVideoProgressBottomBarWhenToolbarHiddenDesc: この設定は、ツールバーが非表示のときに底部プログレスバーを表示するかどうかを決定します。
+  showFullscreenUpNextHint: 「次に見る」エッジヒントを表示
+  showFullscreenUpNextHintDesc: 全画面時に小さなエッジタブを表示し、「次に見る」ドロワーをすばやく開けます。
   basicSettings: 基本設定
   personalizedSettings: 個性化設定
   otherSettings: その他設定

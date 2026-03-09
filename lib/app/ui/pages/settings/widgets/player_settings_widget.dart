@@ -509,6 +509,19 @@ class PlayerSettingsWidget extends StatelessWidget {
                           value;
                     },
                   ),
+                  _buildSwitchSetting(
+                    context: context,
+                    iconData: Icons.queue_play_next,
+                    label: t.settings.showFullscreenUpNextHint,
+                    showInfoCard: true,
+                    infoMessage: t.settings.showFullscreenUpNextHintDesc,
+                    rxValue: _configService
+                        .settings[ConfigKey.SHOW_FULLSCREEN_UP_NEXT_HINT]!,
+                    onChanged: (value) {
+                      _configService[ConfigKey.SHOW_FULLSCREEN_UP_NEXT_HINT] =
+                          value;
+                    },
+                  ),
                   // 添加工具栏常驻开关
                   _buildSwitchSetting(
                     context: context,

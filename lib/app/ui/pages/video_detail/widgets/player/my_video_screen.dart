@@ -6,17 +6,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/inner_playlist.model.dart';
+import 'package:i_iwara/app/models/video_fullscreen_handoff.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/video_service.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/rapple_painter.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'bottom_toolbar_widget.dart';
+import 'fullscreen_inner_playlist_drawer.dart';
 import 'gesture_area_widget.dart';
 import 'top_toolbar_widget.dart';
 import 'widgets/playback_speed_animation_widget.dart';
@@ -29,12 +35,14 @@ class MyVideoScreen extends StatefulWidget {
   final bool isFullScreen;
   final MyVideoStateController myVideoStateController;
   final bool enableBottomSafeArea;
+  final InnerPlaylistContext? innerPlaylistContext;
 
   const MyVideoScreen({
     super.key,
     this.isFullScreen = false,
     this.enableBottomSafeArea = false,
     required this.myVideoStateController,
+    this.innerPlaylistContext,
   });
 
   @override
@@ -46,7 +54,11 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   final FocusNode _focusNode = FocusNode();
   final ConfigService _configService = Get.find();
   final AppService _appService = Get.find();
+  final VideoService _videoService = Get.find();
   bool _isSyncingDesktopFullscreenExit = false;
+  bool _innerPlaylistExpanded = false;
+  bool _isSwitchingInnerPlaylistVideo = false;
+  InnerPlaylistItemSnapshot? _loadingInnerPlaylistItem;
 
   Timer? _autoHideTimer;
   Timer? _volumeInfoTimer; // 添加音量提示计时器
@@ -204,8 +216,12 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   @override
   void dispose() {
     if (widget.isFullScreen) {
-      // 恢复系统UI和竖屏模式
-      _appService.showSystemUI();
+      // 路由内全屏接力时，不要在旧的 fullscreen overlay dispose 时闪回系统 UI。
+      final suppressCleanup = widget.myVideoStateController
+          .consumeFullscreenCleanupSuppression();
+      if (!suppressCleanup) {
+        _appService.showSystemUI();
+      }
       if (GetPlatform.isDesktop) {
         windowManager.removeListener(this);
       }
@@ -375,6 +391,140 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         });
       }
     });
+  }
+
+  List<InnerPlaylistItemSnapshot> get _orderedInnerPlaylistItems {
+    return widget.innerPlaylistContext?.itemsStartingAfterCurrent() ??
+        const <InnerPlaylistItemSnapshot>[];
+  }
+
+  bool _canShowInnerPlaylistOverlay(Size screenSize) {
+    final hintEnabled =
+        _configService[ConfigKey.SHOW_FULLSCREEN_UP_NEXT_HINT] as bool;
+    return widget.isFullScreen &&
+        screenSize.width > screenSize.height &&
+        _orderedInnerPlaylistItems.isNotEmpty &&
+        (_innerPlaylistExpanded || hintEnabled);
+  }
+
+  void _openInnerPlaylistDrawer() {
+    if (_orderedInnerPlaylistItems.isEmpty || _isSwitchingInnerPlaylistVideo) {
+      return;
+    }
+
+    setState(() {
+      _innerPlaylistExpanded = true;
+    });
+    widget.myVideoStateController.hideToolbars();
+  }
+
+  void _closeInnerPlaylistDrawer({bool restoreToolbars = true}) {
+    if (!_innerPlaylistExpanded) {
+      return;
+    }
+
+    setState(() {
+      _innerPlaylistExpanded = false;
+    });
+
+    if (restoreToolbars) {
+      widget.myVideoStateController.showToolbars();
+    }
+  }
+
+  void _showInnerPlaylistErrorToast(String message) {
+    if (message.trim().isEmpty) {
+      return;
+    }
+    showToastWidget(
+      MDToastWidget(message: message, type: MDToastType.error),
+      position: ToastPosition.top,
+    );
+  }
+
+  Future<void> _handleInnerPlaylistSelection(
+    InnerPlaylistItemSnapshot item,
+  ) async {
+    if (_isSwitchingInnerPlaylistVideo ||
+        item.id == widget.myVideoStateController.videoId) {
+      return;
+    }
+
+    setState(() {
+      _isSwitchingInnerPlaylistVideo = true;
+      _innerPlaylistExpanded = true;
+      _loadingInnerPlaylistItem = item;
+    });
+
+    final result = await _videoService.fetchVideoInfoResult(
+      item.id,
+      site: _appService.currentSiteMode,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    if (result.isFail || result.data == null) {
+      _showInnerPlaylistErrorToast(result.message);
+      setState(() {
+        _isSwitchingInnerPlaylistVideo = false;
+        _loadingInnerPlaylistItem = null;
+      });
+      return;
+    }
+
+    final targetVideo = result.data!;
+    final nextContext = widget.innerPlaylistContext?.copyWith(
+      currentVideoId: item.id,
+    );
+
+    try {
+      late final Future<Object?> navigationFuture;
+      if (targetVideo.isExternalVideo) {
+        await widget.myVideoStateController.exitFullscreen();
+        navigationFuture = NaviService.navigateToVideoDetailPage(
+          item.id,
+          innerPlaylistContext: nextContext,
+          initialVideoInfo: targetVideo,
+        );
+      } else {
+        final VideoFullscreenHandoff? fullscreenHandoff = widget
+            .myVideoStateController
+            .buildFullscreenHandoff();
+        navigationFuture = NaviService.navigateToVideoDetailPage(
+          item.id,
+          innerPlaylistContext: nextContext,
+          forceAutoPlay: true,
+          forceEnterFullscreen: true,
+          initialVideoInfo: targetVideo,
+          fullscreenHandoff: fullscreenHandoff,
+        );
+        widget.myVideoStateController.relinquishFullscreenForRouteHandoff();
+      }
+
+      unawaited(
+        navigationFuture.whenComplete(() {
+          if (!mounted) {
+            return;
+          }
+          setState(() {
+            _isSwitchingInnerPlaylistVideo = false;
+            _loadingInnerPlaylistItem = null;
+          });
+        }),
+      );
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      _showInnerPlaylistErrorToast(CommonUtils.parseExceptionMessage(e));
+      setState(() {
+        _isSwitchingInnerPlaylistVideo = false;
+        _loadingInnerPlaylistItem = null;
+      });
+    }
   }
 
   @override
@@ -560,6 +710,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                             // 添加锁定按钮
                             if (hasVideoInfo && !showInitialPlaybackCover)
                               _buildLockButton(),
+                            if (hasVideoInfo && !showInitialPlaybackCover)
+                              _buildInnerPlaylistOverlay(screenSize),
                           ],
                         );
                       }),
@@ -953,6 +1105,40 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       ),
       Positioned(bottom: 0, left: 0, right: 0, child: bottomToolbar),
     ];
+  }
+
+  Widget _buildInnerPlaylistOverlay(Size screenSize) {
+    if (!_canShowInnerPlaylistOverlay(screenSize)) {
+      return const SizedBox.shrink();
+    }
+
+    return AnimatedBuilder(
+      animation: widget.myVideoStateController.animationController,
+      builder: (context, child) {
+        final toolbarVisible =
+            widget.myVideoStateController.animationController.value > 0.04;
+
+        return FullscreenInnerPlaylistDrawer(
+          items: _orderedInnerPlaylistItems,
+          isExpanded: _innerPlaylistExpanded,
+          showHint:
+              (_configService[ConfigKey.SHOW_FULLSCREEN_UP_NEXT_HINT] as bool) &&
+              toolbarVisible &&
+              !_innerPlaylistExpanded &&
+              !_isSwitchingInnerPlaylistVideo,
+          isBusy: _isSwitchingInnerPlaylistVideo,
+          loadingItemId: _isSwitchingInnerPlaylistVideo
+              ? _loadingInnerPlaylistItem?.id
+              : null,
+          onExpand: _openInnerPlaylistDrawer,
+          onCollapse: _closeInnerPlaylistDrawer,
+          onDismiss: () => _closeInnerPlaylistDrawer(restoreToolbars: false),
+          onSelectItem: (item) {
+            unawaited(_handleInnerPlaylistSelection(item));
+          },
+        );
+      },
+    );
   }
 
   Widget _buildRippleEffects(Size screenSize, double maxRadius) {

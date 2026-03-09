@@ -18,6 +18,12 @@ class ProfileVideoTabListWidget extends StatefulWidget {
   final Function(Video video)? onItemSelect;
   final VoidCallback? onPageChanged;
   final VoidCallback? onMultiSelectToggle;
+  final Future<void> Function({
+    required String videoId,
+    required List<Video> loadedVideos,
+    Map<String, dynamic>? extData,
+  })?
+  onOpenVideo;
 
   const ProfileVideoTabListWidget({
     super.key,
@@ -30,6 +36,7 @@ class ProfileVideoTabListWidget extends StatefulWidget {
     this.onItemSelect,
     this.onPageChanged,
     this.onMultiSelectToggle,
+    this.onOpenVideo,
   });
 
   @override
@@ -239,6 +246,20 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
                       isMultiSelectMode: widget.isMultiSelectMode,
                       isSelected: widget.selectedItemIds.contains(video.id),
                       onSelect: () => widget.onItemSelect?.call(video),
+                      onOpenVideo: widget.onOpenVideo == null
+                          ? null
+                          : ({
+                              required videoId,
+                              Map<String, dynamic>? extData,
+                            }) {
+                              return widget.onOpenVideo!(
+                                videoId: videoId,
+                                loadedVideos: List<Video>.of(
+                                  videoListRepository,
+                                ),
+                                extData: extData,
+                              );
+                            },
                     ),
                   );
                 });

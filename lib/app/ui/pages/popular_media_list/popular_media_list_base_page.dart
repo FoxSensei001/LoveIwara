@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:io' show Platform;
 import 'dart:ui' show ImageFilter;
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/inner_playlist.model.dart';
+import 'package:i_iwara/app/models/video.model.dart';
 
 import 'package:i_iwara/app/models/sort.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
@@ -141,6 +143,33 @@ class PopularMediaListPageBaseState<
           );
         },
       ),
+    );
+  }
+
+  Future<void> _openVideoFromPopularList({
+    required String videoId,
+    required List<Video> loadedVideos,
+    Map<String, dynamic>? extData,
+  }) async {
+    Video? initialVideoInfo;
+    for (final video in loadedVideos) {
+      if (video.id == videoId) {
+        initialVideoInfo = video;
+        break;
+      }
+    }
+
+    final playlistContext = InnerPlaylistContext.fromVideos(
+      source: InnerPlaylistSource.popularVideoList,
+      videos: loadedVideos,
+      currentVideoId: videoId,
+    );
+
+    await NaviService.navigateToVideoDetailPage(
+      videoId,
+      extData: extData,
+      innerPlaylistContext: playlistContext,
+      initialVideoInfo: initialVideoInfo,
     );
   }
 
@@ -745,6 +774,19 @@ class PopularMediaListPageBaseState<
                             _batchSelectController.toggleSelection(media),
                         onPageChanged: () =>
                             _batchSelectController.onPageChanged(),
+                        onOpenVideo:
+                            T == Video &&
+                                widget.searchSegment == SearchSegment.video
+                            ? ({
+                                required videoId,
+                                required loadedVideos,
+                                Map<String, dynamic>? extData,
+                              }) => _openVideoFromPopularList(
+                                videoId: videoId,
+                                loadedVideos: loadedVideos,
+                                extData: extData,
+                              )
+                            : null,
                       );
                     }).toList(),
                   ),

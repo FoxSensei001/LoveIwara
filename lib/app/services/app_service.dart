@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:uuid/uuid.dart';
 import 'package:i_iwara/app/models/message_and_conversation.model.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
+import 'package:i_iwara/app/models/video.model.dart';
+import 'package:i_iwara/app/models/video_fullscreen_handoff.model.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/utils/iwara_deep_link_utils.dart';
@@ -416,6 +419,11 @@ class NaviService {
   static Future<Object?> navigateToVideoDetailPage(
     String id, {
     Map<String, dynamic>? extData,
+    InnerPlaylistContext? innerPlaylistContext,
+    bool forceAutoPlay = false,
+    bool forceEnterFullscreen = false,
+    Video? initialVideoInfo,
+    VideoFullscreenHandoff? fullscreenHandoff,
   }) {
     final normalizedId = id.trim();
     if (normalizedId.isEmpty) return Future<Object?>.value();
@@ -432,7 +440,21 @@ class NaviService {
 
     final future = appRouter.push(
       '/video_detail/$normalizedId',
-      extra: extData != null ? VideoDetailExtra(extData: extData) : null,
+      extra:
+          extData != null ||
+              innerPlaylistContext != null ||
+              forceAutoPlay ||
+              forceEnterFullscreen ||
+              initialVideoInfo != null
+          ? VideoDetailExtra(
+              extData: extData,
+              innerPlaylistContext: innerPlaylistContext,
+              forceAutoPlay: forceAutoPlay,
+              forceEnterFullscreen: forceEnterFullscreen,
+              initialVideoInfo: initialVideoInfo,
+              fullscreenHandoff: fullscreenHandoff,
+            )
+          : null,
     );
     _ensureAndroidBackDispatcherPriority('push video_detail/$normalizedId');
     return future;

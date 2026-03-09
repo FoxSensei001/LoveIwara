@@ -474,6 +474,8 @@ settings:
   useTraditionalPaginationModeDesc: 開啟後列表將使用傳統分頁模式，關閉則使用瀑布流模式。重新渲染頁面或重啟應用後生效
   showVideoProgressBottomBarWhenToolbarHidden: 顯示底部進度條
   showVideoProgressBottomBarWhenToolbarHiddenDesc: 此設定決定是否在工具列隱藏時顯示底部進度條
+  showFullscreenUpNextHint: 顯示「接著看」側邊提示
+  showFullscreenUpNextHintDesc: 全螢幕播放時在右側顯示一個小提示條，用來快速展開「接著看」列表。
   basicSettings: 基礎設定
   personalizedSettings: 個性化設定
   otherSettings: 其他設定

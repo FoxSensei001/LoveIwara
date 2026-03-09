@@ -30,6 +30,12 @@ class MediaTabView<T> extends StatefulWidget {
 
   /// 分页切换时的回调（用于重置选择）
   final VoidCallback? onPageChanged;
+  final Future<void> Function({
+    required String videoId,
+    required List<Video> loadedVideos,
+    Map<String, dynamic>? extData,
+  })?
+  onOpenVideo;
 
   const MediaTabView({
     super.key,
@@ -45,6 +51,7 @@ class MediaTabView<T> extends StatefulWidget {
     this.selectedItemIds,
     this.onItemSelect,
     this.onPageChanged,
+    this.onOpenVideo,
   });
 
   @override
@@ -146,6 +153,15 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
         onSelect: widget.onItemSelect != null
             ? () => widget.onItemSelect!(video)
             : null,
+        onOpenVideo: widget.onOpenVideo == null
+            ? null
+            : ({required videoId, Map<String, dynamic>? extData}) {
+                return widget.onOpenVideo!(
+                  videoId: videoId,
+                  loadedVideos: List<Video>.of(widget.repository.cast<Video>()),
+                  extData: extData,
+                );
+              },
       );
     } else if (T == ImageModel) {
       final imageModel = item as ImageModel;

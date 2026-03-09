@@ -2,6 +2,8 @@ import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/inner_playlist.model.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/related_media_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
@@ -89,6 +91,26 @@ class _RelatedVideosTabWidgetState extends State<RelatedVideosTabWidget>
     return false;
   }
 
+  Future<void> _openVideoFromRelatedTab({
+    required String videoId,
+    required List<Video> loadedVideos,
+    required Video initialVideo,
+    Map<String, dynamic>? extData,
+  }) async {
+    final playlistContext = InnerPlaylistContext.fromVideos(
+      source: InnerPlaylistSource.relatedVideosTab,
+      videos: loadedVideos,
+      currentVideoId: videoId,
+    );
+
+    await NaviService.navigateToVideoDetailPage(
+      videoId,
+      extData: extData,
+      innerPlaylistContext: playlistContext,
+      initialVideoInfo: initialVideo,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
@@ -125,6 +147,19 @@ class _RelatedVideosTabWidgetState extends State<RelatedVideosTabWidget>
                       return VideoCardListItemWidget(
                         video: video,
                         width: itemWidth,
+                        onOpenVideo:
+                            ({
+                              required videoId,
+                              Map<String, dynamic>? extData,
+                            }) {
+                              return _openVideoFromRelatedTab(
+                                videoId: videoId,
+                                initialVideo: video,
+                                loadedVideos:
+                                    ctrl?.videos.toList() ?? const <Video>[],
+                                extData: extData,
+                              );
+                            },
                       );
                     },
                   );
@@ -147,6 +182,21 @@ class _RelatedVideosTabWidgetState extends State<RelatedVideosTabWidget>
                       return VideoCardListItemWidget(
                         video: video,
                         width: itemWidth,
+                        onOpenVideo:
+                            ({
+                              required videoId,
+                              Map<String, dynamic>? extData,
+                            }) {
+                              return _openVideoFromRelatedTab(
+                                videoId: videoId,
+                                initialVideo: video,
+                                loadedVideos: widget
+                                    .relatedVideoController
+                                    .videos
+                                    .toList(),
+                                extData: extData,
+                              );
+                            },
                       );
                     },
                   ),
