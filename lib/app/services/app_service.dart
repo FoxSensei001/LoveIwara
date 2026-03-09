@@ -10,6 +10,7 @@ import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
+import 'package:i_iwara/app/utils/iwara_deep_link_utils.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -67,6 +68,12 @@ class AppService extends GetxService {
       title: slang.t.settings.forum,
       icon: Icons.forum,
       pageIndex: 3,
+    ),
+    'news': NavigationItem(
+      key: 'news',
+      title: slang.t.settings.news,
+      icon: Icons.newspaper_rounded,
+      pageIndex: 4,
     ),
   };
 
@@ -132,6 +139,7 @@ class AppService extends GetxService {
     'gallery',
     'subscription',
     'forum',
+    'news',
   ];
 
   List<String> get navigationDisplayOrder {
@@ -177,6 +185,8 @@ class AppService extends GetxService {
         return '/subscriptions';
       case 3:
         return '/forum';
+      case 4:
+        return '/news';
       default:
         return '/';
     }
@@ -344,9 +354,10 @@ class NaviService {
   static void navigateToAuthorProfilePage(
     String username, {
     User? initialUser,
+    String? initialTab,
   }) {
     appRouter.push(
-      '/author_profile/$username',
+      IwaraDeepLinkUtils.buildAuthorProfileLocation(username, tab: initialTab),
       extra: initialUser == null
           ? null
           : AuthorProfileExtra(initialUser: initialUser),

@@ -67,6 +67,15 @@
                 <data android:pathPattern="/post/.*/.*" />
             </intent-filter>
 
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="news.iwara.tv" />
+            </intent-filter>
+
             <!-- Video file handling - allows app to open video files -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

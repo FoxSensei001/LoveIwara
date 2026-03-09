@@ -73,6 +73,7 @@ class TranslationsJa with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _TranslationsDisplaySettingsJa displaySettings = _TranslationsDisplaySettingsJa._(_root);
 	@override late final _TranslationsLayoutSettingsJa layoutSettings = _TranslationsLayoutSettingsJa._(_root);
 	@override late final _TranslationsNavigationOrderSettingsJa navigationOrderSettings = _TranslationsNavigationOrderSettingsJa._(_root);
+	@override late final _TranslationsNewsJa news = _TranslationsNewsJa._(_root);
 	@override late final _TranslationsSearchFilterJa searchFilter = _TranslationsSearchFilterJa._(_root);
 	@override late final _TranslationsFirstTimeSetupJa firstTimeSetup = _TranslationsFirstTimeSetupJa._(_root);
 	@override late final _TranslationsProxyHelperJa proxyHelper = _TranslationsProxyHelperJa._(_root);
@@ -696,6 +697,7 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get activeBackgroundPrivacyModeDesc => 'スクリーンショットを禁止し、バックグラウンド実行時に画面を隠す...';
 	@override String get privacy => 'プライバシー';
 	@override String get forum => 'フォーラム';
+	@override String get news => 'ニュース';
 	@override String get disableForumReplyQuote => 'フォーラム返信引用を無効にする';
 	@override String get disableForumReplyQuoteDesc => 'フォーラム返信時の返信階層情報の携帯を無効にする';
 	@override String get theaterMode => '劇院モード';
@@ -1798,6 +1800,21 @@ class _TranslationsNavigationOrderSettingsJa implements TranslationsNavigationOr
 	@override String get galleryDescription => '画像とギャラリーを閲覧';
 	@override String get subscriptionDescription => 'フォローしているユーザーの最新コンテンツを表示';
 	@override String get forumDescription => 'コミュニティディスカッションに参加';
+	@override String get newsDescription => '公式ニュース、記事、放送を閲覧';
+}
+
+// Path: news
+class _TranslationsNewsJa implements TranslationsNewsEn {
+	_TranslationsNewsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'ニュース';
+	@override String get newsUpdates => '更新情報';
+	@override String get articles => '記事';
+	@override String get broadcast => '放送';
+	@override String get openInBrowser => 'ブラウザで開く';
 }
 
 // Path: searchFilter
@@ -3360,6 +3377,7 @@ extension on TranslationsJa {
 			'settings.activeBackgroundPrivacyModeDesc' => 'スクリーンショットを禁止し、バックグラウンド実行時に画面を隠す...',
 			'settings.privacy' => 'プライバシー',
 			'settings.forum' => 'フォーラム',
+			'settings.news' => 'ニュース',
 			'settings.disableForumReplyQuote' => 'フォーラム返信引用を無効にする',
 			'settings.disableForumReplyQuoteDesc' => 'フォーラム返信時の返信階層情報の携帯を無効にする',
 			'settings.theaterMode' => '劇院モード',
@@ -3855,9 +3873,9 @@ extension on TranslationsJa {
 			'forum.forum' => 'フォーラム',
 			'forum.createThread' => 'スレッドを作成',
 			'forum.selectCategory' => 'カテゴリを選択',
-			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => 'クールダウン残り時間 ${minutes} 分 ${seconds} 秒',
 			_ => null,
 		} ?? switch (path) {
+			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => 'クールダウン残り時間 ${minutes} 分 ${seconds} 秒',
 			'forum.groups.administration' => '管理',
 			'forum.groups.global' => 'グローバル',
 			'forum.groups.chinese' => '中国語',
@@ -4369,9 +4387,9 @@ extension on TranslationsJa {
 			'diagnostics.healthSectionTitle' => 'ログヘルス',
 			'diagnostics.refreshMetrics' => '指標を更新',
 			'diagnostics.toolsSectionTitle' => 'ツール',
-			'diagnostics.privacyNotice' => 'ログにはアカウント情報やリクエストパラメータなどの機密情報が含まれる可能性があります。Issue に完全なログを公開添付せず、確認後にメールで送信してください。',
 			_ => null,
 		} ?? switch (path) {
+			'diagnostics.privacyNotice' => 'ログにはアカウント情報やリクエストパラメータなどの機密情報が含まれる可能性があります。Issue に完全なログを公開添付せず、確認後にメールで送信してください。',
 			'diagnostics.exportLogsTitle' => 'ログをエクスポート',
 			'diagnostics.exportLogsSubtitle' => '送信前にプライバシー情報を確認してください',
 			'diagnostics.viewLogsTitle' => 'ログを表示',
@@ -4617,6 +4635,12 @@ extension on TranslationsJa {
 			'navigationOrderSettings.galleryDescription' => '画像とギャラリーを閲覧',
 			'navigationOrderSettings.subscriptionDescription' => 'フォローしているユーザーの最新コンテンツを表示',
 			'navigationOrderSettings.forumDescription' => 'コミュニティディスカッションに参加',
+			'navigationOrderSettings.newsDescription' => '公式ニュース、記事、放送を閲覧',
+			'news.title' => 'ニュース',
+			'news.newsUpdates' => '更新情報',
+			'news.articles' => '記事',
+			'news.broadcast' => '放送',
+			'news.openInBrowser' => 'ブラウザで開く',
 			'searchFilter.selectField' => 'フィールドを選択',
 			'searchFilter.add' => '追加',
 			'searchFilter.clear' => 'クリア',

@@ -20,6 +20,10 @@ class PostCardListItemWidget extends StatefulWidget {
 }
 
 class _PostCardListItemWidgetState extends State<PostCardListItemWidget> {
+  static const double _titleFontSize = 14;
+  static const double _titleLineHeight = 1.22;
+  static const double _titleHeight = _titleFontSize * _titleLineHeight * 2;
+
   bool _isHovering = false;
   static const Duration _hoverAnimationDuration = Duration(milliseconds: 220);
   String get _heroTag => 'post-card-${widget.post.id}';
@@ -30,6 +34,11 @@ class _PostCardListItemWidgetState extends State<PostCardListItemWidget> {
     final radius = BorderRadius.circular(14);
     final enableHover = _isDesktopPlatform();
     final showHoverState = enableHover && _isHovering;
+    final titleStyle = theme.textTheme.titleMedium?.copyWith(
+      fontSize: _titleFontSize,
+      fontWeight: FontWeight.w700,
+      height: _titleLineHeight,
+    );
 
     return RepaintBoundary(
       child: MouseRegion(
@@ -75,16 +84,23 @@ class _PostCardListItemWidgetState extends State<PostCardListItemWidget> {
                       children: [
                         _AuthorLine(post: widget.post),
                         const SizedBox(height: 9),
-                        Text(
-                          widget.post.title.isEmpty
-                              ? slang.t.common.noTitle
-                              : widget.post.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            height: 1.22,
+                        SizedBox(
+                          height: _titleHeight,
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: Text(
+                              widget.post.title.isEmpty
+                                  ? slang.t.common.noTitle
+                                  : widget.post.title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              strutStyle: const StrutStyle(
+                                fontSize: _titleFontSize,
+                                height: _titleLineHeight,
+                                forceStrutHeight: true,
+                              ),
+                              style: titleStyle,
+                            ),
                           ),
                         ),
                         if (widget.post.body.isNotEmpty) ...[

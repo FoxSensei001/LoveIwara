@@ -562,6 +562,7 @@ settings:
   activeBackgroundPrivacyModeDesc: 禁止截图、后台运行时隐藏画面...
   privacy: 隐私
   forum: 论坛
+  news: 新闻
   disableForumReplyQuote: 禁用论坛回复引用
   disableForumReplyQuoteDesc: 禁用论坛回复时携带被回复楼层信息
   theaterMode: 剧院模式
@@ -1926,6 +1927,15 @@ navigationOrderSettings:
   galleryDescription: 浏览图片和画廊
   subscriptionDescription: 查看关注用户的最新内容
   forumDescription: 参与社区讨论
+
+  newsDescription: 浏览官方新闻、文章和公告广播
+
+news:
+  title: 新闻
+  newsUpdates: 最新动态
+  articles: 文章
+  broadcast: 广播
+  openInBrowser: 在浏览器中打开
 
 # 搜索过滤器配置
 searchFilter:

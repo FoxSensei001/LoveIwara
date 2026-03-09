@@ -20,6 +20,7 @@ import 'package:i_iwara/app/services/filename_template_service.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/services/http_client_factory.dart';
+import 'package:i_iwara/app/services/iwara_news_service.dart';
 import 'package:i_iwara/app/services/iwara_network_service.dart';
 import 'package:i_iwara/app/services/light_service.dart';
 import 'package:i_iwara/app/services/logging/log_service.dart';
@@ -304,6 +305,7 @@ class AppStartupCoordinator implements AppStartupRunner {
     _registerDeferredLazy<LightService>(() => LightService());
     _registerDeferredLazy<PlayListService>(() => PlayListService());
     _registerDeferredLazy<ForumService>(() => ForumService());
+    _registerDeferredLazy<IwaraNewsService>(() => IwaraNewsService());
     _registerDeferredLazy<ConversationService>(() => ConversationService());
 
     _registerDeferredSingleton<PermissionService>(PermissionService());

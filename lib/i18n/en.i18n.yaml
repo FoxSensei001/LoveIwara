@@ -555,6 +555,7 @@ settings:
   activeBackgroundPrivacyModeDesc: Prevent screenshots, hide screen when running in the background...
   privacy: Privacy
   forum: Forum
+  news: News
   disableForumReplyQuote: Disable Forum Reply Quote
   disableForumReplyQuoteDesc: Disable carrying replied floor information when replying in forum
   theaterMode: Theater Mode
@@ -1587,6 +1588,15 @@ navigationOrderSettings:
   galleryDescription: Browse images and galleries
   subscriptionDescription: View latest content from followed users
   forumDescription: Participate in community discussions
+
+  newsDescription: Browse official news, articles, and broadcasts
+
+news:
+  title: News
+  newsUpdates: News Updates
+  articles: Articles
+  broadcast: Broadcast
+  openInBrowser: Open in Browser
 
 # Display Settings
 displaySettings:

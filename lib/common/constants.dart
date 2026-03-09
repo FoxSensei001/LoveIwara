@@ -44,6 +44,11 @@ class CommonConstants {
   // AI 站 host（用于 `x-site` Header）
   static const String iwaraAiSiteHost = 'www.iwara.ai';
 
+  // 新闻站基础URL
+  static const String iwaraNewsBaseUrl = 'https://news.iwara.tv';
+
+  static const String iwaraNewsHost = 'news.iwara.tv';
+
   // api基础URL
   static const String iwaraApiBaseUrl = 'https://apiq.iwara.tv';
 

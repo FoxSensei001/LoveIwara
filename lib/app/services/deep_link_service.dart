@@ -2,8 +2,10 @@ import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
+import 'package:i_iwara/app/utils/iwara_deep_link_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
@@ -19,36 +21,14 @@ class DeepLinkService extends GetxService {
 
   /// 判断一个URI是否可以被应用内处理
   static bool canHandleInternally(Uri uri) {
-    if (uri.pathSegments.isEmpty) return false;
-
-    final pathSegments = uri.pathSegments;
-    switch (pathSegments[0]) {
-      case 'video':
-      case 'playlist':
-      case 'image':
-      case 'post':
-        // 这些类型只需要第一个 pathSegment 就可以判断
-        return pathSegments.length > 1;
-
-      case 'profile':
-        // profile 可以是 /profile/userName 或者 /profile/userName/playlists
-        return pathSegments.length > 1;
-
-      case 'forum':
-        // forum 可以是 /forum/categoryId 或者 /forum/categoryId/threadId
-        return pathSegments.length > 1;
-
-      default:
-        return false;
-    }
+    return IwaraDeepLinkUtils.normalizeToAppLocation(uri) != null;
   }
 
   /// 判断一个链接字符串是否可以被应用内处理
   static bool canHandleLink(String link) {
     try {
       final uri = Uri.parse(link);
-      // 检查是否是iwara链接
-      if (!IwaraSiteUtils.isIwaraHost(uri.host)) return false;
+      if (!IwaraDeepLinkUtils.isSupportedAppLinkHost(uri.host)) return false;
 
       return canHandleInternally(uri);
     } catch (e) {
@@ -157,6 +137,7 @@ class DeepLinkService extends GetxService {
     // 处理不同类型的链接
     final pathSegments = uri.pathSegments;
     final site = IwaraSiteUtils.fromHost(uri.host);
+    final normalizedLocation = IwaraDeepLinkUtils.normalizeToAppLocation(uri);
 
     // 处理本地文件 URI (file:// 或 content://)
     if (uri.scheme == 'file' || uri.scheme == 'content') {
@@ -177,6 +158,20 @@ class DeepLinkService extends GetxService {
       return;
     }
 
+    if (IwaraDeepLinkUtils.isSupportedNewsHost(uri.host)) {
+      if (normalizedLocation == null) {
+        LogUtils.w('news deeplink 无法归一化: $uri', 'DeepLinkService');
+        return;
+      }
+
+      LogUtils.i(
+        '处理 news deeplink: $uri -> $normalizedLocation',
+        'DeepLinkService',
+      );
+      appRouter.push(normalizedLocation);
+      return;
+    }
+
     LogUtils.d('处理在线链接，第一个路径段: ${pathSegments[0]}', 'DeepLinkService');
 
     switch (pathSegments[0]) {
@@ -192,15 +187,17 @@ class DeepLinkService extends GetxService {
         break;
 
       case 'profile':
-        // 用户主页 目前url可以识别 iwara.tv/profile/userName 和 iwara.tv/profile/userName/playlists 两种路径
+        // 用户主页 deeplink 支持 profile 子页签（videos/images/playlists/posts）
         if (pathSegments.length > 1) {
           final userName = pathSegments[1];
+          final initialTab = IwaraDeepLinkUtils.normalizeAuthorProfileTab(
+            pathSegments.length > 2 ? pathSegments[2] : null,
+          );
           NaviService.navigateInSiteMode(site, () async {
-            if (pathSegments.length > 2 && pathSegments[2] == 'playlists') {
-              NaviService.navigateToPlayListPage(userName);
-            } else {
-              NaviService.navigateToAuthorProfilePage(userName);
-            }
+            NaviService.navigateToAuthorProfilePage(
+              userName,
+              initialTab: initialTab,
+            );
           });
         }
         break;

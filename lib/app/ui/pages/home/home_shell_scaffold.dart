@@ -44,6 +44,7 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     'gallery': 1,
     'subscription': 2,
     'forum': 3,
+    'news': 4,
   };
 
   static const List<String> _defaultOrder = [
@@ -51,6 +52,7 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     'gallery',
     'subscription',
     'forum',
+    'news',
   ];
 
   @override
@@ -118,6 +120,8 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
         return 2;
       case '/forum':
         return 3;
+      case '/news':
+        return 4;
       default:
         return null;
     }
@@ -180,6 +184,8 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
         return '/subscriptions';
       case 3:
         return '/forum';
+      case 4:
+        return '/news';
       default:
         return '/';
     }

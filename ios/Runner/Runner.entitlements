@@ -8,6 +8,7 @@
 		<string>applinks:www.iwara.tv</string>
 		<string>applinks:iwara.ai</string>
 		<string>applinks:www.iwara.ai</string>
+		<string>applinks:news.iwara.tv</string>
 	</array>
 </dict>
 </plist>

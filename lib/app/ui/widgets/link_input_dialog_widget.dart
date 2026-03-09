@@ -15,10 +15,7 @@ class LinkInputDialogWidget extends StatefulWidget {
 
   static void show() {
     AppService.hideGlobalDrawer();
-    showAppDialog(
-      const LinkInputDialogWidget(),
-      barrierDismissible: true,
-    );
+    showAppDialog(const LinkInputDialogWidget(), barrierDismissible: true);
   }
 
   @override
@@ -28,12 +25,12 @@ class LinkInputDialogWidget extends StatefulWidget {
 class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
   final textController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  
+
   // 存储从文本中提取的所有链接
   final List<String> extractedLinks = [];
   bool isAnalyzing = false;
   bool hasMultipleLinks = false;
-  
+
   @override
   void initState() {
     super.initState();
@@ -47,22 +44,22 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
     textController.dispose();
     super.dispose();
   }
-  
+
   // 从文本中提取链接的方法
   void _analyzeTextForLinks() {
     if (textController.text.isEmpty || isAnalyzing) return;
-    
+
     setState(() {
       isAnalyzing = true;
       extractedLinks.clear();
     });
-    
+
     // 使用正则表达式提取所有包含iwara的链接
     final regex = RegExp(
       r'https?://(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)',
       caseSensitive: false,
     );
-    
+
     final matches = regex.allMatches(textController.text);
     for (final match in matches) {
       final link = match.group(0);
@@ -70,7 +67,7 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
         extractedLinks.add(link);
       }
     }
-    
+
     setState(() {
       hasMultipleLinks = extractedLinks.length > 1;
       isAnalyzing = false;
@@ -80,9 +77,7 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         width: double.infinity,
         constraints: BoxConstraints(
@@ -111,17 +106,21 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      slang.t.linkInputDialog.supportedLinksHint(webName: CommonConstants.webName),
+                      slang.t.linkInputDialog.supportedLinksHint(
+                        webName: CommonConstants.webName,
+                      ),
                       style: TextStyle(
                         fontSize: 12,
-                        color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.8),
+                        color: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.color?.withValues(alpha: 0.8),
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-            
+
             // 输入表单部分
             SliverToBoxAdapter(
               child: Padding(
@@ -131,7 +130,9 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
                   child: TextFormField(
                     controller: textController,
                     decoration: InputDecoration(
-                      hintText: slang.t.linkInputDialog.inputHint(webName: CommonConstants.webName),
+                      hintText: slang.t.linkInputDialog.inputHint(
+                        webName: CommonConstants.webName,
+                      ),
                       prefixIcon: const Icon(Icons.insert_link_rounded),
                     ),
                     validator: (value) {
@@ -140,7 +141,9 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
                       }
                       // 如果未检测到iwara链接，显示错误
                       if (extractedLinks.isEmpty) {
-                        return slang.t.linkInputDialog.validatorNoIwaraLink(webName: CommonConstants.webName);
+                        return slang.t.linkInputDialog.validatorNoIwaraLink(
+                          webName: CommonConstants.webName,
+                        );
                       }
                       return null;
                     },
@@ -151,7 +154,7 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
                 ),
               ),
             ),
-            
+
             // 多链接标题 - 仅在有多个链接时显示
             if (hasMultipleLinks)
               SliverToBoxAdapter(
@@ -170,32 +173,29 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
                   ),
                 ),
               ),
-            
+
             // 链接列表 - 仅在有多个链接时显示
             if (hasMultipleLinks)
               SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: ListTile(
-                        title: Text(
-                          extractedLinks[index],
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        leading: const Icon(Icons.link),
-                        onTap: () {
-                          AppService.tryPop();
-                          _processUserLink(extractedLinks[index]);
-                        },
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: ListTile(
+                      title: Text(
+                        extractedLinks[index],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    );
-                  },
-                  childCount: extractedLinks.length,
-                ),
+                      leading: const Icon(Icons.link),
+                      onTap: () {
+                        AppService.tryPop();
+                        _processUserLink(extractedLinks[index]);
+                      },
+                    ),
+                  );
+                }, childCount: extractedLinks.length),
               ),
-            
+
             // 按钮部分
             SliverToBoxAdapter(
               child: Padding(
@@ -216,7 +216,7 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
                           if (extractedLinks.length == 1) {
                             AppService.tryPop();
                             _processUserLink(extractedLinks[0]);
-                          } 
+                          }
                           // 如果有多个链接但用户点击了确定，处理第一个链接
                           else if (extractedLinks.length > 1) {
                             AppService.tryPop();
@@ -245,29 +245,34 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
   void _processUserLink(String link) {
     try {
       final uri = Uri.parse(link);
-      
-      // 检查是否是有效的iwara链接
-      if (!IwaraSiteUtils.isIwaraHost(uri.host)) {
-        showToastWidget(MDToastWidget(
-          message: slang.t.linkInputDialog.notIwaraLink(webName: CommonConstants.webName),
-          type: MDToastType.error,
-        ), position: ToastPosition.top);
+
+      if (!DeepLinkService.canHandleLink(link) &&
+          !IwaraSiteUtils.isIwaraHost(uri.host)) {
+        showToastWidget(
+          MDToastWidget(
+            message: slang.t.linkInputDialog.notIwaraLink(
+              webName: CommonConstants.webName,
+            ),
+            type: MDToastType.error,
+          ),
+          position: ToastPosition.top,
+        );
         return;
       }
 
-      // 使用DeepLinkService判断是否可以在应用内处理
       if (DeepLinkService.canHandleInternally(uri)) {
-        // 应用内可处理的链接
         _handleDeepLink(uri);
       } else {
-        // 应用内不能处理的链接
         _showUnsupportedLinkDialog(link);
       }
     } catch (e) {
-      showToastWidget(MDToastWidget(
-        message: slang.t.linkInputDialog.linkParseError(error: e.toString()),
-        type: MDToastType.error,
-      ), position: ToastPosition.top);
+      showToastWidget(
+        MDToastWidget(
+          message: slang.t.linkInputDialog.linkParseError(error: e.toString()),
+          type: MDToastType.error,
+        ),
+        position: ToastPosition.top,
+      );
     }
   }
 
@@ -315,14 +320,18 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[800] : Colors.grey[200],
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.grey[800]
+                    : Colors.grey[200],
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
                 link,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black87,
                 ),
               ),
             ),
@@ -354,10 +363,13 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
-      showToastWidget(MDToastWidget(
-        message: slang.t.linkInputDialog.browserOpenFailed,
-        type: MDToastType.error,
-      ), position: ToastPosition.top);
+      showToastWidget(
+        MDToastWidget(
+          message: slang.t.linkInputDialog.browserOpenFailed,
+          type: MDToastType.error,
+        ),
+        position: ToastPosition.top,
+      );
     }
   }
 }
@@ -377,9 +389,7 @@ class _CustomDialogWithScrollView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         constraints: BoxConstraints(
           maxHeight: MediaQuery.of(context).size.height * 0.8,
@@ -404,7 +414,7 @@ class _CustomDialogWithScrollView extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             // 内容
             SliverToBoxAdapter(
               child: Padding(
@@ -412,7 +422,7 @@ class _CustomDialogWithScrollView extends StatelessWidget {
                 child: content is String ? Text(content) : content,
               ),
             ),
-            
+
             // 按钮
             SliverToBoxAdapter(
               child: Padding(
@@ -420,10 +430,12 @@ class _CustomDialogWithScrollView extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    ...actions.map((action) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: action,
-                    )),
+                    ...actions.map(
+                      (action) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: action,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -433,4 +445,4 @@ class _CustomDialogWithScrollView extends StatelessWidget {
       ),
     );
   }
-} 
+}

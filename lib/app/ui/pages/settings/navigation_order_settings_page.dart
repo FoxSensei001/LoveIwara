@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -49,6 +50,12 @@ class _NavigationOrderSettingsPageState
       icon: Icons.forum,
       description: slang.t.navigationOrderSettings.forumDescription,
     ),
+    'news': NavigationItem(
+      key: 'news',
+      title: slang.t.settings.news,
+      icon: Icons.newspaper_rounded,
+      description: slang.t.navigationOrderSettings.newsDescription,
+    ),
   };
 
   @override
@@ -59,14 +66,47 @@ class _NavigationOrderSettingsPageState
   }
 
   void _loadSettings() {
-    final orderRaw = _configService[ConfigKey.NAVIGATION_ORDER] as List<dynamic>;
-    _navigationOrder = List<String>.from(orderRaw);
+    final orderRaw = _configService[ConfigKey.NAVIGATION_ORDER];
+    final normalizedOrder = _normalizeNavigationOrder(orderRaw);
+    _navigationOrder = normalizedOrder;
+
+    final storedOrder = orderRaw is List
+        ? orderRaw.whereType<String>().toList()
+        : const <String>[];
+    if (!listEquals(storedOrder, normalizedOrder)) {
+      _configService.saveSetting(ConfigKey.NAVIGATION_ORDER, normalizedOrder);
+    }
   }
 
   void _saveSettings() {
-    _configService.saveSetting(ConfigKey.NAVIGATION_ORDER, _navigationOrder);
+    final normalizedOrder = _normalizeNavigationOrder(_navigationOrder);
+    _navigationOrder = normalizedOrder;
+    _configService.saveSetting(ConfigKey.NAVIGATION_ORDER, normalizedOrder);
     // 触发重建
     setState(() {});
+  }
+
+  List<String> _normalizeNavigationOrder(dynamic rawOrder) {
+    final raw = rawOrder is List ? rawOrder : const <dynamic>[];
+    final result = <String>[];
+    final defaultOrder = List<String>.from(
+      ConfigKey.NAVIGATION_ORDER.defaultValue as List,
+    );
+
+    for (final item in raw) {
+      if (item is! String) continue;
+      if (!_navigationItems.containsKey(item)) continue;
+      if (result.contains(item)) continue;
+      result.add(item);
+    }
+
+    for (final item in defaultOrder) {
+      if (!result.contains(item) && _navigationItems.containsKey(item)) {
+        result.add(item);
+      }
+    }
+
+    return result;
   }
 
   void _resetToDefaults() {
@@ -89,12 +129,7 @@ class _NavigationOrderSettingsPageState
             isWideScreen: widget.isWideScreen,
           ),
           SliverPadding(
-            padding: EdgeInsets.fromLTRB(
-              16,
-              16,
-              16,
-              16 + bottomInset,
-            ),
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _buildDescriptionCard(),
@@ -121,7 +156,9 @@ class _NavigationOrderSettingsPageState
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.2),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primaryContainer.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
@@ -153,12 +190,19 @@ class _NavigationOrderSettingsPageState
                   ),
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.1),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.errorContainer.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(
-                        color: Theme.of(context).colorScheme.error.withValues(alpha: 0.2),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.error.withValues(alpha: 0.2),
                         width: 1,
                       ),
                     ),
@@ -173,10 +217,11 @@ class _NavigationOrderSettingsPageState
                         const SizedBox(width: 4),
                         Text(
                           slang.t.navigationOrderSettings.restartRequired,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.error,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.error,
+                                fontWeight: FontWeight.w500,
+                              ),
                         ),
                       ],
                     ),
@@ -217,7 +262,11 @@ class _NavigationOrderSettingsPageState
                         _isDragMode ? Icons.check : Icons.drag_handle,
                         size: 18,
                       ),
-                      label: Text(_isDragMode ? slang.t.navigationOrderSettings.done : slang.t.navigationOrderSettings.edit),
+                      label: Text(
+                        _isDragMode
+                            ? slang.t.navigationOrderSettings.done
+                            : slang.t.navigationOrderSettings.edit,
+                      ),
                       onPressed: () {
                         setState(() {
                           _isDragMode = !_isDragMode;
@@ -470,8 +519,12 @@ class _NavigationOrderSettingsPageState
   void _showResetConfirmDialog() {
     showAppDialog(
       AlertDialog(
-        title: Text(slang.t.navigationOrderSettings.confirmResetNavigationOrder),
-        content: Text(slang.t.navigationOrderSettings.confirmResetNavigationOrderDesc),
+        title: Text(
+          slang.t.navigationOrderSettings.confirmResetNavigationOrder,
+        ),
+        content: Text(
+          slang.t.navigationOrderSettings.confirmResetNavigationOrderDesc,
+        ),
         actions: [
           TextButton(
             onPressed: () => AppService.tryPop(),

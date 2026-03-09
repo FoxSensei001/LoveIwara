@@ -73,6 +73,7 @@ class TranslationsZhCn with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsDisplaySettingsZhCn displaySettings = _TranslationsDisplaySettingsZhCn._(_root);
 	@override late final _TranslationsLayoutSettingsZhCn layoutSettings = _TranslationsLayoutSettingsZhCn._(_root);
 	@override late final _TranslationsNavigationOrderSettingsZhCn navigationOrderSettings = _TranslationsNavigationOrderSettingsZhCn._(_root);
+	@override late final _TranslationsNewsZhCn news = _TranslationsNewsZhCn._(_root);
 	@override late final _TranslationsSearchFilterZhCn searchFilter = _TranslationsSearchFilterZhCn._(_root);
 	@override late final _TranslationsFirstTimeSetupZhCn firstTimeSetup = _TranslationsFirstTimeSetupZhCn._(_root);
 	@override late final _TranslationsProxyHelperZhCn proxyHelper = _TranslationsProxyHelperZhCn._(_root);
@@ -701,6 +702,7 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get activeBackgroundPrivacyModeDesc => '禁止截图、后台运行时隐藏画面...';
 	@override String get privacy => '隐私';
 	@override String get forum => '论坛';
+	@override String get news => '新闻';
 	@override String get disableForumReplyQuote => '禁用论坛回复引用';
 	@override String get disableForumReplyQuoteDesc => '禁用论坛回复时携带被回复楼层信息';
 	@override String get theaterMode => '剧院模式';
@@ -1803,6 +1805,21 @@ class _TranslationsNavigationOrderSettingsZhCn implements TranslationsNavigation
 	@override String get galleryDescription => '浏览图片和画廊';
 	@override String get subscriptionDescription => '查看关注用户的最新内容';
 	@override String get forumDescription => '参与社区讨论';
+	@override String get newsDescription => '浏览官方新闻、文章和公告广播';
+}
+
+// Path: news
+class _TranslationsNewsZhCn implements TranslationsNewsEn {
+	_TranslationsNewsZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '新闻';
+	@override String get newsUpdates => '最新动态';
+	@override String get articles => '文章';
+	@override String get broadcast => '广播';
+	@override String get openInBrowser => '在浏览器中打开';
 }
 
 // Path: searchFilter
@@ -3370,6 +3387,7 @@ extension on TranslationsZhCn {
 			'settings.activeBackgroundPrivacyModeDesc' => '禁止截图、后台运行时隐藏画面...',
 			'settings.privacy' => '隐私',
 			'settings.forum' => '论坛',
+			'settings.news' => '新闻',
 			'settings.disableForumReplyQuote' => '禁用论坛回复引用',
 			'settings.disableForumReplyQuoteDesc' => '禁用论坛回复时携带被回复楼层信息',
 			'settings.theaterMode' => '剧院模式',
@@ -3860,9 +3878,9 @@ extension on TranslationsZhCn {
 			'forum.content' => '内容',
 			'forum.enterContent' => '输入内容',
 			'forum.writeYourContentHere' => '在此输入内容...',
-			'forum.posts' => '帖子',
 			_ => null,
 		} ?? switch (path) {
+			'forum.posts' => '帖子',
 			'forum.threads' => '主题',
 			'forum.forum' => '论坛',
 			'forum.createThread' => '创建主题',
@@ -4374,9 +4392,9 @@ extension on TranslationsZhCn {
 			'diagnostics.rotatedFileCountSubtitle' => '包含当前文件之外的保留份数',
 			'diagnostics.hangFileSizeTitle' => '卡顿日志大小上限',
 			'diagnostics.hangFileSizeSubtitle' => '控制 hang_events 文件增长',
-			'diagnostics.hangRotatedFileCountTitle' => '卡顿日志轮转文件数',
 			_ => null,
 		} ?? switch (path) {
+			'diagnostics.hangRotatedFileCountTitle' => '卡顿日志轮转文件数',
 			'diagnostics.hangRotatedFileCountSubtitle' => '控制 hang_events 历史保留份数',
 			'diagnostics.healthSectionTitle' => '日志健康',
 			'diagnostics.refreshMetrics' => '刷新指标',
@@ -4627,6 +4645,12 @@ extension on TranslationsZhCn {
 			'navigationOrderSettings.galleryDescription' => '浏览图片和画廊',
 			'navigationOrderSettings.subscriptionDescription' => '查看关注用户的最新内容',
 			'navigationOrderSettings.forumDescription' => '参与社区讨论',
+			'navigationOrderSettings.newsDescription' => '浏览官方新闻、文章和公告广播',
+			'news.title' => '新闻',
+			'news.newsUpdates' => '最新动态',
+			'news.articles' => '文章',
+			'news.broadcast' => '广播',
+			'news.openInBrowser' => '在浏览器中打开',
 			'searchFilter.selectField' => '选择字段',
 			'searchFilter.add' => '添加',
 			'searchFilter.clear' => '清空',

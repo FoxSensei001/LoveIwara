@@ -533,6 +533,11 @@ class _CommentItemState extends State<CommentItem> {
   Widget build(BuildContext context) {
     final comment = widget.comment;
     final t = slang.Translations.of(context);
+    final hasCommentTags =
+        comment.user?.id == _userService.currentUser.value?.id ||
+        comment.user?.premium == true ||
+        comment.user?.id == widget.authorUserId ||
+        comment.user?.role.contains('admin') == true;
 
     return RepaintBoundary(
       child: Padding(
@@ -552,7 +557,7 @@ class _CommentItemState extends State<CommentItem> {
                   comment.user?.username ?? '',
                 ),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildUserAvatar(comment),
                     const SizedBox(width: 6),
@@ -587,40 +592,6 @@ class _CommentItemState extends State<CommentItem> {
                                 ),
                             ],
                           ),
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if (comment.user?.id ==
-                                    _userService.currentUser.value?.id)
-                                  _buildCommentTag(
-                                    t.common.me,
-                                    Colors.blue,
-                                    Icons.person,
-                                  ),
-                                if (comment.user?.premium == true)
-                                  _buildCommentTag(
-                                    t.common.premium,
-                                    Colors.purple,
-                                    Icons.star,
-                                  ),
-                                if (comment.user?.id == widget.authorUserId)
-                                  _buildCommentTag(
-                                    t.common.author,
-                                    Colors.green,
-                                    Icons.verified_user,
-                                  ),
-                                if (comment.user?.role.contains('admin') ==
-                                    true)
-                                  _buildCommentTag(
-                                    t.common.admin,
-                                    Colors.red,
-                                    Icons.admin_panel_settings,
-                                  ),
-                              ],
-                            ),
-                          ),
                           Text(
                             '@${comment.user?.username ?? ''}',
                             style: TextStyle(
@@ -630,6 +601,41 @@ class _CommentItemState extends State<CommentItem> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
+                          if (hasCommentTags)
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (comment.user?.id ==
+                                      _userService.currentUser.value?.id)
+                                    _buildCommentTag(
+                                      t.common.me,
+                                      Colors.blue,
+                                      Icons.person,
+                                    ),
+                                  if (comment.user?.premium == true)
+                                    _buildCommentTag(
+                                      t.common.premium,
+                                      Colors.purple,
+                                      Icons.star,
+                                    ),
+                                  if (comment.user?.id == widget.authorUserId)
+                                    _buildCommentTag(
+                                      t.common.author,
+                                      Colors.green,
+                                      Icons.verified_user,
+                                    ),
+                                  if (comment.user?.role.contains('admin') ==
+                                      true)
+                                    _buildCommentTag(
+                                      t.common.admin,
+                                      Colors.red,
+                                      Icons.admin_panel_settings,
+                                    ),
+                                ],
+                              ),
+                            ),
                         ],
                       ),
                     ),

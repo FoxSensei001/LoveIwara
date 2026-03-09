@@ -6,6 +6,11 @@ import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
+const double _threadTitleFontSize = 14;
+const double _threadTitleLineHeight = 1.22;
+const double _threadTitleHeight =
+    _threadTitleFontSize * _threadTitleLineHeight * 2;
+
 class ThreadListItemWidget extends StatefulWidget {
   final ForumThreadModel thread;
   final String categoryId;
@@ -201,14 +206,26 @@ class _TitleLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Text(
-      thread.title,
-      maxLines: 2,
-      overflow: TextOverflow.ellipsis,
-      style: theme.textTheme.titleMedium?.copyWith(
-        fontSize: 14,
-        fontWeight: FontWeight.w700,
-        height: 1.22,
+    final titleStyle = theme.textTheme.titleMedium?.copyWith(
+      fontSize: _threadTitleFontSize,
+      fontWeight: FontWeight.w700,
+      height: _threadTitleLineHeight,
+    );
+    return SizedBox(
+      height: _threadTitleHeight,
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: Text(
+          thread.title,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          strutStyle: const StrutStyle(
+            fontSize: _threadTitleFontSize,
+            height: _threadTitleLineHeight,
+            forceStrutHeight: true,
+          ),
+          style: titleStyle,
+        ),
       ),
     );
   }

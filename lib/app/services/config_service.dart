@@ -760,7 +760,7 @@ extension ConfigKeyExtension on ConfigKey {
           '9999': 6,
         }; // 默认断点配置
       case ConfigKey.NAVIGATION_ORDER:
-        return <String>['video', 'gallery', 'subscription', 'forum']; // 默认导航顺序
+        return <String>['video', 'gallery', 'subscription', 'forum', 'news']; // 默认导航顺序
       case ConfigKey.FULLSCREEN_ORIENTATION:
         return 'landscape_left'; // 默认左侧横屏
       case ConfigKey.FIRST_TIME_SETUP_COMPLETED:

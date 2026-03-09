@@ -75,6 +75,7 @@ class TranslationsZhTw with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsDisplaySettingsZhTw displaySettings = _TranslationsDisplaySettingsZhTw._(_root);
 	@override late final _TranslationsLayoutSettingsZhTw layoutSettings = _TranslationsLayoutSettingsZhTw._(_root);
 	@override late final _TranslationsNavigationOrderSettingsZhTw navigationOrderSettings = _TranslationsNavigationOrderSettingsZhTw._(_root);
+	@override late final _TranslationsNewsZhTw news = _TranslationsNewsZhTw._(_root);
 	@override late final _TranslationsSearchFilterZhTw searchFilter = _TranslationsSearchFilterZhTw._(_root);
 	@override late final _TranslationsTagSelectorZhTw tagSelector = _TranslationsTagSelectorZhTw._(_root);
 	@override late final _TranslationsAnime4kZhTw anime4k = _TranslationsAnime4kZhTw._(_root);
@@ -696,6 +697,7 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get activeBackgroundPrivacyModeDesc => '禁止截圖、後台執行時隱藏畫面...';
 	@override String get privacy => '隱私';
 	@override String get forum => '論壇';
+	@override String get news => '新聞';
 	@override String get disableForumReplyQuote => '停用論壇回覆引用';
 	@override String get disableForumReplyQuoteDesc => '停用論壇回覆時攜帶被回覆樓層資訊';
 	@override String get theaterMode => '劇院模式';
@@ -1829,6 +1831,21 @@ class _TranslationsNavigationOrderSettingsZhTw implements TranslationsNavigation
 	@override String get galleryDescription => '瀏覽圖片和畫廊';
 	@override String get subscriptionDescription => '查看追蹤使用者的最新內容';
 	@override String get forumDescription => '參與社群討論';
+	@override String get newsDescription => '瀏覽官方新聞、文章與公告廣播';
+}
+
+// Path: news
+class _TranslationsNewsZhTw implements TranslationsNewsEn {
+	_TranslationsNewsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '新聞';
+	@override String get newsUpdates => '最新動態';
+	@override String get articles => '文章';
+	@override String get broadcast => '廣播';
+	@override String get openInBrowser => '在瀏覽器中開啟';
 }
 
 // Path: searchFilter
@@ -3363,6 +3380,7 @@ extension on TranslationsZhTw {
 			'settings.activeBackgroundPrivacyModeDesc' => '禁止截圖、後台執行時隱藏畫面...',
 			'settings.privacy' => '隱私',
 			'settings.forum' => '論壇',
+			'settings.news' => '新聞',
 			'settings.disableForumReplyQuote' => '停用論壇回覆引用',
 			'settings.disableForumReplyQuoteDesc' => '停用論壇回覆時攜帶被回覆樓層資訊',
 			'settings.theaterMode' => '劇院模式',
@@ -3858,9 +3876,9 @@ extension on TranslationsZhTw {
 			'markdown.listDescription' => '使用數字+點號建立有序列表，使用 - 建立無序列表',
 			'markdown.listSyntax' => '1. 第一項\n2. 第二項\n\n- 無序項\n  - 子項\n  - 另一個子項',
 			'markdown.linkAndImage' => '連結與圖片',
-			'markdown.linkAndImageDescription' => '連結格式：[文字](URL)\n圖片格式：![描述](URL)',
 			_ => null,
 		} ?? switch (path) {
+			'markdown.linkAndImageDescription' => '連結格式：[文字](URL)\n圖片格式：![描述](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[連結文字](${link})\n![圖片描述](${imgUrl})',
 			'markdown.title' => '標題',
 			'markdown.titleDescription' => '使用 # 號建立標題，數量表示級別',
@@ -4372,9 +4390,9 @@ extension on TranslationsZhTw {
 			'mediaPlayer.dropVideoFileHere' => '拖放影片檔案至此處播放',
 			'mediaPlayer.supportedFormats' => '支援格式: MP4, MKV, AVI, MOV, WEBM 等',
 			'mediaPlayer.noSupportedVideoFile' => '未找到支援的影片檔案',
-			'mediaPlayer.imageLoadFailed' => '圖片載入失敗',
 			_ => null,
 		} ?? switch (path) {
+			'mediaPlayer.imageLoadFailed' => '圖片載入失敗',
 			'mediaPlayer.unsupportedImageFormat' => '不支援的圖片格式',
 			'mediaPlayer.tryOtherViewer' => '請嘗試使用其他檢視器',
 			'mediaPlayer.retryingOpenVideoLink' => '影片連結開啟失敗，重試中',
@@ -4651,6 +4669,12 @@ extension on TranslationsZhTw {
 			'navigationOrderSettings.galleryDescription' => '瀏覽圖片和畫廊',
 			'navigationOrderSettings.subscriptionDescription' => '查看追蹤使用者的最新內容',
 			'navigationOrderSettings.forumDescription' => '參與社群討論',
+			'navigationOrderSettings.newsDescription' => '瀏覽官方新聞、文章與公告廣播',
+			'news.title' => '新聞',
+			'news.newsUpdates' => '最新動態',
+			'news.articles' => '文章',
+			'news.broadcast' => '廣播',
+			'news.openInBrowser' => '在瀏覽器中開啟',
 			'searchFilter.selectField' => '選擇欄位',
 			'searchFilter.add' => '新增',
 			'searchFilter.clear' => '清空',

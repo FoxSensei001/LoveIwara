@@ -556,6 +556,7 @@ settings:
   activeBackgroundPrivacyModeDesc: 禁止截圖、後台執行時隱藏畫面...
   privacy: 隱私
   forum: 論壇
+  news: 新聞
   disableForumReplyQuote: 停用論壇回覆引用
   disableForumReplyQuoteDesc: 停用論壇回覆時攜帶被回覆樓層資訊
   theaterMode: 劇院模式
@@ -1967,6 +1968,15 @@ navigationOrderSettings:
   galleryDescription: 瀏覽圖片和畫廊
   subscriptionDescription: 查看追蹤使用者的最新內容
   forumDescription: 參與社群討論
+
+  newsDescription: 瀏覽官方新聞、文章與公告廣播
+
+news:
+  title: 新聞
+  newsUpdates: 最新動態
+  articles: 文章
+  broadcast: 廣播
+  openInBrowser: 在瀏覽器中開啟
 
 # 搜尋過濾器配置
 searchFilter:

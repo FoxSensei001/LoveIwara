@@ -67,6 +67,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsFavoriteEn favorite = TranslationsFavoriteEn._(_root);
 	late final TranslationsTranslationEn translation = TranslationsTranslationEn._(_root);
 	late final TranslationsNavigationOrderSettingsEn navigationOrderSettings = TranslationsNavigationOrderSettingsEn._(_root);
+	late final TranslationsNewsEn news = TranslationsNewsEn._(_root);
 	late final TranslationsDisplaySettingsEn displaySettings = TranslationsDisplaySettingsEn._(_root);
 	late final TranslationsLayoutSettingsEn layoutSettings = TranslationsLayoutSettingsEn._(_root);
 	late final TranslationsMediaPlayerEn mediaPlayer = TranslationsMediaPlayerEn._(_root);
@@ -1697,6 +1698,9 @@ class TranslationsSettingsEn {
 
 	/// en: 'Forum'
 	String get forum => 'Forum';
+
+	/// en: 'News'
+	String get news => 'News';
 
 	/// en: 'Disable Forum Reply Quote'
 	String get disableForumReplyQuote => 'Disable Forum Reply Quote';
@@ -3606,6 +3610,33 @@ class TranslationsNavigationOrderSettingsEn {
 
 	/// en: 'Participate in community discussions'
 	String get forumDescription => 'Participate in community discussions';
+
+	/// en: 'Browse official news, articles, and broadcasts'
+	String get newsDescription => 'Browse official news, articles, and broadcasts';
+}
+
+// Path: news
+class TranslationsNewsEn {
+	TranslationsNewsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'News'
+	String get title => 'News';
+
+	/// en: 'News Updates'
+	String get newsUpdates => 'News Updates';
+
+	/// en: 'Articles'
+	String get articles => 'Articles';
+
+	/// en: 'Broadcast'
+	String get broadcast => 'Broadcast';
+
+	/// en: 'Open in Browser'
+	String get openInBrowser => 'Open in Browser';
 }
 
 // Path: displaySettings
@@ -7304,6 +7335,7 @@ extension on Translations {
 			'settings.activeBackgroundPrivacyModeDesc' => 'Prevent screenshots, hide screen when running in the background...',
 			'settings.privacy' => 'Privacy',
 			'settings.forum' => 'Forum',
+			'settings.news' => 'News',
 			'settings.disableForumReplyQuote' => 'Disable Forum Reply Quote',
 			'settings.disableForumReplyQuoteDesc' => 'Disable carrying replied floor information when replying in forum',
 			'settings.theaterMode' => 'Theater Mode',
@@ -7799,9 +7831,9 @@ extension on Translations {
 			'forum.forum' => 'Forum',
 			'forum.createThread' => 'Create Thread',
 			'forum.selectCategory' => 'Select Category',
-			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => 'Cooldown remaining ${minutes} minutes ${seconds} seconds',
 			_ => null,
 		} ?? switch (path) {
+			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => 'Cooldown remaining ${minutes} minutes ${seconds} seconds',
 			'forum.groups.administration' => 'Administration',
 			'forum.groups.global' => 'Global',
 			'forum.groups.chinese' => 'Chinese',
@@ -8257,6 +8289,12 @@ extension on Translations {
 			'navigationOrderSettings.galleryDescription' => 'Browse images and galleries',
 			'navigationOrderSettings.subscriptionDescription' => 'View latest content from followed users',
 			'navigationOrderSettings.forumDescription' => 'Participate in community discussions',
+			'navigationOrderSettings.newsDescription' => 'Browse official news, articles, and broadcasts',
+			'news.title' => 'News',
+			'news.newsUpdates' => 'News Updates',
+			'news.articles' => 'Articles',
+			'news.broadcast' => 'Broadcast',
+			'news.openInBrowser' => 'Open in Browser',
 			'displaySettings.title' => 'Display Settings',
 			'displaySettings.layoutSettings' => 'Layout Settings',
 			'displaySettings.layoutSettingsDesc' => 'Customize column count and breakpoint configuration',
@@ -8307,6 +8345,8 @@ extension on Translations {
 			'layoutSettings.breakpointRangeDesc' => ({required Object range}) => '${range}px',
 			'layoutSettings.breakpointRangeDescFirst' => ({required Object width}) => '≤${width}px',
 			'layoutSettings.breakpointRangeDescMiddle' => ({required Object start, required Object end}) => '${start}-${end}px',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.edit' => 'Edit',
 			'layoutSettings.delete' => 'Delete',
 			'layoutSettings.cancel' => 'Cancel',
@@ -8314,8 +8354,6 @@ extension on Translations {
 			'mediaPlayer.videoPlayerError' => 'Video Player Error',
 			'mediaPlayer.videoLoadFailed' => 'Video Load Failed',
 			'mediaPlayer.videoCodecNotSupported' => 'Video Codec Not Supported',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.networkConnectionIssue' => 'Network Connection Issue',
 			'mediaPlayer.insufficientPermission' => 'Insufficient Permission',
 			'mediaPlayer.unsupportedVideoFormat' => 'Unsupported Video Format',

@@ -55,6 +55,10 @@ abstract class Routes {
 
   static const FORUM = '/forum';
 
+  static const NEWS = '/news';
+
+  static String NEWS_DETAIL(String id) => '/news/$id';
+
   static String POST_DETAIL(String id) => '/post/$id';
 
   static String FORUM_THREAD_LIST(String categoryId) => '/forum/$categoryId';

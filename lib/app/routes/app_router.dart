@@ -10,6 +10,8 @@ import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
+import 'package:i_iwara/app/models/iwara_news.model.dart';
+import 'package:i_iwara/app/utils/iwara_deep_link_utils.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
@@ -19,6 +21,8 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/popular_video_list_page.
 import 'package:i_iwara/app/ui/pages/popular_media_list/popular_gallery_list_page.dart';
 import 'package:i_iwara/app/ui/pages/subscriptions/subscriptions_page.dart';
 import 'package:i_iwara/app/ui/pages/forum/forum_page.dart';
+import 'package:i_iwara/app/ui/pages/news/news_detail_page.dart';
+import 'package:i_iwara/app/ui/pages/news/news_page.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/first_time_setup_page.dart';
 import 'package:i_iwara/app/ui/pages/login/login_page_wrapper.dart';
 import 'package:i_iwara/app/ui/pages/sign_in/sing_in_page.dart';
@@ -74,6 +78,26 @@ final GoRouter appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
   initialLocation: '/',
   observers: [OverlayTracker.root, navigationRootObserver],
+  onException: (context, state, router) {
+    final normalizedLocation = IwaraDeepLinkUtils.normalizeToAppLocation(
+      state.uri,
+    );
+    if (normalizedLocation != null) {
+      LogUtils.i(
+        '将外部 deeplink 归一化为应用内路由: ${state.uri} -> $normalizedLocation',
+        'AppRouter',
+      );
+      router.go(normalizedLocation);
+      return;
+    }
+
+    LogUtils.e(
+      'GoRouter 未匹配到路由: ${state.uri}',
+      tag: 'AppRouter',
+      error: state.error,
+    );
+    router.go('/');
+  },
   redirect: _guardRedirect,
   routes: [
     // 首次启动设置页 —— 顶层路由，不在 Shell 中
@@ -189,6 +213,30 @@ final GoRouter appRouter = GoRouter(
                 ),
               ],
             ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/news',
+                  name: 'news_home',
+                  builder: (context, state) => Obx(() {
+                    final homeContentVersion =
+                        Get.find<AppService>().homeContentVersion;
+                    return NewsPage(
+                      key: NewsPage.globalKey,
+                      contentResetVersion: homeContentVersion,
+                      initialCategory:
+                          IwaraDeepLinkUtils.resolveNewsCategoryType(
+                            state.uri.queryParameters['category'],
+                          ) ??
+                          IwaraNewsCategoryType.newsUpdates,
+                      initialLanguage: IwaraDeepLinkUtils.resolveNewsLanguage(
+                        state.uri.queryParameters['lang'],
+                      ),
+                    );
+                  }),
+                ),
+              ],
+            ),
           ],
         ),
 
@@ -221,6 +269,32 @@ final GoRouter appRouter = GoRouter(
         ),
 
         // 视频详情
+        GoRoute(
+          path: '/news/:postId',
+          name: 'news_detail',
+          builder: (context, state) {
+            final postId = int.tryParse(state.pathParameters['postId'] ?? '');
+            final postUrl = state.uri.queryParameters['url'];
+            final extra = state.extra;
+            final newsExtra = extra is NewsDetailExtra ? extra : null;
+            final resolvedPostUrl = postUrl == null || postUrl.isEmpty
+                ? newsExtra?.postUrl
+                : postUrl;
+            if (postId == null &&
+                (resolvedPostUrl == null || resolvedPostUrl.isEmpty) &&
+                newsExtra == null) {
+              return const Scaffold(
+                body: Center(child: Text('Invalid news route')),
+              );
+            }
+            return NewsDetailPage(
+              postId: postId,
+              postUrl: resolvedPostUrl,
+              previewData: newsExtra,
+            );
+          },
+        ),
+
         GoRoute(
           path: '/video_detail/:videoId',
           name: 'video_detail',
@@ -278,6 +352,10 @@ final GoRouter appRouter = GoRouter(
             return AuthorProfilePage(
               username: username,
               initialUser: authorProfileExtra?.initialUser,
+              initialTabIndex:
+                  IwaraDeepLinkUtils.resolveAuthorProfileInitialTabIndex(
+                    state.uri.queryParameters['tab'],
+                  ),
             );
           },
         ),
@@ -771,6 +849,30 @@ class PostDetailExtra {
   final PostModel? initialPost;
 
   const PostDetailExtra({this.initialPost});
+}
+
+class NewsDetailExtra {
+  final int? postId;
+  final String? postUrl;
+  final String title;
+  final String excerpt;
+  final DateTime publishedAt;
+  final DateTime updatedAt;
+  final IwaraNewsLanguage language;
+  final String? featuredImageUrl;
+  final String heroTag;
+
+  const NewsDetailExtra({
+    this.postId,
+    this.postUrl,
+    required this.title,
+    required this.excerpt,
+    required this.publishedAt,
+    required this.updatedAt,
+    required this.language,
+    this.featuredImageUrl,
+    required this.heroTag,
+  });
 }
 
 class ForumThreadListExtra {

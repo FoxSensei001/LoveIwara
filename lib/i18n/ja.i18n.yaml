@@ -556,6 +556,7 @@ settings:
   activeBackgroundPrivacyModeDesc: スクリーンショットを禁止し、バックグラウンド実行時に画面を隠す...
   privacy: プライバシー
   forum: フォーラム
+  news: ニュース
   disableForumReplyQuote: フォーラム返信引用を無効にする
   disableForumReplyQuoteDesc: フォーラム返信時の返信階層情報の携帯を無効にする
   theaterMode: 劇院モード
@@ -1923,6 +1924,15 @@ navigationOrderSettings:
   galleryDescription: 画像とギャラリーを閲覧
   subscriptionDescription: フォローしているユーザーの最新コンテンツを表示
   forumDescription: コミュニティディスカッションに参加
+
+  newsDescription: 公式ニュース、記事、放送を閲覧
+
+news:
+  title: ニュース
+  newsUpdates: 更新情報
+  articles: 記事
+  broadcast: 放送
+  openInBrowser: ブラウザで開く
 
 # 検索フィルター設定
 searchFilter:

@@ -49,9 +49,15 @@ import 'package:i_iwara/app/utils/show_app_dialog.dart';
 class AuthorProfilePage extends StatefulWidget {
   final String username;
   final User? initialUser;
+  final int initialTabIndex;
   final String uniqueTag = DateTime.now().millisecondsSinceEpoch.toString();
 
-  AuthorProfilePage({super.key, required this.username, this.initialUser});
+  AuthorProfilePage({
+    super.key,
+    required this.username,
+    this.initialUser,
+    this.initialTabIndex = 0,
+  });
 
   @override
   State<AuthorProfilePage> createState() => _AuthorProfilePageState();
@@ -89,7 +95,11 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
       ),
       tag: uniqueTag,
     );
-    primaryTC = TabController(length: 4, vsync: this);
+    primaryTC = TabController(
+      length: 4,
+      vsync: this,
+      initialIndex: widget.initialTabIndex,
+    );
     videoSecondaryTC = TabController(length: 5, vsync: this);
     imageSecondaryTC = TabController(length: 5, vsync: this);
     playlistSecondaryTC = TabController(length: 5, vsync: this);

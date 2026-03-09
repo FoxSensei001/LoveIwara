@@ -36,6 +36,8 @@ class CustomMarkdownBody extends StatefulWidget {
   final EdgeInsetsGeometry padding; // 新增的 padding 参数
   final double? maxImageHeight; // 限制 Markdown 图片最大高度（null 表示不限制）
   final bool skipMarkdownProcessing; // 当内容已预处理时跳过本地格式化
+  final bool showHorizontalRules; // 是否显示 markdown 中的 hr 分隔线
+  final String Function(String url)? urlPreprocessor; // 页面级 markdown url 预处理
 
   const CustomMarkdownBody({
     super.key,
@@ -49,6 +51,8 @@ class CustomMarkdownBody extends StatefulWidget {
     this.padding = EdgeInsets.zero, // 默认 padding 为 0
     this.maxImageHeight,
     this.skipMarkdownProcessing = false,
+    this.showHorizontalRules = true,
+    this.urlPreprocessor,
   });
 
   @override
@@ -593,7 +597,8 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   }
 
   Future<String?> _resolveTapTargetUrl(String url) async {
-    final normalizedUrl = url.trim();
+    final normalizedUrl =
+        widget.urlPreprocessor?.call(url.trim()) ?? url.trim();
     if (!UrlUtils.isRelativeIwaraPath(normalizedUrl)) {
       return normalizedUrl;
     }
@@ -963,7 +968,9 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     double normalImagePlaceholderHeight,
   ) {
     try {
-      final normalizedUrl = UrlUtils.upgradeIwaraHttpToHttps(url);
+      final preprocessedUrl =
+          widget.urlPreprocessor?.call(url.trim()) ?? url.trim();
+      final normalizedUrl = UrlUtils.upgradeIwaraHttpToHttps(preprocessedUrl);
       final parsedUri = Uri.tryParse(normalizedUrl);
       if (parsedUri == null || !parsedUri.hasAbsolutePath) {
         throw FormatException(t.errors.invalidUrl);
@@ -1003,27 +1010,33 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     double? maxImageHeight,
     double normalImagePlaceholderHeight,
   ) {
-    return (isDark ? MarkdownConfig.darkConfig : MarkdownConfig.defaultConfig)
-        .copy(
-          configs: [
-            LinkConfig(
-              onTap: _onTapLink,
-              style: TextStyle(
-                decoration: TextDecoration.none, // 移除下划线
-                color: isDark ? Colors.blue[300] : Colors.blue, // 保持链接颜色
-              ),
-            ),
-            ImgConfig(
-              builder: (url, attributes) => _buildMarkdownImage(
-                context,
-                url,
-                attributes,
-                maxImageHeight,
-                normalImagePlaceholderHeight,
-              ),
-            ),
-          ],
-        );
+    final baseConfig = isDark
+        ? MarkdownConfig.darkConfig
+        : MarkdownConfig.defaultConfig;
+
+    return baseConfig.copy(
+      configs: [
+        widget.showHorizontalRules
+            ? baseConfig.hr
+            : const HrConfig(height: 0, color: Colors.transparent),
+        LinkConfig(
+          onTap: _onTapLink,
+          style: TextStyle(
+            decoration: TextDecoration.none, // 移除下划线
+            color: isDark ? Colors.blue[300] : Colors.blue, // 保持链接颜色
+          ),
+        ),
+        ImgConfig(
+          builder: (url, attributes) => _buildMarkdownImage(
+            context,
+            url,
+            attributes,
+            maxImageHeight,
+            normalImagePlaceholderHeight,
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildMarkdownContent(MarkdownConfig config) {
