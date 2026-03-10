@@ -20,6 +20,8 @@ class AppHangWatchdogService {
   Isolate? _isolate;
   SendPort? _sendPort;
   Timer? _heartbeatTimer;
+  ReceivePort? _exitPort;
+  Future<void>? _exitFuture;
   String? _sessionId;
   bool _running = false;
 
@@ -34,6 +36,7 @@ class AppHangWatchdogService {
     if (_running) return;
 
     final readyPort = ReceivePort();
+    final exitPort = ReceivePort();
     _sessionId = sessionId;
 
     try {
@@ -49,7 +52,11 @@ class AppHangWatchdogService {
           'maxRotatedFiles': maxRotatedFiles,
         },
         debugName: 'loveiwara-hang-watchdog',
+        onExit: exitPort.sendPort,
       );
+
+      _exitPort = exitPort;
+      _exitFuture = exitPort.first.then((_) {});
 
       final first = await readyPort.first.timeout(
         const Duration(seconds: 3),
@@ -72,9 +79,15 @@ class AppHangWatchdogService {
       _sendPort = null;
       _heartbeatTimer?.cancel();
       _heartbeatTimer = null;
+      _exitPort?.close();
+      _exitPort = null;
+      _exitFuture = null;
       _running = false;
     } finally {
       readyPort.close();
+      if (!_running) {
+        exitPort.close();
+      }
     }
   }
 
@@ -86,9 +99,23 @@ class AppHangWatchdogService {
       _sendPort?.send(<String, Object?>{'type': 'stop'});
     } catch (_) {}
 
+    // Give the isolate a brief chance to flush and exit gracefully.
+    // If it doesn't, force kill as a fallback.
+    final exitFuture = _exitFuture;
+    if (exitFuture != null) {
+      try {
+        await exitFuture.timeout(const Duration(milliseconds: 300));
+      } catch (_) {
+        // ignore and force kill below
+      }
+    }
+
     _isolate?.kill(priority: Isolate.immediate);
     _isolate = null;
     _sendPort = null;
+    _exitPort?.close();
+    _exitPort = null;
+    _exitFuture = null;
     _sessionId = null;
     _running = false;
   }
