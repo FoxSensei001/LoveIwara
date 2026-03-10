@@ -210,6 +210,14 @@ class MyVideoStateController extends GetxController
   // 在类成员变量区域添加画中画状态标识
   final RxBool isPiPMode = false.obs;
 
+  // PiP 状态是全局的 (Floating.pipStatusStream)。当路由栈里存在多个视频详情页时，
+  // 每个 controller 都会订阅该 stream；如果直接在 stream 回调里调用 enterPiPMode()，
+  // 会导致非当前页的 controller 也进入 PiP 并触发 player.play()（本问题的根因）。
+  // 用一个“PiP 所有者”标记，确保只有触发 PiP 的那个 controller 响应 PiP enabled。
+  static String? _pipOwnerKey;
+  final String _pipControllerKey = UniqueKey().toString();
+  bool _pipEnableInFlight = false;
+
   // 在类成员变量区域添加
   StreamSubscription<PiPStatus>? _pipStatusSubscription;
 
@@ -981,13 +989,32 @@ class MyVideoStateController extends GetxController
           .listen((status) {
             debounceTimer?.cancel();
             debounceTimer = Timer(const Duration(milliseconds: 100), () {
-              if (status == PiPStatus.enabled && !isPiPMode.value) {
-                enterPiPMode();
-              } else if (status != PiPStatus.enabled && isPiPMode.value) {
-                exitPiPMode();
-              }
+              _handlePiPStatus(status);
             });
           });
+    }
+  }
+
+  void _handlePiPStatus(PiPStatus status) {
+    if (_isDisposed) return;
+
+    if (status == PiPStatus.enabled) {
+      // 只允许 PiP 所有者更新 PiP UI 状态，避免后台详情页误入 PiP 并抢占播放。
+      if (_pipOwnerKey != _pipControllerKey) {
+        return;
+      }
+      if (!isPiPMode.value) {
+        isPiPMode.value = true;
+      }
+      return;
+    }
+
+    // 任何非 enabled 状态都视为退出 PiP。
+    if (isPiPMode.value) {
+      isPiPMode.value = false;
+    }
+    if (_pipOwnerKey == _pipControllerKey) {
+      _pipOwnerKey = null;
     }
   }
 
@@ -1207,6 +1234,11 @@ class MyVideoStateController extends GetxController
   void onClose() {
     LogUtils.i('MyVideoStateController onClose 被调用', 'MyVideoStateController');
     _isDisposed = true;
+
+    // Controller 销毁时如果仍持有 PiP 所有权，释放它，避免残留状态影响后续 PiP。
+    if (_pipOwnerKey == _pipControllerKey) {
+      _pipOwnerKey = null;
+    }
 
     // 首先取消所有定时器，避免dispose后还有回调执行
     _positionUpdateThrottleTimer?.cancel();
@@ -3046,28 +3078,52 @@ class MyVideoStateController extends GetxController
 
   /// 进入画中画模式
   Future<void> enterPiPMode() async {
+    if (_isDisposed) return;
+
     // 获取当前视频的宽度和高度以构造画中画窗口的比例
     final int width = sourceVideoWidth.value;
     final int height = sourceVideoHeight.value;
     if (height == 0 || width == 0) {
       return;
     }
+
+    if (_pipEnableInFlight) {
+      return;
+    }
+
+    _pipEnableInFlight = true;
+    _pipOwnerKey = _pipControllerKey;
+
     // 利用视频的宽高构造比例参数（Rational类型）
     final ratio = Rational(width, height);
     LogUtils.d(
       "进入画中画模式，设置宽高比为：$width:$height, Rational: $ratio",
       "MyVideoStateController",
     );
-    // 通过floating插件启用画中画模式并传入宽高比
-    await Floating().enable(ImmediatePiP(aspectRatio: ratio));
-    isPiPMode.value = true;
-    player.play();
+
+    try {
+      // 通过 floating 插件启用画中画模式并传入宽高比
+      await Floating().enable(ImmediatePiP(aspectRatio: ratio));
+      isPiPMode.value = true;
+      await player.play();
+    } catch (e) {
+      // enable 失败时释放所有权，避免后续 PiP 事件被错误地归属到当前 controller。
+      if (_pipOwnerKey == _pipControllerKey && !isPiPMode.value) {
+        _pipOwnerKey = null;
+      }
+      rethrow;
+    } finally {
+      _pipEnableInFlight = false;
+    }
   }
 
   /// 退出画中画模式
   Future<void> exitPiPMode() async {
     await Floating().cancelOnLeavePiP();
     isPiPMode.value = false;
+    if (_pipOwnerKey == _pipControllerKey) {
+      _pipOwnerKey = null;
+    }
   }
 
   // 统一的position监听器设置
