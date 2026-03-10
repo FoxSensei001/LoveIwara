@@ -180,6 +180,7 @@ class MyVideoStateController extends GetxController
   final RxBool _isInteracting = false.obs; // 是否正在交互（如拖动进度条）
   final RxBool _isHoveringToolbar = false.obs; // 是否正在悬浮在工具栏上
   final RxBool _isMouseHoveringPlayer = false.obs; // 是否鼠标悬浮在播放器上
+  bool _isMouseHoverToolbarRevealSuppressed = false;
   Timer? _mouseMovementTimer; // 鼠标移动检测定时器
 
   // 是否显示进度预览
@@ -2663,10 +2664,39 @@ class MyVideoStateController extends GetxController
     }
   }
 
+  @visibleForTesting
+  static bool shouldRevealToolbarsOnMouseHover({
+    required bool hoverFeatureEnabled,
+    required bool isToolbarsLocked,
+    required bool isSuppressed,
+  }) {
+    return hoverFeatureEnabled && !isToolbarsLocked && !isSuppressed;
+  }
+
+  bool get _canRevealToolbarsOnMouseHover {
+    return shouldRevealToolbarsOnMouseHover(
+      hoverFeatureEnabled:
+          _configService[ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR] == true,
+      isToolbarsLocked: isToolbarsLocked.value,
+      isSuppressed: _isMouseHoverToolbarRevealSuppressed,
+    );
+  }
+
+  void setMouseHoverToolbarRevealSuppressed(bool value) {
+    if (_isMouseHoverToolbarRevealSuppressed == value) {
+      return;
+    }
+
+    _isMouseHoverToolbarRevealSuppressed = value;
+    if (value) {
+      _mouseMovementTimer?.cancel();
+      _isMouseHoveringPlayer.value = false;
+    }
+  }
+
   // 设置鼠标悬浮播放器状态
   void setMouseHoveringPlayer(bool value) {
-    // 检查是否启用了鼠标悬浮显示工具栏功能
-    if (!_configService[ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR]) {
+    if (!_canRevealToolbarsOnMouseHover) {
       return;
     }
 
@@ -2686,8 +2716,7 @@ class MyVideoStateController extends GetxController
 
   // 处理鼠标在播放器内移动
   void onMouseMoveInPlayer() {
-    // 检查是否启用了鼠标悬浮显示工具栏功能
-    if (!_configService[ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR]) {
+    if (!_canRevealToolbarsOnMouseHover) {
       return;
     }
 

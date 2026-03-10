@@ -238,6 +238,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     _volumeInfoTimer?.cancel(); // 取消音量提示计时器
     _blurUpdateTimer?.cancel(); // 清理模糊背景更新定时器
     _orientationCheckTimer?.cancel(); // 取消重力感应监听
+    widget.myVideoStateController.setMouseHoverToolbarRevealSuppressed(false);
     super.dispose();
   }
 
@@ -407,6 +408,12 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         (_innerPlaylistExpanded || hintEnabled);
   }
 
+  void _syncMouseHoverToolbarSuppression() {
+    widget.myVideoStateController.setMouseHoverToolbarRevealSuppressed(
+      _innerPlaylistExpanded,
+    );
+  }
+
   void _openInnerPlaylistDrawer() {
     if (_orderedInnerPlaylistItems.isEmpty || _isSwitchingInnerPlaylistVideo) {
       return;
@@ -415,6 +422,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     setState(() {
       _innerPlaylistExpanded = true;
     });
+    _syncMouseHoverToolbarSuppression();
     widget.myVideoStateController.hideToolbars();
   }
 
@@ -426,6 +434,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     setState(() {
       _innerPlaylistExpanded = false;
     });
+    _syncMouseHoverToolbarSuppression();
 
     if (restoreToolbars) {
       widget.myVideoStateController.showToolbars();
@@ -1112,34 +1121,43 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       return const SizedBox.shrink();
     }
 
-    return AnimatedBuilder(
-      animation: widget.myVideoStateController.animationController,
-      builder: (context, child) {
-        final toolbarVisible =
-            widget.myVideoStateController.animationController.value > 0.04;
+    return Obx(() {
+      final showResumePositionTip =
+          widget.myVideoStateController.showResumePositionTip.value;
 
-        return FullscreenInnerPlaylistDrawer(
-          items: _orderedInnerPlaylistItems,
-          isExpanded: _innerPlaylistExpanded,
-          showHint:
-              (_configService[ConfigKey.SHOW_FULLSCREEN_UP_NEXT_HINT]
-                  as bool) &&
-              toolbarVisible &&
-              !_innerPlaylistExpanded &&
-              !_isSwitchingInnerPlaylistVideo,
-          isBusy: _isSwitchingInnerPlaylistVideo,
-          loadingItemId: _isSwitchingInnerPlaylistVideo
-              ? _loadingInnerPlaylistItem?.id
-              : null,
-          onExpand: _openInnerPlaylistDrawer,
-          onCollapse: _closeInnerPlaylistDrawer,
-          onDismiss: () => _closeInnerPlaylistDrawer(restoreToolbars: false),
-          onSelectItem: (item) {
-            unawaited(_handleInnerPlaylistSelection(item));
-          },
-        );
-      },
-    );
+      return AnimatedBuilder(
+        animation: widget.myVideoStateController.animationController,
+        builder: (context, child) {
+          final toolbarVisibility =
+              (1 - widget.myVideoStateController.bottomBarAnimation.value.dy)
+                  .clamp(0.0, 1.0);
+          final toolbarVisible = toolbarVisibility > 0.04;
+
+          return FullscreenInnerPlaylistDrawer(
+            items: _orderedInnerPlaylistItems,
+            isExpanded: _innerPlaylistExpanded,
+            showHint:
+                (_configService[ConfigKey.SHOW_FULLSCREEN_UP_NEXT_HINT]
+                    as bool) &&
+                toolbarVisible &&
+                !_innerPlaylistExpanded &&
+                !_isSwitchingInnerPlaylistVideo,
+            isBusy: _isSwitchingInnerPlaylistVideo,
+            loadingItemId: _isSwitchingInnerPlaylistVideo
+                ? _loadingInnerPlaylistItem?.id
+                : null,
+            onExpand: _openInnerPlaylistDrawer,
+            onCollapse: _closeInnerPlaylistDrawer,
+            onDismiss: () => _closeInnerPlaylistDrawer(restoreToolbars: false),
+            toolbarVisibility: toolbarVisibility,
+            showResumePositionTip: showResumePositionTip,
+            onSelectItem: (item) {
+              unawaited(_handleInnerPlaylistSelection(item));
+            },
+          );
+        },
+      );
+    });
   }
 
   Widget _buildRippleEffects(Size screenSize, double maxRadius) {
