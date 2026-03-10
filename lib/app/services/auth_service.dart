@@ -83,7 +83,6 @@ class AuthService extends GetxService {
     );
   }
 
-
   void updateSiteMode(IwaraSite site) {
     _dio.options.headers.addAll(site.requestHeaders);
     _tokenManager.updateSiteMode(site);
@@ -261,7 +260,6 @@ class AuthService extends GetxService {
 
         // 启动后台刷新
         _tokenManager.startBackgroundRefresh();
-
         LogUtils.i('$_tag 登录完成');
         return ApiResult.success();
       }

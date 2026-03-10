@@ -739,8 +739,19 @@ String? _guardRedirect(BuildContext context, GoRouterState state) {
     if (isFirstTimeSetupCompleted &&
         state.matchedLocation == '/' &&
         preferredHomePath != '/') {
-      LogUtils.i('根据导航顺序重定向首页: / -> $preferredHomePath', 'AppRouter');
-      return preferredHomePath;
+      // Redirect only once per app session, otherwise the Video tab (path '/'
+      // in branch 0) would become unreachable when preferredHomePath != '/'.
+      if (!appService.hasAppliedPreferredHomeRedirect) {
+        appService.hasAppliedPreferredHomeRedirect = true;
+        LogUtils.i('根据导航顺序重定向首页: / -> $preferredHomePath', 'AppRouter');
+        return preferredHomePath;
+      }
+    }
+
+    // Once we are away from '/', disable future preferred-home redirects.
+    if (state.matchedLocation != '/' &&
+        !appService.hasAppliedPreferredHomeRedirect) {
+      appService.hasAppliedPreferredHomeRedirect = true;
     }
   } catch (e) {
     LogUtils.e('路由守卫检查首次设置状态出错', tag: 'AppRouter', error: e);

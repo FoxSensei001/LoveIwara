@@ -23,6 +23,7 @@ import 'package:i_iwara/utils/proxy/proxy_util.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 import '../routes/app_router.dart';
+import '../routes/home_shell_navigation.dart';
 import 'config_service.dart';
 import '../ui/widgets/restart_app_widget.dart';
 import 'auth_service.dart';
@@ -40,6 +41,10 @@ class AppService extends GetxService {
   final Rx<IwaraSite> _currentSiteMode = IwaraSite.main.obs;
   final RxInt _siteModeVersion = 0.obs;
   final RxInt _homeContentVersion = 0.obs;
+
+  /// One-shot guard used by router redirect logic.
+  /// See `lib/app/routes/app_router.dart`.
+  bool hasAppliedPreferredHomeRedirect = false;
 
   /// StatefulShellRoute 的 navigationShell 引用，
   /// 由 StatefulShellRoute builder 设置，
@@ -138,36 +143,16 @@ class AppService extends GetxService {
   }
 
   static const List<String> _defaultNavigationOrder = [
-    'video',
-    'gallery',
-    'subscription',
-    'forum',
-    'news',
+    ...HomeShellNavigation.canonicalOrder,
   ];
 
   List<String> get navigationDisplayOrder {
     if (!Get.isRegistered<ConfigService>()) {
       return List<String>.from(_defaultNavigationOrder);
     }
-
     final orderRaw = Get.find<ConfigService>()[ConfigKey.NAVIGATION_ORDER];
-    final raw = orderRaw is List ? orderRaw : const <dynamic>[];
-    final result = <String>[];
-
-    for (final item in raw) {
-      if (item is! String) continue;
-      if (!navigationItems.containsKey(item)) continue;
-      if (result.contains(item)) continue;
-      result.add(item);
-    }
-
-    for (final item in _defaultNavigationOrder) {
-      if (!result.contains(item)) {
-        result.add(item);
-      }
-    }
-
-    return result;
+    // Use a single normalization implementation so UI order and routing agree.
+    return HomeShellNavigation.normalizeOrder(orderRaw);
   }
 
   int get preferredHomeBranchIndex {
@@ -175,24 +160,12 @@ class AppService extends GetxService {
     if (order.isEmpty) {
       return 0;
     }
-    return navigationItems[order.first]?.pageIndex ?? 0;
+    return HomeShellNavigation.branchIndexForKey(order.first);
   }
 
   String get preferredHomePath {
-    switch (preferredHomeBranchIndex) {
-      case 0:
-        return '/';
-      case 1:
-        return '/gallery';
-      case 2:
-        return '/subscriptions';
-      case 3:
-        return '/forum';
-      case 4:
-        return '/news';
-      default:
-        return '/';
-    }
+    // Keep in sync with StatefulShellRoute branch root paths.
+    return HomeShellNavigation.pathForBranchIndex(preferredHomeBranchIndex);
   }
 
   void syncSiteModeFromConfig(ConfigService configService) {

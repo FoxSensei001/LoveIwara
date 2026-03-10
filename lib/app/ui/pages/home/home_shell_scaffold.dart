@@ -12,6 +12,7 @@ import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:i_iwara/utils/easy_throttle.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
+import 'package:i_iwara/app/routes/home_shell_navigation.dart';
 
 /// Home shell scaffold that wraps both tab pages and detail pages.
 /// Receives [Widget child] from go_router's ShellRoute.
@@ -37,23 +38,6 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
   final UserService userService = Get.find<UserService>();
   final ConfigService configService = Get.find<ConfigService>();
   bool _hasSyncedInitialBranch = false;
-
-  /// Fixed branch key → branch index mapping (compile-time fixed).
-  static const Map<String, int> _branchIndexMap = {
-    'video': 0,
-    'gallery': 1,
-    'subscription': 2,
-    'forum': 3,
-    'news': 4,
-  };
-
-  static const List<String> _defaultOrder = [
-    'video',
-    'gallery',
-    'subscription',
-    'forum',
-    'news',
-  ];
 
   @override
   void initState() {
@@ -83,24 +67,9 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
 
   /// Get the display-ordered list of navigation keys.
   List<String> get _displayOrder {
-    final orderRaw = configService[ConfigKey.NAVIGATION_ORDER];
-    final raw = orderRaw is List ? orderRaw : const <dynamic>[];
-    final result = <String>[];
-
-    for (final item in raw) {
-      if (item is! String) continue;
-      if (!_branchIndexMap.containsKey(item)) continue;
-      if (result.contains(item)) continue;
-      result.add(item);
-    }
-
-    for (final item in _defaultOrder) {
-      if (!result.contains(item)) {
-        result.add(item);
-      }
-    }
-
-    return result;
+    return HomeShellNavigation.normalizeOrder(
+      configService[ConfigKey.NAVIGATION_ORDER],
+    );
   }
 
   String _normalizePath(String path) {
@@ -111,25 +80,16 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
   }
 
   int? _branchIndexFromPath(String path) {
-    switch (_normalizePath(path)) {
-      case '/':
-        return 0;
-      case '/gallery':
-        return 1;
-      case '/subscriptions':
-        return 2;
-      case '/forum':
-        return 3;
-      case '/news':
-        return 4;
-      default:
-        return null;
+    final normalized = _normalizePath(path);
+    for (final entry in HomeShellNavigation.pathByKey.entries) {
+      if (entry.value == normalized) {
+        return HomeShellNavigation.branchIndexForKey(entry.key, fallback: 0);
+      }
     }
+    return null;
   }
 
   bool get _isTabRootRoute => _branchIndexFromPath(widget.currentPath) != null;
-
-  int get _preferredInitialBranchIndex => _displayIndexToBranchIndex(0);
 
   void _syncInitialBranchWithNavigationOrder() {
     if (!mounted || _hasSyncedInitialBranch) return;
@@ -154,7 +114,10 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     }
 
     _hasSyncedInitialBranch = true;
-    final preferredBranch = _preferredInitialBranchIndex;
+    final preferredBranch = HomeShellNavigation.branchIndexFromDisplayIndex(
+      0,
+      _displayOrder,
+    );
     final currentBranch = shell.currentIndex;
     if (preferredBranch == currentBranch) {
       appService.currentIndex = currentBranch;
@@ -166,47 +129,32 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
   }
 
   /// Convert a display index (from navigation bar tap) to a go_router branch index.
-  int _displayIndexToBranchIndex(int displayIndex) {
-    final order = _displayOrder;
-    if (displayIndex < 0 || displayIndex >= order.length) return 0;
-    final key = order[displayIndex];
-    return _branchIndexMap[key] ?? 0;
+  int _displayIndexToBranchIndex(int displayIndex, List<String> displayOrder) {
+    return HomeShellNavigation.branchIndexFromDisplayIndex(
+      displayIndex,
+      displayOrder,
+    );
   }
 
-
   String _branchIndexToPath(int branchIndex) {
-    switch (branchIndex) {
-      case 0:
-        return '/';
-      case 1:
-        return '/gallery';
-      case 2:
-        return '/subscriptions';
-      case 3:
-        return '/forum';
-      case 4:
-        return '/news';
-      default:
-        return '/';
-    }
+    return HomeShellNavigation.pathForBranchIndex(branchIndex);
   }
 
   /// Convert the current go_router branch index to a display index.
-  int get _currentDisplayIndex {
+  int _currentDisplayIndexForOrder(List<String> displayOrder) {
     final currentBranch =
         _branchIndexFromPath(widget.currentPath) ??
         appService.navigationShell?.currentIndex ??
         appService.currentIndex;
-    final order = _displayOrder;
-    for (int i = 0; i < order.length; i++) {
-      if ((_branchIndexMap[order[i]] ?? -1) == currentBranch) return i;
-    }
-    return 0;
+    return HomeShellNavigation.displayIndexFromBranchIndex(
+      currentBranch,
+      displayOrder,
+    );
   }
 
   /// Handle navigation bar tap.
-  void _handleNavigationTap(int displayIndex) {
-    final branchIndex = _displayIndexToBranchIndex(displayIndex);
+  void _handleNavigationTap(int displayIndex, List<String> displayOrder) {
+    final branchIndex = _displayIndexToBranchIndex(displayIndex, displayOrder);
     final shell = appService.navigationShell;
     final currentBranch = shell?.currentIndex ?? appService.currentIndex;
 
@@ -343,7 +291,28 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
                 if (!appService.showRailNavi) return const SizedBox.shrink();
                 if (!isWide) return const SizedBox.shrink();
 
-                return _buildNavigationRail(context, t);
+                final displayOrder = _displayOrder;
+                final currentDisplayIndex = _currentDisplayIndexForOrder(
+                  displayOrder,
+                );
+                // NavigationRail expands to the max width from its parent.
+                // In a Row, the non-flex child gets an unbounded max width,
+                // so we must provide a tight width here.
+                //
+                // Compute width from the actual (localized) label content so
+                // the rail stays compact in short locales and can grow when
+                // labels are longer.
+                final railWidth = _computeRailWidth(context, displayOrder);
+                return SizedBox(
+                  width: railWidth,
+                  child: _buildNavigationRail(
+                    context,
+                    t,
+                    displayOrder: displayOrder,
+                    currentDisplayIndex: currentDisplayIndex,
+                    railWidth: railWidth,
+                  ),
+                );
               }),
               // Main content
               Expanded(
@@ -356,16 +325,22 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
                     if (isWide) return const SizedBox.shrink();
                     if (!_isTabRootRoute) return const SizedBox.shrink();
 
+                    final displayOrder = _displayOrder;
+                    final currentDisplayIndex = _currentDisplayIndexForOrder(
+                      displayOrder,
+                    );
+
                     return BottomNavigationBar(
-                      currentIndex: _currentDisplayIndex,
+                      currentIndex: currentDisplayIndex,
                       type: BottomNavigationBarType.fixed,
                       backgroundColor: Theme.of(context).colorScheme.surface,
                       selectedItemColor: Theme.of(context).colorScheme.primary,
                       unselectedItemColor: Theme.of(
                         context,
                       ).colorScheme.onSurfaceVariant,
-                      onTap: _handleNavigationTap,
-                      items: _buildBottomNavigationBarItems(),
+                      onTap: (index) =>
+                          _handleNavigationTap(index, displayOrder),
+                      items: _buildBottomNavigationBarItems(displayOrder),
                     );
                   }),
                 ),
@@ -377,10 +352,16 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     );
   }
 
-  Widget _buildNavigationRail(BuildContext context, dynamic t) {
+  Widget _buildNavigationRail(
+    BuildContext context,
+    dynamic t, {
+    required List<String> displayOrder,
+    required int currentDisplayIndex,
+    required double railWidth,
+  }) {
     return LayoutBuilder(
       builder: (context, railConstraints) {
-        final navigationItems = _buildNavigationRailDestinations();
+        final navigationItems = _buildNavigationRailDestinations(displayOrder);
         final estimatedMinHeight =
             (navigationItems.length * 72.0) + (2 * 48.0) + 32.0;
         final availableHeight = railConstraints.maxHeight;
@@ -412,33 +393,33 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
         }
 
         if (hasEnoughSpace) {
-          return Obx(
-            () => NavigationRail(
-              labelType: NavigationRailLabelType.all,
-              selectedIndex: _currentDisplayIndex,
-              trailing: Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [const Spacer(), buildTrailingButtons()],
-                ),
+          return NavigationRail(
+            labelType: NavigationRailLabelType.all,
+            selectedIndex: currentDisplayIndex,
+            minWidth: railWidth,
+            trailing: Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [const Spacer(), buildTrailingButtons()],
               ),
-              onDestinationSelected: _handleNavigationTap,
-              destinations: navigationItems,
             ),
+            onDestinationSelected: (index) =>
+                _handleNavigationTap(index, displayOrder),
+            destinations: navigationItems,
           );
         } else {
           return SingleChildScrollView(
             child: ConstrainedBox(
               constraints: BoxConstraints(minHeight: railConstraints.maxHeight),
               child: IntrinsicHeight(
-                child: Obx(
-                  () => NavigationRail(
-                    labelType: NavigationRailLabelType.all,
-                    selectedIndex: _currentDisplayIndex,
-                    trailing: buildTrailingButtons(),
-                    onDestinationSelected: _handleNavigationTap,
-                    destinations: navigationItems,
-                  ),
+                child: NavigationRail(
+                  labelType: NavigationRailLabelType.all,
+                  selectedIndex: currentDisplayIndex,
+                  minWidth: railWidth,
+                  trailing: buildTrailingButtons(),
+                  onDestinationSelected: (index) =>
+                      _handleNavigationTap(index, displayOrder),
+                  destinations: navigationItems,
                 ),
               ),
             ),
@@ -448,20 +429,56 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     );
   }
 
-  List<NavigationRailDestination> _buildNavigationRailDestinations() {
-    final order = _displayOrder;
-    return order.map((key) {
+  double _computeRailWidth(BuildContext context, List<String> displayOrder) {
+    // NavigationRail destination tiles include fixed paddings/indicator space.
+    // We measure label text width and add a small constant to keep things
+    // visually balanced.
+    final railTheme = NavigationRailTheme.of(context);
+    final textStyle =
+        railTheme.unselectedLabelTextStyle ??
+        Theme.of(context).textTheme.labelMedium ??
+        const TextStyle(fontSize: 12);
+    final textScaler = MediaQuery.textScalerOf(context);
+    final direction = Directionality.of(context);
+
+    double maxLabelWidth = 0;
+    for (final key in displayOrder) {
+      final title = AppService.navigationItems[key]?.title;
+      if (title == null || title.isEmpty) continue;
+
+      final painter = TextPainter(
+        text: TextSpan(text: title, style: textStyle),
+        textDirection: direction,
+        textScaler: textScaler,
+        maxLines: 1,
+      )..layout();
+
+      if (painter.width > maxLabelWidth) {
+        maxLabelWidth = painter.width;
+      }
+    }
+
+    // Default NavigationRail minWidth is ~72. Clamp to avoid very wide rails
+    // with unexpectedly long labels.
+    return (maxLabelWidth + 32).clamp(72.0, 200.0).toDouble();
+  }
+
+  List<NavigationRailDestination> _buildNavigationRailDestinations(
+    List<String> displayOrder,
+  ) {
+    return displayOrder.map((key) {
       final item = AppService.navigationItems[key]!;
       return NavigationRailDestination(
         icon: Icon(item.icon),
-        label: Text(item.title),
+        label: Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis),
       );
     }).toList();
   }
 
-  List<BottomNavigationBarItem> _buildBottomNavigationBarItems() {
-    final order = _displayOrder;
-    return order.map((key) {
+  List<BottomNavigationBarItem> _buildBottomNavigationBarItems(
+    List<String> displayOrder,
+  ) {
+    return displayOrder.map((key) {
       final item = AppService.navigationItems[key]!;
       return BottomNavigationBarItem(icon: Icon(item.icon), label: item.title);
     }).toList();

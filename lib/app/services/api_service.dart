@@ -121,15 +121,9 @@ class ApiService extends GetxService {
     Map<String, dynamic>? headers,
   }) {
     final requestOptions = options ?? d_dio.Options();
-    requestOptions.extra = {
-      ...?requestOptions.extra,
-      'site': site.name,
-    };
+    requestOptions.extra = {...?requestOptions.extra, 'site': site.name};
     if (headers != null) {
-      requestOptions.headers = {
-        ...?requestOptions.headers,
-        ...headers,
-      };
+      requestOptions.headers = {...?requestOptions.headers, ...headers};
     }
     return requestOptions;
   }
@@ -166,9 +160,13 @@ class ApiService extends GetxService {
     options.extra['requestStartTime'] = DateTime.now().millisecondsSinceEpoch;
 
     if (skipAuthWait) {
-      LogUtils.d('$_tag[$requestId] 请求: ${options.method} ${options.path} (跳过鉴权等待, site=${site.name})');
+      LogUtils.d(
+        '$_tag[$requestId] 请求: ${options.method} ${options.path} (跳过鉴权等待, site=${site.name})',
+      );
     } else {
-      LogUtils.d('$_tag[$requestId] 请求: ${options.method} ${options.path} (site=${site.name})');
+      LogUtils.d(
+        '$_tag[$requestId] 请求: ${options.method} ${options.path} (site=${site.name})',
+      );
     }
     handler.next(options);
   }
@@ -181,9 +179,12 @@ class ApiService extends GetxService {
     // 处理 401（validateStatus 已放宽到 < 500，因此 401 不会进入 onError）
     if (response.statusCode == 401) {
       final requestId = _ensureRequestId(response.requestOptions);
-      final bool skipAuthWait = response.requestOptions.extra['skipAuthWait'] == true;
+      final bool skipAuthWait =
+          response.requestOptions.extra['skipAuthWait'] == true;
       if (skipAuthWait) {
-        LogUtils.w('$_tag[$requestId] 收到 401 但标记为跳过鉴权等待，跳过自动刷新: ${response.requestOptions.path}');
+        LogUtils.w(
+          '$_tag[$requestId] 收到 401 但标记为跳过鉴权等待，跳过自动刷新: ${response.requestOptions.path}',
+        );
         handler.next(response);
         return;
       }
@@ -206,10 +207,12 @@ class ApiService extends GetxService {
     try {
       final tokenManager = _authService.tokenManager;
       final refreshStartAt = DateTime.now();
-      final result = await tokenManager
-          .refreshAccessToken()
-          .timeout(ApiServiceConfig.tokenRefreshMaxWait);
-      final refreshCostMs = DateTime.now().difference(refreshStartAt).inMilliseconds;
+      final result = await tokenManager.refreshAccessToken().timeout(
+        ApiServiceConfig.tokenRefreshMaxWait,
+      );
+      final refreshCostMs = DateTime.now()
+          .difference(refreshStartAt)
+          .inMilliseconds;
       LogUtils.d(
         '$_tag[$requestId] 等待刷新完成: success=${result.success}, authError=${result.isAuthError}, cost=${refreshCostMs}ms',
       );
@@ -242,7 +245,9 @@ class ApiService extends GetxService {
         }
         options.extra['requestStartTime'] =
             DateTime.now().millisecondsSinceEpoch;
-        LogUtils.d('$_tag[$requestId] Token 刷新遇到网络错误，使用现有 token 尝试请求: ${options.path}');
+        LogUtils.d(
+          '$_tag[$requestId] Token 刷新遇到网络错误，使用现有 token 尝试请求: ${options.path}',
+        );
         handler.next(options);
       }
     } on TimeoutException catch (_) {
@@ -294,7 +299,9 @@ class ApiService extends GetxService {
     d_dio.RequestOptions options,
   ) async {
     final requestId = _ensureRequestId(options);
-    LogUtils.w('$_tag[$requestId] 收到 401 响应: ${options.method} ${options.path}');
+    LogUtils.w(
+      '$_tag[$requestId] 收到 401 响应: ${options.method} ${options.path}',
+    );
 
     // Avoid infinite loops: only attempt refresh+retry once per request.
     if (options.extra['auth_retry'] == true) {
@@ -323,11 +330,12 @@ class ApiService extends GetxService {
     LogUtils.d('$_tag[$requestId] 开始刷新 token');
     final refreshStartAt = DateTime.now();
     try {
-      final refreshResult = await tokenManager
-          .refreshAccessToken()
-          .timeout(ApiServiceConfig.tokenRefreshMaxWait);
-      final refreshCostMs =
-          DateTime.now().difference(refreshStartAt).inMilliseconds;
+      final refreshResult = await tokenManager.refreshAccessToken().timeout(
+        ApiServiceConfig.tokenRefreshMaxWait,
+      );
+      final refreshCostMs = DateTime.now()
+          .difference(refreshStartAt)
+          .inMilliseconds;
       LogUtils.d(
         '$_tag[$requestId] Token 刷新完成: '
         'success=${refreshResult.success}, '
@@ -341,7 +349,11 @@ class ApiService extends GetxService {
         // 重试当前请求
         try {
           final retryOptions = options.copyWith(
-            extra: {...options.extra, 'auth_retry': true, 'requestId': requestId},
+            extra: {
+              ...options.extra,
+              'auth_retry': true,
+              'requestId': requestId,
+            },
           );
           final response = await _retryRequest(retryOptions);
           return response;
