@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/deep_link_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
@@ -615,6 +616,18 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     try {
       final resolvedUrl = await _resolveTapTargetUrl(url);
       if (resolvedUrl == null || resolvedUrl.isEmpty) {
+        return;
+      }
+
+      final resolvedUri = Uri.tryParse(resolvedUrl);
+      if (resolvedUri == null) {
+        _showLinkOpenFailedToast(resolvedUrl);
+        return;
+      }
+
+      if (!widget.clickInternalLinkByUrlLaunch &&
+          DeepLinkService.canHandleLink(resolvedUrl)) {
+        Get.find<DeepLinkService>().processLink(resolvedUri);
         return;
       }
 

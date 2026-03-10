@@ -5,6 +5,10 @@ class IwaraDeepLinkUtils {
   const IwaraDeepLinkUtils._();
 
   static String? normalizeToAppLocation(Uri uri) {
+    if (uri.host.isNotEmpty && !isSupportedAppLinkHost(uri.host)) {
+      return null;
+    }
+
     if (isSupportedNewsHost(uri.host)) {
       return normalizeNewsToAppLocation(uri);
     }

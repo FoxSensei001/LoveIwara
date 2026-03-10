@@ -14,6 +14,31 @@ class DeepLinkService extends GetxService {
   bool _isReady = false;
   Uri? _pendingInitialLink;
 
+  /// Tab-root routes should never be pushed.
+  ///
+  /// Pushing a tab-root (e.g. `/news?...`) creates another instance of the tab
+  /// page. Several home-tab pages in this app are keyed by a static GlobalKey,
+  /// so pushing them can crash with:
+  /// "Multiple widgets used the same GlobalKey".
+  @visibleForTesting
+  static bool isTabRootAppLocation(String location) {
+    try {
+      final uri = Uri.parse(location);
+      switch (uri.path) {
+        case '/':
+        case '/gallery':
+        case '/subscriptions':
+        case '/forum':
+        case '/news':
+          return true;
+        default:
+          return false;
+      }
+    } catch (_) {
+      return false;
+    }
+  }
+
   // macOS 文件处理 MethodChannel
   static const MethodChannel _fileHandlerChannel = MethodChannel(
     'com.example.i_iwara/file_handler',
@@ -21,6 +46,9 @@ class DeepLinkService extends GetxService {
 
   /// 判断一个URI是否可以被应用内处理
   static bool canHandleInternally(Uri uri) {
+    if (!IwaraDeepLinkUtils.isSupportedAppLinkHost(uri.host)) {
+      return false;
+    }
     return IwaraDeepLinkUtils.normalizeToAppLocation(uri) != null;
   }
 
@@ -146,15 +174,15 @@ class DeepLinkService extends GetxService {
       return;
     }
 
-    if (pathSegments.isEmpty) {
-      LogUtils.w('URI pathSegments 为空，无法处理', 'DeepLinkService');
-      return;
-    }
-
     // 确保路由系统已经准备就绪
     if (!Get.isRegistered<AppService>()) {
       LogUtils.d('AppService 未注册，延迟500ms后重试', 'DeepLinkService');
       Future.delayed(const Duration(milliseconds: 500), () => processLink(uri));
+      return;
+    }
+
+    if (!IwaraDeepLinkUtils.isSupportedAppLinkHost(uri.host)) {
+      LogUtils.w('URI host 不受支持，无法应用内处理: $uri', 'DeepLinkService');
       return;
     }
 
@@ -168,7 +196,16 @@ class DeepLinkService extends GetxService {
         '处理 news deeplink: $uri -> $normalizedLocation',
         'DeepLinkService',
       );
-      appRouter.push(normalizedLocation);
+      if (isTabRootAppLocation(normalizedLocation)) {
+        appRouter.go(normalizedLocation);
+      } else {
+        appRouter.push(normalizedLocation);
+      }
+      return;
+    }
+
+    if (pathSegments.isEmpty) {
+      LogUtils.w('URI pathSegments 为空，无法处理', 'DeepLinkService');
       return;
     }
 
