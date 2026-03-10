@@ -72,6 +72,10 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   );
   final _markdownFormatter = MarkdownFormatter();
 
+  // Records the current markdown's *rendered* non-emoji images, in order.
+  // This lets the full-screen viewer swipe through previous/next images.
+  List<_MarkdownNormalImageRecord> _lastRenderedNormalImages = const [];
+
   Map<String, String> get _iwaraImageHeaders => {
     'referer': Get.find<AppService>().currentSiteMode.baseUrl,
   };
@@ -814,14 +818,15 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     );
   }
 
-  ImageItem _buildImageItem(String normalizedUrl) {
+  ImageItem _buildImageItem(String normalizedUrl, {required String id}) {
     return ImageItem(
       url: normalizedUrl,
       data: ImageItemData(
-        id: '',
+        id: id,
         url: normalizedUrl,
         originalUrl: normalizedUrl,
       ),
+      headers: _iwaraImageHeaders,
     );
   }
 
@@ -862,13 +867,45 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
       return;
     }
 
-    final item = _buildImageItem(normalizedUrl);
+    // Prefer the rendered image list so the viewer can swipe across all images
+    // in this markdown (order matches what's shown on screen).
+    final records = _lastRenderedNormalImages;
+    final hasRecords = records.isNotEmpty;
+
+    int initialIndex = 0;
+    if (hasRecords) {
+      // Use Hero tag identity first (handles duplicated URLs correctly).
+      initialIndex = records.indexWhere((r) => identical(r.heroTag, heroTag));
+      if (initialIndex < 0) {
+        initialIndex = records.indexWhere((r) => r.url == normalizedUrl);
+      }
+      if (initialIndex < 0) initialIndex = 0;
+    }
+
+    final imageItems = hasRecords
+        ? records
+              .asMap()
+              .entries
+              .map(
+                (entry) => _buildImageItem(
+                  entry.value.url,
+                  id: 'markdown:${entry.key}',
+                ),
+              )
+              .toList(growable: false)
+        : [_buildImageItem(normalizedUrl, id: 'markdown:0')];
+
+    final tappedId = 'markdown:$initialIndex';
     pushPhotoViewWrapperOverlay(
       context: context,
-      imageItems: [item],
-      initialIndex: 0,
+      imageItems: imageItems,
+      initialIndex: initialIndex,
       menuItemsBuilder: (_, imageItem) => _buildImageMenuItems(imageItem),
-      heroTagBuilder: heroTag == null ? null : (_) => heroTag,
+      // Only provide a hero tag for the initially tapped image to avoid
+      // duplicate-hero-tag crashes when the markdown contains repeated URLs.
+      heroTagBuilder: heroTag == null
+          ? null
+          : (item) => item.data.id == tappedId ? heroTag : null,
     );
   }
 
@@ -979,6 +1016,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     Map<String, String> attributes,
     double? maxImageHeight,
     double normalImagePlaceholderHeight,
+    List<_MarkdownNormalImageRecord> normalImageRecords,
   ) {
     try {
       final preprocessedUrl =
@@ -1003,6 +1041,13 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
           ? image
           : Hero(tag: heroTag, child: image);
 
+      // Keep a list of rendered non-emoji images so we can open a paged viewer.
+      if (emojiSize == null && heroTag != null) {
+        normalImageRecords.add(
+          _MarkdownNormalImageRecord(url: normalizedUrl, heroTag: heroTag),
+        );
+      }
+
       return GestureDetector(
         onTap: () =>
             _handleMarkdownImageTap(context, normalizedUrl, emojiSize, heroTag),
@@ -1022,6 +1067,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     bool isDark,
     double? maxImageHeight,
     double normalImagePlaceholderHeight,
+    List<_MarkdownNormalImageRecord> normalImageRecords,
   ) {
     final baseConfig = isDark
         ? MarkdownConfig.darkConfig
@@ -1046,6 +1092,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
             attributes,
             maxImageHeight,
             normalImagePlaceholderHeight,
+            normalImageRecords,
           ),
         ),
       ],
@@ -1147,12 +1194,19 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     final normalImagePlaceholderHeight = maxImageHeight != null
         ? maxImageHeight.clamp(120.0, 260.0).toDouble()
         : 200.0;
+
+    // Collect the images rendered during this build (in order).
+    final normalImageRecords = <_MarkdownNormalImageRecord>[];
     final config = _buildMarkdownConfig(
       context,
       isDark,
       maxImageHeight,
       normalImagePlaceholderHeight,
+      normalImageRecords,
     );
+
+    final markdownContent = _buildMarkdownContent(config);
+    _lastRenderedNormalImages = normalImageRecords;
 
     return Padding(
       padding: widget.padding,
@@ -1161,7 +1215,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (widget.translationButtonAtTop) _buildTranslationControls(context),
-          _buildMarkdownContent(config),
+          markdownContent,
           if (_hasProcessedContent) ...[
             const SizedBox(height: 8),
             _buildProcessedTextToggle(),
@@ -1173,6 +1227,13 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
       ),
     );
   }
+}
+
+class _MarkdownNormalImageRecord {
+  final String url;
+  final Object heroTag;
+
+  const _MarkdownNormalImageRecord({required this.url, required this.heroTag});
 }
 
 class _DelayedMarkdownImagePlaceholder extends StatefulWidget {

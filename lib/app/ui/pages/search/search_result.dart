@@ -15,7 +15,6 @@ import 'package:i_iwara/app/ui/pages/search/widgets/filter_button_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
-import 'package:i_iwara/app/services/app_service.dart';
 
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/models/video.model.dart';
@@ -475,9 +474,6 @@ class _SearchResultState extends State<SearchResult> {
     // 更新UI
     _searchController.text = searchInfo;
     searchController.refreshSearch();
-
-    // 关闭对话框
-    AppService.tryPop(context: context);
   }
 
   // 构建分段选择器
