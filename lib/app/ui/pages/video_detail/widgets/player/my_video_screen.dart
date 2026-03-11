@@ -4,7 +4,6 @@ import 'dart:ui' as ui;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/video_fullscreen_handoff.model.dart';
@@ -1435,29 +1434,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   ) {
     return Obx(
       () => myVideoStateController.videoBuffering.value
-          ? Container(
-              width: size,
-              height: size,
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.5),
-                shape: BoxShape.circle,
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(size * 0.2), // 内边距为尺寸的20%
-                child:
-                    CircularProgressIndicator(
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                          strokeWidth: size * 0.08, // 线条宽度为尺寸的8%
-                        )
-                        .animate(onPlay: (controller) => controller.repeat())
-                        .rotate(
-                          duration: const Duration(milliseconds: 1000),
-                          curve: Curves.linear,
-                        ),
-              ),
-            )
+          ? LoadingStateWidget(controller: myVideoStateController, size: size)
           : const SizedBox.shrink(),
     );
   }

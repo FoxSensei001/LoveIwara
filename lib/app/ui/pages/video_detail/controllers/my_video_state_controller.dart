@@ -150,6 +150,7 @@ class MyVideoStateController extends GetxController
   final Rxn<String> videoSourceErrorMessage = Rxn<String>(); // 视频源错误信息
   final Rxn<video_model.Video> videoInfo = Rxn<video_model.Video>(); // 视频信息
   final RxBool videoPlayerReady = false.obs; // 播放器是否准备好
+  final RxnInt videoLoadingSpeedBytesPerSecond = RxnInt(); // 当前视频加载速率（bytes/s）
   final RxInt sourceVideoWidth = 1920.obs; // 视频宽度
   final RxInt sourceVideoHeight = 1080.obs; // 视频高度
   final RxDouble aspectRatio = (16 / 9).obs; // 视频宽高比
@@ -290,6 +291,143 @@ class MyVideoStateController extends GetxController
 
   // 播放器健康快照定时器（用于崩溃诊断）
   Timer? _healthSnapshotTimer;
+
+  static const String _cacheSpeedProperty = 'cache-speed';
+  static const String _demuxerCacheStateProperty = 'demuxer-cache-state';
+  bool _isCacheSpeedObserved = false;
+  bool _isDemuxerCacheStateObserved = false;
+
+  String get videoLoadingSpeedText {
+    final int? bytesPerSecond = videoLoadingSpeedBytesPerSecond.value;
+    if (bytesPerSecond == null || bytesPerSecond <= 0) {
+      return '';
+    }
+    return formatTransferRateForDisplay(bytesPerSecond);
+  }
+
+  static String formatTransferRateForDisplay(int bytesPerSecond) {
+    const units = ['B/s', 'KB/s', 'MB/s', 'GB/s'];
+    double size = bytesPerSecond.toDouble();
+    int unitIndex = 0;
+
+    while (size >= 1024 && unitIndex < units.length - 1) {
+      size /= 1024;
+      unitIndex++;
+    }
+
+    final String sizeText = size >= 10
+        ? size.toStringAsFixed(0)
+        : size.toStringAsFixed(1);
+    return '$sizeText ${units[unitIndex]}';
+  }
+
+  int? _parseBytesPerSecond(dynamic rawValue) {
+    if (rawValue == null) {
+      return null;
+    }
+    if (rawValue is num) {
+      return rawValue.isFinite ? rawValue.round() : null;
+    }
+    if (rawValue is String) {
+      final String normalized = rawValue.trim();
+      if (normalized.isEmpty) {
+        return null;
+      }
+      final num? parsed = num.tryParse(normalized);
+      if (parsed == null || !parsed.isFinite) {
+        return null;
+      }
+      return parsed.round();
+    }
+    return null;
+  }
+
+  void _updateVideoLoadingSpeed(int? bytesPerSecond) {
+    if (_isDisposed || isLocalVideoMode) {
+      return;
+    }
+    if (bytesPerSecond == null || bytesPerSecond <= 0) {
+      videoLoadingSpeedBytesPerSecond.value = null;
+      return;
+    }
+    videoLoadingSpeedBytesPerSecond.value = bytesPerSecond;
+  }
+
+  void _handleCacheSpeedProperty(String value) {
+    _updateVideoLoadingSpeed(_parseBytesPerSecond(value));
+  }
+
+  void _handleDemuxerCacheStateProperty(String value) {
+    if (value.trim().isEmpty) {
+      return;
+    }
+    try {
+      final dynamic decoded = json.decode(value);
+      if (decoded is! Map<String, dynamic>) {
+        return;
+      }
+      final int? parsedSpeed = _parseBytesPerSecond(decoded['cache-speed']);
+      if (parsedSpeed != null && parsedSpeed > 0) {
+        _updateVideoLoadingSpeed(parsedSpeed);
+      }
+    } catch (e) {
+      LogUtils.d('解析 demuxer-cache-state 失败: $e', 'MyVideoStateController');
+    }
+  }
+
+  Future<void> _observePlayerLoadingSpeed() async {
+    if (_isDisposed || isLocalVideoMode || player.platform is! NativePlayer) {
+      return;
+    }
+
+    final NativePlayer nativePlayer = player.platform as NativePlayer;
+    try {
+      if (!_isCacheSpeedObserved) {
+        await nativePlayer.observeProperty(_cacheSpeedProperty, (
+          String value,
+        ) async {
+          _handleCacheSpeedProperty(value);
+        });
+        _isCacheSpeedObserved = true;
+      }
+
+      if (!_isDemuxerCacheStateObserved) {
+        await nativePlayer.observeProperty(_demuxerCacheStateProperty, (
+          String value,
+        ) async {
+          _handleDemuxerCacheStateProperty(value);
+        });
+        _isDemuxerCacheStateObserved = true;
+      }
+    } catch (e) {
+      LogUtils.w('注册播放器加载速率监听失败: $e', 'MyVideoStateController');
+    }
+  }
+
+  Future<void> _unobservePlayerLoadingSpeed() async {
+    if (player.platform is! NativePlayer) {
+      _isCacheSpeedObserved = false;
+      _isDemuxerCacheStateObserved = false;
+      videoLoadingSpeedBytesPerSecond.value = null;
+      return;
+    }
+
+    final NativePlayer nativePlayer = player.platform as NativePlayer;
+    try {
+      if (_isCacheSpeedObserved) {
+        await nativePlayer.unobserveProperty(_cacheSpeedProperty);
+      }
+      if (_isDemuxerCacheStateObserved) {
+        await nativePlayer.unobserveProperty(_demuxerCacheStateProperty);
+      }
+    } catch (e) {
+      LogUtils.w('取消播放器加载速率监听失败: $e', 'MyVideoStateController');
+    } finally {
+      _isCacheSpeedObserved = false;
+      _isDemuxerCacheStateObserved = false;
+      videoLoadingSpeedBytesPerSecond.value = null;
+    }
+  }
 
   void refreshScrollView() {
     // 触发重建 - 使用更可靠的方法
@@ -1338,6 +1476,7 @@ class MyVideoStateController extends GetxController
       volumeController?.removeListener();
       _pipStatusSubscription?.cancel();
       errorSubscription?.cancel(); // 取消错误监听订阅
+      _unobservePlayerLoadingSpeed();
       LogUtils.d('所有订阅已取消', 'MyVideoStateController');
 
       // 释放播放器资源
@@ -2012,6 +2151,7 @@ class MyVideoStateController extends GetxController
     }
 
     // 设置缓冲状态，显示 loading 动画
+    videoLoadingSpeedBytesPerSecond.value = null;
     videoBuffering.value = true;
 
     // 取消现有订阅但不重置 videoPlayerReady
@@ -2065,6 +2205,7 @@ class MyVideoStateController extends GetxController
   }) async {
     if (_isDisposed) return;
     pageLoadingState.value = VideoDetailPageLoadingState.applyingSolution;
+    videoLoadingSpeedBytesPerSecond.value = null;
     // 重置状态
     await _cancelSubscriptions();
     _clearBuffers();
@@ -2159,11 +2300,15 @@ class MyVideoStateController extends GetxController
     if (_isDisposed) return;
 
     _setupPositionListener();
+    unawaited(_observePlayerLoadingSpeed());
 
     // 缓冲
     bufferingSubscription = player.stream.buffering.listen((buffering) async {
       if (_isDisposed) return;
       videoBuffering.value = buffering;
+      if (!buffering) {
+        videoLoadingSpeedBytesPerSecond.value = null;
+      }
     });
 
     // 总时长
