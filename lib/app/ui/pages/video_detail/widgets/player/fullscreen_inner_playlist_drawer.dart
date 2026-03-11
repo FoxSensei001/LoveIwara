@@ -97,6 +97,7 @@ class _FullscreenInnerPlaylistDrawerState
     const drawerCurve = Curves.easeOutCubic;
     const hintHeight = 136.0;
     const hintWidth = 64.0;
+    const hintPeekOffset = 14.0;
     const topToolbarHeight = 60.0;
     const bottomQuickActionsHeight = 40.0;
     const bottomToolbarHeight = 68.0;
@@ -165,8 +166,10 @@ class _FullscreenInnerPlaylistDrawerState
                 !widget.isExpanded &&
                 widget.items.isNotEmpty &&
                 hintScale > 0.0;
+            final hintVisibilityFactor =
+                (hintVisible ? 1.0 : 0.0) * baseToolbarVisibility;
             final hintOpacity =
-                ((1 - animatedPanelProgress) * (hintVisible ? 1.0 : 0.0)).clamp(
+                ((1 - animatedPanelProgress) * hintVisibilityFactor).clamp(
                   0.0,
                   1.0,
                 );
@@ -219,10 +222,10 @@ class _FullscreenInnerPlaylistDrawerState
                 ),
                 if (widget.items.isNotEmpty)
                   Positioned(
-                    right: mediaPadding.right,
+                    right: mediaPadding.right - hintPeekOffset,
                     top: hintTop,
                     child: IgnorePointer(
-                      ignoring: hintOpacity <= 0,
+                      ignoring: hintOpacity <= 0.01,
                       child: Transform.translate(
                         offset: Offset(hintSlideX, 0),
                         child: Opacity(

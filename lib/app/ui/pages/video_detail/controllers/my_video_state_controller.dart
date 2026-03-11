@@ -352,7 +352,8 @@ class MyVideoStateController extends GetxController
 
       // 动画
       animationController = AnimationController(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 140),
+        reverseDuration: const Duration(milliseconds: 120),
         vsync: this,
       );
       LogUtils.d('已初始化 animationController', 'MyVideoStateController');

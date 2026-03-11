@@ -484,9 +484,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     }
 
     final targetVideo = result.data!;
-    final nextContext = widget.innerPlaylistContext?.copyWith(
-      currentVideoId: item.id,
-    );
+    final nextContext = widget.innerPlaylistContext?.copyForSelection(item.id);
 
     try {
       late final Future<Object?> navigationFuture;
@@ -1138,7 +1136,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
           final toolbarVisibility =
               (1 - widget.myVideoStateController.bottomBarAnimation.value.dy)
                   .clamp(0.0, 1.0);
-          final toolbarVisible = toolbarVisibility > 0.04;
 
           return FullscreenInnerPlaylistDrawer(
             items: _orderedInnerPlaylistItems,
@@ -1146,7 +1143,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             showHint:
                 (_configService[ConfigKey.SHOW_FULLSCREEN_UP_NEXT_HINT]
                     as bool) &&
-                toolbarVisible &&
                 !_innerPlaylistExpanded &&
                 !_isSwitchingInnerPlaylistVideo,
             isBusy: _isSwitchingInnerPlaylistVideo,

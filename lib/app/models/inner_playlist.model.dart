@@ -112,6 +112,56 @@ class InnerPlaylistContext {
     );
   }
 
+  /// Returns a new context for continuing playback from [selectedVideoId].
+  ///
+  /// The current video and the selected video are both treated as already
+  /// consumed in the detail-page handoff chain, so they are moved to the tail
+  /// in consumption order. This keeps untouched items closer to the front of
+  /// the next "up next" drawer without mutating the original context.
+  InnerPlaylistContext copyForSelection(String selectedVideoId) {
+    final normalizedSelectedId = selectedVideoId.trim();
+    if (normalizedSelectedId.isEmpty) {
+      return this;
+    }
+
+    final consumedIds = <String>{};
+
+    void markConsumed(String id) {
+      final normalizedId = id.trim();
+      if (normalizedId.isEmpty) {
+        return;
+      }
+      consumedIds.add(normalizedId);
+    }
+
+    markConsumed(currentVideoId);
+    markConsumed(normalizedSelectedId);
+
+    final reordered = <InnerPlaylistItemSnapshot>[];
+    for (final item in items) {
+      final id = item.id.trim();
+      if (id.isEmpty || consumedIds.contains(id)) {
+        continue;
+      }
+      reordered.add(item);
+    }
+
+    for (final consumedId in consumedIds) {
+      for (final item in items) {
+        if (item.id.trim() == consumedId) {
+          reordered.add(item);
+          break;
+        }
+      }
+    }
+
+    return InnerPlaylistContext(
+      source: source,
+      items: List<InnerPlaylistItemSnapshot>.unmodifiable(reordered),
+      currentVideoId: normalizedSelectedId,
+    );
+  }
+
   List<InnerPlaylistItemSnapshot> itemsStartingAfterCurrent() {
     if (items.isEmpty) {
       return const <InnerPlaylistItemSnapshot>[];

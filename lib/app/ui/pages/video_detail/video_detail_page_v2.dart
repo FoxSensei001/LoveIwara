@@ -176,9 +176,20 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
 
   InnerPlaylistContext? _resolveInnerPlaylistContext() {
     final context = widget.innerPlaylistContext;
-    if (context?.source != InnerPlaylistSource.relatedVideosTab ||
-        isLocalMode) {
+    if (isLocalMode || context == null) {
       return context;
+    }
+
+    if (context.source != InnerPlaylistSource.relatedVideosTab) {
+      return context;
+    }
+
+    // Respect an explicit handoff order from the previous detail page so the
+    // "up next" chain can keep consumed items at the tail.
+    if (context.items.isNotEmpty) {
+      return context.currentVideoId == videoId
+          ? context
+          : context.copyWith(currentVideoId: videoId);
     }
 
     final relatedVideos = relatedVideoController?.videos;
