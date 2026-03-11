@@ -128,9 +128,7 @@ class AuthService extends GetxService {
         _isAuthenticated.value = true;
 
         // 启动后台刷新定时器
-        _tokenManager.startBackgroundRefresh(
-          immediateCheck: _canRunCloudflareChallengeNow(),
-        );
+        _tokenManager.startBackgroundRefresh(immediateCheck: false);
       }
 
       LogUtils.d('$_tag 初始化完成 - isAuthenticated: ${_isAuthenticated.value}');
@@ -145,17 +143,21 @@ class AuthService extends GetxService {
   void markReady() {
     if (_isReady) return;
     _isReady = true;
+    var startedImmediateRefresh = _tokenManager.isRefreshing;
 
     if (_pendingInitialRefresh && _tokenManager.isAccessTokenExpired) {
       _pendingInitialRefresh = false;
       LogUtils.d('$_tag UI Ready，开始延后的 access token 刷新');
       _startRefreshWithoutWaiting();
+      startedImmediateRefresh = true;
     }
 
     // Ensure the background refresh timer is active and run the first check
     // only after UI is ready (Cloudflare challenge needs a valid context).
     if (_tokenManager.hasToken && !_tokenManager.isAuthTokenExpired) {
-      _tokenManager.startBackgroundRefresh(immediateCheck: true);
+      _tokenManager.startBackgroundRefresh(
+        immediateCheck: !startedImmediateRefresh,
+      );
     }
   }
 

@@ -1,5 +1,6 @@
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
+import 'package:i_iwara/app/models/api_request_access.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'base_media_repository.dart';
@@ -19,7 +20,7 @@ class PopularVideoRepository extends BaseMediaRepository<Video> {
       params: params,
       page: page,
       limit: limit,
-      skipAuthWait: true,
+      requestAccess: ApiRequestAccess.optionalAuthShortWait,
     );
   }
 }

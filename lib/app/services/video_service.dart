@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart' as d_dio;
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
+import 'package:i_iwara/app/models/api_request_access.model.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
@@ -39,7 +39,7 @@ class VideoService extends GetxService {
     int page = 0,
     int limit = 20,
     String? url,
-    bool skipAuthWait = false,
+    ApiRequestAccess? requestAccess,
     IwaraSite site = IwaraSite.main,
   }) async {
     try {
@@ -47,11 +47,16 @@ class VideoService extends GetxService {
       // 我靠，iwara站的搜索居然连空字符串都用于搜索了，哎
       params = Map<String, dynamic>.from(params)
         ..removeWhere((key, value) => value == '');
+      final effectiveAccess =
+          requestAccess ??
+          (params['subscribed'] == true
+              ? ApiRequestAccess.authRequired
+              : ApiRequestAccess.optionalAuthShortWait);
       url ??= ApiConstants.videos();
       final response = await _apiService.get(
         url,
         queryParameters: {...params, 'page': page, 'limit': limit},
-        options: d_dio.Options(extra: {'skipAuthWait': skipAuthWait}),
+        requestAccess: effectiveAccess,
         site: site,
       );
 

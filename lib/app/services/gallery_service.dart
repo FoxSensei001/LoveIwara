@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart' as d_dio;
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
+import 'package:i_iwara/app/models/api_request_access.model.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
@@ -15,7 +15,10 @@ class GalleryService extends GetxService {
   final ApiService _apiService = Get.find();
 
   /// 获取图库的详情
-  Future<ApiResult<ImageModel>> fetchGalleryDetail(String imageModelId, {IwaraSite site = IwaraSite.main}) async {
+  Future<ApiResult<ImageModel>> fetchGalleryDetail(
+    String imageModelId, {
+    IwaraSite site = IwaraSite.main,
+  }) async {
     try {
       var response = await _apiService.get(
         ApiConstants.imageDetail(imageModelId),
@@ -51,7 +54,7 @@ class GalleryService extends GetxService {
     int page = 0,
     int limit = 20,
     String? url,
-    bool skipAuthWait = false,
+    ApiRequestAccess? requestAccess,
     IwaraSite site = IwaraSite.main,
   }) async {
     try {
@@ -59,12 +62,17 @@ class GalleryService extends GetxService {
       // 我靠，iwara站的搜索居然连空字符串都用于搜索了，哎
       params = Map<String, dynamic>.from(params)
         ..removeWhere((key, value) => value == '');
+      final effectiveAccess =
+          requestAccess ??
+          (params['subscribed'] == true
+              ? ApiRequestAccess.authRequired
+              : ApiRequestAccess.optionalAuthShortWait);
 
       url ??= ApiConstants.images();
       final response = await _apiService.get(
         url,
         queryParameters: {...params, 'page': page, 'limit': limit},
-        options: d_dio.Options(extra: {'skipAuthWait': skipAuthWait}),
+        requestAccess: effectiveAccess,
         site: site,
       );
 
@@ -211,7 +219,10 @@ class GalleryService extends GetxService {
   }
 
   /// 取消最爱
-  Future<ApiResult<void>> cancelFavoriteImage(String mediaId, {IwaraSite site = IwaraSite.main}) async {
+  Future<ApiResult<void>> cancelFavoriteImage(
+    String mediaId, {
+    IwaraSite site = IwaraSite.main,
+  }) async {
     try {
       await _apiService.delete(ApiConstants.likeImage(mediaId), site: site);
       return ApiResult.success();
@@ -223,7 +234,10 @@ class GalleryService extends GetxService {
   }
 
   /// 设为最爱
-  Future<ApiResult<void>> setFavoriteImage(String mediaId, {IwaraSite site = IwaraSite.main}) async {
+  Future<ApiResult<void>> setFavoriteImage(
+    String mediaId, {
+    IwaraSite site = IwaraSite.main,
+  }) async {
     try {
       await _apiService.post(ApiConstants.likeImage(mediaId), site: site);
       return ApiResult.success();
@@ -235,7 +249,10 @@ class GalleryService extends GetxService {
   }
 
   /// 点赞图库
-  Future<ApiResult<void>> likeImage(String mediaId, {IwaraSite site = IwaraSite.main}) async {
+  Future<ApiResult<void>> likeImage(
+    String mediaId, {
+    IwaraSite site = IwaraSite.main,
+  }) async {
     try {
       await _apiService.post(ApiConstants.likeImage(mediaId), site: site);
       return ApiResult.success();
@@ -247,7 +264,10 @@ class GalleryService extends GetxService {
   }
 
   /// 取消点赞图库
-  Future<ApiResult<void>> unlikeImage(String mediaId, {IwaraSite site = IwaraSite.main}) async {
+  Future<ApiResult<void>> unlikeImage(
+    String mediaId, {
+    IwaraSite site = IwaraSite.main,
+  }) async {
     try {
       await _apiService.delete(ApiConstants.likeImage(mediaId), site: site);
       return ApiResult.success();

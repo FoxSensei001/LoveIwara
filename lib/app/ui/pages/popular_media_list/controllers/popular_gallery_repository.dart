@@ -1,4 +1,5 @@
 import 'package:i_iwara/app/models/api_result.model.dart';
+import 'package:i_iwara/app/models/api_request_access.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
@@ -22,7 +23,7 @@ class PopularGalleryRepository extends BaseMediaRepository<ImageModel> {
       params: params,
       page: page,
       limit: limit,
-      skipAuthWait: true,
+      requestAccess: ApiRequestAccess.optionalAuthShortWait,
     );
   }
 }

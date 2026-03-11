@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/dto/profile_user_dto.dart';
 import 'package:i_iwara/app/models/dto/user_request_dto.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
+import 'package:i_iwara/app/models/api_request_access.model.dart';
 import 'package:i_iwara/app/models/user_notification_count.model.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 
@@ -35,6 +36,7 @@ class UserService extends GetxService {
   RxInt friendRequestsCount = RxInt(0);
   RxInt messagesCount = RxInt(0);
   Timer? _notificationTimer;
+  Future<void>? _notificationRefreshInFlight;
 
   // 操作锁，确保资料更新和获取串行执行
   Future<void>? _operationLock;
@@ -77,15 +79,15 @@ class UserService extends GetxService {
       _notificationTimer = Timer.periodic(const Duration(minutes: 15), (
         timer,
       ) async {
-        if (_authService.hasToken) {
+        if (_authService.isAuthenticated) {
           await refreshNotificationCount();
         }
       });
       // 立即执行一次
-      if (_authService.hasToken) {
+      if (_authService.isAuthenticated) {
         if (_isReady) {
           Future.delayed(const Duration(milliseconds: 800), () {
-            if (_authService.hasToken) {
+            if (_authService.isAuthenticated) {
               refreshNotificationCount();
             }
           });
@@ -100,6 +102,7 @@ class UserService extends GetxService {
   void stopNotificationTimer() {
     _notificationTimer?.cancel();
     _notificationTimer = null;
+    _notificationRefreshInFlight = null;
   }
 
   void clearAllNotificationCounts() {
@@ -111,16 +114,35 @@ class UserService extends GetxService {
 
   // 获取通知计数
   Future<void> refreshNotificationCount() async {
-    try {
-      final result = await fetchUserNotificationCount();
-      if (result.data != null) {
-        notificationCount.value = result.data?.notifications ?? 0;
-        friendRequestsCount.value = result.data?.friendRequests ?? 0;
-        messagesCount.value = result.data?.messages ?? 0;
-      }
-    } catch (e) {
-      LogUtils.e('获取通知计数失败', tag: _tag, error: e);
+    if (!_authService.isAuthenticated) {
+      return;
     }
+
+    final existingRefresh = _notificationRefreshInFlight;
+    if (existingRefresh != null) {
+      return existingRefresh;
+    }
+
+    late final Future<void> refreshFuture;
+    refreshFuture = () async {
+      try {
+        final result = await fetchUserNotificationCount();
+        if (result.data != null) {
+          notificationCount.value = result.data?.notifications ?? 0;
+          friendRequestsCount.value = result.data?.friendRequests ?? 0;
+          messagesCount.value = result.data?.messages ?? 0;
+        }
+      } catch (e) {
+        LogUtils.e('获取通知计数失败', tag: _tag, error: e);
+      } finally {
+        if (identical(_notificationRefreshInFlight, refreshFuture)) {
+          _notificationRefreshInFlight = null;
+        }
+      }
+    }();
+
+    _notificationRefreshInFlight = refreshFuture;
+    return refreshFuture;
   }
 
   @override
@@ -200,10 +222,6 @@ class UserService extends GetxService {
     clearAllNotificationCounts();
     stopNotificationTimer();
 
-    // 清理认证状态监听
-    _authStateSubscription?.cancel();
-    _authStateSubscription = null;
-
     LogUtils.d('$_tag 用户数据已清理');
   }
 
@@ -213,7 +231,11 @@ class UserService extends GetxService {
       try {
         isLogining.value = true;
         LogUtils.d('$_tag 开始抓取用户资料');
-        final response = await _apiService.get<Map<String, dynamic>>('/user');
+        final response = await _apiService.get<Map<String, dynamic>>(
+          '/user',
+          requestAccess: ApiRequestAccess.authRequired,
+          maxNetworkRetries: 0,
+        );
         LogUtils.d('$_tag 获取到用户资料响应');
 
         final data = response.data!;
@@ -663,7 +685,11 @@ class UserService extends GetxService {
   /// /user/counts
   Future<ApiResult<UserNotificationCount>> fetchUserNotificationCount() async {
     try {
-      final response = await _apiService.get(ApiConstants.userCounts);
+      final response = await _apiService.get(
+        ApiConstants.userCounts,
+        requestAccess: ApiRequestAccess.authRequired,
+        maxNetworkRetries: 0,
+      );
       return ApiResult.success(
         data: UserNotificationCount.fromJson(response.data),
       );
@@ -823,7 +849,11 @@ class UserService extends GetxService {
     return _performLockedOperation(() async {
       try {
         LogUtils.d('$_tag 开始静默抓取用户资料');
-        final response = await _apiService.get<Map<String, dynamic>>('/user');
+        final response = await _apiService.get<Map<String, dynamic>>(
+          '/user',
+          requestAccess: ApiRequestAccess.authRequired,
+          maxNetworkRetries: 0,
+        );
         LogUtils.d('$_tag 静默获取到用户资料响应');
 
         final data = response.data!;

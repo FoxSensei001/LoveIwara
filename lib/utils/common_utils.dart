@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import 'package:i_iwara/app/models/api_failure.model.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/models/video_source.model.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -21,17 +22,17 @@ class CommonUtils {
   /// 如果 URL 以 // 开头，则添加 https: 前缀
   static String? normalizeUrl(String? url) {
     if (url == null || url.isEmpty) return url;
-    
+
     // 如果已经有完整的协议前缀，直接返回
     if (url.startsWith('http://') || url.startsWith('https://')) {
       return url;
     }
-    
+
     // 如果以 // 开头，添加 https: 前缀
     if (url.startsWith('//')) {
       return 'https:$url';
     }
-    
+
     // 其他情况，假设需要添加完整的 https:// 前缀
     return 'https://$url';
   }
@@ -61,7 +62,7 @@ class CommonUtils {
     try {
       if (Platform.isAndroid || Platform.isIOS) {
         List<DeviceOrientation> orientations;
-        
+
         if (toVerticalScreen) {
           orientations = [DeviceOrientation.portraitUp];
         } else if (useGravityOrientation) {
@@ -74,7 +75,7 @@ class CommonUtils {
             DeviceOrientation.landscapeRight,
           ];
         }
-        
+
         await Future.wait([
           SystemChrome.setEnabledSystemUIMode(
             SystemUiMode.immersiveSticky,
@@ -98,8 +99,9 @@ class CommonUtils {
   static Future<List<DeviceOrientation>> _getConfigBasedOrientations() async {
     try {
       final configService = Get.find<ConfigService>();
-      final orientation = configService[ConfigKey.FULLSCREEN_ORIENTATION] as String;
-      
+      final orientation =
+          configService[ConfigKey.FULLSCREEN_ORIENTATION] as String;
+
       switch (orientation) {
         case 'landscape_left':
           return [DeviceOrientation.landscapeLeft];
@@ -121,10 +123,10 @@ class CommonUtils {
       if (context == null) {
         return await _getConfigBasedOrientations();
       }
-      
+
       // 获取当前设备方向
       final currentOrientation = MediaQuery.of(context).orientation;
-      
+
       // 如果当前已经是横屏，保持当前方向
       if (currentOrientation == Orientation.landscape) {
         // 获取当前的具体横屏方向
@@ -133,7 +135,7 @@ class CommonUtils {
           return [currentDeviceOrientation];
         }
       }
-      
+
       // 如果当前是竖屏，根据重力感应选择横屏方向
       // 由于重力感应数据获取复杂，我们使用配置的默认方向
       // 用户可以通过旋转设备来改变方向
@@ -151,24 +153,25 @@ class CommonUtils {
       if (context == null) {
         return null;
       }
-      
+
       // 通过 MediaQuery 获取当前方向
       final orientation = MediaQuery.of(context).orientation;
-      
+
       // 尝试通过系统信息获取当前设备方向
       // 这里我们使用一个简化的逻辑
       if (orientation == Orientation.landscape) {
         // 由于无法直接获取具体的横屏方向，我们返回配置的默认方向
         final configService = Get.find<ConfigService>();
-        final defaultOrientation = configService[ConfigKey.FULLSCREEN_ORIENTATION] as String;
-        
+        final defaultOrientation =
+            configService[ConfigKey.FULLSCREEN_ORIENTATION] as String;
+
         if (defaultOrientation == 'landscape_left') {
           return DeviceOrientation.landscapeLeft;
         } else if (defaultOrientation == 'landscape_right') {
           return DeviceOrientation.landscapeRight;
         }
       }
-      
+
       return null;
     } catch (e) {
       debugPrint('获取当前设备方向失败: $e');
@@ -183,21 +186,21 @@ class CommonUtils {
       if (!Platform.isAndroid && !Platform.isIOS) {
         return; // 仅移动端支持
       }
-      
+
       final context = rootNavigatorKey.currentContext;
       if (context == null) {
         return;
       }
-      
+
       // 获取当前方向
       final currentOrientation = MediaQuery.of(context).orientation;
       if (currentOrientation != Orientation.landscape) {
         return; // 只在横屏状态下切换
       }
-      
+
       // 获取当前的具体横屏方向
       final currentDeviceOrientation = await _getCurrentDeviceOrientation();
-      
+
       // 根据当前方向切换到另一个横屏方向
       List<DeviceOrientation> newOrientations;
       if (currentDeviceOrientation == DeviceOrientation.landscapeLeft) {
@@ -205,10 +208,9 @@ class CommonUtils {
       } else {
         newOrientations = [DeviceOrientation.landscapeLeft];
       }
-      
+
       // 应用新的方向
       await SystemChrome.setPreferredOrientations(newOrientations);
-      
     } catch (e) {
       debugPrint('切换横屏方向失败: $e');
     }
@@ -380,7 +382,9 @@ class CommonUtils {
   }
 
   /// 获取内部应用专用目录
-  static Future<Directory> getInternalAppDirectory({String pathSuffix = ''}) async {
+  static Future<Directory> getInternalAppDirectory({
+    String pathSuffix = '',
+  }) async {
     final directory = await getApplicationDocumentsDirectory();
     // join 上 applicationName
     final path = p.join(
@@ -396,7 +400,9 @@ class CommonUtils {
   }
 
   /// 获取外部应用专用目录
-  static Future<Directory?> getExternalAppDirectory({String pathSuffix = ''}) async {
+  static Future<Directory?> getExternalAppDirectory({
+    String pathSuffix = '',
+  }) async {
     try {
       final externalDir = await getExternalStorageDirectory();
       if (externalDir == null) return null;
@@ -452,13 +458,13 @@ class CommonUtils {
       if (expiresStr == null || expiresStr.isEmpty) {
         return null;
       }
-      
+
       // 将 Unix 时间戳（秒）转换为 DateTime
       final expiresTimestamp = int.tryParse(expiresStr);
       if (expiresTimestamp == null) {
         return null;
       }
-      
+
       // Unix 时间戳是秒，需要转换为毫秒
       return DateTime.fromMillisecondsSinceEpoch(expiresTimestamp * 1000);
     } catch (e) {
@@ -506,7 +512,7 @@ class CommonUtils {
   /// 生成唯一的文件路径，如果文件已存在则自动添加序号
   static String _generateUniqueFilePath(String originalPath) {
     File file = File(originalPath);
-    
+
     // 如果文件不存在，直接返回原路径
     if (!file.existsSync()) {
       return originalPath;
@@ -519,7 +525,7 @@ class CommonUtils {
 
     int counter = 1;
     String newPath;
-    
+
     // 循环查找可用的文件名
     do {
       String newFileName = '$fileName($counter)';
@@ -571,9 +577,11 @@ class CommonUtils {
 
   /// 分析网络错误并返回用户友好的错误消息
   static String parseExceptionMessage(dynamic error) {
-    final bool isDesktop = Platform.isMacOS || Platform.isWindows || Platform.isLinux;
+    final bool isDesktop =
+        Platform.isMacOS || Platform.isWindows || Platform.isLinux;
 
-    String withDesktopHint(String msg) => isDesktop ? '$msg${slang.t.common.parseExceptionDestopHint}' : msg;
+    String withDesktopHint(String msg) =>
+        isDesktop ? '$msg${slang.t.common.parseExceptionDestopHint}' : msg;
 
     String extractPort(String message) {
       final match = RegExp(r'Invalid port (\d+)').firstMatch(message);
@@ -581,56 +589,110 @@ class CommonUtils {
     }
 
     if (error is DioException) {
-      final String errorMessage = error.message ?? error.error?.toString() ?? '';
-      final statusCode = error.response?.statusCode;
+      final String errorMessage =
+          error.message ?? error.error?.toString() ?? '';
+      final failure = ApiFailureResolver.resolve(error);
+      final statusCode = failure.statusCode;
 
       switch (error.type) {
         case DioExceptionType.connectionTimeout:
         case DioExceptionType.sendTimeout:
         case DioExceptionType.receiveTimeout:
-          return withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.requestTimeout}');
+          return withDesktopHint(
+            '${slang.t.errors.network.basicPrefix}${slang.t.errors.network.requestTimeout}',
+          );
         case DioExceptionType.badResponse:
-          return statusCode != null
-              ? withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.serverError} ($statusCode)')
-              : withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.unexpectedError}');
+          switch (failure.kind) {
+            case ApiFailureKind.privateVideo:
+              return withDesktopHint(slang.t.videoDetail.privateVideo);
+            case ApiFailureKind.forbidden:
+            case ApiFailureKind.unauthorized:
+            case ApiFailureKind.authRefreshFailed:
+              return withDesktopHint(slang.t.errors.pleaseLoginAgain);
+            case ApiFailureKind.cloudflareBlocked:
+            case ApiFailureKind.serverError:
+              return statusCode != null
+                  ? withDesktopHint(
+                      '${slang.t.errors.network.basicPrefix}${slang.t.errors.network.serverError} ($statusCode)',
+                    )
+                  : withDesktopHint(
+                      '${slang.t.errors.network.basicPrefix}${slang.t.errors.network.unexpectedError}',
+                    );
+            default:
+              return statusCode != null
+                  ? withDesktopHint(
+                      '${slang.t.errors.network.basicPrefix}${slang.t.errors.network.serverError} ($statusCode)',
+                    )
+                  : withDesktopHint(
+                      '${slang.t.errors.network.basicPrefix}${slang.t.errors.network.unexpectedError}',
+                    );
+          }
         case DioExceptionType.cancel:
           // return withDesktopHint('请求已取消');
-          return withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.requestCanceled}');
+          return withDesktopHint(
+            '${slang.t.errors.network.basicPrefix}${slang.t.errors.network.requestCanceled}',
+          );
         case DioExceptionType.connectionError:
           if (errorMessage.contains('Invalid port')) {
             final port = extractPort(errorMessage);
             return port.isNotEmpty
-                ? withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.invalidPort}: $port')
-                : withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.proxyPortError}');
+                ? withDesktopHint(
+                    '${slang.t.errors.network.basicPrefix}${slang.t.errors.network.invalidPort}: $port',
+                  )
+                : withDesktopHint(
+                    '${slang.t.errors.network.basicPrefix}${slang.t.errors.network.proxyPortError}',
+                  );
           }
           if (errorMessage.contains('Connection refused')) {
-            return withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.connectionRefused}');
+            return withDesktopHint(
+              '${slang.t.errors.network.basicPrefix}${slang.t.errors.network.connectionRefused}',
+            );
           }
           if (errorMessage.contains('Network is unreachable')) {
-            return withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.networkUnreachable}');
+            return withDesktopHint(
+              '${slang.t.errors.network.basicPrefix}${slang.t.errors.network.networkUnreachable}',
+            );
           }
           if (errorMessage.contains('No route to host')) {
-            return withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.noRouteToHost}');
+            return withDesktopHint(
+              '${slang.t.errors.network.basicPrefix}${slang.t.errors.network.noRouteToHost}',
+            );
           }
-          return withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.connectionFailed}');
+          return withDesktopHint(
+            '${slang.t.errors.network.basicPrefix}${slang.t.errors.network.connectionFailed}',
+          );
         case DioExceptionType.unknown:
+          if (failure.kind == ApiFailureKind.authRefreshFailed) {
+            return withDesktopHint(slang.t.errors.pleaseLoginAgain);
+          }
           if (errorMessage.contains('Invalid port')) {
             final port = extractPort(errorMessage);
             return port.isNotEmpty
-                ? withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.invalidPort}: $port')
-                : withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.proxyPortError}');
+                ? withDesktopHint(
+                    '${slang.t.errors.network.basicPrefix}${slang.t.errors.network.invalidPort}: $port',
+                  )
+                : withDesktopHint(
+                    '${slang.t.errors.network.basicPrefix}${slang.t.errors.network.proxyPortError}',
+                  );
           }
-          if (errorMessage.contains('HandshakeException') || errorMessage.contains('Connection terminated during handshake')) {
-            return withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.sslConnectionFailed}');
+          if (errorMessage.contains('HandshakeException') ||
+              errorMessage.contains('Connection terminated during handshake')) {
+            return withDesktopHint(
+              '${slang.t.errors.network.basicPrefix}${slang.t.errors.network.sslConnectionFailed}',
+            );
           }
           // 兜底返回原始错误信息
           return errorMessage.isNotEmpty
               ? errorMessage
-              : withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.unexpectedError}');
+              : withDesktopHint(
+                  '${slang.t.errors.network.basicPrefix}${slang.t.errors.network.unexpectedError}',
+                );
         default:
           return errorMessage.isNotEmpty
               ? errorMessage
-              : withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.unexpectedError}');
+              : withDesktopHint(
+                  '${slang.t.errors.network.basicPrefix}${slang.t.errors.network.unexpectedError}',
+                );
       }
     }
 
@@ -638,8 +700,11 @@ class CommonUtils {
     final String errorString = error?.toString() ?? '';
     if (errorString.isNotEmpty && errorString != 'null') {
       // 检查是否为HandshakeException
-      if (errorString.contains('HandshakeException') || errorString.contains('Connection terminated during handshake')) {
-        return withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.sslConnectionFailed}');
+      if (errorString.contains('HandshakeException') ||
+          errorString.contains('Connection terminated during handshake')) {
+        return withDesktopHint(
+          '${slang.t.errors.network.basicPrefix}${slang.t.errors.network.sslConnectionFailed}',
+        );
       }
       return errorString;
     }

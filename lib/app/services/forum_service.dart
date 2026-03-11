@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart' as d_dio;
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
+import 'package:i_iwara/app/models/api_request_access.model.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/dto/forum_thread_section_dto.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
@@ -88,6 +88,7 @@ class ForumService extends GetxService {
       // 获取帖子详情
       var response = await _apiService.get(
         ApiConstants.forumThreadDetail(categoryId, threadId),
+        requestAccess: ApiRequestAccess.publicOnly,
         site: site,
       );
       jsonBody = response.data;
@@ -123,7 +124,11 @@ class ForumService extends GetxService {
     IwaraSite site = IwaraSite.main,
   }) async {
     try {
-      await _apiService.put(ApiConstants.forumPosts(postId), data: jsonBody, site: site);
+      await _apiService.put(
+        ApiConstants.forumPosts(postId),
+        data: jsonBody,
+        site: site,
+      );
       return ApiResult.success();
     } catch (e) {
       LogUtils.e('在编辑帖子回复时，编辑帖子回复失败', tag: 'ForumService', error: e);
@@ -135,7 +140,11 @@ class ForumService extends GetxService {
   /// 回复帖子
   /// /forum/:threadId/reply
   /// @params body
-  Future<ApiResult<void>> postReply(String threadId, String body, {IwaraSite site = IwaraSite.main}) async {
+  Future<ApiResult<void>> postReply(
+    String threadId,
+    String body, {
+    IwaraSite site = IwaraSite.main,
+  }) async {
     try {
       await _apiService.post(
         ApiConstants.forumThreadReply(threadId),
@@ -165,6 +174,7 @@ class ForumService extends GetxService {
       var response = await _apiService.get(
         ApiConstants.forumThreadDetail(categoryId, threadId),
         queryParameters: {'page': page, 'limit': limit},
+        requestAccess: ApiRequestAccess.publicOnly,
         site: site,
       );
 
@@ -201,6 +211,7 @@ class ForumService extends GetxService {
       var response = await _apiService.get(
         ApiConstants.forumThreadsWithCategoryId(categoryId),
         queryParameters: {'page': page, 'limit': limit},
+        requestAccess: ApiRequestAccess.publicOnly,
         site: site,
       );
       final List<ForumThreadModel> threads = (response.data['threads'] as List)
@@ -232,9 +243,15 @@ class ForumService extends GetxService {
   }
 
   /// 获取发帖冷却时间
-  Future<ApiResult<PostCooldownModel>> fetchPostCollingInfo({IwaraSite site = IwaraSite.main}) async {
+  Future<ApiResult<PostCooldownModel>> fetchPostCollingInfo({
+    IwaraSite site = IwaraSite.main,
+  }) async {
     try {
-      var response = await _apiService.get(ApiConstants.forumThreadCooldown(), site: site);
+      var response = await _apiService.get(
+        ApiConstants.forumThreadCooldown(),
+        requestAccess: ApiRequestAccess.publicOnly,
+        site: site,
+      );
       return ApiResult.success(data: PostCooldownModel.fromJson(response.data));
     } catch (e) {
       LogUtils.e('获取冷却时间失败', tag: 'PostService', error: e);
@@ -245,11 +262,13 @@ class ForumService extends GetxService {
 
   /// 获取论坛总表
   /// /forum
-  Future<ApiResult<List<ForumCategoryModel>>> fetchForumList({IwaraSite site = IwaraSite.main}) async {
+  Future<ApiResult<List<ForumCategoryModel>>> fetchForumList({
+    IwaraSite site = IwaraSite.main,
+  }) async {
     try {
       var response = await _apiService.get(
         ApiConstants.forum(),
-        options: d_dio.Options(extra: {'skipAuthWait': true}),
+        requestAccess: ApiRequestAccess.publicOnly,
         site: site,
       );
       return ApiResult.success(
@@ -266,7 +285,9 @@ class ForumService extends GetxService {
 
   /// 获取论坛分类树
   /// 将扁平的论坛分类列表转换为树形结构
-  Future<ApiResult<List<ForumCategoryTreeModel>>> getForumCategoryTree({IwaraSite site = IwaraSite.main}) async {
+  Future<ApiResult<List<ForumCategoryTreeModel>>> getForumCategoryTree({
+    IwaraSite site = IwaraSite.main,
+  }) async {
     try {
       final result = await fetchForumList(site: site);
       if (!result.isSuccess) {
@@ -373,7 +394,7 @@ class ForumService extends GetxService {
       var response = await _apiService.get(
         ApiConstants.forumThreads(),
         queryParameters: {'limit': limit, 'page': page},
-        options: d_dio.Options(extra: {'skipAuthWait': true}),
+        requestAccess: ApiRequestAccess.publicOnly,
         site: site,
       );
       final pageData = PageData.fromJsonWithConverter(
@@ -406,7 +427,7 @@ class ForumService extends GetxService {
           'daysAgo': daysAgo,
           'group': 'administration',
         },
-        options: d_dio.Options(extra: {'skipAuthWait': true}),
+        requestAccess: ApiRequestAccess.publicOnly,
         site: site,
       );
       final List<ForumThreadModel> threads = (response.data['results'] as List)
