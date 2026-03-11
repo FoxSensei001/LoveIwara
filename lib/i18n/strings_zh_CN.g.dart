@@ -343,6 +343,9 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String lastSeenAt({required Object str}) => '上次在线 ${str}';
 	@override String get download => '下载';
 	@override String get selectQuality => '选择画质';
+	@override String get selectImageQuality => '选择清晰度';
+	@override String get imageQualityStandard => '标清';
+	@override String get imageQualityOriginal => '原画';
 	@override String get selectDateRange => '选择日期范围';
 	@override String get selectDateRangeHint => '选择日期范围，默认选择最近30天';
 	@override String get clearDateRange => '清除日期范围';
@@ -790,6 +793,7 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get videoSyncDisplayDesync => '显示去同步';
 	@override String get videoSyncDesync => '去同步';
 	@override late final _TranslationsSettingsForumSettingsZhCn forumSettings = _TranslationsSettingsForumSettingsZhCn._(_root);
+	@override late final _TranslationsSettingsGallerySettingsZhCn gallerySettings = _TranslationsSettingsGallerySettingsZhCn._(_root);
 	@override late final _TranslationsSettingsChatSettingsZhCn chatSettings = _TranslationsSettingsChatSettingsZhCn._(_root);
 	@override String get hardwareDecodingAuto => '自动';
 	@override String get hardwareDecodingAutoCopy => '自动复制';
@@ -2056,6 +2060,19 @@ class _TranslationsSettingsForumSettingsZhCn implements TranslationsSettingsForu
 	@override String get configureYourForumSettings => '配置您的论坛设置';
 }
 
+// Path: settings.gallerySettings
+class _TranslationsSettingsGallerySettingsZhCn implements TranslationsSettingsGallerySettingsEn {
+	_TranslationsSettingsGallerySettingsZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get gallerySettingsTitle => '图库设置';
+	@override String get gallerySettingsSubtitle => '配置图库查看器偏好';
+	@override String get defaultViewerQuality => '默认清晰度';
+	@override String get defaultViewerQualityDesc => '打开图库查看器时默认显示哪一种清晰度。';
+}
+
 // Path: settings.chatSettings
 class _TranslationsSettingsChatSettingsZhCn implements TranslationsSettingsChatSettingsEn {
 	_TranslationsSettingsChatSettingsZhCn._(this._root);
@@ -3088,6 +3105,9 @@ extension on TranslationsZhCn {
 			'common.lastSeenAt' => ({required Object str}) => '上次在线 ${str}',
 			'common.download' => '下载',
 			'common.selectQuality' => '选择画质',
+			'common.selectImageQuality' => '选择清晰度',
+			'common.imageQualityStandard' => '标清',
+			'common.imageQualityOriginal' => '原画',
 			'common.selectDateRange' => '选择日期范围',
 			'common.selectDateRangeHint' => '选择日期范围，默认选择最近30天',
 			'common.clearDateRange' => '清除日期范围',
@@ -3361,11 +3381,11 @@ extension on TranslationsZhCn {
 			'settings.latestVersion' => '最新版本',
 			'settings.checkForUpdates' => '检查更新',
 			'settings.update' => '更新',
+			_ => null,
+		} ?? switch (path) {
 			'settings.newVersionAvailable' => '发现新版本',
 			'settings.projectHome' => '开源地址',
 			'settings.release' => '版本发布',
-			_ => null,
-		} ?? switch (path) {
 			'settings.issueReport' => '问题反馈',
 			'settings.openSourceLicense' => '开源许可',
 			'settings.checkForUpdatesFailed' => '检查更新失败，请稍后重试',
@@ -3476,6 +3496,10 @@ extension on TranslationsZhCn {
 			'settings.videoSyncDesync' => '去同步',
 			'settings.forumSettings.name' => '论坛',
 			'settings.forumSettings.configureYourForumSettings' => '配置您的论坛设置',
+			'settings.gallerySettings.gallerySettingsTitle' => '图库设置',
+			'settings.gallerySettings.gallerySettingsSubtitle' => '配置图库查看器偏好',
+			'settings.gallerySettings.defaultViewerQuality' => '默认清晰度',
+			'settings.gallerySettings.defaultViewerQualityDesc' => '打开图库查看器时默认显示哪一种清晰度。',
 			'settings.chatSettings.name' => '聊天',
 			'settings.chatSettings.configureYourChatSettings' => '配置您的聊天设置',
 			'settings.hardwareDecodingAuto' => '自动',
@@ -3871,6 +3895,8 @@ extension on TranslationsZhCn {
 			'forum.sitewide.title' => '全站公告',
 			'forum.sitewide.readMore' => '查看全文',
 			'forum.errors.pleaseSelectCategory' => '请选择分类',
+			_ => null,
+		} ?? switch (path) {
 			'forum.errors.threadLocked' => '该主题已锁定，无法回复',
 			'forum.createPost' => '创建帖子',
 			'forum.title' => '标题',
@@ -3878,8 +3904,6 @@ extension on TranslationsZhCn {
 			'forum.content' => '内容',
 			'forum.enterContent' => '输入内容',
 			'forum.writeYourContentHere' => '在此输入内容...',
-			_ => null,
-		} ?? switch (path) {
 			'forum.posts' => '帖子',
 			'forum.threads' => '主题',
 			'forum.forum' => '论坛',
@@ -4385,6 +4409,8 @@ extension on TranslationsZhCn {
 			'diagnostics.enableLogPersistenceTitle' => '启用日志持久化',
 			'diagnostics.enableLogPersistenceSubtitle' => '关闭后仅保留内存日志，不再写入磁盘',
 			'diagnostics.minLogLevelTitle' => '最小记录级别',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.minLogLevelSubtitle' => '低于该级别的日志会被过滤',
 			'diagnostics.maxFileSizeTitle' => '单文件大小上限',
 			'diagnostics.maxFileSizeSubtitle' => '达到阈值后执行轮转',
@@ -4392,8 +4418,6 @@ extension on TranslationsZhCn {
 			'diagnostics.rotatedFileCountSubtitle' => '包含当前文件之外的保留份数',
 			'diagnostics.hangFileSizeTitle' => '卡顿日志大小上限',
 			'diagnostics.hangFileSizeSubtitle' => '控制 hang_events 文件增长',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.hangRotatedFileCountTitle' => '卡顿日志轮转文件数',
 			'diagnostics.hangRotatedFileCountSubtitle' => '控制 hang_events 历史保留份数',
 			'diagnostics.healthSectionTitle' => '日志健康',

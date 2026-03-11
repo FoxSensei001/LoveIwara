@@ -245,6 +245,9 @@ common:
   lastSeenAt: '上次在线 ${str}'
   download: 下载
   selectQuality: 选择画质
+  selectImageQuality: 选择清晰度
+  imageQualityStandard: 标清
+  imageQualityOriginal: 原画
   selectDateRange: 选择日期范围
   selectDateRangeHint: 选择日期范围，默认选择最近30天
   clearDateRange: 清除日期范围
@@ -655,6 +658,11 @@ settings:
   forumSettings:
     name: 论坛
     configureYourForumSettings: 配置您的论坛设置
+  gallerySettings:
+    gallerySettingsTitle: 图库设置
+    gallerySettingsSubtitle: 配置图库查看器偏好
+    defaultViewerQuality: 默认清晰度
+    defaultViewerQualityDesc: 打开图库查看器时默认显示哪一种清晰度。
   # 聊天页
   chatSettings:
     name: 聊天

@@ -813,6 +813,15 @@ class TranslationsCommonEn {
 	/// en: 'Select Quality'
 	String get selectQuality => 'Select Quality';
 
+	/// en: 'Select image quality'
+	String get selectImageQuality => 'Select image quality';
+
+	/// en: 'Standard'
+	String get imageQualityStandard => 'Standard';
+
+	/// en: 'Original'
+	String get imageQualityOriginal => 'Original';
+
 	/// en: 'Select Date Range'
 	String get selectDateRange => 'Select Date Range';
 
@@ -1961,6 +1970,7 @@ class TranslationsSettingsEn {
 	String get videoSyncDesync => 'Desync';
 
 	late final TranslationsSettingsForumSettingsEn forumSettings = TranslationsSettingsForumSettingsEn._(_root);
+	late final TranslationsSettingsGallerySettingsEn gallerySettings = TranslationsSettingsGallerySettingsEn._(_root);
 	late final TranslationsSettingsChatSettingsEn chatSettings = TranslationsSettingsChatSettingsEn._(_root);
 
 	/// en: 'Auto'
@@ -5101,6 +5111,27 @@ class TranslationsSettingsForumSettingsEn {
 	String get configureYourForumSettings => 'Configure Your Forum Settings';
 }
 
+// Path: settings.gallerySettings
+class TranslationsSettingsGallerySettingsEn {
+	TranslationsSettingsGallerySettingsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Gallery Settings'
+	String get gallerySettingsTitle => 'Gallery Settings';
+
+	/// en: 'Configure gallery viewer preferences'
+	String get gallerySettingsSubtitle => 'Configure gallery viewer preferences';
+
+	/// en: 'Default viewer quality'
+	String get defaultViewerQuality => 'Default viewer quality';
+
+	/// en: 'Choose which image quality to show by default when opening the gallery viewer.'
+	String get defaultViewerQualityDesc => 'Choose which image quality to show by default when opening the gallery viewer.';
+}
+
 // Path: settings.chatSettings
 class TranslationsSettingsChatSettingsEn {
 	TranslationsSettingsChatSettingsEn._(this._root);
@@ -7039,6 +7070,9 @@ extension on Translations {
 			'common.lastSeenAt' => ({required Object str}) => 'Last seen ${str}',
 			'common.download' => 'Download',
 			'common.selectQuality' => 'Select Quality',
+			'common.selectImageQuality' => 'Select image quality',
+			'common.imageQualityStandard' => 'Standard',
+			'common.imageQualityOriginal' => 'Original',
 			'common.selectDateRange' => 'Select Date Range',
 			'common.selectDateRangeHint' => 'Select date range, default is recent 30 days',
 			'common.clearDateRange' => 'Clear Date Range',
@@ -7314,11 +7348,11 @@ extension on Translations {
 			'settings.release' => 'Release',
 			'settings.issueReport' => 'Issue Report',
 			'settings.openSourceLicense' => 'Open Source License',
+			_ => null,
+		} ?? switch (path) {
 			'settings.checkForUpdatesFailed' => 'Check for updates failed, please try again later',
 			'settings.autoCheckUpdate' => 'Auto Check Update',
 			'settings.updateContent' => 'Update Content',
-			_ => null,
-		} ?? switch (path) {
 			'settings.releaseDate' => 'Release Date',
 			'settings.ignoreThisVersion' => 'Ignore This Version',
 			'settings.minVersionUpdateRequired' => 'Current version is too low, please update as soon as possible',
@@ -7424,6 +7458,10 @@ extension on Translations {
 			'settings.videoSyncDesync' => 'Desync',
 			'settings.forumSettings.name' => 'Forum',
 			'settings.forumSettings.configureYourForumSettings' => 'Configure Your Forum Settings',
+			'settings.gallerySettings.gallerySettingsTitle' => 'Gallery Settings',
+			'settings.gallerySettings.gallerySettingsSubtitle' => 'Configure gallery viewer preferences',
+			'settings.gallerySettings.defaultViewerQuality' => 'Default viewer quality',
+			'settings.gallerySettings.defaultViewerQualityDesc' => 'Choose which image quality to show by default when opening the gallery viewer.',
 			'settings.chatSettings.name' => 'Chat',
 			'settings.chatSettings.configureYourChatSettings' => 'Configure Your Chat Settings',
 			'settings.hardwareDecodingAuto' => 'Auto',
@@ -7824,6 +7862,8 @@ extension on Translations {
 			'forum.title' => 'Title',
 			'forum.enterTitle' => 'Enter Title',
 			'forum.content' => 'Content',
+			_ => null,
+		} ?? switch (path) {
 			'forum.enterContent' => 'Enter Content',
 			'forum.writeYourContentHere' => 'Write your content here...',
 			'forum.posts' => 'Posts',
@@ -7831,8 +7871,6 @@ extension on Translations {
 			'forum.forum' => 'Forum',
 			'forum.createThread' => 'Create Thread',
 			'forum.selectCategory' => 'Select Category',
-			_ => null,
-		} ?? switch (path) {
 			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => 'Cooldown remaining ${minutes} minutes ${seconds} seconds',
 			'forum.groups.administration' => 'Administration',
 			'forum.groups.global' => 'Global',
@@ -8338,6 +8376,8 @@ extension on Translations {
 			'layoutSettings.confirmResetLayoutSettings' => 'Reset Layout Settings',
 			'layoutSettings.confirmResetLayoutSettingsDesc' => 'Are you sure you want to reset all layout settings to default values?\n\nWill restore to:\n• Auto mode\n• Default breakpoint configuration',
 			'layoutSettings.resetToDefaults' => 'Reset to Defaults',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.confirmDeleteBreakpoint' => 'Delete Breakpoint',
 			'layoutSettings.confirmDeleteBreakpointDesc' => ({required Object width}) => 'Are you sure you want to delete the ${width}px breakpoint?',
 			'layoutSettings.noCustomBreakpoints' => 'No custom breakpoints, using default columns',
@@ -8345,8 +8385,6 @@ extension on Translations {
 			'layoutSettings.breakpointRangeDesc' => ({required Object range}) => '${range}px',
 			'layoutSettings.breakpointRangeDescFirst' => ({required Object width}) => '≤${width}px',
 			'layoutSettings.breakpointRangeDescMiddle' => ({required Object start, required Object end}) => '${start}-${end}px',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.edit' => 'Edit',
 			'layoutSettings.delete' => 'Delete',
 			'layoutSettings.cancel' => 'Cancel',

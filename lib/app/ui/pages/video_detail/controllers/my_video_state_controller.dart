@@ -132,6 +132,7 @@ class MyVideoStateController extends GetxController
   bool _initialPlaybackDecisionResolved = false;
   final RxBool hasRequestedInitialPlayback = false.obs;
   Future<void>? _videoSourceFetchFuture;
+  bool _pendingOpenPlayerAfterVideoSourceFetch = false;
   Duration _deferredInitialPlaybackPosition = Duration.zero;
   bool _isStartingDeferredInitialPlayback = false;
   // 显示用的时间变量
@@ -669,6 +670,8 @@ class MyVideoStateController extends GetxController
       return;
     }
 
+    showToolbars();
+
     if (videoPlayerReady.value) {
       if (!videoPlaying.value) {
         await player.play();
@@ -685,6 +688,74 @@ class MyVideoStateController extends GetxController
     }
 
     await fetchVideoSource(openPlayerAfterFetch: true);
+  }
+
+  Future<void> playFromUserAction() async {
+    if (_isDisposed) {
+      return;
+    }
+
+    final shouldBootstrapDeferredPlayback =
+        shouldBootstrapDeferredPlaybackOnUserPlay(
+          isLocalVideoMode: isLocalVideoMode,
+          isExternalVideo: videoInfo.value?.isExternalVideo == true,
+          videoPlayerReady: videoPlayerReady.value,
+        );
+
+    if (shouldBootstrapDeferredPlayback) {
+      await requestInitialPlayback();
+      return;
+    }
+
+    if (!videoPlaying.value) {
+      await player.play();
+      animateToTop();
+    }
+  }
+
+  @visibleForTesting
+  static bool shouldBootstrapDeferredPlaybackOnUserPlay({
+    required bool isLocalVideoMode,
+    required bool isExternalVideo,
+    required bool videoPlayerReady,
+  }) {
+    return !isLocalVideoMode && !isExternalVideo && !videoPlayerReady;
+  }
+
+  @visibleForTesting
+  static bool shouldOpenPlayerAfterVideoSourceFetch({
+    required bool requestedByCurrentCall,
+    required bool requestedByPendingCall,
+  }) {
+    return requestedByCurrentCall || requestedByPendingCall;
+  }
+
+  @visibleForTesting
+  static ({bool shouldOpenPlayer, bool nextPendingRequest})
+  resolveOpenPlayerAfterVideoSourceFetch({
+    required bool requestedByCurrentCall,
+    required bool requestedByPendingCall,
+  }) {
+    final shouldOpenPlayer = shouldOpenPlayerAfterVideoSourceFetch(
+      requestedByCurrentCall: requestedByCurrentCall,
+      requestedByPendingCall: requestedByPendingCall,
+    );
+
+    return (
+      shouldOpenPlayer: shouldOpenPlayer,
+      nextPendingRequest: shouldOpenPlayer ? false : requestedByPendingCall,
+    );
+  }
+
+  bool _consumeOpenPlayerAfterVideoSourceFetchRequest({
+    required bool openPlayerAfterFetch,
+  }) {
+    final decision = resolveOpenPlayerAfterVideoSourceFetch(
+      requestedByCurrentCall: openPlayerAfterFetch,
+      requestedByPendingCall: _pendingOpenPlayerAfterVideoSourceFetch,
+    );
+    _pendingOpenPlayerAfterVideoSourceFetch = decision.nextPendingRequest;
+    return decision.shouldOpenPlayer;
   }
 
   Future<void> _startDeferredInitialPlayback({required bool playOnOpen}) async {
@@ -1659,6 +1730,10 @@ class MyVideoStateController extends GetxController
     final shouldOpenPlayerAfterFetch =
         openPlayerAfterFetch ?? !_shouldKeepInitialPlaybackDeferred;
 
+    if (shouldOpenPlayerAfterFetch) {
+      _pendingOpenPlayerAfterVideoSourceFetch = true;
+    }
+
     if (_videoSourceFetchFuture != null) {
       if (shouldOpenPlayerAfterFetch) {
         hasRequestedInitialPlayback.value = true;
@@ -1747,7 +1822,12 @@ class MyVideoStateController extends GetxController
 
       if (_isDisposed) return;
 
-      if (openPlayerAfterFetch) {
+      final shouldOpenPlayerWhenReady =
+          _consumeOpenPlayerAfterVideoSourceFetchRequest(
+            openPlayerAfterFetch: openPlayerAfterFetch,
+          );
+
+      if (shouldOpenPlayerWhenReady) {
         await _startDeferredInitialPlayback(
           playOnOpen:
               _resolvePlayStateForInitialEntry() ||
@@ -1819,7 +1899,12 @@ class MyVideoStateController extends GetxController
 
       if (_isDisposed) return;
 
-      if (openPlayerAfterFetch) {
+      final shouldOpenPlayerWhenReady =
+          _consumeOpenPlayerAfterVideoSourceFetchRequest(
+            openPlayerAfterFetch: openPlayerAfterFetch,
+          );
+
+      if (shouldOpenPlayerWhenReady) {
         await _startDeferredInitialPlayback(
           playOnOpen:
               _resolvePlayStateForInitialEntry() ||

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/common/gallery_image_quality.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
@@ -18,7 +19,6 @@ import 'video_player_widget.dart';
 import 'image_widget.dart';
 import 'navigation_controls.dart';
 import 'gallery_controls.dart';
-import 'gallery_info_dialog.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
@@ -27,14 +27,28 @@ class MyGalleryPhotoViewWrapper extends StatefulWidget {
     super.key,
     required this.galleryItems,
     this.initialIndex = 0,
+    List<ImageItem>? standardGalleryItems,
+    List<ImageItem>? originalGalleryItems,
+    String? initialQuality,
+    this.onQualityChanged,
+    @Deprecated('Use standardGalleryItems instead')
+    List<ImageItem>? standardImageItems,
+    @Deprecated('Use originalGalleryItems instead')
+    List<ImageItem>? originalImageItems,
     this.menuBuilder,
     this.menuItemsBuilder,
     this.enableMenu = true,
     this.heroTagBuilder,
-  });
+  }) : standardGalleryItems = standardGalleryItems ?? standardImageItems,
+       originalGalleryItems = originalGalleryItems ?? originalImageItems,
+       initialQuality = initialQuality ?? galleryImageQualityStandard;
 
   final List<ImageItem> galleryItems;
   final int initialIndex;
+  final List<ImageItem>? standardGalleryItems;
+  final List<ImageItem>? originalGalleryItems;
+  final String initialQuality;
+  final ValueChanged<String>? onQualityChanged;
   final Widget Function(BuildContext, ImageItem, Offset)?
   menuBuilder; // 自定义菜单构建器
   final List<MenuItem> Function(BuildContext, ImageItem)?
@@ -49,7 +63,8 @@ class MyGalleryPhotoViewWrapper extends StatefulWidget {
 
 class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     with TickerProviderStateMixin {
-  late int currentIndex = widget.initialIndex;
+  late int currentIndex;
+  late String _activeQuality;
   late PageController pageController;
   late List<PhotoViewController> controllers;
 
@@ -71,12 +86,18 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   // 记录一次点击的按下位置和时间，用于区分点击与滑动
   Offset? _pointerDownPosition;
   DateTime? _pointerDownTime;
+  int _edgeTapDirection = 0;
+  bool _ignoreEdgeTapForCurrentPointer = false;
 
   // 是否显示左右导航 UI，仅在长按时显示
   bool _showNavigationOverlay = false;
 
-  final AppService appService = Get.find();
+  final AppService? _appService = Get.isRegistered<AppService>()
+      ? Get.find<AppService>()
+      : null;
   late GalleryControls _galleryControls;
+  final GlobalKey _closeButtonKey = GlobalKey();
+  final GlobalKey _qualityButtonKey = GlobalKey();
   final GlobalKey _menuButtonKey = GlobalKey();
 
   // 使用Map存储每个图片的重新加载时间戳
@@ -90,6 +111,76 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
 
   // 记录已预加载的图片索引，避免重复预加载
   final Set<int> _preloadedImages = {};
+
+  int get _controllerCount {
+    var count = widget.galleryItems.length;
+    final standardLength = widget.standardGalleryItems?.length ?? 0;
+    final originalLength = widget.originalGalleryItems?.length ?? 0;
+    if (standardLength > count) {
+      count = standardLength;
+    }
+    if (originalLength > count) {
+      count = originalLength;
+    }
+    return count;
+  }
+
+  bool get _hasUsableDualDatasets {
+    final standardItems = widget.standardGalleryItems;
+    final originalItems = widget.originalGalleryItems;
+    if (standardItems == null || originalItems == null) {
+      return false;
+    }
+    if (standardItems.length != originalItems.length) {
+      return false;
+    }
+    for (var index = 0; index < standardItems.length; index++) {
+      if (standardItems[index].data.id != originalItems[index].data.id) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool get _hasSwitchableQualityDifference {
+    if (!_hasUsableDualDatasets) {
+      return false;
+    }
+    final standardItems = widget.standardGalleryItems!;
+    final originalItems = widget.originalGalleryItems!;
+    for (var index = 0; index < standardItems.length; index++) {
+      if (standardItems[index].data.originalUrl !=
+          originalItems[index].data.originalUrl) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool get _canSwitchQuality =>
+      _hasUsableDualDatasets && _hasSwitchableQualityDifference;
+
+  List<ImageItem> get _activeGalleryItems {
+    if (!_canSwitchQuality) {
+      return widget.galleryItems;
+    }
+    return _activeQuality == galleryImageQualityOriginal
+        ? widget.originalGalleryItems!
+        : widget.standardGalleryItems!;
+  }
+
+  int _clampIndex(int index, int length) {
+    if (length <= 0) {
+      return 0;
+    }
+    if (index < 0) {
+      return 0;
+    }
+    if (index >= length) {
+      return length - 1;
+    }
+    return index;
+  }
 
   // 检测媒体类型
   bool _isVideo(String url) {
@@ -109,10 +200,12 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   @override
   void initState() {
     super.initState();
-    appService.hideSystemUI(hideTitleBar: false);
-    pageController = PageController(initialPage: widget.initialIndex);
+    _activeQuality = normalizeGalleryImageQuality(widget.initialQuality);
+    currentIndex = _clampIndex(widget.initialIndex, _activeGalleryItems.length);
+    _appService?.hideSystemUI(hideTitleBar: false);
+    pageController = PageController(initialPage: currentIndex);
     controllers = List.generate(
-      widget.galleryItems.length,
+      _controllerCount,
       (index) => PhotoViewController(),
     );
 
@@ -156,7 +249,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
 
     // 移除音量键监听
     _galleryControls.disableVolumeKeyListener();
-    appService.showSystemUI();
+    _appService?.showSystemUI();
     _uiHideTimer?.cancel();
     _dismissResetController.dispose();
     _keyboardFocusNode.dispose();
@@ -201,7 +294,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   }
 
   void goToNextPage() {
-    if (currentIndex < widget.galleryItems.length - 1) {
+    if (currentIndex < _activeGalleryItems.length - 1) {
       pageController.animateToPage(
         currentIndex + 1,
         duration: const Duration(milliseconds: 300),
@@ -241,9 +334,10 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
 
   /// 暂停除指定索引外的所有视频
   void _pauseAllVideosExcept(int currentIndex) {
-    for (int i = 0; i < widget.galleryItems.length; i++) {
+    final activeGalleryItems = _activeGalleryItems;
+    for (int i = 0; i < activeGalleryItems.length; i++) {
       if (i != currentIndex &&
-          _isVideo(widget.galleryItems[i].data.originalUrl)) {
+          _isVideo(activeGalleryItems[i].data.originalUrl)) {
         final key = _videoPlayerKeys[i];
         if (key?.currentState != null) {
           key!.currentState!.pauseVideo();
@@ -254,8 +348,15 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
 
   /// 根据当前是否是视频来更新音量键监听状态
   void _updateVolumeKeyListener() {
+    final activeGalleryItems = _activeGalleryItems;
+    if (activeGalleryItems.isEmpty ||
+        currentIndex >= activeGalleryItems.length) {
+      _galleryControls.disableVolumeKeyListener();
+      return;
+    }
+
     final isCurrentVideo = _isVideo(
-      widget.galleryItems[currentIndex].data.originalUrl,
+      activeGalleryItems[currentIndex].data.originalUrl,
     );
 
     if (isCurrentVideo) {
@@ -270,22 +371,23 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   /// 预加载当前索引周围的图片（不包括视频）
   void _preloadNearbyImages(int centerIndex) {
     if (!mounted) return;
+    if (_activeGalleryItems.isEmpty) return;
 
     // 计算预加载范围
     final startIndex = (centerIndex - _preloadRange).clamp(
       0,
-      widget.galleryItems.length - 1,
+      _activeGalleryItems.length - 1,
     );
     final endIndex = (centerIndex + _preloadRange).clamp(
       0,
-      widget.galleryItems.length - 1,
+      _activeGalleryItems.length - 1,
     );
 
     for (int i = startIndex; i <= endIndex; i++) {
       // 跳过已经预加载的
       if (_preloadedImages.contains(i)) continue;
 
-      final item = widget.galleryItems[i];
+      final item = _activeGalleryItems[i];
       final imageUrl = item.data.originalUrl;
 
       // 只预加载图片，跳过视频
@@ -332,8 +434,40 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     }
   }
 
-  void _showInfoModal(BuildContext context) {
-    GalleryInfoDialog.show(context);
+  void _handleQualityChanged(String quality) {
+    if (!_canSwitchQuality) {
+      return;
+    }
+
+    final normalizedQuality = normalizeGalleryImageQuality(quality);
+    if (normalizedQuality == _activeQuality) {
+      return;
+    }
+
+    final nextItems = normalizedQuality == galleryImageQualityOriginal
+        ? widget.originalGalleryItems!
+        : widget.standardGalleryItems!;
+    final nextIndex = _clampIndex(currentIndex, nextItems.length);
+
+    setState(() {
+      _activeQuality = normalizedQuality;
+      currentIndex = nextIndex;
+    });
+
+    _galleryControls.updateCurrentIndex(currentIndex);
+    _galleryControls.resetZoom();
+    _preloadedImages.clear();
+    _pauseAllVideosExcept(currentIndex);
+    _updateVolumeKeyListener();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !pageController.hasClients) {
+        return;
+      }
+      pageController.jumpToPage(currentIndex);
+      _preloadNearbyImages(currentIndex);
+    });
+    widget.onQualityChanged?.call(normalizedQuality);
+    _showUiAndAutoHide();
   }
 
   void _showUiAndAutoHide() {
@@ -416,33 +550,97 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   void _onPointerDown(PointerDownEvent event) {
     _pointerDownPosition = event.position;
     _pointerDownTime = DateTime.now();
+    _ignoreEdgeTapForCurrentPointer = _isPointerOnTopActionButton(
+      event.position,
+    );
+    _edgeTapDirection = _resolveEdgeTapDirection(event.position.dx);
   }
 
   void _onPointerUp(PointerUpEvent event) {
-    if (_pointerDownPosition == null || _pointerDownTime == null) return;
+    final pointerDownPosition = _pointerDownPosition;
+    final pointerDownTime = _pointerDownTime;
+    final edgeTapDirection = _edgeTapDirection;
+    final shouldIgnoreEdgeTap = _ignoreEdgeTapForCurrentPointer;
+    _resetEdgeTapTracking();
 
-    final duration = DateTime.now().difference(_pointerDownTime!);
-    final delta = event.position - _pointerDownPosition!;
+    if (pointerDownPosition == null || pointerDownTime == null) return;
+    if (shouldIgnoreEdgeTap) return;
+    if (edgeTapDirection == 0) return;
+
+    final duration = DateTime.now().difference(pointerDownTime);
+    final delta = event.position - pointerDownPosition;
 
     // 判定为「轻点」：时间短、移动距离小，避免与滑动/缩放手势冲突
     if (duration.inMilliseconds > 250) return;
     if (delta.distance > 20) return;
 
-    final dx = event.position.dx;
-
     // 左侧点击区域：上一张
-    if (dx <= _tapAreaWidth && currentIndex > 0) {
+    if (edgeTapDirection < 0) {
       _suppressNextTapToggle = true;
       goToPreviousPage();
       return;
     }
 
     // 右侧点击区域：下一张
-    if (dx >= _screenWidth - _tapAreaWidth &&
-        currentIndex < widget.galleryItems.length - 1) {
+    if (edgeTapDirection > 0) {
       _suppressNextTapToggle = true;
       goToNextPage();
     }
+  }
+
+  void _onPointerCancel(PointerCancelEvent event) {
+    _resetEdgeTapTracking();
+  }
+
+  void _resetEdgeTapTracking() {
+    _pointerDownPosition = null;
+    _pointerDownTime = null;
+    _edgeTapDirection = 0;
+    _ignoreEdgeTapForCurrentPointer = false;
+  }
+
+  int _resolveEdgeTapDirection(double dx) {
+    if (dx <= _tapAreaWidth && currentIndex > 0) {
+      return -1;
+    }
+    if (dx >= _screenWidth - _tapAreaWidth &&
+        currentIndex < _activeGalleryItems.length - 1) {
+      return 1;
+    }
+    return 0;
+  }
+
+  bool _isPointerOnTopActionButton(Offset globalPosition) {
+    if (_isPointInsideWidget(_closeButtonKey, globalPosition)) {
+      return true;
+    }
+    if (_canSwitchQuality &&
+        _isPointInsideWidget(_qualityButtonKey, globalPosition)) {
+      return true;
+    }
+    if (widget.enableMenu &&
+        _isPointInsideWidget(_menuButtonKey, globalPosition)) {
+      return true;
+    }
+    return false;
+  }
+
+  bool _isPointInsideWidget(GlobalKey key, Offset globalPosition) {
+    final currentContext = key.currentContext;
+    if (currentContext == null) {
+      return false;
+    }
+
+    final renderObject = currentContext.findRenderObject();
+    if (renderObject is! RenderBox || !renderObject.hasSize) {
+      return false;
+    }
+
+    final localPosition = renderObject.globalToLocal(globalPosition);
+    return localPosition.dx >= 0 &&
+        localPosition.dy >= 0 &&
+        localPosition.dx <= renderObject.size.width &&
+        localPosition.dy <= renderObject.size.height;
   }
 
   void _showImageMenu(BuildContext context, ImageItem item) {
@@ -496,6 +694,9 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
 
   @override
   Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final activeGalleryItems = _activeGalleryItems;
+
     // 获取屏幕宽度
     _screenWidth = MediaQuery.of(context).size.width;
     // 计算点击区域宽度，宽屏和窄屏使用不同的比例
@@ -549,6 +750,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                     onPointerSignal: _galleryControls.handlePointerSignal,
                     onPointerDown: _onPointerDown,
                     onPointerUp: _onPointerUp,
+                    onPointerCancel: _onPointerCancel,
                     child: GestureDetector(
                       onTap: _toggleUiVisibility,
                       onLongPressStart: (details) {
@@ -558,7 +760,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                         });
                         _showImageMenu(
                           context,
-                          widget.galleryItems[currentIndex],
+                          activeGalleryItems[currentIndex],
                         );
                       },
                       onLongPressEnd: (details) {
@@ -571,80 +773,86 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                         if (!widget.enableMenu) return;
                         _showImageMenu(
                           context,
-                          widget.galleryItems[currentIndex],
+                          activeGalleryItems[currentIndex],
                         );
                       },
                       child: Stack(
                         alignment: Alignment.topCenter,
                         children: [
-                          PhotoViewGallery.builder(
-                            scrollPhysics: const BouncingScrollPhysics(),
-                            allowImplicitScrolling: true,
-                            wantKeepAlive: true,
-                            builder: (BuildContext context, int index) {
-                              String imageUrl =
-                                  _reloadTimestamps.containsKey(index)
-                                  ? '${widget.galleryItems[index].data.originalUrl}?reload=${_reloadTimestamps[index]}'
-                                  : widget.galleryItems[index].data.originalUrl;
+                          KeyedSubtree(
+                            key: ValueKey(_activeQuality),
+                            child: PhotoViewGallery.builder(
+                              scrollPhysics: const BouncingScrollPhysics(),
+                              allowImplicitScrolling: true,
+                              wantKeepAlive: true,
+                              builder: (BuildContext context, int index) {
+                                final activeItem = activeGalleryItems[index];
+                                String imageUrl =
+                                    _reloadTimestamps.containsKey(index)
+                                    ? '${activeItem.data.originalUrl}?reload=${_reloadTimestamps[index]}'
+                                    : activeItem.data.originalUrl;
 
-                              // 检查是否为视频文件
-                              bool isVideo = _isVideo(imageUrl);
+                                // 检查是否为视频文件
+                                bool isVideo = _isVideo(imageUrl);
 
-                              final heroTag = widget.heroTagBuilder?.call(
-                                widget.galleryItems[index],
-                              );
-
-                              Widget mediaChild = KeyedSubtree(
-                                key: ValueKey(
-                                  '${widget.galleryItems[index]}_${_reloadTimestamps[index] ?? 0}',
-                                ),
-                                child: isVideo
-                                    ? VideoPlayerWidget(
-                                        key: _getVideoPlayerKey(index),
-                                        videoUrl: imageUrl,
-                                        headers:
-                                            widget.galleryItems[index].headers,
-                                      )
-                                    : imageUrl.startsWith('file://')
-                                    ? Image.file(
-                                        File(
-                                          imageUrl.replaceFirst('file://', ''),
-                                        ),
-                                        fit: BoxFit.contain,
-                                      )
-                                    : ImageWidget(
-                                        imageUrl: imageUrl,
-                                        headers:
-                                            widget.galleryItems[index].headers,
-                                      ),
-                              );
-
-                              if (!isVideo && heroTag != null) {
-                                mediaChild = Hero(
-                                  tag: heroTag,
-                                  child: mediaChild,
+                                final heroTag = widget.heroTagBuilder?.call(
+                                  activeItem,
                                 );
-                              }
 
-                              return PhotoViewGalleryPageOptions.customChild(
-                                child: GestureDetector(
-                                  onDoubleTap: () =>
-                                      _galleryControls.handleDoubleTap(index),
-                                  child: Container(
-                                    color: Colors.transparent,
-                                    child: Center(child: mediaChild),
+                                Widget mediaChild = KeyedSubtree(
+                                  key: ValueKey(
+                                    '${activeItem.data.id}_${_activeQuality}_${_reloadTimestamps[index] ?? 0}',
                                   ),
-                                ),
-                                minScale:
-                                    PhotoViewComputedScale.contained * 0.5,
-                                maxScale: PhotoViewComputedScale.covered * 3,
-                                initialScale: PhotoViewComputedScale.contained,
-                                controller: controllers[index],
-                              );
-                            },
-                            itemCount: widget.galleryItems.length,
-                            pageController: pageController,
-                            onPageChanged: _onPageChanged,
+                                  child: isVideo
+                                      ? VideoPlayerWidget(
+                                          key: _getVideoPlayerKey(index),
+                                          videoUrl: imageUrl,
+                                          headers: activeItem.headers,
+                                        )
+                                      : imageUrl.startsWith('file://')
+                                      ? Image.file(
+                                          File(
+                                            imageUrl.replaceFirst(
+                                              'file://',
+                                              '',
+                                            ),
+                                          ),
+                                          fit: BoxFit.contain,
+                                        )
+                                      : ImageWidget(
+                                          imageUrl: imageUrl,
+                                          headers: activeItem.headers,
+                                        ),
+                                );
+
+                                if (!isVideo && heroTag != null) {
+                                  mediaChild = Hero(
+                                    tag: heroTag,
+                                    child: mediaChild,
+                                  );
+                                }
+
+                                return PhotoViewGalleryPageOptions.customChild(
+                                  child: GestureDetector(
+                                    onDoubleTap: () =>
+                                        _galleryControls.handleDoubleTap(index),
+                                    child: Container(
+                                      color: Colors.transparent,
+                                      child: Center(child: mediaChild),
+                                    ),
+                                  ),
+                                  minScale:
+                                      PhotoViewComputedScale.contained * 0.5,
+                                  maxScale: PhotoViewComputedScale.covered * 3,
+                                  initialScale:
+                                      PhotoViewComputedScale.contained,
+                                  controller: controllers[index],
+                                );
+                              },
+                              itemCount: activeGalleryItems.length,
+                              pageController: pageController,
+                              onPageChanged: _onPageChanged,
+                            ),
                           ),
                           // 导航控制组件
                           AnimatedOpacity(
@@ -656,71 +864,107 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                               // 这里只负责「显示」左右渐变与箭头，真正的点击逻辑在 _onPointerDown/_onPointerUp 中处理
                               canGoPrevious: currentIndex > 0,
                               canGoNext:
-                                  currentIndex < widget.galleryItems.length - 1,
+                                  currentIndex < activeGalleryItems.length - 1,
                             ),
                           ),
                           SafeArea(
                             child: AnimatedOpacity(
                               opacity: chromeOpacity,
                               duration: const Duration(milliseconds: 180),
-                              child: Container(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.close,
-                                        color: Colors.white,
+                              child: IgnorePointer(
+                                ignoring: chromeOpacity == 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      IconButton(
+                                        key: _closeButtonKey,
+                                        icon: const Icon(
+                                          Icons.close,
+                                          color: Colors.white,
+                                        ),
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(),
                                       ),
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(),
-                                    ),
-                                    Row(
-                                      children: [
-                                        // 问号信息按钮
-                                        IconButton(
-                                          tooltip: slang.t.common.tips,
-                                          icon: const Icon(
-                                            Icons.help_outline,
-                                            color: Colors.white,
-                                          ),
-                                          onPressed: () {
-                                            _showInfoModal(context);
-                                            _showUiAndAutoHide();
-                                          },
-                                        ),
-                                        // 三个点菜单按钮
-                                        if (widget.enableMenu)
-                                          IconButton(
-                                            key: _menuButtonKey,
-                                            icon: const Icon(
-                                              Icons.more_vert,
-                                              color: Colors.white,
+                                      Row(
+                                        children: [
+                                          if (_canSwitchQuality)
+                                            PopupMenuButton<String>(
+                                              key: _qualityButtonKey,
+                                              tooltip:
+                                                  t.common.selectImageQuality,
+                                              initialValue: _activeQuality,
+                                              icon: const Icon(
+                                                Icons.hd_outlined,
+                                                color: Colors.white,
+                                              ),
+                                              onSelected: _handleQualityChanged,
+                                              itemBuilder: (context) => [
+                                                PopupMenuItem<String>(
+                                                  enabled: false,
+                                                  child: Text(
+                                                    t.common.selectImageQuality,
+                                                  ),
+                                                ),
+                                                const PopupMenuDivider(),
+                                                CheckedPopupMenuItem<String>(
+                                                  value:
+                                                      galleryImageQualityStandard,
+                                                  checked:
+                                                      _activeQuality ==
+                                                      galleryImageQualityStandard,
+                                                  child: Text(
+                                                    t
+                                                        .common
+                                                        .imageQualityStandard,
+                                                  ),
+                                                ),
+                                                CheckedPopupMenuItem<String>(
+                                                  value:
+                                                      galleryImageQualityOriginal,
+                                                  checked:
+                                                      _activeQuality ==
+                                                      galleryImageQualityOriginal,
+                                                  child: Text(
+                                                    t
+                                                        .common
+                                                        .imageQualityOriginal,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                            onPressed: () {
-                                              _showImageMenu(
-                                                context,
-                                                widget
-                                                    .galleryItems[currentIndex],
-                                              );
-                                              _showUiAndAutoHide();
-                                            },
+                                          // 三个点菜单按钮
+                                          if (widget.enableMenu)
+                                            IconButton(
+                                              key: _menuButtonKey,
+                                              icon: const Icon(
+                                                Icons.more_vert,
+                                                color: Colors.white,
+                                              ),
+                                              onPressed: () {
+                                                _showImageMenu(
+                                                  context,
+                                                  activeGalleryItems[currentIndex],
+                                                );
+                                                _showUiAndAutoHide();
+                                              },
+                                            ),
+                                          // 页码显示
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            '${currentIndex + 1}/${activeGalleryItems.length}',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
-                                        // 页码显示
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          '${currentIndex + 1}/${widget.galleryItems.length}',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),

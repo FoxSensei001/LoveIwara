@@ -58,6 +58,7 @@ import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/my_gallery_photo_vie
 import 'package:i_iwara/app/ui/pages/emoji_library/emoji_library_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/layout_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/navigation_order_settings_page.dart';
+import 'package:i_iwara/common/gallery_image_quality.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 
@@ -255,13 +256,7 @@ final GoRouter appRouter = GoRouter(
               key: state.pageKey,
               opaque: false,
               barrierColor: Colors.transparent,
-              child: MyGalleryPhotoViewWrapper(
-                galleryItems: extra.imageItems,
-                initialIndex: extra.initialIndex,
-                menuItemsBuilder: extra.menuItemsBuilder,
-                enableMenu: extra.enableMenu,
-                heroTagBuilder: extra.heroTagBuilder,
-              ),
+              child: _buildPhotoViewWrapperChild(extra),
               transitionDuration: const Duration(milliseconds: 300),
               reverseTransitionDuration: const Duration(milliseconds: 300),
               transitionsBuilder:
@@ -825,6 +820,43 @@ ConversationModel _resolveConversationForMessageDetail(
   );
 }
 
+Widget _buildPhotoViewWrapperChild(PhotoViewExtra extra) {
+  final normalizedInitialQuality = normalizeGalleryImageQuality(
+    extra.initialQuality,
+  );
+
+  try {
+    return Function.apply(MyGalleryPhotoViewWrapper.new, const [], {
+          #galleryItems: extra.imageItems,
+          #initialIndex: extra.initialIndex,
+          #menuItemsBuilder: extra.menuItemsBuilder,
+          #enableMenu: extra.enableMenu,
+          #heroTagBuilder: extra.heroTagBuilder,
+          #standardImageItems: extra.standardImageItems,
+          #originalImageItems: extra.originalImageItems,
+          #initialQuality: normalizedInitialQuality,
+          #onQualityChanged: extra.onQualityChanged,
+        })
+        as Widget;
+  } on NoSuchMethodError {
+    return MyGalleryPhotoViewWrapper(
+      galleryItems: extra.imageItems,
+      initialIndex: extra.initialIndex,
+      menuItemsBuilder: extra.menuItemsBuilder,
+      enableMenu: extra.enableMenu,
+      heroTagBuilder: extra.heroTagBuilder,
+    );
+  } on ArgumentError {
+    return MyGalleryPhotoViewWrapper(
+      galleryItems: extra.imageItems,
+      initialIndex: extra.initialIndex,
+      menuItemsBuilder: extra.menuItemsBuilder,
+      enableMenu: extra.enableMenu,
+      heroTagBuilder: extra.heroTagBuilder,
+    );
+  }
+}
+
 // ========== 供复杂参数路由使用的额外数据类 ==========
 
 class GalleryDetailExtra {
@@ -985,6 +1017,10 @@ class PhotoViewExtra {
   menuItemsBuilder;
   final bool enableMenu;
   final Object? Function(ImageItem item)? heroTagBuilder;
+  final List<ImageItem>? standardImageItems;
+  final List<ImageItem>? originalImageItems;
+  final String initialQuality;
+  final ValueChanged<String>? onQualityChanged;
 
   const PhotoViewExtra({
     required this.imageItems,
@@ -992,5 +1028,9 @@ class PhotoViewExtra {
     required this.menuItemsBuilder,
     this.enableMenu = true,
     this.heroTagBuilder,
+    this.standardImageItems,
+    this.originalImageItems,
+    this.initialQuality = galleryImageQualityStandard,
+    this.onQualityChanged,
   });
 }

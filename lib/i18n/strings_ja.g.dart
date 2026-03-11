@@ -346,6 +346,9 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String lastSeenAt({required Object str}) => '最終オンライン ${str}';
 	@override String get download => 'ダウンロード';
 	@override String get selectQuality => '画質を選択';
+	@override String get selectImageQuality => '画質を選択';
+	@override String get imageQualityStandard => '標準';
+	@override String get imageQualityOriginal => 'オリジナル';
 	@override String get selectDateRange => '日付範囲を選択';
 	@override String get selectDateRangeHint => '日付範囲を選択，デフォルトは最近30日';
 	@override String get clearDateRange => '日付範囲をクリア';
@@ -785,6 +788,7 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get videoSyncDisplayDesync => 'ディスプレイ非同期';
 	@override String get videoSyncDesync => '非同期';
 	@override late final _TranslationsSettingsForumSettingsJa forumSettings = _TranslationsSettingsForumSettingsJa._(_root);
+	@override late final _TranslationsSettingsGallerySettingsJa gallerySettings = _TranslationsSettingsGallerySettingsJa._(_root);
 	@override late final _TranslationsSettingsChatSettingsJa chatSettings = _TranslationsSettingsChatSettingsJa._(_root);
 	@override String get hardwareDecodingAuto => '自動';
 	@override String get hardwareDecodingAutoCopy => '自動コピー';
@@ -2051,6 +2055,19 @@ class _TranslationsSettingsForumSettingsJa implements TranslationsSettingsForumS
 	@override String get configureYourForumSettings => 'フォーラム設定を構成する';
 }
 
+// Path: settings.gallerySettings
+class _TranslationsSettingsGallerySettingsJa implements TranslationsSettingsGallerySettingsEn {
+	_TranslationsSettingsGallerySettingsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get gallerySettingsTitle => 'ギャラリー設定';
+	@override String get gallerySettingsSubtitle => 'ギャラリービューアの設定';
+	@override String get defaultViewerQuality => 'デフォルト画質';
+	@override String get defaultViewerQualityDesc => 'ギャラリービューアを開いたときに表示する画質を選択します。';
+}
+
 // Path: settings.chatSettings
 class _TranslationsSettingsChatSettingsJa implements TranslationsSettingsChatSettingsEn {
 	_TranslationsSettingsChatSettingsJa._(this._root);
@@ -3086,6 +3103,9 @@ extension on TranslationsJa {
 			'common.lastSeenAt' => ({required Object str}) => '最終オンライン ${str}',
 			'common.download' => 'ダウンロード',
 			'common.selectQuality' => '画質を選択',
+			'common.selectImageQuality' => '画質を選択',
+			'common.imageQualityStandard' => '標準',
+			'common.imageQualityOriginal' => 'オリジナル',
 			'common.selectDateRange' => '日付範囲を選択',
 			'common.selectDateRangeHint' => '日付範囲を選択，デフォルトは最近30日',
 			'common.clearDateRange' => '日付範囲をクリア',
@@ -3356,11 +3376,11 @@ extension on TranslationsJa {
 			'settings.release' => 'リリース',
 			'settings.issueReport' => '問題報告',
 			'settings.openSourceLicense' => 'オープンソースライセンス',
+			_ => null,
+		} ?? switch (path) {
 			'settings.checkForUpdatesFailed' => '更新のチェックに失敗しました。後でもう一度お試しください',
 			'settings.autoCheckUpdate' => '自動更新',
 			'settings.updateContent' => '更新内容',
-			_ => null,
-		} ?? switch (path) {
 			'settings.releaseDate' => 'リリース日',
 			'settings.ignoreThisVersion' => 'このバージョンを無視',
 			'settings.minVersionUpdateRequired' => '現在のバージョンが低すぎます。すぐに更新してください',
@@ -3466,6 +3486,10 @@ extension on TranslationsJa {
 			'settings.videoSyncDesync' => '非同期',
 			'settings.forumSettings.name' => 'フォーラム',
 			'settings.forumSettings.configureYourForumSettings' => 'フォーラム設定を構成する',
+			'settings.gallerySettings.gallerySettingsTitle' => 'ギャラリー設定',
+			'settings.gallerySettings.gallerySettingsSubtitle' => 'ギャラリービューアの設定',
+			'settings.gallerySettings.defaultViewerQuality' => 'デフォルト画質',
+			'settings.gallerySettings.defaultViewerQualityDesc' => 'ギャラリービューアを開いたときに表示する画質を選択します。',
 			'settings.chatSettings.name' => 'チャット',
 			'settings.chatSettings.configureYourChatSettings' => 'チャット設定を構成する',
 			'settings.hardwareDecodingAuto' => '自動',
@@ -3866,6 +3890,8 @@ extension on TranslationsJa {
 			'forum.createPost' => '投稿を作成',
 			'forum.enterTitle' => 'タイトルを入力してください',
 			'forum.content' => 'コンテンツ',
+			_ => null,
+		} ?? switch (path) {
 			'forum.enterContent' => 'コンテンツを入力してください',
 			'forum.writeYourContentHere' => 'ここにコンテンツを入力...',
 			'forum.posts' => '投稿',
@@ -3873,8 +3899,6 @@ extension on TranslationsJa {
 			'forum.forum' => 'フォーラム',
 			'forum.createThread' => 'スレッドを作成',
 			'forum.selectCategory' => 'カテゴリを選択',
-			_ => null,
-		} ?? switch (path) {
 			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => 'クールダウン残り時間 ${minutes} 分 ${seconds} 秒',
 			'forum.groups.administration' => '管理',
 			'forum.groups.global' => 'グローバル',
@@ -4380,6 +4404,8 @@ extension on TranslationsJa {
 			'diagnostics.maxFileSizeSubtitle' => 'しきい値到達でローテーションします',
 			'diagnostics.rotatedFileCountTitle' => 'メインログのローテーション数',
 			'diagnostics.rotatedFileCountSubtitle' => '現在ファイルを除く保持数',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.hangFileSizeTitle' => 'ハングログの上限サイズ',
 			'diagnostics.hangFileSizeSubtitle' => 'hang_events ファイルの増加を制御',
 			'diagnostics.hangRotatedFileCountTitle' => 'ハングログのローテーション数',
@@ -4387,8 +4413,6 @@ extension on TranslationsJa {
 			'diagnostics.healthSectionTitle' => 'ログヘルス',
 			'diagnostics.refreshMetrics' => '指標を更新',
 			'diagnostics.toolsSectionTitle' => 'ツール',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.privacyNotice' => 'ログにはアカウント情報やリクエストパラメータなどの機密情報が含まれる可能性があります。Issue に完全なログを公開添付せず、確認後にメールで送信してください。',
 			'diagnostics.exportLogsTitle' => 'ログをエクスポート',
 			'diagnostics.exportLogsSubtitle' => '送信前にプライバシー情報を確認してください',

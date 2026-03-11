@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/image.model.dart'; // Assuming ImageModel path, adjust if necessary
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/controllers/gallery_detail_controller.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
+import 'package:i_iwara/common/gallery_image_quality.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/utils/image_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -174,6 +176,29 @@ class GalleryImageScrollerWidget extends StatelessWidget {
     ImageItem item,
     List<ImageItem> imageItems,
   ) {
+    final configService = Get.find<ConfigService>();
+    final initialQuality = normalizeGalleryImageQuality(
+      configService[ConfigKey.GALLERY_VIEWER_DEFAULT_IMAGE_QUALITY],
+    );
+    final standardImageItems = imageItems
+        .map(
+          (imageItem) => ImageItem(
+            url: imageItem.url,
+            width: imageItem.width,
+            height: imageItem.height,
+            data: ImageItemData(
+              id: imageItem.data.id,
+              title: imageItem.data.title,
+              url: imageItem.data.url,
+              originalUrl: imageItem.data.url,
+            ),
+            headers: imageItem.headers == null
+                ? null
+                : Map<String, String>.from(imageItem.headers!),
+            mediaType: imageItem.mediaType,
+          ),
+        )
+        .toList();
     ImageItemData iid = item.data;
     LogUtils.d('点击了图片：${iid.id}', 'GalleryImageScrollerWidget');
     int index = imageItems.indexWhere((element) => element.url == item.url);
@@ -183,6 +208,14 @@ class GalleryImageScrollerWidget extends StatelessWidget {
     pushPhotoViewWrapperOverlay(
       context: context,
       imageItems: imageItems,
+      standardImageItems: standardImageItems,
+      originalImageItems: imageItems,
+      initialQuality: initialQuality,
+      onQualityChanged: (quality) {
+        final normalizedQuality = normalizeGalleryImageQuality(quality);
+        configService[ConfigKey.GALLERY_VIEWER_DEFAULT_IMAGE_QUALITY] =
+            normalizedQuality;
+      },
       initialIndex: index,
       menuItemsBuilder: (context, item) => _buildImageMenuItems(context, item),
       heroTagBuilder: (item) =>

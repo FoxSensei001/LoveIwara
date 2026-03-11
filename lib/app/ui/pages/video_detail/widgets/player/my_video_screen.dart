@@ -109,7 +109,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       // 继续播放
       // 如果当前是非全屏，则继续播放
       if (!widget.myVideoStateController.isFullscreen.value) {
-        widget.myVideoStateController.player.play();
+        unawaited(widget.myVideoStateController.playFromUserAction());
       }
       // 确保在全屏状态下获取焦点
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -640,8 +640,10 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                               .value) {
                             widget.myVideoStateController.player.pause();
                           } else {
-                            widget.myVideoStateController.player.play();
-                            widget.myVideoStateController.animateToTop();
+                            unawaited(
+                              widget.myVideoStateController
+                                  .playFromUserAction(),
+                            );
                           }
                         } else if (event.logicalKey ==
                             LogicalKeyboardKey.arrowUp) {
@@ -681,6 +683,13 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                             controller.videoInfo.value != null;
                         final showInitialPlaybackCover =
                             controller.shouldShowInitialPlaybackCover;
+                        final showInitialPlaybackLoadingChrome =
+                            showInitialPlaybackCover &&
+                            controller.isWaitingForInitialPlaybackStart;
+                        final showPlaybackChrome =
+                            hasVideoInfo &&
+                            (!showInitialPlaybackCover ||
+                                showInitialPlaybackLoadingChrome);
 
                         return Stack(
                           children: [
@@ -689,20 +698,21 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                             if (showInitialPlaybackCover)
                               _buildInitialPlaybackCover(),
                             // 手势监听区域（抽取后减少整体重绘）
-                            if (hasVideoInfo && !showInitialPlaybackCover)
+                            if (showPlaybackChrome)
                               ..._buildGestureAreas(screenSize),
                             // 工具栏部分
-                            if (hasVideoInfo && !showInitialPlaybackCover)
-                              ..._buildToolbars(),
+                            if (showPlaybackChrome) ..._buildToolbars(),
                             // 双击波纹动画等效果
-                            if (hasVideoInfo && !showInitialPlaybackCover)
+                            if (showPlaybackChrome)
                               _buildRippleEffects(screenSize, maxRadius),
                             // 中央控制面板，比如播放/暂停按钮
                             _buildVideoControlOverlay(
                               playPauseIconSize,
                               bufferingSize,
                             ),
-                            if (!hasVideoInfo || showInitialPlaybackCover)
+                            if (!hasVideoInfo ||
+                                (showInitialPlaybackCover &&
+                                    !showInitialPlaybackLoadingChrome))
                               _buildLoadingBackButton(),
                             // InfoMessage 提示区域
                             if (hasVideoInfo && !showInitialPlaybackCover)
@@ -714,11 +724,9 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                             if (hasVideoInfo && !showInitialPlaybackCover)
                               _buildBottomProgressBar(),
                             // 添加遮罩层
-                            if (hasVideoInfo && !showInitialPlaybackCover)
-                              _buildMaskLayer(),
+                            if (showPlaybackChrome) _buildMaskLayer(),
                             // 添加锁定按钮
-                            if (hasVideoInfo && !showInitialPlaybackCover)
-                              _buildLockButton(),
+                            if (showPlaybackChrome) _buildLockButton(),
                             if (hasVideoInfo && !showInitialPlaybackCover)
                               _buildInnerPlaylistOverlay(screenSize),
                           ],
@@ -1000,8 +1008,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               if (widget.myVideoStateController.videoPlaying.value) {
                 widget.myVideoStateController.player.pause();
               } else {
-                widget.myVideoStateController.player.play();
-                widget.myVideoStateController.animateToTop();
+                unawaited(widget.myVideoStateController.playFromUserAction());
               }
             },
             region: GestureRegion.center,
@@ -1396,8 +1403,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                 if (myVideoStateController.videoPlaying.value) {
                   myVideoStateController.player.pause();
                 } else {
-                  myVideoStateController.player.play();
-                  myVideoStateController.animateToTop();
+                  await myVideoStateController.playFromUserAction();
                 }
               },
               customBorder: const CircleBorder(),
@@ -1959,7 +1965,9 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                       // 如果当前处于未锁定，且视频暂停，则播放视频
                       if (!isLocked &&
                           !widget.myVideoStateController.videoPlaying.value) {
-                        widget.myVideoStateController.player.play();
+                        unawaited(
+                          widget.myVideoStateController.playFromUserAction(),
+                        );
                       }
                     },
                     borderRadius: BorderRadius.circular(8),

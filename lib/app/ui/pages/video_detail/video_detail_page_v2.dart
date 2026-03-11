@@ -176,7 +176,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
 
   InnerPlaylistContext? _resolveInnerPlaylistContext() {
     final context = widget.innerPlaylistContext;
-    if (context?.source != InnerPlaylistSource.relatedVideosTab || isLocalMode) {
+    if (context?.source != InnerPlaylistSource.relatedVideosTab ||
+        isLocalMode) {
       return context;
     }
 
@@ -1036,7 +1037,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                         if (controller.videoPlaying.value) {
                           controller.player.pause();
                         } else {
-                          controller.player.play();
+                          unawaited(controller.playFromUserAction());
                         }
                         controller.animateToTop();
                       },

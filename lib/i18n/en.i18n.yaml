@@ -241,6 +241,9 @@ common:
   lastSeenAt: 'Last seen ${str}'
   download: Download
   selectQuality: Select Quality
+  selectImageQuality: Select image quality
+  imageQualityStandard: Standard
+  imageQualityOriginal: Original
   selectDateRange: Select Date Range
   selectDateRangeHint: Select date range, default is recent 30 days
   clearDateRange: Clear Date Range
@@ -648,6 +651,11 @@ settings:
   forumSettings:
     name: Forum
     configureYourForumSettings: Configure Your Forum Settings
+  gallerySettings:
+    gallerySettingsTitle: Gallery Settings
+    gallerySettingsSubtitle: Configure gallery viewer preferences
+    defaultViewerQuality: Default viewer quality
+    defaultViewerQualityDesc: Choose which image quality to show by default when opening the gallery viewer.
   # Chat
   chatSettings:
     name: Chat

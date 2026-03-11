@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/models/sort.model.dart';
 import 'package:i_iwara/common/constants.dart';
+import 'package:i_iwara/common/gallery_image_quality.dart';
 import 'package:i_iwara/db/database_service.dart';
 import 'package:sqlite3/common.dart';
 import 'dart:convert';
@@ -255,6 +256,7 @@ enum ConfigKey {
   FAST_FORWARD_SECONDS_KEY,
   REWIND_SECONDS_KEY,
   DEFAULT_QUALITY_KEY,
+  GALLERY_VIEWER_DEFAULT_IMAGE_QUALITY,
   REPEAT_KEY,
   VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO,
   BRIGHTNESS_KEY,
@@ -381,6 +383,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'rewind_seconds';
       case ConfigKey.DEFAULT_QUALITY_KEY:
         return 'default_quality';
+      case ConfigKey.GALLERY_VIEWER_DEFAULT_IMAGE_QUALITY:
+        return 'gallery_viewer_default_image_quality';
       case ConfigKey.REPEAT_KEY:
         return 'repeat';
       case ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO:
@@ -592,6 +596,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 10;
       case ConfigKey.DEFAULT_QUALITY_KEY:
         return '540';
+      case ConfigKey.GALLERY_VIEWER_DEFAULT_IMAGE_QUALITY:
+        return galleryImageQualityStandard;
       case ConfigKey.REPEAT_KEY:
         return false;
       case ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO:

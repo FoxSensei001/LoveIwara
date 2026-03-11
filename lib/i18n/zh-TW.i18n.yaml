@@ -210,6 +210,9 @@ common:
   publishedAt: 發布時間
   download: 下載
   selectQuality: 選擇畫質
+  selectImageQuality: 選擇清晰度
+  imageQualityStandard: 標清
+  imageQualityOriginal: 原畫
   externalVideo: 站外影片
   originalText: 原文
   showOriginalText: 顯示原始文字
@@ -649,6 +652,11 @@ settings:
   forumSettings:
     name: 論壇
     configureYourForumSettings: 配置您的論壇設定
+  gallerySettings:
+    gallerySettingsTitle: 圖庫設定
+    gallerySettingsSubtitle: 設定圖庫檢視器偏好
+    defaultViewerQuality: 預設清晰度
+    defaultViewerQualityDesc: 開啟圖庫檢視器時預設顯示哪一種清晰度。
   # 聊天頁
   chatSettings:
     name: 聊天

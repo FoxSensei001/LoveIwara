@@ -247,6 +247,9 @@ common:
   lastSeenAt: '最終オンライン ${str}'
   download: ダウンロード
   selectQuality: 画質を選択
+  selectImageQuality: 画質を選択
+  imageQualityStandard: 標準
+  imageQualityOriginal: オリジナル
   selectDateRange: 日付範囲を選択
   selectDateRangeHint: 日付範囲を選択，デフォルトは最近30日
   clearDateRange: 日付範囲をクリア
@@ -649,6 +652,11 @@ settings:
   forumSettings:
     name: フォーラム
     configureYourForumSettings: フォーラム設定を構成する
+  gallerySettings:
+    gallerySettingsTitle: ギャラリー設定
+    gallerySettingsSubtitle: ギャラリービューアの設定
+    defaultViewerQuality: デフォルト画質
+    defaultViewerQualityDesc: ギャラリービューアを開いたときに表示する画質を選択します。
   # チャット設定
   chatSettings:
     name: チャット

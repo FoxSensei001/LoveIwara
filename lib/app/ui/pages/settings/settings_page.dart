@@ -14,6 +14,7 @@ import 'proxy_settings_page.dart';
 import 'theme_settings_page.dart';
 import 'download_settings_page.dart';
 import 'display_settings_page.dart';
+import 'gallery_settings_page.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'about_page.dart';
 import 'diagnostics_page.dart';
@@ -399,6 +400,11 @@ class _SettingsPageState extends State<SettingsPage> {
             icon: Icons.display_settings,
             index: ProxyUtil.isSupportedPlatform() ? 7 : 6,
           ),
+          _SettingItem(
+            title: t.settings.gallerySettings.gallerySettingsTitle,
+            icon: Icons.photo_library_outlined,
+            index: ProxyUtil.isSupportedPlatform() ? 8 : 7,
+          ),
         ],
       ),
       _SettingGroup(
@@ -407,12 +413,12 @@ class _SettingsPageState extends State<SettingsPage> {
           _SettingItem(
             title: t.settings.about,
             icon: Icons.info_outline,
-            index: ProxyUtil.isSupportedPlatform() ? 8 : 7,
+            index: ProxyUtil.isSupportedPlatform() ? 9 : 8,
           ),
           _SettingItem(
             title: t.settings.diagnosticsAndFeedback,
             icon: Icons.bug_report_outlined,
-            index: ProxyUtil.isSupportedPlatform() ? 9 : 8,
+            index: ProxyUtil.isSupportedPlatform() ? 10 : 9,
           ),
         ],
       ),
@@ -420,10 +426,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
     final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
     return SliverPadding(
-      padding: EdgeInsets.only(
-        top: 8,
-        bottom: 8 + bottomInset,
-      ),
+      padding: EdgeInsets.only(top: 8, bottom: 8 + bottomInset),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate((context, groupIndex) {
           final group = settingGroups[groupIndex];
@@ -585,9 +588,11 @@ class _SettingsPageState extends State<SettingsPage> {
         return ThemeSettingsPage(isWideScreen: enableTwoViews);
       case 7: // 显示设置
         return DisplaySettingsPage(useSettingsNavi: true);
-      case 8: // 关于
+      case 8: // 图库设置
+        return GallerySettingsPage(isWideScreen: enableTwoViews);
+      case 9: // 关于
         return AboutPage(isWideScreen: enableTwoViews);
-      case 9: // 诊断与反馈
+      case 10: // 诊断与反馈
         return DiagnosticsPage(isWideScreen: enableTwoViews);
       default:
         return const SizedBox();

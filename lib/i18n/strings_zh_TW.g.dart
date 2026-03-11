@@ -311,6 +311,9 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get publishedAt => '發布時間';
 	@override String get download => '下載';
 	@override String get selectQuality => '選擇畫質';
+	@override String get selectImageQuality => '選擇清晰度';
+	@override String get imageQualityStandard => '標清';
+	@override String get imageQualityOriginal => '原畫';
 	@override String get externalVideo => '站外影片';
 	@override String get originalText => '原文';
 	@override String get showOriginalText => '顯示原始文字';
@@ -785,6 +788,7 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get videoSyncDisplayDesync => '顯示去同步';
 	@override String get videoSyncDesync => '去同步';
 	@override late final _TranslationsSettingsForumSettingsZhTw forumSettings = _TranslationsSettingsForumSettingsZhTw._(_root);
+	@override late final _TranslationsSettingsGallerySettingsZhTw gallerySettings = _TranslationsSettingsGallerySettingsZhTw._(_root);
 	@override late final _TranslationsSettingsChatSettingsZhTw chatSettings = _TranslationsSettingsChatSettingsZhTw._(_root);
 	@override String get hardwareDecodingAuto => '自動';
 	@override String get hardwareDecodingAutoCopy => '自動複製';
@@ -2054,6 +2058,19 @@ class _TranslationsSettingsForumSettingsZhTw implements TranslationsSettingsForu
 	@override String get configureYourForumSettings => '配置您的論壇設定';
 }
 
+// Path: settings.gallerySettings
+class _TranslationsSettingsGallerySettingsZhTw implements TranslationsSettingsGallerySettingsEn {
+	_TranslationsSettingsGallerySettingsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get gallerySettingsTitle => '圖庫設定';
+	@override String get gallerySettingsSubtitle => '設定圖庫檢視器偏好';
+	@override String get defaultViewerQuality => '預設清晰度';
+	@override String get defaultViewerQualityDesc => '開啟圖庫檢視器時預設顯示哪一種清晰度。';
+}
+
 // Path: settings.chatSettings
 class _TranslationsSettingsChatSettingsZhTw implements TranslationsSettingsChatSettingsEn {
 	_TranslationsSettingsChatSettingsZhTw._(this._root);
@@ -3054,6 +3071,9 @@ extension on TranslationsZhTw {
 			'common.publishedAt' => '發布時間',
 			'common.download' => '下載',
 			'common.selectQuality' => '選擇畫質',
+			'common.selectImageQuality' => '選擇清晰度',
+			'common.imageQualityStandard' => '標清',
+			'common.imageQualityOriginal' => '原畫',
 			'common.externalVideo' => '站外影片',
 			'common.originalText' => '原文',
 			'common.showOriginalText' => '顯示原始文字',
@@ -3359,11 +3379,11 @@ extension on TranslationsZhTw {
 			'settings.release' => '版本發布',
 			'settings.issueReport' => '問題回報',
 			'settings.openSourceLicense' => '開源許可',
+			_ => null,
+		} ?? switch (path) {
 			'settings.checkForUpdatesFailed' => '檢查更新失敗，請稍後重試',
 			'settings.autoCheckUpdate' => '自動檢查更新',
 			'settings.updateContent' => '更新內容',
-			_ => null,
-		} ?? switch (path) {
 			'settings.releaseDate' => '發布日期',
 			'settings.ignoreThisVersion' => '忽略此版本',
 			'settings.minVersionUpdateRequired' => '目前版本過低，請盡快更新',
@@ -3469,6 +3489,10 @@ extension on TranslationsZhTw {
 			'settings.videoSyncDesync' => '去同步',
 			'settings.forumSettings.name' => '論壇',
 			'settings.forumSettings.configureYourForumSettings' => '配置您的論壇設定',
+			'settings.gallerySettings.gallerySettingsTitle' => '圖庫設定',
+			'settings.gallerySettings.gallerySettingsSubtitle' => '設定圖庫檢視器偏好',
+			'settings.gallerySettings.defaultViewerQuality' => '預設清晰度',
+			'settings.gallerySettings.defaultViewerQualityDesc' => '開啟圖庫檢視器時預設顯示哪一種清晰度。',
 			'settings.chatSettings.name' => '聊天',
 			'settings.chatSettings.configureYourChatSettings' => '配置您的聊天設定',
 			'settings.hardwareDecodingAuto' => '自動',
@@ -3869,6 +3893,8 @@ extension on TranslationsZhTw {
 			'markdown.textStyle' => '文字樣式',
 			'markdown.textStyleDescription' => '使用特殊符號包圍文本來改變樣式',
 			'markdown.textStyleSyntax' => '**粗體文字**\n*斜體文字*\n~~刪除線文字~~\n`程式碼文字`',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.quote' => '引用',
 			'markdown.quoteDescription' => '使用 > 符號建立引用，多個 > 建立多級引用',
 			'markdown.quoteSyntax' => '> 這是一級引用\n>> 這是二級引用',
@@ -3876,8 +3902,6 @@ extension on TranslationsZhTw {
 			'markdown.listDescription' => '使用數字+點號建立有序列表，使用 - 建立無序列表',
 			'markdown.listSyntax' => '1. 第一項\n2. 第二項\n\n- 無序項\n  - 子項\n  - 另一個子項',
 			'markdown.linkAndImage' => '連結與圖片',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.linkAndImageDescription' => '連結格式：[文字](URL)\n圖片格式：![描述](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[連結文字](${link})\n![圖片描述](${imgUrl})',
 			'markdown.title' => '標題',
@@ -4383,6 +4407,8 @@ extension on TranslationsZhTw {
 			'mediaPlayer.sslError' => 'SSL證書錯誤',
 			'mediaPlayer.testCompleted' => '測速完成',
 			'mediaPlayer.local' => '本地',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.unknown' => '未知',
 			'mediaPlayer.localVideoPathEmpty' => '本地影片路徑為空',
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => '本地影片檔案不存在: ${path}',
@@ -4390,8 +4416,6 @@ extension on TranslationsZhTw {
 			'mediaPlayer.dropVideoFileHere' => '拖放影片檔案至此處播放',
 			'mediaPlayer.supportedFormats' => '支援格式: MP4, MKV, AVI, MOV, WEBM 等',
 			'mediaPlayer.noSupportedVideoFile' => '未找到支援的影片檔案',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.imageLoadFailed' => '圖片載入失敗',
 			'mediaPlayer.unsupportedImageFormat' => '不支援的圖片格式',
 			'mediaPlayer.tryOtherViewer' => '請嘗試使用其他檢視器',
