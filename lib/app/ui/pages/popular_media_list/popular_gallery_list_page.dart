@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/image.model.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/popular_media_list_base_page.dart';
 import 'controllers/popular_gallery_controller.dart';
@@ -14,18 +15,23 @@ class PopularGalleryListPage
           PopularGalleryController,
           PopularGalleryRepository
         > {
-  const PopularGalleryListPage({super.key, super.contentResetVersion = 0})
-    : super(
-        controllerTag: 'gallery',
-        searchSegment: SearchSegment.image,
-        emptyIcon: Icons.photo_library_outlined,
-      );
+  final IwaraSite site;
+
+  const PopularGalleryListPage({
+    super.key,
+    required this.site,
+    super.contentResetVersion = 0,
+  }) : super(
+         controllerTag: 'gallery',
+         searchSegment: SearchSegment.image,
+         emptyIcon: Icons.photo_library_outlined,
+       );
 
   // 实现创建 Controller 的方法
   @override
   PopularGalleryController createSpecificController(String sortIdName) {
     return Get.put(
-      PopularGalleryController(sortId: sortIdName),
+      PopularGalleryController(sortId: sortIdName, site: site),
       tag: sortIdName,
     );
   }

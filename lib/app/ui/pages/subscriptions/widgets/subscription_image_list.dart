@@ -10,6 +10,7 @@ class SubscriptionImageList
   const SubscriptionImageList({
     super.key,
     required super.userId,
+    required super.site,
     required super.tabIndex,
     super.isPaginated,
     super.paddingTop,
@@ -32,7 +33,10 @@ class _SubscriptionImageListState
         > {
   @override
   SubscriptionImageRepository createRepository() {
-    return SubscriptionImageRepository(userId: widget.userId);
+    return SubscriptionImageRepository(
+      userId: widget.userId,
+      site: widget.site,
+    );
   }
 
   @override

@@ -33,8 +33,13 @@ import 'package:i_iwara/app/utils/show_app_dialog.dart';
 class ForumPage extends StatefulWidget implements HomeWidgetInterface {
   static final globalKey = GlobalKey<_ForumPageState>();
   final int contentResetVersion;
+  final IwaraSite site;
 
-  const ForumPage({super.key, this.contentResetVersion = 0});
+  const ForumPage({
+    super.key,
+    required this.site,
+    this.contentResetVersion = 0,
+  });
 
   @override
   State<ForumPage> createState() => _ForumPageState();
@@ -62,7 +67,7 @@ class _ForumPageState extends State<ForumPage> {
   final appBarHeight = 56.0;
 
   Map<String, String> get _iwaraImageHeaders => {
-    'referer': Get.find<AppService>().currentSiteMode.baseUrl,
+    'referer': widget.site.baseUrl,
   };
 
   // 置顶公告相关
@@ -165,7 +170,7 @@ class _ForumPageState extends State<ForumPage> {
   void initState() {
     super.initState();
     _loadCategories();
-    _recentThreadRepository = RecentThreadListRepository();
+    _recentThreadRepository = RecentThreadListRepository(site: widget.site);
     _loadStickyAnnouncements();
     if (CommonConstants.enableForumSitewideAnnouncement) {
       _loadSitewideAnnouncement();
@@ -182,7 +187,10 @@ class _ForumPageState extends State<ForumPage> {
   void didUpdateWidget(covariant ForumPage oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.contentResetVersion != widget.contentResetVersion) {
+    if (oldWidget.contentResetVersion != widget.contentResetVersion ||
+        oldWidget.site != widget.site) {
+      _recentThreadRepository.dispose();
+      _recentThreadRepository = RecentThreadListRepository(site: widget.site);
       _resetForContentChange();
     }
   }
@@ -213,7 +221,7 @@ class _ForumPageState extends State<ForumPage> {
       });
     }
 
-    final result = await _forumService.getForumCategoryTree();
+    final result = await _forumService.getForumCategoryTree(site: widget.site);
     if (mounted) {
       setState(() {
         _isLoading = false;
@@ -249,7 +257,10 @@ class _ForumPageState extends State<ForumPage> {
       });
     }
 
-    final result = await _forumService.fetchStickyAnnouncements(limit: 5);
+    final result = await _forumService.fetchStickyAnnouncements(
+      limit: 5,
+      site: widget.site,
+    );
 
     if (mounted) {
       setState(() {
@@ -271,7 +282,9 @@ class _ForumPageState extends State<ForumPage> {
       });
     }
 
-    final result = await _apiService.fetchSitewideAnnouncement();
+    final result = await _apiService.fetchSitewideAnnouncement(
+      site: widget.site,
+    );
 
     if (!mounted) return;
     setState(() {

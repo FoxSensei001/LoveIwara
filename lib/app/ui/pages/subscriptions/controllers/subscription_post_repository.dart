@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/services/post_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
@@ -7,7 +8,9 @@ import 'package:i_iwara/utils/logger_utils.dart';
 class SubscriptionPostRepository extends ExtendedLoadingMoreBase<PostModel> {
   final PostService _postService = Get.find<PostService>();
   final String userId;
-  SubscriptionPostRepository({required this.userId});
+  final IwaraSite site;
+
+  SubscriptionPostRepository({required this.userId, required this.site});
 
   @override
   Map<String, dynamic> buildQueryParams(int page, int limit) {
@@ -28,6 +31,7 @@ class SubscriptionPostRepository extends ExtendedLoadingMoreBase<PostModel> {
         params: params,
         page: page,
         limit: limit,
+        site: site,
       );
 
       if (result.isSuccess && result.data != null) {

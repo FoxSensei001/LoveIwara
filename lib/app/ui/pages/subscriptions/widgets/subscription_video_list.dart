@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
-import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart' show CommonUtils;
 import '../controllers/subscription_video_repository.dart';
@@ -12,6 +12,7 @@ class SubscriptionVideoList
   const SubscriptionVideoList({
     super.key,
     required super.userId,
+    required super.site,
     required super.tabIndex,
     super.isPaginated,
     super.paddingTop,
@@ -34,7 +35,10 @@ class _SubscriptionVideoListState
         > {
   @override
   SubscriptionVideoRepository createRepository() {
-    return SubscriptionVideoRepository(userId: widget.userId);
+    return SubscriptionVideoRepository(
+      userId: widget.userId,
+      site: widget.site,
+    );
   }
 
   @override

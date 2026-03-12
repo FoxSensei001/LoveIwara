@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart'; // 用于 ScrollDirection
 import 'dart:ui' show ImageFilter;
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 
 import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
@@ -32,8 +33,13 @@ import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
 class SubscriptionsPage extends StatefulWidget implements HomeWidgetInterface {
   static final globalKey = GlobalKey<SubscriptionsPageState>();
   final int contentResetVersion;
+  final IwaraSite site;
 
-  const SubscriptionsPage({super.key, this.contentResetVersion = 0});
+  const SubscriptionsPage({
+    super.key,
+    required this.site,
+    this.contentResetVersion = 0,
+  });
 
   @override
   State<SubscriptionsPage> createState() => SubscriptionsPageState();
@@ -650,6 +656,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                         child: Obx(
                           () => SubscriptionVideoList(
                             userId: selectedId,
+                            site: widget.site,
                             tabIndex: 0,
                             isPaginated: isPaginated,
                             paddingTop: 0,
@@ -671,6 +678,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                         child: Obx(
                           () => SubscriptionImageList(
                             userId: selectedId,
+                            site: widget.site,
                             tabIndex: 1,
                             isPaginated: isPaginated,
                             paddingTop: 0,
@@ -691,6 +699,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                         ),
                         child: SubscriptionPostList(
                           userId: selectedId,
+                          site: widget.site,
                           tabIndex: 2,
                           isPaginated: isPaginated,
                           paddingTop: 0,

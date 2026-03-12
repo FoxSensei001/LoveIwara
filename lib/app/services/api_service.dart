@@ -829,7 +829,9 @@ class ApiService extends GetxService {
   }
 
   /// 获取全站公告（sitewide announcement）
-  Future<ApiResult<IwaraPageModel>> fetchSitewideAnnouncement() async {
+  Future<ApiResult<IwaraPageModel>> fetchSitewideAnnouncement({
+    IwaraSite site = IwaraSite.main,
+  }) async {
     try {
       final response = await get(
         '/page/sitewide-announcement',
@@ -840,6 +842,7 @@ class ApiService extends GetxService {
           'pragma': 'no-cache',
         },
         requestAccess: ApiRequestAccess.publicOnly,
+        site: site,
       );
 
       if (response.data is! Map<String, dynamic>) {

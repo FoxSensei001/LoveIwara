@@ -1,14 +1,16 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 
 class RecentThreadListRepository extends LoadingMoreBase<ForumThreadModel> {
   final ForumService _forumService = Get.find<ForumService>();
+  final IwaraSite site;
   int _pageIndex = 0;
   bool _hasMore = true;
 
-  RecentThreadListRepository();
+  RecentThreadListRepository({required this.site});
 
   @override
   bool get hasMore => _hasMore;
@@ -19,6 +21,7 @@ class RecentThreadListRepository extends LoadingMoreBase<ForumThreadModel> {
       final result = await _forumService.fetchRecentThreads(
         page: _pageIndex,
         limit: 20,
+        site: site,
       );
 
       if (!result.isSuccess) {

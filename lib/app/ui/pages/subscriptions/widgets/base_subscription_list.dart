@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart'; // 用于 ScrollDirection
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/pages/subscriptions/controllers/media_list_controller.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -12,6 +13,7 @@ import 'package:loading_more_list/loading_more_list.dart';
 abstract class BaseSubscriptionList<T, R extends ExtendedLoadingMoreBase<T>>
     extends StatefulWidget {
   final String userId;
+  final IwaraSite site;
   final int tabIndex;
   final bool isPaginated;
   final double paddingTop;
@@ -20,6 +22,7 @@ abstract class BaseSubscriptionList<T, R extends ExtendedLoadingMoreBase<T>>
   const BaseSubscriptionList({
     super.key,
     required this.userId,
+    required this.site,
     required this.tabIndex,
     this.isPaginated = false,
     this.paddingTop = 0,
@@ -104,7 +107,8 @@ abstract class BaseSubscriptionListState<
     super.didUpdateWidget(oldWidget);
 
     // 用户ID变化时重新创建数据源
-    if (oldWidget.userId != widget.userId) {
+    if (oldWidget.userId != widget.userId || oldWidget.site != widget.site) {
+      repository.dispose();
       repository = createRepository();
       // 清除缓存
       _itemCache.clear();

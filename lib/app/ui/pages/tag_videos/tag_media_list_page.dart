@@ -6,6 +6,7 @@ import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/sort.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/base_media_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/base_media_repository.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/popular_gallery_controller.dart';
@@ -59,6 +60,7 @@ class _TagMediaListPageState extends State<TagMediaListPage>
 
     // 设置初始标签
     tags = [widget.tag];
+    final currentSite = Get.find<AppService>().currentSiteMode;
 
     final String baseTag =
         'tag_${widget.mediaType.name.toLowerCase()}_list_${widget.tag.id}';
@@ -73,12 +75,12 @@ class _TagMediaListPageState extends State<TagMediaListPage>
       late BaseMediaController controller;
       if (widget.mediaType == MediaType.VIDEO) {
         controller = Get.put(
-          PopularVideoController(sortId: sort.id.name),
+          PopularVideoController(sortId: sort.id.name, site: currentSite),
           tag: controllerTag,
         );
       } else {
         controller = Get.put(
-          PopularGalleryController(sortId: sort.id.name),
+          PopularGalleryController(sortId: sort.id.name, site: currentSite),
           tag: controllerTag,
         );
       }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/popular_media_list_base_page.dart';
@@ -14,17 +15,25 @@ class PopularVideoListPage
           PopularVideoController,
           PopularVideoRepository
         > {
-  const PopularVideoListPage({super.key, super.contentResetVersion = 0})
-    : super(
-        controllerTag: 'video',
-        searchSegment: SearchSegment.video,
-        emptyIcon: Icons.video_library_outlined,
-      );
+  final IwaraSite site;
+
+  const PopularVideoListPage({
+    super.key,
+    required this.site,
+    super.contentResetVersion = 0,
+  }) : super(
+         controllerTag: 'video',
+         searchSegment: SearchSegment.video,
+         emptyIcon: Icons.video_library_outlined,
+       );
 
   // 实现创建 Controller 的方法
   @override
   PopularVideoController createSpecificController(String sortIdName) {
-    return Get.put(PopularVideoController(sortId: sortIdName), tag: sortIdName);
+    return Get.put(
+      PopularVideoController(sortId: sortIdName, site: site),
+      tag: sortIdName,
+    );
   }
 
   // 实现获取 Repository 的方法

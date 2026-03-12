@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/base_media_repository.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
@@ -19,13 +20,15 @@ import 'popular_gallery_repository.dart';
 
 class PopularGalleryController extends BaseMediaController<ImageModel> {
   final GalleryService _galleryService = Get.find<GalleryService>();
+  final IwaraSite site;
 
-  PopularGalleryController({required super.sortId});
+  PopularGalleryController({required super.sortId, required this.site});
 
   @override
   BaseMediaRepository<ImageModel> createRepository() {
     return PopularGalleryRepository(
       galleryService: _galleryService,
+      site: site,
       sortId: sortId,
     );
   }
@@ -75,6 +78,7 @@ class PopularGalleryController extends BaseMediaController<ImageModel> {
             },
             page: page,
             limit: pageSize,
+            site: site,
           );
 
       if (result.isFail) {

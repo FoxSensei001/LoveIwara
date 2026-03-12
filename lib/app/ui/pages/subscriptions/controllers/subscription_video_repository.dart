@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
@@ -7,7 +8,9 @@ import 'package:i_iwara/utils/logger_utils.dart';
 class SubscriptionVideoRepository extends ExtendedLoadingMoreBase<Video> {
   final VideoService _videoService = Get.find<VideoService>();
   final String userId;
-  SubscriptionVideoRepository({required this.userId});
+  final IwaraSite site;
+
+  SubscriptionVideoRepository({required this.userId, required this.site});
 
   @override
   Map<String, dynamic> buildQueryParams(int page, int limit) {
@@ -28,6 +31,7 @@ class SubscriptionVideoRepository extends ExtendedLoadingMoreBase<Video> {
         params: params,
         page: page,
         limit: limit,
+        site: site,
       );
 
       if (result.isSuccess && result.data != null) {
