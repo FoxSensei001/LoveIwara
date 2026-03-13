@@ -83,9 +83,8 @@ class LoadingStateWidget extends StatelessWidget {
       case VideoDetailPageLoadingState.addingListeners:
         return slang.t.videoDetail.skeleton.addingListeners;
       case VideoDetailPageLoadingState.successFecthVideoDurationInfo:
-        return slang.t.videoDetail.skeleton.successFecthVideoDurationInfo;
       case VideoDetailPageLoadingState.successFecthVideoHeightInfo:
-        return slang.t.videoDetail.skeleton.successFecthVideoHeightInfo;
+        return '';
       case VideoDetailPageLoadingState.playerError:
         return controller.videoErrorMessage.value ??
             slang.t.videoDetail.skeleton.loadingVideo;

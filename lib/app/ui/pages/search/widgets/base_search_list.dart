@@ -85,6 +85,16 @@ abstract class BaseSearchListState<
   /// 构建单个列表项
   Widget buildListItem(BuildContext context, T item, int index);
 
+  /// 构建单个列表项（可选携带当前可见列表快照）
+  Widget buildListItemWithVisibleItems(
+    BuildContext context,
+    T item,
+    int index,
+    List<T> visibleItems,
+  ) {
+    return buildListItem(context, item, index);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MediaListView<T>(
@@ -94,6 +104,7 @@ abstract class BaseSearchListState<
       scrollController: _scrollController,
       showBottomPadding: true, // 搜索页面使用默认值 true
       itemBuilder: buildListItem,
+      itemBuilderWithVisibleItems: buildListItemWithVisibleItems,
     );
   }
 }

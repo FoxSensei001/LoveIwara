@@ -31,6 +31,13 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
+            <!-- Let app_links/DeepLinkService own cold-start deeplink handling.
+                 If Flutter consumes the VIEW intent as the initial route, the
+                 detail page becomes the only in-app route and Back exits to
+                 launcher instead of returning to home first. -->
+            <meta-data
+                android:name="flutter_deeplinking_enabled"
+                android:value="false" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

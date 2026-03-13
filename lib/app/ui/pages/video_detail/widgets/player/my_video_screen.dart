@@ -393,8 +393,28 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     });
   }
 
+  InnerPlaylistContext? get _effectiveInnerPlaylistContext {
+    final context = widget.innerPlaylistContext;
+    final currentVideo = widget.myVideoStateController.videoInfo.value;
+    if (context == null || currentVideo == null) {
+      return context;
+    }
+
+    final liked = currentVideo.liked;
+    final numLikes = currentVideo.numLikes;
+    if (liked == null || numLikes == null) {
+      return context;
+    }
+
+    return context.copyWithVideoLikeState(
+      videoId: currentVideo.id,
+      liked: liked,
+      numLikes: numLikes,
+    );
+  }
+
   List<InnerPlaylistItemSnapshot> get _orderedInnerPlaylistItems {
-    return widget.innerPlaylistContext?.itemsStartingAfterCurrent() ??
+    return _effectiveInnerPlaylistContext?.itemsStartingAfterCurrent() ??
         const <InnerPlaylistItemSnapshot>[];
   }
 
@@ -483,7 +503,9 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     }
 
     final targetVideo = result.data!;
-    final nextContext = widget.innerPlaylistContext?.copyForSelection(item.id);
+    final nextContext = _effectiveInnerPlaylistContext?.copyForSelection(
+      item.id,
+    );
 
     try {
       late final Future<Object?> navigationFuture;
@@ -675,18 +697,10 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                       padding: EdgeInsets.only(top: paddingTop),
                       child: Obx(() {
                         final controller = widget.myVideoStateController;
-                        final hasVideoInfo =
-                            controller.isLocalVideoMode ||
-                            controller.videoInfo.value != null;
                         final showInitialPlaybackCover =
                             controller.shouldShowInitialPlaybackCover;
-                        final showInitialPlaybackLoadingChrome =
-                            showInitialPlaybackCover &&
-                            controller.isWaitingForInitialPlaybackStart;
                         final showPlaybackChrome =
-                            hasVideoInfo &&
-                            (!showInitialPlaybackCover ||
-                                showInitialPlaybackLoadingChrome);
+                            controller.shouldShowPlaybackChrome;
 
                         return Stack(
                           children: [
@@ -707,24 +721,22 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                               playPauseIconSize,
                               bufferingSize,
                             ),
-                            if (!hasVideoInfo ||
-                                (showInitialPlaybackCover &&
-                                    !showInitialPlaybackLoadingChrome))
+                            if (controller.shouldShowLoadingBackButton)
                               _buildLoadingBackButton(),
                             // InfoMessage 提示区域
-                            if (hasVideoInfo && !showInitialPlaybackCover)
+                            if (controller.shouldShowOverlayHud)
                               _buildInfoMessage(),
                             // 播放速度信息提示（左下角）
-                            if (hasVideoInfo && !showInitialPlaybackCover)
+                            if (controller.shouldShowOverlayHud)
                               _buildPlaybackSpeedInfoMessage(),
                             // 添加底部进度条
-                            if (hasVideoInfo && !showInitialPlaybackCover)
+                            if (controller.shouldShowOverlayHud)
                               _buildBottomProgressBar(),
                             // 添加遮罩层
                             if (showPlaybackChrome) _buildMaskLayer(),
                             // 添加锁定按钮
                             if (showPlaybackChrome) _buildLockButton(),
-                            if (hasVideoInfo && !showInitialPlaybackCover)
+                            if (controller.shouldShowOverlayHud)
                               _buildInnerPlaylistOverlay(screenSize),
                           ],
                         );
@@ -1232,54 +1244,34 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     double bufferingSize,
   ) {
     final controller = widget.myVideoStateController;
-
-    // 如果视频源有错误，显示错误状态
-    if (controller.videoSourceErrorMessage.value != null) {
-      return Center(
-        child: ErrorStateWidget(
-          controller: controller,
-          size: playPauseIconSize,
-        ),
-      );
-    }
-
-    final isLoadingVideoInfo =
-        !controller.isLocalVideoMode &&
-        controller.videoInfo.value == null &&
-        (controller.pageLoadingState.value ==
-                VideoDetailPageLoadingState.loadingVideoInfo ||
-            controller.pageLoadingState.value ==
-                VideoDetailPageLoadingState.init);
-    if (isLoadingVideoInfo) {
-      return Center(child: _buildCenterOnlySpinner(playPauseIconSize));
-    }
-
-    if (controller.shouldShowInitialPlaybackCover) {
-      if (controller.isWaitingForInitialPlaybackStart) {
+    switch (controller.centerOverlayState) {
+      case VideoCenterOverlayState.sourceError:
+        return Center(
+          child: ErrorStateWidget(
+            controller: controller,
+            size: playPauseIconSize,
+          ),
+        );
+      case VideoCenterOverlayState.loadingVideoInfo:
+        return Center(child: _buildCenterOnlySpinner(playPauseIconSize));
+      case VideoCenterOverlayState.initialPlaybackCover:
+        return const SizedBox.shrink();
+      case VideoCenterOverlayState.initialPlaybackLoading:
+      case VideoCenterOverlayState.preparingPlayer:
         return Center(
           child: LoadingStateWidget(
             controller: controller,
             size: playPauseIconSize,
           ),
         );
-      }
-      return const SizedBox.shrink();
+      case VideoCenterOverlayState.seeking:
+      case VideoCenterOverlayState.rebufferingWhilePlaying:
+        return Center(child: _buildBufferingAnimation(controller, bufferingSize));
+      case VideoCenterOverlayState.playbackControls:
+        return Center(
+          child: _buildPlayPauseIcon(controller, playPauseIconSize),
+        );
     }
-
-    // 如果播放器未准备好，显示加载状态
-    if (!controller.videoPlayerReady.value) {
-      return Center(
-        child: LoadingStateWidget(
-          controller: controller,
-          size: playPauseIconSize,
-        ),
-      );
-    }
-
-    // 正常状态：显示缓冲动画或播放/暂停按钮
-    return controller.videoBuffering.value
-        ? Center(child: _buildBufferingAnimation(controller, bufferingSize))
-        : Center(child: _buildPlayPauseIcon(controller, playPauseIconSize));
   }
 
   Widget _buildCenterOnlySpinner(double size) {

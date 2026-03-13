@@ -610,30 +610,10 @@ class BottomToolbar extends StatelessWidget {
           return result.isSuccess;
         },
         onLikeChanged: (liked) {
-          final updatedLikeCount =
-              (myVideoStateController.videoInfo.value?.numLikes ?? 0) +
-              (liked ? 1 : -1);
-          final normalizedLikeCount = updatedLikeCount < 0
-              ? 0
-              : updatedLikeCount;
-          myVideoStateController.videoInfo.value = myVideoStateController
-              .videoInfo
-              .value
-              ?.copyWith(liked: liked, numLikes: normalizedLikeCount);
-          // 更新缓存中的点赞信息
-          myVideoStateController.updateCachedVideoLikeInfo(
-            videoInfo.id,
-            liked,
-            normalizedLikeCount,
+          myVideoStateController.applyVideoLikeState(
+            videoId: videoInfo.id,
+            liked: liked,
           );
-          try {
-            myVideoStateController.extData?[NaviService
-                    .mediaLikePatchLikedKey] =
-                liked;
-            myVideoStateController.extData?[NaviService
-                    .mediaLikePatchCountKey] =
-                normalizedLikeCount;
-          } catch (_) {}
         },
       );
     });

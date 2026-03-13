@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
@@ -156,6 +157,44 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
         _tabBarScrollController.jumpTo(newOffset);
       }
     }
+  }
+
+  Future<void> _copyAuthorName(String authorName) async {
+    final normalizedName = authorName.trim();
+    if (normalizedName.isEmpty) {
+      return;
+    }
+
+    await Clipboard.setData(ClipboardData(text: normalizedName));
+    if (!mounted) {
+      return;
+    }
+    showToastWidget(
+      MDToastWidget(
+        message: slang.t.logViewer.copiedToClipboard,
+        type: MDToastType.success,
+      ),
+      position: ToastPosition.bottom,
+    );
+  }
+
+  Future<void> _copyUsername(String username) async {
+    final normalizedUsername = username.trim();
+    if (normalizedUsername.isEmpty) {
+      return;
+    }
+
+    await Clipboard.setData(ClipboardData(text: normalizedUsername));
+    if (!mounted) {
+      return;
+    }
+    showToastWidget(
+      MDToastWidget(
+        message: slang.t.personalProfile.usernameCopied,
+        type: MDToastType.success,
+      ),
+      position: ToastPosition.bottom,
+    );
   }
 
   void showCommentModal(BuildContext context) {
@@ -732,11 +771,18 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                               if (user == null) {
                                 return const SizedBox.shrink();
                               }
-                              return buildUserName(
-                                context,
-                                user,
-                                fontSize: isNarrowScreen ? 20 : 24,
-                                bold: true,
+                              return MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () => _copyAuthorName(user.name),
+                                  child: buildUserName(
+                                    context,
+                                    user,
+                                    fontSize: isNarrowScreen ? 20 : 24,
+                                    bold: true,
+                                  ),
+                                ),
                               );
                             }),
                             const SizedBox(height: 8),
@@ -750,17 +796,24 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                                   final username =
                                       profileController.author.value?.username;
                                   if (username != null && username.isNotEmpty) {
-                                    return SelectableText(
-                                      '@$username',
-                                      style: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: isNarrowScreen
-                                            ? Theme.of(
-                                                context,
-                                              ).textTheme.bodySmall?.fontSize
-                                            : Theme.of(
-                                                context,
-                                              ).textTheme.bodyMedium?.fontSize,
+                                    return MouseRegion(
+                                      cursor: SystemMouseCursors.click,
+                                      child: GestureDetector(
+                                        behavior: HitTestBehavior.opaque,
+                                        onTap: () => _copyUsername(username),
+                                        child: Text(
+                                          '@$username',
+                                          style: TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: isNarrowScreen
+                                                ? Theme.of(
+                                                    context,
+                                                  ).textTheme.bodySmall?.fontSize
+                                                : Theme.of(
+                                                    context,
+                                                  ).textTheme.bodyMedium?.fontSize,
+                                          ),
+                                        ),
                                       ),
                                     );
                                   } else {

@@ -170,6 +170,13 @@ abstract class ExtendedLoadingMoreBase<T> extends LoadingMoreBase<T> {
 class MediaListView<T> extends StatefulWidget {
   final LoadingMoreBase<T> sourceList;
   final Widget Function(BuildContext context, T item, int index) itemBuilder;
+  final Widget Function(
+    BuildContext context,
+    T item,
+    int index,
+    List<T> visibleItems,
+  )?
+  itemBuilderWithVisibleItems;
   final IconData? emptyIcon;
   final bool isPaginated;
   final ExtendedListDelegate? extendedListDelegate;
@@ -189,6 +196,7 @@ class MediaListView<T> extends StatefulWidget {
     super.key,
     required this.sourceList,
     required this.itemBuilder,
+    this.itemBuilderWithVisibleItems,
     this.emptyIcon,
     this.isPaginated = false,
     this.extendedListDelegate,
@@ -642,7 +650,16 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                   crossAxisSpacing: MediaLayoutUtils.crossAxisSpacing,
                   mainAxisSpacing: MediaLayoutUtils.mainAxisSpacing,
                 ),
-            itemBuilder: widget.itemBuilder,
+            itemBuilder: (context, item, index) {
+              final visibleItems = List<T>.of(widget.sourceList.cast<T>());
+              return widget.itemBuilderWithVisibleItems?.call(
+                    context,
+                    item,
+                    index,
+                    visibleItems,
+                  ) ??
+                  widget.itemBuilder(context, item, index);
+            },
             sourceList: widget.sourceList,
             padding: EdgeInsets.only(
               top: widget.paddingTop,
@@ -841,6 +858,12 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
           sliver: SliverWaterfallFlow(
             delegate: SliverChildBuilderDelegate(
               (context, index) =>
+                  widget.itemBuilderWithVisibleItems?.call(
+                    context,
+                    paginatedItems[index],
+                    index,
+                    List<T>.of(paginatedItems),
+                  ) ??
                   widget.itemBuilder(context, paginatedItems[index], index),
               childCount: paginatedItems.length,
             ),

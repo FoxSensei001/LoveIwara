@@ -7,6 +7,7 @@ enum InnerPlaylistSource {
   favoritesVideoList,
   playlistDetail,
   popularVideoList,
+  searchResultVideoList,
   relatedVideosTab,
   subscriptionVideoList,
 }
@@ -51,6 +52,34 @@ class InnerPlaylistItemSnapshot {
       isExternalVideo: video.isExternalVideo,
       externalVideoDomain: video.externalVideoDomain,
       createdAt: video.createdAt,
+    );
+  }
+
+  InnerPlaylistItemSnapshot copyWith({
+    String? id,
+    String? title,
+    String? thumbnailUrl,
+    int? numViews,
+    int? numLikes,
+    int? numComments,
+    bool? liked,
+    bool? isPrivate,
+    bool? isExternalVideo,
+    String? externalVideoDomain,
+    DateTime? createdAt,
+  }) {
+    return InnerPlaylistItemSnapshot(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
+      numViews: numViews ?? this.numViews,
+      numLikes: numLikes ?? this.numLikes,
+      numComments: numComments ?? this.numComments,
+      liked: liked ?? this.liked,
+      isPrivate: isPrivate ?? this.isPrivate,
+      isExternalVideo: isExternalVideo ?? this.isExternalVideo,
+      externalVideoDomain: externalVideoDomain ?? this.externalVideoDomain,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 }
@@ -109,6 +138,34 @@ class InnerPlaylistContext {
       source: source ?? this.source,
       items: items ?? this.items,
       currentVideoId: currentVideoId ?? this.currentVideoId,
+    );
+  }
+
+  InnerPlaylistContext copyWithVideoLikeState({
+    required String videoId,
+    required bool liked,
+    required int numLikes,
+  }) {
+    final normalizedVideoId = videoId.trim();
+    if (normalizedVideoId.isEmpty) {
+      return this;
+    }
+
+    var changed = false;
+    final patchedItems = items.map((item) {
+      if (item.id.trim() != normalizedVideoId) {
+        return item;
+      }
+      changed = true;
+      return item.copyWith(liked: liked, numLikes: numLikes);
+    }).toList(growable: false);
+
+    if (!changed) {
+      return this;
+    }
+
+    return copyWith(
+      items: List<InnerPlaylistItemSnapshot>.unmodifiable(patchedItems),
     );
   }
 

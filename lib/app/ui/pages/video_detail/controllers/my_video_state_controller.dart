@@ -66,6 +66,17 @@ enum VideoDetailPageLoadingState {
   playerError, // 播放器错误
 }
 
+enum VideoCenterOverlayState {
+  sourceError,
+  loadingVideoInfo,
+  initialPlaybackCover,
+  initialPlaybackLoading,
+  preparingPlayer,
+  seeking,
+  rebufferingWhilePlaying,
+  playbackControls,
+}
+
 class MyVideoStateController extends GetxController
     with GetSingleTickerProviderStateMixin, WidgetsBindingObserver {
   final String? videoId;
@@ -802,6 +813,36 @@ class MyVideoStateController extends GetxController
   bool get isWaitingForInitialPlaybackStart =>
       shouldShowInitialPlaybackCover && hasRequestedInitialPlayback.value;
 
+  bool get hasVideoInfoForPlaybackUi =>
+      isLocalVideoMode || videoInfo.value != null;
+
+  bool get shouldShowInitialPlaybackLoadingChrome =>
+      shouldShowInitialPlaybackCover && isWaitingForInitialPlaybackStart;
+
+  bool get shouldShowPlaybackChrome =>
+      hasVideoInfoForPlaybackUi &&
+      (!shouldShowInitialPlaybackCover || shouldShowInitialPlaybackLoadingChrome);
+
+  bool get shouldShowLoadingBackButton =>
+      !hasVideoInfoForPlaybackUi ||
+      (shouldShowInitialPlaybackCover && !shouldShowInitialPlaybackLoadingChrome);
+
+  bool get shouldShowOverlayHud =>
+      hasVideoInfoForPlaybackUi && !shouldShowInitialPlaybackCover;
+
+  VideoCenterOverlayState get centerOverlayState => resolveCenterOverlayState(
+    hasVideoSourceError: videoSourceErrorMessage.value != null,
+    isLocalVideoMode: isLocalVideoMode,
+    hasVideoInfo: videoInfo.value != null,
+    pageLoadingState: pageLoadingState.value,
+    shouldShowInitialPlaybackCover: shouldShowInitialPlaybackCover,
+    isWaitingForInitialPlaybackStart: isWaitingForInitialPlaybackStart,
+    videoPlayerReady: videoPlayerReady.value,
+    isWaitingForSeek: isWaitingForSeek.value,
+    videoBuffering: videoBuffering.value,
+    videoPlaying: videoPlaying.value,
+  );
+
   Future<void> requestInitialPlayback() async {
     if (_isDisposed ||
         isLocalVideoMode ||
@@ -884,6 +925,53 @@ class MyVideoStateController extends GetxController
       shouldOpenPlayer: shouldOpenPlayer,
       nextPendingRequest: shouldOpenPlayer ? false : requestedByPendingCall,
     );
+  }
+
+  @visibleForTesting
+  static VideoCenterOverlayState resolveCenterOverlayState({
+    required bool hasVideoSourceError,
+    required bool isLocalVideoMode,
+    required bool hasVideoInfo,
+    required VideoDetailPageLoadingState pageLoadingState,
+    required bool shouldShowInitialPlaybackCover,
+    required bool isWaitingForInitialPlaybackStart,
+    required bool videoPlayerReady,
+    required bool isWaitingForSeek,
+    required bool videoBuffering,
+    required bool videoPlaying,
+  }) {
+    if (hasVideoSourceError) {
+      return VideoCenterOverlayState.sourceError;
+    }
+
+    final isLoadingVideoInfo =
+        !isLocalVideoMode &&
+        !hasVideoInfo &&
+        (pageLoadingState == VideoDetailPageLoadingState.loadingVideoInfo ||
+            pageLoadingState == VideoDetailPageLoadingState.init);
+    if (isLoadingVideoInfo) {
+      return VideoCenterOverlayState.loadingVideoInfo;
+    }
+
+    if (shouldShowInitialPlaybackCover) {
+      return isWaitingForInitialPlaybackStart
+          ? VideoCenterOverlayState.initialPlaybackLoading
+          : VideoCenterOverlayState.initialPlaybackCover;
+    }
+
+    if (!videoPlayerReady) {
+      return VideoCenterOverlayState.preparingPlayer;
+    }
+
+    if (isWaitingForSeek) {
+      return VideoCenterOverlayState.seeking;
+    }
+
+    if (videoBuffering && videoPlaying) {
+      return VideoCenterOverlayState.rebufferingWhilePlaying;
+    }
+
+    return VideoCenterOverlayState.playbackControls;
   }
 
   bool _consumeOpenPlayerAfterVideoSourceFetchRequest({
@@ -3851,6 +3939,33 @@ class MyVideoStateController extends GetxController
       'liked': liked,
       'numLikes': numLikes,
     });
+  }
+
+  /// 点赞状态变化后的统一处理，确保当前详情页、缓存和返回列表补丁保持一致。
+  int applyVideoLikeState({
+    required String videoId,
+    required bool liked,
+  }) {
+    final currentVideo = videoInfo.value;
+    final baseLikeCount = currentVideo?.numLikes ?? 0;
+    final updatedLikeCount = baseLikeCount + (liked ? 1 : -1);
+    final normalizedLikeCount = updatedLikeCount < 0 ? 0 : updatedLikeCount;
+
+    if (currentVideo != null && currentVideo.id == videoId) {
+      videoInfo.value = currentVideo.copyWith(
+        liked: liked,
+        numLikes: normalizedLikeCount,
+      );
+    }
+
+    updateCachedVideoLikeInfo(videoId, liked, normalizedLikeCount);
+
+    try {
+      extData?[NaviService.mediaLikePatchLikedKey] = liked;
+      extData?[NaviService.mediaLikePatchCountKey] = normalizedLikeCount;
+    } catch (_) {}
+
+    return normalizedLikeCount;
   }
 
   /// 更新缓存中的作者信息（关注/取关后调用）

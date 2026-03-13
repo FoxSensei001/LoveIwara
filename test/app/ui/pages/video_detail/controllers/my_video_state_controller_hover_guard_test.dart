@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 
 void main() {
@@ -161,6 +162,191 @@ void main() {
 
       expect(decision.shouldOpenPlayer, isTrue);
       expect(decision.nextPendingRequest, isFalse);
+    });
+  });
+
+  group('MyVideoStateController.resolveCenterOverlayState', () {
+    test('returns loadingVideoInfo before remote video info is fetched', () {
+      expect(
+        MyVideoStateController.resolveCenterOverlayState(
+          hasVideoSourceError: false,
+          isLocalVideoMode: false,
+          hasVideoInfo: false,
+          pageLoadingState: VideoDetailPageLoadingState.loadingVideoInfo,
+          shouldShowInitialPlaybackCover: false,
+          isWaitingForInitialPlaybackStart: false,
+          videoPlayerReady: false,
+          isWaitingForSeek: false,
+          videoBuffering: true,
+          videoPlaying: true,
+        ),
+        VideoCenterOverlayState.loadingVideoInfo,
+      );
+    });
+
+    test('returns initialPlaybackCover before user starts deferred playback', () {
+      expect(
+        MyVideoStateController.resolveCenterOverlayState(
+          hasVideoSourceError: false,
+          isLocalVideoMode: false,
+          hasVideoInfo: true,
+          pageLoadingState: VideoDetailPageLoadingState.idle,
+          shouldShowInitialPlaybackCover: true,
+          isWaitingForInitialPlaybackStart: false,
+          videoPlayerReady: false,
+          isWaitingForSeek: false,
+          videoBuffering: false,
+          videoPlaying: false,
+        ),
+        VideoCenterOverlayState.initialPlaybackCover,
+      );
+    });
+
+    test('returns initialPlaybackLoading while deferred playback is starting', () {
+      expect(
+        MyVideoStateController.resolveCenterOverlayState(
+          hasVideoSourceError: false,
+          isLocalVideoMode: false,
+          hasVideoInfo: true,
+          pageLoadingState: VideoDetailPageLoadingState.loadingVideoSource,
+          shouldShowInitialPlaybackCover: true,
+          isWaitingForInitialPlaybackStart: true,
+          videoPlayerReady: false,
+          isWaitingForSeek: false,
+          videoBuffering: true,
+          videoPlaying: true,
+        ),
+        VideoCenterOverlayState.initialPlaybackLoading,
+      );
+    });
+
+    test('returns rebufferingWhilePlaying only while playback is active', () {
+      expect(
+        MyVideoStateController.resolveCenterOverlayState(
+          hasVideoSourceError: false,
+          isLocalVideoMode: false,
+          hasVideoInfo: true,
+          pageLoadingState: VideoDetailPageLoadingState.idle,
+          shouldShowInitialPlaybackCover: false,
+          isWaitingForInitialPlaybackStart: false,
+          videoPlayerReady: true,
+          isWaitingForSeek: false,
+          videoBuffering: true,
+          videoPlaying: true,
+        ),
+        VideoCenterOverlayState.rebufferingWhilePlaying,
+      );
+    });
+
+    test('returns playbackControls when buffering finishes after pause intent', () {
+      expect(
+        MyVideoStateController.resolveCenterOverlayState(
+          hasVideoSourceError: false,
+          isLocalVideoMode: false,
+          hasVideoInfo: true,
+          pageLoadingState: VideoDetailPageLoadingState.idle,
+          shouldShowInitialPlaybackCover: false,
+          isWaitingForInitialPlaybackStart: false,
+          videoPlayerReady: true,
+          isWaitingForSeek: false,
+          videoBuffering: true,
+          videoPlaying: false,
+        ),
+        VideoCenterOverlayState.playbackControls,
+      );
+    });
+
+    test('returns seeking while waiting for seek completion', () {
+      expect(
+        MyVideoStateController.resolveCenterOverlayState(
+          hasVideoSourceError: false,
+          isLocalVideoMode: false,
+          hasVideoInfo: true,
+          pageLoadingState: VideoDetailPageLoadingState.idle,
+          shouldShowInitialPlaybackCover: false,
+          isWaitingForInitialPlaybackStart: false,
+          videoPlayerReady: true,
+          isWaitingForSeek: true,
+          videoBuffering: false,
+          videoPlaying: true,
+        ),
+        VideoCenterOverlayState.seeking,
+      );
+    });
+  });
+
+  group('InnerPlaylistContext.copyWithVideoLikeState', () {
+    test('patches matching snapshot like fields only', () {
+      const context = InnerPlaylistContext(
+        source: InnerPlaylistSource.popularVideoList,
+        currentVideoId: 'video-1',
+        items: [
+          InnerPlaylistItemSnapshot(
+            id: 'video-1',
+            title: 'One',
+            thumbnailUrl: 'thumb-1',
+            numViews: 10,
+            numLikes: 1,
+            numComments: 2,
+            liked: false,
+            isPrivate: false,
+            isExternalVideo: false,
+            externalVideoDomain: '',
+          ),
+          InnerPlaylistItemSnapshot(
+            id: 'video-2',
+            title: 'Two',
+            thumbnailUrl: 'thumb-2',
+            numViews: 20,
+            numLikes: 5,
+            numComments: 3,
+            liked: true,
+            isPrivate: false,
+            isExternalVideo: false,
+            externalVideoDomain: '',
+          ),
+        ],
+      );
+
+      final patched = context.copyWithVideoLikeState(
+        videoId: 'video-1',
+        liked: true,
+        numLikes: 99,
+      );
+
+      expect(patched.items.first.liked, isTrue);
+      expect(patched.items.first.numLikes, 99);
+      expect(patched.items.last.liked, isTrue);
+      expect(patched.items.last.numLikes, 5);
+    });
+
+    test('returns original context when target video is absent', () {
+      const context = InnerPlaylistContext(
+        source: InnerPlaylistSource.popularVideoList,
+        currentVideoId: 'video-1',
+        items: [
+          InnerPlaylistItemSnapshot(
+            id: 'video-1',
+            title: 'One',
+            thumbnailUrl: 'thumb-1',
+            numViews: 10,
+            numLikes: 1,
+            numComments: 2,
+            liked: false,
+            isPrivate: false,
+            isExternalVideo: false,
+            externalVideoDomain: '',
+          ),
+        ],
+      );
+
+      final patched = context.copyWithVideoLikeState(
+        videoId: 'video-404',
+        liked: true,
+        numLikes: 8,
+      );
+
+      expect(identical(patched, context), isTrue);
     });
   });
 }

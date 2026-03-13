@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
+import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/oreno3d_video.model.dart';
 import 'package:i_iwara/app/models/play_list.model.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/thread_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/post_card_list_item_widget.dart';
@@ -51,11 +53,29 @@ class VideoSearchListState
   IconData get emptyIcon => Icons.video_library_outlined;
 
   @override
-  Widget buildListItem(BuildContext context, Video video, int index) {
+  Widget buildListItem(BuildContext context, Video item, int index) {
+    return buildListItemWithVisibleItems(context, item, index, const <Video>[]);
+  }
+
+  @override
+  Widget buildListItemWithVisibleItems(
+    BuildContext context,
+    Video item,
+    int index,
+    List<Video> visibleItems,
+  ) {
     final screenWidth = MediaQuery.of(context).size.width;
     final itemWidth = screenWidth <= 600
         ? (screenWidth - 8) / 2
         : (screenWidth - 24) / 3;
+
+    final innerPlaylistContext = visibleItems.isEmpty
+        ? null
+        : InnerPlaylistContext.fromVideos(
+            source: InnerPlaylistSource.searchResultVideoList,
+            videos: visibleItems,
+            currentVideoId: item.id,
+          );
 
     return Obx(() {
       return Padding(
@@ -64,11 +84,18 @@ class VideoSearchListState
           vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
         ),
         child: VideoCardListItemWidget(
-          video: video,
+          video: item,
           width: itemWidth,
           isMultiSelectMode: widget.isMultiSelectMode,
-          isSelected: widget.selectedItemIds.contains(video.id),
-          onSelect: () => widget.onItemSelect?.call(video),
+          isSelected: widget.selectedItemIds.contains(item.id),
+          onSelect: () => widget.onItemSelect?.call(item),
+          onOpenVideo: ({required videoId, Map<String, dynamic>? extData}) async {
+            await NaviService.navigateToVideoDetailPage(
+              videoId,
+              extData: extData,
+              innerPlaylistContext: innerPlaylistContext,
+            );
+          },
         ),
       );
     });
