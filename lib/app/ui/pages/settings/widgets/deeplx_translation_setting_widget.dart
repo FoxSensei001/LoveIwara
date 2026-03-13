@@ -111,6 +111,10 @@ class _DeepLXTranslationSettingsWidgetState
       _dlSessionController.text.trim(),
     );
 
+    if (!mounted) {
+      return;
+    }
+
     // Update state based on test result
     setState(() {
       _testResult = result.data;

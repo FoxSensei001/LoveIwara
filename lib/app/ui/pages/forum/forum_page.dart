@@ -1318,15 +1318,9 @@ class _ForumPageState extends State<ForumPage> {
           ),
           // 子分类列表
           if (isWideScreen) _buildWideSubCategoryHeaderRow(context),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: category.children.length,
-            padding: EdgeInsets.zero,
-            separatorBuilder: (context, index) => const Divider(height: 1),
-            itemBuilder: (context, index) {
-              final subCategory = category.children[index];
-              // 传递 isNarrowTabLayout 参数给子项构建函数
+          ..._buildSeparatedChildren<ForumCategoryModel>(
+            items: category.children,
+            itemBuilder: (subCategory, index) {
               return _buildSubCategoryTile(
                 subCategory,
                 context,
@@ -1788,6 +1782,23 @@ class _ForumPageState extends State<ForumPage> {
     }
   }
 
+  List<Widget> _buildSeparatedChildren<T>({
+    required List<T> items,
+    required Widget Function(T item, int index) itemBuilder,
+    Widget separator = const Divider(height: 1),
+  }) {
+    if (items.isEmpty) {
+      return const [];
+    }
+
+    return [
+      for (int index = 0; index < items.length; index++) ...[
+        itemBuilder(items[index], index),
+        if (index < items.length - 1) separator,
+      ],
+    ];
+  }
+
   Widget _buildStickyAnnouncementsSection() {
     final t = slang.Translations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
@@ -1829,14 +1840,9 @@ class _ForumPageState extends State<ForumPage> {
             ),
           ),
           const Divider(height: 1),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.zero,
-            itemCount: _stickyAnnouncements.length,
-            separatorBuilder: (context, index) => const Divider(height: 1),
-            itemBuilder: (context, index) {
-              final announcement = _stickyAnnouncements[index];
+          ..._buildSeparatedChildren<ForumThreadModel>(
+            items: _stickyAnnouncements,
+            itemBuilder: (announcement, index) {
               return InkWell(
                 onTap: () {
                   NaviService.navigateToForumThreadDetailPage(

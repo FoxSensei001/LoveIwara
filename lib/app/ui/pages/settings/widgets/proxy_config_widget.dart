@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -31,7 +33,8 @@ class ProxyConfigWidget extends BaseProxyWidget {
   });
 
   @override
-  BaseProxyWidgetState<ProxyConfigWidget> createState() => _ProxyConfigWidgetState();
+  BaseProxyWidgetState<ProxyConfigWidget> createState() =>
+      _ProxyConfigWidgetState();
 }
 
 class _ProxyConfigWidgetState extends BaseProxyWidgetState<ProxyConfigWidget> {
@@ -48,7 +51,7 @@ class _ProxyConfigWidgetState extends BaseProxyWidgetState<ProxyConfigWidget> {
       final bool isEnabled = isProxyEnabled.value;
       final String url = proxyController.text.trim();
       if (isDesktop && !isEnabled && url.isEmpty && !_systemProxyChecked) {
-        _detectSystemProxyCandidate();
+        unawaited(_detectSystemProxyCandidate());
       }
     });
   }
@@ -56,10 +59,13 @@ class _ProxyConfigWidgetState extends BaseProxyWidgetState<ProxyConfigWidget> {
   @override
   ConfigService get configService => widget.configService;
 
-  void _detectSystemProxyCandidate() {
+  Future<void> _detectSystemProxyCandidate() async {
     _systemProxyChecked = true;
     try {
-      final ProxySettings settings = ProxyUtil.getProxySettings();
+      final ProxySettings settings = await ProxyUtil.getProxySettingsAsync();
+      if (!mounted) {
+        return;
+      }
       if (settings.enabled && (settings.server?.trim().isNotEmpty ?? false)) {
         final String? candidate = _extractPreferredProxy(settings.server!);
         if (candidate != null && candidate.isNotEmpty) {
@@ -173,8 +179,16 @@ class _ProxyConfigWidgetState extends BaseProxyWidgetState<ProxyConfigWidget> {
                             position: ToastPosition.top,
                           );
                         },
-                        icon: Icon(Icons.copy, color: theme.colorScheme.onSecondaryContainer),
-                        label: Text(t.proxyHelper.copy, style: TextStyle(color: theme.colorScheme.onSecondaryContainer)),
+                        icon: Icon(
+                          Icons.copy,
+                          color: theme.colorScheme.onSecondaryContainer,
+                        ),
+                        label: Text(
+                          t.proxyHelper.copy,
+                          style: TextStyle(
+                            color: theme.colorScheme.onSecondaryContainer,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -194,7 +208,9 @@ class _ProxyConfigWidgetState extends BaseProxyWidgetState<ProxyConfigWidget> {
                     children: [
                       Icon(
                         Icons.info_outline,
-                        color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : null,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -222,7 +238,8 @@ class _ProxyConfigWidgetState extends BaseProxyWidgetState<ProxyConfigWidget> {
                   return t.settings.proxyAddressCannotBeEmpty;
                 }
                 if (!isValidProxyAddress(value)) {
-                  return t.settings
+                  return t
+                      .settings
                       .invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort;
                 }
                 return null;
@@ -234,11 +251,16 @@ class _ProxyConfigWidgetState extends BaseProxyWidgetState<ProxyConfigWidget> {
                   setFlutterEngineProxy(value.trim());
                 }
               },
-              icon:
-                  Icon(Icons.computer, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null),
+              icon: Icon(
+                Icons.computer,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white
+                    : null,
+              ),
               splitTwoLine: true,
               inputDecoration: InputDecoration(
-                hintText: t.settings
+                hintText: t
+                    .settings
                     .pleaseEnterTheUrlOfTheProxyServerForExample1270018080,
                 border: const OutlineInputBorder(),
               ),
@@ -263,7 +285,9 @@ class _ProxyConfigWidgetState extends BaseProxyWidgetState<ProxyConfigWidget> {
                 children: [
                   Icon(
                     Icons.vpn_key,
-                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : null,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -274,27 +298,30 @@ class _ProxyConfigWidgetState extends BaseProxyWidgetState<ProxyConfigWidget> {
                       ),
                     ),
                   ),
-                  Obx(() => Switch(
-                        value: isProxyEnabled.value,
-                        onChanged: (value) {
-                          LogUtils.d(
-                              '启用代理: $value, 代理地址: ${configService[ConfigKey.PROXY_URL]}',
-                              BaseProxyWidgetState.tag);
-                          isProxyEnabled.value = value;
-                          configService[ConfigKey.USE_PROXY] = value;
-                          if (value) {
-                            setFlutterEngineProxy(proxyController.text.trim());
-                            LogUtils.i('代理已启用', BaseProxyWidgetState.tag);
-                          } else {
-                            setFlutterEngineProxy(proxyController.text.trim());
-                            LogUtils.i(
-                              '代理已禁用（重启后生效）',
-                              BaseProxyWidgetState.tag,
-                            );
-                          }
-                        },
-                        activeThumbColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
-                      )),
+                  Obx(
+                    () => Switch(
+                      value: isProxyEnabled.value,
+                      onChanged: (value) {
+                        LogUtils.d(
+                          '启用代理: $value, 代理地址: ${configService[ConfigKey.PROXY_URL]}',
+                          BaseProxyWidgetState.tag,
+                        );
+                        isProxyEnabled.value = value;
+                        configService[ConfigKey.USE_PROXY] = value;
+                        if (value) {
+                          setFlutterEngineProxy(proxyController.text.trim());
+                          LogUtils.i('代理已启用', BaseProxyWidgetState.tag);
+                        } else {
+                          setFlutterEngineProxy(proxyController.text.trim());
+                          LogUtils.i('代理已禁用（重启后生效）', BaseProxyWidgetState.tag);
+                        }
+                      },
+                      activeThumbColor:
+                          Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : null,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -309,16 +336,10 @@ class _ProxyConfigWidgetState extends BaseProxyWidgetState<ProxyConfigWidget> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: content,
-            ),
+            child: Padding(padding: const EdgeInsets.all(16), child: content),
           )
         : content;
 
-    return SingleChildScrollView(
-      padding: widget.padding,
-      child: body,
-    );
+    return SingleChildScrollView(padding: widget.padding, child: body);
   }
 }

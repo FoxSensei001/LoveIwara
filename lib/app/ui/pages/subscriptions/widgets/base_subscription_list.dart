@@ -56,9 +56,6 @@ abstract class BaseSubscriptionListState<
   late R repository;
   final ScrollController _scrollController = ScrollController();
 
-  // 缓存机制
-  final Map<String, Widget> _itemCache = {};
-
   // 添加 MediaListController 引用和监听器
   MediaListController? _mediaListController;
 
@@ -110,8 +107,6 @@ abstract class BaseSubscriptionListState<
     if (oldWidget.userId != widget.userId || oldWidget.site != widget.site) {
       repository.dispose();
       repository = createRepository();
-      // 清除缓存
-      _itemCache.clear();
       if (mounted) {
         setState(() {});
       }
@@ -119,8 +114,6 @@ abstract class BaseSubscriptionListState<
 
     // 分页模式变化时刷新并滚动到顶部
     if (oldWidget.isPaginated != widget.isPaginated) {
-      // 清除缓存
-      _itemCache.clear();
       if (mounted) {
         Future.microtask(() {
           refresh();
@@ -133,7 +126,6 @@ abstract class BaseSubscriptionListState<
     // 多选模式、选中的ID列表变化时清除缓存并重建
     if (oldWidget.isMultiSelectMode != widget.isMultiSelectMode ||
         !setEquals(oldWidget.selectedItemIds, widget.selectedItemIds)) {
-      _itemCache.clear();
       if (mounted) {
         setState(() {});
       }
@@ -163,8 +155,6 @@ abstract class BaseSubscriptionListState<
     _scrollController.removeListener(_throttledScrollListener);
     _scrollController.dispose();
     repository.dispose();
-    // 清除缓存
-    _itemCache.clear();
     // 取消该滚动器相关的节流任务
     EasyThrottle.cancel('scroll_${widget.userId}');
     super.dispose();
@@ -181,15 +171,6 @@ abstract class BaseSubscriptionListState<
 
   /// 获取扩展列表代理 - 子类可以重写以自定义布局
   SliverWaterfallFlowDelegate? get extendedListDelegate => null;
-
-  /// 从缓存中获取或构建列表项
-  Widget getCachedListItem(BuildContext context, T item, int index) {
-    final String cacheKey = '${item.hashCode}_$index';
-
-    return _itemCache.putIfAbsent(cacheKey, () {
-      return buildListItem(context, item, index);
-    });
-  }
 
   /// 统一刷新方法
   Future<void> refresh() async {
@@ -210,8 +191,6 @@ abstract class BaseSubscriptionListState<
         LogUtils.e('刷新数据失败', error: e, stack: stack);
       }
     } else {
-      // 清除缓存
-      _itemCache.clear();
       await repository.refresh(true);
       // 滚动到顶部
       _scrollToTop();
@@ -236,8 +215,7 @@ abstract class BaseSubscriptionListState<
       showBottomPadding: widget.showBottomPadding,
       enablePullToRefresh: true, // 启用下拉刷新
       onPageChanged: _mediaListController?.onPageChanged,
-      // 使用缓存机制构建列表项
-      itemBuilder: getCachedListItem,
+      itemBuilder: buildListItem,
     );
 
     return mediaListView;

@@ -7,6 +7,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/services/pop_coordinator.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/services/video_cache_manager.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:i_iwara/utils/easy_throttle.dart';
@@ -60,9 +61,14 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
 
   @override
   void didHaveMemoryPressure() {
-    // StatefulShellRoute.indexedStack preserves branch state automatically.
-    // Memory release is handled by Flutter's framework when branches are rebuilt.
-    LogUtils.d("内存存在压力", "HomeShellScaffold");
+    LogUtils.w('检测到内存压力，开始主动清理缓存', 'HomeShellScaffold');
+
+    final imageCache = PaintingBinding.instance.imageCache;
+    imageCache.clear();
+    imageCache.clearLiveImages();
+
+    VideoCacheManager().clearAll();
+    super.didHaveMemoryPressure();
   }
 
   /// Get the display-ordered list of navigation keys.
@@ -219,66 +225,64 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     // - Delegate to PopCoordinator for unified order:
     //   overlay/drawer -> internal page -> route pop.
     // - At home root: exit immediately.
-    Widget body = Obx(() {
-      // Read showBottomNavi to trigger Obx rebuild when navigation visibility changes
-      // ignore: unused_local_variable
-      final _ = appService.showBottomNavi;
-
-      final bool isAtRoot = _isAtHomeRoot;
-      final ModalRoute<dynamic>? shellRouteInBuild = ModalRoute.of(context);
-      final bool isShellRouteCurrent = shellRouteInBuild?.isCurrent ?? true;
-      final bool canAutoPopInShell = !isAtRoot && isShellRouteCurrent;
-      final bool useManualBackDispatch = GetPlatform.isAndroid;
-      final bool canPopViaNavigator = useManualBackDispatch
-          ? false
-          : canAutoPopInShell;
-      return PopScope(
-        // Android: disable navigator auto-pop and always dispatch by
-        // PopCoordinator to avoid duplicated back dispatch that can pop shell
-        // and root in one gesture.
-        // Other platforms: keep navigator auto-pop behavior.
-        canPop: canPopViaNavigator,
-        onPopInvokedWithResult: (didPop, result) {
-          LogUtils.d(
-            'PopScope: didPop=$didPop, isAtRoot=$isAtRoot, canPop=$canPopViaNavigator, '
-                'manualDispatch=$useManualBackDispatch, routeCurrent=$isShellRouteCurrent, '
-                'rootCanPop=${rootNavigatorKey.currentState?.canPop() ?? false}, '
-                'shellCanPop=${shellNavigatorKey.currentState?.canPop() ?? false}',
-            'HomeShellScaffold',
-          );
-
-          // If a higher-level route has already handled this back action,
-          // do not run fallback pop logic again.
-          if (didPop) return;
-
-          // Shell route is not the top-most active route (e.g. a root-level
-          // fullscreen page is currently covering it), ignore this callback.
-          final shellRoute = ModalRoute.of(context);
-          if (shellRoute != null && !shellRoute.isCurrent) return;
-
-          // If PopCoordinator already consumed this system back (e.g. by popping
-          // a root-level overlay route), ignore this callback to avoid running
-          // fallback logic again in shell.
-          if (PopCoordinator.wasSystemBackConsumedRecently()) {
+    Widget body = Builder(
+      builder: (context) {
+        final bool isAtRoot = _isAtHomeRoot;
+        final ModalRoute<dynamic>? shellRouteInBuild = ModalRoute.of(context);
+        final bool isShellRouteCurrent = shellRouteInBuild?.isCurrent ?? true;
+        final bool canAutoPopInShell = !isAtRoot && isShellRouteCurrent;
+        final bool useManualBackDispatch = GetPlatform.isAndroid;
+        final bool canPopViaNavigator = useManualBackDispatch
+            ? false
+            : canAutoPopInShell;
+        return PopScope(
+          // Android: disable navigator auto-pop and always dispatch by
+          // PopCoordinator to avoid duplicated back dispatch that can pop shell
+          // and root in one gesture.
+          // Other platforms: keep navigator auto-pop behavior.
+          canPop: canPopViaNavigator,
+          onPopInvokedWithResult: (didPop, result) {
             LogUtils.d(
-              'PopScope ignored: recent system back was consumed by PopCoordinator',
+              'PopScope: didPop=$didPop, isAtRoot=$isAtRoot, canPop=$canPopViaNavigator, '
+                  'manualDispatch=$useManualBackDispatch, routeCurrent=$isShellRouteCurrent, '
+                  'rootCanPop=${rootNavigatorKey.currentState?.canPop() ?? false}, '
+                  'shellCanPop=${shellNavigatorKey.currentState?.canPop() ?? false}',
               'HomeShellScaffold',
             );
-            return;
-          }
 
-          // At home root → exit immediately
-          if (isAtRoot) {
-            // Home root: exit immediately (no "press again" confirmation).
-            SystemNavigator.pop();
-            return;
-          }
+            // If a higher-level route has already handled this back action,
+            // do not run fallback pop logic again.
+            if (didPop) return;
 
-          PopCoordinator.handleBack(context);
-        },
-        child: widget.child,
-      );
-    });
+            // Shell route is not the top-most active route (e.g. a root-level
+            // fullscreen page is currently covering it), ignore this callback.
+            final shellRoute = ModalRoute.of(context);
+            if (shellRoute != null && !shellRoute.isCurrent) return;
+
+            // If PopCoordinator already consumed this system back (e.g. by popping
+            // a root-level overlay route), ignore this callback to avoid running
+            // fallback logic again in shell.
+            if (PopCoordinator.wasSystemBackConsumedRecently()) {
+              LogUtils.d(
+                'PopScope ignored: recent system back was consumed by PopCoordinator',
+                'HomeShellScaffold',
+              );
+              return;
+            }
+
+            // At home root → exit immediately
+            if (isAtRoot) {
+              // Home root: exit immediately (no "press again" confirmation).
+              SystemNavigator.pop();
+              return;
+            }
+
+            PopCoordinator.handleBack(context);
+          },
+          child: widget.child,
+        );
+      },
+    );
 
     return Scaffold(
       body: LayoutBuilder(

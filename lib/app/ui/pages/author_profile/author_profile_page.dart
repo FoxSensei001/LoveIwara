@@ -75,6 +75,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
   late TabController videoSecondaryTC;
   late TabController imageSecondaryTC;
   late TabController playlistSecondaryTC;
+  late TabController postSecondaryTC;
   late final BatchSelectController<Video> _videoBatchController;
   late final BatchSelectController<ImageModel> _imageBatchController;
   late String username;
@@ -105,6 +106,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     videoSecondaryTC = TabController(length: 5, vsync: this);
     imageSecondaryTC = TabController(length: 5, vsync: this);
     playlistSecondaryTC = TabController(length: 5, vsync: this);
+    postSecondaryTC = TabController(length: 1, vsync: this);
 
     primaryTC.addListener(_onTabChange);
 
@@ -127,6 +129,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     videoSecondaryTC.dispose();
     imageSecondaryTC.dispose();
     playlistSecondaryTC.dispose();
+    postSecondaryTC.dispose();
     _tabBarScrollController.dispose();
     Get.delete<AuthorProfileController>(tag: uniqueTag);
     Get.delete<BatchSelectController<Video>>(
@@ -806,12 +809,14 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                                           style: TextStyle(
                                             color: Colors.grey,
                                             fontSize: isNarrowScreen
-                                                ? Theme.of(
-                                                    context,
-                                                  ).textTheme.bodySmall?.fontSize
-                                                : Theme.of(
-                                                    context,
-                                                  ).textTheme.bodyMedium?.fontSize,
+                                                ? Theme.of(context)
+                                                      .textTheme
+                                                      .bodySmall
+                                                      ?.fontSize
+                                                : Theme.of(context)
+                                                      .textTheme
+                                                      .bodyMedium
+                                                      ?.fontSize,
                                           ),
                                         ),
                                       ),
@@ -1280,7 +1285,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                             widgetKey: _postListKey,
                             userId: profileController.author.value!.id,
                             tabKey: t.common.post,
-                            tc: TabController(length: 1, vsync: this),
+                            tc: postSecondaryTC,
                           )
                         : const SizedBox.shrink(),
                   ),

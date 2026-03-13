@@ -32,6 +32,7 @@ class TopToolbar extends StatefulWidget {
 
 class _TopToolbarState extends State<TopToolbar> {
   Timer? _timeTimer;
+  Timer? _wifiSignalTimer;
   DateTime _currentTime = DateTime.now();
 
   final Battery _battery = Battery();
@@ -62,6 +63,7 @@ class _TopToolbarState extends State<TopToolbar> {
   @override
   void dispose() {
     _timeTimer?.cancel();
+    _wifiSignalTimer?.cancel();
     _batterySubscription?.cancel();
     _connectivitySubscription?.cancel();
     super.dispose();
@@ -121,7 +123,10 @@ class _TopToolbarState extends State<TopToolbar> {
       });
 
       // 定期更新 WiFi 信号强度（如果是 WiFi）
-      Timer.periodic(const Duration(seconds: 5), (timer) async {
+      _wifiSignalTimer?.cancel();
+      _wifiSignalTimer = Timer.periodic(const Duration(seconds: 5), (
+        timer,
+      ) async {
         if (!mounted) {
           timer.cancel();
           return;

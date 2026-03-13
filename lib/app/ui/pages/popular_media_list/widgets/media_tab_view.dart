@@ -62,9 +62,6 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
     with AutomaticKeepAliveClientMixin {
   final ScrollController _scrollController = ScrollController();
 
-  // 缓存列表项
-  final Map<String, Widget> _itemCache = {};
-
   @override
   void initState() {
     super.initState();
@@ -118,20 +115,12 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
           delta: delta,
         );
       },
-      itemBuilder: (context, item, index) {
-        // 多选模式下不使用缓存，因为选中状态会变化
-        if (widget.isMultiSelectMode) {
-          return _buildCachedItem(item, context, index);
-        }
-        final cacheKey = '${item.hashCode}_$index';
-        return _itemCache.putIfAbsent(cacheKey, () {
-          return _buildCachedItem(item, context, index);
-        });
-      },
+      itemBuilder: (context, item, index) =>
+          _buildItemForLayout(item, context, index),
     );
   }
 
-  Widget _buildCachedItem(T item, BuildContext context, int index) {
+  Widget _buildItemForLayout(T item, BuildContext context, int index) {
     // 获取屏幕宽度
     final screenWidth = MediaQuery.of(context).size.width;
 

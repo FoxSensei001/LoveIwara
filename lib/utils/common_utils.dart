@@ -353,18 +353,22 @@ class CommonUtils {
   static Future<Directory> getAppDirectory({String pathSuffix = ''}) async {
     Directory directory;
 
-    try {
-      // 优先使用外部存储目录（Android: /storage/emulated/0/Android/data/包名/files）
-      final externalDir = await getExternalStorageDirectory();
-      if (externalDir != null) {
-        directory = externalDir;
-      } else {
-        // 回退到内部存储目录
+    if (GetPlatform.isAndroid) {
+      try {
+        // Android 优先使用外部存储目录（/storage/emulated/0/Android/data/包名/files）
+        final externalDir = await getExternalStorageDirectory();
+        if (externalDir != null) {
+          directory = externalDir;
+        } else {
+          // 回退到内部存储目录
+          directory = await getApplicationDocumentsDirectory();
+        }
+      } catch (e) {
+        // 如果外部存储获取失败，使用内部存储
+        LogUtils.e('获取外部存储失败，使用内部存储', tag: 'CommonUtils', error: e);
         directory = await getApplicationDocumentsDirectory();
       }
-    } catch (e) {
-      // 如果外部存储获取失败，使用内部存储
-      LogUtils.e('获取外部存储失败，使用内部存储', tag: 'CommonUtils', error: e);
+    } else {
       directory = await getApplicationDocumentsDirectory();
     }
 

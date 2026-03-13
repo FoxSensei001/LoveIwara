@@ -17,6 +17,19 @@ ProxySettings getPlatformProxySettings() {
   return ProxySettings(enabled: false);
 }
 
+Future<ProxySettings> getPlatformProxySettingsAsync() async {
+  if (Platform.isWindows) {
+    return getWindowsProxySettings();
+  }
+  if (Platform.isMacOS) {
+    return getMacProxySettingsAsync();
+  }
+  if (Platform.isLinux) {
+    return getLinuxProxySettingsAsync();
+  }
+  return ProxySettings(enabled: false);
+}
+
 ProxySettings getWindowsProxySettings() {
   final hKey = RegistryUtil.openKey(HKEY_CURRENT_USER, internetSettingsKey);
 
@@ -56,9 +69,13 @@ ProxySettings getMacProxySettings() {
       final String? exceptions = map['ExceptionsList'];
 
       String? server;
-      if (httpEnabled && (httpHost?.isNotEmpty ?? false) && (httpPort?.isNotEmpty ?? false)) {
+      if (httpEnabled &&
+          (httpHost?.isNotEmpty ?? false) &&
+          (httpPort?.isNotEmpty ?? false)) {
         server = '$httpHost:$httpPort';
-      } else if (httpsEnabled && (httpsHost?.isNotEmpty ?? false) && (httpsPort?.isNotEmpty ?? false)) {
+      } else if (httpsEnabled &&
+          (httpsHost?.isNotEmpty ?? false) &&
+          (httpsPort?.isNotEmpty ?? false)) {
         server = '$httpsHost:$httpsPort';
       }
 
@@ -75,6 +92,44 @@ ProxySettings getMacProxySettings() {
   return _getProxyFromEnv();
 }
 
+Future<ProxySettings> getMacProxySettingsAsync() async {
+  try {
+    final result = await Process.run('scutil', ['--proxy']);
+    if (result.exitCode == 0) {
+      final String stdoutStr = result.stdout?.toString() ?? '';
+      final Map<String, String> map = _parseKeyValue(stdoutStr);
+      final bool httpEnabled = map['HTTPEnable'] == '1';
+      final bool httpsEnabled = map['HTTPSEnable'] == '1';
+      final String? httpHost = map['HTTPProxy'];
+      final String? httpPort = map['HTTPPort'];
+      final String? httpsHost = map['HTTPSProxy'];
+      final String? httpsPort = map['HTTPSPort'];
+      final String? pacUrl = map['ProxyAutoConfigURLString'];
+      final String? exceptions = map['ExceptionsList'];
+
+      String? server;
+      if (httpEnabled &&
+          (httpHost?.isNotEmpty ?? false) &&
+          (httpPort?.isNotEmpty ?? false)) {
+        server = '$httpHost:$httpPort';
+      } else if (httpsEnabled &&
+          (httpsHost?.isNotEmpty ?? false) &&
+          (httpsPort?.isNotEmpty ?? false)) {
+        server = '$httpsHost:$httpsPort';
+      }
+
+      return ProxySettings(
+        enabled: (httpEnabled || httpsEnabled) || (pacUrl?.isNotEmpty ?? false),
+        server: server,
+        autoConfigUrl: pacUrl,
+        proxyOverride: exceptions,
+      );
+    }
+  } catch (_) {}
+
+  return _getProxyFromEnv();
+}
+
 ProxySettings getLinuxProxySettings() {
   // 优先读取环境变量
   final envSettings = _getProxyFromEnv();
@@ -84,25 +139,59 @@ ProxySettings getLinuxProxySettings() {
 
   // 尝试从 GNOME 设置读取
   try {
-    final modeRes = Process.runSync('gsettings', ['get', 'org.gnome.system.proxy', 'mode']);
+    final modeRes = Process.runSync('gsettings', [
+      'get',
+      'org.gnome.system.proxy',
+      'mode',
+    ]);
     if (modeRes.exitCode == 0) {
-      final mode = (modeRes.stdout?.toString() ?? '').trim().replaceAll("'", '');
+      final mode = (modeRes.stdout?.toString() ?? '').trim().replaceAll(
+        "'",
+        '',
+      );
       if (mode == 'manual') {
-        final hostRes = Process.runSync('gsettings', ['get', 'org.gnome.system.proxy.http', 'host']);
-        final portRes = Process.runSync('gsettings', ['get', 'org.gnome.system.proxy.http', 'port']);
-        final httpsHostRes = Process.runSync('gsettings', ['get', 'org.gnome.system.proxy.https', 'host']);
-        final httpsPortRes = Process.runSync('gsettings', ['get', 'org.gnome.system.proxy.https', 'port']);
-        final ignoreRes = Process.runSync('gsettings', ['get', 'org.gnome.system.proxy', 'ignore-hosts']);
-        String? httpHost = (hostRes.stdout?.toString() ?? '').trim().replaceAll("'", '');
+        final hostRes = Process.runSync('gsettings', [
+          'get',
+          'org.gnome.system.proxy.http',
+          'host',
+        ]);
+        final portRes = Process.runSync('gsettings', [
+          'get',
+          'org.gnome.system.proxy.http',
+          'port',
+        ]);
+        final httpsHostRes = Process.runSync('gsettings', [
+          'get',
+          'org.gnome.system.proxy.https',
+          'host',
+        ]);
+        final httpsPortRes = Process.runSync('gsettings', [
+          'get',
+          'org.gnome.system.proxy.https',
+          'port',
+        ]);
+        final ignoreRes = Process.runSync('gsettings', [
+          'get',
+          'org.gnome.system.proxy',
+          'ignore-hosts',
+        ]);
+        String? httpHost = (hostRes.stdout?.toString() ?? '').trim().replaceAll(
+          "'",
+          '',
+        );
         String? httpPort = (portRes.stdout?.toString() ?? '').trim();
-        String? httpsHost = (httpsHostRes.stdout?.toString() ?? '').trim().replaceAll("'", '');
+        String? httpsHost = (httpsHostRes.stdout?.toString() ?? '')
+            .trim()
+            .replaceAll("'", '');
         String? httpsPort = (httpsPortRes.stdout?.toString() ?? '').trim();
         String? ignore = (ignoreRes.stdout?.toString() ?? '').trim();
 
         String? server;
         if (httpHost.isNotEmpty && httpPort.isNotEmpty && httpPort != '0') {
           server = '$httpHost:$httpPort';
-        } else if (httpsHost.isNotEmpty && httpsPort.isNotEmpty && httpsPort != '0') {
+        } else if (httpsHost.isNotEmpty &&
+            httpsPort.isNotEmpty &&
+            httpsPort != '0') {
           server = '$httpsHost:$httpsPort';
         }
 
@@ -113,8 +202,106 @@ ProxySettings getLinuxProxySettings() {
           proxyOverride: ignore,
         );
       } else if (mode == 'auto') {
-        final pacRes = Process.runSync('gsettings', ['get', 'org.gnome.system.proxy', 'autoconfig-url']);
-        final pac = (pacRes.stdout?.toString() ?? '').trim().replaceAll("'", '');
+        final pacRes = Process.runSync('gsettings', [
+          'get',
+          'org.gnome.system.proxy',
+          'autoconfig-url',
+        ]);
+        final pac = (pacRes.stdout?.toString() ?? '').trim().replaceAll(
+          "'",
+          '',
+        );
+        return ProxySettings(
+          enabled: pac.isNotEmpty,
+          server: null,
+          autoConfigUrl: pac.isNotEmpty ? pac : null,
+          proxyOverride: null,
+        );
+      }
+    }
+  } catch (_) {}
+
+  return ProxySettings(enabled: false);
+}
+
+Future<ProxySettings> getLinuxProxySettingsAsync() async {
+  final envSettings = _getProxyFromEnv();
+  if (envSettings.enabled && (envSettings.server?.isNotEmpty ?? false)) {
+    return envSettings;
+  }
+
+  try {
+    final modeRes = await Process.run('gsettings', [
+      'get',
+      'org.gnome.system.proxy',
+      'mode',
+    ]);
+    if (modeRes.exitCode == 0) {
+      final mode = (modeRes.stdout?.toString() ?? '').trim().replaceAll(
+        "'",
+        '',
+      );
+      if (mode == 'manual') {
+        final hostRes = await Process.run('gsettings', [
+          'get',
+          'org.gnome.system.proxy.http',
+          'host',
+        ]);
+        final portRes = await Process.run('gsettings', [
+          'get',
+          'org.gnome.system.proxy.http',
+          'port',
+        ]);
+        final httpsHostRes = await Process.run('gsettings', [
+          'get',
+          'org.gnome.system.proxy.https',
+          'host',
+        ]);
+        final httpsPortRes = await Process.run('gsettings', [
+          'get',
+          'org.gnome.system.proxy.https',
+          'port',
+        ]);
+        final ignoreRes = await Process.run('gsettings', [
+          'get',
+          'org.gnome.system.proxy',
+          'ignore-hosts',
+        ]);
+        final String httpHost = (hostRes.stdout?.toString() ?? '')
+            .trim()
+            .replaceAll("'", '');
+        final String httpPort = (portRes.stdout?.toString() ?? '').trim();
+        final String httpsHost = (httpsHostRes.stdout?.toString() ?? '')
+            .trim()
+            .replaceAll("'", '');
+        final String httpsPort = (httpsPortRes.stdout?.toString() ?? '').trim();
+        final String ignore = (ignoreRes.stdout?.toString() ?? '').trim();
+
+        String? server;
+        if (httpHost.isNotEmpty && httpPort.isNotEmpty && httpPort != '0') {
+          server = '$httpHost:$httpPort';
+        } else if (httpsHost.isNotEmpty &&
+            httpsPort.isNotEmpty &&
+            httpsPort != '0') {
+          server = '$httpsHost:$httpsPort';
+        }
+
+        return ProxySettings(
+          enabled: server != null,
+          server: server,
+          autoConfigUrl: null,
+          proxyOverride: ignore,
+        );
+      } else if (mode == 'auto') {
+        final pacRes = await Process.run('gsettings', [
+          'get',
+          'org.gnome.system.proxy',
+          'autoconfig-url',
+        ]);
+        final pac = (pacRes.stdout?.toString() ?? '').trim().replaceAll(
+          "'",
+          '',
+        );
         return ProxySettings(
           enabled: pac.isNotEmpty,
           server: null,

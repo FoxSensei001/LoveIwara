@@ -276,6 +276,7 @@ class MyVideoStateController extends GetxController
   VideoController? previewVideoController;
   Timer? _previewSeekThrottleTimer;
   Timer? _previewInitDebounceTimer;
+  Timer? _previewAutoDisposeTimer;
   String? previewVideoUrl;
   final RxBool isPreviewPlayerReady = false.obs;
   StreamSubscription<Duration?>? previewDurationSubscription;
@@ -658,23 +659,6 @@ class MyVideoStateController extends GetxController
           _cacheManager.cacheVideoInfo(videoId!, initialVideoInfo!);
         }
 
-        // 监听 currentVideoSourceList 变化，初始化预览播放器
-        // 提前到发起网络/缓存请求之前，避免缓存命中时事件在监听注册之前就触发导致丢失
-        currentVideoSourceList.listen((sources) {
-          if (!_isDisposed && sources.isNotEmpty) {
-            // 延迟初始化，避免影响主播放器加载
-            _previewInitDebounceTimer?.cancel();
-            _previewInitDebounceTimer = Timer(
-              const Duration(milliseconds: 500),
-              () {
-                if (!_isDisposed) {
-                  _initializePreviewPlayer();
-                }
-              },
-            );
-          }
-        });
-
         // 使用 WidgetsBinding.instance.addPostFrameCallback 确保基础设置完成
         // WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!_isDisposed) {
@@ -821,11 +805,13 @@ class MyVideoStateController extends GetxController
 
   bool get shouldShowPlaybackChrome =>
       hasVideoInfoForPlaybackUi &&
-      (!shouldShowInitialPlaybackCover || shouldShowInitialPlaybackLoadingChrome);
+      (!shouldShowInitialPlaybackCover ||
+          shouldShowInitialPlaybackLoadingChrome);
 
   bool get shouldShowLoadingBackButton =>
       !hasVideoInfoForPlaybackUi ||
-      (shouldShowInitialPlaybackCover && !shouldShowInitialPlaybackLoadingChrome);
+      (shouldShowInitialPlaybackCover &&
+          !shouldShowInitialPlaybackLoadingChrome);
 
   bool get shouldShowOverlayHud =>
       hasVideoInfoForPlaybackUi && !shouldShowInitialPlaybackCover;
@@ -1549,6 +1535,7 @@ class MyVideoStateController extends GetxController
     _bufferUpdateThrottleTimer?.cancel();
     _previewSeekThrottleTimer?.cancel();
     _previewInitDebounceTimer?.cancel();
+    _previewAutoDisposeTimer?.cancel();
     _videoSourceExpirationTimer?.cancel();
     _healthSnapshotTimer?.cancel();
     LogUtils.d('所有定时器已取消', 'MyVideoStateController');
@@ -2041,7 +2028,7 @@ class MyVideoStateController extends GetxController
         '使用缓存视频源($logVideoUrl): ${jsonEncode(serializedSources)}',
         'MyVideoStateController',
       );
-      currentVideoSourceList.value = cachedSources;
+      _updateCurrentVideoSources(cachedSources);
       videoResolutions.value = CommonUtils.convertVideoSourcesToResolutions(
         cachedSources,
         filterPreview: true,
@@ -2105,7 +2092,7 @@ class MyVideoStateController extends GetxController
       );
 
       _cacheManager.cacheVideoSources(cacheKey, sources);
-      currentVideoSourceList.value = sources;
+      _updateCurrentVideoSources(sources);
       videoResolutions.value = CommonUtils.convertVideoSourcesToResolutions(
         sources,
         filterPreview: true,
@@ -2668,7 +2655,7 @@ class MyVideoStateController extends GetxController
       // 更新缓存
       final cacheKey = videoInfo.value!.fileUrl!;
       _cacheManager.cacheVideoSources(cacheKey, sources);
-      currentVideoSourceList.value = sources;
+      _updateCurrentVideoSources(sources);
 
       // 解析过期时间（所有清晰度的过期时间都一样，只需解析一次）
       _currentVideoSourceExpireTime = null;
@@ -3235,9 +3222,45 @@ class MyVideoStateController extends GetxController
   /// 显示/隐藏进度预
   void showSeekPreview(bool show) {
     isSeekPreviewVisible.value = show;
+    if (show) {
+      _previewAutoDisposeTimer?.cancel();
+      unawaited(_ensurePreviewPlayerReady());
+      return;
+    }
+
+    _schedulePreviewPlayerDispose();
+
     if (!show && !_isInteracting.value) {
       resetDisplayPosition();
     }
+  }
+
+  void _schedulePreviewPlayerDispose() {
+    _previewAutoDisposeTimer?.cancel();
+
+    if (_isDisposed || previewPlayer == null) {
+      return;
+    }
+
+    _previewAutoDisposeTimer = Timer(const Duration(seconds: 2), () {
+      if (_isDisposed || isSeekPreviewVisible.value || _isInteracting.value) {
+        return;
+      }
+      unawaited(_disposePreviewPlayer());
+    });
+  }
+
+  Future<void> _ensurePreviewPlayerReady() async {
+    if (_isDisposed || isLocalVideoMode) {
+      return;
+    }
+    if (previewPlayer != null || _isPreviewPlayerInitializing) {
+      return;
+    }
+    if (currentVideoSourceList.isEmpty) {
+      return;
+    }
+    await _initializePreviewPlayer();
   }
 
   /// 更新预览位置
@@ -3703,6 +3726,17 @@ class MyVideoStateController extends GetxController
     return null;
   }
 
+  void _updateCurrentVideoSources(List<VideoSource> sources) {
+    currentVideoSourceList.value = sources;
+    previewVideoUrl = null;
+
+    if (previewPlayer != null || _isPreviewPlayerInitializing) {
+      unawaited(_disposePreviewPlayer());
+    } else {
+      isPreviewPlayerReady.value = false;
+    }
+  }
+
   /// 初始化预览播放器
   Future<void> _initializePreviewPlayer() async {
     if (_isDisposed) return;
@@ -3857,6 +3891,9 @@ class MyVideoStateController extends GetxController
     _previewInitDebounceTimer?.cancel();
     _previewInitDebounceTimer = null;
 
+    _previewAutoDisposeTimer?.cancel();
+    _previewAutoDisposeTimer = null;
+
     _previewSeekThrottleTimer?.cancel();
     _previewSeekThrottleTimer = null;
 
@@ -3942,10 +3979,7 @@ class MyVideoStateController extends GetxController
   }
 
   /// 点赞状态变化后的统一处理，确保当前详情页、缓存和返回列表补丁保持一致。
-  int applyVideoLikeState({
-    required String videoId,
-    required bool liked,
-  }) {
+  int applyVideoLikeState({required String videoId, required bool liked}) {
     final currentVideo = videoInfo.value;
     final baseLikeCount = currentVideo?.numLikes ?? 0;
     final updatedLikeCount = baseLikeCount + (liked ? 1 : -1);

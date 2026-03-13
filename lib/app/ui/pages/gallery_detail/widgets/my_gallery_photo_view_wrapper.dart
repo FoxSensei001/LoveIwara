@@ -783,8 +783,8 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                             key: ValueKey(_activeQuality),
                             child: PhotoViewGallery.builder(
                               scrollPhysics: const BouncingScrollPhysics(),
-                              allowImplicitScrolling: true,
-                              wantKeepAlive: true,
+                              allowImplicitScrolling: false,
+                              wantKeepAlive: false,
                               builder: (BuildContext context, int index) {
                                 final activeItem = activeGalleryItems[index];
                                 String imageUrl =

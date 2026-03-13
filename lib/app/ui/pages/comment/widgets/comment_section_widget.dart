@@ -68,7 +68,6 @@ class _CommentSectionState extends State<CommentSection> {
     return ListView.separated(
       padding: EdgeInsets.only(top: widget.topPadding + 4.0, bottom: 4.0),
       physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
       itemCount: 5,
       itemBuilder: (context, index) => Container(
         margin: const EdgeInsets.symmetric(horizontal: 4.0),
@@ -188,7 +187,6 @@ class _CommentSectionState extends State<CommentSection> {
         controller: widget.scrollController,
         padding: EdgeInsets.only(top: widget.topPadding + 4.0, bottom: 4.0),
         physics: const AlwaysScrollableScrollPhysics(),
-        shrinkWrap: true,
         itemBuilder: (context, comment, index) {
           return Column(
             children: [
