@@ -267,7 +267,6 @@ class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdow
             ),
           ),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
             children: [
               if (selectedItem.avatarUrl.isEmpty)
                 CircleAvatar(
@@ -311,14 +310,17 @@ class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdow
                   ),
                 ),
               const SizedBox(width: 8),
-              Text(
-                selectedItem.label,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).textTheme.titleLarge?.color,
+              Expanded(
+                child: Text(
+                  selectedItem.label,
+                  maxLines: 1,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).textTheme.titleLarge?.color,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(width: 4),
               Icon(
