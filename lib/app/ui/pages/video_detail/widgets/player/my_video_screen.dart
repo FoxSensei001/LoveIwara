@@ -30,6 +30,36 @@ import 'widgets/error_state_widget.dart';
 import '../../controllers/my_video_state_controller.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
 
+class VideoDetailHorizontalDragSeekLogic {
+  const VideoDetailHorizontalDragSeekLogic._();
+
+  static Duration seedPreviewPosition(Duration dragStartPosition) {
+    return dragStartPosition;
+  }
+
+  static Duration calculatePreviewPosition({
+    required Duration dragStartPosition,
+    required double dragDistance,
+    required double screenWidth,
+    required Duration totalDuration,
+    required int maxSeekSeconds,
+  }) {
+    if (screenWidth <= 0) {
+      return seedPreviewPosition(dragStartPosition);
+    }
+
+    final double ratio = dragDistance / screenWidth;
+    final int offsetSeconds = (ratio * maxSeekSeconds).round();
+
+    return Duration(
+      seconds: (dragStartPosition.inSeconds + offsetSeconds).clamp(
+        0,
+        totalDuration.inSeconds,
+      ),
+    );
+  }
+}
+
 class MyVideoScreen extends StatefulWidget {
   final bool isFullScreen;
   final MyVideoStateController myVideoStateController;
@@ -823,6 +853,11 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                         widget.myVideoStateController.currentPosition;
                     widget.myVideoStateController.setInteracting(true);
                     widget.myVideoStateController.showSeekPreview(true);
+                    widget.myVideoStateController.updateSeekPreview(
+                      VideoDetailHorizontalDragSeekLogic.seedPreviewPosition(
+                        _horizontalDragStartPosition!,
+                      ),
+                    );
                     widget.myVideoStateController.isHorizontalDragging.value =
                         true;
                   }
@@ -858,23 +893,15 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
                     double dragDistance =
                         details.localPosition.dx - _horizontalDragStartX!;
-                    double ratio = dragDistance / screenSize.width;
-
-                    int offsetSeconds = (ratio * maxSeekSeconds).round();
-
-                    Duration targetPosition = Duration(
-                      seconds:
-                          (_horizontalDragStartPosition!.inSeconds +
-                                  offsetSeconds)
-                              .clamp(
-                                0,
-                                widget
-                                    .myVideoStateController
-                                    .totalDuration
-                                    .value
-                                    .inSeconds,
-                              ),
-                    );
+                    final Duration targetPosition =
+                        VideoDetailHorizontalDragSeekLogic.calculatePreviewPosition(
+                          dragStartPosition: _horizontalDragStartPosition!,
+                          dragDistance: dragDistance,
+                          screenWidth: screenSize.width,
+                          totalDuration:
+                              widget.myVideoStateController.totalDuration.value,
+                          maxSeekSeconds: maxSeekSeconds,
+                        );
 
                     widget.myVideoStateController.updateSeekPreview(
                       targetPosition,
@@ -924,6 +951,11 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                         widget.myVideoStateController.currentPosition;
                     widget.myVideoStateController.setInteracting(true);
                     widget.myVideoStateController.showSeekPreview(true);
+                    widget.myVideoStateController.updateSeekPreview(
+                      VideoDetailHorizontalDragSeekLogic.seedPreviewPosition(
+                        _horizontalDragStartPosition!,
+                      ),
+                    );
                     widget.myVideoStateController.isHorizontalDragging.value =
                         true;
                   }
@@ -959,23 +991,15 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
                     double dragDistance =
                         details.localPosition.dx - _horizontalDragStartX!;
-                    double ratio = dragDistance / screenSize.width;
-
-                    int offsetSeconds = (ratio * maxSeekSeconds).round();
-
-                    Duration targetPosition = Duration(
-                      seconds:
-                          (_horizontalDragStartPosition!.inSeconds +
-                                  offsetSeconds)
-                              .clamp(
-                                0,
-                                widget
-                                    .myVideoStateController
-                                    .totalDuration
-                                    .value
-                                    .inSeconds,
-                              ),
-                    );
+                    final Duration targetPosition =
+                        VideoDetailHorizontalDragSeekLogic.calculatePreviewPosition(
+                          dragStartPosition: _horizontalDragStartPosition!,
+                          dragDistance: dragDistance,
+                          screenWidth: screenSize.width,
+                          totalDuration:
+                              widget.myVideoStateController.totalDuration.value,
+                          maxSeekSeconds: maxSeekSeconds,
+                        );
 
                     widget.myVideoStateController.updateSeekPreview(
                       targetPosition,
@@ -1031,6 +1055,11 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                         widget.myVideoStateController.currentPosition;
                     widget.myVideoStateController.setInteracting(true);
                     widget.myVideoStateController.showSeekPreview(true);
+                    widget.myVideoStateController.updateSeekPreview(
+                      VideoDetailHorizontalDragSeekLogic.seedPreviewPosition(
+                        _horizontalDragStartPosition!,
+                      ),
+                    );
                     widget.myVideoStateController.isHorizontalDragging.value =
                         true;
                   }
@@ -1066,23 +1095,15 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
                     double dragDistance =
                         details.localPosition.dx - _horizontalDragStartX!;
-                    double ratio = dragDistance / screenSize.width;
-
-                    int offsetSeconds = (ratio * maxSeekSeconds).round();
-
-                    Duration targetPosition = Duration(
-                      seconds:
-                          (_horizontalDragStartPosition!.inSeconds +
-                                  offsetSeconds)
-                              .clamp(
-                                0,
-                                widget
-                                    .myVideoStateController
-                                    .totalDuration
-                                    .value
-                                    .inSeconds,
-                              ),
-                    );
+                    final Duration targetPosition =
+                        VideoDetailHorizontalDragSeekLogic.calculatePreviewPosition(
+                          dragStartPosition: _horizontalDragStartPosition!,
+                          dragDistance: dragDistance,
+                          screenWidth: screenSize.width,
+                          totalDuration:
+                              widget.myVideoStateController.totalDuration.value,
+                          maxSeekSeconds: maxSeekSeconds,
+                        );
 
                     widget.myVideoStateController.updateSeekPreview(
                       targetPosition,
@@ -1266,7 +1287,9 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         );
       case VideoCenterOverlayState.seeking:
       case VideoCenterOverlayState.rebufferingWhilePlaying:
-        return Center(child: _buildBufferingAnimation(controller, bufferingSize));
+        return Center(
+          child: _buildBufferingAnimation(controller, bufferingSize),
+        );
       case VideoCenterOverlayState.playbackControls:
         return Center(
           child: _buildPlayPauseIcon(controller, playPauseIconSize),
