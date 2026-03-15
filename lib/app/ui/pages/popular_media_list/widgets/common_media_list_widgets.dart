@@ -55,12 +55,14 @@ class SkeletonLayoutConfig {
   });
 
   /// 创建默认配置（使用 MediaLayoutUtils 的默认值）
-  factory SkeletonLayoutConfig.defaultConfig(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+  factory SkeletonLayoutConfig.defaultConfig(double availableWidth) {
+    final safeWidth = availableWidth.isFinite && availableWidth > 0
+        ? availableWidth
+        : 600.0;
     final int crossAxisCount = MediaLayoutUtils.calculateCrossAxisCount(
-      screenWidth,
+      safeWidth,
     );
-    final double maxCrossAxisExtent = screenWidth / crossAxisCount;
+    final double maxCrossAxisExtent = safeWidth / crossAxisCount;
 
     return SkeletonLayoutConfig(
       maxCrossAxisExtent: maxCrossAxisExtent,

@@ -635,7 +635,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
             widget.extendedListDelegate
                 as SliverWaterfallFlowDelegateWithMaxCrossAxisExtent,
           )
-        : SkeletonLayoutConfig.defaultConfig(context);
+        : SkeletonLayoutConfig.defaultConfig(screenWidth);
 
     final scrollView = LoadingMoreCustomScrollView(
       controller: widget.scrollController,
@@ -744,7 +744,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
             widget.extendedListDelegate
                 as SliverWaterfallFlowDelegateWithMaxCrossAxisExtent,
           )
-        : SkeletonLayoutConfig.defaultConfig(context);
+        : SkeletonLayoutConfig.defaultConfig(screenWidth);
 
     return Stack(
       children: [

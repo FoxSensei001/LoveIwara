@@ -121,13 +121,18 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
   }
 
   Widget _buildItemForLayout(T item, BuildContext context, int index) {
-    // 获取屏幕宽度
-    final screenWidth = MediaQuery.of(context).size.width;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double cardWidth =
+            constraints.maxWidth.isFinite && constraints.maxWidth > 0
+            ? constraints.maxWidth
+            : MediaLayoutUtils.calculateCardWidth(
+                MediaQuery.sizeOf(context).width,
+              );
 
-    // 使用工具类计算卡片宽度
-    final double cardWidth = MediaLayoutUtils.calculateCardWidth(screenWidth);
-
-    return _buildItem(item, context, cardWidth);
+        return _buildItem(item, context, cardWidth);
+      },
+    );
   }
 
   Widget _buildItem(T item, BuildContext context, double width) {
