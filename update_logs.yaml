@@ -1,5 +1,5 @@
 # 最新版本
-currentVersion: "0.4.3"
+currentVersion: "0.4.4"
 # 更新日志
 # 格式介绍
 # 1. version: 版本号
@@ -7,6 +7,34 @@ currentVersion: "0.4.3"
 # 3. changes: 更新内容
 # 4. minVersion: 最小版本号
 updates:
+  - version: "0.4.4"
+    date: "2026-03-15"
+    minVersion: "0.3.0"
+    changes:
+      zh-CN:
+        - "新增图库查看器默认画质设置，支持标清/原画切换"
+        - "视频详情页新增当前加载速率显示，并优化加载状态展示"
+        - "新增 AI 站和主站切换功能"
+        - "新增视频图库卡片点赞状态显示"
+        - "安卓端由于未知原因，在开启预测返回手势动画后在部分设备上会有应用假死的问题，于是此功能目前已被回滚至默认效果"
+        - "修复 deeplink 问题"
+        - "修复若干 bug，优化系统稳定性"
+      en:
+        - "Added a default gallery viewer quality setting with Standard/Original options"
+        - "Added real-time video loading speed display on the video detail page and improved loading state feedback"
+        - "Added switching between the AI site and the main site"
+        - "Added like-state indicators on video and gallery cards"
+        - "On Android, the predictive back gesture animation has been rolled back to the default behavior for now due to app-freeze issues on some devices for unknown reasons"
+        - "Fixed deep link issues"
+        - "Fixed several bugs and optimized system stability"
+      ja:
+        - "ギャラリービューアーのデフォルト画質設定を追加し、標準/オリジナルを切り替え可能に"
+        - "動画詳細ページで現在の読み込み速度表示に対応し、読み込み状態のフィードバックを改善"
+        - "AI サイトとメインサイトの切り替え機能を追加"
+        - "動画・ギャラリーカードにいいね状態の表示を追加"
+        - "Androidでは、原因不明で一部端末にアプリがフリーズしたような状態になる問題が発生したため、予測バックジェスチャーアニメーションを当面の間デフォルトの挙動に戻しました"
+        - "ディープリンクの問題を修正"
+        - "いくつかの不具合を修正し、システムの安定性を最適化"
   - version: "0.4.3"
     date: "2026-03-02"
     minVersion: "0.3.0"

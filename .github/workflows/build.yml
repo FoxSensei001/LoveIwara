@@ -42,7 +42,7 @@ jobs:
       KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -52,6 +52,8 @@ jobs:
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
@@ -78,7 +80,7 @@ jobs:
           cp build/app/outputs/flutter-apk/app-release.apk result/i_iwara-${APP_VERSION}-universal.apk
 
       - name: Upload Android Builds
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: android_builds
           path: result/
@@ -88,10 +90,12 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
@@ -121,7 +125,7 @@ jobs:
         shell: bash
 
       - name: Upload Windows Builds
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: windows_builds
           path: result/
@@ -131,10 +135,12 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
@@ -164,29 +170,45 @@ jobs:
           mv dist/i_iwara.dmg result/i_iwara-$APP_VERSION-macos.dmg
 
       - name: Upload macOS build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: macos-release
           path: result/
 
   build-ios:
     if: ${{ inputs.build_ios }}
-    runs-on: macos-latest
+    runs-on: macos-15
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Setup Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: '16.4'
+      - name: Select Xcode 16.4
+        shell: bash
+        run: |
+          if [ -d /Applications/Xcode_16.4.app ]; then
+            XCODE_APP=/Applications/Xcode_16.4.app
+          else
+            shopt -s nullglob
+            matches=(/Applications/Xcode_16.4*.app)
+
+            if [ ${#matches[@]} -eq 0 ]; then
+              echo "Xcode 16.4 is not installed on this runner. Available Xcode apps:"
+              ls -1 /Applications/Xcode*.app 2>/dev/null || true
+              exit 1
+            fi
+
+            XCODE_APP="${matches[0]}"
+          fi
+
+          sudo xcode-select -s "$XCODE_APP/Contents/Developer"
+          xcodebuild -version
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
-          cache: true
+          cache: false
 
       - name: Get dependencies
         run: flutter pub get
@@ -204,7 +226,7 @@ jobs:
           zip -r ../../../result/i_iwara-${APP_VERSION}-ios.ipa Payload
 
       - name: Upload iOS build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ios-release
           path: result/i_iwara-*-ios.ipa
@@ -214,7 +236,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install Linux dependencies
         run: |
@@ -223,6 +245,8 @@ jobs:
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
@@ -244,7 +268,7 @@ jobs:
           tar -czf result/i_iwara-linux-$APP_VERSION.tar.gz -C build/linux/x64/release bundle
 
       - name: Upload Linux build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-release
           path: result/
