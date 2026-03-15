@@ -4,6 +4,7 @@ import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/share_service.dart';
+import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_detail_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
@@ -29,6 +30,19 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
   late PlayListDetailController controller;
   final ScrollController _scrollController = ScrollController();
   final RxBool _showBackToTop = false.obs;
+
+  SliverWaterfallFlowDelegate _buildResponsiveDelegate(double availableWidth) {
+    final contentWidth = (availableWidth - 10).clamp(1.0, double.infinity);
+    final crossAxisCount = MediaLayoutUtils.calculateCrossAxisCount(
+      contentWidth,
+    );
+
+    return SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+      crossAxisCount: crossAxisCount,
+      crossAxisSpacing: MediaLayoutUtils.crossAxisSpacing,
+      mainAxisSpacing: MediaLayoutUtils.mainAxisSpacing,
+    );
+  }
 
   @override
   void initState() {
@@ -59,44 +73,45 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: Stack(
-        children: [
-          RefreshIndicator(
-            onRefresh: () => controller.repository.refresh(true),
-            child: LoadingMoreCustomScrollView(
-              controller: _scrollController,
-              slivers: <Widget>[
-                LoadingMoreSliverList<Video>(
-                  SliverListConfig<Video>(
-                    extendedListDelegate:
-                        const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 300,
-                          crossAxisSpacing: 5,
-                          mainAxisSpacing: 5,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final delegate = _buildResponsiveDelegate(constraints.maxWidth);
+
+          return Stack(
+            children: [
+              RefreshIndicator(
+                onRefresh: () => controller.repository.refresh(true),
+                child: LoadingMoreCustomScrollView(
+                  controller: _scrollController,
+                  slivers: <Widget>[
+                    LoadingMoreSliverList<Video>(
+                      SliverListConfig<Video>(
+                        extendedListDelegate: delegate,
+                        itemBuilder: buildVideoItem,
+                        sourceList: controller.repository,
+                        padding: EdgeInsets.only(
+                          left: 5.0,
+                          right: 5.0,
+                          top: 5.0,
+                          bottom: MediaQuery.of(context).padding.bottom,
                         ),
-                    itemBuilder: buildVideoItem,
-                    sourceList: controller.repository,
-                    padding: EdgeInsets.only(
-                      left: 5.0,
-                      right: 5.0,
-                      top: 5.0,
-                      bottom: MediaQuery.of(context).padding.bottom, // 添加底部安全区域
+                        lastChildLayoutType: LastChildLayoutType.foot,
+                        indicatorBuilder: (context, status) =>
+                            myLoadingMoreIndicator(
+                              context,
+                              status,
+                              isSliver: true,
+                              loadingMoreBase: controller.repository,
+                            ),
+                      ),
                     ),
-                    lastChildLayoutType: LastChildLayoutType.foot,
-                    indicatorBuilder: (context, status) =>
-                        myLoadingMoreIndicator(
-                          context,
-                          status,
-                          isSliver: true,
-                          loadingMoreBase: controller.repository,
-                        ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          // 底部多选栏
-        ],
+              ),
+              // 底部多选栏
+            ],
+          );
+        },
       ),
       floatingActionButton: Obx(() {
         final bool isMultiSelect = controller.isMultiSelect.value;
@@ -178,44 +193,58 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
   }
 
   Widget buildVideoItem(BuildContext context, Video video, int index) {
-    return Obx(() {
-      final bool isSelected = controller.selectedVideos.contains(video.id);
-      final bool isMultiSelect = controller.isMultiSelect.value;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final itemWidth =
+            constraints.maxWidth.isFinite && constraints.maxWidth > 0
+            ? constraints.maxWidth
+            : MediaLayoutUtils.calculateCardWidth(
+                MediaQuery.sizeOf(context).width,
+              );
 
-      return Card(
-        clipBehavior: Clip.antiAlias,
-        child: Stack(
-          children: [
-            VideoCardListItemWidget(
-              video: video,
-              width: 300,
-              onOpenVideo: ({required videoId, Map<String, dynamic>? extData}) {
-                return _openVideoFromPlaylist(
-                  videoId: videoId,
-                  extData: extData,
-                );
-              },
-            ),
-            if (isMultiSelect)
-              Positioned.fill(
-                child: Material(
-                  color: Colors.black26,
-                  child: InkWell(
-                    onTap: () => controller.toggleSelection(video.id),
-                    child: Center(
-                      child: Icon(
-                        isSelected ? Icons.check_circle : Icons.circle_outlined,
-                        color: Colors.white,
-                        size: 40,
+        return Obx(() {
+          final bool isSelected = controller.selectedVideos.contains(video.id);
+          final bool isMultiSelect = controller.isMultiSelect.value;
+
+          return Card(
+            clipBehavior: Clip.antiAlias,
+            child: Stack(
+              children: [
+                VideoCardListItemWidget(
+                  video: video,
+                  width: itemWidth,
+                  onOpenVideo:
+                      ({required videoId, Map<String, dynamic>? extData}) {
+                        return _openVideoFromPlaylist(
+                          videoId: videoId,
+                          extData: extData,
+                        );
+                      },
+                ),
+                if (isMultiSelect)
+                  Positioned.fill(
+                    child: Material(
+                      color: Colors.black26,
+                      child: InkWell(
+                        onTap: () => controller.toggleSelection(video.id),
+                        child: Center(
+                          child: Icon(
+                            isSelected
+                                ? Icons.check_circle
+                                : Icons.circle_outlined,
+                            color: Colors.white,
+                            size: 40,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
-          ],
-        ),
-      );
-    });
+              ],
+            ),
+          );
+        });
+      },
+    );
   }
 
   Future<void> _openVideoFromPlaylist({

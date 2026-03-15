@@ -9,6 +9,7 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:oktoast/oktoast.dart';
@@ -246,79 +247,76 @@ class _HistoryListPageState extends State<HistoryListPage>
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                      Row(
-                        children: [
-                          Text(
-                            slang.t.common.selectDateRange,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                    Row(
+                      children: [
+                        Text(
+                          slang.t.common.selectDateRange,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
-                          const Spacer(),
-                          IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () => AppService.tryPop(),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      // 排序开关：创建时间/更新时间（倒序）
-                      Obx(
-                        () => SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(
-                            controller.orderByUpdated.value
-                                ? slang.t.common.updatedAt
-                                : slang.t.common.publishedAt,
-                          ),
-                          subtitle: const Text('(DESC)'),
-                          value: controller.orderByUpdated.value,
-                          onChanged: (v) => controller.setOrderByUpdated(v),
-                          secondary: const Icon(Icons.swap_vert),
                         ),
+                        const Spacer(),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => AppService.tryPop(),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    // 排序开关：创建时间/更新时间（倒序）
+                    Obx(
+                      () => SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          controller.orderByUpdated.value
+                              ? slang.t.common.updatedAt
+                              : slang.t.common.publishedAt,
+                        ),
+                        subtitle: const Text('(DESC)'),
+                        value: controller.orderByUpdated.value,
+                        onChanged: (v) => controller.setOrderByUpdated(v),
+                        secondary: const Icon(Icons.swap_vert),
                       ),
-                      const SizedBox(height: 8),
-                      // 时间区间：按钮一行 + 结果单独下一行
-                      Obx(() {
-                        final dateRange = controller.selectedDateRange.value;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.date_range),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(slang.t.common.selectDateRange),
-                                ),
-                                if (dateRange != null)
-                                  IconButton(
-                                    tooltip: slang.t.common.clearDateRange,
-                                    icon: const Icon(Icons.clear),
-                                    onPressed: _clearDateRange,
-                                  ),
-                                FilledButton(
-                                  onPressed: _selectDateRange,
-                                  child: Text(slang.t.common.selectDateRange),
-                                ),
-                              ],
-                            ),
-                            if (dateRange != null)
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  top: 8,
-                                  left: 32,
-                                ),
-                                child: Text(
-                                  '${CommonUtils.formatDate(dateRange.start)} - ${CommonUtils.formatDate(dateRange.end)}',
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
+                    ),
+                    const SizedBox(height: 8),
+                    // 时间区间：按钮一行 + 结果单独下一行
+                    Obx(() {
+                      final dateRange = controller.selectedDateRange.value;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.date_range),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(slang.t.common.selectDateRange),
                               ),
-                          ],
-                        );
-                      }),
-                      const SizedBox(height: 8),
+                              if (dateRange != null)
+                                IconButton(
+                                  tooltip: slang.t.common.clearDateRange,
+                                  icon: const Icon(Icons.clear),
+                                  onPressed: _clearDateRange,
+                                ),
+                              FilledButton(
+                                onPressed: _selectDateRange,
+                                child: Text(slang.t.common.selectDateRange),
+                              ),
+                            ],
+                          ),
+                          if (dateRange != null)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8, left: 32),
+                              child: Text(
+                                '${CommonUtils.formatDate(dateRange.start)} - ${CommonUtils.formatDate(dateRange.end)}',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ),
+                        ],
+                      );
+                    }),
+                    const SizedBox(height: 8),
                   ],
                 ),
               ),
@@ -509,36 +507,48 @@ class _HistoryListPageState extends State<HistoryListPage>
     HistoryListController controller,
     ScrollController scrollController,
   ) {
-    return LoadingMoreCustomScrollView(
-      controller: scrollController,
-      slivers: [
-        LoadingMoreSliverList<HistoryRecord>(
-          SliverListConfig<HistoryRecord>(
-            extendedListDelegate:
-                const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 200,
-                  crossAxisSpacing: 5,
-                  mainAxisSpacing: 5,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final contentWidth = (constraints.maxWidth - 10).clamp(
+          1.0,
+          double.infinity,
+        );
+        final crossAxisCount = MediaLayoutUtils.calculateCrossAxisCount(
+          contentWidth,
+        );
+
+        return LoadingMoreCustomScrollView(
+          controller: scrollController,
+          slivers: [
+            LoadingMoreSliverList<HistoryRecord>(
+              SliverListConfig<HistoryRecord>(
+                extendedListDelegate:
+                    SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: MediaLayoutUtils.crossAxisSpacing,
+                      mainAxisSpacing: MediaLayoutUtils.mainAxisSpacing,
+                    ),
+                itemBuilder: (context, record, index) =>
+                    _buildHistoryItem(context, record, controller),
+                sourceList: controller.repository,
+                padding: EdgeInsets.fromLTRB(
+                  5.0,
+                  5.0,
+                  5.0,
+                  computeBottomSafeInset(MediaQuery.of(context)) + 5.0,
                 ),
-            itemBuilder: (context, record, index) =>
-                _buildHistoryItem(context, record, controller),
-            sourceList: controller.repository,
-            padding: EdgeInsets.fromLTRB(
-              5.0,
-              5.0,
-              5.0,
-              computeBottomSafeInset(MediaQuery.of(context)) + 5.0,
+                lastChildLayoutType: LastChildLayoutType.foot,
+                indicatorBuilder: (context, status) => myLoadingMoreIndicator(
+                  context,
+                  status,
+                  isSliver: true,
+                  loadingMoreBase: controller.repository,
+                ),
+              ),
             ),
-            lastChildLayoutType: LastChildLayoutType.foot,
-            indicatorBuilder: (context, status) => myLoadingMoreIndicator(
-              context,
-              status,
-              isSliver: true,
-              loadingMoreBase: controller.repository,
-            ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 
@@ -547,66 +557,80 @@ class _HistoryListPageState extends State<HistoryListPage>
     HistoryRecord record,
     HistoryListController controller,
   ) {
-    return Obx(() {
-      final bool isSelected = controller.selectedRecords.contains(record.id);
-      final bool isMultiSelect = controller.isMultiSelect.value;
-      final dynamic originalData = record.getOriginalData();
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final itemWidth =
+            constraints.maxWidth.isFinite && constraints.maxWidth > 0
+            ? constraints.maxWidth
+            : MediaLayoutUtils.calculateCardWidth(
+                MediaQuery.sizeOf(context).width,
+              );
 
-      return SizedBox(
-        width: 200,
-        child: Card(
-          margin: EdgeInsets.zero,
-          clipBehavior: Clip.antiAlias,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-              MediaQuery.of(context).size.width < 600 ? 6 : 8,
-            ),
-          ),
-          child: Stack(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (record.itemType == 'video')
-                    VideoCardListItemWidget(video: originalData, width: 200)
-                  else if (record.itemType == 'image')
-                    ImageModelCardListItemWidget(
-                      imageModel: originalData,
-                      width: 200,
-                    )
-                  else if (record.itemType == 'post')
-                    PostCardListItemWidget(post: originalData)
-                  else if (record.itemType == 'thread')
-                    ThreadListItemWidget(
-                      thread: originalData,
-                      categoryId: originalData.section,
-                    ),
-                  _buildHistoryItemFooter(record, controller),
-                ],
+        return Obx(() {
+          final bool isSelected = controller.selectedRecords.contains(
+            record.id,
+          );
+          final bool isMultiSelect = controller.isMultiSelect.value;
+          final dynamic originalData = record.getOriginalData();
+
+          return SizedBox(
+            width: itemWidth,
+            child: Card(
+              margin: EdgeInsets.zero,
+              clipBehavior: Clip.antiAlias,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(itemWidth < 220 ? 6 : 8),
               ),
-              if (isMultiSelect)
-                Positioned.fill(
-                  child: Material(
-                    color: Colors.black26,
-                    child: InkWell(
-                      onTap: () => controller.toggleSelection(record.id),
-                      child: Center(
-                        child: Icon(
-                          isSelected
-                              ? Icons.check_circle
-                              : Icons.circle_outlined,
-                          color: Colors.white,
-                          size: 40,
+              child: Stack(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (record.itemType == 'video')
+                        VideoCardListItemWidget(
+                          video: originalData,
+                          width: itemWidth,
+                        )
+                      else if (record.itemType == 'image')
+                        ImageModelCardListItemWidget(
+                          imageModel: originalData,
+                          width: itemWidth,
+                        )
+                      else if (record.itemType == 'post')
+                        PostCardListItemWidget(post: originalData)
+                      else if (record.itemType == 'thread')
+                        ThreadListItemWidget(
+                          thread: originalData,
+                          categoryId: originalData.section,
+                        ),
+                      _buildHistoryItemFooter(record, controller),
+                    ],
+                  ),
+                  if (isMultiSelect)
+                    Positioned.fill(
+                      child: Material(
+                        color: Colors.black26,
+                        child: InkWell(
+                          onTap: () => controller.toggleSelection(record.id),
+                          child: Center(
+                            child: Icon(
+                              isSelected
+                                  ? Icons.check_circle
+                                  : Icons.circle_outlined,
+                              color: Colors.white,
+                              size: 40,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      );
-    });
+                ],
+              ),
+            ),
+          );
+        });
+      },
+    );
   }
 
   Widget _buildHistoryItemFooter(
