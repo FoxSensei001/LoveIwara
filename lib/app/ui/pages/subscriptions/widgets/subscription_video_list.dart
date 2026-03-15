@@ -3,7 +3,7 @@ import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
-import 'package:i_iwara/utils/common_utils.dart' show CommonUtils;
+import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import '../controllers/subscription_video_repository.dart';
 import 'base_subscription_list.dart';
 
@@ -74,14 +74,28 @@ class _SubscriptionVideoListState
 
   @override
   Widget buildListItem(BuildContext context, Video item, int index) {
-    return VideoCardListItemWidget(
-      video: item,
-      width: CommonUtils.calculateCardWidth(MediaQuery.of(context).size.width),
-      isMultiSelectMode: widget.isMultiSelectMode,
-      isSelected: widget.selectedItemIds.contains(item.id),
-      onSelect: () => widget.onItemSelect?.call(item),
-      onOpenVideo: ({required videoId, Map<String, dynamic>? extData}) {
-        return _openVideoFromSubscriptions(videoId: videoId, extData: extData);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double itemWidth =
+            constraints.maxWidth.isFinite && constraints.maxWidth > 0
+            ? constraints.maxWidth
+            : MediaLayoutUtils.calculateCardWidth(
+                MediaQuery.sizeOf(context).width,
+              );
+
+        return VideoCardListItemWidget(
+          video: item,
+          width: itemWidth,
+          isMultiSelectMode: widget.isMultiSelectMode,
+          isSelected: widget.selectedItemIds.contains(item.id),
+          onSelect: () => widget.onItemSelect?.call(item),
+          onOpenVideo: ({required videoId, Map<String, dynamic>? extData}) {
+            return _openVideoFromSubscriptions(
+              videoId: videoId,
+              extData: extData,
+            );
+          },
+        );
       },
     );
   }

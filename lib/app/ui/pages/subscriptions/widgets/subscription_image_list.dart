@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
-import 'package:i_iwara/utils/common_utils.dart' show CommonUtils;
+import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import '../controllers/subscription_image_repository.dart';
 import 'base_subscription_list.dart';
 
@@ -44,12 +44,23 @@ class _SubscriptionImageListState
 
   @override
   Widget buildListItem(BuildContext context, ImageModel image, int index) {
-    return ImageModelCardListItemWidget(
-      imageModel: image,
-      width: CommonUtils.calculateCardWidth(MediaQuery.of(context).size.width),
-      isMultiSelectMode: widget.isMultiSelectMode,
-      isSelected: widget.selectedItemIds.contains(image.id),
-      onSelect: () => widget.onItemSelect?.call(image),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double itemWidth =
+            constraints.maxWidth.isFinite && constraints.maxWidth > 0
+            ? constraints.maxWidth
+            : MediaLayoutUtils.calculateCardWidth(
+                MediaQuery.sizeOf(context).width,
+              );
+
+        return ImageModelCardListItemWidget(
+          imageModel: image,
+          width: itemWidth,
+          isMultiSelectMode: widget.isMultiSelectMode,
+          isSelected: widget.selectedItemIds.contains(image.id),
+          onSelect: () => widget.onItemSelect?.call(image),
+        );
+      },
     );
   }
 }
