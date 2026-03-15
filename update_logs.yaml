@@ -12,6 +12,7 @@ updates:
     minVersion: "0.3.0"
     changes:
       zh-CN:
+        - "优化布局断点配置在热门列表、订阅列表、播放列表详情页和历史页中的应用，统一按列表实际可用宽度计算列数与卡片宽度"
         - "新增图库查看器默认画质设置，支持标清/原画切换"
         - "视频详情页新增当前加载速率显示，并优化加载状态展示"
         - "新增 AI 站和主站切换功能"
@@ -20,6 +21,7 @@ updates:
         - "修复 deeplink 问题"
         - "修复若干 bug，优化系统稳定性"
       en:
+        - "Improved how layout breakpoints are applied across popular lists, subscription lists, playlist detail, and history pages so column counts and card widths are calculated from the actual available list width"
         - "Added a default gallery viewer quality setting with Standard/Original options"
         - "Added real-time video loading speed display on the video detail page and improved loading state feedback"
         - "Added switching between the AI site and the main site"
@@ -28,6 +30,7 @@ updates:
         - "Fixed deep link issues"
         - "Fixed several bugs and optimized system stability"
       ja:
+        - "人気一覧・購読一覧・プレイリスト詳細・履歴ページでのレイアウトブレークポイント適用を改善し、列数とカード幅を一覧の実際の利用可能幅に基づいて統一計算するようにしました"
         - "ギャラリービューアーのデフォルト画質設定を追加し、標準/オリジナルを切り替え可能に"
         - "動画詳細ページで現在の読み込み速度表示に対応し、読み込み状態のフィードバックを改善"
         - "AI サイトとメインサイトの切り替え機能を追加"
