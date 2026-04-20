@@ -45,21 +45,22 @@ class PlayListService extends GetxService {
     int limit = 20,
   }) async {
     try {
-      final response = await apiService.get('/playlists', 
+      final response = await apiService.get(
+        '/playlists',
         queryParameters: {
           'user': userId,
           'page': page,
           'limit': limit,
-        }
+        },
       );
-      
+
       final PageData<PlaylistModel> pageData = PageData(
         page: response.data['page'],
         limit: response.data['limit'],
         count: response.data['count'],
         results: (response.data['results'] as List)
-          .map((playlistModel) => PlaylistModel.fromJson(playlistModel))
-          .toList(),
+            .map((playlistModel) => PlaylistModel.fromJson(playlistModel))
+            .toList(),
       );
       return ApiResult.success(data: pageData);
     } catch (e) {
@@ -72,10 +73,19 @@ class PlayListService extends GetxService {
   // 获取轻量播放列表
   // 此接口会一次性返回所有的播放列表
   // 根据视频id获取播放列表，{@link LightPlaylistModel#added} 为 true 表示已添加到播放列表
-  Future<ApiResult<List<LightPlaylistModel>>> getLightPlaylists({required String videoId}) async {
+  Future<ApiResult<List<LightPlaylistModel>>> getLightPlaylists({
+    required String videoId,
+  }) async {
     try {
-      final response = await apiService.get('/light/playlists', queryParameters: {'id': videoId});
-      return ApiResult.success(data: (response.data as List).map((playlistModel) => LightPlaylistModel.fromJson(playlistModel)).toList());
+      final response = await apiService.get(
+        '/light/playlists',
+        queryParameters: {'id': videoId},
+      );
+      return ApiResult.success(
+        data: (response.data as List)
+            .map((playlistModel) => LightPlaylistModel.fromJson(playlistModel))
+            .toList(),
+      );
     } catch (e) {
       LogUtils.e('获取轻量播放列表失败', tag: 'PlayListService', error: e);
       final errorMessage = CommonUtils.parseExceptionMessage(e);
@@ -133,20 +143,20 @@ class PlayListService extends GetxService {
   }) async {
     try {
       final response = await apiService.get(
-        '/playlist/$playlistId', 
+        '/playlist/$playlistId',
         queryParameters: {
           'page': page,
           'limit': limit,
-        }
+        },
       );
-      
+
       final PageData<Video> pageData = PageData(
         page: response.data['page'],
         limit: response.data['limit'],
         count: response.data['count'],
         results: (response.data['results'] as List)
-          .map((video) => Video.fromJson(video))
-          .toList(),
+            .map((video) => Video.fromJson(video))
+            .toList(),
       );
 
       return ApiResult.success(data: pageData);

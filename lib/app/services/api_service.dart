@@ -16,9 +16,9 @@ import '../../common/constants.dart';
 import '../../utils/logger_utils.dart';
 import '../ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'auth_service.dart';
-import 'app_service.dart';
 import 'http_client_factory.dart';
 import 'iwara_network_service.dart';
+import 'iwara_site_headers.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
 /// API 服务配置
@@ -122,13 +122,6 @@ class ApiService extends GetxService {
     );
   }
 
-  IwaraSite _resolveRequestSite(d_dio.RequestOptions options) {
-    if (Get.isRegistered<AppService>()) {
-      return Get.find<AppService>().currentSiteMode;
-    }
-    return IwaraSiteUtils.fromExtra(options.extra['site']);
-  }
-
   ApiRequestAccess _resolveRequestAccess(d_dio.RequestOptions options) {
     final raw = options.extra[_requestAccessKey];
     if (raw is String) {
@@ -198,7 +191,6 @@ class ApiService extends GetxService {
 
   d_dio.Options _prepareRequestOptions(
     d_dio.Options? options, {
-    IwaraSite site = IwaraSite.main,
     Map<String, dynamic>? headers,
     ApiRequestAccess requestAccess = ApiRequestAccess.authRequired,
     int? maxNetworkRetries,
@@ -206,7 +198,6 @@ class ApiService extends GetxService {
     final requestOptions = options ?? d_dio.Options();
     requestOptions.extra = {
       ...?requestOptions.extra,
-      'site': site.name,
       _requestAccessKey: requestAccess.name,
       if (maxNetworkRetries != null) _maxRetriesKey: maxNetworkRetries,
     };
@@ -223,7 +214,7 @@ class ApiService extends GetxService {
   ) {
     final accessToken = _authService.accessToken;
     final tokenManager = _authService.tokenManager;
-    final site = _resolveRequestSite(options);
+    final site = currentIwaraSiteOrMain();
     final access = _resolveRequestAccess(options);
 
     final requestId = _ensureRequestId(options);
@@ -689,14 +680,12 @@ class ApiService extends GetxService {
     Map<String, dynamic>? headers,
     d_dio.CancelToken? cancelToken,
     d_dio.Options? options,
-    IwaraSite site = IwaraSite.main,
     ApiRequestAccess requestAccess = ApiRequestAccess.authRequired,
     int? maxNetworkRetries,
   }) async {
     try {
       final requestOptions = _prepareRequestOptions(
         options,
-        site: site,
         headers: headers,
         requestAccess: requestAccess,
         maxNetworkRetries: maxNetworkRetries,
@@ -728,7 +717,6 @@ class ApiService extends GetxService {
     dynamic data,
     Map<String, dynamic>? queryParameters,
     d_dio.Options? options,
-    IwaraSite site = IwaraSite.main,
     ApiRequestAccess requestAccess = ApiRequestAccess.authRequired,
     int? maxNetworkRetries,
   }) async {
@@ -739,7 +727,6 @@ class ApiService extends GetxService {
         queryParameters: queryParameters,
         options: _prepareRequestOptions(
           options,
-          site: site,
           requestAccess: requestAccess,
           maxNetworkRetries: maxNetworkRetries,
         ),
@@ -763,7 +750,6 @@ class ApiService extends GetxService {
     String path, {
     Map<String, dynamic>? queryParameters,
     d_dio.Options? options,
-    IwaraSite site = IwaraSite.main,
     ApiRequestAccess requestAccess = ApiRequestAccess.authRequired,
     int? maxNetworkRetries,
   }) async {
@@ -773,7 +759,6 @@ class ApiService extends GetxService {
         queryParameters: queryParameters,
         options: _prepareRequestOptions(
           options,
-          site: site,
           requestAccess: requestAccess,
           maxNetworkRetries: maxNetworkRetries,
         ),
@@ -798,7 +783,6 @@ class ApiService extends GetxService {
     dynamic data,
     Map<String, dynamic>? queryParameters,
     d_dio.Options? options,
-    IwaraSite site = IwaraSite.main,
     ApiRequestAccess requestAccess = ApiRequestAccess.authRequired,
     int? maxNetworkRetries,
   }) async {
@@ -809,7 +793,6 @@ class ApiService extends GetxService {
         queryParameters: queryParameters,
         options: _prepareRequestOptions(
           options,
-          site: site,
           requestAccess: requestAccess,
           maxNetworkRetries: maxNetworkRetries,
         ),
@@ -829,9 +812,7 @@ class ApiService extends GetxService {
   }
 
   /// 获取全站公告（sitewide announcement）
-  Future<ApiResult<IwaraPageModel>> fetchSitewideAnnouncement({
-    IwaraSite site = IwaraSite.main,
-  }) async {
+  Future<ApiResult<IwaraPageModel>> fetchSitewideAnnouncement() async {
     try {
       final response = await get(
         '/page/sitewide-announcement',
@@ -842,7 +823,6 @@ class ApiService extends GetxService {
           'pragma': 'no-cache',
         },
         requestAccess: ApiRequestAccess.publicOnly,
-        site: site,
       );
 
       if (response.data is! Map<String, dynamic>) {

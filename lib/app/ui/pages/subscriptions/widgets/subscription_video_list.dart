@@ -12,7 +12,6 @@ class SubscriptionVideoList
   const SubscriptionVideoList({
     super.key,
     required super.userId,
-    required super.site,
     required super.tabIndex,
     super.isPaginated,
     super.paddingTop,
@@ -37,7 +36,6 @@ class _SubscriptionVideoListState
   SubscriptionVideoRepository createRepository() {
     return SubscriptionVideoRepository(
       userId: widget.userId,
-      site: widget.site,
     );
   }
 

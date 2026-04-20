@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/base_media_repository.dart';
@@ -8,15 +7,13 @@ import 'popular_video_repository.dart';
 
 class PopularVideoController extends BaseMediaController<Video> {
   final VideoService _videoService = Get.find<VideoService>();
-  final IwaraSite site;
 
-  PopularVideoController({required super.sortId, required this.site});
+  PopularVideoController({required super.sortId});
 
   @override
   BaseMediaRepository<Video> createRepository() {
     return PopularVideoRepository(
       videoService: _videoService,
-      site: site,
       sortId: sortId,
     );
   }

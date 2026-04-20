@@ -278,14 +278,14 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
                   itemBuilder: (context, index) {
                     final playlist = _filteredPlaylists[index];
                     final bool isOperating = _operatingPlaylistId == playlist.id;
-                    
+
                     return Card(
                       elevation: 2,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                         side: BorderSide(
-                          color: playlist.added 
-                              ? const Color(0xFF2196F3) 
+                          color: playlist.added
+                              ? const Color(0xFF2196F3)
                               : Colors.transparent,
                           width: 2,
                         ),
@@ -383,4 +383,4 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
     _newPlaylistController.dispose();
     super.dispose();
   }
-} 
+}

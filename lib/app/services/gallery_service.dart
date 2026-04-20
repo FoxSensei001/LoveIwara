@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/api_request_access.model.dart';
-import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/api_service.dart';
@@ -15,14 +14,10 @@ class GalleryService extends GetxService {
   final ApiService _apiService = Get.find();
 
   /// 获取图库的详情
-  Future<ApiResult<ImageModel>> fetchGalleryDetail(
-    String imageModelId, {
-    IwaraSite site = IwaraSite.main,
-  }) async {
+  Future<ApiResult<ImageModel>> fetchGalleryDetail(String imageModelId) async {
     try {
       var response = await _apiService.get(
         ApiConstants.imageDetail(imageModelId),
-        site: site,
       );
       ImageModel imageModel = ImageModel.fromJson(response.data);
       return ApiResult.success(data: imageModel);
@@ -55,7 +50,6 @@ class GalleryService extends GetxService {
     int limit = 20,
     String? url,
     ApiRequestAccess? requestAccess,
-    IwaraSite site = IwaraSite.main,
   }) async {
     try {
       // [HACK_IMPLEMENT] 如果params里有的值为空字符串，则去掉key
@@ -73,7 +67,6 @@ class GalleryService extends GetxService {
         url,
         queryParameters: {...params, 'page': page, 'limit': limit},
         requestAccess: effectiveAccess,
-        site: site,
       );
 
       final List<ImageModel> results = (response.data['results'] as List)
@@ -105,14 +98,12 @@ class GalleryService extends GetxService {
     String mediaId, {
     int page = 0,
     int limit = 20,
-    IwaraSite site = IwaraSite.main,
   }) async {
     try {
       return await fetchImageModelsByParams(
         page: page,
         limit: limit,
         url: ApiConstants.relatedImages(mediaId),
-        site: site,
       );
     } catch (e) {
       LogUtils.e('获取相关图库列表失败', tag: 'ImageModelService', error: e);
@@ -127,14 +118,12 @@ class GalleryService extends GetxService {
     required String excludeImageId,
     int page = 0,
     int limit = 6,
-    IwaraSite site = IwaraSite.main,
   }) async {
     try {
       return await fetchImageModelsByParams(
         params: {'user': userId, 'exclude': excludeImageId},
         page: page,
         limit: limit,
-        site: site,
       );
     } catch (e) {
       LogUtils.e('获取作者图库列表失败', tag: 'ImageModelService', error: e);
@@ -148,13 +137,11 @@ class GalleryService extends GetxService {
     String mediaId, {
     int page = 0,
     int limit = 6,
-    IwaraSite site = IwaraSite.main,
   }) async {
     try {
       final response = await _apiService.get(
         ApiConstants.imageLikes(mediaId),
         queryParameters: {'page': page, 'limit': limit},
-        site: site,
       );
 
       final List<User> results = (response.data['results'] as List)
@@ -185,13 +172,11 @@ class GalleryService extends GetxService {
   Future<ApiResult<PageData<ImageModel>>> fetchFavoriteImages({
     int page = 0,
     int limit = 20,
-    IwaraSite site = IwaraSite.main,
   }) async {
     try {
       final response = await _apiService.get(
         ApiConstants.favoriteImages(),
         queryParameters: {'page': page, 'limit': limit},
-        site: site,
       );
 
       final List<ImageModel> results = (response.data['results'] as List)
@@ -219,12 +204,9 @@ class GalleryService extends GetxService {
   }
 
   /// 取消最爱
-  Future<ApiResult<void>> cancelFavoriteImage(
-    String mediaId, {
-    IwaraSite site = IwaraSite.main,
-  }) async {
+  Future<ApiResult<void>> cancelFavoriteImage(String mediaId) async {
     try {
-      await _apiService.delete(ApiConstants.likeImage(mediaId), site: site);
+      await _apiService.delete(ApiConstants.likeImage(mediaId));
       return ApiResult.success();
     } catch (e) {
       LogUtils.e('取消最爱图库失败', tag: 'ImageModelService', error: e);
@@ -234,12 +216,9 @@ class GalleryService extends GetxService {
   }
 
   /// 设为最爱
-  Future<ApiResult<void>> setFavoriteImage(
-    String mediaId, {
-    IwaraSite site = IwaraSite.main,
-  }) async {
+  Future<ApiResult<void>> setFavoriteImage(String mediaId) async {
     try {
-      await _apiService.post(ApiConstants.likeImage(mediaId), site: site);
+      await _apiService.post(ApiConstants.likeImage(mediaId));
       return ApiResult.success();
     } catch (e) {
       LogUtils.e('设为最爱图库失败', tag: 'ImageModelService', error: e);
@@ -249,12 +228,9 @@ class GalleryService extends GetxService {
   }
 
   /// 点赞图库
-  Future<ApiResult<void>> likeImage(
-    String mediaId, {
-    IwaraSite site = IwaraSite.main,
-  }) async {
+  Future<ApiResult<void>> likeImage(String mediaId) async {
     try {
-      await _apiService.post(ApiConstants.likeImage(mediaId), site: site);
+      await _apiService.post(ApiConstants.likeImage(mediaId));
       return ApiResult.success();
     } catch (e) {
       LogUtils.e('点赞图库失败', tag: 'GalleryService', error: e);
@@ -264,12 +240,9 @@ class GalleryService extends GetxService {
   }
 
   /// 取消点赞图库
-  Future<ApiResult<void>> unlikeImage(
-    String mediaId, {
-    IwaraSite site = IwaraSite.main,
-  }) async {
+  Future<ApiResult<void>> unlikeImage(String mediaId) async {
     try {
-      await _apiService.delete(ApiConstants.likeImage(mediaId), site: site);
+      await _apiService.delete(ApiConstants.likeImage(mediaId));
       return ApiResult.success();
     } catch (e) {
       LogUtils.e('取消点赞图库失败', tag: 'GalleryService', error: e);

@@ -656,7 +656,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                         child: Obx(
                           () => SubscriptionVideoList(
                             userId: selectedId,
-                            site: widget.site,
                             tabIndex: 0,
                             isPaginated: isPaginated,
                             paddingTop: 0,
@@ -678,7 +677,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                         child: Obx(
                           () => SubscriptionImageList(
                             userId: selectedId,
-                            site: widget.site,
                             tabIndex: 1,
                             isPaginated: isPaginated,
                             paddingTop: 0,
@@ -699,7 +697,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                         ),
                         child: SubscriptionPostList(
                           userId: selectedId,
-                          site: widget.site,
                           tabIndex: 2,
                           isPaginated: isPaginated,
                           paddingTop: 0,

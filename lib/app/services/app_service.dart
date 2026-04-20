@@ -204,12 +204,6 @@ class AppService extends GetxService {
     invalidateHomeContent();
 
     try {
-      if (Get.isRegistered<AuthService>()) {
-        Get.find<AuthService>().updateSiteMode(site);
-      }
-    } catch (_) {}
-
-    try {
       hideGlobalDrawer();
     } catch (_) {}
 

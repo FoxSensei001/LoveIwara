@@ -1739,7 +1739,6 @@ class MyVideoStateController extends GetxController
         var res = await _apiService.get(
           '/video/$videoId',
           cancelToken: _cancelToken,
-          site: appS.currentSiteMode,
         );
 
         if (_isDisposed) return;
@@ -2065,7 +2064,6 @@ class MyVideoStateController extends GetxController
           ),
         },
         cancelToken: _cancelToken,
-        site: appS.currentSiteMode,
       );
 
       if (_isDisposed) return;
@@ -2642,7 +2640,6 @@ class MyVideoStateController extends GetxController
           ),
         },
         cancelToken: _cancelToken,
-        site: appS.currentSiteMode,
       );
 
       if (_isDisposed) return;
@@ -4115,7 +4112,6 @@ class MyVideoStateController extends GetxController
       final res = await _apiService.get(
         '/video/$videoId',
         cancelToken: _cancelToken,
-        site: appS.currentSiteMode,
       );
 
       if (_isDisposed) return;

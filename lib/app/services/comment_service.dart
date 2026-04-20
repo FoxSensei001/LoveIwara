@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
-import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/comment.model.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
 import 'package:i_iwara/app/models/rules.model.dart';
@@ -25,7 +24,6 @@ class CommentService extends GetxService {
     String? parentId,
     int page = 0,
     int limit = 20,
-    IwaraSite site = IwaraSite.main,
   }) async {
     try {
       final response = await _apiService.get(
@@ -35,7 +33,6 @@ class CommentService extends GetxService {
           'limit': limit,
           if (parentId != null) 'parent': parentId,
         },
-        site: site,
       );
 
       final PageData<Comment> pageData = PageData.fromJsonWithConverter(
@@ -47,14 +44,14 @@ class CommentService extends GetxService {
     } catch (e) {
       LogUtils.e('获取评论失败', tag: 'CommentService', error: e);
       String errorMessage = CommonUtils.parseExceptionMessage(e);
-      return ApiResult.fail(errorMessage);  
+      return ApiResult.fail(errorMessage);
     }
   }
 
   /// 删除评论
-  Future<ApiResult<void>> deleteComment(String id, {IwaraSite site = IwaraSite.main}) async {
+  Future<ApiResult<void>> deleteComment(String id) async {
     try {
-      await _apiService.delete(ApiConstants.comment(id), site: site);
+      await _apiService.delete(ApiConstants.comment(id));
       return ApiResult.success();
     } catch (e) {
       LogUtils.e('删除评论失败', tag: 'CommentService', error: e);
@@ -64,9 +61,9 @@ class CommentService extends GetxService {
   }
 
   /// 编辑评论
-  Future<ApiResult<void>> editComment(String id, String body, {IwaraSite site = IwaraSite.main}) async {
+  Future<ApiResult<void>> editComment(String id, String body) async {
     try {
-      await _apiService.put(ApiConstants.comment(id), data: {'body': body}, site: site);
+      await _apiService.put(ApiConstants.comment(id), data: {'body': body});
       return ApiResult.success();
     } catch (e) {
       LogUtils.e('编辑评论失败', tag: 'CommentService', error: e);
@@ -81,7 +78,6 @@ class CommentService extends GetxService {
     required String id,
     required String body,
     String? parentId,
-    IwaraSite site = IwaraSite.main,
   }) async {
     try {
       final response = await _apiService.post(
@@ -91,7 +87,6 @@ class CommentService extends GetxService {
           'rulesAgreement': true,
           if (parentId != null) 'parentId': parentId,
         },
-        site: site,
       );
 
       return ApiResult.success(data: Comment.fromJson(response.data));
@@ -103,9 +98,9 @@ class CommentService extends GetxService {
   }
 
   /// 获取规则
-  Future<ApiResult<PageData<RulesModel>>> getRules({IwaraSite site = IwaraSite.main}) async {
+  Future<ApiResult<PageData<RulesModel>>> getRules() async {
     try {
-      final response = await _apiService.get(ApiConstants.rules, site: site);
+      final response = await _apiService.get(ApiConstants.rules);
       final List<RulesModel> results = (response.data['results'] as List)
           .map((rule) {
             if (rule['body'] is! Map) {
@@ -130,7 +125,7 @@ class CommentService extends GetxService {
         results: results,
       );
       return ApiResult.success(data: pageData);
-    } catch (e) { 
+    } catch (e) {
       LogUtils.e('获取规则失败', tag: 'CommentService', error: e);
       String errorMessage = CommonUtils.parseExceptionMessage(e);
       return ApiResult.fail(errorMessage);

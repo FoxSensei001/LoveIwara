@@ -10,7 +10,6 @@ class SubscriptionPostList
   const SubscriptionPostList({
     super.key,
     required super.userId,
-    required super.site,
     required super.tabIndex,
     super.isPaginated = false,
     super.paddingTop = 0,
@@ -30,7 +29,7 @@ class SubscriptionPostListState
         > {
   @override
   SubscriptionPostRepository createRepository() {
-    return SubscriptionPostRepository(userId: widget.userId, site: widget.site);
+    return SubscriptionPostRepository(userId: widget.userId);
   }
 
   @override

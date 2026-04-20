@@ -8,8 +8,7 @@ import 'package:dio/dio.dart' as dio;
 import 'package:dio/io.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/models/iwara_site.dart';
+import 'package:i_iwara/app/services/iwara_site_headers.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart' show CommonUtils;
@@ -32,6 +31,8 @@ class AuthService extends GetxService {
   late final TokenManager _tokenManager;
 
   // 独立的 Dio 实例用于登录/注册等不需要认证的请求
+  // site header 通过拦截器动态注入（见 buildIwaraSiteHeaderInterceptor），
+  // 避免 baked-in header + 切站时手动同步的时序坑。
   final dio.Dio _dio = dio.Dio(
     dio.BaseOptions(
       baseUrl: CommonConstants.iwaraApiBaseUrl,
@@ -40,10 +41,6 @@ class AuthService extends GetxService {
       sendTimeout: const Duration(seconds: 15),
       headers: {
         'Content-Type': 'application/json',
-        ...((Get.isRegistered<AppService>()
-                ? Get.find<AppService>().currentSiteMode
-                : IwaraSite.main)
-            .requestHeaders),
       },
     ),
   );
@@ -81,11 +78,7 @@ class AuthService extends GetxService {
     _dio.httpClientAdapter = IOHttpClientAdapter(
       createHttpClient: HttpClientFactory.instance.createHttpClient,
     );
-  }
-
-  void updateSiteMode(IwaraSite site) {
-    _dio.options.headers.addAll(site.requestHeaders);
-    _tokenManager.updateSiteMode(site);
+    _dio.interceptors.add(buildIwaraSiteHeaderInterceptor());
   }
 
   /// 初始化认证服务

@@ -514,10 +514,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       _loadingInnerPlaylistItem = item;
     });
 
-    final result = await _videoService.fetchVideoInfoResult(
-      item.id,
-      site: _appService.currentSiteMode,
-    );
+    final result = await _videoService.fetchVideoInfoResult(item.id);
 
     if (!mounted) {
       return;

@@ -6,14 +6,12 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart' as dio;
 import 'package:dio/io.dart';
-import 'package:get/get.dart';
 
 import '../../common/constants.dart';
-import 'package:i_iwara/app/models/iwara_site.dart';
 import '../../utils/logger_utils.dart';
 import 'http_client_factory.dart';
-import 'app_service.dart';
 import 'iwara_network_service.dart';
+import 'iwara_site_headers.dart';
 import 'storage_service.dart';
 
 /// Token 验证结果枚举
@@ -132,11 +130,6 @@ class TokenManager {
     networkService.registerDio(_tokenDio);
   }
 
-
-  void updateSiteMode(IwaraSite site) {
-    _tokenDio.options.headers.addAll(site.requestHeaders);
-  }
-
   void _initTokenDio() {
     _tokenDio = dio.Dio(
       dio.BaseOptions(
@@ -147,10 +140,6 @@ class TokenManager {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          ...((Get.isRegistered<AppService>()
-                  ? Get.find<AppService>().currentSiteMode
-                  : IwaraSite.main)
-              .requestHeaders),
         },
       ),
     );
@@ -159,6 +148,9 @@ class TokenManager {
     _tokenDio.httpClientAdapter = IOHttpClientAdapter(
       createHttpClient: HttpClientFactory.instance.createHttpClient,
     );
+
+    // site header 通过拦截器动态注入，避免构造时 baked-in
+    _tokenDio.interceptors.add(buildIwaraSiteHeaderInterceptor());
   }
 
   /// 初始化 - 从存储中加载 token

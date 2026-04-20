@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/popular_media_list_base_page.dart';
@@ -15,11 +14,8 @@ class PopularVideoListPage
           PopularVideoController,
           PopularVideoRepository
         > {
-  final IwaraSite site;
-
   const PopularVideoListPage({
     super.key,
-    required this.site,
     super.contentResetVersion = 0,
   }) : super(
          controllerTag: 'video',
@@ -31,7 +27,7 @@ class PopularVideoListPage
   @override
   PopularVideoController createSpecificController(String sortIdName) {
     return Get.put(
-      PopularVideoController(sortId: sortIdName, site: site),
+      PopularVideoController(sortId: sortIdName),
       tag: sortIdName,
     );
   }

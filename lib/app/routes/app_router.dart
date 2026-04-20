@@ -158,10 +158,8 @@ final GoRouter appRouter = GoRouter(
                   builder: (context, state) => Obx(() {
                     final homeContentVersion =
                         Get.find<AppService>().homeContentVersion;
-                    final currentSite = Get.find<AppService>().currentSiteMode;
                     return PopularVideoListPage(
                       key: PopularVideoListPage.globalKey,
-                      site: currentSite,
                       contentResetVersion: homeContentVersion,
                     );
                   }),
@@ -177,10 +175,8 @@ final GoRouter appRouter = GoRouter(
                   builder: (context, state) => Obx(() {
                     final homeContentVersion =
                         Get.find<AppService>().homeContentVersion;
-                    final currentSite = Get.find<AppService>().currentSiteMode;
                     return PopularGalleryListPage(
                       key: PopularGalleryListPage.globalKey,
-                      site: currentSite,
                       contentResetVersion: homeContentVersion,
                     );
                   }),
@@ -215,10 +211,8 @@ final GoRouter appRouter = GoRouter(
                   builder: (context, state) => Obx(() {
                     final homeContentVersion =
                         Get.find<AppService>().homeContentVersion;
-                    final currentSite = Get.find<AppService>().currentSiteMode;
                     return ForumPage(
                       key: ForumPage.globalKey,
-                      site: currentSite,
                       contentResetVersion: homeContentVersion,
                     );
                   }),
