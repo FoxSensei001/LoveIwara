@@ -16,6 +16,7 @@ import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/oreno3d_client.dart' show Oreno3dClient;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/utils/oreno3d_match_util.dart';
 import 'package:i_iwara/app/models/oreno3d_video.model.dart';
 import 'package:i_iwara/app/services/playback_history_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/related_media_controller.dart';
@@ -1336,8 +1337,11 @@ class MyVideoStateController extends GetxController
 
     final videoTitle = videoInfo.value?.title;
     final authorName = videoInfo.value?.user?.name;
+    // 当前 iwara 视频ID，作为唯一可靠的匹配依据
+    final currentIwaraId = videoId ?? videoInfo.value?.id;
 
     if (videoTitle == null || videoTitle.isEmpty) return;
+    if (currentIwaraId == null || currentIwaraId.isEmpty) return;
 
     // 设置加载状态
     isOreno3dMatching.value = true;
@@ -1347,69 +1351,47 @@ class MyVideoStateController extends GetxController
       if (_isDisposed) return;
 
       final oreno3dClient = Oreno3dClient();
+      // 净化关键词：iwara 标题常含破折号，会让 oreno3d 搜索退化为返回整站最热
+      // 视频（参见 issue #95），必须先去掉这类字符再搜索。
       final searchResult = await oreno3dClient.searchVideos(
-        keyword: videoTitle,
+        keyword: Oreno3dMatchUtil.sanitizeKeyword(videoTitle),
       );
 
-      // 查找匹配的视频（先用作者名过滤，再用标题相似度找出最佳匹配）
-      Oreno3dVideo? matchedVideo;
-      List<Oreno3dVideo> authorFilteredVideos = [];
+      // 仅靠标题/作者的相似度无法保证匹配到同一个视频（参见 issue #95，
+      // 经常匹配到完全无关的视频）。oreno3d 详情页中包含真实的 iwara 播放链接，
+      // 因此这里改为：按相似度排序候选项 -> 逐个拉取详情 -> 用 iwara 视频ID 校验，
+      // 只有 iwara ID 完全一致才认为匹配成功。
+      final candidates = _rankOreno3dCandidates(
+        searchResult.videos,
+        videoTitle,
+        authorName,
+      );
 
-      // 第一步：用作者名进行严格过滤
-      if (authorName != null) {
-        authorFilteredVideos = searchResult.videos
-            .where(
-              (video) => video.author.toLowerCase() == authorName.toLowerCase(),
-            )
-            .toList();
-      }
-
-      // 第二步：从过滤结果中找出标题最相似的视频
-      if (authorFilteredVideos.isNotEmpty) {
-        double bestSimilarity = 0.0;
-        for (final video in authorFilteredVideos) {
-          final similarity = _calculateTitleSimilarity(videoTitle, video.title);
-          if (similarity > bestSimilarity) {
-            bestSimilarity = similarity;
-            matchedVideo = video;
-          }
-        }
-
-        // 如果作者匹配的视频标题相似度太低，则考虑所有视频
-        if (bestSimilarity < 0.6) {
-          matchedVideo = null;
-        }
-      }
-
-      // 如果没有作者匹配的视频或相似度太低，则从所有视频中找标题最相似的
-      if (matchedVideo == null) {
-        double bestSimilarity = 0.0;
-        for (final video in searchResult.videos) {
-          final similarity = _calculateTitleSimilarity(videoTitle, video.title);
-          if (similarity > bestSimilarity && similarity > 0.8) {
-            bestSimilarity = similarity;
-            matchedVideo = video;
-          }
-        }
-      }
-
-      if (matchedVideo != null && !_isDisposed) {
-        // 获取详细信息
-        final detail = await oreno3dClient.getVideoDetailParsed(
-          matchedVideo.id,
-        );
-
-        // 再次检查是否已被销毁
+      // 最多校验前若干个候选项，避免请求过多
+      const maxCandidatesToVerify = 5;
+      for (final video in candidates.take(maxCandidatesToVerify)) {
         if (_isDisposed) return;
 
-        if (detail != null) {
+        final detail = await oreno3dClient.getVideoDetailParsed(video.id);
+
+        if (_isDisposed) return;
+        if (detail == null) continue;
+
+        // 用 iwara 视频ID 校验：只接受指向当前视频的 oreno3d 详情
+        if (detail.extractIwaraId() == currentIwaraId) {
           oreno3dVideoDetail.value = detail;
           LogUtils.d(
-            '成功匹配oreno3d视频: ${detail.title}',
+            '成功匹配oreno3d视频(已通过iwara ID校验): ${detail.title}',
             'MyVideoStateController',
           );
+          return;
         }
       }
+
+      LogUtils.d(
+        '未找到与当前iwara视频ID($currentIwaraId)匹配的oreno3d视频',
+        'MyVideoStateController',
+      );
     } catch (e) {
       if (!_isDisposed) {
         LogUtils.e(
@@ -1426,22 +1408,27 @@ class MyVideoStateController extends GetxController
     }
   }
 
-  /// 计算标题相似度（简单的字符匹配）
-  double _calculateTitleSimilarity(String title1, String title2) {
-    final words1 = title1.toLowerCase().split(' ');
-    final words2 = title2.toLowerCase().split(' ');
+  /// 对 oreno3d 搜索结果按匹配优先级排序，返回最可能是同一视频的候选列表。
+  /// 排序依据：作者名是否一致（优先）+ 标题相似度。
+  /// 注意：这里只用于决定“先拉取哪些候选项的详情”，真正的匹配仍需用 iwara ID 校验。
+  List<Oreno3dVideo> _rankOreno3dCandidates(
+    List<Oreno3dVideo> videos,
+    String videoTitle,
+    String? authorName,
+  ) {
+    final scored = videos.map((video) {
+      final authorMatch = authorName != null &&
+          video.author.toLowerCase() == authorName.toLowerCase();
+      // 相似度比较使用原始标题（而非净化后的关键词），保证排序准确。
+      final similarity =
+          Oreno3dMatchUtil.titleSimilarity(videoTitle, video.title);
+      // 作者一致的候选项优先级更高
+      final score = similarity + (authorMatch ? 1.0 : 0.0);
+      return MapEntry(video, score);
+    }).toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
 
-    int matchCount = 0;
-    for (final word1 in words1) {
-      for (final word2 in words2) {
-        if (word1.contains(word2) || word2.contains(word1)) {
-          matchCount++;
-          break;
-        }
-      }
-    }
-
-    return matchCount / words1.length;
+    return scored.map((e) => e.key).toList();
   }
 
   // 设置亮度
