@@ -594,13 +594,16 @@ settings:
   editSignature: 編輯小尾巴
   signatureContent: 小尾巴內容
   exportConfig: "匯出應用配置"
-  exportConfigDesc: "將應用配置匯出為文件（不包含下載記錄）"
+  exportConfigDesc: "將設定與歷史紀錄（瀏覽紀錄、播放進度、收藏等）匯出為文件，可用於備份或同步到其他裝置。不包含下載任務。"
   importConfig: "匯入應用配置"
   importConfigDesc: "從文件匯入應用配置"
   exportConfigSuccess: "配置匯出成功！"
   exportConfigFailed: "配置匯出失敗"
   importConfigSuccess: "配置匯入成功！"
   importConfigFailed: "配置匯入失敗"
+  exportIncludeSensitive: "包含敏感資訊"
+  exportIncludeSensitiveDesc: "包含 API 金鑰、工作階段權杖與代理位址。僅在備份到自己的裝置時開啟。"
+  importConfigOverwriteWarning: "匯入會覆蓋目前的設定與歷史紀錄（瀏覽紀錄、播放進度、收藏等），確定要繼續嗎？"
   historyUpdateLogs: "歷代更新日誌"
   noUpdateLogs: "未獲取到更新日誌"
   versionLabel: "版本: {version}"

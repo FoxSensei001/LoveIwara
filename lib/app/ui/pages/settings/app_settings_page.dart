@@ -145,6 +145,98 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     setState(() {});
   }
 
+  // 导出配置：先询问是否包含敏感信息（API 密钥 / 代理等），默认不包含
+  Future<void> _handleExportConfig() async {
+    bool includeSensitive = false;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text(slang.t.settings.exportConfig),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(slang.t.settings.exportConfigDesc),
+                  const SizedBox(height: 8),
+                  CheckboxListTile(
+                    contentPadding: EdgeInsets.zero,
+                    value: includeSensitive,
+                    onChanged: (value) {
+                      setDialogState(() {
+                        includeSensitive = value ?? false;
+                      });
+                    },
+                    title: Text(slang.t.settings.exportIncludeSensitive),
+                    subtitle: Text(slang.t.settings.exportIncludeSensitiveDesc),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(false),
+                  child: Text(slang.t.common.cancel),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(true),
+                  child: Text(slang.t.settings.exportConfig),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    if (confirmed != true) return;
+    try {
+      await Get.find<ConfigBackupService>()
+          .exportConfig(includeSensitive: includeSensitive);
+    } catch (e) {
+      showToastWidget(
+        MDToastWidget(
+          message: '${slang.t.settings.exportConfigFailed}: ${e.toString()}',
+          type: MDToastType.error,
+        ),
+      );
+    }
+  }
+
+  // 导入配置：导入会覆盖现有设置与历史记录，先弹出二次确认
+  Future<void> _handleImportConfig() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(slang.t.settings.importConfig),
+          content: Text(slang.t.settings.importConfigOverwriteWarning),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(slang.t.common.cancel),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(slang.t.settings.importConfig),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed != true) return;
+    try {
+      await Get.find<ConfigBackupService>().importConfig();
+    } catch (e) {
+      showToastWidget(
+        MDToastWidget(
+          message: '${slang.t.settings.importConfigFailed}: ${e.toString()}',
+          type: MDToastType.error,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final configService = Get.find<ConfigService>();
@@ -444,39 +536,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         leading: const Icon(Icons.file_upload),
                         title: Text(slang.t.settings.exportConfig),
                         subtitle: Text(slang.t.settings.exportConfigDesc),
-                        onTap: () async {
-                          try {
-                            await Get.find<ConfigBackupService>()
-                                .exportConfig();
-                          } catch (e) {
-                            showToastWidget(
-                              MDToastWidget(
-                                message:
-                                    '${slang.t.settings.exportConfigFailed}: ${e.toString()}',
-                                type: MDToastType.error,
-                              ),
-                            );
-                          }
-                        },
+                        onTap: _handleExportConfig,
                       ),
                       ListTile(
                         leading: const Icon(Icons.file_download),
                         title: Text(slang.t.settings.importConfig),
                         subtitle: Text(slang.t.settings.importConfigDesc),
-                        onTap: () async {
-                          try {
-                            await Get.find<ConfigBackupService>()
-                                .importConfig();
-                          } catch (e) {
-                            showToastWidget(
-                              MDToastWidget(
-                                message:
-                                    '${slang.t.settings.importConfigFailed}: ${e.toString()}',
-                                type: MDToastType.error,
-                              ),
-                            );
-                          }
-                        },
+                        onTap: _handleImportConfig,
                       ),
                     ],
                   ),

@@ -735,13 +735,16 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get editSignature => '小尾巴を編集';
 	@override String get signatureContent => '小尾巴の内容';
 	@override String get exportConfig => 'アプリ設定をエクスポート';
-	@override String get exportConfigDesc => 'ダウンロード記録を除いたアプリ設定をファイルにエクスポートします';
+	@override String get exportConfigDesc => '設定と履歴（閲覧履歴、再生進捗、お気に入りなど）をファイルにエクスポートし、バックアップや他のデバイスへの同期に利用できます。ダウンロードタスクは含まれません。';
 	@override String get importConfig => 'アプリ設定をインポート';
 	@override String get importConfigDesc => 'ファイルからアプリ設定をインポートします';
 	@override String get exportConfigSuccess => '設定が正常にエクスポートされました';
 	@override String get exportConfigFailed => '設定のエクスポートに失敗しました';
 	@override String get importConfigSuccess => '設定が正常にインポートされました';
 	@override String get importConfigFailed => '設定のインポートに失敗しました';
+	@override String get exportIncludeSensitive => '機密情報を含める';
+	@override String get exportIncludeSensitiveDesc => 'APIキー、セッショントークン、プロキシアドレスを含みます。自分のデバイスにバックアップする場合のみ有効にしてください。';
+	@override String get importConfigOverwriteWarning => 'インポートすると現在の設定と履歴（閲覧履歴、再生進捗、お気に入りなど）が上書きされます。続行しますか？';
 	@override String get historyUpdateLogs => '歴代アップデートログ';
 	@override String get noUpdateLogs => 'アップデートログが取得できませんでした';
 	@override String get versionLabel => 'バージョン: {version}';
@@ -3435,13 +3438,16 @@ extension on TranslationsJa {
 			'settings.editSignature' => '小尾巴を編集',
 			'settings.signatureContent' => '小尾巴の内容',
 			'settings.exportConfig' => 'アプリ設定をエクスポート',
-			'settings.exportConfigDesc' => 'ダウンロード記録を除いたアプリ設定をファイルにエクスポートします',
+			'settings.exportConfigDesc' => '設定と履歴（閲覧履歴、再生進捗、お気に入りなど）をファイルにエクスポートし、バックアップや他のデバイスへの同期に利用できます。ダウンロードタスクは含まれません。',
 			'settings.importConfig' => 'アプリ設定をインポート',
 			'settings.importConfigDesc' => 'ファイルからアプリ設定をインポートします',
 			'settings.exportConfigSuccess' => '設定が正常にエクスポートされました',
 			'settings.exportConfigFailed' => '設定のエクスポートに失敗しました',
 			'settings.importConfigSuccess' => '設定が正常にインポートされました',
 			'settings.importConfigFailed' => '設定のインポートに失敗しました',
+			'settings.exportIncludeSensitive' => '機密情報を含める',
+			'settings.exportIncludeSensitiveDesc' => 'APIキー、セッショントークン、プロキシアドレスを含みます。自分のデバイスにバックアップする場合のみ有効にしてください。',
+			'settings.importConfigOverwriteWarning' => 'インポートすると現在の設定と履歴（閲覧履歴、再生進捗、お気に入りなど）が上書きされます。続行しますか？',
 			'settings.historyUpdateLogs' => '歴代アップデートログ',
 			'settings.noUpdateLogs' => 'アップデートログが取得できませんでした',
 			'settings.versionLabel' => 'バージョン: {version}',
@@ -3890,11 +3896,11 @@ extension on TranslationsJa {
 			'forum.sitewide.badge' => '全体',
 			'forum.sitewide.title' => '全体お知らせ',
 			'forum.sitewide.readMore' => '全文表示',
+			_ => null,
+		} ?? switch (path) {
 			'forum.errors.pleaseSelectCategory' => 'カテゴリを選択してください',
 			'forum.errors.threadLocked' => 'このスレッドはロックされています。',
 			'forum.title' => 'タイトル',
-			_ => null,
-		} ?? switch (path) {
 			'forum.createPost' => '投稿を作成',
 			'forum.enterTitle' => 'タイトルを入力してください',
 			'forum.content' => 'コンテンツ',
@@ -4404,11 +4410,11 @@ extension on TranslationsJa {
 			'diagnostics.enableLoggingSubtitle' => 'オフにすると新しいログ記録を停止します',
 			'diagnostics.enableLogPersistenceTitle' => 'ログ永続化を有効化',
 			'diagnostics.enableLogPersistenceSubtitle' => 'オフにするとメモリログのみ保持し、ディスクへ書き込みません',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.minLogLevelTitle' => '最小記録レベル',
 			'diagnostics.minLogLevelSubtitle' => 'このレベル未満のログは除外されます',
 			'diagnostics.maxFileSizeTitle' => '単一ファイルの上限サイズ',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.maxFileSizeSubtitle' => 'しきい値到達でローテーションします',
 			'diagnostics.rotatedFileCountTitle' => 'メインログのローテーション数',
 			'diagnostics.rotatedFileCountSubtitle' => '現在ファイルを除く保持数',

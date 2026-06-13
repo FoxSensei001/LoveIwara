@@ -594,13 +594,16 @@ settings:
   editSignature: 小尾巴を編集
   signatureContent: 小尾巴の内容
   exportConfig: "アプリ設定をエクスポート"
-  exportConfigDesc: "ダウンロード記録を除いたアプリ設定をファイルにエクスポートします"
+  exportConfigDesc: "設定と履歴（閲覧履歴、再生進捗、お気に入りなど）をファイルにエクスポートし、バックアップや他のデバイスへの同期に利用できます。ダウンロードタスクは含まれません。"
   importConfig: "アプリ設定をインポート"
   importConfigDesc: "ファイルからアプリ設定をインポートします"
   exportConfigSuccess: "設定が正常にエクスポートされました"
   exportConfigFailed: "設定のエクスポートに失敗しました"
   importConfigSuccess: "設定が正常にインポートされました"
   importConfigFailed: "設定のインポートに失敗しました"
+  exportIncludeSensitive: "機密情報を含める"
+  exportIncludeSensitiveDesc: "APIキー、セッショントークン、プロキシアドレスを含みます。自分のデバイスにバックアップする場合のみ有効にしてください。"
+  importConfigOverwriteWarning: "インポートすると現在の設定と履歴（閲覧履歴、再生進捗、お気に入りなど）が上書きされます。続行しますか？"
   historyUpdateLogs: "歴代アップデートログ"
   noUpdateLogs: "アップデートログが取得できませんでした"
   versionLabel: "バージョン: {version}"

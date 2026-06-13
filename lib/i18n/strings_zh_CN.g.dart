@@ -740,13 +740,16 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get editSignature => '编辑小尾巴';
 	@override String get signatureContent => '小尾巴内容';
 	@override String get exportConfig => '导出应用配置';
-	@override String get exportConfigDesc => '将应用配置导出为文件（不包含下载记录）';
+	@override String get exportConfigDesc => '将设置与历史记录（浏览历史、播放进度、收藏等）导出为文件，可用于备份或同步到其他设备。不包含下载任务。';
 	@override String get importConfig => '导入应用配置';
 	@override String get importConfigDesc => '从文件导入应用配置';
 	@override String get exportConfigSuccess => '配置导出成功！';
 	@override String get exportConfigFailed => '配置导出失败';
 	@override String get importConfigSuccess => '配置导入成功！';
 	@override String get importConfigFailed => '配置导入失败';
+	@override String get exportIncludeSensitive => '包含敏感信息';
+	@override String get exportIncludeSensitiveDesc => '包含 API 密钥、会话令牌和代理地址。仅在备份到自己的设备时开启。';
+	@override String get importConfigOverwriteWarning => '导入会覆盖当前的设置与历史记录（浏览历史、播放进度、收藏等），确定继续吗？';
 	@override String get historyUpdateLogs => '历代更新日志';
 	@override String get noUpdateLogs => '未获取到更新日志';
 	@override String get versionLabel => '版本: {version}';
@@ -3445,13 +3448,16 @@ extension on TranslationsZhCn {
 			'settings.editSignature' => '编辑小尾巴',
 			'settings.signatureContent' => '小尾巴内容',
 			'settings.exportConfig' => '导出应用配置',
-			'settings.exportConfigDesc' => '将应用配置导出为文件（不包含下载记录）',
+			'settings.exportConfigDesc' => '将设置与历史记录（浏览历史、播放进度、收藏等）导出为文件，可用于备份或同步到其他设备。不包含下载任务。',
 			'settings.importConfig' => '导入应用配置',
 			'settings.importConfigDesc' => '从文件导入应用配置',
 			'settings.exportConfigSuccess' => '配置导出成功！',
 			'settings.exportConfigFailed' => '配置导出失败',
 			'settings.importConfigSuccess' => '配置导入成功！',
 			'settings.importConfigFailed' => '配置导入失败',
+			'settings.exportIncludeSensitive' => '包含敏感信息',
+			'settings.exportIncludeSensitiveDesc' => '包含 API 密钥、会话令牌和代理地址。仅在备份到自己的设备时开启。',
+			'settings.importConfigOverwriteWarning' => '导入会覆盖当前的设置与历史记录（浏览历史、播放进度、收藏等），确定继续吗？',
 			'settings.historyUpdateLogs' => '历代更新日志',
 			'settings.noUpdateLogs' => '未获取到更新日志',
 			'settings.versionLabel' => '版本: {version}',
@@ -3895,11 +3901,11 @@ extension on TranslationsZhCn {
 			'markdown.separatorSyntax' => '---',
 			'markdown.syntax' => '语法',
 			'forum.recent' => '最近',
+			_ => null,
+		} ?? switch (path) {
 			'forum.category' => '分类',
 			'forum.lastReply' => '最后回复',
 			'forum.sitewide.badge' => '全站',
-			_ => null,
-		} ?? switch (path) {
 			'forum.sitewide.title' => '全站公告',
 			'forum.sitewide.readMore' => '查看全文',
 			'forum.errors.pleaseSelectCategory' => '请选择分类',
@@ -4409,11 +4415,11 @@ extension on TranslationsZhCn {
 			'diagnostics.memoryUsage' => ({required Object memMB}) => '内存使用: ${memMB}MB',
 			'diagnostics.deviceInfoUnavailable' => '无法获取设备信息',
 			'diagnostics.logPolicySectionTitle' => '日志策略',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.configServiceUnavailable' => '配置服务未初始化，无法调整日志策略',
 			'diagnostics.enableLoggingTitle' => '启用日志记录',
 			'diagnostics.enableLoggingSubtitle' => '关闭后将停止新增日志记录',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.enableLogPersistenceTitle' => '启用日志持久化',
 			'diagnostics.enableLogPersistenceSubtitle' => '关闭后仅保留内存日志，不再写入磁盘',
 			'diagnostics.minLogLevelTitle' => '最小记录级别',

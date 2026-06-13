@@ -735,13 +735,16 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get editSignature => '編輯小尾巴';
 	@override String get signatureContent => '小尾巴內容';
 	@override String get exportConfig => '匯出應用配置';
-	@override String get exportConfigDesc => '將應用配置匯出為文件（不包含下載記錄）';
+	@override String get exportConfigDesc => '將設定與歷史紀錄（瀏覽紀錄、播放進度、收藏等）匯出為文件，可用於備份或同步到其他裝置。不包含下載任務。';
 	@override String get importConfig => '匯入應用配置';
 	@override String get importConfigDesc => '從文件匯入應用配置';
 	@override String get exportConfigSuccess => '配置匯出成功！';
 	@override String get exportConfigFailed => '配置匯出失敗';
 	@override String get importConfigSuccess => '配置匯入成功！';
 	@override String get importConfigFailed => '配置匯入失敗';
+	@override String get exportIncludeSensitive => '包含敏感資訊';
+	@override String get exportIncludeSensitiveDesc => '包含 API 金鑰、工作階段權杖與代理位址。僅在備份到自己的裝置時開啟。';
+	@override String get importConfigOverwriteWarning => '匯入會覆蓋目前的設定與歷史紀錄（瀏覽紀錄、播放進度、收藏等），確定要繼續嗎？';
 	@override String get historyUpdateLogs => '歷代更新日誌';
 	@override String get noUpdateLogs => '未獲取到更新日誌';
 	@override String get versionLabel => '版本: {version}';
@@ -3438,13 +3441,16 @@ extension on TranslationsZhTw {
 			'settings.editSignature' => '編輯小尾巴',
 			'settings.signatureContent' => '小尾巴內容',
 			'settings.exportConfig' => '匯出應用配置',
-			'settings.exportConfigDesc' => '將應用配置匯出為文件（不包含下載記錄）',
+			'settings.exportConfigDesc' => '將設定與歷史紀錄（瀏覽紀錄、播放進度、收藏等）匯出為文件，可用於備份或同步到其他裝置。不包含下載任務。',
 			'settings.importConfig' => '匯入應用配置',
 			'settings.importConfigDesc' => '從文件匯入應用配置',
 			'settings.exportConfigSuccess' => '配置匯出成功！',
 			'settings.exportConfigFailed' => '配置匯出失敗',
 			'settings.importConfigSuccess' => '配置匯入成功！',
 			'settings.importConfigFailed' => '配置匯入失敗',
+			'settings.exportIncludeSensitive' => '包含敏感資訊',
+			'settings.exportIncludeSensitiveDesc' => '包含 API 金鑰、工作階段權杖與代理位址。僅在備份到自己的裝置時開啟。',
+			'settings.importConfigOverwriteWarning' => '匯入會覆蓋目前的設定與歷史紀錄（瀏覽紀錄、播放進度、收藏等），確定要繼續嗎？',
 			'settings.historyUpdateLogs' => '歷代更新日誌',
 			'settings.noUpdateLogs' => '未獲取到更新日誌',
 			'settings.versionLabel' => '版本: {version}',
@@ -3893,11 +3899,11 @@ extension on TranslationsZhTw {
 			'markdown.mentionUser' => '提及使用者',
 			'markdown.mentionUserDescription' => '輸入@後跟使用者名稱，將自動轉換為使用者連結',
 			'markdown.markdownBasicSyntax' => 'Markdown 基本語法',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.paragraphAndLineBreak' => '段落與換行',
 			'markdown.paragraphAndLineBreakDescription' => '段落之間空一行，行末加兩個空格實現換行',
 			'markdown.paragraphAndLineBreakSyntax' => '這是第一段文字\n\n這是第二段文字\n這一行後面加兩個空格  \n就能換行了',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.textStyle' => '文字樣式',
 			'markdown.textStyleDescription' => '使用特殊符號包圍文本來改變樣式',
 			'markdown.textStyleSyntax' => '**粗體文字**\n*斜體文字*\n~~刪除線文字~~\n`程式碼文字`',
@@ -4407,11 +4413,11 @@ extension on TranslationsZhTw {
 			'mediaPlayer.switchedToServer' => ({required Object serverName}) => '已切換到伺服器: ${serverName}',
 			'mediaPlayer.serverCount' => ({required Object count}) => '共 ${count} 個伺服器',
 			'mediaPlayer.statusCode' => ({required Object code}) => '狀態碼: ${code}',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.connectionFailed' => '連接失敗',
 			'mediaPlayer.connectionTimeout' => '連接超時',
 			'mediaPlayer.networkError' => '網絡錯誤',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.sslError' => 'SSL證書錯誤',
 			'mediaPlayer.testCompleted' => '測速完成',
 			'mediaPlayer.local' => '本地',

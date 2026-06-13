@@ -600,13 +600,16 @@ settings:
   editSignature: 编辑小尾巴
   signatureContent: 小尾巴内容
   exportConfig: "导出应用配置"
-  exportConfigDesc: "将应用配置导出为文件（不包含下载记录）"
+  exportConfigDesc: "将设置与历史记录（浏览历史、播放进度、收藏等）导出为文件，可用于备份或同步到其他设备。不包含下载任务。"
   importConfig: "导入应用配置"
   importConfigDesc: "从文件导入应用配置"
   exportConfigSuccess: "配置导出成功！"
   exportConfigFailed: "配置导出失败"
   importConfigSuccess: "配置导入成功！"
   importConfigFailed: "配置导入失败"
+  exportIncludeSensitive: "包含敏感信息"
+  exportIncludeSensitiveDesc: "包含 API 密钥、会话令牌和代理地址。仅在备份到自己的设备时开启。"
+  importConfigOverwriteWarning: "导入会覆盖当前的设置与历史记录（浏览历史、播放进度、收藏等），确定继续吗？"
   historyUpdateLogs: "历代更新日志"
   noUpdateLogs: "未获取到更新日志"
   versionLabel: "版本: {version}"

@@ -593,13 +593,16 @@ settings:
   editSignature: Edit Signature
   signatureContent: Signature Content
   exportConfig: "Export App Configuration"
-  exportConfigDesc: "Export app configuration to a file (excluding download records)"
+  exportConfigDesc: "Export settings and history (browsing history, playback progress, favorites, etc.) to a file for backup or transfer to another device. Download tasks are not included."
   importConfig: "Import App Configuration"
   importConfigDesc: "Import app configuration from a file"
   exportConfigSuccess: "Configuration exported successfully!"
   exportConfigFailed: "Failed to export configuration"
   importConfigSuccess: "Configuration imported successfully!"
   importConfigFailed: "Failed to import configuration"
+  exportIncludeSensitive: "Include sensitive info"
+  exportIncludeSensitiveDesc: "Includes API keys, session tokens and proxy address. Only enable when backing up to your own device."
+  importConfigOverwriteWarning: "Importing will overwrite your current settings and history (browsing history, playback progress, favorites, etc.). Continue?"
   historyUpdateLogs: "History Update Logs"
   noUpdateLogs: "No update logs available"
   versionLabel: "Version: {version}"

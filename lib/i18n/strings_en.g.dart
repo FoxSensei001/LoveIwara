@@ -1813,8 +1813,8 @@ class TranslationsSettingsEn {
 	/// en: 'Export App Configuration'
 	String get exportConfig => 'Export App Configuration';
 
-	/// en: 'Export app configuration to a file (excluding download records)'
-	String get exportConfigDesc => 'Export app configuration to a file (excluding download records)';
+	/// en: 'Export settings and history (browsing history, playback progress, favorites, etc.) to a file for backup or transfer to another device. Download tasks are not included.'
+	String get exportConfigDesc => 'Export settings and history (browsing history, playback progress, favorites, etc.) to a file for backup or transfer to another device. Download tasks are not included.';
 
 	/// en: 'Import App Configuration'
 	String get importConfig => 'Import App Configuration';
@@ -1833,6 +1833,15 @@ class TranslationsSettingsEn {
 
 	/// en: 'Failed to import configuration'
 	String get importConfigFailed => 'Failed to import configuration';
+
+	/// en: 'Include sensitive info'
+	String get exportIncludeSensitive => 'Include sensitive info';
+
+	/// en: 'Includes API keys, session tokens and proxy address. Only enable when backing up to your own device.'
+	String get exportIncludeSensitiveDesc => 'Includes API keys, session tokens and proxy address. Only enable when backing up to your own device.';
+
+	/// en: 'Importing will overwrite your current settings and history (browsing history, playback progress, favorites, etc.). Continue?'
+	String get importConfigOverwriteWarning => 'Importing will overwrite your current settings and history (browsing history, playback progress, favorites, etc.). Continue?';
 
 	/// en: 'History Update Logs'
 	String get historyUpdateLogs => 'History Update Logs';
@@ -7413,13 +7422,16 @@ extension on Translations {
 			'settings.editSignature' => 'Edit Signature',
 			'settings.signatureContent' => 'Signature Content',
 			'settings.exportConfig' => 'Export App Configuration',
-			'settings.exportConfigDesc' => 'Export app configuration to a file (excluding download records)',
+			'settings.exportConfigDesc' => 'Export settings and history (browsing history, playback progress, favorites, etc.) to a file for backup or transfer to another device. Download tasks are not included.',
 			'settings.importConfig' => 'Import App Configuration',
 			'settings.importConfigDesc' => 'Import app configuration from a file',
 			'settings.exportConfigSuccess' => 'Configuration exported successfully!',
 			'settings.exportConfigFailed' => 'Failed to export configuration',
 			'settings.importConfigSuccess' => 'Configuration imported successfully!',
 			'settings.importConfigFailed' => 'Failed to import configuration',
+			'settings.exportIncludeSensitive' => 'Include sensitive info',
+			'settings.exportIncludeSensitiveDesc' => 'Includes API keys, session tokens and proxy address. Only enable when backing up to your own device.',
+			'settings.importConfigOverwriteWarning' => 'Importing will overwrite your current settings and history (browsing history, playback progress, favorites, etc.). Continue?',
 			'settings.historyUpdateLogs' => 'History Update Logs',
 			'settings.noUpdateLogs' => 'No update logs available',
 			'settings.versionLabel' => 'Version: {version}',
@@ -7868,11 +7880,11 @@ extension on Translations {
 			'forum.sitewide.badge' => 'Sitewide',
 			'forum.sitewide.title' => 'Sitewide Announcement',
 			'forum.sitewide.readMore' => 'Read more',
+			_ => null,
+		} ?? switch (path) {
 			'forum.errors.pleaseSelectCategory' => 'Please select a category',
 			'forum.errors.threadLocked' => 'This thread is locked, cannot reply',
 			'forum.createPost' => 'Create Post',
-			_ => null,
-		} ?? switch (path) {
 			'forum.title' => 'Title',
 			'forum.enterTitle' => 'Enter Title',
 			'forum.content' => 'Content',
@@ -8382,11 +8394,11 @@ extension on Translations {
 			'layoutSettings.widthCannotExceed9999' => 'Width cannot exceed 9999',
 			'layoutSettings.breakpointAlreadyExists' => 'Breakpoint already exists',
 			'layoutSettings.enterColumns' => 'Please enter columns',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.enterValidColumns' => 'Please enter valid columns',
 			'layoutSettings.columnsCannotExceed12' => 'Columns cannot exceed 12',
 			'layoutSettings.breakpointConflict' => 'Breakpoint already exists',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.confirmResetLayoutSettings' => 'Reset Layout Settings',
 			'layoutSettings.confirmResetLayoutSettingsDesc' => 'Are you sure you want to reset all layout settings to default values?\n\nWill restore to:\n• Auto mode\n• Default breakpoint configuration',
 			'layoutSettings.resetToDefaults' => 'Reset to Defaults',
