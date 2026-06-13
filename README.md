@@ -1,10 +1,14 @@
 <div align="center">
 
 <a href="https://github.com/FoxSensei001/LoveIwara">
-    <img src="assets/icon/launcher_icon_v2.png" alt="Love Iwara logo" title="Love Iwara logo" width="80"/>
+    <img src="assets/icon/launcher_icon_v2.png" alt="Love Iwara logo" title="Love Iwara logo" width="96"/>
 </a>
 
-# Love Iwara (2i)
+# Love Iwara <sup>(2i)</sup>
+
+**A fast, beautiful, cross-platform third-party Iwara client built with Flutter.**
+
+One codebase → Android · Windows · macOS · Linux · iOS
 
 [![Telegram Group](https://img.shields.io/badge/Telegram-Group-2CA5E0?style=flat&logo=telegram&logoColor=white)](https://t.me/+OtpMbe9DkjYzMGM1)
 [![GitHub stars](https://img.shields.io/github/stars/FoxSensei001/LoveIwara?label=stars&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara)
@@ -12,132 +16,102 @@
 [![License: MIT](https://img.shields.io/github/license/FoxSensei001/LoveIwara?labelColor=27303D&color=0877d2)](LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/FoxSensei001/LoveIwara?labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/issues)
 
-[English](#english) | [中文](README_ZH.md)
+![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?style=flat&logo=flutter&logoColor=white)
+![Dart](https://img.shields.io/badge/Dart-^3.8-0175C2?style=flat&logo=dart&logoColor=white)
+![Android](https://img.shields.io/badge/Android-3DDC84?style=flat&logo=android&logoColor=white)
+![Windows](https://img.shields.io/badge/Windows-0078D6?style=flat&logo=windows&logoColor=white)
+![macOS](https://img.shields.io/badge/macOS-000000?style=flat&logo=apple&logoColor=white)
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
+![iOS](https://img.shields.io/badge/iOS-000000?style=flat&logo=apple&logoColor=white)
+
+**English** · [中文](README_ZH.md)
 
 </div>
 
 ---
 
-## English
+## 🌟 Introduction
 
-### 🌟 Introduction
-Love Iwara (also known as i_iwara or 2i) is a third-party mobile application for Iwara built with Flutter. Our goal is to provide users with an excellent experience, supporting multiple platforms and devices including mobile phones, tablets and computers, compatible with Android, Windows, macOS, Linux, and iOS operating systems.
+**Love Iwara** (also known as `i_iwara` or **2i**) is a third-party client for [Iwara](https://www.iwara.tv) built with Flutter. It aims to deliver a smooth, native-feeling experience across phones, tablets, and desktops — all from a single codebase covering **Android, Windows, macOS, Linux, and iOS**.
 
-### ⚠️ Project Description
-As a Flutter beginner, this is my first attempt at developing a cross-platform application. While there may be areas in the project that need improvement and code that could be optimized, the main purpose is to learn and understand Flutter development through hands-on practice.
+> [!NOTE]
+> This started as a learning project — my first attempt at a cross-platform Flutter app. Some code may not be perfectly polished, but it's actively maintained and packed with features. If you're learning Flutter too, I hope we can grow together. PRs and feedback are always welcome!
 
-- **Learning Objectives**
-  - Familiarize with Flutter development basics
-  - Understand cross-platform application development processes
-  - Document insights and experiences during the learning process
+> [!IMPORTANT]
+> **Usage restrictions** — This project is for learning and personal reference only and is **not recommended for production use**. **Promotion of this project on any public platform is strictly prohibited.** Violations may result in maintenance being halted and the repository being removed.
 
-- **Project Status**
-  - Currently in the learning and exploration phase
-  - Code may not be sufficiently standardized and complete
-  - Feature implementation primarily focuses on learning purposes
+> [!WARNING]
+> **Disclaimer** — The developer(s) have no affiliation with Iwara or its content providers. This application hosts **zero** content of its own.
 
-- **Usage Notes**
-  - This project is for learning reference only
-  - Not recommended for production environment
-  - Welcome discussions with other learners
+## ✨ Features
 
-- **Usage Restrictions**
-  - Strictly prohibited from promotion on any platform
-  - Violations will result in measures including but not limited to maintenance suspension and repository deletion
+### 🖥️ Platforms
+| Android | Windows | macOS | Linux | iOS |
+|:---:|:---:|:---:|:---:|:---:|
+| ✅ | ✅ | ✅ | ⚠️ *untested¹* | ⚠️ *untested¹* |
 
-- **Known Issues**
-  - Due to limited experience, the project may have room for performance optimization
-  - Some features may not be fully developed
-  - On Android, Impeller rendering has been disabled due to severe performance issues. This might pose a hidden risk for future updates, and the root cause is currently unknown. To re-enable Impeller, you can add `<meta-data android:name="flutter.embedding.android.EnableImpeller" android:value="true" />` within the `<application>` tag in `android/app/src/main/AndroidManifest.xml`. If you have insights or solutions, please feel free to submit a PR, open an [Issues](https://github.com/FoxSensei001/i_iwara/issues), or discuss it in the [Communication Group](https://t.me/+OtpMbe9DkjYzMGM1).
-  - Suggestions for improvement are welcome
+<sub>¹ Linux & iOS builds are produced but currently untested due to a lack of test devices.</sub>
 
-Thank you for your understanding and support! If you're also a Flutter beginner, I hope we can progress together in our learning journey.
+### 🎥 Video
+- Smooth playback powered by **media_kit** (libmpv)
+- Quality selection · playback-speed control (incl. a default / auto speed) · fullscreen
+- **Seek preview** thumbnails on progress-bar hover & drag
+- **Clickable timestamps** — jump straight to a moment from highlighted timestamps in descriptions & comments
+- **"Continue watching"** drawer + optional auto-play on entering a video
+- Live loading-speed indicator
+- Desktop: **drag & drop** local video files onto the window to play instantly
 
-### ✨ Features
-#### Current Features
-- **🖥️ Supported Platforms**
-    - 📱 Android
-    - 🪟 Windows
-    - 🍎 MacOS
-    - 🐧 Linux (Due to lack of Linux device, testing unavailable)
-    - 📱 iOS (Due to lack of iOS device, testing unavailable)
+### 🌐 Browse & Discover
+- Multi-category **search**: videos · galleries · posts · users · forums
+- **Site switching** between `iwara.tv` and `iwara.ai` at runtime
+- **News** feed integration (`news.iwara.tv`)
+- **Oreno3d** tag source integration for richer video tagging
+- Subscriptions, rich filtering, and responsive layouts for desktop/tablet
 
+### 🖼️ Gallery
+- Image browsing with smooth zoom & pan
+- Gallery viewer with quality settings
 
-- **🔍 Search**
-    - Search videos/galleries/posts/users/forums
+### 💬 Community
+- **Forum**: create & edit threads and replies
+- **Posts**: browse & comment
+- **Comments**: browse & reply
+- **Private messages**: browse & reply
+- **In-app notifications**: browse & reply
 
-- **📜 History**
-    - Browsing history: videos/galleries/posts/forums
-- **📜 Local Favorite**
-    - Favorite folder
-    - Local favorite
-- **🔍 Download (Test Version)**
-    - Download videos/galleries/single files
+### 👤 Account & Sharing
+- User authentication, profile management, following system
+- **Share** videos / galleries / posts / threads / users
+- Android deep-link handoff: opening an Iwara link in another app jumps back into 2i
 
-- **🔄 Translation**
-    - Translate video descriptions/gallery descriptions/posts/comments/forums/conversations, etc.
+### 🗂️ Local Data & Utilities
+- **History** (local): videos · galleries · posts · forums
+- **Local favorites** with custom favorite folders
+- **Downloads** *(beta)*: videos / galleries / single files, with custom paths (incl. external SD/TF card on Android)
+- **Backup & restore**: export / import configuration and history
+- **Translation** of descriptions, posts, comments, forums, conversations, and more
+- "Remember last volume" option (PC)
 
-- **🎥 Video**
-    - Video playback
-    - Video tags
-    - Video quality selection
-    - Playback speed control
-    - Fullscreen support
-    - Desktop support for drag-and-drop video files to play directly
+### 🌍 Multi-language
+English · 简体中文 · 繁體中文 · 日本語
 
-- **🖼️ Gallery**
-    - Image browsing
-    - Image zoom and pan
-    - Gallery view
+> Found something else? There are more hidden gems to discover — and more on the way. Got an idea? Open an [Issue](https://github.com/FoxSensei001/LoveIwara/issues) or drop by the [Telegram group](https://t.me/+OtpMbe9DkjYzMGM1).
 
-- **📝 Posts**
-    - Browse/comment
+## 🧰 Tech Stack
 
-- **🗣️ Forum System**
-    - Publish/edit posts
-    - Publish/edit replies
+| Area | Library |
+|---|---|
+| Framework | **Flutter** + Dart |
+| State management | **GetX** (`get`) |
+| Routing | **go_router** |
+| Networking | **Dio** (+ CookieJar / Cloudflare interceptors) |
+| Video | **media_kit** (libmpv) |
+| Persistence | **sqlite3** · **get_storage** · **flutter_secure_storage** |
+| i18n | **slang** |
+| Desktop shell | **window_manager** (custom title bar, drag & drop) |
 
-- **📜 Comments**
-    - Comment browsing
-    - Comment reply
-- **📜 Local Favorite**
-    - Favorite folder
-    - Local favorite
+## 📸 Screenshots
 
-- **📩 Private Messages**
-    - Private message browsing
-    - Private message reply
-
-- **🔔 In-app Message Notifications**
-    - Message notification browsing
-    - Message notification reply
-
-- **👤 User System**
-    - User authentication
-    - Profile management
-    - Following system
-- **🔗 Share**
-    - Share video/gallery/post/thread/user
-    - Android app jump (Only Android, other apps will jump to the app to continue browsing when trying to open the link)
-
-- **🌍 Multi-language Support**
-    - English
-    - Simplified Chinese
-    - Traditional Chinese
-    - Japanese
-
-- **🔍 More features to be discovered**
-
-#### Upcoming Features
-- **Temporary no new features planned, you can submit your ideas in the [Issues](https://github.com/FoxSensei001/i_iwara/issues) or [Communication Group](https://t.me/+OtpMbe9DkjYzMGM1)**
-- **Enhanced User Experience**
-- **Others**
-
-### 📱 Communication Group
-
-Join our community on Telegram: [Click here](https://t.me/+OtpMbe9DkjYzMGM1) to join the communication group.
-
-### 📱 Screenshots
 | | |
 |:-------------------------:|:-------------------------:|
 |<img src="docs/imgs/all.png" width="300">|<img src="docs/imgs/dingyue.png" width="300">|
@@ -151,158 +125,152 @@ Join our community on Telegram: [Click here](https://t.me/+OtpMbe9DkjYzMGM1) to 
 |<img src="docs/imgs/tukuliebiao.png" width="300">|<img src="docs/imgs/zuozhe.png" width="300">|
 |<img src="docs/imgs/download.png" width="300">|<img src="docs/imgs/localshoucang.png" width="300">|
 
-### 🛠️ Development Environment Setup
+## 🚀 Quick Start
 
-#### Prerequisites
-- Flutter SDK (Latest stable version recommended)
-- Dart SDK
-- Git
-- Recommended IDEs:
-  - Android Studio / Cursor
-  - VS Code / Cursor + Flutter plugin
-- Check the [pubspec.yaml](pubspec.yaml) for more dependencies. Some of them needs to run some magic commonds to prepare your environment.
-
-#### Platform-Specific Requirements
-
-**Windows Development Environment:**
-- Windows 10 or higher (64-bit)
-- Visual Studio 2022 or newer
-- Windows 10 SDK
 ```bash
-# Check Windows development environment
+# 1. Clone
+git clone https://github.com/FoxSensei001/LoveIwara.git
+cd LoveIwara
+
+# 2. Verify your toolchain
+flutter doctor
+
+# 3. Install dependencies
+flutter pub get
+
+# 4. Run (auto-selects a connected device)
+flutter run
+# …or target a platform:
+flutter run -d windows   # macos / linux / android / ios
+```
+
+> [!TIP]
+> After editing any `lib/i18n/*.i18n.yaml`, regenerate the localization strings with `dart run slang`.
+> See [`pubspec.yaml`](pubspec.yaml) for the full dependency list — a few packages need extra setup steps.
+
+<details>
+<summary><b>🛠️ Full development environment setup</b></summary>
+
+### Prerequisites
+- Flutter SDK (latest stable recommended) · Dart SDK · Git
+- Recommended IDE: Android Studio / VS Code / Cursor + Flutter plugin
+
+### Platform-specific requirements
+
+**Windows**
+- Windows 10+ (64-bit), Visual Studio 2022+, Windows 10 SDK
+```bash
 flutter doctor -v
 ```
 
-**macOS Development Environment:**
-- macOS (latest version recommended)
-- Xcode (latest version)
-- CocoaPods
+**macOS**
+- Latest macOS + Xcode + CocoaPods
 ```bash
-# Install CocoaPods
 sudo gem install cocoapods
 ```
 
-**Linux Development Environment:**
+**Linux**
 ```bash
 # Ubuntu/Debian
 sudo apt-get install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
-
 # Fedora
 sudo dnf install clang cmake ninja-build gtk3-devel
 ```
 
-**Android Development Environment:**
-- Android Studio
-- Android SDK
-- Android emulator or physical device
+**Android** — Android Studio + Android SDK + emulator/device
+**iOS** — Xcode + simulator/device + Apple Developer account (for publishing)
 
-**iOS Development Environment:**
-- Xcode
-- iOS simulator or physical device
-- Apple Developer account (required for publishing)
-
-#### Project Setup
+### Build release binaries
 ```bash
-# 1. Clone repository
-git clone [repository address]
-cd [project directory]
-
-# 2. Check Flutter environment
-flutter doctor
-
-# 3. Get dependencies
-flutter pub get
-
-# 4. Start development
-# Run on default device
-flutter run
-
-# Run on specific platform
-flutter run -d windows  # Windows
-flutter run -d macos   # macOS
-flutter run -d linux   # Linux
-
-flutter run -d android # Android
-flutter run -d ios     # iOS
-
-# 5. Build release version
-# Android
-flutter build apk --release
-flutter build appbundle --release
-
-# iOS
-flutter build ios --release
-
-# Windows
-flutter build windows --release
-
-# macOS
-flutter build macos --release
-
-# Linux
-flutter build linux --release
-
-
+flutter build apk --release          # Android APK
+flutter build appbundle --release    # Android AAB
+flutter build ios --release          # iOS
+flutter build windows --release      # Windows
+flutter build macos --release        # macOS
+flutter build linux --release        # Linux
 ```
 
-#### Common Development Commands
+### Handy commands
 ```bash
-# Generate internationalization text
-dart run slang
-
-# Clean build cache
-flutter clean
-
-# Update Flutter SDK
-flutter upgrade
-
-# Analyze code
-flutter analyze
-
-# Run tests
-flutter test
-
-# View connected devices
-flutter devices
-
-# Create new page/component
-flutter create component_name
+dart run slang     # regenerate i18n strings
+flutter analyze    # lint
+flutter test       # run tests
+flutter clean      # clear build cache
+flutter devices    # list connected devices
 ```
 
-#### Notes
-1. Ensure proper configuration of development environments for each platform
-2. iOS development requires macOS system
-3. Regularly update Flutter SDK and dependencies
-4. Use `.gitignore` to exclude unnecessary files
-5. Follow Flutter official best practices guide
-
-#### Common Problem Solutions
+### Troubleshooting
 ```bash
-# Dependency conflict resolution
-flutter pub cache repair
-flutter clean
-flutter pub get
-
-# Emulator issues
-flutter emulators
-flutter emulators --launch <emulator_id>
-
-# Development tool reset
-flutter config --clear-features
+# Dependency conflicts
+flutter pub cache repair && flutter clean && flutter pub get
+# Emulator
+flutter emulators && flutter emulators --launch <emulator_id>
 ```
-These settings cover the main aspects of Flutter cross-platform development. Depending on specific project requirements, additional configuration or tools may be needed. It's recommended to regularly check Flutter official documentation for the latest development guides and best practices.
 
-### 🌍 Internationalization
-Currently, the project's internationalization text is mainly generated by GPT. If you're willing to help improve translations, please refer to the Simplified Chinese template file: [lib/i18n/zh-CN.i18n.yaml](lib/i18n/zh-CN.i18n.yaml).
+</details>
 
-### 💬 Feedback and Suggestions
-If you have any suggestions or find any bugs, feel free to submit feedback in the project's issues section.
+<details>
+<summary><b>🔐 Android signing configuration</b></summary>
 
-### 🙏 Acknowledgments
+To build a signed release APK:
 
-#### Special Thanks to These Amazing Projects
+**1. Generate a keystore** (run inside `android/app`):
+```bash
+keytool -genkeypair -v -keystore keystore.jks -alias <your_key_alias> -keyalg RSA -keysize 2048 -validity 10000
+```
+Make sure `keystore.jks` ends up in `android/app`.
 
-The development of this project was inspired by the following excellent projects. Many implementation methods and best practices were learned from these repositories.
+**2. Configure signing** in `android/app/build.gradle`:
+```groovy
+signingConfigs {
+    release {
+        storeFile file("keystore.jks")
+        storePassword System.getenv("KEYSTORE_PASSWORD") ?: project.findProperty("MY_KEYSTORE_PASSWORD")
+        keyAlias System.getenv("KEY_ALIAS") ?: project.findProperty("MY_KEY_ALIAS")
+        keyPassword System.getenv("KEY_PASSWORD") ?: project.findProperty("MY_KEY_PASSWORD")
+    }
+}
+```
+And add the placeholders to `android/gradle.properties`:
+```properties
+MY_KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD}
+MY_KEY_ALIAS=${KEY_ALIAS}
+MY_KEY_PASSWORD=${KEY_PASSWORD}
+```
+
+**3. GitHub Actions** — add repository Secrets: `KEYSTORE_BASE64` (base64 of `keystore.jks`), `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`. Then in `.github/workflows/build.yml`:
+```yaml
+env:
+  KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+  KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+  KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+steps:
+  - name: Setup Keystore
+    run: |
+      echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore.jks
+    shell: bash
+```
+
+**4. Build** — `flutter build apk --release` → output at `build/app/outputs/flutter-apk/app-release.apk`.
+
+</details>
+
+## ⚙️ Known Issues
+
+- **Impeller is disabled on Android** due to severe performance problems. The root cause is still unknown, and this may pose a risk for future updates. To re-enable it, add the following inside the `<application>` tag of `android/app/src/main/AndroidManifest.xml`:
+  ```xml
+  <meta-data android:name="flutter.embedding.android.EnableImpeller" android:value="true" />
+  ```
+  If you have insights or a fix, please open a [PR](https://github.com/FoxSensei001/LoveIwara/pulls), an [Issue](https://github.com/FoxSensei001/LoveIwara/issues), or discuss it in the [Telegram group](https://t.me/+OtpMbe9DkjYzMGM1).
+
+## 🌍 Internationalization
+
+Translations are currently mostly machine-generated. If you'd like to help improve them, start from the Simplified Chinese template: [`lib/i18n/zh-CN.i18n.yaml`](lib/i18n/zh-CN.i18n.yaml), then run `dart run slang`.
+
+## 🙏 Acknowledgments
+
+This project drew inspiration and learned many best practices from these excellent repositories:
 
 <div align="center">
 
@@ -331,9 +299,9 @@ The development of this project was inspired by the following excellent projects
 
 </div>
 
-#### Contributors
+### Contributors
 
-Thanks to all the developers who have contributed to this project!
+Thanks to everyone who has contributed! 🎉
 
 <div align="center">
 
@@ -345,78 +313,16 @@ Thanks to all the developers who have contributed to this project!
 
 <sub>Made with [contrib.rocks](https://contrib.rocks)</sub>
 
-### 🤝 Contributing
+## 🤝 Contributing
 
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
+Pull requests are welcome! For major changes, please open an issue first to discuss what you'd like to change. Before reporting a new issue, check the existing [issues](https://github.com/FoxSensei001/LoveIwara/issues). Questions? Join our [Telegram group](https://t.me/+OtpMbe9DkjYzMGM1).
 
-Before reporting a new issue, take a look at the already opened [issues](https://github.com/FoxSensei001/LoveIwara/issues); if you have any questions, join our [Telegram group](https://t.me/+OtpMbe9DkjYzMGM1).
+## 💬 Community
 
-### ⚠️ Disclaimer
+Join us on Telegram: **[Click here to join the group](https://t.me/+OtpMbe9DkjYzMGM1)**.
 
-The developer(s) of this application does not have any affiliation with Iwara or its content providers, and this application hosts zero content.
+---
 
-## Android Signing Configuration
-
-Before building the Android version, you need to configure the correct signing information to generate the official release APK. Please follow these steps:
-
-1. **Generate keystore file**
-
-   Open terminal in the project's `android/app` directory and execute the following command (please replace `<your_key_alias>` and other parameters with your own information):
-   ```bash
-   keytool -genkeypair -v -keystore keystore.jks -alias <your_key_alias> -keyalg RSA -keysize 2048 -validity 10000
-   ```
-   This command will generate a file named `keystore.jks` in the current directory. Please ensure this file is located in the `android/app` directory.
-
-2. **Configure signing information**
-
-   Please check the signing configuration in the `android/app/build.gradle` file to ensure it's configured as follows:
-   ```groovy
-   signingConfigs {
-       release {
-           storeFile file("keystore.jks")
-           storePassword System.getenv("KEYSTORE_PASSWORD") ?: project.findProperty("MY_KEYSTORE_PASSWORD")
-           keyAlias System.getenv("KEY_ALIAS") ?: project.findProperty("MY_KEY_ALIAS")
-           keyPassword System.getenv("KEY_PASSWORD") ?: project.findProperty("MY_KEY_PASSWORD")
-       }
-   }
-   ```
-   At the same time, ensure the following placeholders are included in the `android/gradle.properties` file:
-   ```properties
-   MY_KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD}
-   MY_KEY_ALIAS=${KEY_ALIAS}
-   MY_KEY_PASSWORD=${KEY_PASSWORD}
-   ```
-   This ensures that signing information can be injected through system environment variables, or configured directly with actual values locally (recommended only for debugging environments).
-
-3. **GitHub Actions Configuration**
-
-   To automatically build signed APKs on GitHub Actions, the following preparations are needed:
-   - Convert the `keystore.jks` file to a Base64-encoded string, then add a Secret in the repository's Secrets (for example, named `KEYSTORE_BASE64`).
-   - At the same time, add the following entries in the repository Secrets:
-     - `KEYSTORE_PASSWORD` (your keystore password)
-     - `KEY_ALIAS` (alias used for signing)
-     - `KEY_PASSWORD` (your key password)
-
-   In the workflow file (such as `.github/workflows/build.yml`), configure environment variables and restore keystore file steps as shown in the following example:
-   ```yaml
-   env:
-     KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-     KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-     KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-   
-   steps:
-     - name: Setup Keystore
-       run: |
-         echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore.jks
-       shell: bash
-   ```
-
-4. **Build Command**
-
-   After configuration is complete, execute in the project root directory:
-   ```bash
-   flutter build apk --release
-   ```
-   After successful build, the generated APK will be located at `build/app/outputs/flutter-apk/app-release.apk`.
-
-After following the above steps for configuration, you can generate and use signed Android APKs for publishing or subsequent overlay installations.
+<div align="center">
+<sub>Made with ❤️ and Flutter · This is a fan-made client — please support official Iwara.</sub>
+</div>
