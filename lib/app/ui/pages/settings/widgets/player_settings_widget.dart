@@ -546,6 +546,22 @@ class PlayerSettingsWidget extends StatelessWidget {
                       _configService[ConfigKey.REPEAT_KEY] = value;
                     },
                   ),
+                  // 记住音量（仅限 PC）
+                  if (GetPlatform.isDesktop)
+                    _buildSwitchSetting(
+                      context: context,
+                      iconData: Icons.volume_up,
+                      label: t.settings.rememberVolume,
+                      showInfoCard: true,
+                      infoMessage: t
+                          .settings
+                          .thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain,
+                      rxValue: _configService
+                          .settings[ConfigKey.KEEP_LAST_VOLUME_KEY]!,
+                      onChanged: (value) {
+                        _configService[ConfigKey.KEEP_LAST_VOLUME_KEY] = value;
+                      },
+                    ),
                   // 记住亮度（仅限特定平台）
                   if (GetPlatform.isAndroid || GetPlatform.isIOS)
                     _buildSwitchSetting(
