@@ -632,6 +632,9 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get rewindTimeMustBeAPositiveInteger => '巻き戻し時間は正の整数でなければなりません。';
 	@override String get longPressPlaybackSpeed => '長押し再生速度';
 	@override String get longPressPlaybackSpeedMustBeAPositiveNumber => '長押し再生速度は正の数でなければなりません。';
+	@override String get defaultPlaybackSpeed => 'デフォルト再生速度';
+	@override String get rememberPlaybackSpeed => '再生速度を記憶する';
+	@override String get rememberPlaybackSpeedDesc => '有効にすると、プレーヤーで調整した再生速度がデフォルトとして保存され、以降の新しい動画に自動的に適用されます。';
 	@override String get repeat => 'リピート';
 	@override String get renderVerticalVideoInVerticalScreen => '全画面再生時に縦向きビデオを縦画面モードでレンダリング';
 	@override String get thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen => 'この設定は、全画面再生時に縦向きビデオを縦画面モードでレンダリングするかどうかを決定します。';
@@ -3327,6 +3330,9 @@ extension on TranslationsJa {
 			'settings.rewindTimeMustBeAPositiveInteger' => '巻き戻し時間は正の整数でなければなりません。',
 			'settings.longPressPlaybackSpeed' => '長押し再生速度',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '長押し再生速度は正の数でなければなりません。',
+			'settings.defaultPlaybackSpeed' => 'デフォルト再生速度',
+			'settings.rememberPlaybackSpeed' => '再生速度を記憶する',
+			'settings.rememberPlaybackSpeedDesc' => '有効にすると、プレーヤーで調整した再生速度がデフォルトとして保存され、以降の新しい動画に自動的に適用されます。',
 			'settings.repeat' => 'リピート',
 			'settings.renderVerticalVideoInVerticalScreen' => '全画面再生時に縦向きビデオを縦画面モードでレンダリング',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => 'この設定は、全画面再生時に縦向きビデオを縦画面モードでレンダリングするかどうかを決定します。',
@@ -3373,11 +3379,11 @@ extension on TranslationsJa {
 			'settings.update' => '更新',
 			'settings.newVersionAvailable' => '新しいバージョンが利用可能です',
 			'settings.projectHome' => 'プロジェクトホーム',
+			_ => null,
+		} ?? switch (path) {
 			'settings.release' => 'リリース',
 			'settings.issueReport' => '問題報告',
 			'settings.openSourceLicense' => 'オープンソースライセンス',
-			_ => null,
-		} ?? switch (path) {
 			'settings.checkForUpdatesFailed' => '更新のチェックに失敗しました。後でもう一度お試しください',
 			'settings.autoCheckUpdate' => '自動更新',
 			'settings.updateContent' => '更新内容',
@@ -3887,11 +3893,11 @@ extension on TranslationsJa {
 			'forum.errors.pleaseSelectCategory' => 'カテゴリを選択してください',
 			'forum.errors.threadLocked' => 'このスレッドはロックされています。',
 			'forum.title' => 'タイトル',
+			_ => null,
+		} ?? switch (path) {
 			'forum.createPost' => '投稿を作成',
 			'forum.enterTitle' => 'タイトルを入力してください',
 			'forum.content' => 'コンテンツ',
-			_ => null,
-		} ?? switch (path) {
 			'forum.enterContent' => 'コンテンツを入力してください',
 			'forum.writeYourContentHere' => 'ここにコンテンツを入力...',
 			'forum.posts' => '投稿',
@@ -4401,11 +4407,11 @@ extension on TranslationsJa {
 			'diagnostics.minLogLevelTitle' => '最小記録レベル',
 			'diagnostics.minLogLevelSubtitle' => 'このレベル未満のログは除外されます',
 			'diagnostics.maxFileSizeTitle' => '単一ファイルの上限サイズ',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.maxFileSizeSubtitle' => 'しきい値到達でローテーションします',
 			'diagnostics.rotatedFileCountTitle' => 'メインログのローテーション数',
 			'diagnostics.rotatedFileCountSubtitle' => '現在ファイルを除く保持数',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.hangFileSizeTitle' => 'ハングログの上限サイズ',
 			'diagnostics.hangFileSizeSubtitle' => 'hang_events ファイルの増加を制御',
 			'diagnostics.hangRotatedFileCountTitle' => 'ハングログのローテーション数',

@@ -489,6 +489,11 @@ class MyVideoStateController extends GetxController
   void onInit() async {
     super.onInit();
     _isDisposed = false; // 初始化时确保标志位为 false
+    // 应用默认播放倍速：新视频按用户配置的默认倍速起播（1.0 表示正常速度）
+    playerPlaybackSpeed.value =
+        (_configService[ConfigKey.DEFAULT_PLAYBACK_SPEED_KEY] as double)
+            .clamp(0.1, 4.0)
+            .toDouble();
     // 生成随机ID用于节流key
     randomId =
         '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(1000000)}';
@@ -1148,6 +1153,7 @@ class MyVideoStateController extends GetxController
 
       // 设置监听器（必须在 player.open 之后调用）
       _setupListenersAfterOpen();
+      _applyPlaybackSpeedAfterOpen();
 
       // 应用 Shader 设置
       await setShader();
@@ -2242,6 +2248,8 @@ class MyVideoStateController extends GetxController
 
       // 重新设置监听器（包括 buffering 监听器）
       _setupListenersAfterOpen();
+      // 切换清晰度后恢复当前播放倍速（open 会把倍速重置为 1.0）
+      _applyPlaybackSpeedAfterOpen();
     } catch (e) {
       if (_isDisposed) return;
       LogUtils.e('无缝切换分辨率失败: $e', tag: 'MyVideoStateController', error: e);
@@ -2345,6 +2353,7 @@ class MyVideoStateController extends GetxController
     if (_isDisposed) return;
     try {
       _setupListenersAfterOpen();
+      _applyPlaybackSpeedAfterOpen();
 
       await setShader();
     } catch (e) {
@@ -2702,6 +2711,8 @@ class MyVideoStateController extends GetxController
       // 打开新URL，保持播放状态
       await player.open(Media(newUrl, start: savedPosition), play: isPlaying);
       await _applyRepeatMode();
+      // 源刷新后恢复当前播放倍速（open 会把倍速重置为 1.0）
+      _applyPlaybackSpeedAfterOpen();
 
       LogUtils.i('成功切换到新的视频URL', 'MyVideoStateController');
     } catch (e) {
@@ -3096,10 +3107,31 @@ class MyVideoStateController extends GetxController
   }
 
   // 设置当前视频的播放倍率
-  void setPlaybackSpeed(double speed) {
+  // [persistAsDefault] 为 true 且开启了"记住播放倍速"时，会把该倍速写入配置作为默认倍速，
+  // 后续打开的新视频会自动应用。手势长按结束后的恢复调用应传 false，避免覆盖默认值。
+  void setPlaybackSpeed(double speed, {bool persistAsDefault = false}) {
     final double clampedSpeed = speed.clamp(0.1, 4.0).toDouble();
     playerPlaybackSpeed.value = clampedSpeed;
     player.setRate(clampedSpeed);
+    if (persistAsDefault &&
+        _configService[ConfigKey.REMEMBER_PLAYBACK_SPEED_KEY] == true) {
+      _configService[ConfigKey.DEFAULT_PLAYBACK_SPEED_KEY] = clampedSpeed;
+    }
+  }
+
+  /// 在 player.open 之后重新应用当前播放倍速。
+  /// media_kit 每次 open 都会把倍速重置为 1.0，所以切换清晰度/重载视频后需要恢复。
+  void _applyPlaybackSpeedAfterOpen() {
+    if (_isDisposed) return;
+    // 长按快进进行中时，生效的是临时倍速，应恢复它而非普通倍速，避免松手前被打断
+    if (isLongPressing.value) {
+      player.setRate(currentLongPressSpeed.value.clamp(0.1, 4.0).toDouble());
+      return;
+    }
+    final double speed = playerPlaybackSpeed.value.clamp(0.1, 4.0).toDouble();
+    if (speed != 1.0) {
+      player.setRate(speed);
+    }
   }
 
   void setLongPressPlaybackSpeedByConfiguration() {

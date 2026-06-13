@@ -632,6 +632,9 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get rewindTimeMustBeAPositiveInteger => '快退時間必須是正整數。';
 	@override String get longPressPlaybackSpeed => '長按播放倍速';
 	@override String get longPressPlaybackSpeedMustBeAPositiveNumber => '長按播放倍速必須是正數。';
+	@override String get defaultPlaybackSpeed => '預設播放倍速';
+	@override String get rememberPlaybackSpeed => '記住播放倍速';
+	@override String get rememberPlaybackSpeedDesc => '開啟後，在播放器中調整的倍速會自動儲存為預設倍速，並套用到後續播放的新影片。';
 	@override String get repeat => '循環播放';
 	@override String get renderVerticalVideoInVerticalScreen => '全螢幕播放時以直向模式呈現直向影片';
 	@override String get thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen => '此設定將決定當您在全螢幕播放時，是否以直向模式呈現直向影片。';
@@ -3330,6 +3333,9 @@ extension on TranslationsZhTw {
 			'settings.rewindTimeMustBeAPositiveInteger' => '快退時間必須是正整數。',
 			'settings.longPressPlaybackSpeed' => '長按播放倍速',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '長按播放倍速必須是正數。',
+			'settings.defaultPlaybackSpeed' => '預設播放倍速',
+			'settings.rememberPlaybackSpeed' => '記住播放倍速',
+			'settings.rememberPlaybackSpeedDesc' => '開啟後，在播放器中調整的倍速會自動儲存為預設倍速，並套用到後續播放的新影片。',
 			'settings.repeat' => '循環播放',
 			'settings.renderVerticalVideoInVerticalScreen' => '全螢幕播放時以直向模式呈現直向影片',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => '此設定將決定當您在全螢幕播放時，是否以直向模式呈現直向影片。',
@@ -3376,11 +3382,11 @@ extension on TranslationsZhTw {
 			'settings.update' => '更新',
 			'settings.newVersionAvailable' => '發現新版本',
 			'settings.projectHome' => '開源地址',
+			_ => null,
+		} ?? switch (path) {
 			'settings.release' => '版本發布',
 			'settings.issueReport' => '問題回報',
 			'settings.openSourceLicense' => '開源許可',
-			_ => null,
-		} ?? switch (path) {
 			'settings.checkForUpdatesFailed' => '檢查更新失敗，請稍後重試',
 			'settings.autoCheckUpdate' => '自動檢查更新',
 			'settings.updateContent' => '更新內容',
@@ -3890,11 +3896,11 @@ extension on TranslationsZhTw {
 			'markdown.paragraphAndLineBreak' => '段落與換行',
 			'markdown.paragraphAndLineBreakDescription' => '段落之間空一行，行末加兩個空格實現換行',
 			'markdown.paragraphAndLineBreakSyntax' => '這是第一段文字\n\n這是第二段文字\n這一行後面加兩個空格  \n就能換行了',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.textStyle' => '文字樣式',
 			'markdown.textStyleDescription' => '使用特殊符號包圍文本來改變樣式',
 			'markdown.textStyleSyntax' => '**粗體文字**\n*斜體文字*\n~~刪除線文字~~\n`程式碼文字`',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.quote' => '引用',
 			'markdown.quoteDescription' => '使用 > 符號建立引用，多個 > 建立多級引用',
 			'markdown.quoteSyntax' => '> 這是一級引用\n>> 這是二級引用',
@@ -4404,11 +4410,11 @@ extension on TranslationsZhTw {
 			'mediaPlayer.connectionFailed' => '連接失敗',
 			'mediaPlayer.connectionTimeout' => '連接超時',
 			'mediaPlayer.networkError' => '網絡錯誤',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.sslError' => 'SSL證書錯誤',
 			'mediaPlayer.testCompleted' => '測速完成',
 			'mediaPlayer.local' => '本地',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.unknown' => '未知',
 			'mediaPlayer.localVideoPathEmpty' => '本地影片路徑為空',
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => '本地影片檔案不存在: ${path}',

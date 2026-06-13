@@ -22,6 +22,86 @@ class PlayerSettingsWidget extends StatelessWidget {
         leftRatio;
   }
 
+  // 可选的播放倍速档位（与播放器内倍速菜单保持一致）
+  static const List<double> _playbackSpeedOptions = [
+    0.25,
+    0.5,
+    0.75,
+    1.0,
+    1.25,
+    1.5,
+    1.75,
+    2.0,
+    2.5,
+    3.0,
+  ];
+
+  // 默认播放倍速下拉选择项
+  Widget _buildDefaultSpeedSetting(BuildContext context, String label) {
+    return Obx(() {
+      final double current =
+          (_configService[ConfigKey.DEFAULT_PLAYBACK_SPEED_KEY] as double)
+              .clamp(0.1, 4.0)
+              .toDouble();
+      // 保证当前值始终出现在下拉项中，避免历史遗留的非标准值导致断言失败
+      final List<double> options = [..._playbackSpeedOptions];
+      if (!options.contains(current)) {
+        options.add(current);
+        options.sort();
+      }
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.slow_motion_video,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : null,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            DropdownButton<double>(
+              value: current,
+              underline: const SizedBox.shrink(),
+              items: options
+                  .map(
+                    (speed) => DropdownMenuItem<double>(
+                      value: speed,
+                      child: Text('${speed}x'),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  _configService[ConfigKey.DEFAULT_PLAYBACK_SPEED_KEY] = value;
+                }
+              },
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
   // 创建开关设置项，并在上方显示信息提示卡片
   Widget _buildSwitchSetting({
     required IconData iconData,
@@ -409,6 +489,27 @@ class PlayerSettingsWidget extends StatelessWidget {
                         border: const OutlineInputBorder(),
                       ),
                     ),
+                  ),
+                  const SizedBox(height: 16),
+                  // 默认播放倍速（新视频自动应用）
+                  _buildDefaultSpeedSetting(
+                    context,
+                    t.settings.defaultPlaybackSpeed,
+                  ),
+                  const SizedBox(height: 16),
+                  // 记住播放倍速：在播放器中调整后自动保存为默认倍速
+                  _buildSwitchSetting(
+                    context: context,
+                    iconData: Icons.speed,
+                    label: t.settings.rememberPlaybackSpeed,
+                    showInfoCard: true,
+                    infoMessage: t.settings.rememberPlaybackSpeedDesc,
+                    rxValue: _configService
+                        .settings[ConfigKey.REMEMBER_PLAYBACK_SPEED_KEY]!,
+                    onChanged: (value) {
+                      _configService[ConfigKey.REMEMBER_PLAYBACK_SPEED_KEY] =
+                          value;
+                    },
                   ),
                 ],
               ),

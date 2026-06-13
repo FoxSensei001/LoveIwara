@@ -637,6 +637,9 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get rewindTimeMustBeAPositiveInteger => '后退时间必须是一个正整数。';
 	@override String get longPressPlaybackSpeed => '长按播放倍速';
 	@override String get longPressPlaybackSpeedMustBeAPositiveNumber => '长按播放倍速必须是一个正数。';
+	@override String get defaultPlaybackSpeed => '默认播放倍速';
+	@override String get rememberPlaybackSpeed => '记住播放倍速';
+	@override String get rememberPlaybackSpeedDesc => '开启后，在播放器中调整的倍速会自动保存为默认倍速，并应用到后续播放的新视频。';
 	@override String get repeat => '循环播放';
 	@override String get renderVerticalVideoInVerticalScreen => '全屏播放时以竖屏模式渲染竖屏视频';
 	@override String get thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen => '此配置决定当你在全屏播放时是否以竖屏模式渲染竖屏视频。';
@@ -3337,6 +3340,9 @@ extension on TranslationsZhCn {
 			'settings.rewindTimeMustBeAPositiveInteger' => '后退时间必须是一个正整数。',
 			'settings.longPressPlaybackSpeed' => '长按播放倍速',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '长按播放倍速必须是一个正数。',
+			'settings.defaultPlaybackSpeed' => '默认播放倍速',
+			'settings.rememberPlaybackSpeed' => '记住播放倍速',
+			'settings.rememberPlaybackSpeedDesc' => '开启后，在播放器中调整的倍速会自动保存为默认倍速，并应用到后续播放的新视频。',
 			'settings.repeat' => '循环播放',
 			'settings.renderVerticalVideoInVerticalScreen' => '全屏播放时以竖屏模式渲染竖屏视频',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => '此配置决定当你在全屏播放时是否以竖屏模式渲染竖屏视频。',
@@ -3378,11 +3384,11 @@ extension on TranslationsZhCn {
 			'settings.about' => '关于',
 			'settings.diagnosticsAndFeedback' => '诊断与反馈',
 			'settings.currentVersion' => '当前版本',
+			_ => null,
+		} ?? switch (path) {
 			'settings.latestVersion' => '最新版本',
 			'settings.checkForUpdates' => '检查更新',
 			'settings.update' => '更新',
-			_ => null,
-		} ?? switch (path) {
 			'settings.newVersionAvailable' => '发现新版本',
 			'settings.projectHome' => '开源地址',
 			'settings.release' => '版本发布',
@@ -3892,11 +3898,11 @@ extension on TranslationsZhCn {
 			'forum.category' => '分类',
 			'forum.lastReply' => '最后回复',
 			'forum.sitewide.badge' => '全站',
+			_ => null,
+		} ?? switch (path) {
 			'forum.sitewide.title' => '全站公告',
 			'forum.sitewide.readMore' => '查看全文',
 			'forum.errors.pleaseSelectCategory' => '请选择分类',
-			_ => null,
-		} ?? switch (path) {
 			'forum.errors.threadLocked' => '该主题已锁定，无法回复',
 			'forum.createPost' => '创建帖子',
 			'forum.title' => '标题',
@@ -4406,11 +4412,11 @@ extension on TranslationsZhCn {
 			'diagnostics.configServiceUnavailable' => '配置服务未初始化，无法调整日志策略',
 			'diagnostics.enableLoggingTitle' => '启用日志记录',
 			'diagnostics.enableLoggingSubtitle' => '关闭后将停止新增日志记录',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.enableLogPersistenceTitle' => '启用日志持久化',
 			'diagnostics.enableLogPersistenceSubtitle' => '关闭后仅保留内存日志，不再写入磁盘',
 			'diagnostics.minLogLevelTitle' => '最小记录级别',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.minLogLevelSubtitle' => '低于该级别的日志会被过滤',
 			'diagnostics.maxFileSizeTitle' => '单文件大小上限',
 			'diagnostics.maxFileSizeSubtitle' => '达到阈值后执行轮转',

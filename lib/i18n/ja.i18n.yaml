@@ -491,6 +491,9 @@ settings:
   rewindTimeMustBeAPositiveInteger: 巻き戻し時間は正の整数でなければなりません。
   longPressPlaybackSpeed: 長押し再生速度
   longPressPlaybackSpeedMustBeAPositiveNumber: 長押し再生速度は正の数でなければなりません。
+  defaultPlaybackSpeed: デフォルト再生速度
+  rememberPlaybackSpeed: 再生速度を記憶する
+  rememberPlaybackSpeedDesc: 有効にすると、プレーヤーで調整した再生速度がデフォルトとして保存され、以降の新しい動画に自動的に適用されます。
   repeat: リピート
   renderVerticalVideoInVerticalScreen: 全画面再生時に縦向きビデオを縦画面モードでレンダリング
   thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen: この設定は、全画面再生時に縦向きビデオを縦画面モードでレンダリングするかどうかを決定します。

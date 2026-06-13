@@ -497,6 +497,9 @@ settings:
   rewindTimeMustBeAPositiveInteger: 后退时间必须是一个正整数。
   longPressPlaybackSpeed: 长按播放倍速
   longPressPlaybackSpeedMustBeAPositiveNumber: 长按播放倍速必须是一个正数。
+  defaultPlaybackSpeed: 默认播放倍速
+  rememberPlaybackSpeed: 记住播放倍速
+  rememberPlaybackSpeedDesc: 开启后，在播放器中调整的倍速会自动保存为默认倍速，并应用到后续播放的新视频。
   repeat: 循环播放
   renderVerticalVideoInVerticalScreen: 全屏播放时以竖屏模式渲染竖屏视频
   thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen: 此配置决定当你在全屏播放时是否以竖屏模式渲染竖屏视频。

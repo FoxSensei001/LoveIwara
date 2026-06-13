@@ -1504,6 +1504,15 @@ class TranslationsSettingsEn {
 	/// en: 'Long press playback speed must be a positive number.'
 	String get longPressPlaybackSpeedMustBeAPositiveNumber => 'Long press playback speed must be a positive number.';
 
+	/// en: 'Default Playback Speed'
+	String get defaultPlaybackSpeed => 'Default Playback Speed';
+
+	/// en: 'Remember Playback Speed'
+	String get rememberPlaybackSpeed => 'Remember Playback Speed';
+
+	/// en: 'When enabled, the speed you set in the player is saved as the default and applied automatically to new videos.'
+	String get rememberPlaybackSpeedDesc => 'When enabled, the speed you set in the player is saved as the default and applied automatically to new videos.';
+
 	/// en: 'Repeat'
 	String get repeat => 'Repeat';
 
@@ -7299,6 +7308,9 @@ extension on Translations {
 			'settings.rewindTimeMustBeAPositiveInteger' => 'Rewind time must be a positive integer.',
 			'settings.longPressPlaybackSpeed' => 'Long Press Playback Speed',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Long press playback speed must be a positive number.',
+			'settings.defaultPlaybackSpeed' => 'Default Playback Speed',
+			'settings.rememberPlaybackSpeed' => 'Remember Playback Speed',
+			'settings.rememberPlaybackSpeedDesc' => 'When enabled, the speed you set in the player is saved as the default and applied automatically to new videos.',
 			'settings.repeat' => 'Repeat',
 			'settings.renderVerticalVideoInVerticalScreen' => 'Render Vertical Video in Vertical Screen',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => 'This configuration determines whether the video will be rendered in vertical screen when playing in full screen.',
@@ -7345,11 +7357,11 @@ extension on Translations {
 			'settings.update' => 'Update',
 			'settings.newVersionAvailable' => 'New Version Available',
 			'settings.projectHome' => 'Project Home',
+			_ => null,
+		} ?? switch (path) {
 			'settings.release' => 'Release',
 			'settings.issueReport' => 'Issue Report',
 			'settings.openSourceLicense' => 'Open Source License',
-			_ => null,
-		} ?? switch (path) {
 			'settings.checkForUpdatesFailed' => 'Check for updates failed, please try again later',
 			'settings.autoCheckUpdate' => 'Auto Check Update',
 			'settings.updateContent' => 'Update Content',
@@ -7859,11 +7871,11 @@ extension on Translations {
 			'forum.errors.pleaseSelectCategory' => 'Please select a category',
 			'forum.errors.threadLocked' => 'This thread is locked, cannot reply',
 			'forum.createPost' => 'Create Post',
+			_ => null,
+		} ?? switch (path) {
 			'forum.title' => 'Title',
 			'forum.enterTitle' => 'Enter Title',
 			'forum.content' => 'Content',
-			_ => null,
-		} ?? switch (path) {
 			'forum.enterContent' => 'Enter Content',
 			'forum.writeYourContentHere' => 'Write your content here...',
 			'forum.posts' => 'Posts',
@@ -8373,11 +8385,11 @@ extension on Translations {
 			'layoutSettings.enterValidColumns' => 'Please enter valid columns',
 			'layoutSettings.columnsCannotExceed12' => 'Columns cannot exceed 12',
 			'layoutSettings.breakpointConflict' => 'Breakpoint already exists',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.confirmResetLayoutSettings' => 'Reset Layout Settings',
 			'layoutSettings.confirmResetLayoutSettingsDesc' => 'Are you sure you want to reset all layout settings to default values?\n\nWill restore to:\n• Auto mode\n• Default breakpoint configuration',
 			'layoutSettings.resetToDefaults' => 'Reset to Defaults',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.confirmDeleteBreakpoint' => 'Delete Breakpoint',
 			'layoutSettings.confirmDeleteBreakpointDesc' => ({required Object width}) => 'Are you sure you want to delete the ${width}px breakpoint?',
 			'layoutSettings.noCustomBreakpoints' => 'No custom breakpoints, using default columns',

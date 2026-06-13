@@ -491,6 +491,9 @@ settings:
   rewindTimeMustBeAPositiveInteger: 快退時間必須是正整數。
   longPressPlaybackSpeed: 長按播放倍速
   longPressPlaybackSpeedMustBeAPositiveNumber: 長按播放倍速必須是正數。
+  defaultPlaybackSpeed: 預設播放倍速
+  rememberPlaybackSpeed: 記住播放倍速
+  rememberPlaybackSpeedDesc: 開啟後，在播放器中調整的倍速會自動儲存為預設倍速，並套用到後續播放的新影片。
   repeat: 循環播放
   renderVerticalVideoInVerticalScreen: 全螢幕播放時以直向模式呈現直向影片
   thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen: 此設定將決定當您在全螢幕播放時，是否以直向模式呈現直向影片。

@@ -490,6 +490,9 @@ settings:
   rewindTimeMustBeAPositiveInteger: Rewind time must be a positive integer.
   longPressPlaybackSpeed: Long Press Playback Speed
   longPressPlaybackSpeedMustBeAPositiveNumber: Long press playback speed must be a positive number.
+  defaultPlaybackSpeed: Default Playback Speed
+  rememberPlaybackSpeed: Remember Playback Speed
+  rememberPlaybackSpeedDesc: When enabled, the speed you set in the player is saved as the default and applied automatically to new videos.
   repeat: Repeat
   renderVerticalVideoInVerticalScreen: Render Vertical Video in Vertical Screen
   thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen: This configuration determines whether the video will be rendered in vertical screen when playing in full screen.
