@@ -3355,6 +3355,39 @@ class MyVideoStateController extends GetxController
     isHorizontalDragging.value = false;
   }
 
+  /// 点击简介/评论中的时间节点时跳转到对应时间。
+  ///
+  /// - 外站视频无法 seek，直接忽略（双保险，调用方一般也不会传回调）。
+  /// - 本地与在线视频均支持；位置会被 clamp 到 [Duration.zero, totalDuration]。
+  /// - 若播放器尚未就绪，先触发初始播放并等待就绪后再 seek。
+  Future<void> seekFromTextReference(Duration position) async {
+    if (_isDisposed) return;
+    if (videoInfo.value?.isExternalVideo == true) return;
+
+    Duration target = position < Duration.zero ? Duration.zero : position;
+
+    // 播放器尚未就绪时，先触发初始播放
+    if (!videoPlayerReady.value && !isLocalVideoMode) {
+      await requestInitialPlayback();
+    }
+
+    // 等待播放器就绪（最多约 5 秒），避免在未 open 时 seek 失败
+    if (!videoPlayerReady.value) {
+      for (int i = 0; i < 50 && !videoPlayerReady.value; i++) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        if (_isDisposed) return;
+      }
+    }
+
+    // 就绪后按实际时长 clamp
+    final total = totalDuration.value;
+    if (total > Duration.zero && target > total) {
+      target = total;
+    }
+
+    handleSeek(target);
+  }
+
   // 添加关闭提示的方法:
   void hideResumePositionTip() {
     showResumePositionTip.value = false;

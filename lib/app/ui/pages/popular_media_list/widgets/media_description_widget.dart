@@ -11,12 +11,14 @@ class MediaDescriptionWidget extends StatefulWidget {
   final String? description;
   final RxBool isDescriptionExpanded;
   final int defaultMaxLines;
+  final void Function(Duration position)? onTimestampSeek;
 
   const MediaDescriptionWidget({
     super.key,
     required this.description,
     required this.isDescriptionExpanded,
     this.defaultMaxLines = 3,
+    this.onTimestampSeek,
   });
 
   @override
@@ -168,6 +170,7 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                     originalData: widget.description,
                     showTranslationButton: false,
                     translationController: _translationController,
+                    onTimestampSeek: widget.onTimestampSeek,
                   ),
                 ],
               ),
@@ -193,6 +196,7 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                     originalData: widget.description,
                     showTranslationButton: false,
                     translationController: _translationController,
+                    onTimestampSeek: widget.onTimestampSeek,
                   ),
                 ),
               ),

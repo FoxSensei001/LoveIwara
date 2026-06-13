@@ -39,6 +39,10 @@ class CommentsTabWidget extends StatelessWidget {
                     controller: commentController,
                     authorUserId: videoController.videoInfo.value?.user?.id,
                     topPadding: 0.0,
+                    onTimestampSeek:
+                        videoController.videoInfo.value?.isExternalVideo == true
+                        ? null
+                        : videoController.seekFromTextReference,
                   ),
                 ),
               ),

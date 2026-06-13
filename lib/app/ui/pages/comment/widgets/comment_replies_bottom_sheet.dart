@@ -15,12 +15,14 @@ class CommentRepliesBottomSheet extends StatefulWidget {
   final Comment parentComment;
   final String? authorUserId;
   final CommentController? controller;
+  final void Function(Duration position)? onTimestampSeek;
 
   const CommentRepliesBottomSheet({
     super.key,
     required this.parentComment,
     this.authorUserId,
     this.controller,
+    this.onTimestampSeek,
   });
 
   @override
@@ -545,6 +547,7 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
             authorUserId: widget.authorUserId,
             controller: null,
             isReply: true,
+            onTimestampSeek: widget.onTimestampSeek,
           );
         } else {
           return _buildLoadMoreIndicator();

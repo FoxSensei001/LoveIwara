@@ -602,6 +602,10 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
               isDescriptionExpanded: widget.controller.isDescriptionExpanded,
               onToggleDescription:
                   widget.controller.isDescriptionExpanded.toggle,
+              onTimestampSeek:
+                  widget.controller.videoInfo.value?.isExternalVideo == true
+                  ? null
+                  : widget.controller.seekFromTextReference,
             ),
           ),
         ],

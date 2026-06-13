@@ -28,6 +28,7 @@ class CommentItem extends StatefulWidget {
   final String? authorUserId;
   final CommentController? controller;
   final bool isReply;
+  final void Function(Duration position)? onTimestampSeek;
 
   const CommentItem({
     super.key,
@@ -35,6 +36,7 @@ class CommentItem extends StatefulWidget {
     this.authorUserId,
     this.controller,
     this.isReply = false,
+    this.onTimestampSeek,
   });
 
   @override
@@ -74,6 +76,7 @@ class _CommentItemState extends State<CommentItem> {
         parentComment: widget.comment,
         authorUserId: widget.authorUserId,
         controller: widget.controller,
+        onTimestampSeek: widget.onTimestampSeek,
       ),
     );
   }
@@ -662,6 +665,7 @@ class _CommentItemState extends State<CommentItem> {
                         originalData: comment.body,
                         showTranslationButton: false,
                         translationController: _translationController,
+                        onTimestampSeek: widget.onTimestampSeek,
                       ),
                     ),
                   ),

@@ -8,6 +8,7 @@ class VideoDescriptionWidget extends StatelessWidget {
   final RxBool isDescriptionExpanded;
   final VoidCallback onToggleDescription;
   final int defaultMaxLines;
+  final void Function(Duration position)? onTimestampSeek;
 
   const VideoDescriptionWidget({
     super.key,
@@ -15,6 +16,7 @@ class VideoDescriptionWidget extends StatelessWidget {
     required this.isDescriptionExpanded,
     required this.onToggleDescription,
     this.defaultMaxLines = 3,
+    this.onTimestampSeek,
   });
 
   @override
@@ -23,6 +25,7 @@ class VideoDescriptionWidget extends StatelessWidget {
       description: description,
       isDescriptionExpanded: isDescriptionExpanded,
       defaultMaxLines: defaultMaxLines,
+      onTimestampSeek: onTimestampSeek,
     );
   }
 }

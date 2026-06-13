@@ -52,6 +52,26 @@ class CommonUtils {
     }
   }
 
+  /// 将形如 `1:01`、`1:23:45` 的时间节点分量解析为 [Duration]。
+  ///
+  /// - 仅传入 [minutes] 与 [seconds] 时按「分:秒」解析；
+  /// - 同时传入 [hours] 时按「时:分:秒」解析。
+  /// - 分、秒分量必须 `< 60`，否则视为非法（如 `1:99`）返回 null。
+  static Duration? parseTimestamp({
+    String? hours,
+    required String minutes,
+    required String seconds,
+  }) {
+    final h = hours == null ? 0 : int.tryParse(hours);
+    final m = int.tryParse(minutes);
+    final s = int.tryParse(seconds);
+    if (h == null || m == null || s == null) return null;
+    // 分、秒必须在合法范围内，过滤误匹配
+    if (m >= 60 || s >= 60) return null;
+    if (h < 0 || m < 0 || s < 0) return null;
+    return Duration(hours: h, minutes: m, seconds: s);
+  }
+
   /// 进入全屏
   /// toVerticalScreen: 是否进入竖屏全屏（仅IOS Android有效）
   /// useGravityOrientation: 是否根据重力感应选择横屏方向（仅移动端有效）

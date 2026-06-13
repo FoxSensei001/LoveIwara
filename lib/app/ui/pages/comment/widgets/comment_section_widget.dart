@@ -13,6 +13,7 @@ class CommentSection extends StatefulWidget {
   final String? authorUserId;
   final double topPadding;
   final ScrollController? scrollController;
+  final void Function(Duration position)? onTimestampSeek;
 
   const CommentSection({
     super.key,
@@ -20,6 +21,7 @@ class CommentSection extends StatefulWidget {
     this.authorUserId,
     this.topPadding = 0.0,
     this.scrollController,
+    this.onTimestampSeek,
   });
 
   @override
@@ -197,6 +199,7 @@ class _CommentSectionState extends State<CommentSection> {
                   comment: comment,
                   authorUserId: widget.authorUserId,
                   controller: widget.controller,
+                  onTimestampSeek: widget.onTimestampSeek,
                 ),
               ),
               if (index < _listSource.length - 1)

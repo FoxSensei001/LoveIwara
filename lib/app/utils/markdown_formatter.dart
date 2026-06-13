@@ -5,6 +5,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/light_service.dart';
 import 'package:i_iwara/app/utils/url_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 /// 处理Markdown文本格式化的工具类
@@ -312,6 +313,79 @@ class MarkdownFormatter {
   /// 将文本中的换行符替换为两个空格和换行符
   String replaceNewlines(String data) {
     return data.replaceAll(RegExp(r'\n'), '  \n');
+  }
+
+  /// 自定义协议：时间节点跳转链接（如 `iwaraseek://61` 表示第 61 秒）
+  static const String timestampScheme = 'iwaraseek://';
+
+  /// 匹配形如 `1:01`、`1：01`(中文冒号)、`1:23:45` 的时间节点。
+  static final RegExp _timestampPattern = RegExp(
+    r'(?<![\d:：/])(\d{1,2})[:：](\d{1,2})(?:[:：](\d{1,2}))?(?![\d:：])',
+  );
+
+  /// 将文本中的时间节点格式化为可点击的 Markdown 链接。
+  ///
+  /// 仅处理普通文本片段，跳过代码块与已存在的 Markdown 链接，避免破坏
+  /// 链接文字/URL（例如 URL 路径里的 `12:30`）。
+  String formatTimestamps(String data) {
+    // 先按代码块切分，偶数索引为普通文本，奇数索引为代码块（保持原样）
+    final segments = splitByCodeBlocks(data);
+    final processed = <String>[];
+    for (int i = 0; i < segments.length; i++) {
+      if (i % 2 == 0) {
+        processed.add(_formatTimestampsInNonCodeBlock(segments[i]));
+      } else {
+        processed.add(segments[i]);
+      }
+    }
+    return processed.join('');
+  }
+
+  /// 在非代码块文本中处理时间节点，跳过已存在的 Markdown 链接片段。
+  String _formatTimestampsInNonCodeBlock(String text) {
+    final markdownLinkPattern = RegExp(r'\[([^\]]+)\]\(([^)]+)\)');
+    final buffer = StringBuffer();
+    int lastEnd = 0;
+
+    for (final match in markdownLinkPattern.allMatches(text)) {
+      if (match.start > lastEnd) {
+        buffer.write(_replaceTimestamps(text.substring(lastEnd, match.start)));
+      }
+      // Markdown 链接片段保持原样
+      buffer.write(text.substring(match.start, match.end));
+      lastEnd = match.end;
+    }
+
+    if (lastEnd < text.length) {
+      buffer.write(_replaceTimestamps(text.substring(lastEnd)));
+    }
+
+    return buffer.toString();
+  }
+
+  /// 在纯文本中执行时间节点替换。
+  String _replaceTimestamps(String text) {
+    return text.replaceAllMapped(_timestampPattern, (match) {
+      final original = match.group(0)!;
+      final Duration? duration;
+      if (match.group(3) != null) {
+        // 时:分:秒
+        duration = CommonUtils.parseTimestamp(
+          hours: match.group(1),
+          minutes: match.group(2)!,
+          seconds: match.group(3)!,
+        );
+      } else {
+        // 分:秒
+        duration = CommonUtils.parseTimestamp(
+          minutes: match.group(1)!,
+          seconds: match.group(2)!,
+        );
+      }
+      // 非法时间（如 1:99）保持原样
+      if (duration == null) return original;
+      return '⏱ [$original]($timestampScheme${duration.inSeconds})';
+    });
   }
 
   /// 将文本中的 @ 用户名格式化为 Markdown 链接

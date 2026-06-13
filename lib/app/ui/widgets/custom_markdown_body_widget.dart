@@ -39,6 +39,8 @@ class CustomMarkdownBody extends StatefulWidget {
   final bool skipMarkdownProcessing; // 当内容已预处理时跳过本地格式化
   final bool showHorizontalRules; // 是否显示 markdown 中的 hr 分隔线
   final String Function(String url)? urlPreprocessor; // 页面级 markdown url 预处理
+  // 点击文本中的时间节点（如 1:01）时的跳转回调；为 null 时不解析时间节点
+  final void Function(Duration position)? onTimestampSeek;
 
   const CustomMarkdownBody({
     super.key,
@@ -54,6 +56,7 @@ class CustomMarkdownBody extends StatefulWidget {
     this.skipMarkdownProcessing = false,
     this.showHorizontalRules = true,
     this.urlPreprocessor,
+    this.onTimestampSeek,
   });
 
   @override
@@ -197,15 +200,29 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
       final newProcessed = _markdownFormatter.replaceNewlines(processed);
       if (newProcessed != processed) hasChanges = true;
       processed = newProcessed;
-      if (_isCurrentMarkdownTask(token) &&
-          (_displayData != processed || _hasProcessedContent != hasChanges)) {
-        setState(() {
-          _displayData = processed;
-          _hasProcessedContent = hasChanges;
-        });
-      }
+      if (!_isCurrentMarkdownTask(token)) return;
     } catch (e) {
       LogUtils.e('替换换行符时发生错误', error: e, tag: 'CustomMarkdownBody');
+    }
+
+    // 时间节点高亮：仅在提供跳转回调时启用，作为最后一步避免被链接格式化加前缀
+    if (widget.onTimestampSeek != null) {
+      try {
+        final newProcessed = _markdownFormatter.formatTimestamps(processed);
+        if (newProcessed != processed) hasChanges = true;
+        processed = newProcessed;
+        if (!_isCurrentMarkdownTask(token)) return;
+      } catch (e) {
+        LogUtils.e('格式化时间节点时发生错误', error: e, tag: 'CustomMarkdownBody');
+      }
+    }
+
+    if (_isCurrentMarkdownTask(token) &&
+        (_displayData != processed || _hasProcessedContent != hasChanges)) {
+      setState(() {
+        _displayData = processed;
+        _hasProcessedContent = hasChanges;
+      });
     }
   }
 
@@ -618,6 +635,19 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
 
   void _onTapLink(String url) async {
     try {
+      // 优先拦截时间节点跳转链接（如 iwaraseek://61）
+      final trimmedUrl = url.trim();
+      if (trimmedUrl.startsWith(MarkdownFormatter.timestampScheme)) {
+        final secondsStr = trimmedUrl
+            .substring(MarkdownFormatter.timestampScheme.length)
+            .trim();
+        final seconds = int.tryParse(secondsStr);
+        if (seconds != null && widget.onTimestampSeek != null) {
+          widget.onTimestampSeek!(Duration(seconds: seconds));
+        }
+        return;
+      }
+
       final resolvedUrl = await _resolveTapTargetUrl(url);
       if (resolvedUrl == null || resolvedUrl.isEmpty) {
         return;
