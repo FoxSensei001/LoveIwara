@@ -110,6 +110,9 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
         final isHorizontalDragging =
             widget.controller.isHorizontalDragging.value;
         final previewPosition = widget.controller.previewPosition.value;
+        // 必须在 Obx 同步作用域内读取，LayoutBuilder/AnimatedBuilder 的 builder
+        // 在 layout 阶段执行，里面的读取不会被 Obx 追踪
+        final isPreviewReady = widget.controller.isPreviewPlayerReady.value;
         // 访问 animationController.value 以确保响应式系统追踪它（虽然 AnimatedBuilder 应该能独立工作）
         final _ = widget.controller.animationController.value; // 用于触发响应式更新
 
@@ -134,7 +137,6 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
             // 决定 Tooltip 显示的数据和位置
             double? tooltipX;
             double? tooltipTime;
-            final isPreviewReady = widget.controller.isPreviewPlayerReady.value;
 
             if (_dragging) {
               // 场景 A：拖拽中 -> 强制显示在滑块上方
@@ -226,12 +228,17 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                   },
                   child: MouseRegion(
                     cursor: SystemMouseCursors.click, // 鼠标悬浮时显示手型指针
+                    onEnter: (_) {
+                      // 悬停即预热预览播放器（带去抖），否则 tooltip 只能显示时间
+                      widget.controller.ensurePreviewPlayerReadyDebounced();
+                    },
                     onHover: (event) {
                       // 鼠标悬停处理
                       _handleMouseHover(event, maxValue);
                     },
                     onExit: (_) {
                       // 鼠标离开
+                      widget.controller.schedulePreviewPlayerDispose();
                       setState(() {
                         _hoverValue = null;
                         _hoverPosition = null;
@@ -267,6 +274,7 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                     tooltipTime,
                     visible: _tooltipVisible,
                     trackWidth: maxWidth,
+                    isPreviewReady: isPreviewReady,
                   ),
               ],
             );
@@ -454,14 +462,13 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
     double timeValue, {
     bool visible = true,
     required double trackWidth,
+    required bool isPreviewReady,
   }) {
     // 基础高度：Thumb半径 + 间距（toolbar 展开时，tooltip 距离进度条的距离）
     const double baseBottom = _thumbOverlayRadius + 10;
     // 细进度条高度 + 期望的 tooltip 距离细进度条的间距
     // 当 toolbar 收缩时，tooltip 应该距离屏幕底部这个距离
     const double thinProgressBarOffset = 3.0 + 12.0; // 细进度条 3px + 间距 12px
-
-    final isPreviewReady = widget.controller.isPreviewPlayerReady.value;
 
     // 计算 tooltip 的水平偏移量，确保不超出进度条边界
     // tooltip 宽度的一半

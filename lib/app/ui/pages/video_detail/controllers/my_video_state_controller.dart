@@ -3207,26 +3207,49 @@ class MyVideoStateController extends GetxController
   void showSeekPreview(bool show) {
     isSeekPreviewVisible.value = show;
     if (show) {
-      _previewAutoDisposeTimer?.cancel();
-      unawaited(_ensurePreviewPlayerReady());
+      ensurePreviewPlayerReady();
       return;
     }
 
-    _schedulePreviewPlayerDispose();
+    schedulePreviewPlayerDispose();
 
-    if (!show && !_isInteracting.value) {
+    if (!_isInteracting.value) {
       resetDisplayPosition();
     }
   }
 
-  void _schedulePreviewPlayerDispose() {
+  /// 预热预览播放器。除拖拽外，桌面端悬停进度条时也应调用，
+  /// 否则预览播放器只会在拖拽开始后才冷启动，画面来不及加载。
+  void ensurePreviewPlayerReady() {
+    _previewInitDebounceTimer?.cancel();
+    _previewAutoDisposeTimer?.cancel();
+    unawaited(_ensurePreviewPlayerReady());
+  }
+
+  /// 悬停预热的去抖版本：鼠标顺路划过进度条不应触发播放器创建和网络加载，
+  /// 停留超过去抖时长才真正预热
+  void ensurePreviewPlayerReadyDebounced() {
+    _previewAutoDisposeTimer?.cancel();
+    _previewInitDebounceTimer?.cancel();
+    _previewInitDebounceTimer = Timer(const Duration(milliseconds: 250), () {
+      if (_isDisposed) return;
+      ensurePreviewPlayerReady();
+    });
+  }
+
+  /// 调度延迟释放预览播放器（悬停离开/拖拽结束后调用）
+  void schedulePreviewPlayerDispose() {
+    _previewInitDebounceTimer?.cancel();
     _previewAutoDisposeTimer?.cancel();
 
-    if (_isDisposed || previewPlayer == null) {
+    // 初始化还在进行中（previewPlayer 尚未赋值）时也要调度销毁，
+    // 否则快速划过时初始化完成后的播放器会一直存活到页面关闭
+    if (_isDisposed ||
+        (previewPlayer == null && !_isPreviewPlayerInitializing)) {
       return;
     }
 
-    _previewAutoDisposeTimer = Timer(const Duration(seconds: 2), () {
+    _previewAutoDisposeTimer = Timer(const Duration(seconds: 30), () {
       if (_isDisposed || isSeekPreviewVisible.value || _isInteracting.value) {
         return;
       }
@@ -3801,12 +3824,7 @@ class MyVideoStateController extends GetxController
         duration,
       ) {
         if (_isDisposed) return;
-        // 当 duration 大于 0 时，表示预览播放器已准备好
-        // ignore: unnecessary_null_comparison
-        if (duration != null && duration > Duration.zero) {
-          isPreviewPlayerReady.value = true;
-          LogUtils.d('预览播放器已准备好', 'MyVideoStateController');
-        }
+        _markPreviewReadyIfLoaded(duration, 'duration 事件');
       });
 
       previewPlayingSubscription = previewPlayer!.stream.playing.listen((
@@ -3815,6 +3833,9 @@ class MyVideoStateController extends GetxController
         if (_isDisposed) return;
         // 可以在这里处理播放状态变化
       });
+
+      // duration 事件可能在订阅前就已发出（broadcast 流不重放），补查一次当前状态
+      _markPreviewReadyIfLoaded(previewPlayer!.state.duration, '状态补查');
 
       LogUtils.d('预览播放器初始化完成', 'MyVideoStateController');
     } catch (e) {
@@ -3827,6 +3848,15 @@ class MyVideoStateController extends GetxController
         _initializePreviewPlayer();
       }
     }
+  }
+
+  /// duration 大于 0 即认为预览播放器就绪；监听回调与初始化后的状态补查共用
+  void _markPreviewReadyIfLoaded(Duration duration, String source) {
+    if (duration <= Duration.zero || isPreviewPlayerReady.value) {
+      return;
+    }
+    isPreviewPlayerReady.value = true;
+    LogUtils.d('预览播放器已准备好（$source）', 'MyVideoStateController');
   }
 
   /// 限流更新预览播放器位置（使用 EasyThrottle，只对最后一次位置进行 seek）
