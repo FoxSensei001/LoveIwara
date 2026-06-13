@@ -168,9 +168,15 @@ class AppService extends GetxService {
     return HomeShellNavigation.pathForBranchIndex(preferredHomeBranchIndex);
   }
 
-  void syncSiteModeFromConfig(ConfigService configService) {
+  Future<void> syncSiteModeFromConfig(ConfigService configService) async {
     final savedMode = configService[ConfigKey.APP_SITE_MODE] as String?;
-    _currentSiteMode.value = IwaraSiteUtils.fromExtra(savedMode);
+    var site = IwaraSiteUtils.fromExtra(savedMode);
+    // 启动时如果当前为 AI 站，则强制切回 TV（主）站
+    if (site == IwaraSite.ai) {
+      site = IwaraSite.main;
+      await configService.setSetting(ConfigKey.APP_SITE_MODE, site.name);
+    }
+    _currentSiteMode.value = site;
   }
 
   Future<void> applyGlobalSiteMode(

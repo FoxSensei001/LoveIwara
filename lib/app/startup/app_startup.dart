@@ -178,7 +178,7 @@ class AppStartupCoordinator implements AppStartupRunner {
 
     final configService = await ConfigService().init();
     _putIfAbsent<ConfigService>(configService);
-    Get.find<AppService>().syncSiteModeFromConfig(configService);
+    await Get.find<AppService>().syncSiteModeFromConfig(configService);
 
     await _applyLocale(configService);
   }
