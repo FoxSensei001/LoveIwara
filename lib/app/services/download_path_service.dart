@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:i_iwara/app/services/config_service.dart';
@@ -47,6 +48,11 @@ class PathValidationResult {
 /// 统一管理下载路径和文件命名逻辑
 class DownloadPathService extends GetxService {
   static DownloadPathService get to => Get.find();
+
+  /// 原生文件处理通道（与 MainActivity 中的 FILE_HANDLER_CHANNEL 对应）
+  static const MethodChannel _fileHandlerChannel = MethodChannel(
+    CommonConstants.fileHandlerChannelName,
+  );
 
   final ConfigService _configService = Get.find<ConfigService>();
   late FilenameTemplateService _filenameTemplateService;
@@ -272,7 +278,7 @@ class DownloadPathService extends GetxService {
 
       if (GetPlatform.isAndroid) {
         // Android平台：检查路径是否为公共目录
-        if (_isPublicDirectory(customPath)) {
+        if (isPublicDirectory(customPath)) {
           // 检查是否有访问公共目录的权限
           final canAccessPublic = await permissionService.canAccessPublicDirectories();
           if (!canAccessPublic) {
@@ -320,7 +326,7 @@ class DownloadPathService extends GetxService {
   }
 
   /// 检查是否为Android公共目录
-  bool _isPublicDirectory(String dirPath) {
+  bool isPublicDirectory(String dirPath) {
     final publicPaths = [
       '/storage/emulated/0/Download',
       '/storage/emulated/0/下载',
@@ -350,17 +356,12 @@ class DownloadPathService extends GetxService {
         return true;
       }
 
-      // 外部应用专用目录：/storage/emulated/0/Android/data/包名
-      if (dirPath.startsWith('/storage/emulated/0/Android/data/$packageName')) {
-        return true;
-      }
-
-      // 兼容性检查：/sdcard/Android/data/包名
-      if (dirPath.startsWith('/sdcard/Android/data/$packageName')) {
-        return true;
-      }
-
-      return false;
+      // 外部应用专用目录（任意存储卷，含外置 SD/TF 卡）：
+      // /storage/<卷>/Android/data|obb/包名 及 /sdcard 别名
+      final externalAppDir = RegExp(
+        '^(/storage/[^/]+|/sdcard)/Android/(data|obb)/${RegExp.escape(packageName)}(/|\$)',
+      );
+      return externalAppDir.hasMatch(dirPath);
     } else {
       // 非Android平台：所有通过getApplicationDocumentsDirectory或getExternalStorageDirectory获取的路径都是应用专用的
       // 这里我们通过检查路径是否包含应用名称来判断
@@ -440,7 +441,7 @@ class DownloadPathService extends GetxService {
         }
 
         // 2. 检查是否为公共目录且无相应权限
-        if (_isPublicDirectory(pathStr)) {
+        if (isPublicDirectory(pathStr)) {
           final canAccessPublic = await permissionService.canAccessPublicDirectories();
           if (!canAccessPublic) {
             return PathValidationResult(
@@ -524,18 +525,15 @@ class DownloadPathService extends GetxService {
     }
   }
 
-  /// 选择下载文件夹（仅桌面平台）
-  Future<String?> selectDownloadFolder() async {
-    if (!GetPlatform.isDesktop) {
-      return null;
+  /// 弹出目录选择器并返回所选目录的绝对路径，取消时返回 null
+  /// Android 走原生 SAF 选择器并自行解析路径（file_selector 的
+  /// getDirectoryPath 不支持外置 SD/TF 卡卷，会抛 UnsupportedOperationException），
+  /// 其余平台沿用 file_selector
+  Future<String?> pickDirectoryPath() async {
+    if (GetPlatform.isAndroid) {
+      return await _fileHandlerChannel.invokeMethod<String>('pickDirectory');
     }
-
-    try {
-      return await getDirectoryPath();
-    } catch (e) {
-      LogUtils.e('选择下载文件夹失败', tag: 'DownloadPathService', error: e);
-      return null;
-    }
+    return await getDirectoryPath();
   }
 
   /// 获取当前配置的下载路径信息

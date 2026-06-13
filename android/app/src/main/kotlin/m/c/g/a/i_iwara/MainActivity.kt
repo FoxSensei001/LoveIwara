@@ -2,7 +2,11 @@ package m.c.g.a.i_iwara
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.os.storage.StorageManager
+import android.provider.DocumentsContract
 import android.util.Log
 import android.view.KeyEvent
 import android.view.WindowManager
@@ -25,6 +29,9 @@ class MainActivity : FlutterActivity() {
     private var volumeKeyEnabled = false
     private var fileHandlerChannel: MethodChannel? = null
     private val mainScope = CoroutineScope(Dispatchers.Main)
+
+    private val REQUEST_CODE_PICK_DIRECTORY = 51423
+    private var pendingDirectoryResult: MethodChannel.Result? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -79,10 +86,90 @@ class MainActivity : FlutterActivity() {
                     }
                     copyContentUriToCache(uriString, result)
                 }
+                "pickDirectory" -> {
+                    if (pendingDirectoryResult != null) {
+                        result.error("ALREADY_ACTIVE", "目录选择器已在运行", null)
+                    } else {
+                        try {
+                            pendingDirectoryResult = result
+                            startActivityForResult(
+                                    Intent(Intent.ACTION_OPEN_DOCUMENT_TREE),
+                                    REQUEST_CODE_PICK_DIRECTORY
+                            )
+                        } catch (e: Exception) {
+                            pendingDirectoryResult = null
+                            result.error("PICKER_FAILED", e.message, null)
+                        }
+                    }
+                }
                 else -> {
                     result.notImplemented()
                 }
             }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_CODE_PICK_DIRECTORY) {
+            val result = pendingDirectoryResult
+            if (result == null) {
+                super.onActivityResult(requestCode, resultCode, data)
+                return
+            }
+            pendingDirectoryResult = null
+            val uri = data?.data
+            if (resultCode != RESULT_OK || uri == null) {
+                // 用户取消选择
+                result.success(null)
+                return
+            }
+            try {
+                result.success(resolveTreeUriToPath(uri))
+            } catch (e: Exception) {
+                Log.e("MainActivity", "解析目录路径失败: $uri", e)
+                result.error("RESOLVE_FAILED", e.message, null)
+            }
+            return
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    /**
+     * 将 SAF 目录树 URI 解析为文件系统绝对路径。
+     * 不依赖 file_selector 插件的转换逻辑（其不支持外置 SD/TF 卡卷），
+     * 主存储与外置存储卷均可解析；写入依赖「所有文件访问」权限而非 SAF。
+     */
+    private fun resolveTreeUriToPath(uri: Uri): String {
+        if (uri.authority != "com.android.externalstorage.documents") {
+            throw UnsupportedOperationException("不支持的存储位置，请选择设备存储或 SD 卡中的目录")
+        }
+        val docId = DocumentsContract.getTreeDocumentId(uri)
+        val split = docId.split(":", limit = 2)
+        val volumeId = split[0]
+        val subPath = if (split.size > 1) split[1] else ""
+        val volumeRoot = when {
+            volumeId.equals("primary", ignoreCase = true) ->
+                    Environment.getExternalStorageDirectory().absolutePath
+            volumeId.equals("home", ignoreCase = true) ->
+                    File(Environment.getExternalStorageDirectory(), "Documents").absolutePath
+            else -> findVolumeRootByUuid(volumeId) ?: "/storage/$volumeId"
+        }
+        return if (subPath.isEmpty()) volumeRoot else "$volumeRoot/$subPath"
+    }
+
+    /** 通过 StorageManager 将存储卷 UUID 映射到挂载根目录 */
+    private fun findVolumeRootByUuid(uuid: String): String? {
+        // StorageVolume.getDirectory 需要 API 30，R 以下由调用方回退 /storage/<卷ID>
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return null
+        return try {
+            val storageManager = getSystemService(STORAGE_SERVICE) as StorageManager
+            storageManager.storageVolumes
+                    .firstOrNull { uuid.equals(it.uuid, ignoreCase = true) }
+                    ?.directory
+                    ?.absolutePath
+        } catch (e: Exception) {
+            Log.w("MainActivity", "查找存储卷失败: ${e.message}")
+            null
         }
     }
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:file_selector/file_selector.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/filename_template_service.dart';
@@ -704,7 +703,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
               final isPublicDirectory =
                   GetPlatform.isAndroid &&
                   currentPath.isNotEmpty &&
-                  _isPublicDirectory(currentPath);
+                  downloadPathService.isPublicDirectory(currentPath);
 
               // 同步配置到控制器（仅在失去焦点且不是用户输入时）
               if (!_customPathFocusNode.hasFocus &&
@@ -1195,50 +1194,38 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
   Future<void> _selectDownloadPath() async {
     final t = slang.Translations.of(context);
     try {
-      final String? directoryPath = await getDirectoryPath();
+      final String? directoryPath = await downloadPathService
+          .pickDirectoryPath();
       if (directoryPath != null) {
         _isUpdatingFromConfig = true;
         _customPathController.text = directoryPath;
         configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] = directoryPath;
         _isUpdatingFromConfig = false;
 
-        // 检查是否为Android公共目录并给出相应提示
-        if (GetPlatform.isAndroid && _isPublicDirectory(directoryPath)) {
-          // 检查权限状态
-      final hasPermission = await permissionService.hasStoragePermission();
-
-          if (!hasPermission) {
-            showToastWidget(
-              MDToastWidget(
-                message: t
-                    .settings
-                    .downloadSettings
-                    .permissionRequiredForPublicDirectory,
-                type: MDToastType.warning,
-              ),
-            );
-          } else {
-            showToastWidget(
-              MDToastWidget(
-                message: t.settings.downloadSettings.downloadPathUpdated,
-                type: MDToastType.success,
-              ),
-              position: ToastPosition.bottom,
-            );
-          }
-        } else {
-          showToastWidget(
-            MDToastWidget(
-              message: t.settings.downloadSettings.downloadPathUpdated,
-              type: MDToastType.success,
-            ),
-            position: ToastPosition.bottom,
-          );
-        }
-
-        // 刷新路径状态
+        // 先刷新并验证路径，再根据验证结果提示，避免成功 toast 与状态卡片矛盾
         await downloadPathService.refreshPathStatus();
+        final validation = downloadPathService.pathStatus?.validationResult;
+        final isUsable = validation == null || validation.isValid;
+        showToastWidget(
+          MDToastWidget(
+            message: isUsable
+                ? t.settings.downloadSettings.downloadPathUpdated
+                : validation.message,
+            type: isUsable ? MDToastType.success : MDToastType.warning,
+          ),
+          position: ToastPosition.bottom,
+        );
       }
+    } on PlatformException catch (e) {
+      // 原生选择器返回的错误（消息本身面向用户），不展示异常包装
+      LogUtils.e('选择下载路径失败', error: e, tag: 'DownloadSettingsPage');
+      showToastWidget(
+        MDToastWidget(
+          message: e.message ?? t.settings.downloadSettings.selectPathFailed,
+          type: MDToastType.error,
+        ),
+        position: ToastPosition.bottom,
+      );
     } catch (e) {
       LogUtils.e('选择下载路径失败', error: e, tag: 'DownloadSettingsPage');
       showToastWidget(
@@ -1249,26 +1236,6 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
         position: ToastPosition.bottom,
       );
     }
-  }
-
-  /// 检查是否为Android公共目录
-  bool _isPublicDirectory(String dirPath) {
-    final publicPaths = [
-      '/storage/emulated/0/Download',
-      '/storage/emulated/0/下载',
-      '/storage/emulated/0/Pictures',
-      '/storage/emulated/0/Movies',
-      '/storage/emulated/0/Music',
-      '/storage/emulated/0/Documents',
-      '/sdcard/Download',
-      '/sdcard/下载',
-      '/sdcard/Pictures',
-      '/sdcard/Movies',
-      '/sdcard/Music',
-      '/sdcard/Documents',
-    ];
-
-    return publicPaths.any((publicPath) => dirPath.startsWith(publicPath));
   }
 
   Future<void> _useRecommendedPath() async {

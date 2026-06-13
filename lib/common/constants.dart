@@ -18,6 +18,9 @@ class CommonConstants {
   // 应用包名
   static String packageName = 'm.c.g.a.i_iwara';
 
+  // 原生文件处理 MethodChannel 名（须与 MainActivity.kt 的 FILE_HANDLER_CHANNEL 一致）
+  static const String fileHandlerChannelName = 'com.example.i_iwara/file_handler';
+
   static String webName = 'iwara';
 
   // 应用图标路径

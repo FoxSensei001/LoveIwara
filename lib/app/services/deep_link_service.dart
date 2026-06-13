@@ -6,6 +6,7 @@ import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/utils/iwara_deep_link_utils.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
@@ -41,7 +42,7 @@ class DeepLinkService extends GetxService {
 
   // macOS 文件处理 MethodChannel
   static const MethodChannel _fileHandlerChannel = MethodChannel(
-    'com.example.i_iwara/file_handler',
+    CommonConstants.fileHandlerChannelName,
   );
 
   /// 判断一个URI是否可以被应用内处理
