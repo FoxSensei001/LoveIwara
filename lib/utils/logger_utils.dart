@@ -1,6 +1,5 @@
 // ignore_for_file: constant_identifier_names
 
-import 'dart:async';
 import 'dart:developer' as developer;
 import 'package:logger/logger.dart';
 import 'dart:io';
@@ -10,7 +9,6 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/app/services/logging/log_service.dart';
 import 'package:i_iwara/app/services/logging/log_models.dart';
-import 'package:yaml/yaml.dart';
 
 /// 日志工具类，提供控制台输出 + 文件持久化
 class LogUtils {
@@ -206,90 +204,13 @@ class LogUtils {
     }
   }
 
-  // 设置日志持久化状态（保留兼容性）
-  static void setPersistenceEnabled(bool enabled) {
-    final svc = _logService;
-    if (svc == null) return;
-    unawaited(
-      svc.applyPolicy(svc.policy.copyWith(persistenceEnabled: enabled)),
-    );
-  }
-
-  // 获取最近的日志内容
-  static Future<String> getRecentLogs({int maxLines = 1000}) async {
-    final svc = _logService;
-    if (svc != null) {
-      final events = svc.getRecentLogs(count: maxLines);
-      if (events.isEmpty) return "暂无日志记录";
-      return events
-          .map(
-            (e) =>
-                '[${e.formattedTime}] [${e.level.label}] [${e.tag}] ${e.message}'
-                '${e.error != null ? '\n  Error: ${e.error}' : ''}',
-          )
-          .join('\n');
-    }
-    return "日志服务未初始化";
-  }
-
-  // 导出日志文件
-  static Future<File> exportLogFileEnhanced({
-    required String targetPath,
-    DateTime? specificDate,
-    bool allLogs = false,
-    int daysRange = 7,
-    String? searchText,
-    List<String>? levels,
-  }) async {
-    final svc = _logService;
-    if (svc != null) {
-      return svc.exportLogs();
-    }
-
-    // Fallback
-    final File targetFile = File(targetPath);
-    await targetFile.writeAsString(
-      "===== 导出时间: ${DateTime.now()} =====\n\n日志服务未初始化",
-    );
-    return targetFile;
-  }
-
-  // 读取 pubspec.yaml 文件信息
-  static Future<Map<String, dynamic>?> _readPubspecInfo() async {
-    try {
-      final pubspecFile = File('pubspec.yaml');
-      if (await pubspecFile.exists()) {
-        final content = await pubspecFile.readAsString();
-        final yamlMap = loadYaml(content);
-        return Map<String, dynamic>.from(yamlMap);
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("读取 pubspec.yaml 失败: $e");
-      }
-    }
-    return null;
-  }
-
   // 记录设备和应用信息
   static Future<void> _logDeviceInfo() async {
     try {
-      // 记录应用信息
-      final pubspecInfo = await _readPubspecInfo();
-      if (pubspecInfo != null) {
-        final appName = pubspecInfo['name'] ?? 'Unknown';
-        final version = pubspecInfo['version'] ?? 'Unknown';
-        final description = pubspecInfo['description'] ?? 'Unknown';
-
-        i("应用名称: $appName", "设备信息");
-        i("应用描述: $description", "设备信息");
-        i("版本: $version", "设备信息");
-      } else {
-        // 回退方案：使用硬编码信息
-        i("应用名称: i_iwara", "设备信息");
-        i("应用描述: A new Flutter project.", "设备信息");
-        i("版本: ${CommonConstants.VERSION}", "设备信息");
-      }
+      // 记录应用信息（pubspec.yaml 不随发布产物打包，运行时不可读，
+      // 统一使用编译期常量，避免无效 I/O 与误导性回退）。
+      i("应用名称: ${CommonConstants.applicationName ?? 'i_iwara'}", "设备信息");
+      i("版本: ${CommonConstants.VERSION}", "设备信息");
 
       // 记录设备信息
       DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();

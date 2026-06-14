@@ -151,8 +151,6 @@ class LogService extends GetxService {
       maxRotatedFiles: next.maxRotatedFiles,
     );
 
-    if (!_initialized) return;
-
     if (previous.persistenceEnabled != next.persistenceEnabled) {
       await _syncPersistenceSubsystems();
       if (!next.persistenceEnabled) {
@@ -235,12 +233,14 @@ class LogService extends GetxService {
   Future<void> close() async {
     if (!_initialized) return;
     _flushTimer?.cancel();
-    await _stopPersistenceSubsystems();
+    // 先 flush 落盘，再停子系统（markCleanExit 删除崩溃标记）；
+    // 否则若 flush 阶段发生异常退出，标记已删会丢失本次崩溃判定窗口。
     if (_policy.persistenceEnabled) {
       await _flushBuffer(immediate: true);
     } else {
       _buffer.clearWriteQueue();
     }
+    await _stopPersistenceSubsystems();
     _initialized = false;
   }
 
@@ -349,7 +349,8 @@ class LogService extends GetxService {
       sessionId: _sessionId,
     );
 
-    final processed = _processor.process(event) ?? event;
+    // fatal 即使被去重返回 null，也必须脱敏后再落盘，不能回退到原始事件。
+    final processed = _processor.process(event) ?? _processor.sanitizeEvent(event);
     _buffer.pushToRingOnly(processed);
     if (_policy.persistenceEnabled) {
       _sink.appendEmergencySync(processed.toJsonLine());

@@ -38,6 +38,9 @@ class LogExportService {
        _healthMetaProvider = healthMetaProvider;
 
   Future<File> exportLogs() async {
+    // 清理上一轮导出残留（zip 与中断遗留的临时目录），避免临时目录无限累积。
+    await _cleanupStaleExports();
+
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final outputPath = p.join(
       _paths.exportDir,
@@ -59,7 +62,7 @@ class LogExportService {
       for (final file in logFiles) {
         final name = p.basename(file.path);
         totalLines += await _countLines(file);
-        encoder.addFile(file, 'logs/$name');
+        encoder.addFileSync(file, 'logs/$name');
       }
 
       // Meta files
@@ -68,7 +71,7 @@ class LogExportService {
         fileName: 'device.json',
         content: await _buildDeviceJson(),
       );
-      encoder.addFile(deviceMeta, 'meta/device.json');
+      encoder.addFileSync(deviceMeta, 'meta/device.json');
 
       final appMeta = await _writeTempFile(
         tempDir: tempDir,
@@ -79,7 +82,7 @@ class LogExportService {
           'sessionId': _sessionId,
         }),
       );
-      encoder.addFile(appMeta, 'meta/app.json');
+      encoder.addFileSync(appMeta, 'meta/app.json');
 
       final exportMeta = await _writeTempFile(
         tempDir: tempDir,
@@ -90,14 +93,14 @@ class LogExportService {
           'totalLogLines': totalLines,
         }),
       );
-      encoder.addFile(exportMeta, 'meta/export.json');
+      encoder.addFileSync(exportMeta, 'meta/export.json');
 
       final healthMeta = await _writeTempFile(
         tempDir: tempDir,
         fileName: 'health.json',
         content: await _buildHealthMetaJson(),
       );
-      encoder.addFile(healthMeta, 'meta/health.json');
+      encoder.addFileSync(healthMeta, 'meta/health.json');
 
       // Add crash info if available
       final crashResult = _crash.lastResult;
@@ -122,7 +125,7 @@ class LogExportService {
           fileName: 'last_crash.json',
           content: jsonEncode(crashMap),
         );
-        encoder.addFile(crashMeta, 'crash/last_crash.json');
+        encoder.addFileSync(crashMeta, 'crash/last_crash.json');
       }
 
       // Add raw crash artifacts if available
@@ -144,21 +147,47 @@ class LogExportService {
         }
       }
 
-      encoder.close();
+      encoder.closeSync();
       _lastExportAt = DateTime.now();
       _lastExportBytes = await outputFile.length();
       return outputFile;
     } catch (e) {
       _exportFailCount++;
       debugPrint('[LogExport] Export failed: $e');
+      // 失败路径下补关，避免句柄泄漏；正常路径已在上面关闭。
+      try {
+        encoder.closeSync();
+      } catch (_) {}
       rethrow;
     } finally {
-      try {
-        encoder.close();
-      } catch (_) {}
       if (await tempDir.exists()) {
         await tempDir.delete(recursive: true);
       }
+    }
+  }
+
+  /// 删除导出目录下历史导出产物（`loveiwara_logs_*.zip`）与中断遗留的
+  /// `_tmp_export_*` 临时目录。在生成新 zip 之前调用，故不会误删本次产物。
+  Future<void> _cleanupStaleExports() async {
+    try {
+      final dir = Directory(_paths.exportDir);
+      if (!await dir.exists()) return;
+      await for (final entity in dir.list(followLinks: false)) {
+        final name = p.basename(entity.path);
+        try {
+          if (entity is File &&
+              name.startsWith('loveiwara_logs_') &&
+              name.endsWith('.zip')) {
+            await entity.delete();
+          } else if (entity is Directory && name.startsWith('_tmp_export_')) {
+            await entity.delete(recursive: true);
+          }
+        } catch (_) {
+          // 单个文件删除失败不影响整体导出
+        }
+      }
+    } catch (e) {
+      debugPrint('[LogExport] Cleanup stale exports failed: $e');
     }
   }
 
@@ -169,7 +198,7 @@ class LogExportService {
   }) async {
     final file = File(sourcePath);
     if (!await file.exists()) return;
-    encoder.addFile(file, archivePath);
+    encoder.addFileSync(file, archivePath);
   }
 
   Future<int> _countLines(File file) async {

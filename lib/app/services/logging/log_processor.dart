@@ -5,6 +5,7 @@ class LogProcessor {
     : _maxLogsPerSecond = maxLogsPerSecond;
 
   int _logCountInWindow = 0;
+  int _highSeverityCountInWindow = 0;
   DateTime _windowStart = DateTime.now();
   final Map<String, DateTime> _errorFingerprints = {};
   int _suppressedCount = 0;
@@ -39,8 +40,11 @@ class LogProcessor {
       RegExp(r'(https?://[^\s?]+)\?[^\s]+'),
       (m) => '${m.group(1)}?<redacted>',
     ),
+    // 中国大陆手机号：以 11 位号码本身为主体（1 + [3-9] + 9 位数字），
+    // 国家码/分隔符为可选前缀；用前后向断言避免吞掉更长数字串，
+    // 也避免依赖 \b（对中文上下文如「手机13912345678号」不可靠）。
     _SanitizeRule(
-      RegExp(r'\b\+?\d{1,3}[\s-]?1[3-9]\d{9}\b'),
+      RegExp(r'(?<!\d)(?:\+?\d{1,3}[\s-]?)?1[3-9]\d{9}(?!\d)'),
       (_) => '<phone_redacted>',
     ),
   ];
@@ -60,6 +64,7 @@ class LogProcessor {
     if (now.difference(_windowStart).inSeconds >= 1) {
       _windowStart = now;
       _logCountInWindow = 0;
+      _highSeverityCountInWindow = 0;
     }
     _logCountInWindow++;
 
@@ -67,6 +72,15 @@ class LogProcessor {
       if (event.level.value < LogLevel.warning.value) {
         _rateLimitedCount++;
         return null;
+      }
+      // 限流超限后，warn/error 走独立配额，避免不同内容的 error 风暴
+      // 完全绕过限流而放大落盘 I/O；fatal 永不丢弃。
+      if (event.level.value < LogLevel.fatal.value) {
+        _highSeverityCountInWindow++;
+        if (_highSeverityCountInWindow > _maxLogsPerSecond) {
+          _rateLimitedCount++;
+          return null;
+        }
       }
     }
 
@@ -87,22 +101,24 @@ class LogProcessor {
       );
     }
 
-    // Sanitize and truncate
-    final sanitizedMessage = _truncate(sanitize(event.message), _maxMessageLen);
-    final sanitizedError = event.error != null
-        ? _truncate(sanitize(event.error!), _maxErrorLen)
-        : null;
-    final sanitizedStackTrace = event.stackTrace != null
-        ? _truncate(sanitize(event.stackTrace!), _maxStackLen)
-        : null;
+    return sanitizeEvent(event);
+  }
 
+  /// 仅做脱敏+截断，不参与限流/去重。
+  /// 用于 fatal 等「必须落盘、但绝不能绕过脱敏」的旁路场景
+  /// （process() 因去重返回 null 时的回退）。
+  LogEvent sanitizeEvent(LogEvent event) {
     return LogEvent(
       timestamp: event.timestamp,
       level: event.level,
       tag: event.tag,
-      message: sanitizedMessage,
-      error: sanitizedError,
-      stackTrace: sanitizedStackTrace,
+      message: _truncate(sanitize(event.message), _maxMessageLen),
+      error: event.error != null
+          ? _truncate(sanitize(event.error!), _maxErrorLen)
+          : null,
+      stackTrace: event.stackTrace != null
+          ? _truncate(sanitize(event.stackTrace!), _maxStackLen)
+          : null,
       sessionId: event.sessionId,
     );
   }

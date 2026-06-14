@@ -162,8 +162,10 @@ class _CrashRecoveryDialogWidgetState
   }
 
   String _formatTime(DateTime time) {
-    return '${time.year}-${time.month.toString().padLeft(2, '0')}-${time.day.toString().padLeft(2, '0')} '
-        '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+    // startTime 以 UTC 持久化，展示前转回本地时区，避免给用户看到偏移的时间。
+    final local = time.toLocal();
+    return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')} '
+        '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
   }
 
   String _limitText(String text, int maxLen) {
