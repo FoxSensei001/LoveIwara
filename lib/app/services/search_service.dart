@@ -12,6 +12,7 @@ import 'package:i_iwara/app/models/play_list.model.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 import 'api_service.dart';
 import 'oreno3d_client.dart';
@@ -26,6 +27,13 @@ class SearchService extends GetxController {
     _oreno3dClient = Oreno3dClient();
   }
 
+  @override
+  void onClose() {
+    // 释放 oreno3d 客户端的底层 Dio，避免 service 销毁后连接/拦截器泄漏
+    _oreno3dClient.close();
+    super.onClose();
+  }
+
   /// 通用查询方法
   Future<ApiResult<PageData<T>>> fetchDataByType<T>({
     int page = 0,
@@ -34,6 +42,7 @@ class SearchService extends GetxController {
     required String type,
     required T Function(Map<String, dynamic>) fromJson,
     String? sort,
+    CancelToken? cancelToken,
   }) async {
     try {
       final queryParameters = {
@@ -42,7 +51,7 @@ class SearchService extends GetxController {
         'limit': limit,
         'type': type,
       };
-      
+
       // 如果提供了 sort 参数，添加到查询参数中
       if (sort != null && sort.isNotEmpty) {
         queryParameters['sort'] = sort;
@@ -51,6 +60,7 @@ class SearchService extends GetxController {
       final response = await _apiService.get(
         ApiConstants.search(),
         queryParameters: queryParameters,
+        cancelToken: cancelToken,
       );
 
       final pageData = response.data;
@@ -67,25 +77,35 @@ class SearchService extends GetxController {
         ),
       );
     } catch (e) {
-      // 保留原始错误信息而不是使用通用消息
-      String errorMessage;
-      
-      // 使用CommonUtils.parseExceptionMessage来统一处理错误信息
-      errorMessage = CommonUtils.parseExceptionMessage(e);
-      
-      // 如果还是空或者null，提供默认错误信息
-      if (errorMessage.isEmpty || errorMessage == 'null') {
-        if (e.toString().contains('HandshakeException')) {
-          errorMessage = '网络连接失败，请检查网络设置或稍后重试';
-        } else if (e.toString().contains('SocketException')) {
-          errorMessage = '无法连接到服务器，请检查网络连接';
-        } else if (e.toString().contains('TimeoutException')) {
-          errorMessage = '请求超时，请稍后重试';
-        } else {
-          errorMessage = '搜索失败，请稍后重试';
-        }
+      // 请求被取消（快速切换查询/列表被替换）：静默返回，不作为错误展示
+      if (e is DioException && e.type == DioExceptionType.cancel) {
+        return ApiResult.fail('cancelled');
       }
-      
+
+      // 基于 DioException 的类型分类，而非脆弱的 e.toString().contains 匹配
+      String errorMessage = CommonUtils.parseExceptionMessage(e);
+      if (e is DioException) {
+        switch (e.type) {
+          case DioExceptionType.connectionTimeout:
+          case DioExceptionType.sendTimeout:
+          case DioExceptionType.receiveTimeout:
+            errorMessage = slang.t.search.searchRequestTimeout;
+            break;
+          case DioExceptionType.connectionError:
+            errorMessage = slang.t.search.searchCannotConnectToServer;
+            break;
+          case DioExceptionType.badCertificate:
+            errorMessage = slang.t.search.searchNetworkError;
+            break;
+          default:
+            if (errorMessage.isEmpty || errorMessage == 'null') {
+              errorMessage = slang.t.search.searchFailedPleaseRetry;
+            }
+        }
+      } else if (errorMessage.isEmpty || errorMessage == 'null') {
+        errorMessage = slang.t.search.searchFailedPleaseRetry;
+      }
+
       return ApiResult.fail(errorMessage);
     }
   }
@@ -96,6 +116,7 @@ class SearchService extends GetxController {
     int limit = 20,
     String query = '',
     String? sort,
+    CancelToken? cancelToken,
   }) => fetchDataByType<Video>(
     page: page,
     limit: limit,
@@ -103,6 +124,7 @@ class SearchService extends GetxController {
     type: SearchSegment.video.apiType,
     fromJson: Video.fromJson,
     sort: sort,
+    cancelToken: cancelToken,
   );
 
   /// 获取图库
@@ -111,6 +133,7 @@ class SearchService extends GetxController {
     int limit = 20,
     String query = '',
     String? sort,
+    CancelToken? cancelToken,
   }) => fetchDataByType<ImageModel>(
     page: page,
     limit: limit,
@@ -118,6 +141,7 @@ class SearchService extends GetxController {
     type: SearchSegment.image.apiType,
     fromJson: ImageModel.fromJson,
     sort: sort,
+    cancelToken: cancelToken,
   );
 
   /// 获取用户
@@ -126,6 +150,7 @@ class SearchService extends GetxController {
     int limit = 20,
     String query = '',
     String? sort,
+    CancelToken? cancelToken,
   }) => fetchDataByType<User>(
     page: page,
     limit: limit,
@@ -133,6 +158,7 @@ class SearchService extends GetxController {
     type: SearchSegment.user.apiType,
     fromJson: User.fromJson,
     sort: sort,
+    cancelToken: cancelToken,
   );
 
   /// 获取帖子
@@ -141,6 +167,7 @@ class SearchService extends GetxController {
     int limit = 20,
     String query = '',
     String? sort,
+    CancelToken? cancelToken,
   }) => fetchDataByType<PostModel>(
     page: page,
     limit: limit,
@@ -148,6 +175,7 @@ class SearchService extends GetxController {
     type: SearchSegment.post.apiType,
     fromJson: PostModel.fromJson,
     sort: sort,
+    cancelToken: cancelToken,
   );
 
   /// 获取论坛
@@ -156,6 +184,7 @@ class SearchService extends GetxController {
     int limit = 20,
     String query = '',
     String? sort,
+    CancelToken? cancelToken,
   }) => fetchDataByType<ForumThreadModel>(
     page: page,
     limit: limit,
@@ -163,6 +192,7 @@ class SearchService extends GetxController {
     type: SearchSegment.forum.apiType,
     fromJson: ForumThreadModel.fromJson,
     sort: sort,
+    cancelToken: cancelToken,
   );
 
   /// 获取论坛帖子回复
@@ -171,6 +201,7 @@ class SearchService extends GetxController {
     int limit = 20,
     String query = '',
     String? sort,
+    CancelToken? cancelToken,
   }) => fetchDataByType<ThreadCommentModel>(
     page: page,
     limit: limit,
@@ -178,6 +209,7 @@ class SearchService extends GetxController {
     type: SearchSegment.forum_posts.apiType,
     fromJson: ThreadCommentModel.fromJson,
     sort: sort,
+    cancelToken: cancelToken,
   );
 
   /// 获取Oreno3d视频
@@ -188,6 +220,7 @@ class SearchService extends GetxController {
     String? sort,
     String? searchType, // 新增搜索类型参数：origin, tag, character
     Map<String, dynamic>? extData, // 新增扩展数据参数
+    CancelToken? cancelToken,
   }) async {
     try {
       // 将排序类型转换为Oreno3dSortType
@@ -262,6 +295,7 @@ class SearchService extends GetxController {
         page: page + 1, // oreno3d使用1基页码
         sortType: sortType,
         api: api,
+        cancelToken: cancelToken,
       );
 
       return ApiResult.success(
@@ -273,6 +307,10 @@ class SearchService extends GetxController {
         ),
       );
     } catch (e) {
+      // 请求被取消时静默返回，不展示错误
+      if (e is DioException && e.type == DioExceptionType.cancel) {
+        return ApiResult.fail('cancelled');
+      }
       return ApiResult.fail('搜索Oreno3d视频失败: $e');
     }
   }
@@ -283,6 +321,7 @@ class SearchService extends GetxController {
     int limit = 20,
     String query = '',
     String? sort,
+    CancelToken? cancelToken,
   }) => fetchDataByType<PlaylistModel>(
     page: page,
     limit: limit,
@@ -290,6 +329,7 @@ class SearchService extends GetxController {
     type: SearchSegment.playlist.apiType,
     fromJson: PlaylistModel.fromJson,
     sort: sort,
+    cancelToken: cancelToken,
   );
 
   /// 获取Oreno3d视频详情

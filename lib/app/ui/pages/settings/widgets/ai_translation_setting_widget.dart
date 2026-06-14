@@ -80,6 +80,18 @@ class _AITranslationSettingsWidgetState
     _promptController.text = configService[ConfigKey.AI_TRANSLATION_PROMPT];
   }
 
+  @override
+  void dispose() {
+    // 释放全部 TextEditingController，避免每次进出设置页泄漏其内部 listener
+    _baseUrlController.dispose();
+    _modelController.dispose();
+    _apiKeyController.dispose();
+    _maxTokensController.dispose();
+    _temperatureController.dispose();
+    _promptController.dispose();
+    super.dispose();
+  }
+
   Future<void> _testConnection() async {
     _isTesting.value = true;
 

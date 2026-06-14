@@ -401,6 +401,10 @@ class _TranslationsAuthJa implements TranslationsAuthEn {
 	@override String get usernameOrEmail => 'ユーザー名またはメールアドレス';
 	@override String get pleaseEnterUsernameOrEmail => 'ユーザー名またはメールアドレスを入力してください';
 	@override String get rememberMe => 'ユーザー名とパスワードを記憶';
+	@override String get registerNoticeTitle => '公式サイトで新規登録';
+	@override String get registerNoticeDescription => 'アプリ内での新規登録は提供されなくなりました。Iwara 公式サイトでアカウントを作成し、こちらに戻ってログインしてください。';
+	@override String get registerNoticeReturnTip => '登録後、こちらに戻ってアカウントでログインしてください。';
+	@override String get goToOfficialWebsite => '公式サイトを開く';
 }
 
 // Path: errors
@@ -593,6 +597,10 @@ class _TranslationsSearchJa implements TranslationsSearchEn {
 	@override String get pleaseEnterSearchKeywords => '検索するキーワードを入力してください';
 	@override String get googleSearchQueryCopied => '検索語句をクリップボードにコピーしました';
 	@override String googleSearchBrowserOpenFailed({required Object error}) => 'ブラウザを開けませんでした: ${error}';
+	@override String get searchRequestTimeout => 'リクエストがタイムアウトしました。しばらくしてから再試行してください';
+	@override String get searchCannotConnectToServer => 'サーバーに接続できません。ネットワーク接続を確認してください';
+	@override String get searchNetworkError => 'ネットワーク接続に失敗しました。ネットワーク設定を確認するか、しばらくしてから再試行してください';
+	@override String get searchFailedPleaseRetry => '検索に失敗しました。しばらくしてから再試行してください';
 }
 
 // Path: mediaList
@@ -2523,6 +2531,7 @@ class _TranslationsDownloadErrorsJa implements TranslationsDownloadErrorsEn {
 	@override String get userPausedDownload => 'ユーザーがダウンロードを一時停止';
 	@override String fileSystemError({required Object errorInfo}) => 'ファイルシステムエラー: ${errorInfo}';
 	@override String unknownError({required Object errorInfo}) => '不明なエラー: ${errorInfo}';
+	@override String writeFileFailedForMessage({required Object errorInfo}) => 'ファイルの書き込みに失敗しました: ${errorInfo}';
 	@override String get connectionTimeout => '接続タイムアウト';
 	@override String get sendTimeout => '送信タイムアウト';
 	@override String get receiveTimeout => '受信タイムアウト';
@@ -3163,6 +3172,10 @@ extension on TranslationsJa {
 			'auth.usernameOrEmail' => 'ユーザー名またはメールアドレス',
 			'auth.pleaseEnterUsernameOrEmail' => 'ユーザー名またはメールアドレスを入力してください',
 			'auth.rememberMe' => 'ユーザー名とパスワードを記憶',
+			'auth.registerNoticeTitle' => '公式サイトで新規登録',
+			'auth.registerNoticeDescription' => 'アプリ内での新規登録は提供されなくなりました。Iwara 公式サイトでアカウントを作成し、こちらに戻ってログインしてください。',
+			'auth.registerNoticeReturnTip' => '登録後、こちらに戻ってアカウントでログインしてください。',
+			'auth.goToOfficialWebsite' => '公式サイトを開く',
 			'errors.error' => 'エラー',
 			'errors.required' => 'この項目は必須です',
 			'errors.invalidEmail' => 'メールアドレスの形式が正しくありません',
@@ -3312,6 +3325,10 @@ extension on TranslationsJa {
 			'search.pleaseEnterSearchKeywords' => '検索するキーワードを入力してください',
 			'search.googleSearchQueryCopied' => '検索語句をクリップボードにコピーしました',
 			'search.googleSearchBrowserOpenFailed' => ({required Object error}) => 'ブラウザを開けませんでした: ${error}',
+			'search.searchRequestTimeout' => 'リクエストがタイムアウトしました。しばらくしてから再試行してください',
+			'search.searchCannotConnectToServer' => 'サーバーに接続できません。ネットワーク接続を確認してください',
+			'search.searchNetworkError' => 'ネットワーク接続に失敗しました。ネットワーク設定を確認するか、しばらくしてから再試行してください',
+			'search.searchFailedPleaseRetry' => '検索に失敗しました。しばらくしてから再試行してください',
 			'mediaList.personalIntroduction' => '個人紹介',
 			'settings.listViewMode' => 'リスト表示モード',
 			'settings.previewEffect' => 'プレビュー効果',
@@ -3374,6 +3391,8 @@ extension on TranslationsJa {
 			'settings.basicTheme' => 'ベーシックテーマ',
 			'settings.needRestartToApply' => 'アプリを再起動して設定を適用してください',
 			'settings.themeNeedRestartDescription' => 'テーマ設定はアプリを再起動して設定を適用してください',
+			_ => null,
+		} ?? switch (path) {
 			'settings.about' => 'アバウト',
 			'settings.diagnosticsAndFeedback' => '診断とフィードバック',
 			'settings.currentVersion' => '現在のバージョン',
@@ -3382,8 +3401,6 @@ extension on TranslationsJa {
 			'settings.update' => '更新',
 			'settings.newVersionAvailable' => '新しいバージョンが利用可能です',
 			'settings.projectHome' => 'プロジェクトホーム',
-			_ => null,
-		} ?? switch (path) {
 			'settings.release' => 'リリース',
 			'settings.issueReport' => '問題報告',
 			'settings.openSourceLicense' => 'オープンソースライセンス',
@@ -3888,6 +3905,8 @@ extension on TranslationsJa {
 			'markdown.titleSyntax' => '# 一階タイトル\n## 二階タイトル\n### 三階タイトル',
 			'markdown.separator' => '分隔線',
 			'markdown.separatorDescription' => '三個以上の - 号で分隔線を作成',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.separatorSyntax' => '---',
 			'markdown.syntax' => '語法',
 			'forum.recent' => '最近',
@@ -3896,8 +3915,6 @@ extension on TranslationsJa {
 			'forum.sitewide.badge' => '全体',
 			'forum.sitewide.title' => '全体お知らせ',
 			'forum.sitewide.readMore' => '全文表示',
-			_ => null,
-		} ?? switch (path) {
 			'forum.errors.pleaseSelectCategory' => 'カテゴリを選択してください',
 			'forum.errors.threadLocked' => 'このスレッドはロックされています。',
 			'forum.title' => 'タイトル',
@@ -4044,6 +4061,7 @@ extension on TranslationsJa {
 			'download.errors.userPausedDownload' => 'ユーザーがダウンロードを一時停止',
 			'download.errors.fileSystemError' => ({required Object errorInfo}) => 'ファイルシステムエラー: ${errorInfo}',
 			'download.errors.unknownError' => ({required Object errorInfo}) => '不明なエラー: ${errorInfo}',
+			'download.errors.writeFileFailedForMessage' => ({required Object errorInfo}) => 'ファイルの書き込みに失敗しました: ${errorInfo}',
 			'download.errors.connectionTimeout' => '接続タイムアウト',
 			'download.errors.sendTimeout' => '送信タイムアウト',
 			'download.errors.receiveTimeout' => '受信タイムアウト',
@@ -4401,6 +4419,8 @@ extension on TranslationsJa {
 			'mediaPlayer.playbackFailureDiagnosticsHint' => '再生失敗が続いています。設定 > 診断とフィードバック からログをエクスポートして報告してください',
 			'mediaPlayer.openSettingsAction' => '表示',
 			'diagnostics.infoSectionTitle' => '診断情報',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.appVersionLabel' => 'アプリバージョン',
 			'diagnostics.memoryUsage' => ({required Object memMB}) => 'メモリ使用量: ${memMB}MB',
 			'diagnostics.deviceInfoUnavailable' => 'デバイス情報を取得できません',
@@ -4410,8 +4430,6 @@ extension on TranslationsJa {
 			'diagnostics.enableLoggingSubtitle' => 'オフにすると新しいログ記録を停止します',
 			'diagnostics.enableLogPersistenceTitle' => 'ログ永続化を有効化',
 			'diagnostics.enableLogPersistenceSubtitle' => 'オフにするとメモリログのみ保持し、ディスクへ書き込みません',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.minLogLevelTitle' => '最小記録レベル',
 			'diagnostics.minLogLevelSubtitle' => 'このレベル未満のログは除外されます',
 			'diagnostics.maxFileSizeTitle' => '単一ファイルの上限サイズ',

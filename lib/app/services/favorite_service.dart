@@ -22,7 +22,8 @@ class FavoriteService extends GetxService {
   // 获取所有收藏夹
   Future<List<FavoriteFolder>> getAllFolders() async {
     try {
-      final stmt = _db.prepare('''
+      // 使用 CommonDatabase.select 一次性查询，内部自动 prepare + dispose，避免 stmt 泄漏
+      final results = _db.select('''
         SELECT
           f.*,
           COUNT(fi.id) as item_count
@@ -31,8 +32,6 @@ class FavoriteService extends GetxService {
         GROUP BY f.id
         ORDER BY f.display_order ASC, f.created_at DESC
       ''');
-
-      final results = stmt.select();
       return results.map((row) => FavoriteFolder.fromJson(row)).toList();
     } catch (e) {
       LogUtils.e('获取收藏夹列表失败', tag: 'FavoriteService', error: e);
@@ -51,10 +50,10 @@ class FavoriteService extends GetxService {
         description: description,
       );
 
-      _db.prepare('''
+      _db.execute('''
         INSERT INTO favorite_folders (id, title, description, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?)
-      ''').execute([
+      ''', [
         folder.id,
         folder.title,
         folder.description,
@@ -80,12 +79,10 @@ class FavoriteService extends GetxService {
       
       try {
         // 先删除文件夹中的所有收藏项
-        _db.prepare('DELETE FROM favorite_items WHERE folder_id = ?')
-          .execute([folderId]);
-        
+        _db.execute('DELETE FROM favorite_items WHERE folder_id = ?', [folderId]);
+
         // 再删除文件夹本身
-        _db.prepare('DELETE FROM favorite_folders WHERE id = ?')
-          .execute([folderId]);
+        _db.execute('DELETE FROM favorite_folders WHERE id = ?', [folderId]);
         
         // 提交事务
         _db.execute('COMMIT');
@@ -153,9 +150,8 @@ class FavoriteService extends GetxService {
         LIMIT ? OFFSET ?
       ''';
       params.addAll([limit, offset]);
-      
-      final stmt = _db.prepare(sql);
-      final results = stmt.select(params);
+
+      final results = _db.select(sql, params);
       return results.map((row) => FavoriteItem.fromJson(row)).toList();
     } catch (e) {
       LogUtils.e('获取收藏夹内容失败', tag: 'FavoriteService', error: e);
@@ -166,13 +162,11 @@ class FavoriteService extends GetxService {
   // 检查项目是否在指定文件夹中
   Future<bool> isItemInFolder(String itemId, String folderId) async {
     try {
-      final stmt = _db.prepare('''
-        SELECT COUNT(*) as count 
-        FROM favorite_items 
+      final result = _db.select('''
+        SELECT COUNT(*) as count
+        FROM favorite_items
         WHERE item_id = ? AND folder_id = ?
-      ''');
-      
-      final result = stmt.select([itemId, folderId]);
+      ''', [itemId, folderId]);
       return result.first['count'] > 0;
     } catch (e) {
       LogUtils.e('检查项目是否在收藏夹中失败', tag: 'FavoriteService', error: e);
@@ -183,9 +177,11 @@ class FavoriteService extends GetxService {
   // 从收藏夹中移除指定项目
   Future<bool> removeItemFromFolder(String itemId, String folderId) async {
     try {
-      _db.prepare('DELETE FROM favorite_items WHERE item_id = ? AND folder_id = ?')
-        .execute([itemId, folderId]);
-      
+      _db.execute(
+        'DELETE FROM favorite_items WHERE item_id = ? AND folder_id = ?',
+        [itemId, folderId],
+      );
+
       favoriteChangedNotifier.value++;
       return true;
     } catch (e) {
@@ -220,14 +216,14 @@ class FavoriteService extends GetxService {
         tags: video.tags ?? [],
       );
 
-      _db.prepare('''
+      _db.execute('''
         INSERT INTO favorite_items (
           id, folder_id, item_type, item_id, title, preview_url,
           author_name, author_username, author_avatar_url, ext_data, tags,
           created_at, updated_at
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      ''').execute([
+      ''', [
         item.id,
         item.folderId,
         item.itemType.name,
@@ -280,14 +276,14 @@ class FavoriteService extends GetxService {
         tags: image.tags,
       );
 
-      _db.prepare('''
+      _db.execute('''
         INSERT INTO favorite_items (
           id, folder_id, item_type, item_id, title, preview_url,
           author_name, author_username, author_avatar_url, ext_data, tags,
           created_at, updated_at
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      ''').execute([
+      ''', [
         item.id,
         item.folderId,
         item.itemType.name,
@@ -333,14 +329,14 @@ class FavoriteService extends GetxService {
         extData: user.toJson(),
       );
 
-      _db.prepare('''
+      _db.execute('''
         INSERT INTO favorite_items (
           id, folder_id, item_type, item_id, title, preview_url,
           author_name, author_username, author_avatar_url, ext_data,
           created_at, updated_at
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      ''').execute([
+      ''', [
         item.id,
         item.folderId,
         item.itemType.name,
@@ -366,9 +362,8 @@ class FavoriteService extends GetxService {
   // 从收藏夹中移除项目
   Future<bool> removeFromFolder(String itemId) async {
     try {
-      _db.prepare('DELETE FROM favorite_items WHERE id = ?')
-        .execute([itemId]);
-      
+      _db.execute('DELETE FROM favorite_items WHERE id = ?', [itemId]);
+
       favoriteChangedNotifier.value++;
       return true;
     } catch (e) {
@@ -380,18 +375,16 @@ class FavoriteService extends GetxService {
   // 检查项目是否已在收藏夹中
   Future<List<FavoriteFolder>> getItemFolders(String itemId) async {
     try {
-      final stmt = _db.prepare('''
-        SELECT 
+      final results = _db.select('''
+        SELECT
           f.*,
           (SELECT COUNT(*) FROM favorite_items WHERE folder_id = f.id) as item_count
         FROM favorite_folders f
         WHERE EXISTS (
-          SELECT 1 FROM favorite_items 
+          SELECT 1 FROM favorite_items
           WHERE folder_id = f.id AND item_id = ?
         )
-      ''');
-      
-      final results = stmt.select([itemId]);
+      ''', [itemId]);
       return results.map((row) => FavoriteFolder.fromJson(row)).toList();
     } catch (e) {
       LogUtils.e('获取项目所在收藏夹失败', tag: 'FavoriteService', error: e);
@@ -407,11 +400,11 @@ class FavoriteService extends GetxService {
     if (folderId == 'default') return false;
 
     try {
-      _db.prepare('''
+      _db.execute('''
         UPDATE favorite_folders
         SET title = ?, description = ?, updated_at = ?
         WHERE id = ?
-      ''').execute([
+      ''', [
         title,
         description,
         DateTime.now().millisecondsSinceEpoch ~/ 1000,
@@ -433,11 +426,11 @@ class FavoriteService extends GetxService {
 
       try {
         for (var i = 0; i < folderIds.length; i++) {
-          _db.prepare('''
+          _db.execute('''
             UPDATE favorite_folders
             SET display_order = ?, updated_at = ?
             WHERE id = ?
-          ''').execute([
+          ''', [
             i,
             DateTime.now().millisecondsSinceEpoch ~/ 1000,
             folderIds[i],

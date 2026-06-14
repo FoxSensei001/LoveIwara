@@ -716,6 +716,7 @@ class ApiService extends GetxService {
     String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
+    d_dio.CancelToken? cancelToken,
     d_dio.Options? options,
     ApiRequestAccess requestAccess = ApiRequestAccess.authRequired,
     int? maxNetworkRetries,
@@ -725,6 +726,7 @@ class ApiService extends GetxService {
         path,
         data: data,
         queryParameters: queryParameters,
+        cancelToken: cancelToken,
         options: _prepareRequestOptions(
           options,
           requestAccess: requestAccess,
@@ -749,6 +751,7 @@ class ApiService extends GetxService {
   Future<d_dio.Response<T>> delete<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
+    d_dio.CancelToken? cancelToken,
     d_dio.Options? options,
     ApiRequestAccess requestAccess = ApiRequestAccess.authRequired,
     int? maxNetworkRetries,
@@ -757,6 +760,7 @@ class ApiService extends GetxService {
       final response = await _dio.delete<dynamic>(
         path,
         queryParameters: queryParameters,
+        cancelToken: cancelToken,
         options: _prepareRequestOptions(
           options,
           requestAccess: requestAccess,
@@ -782,6 +786,7 @@ class ApiService extends GetxService {
     String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
+    d_dio.CancelToken? cancelToken,
     d_dio.Options? options,
     ApiRequestAccess requestAccess = ApiRequestAccess.authRequired,
     int? maxNetworkRetries,
@@ -791,6 +796,7 @@ class ApiService extends GetxService {
         path,
         data: data,
         queryParameters: queryParameters,
+        cancelToken: cancelToken,
         options: _prepareRequestOptions(
           options,
           requestAccess: requestAccess,

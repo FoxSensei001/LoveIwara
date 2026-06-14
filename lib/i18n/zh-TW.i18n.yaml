@@ -303,6 +303,10 @@ auth:
   usernameOrEmail: 使用者名稱或電子郵件
   pleaseEnterUsernameOrEmail: 請輸入使用者名稱或電子郵件
   rememberMe: 記住帳號密碼
+  registerNoticeTitle: 前往官網註冊帳號
+  registerNoticeDescription: "應用程式內已不再提供註冊功能。請前往 Iwara 官網建立帳號，完成後回到這裡登入即可。"
+  registerNoticeReturnTip: "註冊完成後，返回此處使用帳號登入。"
+  goToOfficialWebsite: 前往官網註冊
 
 errors:
   error: 錯誤
@@ -466,6 +470,10 @@ search:
   pleaseEnterSearchKeywords: "請輸入搜尋關鍵字"
   googleSearchQueryCopied: "搜尋語句已複製到剪貼簿"
   googleSearchBrowserOpenFailed: "無法打開瀏覽器: ${error}"
+  searchRequestTimeout: 請求逾時，請稍後重試
+  searchCannotConnectToServer: 無法連接到伺服器，請檢查網路連線
+  searchNetworkError: 網路連線失敗，請檢查網路設定或稍後重試
+  searchFailedPleaseRetry: 搜尋失敗，請稍後重試
 
 mediaList:
   personalIntroduction: 個人簡介
@@ -1310,6 +1318,7 @@ download:
     userPausedDownload: 使用者暫停下載
     fileSystemError: '文件系統錯誤: ${errorInfo}'
     unknownError: '未知錯誤: ${errorInfo}'
+    writeFileFailedForMessage: '寫入檔案失敗: ${errorInfo}'
     connectionTimeout: 連接超時
     sendTimeout: 發送超時
     receiveTimeout: 接收超時

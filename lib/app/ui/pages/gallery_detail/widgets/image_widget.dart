@@ -64,6 +64,9 @@ class _ImageWidgetState extends State<ImageWidget> {
     return CachedNetworkImage(
       imageUrl: _effectiveUrl,
       httpHeaders: widget.headers,
+      // 全图查看器保留清晰度，仅设较高磁盘缓存上限（4096px）防超大图全解码爆内存
+      maxWidthDiskCache: 4096,
+      maxHeightDiskCache: 4096,
       fit: BoxFit.contain,
       errorWidget: (context, url, error) {
         LogUtils.e('图片加载失败: $url', tag: 'ImageWidget', error: error);

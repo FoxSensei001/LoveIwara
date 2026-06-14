@@ -35,6 +35,10 @@ class IwaraNewsService extends GetxService {
 
   final Map<String, IwaraNewsCategory> _categoryCache = {};
 
+  // 裸 HttpClient 没有像 Dio 那样的超时栈，需为每个阶段显式设置超时，
+  // 否则服务端不响应时新闻请求会无限挂起
+  static const Duration _requestTimeout = Duration(seconds: 30);
+
   HttpClient get _client => HttpClientFactory.instance.createHttpClient();
 
   IwaraNewsLanguage resolveLanguage(String languageCode) {
@@ -227,24 +231,31 @@ class IwaraNewsService extends GetxService {
   }
 
   Future<String> _getString(Uri uri) async {
-    final request = await _client.getUrl(uri);
+    final request = await _client.getUrl(uri).timeout(_requestTimeout);
     request.headers.set(HttpHeaders.acceptHeader, 'application/json, text/html');
-    final response = await request.close();
-    final body = await response.transform(utf8.decoder).join();
+    final response = await request.close().timeout(_requestTimeout);
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      // drain 掉响应体，避免该连接无法回到 keep-alive 连接池复用
+      await response.drain<void>().catchError((_) {});
       throw HttpException('Request failed: ${response.statusCode}', uri: uri);
     }
-    return body;
+    return await response
+        .transform(utf8.decoder)
+        .join()
+        .timeout(_requestTimeout);
   }
 
   Future<String> _getHtml(Uri uri) async {
-    final request = await _client.getUrl(uri);
-    final response = await request.close();
-    final body = await response.transform(utf8.decoder).join();
+    final request = await _client.getUrl(uri).timeout(_requestTimeout);
+    final response = await request.close().timeout(_requestTimeout);
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      await response.drain<void>().catchError((_) {});
       throw HttpException('Request failed: ${response.statusCode}', uri: uri);
     }
-    return body;
+    return await response
+        .transform(utf8.decoder)
+        .join()
+        .timeout(_requestTimeout);
   }
 
   int _asInt(dynamic value) {

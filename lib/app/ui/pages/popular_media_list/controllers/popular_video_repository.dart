@@ -24,6 +24,7 @@ class PopularVideoRepository extends BaseMediaRepository<Video> {
       page: page,
       limit: limit,
       requestAccess: ApiRequestAccess.optionalAuthShortWait,
+      cancelToken: cancelToken,
     );
   }
 }

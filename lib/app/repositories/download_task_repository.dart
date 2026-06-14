@@ -15,21 +15,20 @@ class DownloadTaskRepository {
 
   // 获取所有任务
   Future<List<DownloadTask>> getAllTasks() async {
-    final stmt = _db.prepare('''
-      SELECT * FROM download_tasks 
+    // 使用 CommonDatabase.select 一次性查询，内部自动 prepare + dispose，避免 stmt 泄漏
+    final results = _db.select('''
+      SELECT * FROM download_tasks
       ORDER BY created_at DESC
     ''');
-
-    final results = stmt.select([]);
     return results.map((row) => DownloadTask.fromRow(row)).toList();
   }
 
   // 获取某状态的全部任务
   Future<List<DownloadTask>> getAllTasksByStatus(DownloadStatus status) async {
-    final stmt = _db.prepare('''
-      SELECT * FROM download_tasks WHERE status = ?
-    ''');
-    final results = stmt.select([status.name]);
+    final results = _db.select(
+      'SELECT * FROM download_tasks WHERE status = ?',
+      [status.name],
+    );
     return results.map((row) => DownloadTask.fromRow(row)).toList();
   }
 
@@ -37,13 +36,11 @@ class DownloadTaskRepository {
   Future<List<DownloadTask>>
   getDownloadingAndPendingTasksOrderByCreatedAtAsc() async {
     try {
-      final stmt = _db.prepare('''
-        SELECT * FROM download_tasks 
+      final results = _db.select('''
+        SELECT * FROM download_tasks
         WHERE status IN ('downloading', 'pending')
         ORDER BY created_at ASC
       ''');
-
-      final results = stmt.select([]);
       return results.map((row) => DownloadTask.fromRow(row)).toList();
     } catch (e) {
       LogUtils.e(
@@ -58,13 +55,11 @@ class DownloadTaskRepository {
   /// 获取所有等待中(pending)任务，按创建时间升序排列
   Future<List<DownloadTask>> getPendingTasksOrderByCreatedAtAsc() async {
     try {
-      final stmt = _db.prepare('''
-        SELECT * FROM download_tasks 
+      final results = _db.select('''
+        SELECT * FROM download_tasks
         WHERE status = 'pending'
         ORDER BY created_at ASC
       ''');
-
-      final results = stmt.select([]);
       return results.map((row) => DownloadTask.fromRow(row)).toList();
     } catch (e) {
       LogUtils.e('获取等待中任务失败', tag: 'DownloadTaskRepository', error: e);
@@ -79,27 +74,28 @@ class DownloadTaskRepository {
           ? jsonEncode(task.extData!.toJson())
           : null;
 
-      _db
-          .prepare('''
-        INSERT INTO download_tasks 
+      _db.execute(
+        '''
+        INSERT INTO download_tasks
         (id, url, save_path, file_name, total_bytes, downloaded_bytes, status, supports_range, error, ext_data, media_type, media_id, quality)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      ''')
-          .execute([
-            task.id,
-            task.url,
-            task.savePath,
-            task.fileName,
-            task.totalBytes,
-            task.downloadedBytes,
-            task.status.name,
-            task.supportsRange ? 1 : 0,
-            task.error,
-            extDataJson,
-            task.mediaType,
-            task.mediaId,
-            task.quality,
-          ]);
+      ''',
+        [
+          task.id,
+          task.url,
+          task.savePath,
+          task.fileName,
+          task.totalBytes,
+          task.downloadedBytes,
+          task.status.name,
+          task.supportsRange ? 1 : 0,
+          task.error,
+          extDataJson,
+          task.mediaType,
+          task.mediaId,
+          task.quality,
+        ],
+      );
     } catch (e) {
       LogUtils.e('插入下载任务失败', tag: 'DownloadTaskRepository', error: e);
       rethrow;
@@ -113,40 +109,41 @@ class DownloadTaskRepository {
           ? jsonEncode(task.extData!.toJson())
           : null;
 
-      _db
-          .prepare('''
-        UPDATE download_tasks 
-        SET url = ?, 
-            save_path = ?, 
-            file_name = ?, 
-            total_bytes = ?, 
-            downloaded_bytes = ?, 
-            status = ?, 
-            supports_range = ?, 
-            error = ?, 
+      _db.execute(
+        '''
+        UPDATE download_tasks
+        SET url = ?,
+            save_path = ?,
+            file_name = ?,
+            total_bytes = ?,
+            downloaded_bytes = ?,
+            status = ?,
+            supports_range = ?,
+            error = ?,
             ext_data = ?,
             media_type = ?,
             media_id = ?,
             quality = ?,
             updated_at = ?
         WHERE id = ?
-      ''')
-          .execute([
-            task.url,
-            task.savePath,
-            task.fileName,
-            task.totalBytes,
-            task.downloadedBytes,
-            task.status.name,
-            task.supportsRange ? 1 : 0,
-            task.error,
-            extDataJson,
-            task.mediaType,
-            task.mediaId,
-            task.quality,
-            DateTime.now().millisecondsSinceEpoch,
-            task.id,
-          ]);
+      ''',
+        [
+          task.url,
+          task.savePath,
+          task.fileName,
+          task.totalBytes,
+          task.downloadedBytes,
+          task.status.name,
+          task.supportsRange ? 1 : 0,
+          task.error,
+          extDataJson,
+          task.mediaType,
+          task.mediaId,
+          task.quality,
+          DateTime.now().millisecondsSinceEpoch,
+          task.id,
+        ],
+      );
     } catch (e) {
       LogUtils.e('更新下载任务失败', tag: 'DownloadTaskRepository', error: e);
       rethrow;
@@ -156,7 +153,7 @@ class DownloadTaskRepository {
   // 删除任务
   Future<bool> deleteTask(String taskId) async {
     try {
-      _db.prepare('DELETE FROM download_tasks WHERE id = ?').execute([taskId]);
+      _db.execute('DELETE FROM download_tasks WHERE id = ?', [taskId]);
       return true;
     } catch (e) {
       LogUtils.e('删除下载任务失败', tag: 'DownloadTaskRepository', error: e);
@@ -167,7 +164,7 @@ class DownloadTaskRepository {
   // 删除所有任务
   Future<bool> deleteAllTasks() async {
     try {
-      _db.prepare('DELETE FROM download_tasks').execute();
+      _db.execute('DELETE FROM download_tasks');
       return true;
     } catch (e) {
       LogUtils.e('删除所有下载任务失败', tag: 'DownloadTaskRepository', error: e);
@@ -180,19 +177,21 @@ class DownloadTaskRepository {
     int offset = 0,
     int limit = 20,
   }) async {
-    String whereConditions = '';
-    if (status != null) {
-      whereConditions = "WHERE status = '${status.name}'";
-    }
     try {
-      final stmt = _db.prepare('''
-        SELECT * FROM download_tasks 
+      final params = <Object?>[];
+      String whereConditions = '';
+      if (status != null) {
+        whereConditions = 'WHERE status = ?';
+        params.add(status.name);
+      }
+      params.addAll([limit, offset]);
+
+      final results = _db.select('''
+        SELECT * FROM download_tasks
         $whereConditions
         ORDER BY created_at DESC
         LIMIT ? OFFSET ?
-      ''');
-
-      final results = stmt.select([limit, offset]);
+      ''', params);
       return results.map((row) => DownloadTask.fromRow(row)).toList();
     } catch (e) {
       LogUtils.e('获取下载任务失败', tag: 'DownloadTaskRepository', error: e);
@@ -205,37 +204,31 @@ class DownloadTaskRepository {
     int offset = 0,
     int limit = 20,
   }) async {
-    final stmt = _db.prepare('''
-      SELECT * FROM download_tasks 
+    final results = _db.select('''
+      SELECT * FROM download_tasks
       WHERE status = 'completed'
       ORDER BY created_at DESC
       LIMIT ? OFFSET ?
-    ''');
-
-    final results = stmt.select([limit, offset]);
+    ''', [limit, offset]);
     return results.map((row) => DownloadTask.fromRow(row)).toList();
   }
 
   // 获取任务总数
   Future<Map<String, int>> getTasksCount() async {
-    final activeStmt = _db.prepare('''
-      SELECT COUNT(*) as count FROM download_tasks 
+    final activeCount = _db.select('''
+      SELECT COUNT(*) as count FROM download_tasks
       WHERE status IN ('downloading', 'paused', 'pending')
-    ''');
+    ''').first['count'] as int;
 
-    final completedStmt = _db.prepare('''
-      SELECT COUNT(*) as count FROM download_tasks 
+    final completedCount = _db.select('''
+      SELECT COUNT(*) as count FROM download_tasks
       WHERE status = 'completed'
-    ''');
+    ''').first['count'] as int;
 
-    final failedStmt = _db.prepare('''
-      SELECT COUNT(*) as count FROM download_tasks 
+    final failedCount = _db.select('''
+      SELECT COUNT(*) as count FROM download_tasks
       WHERE status = 'failed'
-    ''');
-
-    final activeCount = activeStmt.select([]).first['count'] as int;
-    final completedCount = completedStmt.select([]).first['count'] as int;
-    final failedCount = failedStmt.select([]).first['count'] as int;
+    ''').first['count'] as int;
 
     return {
       'active': activeCount,
@@ -246,11 +239,10 @@ class DownloadTaskRepository {
 
   /// 根据状态获取任务数量
   Future<int> getCountByStatus(DownloadStatus status) async {
-    final stmt = _db.prepare('''
-      SELECT COUNT(*) as count FROM download_tasks 
-      WHERE status = ?
-    ''');
-    final result = stmt.select([status.name]);
+    final result = _db.select(
+      'SELECT COUNT(*) as count FROM download_tasks WHERE status = ?',
+      [status.name],
+    );
     if (result.isEmpty) {
       return 0;
     }
@@ -258,8 +250,10 @@ class DownloadTaskRepository {
   }
 
   Future<DownloadTask?> getTaskById(String taskId) async {
-    final stmt = _db.prepare('SELECT * FROM download_tasks WHERE id = ?');
-    final result = stmt.select([taskId]);
+    final result = _db.select(
+      'SELECT * FROM download_tasks WHERE id = ?',
+      [taskId],
+    );
 
     if (result.isNotEmpty) {
       return DownloadTask.fromRow(result.first);
@@ -270,10 +264,10 @@ class DownloadTaskRepository {
 
   Future<void> updateTaskStatusById(String id, DownloadStatus status) async {
     try {
-      final stmt = _db.prepare(
+      _db.execute(
         'UPDATE download_tasks SET status = ? WHERE id = ?',
+        [status.name, id],
       );
-      stmt.execute([status.name, id]);
     } catch (e) {
       LogUtils.e('更新下载任务状态失败', tag: 'DownloadTaskRepository', error: e);
       rethrow;
@@ -283,12 +277,11 @@ class DownloadTaskRepository {
   /// 基于媒体信息判断任务是否存在（任意状态）
   Future<bool> existsTaskByMedia(String mediaType, String mediaId) async {
     try {
-      final stmt = _db.prepare('''
-        SELECT 1 FROM download_tasks 
+      final result = _db.select('''
+        SELECT 1 FROM download_tasks
         WHERE media_type = ? AND media_id = ?
         LIMIT 1
-      ''');
-      final result = stmt.select([mediaType, mediaId]);
+      ''', [mediaType, mediaId]);
       return result.isNotEmpty;
     } catch (e) {
       LogUtils.e('检查媒体任务是否存在失败', tag: 'DownloadTaskRepository', error: e);
@@ -299,11 +292,10 @@ class DownloadTaskRepository {
   /// 获取指定视频ID的所有下载任务（任意状态）
   Future<List<DownloadTask>> getVideoTasksByMedia(String videoId) async {
     try {
-      final stmt = _db.prepare('''
-        SELECT * FROM download_tasks 
+      final results = _db.select('''
+        SELECT * FROM download_tasks
         WHERE media_type = 'video' AND media_id = ?
-      ''');
-      final results = stmt.select([videoId]);
+      ''', [videoId]);
       return results.map((row) => DownloadTask.fromRow(row)).toList();
     } catch (e) {
       LogUtils.e('获取视频媒体任务失败', tag: 'DownloadTaskRepository', error: e);
@@ -317,14 +309,12 @@ class DownloadTaskRepository {
     required int limit,
   }) async {
     try {
-      final stmt = _db.prepare('''
+      final results = _db.select('''
         SELECT * FROM download_tasks
         WHERE status IN ('paused', 'completed')
         ORDER BY created_at DESC
         LIMIT ? OFFSET ?
-      ''');
-
-      final results = stmt.select([limit, offset]);
+      ''', [limit, offset]);
       return results.map((row) => DownloadTask.fromRow(row)).toList();
     } catch (e) {
       LogUtils.e('获取历史任务失败', tag: 'DownloadTaskRepository', error: e);
@@ -335,13 +325,11 @@ class DownloadTaskRepository {
   /// 获取所有失败任务，按更新时间降序排列（最近失败的在前）
   Future<List<DownloadTask>> getFailedTasksOrderByUpdatedAtDesc() async {
     try {
-      final stmt = _db.prepare('''
+      final results = _db.select('''
         SELECT * FROM download_tasks
         WHERE status = 'failed'
         ORDER BY updated_at DESC
       ''');
-
-      final results = stmt.select([]);
       return results.map((row) => DownloadTask.fromRow(row)).toList();
     } catch (e) {
       LogUtils.e('获取失败任务失败', tag: 'DownloadTaskRepository', error: e);
@@ -362,7 +350,7 @@ class DownloadTaskRepository {
   }) async {
     try {
       final whereClauses = <String>[];
-      final params = <dynamic>[];
+      final params = <Object?>[];
 
       // Search query filter
       if (searchQuery != null && searchQuery.trim().isNotEmpty) {
@@ -418,8 +406,7 @@ class DownloadTaskRepository {
       params.add(limit);
       params.add(offset);
 
-      final stmt = _db.prepare(sql);
-      final results = stmt.select(params);
+      final results = _db.select(sql, params);
       return results.map((row) => DownloadTask.fromRow(row)).toList();
     } catch (e) {
       LogUtils.e('搜索下载任务失败', tag: 'DownloadTaskRepository', error: e);
@@ -435,7 +422,7 @@ class DownloadTaskRepository {
   }) async {
     try {
       final whereClauses = <String>[];
-      final params = <dynamic>[];
+      final params = <Object?>[];
 
       // Search query filter
       if (searchQuery != null && searchQuery.trim().isNotEmpty) {
@@ -484,8 +471,7 @@ class DownloadTaskRepository {
         $whereClause
       ''';
 
-      final stmt = _db.prepare(sql);
-      final results = stmt.select(params);
+      final results = _db.select(sql, params);
       return results.first['count'] as int;
     } catch (e) {
       LogUtils.e('获取筛选任务数量失败', tag: 'DownloadTaskRepository', error: e);

@@ -304,6 +304,10 @@ auth:
   usernameOrEmail: ユーザー名またはメールアドレス
   pleaseEnterUsernameOrEmail: ユーザー名またはメールアドレスを入力してください
   rememberMe: ユーザー名とパスワードを記憶
+  registerNoticeTitle: 公式サイトで新規登録
+  registerNoticeDescription: "アプリ内での新規登録は提供されなくなりました。Iwara 公式サイトでアカウントを作成し、こちらに戻ってログインしてください。"
+  registerNoticeReturnTip: "登録後、こちらに戻ってアカウントでログインしてください。"
+  goToOfficialWebsite: 公式サイトを開く
 
 errors:
   error: エラー
@@ -467,6 +471,10 @@ search:
   pleaseEnterSearchKeywords: "検索するキーワードを入力してください"
   googleSearchQueryCopied: "検索語句をクリップボードにコピーしました"
   googleSearchBrowserOpenFailed: "ブラウザを開けませんでした: ${error}"
+  searchRequestTimeout: リクエストがタイムアウトしました。しばらくしてから再試行してください
+  searchCannotConnectToServer: サーバーに接続できません。ネットワーク接続を確認してください
+  searchNetworkError: ネットワーク接続に失敗しました。ネットワーク設定を確認するか、しばらくしてから再試行してください
+  searchFailedPleaseRetry: 検索に失敗しました。しばらくしてから再試行してください
 mediaList:
   personalIntroduction: 個人紹介
 
@@ -1267,6 +1275,7 @@ download:
     userPausedDownload: ユーザーがダウンロードを一時停止
     fileSystemError: 'ファイルシステムエラー: ${errorInfo}'
     unknownError: '不明なエラー: ${errorInfo}'
+    writeFileFailedForMessage: 'ファイルの書き込みに失敗しました: ${errorInfo}'
     connectionTimeout: 接続タイムアウト
     sendTimeout: 送信タイムアウト
     receiveTimeout: 受信タイムアウト

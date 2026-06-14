@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -312,12 +314,24 @@ class CommentController<T extends CommentType> extends GetxController {
 class CommentListSource extends LoadingMoreBase<Comment> {
   final CommentController controller;
 
+  // 持有订阅以便在 dispose 时取消，避免泄漏（每个详情页都会创建评论数据源）
+  final List<StreamSubscription> _subscriptions = [];
+
   CommentListSource(this.controller) {
     // 监听控制器状态变化
-    controller.comments.listen((_) => setState());
-    controller.isLoading.listen((_) => setState());
-    controller.hasMore.listen((_) => setState());
-    controller.errorMessage.listen((_) => setState());
+    _subscriptions.add(controller.comments.listen((_) => setState()));
+    _subscriptions.add(controller.isLoading.listen((_) => setState()));
+    _subscriptions.add(controller.hasMore.listen((_) => setState()));
+    _subscriptions.add(controller.errorMessage.listen((_) => setState()));
+  }
+
+  @override
+  void dispose() {
+    for (final sub in _subscriptions) {
+      sub.cancel();
+    }
+    _subscriptions.clear();
+    super.dispose();
   }
 
   @override

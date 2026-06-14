@@ -24,6 +24,7 @@ class PopularGalleryRepository extends BaseMediaRepository<ImageModel> {
       page: page,
       limit: limit,
       requestAccess: ApiRequestAccess.optionalAuthShortWait,
+      cancelToken: cancelToken,
     );
   }
 }

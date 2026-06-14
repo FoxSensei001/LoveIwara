@@ -61,16 +61,8 @@ class Oreno3dClient {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          // 记录请求信息
-          final requestInfo = {
-            'method': options.method,
-            'url': '${options.baseUrl}${options.path}',
-            'query': options.queryParameters,
-            'headers': options.headers,
-            'data': options.data,
-          };
-          LogUtils.d('🚀 发送请求: ${options.method} ${options.baseUrl}${options.path}', 'Oreno3dClient');
-          LogUtils.d('请求详情: $requestInfo', 'Oreno3dClient');
+          // 仅记录方法/URL/查询参数；不打印 headers 与 data，避免日志噪音和潜在信息泄漏
+          LogUtils.d('🚀 发送请求: ${options.method} ${options.baseUrl}${options.path} query=${options.queryParameters}', 'Oreno3dClient');
           handler.next(options);
         },
         onResponse: (response, handler) {
@@ -140,6 +132,7 @@ class Oreno3dClient {
     int page = 1,
     Oreno3dSortType sortType = Oreno3dSortType.hot,
     String api = '/search',
+    CancelToken? cancelToken,
   }) async {
     try {
       final response = await _dio.get(
@@ -149,6 +142,7 @@ class Oreno3dClient {
           'page': page > 1 ? page : null,
           'sort': sortType.value,
         }..removeWhere((key, value) => value == null),
+        cancelToken: cancelToken,
       );
 
       if (response.statusCode == 200) {

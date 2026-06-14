@@ -540,6 +540,11 @@ class _HorizontalImageListState extends State<HorizontalImageList>
 
     return CachedNetworkImage(
       imageUrl: imageItem.url,
+      // 主查看器需保留原图清晰度，因此不做显示降采样；仅设置一个较高的磁盘缓存
+      // 上限（4096px），让典型图片不受影响，只对超大图（>4K）限制以避免全分辨率
+      // 解码导致的内存飙升 / 低端设备 OOM。
+      maxWidthDiskCache: 4096,
+      maxHeightDiskCache: 4096,
       placeholder: (context, url) =>
           widget.placeholderBuilder?.call(context, url) ??
           _buildPlaceholder(context, itemBorderRadius),

@@ -829,13 +829,27 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       final ImageStream stream = networkImage.resolve(config);
       final Completer<ui.Image> completer = Completer<ui.Image>();
 
-      stream.addListener(
-        ImageStreamListener((ImageInfo info, bool _) {
-          completer.complete(info.image);
-        }),
+      // 持有 listener 引用以便用完后移除，避免 ImageStream 监听器泄漏；
+      // 同时处理 onError，防止缩略图加载失败时 completer 永不完成导致挂起
+      late final ImageStreamListener listener;
+      listener = ImageStreamListener(
+        (ImageInfo info, bool _) {
+          // clone 出自己拥有的引用：传入的 info.image 由框架/缓存拥有且可能被多个
+          // listener 共享，不能直接持有或 dispose，必须 clone 后由本方法负责释放
+          if (!completer.isCompleted) completer.complete(info.image.clone());
+        },
+        onError: (Object error, StackTrace? stackTrace) {
+          if (!completer.isCompleted) completer.completeError(error, stackTrace);
+        },
       );
+      stream.addListener(listener);
 
-      final ui.Image originalImage = await completer.future;
+      final ui.Image originalImage;
+      try {
+        originalImage = await completer.future;
+      } finally {
+        stream.removeListener(listener);
+      }
 
       // 2. 计算适当的绘制尺寸以保持宽高比
       final double imageAspectRatio =
@@ -878,6 +892,9 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         paint,
       );
 
+      // 原图已绘制完毕，释放其原生纹理内存
+      originalImage.dispose();
+
       // 5. 将模糊后的图片转换为图像
       final blurredImage = await recorder.endRecording().toImage(
         size.width.toInt(),
@@ -888,6 +905,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       final byteData = await blurredImage.toByteData(
         format: ui.ImageByteFormat.png,
       );
+      // 已得到 PNG 字节，释放模糊图的原生纹理内存
+      blurredImage.dispose();
       final buffer = byteData!.buffer.asUint8List();
 
       // 7. 创建最终的模糊背景Widget

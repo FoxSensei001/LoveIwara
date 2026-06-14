@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart' show CancelToken;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/utils/logger_utils.dart' show LogUtils;
@@ -77,6 +78,12 @@ abstract class ExtendedLoadingMoreBase<T> extends LoadingMoreBase<T> {
   bool _hasMore = true;
   bool forceRefresh = false;
   String? lastErrorMessage;
+
+  /// 本数据源的请求取消令牌。子类在调用网络服务时应透传此令牌；当数据源被
+  /// dispose（列表被替换/页面销毁）时统一取消，确保在途请求不会回写已废弃的
+  /// 实例，也避免快速切换查询/筛选时旧请求乱序覆盖新结果。
+  final CancelToken cancelToken = CancelToken();
+  bool _disposed = false;
 
   @override
   bool get hasMore => _hasMore || forceRefresh;
@@ -164,6 +171,17 @@ abstract class ExtendedLoadingMoreBase<T> extends LoadingMoreBase<T> {
   void logError(String message, dynamic error, [StackTrace? stackTrace]) {
     // 默认实现
     LogUtils.e('$message: $error', error: error, stack: stackTrace);
+  }
+
+  @override
+  void dispose() {
+    if (!_disposed) {
+      _disposed = true;
+      if (!cancelToken.isCancelled) {
+        cancelToken.cancel('list source disposed');
+      }
+    }
+    super.dispose();
   }
 }
 
@@ -651,14 +669,14 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                   mainAxisSpacing: MediaLayoutUtils.mainAxisSpacing,
                 ),
             itemBuilder: (context, item, index) {
-              final visibleItems = List<T>.of(widget.sourceList.cast<T>());
-              return widget.itemBuilderWithVisibleItems?.call(
-                    context,
-                    item,
-                    index,
-                    visibleItems,
-                  ) ??
-                  widget.itemBuilder(context, item, index);
+              // 仅当需要可见项列表时才复制 sourceList，避免每个 cell 都全量复制整个
+              // 已加载列表（列表越长开销越大）。绝大多数调用方只用 itemBuilder 分支。
+              final withVisibleItems = widget.itemBuilderWithVisibleItems;
+              if (withVisibleItems != null) {
+                final visibleItems = List<T>.of(widget.sourceList.cast<T>());
+                return withVisibleItems(context, item, index, visibleItems);
+              }
+              return widget.itemBuilder(context, item, index);
             },
             sourceList: widget.sourceList,
             padding: EdgeInsets.only(
@@ -857,14 +875,22 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
           ),
           sliver: SliverWaterfallFlow(
             delegate: SliverChildBuilderDelegate(
-              (context, index) =>
-                  widget.itemBuilderWithVisibleItems?.call(
+              (context, index) {
+                final withVisibleItems = widget.itemBuilderWithVisibleItems;
+                if (withVisibleItems != null) {
+                  return withVisibleItems(
                     context,
                     paginatedItems[index],
                     index,
                     List<T>.of(paginatedItems),
-                  ) ??
-                  widget.itemBuilder(context, paginatedItems[index], index),
+                  );
+                }
+                return widget.itemBuilder(
+                  context,
+                  paginatedItems[index],
+                  index,
+                );
+              },
               childCount: paginatedItems.length,
             ),
             gridDelegate:

@@ -660,8 +660,15 @@ class DownloadService extends GetxService {
         if (task.totalBytes == 0) {
           final contentLength = response.headers.value('content-length');
           if (contentLength != null) {
-            task.totalBytes = int.parse(contentLength);
-            LogUtils.d('从下载响应获取文件大小: ${task.totalBytes}', 'DownloadService');
+            // 用 tryParse 兜底：content-length 异常/非法时保持 totalBytes=0（按未知大小处理），
+            // 而非抛 FormatException 让整个下载以"未知错误"失败
+            final parsed = int.tryParse(contentLength.trim());
+            if (parsed != null) {
+              task.totalBytes = parsed;
+              LogUtils.d('从下载响应获取文件大小: ${task.totalBytes}', 'DownloadService');
+            } else {
+              LogUtils.w('无法解析 content-length: $contentLength', 'DownloadService');
+            }
           }
         }
 
@@ -689,13 +696,13 @@ class DownloadService extends GetxService {
 
         // 数据流处理
         subscription = response.data.stream.listen(
-          (chunk) {
+          (chunk) async {
             try {
               final localRaf = raf;
               if (localRaf != null) {
                 localRaf.writeFromSync(chunk);
-                task.downloadedBytes =
-                    (task.downloadedBytes + chunk.length) as int;
+                // chunk.length 在该 stream 中被推断为 num，需显式转 int
+                task.downloadedBytes += (chunk.length as int);
                 // 不再直接更新 _activeTasks以避免触发整个列表的重建
                 // _activeTasks[task.id] = task;
 
@@ -704,11 +711,21 @@ class DownloadService extends GetxService {
               }
             } catch (e) {
               LogUtils.e('写入文件失败: $e', tag: 'DownloadService', error: e);
-              subscription?.cancel();
-              throw FileSystemException(
-                message: '写入文件失败: $e',
-                type: FileErrorType.ioError,
-              );
+              // 释放资源后再通过 completer 传递错误（与 onDone 错误路径一致）。
+              // 不能直接 throw：onData 中抛出的异常不会进入 stream 的 onError，
+              // 会变成 zone 未捕获错误，且 completer 永不完成 → 任务卡在
+              // downloading 状态、raf 与 _taskTimers 泄漏。
+              await _releaseResources(task, raf, subscription);
+              if (!completer.isCompleted) {
+                completer.completeError(
+                  FileSystemException(
+                    message: slang.t.download.errors.writeFileFailedForMessage(
+                      errorInfo: '$e',
+                    ),
+                    type: FileErrorType.ioError,
+                  ),
+                );
+              }
             }
           },
           onDone: () async {

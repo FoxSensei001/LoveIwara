@@ -26,41 +26,43 @@ class MarkdownFormatter {
     return IwaraSite.main.baseUrl;
   }
 
+  /// 各类型链接的匹配正则。提为 static final，只在首次访问时编译一次，
+  /// 避免每次 formatLinks 调用（评论/简介/论坛正文高频复用）都重新编译 7 个复杂正则。
+  static final Map<IwaraUrlType, RegExp> _linkPatterns = {
+    IwaraUrlType.video: RegExp(
+      r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/video/([a-zA-Z0-9]+)(?:/[^\s]*)?',
+      caseSensitive: false,
+    ),
+    IwaraUrlType.forum: RegExp(
+      r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/forum/([^/\s]+)/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
+      caseSensitive: false,
+    ),
+    IwaraUrlType.image: RegExp(
+      r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/image/([a-zA-Z0-9]+)(?:/[^\s]*)?',
+      caseSensitive: false,
+    ),
+    IwaraUrlType.profile: RegExp(
+      r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/profile/([^/\s]+)(?:/[^\s]*)?',
+      caseSensitive: false,
+    ),
+    IwaraUrlType.playlist: RegExp(
+      r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/playlist/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
+      caseSensitive: false,
+    ),
+    IwaraUrlType.post: RegExp(
+      r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/post/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
+      caseSensitive: false,
+    ),
+    IwaraUrlType.rule: RegExp(
+      r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/rule/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
+      caseSensitive: false,
+    ),
+  };
+
   /// 格式化链接
   Future<String> formatLinks(String data) async {
-    final patterns = {
-      IwaraUrlType.video: RegExp(
-        r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/video/([a-zA-Z0-9]+)(?:/[^\s]*)?',
-        caseSensitive: false,
-      ),
-      IwaraUrlType.forum: RegExp(
-        r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/forum/([^/\s]+)/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
-        caseSensitive: false,
-      ),
-      IwaraUrlType.image: RegExp(
-        r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/image/([a-zA-Z0-9]+)(?:/[^\s]*)?',
-        caseSensitive: false,
-      ),
-      IwaraUrlType.profile: RegExp(
-        r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/profile/([^/\s]+)(?:/[^\s]*)?',
-        caseSensitive: false,
-      ),
-      IwaraUrlType.playlist: RegExp(
-        r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/playlist/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
-        caseSensitive: false,
-      ),
-      IwaraUrlType.post: RegExp(
-        r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/post/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
-        caseSensitive: false,
-      ),
-      IwaraUrlType.rule: RegExp(
-        r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/rule/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
-        caseSensitive: false,
-      ),
-    };
-
     String updatedData = data;
-    for (var entry in patterns.entries) {
+    for (var entry in _linkPatterns.entries) {
       updatedData = await formatLinkType(updatedData, entry.key, entry.value);
     }
 

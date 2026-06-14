@@ -32,6 +32,7 @@ class ThreadListRepository extends ExtendedLoadingMoreBase<ForumThreadModel> {
       categoryId,
       page: page,
       limit: limit,
+      cancelToken: cancelToken,
     );
 
     if (!result.isSuccess) {

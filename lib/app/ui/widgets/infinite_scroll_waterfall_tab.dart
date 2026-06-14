@@ -105,6 +105,9 @@ class InfiniteScrollWaterfallTab<T> extends StatelessWidget {
     // Data state with infinite scroll
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
+        // 底部区间内每个滚动通知都会触发，必须先判 hasMore + !isLoadingMore 短路，
+        // 否则一次滚动会重复调用 onLoadMore 几十次
+        if (!hasMore || isLoadingMore) return false;
         if (notification is ScrollUpdateNotification ||
             notification is OverscrollNotification) {
           if (notification.metrics.pixels + 200 >=

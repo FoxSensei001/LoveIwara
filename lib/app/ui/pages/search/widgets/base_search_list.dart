@@ -45,6 +45,9 @@ abstract class BaseSearchListState<
 
     // 如果搜索查询变更，重新创建仓库
     if (oldWidget.query != widget.query) {
+      // 先 dispose 旧仓库：既回收其资源，又通过其 cancelToken 取消在途请求，
+      // 避免快速切换关键词时旧请求乱序覆盖新结果 / 回写已废弃实例
+      repository.dispose();
       repository = createRepository();
     }
 

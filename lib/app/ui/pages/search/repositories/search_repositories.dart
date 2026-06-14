@@ -24,6 +24,7 @@ class VideoSearchRepository extends SearchRepository<Video> {
       limit: limit,
       query: keyword,
       sort: sortKey,
+      cancelToken: cancelToken,
     );
   }
 }
@@ -43,6 +44,7 @@ class ImageSearchRepository extends SearchRepository<ImageModel> {
       limit: limit,
       query: keyword,
       sort: sortKey,
+      cancelToken: cancelToken,
     );
   }
 }
@@ -60,6 +62,7 @@ class UserSearchRepository extends SearchRepository<User> {
       limit: limit,
       query: keyword,
       sort: sortKey,
+      cancelToken: cancelToken,
     );
   }
 }
@@ -77,6 +80,7 @@ class PostSearchRepository extends SearchRepository<PostModel> {
       limit: limit,
       query: keyword,
       sort: sortKey,
+      cancelToken: cancelToken,
     );
   }
 }
@@ -94,6 +98,7 @@ class ForumSearchRepository extends SearchRepository<ForumThreadModel> {
       limit: limit,
       query: keyword,
       sort: sortKey,
+      cancelToken: cancelToken,
     );
   }
 }
@@ -111,6 +116,7 @@ class ForumPostsSearchRepository extends SearchRepository<ThreadCommentModel> {
       limit: limit,
       query: keyword,
       sort: sortKey,
+      cancelToken: cancelToken,
     );
   }
 }
@@ -137,6 +143,7 @@ class Oreno3dSearchRepository extends SearchRepository<Oreno3dVideo> {
       sort: sortType,
       searchType: searchType,
       extData: extData,
+      cancelToken: cancelToken,
     );
   }
 }
@@ -156,6 +163,7 @@ class PlaylistSearchRepository extends SearchRepository<PlaylistModel> {
       limit: limit,
       query: keyword,
       sort: sortKey,
+      cancelToken: cancelToken,
     );
   }
 }

@@ -29,6 +29,7 @@ class SubscriptionPostRepository extends ExtendedLoadingMoreBase<PostModel> {
         params: params,
         page: page,
         limit: limit,
+        cancelToken: cancelToken,
       );
 
       if (result.isSuccess && result.data != null) {

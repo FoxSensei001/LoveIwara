@@ -35,11 +35,13 @@ class PostService extends GetxService {
     Map<String, dynamic> params = const {},
     int page = 0,
     int limit = 20,
+    CancelToken? cancelToken,
   }) async {
     try {
       var response = await _apiService.get(
         ApiConstants.posts(),
         queryParameters: {...params, 'page': page, 'limit': limit},
+        cancelToken: cancelToken,
       );
       final List<PostModel> results = (response.data['results'] as List)
           .map((postModel) => PostModel.fromJson(postModel))

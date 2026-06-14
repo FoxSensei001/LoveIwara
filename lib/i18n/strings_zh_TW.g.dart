@@ -401,6 +401,10 @@ class _TranslationsAuthZhTw implements TranslationsAuthEn {
 	@override String get usernameOrEmail => '使用者名稱或電子郵件';
 	@override String get pleaseEnterUsernameOrEmail => '請輸入使用者名稱或電子郵件';
 	@override String get rememberMe => '記住帳號密碼';
+	@override String get registerNoticeTitle => '前往官網註冊帳號';
+	@override String get registerNoticeDescription => '應用程式內已不再提供註冊功能。請前往 Iwara 官網建立帳號，完成後回到這裡登入即可。';
+	@override String get registerNoticeReturnTip => '註冊完成後，返回此處使用帳號登入。';
+	@override String get goToOfficialWebsite => '前往官網註冊';
 }
 
 // Path: errors
@@ -593,6 +597,10 @@ class _TranslationsSearchZhTw implements TranslationsSearchEn {
 	@override String get pleaseEnterSearchKeywords => '請輸入搜尋關鍵字';
 	@override String get googleSearchQueryCopied => '搜尋語句已複製到剪貼簿';
 	@override String googleSearchBrowserOpenFailed({required Object error}) => '無法打開瀏覽器: ${error}';
+	@override String get searchRequestTimeout => '請求逾時，請稍後重試';
+	@override String get searchCannotConnectToServer => '無法連接到伺服器，請檢查網路連線';
+	@override String get searchNetworkError => '網路連線失敗，請檢查網路設定或稍後重試';
+	@override String get searchFailedPleaseRetry => '搜尋失敗，請稍後重試';
 }
 
 // Path: mediaList
@@ -2614,6 +2622,7 @@ class _TranslationsDownloadErrorsZhTw implements TranslationsDownloadErrorsEn {
 	@override String get userPausedDownload => '使用者暫停下載';
 	@override String fileSystemError({required Object errorInfo}) => '文件系統錯誤: ${errorInfo}';
 	@override String unknownError({required Object errorInfo}) => '未知錯誤: ${errorInfo}';
+	@override String writeFileFailedForMessage({required Object errorInfo}) => '寫入檔案失敗: ${errorInfo}';
 	@override String get connectionTimeout => '連接超時';
 	@override String get sendTimeout => '發送超時';
 	@override String get receiveTimeout => '接收超時';
@@ -3166,6 +3175,10 @@ extension on TranslationsZhTw {
 			'auth.usernameOrEmail' => '使用者名稱或電子郵件',
 			'auth.pleaseEnterUsernameOrEmail' => '請輸入使用者名稱或電子郵件',
 			'auth.rememberMe' => '記住帳號密碼',
+			'auth.registerNoticeTitle' => '前往官網註冊帳號',
+			'auth.registerNoticeDescription' => '應用程式內已不再提供註冊功能。請前往 Iwara 官網建立帳號，完成後回到這裡登入即可。',
+			'auth.registerNoticeReturnTip' => '註冊完成後，返回此處使用帳號登入。',
+			'auth.goToOfficialWebsite' => '前往官網註冊',
 			'errors.error' => '錯誤',
 			'errors.required' => '此項為必填',
 			'errors.invalidEmail' => '電子郵件格式錯誤',
@@ -3315,6 +3328,10 @@ extension on TranslationsZhTw {
 			'search.pleaseEnterSearchKeywords' => '請輸入搜尋關鍵字',
 			'search.googleSearchQueryCopied' => '搜尋語句已複製到剪貼簿',
 			'search.googleSearchBrowserOpenFailed' => ({required Object error}) => '無法打開瀏覽器: ${error}',
+			'search.searchRequestTimeout' => '請求逾時，請稍後重試',
+			'search.searchCannotConnectToServer' => '無法連接到伺服器，請檢查網路連線',
+			'search.searchNetworkError' => '網路連線失敗，請檢查網路設定或稍後重試',
+			'search.searchFailedPleaseRetry' => '搜尋失敗，請稍後重試',
 			'mediaList.personalIntroduction' => '個人簡介',
 			'settings.listViewMode' => '列表顯示模式',
 			'settings.previewEffect' => '預覽效果',
@@ -3377,6 +3394,8 @@ extension on TranslationsZhTw {
 			'settings.basicTheme' => '基礎主題',
 			'settings.needRestartToApply' => '需要重啟應用以應用設定',
 			'settings.themeNeedRestartDescription' => '主題設定需要重啟應用以應用設定',
+			_ => null,
+		} ?? switch (path) {
 			'settings.about' => '關於',
 			'settings.diagnosticsAndFeedback' => '診斷與回饋',
 			'settings.currentVersion' => '目前版本',
@@ -3385,8 +3404,6 @@ extension on TranslationsZhTw {
 			'settings.update' => '更新',
 			'settings.newVersionAvailable' => '發現新版本',
 			'settings.projectHome' => '開源地址',
-			_ => null,
-		} ?? switch (path) {
 			'settings.release' => '版本發布',
 			'settings.issueReport' => '問題回報',
 			'settings.openSourceLicense' => '開源許可',
@@ -3891,6 +3908,8 @@ extension on TranslationsZhTw {
 			'share.sharePost' => '分享投稿',
 			'share.postTitleIs' => '投稿名字叫做',
 			'share.postAuthorIs' => '投稿作者是',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.markdownSyntax' => 'Markdown 語法',
 			'markdown.iwaraSpecialMarkdownSyntax' => 'Iwara 專用語法',
 			'markdown.internalLink' => '站內連結',
@@ -3899,8 +3918,6 @@ extension on TranslationsZhTw {
 			'markdown.mentionUser' => '提及使用者',
 			'markdown.mentionUserDescription' => '輸入@後跟使用者名稱，將自動轉換為使用者連結',
 			'markdown.markdownBasicSyntax' => 'Markdown 基本語法',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.paragraphAndLineBreak' => '段落與換行',
 			'markdown.paragraphAndLineBreakDescription' => '段落之間空一行，行末加兩個空格實現換行',
 			'markdown.paragraphAndLineBreakSyntax' => '這是第一段文字\n\n這是第二段文字\n這一行後面加兩個空格  \n就能換行了',
@@ -4078,6 +4095,7 @@ extension on TranslationsZhTw {
 			'download.errors.userPausedDownload' => '使用者暫停下載',
 			'download.errors.fileSystemError' => ({required Object errorInfo}) => '文件系統錯誤: ${errorInfo}',
 			'download.errors.unknownError' => ({required Object errorInfo}) => '未知錯誤: ${errorInfo}',
+			'download.errors.writeFileFailedForMessage' => ({required Object errorInfo}) => '寫入檔案失敗: ${errorInfo}',
 			'download.errors.connectionTimeout' => '連接超時',
 			'download.errors.sendTimeout' => '發送超時',
 			'download.errors.receiveTimeout' => '接收超時',
@@ -4404,6 +4422,8 @@ extension on TranslationsZhTw {
 			'mediaPlayer.serverSelectorDescription' => '選擇延遲最低的伺服器以獲得最佳播放體驗',
 			'mediaPlayer.retestSpeed' => '重新測速',
 			'mediaPlayer.waitingForSpeedTest' => '等待測速',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.testingSpeed' => '測速中...',
 			'mediaPlayer.testFailed' => '測速失敗',
 			'mediaPlayer.loadingServerList' => '正在加載伺服器列表...',
@@ -4413,8 +4433,6 @@ extension on TranslationsZhTw {
 			'mediaPlayer.switchedToServer' => ({required Object serverName}) => '已切換到伺服器: ${serverName}',
 			'mediaPlayer.serverCount' => ({required Object count}) => '共 ${count} 個伺服器',
 			'mediaPlayer.statusCode' => ({required Object code}) => '狀態碼: ${code}',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.connectionFailed' => '連接失敗',
 			'mediaPlayer.connectionTimeout' => '連接超時',
 			'mediaPlayer.networkError' => '網絡錯誤',

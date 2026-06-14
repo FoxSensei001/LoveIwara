@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart' show CancelToken;
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/api_request_access.model.dart';
@@ -160,12 +161,14 @@ class ForumService extends GetxService {
     String threadId, {
     int page = 0,
     int limit = 20,
+    CancelToken? cancelToken,
   }) async {
     try {
       var response = await _apiService.get(
         ApiConstants.forumThreadDetail(categoryId, threadId),
         queryParameters: {'page': page, 'limit': limit},
         requestAccess: ApiRequestAccess.publicOnly,
+        cancelToken: cancelToken,
       );
 
       final ForumThreadModel thread = ForumThreadModel.fromJson(
@@ -195,12 +198,14 @@ class ForumService extends GetxService {
     String categoryId, {
     int page = 0,
     int limit = 20,
+    CancelToken? cancelToken,
   }) async {
     try {
       var response = await _apiService.get(
         ApiConstants.forumThreadsWithCategoryId(categoryId),
         queryParameters: {'page': page, 'limit': limit},
         requestAccess: ApiRequestAccess.publicOnly,
+        cancelToken: cancelToken,
       );
       final List<ForumThreadModel> threads = (response.data['threads'] as List)
           .map((thread) => ForumThreadModel.fromJson(thread))

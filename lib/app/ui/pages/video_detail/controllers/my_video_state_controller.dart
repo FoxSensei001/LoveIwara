@@ -1359,11 +1359,13 @@ class MyVideoStateController extends GetxController
     // 设置加载状态
     isOreno3dMatching.value = true;
 
+    // 在 try 外声明，确保所有 return / 异常路径都能在 finally 中 close，避免 Dio 实例泄漏
+    Oreno3dClient? oreno3dClient;
     try {
       // 检查是否已被销毁
       if (_isDisposed) return;
 
-      final oreno3dClient = Oreno3dClient();
+      oreno3dClient = Oreno3dClient();
       // 净化关键词：iwara 标题常含破折号，会让 oreno3d 搜索退化为返回整站最热
       // 视频（参见 issue #95），必须先去掉这类字符再搜索。
       final searchResult = await oreno3dClient.searchVideos(
@@ -1414,6 +1416,8 @@ class MyVideoStateController extends GetxController
         );
       }
     } finally {
+      // 释放临时创建的 oreno3d 客户端及其底层 Dio，避免每次进详情页泄漏
+      oreno3dClient?.close();
       // 无论成功还是失败，都要清除加载状态
       if (!_isDisposed) {
         isOreno3dMatching.value = false;
@@ -1591,12 +1595,11 @@ class MyVideoStateController extends GetxController
       // 销毁动画控制器
       animationController.dispose();
 
-      // 清理滚动控制器
-      if (scrollController.hasClients) {
-        scrollController.removeListener(_scrollListener);
-        scrollController.dispose();
-        LogUtils.d('滚动控制器已清理', 'MyVideoStateController');
-      }
+      // 清理滚动控制器：listener 在 onInit 时无条件添加，因此这里也必须无条件
+      // removeListener + dispose，否则当滚动视图从未构建（hasClients=false）时会泄漏
+      scrollController.removeListener(_scrollListener);
+      scrollController.dispose();
+      LogUtils.d('滚动控制器已清理', 'MyVideoStateController');
 
       // 保存播放记录
       final Duration lastPosition = currentPosition;

@@ -63,7 +63,10 @@ class HttpClientFactory {
     final colonIdx = cleaned.lastIndexOf(':');
     if (colonIdx == -1) throw ArgumentError('Invalid proxy URL: $url');
     final host = cleaned.substring(0, colonIdx);
-    final port = int.parse(cleaned.substring(colonIdx + 1));
+    // 用 tryParse 兜底：端口非法时抛 ArgumentError（与本方法既有契约一致），
+    // 而非 FormatException，便于调用方统一捕获
+    final port = int.tryParse(cleaned.substring(colonIdx + 1).trim());
+    if (port == null) throw ArgumentError('Invalid proxy port in URL: $url');
     return (host, port);
   }
 

@@ -753,10 +753,10 @@ packages:
     dependency: "direct main"
     description:
       name: get
-      sha256: b3294002946e99314c341bff0b4f3094e631a1f8cf37785e93aa7c2f04b0768e
+      sha256: ae8e39a513276c7753f618f00e04547c56e6942a0abe8e820fb252782d895ad9
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0-release-candidate-9.3.2"
+    version: "5.0.0-release-candidate-9.3.3"
   get_storage:
     dependency: "direct main"
     description:

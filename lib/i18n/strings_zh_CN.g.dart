@@ -406,6 +406,10 @@ class _TranslationsAuthZhCn implements TranslationsAuthEn {
 	@override String get username => '用户名或邮箱';
 	@override String get pleaseEnterUsername => '请输入用户名或邮箱';
 	@override String get rememberMe => '记住账号和密码';
+	@override String get registerNoticeTitle => '前往官网注册账号';
+	@override String get registerNoticeDescription => '应用内已不再提供注册功能。请前往 Iwara 官网创建账号，完成后回到这里登录即可。';
+	@override String get registerNoticeReturnTip => '注册完成后，返回此处使用账号登录。';
+	@override String get goToOfficialWebsite => '前往官网注册';
 }
 
 // Path: errors
@@ -598,6 +602,10 @@ class _TranslationsSearchZhCn implements TranslationsSearchEn {
 	@override String get pleaseEnterSearchKeywords => '请输入搜索关键词';
 	@override String get googleSearchQueryCopied => '搜索语句已复制到剪贴板';
 	@override String googleSearchBrowserOpenFailed({required Object error}) => '无法打开浏览器: ${error}';
+	@override String get searchRequestTimeout => '请求超时，请稍后重试';
+	@override String get searchCannotConnectToServer => '无法连接到服务器，请检查网络连接';
+	@override String get searchNetworkError => '网络连接失败，请检查网络设置或稍后重试';
+	@override String get searchFailedPleaseRetry => '搜索失败，请稍后重试';
 }
 
 // Path: mediaList
@@ -2528,6 +2536,7 @@ class _TranslationsDownloadErrorsZhCn implements TranslationsDownloadErrorsEn {
 	@override String get userPausedDownload => '用户暂停下载';
 	@override String fileSystemError({required Object errorInfo}) => '文件系统错误: ${errorInfo}';
 	@override String unknownError({required Object errorInfo}) => '未知错误: ${errorInfo}';
+	@override String writeFileFailedForMessage({required Object errorInfo}) => '写入文件失败: ${errorInfo}';
 	@override String get connectionTimeout => '连接超时';
 	@override String get sendTimeout => '发送超时';
 	@override String get receiveTimeout => '接收超时';
@@ -3173,6 +3182,10 @@ extension on TranslationsZhCn {
 			'auth.username' => '用户名或邮箱',
 			'auth.pleaseEnterUsername' => '请输入用户名或邮箱',
 			'auth.rememberMe' => '记住账号和密码',
+			'auth.registerNoticeTitle' => '前往官网注册账号',
+			'auth.registerNoticeDescription' => '应用内已不再提供注册功能。请前往 Iwara 官网创建账号，完成后回到这里登录即可。',
+			'auth.registerNoticeReturnTip' => '注册完成后，返回此处使用账号登录。',
+			'auth.goToOfficialWebsite' => '前往官网注册',
 			'errors.error' => '错误',
 			'errors.required' => '此项必填',
 			'errors.invalidEmail' => '邮箱格式不正确',
@@ -3322,6 +3335,10 @@ extension on TranslationsZhCn {
 			'search.pleaseEnterSearchKeywords' => '请输入搜索关键词',
 			'search.googleSearchQueryCopied' => '搜索语句已复制到剪贴板',
 			'search.googleSearchBrowserOpenFailed' => ({required Object error}) => '无法打开浏览器: ${error}',
+			'search.searchRequestTimeout' => '请求超时，请稍后重试',
+			'search.searchCannotConnectToServer' => '无法连接到服务器，请检查网络连接',
+			'search.searchNetworkError' => '网络连接失败，请检查网络设置或稍后重试',
+			'search.searchFailedPleaseRetry' => '搜索失败，请稍后重试',
 			'mediaList.personalIntroduction' => '个人简介',
 			'settings.listViewMode' => '列表显示模式',
 			'settings.previewEffect' => '预览效果',
@@ -3379,6 +3396,8 @@ extension on TranslationsZhCn {
 			'settings.themeSettings' => '主题设置',
 			'settings.followSystem' => '跟随系统',
 			'settings.lightMode' => '浅色模式',
+			_ => null,
+		} ?? switch (path) {
 			'settings.darkMode' => '深色模式',
 			'settings.presetTheme' => '预设主题',
 			'settings.basicTheme' => '基础主题',
@@ -3387,8 +3406,6 @@ extension on TranslationsZhCn {
 			'settings.about' => '关于',
 			'settings.diagnosticsAndFeedback' => '诊断与反馈',
 			'settings.currentVersion' => '当前版本',
-			_ => null,
-		} ?? switch (path) {
 			'settings.latestVersion' => '最新版本',
 			'settings.checkForUpdates' => '检查更新',
 			'settings.update' => '更新',
@@ -3893,6 +3910,8 @@ extension on TranslationsZhCn {
 			'markdown.linkAndImage' => '链接与图片',
 			'markdown.linkAndImageDescription' => '链接格式：[文字](URL)\n图片格式：![描述](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[链接文字](${link})\n![图片描述](${imgUrl})',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.title' => '标题',
 			'markdown.titleDescription' => '使用 # 号创建标题，数量表示级别',
 			'markdown.titleSyntax' => '# 一级标题\n## 二级标题\n### 三级标题',
@@ -3901,8 +3920,6 @@ extension on TranslationsZhCn {
 			'markdown.separatorSyntax' => '---',
 			'markdown.syntax' => '语法',
 			'forum.recent' => '最近',
-			_ => null,
-		} ?? switch (path) {
 			'forum.category' => '分类',
 			'forum.lastReply' => '最后回复',
 			'forum.sitewide.badge' => '全站',
@@ -4054,6 +4071,7 @@ extension on TranslationsZhCn {
 			'download.errors.userPausedDownload' => '用户暂停下载',
 			'download.errors.fileSystemError' => ({required Object errorInfo}) => '文件系统错误: ${errorInfo}',
 			'download.errors.unknownError' => ({required Object errorInfo}) => '未知错误: ${errorInfo}',
+			'download.errors.writeFileFailedForMessage' => ({required Object errorInfo}) => '写入文件失败: ${errorInfo}',
 			'download.errors.connectionTimeout' => '连接超时',
 			'download.errors.sendTimeout' => '发送超时',
 			'download.errors.receiveTimeout' => '接收超时',
@@ -4406,6 +4424,8 @@ extension on TranslationsZhCn {
 			'mediaPlayer.unsupportedImageFormat' => '不支持的图片格式',
 			'mediaPlayer.tryOtherViewer' => '请尝试使用其他查看器',
 			'mediaPlayer.retryingOpenVideoLink' => '视频链接打开失败，重试中',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => '无法加载解码器: ${event}，可以通过在播放器设置里切换至软解，并重新进入页面尝试',
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '视频加载错误: ${event}',
 			'mediaPlayer.playbackFailureDiagnosticsHint' => '多次播放失败，建议前往 设置 > 诊断与反馈 导出日志反馈',
@@ -4415,8 +4435,6 @@ extension on TranslationsZhCn {
 			'diagnostics.memoryUsage' => ({required Object memMB}) => '内存使用: ${memMB}MB',
 			'diagnostics.deviceInfoUnavailable' => '无法获取设备信息',
 			'diagnostics.logPolicySectionTitle' => '日志策略',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.configServiceUnavailable' => '配置服务未初始化，无法调整日志策略',
 			'diagnostics.enableLoggingTitle' => '启用日志记录',
 			'diagnostics.enableLoggingSubtitle' => '关闭后将停止新增日志记录',

@@ -17,11 +17,12 @@ class HistoryRepository {
     // - 新记录：插入并由表默认值写入 created_at/updated_at
     // - 冲突：仅更新可变字段（title/thumbnail/author/author_id/data），保留 created_at，
     //         由触发器自动刷新 updated_at
-    _db.prepare(
+    // 使用 CommonDatabase.execute 一次性执行，内部自动 prepare + dispose，避免 stmt 泄漏
+    _db.execute(
       '''
-      INSERT INTO history_records 
+      INSERT INTO history_records
         (item_id, item_type, title, thumbnail_url, author, author_id, data)
-      VALUES 
+      VALUES
         (?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(item_id, item_type) DO UPDATE SET
         title = excluded.title,
@@ -29,16 +30,17 @@ class HistoryRepository {
         author = excluded.author,
         author_id = excluded.author_id,
         data = excluded.data
-      '''
-    ).execute([
-      record.itemId,
-      record.itemType,
-      record.title,
-      record.thumbnailUrl,
-      record.author,
-      record.authorId,
-      record.data,
-    ]);
+      ''',
+      [
+        record.itemId,
+        record.itemType,
+        record.title,
+        record.thumbnailUrl,
+        record.author,
+        record.authorId,
+        record.data,
+      ],
+    );
   }
 
   // 批量添加记录
@@ -57,41 +59,36 @@ class HistoryRepository {
 
   // 按标题搜索记录
   Future<List<HistoryRecord>> searchByTitle(String keyword) async {
-    final stmt = _db.prepare(
+    final results = _db.select(
       '''
-      SELECT * FROM history_records 
-      WHERE title LIKE ? 
+      SELECT * FROM history_records
+      WHERE title LIKE ?
       ORDER BY created_at DESC
-      '''
+      ''',
+      ['%$keyword%'],
     );
-    
-    final results = stmt.select(['%$keyword%']);
     return results.map((row) => HistoryRecord.fromJson(row)).toList();
   }
 
   // 删除单条记录
   Future<void> deleteRecord(int id) async {
-    _db.prepare(
-      'DELETE FROM history_records WHERE id = ?'
-    ).execute([id]);
+    _db.execute('DELETE FROM history_records WHERE id = ?', [id]);
   }
 
   // 批量删除记录
   Future<void> deleteRecords(List<int> ids) async {
     final placeholders = List.filled(ids.length, '?').join(',');
-    _db.prepare(
-      'DELETE FROM history_records WHERE id IN ($placeholders)'
-    ).execute(ids);
+    _db.execute('DELETE FROM history_records WHERE id IN ($placeholders)', ids);
   }
 
   // 清空历史记录
   Future<void> clearHistory() async {
-    _db.prepare('DELETE FROM history_records').execute();
+    _db.execute('DELETE FROM history_records');
   }
 
   // 清空指定类型的历史记录
   Future<void> clearHistoryByType(String itemType) async {
-    _db.prepare('DELETE FROM history_records WHERE item_type = ?').execute([itemType]);
+    _db.execute('DELETE FROM history_records WHERE item_type = ?', [itemType]);
   }
 
   // 获取指定类型的历史记录
@@ -102,26 +99,25 @@ class HistoryRepository {
   }) async {
     String sql;
     List<Object?> params;
-    
+
     if (itemType == 'all') {
       sql = '''
-        SELECT * FROM history_records 
+        SELECT * FROM history_records
         ORDER BY created_at DESC
         LIMIT ? OFFSET ?
       ''';
       params = [limit, offset];
     } else {
       sql = '''
-        SELECT * FROM history_records 
-        WHERE item_type = ? 
+        SELECT * FROM history_records
+        WHERE item_type = ?
         ORDER BY created_at DESC
         LIMIT ? OFFSET ?
       ''';
       params = [itemType, limit, offset];
     }
-    
-    final stmt = _db.prepare(sql);
-    final results = stmt.select(params);
+
+    final results = _db.select(sql, params);
     return results.map((row) => HistoryRecord.fromJson(row)).toList();
   }
 
@@ -134,23 +130,22 @@ class HistoryRepository {
   }) async {
     final List<Object?> params = ['%$keyword%'];
     String sql = '''
-      SELECT * FROM history_records 
-      WHERE title LIKE ? 
+      SELECT * FROM history_records
+      WHERE title LIKE ?
     ''';
-    
+
     if (itemType != null) {
       sql += ' AND item_type = ?';
       params.add(itemType);
     }
-    
+
     sql += '''
       ORDER BY created_at DESC
       LIMIT ? OFFSET ?
     ''';
     params.addAll([limit, offset]);
-    
-    final stmt = _db.prepare(sql);
-    final results = stmt.select(params);
+
+    final results = _db.select(sql, params);
     return results.map((row) => HistoryRecord.fromJson(row)).toList();
   }
 
@@ -171,35 +166,34 @@ class HistoryRepository {
   }) async {
     final List<Object?> params = [];
     final List<String> conditions = [];
-    
+
     // 构建查询条件
     if (itemType != 'all') {
       conditions.add('item_type = ?');
       params.add(itemType);
     }
-    
+
     if (startDate != null) {
       conditions.add('created_at >= ?');
       params.add(startDate.toIso8601String());
     }
-    
+
     if (endDate != null) {
       conditions.add('created_at <= ?');
       params.add(endDate.toIso8601String());
     }
-    
+
     // 组装SQL语句
     final String sql = '''
-      SELECT * FROM history_records 
+      SELECT * FROM history_records
       ${conditions.isNotEmpty ? 'WHERE ${conditions.join(' AND ')}' : ''}
       ORDER BY ${orderByUpdated ? 'updated_at' : 'created_at'} DESC
       LIMIT ? OFFSET ?
     ''';
-    
+
     params.addAll([limit, offset]);
-    
-    final stmt = _db.prepare(sql);
-    final results = stmt.select(params);
+
+    final results = _db.select(sql, params);
     return results.map((row) => HistoryRecord.fromJson(row)).toList();
   }
 
@@ -215,33 +209,32 @@ class HistoryRepository {
   }) async {
     final List<Object?> params = ['%$keyword%'];
     String sql = '''
-      SELECT * FROM history_records 
-      WHERE title LIKE ? 
+      SELECT * FROM history_records
+      WHERE title LIKE ?
     ''';
-    
+
     if (itemType != null) {
       sql += ' AND item_type = ?';
       params.add(itemType);
     }
-    
+
     if (startDate != null) {
       sql += ' AND created_at >= ?';
       params.add(startDate.toIso8601String());
     }
-    
+
     if (endDate != null) {
       sql += ' AND created_at <= ?';
       params.add(endDate.toIso8601String());
     }
-    
+
     sql += '''
       ORDER BY ${orderByUpdated ? 'updated_at' : 'created_at'} DESC
       LIMIT ? OFFSET ?
     ''';
     params.addAll([limit, offset]);
-    
-    final stmt = _db.prepare(sql);
-    final results = stmt.select(params);
+
+    final results = _db.select(sql, params);
     return results.map((row) => HistoryRecord.fromJson(row)).toList();
   }
 }

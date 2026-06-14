@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart' show CancelToken;
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/api_request_access.model.dart';
@@ -50,6 +51,7 @@ class GalleryService extends GetxService {
     int limit = 20,
     String? url,
     ApiRequestAccess? requestAccess,
+    CancelToken? cancelToken,
   }) async {
     try {
       // [HACK_IMPLEMENT] 如果params里有的值为空字符串，则去掉key
@@ -67,6 +69,7 @@ class GalleryService extends GetxService {
         url,
         queryParameters: {...params, 'page': page, 'limit': limit},
         requestAccess: effectiveAccess,
+        cancelToken: cancelToken,
       );
 
       final List<ImageModel> results = (response.data['results'] as List)

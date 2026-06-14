@@ -1,21 +1,19 @@
 // pages/login/login_page_v2.dart
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/services/auth_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/iwara_site_headers.dart';
 import 'package:i_iwara/app/services/storage_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart' show LogUtils;
 import 'package:oktoast/oktoast.dart';
-import 'package:shimmer/shimmer.dart';
-
-import '../../../models/captcha.model.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 const double _kBodyHeightMin = 420;
 const double _kBodyHeightMax = 640;
@@ -86,23 +84,17 @@ class _LoginDialogState extends State<LoginDialog> {
   final StorageService _storage = StorageService();
 
   final GlobalKey<FormState> _loginFormKey = GlobalKey<FormState>();
-  final GlobalKey<FormState> _registerFormKey = GlobalKey<FormState>();
 
   final TextEditingController _loginEmailController = TextEditingController();
   final TextEditingController _loginPasswordController =
       TextEditingController();
-  final TextEditingController _captchaController = TextEditingController();
 
   final FocusNode _loginPasswordFocus = FocusNode();
-  final FocusNode _registerCaptchaFocus = FocusNode();
 
-  Captcha? _captcha;
   _AuthFlow _flow = _AuthFlow.login;
 
   bool _rememberMe = false;
   bool _isLoading = false;
-  bool _isRegistering = false;
-  bool _isCaptchaLoading = false;
   bool _isPasswordVisible = false;
 
   @override
@@ -150,48 +142,6 @@ class _LoginDialogState extends State<LoginDialog> {
     setState(() {
       _flow = flow;
     });
-    if (flow == _AuthFlow.register && _captcha == null) {
-      _fetchCaptcha();
-    }
-  }
-
-  Future<void> _fetchCaptcha() async {
-    if (_isCaptchaLoading) return;
-    setState(() {
-      _captcha = null;
-      _isCaptchaLoading = true;
-      _captchaController.clear();
-    });
-    try {
-      final ApiResult<Captcha> res = await _authService.fetchCaptcha();
-      if (res.isSuccess) {
-        if (mounted) {
-          setState(() {
-            _captcha = res.data;
-          });
-        }
-      } else {
-        showToastWidget(
-          MDToastWidget(message: res.message, type: MDToastType.error),
-          position: ToastPosition.bottom,
-        );
-      }
-    } catch (error) {
-      LogUtils.e('获取验证码失败: $error', tag: 'LoginDialogV2');
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.errors.unknownError,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.bottom,
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isCaptchaLoading = false;
-        });
-      }
-    }
   }
 
   Future<void> _submitLogin() async {
@@ -260,71 +210,26 @@ class _LoginDialogState extends State<LoginDialog> {
     }
   }
 
-  Future<void> _submitRegister() async {
-    if (_isRegistering) return;
-    if (_captcha == null) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.auth.captchaNotLoaded,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.bottom,
-      );
-      _fetchCaptcha();
-      return;
-    }
-    if (!(_registerFormKey.currentState?.validate() ?? false)) return;
-    await _performRegister();
-  }
-
-  Future<void> _performRegister() async {
-    final email = _loginEmailController.text.trim();
-    final captchaAnswer = _captchaController.text.trim();
-
-    setState(() {
-      _isRegistering = true;
-    });
-
+  /// 打开官网注册页面：应用内不再提供注册功能，引导用户前往当前站点的官网完成注册。
+  Future<void> _openRegisterWebsite() async {
+    final url = '${currentIwaraSiteOrMain().baseUrl}/register';
     try {
-      final ApiResult result = await _authService.register(
-        email,
-        _captcha!.id,
-        captchaAnswer,
+      final launched = await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
       );
-      if (result.isSuccess) {
-        showToastWidget(
-          MDToastWidget(
-            message: slang.t.auth.emailVerificationSent,
-            type: MDToastType.success,
-          ),
-        );
-        if (mounted) {
-          setState(() {
-            _flow = _AuthFlow.login;
-          });
-        }
-      } else {
-        showToastWidget(
-          MDToastWidget(message: result.message, type: MDToastType.error),
-          position: ToastPosition.bottom,
-        );
-        _fetchCaptcha();
+      if (!launched) {
+        throw Exception('launchUrl returned false for $url');
       }
     } catch (error) {
-      LogUtils.e('注册失败: $error', tag: 'LoginDialogV2');
+      LogUtils.e('打开官网注册页面失败: $error', tag: 'LoginDialogV2');
       showToastWidget(
         MDToastWidget(
-          message: slang.t.errors.unknownError,
+          message: slang.t.search.googleSearchBrowserOpenFailed(error: url),
           type: MDToastType.error,
         ),
         position: ToastPosition.bottom,
       );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isRegistering = false;
-        });
-      }
     }
   }
 
@@ -332,9 +237,7 @@ class _LoginDialogState extends State<LoginDialog> {
   void dispose() {
     _loginEmailController.dispose();
     _loginPasswordController.dispose();
-    _captchaController.dispose();
     _loginPasswordFocus.dispose();
-    _registerCaptchaFocus.dispose();
     super.dispose();
   }
 
@@ -381,17 +284,9 @@ class _LoginDialogState extends State<LoginDialog> {
                         });
                       },
                     )
-                  : _RegisterFormSection(
-                      key: const ValueKey('register-form'),
-                      formKey: _registerFormKey,
-                      emailController: _loginEmailController,
-                      captchaController: _captchaController,
-                      captchaFocusNode: _registerCaptchaFocus,
-                      captcha: _captcha,
-                      isCaptchaLoading: _isCaptchaLoading,
-                      isRegistering: _isRegistering,
-                      onRefreshCaptcha: _fetchCaptcha,
-                      onSubmit: _submitRegister,
+                  : _RegisterNoticeSection(
+                      key: const ValueKey('register-notice'),
+                      onOpenWebsite: _openRegisterWebsite,
                     ),
             ),
           ),
@@ -610,209 +505,90 @@ class _LoginFormSection extends StatelessWidget {
   }
 }
 
-class _RegisterFormSection extends StatelessWidget {
-  const _RegisterFormSection({
+/// 注册引导面板：应用内不再提供注册功能，改为以友好的说明文案引导用户前往官网注册。
+class _RegisterNoticeSection extends StatelessWidget {
+  const _RegisterNoticeSection({
     super.key,
-    required this.formKey,
-    required this.emailController,
-    required this.captchaController,
-    required this.captchaFocusNode,
-    required this.captcha,
-    required this.isCaptchaLoading,
-    required this.isRegistering,
-    required this.onRefreshCaptcha,
-    required this.onSubmit,
+    required this.onOpenWebsite,
   });
 
-  final GlobalKey<FormState> formKey;
-  final TextEditingController emailController;
-  final TextEditingController captchaController;
-  final FocusNode captchaFocusNode;
-  final Captcha? captcha;
-  final bool isCaptchaLoading;
-  final bool isRegistering;
-  final VoidCallback onRefreshCaptcha;
-  final VoidCallback onSubmit;
+  final VoidCallback onOpenWebsite;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final t = slang.Translations.of(context);
     return Center(
       child: SingleChildScrollView(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: _kFormMaxWidth),
-          child: Form(
-            key: formKey,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Icon(
-                  Icons.person_add,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(height: 24),
-                TextFormField(
-                  controller: emailController,
-                  decoration: InputDecoration(
-                    labelText: t.auth.email,
-                    prefixIcon: const Icon(Icons.email),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                Center(
+                  child: Container(
+                    width: 96,
+                    height: 96,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primaryContainer,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.travel_explore,
+                      size: 48,
+                      color: theme.colorScheme.onPrimaryContainer,
                     ),
                   ),
-                  keyboardType: TextInputType.emailAddress,
-                  textInputAction: TextInputAction.next,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return t.auth.pleaseEnterEmail;
-                    }
-                    if (!GetUtils.isEmail(value.trim())) {
-                      return t.errors.invalidEmail;
-                    }
-                    return null;
-                  },
-                  onFieldSubmitted: (_) {
-                    FocusScope.of(context).requestFocus(captchaFocusNode);
-                  },
-                ),
-                const SizedBox(height: 16),
-                _CaptchaPreview(
-                  captcha: captcha,
-                  isLoading: isCaptchaLoading,
-                  onRefresh: onRefreshCaptcha,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: captchaController,
-                  focusNode: captchaFocusNode,
-                  decoration: InputDecoration(
-                    labelText: t.auth.captcha,
-                    prefixIcon: const Icon(Icons.security),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  textInputAction: TextInputAction.done,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return t.auth.pleaseEnterCaptcha;
-                    }
-                    return null;
-                  },
-                  onFieldSubmitted: (_) => onSubmit(),
                 ),
                 const SizedBox(height: 24),
-                FilledButton(
-                  onPressed: isRegistering ? null : onSubmit,
+                Text(
+                  t.auth.registerNoticeTitle,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  t.auth.registerNoticeDescription,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 28),
+                FilledButton.icon(
+                  onPressed: onOpenWebsite,
+                  icon: const Icon(Icons.open_in_new),
+                  label: Text(
+                    t.auth.goToOfficialWebsite,
+                    style: const TextStyle(fontSize: 16),
+                  ),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: isRegistering
-                      ? const SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(
-                          t.auth.register,
-                          style: const TextStyle(fontSize: 16),
-                        ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  t.auth.registerNoticeReturnTip,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
           ),
         ),
       ),
-    );
-  }
-}
-
-class _CaptchaPreview extends StatelessWidget {
-  const _CaptchaPreview({
-    required this.captcha,
-    required this.isLoading,
-    required this.onRefresh,
-  });
-
-  final Captcha? captcha;
-  final bool isLoading;
-  final VoidCallback onRefresh;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final t = slang.Translations.of(context);
-
-    Widget buildSkeleton() {
-      return Shimmer.fromColors(
-        baseColor: Colors.grey[300]!,
-        highlightColor: Colors.grey[100]!,
-        child: Container(
-          height: 56,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    }
-
-    Widget buildContent() {
-      if (isLoading) {
-        return buildSkeleton();
-      }
-      if (captcha == null) {
-        return Container(
-          height: 56,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: theme.dividerColor),
-          ),
-          child: Text(
-            t.auth.captchaNotLoaded,
-            style: theme.textTheme.bodyMedium,
-          ),
-        );
-      }
-      final parts = captcha!.data.split(',');
-      try {
-        final bytes = base64Decode(parts.length > 1 ? parts[1] : parts[0]);
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Image.memory(bytes, height: 56, fit: BoxFit.contain),
-        );
-      } catch (_) {
-        return Container(
-          height: 56,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: theme.dividerColor),
-          ),
-          child: Text(
-            t.auth.captchaNotLoaded,
-            style: theme.textTheme.bodyMedium,
-          ),
-        );
-      }
-    }
-
-    return Row(
-      children: [
-        Expanded(child: buildContent()),
-        const SizedBox(width: 12),
-        IconButton.filledTonal(
-          onPressed: isLoading ? null : onRefresh,
-          icon: const Icon(Icons.refresh),
-          tooltip: t.auth.refreshCaptcha,
-        ),
-      ],
     );
   }
 }

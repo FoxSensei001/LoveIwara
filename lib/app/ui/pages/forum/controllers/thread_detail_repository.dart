@@ -35,6 +35,7 @@ class ThreadDetailRepository
       threadId,
       page: page,
       limit: limit,
+      cancelToken: cancelToken,
     );
 
     if (!result.isSuccess) {

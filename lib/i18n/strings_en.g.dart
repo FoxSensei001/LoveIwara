@@ -973,6 +973,18 @@ class TranslationsAuthEn {
 
 	/// en: 'Remember Username and Password'
 	String get rememberMe => 'Remember Username and Password';
+
+	/// en: 'Register on the official website'
+	String get registerNoticeTitle => 'Register on the official website';
+
+	/// en: 'In-app registration is no longer available. Please head to the official Iwara website to create your account, then come back here to log in.'
+	String get registerNoticeDescription => 'In-app registration is no longer available. Please head to the official Iwara website to create your account, then come back here to log in.';
+
+	/// en: 'After registering, return here and log in with your account.'
+	String get registerNoticeReturnTip => 'After registering, return here and log in with your account.';
+
+	/// en: 'Go to official website'
+	String get goToOfficialWebsite => 'Go to official website';
 }
 
 // Path: errors
@@ -1422,6 +1434,18 @@ class TranslationsSearchEn {
 
 	/// en: 'Failed to open browser: ${error}'
 	String googleSearchBrowserOpenFailed({required Object error}) => 'Failed to open browser: ${error}';
+
+	/// en: 'Request timed out, please try again later'
+	String get searchRequestTimeout => 'Request timed out, please try again later';
+
+	/// en: 'Cannot connect to the server, please check your network connection'
+	String get searchCannotConnectToServer => 'Cannot connect to the server, please check your network connection';
+
+	/// en: 'Network connection failed, please check your network settings or try again later'
+	String get searchNetworkError => 'Network connection failed, please check your network settings or try again later';
+
+	/// en: 'Search failed, please try again later'
+	String get searchFailedPleaseRetry => 'Search failed, please try again later';
 }
 
 // Path: mediaList
@@ -6140,6 +6164,9 @@ class TranslationsDownloadErrorsEn {
 	/// en: 'Unknown error: ${errorInfo}'
 	String unknownError({required Object errorInfo}) => 'Unknown error: ${errorInfo}';
 
+	/// en: 'Failed to write file: ${errorInfo}'
+	String writeFileFailedForMessage({required Object errorInfo}) => 'Failed to write file: ${errorInfo}';
+
 	/// en: 'Connection timeout'
 	String get connectionTimeout => 'Connection timeout';
 
@@ -7147,6 +7174,10 @@ extension on Translations {
 			'auth.usernameOrEmail' => 'Username or Email',
 			'auth.pleaseEnterUsernameOrEmail' => 'Please enter username or email',
 			'auth.rememberMe' => 'Remember Username and Password',
+			'auth.registerNoticeTitle' => 'Register on the official website',
+			'auth.registerNoticeDescription' => 'In-app registration is no longer available. Please head to the official Iwara website to create your account, then come back here to log in.',
+			'auth.registerNoticeReturnTip' => 'After registering, return here and log in with your account.',
+			'auth.goToOfficialWebsite' => 'Go to official website',
 			'errors.error' => 'Error',
 			'errors.required' => 'This field is required',
 			'errors.invalidEmail' => 'Invalid email address',
@@ -7296,6 +7327,10 @@ extension on Translations {
 			'search.pleaseEnterSearchKeywords' => 'Please enter search keywords',
 			'search.googleSearchQueryCopied' => 'Search query copied to clipboard',
 			'search.googleSearchBrowserOpenFailed' => ({required Object error}) => 'Failed to open browser: ${error}',
+			'search.searchRequestTimeout' => 'Request timed out, please try again later',
+			'search.searchCannotConnectToServer' => 'Cannot connect to the server, please check your network connection',
+			'search.searchNetworkError' => 'Network connection failed, please check your network settings or try again later',
+			'search.searchFailedPleaseRetry' => 'Search failed, please try again later',
 			'mediaList.personalIntroduction' => 'Introduction',
 			'settings.listViewMode' => 'List View Mode',
 			'settings.previewEffect' => 'Preview Effect',
@@ -7358,6 +7393,8 @@ extension on Translations {
 			'settings.basicTheme' => 'Basic Theme',
 			'settings.needRestartToApply' => 'Need to restart the app to apply the settings',
 			'settings.themeNeedRestartDescription' => 'The theme settings need to restart the app to apply the settings',
+			_ => null,
+		} ?? switch (path) {
 			'settings.about' => 'About',
 			'settings.diagnosticsAndFeedback' => 'Diagnostics & Feedback',
 			'settings.currentVersion' => 'Current Version',
@@ -7366,8 +7403,6 @@ extension on Translations {
 			'settings.update' => 'Update',
 			'settings.newVersionAvailable' => 'New Version Available',
 			'settings.projectHome' => 'Project Home',
-			_ => null,
-		} ?? switch (path) {
 			'settings.release' => 'Release',
 			'settings.issueReport' => 'Issue Report',
 			'settings.openSourceLicense' => 'Open Source License',
@@ -7872,6 +7907,8 @@ extension on Translations {
 			'markdown.titleSyntax' => '# First-level title\n## Second-level title\n### Third-level title',
 			'markdown.separator' => 'Separator',
 			'markdown.separatorDescription' => 'Create separator with three or more - symbols',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.separatorSyntax' => '---',
 			'markdown.syntax' => 'Syntax',
 			'forum.recent' => 'Recent',
@@ -7880,8 +7917,6 @@ extension on Translations {
 			'forum.sitewide.badge' => 'Sitewide',
 			'forum.sitewide.title' => 'Sitewide Announcement',
 			'forum.sitewide.readMore' => 'Read more',
-			_ => null,
-		} ?? switch (path) {
 			'forum.errors.pleaseSelectCategory' => 'Please select a category',
 			'forum.errors.threadLocked' => 'This thread is locked, cannot reply',
 			'forum.createPost' => 'Create Post',
@@ -8028,6 +8063,7 @@ extension on Translations {
 			'download.errors.unknown' => 'Unknown',
 			'download.errors.fileSystemError' => ({required Object errorInfo}) => 'File system error: ${errorInfo}',
 			'download.errors.unknownError' => ({required Object errorInfo}) => 'Unknown error: ${errorInfo}',
+			'download.errors.writeFileFailedForMessage' => ({required Object errorInfo}) => 'Failed to write file: ${errorInfo}',
 			'download.errors.connectionTimeout' => 'Connection timeout',
 			'download.errors.sendTimeout' => 'Send timeout',
 			'download.errors.receiveTimeout' => 'Receive timeout',
@@ -8385,6 +8421,8 @@ extension on Translations {
 			'layoutSettings.addBreakpoint' => 'Add Breakpoint',
 			'layoutSettings.editBreakpoint' => 'Edit Breakpoint',
 			'layoutSettings.deleteBreakpoint' => 'Delete Breakpoint',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.screenWidthLabel' => 'Screen Width',
 			'layoutSettings.screenWidthHint' => '600',
 			'layoutSettings.columnsLabel' => 'Columns',
@@ -8394,8 +8432,6 @@ extension on Translations {
 			'layoutSettings.widthCannotExceed9999' => 'Width cannot exceed 9999',
 			'layoutSettings.breakpointAlreadyExists' => 'Breakpoint already exists',
 			'layoutSettings.enterColumns' => 'Please enter columns',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.enterValidColumns' => 'Please enter valid columns',
 			'layoutSettings.columnsCannotExceed12' => 'Columns cannot exceed 12',
 			'layoutSettings.breakpointConflict' => 'Breakpoint already exists',

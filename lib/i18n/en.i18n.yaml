@@ -303,6 +303,10 @@ auth:
   usernameOrEmail: Username or Email
   pleaseEnterUsernameOrEmail: Please enter username or email
   rememberMe: "Remember Username and Password"
+  registerNoticeTitle: Register on the official website
+  registerNoticeDescription: "In-app registration is no longer available. Please head to the official Iwara website to create your account, then come back here to log in."
+  registerNoticeReturnTip: "After registering, return here and log in with your account."
+  goToOfficialWebsite: Go to official website
 
 errors:
   error: Error
@@ -466,6 +470,10 @@ search:
   pleaseEnterSearchKeywords: "Please enter search keywords"
   googleSearchQueryCopied: "Search query copied to clipboard"
   googleSearchBrowserOpenFailed: "Failed to open browser: ${error}"
+  searchRequestTimeout: Request timed out, please try again later
+  searchCannotConnectToServer: Cannot connect to the server, please check your network connection
+  searchNetworkError: Network connection failed, please check your network settings or try again later
+  searchFailedPleaseRetry: Search failed, please try again later
 mediaList:
   personalIntroduction: Introduction
 
@@ -1264,6 +1272,7 @@ download:
     unknown: Unknown
     fileSystemError: 'File system error: ${errorInfo}'
     unknownError: 'Unknown error: ${errorInfo}'
+    writeFileFailedForMessage: 'Failed to write file: ${errorInfo}'
     connectionTimeout: Connection timeout
     sendTimeout: Send timeout
     receiveTimeout: Receive timeout
