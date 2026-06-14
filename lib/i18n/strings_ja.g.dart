@@ -1845,6 +1845,10 @@ class _TranslationsNavigationOrderSettingsJa implements TranslationsNavigationOr
 	@override String get confirmResetNavigationOrder => 'ナビゲーション順序のリセットを確認';
 	@override String get confirmResetNavigationOrderDesc => 'ナビゲーション順序をデフォルト設定にリセットしてもよろしいですか？';
 	@override String get cancel => 'キャンセル';
+	@override String get show => '表示';
+	@override String get hide => '非表示';
+	@override String get hidden => '非表示中';
+	@override String get hideHint => '目のアイコンをタップしてフォーラムとニュースの表示・非表示を切り替えます';
 	@override String get videoDescription => '人気の動画コンテンツを閲覧';
 	@override String get galleryDescription => '画像とギャラリーを閲覧';
 	@override String get subscriptionDescription => 'フォローしているユーザーの最新コンテンツを表示';
@@ -4747,6 +4751,10 @@ extension on TranslationsJa {
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'ナビゲーション順序のリセットを確認',
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => 'ナビゲーション順序をデフォルト設定にリセットしてもよろしいですか？',
 			'navigationOrderSettings.cancel' => 'キャンセル',
+			'navigationOrderSettings.show' => '表示',
+			'navigationOrderSettings.hide' => '非表示',
+			'navigationOrderSettings.hidden' => '非表示中',
+			'navigationOrderSettings.hideHint' => '目のアイコンをタップしてフォーラムとニュースの表示・非表示を切り替えます',
 			'navigationOrderSettings.videoDescription' => '人気の動画コンテンツを閲覧',
 			'navigationOrderSettings.galleryDescription' => '画像とギャラリーを閲覧',
 			'navigationOrderSettings.subscriptionDescription' => 'フォローしているユーザーの最新コンテンツを表示',

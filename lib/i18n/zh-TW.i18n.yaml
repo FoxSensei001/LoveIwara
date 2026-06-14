@@ -2018,6 +2018,10 @@ navigationOrderSettings:
   confirmResetNavigationOrder: 確認重設導航順序
   confirmResetNavigationOrderDesc: 確定要將導航順序重設為預設設定嗎？
   cancel: 取消
+  show: 顯示
+  hide: 隱藏
+  hidden: 已隱藏
+  hideHint: 點擊眼睛圖示可顯示或隱藏論壇和新聞
   # 導航項目描述
   videoDescription: 瀏覽熱門影片內容
   galleryDescription: 瀏覽圖片和畫廊

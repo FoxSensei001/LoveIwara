@@ -1876,6 +1876,10 @@ class _TranslationsNavigationOrderSettingsZhTw implements TranslationsNavigation
 	@override String get confirmResetNavigationOrder => '確認重設導航順序';
 	@override String get confirmResetNavigationOrderDesc => '確定要將導航順序重設為預設設定嗎？';
 	@override String get cancel => '取消';
+	@override String get show => '顯示';
+	@override String get hide => '隱藏';
+	@override String get hidden => '已隱藏';
+	@override String get hideHint => '點擊眼睛圖示可顯示或隱藏論壇和新聞';
 	@override String get videoDescription => '瀏覽熱門影片內容';
 	@override String get galleryDescription => '瀏覽圖片和畫廊';
 	@override String get subscriptionDescription => '查看追蹤使用者的最新內容';
@@ -4781,6 +4785,10 @@ extension on TranslationsZhTw {
 			'navigationOrderSettings.confirmResetNavigationOrder' => '確認重設導航順序',
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => '確定要將導航順序重設為預設設定嗎？',
 			'navigationOrderSettings.cancel' => '取消',
+			'navigationOrderSettings.show' => '顯示',
+			'navigationOrderSettings.hide' => '隱藏',
+			'navigationOrderSettings.hidden' => '已隱藏',
+			'navigationOrderSettings.hideHint' => '點擊眼睛圖示可顯示或隱藏論壇和新聞',
 			'navigationOrderSettings.videoDescription' => '瀏覽熱門影片內容',
 			'navigationOrderSettings.galleryDescription' => '瀏覽圖片和畫廊',
 			'navigationOrderSettings.subscriptionDescription' => '查看追蹤使用者的最新內容',

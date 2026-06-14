@@ -1638,6 +1638,10 @@ navigationOrderSettings:
   confirmResetNavigationOrder: Confirm Reset Navigation Order
   confirmResetNavigationOrderDesc: Are you sure you want to reset the navigation order to default settings?
   cancel: Cancel
+  show: Show
+  hide: Hide
+  hidden: Hidden
+  hideHint: Tap the eye icon to show or hide Forum and News
   # Navigation item descriptions
   videoDescription: Browse popular video content
   galleryDescription: Browse images and galleries

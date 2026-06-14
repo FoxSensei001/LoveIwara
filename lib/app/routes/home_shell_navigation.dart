@@ -37,6 +37,11 @@ class HomeShellNavigation {
     'news': '/news',
   };
 
+  /// Keys the user is allowed to hide from the navigation UI.
+  /// The corresponding `StatefulShellRoute` branches still exist so deep links
+  /// (e.g. `/forum`, `/news`) keep working even while hidden.
+  static const Set<String> hideableKeys = <String>{'forum', 'news'};
+
   static int branchIndexForKey(String? key, {int fallback = 0}) {
     if (key == null) return fallback;
     return branchIndexByKey[key] ?? fallback;
@@ -78,6 +83,33 @@ class HomeShellNavigation {
     }
 
     return result;
+  }
+
+  /// Normalize a persisted hidden-navigation list.
+  /// - keeps only known, hideable keys
+  /// - removes duplicates
+  static List<String> normalizeHidden(dynamic rawHidden) {
+    final raw = rawHidden is List ? rawHidden : const <dynamic>[];
+    final result = <String>[];
+
+    for (final item in raw) {
+      if (item is! String) continue;
+      if (!hideableKeys.contains(item)) continue;
+      if (result.contains(item)) continue;
+      result.add(item);
+    }
+
+    return result;
+  }
+
+  /// Filter a (normalized) display order down to the keys that are visible,
+  /// i.e. not present in [hidden].
+  static List<String> visibleOrder(
+    List<String> displayOrder,
+    Iterable<String> hidden,
+  ) {
+    final hiddenSet = hidden.toSet();
+    return displayOrder.where((key) => !hiddenSet.contains(key)).toList();
   }
 
   /// Convert a display index (UI order) to a branch index.

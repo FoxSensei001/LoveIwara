@@ -1850,6 +1850,10 @@ class _TranslationsNavigationOrderSettingsZhCn implements TranslationsNavigation
 	@override String get confirmResetNavigationOrder => '确认重置导航顺序';
 	@override String get confirmResetNavigationOrderDesc => '确定要将导航顺序重置为默认设置吗？';
 	@override String get cancel => '取消';
+	@override String get show => '显示';
+	@override String get hide => '隐藏';
+	@override String get hidden => '已隐藏';
+	@override String get hideHint => '点击眼睛图标可显示或隐藏论坛和新闻';
 	@override String get videoDescription => '浏览热门视频内容';
 	@override String get galleryDescription => '浏览图片和画廊';
 	@override String get subscriptionDescription => '查看关注用户的最新内容';
@@ -4757,6 +4761,10 @@ extension on TranslationsZhCn {
 			'navigationOrderSettings.confirmResetNavigationOrder' => '确认重置导航顺序',
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => '确定要将导航顺序重置为默认设置吗？',
 			'navigationOrderSettings.cancel' => '取消',
+			'navigationOrderSettings.show' => '显示',
+			'navigationOrderSettings.hide' => '隐藏',
+			'navigationOrderSettings.hidden' => '已隐藏',
+			'navigationOrderSettings.hideHint' => '点击眼睛图标可显示或隐藏论坛和新闻',
 			'navigationOrderSettings.videoDescription' => '浏览热门视频内容',
 			'navigationOrderSettings.galleryDescription' => '浏览图片和画廊',
 			'navigationOrderSettings.subscriptionDescription' => '查看关注用户的最新内容',

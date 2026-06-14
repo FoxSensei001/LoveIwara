@@ -3744,6 +3744,18 @@ class TranslationsNavigationOrderSettingsEn {
 	/// en: 'Cancel'
 	String get cancel => 'Cancel';
 
+	/// en: 'Show'
+	String get show => 'Show';
+
+	/// en: 'Hide'
+	String get hide => 'Hide';
+
+	/// en: 'Hidden'
+	String get hidden => 'Hidden';
+
+	/// en: 'Tap the eye icon to show or hide Forum and News'
+	String get hideHint => 'Tap the eye icon to show or hide Forum and News';
+
 	/// en: 'Browse popular video content'
 	String get videoDescription => 'Browse popular video content';
 
@@ -8507,15 +8519,19 @@ extension on Translations {
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'Confirm Reset Navigation Order',
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => 'Are you sure you want to reset the navigation order to default settings?',
 			'navigationOrderSettings.cancel' => 'Cancel',
+			'navigationOrderSettings.show' => 'Show',
+			'navigationOrderSettings.hide' => 'Hide',
+			'navigationOrderSettings.hidden' => 'Hidden',
+			'navigationOrderSettings.hideHint' => 'Tap the eye icon to show or hide Forum and News',
 			'navigationOrderSettings.videoDescription' => 'Browse popular video content',
 			'navigationOrderSettings.galleryDescription' => 'Browse images and galleries',
 			'navigationOrderSettings.subscriptionDescription' => 'View latest content from followed users',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.forumDescription' => 'Participate in community discussions',
 			'navigationOrderSettings.newsDescription' => 'Browse official news, articles, and broadcasts',
 			'news.title' => 'News',
 			'news.newsUpdates' => 'News Updates',
-			_ => null,
-		} ?? switch (path) {
 			'news.articles' => 'Articles',
 			'news.broadcast' => 'Broadcast',
 			'news.openInBrowser' => 'Open in Browser',

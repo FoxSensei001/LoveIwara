@@ -44,6 +44,41 @@ void main() {
       );
     });
 
+    test('normalizeHidden keeps only hideable keys, de-dupes', () {
+      expect(
+        HomeShellNavigation.normalizeHidden([
+          'forum',
+          'news',
+          'forum',
+          'video', // not hideable
+          'unknown',
+          42,
+        ]),
+        equals(<String>['forum', 'news']),
+      );
+      expect(HomeShellNavigation.normalizeHidden(null), isEmpty);
+      expect(HomeShellNavigation.normalizeHidden('forum'), isEmpty);
+    });
+
+    test('visibleOrder removes hidden keys, preserves order', () {
+      final order = <String>[
+        'video',
+        'gallery',
+        'subscription',
+        'forum',
+        'news',
+      ];
+
+      expect(
+        HomeShellNavigation.visibleOrder(order, <String>['forum', 'news']),
+        equals(<String>['video', 'gallery', 'subscription']),
+      );
+      expect(
+        HomeShellNavigation.visibleOrder(order, const <String>[]),
+        equals(order),
+      );
+    });
+
     test('path mapping stays consistent with branch mapping', () {
       for (final key in HomeShellNavigation.canonicalOrder) {
         final index = HomeShellNavigation.branchIndexForKey(key);

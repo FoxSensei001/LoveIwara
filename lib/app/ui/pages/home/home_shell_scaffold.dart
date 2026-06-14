@@ -78,6 +78,18 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     );
   }
 
+  /// User-hidden navigation keys (e.g. forum / news).
+  List<String> get _hiddenItems {
+    return HomeShellNavigation.normalizeHidden(
+      configService[ConfigKey.NAVIGATION_HIDDEN],
+    );
+  }
+
+  /// Display order with hidden items removed — what the nav UI actually shows.
+  List<String> get _visibleOrder {
+    return HomeShellNavigation.visibleOrder(_displayOrder, _hiddenItems);
+  }
+
   String _normalizePath(String path) {
     if (path.length > 1 && path.endsWith('/')) {
       return path.substring(0, path.length - 1);
@@ -122,7 +134,7 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     _hasSyncedInitialBranch = true;
     final preferredBranch = HomeShellNavigation.branchIndexFromDisplayIndex(
       0,
-      _displayOrder,
+      _visibleOrder,
     );
     final currentBranch = shell.currentIndex;
     if (preferredBranch == currentBranch) {
@@ -295,7 +307,7 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
                 if (!appService.showRailNavi) return const SizedBox.shrink();
                 if (!isWide) return const SizedBox.shrink();
 
-                final displayOrder = _displayOrder;
+                final displayOrder = _visibleOrder;
                 final currentDisplayIndex = _currentDisplayIndexForOrder(
                   displayOrder,
                 );
@@ -329,7 +341,7 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
                     if (isWide) return const SizedBox.shrink();
                     if (!_isTabRootRoute) return const SizedBox.shrink();
 
-                    final displayOrder = _displayOrder;
+                    final displayOrder = _visibleOrder;
                     final currentDisplayIndex = _currentDisplayIndexForOrder(
                       displayOrder,
                     );

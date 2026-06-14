@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/routes/home_shell_navigation.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -22,6 +23,7 @@ class _NavigationOrderSettingsPageState
     extends State<NavigationOrderSettingsPage> {
   late ConfigService _configService;
   late List<String> _navigationOrder;
+  late Set<String> _hiddenItems;
   bool _isDragMode = false;
 
   // 导航项配置
@@ -76,6 +78,28 @@ class _NavigationOrderSettingsPageState
     if (!listEquals(storedOrder, normalizedOrder)) {
       _configService.saveSetting(ConfigKey.NAVIGATION_ORDER, normalizedOrder);
     }
+
+    _hiddenItems = HomeShellNavigation.normalizeHidden(
+      _configService[ConfigKey.NAVIGATION_HIDDEN],
+    ).toSet();
+  }
+
+  /// Toggle visibility of a hideable navigation item (forum / news).
+  /// Applied live via [ConfigService.setSetting] so the rail / bottom nav
+  /// update immediately without an app restart.
+  void _toggleVisibility(String key) {
+    if (!HomeShellNavigation.hideableKeys.contains(key)) return;
+    setState(() {
+      if (_hiddenItems.contains(key)) {
+        _hiddenItems.remove(key);
+      } else {
+        _hiddenItems.add(key);
+      }
+    });
+    _configService.setSetting(
+      ConfigKey.NAVIGATION_HIDDEN,
+      _hiddenItems.toList(),
+    );
   }
 
   void _saveSettings() {
@@ -85,6 +109,11 @@ class _NavigationOrderSettingsPageState
     // 触发重建
     setState(() {});
   }
+
+  /// Navigation order with hidden items removed — mirrors what the live nav
+  /// UI renders. Used by the preview cards.
+  List<String> get _visibleNavigationOrder =>
+      _navigationOrder.where((key) => !_hiddenItems.contains(key)).toList();
 
   List<String> _normalizeNavigationOrder(dynamic rawOrder) {
     final raw = rawOrder is List ? rawOrder : const <dynamic>[];
@@ -114,7 +143,9 @@ class _NavigationOrderSettingsPageState
       _navigationOrder = List<String>.from(
         ConfigKey.NAVIGATION_ORDER.defaultValue,
       );
+      _hiddenItems = <String>{};
     });
+    _configService.setSetting(ConfigKey.NAVIGATION_HIDDEN, <String>[]);
     _saveSettings();
   }
 
@@ -187,6 +218,29 @@ class _NavigationOrderSettingsPageState
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                       height: 1.4,
                     ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.visibility_outlined,
+                        size: 14,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          slang.t.navigationOrderSettings.hideHint,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   Container(
@@ -306,6 +360,10 @@ class _NavigationOrderSettingsPageState
               itemBuilder: (context, index) {
                 final itemKey = _navigationOrder[index];
                 final item = _navigationItems[itemKey]!;
+                final isHideable = HomeShellNavigation.hideableKeys.contains(
+                  itemKey,
+                );
+                final isHidden = _hiddenItems.contains(itemKey);
 
                 return Card(
                   key: ValueKey(itemKey),
@@ -347,7 +405,11 @@ class _NavigationOrderSettingsPageState
                             child: Icon(
                               item.icon,
                               size: 20,
-                              color: Theme.of(context).colorScheme.primary,
+                              color: isHidden
+                                  ? Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant
+                                  : Theme.of(context).colorScheme.primary,
                             ),
                           ),
                         ),
@@ -357,6 +419,9 @@ class _NavigationOrderSettingsPageState
                       item.title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w500,
+                        color: isHidden
+                            ? Theme.of(context).colorScheme.onSurfaceVariant
+                            : null,
                       ),
                     ),
                     subtitle: Text(
@@ -365,24 +430,58 @@ class _NavigationOrderSettingsPageState
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
-                    trailing: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.secondaryContainer,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '${index + 1}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSecondaryContainer,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (isHideable)
+                          IconButton(
+                            icon: Icon(
+                              isHidden
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                              size: 20,
+                            ),
+                            color: isHidden
+                                ? Theme.of(context).colorScheme.onSurfaceVariant
+                                : Theme.of(context).colorScheme.primary,
+                            tooltip: isHidden
+                                ? slang.t.navigationOrderSettings.show
+                                : slang.t.navigationOrderSettings.hide,
+                            onPressed: () => _toggleVisibility(itemKey),
+                          ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isHidden
+                                ? Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest
+                                : Theme.of(
+                                    context,
+                                  ).colorScheme.secondaryContainer,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            isHidden
+                                ? slang.t.navigationOrderSettings.hidden
+                                : '${index + 1}',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: isHidden
+                                      ? Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant
+                                      : Theme.of(
+                                          context,
+                                        ).colorScheme.onSecondaryContainer,
+                                ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
                 );
@@ -432,7 +531,7 @@ class _NavigationOrderSettingsPageState
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: _navigationOrder.map((itemKey) {
+                    children: _visibleNavigationOrder.map((itemKey) {
                       final item = _navigationItems[itemKey]!;
                       return Expanded(
                         child: Column(
@@ -477,7 +576,9 @@ class _NavigationOrderSettingsPageState
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
-                    children: _navigationOrder.asMap().entries.map((entry) {
+                    children: _visibleNavigationOrder.asMap().entries.map((
+                      entry,
+                    ) {
                       final index = entry.key;
                       final itemKey = entry.value;
                       final item = _navigationItems[itemKey]!;

@@ -1974,6 +1974,10 @@ navigationOrderSettings:
   confirmResetNavigationOrder: ナビゲーション順序のリセットを確認
   confirmResetNavigationOrderDesc: ナビゲーション順序をデフォルト設定にリセットしてもよろしいですか？
   cancel: キャンセル
+  show: 表示
+  hide: 非表示
+  hidden: 非表示中
+  hideHint: 目のアイコンをタップしてフォーラムとニュースの表示・非表示を切り替えます
   # ナビゲーション項目の説明
   videoDescription: 人気の動画コンテンツを閲覧
   galleryDescription: 画像とギャラリーを閲覧

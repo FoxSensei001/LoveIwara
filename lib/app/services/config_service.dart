@@ -354,6 +354,7 @@ enum ConfigKey {
   LAYOUT_BREAKPOINTS, // 布局断点配置
   // 导航相关配置
   NAVIGATION_ORDER, // 导航项排序
+  NAVIGATION_HIDDEN, // 隐藏的导航项（目前仅论坛/新闻可隐藏）
   // 全屏方向配置
   FULLSCREEN_ORIENTATION, // 进入全屏后的屏幕方向
   // 首次设置相关
@@ -572,6 +573,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'layout_breakpoints';
       case ConfigKey.NAVIGATION_ORDER:
         return 'navigation_order';
+      case ConfigKey.NAVIGATION_HIDDEN:
+        return 'navigation_hidden';
       case ConfigKey.FULLSCREEN_ORIENTATION:
         return 'fullscreen_orientation';
       case ConfigKey.FIRST_TIME_SETUP_COMPLETED:
@@ -809,6 +812,8 @@ extension ConfigKeyExtension on ConfigKey {
           'forum',
           'news',
         ]; // 默认导航顺序
+      case ConfigKey.NAVIGATION_HIDDEN:
+        return <String>[]; // 默认不隐藏任何导航项
       case ConfigKey.FULLSCREEN_ORIENTATION:
         return 'landscape_left'; // 默认左侧横屏
       case ConfigKey.FIRST_TIME_SETUP_COMPLETED:

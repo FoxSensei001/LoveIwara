@@ -197,6 +197,12 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
       }
     }
 
+    final hiddenRaw = _configService[ConfigKey.NAVIGATION_HIDDEN];
+    final hidden = hiddenRaw is List
+        ? hiddenRaw.whereType<String>().toSet()
+        : const <String>{};
+    result.removeWhere(hidden.contains);
+
     return result;
   }
 

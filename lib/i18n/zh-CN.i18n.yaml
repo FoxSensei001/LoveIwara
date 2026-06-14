@@ -1977,6 +1977,10 @@ navigationOrderSettings:
   confirmResetNavigationOrder: 确认重置导航顺序
   confirmResetNavigationOrderDesc: 确定要将导航顺序重置为默认设置吗？
   cancel: 取消
+  show: 显示
+  hide: 隐藏
+  hidden: 已隐藏
+  hideHint: 点击眼睛图标可显示或隐藏论坛和新闻
   # 导航项描述
   videoDescription: 浏览热门视频内容
   galleryDescription: 浏览图片和画廊
