@@ -300,6 +300,11 @@ enum ConfigKey {
   REMEMBER_ME_KEY,
   AI_TRANSLATION_PROMPT,
   AI_TRANSLATION_SUPPORTS_STREAMING,
+  // 现代 AI 适配相关配置
+  AI_TRANSLATION_PROVIDER, // 服务商：openai / anthropic / google
+  AI_TRANSLATION_REASONING_MODEL, // 是否为推理模型(o1/o3、DeepSeek-R1、QwQ 等)
+  AI_TRANSLATION_SEND_TEMPERATURE, // 是否下发 temperature 参数
+  AI_TRANSLATION_SHOW_REASONING, // 是否展示推理模型的思考过程
   // DeepLX 翻译相关配置
   USE_DEEPLX_TRANSLATION,
   DEEPLX_BASE_URL,
@@ -471,6 +476,14 @@ extension ConfigKeyExtension on ConfigKey {
         return 'ai_translation_prompt';
       case ConfigKey.AI_TRANSLATION_SUPPORTS_STREAMING:
         return 'ai_translation_supports_streaming';
+      case ConfigKey.AI_TRANSLATION_PROVIDER:
+        return 'ai_translation_provider';
+      case ConfigKey.AI_TRANSLATION_REASONING_MODEL:
+        return 'ai_translation_reasoning_model';
+      case ConfigKey.AI_TRANSLATION_SEND_TEMPERATURE:
+        return 'ai_translation_send_temperature';
+      case ConfigKey.AI_TRANSLATION_SHOW_REASONING:
+        return 'ai_translation_show_reasoning';
       case ConfigKey.USE_DEEPLX_TRANSLATION:
         return 'use_deeplx_translation';
       case ConfigKey.DEEPLX_BASE_URL:
@@ -687,8 +700,16 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.REMEMBER_ME_KEY:
         return false;
       case ConfigKey.AI_TRANSLATION_PROMPT:
-        return "You are a translation expert. Translate from the input language to ${CommonConstants.defaultLanguagePlaceholder}. Provide the translation result directly without any explanation and keep the original format. Do not translate if the target language is the same as the source language. Additionally, if the content contains illegal or NSFW elements, sensitive words or sentences within it should be replaced.";
+        return "You are a professional translation engine. Translate the user's text into ${CommonConstants.defaultLanguagePlaceholder}. Output ONLY the translation itself, with no explanations, notes, quotes or wrapping. Preserve the original Markdown formatting, line breaks, code blocks, URLs, @mentions and emoji. Keep proper nouns, usernames and technical terms unchanged. Use natural, idiomatic wording that fits the target language. If the source text is already in the target language, return it unchanged. If the text contains illegal or NSFW content, only soften or replace the sensitive words while still translating the rest.";
       case ConfigKey.AI_TRANSLATION_SUPPORTS_STREAMING:
+        return true;
+      case ConfigKey.AI_TRANSLATION_PROVIDER:
+        return 'openai';
+      case ConfigKey.AI_TRANSLATION_REASONING_MODEL:
+        return false;
+      case ConfigKey.AI_TRANSLATION_SEND_TEMPERATURE:
+        return true;
+      case ConfigKey.AI_TRANSLATION_SHOW_REASONING:
         return true;
       case ConfigKey.USE_DEEPLX_TRANSLATION:
         return false;

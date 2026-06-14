@@ -1596,6 +1596,35 @@ translation:
   fallbackTranslationFailed: 降级到普通翻译也失败
   translationSettings: 翻译设置
   enableGoogleTranslation: 启用 Google 翻译
+  # 现代 AI 适配
+  thinking: 思考中…
+  thoughtProcess: 思考过程
+  modelCompatibility: 模型兼容性
+  modelCompatibilityDescription: 为推理模型(o1/o3、DeepSeek-R1、QwQ 等)等当代模型适配请求参数
+  reasoningModel: 推理模型
+  reasoningModelDescription: 适用于 o1/o3、DeepSeek-R1、QwQ 等：将提示词并入用户消息、不下发 temperature、改用 max_completion_tokens
+  useMaxCompletionTokens: 使用 max_completion_tokens
+  useMaxCompletionTokensDescription: 新版 OpenAI 端点已弃用 max_tokens，需改用 max_completion_tokens
+  sendTemperature: 下发 temperature
+  sendTemperatureDescription: 对于拒绝 temperature 参数的模型(多数推理模型)请关闭
+  showReasoningProcess: 显示思考过程
+  showReasoningProcessDescription: 在翻译弹窗中以可折叠形式展示推理模型的思考过程
+  provider: 服务商
+  providerOpenAI: OpenAI（及兼容端点）
+  providerAnthropic: Anthropic（Claude）
+  providerGoogle: Google（Gemini）
+  multiProviderHint: "通过 dartantic_ai SDK 支持 OpenAI（及一切 OpenAI 兼容端点）、Anthropic 与 Google"
+  baseUrlOptionalHelperText: "可选。留空使用该服务商默认端点；OpenAI 兼容端点/中转请填写"
+  defaultEndpoint: 默认端点
+  providerPreset: 服务商预设
+  selectProviderPreset: 选择预设
+  presetCustom: 自定义
+  presetApplied: '已应用预设：${name}'
+  fetchModelList: 获取模型列表
+  fetchingModels: 获取中…
+  selectModel: 选择模型
+  searchModel: 搜索模型
+  noModelsFound: 未找到模型
 
 # 媒体播放器组件
 mediaPlayer:

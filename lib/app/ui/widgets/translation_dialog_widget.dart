@@ -207,6 +207,75 @@ class _TranslationDialogState extends State<TranslationDialog> {
     );
   }
 
+  Widget _buildReasoningSection(BuildContext context) {
+    final theme = Theme.of(context);
+    return Obx(() {
+      // 用户可在设置中关闭思考过程展示
+      final showReasoning =
+          _configService[ConfigKey.AI_TRANSLATION_SHOW_REASONING] as bool? ??
+          true;
+      final reasoning = _translationController.reasoningText.value;
+      if (!showReasoning || reasoning == null || reasoning.isEmpty) {
+        return const SizedBox.shrink();
+      }
+
+      final isThinking = _translationController.isStreamTranslating &&
+          (_translationController.translatedText.value?.isEmpty ?? true);
+
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.3),
+            ),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Theme(
+            // 去掉 ExpansionTile 的默认分隔线
+            data: theme.copyWith(dividerColor: Colors.transparent),
+            child: ExpansionTile(
+              initiallyExpanded: false,
+              tilePadding: const EdgeInsets.symmetric(horizontal: 12),
+              childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              leading: Icon(
+                Icons.psychology_alt_outlined,
+                size: 20,
+                color: theme.colorScheme.primary,
+              ),
+              title: Text(
+                isThinking
+                    ? slang.t.translation.thinking
+                    : slang.t.translation.thoughtProcess,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              children: [
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.25,
+                  ),
+                  child: SingleChildScrollView(
+                    child: SelectableText(
+                      reasoning,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+  }
+
   Widget _buildShimmerLoading(ThemeData theme) {
     return Shimmer.fromColors(
       baseColor: theme.colorScheme.surfaceContainerHighest,
@@ -298,6 +367,9 @@ class _TranslationDialogState extends State<TranslationDialog> {
                       ),
 
                       const SizedBox(height: 16),
+
+                      // 推理模型的思考过程（可折叠）
+                      _buildReasoningSection(context),
 
                       // 译文
                       _buildTextContainer(

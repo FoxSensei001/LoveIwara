@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -16,12 +17,19 @@ class MarkdownTranslationController {
   final Rxn<String> rawTranslatedText = Rxn<String>(); // 存储未格式化的翻译文本
   final RxBool isTranslationComplete = false.obs; // 标记翻译是否完成
 
+  // 推理模型的思考过程（仅推理模型流式翻译时有值）
+  final Rxn<String> reasoningText = Rxn<String>();
+  bool get hasReasoning => (reasoningText.value?.isNotEmpty ?? false);
+
   // 控制器使用的翻译服务和Markdown格式化工具
   final TranslationService _translationService = Get.find();
   final MarkdownFormatter _markdownFormatter = MarkdownFormatter();
 
   // 流式翻译订阅
   StreamSubscription<String>? _translationStreamSubscription;
+
+  // 当前翻译的取消令牌：切换语言/销毁时立即中断底层 HTTP
+  CancelToken? _cancelToken;
 
   // 检查是否有翻译结果
   bool get hasTranslation => translatedText.value != null;
@@ -47,10 +55,15 @@ class MarkdownTranslationController {
     isTranslationComplete.value = false;
     rawTranslatedText.value = null;
     translatedText.value = null;
+    reasoningText.value = null;
 
-    // 取消之前的流订阅
+    // 取消之前的流订阅与底层请求
     await _translationStreamSubscription?.cancel();
     _translationStreamSubscription = null;
+    if (_cancelToken != null && !_cancelToken!.isCancelled) {
+      _cancelToken!.cancel('new translation started');
+    }
+    _cancelToken = CancelToken();
 
     // 使用原始文本进行翻译，如果没有提供则使用传入的文本
     final textToTranslate = originalText ?? text;
@@ -60,6 +73,10 @@ class MarkdownTranslationController {
     final stream = _translationService.translateStream(
       textToTranslate,
       targetLanguage: targetLanguage,
+      cancelToken: _cancelToken,
+      onReasoning: (reasoning) {
+        reasoningText.value = reasoning;
+      },
     );
     if (stream != null) {
       LogUtils.i('使用流式翻译', 'MarkdownTranslationController');
@@ -102,6 +119,7 @@ class MarkdownTranslationController {
     final result = await _translationService.translate(
       textToTranslate,
       targetLanguage: targetLanguage,
+      cancelToken: _cancelToken,
     );
     LogUtils.i(
       '普通翻译结果: ${result.isSuccess ? "成功" : "失败"}, 数据长度: ${result.data?.length ?? 0}',
@@ -162,10 +180,14 @@ class MarkdownTranslationController {
   void clearTranslation() {
     translatedText.value = null;
     rawTranslatedText.value = null;
+    reasoningText.value = null;
     isTranslationComplete.value = false;
   }
 
   void dispose() {
     _translationStreamSubscription?.cancel();
+    if (_cancelToken != null && !_cancelToken!.isCancelled) {
+      _cancelToken!.cancel('controller disposed');
+    }
   }
 }

@@ -1427,6 +1427,34 @@ class _TranslationsTranslationZhCn implements TranslationsTranslationEn {
 	@override String get fallbackTranslationFailed => '降级到普通翻译也失败';
 	@override String get translationSettings => '翻译设置';
 	@override String get enableGoogleTranslation => '启用 Google 翻译';
+	@override String get thinking => '思考中…';
+	@override String get thoughtProcess => '思考过程';
+	@override String get modelCompatibility => '模型兼容性';
+	@override String get modelCompatibilityDescription => '为推理模型(o1/o3、DeepSeek-R1、QwQ 等)等当代模型适配请求参数';
+	@override String get reasoningModel => '推理模型';
+	@override String get reasoningModelDescription => '适用于 o1/o3、DeepSeek-R1、QwQ 等：将提示词并入用户消息、不下发 temperature、改用 max_completion_tokens';
+	@override String get useMaxCompletionTokens => '使用 max_completion_tokens';
+	@override String get useMaxCompletionTokensDescription => '新版 OpenAI 端点已弃用 max_tokens，需改用 max_completion_tokens';
+	@override String get sendTemperature => '下发 temperature';
+	@override String get sendTemperatureDescription => '对于拒绝 temperature 参数的模型(多数推理模型)请关闭';
+	@override String get showReasoningProcess => '显示思考过程';
+	@override String get showReasoningProcessDescription => '在翻译弹窗中以可折叠形式展示推理模型的思考过程';
+	@override String get provider => '服务商';
+	@override String get providerOpenAI => 'OpenAI（及兼容端点）';
+	@override String get providerAnthropic => 'Anthropic（Claude）';
+	@override String get providerGoogle => 'Google（Gemini）';
+	@override String get multiProviderHint => '通过 dartantic_ai SDK 支持 OpenAI（及一切 OpenAI 兼容端点）、Anthropic 与 Google';
+	@override String get baseUrlOptionalHelperText => '可选。留空使用该服务商默认端点；OpenAI 兼容端点/中转请填写';
+	@override String get defaultEndpoint => '默认端点';
+	@override String get providerPreset => '服务商预设';
+	@override String get selectProviderPreset => '选择预设';
+	@override String get presetCustom => '自定义';
+	@override String presetApplied({required Object name}) => '已应用预设：${name}';
+	@override String get fetchModelList => '获取模型列表';
+	@override String get fetchingModels => '获取中…';
+	@override String get selectModel => '选择模型';
+	@override String get searchModel => '搜索模型';
+	@override String get noModelsFound => '未找到模型';
 }
 
 // Path: mediaPlayer
@@ -4377,6 +4405,34 @@ extension on TranslationsZhCn {
 			'translation.fallbackTranslationFailed' => '降级到普通翻译也失败',
 			'translation.translationSettings' => '翻译设置',
 			'translation.enableGoogleTranslation' => '启用 Google 翻译',
+			'translation.thinking' => '思考中…',
+			'translation.thoughtProcess' => '思考过程',
+			'translation.modelCompatibility' => '模型兼容性',
+			'translation.modelCompatibilityDescription' => '为推理模型(o1/o3、DeepSeek-R1、QwQ 等)等当代模型适配请求参数',
+			'translation.reasoningModel' => '推理模型',
+			'translation.reasoningModelDescription' => '适用于 o1/o3、DeepSeek-R1、QwQ 等：将提示词并入用户消息、不下发 temperature、改用 max_completion_tokens',
+			'translation.useMaxCompletionTokens' => '使用 max_completion_tokens',
+			'translation.useMaxCompletionTokensDescription' => '新版 OpenAI 端点已弃用 max_tokens，需改用 max_completion_tokens',
+			'translation.sendTemperature' => '下发 temperature',
+			'translation.sendTemperatureDescription' => '对于拒绝 temperature 参数的模型(多数推理模型)请关闭',
+			'translation.showReasoningProcess' => '显示思考过程',
+			'translation.showReasoningProcessDescription' => '在翻译弹窗中以可折叠形式展示推理模型的思考过程',
+			'translation.provider' => '服务商',
+			'translation.providerOpenAI' => 'OpenAI（及兼容端点）',
+			'translation.providerAnthropic' => 'Anthropic（Claude）',
+			'translation.providerGoogle' => 'Google（Gemini）',
+			'translation.multiProviderHint' => '通过 dartantic_ai SDK 支持 OpenAI（及一切 OpenAI 兼容端点）、Anthropic 与 Google',
+			'translation.baseUrlOptionalHelperText' => '可选。留空使用该服务商默认端点；OpenAI 兼容端点/中转请填写',
+			'translation.defaultEndpoint' => '默认端点',
+			'translation.providerPreset' => '服务商预设',
+			'translation.selectProviderPreset' => '选择预设',
+			'translation.presetCustom' => '自定义',
+			'translation.presetApplied' => ({required Object name}) => '已应用预设：${name}',
+			'translation.fetchModelList' => '获取模型列表',
+			'translation.fetchingModels' => '获取中…',
+			'translation.selectModel' => '选择模型',
+			'translation.searchModel' => '搜索模型',
+			'translation.noModelsFound' => '未找到模型',
 			'mediaPlayer.videoPlayerError' => '视频播放器错误',
 			'mediaPlayer.videoLoadFailed' => '视频加载失败',
 			'mediaPlayer.videoCodecNotSupported' => '视频编解码器不支持',
@@ -4396,6 +4452,8 @@ extension on TranslationsZhCn {
 			'mediaPlayer.video' => '视频',
 			'mediaPlayer.serverSelector' => 'CDN 服务器选择',
 			'mediaPlayer.serverSelectorDescription' => '选择延迟最低的服务器以获得最佳播放体验',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.retestSpeed' => '重新测速',
 			'mediaPlayer.waitingForSpeedTest' => '等待测速',
 			'mediaPlayer.testingSpeed' => '测速中...',
@@ -4424,8 +4482,6 @@ extension on TranslationsZhCn {
 			'mediaPlayer.unsupportedImageFormat' => '不支持的图片格式',
 			'mediaPlayer.tryOtherViewer' => '请尝试使用其他查看器',
 			'mediaPlayer.retryingOpenVideoLink' => '视频链接打开失败，重试中',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => '无法加载解码器: ${event}，可以通过在播放器设置里切换至软解，并重新进入页面尝试',
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '视频加载错误: ${event}',
 			'mediaPlayer.playbackFailureDiagnosticsHint' => '多次播放失败，建议前往 设置 > 诊断与反馈 导出日志反馈',

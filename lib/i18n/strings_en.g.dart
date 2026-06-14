@@ -3599,6 +3599,90 @@ class TranslationsTranslationEn {
 
 	/// en: 'Enable Google Translation'
 	String get enableGoogleTranslation => 'Enable Google Translation';
+
+	/// en: 'Thinking...'
+	String get thinking => 'Thinking...';
+
+	/// en: 'Thought Process'
+	String get thoughtProcess => 'Thought Process';
+
+	/// en: 'Model Compatibility'
+	String get modelCompatibility => 'Model Compatibility';
+
+	/// en: 'Adapt request parameters for modern models such as reasoning models (o1/o3, DeepSeek-R1, QwQ)'
+	String get modelCompatibilityDescription => 'Adapt request parameters for modern models such as reasoning models (o1/o3, DeepSeek-R1, QwQ)';
+
+	/// en: 'Reasoning Model'
+	String get reasoningModel => 'Reasoning Model';
+
+	/// en: 'For o1/o3, DeepSeek-R1, QwQ, etc. Folds the prompt into the user message, omits temperature, and uses max_completion_tokens'
+	String get reasoningModelDescription => 'For o1/o3, DeepSeek-R1, QwQ, etc. Folds the prompt into the user message, omits temperature, and uses max_completion_tokens';
+
+	/// en: 'Use max_completion_tokens'
+	String get useMaxCompletionTokens => 'Use max_completion_tokens';
+
+	/// en: 'Newer OpenAI endpoints require max_completion_tokens instead of the deprecated max_tokens'
+	String get useMaxCompletionTokensDescription => 'Newer OpenAI endpoints require max_completion_tokens instead of the deprecated max_tokens';
+
+	/// en: 'Send temperature'
+	String get sendTemperature => 'Send temperature';
+
+	/// en: 'Turn off for models that reject the temperature parameter (most reasoning models)'
+	String get sendTemperatureDescription => 'Turn off for models that reject the temperature parameter (most reasoning models)';
+
+	/// en: 'Show thought process'
+	String get showReasoningProcess => 'Show thought process';
+
+	/// en: 'Show the collapsible reasoning of reasoning models in the translation dialog'
+	String get showReasoningProcessDescription => 'Show the collapsible reasoning of reasoning models in the translation dialog';
+
+	/// en: 'Provider'
+	String get provider => 'Provider';
+
+	/// en: 'OpenAI (and compatible)'
+	String get providerOpenAI => 'OpenAI (and compatible)';
+
+	/// en: 'Anthropic (Claude)'
+	String get providerAnthropic => 'Anthropic (Claude)';
+
+	/// en: 'Google (Gemini)'
+	String get providerGoogle => 'Google (Gemini)';
+
+	/// en: 'Supports OpenAI (and any OpenAI-compatible endpoint), Anthropic and Google via the dartantic_ai SDK'
+	String get multiProviderHint => 'Supports OpenAI (and any OpenAI-compatible endpoint), Anthropic and Google via the dartantic_ai SDK';
+
+	/// en: 'Optional. Leave empty to use the provider's default endpoint; fill in for OpenAI-compatible/relay endpoints'
+	String get baseUrlOptionalHelperText => 'Optional. Leave empty to use the provider\'s default endpoint; fill in for OpenAI-compatible/relay endpoints';
+
+	/// en: 'Default endpoint'
+	String get defaultEndpoint => 'Default endpoint';
+
+	/// en: 'Provider Preset'
+	String get providerPreset => 'Provider Preset';
+
+	/// en: 'Select a preset'
+	String get selectProviderPreset => 'Select a preset';
+
+	/// en: 'Custom'
+	String get presetCustom => 'Custom';
+
+	/// en: 'Preset applied: ${name}'
+	String presetApplied({required Object name}) => 'Preset applied: ${name}';
+
+	/// en: 'Fetch model list'
+	String get fetchModelList => 'Fetch model list';
+
+	/// en: 'Fetching...'
+	String get fetchingModels => 'Fetching...';
+
+	/// en: 'Select Model'
+	String get selectModel => 'Select Model';
+
+	/// en: 'Search model'
+	String get searchModel => 'Search model';
+
+	/// en: 'No models found'
+	String get noModelsFound => 'No models found';
 }
 
 // Path: navigationOrderSettings
@@ -8369,6 +8453,34 @@ extension on Translations {
 			'translation.fallbackTranslationFailed' => 'Fallback to normal translation also failed',
 			'translation.translationSettings' => 'Translation Settings',
 			'translation.enableGoogleTranslation' => 'Enable Google Translation',
+			'translation.thinking' => 'Thinking...',
+			'translation.thoughtProcess' => 'Thought Process',
+			'translation.modelCompatibility' => 'Model Compatibility',
+			'translation.modelCompatibilityDescription' => 'Adapt request parameters for modern models such as reasoning models (o1/o3, DeepSeek-R1, QwQ)',
+			'translation.reasoningModel' => 'Reasoning Model',
+			'translation.reasoningModelDescription' => 'For o1/o3, DeepSeek-R1, QwQ, etc. Folds the prompt into the user message, omits temperature, and uses max_completion_tokens',
+			'translation.useMaxCompletionTokens' => 'Use max_completion_tokens',
+			'translation.useMaxCompletionTokensDescription' => 'Newer OpenAI endpoints require max_completion_tokens instead of the deprecated max_tokens',
+			'translation.sendTemperature' => 'Send temperature',
+			'translation.sendTemperatureDescription' => 'Turn off for models that reject the temperature parameter (most reasoning models)',
+			'translation.showReasoningProcess' => 'Show thought process',
+			'translation.showReasoningProcessDescription' => 'Show the collapsible reasoning of reasoning models in the translation dialog',
+			'translation.provider' => 'Provider',
+			'translation.providerOpenAI' => 'OpenAI (and compatible)',
+			'translation.providerAnthropic' => 'Anthropic (Claude)',
+			'translation.providerGoogle' => 'Google (Gemini)',
+			'translation.multiProviderHint' => 'Supports OpenAI (and any OpenAI-compatible endpoint), Anthropic and Google via the dartantic_ai SDK',
+			'translation.baseUrlOptionalHelperText' => 'Optional. Leave empty to use the provider\'s default endpoint; fill in for OpenAI-compatible/relay endpoints',
+			'translation.defaultEndpoint' => 'Default endpoint',
+			'translation.providerPreset' => 'Provider Preset',
+			'translation.selectProviderPreset' => 'Select a preset',
+			'translation.presetCustom' => 'Custom',
+			'translation.presetApplied' => ({required Object name}) => 'Preset applied: ${name}',
+			'translation.fetchModelList' => 'Fetch model list',
+			'translation.fetchingModels' => 'Fetching...',
+			'translation.selectModel' => 'Select Model',
+			'translation.searchModel' => 'Search model',
+			'translation.noModelsFound' => 'No models found',
 			'navigationOrderSettings.title' => 'Navigation Order Settings',
 			'navigationOrderSettings.customNavigationOrder' => 'Custom Navigation Order',
 			'navigationOrderSettings.customNavigationOrderDesc' => 'Drag to adjust the display order of pages in the bottom navigation bar and sidebar',
@@ -8393,6 +8505,8 @@ extension on Translations {
 			'news.articles' => 'Articles',
 			'news.broadcast' => 'Broadcast',
 			'news.openInBrowser' => 'Open in Browser',
+			_ => null,
+		} ?? switch (path) {
 			'displaySettings.title' => 'Display Settings',
 			'displaySettings.layoutSettings' => 'Layout Settings',
 			'displaySettings.layoutSettingsDesc' => 'Customize column count and breakpoint configuration',
@@ -8421,8 +8535,6 @@ extension on Translations {
 			'layoutSettings.addBreakpoint' => 'Add Breakpoint',
 			'layoutSettings.editBreakpoint' => 'Edit Breakpoint',
 			'layoutSettings.deleteBreakpoint' => 'Delete Breakpoint',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.screenWidthLabel' => 'Screen Width',
 			'layoutSettings.screenWidthHint' => '600',
 			'layoutSettings.columnsLabel' => 'Columns',

@@ -1589,6 +1589,35 @@ translation:
   fallbackTranslationFailed: Fallback to normal translation also failed
   translationSettings: Translation Settings
   enableGoogleTranslation: Enable Google Translation
+  # Modern AI adaptation
+  thinking: Thinking...
+  thoughtProcess: Thought Process
+  modelCompatibility: Model Compatibility
+  modelCompatibilityDescription: Adapt request parameters for modern models such as reasoning models (o1/o3, DeepSeek-R1, QwQ)
+  reasoningModel: Reasoning Model
+  reasoningModelDescription: For o1/o3, DeepSeek-R1, QwQ, etc. Folds the prompt into the user message, omits temperature, and uses max_completion_tokens
+  useMaxCompletionTokens: Use max_completion_tokens
+  useMaxCompletionTokensDescription: Newer OpenAI endpoints require max_completion_tokens instead of the deprecated max_tokens
+  sendTemperature: Send temperature
+  sendTemperatureDescription: Turn off for models that reject the temperature parameter (most reasoning models)
+  showReasoningProcess: Show thought process
+  showReasoningProcessDescription: Show the collapsible reasoning of reasoning models in the translation dialog
+  provider: Provider
+  providerOpenAI: OpenAI (and compatible)
+  providerAnthropic: Anthropic (Claude)
+  providerGoogle: Google (Gemini)
+  multiProviderHint: "Supports OpenAI (and any OpenAI-compatible endpoint), Anthropic and Google via the dartantic_ai SDK"
+  baseUrlOptionalHelperText: "Optional. Leave empty to use the provider's default endpoint; fill in for OpenAI-compatible/relay endpoints"
+  defaultEndpoint: Default endpoint
+  providerPreset: Provider Preset
+  selectProviderPreset: Select a preset
+  presetCustom: Custom
+  presetApplied: 'Preset applied: ${name}'
+  fetchModelList: Fetch model list
+  fetchingModels: Fetching...
+  selectModel: Select Model
+  searchModel: Search model
+  noModelsFound: No models found
 
 # Navigation Order Settings
 navigationOrderSettings:

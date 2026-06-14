@@ -124,6 +124,32 @@ class CommonConstants {
     Sort(id: SortId.ru, label: 'Русский', extData: 'ru'),
   ];
 
+  /// 语言代码 -> 标准语言名称（英文名 + 本地自称），供 AI 翻译提示词使用。
+  ///
+  /// 直接把 `zh-CN`、`ja` 这种简写丢给模型，模型有时会拿不准要译成什么；
+  /// 这里给出明确、规范的语言名称以消除歧义。
+  static const Map<String, String> translationLanguageNames = {
+    'zh-CN': 'Simplified Chinese (简体中文)',
+    'zh-TW': 'Traditional Chinese (繁體中文)',
+    'en-US': 'English',
+    'ja': 'Japanese (日本語)',
+    'ko': 'Korean (한국어)',
+    'vi': 'Vietnamese (Tiếng Việt)',
+    'th': 'Thai (ภาษาไทย)',
+    'id': 'Indonesian (Bahasa Indonesia)',
+    'ms': 'Malay (Bahasa Melayu)',
+    'fr': 'French (Français)',
+    'de': 'German (Deutsch)',
+    'es': 'Spanish (Español)',
+    'it': 'Italian (Italiano)',
+    'pt': 'Portuguese (Português)',
+    'ru': 'Russian (Русский)',
+  };
+
+  /// 取语言代码对应的标准名称；未知代码回退为代码本身。
+  static String translationLanguageName(String code) =>
+      translationLanguageNames[code] ?? code;
+
   static String defaultThumbnailUrl =
       '$iwaraBaseUrl/images/default-thumbnail.jpg';
 

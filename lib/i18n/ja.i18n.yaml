@@ -1593,6 +1593,35 @@ translation:
   fallbackTranslationFailed: 通常翻訳へのフォールバックも失敗
   translationSettings: 翻訳設定
   enableGoogleTranslation: Google翻訳を有効にする
+  # 最新 AI 適合
+  thinking: 思考中…
+  thoughtProcess: 思考過程
+  modelCompatibility: モデル互換性
+  modelCompatibilityDescription: 推論モデル(o1/o3、DeepSeek-R1、QwQ など)など最新モデルにリクエストパラメータを適合させます
+  reasoningModel: 推論モデル
+  reasoningModelDescription: o1/o3、DeepSeek-R1、QwQ など向け：プロンプトをユーザーメッセージに統合し、temperature を送らず、max_completion_tokens を使用します
+  useMaxCompletionTokens: max_completion_tokens を使用
+  useMaxCompletionTokensDescription: 新しい OpenAI エンドポイントでは非推奨の max_tokens ではなく max_completion_tokens が必要です
+  sendTemperature: temperature を送信
+  sendTemperatureDescription: temperature パラメータを受け付けないモデル(多くの推論モデル)ではオフにしてください
+  showReasoningProcess: 思考過程を表示
+  showReasoningProcessDescription: 翻訳ダイアログで推論モデルの思考過程を折りたたみ表示します
+  provider: プロバイダー
+  providerOpenAI: OpenAI（および互換エンドポイント）
+  providerAnthropic: Anthropic（Claude）
+  providerGoogle: Google（Gemini）
+  multiProviderHint: "dartantic_ai SDK により OpenAI（およびすべての OpenAI 互換エンドポイント）、Anthropic、Google に対応"
+  baseUrlOptionalHelperText: "任意。空欄でプロバイダー既定のエンドポイントを使用。OpenAI 互換/中継先は入力してください"
+  defaultEndpoint: 既定のエンドポイント
+  providerPreset: プロバイダープリセット
+  selectProviderPreset: プリセットを選択
+  presetCustom: カスタム
+  presetApplied: 'プリセットを適用しました：${name}'
+  fetchModelList: モデル一覧を取得
+  fetchingModels: 取得中…
+  selectModel: モデルを選択
+  searchModel: モデルを検索
+  noModelsFound: モデルが見つかりません
 
 # メディアプレイヤーウィジェット
 mediaPlayer:

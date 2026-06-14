@@ -1453,6 +1453,34 @@ class _TranslationsTranslationZhTw implements TranslationsTranslationEn {
 	@override String get fallbackTranslationFailed => '降級到普通翻譯也失敗';
 	@override String get translationSettings => '翻譯設定';
 	@override String get enableGoogleTranslation => '啟用 Google 翻譯';
+	@override String get thinking => '思考中…';
+	@override String get thoughtProcess => '思考過程';
+	@override String get modelCompatibility => '模型相容性';
+	@override String get modelCompatibilityDescription => '為推理模型(o1/o3、DeepSeek-R1、QwQ 等)等當代模型適配請求參數';
+	@override String get reasoningModel => '推理模型';
+	@override String get reasoningModelDescription => '適用於 o1/o3、DeepSeek-R1、QwQ 等：將提示詞併入使用者訊息、不下發 temperature、改用 max_completion_tokens';
+	@override String get useMaxCompletionTokens => '使用 max_completion_tokens';
+	@override String get useMaxCompletionTokensDescription => '新版 OpenAI 端點已棄用 max_tokens，需改用 max_completion_tokens';
+	@override String get sendTemperature => '下發 temperature';
+	@override String get sendTemperatureDescription => '對於拒絕 temperature 參數的模型(多數推理模型)請關閉';
+	@override String get showReasoningProcess => '顯示思考過程';
+	@override String get showReasoningProcessDescription => '在翻譯彈窗中以可折疊形式展示推理模型的思考過程';
+	@override String get provider => '服務商';
+	@override String get providerOpenAI => 'OpenAI（及相容端點）';
+	@override String get providerAnthropic => 'Anthropic（Claude）';
+	@override String get providerGoogle => 'Google（Gemini）';
+	@override String get multiProviderHint => '透過 dartantic_ai SDK 支援 OpenAI（及一切 OpenAI 相容端點）、Anthropic 與 Google';
+	@override String get baseUrlOptionalHelperText => '可選。留空使用該服務商預設端點；OpenAI 相容端點/中轉請填寫';
+	@override String get defaultEndpoint => '預設端點';
+	@override String get providerPreset => '服務商預設';
+	@override String get selectProviderPreset => '選擇預設';
+	@override String get presetCustom => '自訂';
+	@override String presetApplied({required Object name}) => '已套用預設：${name}';
+	@override String get fetchModelList => '取得模型清單';
+	@override String get fetchingModels => '取得中…';
+	@override String get selectModel => '選擇模型';
+	@override String get searchModel => '搜尋模型';
+	@override String get noModelsFound => '未找到模型';
 }
 
 // Path: mediaPlayer
@@ -4401,6 +4429,36 @@ extension on TranslationsZhTw {
 			'translation.fallbackTranslationFailed' => '降級到普通翻譯也失敗',
 			'translation.translationSettings' => '翻譯設定',
 			'translation.enableGoogleTranslation' => '啟用 Google 翻譯',
+			'translation.thinking' => '思考中…',
+			'translation.thoughtProcess' => '思考過程',
+			'translation.modelCompatibility' => '模型相容性',
+			'translation.modelCompatibilityDescription' => '為推理模型(o1/o3、DeepSeek-R1、QwQ 等)等當代模型適配請求參數',
+			'translation.reasoningModel' => '推理模型',
+			'translation.reasoningModelDescription' => '適用於 o1/o3、DeepSeek-R1、QwQ 等：將提示詞併入使用者訊息、不下發 temperature、改用 max_completion_tokens',
+			'translation.useMaxCompletionTokens' => '使用 max_completion_tokens',
+			'translation.useMaxCompletionTokensDescription' => '新版 OpenAI 端點已棄用 max_tokens，需改用 max_completion_tokens',
+			'translation.sendTemperature' => '下發 temperature',
+			'translation.sendTemperatureDescription' => '對於拒絕 temperature 參數的模型(多數推理模型)請關閉',
+			'translation.showReasoningProcess' => '顯示思考過程',
+			'translation.showReasoningProcessDescription' => '在翻譯彈窗中以可折疊形式展示推理模型的思考過程',
+			'translation.provider' => '服務商',
+			'translation.providerOpenAI' => 'OpenAI（及相容端點）',
+			'translation.providerAnthropic' => 'Anthropic（Claude）',
+			'translation.providerGoogle' => 'Google（Gemini）',
+			'translation.multiProviderHint' => '透過 dartantic_ai SDK 支援 OpenAI（及一切 OpenAI 相容端點）、Anthropic 與 Google',
+			'translation.baseUrlOptionalHelperText' => '可選。留空使用該服務商預設端點；OpenAI 相容端點/中轉請填寫',
+			'translation.defaultEndpoint' => '預設端點',
+			'translation.providerPreset' => '服務商預設',
+			'translation.selectProviderPreset' => '選擇預設',
+			_ => null,
+		} ?? switch (path) {
+			'translation.presetCustom' => '自訂',
+			'translation.presetApplied' => ({required Object name}) => '已套用預設：${name}',
+			'translation.fetchModelList' => '取得模型清單',
+			'translation.fetchingModels' => '取得中…',
+			'translation.selectModel' => '選擇模型',
+			'translation.searchModel' => '搜尋模型',
+			'translation.noModelsFound' => '未找到模型',
 			'mediaPlayer.videoPlayerError' => '影片播放器錯誤',
 			'mediaPlayer.videoLoadFailed' => '影片載入失敗',
 			'mediaPlayer.videoCodecNotSupported' => '影片編解碼器不支援',
@@ -4422,8 +4480,6 @@ extension on TranslationsZhTw {
 			'mediaPlayer.serverSelectorDescription' => '選擇延遲最低的伺服器以獲得最佳播放體驗',
 			'mediaPlayer.retestSpeed' => '重新測速',
 			'mediaPlayer.waitingForSpeedTest' => '等待測速',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.testingSpeed' => '測速中...',
 			'mediaPlayer.testFailed' => '測速失敗',
 			'mediaPlayer.loadingServerList' => '正在加載伺服器列表...',

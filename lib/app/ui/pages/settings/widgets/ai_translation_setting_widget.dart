@@ -8,7 +8,6 @@ import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
-import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'dart:convert';
@@ -50,6 +49,7 @@ class _AITranslationSettingsWidgetState
   final RxBool _isTesting = false.obs;
   final RxBool _isConnectionValid = false.obs;
   final RxBool _hasTested = false.obs;
+  final RxBool _isFetchingModels = false.obs;
   final TranslationService translationService = Get.find();
   final Rx<AITestResult?> _testResult = Rx<AITestResult?>(null);
   final debounceDuration = const Duration(milliseconds: 500);
@@ -178,6 +178,7 @@ class _AITranslationSettingsWidgetState
                   Obx(() => _buildStatusCard(context)),
                   _buildDisclaimerCard(context),
                   _buildAPIConfigSection(context),
+                  _buildModelCompatibilitySection(context),
                   _buildAdvancedConfigSection(context),
                   _buildPreviewSection(context),
                   _buildTestConnectionSection(context),
@@ -383,9 +384,9 @@ class _AITranslationSettingsWidgetState
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  slang.t.translation.onlyOpenAIAPISupported,
+                  slang.t.translation.multiProviderHint,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.error,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -417,46 +418,53 @@ class _AITranslationSettingsWidgetState
                             context: context,
                             label: slang.t.translation.apiAddress,
                             controller: _baseUrlController,
-                            hintText: 'https://api.example.com/v1',
+                            hintText: 'https://api.openai.com/v1',
                             configKey: ConfigKey.AI_TRANSLATION_BASE_URL,
                             icon: Icons.link,
                             helperText:
-                                slang.t.translation.baseUrlInputHelperText,
+                                slang.t.translation.baseUrlOptionalHelperText,
+                            allowEmpty: true,
                           ),
                         ),
                         SizedBox(
-                          width: constraints.maxWidth,
-                          child: Obx(() {
-                            final baseUrl =
-                                configService[ConfigKey
-                                    .AI_TRANSLATION_BASE_URL];
-                            final actualUrl = translationService.getFinalUrl(
-                              baseUrl,
-                            );
-                            return Text(
-                              slang.t.translation.currentActualUrl(
-                                url: actualUrl,
-                              ),
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                    fontSize: 12,
-                                    height: 1.2,
-                                  ),
-                            ).paddingLeft(12);
-                          }),
-                        ),
-                        SizedBox(
                           width: itemWidth,
-                          child: _buildInputSection(
-                            context: context,
-                            label: slang.t.translation.modelName,
-                            controller: _modelController,
-                            hintText: slang.t.translation.modelNameHintText,
-                            configKey: ConfigKey.AI_TRANSLATION_MODEL,
-                            icon: Icons.model_training,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildInputSection(
+                                context: context,
+                                label: slang.t.translation.modelName,
+                                controller: _modelController,
+                                hintText: slang.t.translation.modelNameHintText,
+                                configKey: ConfigKey.AI_TRANSLATION_MODEL,
+                                icon: Icons.model_training,
+                              ),
+                              const SizedBox(height: 8),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Obx(
+                                  () => TextButton.icon(
+                                    onPressed: _isFetchingModels.value
+                                        ? null
+                                        : _handleFetchModels,
+                                    icon: _isFetchingModels.value
+                                        ? const SizedBox(
+                                            width: 16,
+                                            height: 16,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                        : const Icon(Icons.cloud_download, size: 18),
+                                    label: Text(
+                                      _isFetchingModels.value
+                                          ? slang.t.translation.fetchingModels
+                                          : slang.t.translation.fetchModelList,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         SizedBox(
@@ -487,6 +495,368 @@ class _AITranslationSettingsWidgetState
                 );
               },
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModelCompatibilitySection(BuildContext context) {
+    return Card(
+      elevation: 2,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  slang.t.translation.modelCompatibility,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  slang.t.translation.modelCompatibilityDescription,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 12,
+                    height: 1.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildProviderDropdown(context),
+                const SizedBox(height: 8),
+                _buildProviderPresetDropdown(context),
+                const SizedBox(height: 8),
+                _buildCompatSwitch(
+                  context: context,
+                  icon: Icons.psychology_alt_outlined,
+                  title: slang.t.translation.reasoningModel,
+                  description: slang.t.translation.reasoningModelDescription,
+                  configKey: ConfigKey.AI_TRANSLATION_REASONING_MODEL,
+                ),
+                _buildCompatSwitch(
+                  context: context,
+                  icon: Icons.thermostat,
+                  title: slang.t.translation.sendTemperature,
+                  description: slang.t.translation.sendTemperatureDescription,
+                  configKey: ConfigKey.AI_TRANSLATION_SEND_TEMPERATURE,
+                ),
+                _buildCompatSwitch(
+                  context: context,
+                  icon: Icons.visibility,
+                  title: slang.t.translation.showReasoningProcess,
+                  description:
+                      slang.t.translation.showReasoningProcessDescription,
+                  configKey: ConfigKey.AI_TRANSLATION_SHOW_REASONING,
+                  // 仅影响 UI 展示，无需重新测试连接
+                  disablesTranslation: false,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProviderDropdown(BuildContext context) {
+    const providers = ['openai', 'anthropic', 'google'];
+    String labelFor(String id) => switch (id) {
+      'anthropic' => slang.t.translation.providerAnthropic,
+      'google' => slang.t.translation.providerGoogle,
+      _ => slang.t.translation.providerOpenAI,
+    };
+    return Obx(() {
+      final current =
+          configService[ConfigKey.AI_TRANSLATION_PROVIDER] as String? ??
+          'openai';
+      return Row(
+        children: [
+          Icon(
+            Icons.cloud_outlined,
+            size: 20,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            slang.t.translation.provider,
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: DropdownButton<String>(
+              isExpanded: true,
+              value: providers.contains(current) ? current : 'openai',
+              items: providers
+                  .map(
+                    (id) => DropdownMenuItem<String>(
+                      value: id,
+                      child: Text(labelFor(id), overflow: TextOverflow.ellipsis),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (id) {
+                if (id == null) return;
+                configService[ConfigKey.AI_TRANSLATION_PROVIDER] = id;
+                _disableAITranslation(
+                  message: slang
+                      .t
+                      .translation
+                      .aiTranslationWillBeDisabledDueToConfigChange,
+                );
+                _isConnectionValid.value = false;
+                _hasTested.value = false;
+                _testResult.value = null;
+              },
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildProviderPresetDropdown(BuildContext context) {
+    return Row(
+      children: [
+        Icon(
+          Icons.tune,
+          size: 20,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          slang.t.translation.providerPreset,
+          style: Theme.of(context).textTheme.labelLarge,
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: DropdownButton<String>(
+            isExpanded: true,
+            value: null,
+            hint: Text(slang.t.translation.selectProviderPreset),
+            items: _providerPresets
+                .map(
+                  (p) => DropdownMenuItem<String>(
+                    value: p.id,
+                    child: Text(
+                      p.id == 'custom' ? slang.t.translation.presetCustom : p.name,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                )
+                .toList(),
+            onChanged: (id) {
+              if (id == null) return;
+              final preset = _providerPresets.firstWhere((p) => p.id == id);
+              _applyProviderPreset(preset);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _applyProviderPreset(_ProviderPreset preset) {
+    if (preset.id == 'custom') return;
+
+    configService[ConfigKey.AI_TRANSLATION_PROVIDER] = preset.provider;
+    // baseUrl: 有值则填入，null 表示用该服务商默认端点（清空）
+    _baseUrlController.text = preset.baseUrl ?? '';
+    configService[ConfigKey.AI_TRANSLATION_BASE_URL] = preset.baseUrl ?? '';
+    configService[ConfigKey.AI_TRANSLATION_REASONING_MODEL] = preset.reasoning;
+    configService[ConfigKey.AI_TRANSLATION_SEND_TEMPERATURE] =
+        preset.sendTemperature;
+
+    _disableAITranslation(
+      message: slang.t.translation.aiTranslationWillBeDisabledDueToConfigChange,
+    );
+    _isConnectionValid.value = false;
+    _hasTested.value = false;
+    _testResult.value = null;
+
+    showToastWidget(
+      MDToastWidget(
+        message: slang.t.translation.presetApplied(name: preset.name),
+        type: MDToastType.success,
+      ),
+      position: ToastPosition.bottom,
+    );
+  }
+
+  Widget _buildCompatSwitch({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required String description,
+    required ConfigKey configKey,
+    bool disablesTranslation = true,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Obx(
+      () => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 20, color: colorScheme.onSurfaceVariant),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: Theme.of(context).textTheme.labelLarge),
+                  const SizedBox(height: 2),
+                  Text(
+                    description,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                      height: 1.2,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Switch(
+              value: configService[configKey] as bool? ?? false,
+              onChanged: (value) {
+                configService[configKey] = value;
+                if (disablesTranslation) {
+                  _disableAITranslation(
+                    message: slang
+                        .t
+                        .translation
+                        .aiTranslationWillBeDisabledDueToParamChange,
+                  );
+                  _isConnectionValid.value = false;
+                  _hasTested.value = false;
+                  _testResult.value = null;
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _handleFetchModels() async {
+    final baseUrl = _baseUrlController.text.trim();
+    final apiKey = _apiKeyController.text.trim();
+    if (apiKey.isEmpty) {
+      showToastWidget(
+        MDToastWidget(
+          message: slang.t.translation.apiKeyCannotBeEmpty,
+          type: MDToastType.warning,
+        ),
+        position: ToastPosition.bottom,
+      );
+      return;
+    }
+
+    _isFetchingModels.value = true;
+    final result = await translationService.fetchAvailableModels(
+      baseUrl,
+      apiKey,
+    );
+    _isFetchingModels.value = false;
+
+    if (result.isSuccess && result.data != null && result.data!.isNotEmpty) {
+      _showModelPickerDialog(result.data!);
+    } else {
+      showToastWidget(
+        MDToastWidget(
+          message: result.message,
+          type: MDToastType.error,
+        ),
+        position: ToastPosition.bottom,
+      );
+    }
+  }
+
+  void _showModelPickerDialog(List<String> models) {
+    final searchText = ''.obs;
+    showAppDialog(
+      AlertDialog(
+        title: Text(slang.t.translation.selectModel),
+        content: SizedBox(
+          width: 400,
+          height: 480,
+          child: Column(
+            children: [
+              TextField(
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search),
+                  hintText: slang.t.translation.searchModel,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  isDense: true,
+                ),
+                onChanged: (v) => searchText.value = v.toLowerCase(),
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: Obx(() {
+                  final filtered = searchText.value.isEmpty
+                      ? models
+                      : models
+                            .where(
+                              (m) => m.toLowerCase().contains(searchText.value),
+                            )
+                            .toList();
+                  if (filtered.isEmpty) {
+                    return Center(
+                      child: Text(slang.t.translation.noModelsFound),
+                    );
+                  }
+                  return ListView.builder(
+                    itemCount: filtered.length,
+                    itemBuilder: (context, index) {
+                      final model = filtered[index];
+                      return ListTile(
+                        dense: true,
+                        title: Text(model),
+                        onTap: () {
+                          _modelController.text = model;
+                          configService[ConfigKey.AI_TRANSLATION_MODEL] = model;
+                          _disableAITranslation(
+                            message: slang
+                                .t
+                                .translation
+                                .aiTranslationWillBeDisabledDueToConfigChange,
+                          );
+                          _isConnectionValid.value = false;
+                          _hasTested.value = false;
+                          _testResult.value = null;
+                          AppService.tryPop();
+                        },
+                      );
+                    },
+                  );
+                }),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => AppService.tryPop(),
+            child: Text(slang.t.translation.confirm),
           ),
         ],
       ),
@@ -824,9 +1194,8 @@ class _AITranslationSettingsWidgetState
       return;
     }
 
-    if (_baseUrlController.text.isEmpty ||
-        _modelController.text.isEmpty ||
-        _apiKeyController.text.isEmpty) {
+    // baseUrl 现在可选（留空用服务商默认端点），仅要求 model 与 apiKey
+    if (_modelController.text.isEmpty || _apiKeyController.text.isEmpty) {
       showToastWidget(
         MDToastWidget(
           message: slang.t.translation.pleaseFillInAPIAddressModelNameAndKey,
@@ -882,9 +1251,9 @@ class _AITranslationSettingsWidgetState
       final baseUrl = configService[ConfigKey.AI_TRANSLATION_BASE_URL];
       final model = configService[ConfigKey.AI_TRANSLATION_MODEL];
       final apiKey = configService[ConfigKey.AI_TRANSLATION_API_KEY];
-
-      // 使用TranslationService的getFinalUrl方法获取最终URL
-      final actualRequestUrl = translationService.getFinalUrl(baseUrl);
+      final provider =
+          configService[ConfigKey.AI_TRANSLATION_PROVIDER] as String? ??
+          'openai';
 
       final maxTokens = configService[ConfigKey.AI_TRANSLATION_MAX_TOKENS];
       final temperature = configService[ConfigKey.AI_TRANSLATION_TEMPERATURE];
@@ -894,13 +1263,27 @@ class _AITranslationSettingsWidgetState
           configService[ConfigKey.AI_TRANSLATION_SUPPORTS_STREAMING] as bool? ??
           false;
 
+      final providerLabel = switch (provider) {
+        'anthropic' => slang.t.translation.providerAnthropic,
+        'google' => slang.t.translation.providerGoogle,
+        _ => slang.t.translation.providerOpenAI,
+      };
+
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildConfigRow(
+            icon: Icons.cloud_outlined,
+            label: '${slang.t.translation.provider}:',
+            value: providerLabel,
+            context: context,
+          ),
+          _buildConfigRow(
             icon: Icons.link,
             label: '${slang.t.translation.apiEndpoint}:',
-            value: actualRequestUrl,
+            value: (baseUrl as String).isNotEmpty
+                ? baseUrl
+                : slang.t.translation.defaultEndpoint,
             valueStyle: TextStyle(
               fontFamily: 'JetBrainsMono',
               color: colorScheme.onSurfaceVariant,
@@ -1066,6 +1449,7 @@ class _AITranslationSettingsWidgetState
     required ConfigKey configKey, // 改为ConfigKey类型
     required IconData icon,
     String? helperText,
+    bool allowEmpty = false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1095,7 +1479,7 @@ class _AITranslationSettingsWidgetState
             helperMaxLines: 3,
           ),
           validator: (value) {
-            if (value == null || value.isEmpty) {
+            if (!allowEmpty && (value == null || value.isEmpty)) {
               return slang.t.translation.thisFieldCannotBeEmpty;
             }
             return null;
@@ -1381,3 +1765,89 @@ class _AITranslationSettingsWidgetState
     );
   }
 }
+
+/// 服务商预设：一键带出 provider + baseUrl + 推理/温度等参数组合。
+class _ProviderPreset {
+  final String id;
+  final String name;
+  final String provider; // openai / anthropic / google
+  final String? baseUrl; // null = 用该服务商默认端点
+  final bool reasoning;
+  final bool sendTemperature;
+
+  const _ProviderPreset({
+    required this.id,
+    required this.name,
+    this.provider = 'openai',
+    this.baseUrl,
+    this.reasoning = false,
+    this.sendTemperature = true,
+  });
+}
+
+const List<_ProviderPreset> _providerPresets = [
+  _ProviderPreset(id: 'custom', name: 'Custom'),
+  _ProviderPreset(
+    id: 'openai',
+    name: 'OpenAI (GPT-4o / GPT-4.1)',
+    provider: 'openai',
+    baseUrl: 'https://api.openai.com/v1',
+  ),
+  _ProviderPreset(
+    id: 'openai_reasoning',
+    name: 'OpenAI 推理 (o1 / o3 / o4)',
+    provider: 'openai',
+    baseUrl: 'https://api.openai.com/v1',
+    reasoning: true,
+    sendTemperature: false,
+  ),
+  _ProviderPreset(
+    id: 'anthropic',
+    name: 'Anthropic Claude',
+    provider: 'anthropic',
+  ),
+  _ProviderPreset(
+    id: 'anthropic_reasoning',
+    name: 'Anthropic Claude 推理 (extended thinking)',
+    provider: 'anthropic',
+    reasoning: true,
+    sendTemperature: false,
+  ),
+  _ProviderPreset(
+    id: 'gemini',
+    name: 'Google Gemini (原生)',
+    provider: 'google',
+  ),
+  _ProviderPreset(
+    id: 'gemini_reasoning',
+    name: 'Google Gemini 推理 (thinking)',
+    provider: 'google',
+    reasoning: true,
+  ),
+  _ProviderPreset(
+    id: 'deepseek',
+    name: 'DeepSeek (deepseek-chat)',
+    provider: 'openai',
+    baseUrl: 'https://api.deepseek.com',
+  ),
+  _ProviderPreset(
+    id: 'deepseek_reasoner',
+    name: 'DeepSeek 推理 (deepseek-reasoner / R1)',
+    provider: 'openai',
+    baseUrl: 'https://api.deepseek.com',
+    reasoning: true,
+    sendTemperature: false,
+  ),
+  _ProviderPreset(
+    id: 'siliconflow',
+    name: 'SiliconFlow 硅基流动',
+    provider: 'openai',
+    baseUrl: 'https://api.siliconflow.cn/v1',
+  ),
+  _ProviderPreset(
+    id: 'zhipu',
+    name: '智谱 GLM',
+    provider: 'openai',
+    baseUrl: 'https://open.bigmodel.cn/api/paas/v4',
+  ),
+];

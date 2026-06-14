@@ -1422,6 +1422,34 @@ class _TranslationsTranslationJa implements TranslationsTranslationEn {
 	@override String get fallbackTranslationFailed => '通常翻訳へのフォールバックも失敗';
 	@override String get translationSettings => '翻訳設定';
 	@override String get enableGoogleTranslation => 'Google翻訳を有効にする';
+	@override String get thinking => '思考中…';
+	@override String get thoughtProcess => '思考過程';
+	@override String get modelCompatibility => 'モデル互換性';
+	@override String get modelCompatibilityDescription => '推論モデル(o1/o3、DeepSeek-R1、QwQ など)など最新モデルにリクエストパラメータを適合させます';
+	@override String get reasoningModel => '推論モデル';
+	@override String get reasoningModelDescription => 'o1/o3、DeepSeek-R1、QwQ など向け：プロンプトをユーザーメッセージに統合し、temperature を送らず、max_completion_tokens を使用します';
+	@override String get useMaxCompletionTokens => 'max_completion_tokens を使用';
+	@override String get useMaxCompletionTokensDescription => '新しい OpenAI エンドポイントでは非推奨の max_tokens ではなく max_completion_tokens が必要です';
+	@override String get sendTemperature => 'temperature を送信';
+	@override String get sendTemperatureDescription => 'temperature パラメータを受け付けないモデル(多くの推論モデル)ではオフにしてください';
+	@override String get showReasoningProcess => '思考過程を表示';
+	@override String get showReasoningProcessDescription => '翻訳ダイアログで推論モデルの思考過程を折りたたみ表示します';
+	@override String get provider => 'プロバイダー';
+	@override String get providerOpenAI => 'OpenAI（および互換エンドポイント）';
+	@override String get providerAnthropic => 'Anthropic（Claude）';
+	@override String get providerGoogle => 'Google（Gemini）';
+	@override String get multiProviderHint => 'dartantic_ai SDK により OpenAI（およびすべての OpenAI 互換エンドポイント）、Anthropic、Google に対応';
+	@override String get baseUrlOptionalHelperText => '任意。空欄でプロバイダー既定のエンドポイントを使用。OpenAI 互換/中継先は入力してください';
+	@override String get defaultEndpoint => '既定のエンドポイント';
+	@override String get providerPreset => 'プロバイダープリセット';
+	@override String get selectProviderPreset => 'プリセットを選択';
+	@override String get presetCustom => 'カスタム';
+	@override String presetApplied({required Object name}) => 'プリセットを適用しました：${name}';
+	@override String get fetchModelList => 'モデル一覧を取得';
+	@override String get fetchingModels => '取得中…';
+	@override String get selectModel => 'モデルを選択';
+	@override String get searchModel => 'モデルを検索';
+	@override String get noModelsFound => 'モデルが見つかりません';
 }
 
 // Path: mediaPlayer
@@ -4367,6 +4395,34 @@ extension on TranslationsJa {
 			'translation.fallbackTranslationFailed' => '通常翻訳へのフォールバックも失敗',
 			'translation.translationSettings' => '翻訳設定',
 			'translation.enableGoogleTranslation' => 'Google翻訳を有効にする',
+			'translation.thinking' => '思考中…',
+			'translation.thoughtProcess' => '思考過程',
+			'translation.modelCompatibility' => 'モデル互換性',
+			'translation.modelCompatibilityDescription' => '推論モデル(o1/o3、DeepSeek-R1、QwQ など)など最新モデルにリクエストパラメータを適合させます',
+			'translation.reasoningModel' => '推論モデル',
+			'translation.reasoningModelDescription' => 'o1/o3、DeepSeek-R1、QwQ など向け：プロンプトをユーザーメッセージに統合し、temperature を送らず、max_completion_tokens を使用します',
+			'translation.useMaxCompletionTokens' => 'max_completion_tokens を使用',
+			'translation.useMaxCompletionTokensDescription' => '新しい OpenAI エンドポイントでは非推奨の max_tokens ではなく max_completion_tokens が必要です',
+			'translation.sendTemperature' => 'temperature を送信',
+			'translation.sendTemperatureDescription' => 'temperature パラメータを受け付けないモデル(多くの推論モデル)ではオフにしてください',
+			'translation.showReasoningProcess' => '思考過程を表示',
+			'translation.showReasoningProcessDescription' => '翻訳ダイアログで推論モデルの思考過程を折りたたみ表示します',
+			'translation.provider' => 'プロバイダー',
+			'translation.providerOpenAI' => 'OpenAI（および互換エンドポイント）',
+			'translation.providerAnthropic' => 'Anthropic（Claude）',
+			'translation.providerGoogle' => 'Google（Gemini）',
+			'translation.multiProviderHint' => 'dartantic_ai SDK により OpenAI（およびすべての OpenAI 互換エンドポイント）、Anthropic、Google に対応',
+			'translation.baseUrlOptionalHelperText' => '任意。空欄でプロバイダー既定のエンドポイントを使用。OpenAI 互換/中継先は入力してください',
+			'translation.defaultEndpoint' => '既定のエンドポイント',
+			'translation.providerPreset' => 'プロバイダープリセット',
+			'translation.selectProviderPreset' => 'プリセットを選択',
+			'translation.presetCustom' => 'カスタム',
+			'translation.presetApplied' => ({required Object name}) => 'プリセットを適用しました：${name}',
+			'translation.fetchModelList' => 'モデル一覧を取得',
+			'translation.fetchingModels' => '取得中…',
+			'translation.selectModel' => 'モデルを選択',
+			'translation.searchModel' => 'モデルを検索',
+			'translation.noModelsFound' => 'モデルが見つかりません',
 			'mediaPlayer.videoPlayerError' => 'ビデオプレイヤーエラー',
 			'mediaPlayer.videoLoadFailed' => 'ビデオ読み込み失敗',
 			'mediaPlayer.videoCodecNotSupported' => 'ビデオコーデックがサポートされていません',
@@ -4391,6 +4447,8 @@ extension on TranslationsJa {
 			'mediaPlayer.testingSpeed' => '速度テスト中...',
 			'mediaPlayer.testFailed' => 'テスト失敗',
 			'mediaPlayer.loadingServerList' => 'サーバーリストを読み込み中...',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.noAvailableServers' => '利用可能なサーバーがありません',
 			'mediaPlayer.refreshServerList' => 'サーバーリストを更新',
 			'mediaPlayer.cannotGetSource' => '現在の再生ソースを取得できません',
@@ -4419,8 +4477,6 @@ extension on TranslationsJa {
 			'mediaPlayer.playbackFailureDiagnosticsHint' => '再生失敗が続いています。設定 > 診断とフィードバック からログをエクスポートして報告してください',
 			'mediaPlayer.openSettingsAction' => '表示',
 			'diagnostics.infoSectionTitle' => '診断情報',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.appVersionLabel' => 'アプリバージョン',
 			'diagnostics.memoryUsage' => ({required Object memMB}) => 'メモリ使用量: ${memMB}MB',
 			'diagnostics.deviceInfoUnavailable' => 'デバイス情報を取得できません',

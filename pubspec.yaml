@@ -82,6 +82,7 @@ dependencies:
   desktop_drop: ^0.7.0
 
   device_info_plus: ^11.5.0
+  dartantic_ai: ^3.4.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
