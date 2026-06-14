@@ -76,6 +76,13 @@ class GestureAreaState extends State<GestureArea>
   // 垂直拖动起始位置(用于边缘检测)
   double? _verticalDragStartY; // 垂直拖动开始时的Y坐标
 
+  // 横向拖动最新的事件详情(用于节流尾沿补发,避免丢失最后一帧导致 seek 回退到起点)
+  DragUpdateDetails? _latestHorizontalDragUpdateDetails;
+
+  // 横向拖动节流的唯一 tag
+  String get _horizontalDragThrottleTag =>
+      '${widget.myVideoStateController.randomId}_horizontal_drag_update';
+
   @override
   void initState() {
     super.initState();
@@ -465,6 +472,9 @@ class GestureAreaState extends State<GestureArea>
       onHorizontalDragStart:
           _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
           ? (details) {
+              // 清理上一次手势可能残留的节流状态与缓存详情,避免新手势首帧被吞
+              EasyThrottle.cancel(_horizontalDragThrottleTag);
+              _latestHorizontalDragUpdateDetails = null;
               widget.myVideoStateController.setInteracting(true);
               widget.myVideoStateController.isHorizontalDragging.value = true;
               widget.onHorizontalDragStart?.call(details);
@@ -473,12 +483,17 @@ class GestureAreaState extends State<GestureArea>
       onHorizontalDragUpdate:
           _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
           ? (details) {
+              // 始终记录最新一帧,节流闭包内读取最新值(尾沿语义),避免只应用窗口内首帧的偏小位移
+              _latestHorizontalDragUpdateDetails = details;
               // 使用节流控制横向滑动更新频率，避免频繁更新进度条
               EasyThrottle.throttle(
-                '${widget.myVideoStateController.randomId}_horizontal_drag_update',
+                _horizontalDragThrottleTag,
                 const Duration(milliseconds: 16),
                 () {
-                  widget.onHorizontalDragUpdate?.call(details);
+                  final latest = _latestHorizontalDragUpdateDetails;
+                  if (latest != null) {
+                    widget.onHorizontalDragUpdate?.call(latest);
+                  }
                 },
               );
             }
@@ -486,6 +501,14 @@ class GestureAreaState extends State<GestureArea>
       onHorizontalDragEnd:
           _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
           ? (details) {
+              // 取消挂起的节流并补发最后一帧,确保 previewPosition 落在真正的手指终点,
+              // 否则被丢弃的尾帧会让 onHorizontalDragEnd 读到偏旧的预览值而 seek 回退
+              EasyThrottle.cancel(_horizontalDragThrottleTag);
+              final latest = _latestHorizontalDragUpdateDetails;
+              if (latest != null) {
+                widget.onHorizontalDragUpdate?.call(latest);
+              }
+              _latestHorizontalDragUpdateDetails = null;
               widget.myVideoStateController.setInteracting(false);
               // 触发震动
               VibrateUtils.vibrate(type: HapticFeedback.lightImpact);
