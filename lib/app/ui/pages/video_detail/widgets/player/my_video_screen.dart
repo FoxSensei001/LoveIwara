@@ -9,7 +9,6 @@ import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/video_fullscreen_handoff.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/rapple_painter.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -83,7 +82,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   final FocusNode _focusNode = FocusNode();
   final ConfigService _configService = Get.find();
   final AppService _appService = Get.find();
-  final VideoService _videoService = Get.find();
   bool _isSyncingDesktopFullscreenExit = false;
   bool _innerPlaylistExpanded = false;
   bool _isSwitchingInnerPlaylistVideo = false;
@@ -514,29 +512,17 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       _loadingInnerPlaylistItem = item;
     });
 
-    final result = await _videoService.fetchVideoInfoResult(item.id);
-
-    if (!mounted) {
-      return;
-    }
-
-    if (result.isFail || result.data == null) {
-      _showInnerPlaylistErrorToast(result.message);
-      setState(() {
-        _isSwitchingInnerPlaylistVideo = false;
-        _loadingInnerPlaylistItem = null;
-      });
-      return;
-    }
-
-    final targetVideo = result.data!;
+    // 不再阻塞式预加载视频详情：直接用侧边栏快照携带的原始视频信息立即跳转。
+    // 目标页用 initialVideoInfo 先渲染缩略图/标题等播放器框架，播放源在后台加载；
+    // 站内/站外的判断也直接复用快照里的 isExternalVideo，无需联网。
+    final targetVideo = item.sourceVideo;
     final nextContext = _effectiveInnerPlaylistContext?.copyForSelection(
       item.id,
     );
 
     try {
       late final Future<Object?> navigationFuture;
-      if (targetVideo.isExternalVideo) {
+      if (item.isExternalVideo) {
         await widget.myVideoStateController.exitFullscreen();
         navigationFuture = NaviService.navigateToVideoDetailPage(
           item.id,

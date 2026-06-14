@@ -25,6 +25,11 @@ class InnerPlaylistItemSnapshot {
   final String externalVideoDomain;
   final DateTime? createdAt;
 
+  /// 列表页构建快照时携带的原始视频对象，用于侧边栏点击时立即跳转——
+  /// 无需再预加载视频详情即可作为目标页的 initialVideoInfo（缩略图、标题等先行渲染）。
+  /// 仅内存传递，不参与序列化/持久化。
+  final Video? sourceVideo;
+
   const InnerPlaylistItemSnapshot({
     required this.id,
     required this.title,
@@ -37,6 +42,7 @@ class InnerPlaylistItemSnapshot {
     required this.isExternalVideo,
     required this.externalVideoDomain,
     this.createdAt,
+    this.sourceVideo,
   });
 
   factory InnerPlaylistItemSnapshot.fromVideo(Video video) {
@@ -52,6 +58,7 @@ class InnerPlaylistItemSnapshot {
       isExternalVideo: video.isExternalVideo,
       externalVideoDomain: video.externalVideoDomain,
       createdAt: video.createdAt,
+      sourceVideo: video,
     );
   }
 
@@ -67,6 +74,7 @@ class InnerPlaylistItemSnapshot {
     bool? isExternalVideo,
     String? externalVideoDomain,
     DateTime? createdAt,
+    Video? sourceVideo,
   }) {
     return InnerPlaylistItemSnapshot(
       id: id ?? this.id,
@@ -80,6 +88,7 @@ class InnerPlaylistItemSnapshot {
       isExternalVideo: isExternalVideo ?? this.isExternalVideo,
       externalVideoDomain: externalVideoDomain ?? this.externalVideoDomain,
       createdAt: createdAt ?? this.createdAt,
+      sourceVideo: sourceVideo ?? this.sourceVideo,
     );
   }
 }
