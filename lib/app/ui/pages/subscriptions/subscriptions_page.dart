@@ -572,9 +572,12 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   }
 
   Future<void> refreshCurrentList() async {
-    await Future.microtask(() {
-      mediaListController.refreshList();
-    });
+    if (!mounted) return;
+    // 当前子 tab 回到顶部并重载，已访问过的其他子 tab 标记为待刷新
+    mediaListController.scrollToTop();
+    mediaListController.invalidateLoadedTabs(
+      activeTabIndex: _tabController.index,
+    );
   }
 
   // 获取教程指导需要的GlobalKey

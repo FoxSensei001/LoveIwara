@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/foundation.dart';
@@ -150,6 +152,11 @@ class _NewsPageState extends State<NewsPage>
   }
 
   Future<void> refreshCurrent() async {
+    if (!mounted) return;
+    // 当前分类回到顶部（不阻塞数据刷新）
+    unawaited(_scrollCurrentCategoryToTop());
+    // 作废所有分类的数据：当前分类立即重载，其他已访问分类在下次切换时重新拉取
+    setState(_invalidateAllFeeds);
     await _refreshCategory(_selectedCategory);
   }
 

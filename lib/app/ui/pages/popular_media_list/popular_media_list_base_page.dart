@@ -62,17 +62,7 @@ abstract class PopularMediaListPageBase<
     // 通过controllerTag查找对应的state
     final state = stateInstances[controllerTag];
     if (state != null && state.mounted) {
-      state.tryRefreshCurrentSort();
-
-      // 同时刷新UI
-      try {
-        final controller = Get.find<PopularMediaListController>(
-          tag: controllerTag,
-        );
-        controller.refreshPageUI();
-      } catch (e) {
-        debugPrint('刷新UI时出错: $e');
-      }
+      state.refreshOnReselect();
     }
   }
 }
@@ -124,6 +114,27 @@ class PopularMediaListPageBaseState<
         repository?.refresh(true);
       } else {
         _mediaListController.refreshPageUI();
+      }
+    }
+  }
+
+  /// 再次点击当前栏目时触发：当前子 tab 回到顶部并重新加载，
+  /// 已访问过的其他子 tab 也一并刷新。
+  void refreshOnReselect() {
+    if (!mounted) return;
+    final activeSortId = sorts[_tabController.index].id;
+    // 重置头部折叠状态并把当前列表滚动到顶部
+    _mediaListController.scrollToTop();
+
+    if (_mediaListController.isPaginated.value) {
+      // 分页模式：当前子 tab 立即重建并重新加载第 0 页（MediaListView.initState 会触发），
+      // 其他已访问子 tab 标记为待刷新（下次切换到它时重建并重载）。
+      _mediaListController.invalidateLoadedSorts(activeSortId: activeSortId);
+    } else {
+      // 瀑布流模式：仓库实例是持久复用的，仅重建 Widget 不会重新请求，
+      // 因此直接对所有已加载子 tab 的仓库执行刷新（当前 tab 就地更新）。
+      for (final sortId in _mediaListController.loadedSorts) {
+        _repositories[sortId]?.refresh(true);
       }
     }
   }

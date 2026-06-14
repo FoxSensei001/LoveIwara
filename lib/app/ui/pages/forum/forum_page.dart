@@ -61,6 +61,10 @@ class _ForumPageState extends State<ForumPage> {
   final UserService userService = Get.find<UserService>();
   int _selectedRailIndex = 0; // 修改变量名称：选中 rail 的索引（0 为 最近，其余从 _categories 中获取）
   late RecentThreadListRepository _recentThreadRepository;
+  // “最近”列表的滚动控制器，用于再次点击栏目时回到顶部
+  final ScrollController _recentThreadsScrollController = ScrollController();
+  // 分类内容（rail 布局下同一时刻仅显示一个分类）的滚动控制器，用于回到顶部
+  final ScrollController _categoryScrollController = ScrollController();
   static const double _cardRadius = 14.0;
   static const double _pageSidePadding = 8.0;
   final appBarHeight = 56.0;
@@ -160,9 +164,22 @@ class _ForumPageState extends State<ForumPage> {
   }
 
   void tryRefreshCurrentList() {
-    if (mounted) {
-      _loadCategories();
+    if (!mounted) return;
+    // 当前可见列表回到顶部（“最近”或某个分类，二者同一时刻只挂载其一）
+    for (final controller in [
+      _recentThreadsScrollController,
+      _categoryScrollController,
+    ]) {
+      if (controller.hasClients) {
+        controller.animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
     }
+    // 整体重载：分类树、最近帖子、置顶/全站公告
+    _refreshAll();
   }
 
   @override
@@ -179,6 +196,8 @@ class _ForumPageState extends State<ForumPage> {
   @override
   void dispose() {
     _recentThreadRepository.dispose();
+    _recentThreadsScrollController.dispose();
+    _categoryScrollController.dispose();
     super.dispose();
   }
 
@@ -604,6 +623,7 @@ class _ForumPageState extends State<ForumPage> {
                       effectivePaddingTop,
                     ) // 传递 effectivePaddingTop
                   : SingleChildScrollView(
+                      controller: _categoryScrollController,
                       padding: EdgeInsets.only(
                         top: effectivePaddingTop, // 为分类内容添加顶部边距
                       ),
@@ -635,6 +655,7 @@ class _ForumPageState extends State<ForumPage> {
     final bool hasTopSections = hasSitewideSection || hasStickySection;
 
     return LoadingMoreCustomScrollView(
+      controller: _recentThreadsScrollController,
       slivers: <Widget>[
         if (hasTopSections)
           SliverPadding(

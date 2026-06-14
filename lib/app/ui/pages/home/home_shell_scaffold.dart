@@ -210,11 +210,11 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
   }
 
   /// Refresh the current branch page via HomeWidgetInterface.
+  /// 再次点击当前栏目：回到顶部 + 重新加载当前子 tab（已访问的其他子 tab 待下次切换时刷新）。
   void _refreshCurrentBranch() {
-    // This is handled by the individual pages via their GlobalKey-based refreshCurrent()
-    // We can trigger it by going to the same branch with initialLocation: true
     final shell = appService.navigationShell;
-    shell?.goBranch(shell.currentIndex, initialLocation: true);
+    final branchIndex = shell?.currentIndex ?? appService.currentIndex;
+    refreshHomeBranch(branchIndex);
   }
 
   /// Whether we are at the true home root (tab root, no overlay, no detail page).

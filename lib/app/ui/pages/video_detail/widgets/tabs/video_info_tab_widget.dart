@@ -44,12 +44,10 @@ import 'package:i_iwara/app/ui/widgets/split_button_widget.dart'
 
 class VideoInfoTabWidget extends StatefulWidget {
   final MyVideoStateController controller;
-  final TabController tabController;
 
   const VideoInfoTabWidget({
     super.key,
     required this.controller,
-    required this.tabController,
   });
 
   @override
@@ -107,20 +105,21 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
         return const SizedBox.shrink();
       }
 
-      return GestureDetector(
-        onHorizontalDragEnd: _handleHorizontalDragEnd,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(UIConstants.pagePadding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildVideoTitle(context),
-              _buildAuthorInfo(context),
-              const SizedBox(height: UIConstants.sectionSpacing),
-              _buildVideoDetailsSection(context),
-              const SafeArea(child: SizedBox.shrink()),
-            ],
-          ),
+      // 不再自行包裹 GestureDetector 处理水平滑动：
+      // 之前的 onHorizontalDragEnd 会在手势竞技场中抢占 TabBarView 内置的
+      // PageView 拖动，导致详情 tab 只能"一次性甩动"切换、没有实时跟手反馈，
+      // 与评论/相关 tab 的体验割裂。交还给 TabBarView 原生处理即可保持一致。
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(UIConstants.pagePadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildVideoTitle(context),
+            _buildAuthorInfo(context),
+            const SizedBox(height: UIConstants.sectionSpacing),
+            _buildVideoDetailsSection(context),
+            const SafeArea(child: SizedBox.shrink()),
+          ],
         ),
       );
     });
@@ -1697,25 +1696,4 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
     );
   }
 
-  /// 处理水平滑动结束事件，用于切换tab
-  void _handleHorizontalDragEnd(DragEndDetails details) {
-    // 获取水平速度（正数表示向右滑动，负数表示向左滑动）
-    final velocity = details.velocity.pixelsPerSecond.dx;
-
-    // 设置阈值：速度大于300px/s时才触发切换
-    const double velocityThreshold = 300.0;
-
-    // 检查是否达到切换阈值
-    if (velocity.abs() > velocityThreshold) {
-      // 速度足够，基于速度方向切换
-      if (velocity > 0 && widget.tabController.index > 0) {
-        // 向右滑动，切换到上一个tab
-        widget.tabController.animateTo(widget.tabController.index - 1);
-      } else if (velocity < 0 &&
-          widget.tabController.index < widget.tabController.length - 1) {
-        // 向左滑动，切换到下一个tab
-        widget.tabController.animateTo(widget.tabController.index + 1);
-      }
-    }
-  }
 }

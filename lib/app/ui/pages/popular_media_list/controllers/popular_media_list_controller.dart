@@ -108,6 +108,9 @@ class PopularMediaListController extends GetxController {
 
   int reloadVersionFor(SortId sortId) => _sortReloadVersions[sortId] ?? 0;
 
+  /// 已加载（已访问）过的子 tab 集合的快照。
+  List<SortId> get loadedSorts => _loadedSorts.toList(growable: false);
+
   void _consumePendingReload(SortId sortId) {
     if (_pendingReloadSorts.remove(sortId)) {
       _bumpReloadVersion(sortId);

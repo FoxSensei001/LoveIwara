@@ -24,6 +24,7 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/popular_video_list_page.
 import 'package:i_iwara/app/ui/pages/popular_media_list/popular_gallery_list_page.dart';
 import 'package:i_iwara/app/ui/pages/subscriptions/subscriptions_page.dart';
 import 'package:i_iwara/app/ui/pages/forum/forum_page.dart';
+import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:i_iwara/app/ui/pages/news/news_detail_page.dart';
 import 'package:i_iwara/app/ui/pages/news/news_page.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/first_time_setup_page.dart';
@@ -76,6 +77,35 @@ final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 /// Home Shell（包含 NavigationRail + BottomNav Scaffold）的 Navigator key。
 /// 详情页会推入到这个 Navigator 中，从而保持 Shell 结构一直可见。
 final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
+
+/// 按分支索引获取对应的首页栏目页 Widget（实现了 [HomeWidgetInterface]）。
+/// 分支顺序与下方 [StatefulShellRoute] 的 branches 一一对应：
+/// 0=视频 1=图集 2=订阅 3=论坛 4=新闻。
+Widget? _homeBranchWidget(int branchIndex) {
+  switch (branchIndex) {
+    case 0:
+      return PopularVideoListPage.globalKey.currentWidget;
+    case 1:
+      return PopularGalleryListPage.globalKey.currentWidget;
+    case 2:
+      return SubscriptionsPage.globalKey.currentWidget;
+    case 3:
+      return ForumPage.globalKey.currentWidget;
+    case 4:
+      return NewsPage.globalKey.currentWidget;
+    default:
+      return null;
+  }
+}
+
+/// 当用户在底部/侧边导航栏再次点击“当前所在栏目”时调用：
+/// 触发该栏目页回到顶部并重新加载当前子 tab（已访问过的其他子 tab 也会在下次切换时刷新）。
+void refreshHomeBranch(int branchIndex) {
+  final widget = _homeBranchWidget(branchIndex);
+  if (widget is HomeWidgetInterface) {
+    (widget as HomeWidgetInterface).refreshCurrent();
+  }
+}
 
 /// 全局唯一的 GoRouter 实例。
 final GoRouter appRouter = GoRouter(

@@ -1017,7 +1017,6 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
               // 在线模式：显示所有tab
               VideoInfoTabWidget(
                 controller: controller,
-                tabController: tabController,
               ),
               CommentsTabWidget(
                 commentController: commentController!,
