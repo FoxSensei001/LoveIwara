@@ -91,6 +91,84 @@ class HistoryRepository {
     _db.execute('DELETE FROM history_records WHERE item_type = ?', [itemType]);
   }
 
+  /// 构造按时间范围 + 类型过滤的 WHERE 子句与参数。
+  /// [byUpdated] 为 true 时以 updated_at（最后访问时间）过滤，否则以 created_at（首次浏览时间）过滤。
+  (String, List<Object?>) _buildTimeRangeFilter({
+    required String itemType,
+    DateTime? startDate,
+    DateTime? endDate,
+    required bool byUpdated,
+  }) {
+    final List<Object?> params = [];
+    final List<String> conditions = [];
+    if (itemType != 'all') {
+      conditions.add('item_type = ?');
+      params.add(itemType);
+    }
+    final String column = byUpdated ? 'updated_at' : 'created_at';
+    if (startDate != null) {
+      conditions.add('$column >= ?');
+      params.add(startDate.toIso8601String());
+    }
+    if (endDate != null) {
+      conditions.add('$column <= ?');
+      params.add(endDate.toIso8601String());
+    }
+    final String where = conditions.isNotEmpty
+        ? 'WHERE ${conditions.join(' AND ')}'
+        : '';
+    return (where, params);
+  }
+
+  /// 统计满足时间范围 + 类型条件的记录数（用于删除前确认提示数量）。
+  Future<int> countRecordsByTimeRange({
+    String itemType = 'all',
+    DateTime? startDate,
+    DateTime? endDate,
+    bool byUpdated = false,
+  }) async {
+    final (where, params) = _buildTimeRangeFilter(
+      itemType: itemType,
+      startDate: startDate,
+      endDate: endDate,
+      byUpdated: byUpdated,
+    );
+    final result = _db.select(
+      'SELECT COUNT(*) AS cnt FROM history_records $where',
+      params,
+    );
+    return result.isEmpty ? 0 : (result.first['cnt'] as int);
+  }
+
+  /// 按时间范围 + 类型删除记录，返回被删除的条数。
+  Future<int> deleteRecordsByTimeRange({
+    String itemType = 'all',
+    DateTime? startDate,
+    DateTime? endDate,
+    bool byUpdated = false,
+  }) async {
+    final (where, params) = _buildTimeRangeFilter(
+      itemType: itemType,
+      startDate: startDate,
+      endDate: endDate,
+      byUpdated: byUpdated,
+    );
+    _db.execute('DELETE FROM history_records $where', params);
+    return _db.updatedRows;
+  }
+
+  /// 删除超过 [days] 天（按 created_at 首次浏览时间）的历史记录，返回被删除的条数。
+  /// 供「自动清理历史记录」功能在启动时调用；[days] <= 0 时不做任何操作。
+  Future<int> deleteRecordsOlderThanDays(int days) async {
+    if (days <= 0) return 0;
+    final cutoff = DateTime.now().subtract(Duration(days: days));
+    _db.execute(
+      'DELETE FROM history_records WHERE created_at < ?',
+      [cutoff.toIso8601String()],
+    );
+    return _db.updatedRows;
+  }
+
   // 获取指定类型的历史记录
   Future<List<HistoryRecord>> getRecordsByType(
     String itemType, {

@@ -247,6 +247,9 @@ common:
   selectDateRange: Select Date Range
   selectDateRangeHint: Select date range, default is recent 30 days
   clearDateRange: Clear Date Range
+  deleteRecordsInDateRange: Delete Records in This Range
+  deleteRecordsInDateRangeConfirm: 'Are you sure you want to delete ${num} history records in this date range? This cannot be undone.'
+  noHistoryRecordsInRange: No history records in this date range
   followSuccessClickAgainToSpecialFollow: Followed successfully, click again to special follow
   exitConfirmTip: Are you sure you want to exit?
   error: Error
@@ -567,6 +570,11 @@ settings:
   history: History
   autoRecordHistory: Auto Record History
   autoRecordHistoryDesc: Auto record the videos and images you have watched
+  autoDeleteHistory: Auto Clean History
+  autoDeleteHistoryDesc: Automatically delete browsing history older than the retention days on startup (off by default)
+  autoDeleteHistoryDays: Retention Days
+  autoDeleteHistoryDaysValue: 'Keep the last ${num} days'
+  autoDeleteHistoryDaysInvalid: Please enter a valid number of days (at least 1)
   showUnprocessedMarkdownText: Show Unprocessed Markdown Text
   showUnprocessedMarkdownTextDesc: Show the original text of the markdown
   markdown: Markdown

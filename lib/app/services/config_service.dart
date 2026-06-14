@@ -282,6 +282,8 @@ enum ConfigKey {
   AUTO_CHECK_UPDATE,
   RULES_AGREEMENT_KEY,
   AUTO_RECORD_HISTORY_KEY,
+  AUTO_DELETE_HISTORY_ENABLED, // 是否启用「自动清理超期历史记录」（默认关）
+  AUTO_DELETE_HISTORY_DAYS, // 历史记录保留天数，超过则在启动时清理
   SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY,
   DISABLE_FORUM_REPLY_QUOTE_KEY,
   THEME_MODE_KEY,
@@ -441,6 +443,10 @@ extension ConfigKeyExtension on ConfigKey {
         return 'rules_agreement';
       case ConfigKey.AUTO_RECORD_HISTORY_KEY:
         return 'auto_record_history';
+      case ConfigKey.AUTO_DELETE_HISTORY_ENABLED:
+        return 'auto_delete_history_enabled';
+      case ConfigKey.AUTO_DELETE_HISTORY_DAYS:
+        return 'auto_delete_history_days';
       case ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY:
         return 'show_unprocessed_markdown_text';
       case ConfigKey.DISABLE_FORUM_REPLY_QUOTE_KEY:
@@ -670,6 +676,10 @@ extension ConfigKeyExtension on ConfigKey {
         return false;
       case ConfigKey.AUTO_RECORD_HISTORY_KEY:
         return true;
+      case ConfigKey.AUTO_DELETE_HISTORY_ENABLED:
+        return false;
+      case ConfigKey.AUTO_DELETE_HISTORY_DAYS:
+        return 30;
       case ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY:
         return false;
       case ConfigKey.DISABLE_FORUM_REPLY_QUOTE_KEY:

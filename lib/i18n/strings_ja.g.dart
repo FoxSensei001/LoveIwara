@@ -352,6 +352,9 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get selectDateRange => '日付範囲を選択';
 	@override String get selectDateRangeHint => '日付範囲を選択，デフォルトは最近30日';
 	@override String get clearDateRange => '日付範囲をクリア';
+	@override String get deleteRecordsInDateRange => 'この期間の記録を削除';
+	@override String deleteRecordsInDateRangeConfirm({required Object num}) => 'この期間の ${num} 件の履歴を削除してもよろしいですか？この操作は取り消せません。';
+	@override String get noHistoryRecordsInRange => 'この期間の履歴はありません';
 	@override String get followSuccessClickAgainToSpecialFollow => 'フォローに成功しました。再度クリックして特別フォロー';
 	@override String get exitConfirmTip => '本当に退出しますか？';
 	@override String get error => 'エラー';
@@ -709,6 +712,11 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get history => '履歴';
 	@override String get autoRecordHistory => '自動記録履歴';
 	@override String get autoRecordHistoryDesc => '視聴した動画やギャラリーなどの情報を自動的に記録します';
+	@override String get autoDeleteHistory => '履歴の自動削除';
+	@override String get autoDeleteHistoryDesc => '起動時に保存日数を超えた閲覧履歴を自動的に削除します（デフォルトはオフ）';
+	@override String get autoDeleteHistoryDays => '保存日数';
+	@override String autoDeleteHistoryDaysValue({required Object num}) => '直近 ${num} 日間を保存';
+	@override String get autoDeleteHistoryDaysInvalid => '有効な日数を入力してください（1日以上）';
 	@override String get showUnprocessedMarkdownText => '未処理のMarkdownテキストを表示';
 	@override String get showUnprocessedMarkdownTextDesc => 'Markdownの元のテキストを表示';
 	@override String get markdown => 'Markdown';
@@ -3159,6 +3167,9 @@ extension on TranslationsJa {
 			'common.selectDateRange' => '日付範囲を選択',
 			'common.selectDateRangeHint' => '日付範囲を選択，デフォルトは最近30日',
 			'common.clearDateRange' => '日付範囲をクリア',
+			'common.deleteRecordsInDateRange' => 'この期間の記録を削除',
+			'common.deleteRecordsInDateRangeConfirm' => ({required Object num}) => 'この期間の ${num} 件の履歴を削除してもよろしいですか？この操作は取り消せません。',
+			'common.noHistoryRecordsInRange' => 'この期間の履歴はありません',
 			'common.followSuccessClickAgainToSpecialFollow' => 'フォローに成功しました。再度クリックして特別フォロー',
 			'common.exitConfirmTip' => '本当に退出しますか？',
 			'common.error' => 'エラー',
@@ -3423,11 +3434,11 @@ extension on TranslationsJa {
 			'settings.settings' => '設定',
 			'settings.themeSettings' => 'テーマ設定',
 			'settings.followSystem' => 'システムに従う',
+			_ => null,
+		} ?? switch (path) {
 			'settings.lightMode' => 'ライトモード',
 			'settings.darkMode' => 'ダークモード',
 			'settings.presetTheme' => 'プリセットテーマ',
-			_ => null,
-		} ?? switch (path) {
 			'settings.basicTheme' => 'ベーシックテーマ',
 			'settings.needRestartToApply' => 'アプリを再起動して設定を適用してください',
 			'settings.themeNeedRestartDescription' => 'テーマ設定はアプリを再起動して設定を適用してください',
@@ -3456,6 +3467,11 @@ extension on TranslationsJa {
 			'settings.history' => '履歴',
 			'settings.autoRecordHistory' => '自動記録履歴',
 			'settings.autoRecordHistoryDesc' => '視聴した動画やギャラリーなどの情報を自動的に記録します',
+			'settings.autoDeleteHistory' => '履歴の自動削除',
+			'settings.autoDeleteHistoryDesc' => '起動時に保存日数を超えた閲覧履歴を自動的に削除します（デフォルトはオフ）',
+			'settings.autoDeleteHistoryDays' => '保存日数',
+			'settings.autoDeleteHistoryDaysValue' => ({required Object num}) => '直近 ${num} 日間を保存',
+			'settings.autoDeleteHistoryDaysInvalid' => '有効な日数を入力してください（1日以上）',
 			'settings.showUnprocessedMarkdownText' => '未処理のMarkdownテキストを表示',
 			'settings.showUnprocessedMarkdownTextDesc' => 'Markdownの元のテキストを表示',
 			'settings.markdown' => 'Markdown',
@@ -3932,6 +3948,8 @@ extension on TranslationsJa {
 			'markdown.quote' => '引用',
 			'markdown.quoteDescription' => '> 符号で引用を作成し、複数の > で多段引用を作成',
 			'markdown.quoteSyntax' => '> これは一階引用です\n>> これは二階引用です',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.list' => 'リスト',
 			'markdown.listDescription' => '数字+点号で順序付きリストを作成し、- で順序なしリストを作成',
 			'markdown.listSyntax' => '1. 第一項\n2. 第二項\n\n- 順序なし項\n  - 子項\n  - 別の子項',
@@ -3940,8 +3958,6 @@ extension on TranslationsJa {
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[リンクテキスト](${link})\n![画像説明](${imgUrl})',
 			'markdown.title' => 'タイトル',
 			'markdown.titleDescription' => '＃ 号でタイトルを作成し、数でレベルを表示',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.titleSyntax' => '# 一階タイトル\n## 二階タイトル\n### 三階タイトル',
 			'markdown.separator' => '分隔線',
 			'markdown.separatorDescription' => '三個以上の - 号で分隔線を作成',
@@ -4446,6 +4462,8 @@ extension on TranslationsJa {
 			'mediaPlayer.suggestion' => '提案',
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'AndroidデバイスはWEBM形式のサポートが限定的です。外部プレイヤーの使用またはWEBMをサポートするプレイヤーアプリのダウンロードをお勧めします',
 			'mediaPlayer.currentDeviceCodecNotSupported' => '現在のデバイスはこのビデオ形式のコーデックをサポートしていません',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.checkNetworkConnection' => 'ネットワーク接続を確認して再試行してください',
 			'mediaPlayer.appMayLackMediaPermission' => 'アプリに必要なメディア再生権限が不足している可能性があります',
 			'mediaPlayer.tryOtherVideoPlayer' => '他のビデオプレイヤーをお試しください',
@@ -4454,8 +4472,6 @@ extension on TranslationsJa {
 			'mediaPlayer.serverSelectorDescription' => '最適な再生体験のために、遅延の最も少ないサーバーを選択してください',
 			'mediaPlayer.retestSpeed' => '再速度テスト',
 			'mediaPlayer.waitingForSpeedTest' => '速度テスト待ち',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.testingSpeed' => '速度テスト中...',
 			'mediaPlayer.testFailed' => 'テスト失敗',
 			'mediaPlayer.loadingServerList' => 'サーバーリストを読み込み中...',

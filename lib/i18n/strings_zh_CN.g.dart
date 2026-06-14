@@ -349,6 +349,9 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get selectDateRange => '选择日期范围';
 	@override String get selectDateRangeHint => '选择日期范围，默认选择最近30天';
 	@override String get clearDateRange => '清除日期范围';
+	@override String get deleteRecordsInDateRange => '删除该时间范围内的记录';
+	@override String deleteRecordsInDateRangeConfirm({required Object num}) => '确定要删除该时间范围内的 ${num} 条历史记录吗？此操作不可恢复。';
+	@override String get noHistoryRecordsInRange => '该时间范围内没有历史记录';
 	@override String get followSuccessClickAgainToSpecialFollow => '已成功关注，再次点击以特别关注';
 	@override String get exitConfirmTip => '确定要退出吗？';
 	@override String get error => '错误';
@@ -714,6 +717,11 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get history => '历史记录';
 	@override String get autoRecordHistory => '自动记录历史记录';
 	@override String get autoRecordHistoryDesc => '自动记录您观看过的视频和图库等信息';
+	@override String get autoDeleteHistory => '自动清理历史记录';
+	@override String get autoDeleteHistoryDesc => '启动时自动删除超过保留天数的浏览历史（默认关闭）';
+	@override String get autoDeleteHistoryDays => '保留天数';
+	@override String autoDeleteHistoryDaysValue({required Object num}) => '保留最近 ${num} 天';
+	@override String get autoDeleteHistoryDaysInvalid => '请输入有效的天数（至少 1 天）';
 	@override String get showUnprocessedMarkdownText => '显示未处理文本';
 	@override String get showUnprocessedMarkdownTextDesc => '显示Markdown的原始文本';
 	@override String get markdown => 'Markdown';
@@ -3161,6 +3169,9 @@ extension on TranslationsZhCn {
 			'common.selectDateRange' => '选择日期范围',
 			'common.selectDateRangeHint' => '选择日期范围，默认选择最近30天',
 			'common.clearDateRange' => '清除日期范围',
+			'common.deleteRecordsInDateRange' => '删除该时间范围内的记录',
+			'common.deleteRecordsInDateRangeConfirm' => ({required Object num}) => '确定要删除该时间范围内的 ${num} 条历史记录吗？此操作不可恢复。',
+			'common.noHistoryRecordsInRange' => '该时间范围内没有历史记录',
 			'common.followSuccessClickAgainToSpecialFollow' => '已成功关注，再次点击以特别关注',
 			'common.exitConfirmTip' => '确定要退出吗？',
 			'common.error' => '错误',
@@ -3428,11 +3439,11 @@ extension on TranslationsZhCn {
 			'settings.playerSettings' => '播放器设置',
 			'settings.networkSettings' => '网络设置',
 			'settings.customizeYourPlaybackExperience' => '自定义您的播放体验',
+			_ => null,
+		} ?? switch (path) {
 			'settings.chooseYourFavoriteAppAppearance' => '选择您喜欢的应用外观',
 			'settings.configureYourProxyServer' => '配置您的代理服务器',
 			'settings.settings' => '设置',
-			_ => null,
-		} ?? switch (path) {
 			'settings.themeSettings' => '主题设置',
 			'settings.followSystem' => '跟随系统',
 			'settings.lightMode' => '浅色模式',
@@ -3466,6 +3477,11 @@ extension on TranslationsZhCn {
 			'settings.history' => '历史记录',
 			'settings.autoRecordHistory' => '自动记录历史记录',
 			'settings.autoRecordHistoryDesc' => '自动记录您观看过的视频和图库等信息',
+			'settings.autoDeleteHistory' => '自动清理历史记录',
+			'settings.autoDeleteHistoryDesc' => '启动时自动删除超过保留天数的浏览历史（默认关闭）',
+			'settings.autoDeleteHistoryDays' => '保留天数',
+			'settings.autoDeleteHistoryDaysValue' => ({required Object num}) => '保留最近 ${num} 天',
+			'settings.autoDeleteHistoryDaysInvalid' => '请输入有效的天数（至少 1 天）',
 			'settings.showUnprocessedMarkdownText' => '显示未处理文本',
 			'settings.showUnprocessedMarkdownTextDesc' => '显示Markdown的原始文本',
 			'settings.markdown' => 'Markdown',
@@ -3937,6 +3953,8 @@ extension on TranslationsZhCn {
 			'markdown.paragraphAndLineBreakDescription' => '段落之间空一行，行末加两个空格实现换行',
 			'markdown.paragraphAndLineBreakSyntax' => '这是第一段文字\n\n这是第二段文字\n这一行后面加两个空格  \n就能换行了',
 			'markdown.textStyle' => '文本样式',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.textStyleDescription' => '使用特殊符号包围文本来改变样式',
 			'markdown.textStyleSyntax' => '**粗体文本**\n*斜体文本*\n~~删除线文本~~\n`代码文本`',
 			'markdown.quote' => '引用',
@@ -3945,8 +3963,6 @@ extension on TranslationsZhCn {
 			'markdown.list' => '列表',
 			'markdown.listDescription' => '使用数字+点号创建有序列表，使用 - 创建无序列表',
 			'markdown.listSyntax' => '1. 第一项\n2. 第二项\n\n- 无序项\n  - 子项\n  - 另一个子项',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.linkAndImage' => '链接与图片',
 			'markdown.linkAndImageDescription' => '链接格式：[文字](URL)\n图片格式：![描述](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[链接文字](${link})\n![图片描述](${imgUrl})',
@@ -4451,6 +4467,8 @@ extension on TranslationsZhCn {
 			'mediaPlayer.unsupportedVideoFormat' => '不支持的视频格式',
 			'mediaPlayer.retry' => '重试',
 			'mediaPlayer.externalPlayer' => '外部播放器',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.detailedErrorInfo' => '详细错误信息',
 			'mediaPlayer.format' => '格式',
 			'mediaPlayer.suggestion' => '建议',
@@ -4459,8 +4477,6 @@ extension on TranslationsZhCn {
 			'mediaPlayer.checkNetworkConnection' => '请检查网络连接后重试',
 			'mediaPlayer.appMayLackMediaPermission' => '应用可能缺少必要的媒体播放权限',
 			'mediaPlayer.tryOtherVideoPlayer' => '请尝试使用其他视频播放器',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.video' => '视频',
 			'mediaPlayer.serverSelector' => 'CDN 服务器选择',
 			'mediaPlayer.serverSelectorDescription' => '选择延迟最低的服务器以获得最佳播放体验',

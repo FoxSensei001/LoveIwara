@@ -253,6 +253,9 @@ common:
   selectDateRange: 日付範囲を選択
   selectDateRangeHint: 日付範囲を選択，デフォルトは最近30日
   clearDateRange: 日付範囲をクリア
+  deleteRecordsInDateRange: この期間の記録を削除
+  deleteRecordsInDateRangeConfirm: 'この期間の ${num} 件の履歴を削除してもよろしいですか？この操作は取り消せません。'
+  noHistoryRecordsInRange: この期間の履歴はありません
   followSuccessClickAgainToSpecialFollow: フォローに成功しました。再度クリックして特別フォロー
   exitConfirmTip: 本当に退出しますか？
   error: エラー
@@ -568,6 +571,11 @@ settings:
   history: 履歴
   autoRecordHistory: 自動記録履歴
   autoRecordHistoryDesc: 視聴した動画やギャラリーなどの情報を自動的に記録します
+  autoDeleteHistory: 履歴の自動削除
+  autoDeleteHistoryDesc: 起動時に保存日数を超えた閲覧履歴を自動的に削除します（デフォルトはオフ）
+  autoDeleteHistoryDays: 保存日数
+  autoDeleteHistoryDaysValue: '直近 ${num} 日間を保存'
+  autoDeleteHistoryDaysInvalid: 有効な日数を入力してください（1日以上）
   showUnprocessedMarkdownText: 未処理のMarkdownテキストを表示
   showUnprocessedMarkdownTextDesc: Markdownの元のテキストを表示
   markdown: Markdown

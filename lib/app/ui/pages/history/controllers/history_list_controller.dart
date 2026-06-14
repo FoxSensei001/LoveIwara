@@ -79,6 +79,47 @@ class HistoryListController extends GetxController {
     repository.refresh();
   }
 
+  /// 当前筛选条件对应的时间区间结束边界（包含当天 23:59:59），与列表查询保持一致。
+  DateTime? get _rangeEnd {
+    final end = selectedDateRange.value?.end;
+    if (end == null) return null;
+    return DateTime(end.year, end.month, end.day, 23, 59, 59);
+  }
+
+  /// 统计当前所选时间范围内、当前类型的历史记录数量（删除前确认用）。
+  /// 时间字段跟随当前「创建/更新时间」开关，与列表显示保持一致。
+  Future<int> countRecordsInSelectedRange() async {
+    final range = selectedDateRange.value;
+    if (range == null) return 0;
+    return historyDatabaseRepository.countRecordsByTimeRange(
+      itemType: itemType,
+      startDate: range.start,
+      endDate: _rangeEnd,
+      byUpdated: orderByUpdated.value,
+    );
+  }
+
+  /// 删除当前所选时间范围内、当前类型的历史记录，并刷新所有标签页。
+  Future<void> deleteRecordsInSelectedRange() async {
+    final range = selectedDateRange.value;
+    if (range == null) return;
+    await historyDatabaseRepository.deleteRecordsByTimeRange(
+      itemType: itemType,
+      startDate: range.start,
+      endDate: _rangeEnd,
+      byUpdated: orderByUpdated.value,
+    );
+    // 删除会影响「全部」标签及对应类型标签，统一刷新
+    for (var tag in ['all', 'video', 'image', 'post', 'thread']) {
+      if (Get.isRegistered<HistoryListController>(tag: tag)) {
+        Get.find<HistoryListController>(tag: tag).repository.refresh();
+      }
+    }
+    showToastWidget(
+      MDToastWidget(message: t.common.success, type: MDToastType.success),
+    );
+  }
+
   void setDateRange(DateTimeRange? range) {
     selectedDateRange.value = range;
     repository.dateRange = range;

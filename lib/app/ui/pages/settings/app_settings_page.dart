@@ -44,6 +44,55 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     return _followSystemTexts[deviceLocale] ?? _followSystemTexts['en']!;
   }
 
+  // 弹出输入框设置「历史记录保留天数」
+  Future<void> _showAutoDeleteDaysDialog(
+    ConfigService configService,
+    int currentDays,
+  ) async {
+    final controller = TextEditingController(text: currentDays.toString());
+    final result = await showDialog<int>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(slang.t.settings.autoDeleteHistoryDays),
+          content: TextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            autofocus: true,
+            decoration: InputDecoration(
+              labelText: slang.t.settings.autoDeleteHistoryDays,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(slang.t.common.cancel),
+            ),
+            TextButton(
+              onPressed: () {
+                final parsed = int.tryParse(controller.text.trim());
+                if (parsed == null || parsed < 1) {
+                  showToastWidget(
+                    MDToastWidget(
+                      message: slang.t.settings.autoDeleteHistoryDaysInvalid,
+                      type: MDToastType.error,
+                    ),
+                  );
+                  return;
+                }
+                Navigator.of(dialogContext).pop(parsed);
+              },
+              child: Text(slang.t.common.confirm),
+            ),
+          ],
+        );
+      },
+    );
+    if (result != null) {
+      configService[ConfigKey.AUTO_DELETE_HISTORY_DAYS] = result;
+    }
+  }
+
   final Map<String, String> _languageChangedMessages = {
     'en': 'Language changed successfully, some features require restarting the app to take effect.',
     'ja': '言語が正常に変更されました。一部の機能はアプリを再起動して有効にする必要があります。',
@@ -282,14 +331,62 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                 value;
                             CommonConstants.enableHistory = value;
                           },
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(16),
-                              bottomRight: Radius.circular(16),
-                            ),
-                          ),
                         ),
                       ),
+                      const Divider(height: 1),
+                      Obx(() {
+                        final bool enabled = configService[ConfigKey
+                            .AUTO_DELETE_HISTORY_ENABLED];
+                        final int days = configService[ConfigKey
+                            .AUTO_DELETE_HISTORY_DAYS];
+                        return Column(
+                          children: [
+                            SwitchListTile(
+                              title: Text(slang.t.settings.autoDeleteHistory),
+                              subtitle: Text(
+                                slang.t.settings.autoDeleteHistoryDesc,
+                              ),
+                              value: enabled,
+                              onChanged: (value) {
+                                configService[ConfigKey
+                                        .AUTO_DELETE_HISTORY_ENABLED] =
+                                    value;
+                              },
+                              shape: enabled
+                                  ? null
+                                  : const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.only(
+                                        bottomLeft: Radius.circular(16),
+                                        bottomRight: Radius.circular(16),
+                                      ),
+                                    ),
+                            ),
+                            if (enabled)
+                              ListTile(
+                                leading: const Icon(Icons.auto_delete_outlined),
+                                title: Text(
+                                  slang.t.settings.autoDeleteHistoryDays,
+                                ),
+                                subtitle: Text(
+                                  slang.t.settings.autoDeleteHistoryDaysValue(
+                                    num: days,
+                                  ),
+                                ),
+                                trailing: const Icon(Icons.edit),
+                                onTap: () => _showAutoDeleteDaysDialog(
+                                  configService,
+                                  days,
+                                ),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.only(
+                                    bottomLeft: Radius.circular(16),
+                                    bottomRight: Radius.circular(16),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+                      }),
                     ],
                   ),
                 ),

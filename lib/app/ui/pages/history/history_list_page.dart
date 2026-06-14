@@ -316,6 +316,33 @@ class _HistoryListPageState extends State<HistoryListPage>
                         ],
                       );
                     }),
+                    const SizedBox(height: 16),
+                    // 删除当前所选时间范围内的历史记录（仅在已选范围时可用）
+                    Obx(() {
+                      final hasRange =
+                          controller.selectedDateRange.value != null;
+                      final errorColor = Theme.of(context).colorScheme.error;
+                      return SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: hasRange
+                              ? () => _confirmDeleteSelectedRange(controller)
+                              : null,
+                          icon: const Icon(Icons.delete_sweep),
+                          label: Text(slang.t.common.deleteRecordsInDateRange),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: errorColor,
+                            side: BorderSide(
+                              color: hasRange
+                                  ? errorColor.withValues(alpha: 0.5)
+                                  : Theme.of(context).disabledColor.withValues(
+                                      alpha: 0.3,
+                                    ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
                     const SizedBox(height: 8),
                   ],
                 ),
@@ -324,6 +351,45 @@ class _HistoryListPageState extends State<HistoryListPage>
           },
         );
       },
+    );
+  }
+
+  /// 删除前确认：先统计数量，无记录则提示，否则弹出确认框。
+  Future<void> _confirmDeleteSelectedRange(
+    HistoryListController controller,
+  ) async {
+    final count = await controller.countRecordsInSelectedRange();
+    if (count == 0) {
+      showToastWidget(
+        MDToastWidget(
+          message: slang.t.common.noHistoryRecordsInRange,
+          type: MDToastType.info,
+        ),
+      );
+      return;
+    }
+    showAppDialog(
+      AlertDialog(
+        title: Text(slang.t.common.confirmDelete),
+        content: Text(
+          slang.t.common.deleteRecordsInDateRangeConfirm(num: count),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => AppService.tryPop(),
+            child: Text(slang.t.common.cancel),
+          ),
+          TextButton(
+            onPressed: () async {
+              AppService.tryPop(); // 关闭确认框
+              await controller.deleteRecordsInSelectedRange();
+              AppService.tryPop(); // 关闭筛选面板
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(slang.t.common.delete),
+          ),
+        ],
+      ),
     );
   }
 

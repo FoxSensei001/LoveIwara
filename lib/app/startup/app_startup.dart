@@ -323,6 +323,37 @@ class AppStartupCoordinator implements AppStartupRunner {
     _registerDeferredSingleton<EmojiLibraryService>(EmojiLibraryService());
     _registerDeferredSingleton<DlnaCastService>(DlnaCastService());
     _registerDeferredSingleton<HistoryRepository>(HistoryRepository());
+
+    // 启动时按配置自动清理超期历史记录（默认关闭，不阻塞启动）
+    _maybeAutoCleanupHistory();
+  }
+
+  /// 若用户开启了「自动清理历史记录」，删除超过设定天数的浏览历史。
+  /// 失败不影响启动流程。
+  void _maybeAutoCleanupHistory() {
+    try {
+      final configService = Get.find<ConfigService>();
+      final bool enabled =
+          configService.settings[ConfigKey.AUTO_DELETE_HISTORY_ENABLED]?.value ??
+          false;
+      if (!enabled) return;
+      final int days =
+          configService.settings[ConfigKey.AUTO_DELETE_HISTORY_DAYS]?.value ??
+          30;
+      if (days <= 0) return;
+      // 异步执行，避免阻塞启动；记录清理结果
+      Get.find<HistoryRepository>().deleteRecordsOlderThanDays(days).then((
+        removed,
+      ) {
+        if (removed > 0) {
+          LogUtils.i('已自动清理 $removed 条超过 $days 天的历史记录', '启动初始化');
+        }
+      }).catchError((error) {
+        LogUtils.w('自动清理历史记录失败: $error', '启动初始化');
+      });
+    } catch (error) {
+      LogUtils.w('自动清理历史记录初始化失败: $error', '启动初始化');
+    }
   }
 
   void _configureProxy() {

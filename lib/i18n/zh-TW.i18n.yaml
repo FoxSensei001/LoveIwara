@@ -247,6 +247,9 @@ common:
   selectDateRange: 選擇日期範圍
   selectDateRangeHint: 選擇日期範圍，預設選擇最近30天
   clearDateRange: 清除日期範圍
+  deleteRecordsInDateRange: 刪除該時間範圍內的紀錄
+  deleteRecordsInDateRangeConfirm: '確定要刪除該時間範圍內的 ${num} 條歷史紀錄嗎？此操作無法復原。'
+  noHistoryRecordsInRange: 該時間範圍內沒有歷史紀錄
   followSuccessClickAgainToSpecialFollow: 已成功關注，再次點擊以特別關注
   exitConfirmTip: 確定要退出嗎？
   error: 錯誤
@@ -568,6 +571,11 @@ settings:
   history: 歷史記錄
   autoRecordHistory: 自動記錄歷史記錄
   autoRecordHistoryDesc: 自動記錄您觀看過的影片和圖庫等資訊
+  autoDeleteHistory: 自動清理歷史紀錄
+  autoDeleteHistoryDesc: 啟動時自動刪除超過保留天數的瀏覽紀錄（預設關閉）
+  autoDeleteHistoryDays: 保留天數
+  autoDeleteHistoryDaysValue: '保留最近 ${num} 天'
+  autoDeleteHistoryDaysInvalid: 請輸入有效的天數（至少 1 天）
   showUnprocessedMarkdownText: 顯示未處理文字
   showUnprocessedMarkdownTextDesc: 顯示Markdown的原始文字
   markdown: Markdown

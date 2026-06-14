@@ -10,7 +10,7 @@
 
 一套代码 → Android · Windows · macOS · Linux · iOS
 
-[![Telegram 群组](https://img.shields.io/badge/Telegram-群组-2CA5E0?style=flat&logo=telegram&logoColor=white)](https://t.me/+OtpMbe9DkjYzMGM1)
+[![Telegram 群组](https://img.shields.io/badge/Telegram-群组-2CA5E0?style=flat&logo=telegram&logoColor=white)](https://t.me/+ITH4CV6Z_sc2ZWVl)
 [![GitHub stars](https://img.shields.io/github/stars/FoxSensei001/LoveIwara?label=stars&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara)
 [![GitHub forks](https://img.shields.io/github/forks/FoxSensei001/LoveIwara?label=forks&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara)
 [![License: MIT](https://img.shields.io/github/license/FoxSensei001/LoveIwara?labelColor=27303D&color=0877d2)](LICENSE)
@@ -95,7 +95,7 @@
 ### 🌍 多语言
 English · 简体中文 · 繁體中文 · 日本語
 
-> 还有更多隐藏功能等你发现，也有更多功能在路上。有想法？欢迎提交 [Issue](https://github.com/FoxSensei001/LoveIwara/issues) 或加入 [Telegram 群组](https://t.me/+OtpMbe9DkjYzMGM1)。
+> 还有更多隐藏功能等你发现，也有更多功能在路上。有想法？欢迎提交 [Issue](https://github.com/FoxSensei001/LoveIwara/issues) 或加入 [Telegram 群组](https://t.me/+ITH4CV6Z_sc2ZWVl)。
 
 ## 🧰 技术栈
 
@@ -256,14 +256,6 @@ steps:
 
 </details>
 
-## ⚙️ 已知问题
-
-- **Android 平台已默认禁用 Impeller** —— 因其存在严重性能问题。根本原因仍然未知，这可能会影响未来的版本更新。如需重新启用，请在 `android/app/src/main/AndroidManifest.xml` 的 `<application>` 节点中添加：
-  ```xml
-  <meta-data android:name="flutter.embedding.android.EnableImpeller" android:value="true" />
-  ```
-  如果你有任何优化建议或解决方案，欢迎提交 [PR](https://github.com/FoxSensei001/LoveIwara/pulls)、创建 [Issue](https://github.com/FoxSensei001/LoveIwara/issues)，或在 [Telegram 群组](https://t.me/+OtpMbe9DkjYzMGM1) 参与讨论。
-
 ## 🌍 国际化
 
 目前的翻译大多由机器生成。如果你愿意协助改进，请从简体中文模板入手：[`lib/i18n/zh-CN.i18n.yaml`](lib/i18n/zh-CN.i18n.yaml)，然后运行 `dart run slang`。
@@ -315,11 +307,11 @@ steps:
 
 ## 🤝 贡献
 
-欢迎提交 Pull Request！对于重大更改，请先打开一个 issue 来讨论你想要更改的内容。在报告新问题之前，请先查看已有的 [issues](https://github.com/FoxSensei001/LoveIwara/issues)。有任何疑问？欢迎加入我们的 [Telegram 群组](https://t.me/+OtpMbe9DkjYzMGM1)。
+欢迎提交 Pull Request！对于重大更改，请先打开一个 issue 来讨论你想要更改的内容。在报告新问题之前，请先查看已有的 [issues](https://github.com/FoxSensei001/LoveIwara/issues)。有任何疑问？欢迎加入我们的 [Telegram 群组](https://t.me/+ITH4CV6Z_sc2ZWVl)。
 
 ## 💬 交流群
 
-加入我们的 Telegram 社区：**[点击此处加入交流群](https://t.me/+OtpMbe9DkjYzMGM1)**。
+加入我们的 Telegram 社区：**[点击此处加入交流群](https://t.me/+ITH4CV6Z_sc2ZWVl)**。
 
 ---
 

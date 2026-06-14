@@ -347,6 +347,9 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get selectDateRange => '選擇日期範圍';
 	@override String get selectDateRangeHint => '選擇日期範圍，預設選擇最近30天';
 	@override String get clearDateRange => '清除日期範圍';
+	@override String get deleteRecordsInDateRange => '刪除該時間範圍內的紀錄';
+	@override String deleteRecordsInDateRangeConfirm({required Object num}) => '確定要刪除該時間範圍內的 ${num} 條歷史紀錄嗎？此操作無法復原。';
+	@override String get noHistoryRecordsInRange => '該時間範圍內沒有歷史紀錄';
 	@override String get followSuccessClickAgainToSpecialFollow => '已成功關注，再次點擊以特別關注';
 	@override String get exitConfirmTip => '確定要退出嗎？';
 	@override String get error => '錯誤';
@@ -709,6 +712,11 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get history => '歷史記錄';
 	@override String get autoRecordHistory => '自動記錄歷史記錄';
 	@override String get autoRecordHistoryDesc => '自動記錄您觀看過的影片和圖庫等資訊';
+	@override String get autoDeleteHistory => '自動清理歷史紀錄';
+	@override String get autoDeleteHistoryDesc => '啟動時自動刪除超過保留天數的瀏覽紀錄（預設關閉）';
+	@override String get autoDeleteHistoryDays => '保留天數';
+	@override String autoDeleteHistoryDaysValue({required Object num}) => '保留最近 ${num} 天';
+	@override String get autoDeleteHistoryDaysInvalid => '請輸入有效的天數（至少 1 天）';
 	@override String get showUnprocessedMarkdownText => '顯示未處理文字';
 	@override String get showUnprocessedMarkdownTextDesc => '顯示Markdown的原始文字';
 	@override String get markdown => 'Markdown';
@@ -3157,6 +3165,9 @@ extension on TranslationsZhTw {
 			'common.selectDateRange' => '選擇日期範圍',
 			'common.selectDateRangeHint' => '選擇日期範圍，預設選擇最近30天',
 			'common.clearDateRange' => '清除日期範圍',
+			'common.deleteRecordsInDateRange' => '刪除該時間範圍內的紀錄',
+			'common.deleteRecordsInDateRangeConfirm' => ({required Object num}) => '確定要刪除該時間範圍內的 ${num} 條歷史紀錄嗎？此操作無法復原。',
+			'common.noHistoryRecordsInRange' => '該時間範圍內沒有歷史紀錄',
 			'common.followSuccessClickAgainToSpecialFollow' => '已成功關注，再次點擊以特別關注',
 			'common.exitConfirmTip' => '確定要退出嗎？',
 			'common.error' => '錯誤',
@@ -3426,11 +3437,11 @@ extension on TranslationsZhTw {
 			'settings.settings' => '設定',
 			'settings.themeSettings' => '主題設定',
 			'settings.followSystem' => '跟隨系統',
+			_ => null,
+		} ?? switch (path) {
 			'settings.lightMode' => '淺色模式',
 			'settings.darkMode' => '深色模式',
 			'settings.presetTheme' => '預設主題',
-			_ => null,
-		} ?? switch (path) {
 			'settings.basicTheme' => '基礎主題',
 			'settings.needRestartToApply' => '需要重啟應用以應用設定',
 			'settings.themeNeedRestartDescription' => '主題設定需要重啟應用以應用設定',
@@ -3459,6 +3470,11 @@ extension on TranslationsZhTw {
 			'settings.history' => '歷史記錄',
 			'settings.autoRecordHistory' => '自動記錄歷史記錄',
 			'settings.autoRecordHistoryDesc' => '自動記錄您觀看過的影片和圖庫等資訊',
+			'settings.autoDeleteHistory' => '自動清理歷史紀錄',
+			'settings.autoDeleteHistoryDesc' => '啟動時自動刪除超過保留天數的瀏覽紀錄（預設關閉）',
+			'settings.autoDeleteHistoryDays' => '保留天數',
+			'settings.autoDeleteHistoryDaysValue' => ({required Object num}) => '保留最近 ${num} 天',
+			'settings.autoDeleteHistoryDaysInvalid' => '請輸入有效的天數（至少 1 天）',
 			'settings.showUnprocessedMarkdownText' => '顯示未處理文字',
 			'settings.showUnprocessedMarkdownTextDesc' => '顯示Markdown的原始文字',
 			'settings.markdown' => 'Markdown',
@@ -3935,6 +3951,8 @@ extension on TranslationsZhTw {
 			'share.shareVideo' => '分享影片',
 			'share.authorIs' => '作者是',
 			'share.shareGallery' => '分享圖庫',
+			_ => null,
+		} ?? switch (path) {
 			'share.galleryTitleIs' => '圖庫名字叫做',
 			'share.galleryAuthorIs' => '圖庫作者是',
 			'share.shareUser' => '分享使用者',
@@ -3943,8 +3961,6 @@ extension on TranslationsZhTw {
 			'share.comments' => '評論',
 			'share.shareThread' => '分享帖子',
 			'share.views' => '瀏覽',
-			_ => null,
-		} ?? switch (path) {
 			'share.sharePost' => '分享投稿',
 			'share.postTitleIs' => '投稿名字叫做',
 			'share.postAuthorIs' => '投稿作者是',
@@ -4449,6 +4465,8 @@ extension on TranslationsZhTw {
 			'translation.useMaxCompletionTokensDescription' => '新版 OpenAI 端點已棄用 max_tokens，需改用 max_completion_tokens',
 			'translation.sendTemperature' => '下發 temperature',
 			'translation.sendTemperatureDescription' => '對於拒絕 temperature 參數的模型(多數推理模型)請關閉',
+			_ => null,
+		} ?? switch (path) {
 			'translation.showReasoningProcess' => '顯示思考過程',
 			'translation.showReasoningProcessDescription' => '在翻譯彈窗中以可折疊形式展示推理模型的思考過程',
 			'translation.provider' => '服務商',
@@ -4457,8 +4475,6 @@ extension on TranslationsZhTw {
 			'translation.providerGoogle' => 'Google（Gemini）',
 			'translation.multiProviderHint' => '透過 dartantic_ai SDK 支援 OpenAI（及一切 OpenAI 相容端點）、Anthropic 與 Google',
 			'translation.baseUrlOptionalHelperText' => '可選。留空使用該服務商預設端點；OpenAI 相容端點/中轉請填寫',
-			_ => null,
-		} ?? switch (path) {
 			'translation.defaultEndpoint' => '預設端點',
 			'translation.providerPreset' => '服務商預設',
 			'translation.selectProviderPreset' => '選擇預設',

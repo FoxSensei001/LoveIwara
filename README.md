@@ -10,7 +10,7 @@
 
 One codebase → Android · Windows · macOS · Linux · iOS
 
-[![Telegram Group](https://img.shields.io/badge/Telegram-Group-2CA5E0?style=flat&logo=telegram&logoColor=white)](https://t.me/+OtpMbe9DkjYzMGM1)
+[![Telegram Group](https://img.shields.io/badge/Telegram-Group-2CA5E0?style=flat&logo=telegram&logoColor=white)](https://t.me/+ITH4CV6Z_sc2ZWVl)
 [![GitHub stars](https://img.shields.io/github/stars/FoxSensei001/LoveIwara?label=stars&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara)
 [![GitHub forks](https://img.shields.io/github/forks/FoxSensei001/LoveIwara?label=forks&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara)
 [![License: MIT](https://img.shields.io/github/license/FoxSensei001/LoveIwara?labelColor=27303D&color=0877d2)](LICENSE)
@@ -95,7 +95,7 @@ One codebase → Android · Windows · macOS · Linux · iOS
 ### 🌍 Multi-language
 English · 简体中文 · 繁體中文 · 日本語
 
-> Found something else? There are more hidden gems to discover — and more on the way. Got an idea? Open an [Issue](https://github.com/FoxSensei001/LoveIwara/issues) or drop by the [Telegram group](https://t.me/+OtpMbe9DkjYzMGM1).
+> Found something else? There are more hidden gems to discover — and more on the way. Got an idea? Open an [Issue](https://github.com/FoxSensei001/LoveIwara/issues) or drop by the [Telegram group](https://t.me/+ITH4CV6Z_sc2ZWVl).
 
 ## 🧰 Tech Stack
 
@@ -256,14 +256,6 @@ steps:
 
 </details>
 
-## ⚙️ Known Issues
-
-- **Impeller is disabled on Android** due to severe performance problems. The root cause is still unknown, and this may pose a risk for future updates. To re-enable it, add the following inside the `<application>` tag of `android/app/src/main/AndroidManifest.xml`:
-  ```xml
-  <meta-data android:name="flutter.embedding.android.EnableImpeller" android:value="true" />
-  ```
-  If you have insights or a fix, please open a [PR](https://github.com/FoxSensei001/LoveIwara/pulls), an [Issue](https://github.com/FoxSensei001/LoveIwara/issues), or discuss it in the [Telegram group](https://t.me/+OtpMbe9DkjYzMGM1).
-
 ## 🌍 Internationalization
 
 Translations are currently mostly machine-generated. If you'd like to help improve them, start from the Simplified Chinese template: [`lib/i18n/zh-CN.i18n.yaml`](lib/i18n/zh-CN.i18n.yaml), then run `dart run slang`.
@@ -315,11 +307,11 @@ Thanks to everyone who has contributed! 🎉
 
 ## 🤝 Contributing
 
-Pull requests are welcome! For major changes, please open an issue first to discuss what you'd like to change. Before reporting a new issue, check the existing [issues](https://github.com/FoxSensei001/LoveIwara/issues). Questions? Join our [Telegram group](https://t.me/+OtpMbe9DkjYzMGM1).
+Pull requests are welcome! For major changes, please open an issue first to discuss what you'd like to change. Before reporting a new issue, check the existing [issues](https://github.com/FoxSensei001/LoveIwara/issues). Questions? Join our [Telegram group](https://t.me/+ITH4CV6Z_sc2ZWVl).
 
 ## 💬 Community
 
-Join us on Telegram: **[Click here to join the group](https://t.me/+OtpMbe9DkjYzMGM1)**.
+Join us on Telegram: **[Click here to join the group](https://t.me/+ITH4CV6Z_sc2ZWVl)**.
 
 ---
 

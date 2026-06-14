@@ -831,6 +831,15 @@ class TranslationsCommonEn {
 	/// en: 'Clear Date Range'
 	String get clearDateRange => 'Clear Date Range';
 
+	/// en: 'Delete Records in This Range'
+	String get deleteRecordsInDateRange => 'Delete Records in This Range';
+
+	/// en: 'Are you sure you want to delete ${num} history records in this date range? This cannot be undone.'
+	String deleteRecordsInDateRangeConfirm({required Object num}) => 'Are you sure you want to delete ${num} history records in this date range? This cannot be undone.';
+
+	/// en: 'No history records in this date range'
+	String get noHistoryRecordsInRange => 'No history records in this date range';
+
 	/// en: 'Followed successfully, click again to special follow'
 	String get followSuccessClickAgainToSpecialFollow => 'Followed successfully, click again to special follow';
 
@@ -1734,6 +1743,21 @@ class TranslationsSettingsEn {
 
 	/// en: 'Auto record the videos and images you have watched'
 	String get autoRecordHistoryDesc => 'Auto record the videos and images you have watched';
+
+	/// en: 'Auto Clean History'
+	String get autoDeleteHistory => 'Auto Clean History';
+
+	/// en: 'Automatically delete browsing history older than the retention days on startup (off by default)'
+	String get autoDeleteHistoryDesc => 'Automatically delete browsing history older than the retention days on startup (off by default)';
+
+	/// en: 'Retention Days'
+	String get autoDeleteHistoryDays => 'Retention Days';
+
+	/// en: 'Keep the last ${num} days'
+	String autoDeleteHistoryDaysValue({required Object num}) => 'Keep the last ${num} days';
+
+	/// en: 'Please enter a valid number of days (at least 1)'
+	String get autoDeleteHistoryDaysInvalid => 'Please enter a valid number of days (at least 1)';
 
 	/// en: 'Show Unprocessed Markdown Text'
 	String get showUnprocessedMarkdownText => 'Show Unprocessed Markdown Text';
@@ -7226,6 +7250,9 @@ extension on Translations {
 			'common.selectDateRange' => 'Select Date Range',
 			'common.selectDateRangeHint' => 'Select date range, default is recent 30 days',
 			'common.clearDateRange' => 'Clear Date Range',
+			'common.deleteRecordsInDateRange' => 'Delete Records in This Range',
+			'common.deleteRecordsInDateRangeConfirm' => ({required Object num}) => 'Are you sure you want to delete ${num} history records in this date range? This cannot be undone.',
+			'common.noHistoryRecordsInRange' => 'No history records in this date range',
 			'common.followSuccessClickAgainToSpecialFollow' => 'Followed successfully, click again to special follow',
 			'common.exitConfirmTip' => 'Are you sure you want to exit?',
 			'common.error' => 'Error',
@@ -7495,11 +7522,11 @@ extension on Translations {
 			'settings.settings' => 'Settings',
 			'settings.themeSettings' => 'Theme Settings',
 			'settings.followSystem' => 'Follow System',
+			_ => null,
+		} ?? switch (path) {
 			'settings.lightMode' => 'Light Mode',
 			'settings.darkMode' => 'Dark Mode',
 			'settings.presetTheme' => 'Preset Theme',
-			_ => null,
-		} ?? switch (path) {
 			'settings.basicTheme' => 'Basic Theme',
 			'settings.needRestartToApply' => 'Need to restart the app to apply the settings',
 			'settings.themeNeedRestartDescription' => 'The theme settings need to restart the app to apply the settings',
@@ -7528,6 +7555,11 @@ extension on Translations {
 			'settings.history' => 'History',
 			'settings.autoRecordHistory' => 'Auto Record History',
 			'settings.autoRecordHistoryDesc' => 'Auto record the videos and images you have watched',
+			'settings.autoDeleteHistory' => 'Auto Clean History',
+			'settings.autoDeleteHistoryDesc' => 'Automatically delete browsing history older than the retention days on startup (off by default)',
+			'settings.autoDeleteHistoryDays' => 'Retention Days',
+			'settings.autoDeleteHistoryDaysValue' => ({required Object num}) => 'Keep the last ${num} days',
+			'settings.autoDeleteHistoryDaysInvalid' => 'Please enter a valid number of days (at least 1)',
 			'settings.showUnprocessedMarkdownText' => 'Show Unprocessed Markdown Text',
 			'settings.showUnprocessedMarkdownTextDesc' => 'Show the original text of the markdown',
 			'settings.markdown' => 'Markdown',
@@ -8004,6 +8036,8 @@ extension on Translations {
 			'markdown.quote' => 'Quote',
 			'markdown.quoteDescription' => 'Use > symbol to create quote, multiple > to create multi-level quote',
 			'markdown.quoteSyntax' => '> This is a first-level quote\n>> This is a second-level quote',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.list' => 'List',
 			'markdown.listDescription' => 'Create ordered list with number+dot, create unordered list with -',
 			'markdown.listSyntax' => '1. First item\n2. Second item\n\n- Unordered item\n  - Subitem\n  - Another subitem',
@@ -8012,8 +8046,6 @@ extension on Translations {
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[link text](${link})\n![image description](${imgUrl})',
 			'markdown.title' => 'Title',
 			'markdown.titleDescription' => 'Use # symbol to create title, number to show level',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.titleSyntax' => '# First-level title\n## Second-level title\n### Third-level title',
 			'markdown.separator' => 'Separator',
 			'markdown.separatorDescription' => 'Create separator with three or more - symbols',
@@ -8518,6 +8550,8 @@ extension on Translations {
 			'navigationOrderSettings.sidebarPreview' => 'Sidebar Preview:',
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'Confirm Reset Navigation Order',
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => 'Are you sure you want to reset the navigation order to default settings?',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.cancel' => 'Cancel',
 			'navigationOrderSettings.show' => 'Show',
 			'navigationOrderSettings.hide' => 'Hide',
@@ -8526,8 +8560,6 @@ extension on Translations {
 			'navigationOrderSettings.videoDescription' => 'Browse popular video content',
 			'navigationOrderSettings.galleryDescription' => 'Browse images and galleries',
 			'navigationOrderSettings.subscriptionDescription' => 'View latest content from followed users',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.forumDescription' => 'Participate in community discussions',
 			'navigationOrderSettings.newsDescription' => 'Browse official news, articles, and broadcasts',
 			'news.title' => 'News',
