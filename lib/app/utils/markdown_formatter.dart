@@ -156,6 +156,22 @@ class MarkdownFormatter {
     }
   }
 
+  /// 行内代码块匹配（`code`）。提为 static final，避免每次 splitByCodeBlocks 重新编译。
+  static final RegExp _codeBlockPattern = RegExp(r'`[^`]+`');
+
+  /// Markdown 链接匹配（`[label](url)`）。供 processNonCodeBlockLinks 与
+  /// _formatTimestampsInNonCodeBlock 共用，避免每次重新编译。
+  static final RegExp _markdownLinkPattern = RegExp(r'\[([^\]]+)\]\(([^)]+)\)');
+
+  /// 纯文本中的裸 URL 匹配（排除已在 Markdown 链接/括号内的情况）。
+  static final RegExp _plainLinkPattern = RegExp(
+    r'(?<![\[\(])' // 确保前面不是 [ 或 (
+    r'(?<!\]\()' // 确保前面不是 ](
+    r'https?://[^\s\[\]\(\)]+' // 匹配URL，不包含markdown特殊字符
+    r'(?![\]\)])', // 确保后面不是 ] 或 )
+    caseSensitive: false,
+  );
+
   /// 格式化Markdown链接
   String formatMarkdownLinks(String data) {
     // 将文本分割成代码块和非代码块部分
@@ -178,11 +194,10 @@ class MarkdownFormatter {
 
   /// 将文本按代码块分割
   List<String> splitByCodeBlocks(String text) {
-    final codeBlockPattern = RegExp(r'`[^`]+`');
     List<String> segments = [];
     int lastEnd = 0;
 
-    for (Match match in codeBlockPattern.allMatches(text)) {
+    for (Match match in _codeBlockPattern.allMatches(text)) {
       // 添加代码块前的文本
       if (match.start > lastEnd) {
         segments.add(text.substring(lastEnd, match.start));
@@ -203,12 +218,11 @@ class MarkdownFormatter {
   /// 处理非代码块中的链接
   String processNonCodeBlockLinks(String text) {
     // 匹配URL，但不包括已经是markdown格式的链接和代码块中的链接
-    final markdownLinkPattern = RegExp(r'\[([^\]]+)\]\(([^)]+)\)');
     final segments = <String>[];
     int lastEnd = 0;
 
     // 先找出所有markdown格式的链接
-    for (final match in markdownLinkPattern.allMatches(text)) {
+    for (final match in _markdownLinkPattern.allMatches(text)) {
       if (match.start > lastEnd) {
         // 处理markdown链接之间的文本
         segments.add(processPlainLinks(text.substring(lastEnd, match.start)));
@@ -278,15 +292,7 @@ class MarkdownFormatter {
 
   /// 处理纯文本中的链接
   String processPlainLinks(String text) {
-    final linkPattern = RegExp(
-      r'(?<![\[\(])' // 确保前面不是 [ 或 (
-      r'(?<!\]\()' // 确保前面不是 ](
-      r'https?://[^\s\[\]\(\)]+' // 匹配URL，不包含markdown特殊字符
-      r'(?![\]\)])', // 确保后面不是 ] 或 )
-      caseSensitive: false,
-    );
-
-    return text.replaceAllMapped(linkPattern, (match) {
+    return text.replaceAllMapped(_plainLinkPattern, (match) {
       final url = match.group(0)!;
       // 既然是纯文本链接，前面肯定没有方括号包裹，直接替换即可
       // 但为了保险起见，这里不需要检查 _hasEmojiPrefix，因为正则排除已经在链接里的情况
@@ -345,11 +351,10 @@ class MarkdownFormatter {
 
   /// 在非代码块文本中处理时间节点，跳过已存在的 Markdown 链接片段。
   String _formatTimestampsInNonCodeBlock(String text) {
-    final markdownLinkPattern = RegExp(r'\[([^\]]+)\]\(([^)]+)\)');
     final buffer = StringBuffer();
     int lastEnd = 0;
 
-    for (final match in markdownLinkPattern.allMatches(text)) {
+    for (final match in _markdownLinkPattern.allMatches(text)) {
       if (match.start > lastEnd) {
         buffer.write(_replaceTimestamps(text.substring(lastEnd, match.start)));
       }
@@ -390,11 +395,15 @@ class MarkdownFormatter {
     });
   }
 
+  /// @ 用户名匹配，提为 static final 避免每次 formatMentions 重新编译。
+  /// 额外排除 `[`，避免在 Markdown 链接标题中重复包裹用户名。
+  static final RegExp _mentionPattern = RegExp(
+    r'(?<![\/\w\[])@([\w\u4e00-\u9fa5]+)',
+  );
+
   /// 将文本中的 @ 用户名格式化为 Markdown 链接
   String formatMentions(String data) {
-    // 额外排除 `[`，避免在 Markdown 链接标题中重复包裹用户名
-    final mentionPattern = RegExp(r'(?<![\/\w\[])@([\w\u4e00-\u9fa5]+)');
-    return data.replaceAllMapped(mentionPattern, (match) {
+    return data.replaceAllMapped(_mentionPattern, (match) {
       final mention = match.group(0);
       final username = match.group(1);
       if (username == null) return mention ?? '';

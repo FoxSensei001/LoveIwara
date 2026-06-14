@@ -502,7 +502,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   ) {
     return Obx(() {
       // 使用 Obx 包装整个 ExtendedNestedScrollView，确保 videoPlaying 状态变化时重建
-      LogUtils.d('${controller.videoPlaying.value}', 'refresh');
+      // 读取一次以建立 Obx 依赖（播放/暂停切换时需重算固定头部高度）
+      controller.videoPlaying.value;
       return ExtendedNestedScrollView(
         key: controller.nestedScrollViewKey,
         controller: controller.scrollController,
