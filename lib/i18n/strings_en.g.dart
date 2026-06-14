@@ -1510,6 +1510,15 @@ class TranslationsSettingsEn {
 	/// en: 'Play Control'
 	String get playControl => 'Play Control';
 
+	/// en: 'Playback & Speed'
+	String get playbackSpeedSettings => 'Playback & Speed';
+
+	/// en: 'Playback Behavior'
+	String get playbackBehaviorSettings => 'Playback Behavior';
+
+	/// en: 'Theater & Enhancement'
+	String get enhancementSettings => 'Theater & Enhancement';
+
 	/// en: 'Fast Forward Time'
 	String get fastForwardTime => 'Fast Forward Time';
 
@@ -7430,6 +7439,9 @@ extension on Translations {
 			'settings.searchConfig' => 'Search Config',
 			'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain' => 'This configuration determines whether the previous configuration will be used when playing videos again.',
 			'settings.playControl' => 'Play Control',
+			'settings.playbackSpeedSettings' => 'Playback & Speed',
+			'settings.playbackBehaviorSettings' => 'Playback Behavior',
+			'settings.enhancementSettings' => 'Theater & Enhancement',
 			'settings.fastForwardTime' => 'Fast Forward Time',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'Fast forward time must be a positive integer.',
 			'settings.rewindTime' => 'Rewind Time',
@@ -7474,11 +7486,11 @@ extension on Translations {
 			'settings.lightMode' => 'Light Mode',
 			'settings.darkMode' => 'Dark Mode',
 			'settings.presetTheme' => 'Preset Theme',
+			_ => null,
+		} ?? switch (path) {
 			'settings.basicTheme' => 'Basic Theme',
 			'settings.needRestartToApply' => 'Need to restart the app to apply the settings',
 			'settings.themeNeedRestartDescription' => 'The theme settings need to restart the app to apply the settings',
-			_ => null,
-		} ?? switch (path) {
 			'settings.about' => 'About',
 			'settings.diagnosticsAndFeedback' => 'Diagnostics & Feedback',
 			'settings.currentVersion' => 'Current Version',
@@ -7988,11 +8000,11 @@ extension on Translations {
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[link text](${link})\n![image description](${imgUrl})',
 			'markdown.title' => 'Title',
 			'markdown.titleDescription' => 'Use # symbol to create title, number to show level',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.titleSyntax' => '# First-level title\n## Second-level title\n### Third-level title',
 			'markdown.separator' => 'Separator',
 			'markdown.separatorDescription' => 'Create separator with three or more - symbols',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.separatorSyntax' => '---',
 			'markdown.syntax' => 'Syntax',
 			'forum.recent' => 'Recent',
@@ -8502,11 +8514,11 @@ extension on Translations {
 			'navigationOrderSettings.newsDescription' => 'Browse official news, articles, and broadcasts',
 			'news.title' => 'News',
 			'news.newsUpdates' => 'News Updates',
+			_ => null,
+		} ?? switch (path) {
 			'news.articles' => 'Articles',
 			'news.broadcast' => 'Broadcast',
 			'news.openInBrowser' => 'Open in Browser',
-			_ => null,
-		} ?? switch (path) {
 			'displaySettings.title' => 'Display Settings',
 			'displaySettings.layoutSettings' => 'Layout Settings',
 			'displaySettings.layoutSettingsDesc' => 'Customize column count and breakpoint configuration',

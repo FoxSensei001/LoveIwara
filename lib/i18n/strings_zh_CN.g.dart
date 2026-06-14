@@ -639,6 +639,9 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get searchConfig => '搜索配置';
 	@override String get thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain => '此配置决定当你之后播放视频时是否会沿用之前的配置。';
 	@override String get playControl => '播放控制';
+	@override String get playbackSpeedSettings => '播放与倍速';
+	@override String get playbackBehaviorSettings => '播放行为';
+	@override String get enhancementSettings => '剧院与画质增强';
 	@override String get fastForwardTime => '快进时间';
 	@override String get fastForwardTimeMustBeAPositiveInteger => '快进时间必须是一个正整数。';
 	@override String get rewindTime => '后退时间';
@@ -3382,6 +3385,9 @@ extension on TranslationsZhCn {
 			'settings.searchConfig' => '搜索配置',
 			'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain' => '此配置决定当你之后播放视频时是否会沿用之前的配置。',
 			'settings.playControl' => '播放控制',
+			'settings.playbackSpeedSettings' => '播放与倍速',
+			'settings.playbackBehaviorSettings' => '播放行为',
+			'settings.enhancementSettings' => '剧院与画质增强',
 			'settings.fastForwardTime' => '快进时间',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => '快进时间必须是一个正整数。',
 			'settings.rewindTime' => '后退时间',
@@ -3421,11 +3427,11 @@ extension on TranslationsZhCn {
 			'settings.chooseYourFavoriteAppAppearance' => '选择您喜欢的应用外观',
 			'settings.configureYourProxyServer' => '配置您的代理服务器',
 			'settings.settings' => '设置',
+			_ => null,
+		} ?? switch (path) {
 			'settings.themeSettings' => '主题设置',
 			'settings.followSystem' => '跟随系统',
 			'settings.lightMode' => '浅色模式',
-			_ => null,
-		} ?? switch (path) {
 			'settings.darkMode' => '深色模式',
 			'settings.presetTheme' => '预设主题',
 			'settings.basicTheme' => '基础主题',
@@ -3935,11 +3941,11 @@ extension on TranslationsZhCn {
 			'markdown.list' => '列表',
 			'markdown.listDescription' => '使用数字+点号创建有序列表，使用 - 创建无序列表',
 			'markdown.listSyntax' => '1. 第一项\n2. 第二项\n\n- 无序项\n  - 子项\n  - 另一个子项',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.linkAndImage' => '链接与图片',
 			'markdown.linkAndImageDescription' => '链接格式：[文字](URL)\n图片格式：![描述](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[链接文字](${link})\n![图片描述](${imgUrl})',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.title' => '标题',
 			'markdown.titleDescription' => '使用 # 号创建标题，数量表示级别',
 			'markdown.titleSyntax' => '# 一级标题\n## 二级标题\n### 三级标题',
@@ -4449,11 +4455,11 @@ extension on TranslationsZhCn {
 			'mediaPlayer.checkNetworkConnection' => '请检查网络连接后重试',
 			'mediaPlayer.appMayLackMediaPermission' => '应用可能缺少必要的媒体播放权限',
 			'mediaPlayer.tryOtherVideoPlayer' => '请尝试使用其他视频播放器',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.video' => '视频',
 			'mediaPlayer.serverSelector' => 'CDN 服务器选择',
 			'mediaPlayer.serverSelectorDescription' => '选择延迟最低的服务器以获得最佳播放体验',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.retestSpeed' => '重新测速',
 			'mediaPlayer.waitingForSpeedTest' => '等待测速',
 			'mediaPlayer.testingSpeed' => '测速中...',

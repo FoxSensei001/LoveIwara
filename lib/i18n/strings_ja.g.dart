@@ -634,6 +634,9 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get searchConfig => '検索設定';
 	@override String get thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain => 'この設定は、今後動画を再生する際に以前の設定を使用するかどうかを決定します。';
 	@override String get playControl => '再生コントロール';
+	@override String get playbackSpeedSettings => '再生と速度';
+	@override String get playbackBehaviorSettings => '再生動作';
+	@override String get enhancementSettings => 'シアターと画質強化';
 	@override String get fastForwardTime => '早送り時間';
 	@override String get fastForwardTimeMustBeAPositiveInteger => '早送り時間は正の整数でなければなりません。';
 	@override String get rewindTime => '巻き戻し時間';
@@ -3372,6 +3375,9 @@ extension on TranslationsJa {
 			'settings.searchConfig' => '検索設定',
 			'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain' => 'この設定は、今後動画を再生する際に以前の設定を使用するかどうかを決定します。',
 			'settings.playControl' => '再生コントロール',
+			'settings.playbackSpeedSettings' => '再生と速度',
+			'settings.playbackBehaviorSettings' => '再生動作',
+			'settings.enhancementSettings' => 'シアターと画質強化',
 			'settings.fastForwardTime' => '早送り時間',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => '早送り時間は正の整数でなければなりません。',
 			'settings.rewindTime' => '巻き戻し時間',
@@ -3416,11 +3422,11 @@ extension on TranslationsJa {
 			'settings.lightMode' => 'ライトモード',
 			'settings.darkMode' => 'ダークモード',
 			'settings.presetTheme' => 'プリセットテーマ',
+			_ => null,
+		} ?? switch (path) {
 			'settings.basicTheme' => 'ベーシックテーマ',
 			'settings.needRestartToApply' => 'アプリを再起動して設定を適用してください',
 			'settings.themeNeedRestartDescription' => 'テーマ設定はアプリを再起動して設定を適用してください',
-			_ => null,
-		} ?? switch (path) {
 			'settings.about' => 'アバウト',
 			'settings.diagnosticsAndFeedback' => '診断とフィードバック',
 			'settings.currentVersion' => '現在のバージョン',
@@ -3930,11 +3936,11 @@ extension on TranslationsJa {
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[リンクテキスト](${link})\n![画像説明](${imgUrl})',
 			'markdown.title' => 'タイトル',
 			'markdown.titleDescription' => '＃ 号でタイトルを作成し、数でレベルを表示',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.titleSyntax' => '# 一階タイトル\n## 二階タイトル\n### 三階タイトル',
 			'markdown.separator' => '分隔線',
 			'markdown.separatorDescription' => '三個以上の - 号で分隔線を作成',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.separatorSyntax' => '---',
 			'markdown.syntax' => '語法',
 			'forum.recent' => '最近',
@@ -4444,11 +4450,11 @@ extension on TranslationsJa {
 			'mediaPlayer.serverSelectorDescription' => '最適な再生体験のために、遅延の最も少ないサーバーを選択してください',
 			'mediaPlayer.retestSpeed' => '再速度テスト',
 			'mediaPlayer.waitingForSpeedTest' => '速度テスト待ち',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.testingSpeed' => '速度テスト中...',
 			'mediaPlayer.testFailed' => 'テスト失敗',
 			'mediaPlayer.loadingServerList' => 'サーバーリストを読み込み中...',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.noAvailableServers' => '利用可能なサーバーがありません',
 			'mediaPlayer.refreshServerList' => 'サーバーリストを更新',
 			'mediaPlayer.cannotGetSource' => '現在の再生ソースを取得できません',

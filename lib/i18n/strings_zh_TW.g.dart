@@ -634,6 +634,9 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get searchConfig => '搜尋設定';
 	@override String get thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain => '此設定將決定您之後播放影片時是否會沿用之前的設定。';
 	@override String get playControl => '播放控制';
+	@override String get playbackSpeedSettings => '播放與倍速';
+	@override String get playbackBehaviorSettings => '播放行為';
+	@override String get enhancementSettings => '劇院與畫質增強';
 	@override String get fastForwardTime => '快進時間';
 	@override String get fastForwardTimeMustBeAPositiveInteger => '快進時間必須是正整數。';
 	@override String get rewindTime => '快退時間';
@@ -3375,6 +3378,9 @@ extension on TranslationsZhTw {
 			'settings.searchConfig' => '搜尋設定',
 			'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain' => '此設定將決定您之後播放影片時是否會沿用之前的設定。',
 			'settings.playControl' => '播放控制',
+			'settings.playbackSpeedSettings' => '播放與倍速',
+			'settings.playbackBehaviorSettings' => '播放行為',
+			'settings.enhancementSettings' => '劇院與畫質增強',
 			'settings.fastForwardTime' => '快進時間',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => '快進時間必須是正整數。',
 			'settings.rewindTime' => '快退時間',
@@ -3419,11 +3425,11 @@ extension on TranslationsZhTw {
 			'settings.lightMode' => '淺色模式',
 			'settings.darkMode' => '深色模式',
 			'settings.presetTheme' => '預設主題',
+			_ => null,
+		} ?? switch (path) {
 			'settings.basicTheme' => '基礎主題',
 			'settings.needRestartToApply' => '需要重啟應用以應用設定',
 			'settings.themeNeedRestartDescription' => '主題設定需要重啟應用以應用設定',
-			_ => null,
-		} ?? switch (path) {
 			'settings.about' => '關於',
 			'settings.diagnosticsAndFeedback' => '診斷與回饋',
 			'settings.currentVersion' => '目前版本',
@@ -3933,11 +3939,11 @@ extension on TranslationsZhTw {
 			'share.comments' => '評論',
 			'share.shareThread' => '分享帖子',
 			'share.views' => '瀏覽',
+			_ => null,
+		} ?? switch (path) {
 			'share.sharePost' => '分享投稿',
 			'share.postTitleIs' => '投稿名字叫做',
 			'share.postAuthorIs' => '投稿作者是',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.markdownSyntax' => 'Markdown 語法',
 			'markdown.iwaraSpecialMarkdownSyntax' => 'Iwara 專用語法',
 			'markdown.internalLink' => '站內連結',
@@ -4447,11 +4453,11 @@ extension on TranslationsZhTw {
 			'translation.providerGoogle' => 'Google（Gemini）',
 			'translation.multiProviderHint' => '透過 dartantic_ai SDK 支援 OpenAI（及一切 OpenAI 相容端點）、Anthropic 與 Google',
 			'translation.baseUrlOptionalHelperText' => '可選。留空使用該服務商預設端點；OpenAI 相容端點/中轉請填寫',
+			_ => null,
+		} ?? switch (path) {
 			'translation.defaultEndpoint' => '預設端點',
 			'translation.providerPreset' => '服務商預設',
 			'translation.selectProviderPreset' => '選擇預設',
-			_ => null,
-		} ?? switch (path) {
 			'translation.presetCustom' => '自訂',
 			'translation.presetApplied' => ({required Object name}) => '已套用預設：${name}',
 			'translation.fetchModelList' => '取得模型清單',

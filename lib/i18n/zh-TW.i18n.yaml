@@ -493,6 +493,9 @@ settings:
   searchConfig: 搜尋設定
   thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain: 此設定將決定您之後播放影片時是否會沿用之前的設定。
   playControl: 播放控制
+  playbackSpeedSettings: 播放與倍速
+  playbackBehaviorSettings: 播放行為
+  enhancementSettings: 劇院與畫質增強
   fastForwardTime: 快進時間
   fastForwardTimeMustBeAPositiveInteger: 快進時間必須是正整數。
   rewindTime: 快退時間

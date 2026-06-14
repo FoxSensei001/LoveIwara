@@ -492,6 +492,9 @@ settings:
   searchConfig: Search Config
   thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain: This configuration determines whether the previous configuration will be used when playing videos again.
   playControl: Play Control
+  playbackSpeedSettings: Playback & Speed
+  playbackBehaviorSettings: Playback Behavior
+  enhancementSettings: Theater & Enhancement
   fastForwardTime: Fast Forward Time
   fastForwardTimeMustBeAPositiveInteger: Fast forward time must be a positive integer.
   rewindTime: Rewind Time
