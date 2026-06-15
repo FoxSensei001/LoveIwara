@@ -36,7 +36,7 @@ class DatabaseService {
       _db = await openSqliteDb();
 
       // 运行迁移
-      _migrationManager.runMigrations(_db);
+      await _migrationManager.runMigrations(_db);
     } catch (e) {
       LogUtils.e('数据库初始化失败', tag: 'DatabaseService', error: e);
       throw DatabaseException("数据库初始化失败: $e");
