@@ -1,7 +1,12 @@
 allprojects {
     repositories {
-        maven { url 'https://maven.aliyun.com/repository/google' }
-        maven { url 'https://maven.aliyun.com/repository/public' }
+        // CI（GitHub Actions 等境外环境）跳过阿里云镜像，直接用官方源。
+        // 阿里云镜像偶发 502，且 Gradle 对 5xx 不会回退到后续仓库而是直接失败；
+        // 本地（国内）仍优先用阿里云镜像提速。
+        if (System.getenv("CI") != "true") {
+            maven { url 'https://maven.aliyun.com/repository/google' }
+            maven { url 'https://maven.aliyun.com/repository/public' }
+        }
         google()
         mavenCentral()
     }
