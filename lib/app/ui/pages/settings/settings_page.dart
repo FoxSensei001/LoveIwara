@@ -15,6 +15,7 @@ import 'theme_settings_page.dart';
 import 'download_settings_page.dart';
 import 'display_settings_page.dart';
 import 'gallery_settings_page.dart';
+import 'block_settings_page.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'about_page.dart';
 import 'diagnostics_page.dart';
@@ -405,6 +406,11 @@ class _SettingsPageState extends State<SettingsPage> {
             icon: Icons.photo_library_outlined,
             index: ProxyUtil.isSupportedPlatform() ? 8 : 7,
           ),
+          _SettingItem(
+            title: t.settings.blockSettings.title,
+            icon: Icons.block,
+            index: ProxyUtil.isSupportedPlatform() ? 11 : 10,
+          ),
         ],
       ),
       _SettingGroup(
@@ -590,6 +596,8 @@ class _SettingsPageState extends State<SettingsPage> {
         return DisplaySettingsPage(useSettingsNavi: true);
       case 8: // 图库设置
         return GallerySettingsPage(isWideScreen: enableTwoViews);
+      case 11: // 内容屏蔽
+        return BlockSettingsPage(isWideScreen: enableTwoViews);
       case 9: // 关于
         return AboutPage(isWideScreen: enableTwoViews);
       case 10: // 诊断与反馈

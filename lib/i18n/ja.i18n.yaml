@@ -682,6 +682,56 @@ settings:
     gallerySettingsSubtitle: ギャラリービューアの設定
     defaultViewerQuality: デフォルト画質
     defaultViewerQualityDesc: ギャラリービューアを開いたときに表示する画質を選択します。
+  # コンテンツブロック
+  blockSettings:
+    title: コンテンツブロック
+    subtitle: タイトルがキーワードや正規表現に一致する、またはブロックしたユーザーの投稿を自動的に非表示にします。判定はすべて端末内で行われ、アップロードされません。
+    blocked: ブロック済み
+    reveal: 表示
+    reblock: 再ブロック
+    why: 非表示の理由
+    manageRules: ルールを管理
+    reasonKeyword: 'タイトルに「${value}」を含む'
+    reasonRegex: 'タイトルが正規表現「${value}」に一致'
+    reasonUser: ブロックしたユーザー
+    addRule: ルールを追加
+    editRule: ルールを編集
+    deleteRule: ルールを削除
+    ruleType: ルールの種類
+    keyword: キーワード
+    regex: 正規表現
+    userId: ユーザー
+    value: 一致させる内容
+    caseSensitive: 大文字小文字を区別
+    regexHint: 例 予告|特典
+    valueRequired: 一致させる内容を入力してください
+    invalidRegex: 正規表現の形式が正しくありません
+    noRules: ルールがありません。右下の + で追加できます。
+    blockUser: ブロック
+    unblockUser: ブロック解除
+    blockUserConfirm: '「${name}」をブロックしますか？その動画とギャラリーは一覧と検索で非表示になります。'
+    userBlocked: ユーザーをブロックしました
+    userUnblocked: ブロックを解除しました
+    exportRules: エクスポート
+    importRules: インポート
+    exportSuccess: ルールをエクスポートしました
+    exportFailed: エクスポートに失敗しました
+    importSuccess: '${count} 件のルールをインポートしました'
+    importFailed: インポートに失敗しました
+    regexHelp: 正規表現ヘルプ
+    regexHelpTitle: 正規表現リファレンス
+    regexHelpIntro: 正規表現はキーワードより柔軟にタイトルを照合できます。よく使う例：
+    regexHelpTapHint: 例をタップするとそのまま入力されます。
+    regexEx1Pattern: 予告|特典|おまけ
+    regexEx1Desc: 「|」でいずれかに一致（「または」の意味）
+    regexEx2Pattern: ^【.*】
+    regexEx2Desc: 【…】で始まるタイトルに一致
+    regexEx3Pattern: 総集編$
+    regexEx3Desc: 「総集編」で終わるタイトルに一致
+    regexEx4Pattern: 第.話
+    regexEx4Desc: 「.」は任意の1文字（「第1話」「第X話」に一致）
+    regexEx5Pattern: '\d{4}'
+    regexEx5Desc: 「\d」は数字、{4} は4桁（年など）
   # チャット設定
   chatSettings:
     name: チャット

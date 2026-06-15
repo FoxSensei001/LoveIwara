@@ -194,6 +194,15 @@ class GlobalDrawerColumns extends StatelessWidget {
                         context,
                       ),
                     ),
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.block,
+                      title: slang.t.settings.blockSettings.title,
+                      onTap: () {
+                        NaviService.navigateToBlockSettingsPage();
+                        AppService.switchGlobalDrawer();
+                      },
+                    ),
 
                     const SizedBox(height: 16),
                   ],

@@ -687,6 +687,16 @@ class NaviService {
     );
   }
 
+  // 跳转到内容屏蔽设置页
+  static void navigateToBlockSettingsPage() {
+    appRouter.push(
+      '/settings_page',
+      extra: SettingsPageExtra(
+        initialPage: ProxyUtil.isSupportedPlatform() ? 11 : 10,
+      ),
+    );
+  }
+
   // 跳转到布局设置页
   static void navigateToLayoutSettingsPage() {
     appRouter.push('/layout_settings_page');

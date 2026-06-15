@@ -11,6 +11,7 @@ import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/login_service.dart';
+import 'package:i_iwara/app/ui/widgets/action_icon_button_scaffold.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -22,7 +23,15 @@ class FollowButtonWidget extends StatefulWidget {
   final User user;
   final Function(User user)? onUserUpdated;
 
-  const FollowButtonWidget({super.key, required this.user, this.onUserUpdated});
+  /// 仅图标模式（用于空间有限的操作栏）。
+  final bool iconOnly;
+
+  const FollowButtonWidget({
+    super.key,
+    required this.user,
+    this.onUserUpdated,
+    this.iconOnly = false,
+  });
 
   @override
   State<FollowButtonWidget> createState() => _FollowButtonWidgetState();
@@ -226,12 +235,79 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
     );
   }
 
+  Future<void> _handleFollow(BuildContext context) async {
+    final t = slang.Translations.of(context);
+    VibrateUtils.vibrate();
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final result = await _userService.followUser(_currentUser.id);
+      if (result.isSuccess) {
+        final updatedUser = _currentUser.copyWith(following: true);
+        setState(() {
+          _currentUser = updatedUser;
+        });
+        widget.onUserUpdated?.call(updatedUser);
+        final configService = Get.find<ConfigService>();
+        final showFollowTipCount =
+            configService[ConfigKey.SHOW_FOLLOW_TIP_COUNT] as int;
+        final random = Random();
+        if (showFollowTipCount > 0) {
+          final shouldShow =
+              showFollowTipCount > 0 && random.nextDouble() < 0.5;
+          if (shouldShow) {
+            final ctx = context;
+            if (ctx.mounted) {
+              ScaffoldMessenger.of(ctx).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    "🔔 ${t.common.followSuccessClickAgainToSpecialFollow}",
+                  ),
+                  duration: const Duration(seconds: 3),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+
+            final newCount = max(0, showFollowTipCount - 1);
+            configService.setSetting(ConfigKey.SHOW_FOLLOW_TIP_COUNT, newCount);
+          }
+        }
+      } else {
+        showToastWidget(
+          MDToastWidget(message: result.message, type: MDToastType.error),
+          position: ToastPosition.top,
+        );
+      }
+    } catch (e) {
+      showToastWidget(
+        MDToastWidget(
+          message: t.errors.failedToOperate,
+          type: MDToastType.error,
+        ),
+        position: ToastPosition.top,
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     // 如果是自己，不显示关注按钮
     if (_userService.currentUser.value?.id == _currentUser.id) {
       return const SizedBox.shrink();
+    }
+
+    if (widget.iconOnly) {
+      return _buildIconOnly(context);
     }
 
     if (_isLoading) {
@@ -243,68 +319,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
 
     if (!_currentUser.following) {
       return ElevatedButton.icon(
-        onPressed: () async {
-          VibrateUtils.vibrate();
-          setState(() {
-            _isLoading = true;
-          });
-
-          try {
-            final result = await _userService.followUser(_currentUser.id);
-            if (result.isSuccess) {
-              final updatedUser = _currentUser.copyWith(following: true);
-              setState(() {
-                _currentUser = updatedUser;
-              });
-              widget.onUserUpdated?.call(updatedUser);
-              final configService = Get.find<ConfigService>();
-              final showFollowTipCount =
-                  configService[ConfigKey.SHOW_FOLLOW_TIP_COUNT] as int;
-              final random = Random();
-              if (showFollowTipCount > 0) {
-                final shouldShow =
-                    showFollowTipCount > 0 && random.nextDouble() < 0.5;
-                if (shouldShow) {
-                  final ctx = context;
-                  if (ctx.mounted) {
-                    ScaffoldMessenger.of(ctx).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          "🔔 ${t.common.followSuccessClickAgainToSpecialFollow}",
-                        ),
-                        duration: const Duration(seconds: 3),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                  }
-
-                  final newCount = max(0, showFollowTipCount - 1);
-                  configService.setSetting(
-                    ConfigKey.SHOW_FOLLOW_TIP_COUNT,
-                    newCount,
-                  );
-                }
-              }
-            } else {
-              showToastWidget(
-                MDToastWidget(message: result.message, type: MDToastType.error),
-                position: ToastPosition.top,
-              );
-            }
-          } catch (e) {
-            showToastWidget(
-              MDToastWidget(
-                message: t.errors.failedToOperate,
-                type: MDToastType.error,
-              ),
-              position: ToastPosition.top,
-            );
-          } finally {
-            setState(() {
-              _isLoading = false;
-            });
-          }
-        },
+        onPressed: () => _handleFollow(context),
         icon: const Icon(Icons.person_add, size: 18),
         label: Text(t.common.follow),
       );
@@ -328,6 +343,33 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
         },
         icon: Icon(isSpecialFollowed ? Icons.stars : Icons.check, size: 18),
         label: Text(t.common.followed),
+      );
+    });
+  }
+
+  Widget _buildIconOnly(BuildContext context) {
+    final t = slang.Translations.of(context);
+    if (_isLoading) {
+      return ActionIconButtonScaffold.loading();
+    }
+    if (!_currentUser.following) {
+      return ActionIconButtonScaffold(
+        icon: Icons.person_add_alt_1,
+        tooltip: t.common.follow,
+        filled: true,
+        onPressed: () => _handleFollow(context),
+      );
+    }
+    return Obx(() {
+      final isSpecialFollowed = _userPreferenceService.likedUsers.any(
+        (u) => u.id == _currentUser.id,
+      );
+      return ActionIconButtonScaffold(
+        icon: isSpecialFollowed ? Icons.star : Icons.check,
+        tooltip: t.common.followed,
+        selected: true,
+        highlightColor: isSpecialFollowed ? Colors.amber : null,
+        onPressed: () => _showFollowOptionsSheet(context),
       );
     });
   }

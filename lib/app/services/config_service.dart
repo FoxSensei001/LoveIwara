@@ -376,6 +376,8 @@ enum ConfigKey {
   LOG_MAX_LOGS_PER_SECOND, // 每秒日志限流
   LOG_HANG_MAX_FILE_MB, // 卡顿日志文件大小上限（MB）
   LOG_HANG_MAX_ROTATED_FILES, // 卡顿日志轮转文件数量
+  // 内容屏蔽（关键词/正则/用户ID），存为规则 JSON 列表
+  CONTENT_BLOCK_RULES,
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -607,6 +609,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'log_hang_max_file_mb';
       case ConfigKey.LOG_HANG_MAX_ROTATED_FILES:
         return 'log_hang_max_rotated_files';
+      case ConfigKey.CONTENT_BLOCK_RULES:
+        return 'content_block_rules';
     }
   }
 
@@ -850,6 +854,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 2;
       case ConfigKey.LOG_HANG_MAX_ROTATED_FILES:
         return 2;
+      case ConfigKey.CONTENT_BLOCK_RULES:
+        return <dynamic>[];
     }
   }
 }

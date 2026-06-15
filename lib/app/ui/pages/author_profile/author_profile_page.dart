@@ -38,6 +38,7 @@ import '../popular_media_list/widgets/media_description_widget.dart';
 import 'controllers/authro_profile_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
+import 'package:i_iwara/app/ui/widgets/block_user_button_widget.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/post_input_dialog.dart';
 import 'package:i_iwara/app/ui/pages/conversation/widgets/new_conversation_dialog.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/share_user_bottom_sheet.dart';
@@ -943,9 +944,10 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                             SizedBox(
                               width: double.infinity,
                               child: Wrap(
-                                spacing: isNarrowScreen ? 8.0 : 16.0,
-                                runSpacing: isNarrowScreen ? 4.0 : 8.0,
+                                spacing: 10.0,
+                                runSpacing: 8.0,
                                 alignment: WrapAlignment.start,
+                                crossAxisAlignment: WrapCrossAlignment.center,
                                 children: [
                                   // 朋友按钮
                                   Obx(() {
@@ -955,21 +957,18 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                                       return const SizedBox.shrink();
                                     }
 
-                                    return SizedBox(
-                                      height: isNarrowScreen ? 32 : 36,
-                                      child: FriendButtonWidget(
-                                        user: profileController.author.value!,
-                                        // isPending: profileController.isFriendRequestPending.value,
-                                        onUserUpdated: (updatedUser) {
-                                          profileController.author.value =
-                                              updatedUser;
-                                          profileController
-                                              .isFriendRequestPending
-                                              .value = !profileController
-                                              .isFriendRequestPending
-                                              .value;
-                                        },
-                                      ),
+                                    return FriendButtonWidget(
+                                      iconOnly: true,
+                                      user: profileController.author.value!,
+                                      onUserUpdated: (updatedUser) {
+                                        profileController.author.value =
+                                            updatedUser;
+                                        profileController
+                                            .isFriendRequestPending
+                                            .value = !profileController
+                                            .isFriendRequestPending
+                                            .value;
+                                      },
                                     );
                                   }),
                                   // 关注按钮
@@ -985,15 +984,28 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                                       return const SizedBox.shrink();
                                     }
 
-                                    return SizedBox(
-                                      height: isNarrowScreen ? 32 : 36,
-                                      child: FollowButtonWidget(
-                                        user: profileController.author.value!,
-                                        onUserUpdated: (updatedUser) {
-                                          profileController.author.value =
-                                              updatedUser;
-                                        },
-                                      ),
+                                    return FollowButtonWidget(
+                                      iconOnly: true,
+                                      user: profileController.author.value!,
+                                      onUserUpdated: (updatedUser) {
+                                        profileController.author.value =
+                                            updatedUser;
+                                      },
+                                    );
+                                  }),
+                                  // 屏蔽按钮（本地内容屏蔽）
+                                  Obx(() {
+                                    if (userService.currentUser.value?.id ==
+                                        profileController.author.value?.id) {
+                                      return const SizedBox.shrink();
+                                    }
+                                    if (profileController.author.value ==
+                                        null) {
+                                      return const SizedBox.shrink();
+                                    }
+                                    return BlockUserButtonWidget(
+                                      iconOnly: true,
+                                      user: profileController.author.value!,
                                     );
                                   }),
                                 ],

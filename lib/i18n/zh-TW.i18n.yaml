@@ -682,6 +682,56 @@ settings:
     gallerySettingsSubtitle: 設定圖庫檢視器偏好
     defaultViewerQuality: 預設清晰度
     defaultViewerQualityDesc: 開啟圖庫檢視器時預設顯示哪一種清晰度。
+  # 內容封鎖
+  blockSettings:
+    title: 內容封鎖
+    subtitle: 當影片或圖庫的標題命中關鍵字或正規，或來自被封鎖的使用者時，自動隱藏。所有比對都在本機完成，不會上傳。
+    blocked: 已封鎖
+    reveal: 顯示
+    reblock: 重新封鎖
+    why: 為何被封鎖
+    manageRules: 管理封鎖規則
+    reasonKeyword: '標題包含「${value}」'
+    reasonRegex: '標題符合正規「${value}」'
+    reasonUser: 來自已封鎖的使用者
+    addRule: 新增規則
+    editRule: 編輯規則
+    deleteRule: 刪除規則
+    ruleType: 規則類型
+    keyword: 關鍵字
+    regex: 正規
+    userId: 使用者
+    value: 要比對的內容
+    caseSensitive: 區分大小寫
+    regexHint: 例如 預告|花絮
+    valueRequired: 請輸入要比對的內容
+    invalidRegex: 正規表達式格式有誤
+    noRules: 還沒有規則，點右下角的 + 新增
+    blockUser: 封鎖
+    unblockUser: 取消封鎖
+    blockUserConfirm: '確定封鎖「${name}」嗎？TA 的影片和圖庫會在清單和搜尋中被隱藏。'
+    userBlocked: 已封鎖該使用者
+    userUnblocked: 已取消封鎖
+    exportRules: 匯出
+    importRules: 匯入
+    exportSuccess: 規則已匯出
+    exportFailed: 匯出失敗
+    importSuccess: '已匯入 ${count} 條規則'
+    importFailed: 匯入失敗
+    regexHelp: 正規說明
+    regexHelpTitle: 正規表達式參考
+    regexHelpIntro: 正規能比關鍵字更靈活地比對標題。下面是幾個常見寫法：
+    regexHelpTapHint: 點擊範例即可直接填入。
+    regexEx1Pattern: 預告|花絮|彩蛋
+    regexEx1Desc: 用「|」比對其中任一個詞（表示「或」）
+    regexEx2Pattern: ^【.*】
+    regexEx2Desc: 比對以【…】開頭的標題
+    regexEx3Pattern: 合集$
+    regexEx3Desc: 比對以「合集」結尾的標題
+    regexEx4Pattern: 第.話
+    regexEx4Desc: 「.」代表任一個字，可比對「第1話」「第X話」
+    regexEx5Pattern: '\d{4}'
+    regexEx5Desc: 「\d」是數字，{4} 表示連續 4 位，可比對年份等
   # 聊天頁
   chatSettings:
     name: 聊天

@@ -1,7 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/content_block_service.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/blocked_media_card_placeholder.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_preview_modal.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/base_card_list_item_widget.dart'
@@ -31,6 +34,9 @@ class VideoCardListItemWidget extends StatefulWidget {
   })?
   onOpenVideo;
 
+  /// 是否禁用内容屏蔽（如作者本人主页内不屏蔽其内容）。
+  final bool disableBlock;
+
   const VideoCardListItemWidget({
     super.key,
     required this.video,
@@ -39,6 +45,7 @@ class VideoCardListItemWidget extends StatefulWidget {
     this.isSelected = false,
     this.onSelect,
     this.onOpenVideo,
+    this.disableBlock = false,
   });
 
   @override
@@ -52,6 +59,7 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
   static const double _titleHeight = _titleFontSize * _titleLineHeight * 2;
 
   bool _isHovering = false;
+  bool _revealed = false;
   bool? _likedOverride;
   int? _likeCountOverride;
   static const Duration _hoverAnimationDuration = Duration(milliseconds: 220);
@@ -130,6 +138,35 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.disableBlock ||
+        widget.isMultiSelectMode ||
+        !Get.isRegistered<ContentBlockService>()) {
+      return _buildCard(context);
+    }
+    return Obx(() {
+      final match = Get.find<ContentBlockService>().check(
+        title: widget.video.title,
+        authorId: widget.video.user?.id,
+      );
+      if (match != null && !_revealed) {
+        // 在真实卡片之上叠加磨砂遮罩，保证与普通卡片完全等高。
+        return Stack(
+          children: [
+            IgnorePointer(child: _buildCard(context)),
+            Positioned.fill(
+              child: BlockedMediaOverlay(
+                match: match,
+                onReveal: () => setState(() => _revealed = true),
+              ),
+            ),
+          ],
+        );
+      }
+      return _buildCard(context, showReblock: match != null);
+    });
+  }
+
+  Widget _buildCard(BuildContext context, {bool showReblock = false}) {
     final theme = Theme.of(context);
     final radius = BorderRadius.circular(14);
     final titleStyle = theme.textTheme.titleMedium?.copyWith(
@@ -226,6 +263,9 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
                           width: widget.width,
                           isHovering: showHoverState,
                           overlay: overlay,
+                          onReblock: showReblock
+                              ? () => setState(() => _revealed = false)
+                              : null,
                         ),
                         Padding(
                           padding: const EdgeInsets.fromLTRB(10, 10, 10, 9),
@@ -326,12 +366,14 @@ class _Thumbnail extends StatelessWidget {
 
   final bool isHovering;
   final Widget? overlay;
+  final VoidCallback? onReblock;
 
   const _Thumbnail({
     required this.video,
     required this.width,
     required this.isHovering,
     this.overlay,
+    this.onReblock,
   });
 
   @override
@@ -349,6 +391,7 @@ class _Thumbnail extends StatelessWidget {
             _buildImage(),
             ...buildTags(context, t),
             if (overlay != null) Positioned.fill(child: overlay!),
+            if (onReblock != null) ReblockChip(onTap: onReblock!),
           ],
         ),
       ),

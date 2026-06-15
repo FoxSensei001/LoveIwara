@@ -4,6 +4,7 @@ import 'package:i_iwara/app/models/user.model.dart';
 
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/login_service.dart';
+import 'package:i_iwara/app/ui/widgets/action_icon_button_scaffold.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:oktoast/oktoast.dart';
@@ -15,10 +16,14 @@ class FriendButtonWidget extends StatefulWidget {
   final User user;
   final Function(User user)? onUserUpdated;
 
+  /// 仅图标模式（用于空间有限的操作栏）。
+  final bool iconOnly;
+
   const FriendButtonWidget({
     super.key,
     required this.user,
     this.onUserUpdated,
+    this.iconOnly = false,
   });
 
   @override
@@ -74,6 +79,10 @@ class _FriendButtonWidgetState extends State<FriendButtonWidget> {
       return const SizedBox.shrink();
     }
 
+    if (widget.iconOnly) {
+      return _buildIconOnly(context);
+    }
+
     // 加载状态显示
     if (_isLoading) {
       return ElevatedButton.icon(
@@ -113,6 +122,35 @@ class _FriendButtonWidgetState extends State<FriendButtonWidget> {
       onPressed: () => _handleFriendAction(context),
       icon: const Icon(Icons.person_add, size: 18),
       label: Text(t.common.addFriend),
+    );
+  }
+
+  Widget _buildIconOnly(BuildContext context) {
+    final t = slang.Translations.of(context);
+    if (_isLoading) {
+      return ActionIconButtonScaffold.loading();
+    }
+    if (_friendStatus == 'pending') {
+      return ActionIconButtonScaffold(
+        icon: Icons.hourglass_top,
+        tooltip: t.common.cancelFriendRequest,
+        selected: true,
+        highlightColor: Colors.orange,
+        onPressed: () => _handleFriendAction(context),
+      );
+    }
+    if (_friendStatus == 'friends') {
+      return ActionIconButtonScaffold(
+        icon: Icons.how_to_reg,
+        tooltip: t.common.removeFriend,
+        selected: true,
+        onPressed: () => _handleFriendAction(context),
+      );
+    }
+    return ActionIconButtonScaffold(
+      icon: Icons.person_add_alt_1,
+      tooltip: t.common.addFriend,
+      onPressed: () => _handleFriendAction(context),
     );
   }
 

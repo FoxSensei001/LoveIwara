@@ -814,6 +814,7 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get videoSyncDesync => '去同步';
 	@override late final _TranslationsSettingsForumSettingsZhTw forumSettings = _TranslationsSettingsForumSettingsZhTw._(_root);
 	@override late final _TranslationsSettingsGallerySettingsZhTw gallerySettings = _TranslationsSettingsGallerySettingsZhTw._(_root);
+	@override late final _TranslationsSettingsBlockSettingsZhTw blockSettings = _TranslationsSettingsBlockSettingsZhTw._(_root);
 	@override late final _TranslationsSettingsChatSettingsZhTw chatSettings = _TranslationsSettingsChatSettingsZhTw._(_root);
 	@override String get hardwareDecodingAuto => '自動';
 	@override String get hardwareDecodingAutoCopy => '自動複製';
@@ -2126,6 +2127,63 @@ class _TranslationsSettingsGallerySettingsZhTw implements TranslationsSettingsGa
 	@override String get gallerySettingsSubtitle => '設定圖庫檢視器偏好';
 	@override String get defaultViewerQuality => '預設清晰度';
 	@override String get defaultViewerQualityDesc => '開啟圖庫檢視器時預設顯示哪一種清晰度。';
+}
+
+// Path: settings.blockSettings
+class _TranslationsSettingsBlockSettingsZhTw implements TranslationsSettingsBlockSettingsEn {
+	_TranslationsSettingsBlockSettingsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '內容封鎖';
+	@override String get subtitle => '當影片或圖庫的標題命中關鍵字或正規，或來自被封鎖的使用者時，自動隱藏。所有比對都在本機完成，不會上傳。';
+	@override String get blocked => '已封鎖';
+	@override String get reveal => '顯示';
+	@override String get reblock => '重新封鎖';
+	@override String get why => '為何被封鎖';
+	@override String get manageRules => '管理封鎖規則';
+	@override String reasonKeyword({required Object value}) => '標題包含「${value}」';
+	@override String reasonRegex({required Object value}) => '標題符合正規「${value}」';
+	@override String get reasonUser => '來自已封鎖的使用者';
+	@override String get addRule => '新增規則';
+	@override String get editRule => '編輯規則';
+	@override String get deleteRule => '刪除規則';
+	@override String get ruleType => '規則類型';
+	@override String get keyword => '關鍵字';
+	@override String get regex => '正規';
+	@override String get userId => '使用者';
+	@override String get value => '要比對的內容';
+	@override String get caseSensitive => '區分大小寫';
+	@override String get regexHint => '例如 預告|花絮';
+	@override String get valueRequired => '請輸入要比對的內容';
+	@override String get invalidRegex => '正規表達式格式有誤';
+	@override String get noRules => '還沒有規則，點右下角的 + 新增';
+	@override String get blockUser => '封鎖';
+	@override String get unblockUser => '取消封鎖';
+	@override String blockUserConfirm({required Object name}) => '確定封鎖「${name}」嗎？TA 的影片和圖庫會在清單和搜尋中被隱藏。';
+	@override String get userBlocked => '已封鎖該使用者';
+	@override String get userUnblocked => '已取消封鎖';
+	@override String get exportRules => '匯出';
+	@override String get importRules => '匯入';
+	@override String get exportSuccess => '規則已匯出';
+	@override String get exportFailed => '匯出失敗';
+	@override String importSuccess({required Object count}) => '已匯入 ${count} 條規則';
+	@override String get importFailed => '匯入失敗';
+	@override String get regexHelp => '正規說明';
+	@override String get regexHelpTitle => '正規表達式參考';
+	@override String get regexHelpIntro => '正規能比關鍵字更靈活地比對標題。下面是幾個常見寫法：';
+	@override String get regexHelpTapHint => '點擊範例即可直接填入。';
+	@override String get regexEx1Pattern => '預告|花絮|彩蛋';
+	@override String get regexEx1Desc => '用「|」比對其中任一個詞（表示「或」）';
+	@override String get regexEx2Pattern => '^【.*】';
+	@override String get regexEx2Desc => '比對以【…】開頭的標題';
+	@override String get regexEx3Pattern => '合集\$';
+	@override String get regexEx3Desc => '比對以「合集」結尾的標題';
+	@override String get regexEx4Pattern => '第.話';
+	@override String get regexEx4Desc => '「.」代表任一個字，可比對「第1話」「第X話」';
+	@override String get regexEx5Pattern => '\d{4}';
+	@override String get regexEx5Desc => '「\d」是數字，{4} 表示連續 4 位，可比對年份等';
 }
 
 // Path: settings.chatSettings
@@ -3576,6 +3634,54 @@ extension on TranslationsZhTw {
 			'settings.gallerySettings.gallerySettingsSubtitle' => '設定圖庫檢視器偏好',
 			'settings.gallerySettings.defaultViewerQuality' => '預設清晰度',
 			'settings.gallerySettings.defaultViewerQualityDesc' => '開啟圖庫檢視器時預設顯示哪一種清晰度。',
+			'settings.blockSettings.title' => '內容封鎖',
+			'settings.blockSettings.subtitle' => '當影片或圖庫的標題命中關鍵字或正規，或來自被封鎖的使用者時，自動隱藏。所有比對都在本機完成，不會上傳。',
+			'settings.blockSettings.blocked' => '已封鎖',
+			'settings.blockSettings.reveal' => '顯示',
+			'settings.blockSettings.reblock' => '重新封鎖',
+			'settings.blockSettings.why' => '為何被封鎖',
+			'settings.blockSettings.manageRules' => '管理封鎖規則',
+			'settings.blockSettings.reasonKeyword' => ({required Object value}) => '標題包含「${value}」',
+			'settings.blockSettings.reasonRegex' => ({required Object value}) => '標題符合正規「${value}」',
+			'settings.blockSettings.reasonUser' => '來自已封鎖的使用者',
+			'settings.blockSettings.addRule' => '新增規則',
+			'settings.blockSettings.editRule' => '編輯規則',
+			'settings.blockSettings.deleteRule' => '刪除規則',
+			'settings.blockSettings.ruleType' => '規則類型',
+			'settings.blockSettings.keyword' => '關鍵字',
+			'settings.blockSettings.regex' => '正規',
+			'settings.blockSettings.userId' => '使用者',
+			'settings.blockSettings.value' => '要比對的內容',
+			'settings.blockSettings.caseSensitive' => '區分大小寫',
+			'settings.blockSettings.regexHint' => '例如 預告|花絮',
+			'settings.blockSettings.valueRequired' => '請輸入要比對的內容',
+			'settings.blockSettings.invalidRegex' => '正規表達式格式有誤',
+			'settings.blockSettings.noRules' => '還沒有規則，點右下角的 + 新增',
+			'settings.blockSettings.blockUser' => '封鎖',
+			'settings.blockSettings.unblockUser' => '取消封鎖',
+			'settings.blockSettings.blockUserConfirm' => ({required Object name}) => '確定封鎖「${name}」嗎？TA 的影片和圖庫會在清單和搜尋中被隱藏。',
+			'settings.blockSettings.userBlocked' => '已封鎖該使用者',
+			'settings.blockSettings.userUnblocked' => '已取消封鎖',
+			'settings.blockSettings.exportRules' => '匯出',
+			'settings.blockSettings.importRules' => '匯入',
+			'settings.blockSettings.exportSuccess' => '規則已匯出',
+			'settings.blockSettings.exportFailed' => '匯出失敗',
+			'settings.blockSettings.importSuccess' => ({required Object count}) => '已匯入 ${count} 條規則',
+			'settings.blockSettings.importFailed' => '匯入失敗',
+			'settings.blockSettings.regexHelp' => '正規說明',
+			'settings.blockSettings.regexHelpTitle' => '正規表達式參考',
+			'settings.blockSettings.regexHelpIntro' => '正規能比關鍵字更靈活地比對標題。下面是幾個常見寫法：',
+			'settings.blockSettings.regexHelpTapHint' => '點擊範例即可直接填入。',
+			'settings.blockSettings.regexEx1Pattern' => '預告|花絮|彩蛋',
+			'settings.blockSettings.regexEx1Desc' => '用「|」比對其中任一個詞（表示「或」）',
+			'settings.blockSettings.regexEx2Pattern' => '^【.*】',
+			'settings.blockSettings.regexEx2Desc' => '比對以【…】開頭的標題',
+			'settings.blockSettings.regexEx3Pattern' => '合集\$',
+			'settings.blockSettings.regexEx3Desc' => '比對以「合集」結尾的標題',
+			'settings.blockSettings.regexEx4Pattern' => '第.話',
+			'settings.blockSettings.regexEx4Desc' => '「.」代表任一個字，可比對「第1話」「第X話」',
+			'settings.blockSettings.regexEx5Pattern' => '\d{4}',
+			'settings.blockSettings.regexEx5Desc' => '「\d」是數字，{4} 表示連續 4 位，可比對年份等',
 			'settings.chatSettings.name' => '聊天',
 			'settings.chatSettings.configureYourChatSettings' => '配置您的聊天設定',
 			'settings.hardwareDecodingAuto' => '自動',
@@ -3903,6 +4009,8 @@ extension on TranslationsZhTw {
 			'videoDetail.cast.castStopped' => '已停止投影',
 			'videoDetail.cast.deviceTypes.mediaRenderer' => '媒體播放器',
 			'videoDetail.cast.deviceTypes.mediaServer' => '媒體伺服器',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.deviceTypes.internetGatewayDevice' => '路由器',
 			'videoDetail.cast.deviceTypes.basicDevice' => '基礎裝置',
 			'videoDetail.cast.deviceTypes.dimmableLight' => '智慧燈',
@@ -3951,8 +4059,6 @@ extension on TranslationsZhTw {
 			'share.shareVideo' => '分享影片',
 			'share.authorIs' => '作者是',
 			'share.shareGallery' => '分享圖庫',
-			_ => null,
-		} ?? switch (path) {
 			'share.galleryTitleIs' => '圖庫名字叫做',
 			'share.galleryAuthorIs' => '圖庫作者是',
 			'share.shareUser' => '分享使用者',
@@ -4417,6 +4523,8 @@ extension on TranslationsZhTw {
 			'translation.notEnabled' => '未啟用',
 			'translation.deeplxTranslationService' => 'DeepLX 翻譯服務',
 			'translation.deeplxDescription' => 'DeepLX 是 DeepL 翻譯的開源實現，支援 Free、Pro 和 Official 三種端點模式',
+			_ => null,
+		} ?? switch (path) {
 			'translation.serverAddress' => '伺服器地址',
 			'translation.serverAddressHint' => 'https://api.deeplx.org',
 			'translation.serverAddressHelperText' => 'DeepLX 伺服器的基礎地址',
@@ -4465,8 +4573,6 @@ extension on TranslationsZhTw {
 			'translation.useMaxCompletionTokensDescription' => '新版 OpenAI 端點已棄用 max_tokens，需改用 max_completion_tokens',
 			'translation.sendTemperature' => '下發 temperature',
 			'translation.sendTemperatureDescription' => '對於拒絕 temperature 參數的模型(多數推理模型)請關閉',
-			_ => null,
-		} ?? switch (path) {
 			'translation.showReasoningProcess' => '顯示思考過程',
 			'translation.showReasoningProcessDescription' => '在翻譯彈窗中以可折疊形式展示推理模型的思考過程',
 			'translation.provider' => '服務商',
@@ -4931,6 +5037,8 @@ extension on TranslationsZhTw {
 			'anime4k.presetDescriptions.mode_c_a_fast' => 'Mode C+A的快速版本，在快速處理高品質片源的同時，進行輕度的線條修復。',
 			'anime4k.presetDescriptions.upscale_only_s' => '僅使用最快的CNN模型進行x2放大，無修復和降噪，性能開銷最低。',
 			'anime4k.presetDescriptions.upscale_deblur_fast' => '使用快速的非CNN演算法進行放大和去模糊，效果優於傳統演算法，性能開銷很低。',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetDescriptions.restore_s_only' => '僅使用最快的CNN模型修復畫面瑕疵，不進行放大。適用於原生解析度播放，但希望改善畫質的情況。',
 			'anime4k.presetDescriptions.denoise_bilateral_fast' => '使用傳統的雙邊濾波器進行降噪，速度極快，適用於處理輕微噪點。',
 			'anime4k.presetDescriptions.upscale_non_cnn' => '使用快速的傳統演算法進行放大，性能開銷極低，效果優於播放器內建演算法。',

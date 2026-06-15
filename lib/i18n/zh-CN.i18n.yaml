@@ -688,6 +688,56 @@ settings:
     gallerySettingsSubtitle: 配置图库查看器偏好
     defaultViewerQuality: 默认清晰度
     defaultViewerQualityDesc: 打开图库查看器时默认显示哪一种清晰度。
+  # 内容屏蔽
+  blockSettings:
+    title: 内容屏蔽
+    subtitle: 当视频或图库的标题命中关键词或正则，或来自被屏蔽的用户时，自动隐藏。所有匹配都在本地完成，不会上传。
+    blocked: 已屏蔽
+    reveal: 显示
+    reblock: 重新屏蔽
+    why: 为何被屏蔽
+    manageRules: 管理屏蔽规则
+    reasonKeyword: '标题包含「${value}」'
+    reasonRegex: '标题匹配正则「${value}」'
+    reasonUser: 来自已屏蔽的用户
+    addRule: 添加规则
+    editRule: 编辑规则
+    deleteRule: 删除规则
+    ruleType: 规则类型
+    keyword: 关键词
+    regex: 正则
+    userId: 用户
+    value: 要匹配的内容
+    caseSensitive: 区分大小写
+    regexHint: 例如 预告|花絮
+    valueRequired: 请输入要匹配的内容
+    invalidRegex: 正则表达式格式有误
+    noRules: 还没有规则，点右下角的 + 添加
+    blockUser: 屏蔽
+    unblockUser: 取消屏蔽
+    blockUserConfirm: '确定屏蔽「${name}」吗？TA 的视频和图库会在列表和搜索中被隐藏。'
+    userBlocked: 已屏蔽该用户
+    userUnblocked: 已取消屏蔽
+    exportRules: 导出
+    importRules: 导入
+    exportSuccess: 规则已导出
+    exportFailed: 导出失败
+    importSuccess: '已导入 ${count} 条规则'
+    importFailed: 导入失败
+    regexHelp: 正则帮助
+    regexHelpTitle: 正则表达式参考
+    regexHelpIntro: 正则能比关键词更灵活地匹配标题。下面是几个常见写法：
+    regexHelpTapHint: 点击示例即可直接填入。
+    regexEx1Pattern: 预告|花絮|彩蛋
+    regexEx1Desc: 用「|」匹配其中任意一个词（表示「或」）
+    regexEx2Pattern: ^【.*】
+    regexEx2Desc: 匹配以【…】开头的标题
+    regexEx3Pattern: 合集$
+    regexEx3Desc: 匹配以「合集」结尾的标题
+    regexEx4Pattern: 第.话
+    regexEx4Desc: 「.」代表任意一个字，可匹配「第1话」「第X话」
+    regexEx5Pattern: '\d{4}'
+    regexEx5Desc: 「\d」是数字，{4} 表示连续 4 位，可匹配年份等
   # 聊天页
   chatSettings:
     name: 聊天

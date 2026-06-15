@@ -681,6 +681,56 @@ settings:
     gallerySettingsSubtitle: Configure gallery viewer preferences
     defaultViewerQuality: Default viewer quality
     defaultViewerQualityDesc: Choose which image quality to show by default when opening the gallery viewer.
+  # Content blocking
+  blockSettings:
+    title: Content Block
+    subtitle: Automatically hide videos and galleries whose title matches a keyword or pattern, or that come from a blocked user. All matching happens on your device — nothing is uploaded.
+    blocked: Blocked
+    reveal: Show
+    reblock: Block again
+    why: Why blocked?
+    manageRules: Manage rules
+    reasonKeyword: 'Title contains "${value}"'
+    reasonRegex: 'Title matches "${value}"'
+    reasonUser: From a blocked user
+    addRule: Add rule
+    editRule: Edit rule
+    deleteRule: Delete rule
+    ruleType: Rule type
+    keyword: Keyword
+    regex: Regex
+    userId: User
+    value: Text to match
+    caseSensitive: Case sensitive
+    regexHint: e.g. trailer|teaser
+    valueRequired: Please enter the text to match
+    invalidRegex: That's not a valid regular expression
+    noRules: No rules yet. Tap + to add one.
+    blockUser: Block
+    unblockUser: Unblock
+    blockUserConfirm: 'Block "${name}"? Their videos and galleries will be hidden from lists and search.'
+    userBlocked: User blocked
+    userUnblocked: User unblocked
+    exportRules: Export
+    importRules: Import
+    exportSuccess: Rules exported
+    exportFailed: Couldn't export rules
+    importSuccess: 'Imported ${count} rule(s)'
+    importFailed: Couldn't import rules
+    regexHelp: Pattern help
+    regexHelpTitle: Regex reference
+    regexHelpIntro: 'A regular expression matches titles more flexibly than a plain keyword. Some common examples:'
+    regexHelpTapHint: Tap an example to fill it in.
+    regexEx1Pattern: trailer|teaser|bonus
+    regexEx1Desc: Match any one of these words ("|" means "or")
+    regexEx2Pattern: '^\[.*\]'
+    regexEx2Desc: Titles that start with [brackets]
+    regexEx3Pattern: 'Collection$'
+    regexEx3Desc: Titles that end with "Collection"
+    regexEx4Pattern: 'Ep\.\d+'
+    regexEx4Desc: '\d+ is one or more digits — matches "Ep.12"'
+    regexEx5Pattern: '\d{4}'
+    regexEx5Desc: \d is a digit and {4} means four in a row (e.g. a year)
   # Chat
   chatSettings:
     name: Chat

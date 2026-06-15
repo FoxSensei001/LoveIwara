@@ -819,6 +819,7 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get videoSyncDesync => '去同步';
 	@override late final _TranslationsSettingsForumSettingsZhCn forumSettings = _TranslationsSettingsForumSettingsZhCn._(_root);
 	@override late final _TranslationsSettingsGallerySettingsZhCn gallerySettings = _TranslationsSettingsGallerySettingsZhCn._(_root);
+	@override late final _TranslationsSettingsBlockSettingsZhCn blockSettings = _TranslationsSettingsBlockSettingsZhCn._(_root);
 	@override late final _TranslationsSettingsChatSettingsZhCn chatSettings = _TranslationsSettingsChatSettingsZhCn._(_root);
 	@override String get hardwareDecodingAuto => '自动';
 	@override String get hardwareDecodingAutoCopy => '自动复制';
@@ -2128,6 +2129,63 @@ class _TranslationsSettingsGallerySettingsZhCn implements TranslationsSettingsGa
 	@override String get gallerySettingsSubtitle => '配置图库查看器偏好';
 	@override String get defaultViewerQuality => '默认清晰度';
 	@override String get defaultViewerQualityDesc => '打开图库查看器时默认显示哪一种清晰度。';
+}
+
+// Path: settings.blockSettings
+class _TranslationsSettingsBlockSettingsZhCn implements TranslationsSettingsBlockSettingsEn {
+	_TranslationsSettingsBlockSettingsZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '内容屏蔽';
+	@override String get subtitle => '当视频或图库的标题命中关键词或正则，或来自被屏蔽的用户时，自动隐藏。所有匹配都在本地完成，不会上传。';
+	@override String get blocked => '已屏蔽';
+	@override String get reveal => '显示';
+	@override String get reblock => '重新屏蔽';
+	@override String get why => '为何被屏蔽';
+	@override String get manageRules => '管理屏蔽规则';
+	@override String reasonKeyword({required Object value}) => '标题包含「${value}」';
+	@override String reasonRegex({required Object value}) => '标题匹配正则「${value}」';
+	@override String get reasonUser => '来自已屏蔽的用户';
+	@override String get addRule => '添加规则';
+	@override String get editRule => '编辑规则';
+	@override String get deleteRule => '删除规则';
+	@override String get ruleType => '规则类型';
+	@override String get keyword => '关键词';
+	@override String get regex => '正则';
+	@override String get userId => '用户';
+	@override String get value => '要匹配的内容';
+	@override String get caseSensitive => '区分大小写';
+	@override String get regexHint => '例如 预告|花絮';
+	@override String get valueRequired => '请输入要匹配的内容';
+	@override String get invalidRegex => '正则表达式格式有误';
+	@override String get noRules => '还没有规则，点右下角的 + 添加';
+	@override String get blockUser => '屏蔽';
+	@override String get unblockUser => '取消屏蔽';
+	@override String blockUserConfirm({required Object name}) => '确定屏蔽「${name}」吗？TA 的视频和图库会在列表和搜索中被隐藏。';
+	@override String get userBlocked => '已屏蔽该用户';
+	@override String get userUnblocked => '已取消屏蔽';
+	@override String get exportRules => '导出';
+	@override String get importRules => '导入';
+	@override String get exportSuccess => '规则已导出';
+	@override String get exportFailed => '导出失败';
+	@override String importSuccess({required Object count}) => '已导入 ${count} 条规则';
+	@override String get importFailed => '导入失败';
+	@override String get regexHelp => '正则帮助';
+	@override String get regexHelpTitle => '正则表达式参考';
+	@override String get regexHelpIntro => '正则能比关键词更灵活地匹配标题。下面是几个常见写法：';
+	@override String get regexHelpTapHint => '点击示例即可直接填入。';
+	@override String get regexEx1Pattern => '预告|花絮|彩蛋';
+	@override String get regexEx1Desc => '用「|」匹配其中任意一个词（表示「或」）';
+	@override String get regexEx2Pattern => '^【.*】';
+	@override String get regexEx2Desc => '匹配以【…】开头的标题';
+	@override String get regexEx3Pattern => '合集\$';
+	@override String get regexEx3Desc => '匹配以「合集」结尾的标题';
+	@override String get regexEx4Pattern => '第.话';
+	@override String get regexEx4Desc => '「.」代表任意一个字，可匹配「第1话」「第X话」';
+	@override String get regexEx5Pattern => '\d{4}';
+	@override String get regexEx5Desc => '「\d」是数字，{4} 表示连续 4 位，可匹配年份等';
 }
 
 // Path: settings.chatSettings
@@ -3583,6 +3641,54 @@ extension on TranslationsZhCn {
 			'settings.gallerySettings.gallerySettingsSubtitle' => '配置图库查看器偏好',
 			'settings.gallerySettings.defaultViewerQuality' => '默认清晰度',
 			'settings.gallerySettings.defaultViewerQualityDesc' => '打开图库查看器时默认显示哪一种清晰度。',
+			'settings.blockSettings.title' => '内容屏蔽',
+			'settings.blockSettings.subtitle' => '当视频或图库的标题命中关键词或正则，或来自被屏蔽的用户时，自动隐藏。所有匹配都在本地完成，不会上传。',
+			'settings.blockSettings.blocked' => '已屏蔽',
+			'settings.blockSettings.reveal' => '显示',
+			'settings.blockSettings.reblock' => '重新屏蔽',
+			'settings.blockSettings.why' => '为何被屏蔽',
+			'settings.blockSettings.manageRules' => '管理屏蔽规则',
+			'settings.blockSettings.reasonKeyword' => ({required Object value}) => '标题包含「${value}」',
+			'settings.blockSettings.reasonRegex' => ({required Object value}) => '标题匹配正则「${value}」',
+			'settings.blockSettings.reasonUser' => '来自已屏蔽的用户',
+			'settings.blockSettings.addRule' => '添加规则',
+			'settings.blockSettings.editRule' => '编辑规则',
+			'settings.blockSettings.deleteRule' => '删除规则',
+			'settings.blockSettings.ruleType' => '规则类型',
+			'settings.blockSettings.keyword' => '关键词',
+			'settings.blockSettings.regex' => '正则',
+			'settings.blockSettings.userId' => '用户',
+			'settings.blockSettings.value' => '要匹配的内容',
+			'settings.blockSettings.caseSensitive' => '区分大小写',
+			'settings.blockSettings.regexHint' => '例如 预告|花絮',
+			'settings.blockSettings.valueRequired' => '请输入要匹配的内容',
+			'settings.blockSettings.invalidRegex' => '正则表达式格式有误',
+			'settings.blockSettings.noRules' => '还没有规则，点右下角的 + 添加',
+			'settings.blockSettings.blockUser' => '屏蔽',
+			'settings.blockSettings.unblockUser' => '取消屏蔽',
+			'settings.blockSettings.blockUserConfirm' => ({required Object name}) => '确定屏蔽「${name}」吗？TA 的视频和图库会在列表和搜索中被隐藏。',
+			'settings.blockSettings.userBlocked' => '已屏蔽该用户',
+			'settings.blockSettings.userUnblocked' => '已取消屏蔽',
+			'settings.blockSettings.exportRules' => '导出',
+			'settings.blockSettings.importRules' => '导入',
+			'settings.blockSettings.exportSuccess' => '规则已导出',
+			'settings.blockSettings.exportFailed' => '导出失败',
+			'settings.blockSettings.importSuccess' => ({required Object count}) => '已导入 ${count} 条规则',
+			'settings.blockSettings.importFailed' => '导入失败',
+			'settings.blockSettings.regexHelp' => '正则帮助',
+			'settings.blockSettings.regexHelpTitle' => '正则表达式参考',
+			'settings.blockSettings.regexHelpIntro' => '正则能比关键词更灵活地匹配标题。下面是几个常见写法：',
+			'settings.blockSettings.regexHelpTapHint' => '点击示例即可直接填入。',
+			'settings.blockSettings.regexEx1Pattern' => '预告|花絮|彩蛋',
+			'settings.blockSettings.regexEx1Desc' => '用「|」匹配其中任意一个词（表示「或」）',
+			'settings.blockSettings.regexEx2Pattern' => '^【.*】',
+			'settings.blockSettings.regexEx2Desc' => '匹配以【…】开头的标题',
+			'settings.blockSettings.regexEx3Pattern' => '合集\$',
+			'settings.blockSettings.regexEx3Desc' => '匹配以「合集」结尾的标题',
+			'settings.blockSettings.regexEx4Pattern' => '第.话',
+			'settings.blockSettings.regexEx4Desc' => '「.」代表任意一个字，可匹配「第1话」「第X话」',
+			'settings.blockSettings.regexEx5Pattern' => '\d{4}',
+			'settings.blockSettings.regexEx5Desc' => '「\d」是数字，{4} 表示连续 4 位，可匹配年份等',
 			'settings.chatSettings.name' => '聊天',
 			'settings.chatSettings.configureYourChatSettings' => '配置您的聊天设置',
 			'settings.hardwareDecodingAuto' => '自动',
@@ -3905,6 +4011,8 @@ extension on TranslationsZhCn {
 			'videoDetail.cast.dlnaCastSheet.cast' => '投屏',
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => '已连接到: ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => '未连接设备',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => '停止投屏',
 			'videoDetail.likeAvatars.dialogTitle' => '谁在偷偷喜欢',
 			'videoDetail.likeAvatars.dialogDescription' => '好奇他们是谁？翻翻这本「点赞相册」吧～',
@@ -3953,8 +4061,6 @@ extension on TranslationsZhCn {
 			'markdown.paragraphAndLineBreakDescription' => '段落之间空一行，行末加两个空格实现换行',
 			'markdown.paragraphAndLineBreakSyntax' => '这是第一段文字\n\n这是第二段文字\n这一行后面加两个空格  \n就能换行了',
 			'markdown.textStyle' => '文本样式',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.textStyleDescription' => '使用特殊符号包围文本来改变样式',
 			'markdown.textStyleSyntax' => '**粗体文本**\n*斜体文本*\n~~删除线文本~~\n`代码文本`',
 			'markdown.quote' => '引用',
@@ -4419,6 +4525,8 @@ extension on TranslationsZhCn {
 			'translation.connectionFailed' => '连接失败',
 			'translation.translationFailed' => '翻译失败',
 			'translation.aiTranslationFailed' => 'AI翻译失败',
+			_ => null,
+		} ?? switch (path) {
 			'translation.deeplxTranslationFailed' => 'DeepLX翻译失败',
 			'translation.aiTranslationTestFailed' => 'AI翻译测试失败',
 			'translation.deeplxTranslationTestFailed' => 'DeepLX翻译测试失败',
@@ -4467,8 +4575,6 @@ extension on TranslationsZhCn {
 			'mediaPlayer.unsupportedVideoFormat' => '不支持的视频格式',
 			'mediaPlayer.retry' => '重试',
 			'mediaPlayer.externalPlayer' => '外部播放器',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.detailedErrorInfo' => '详细错误信息',
 			'mediaPlayer.format' => '格式',
 			'mediaPlayer.suggestion' => '建议',
@@ -4933,6 +5039,8 @@ extension on TranslationsZhCn {
 			'anime4k.presetDescriptions.mode_a_a_fast' => 'Mode A+A的快速版本，在性能有限的设备上追求更高的感知质量。',
 			'anime4k.presetDescriptions.mode_b_b_fast' => 'Mode B+B的快速版本，为性能有限的设备提供增强的线条修复和瑕疵处理。',
 			'anime4k.presetDescriptions.mode_c_a_fast' => 'Mode C+A的快速版本，在快速处理高质量片源的同时，进行轻度的线条修复。',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetDescriptions.upscale_only_s' => '仅使用最快的CNN模型进行x2放大，无修复和降噪，性能开销最低。',
 			'anime4k.presetDescriptions.upscale_deblur_fast' => '使用快速的非CNN算法进行放大和去模糊，效果优于传统算法，性能开销很低。',
 			'anime4k.presetDescriptions.restore_s_only' => '仅使用最快的CNN模型修复画面瑕疵，不进行放大。适用于原生分辨率播放，但希望改善画质的情况。',

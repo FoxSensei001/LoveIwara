@@ -814,6 +814,7 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get videoSyncDesync => '非同期';
 	@override late final _TranslationsSettingsForumSettingsJa forumSettings = _TranslationsSettingsForumSettingsJa._(_root);
 	@override late final _TranslationsSettingsGallerySettingsJa gallerySettings = _TranslationsSettingsGallerySettingsJa._(_root);
+	@override late final _TranslationsSettingsBlockSettingsJa blockSettings = _TranslationsSettingsBlockSettingsJa._(_root);
 	@override late final _TranslationsSettingsChatSettingsJa chatSettings = _TranslationsSettingsChatSettingsJa._(_root);
 	@override String get hardwareDecodingAuto => '自動';
 	@override String get hardwareDecodingAutoCopy => '自動コピー';
@@ -2123,6 +2124,63 @@ class _TranslationsSettingsGallerySettingsJa implements TranslationsSettingsGall
 	@override String get gallerySettingsSubtitle => 'ギャラリービューアの設定';
 	@override String get defaultViewerQuality => 'デフォルト画質';
 	@override String get defaultViewerQualityDesc => 'ギャラリービューアを開いたときに表示する画質を選択します。';
+}
+
+// Path: settings.blockSettings
+class _TranslationsSettingsBlockSettingsJa implements TranslationsSettingsBlockSettingsEn {
+	_TranslationsSettingsBlockSettingsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'コンテンツブロック';
+	@override String get subtitle => 'タイトルがキーワードや正規表現に一致する、またはブロックしたユーザーの投稿を自動的に非表示にします。判定はすべて端末内で行われ、アップロードされません。';
+	@override String get blocked => 'ブロック済み';
+	@override String get reveal => '表示';
+	@override String get reblock => '再ブロック';
+	@override String get why => '非表示の理由';
+	@override String get manageRules => 'ルールを管理';
+	@override String reasonKeyword({required Object value}) => 'タイトルに「${value}」を含む';
+	@override String reasonRegex({required Object value}) => 'タイトルが正規表現「${value}」に一致';
+	@override String get reasonUser => 'ブロックしたユーザー';
+	@override String get addRule => 'ルールを追加';
+	@override String get editRule => 'ルールを編集';
+	@override String get deleteRule => 'ルールを削除';
+	@override String get ruleType => 'ルールの種類';
+	@override String get keyword => 'キーワード';
+	@override String get regex => '正規表現';
+	@override String get userId => 'ユーザー';
+	@override String get value => '一致させる内容';
+	@override String get caseSensitive => '大文字小文字を区別';
+	@override String get regexHint => '例 予告|特典';
+	@override String get valueRequired => '一致させる内容を入力してください';
+	@override String get invalidRegex => '正規表現の形式が正しくありません';
+	@override String get noRules => 'ルールがありません。右下の + で追加できます。';
+	@override String get blockUser => 'ブロック';
+	@override String get unblockUser => 'ブロック解除';
+	@override String blockUserConfirm({required Object name}) => '「${name}」をブロックしますか？その動画とギャラリーは一覧と検索で非表示になります。';
+	@override String get userBlocked => 'ユーザーをブロックしました';
+	@override String get userUnblocked => 'ブロックを解除しました';
+	@override String get exportRules => 'エクスポート';
+	@override String get importRules => 'インポート';
+	@override String get exportSuccess => 'ルールをエクスポートしました';
+	@override String get exportFailed => 'エクスポートに失敗しました';
+	@override String importSuccess({required Object count}) => '${count} 件のルールをインポートしました';
+	@override String get importFailed => 'インポートに失敗しました';
+	@override String get regexHelp => '正規表現ヘルプ';
+	@override String get regexHelpTitle => '正規表現リファレンス';
+	@override String get regexHelpIntro => '正規表現はキーワードより柔軟にタイトルを照合できます。よく使う例：';
+	@override String get regexHelpTapHint => '例をタップするとそのまま入力されます。';
+	@override String get regexEx1Pattern => '予告|特典|おまけ';
+	@override String get regexEx1Desc => '「|」でいずれかに一致（「または」の意味）';
+	@override String get regexEx2Pattern => '^【.*】';
+	@override String get regexEx2Desc => '【…】で始まるタイトルに一致';
+	@override String get regexEx3Pattern => '総集編\$';
+	@override String get regexEx3Desc => '「総集編」で終わるタイトルに一致';
+	@override String get regexEx4Pattern => '第.話';
+	@override String get regexEx4Desc => '「.」は任意の1文字（「第1話」「第X話」に一致）';
+	@override String get regexEx5Pattern => '\d{4}';
+	@override String get regexEx5Desc => '「\d」は数字、{4} は4桁（年など）';
 }
 
 // Path: settings.chatSettings
@@ -3573,6 +3631,54 @@ extension on TranslationsJa {
 			'settings.gallerySettings.gallerySettingsSubtitle' => 'ギャラリービューアの設定',
 			'settings.gallerySettings.defaultViewerQuality' => 'デフォルト画質',
 			'settings.gallerySettings.defaultViewerQualityDesc' => 'ギャラリービューアを開いたときに表示する画質を選択します。',
+			'settings.blockSettings.title' => 'コンテンツブロック',
+			'settings.blockSettings.subtitle' => 'タイトルがキーワードや正規表現に一致する、またはブロックしたユーザーの投稿を自動的に非表示にします。判定はすべて端末内で行われ、アップロードされません。',
+			'settings.blockSettings.blocked' => 'ブロック済み',
+			'settings.blockSettings.reveal' => '表示',
+			'settings.blockSettings.reblock' => '再ブロック',
+			'settings.blockSettings.why' => '非表示の理由',
+			'settings.blockSettings.manageRules' => 'ルールを管理',
+			'settings.blockSettings.reasonKeyword' => ({required Object value}) => 'タイトルに「${value}」を含む',
+			'settings.blockSettings.reasonRegex' => ({required Object value}) => 'タイトルが正規表現「${value}」に一致',
+			'settings.blockSettings.reasonUser' => 'ブロックしたユーザー',
+			'settings.blockSettings.addRule' => 'ルールを追加',
+			'settings.blockSettings.editRule' => 'ルールを編集',
+			'settings.blockSettings.deleteRule' => 'ルールを削除',
+			'settings.blockSettings.ruleType' => 'ルールの種類',
+			'settings.blockSettings.keyword' => 'キーワード',
+			'settings.blockSettings.regex' => '正規表現',
+			'settings.blockSettings.userId' => 'ユーザー',
+			'settings.blockSettings.value' => '一致させる内容',
+			'settings.blockSettings.caseSensitive' => '大文字小文字を区別',
+			'settings.blockSettings.regexHint' => '例 予告|特典',
+			'settings.blockSettings.valueRequired' => '一致させる内容を入力してください',
+			'settings.blockSettings.invalidRegex' => '正規表現の形式が正しくありません',
+			'settings.blockSettings.noRules' => 'ルールがありません。右下の + で追加できます。',
+			'settings.blockSettings.blockUser' => 'ブロック',
+			'settings.blockSettings.unblockUser' => 'ブロック解除',
+			'settings.blockSettings.blockUserConfirm' => ({required Object name}) => '「${name}」をブロックしますか？その動画とギャラリーは一覧と検索で非表示になります。',
+			'settings.blockSettings.userBlocked' => 'ユーザーをブロックしました',
+			'settings.blockSettings.userUnblocked' => 'ブロックを解除しました',
+			'settings.blockSettings.exportRules' => 'エクスポート',
+			'settings.blockSettings.importRules' => 'インポート',
+			'settings.blockSettings.exportSuccess' => 'ルールをエクスポートしました',
+			'settings.blockSettings.exportFailed' => 'エクスポートに失敗しました',
+			'settings.blockSettings.importSuccess' => ({required Object count}) => '${count} 件のルールをインポートしました',
+			'settings.blockSettings.importFailed' => 'インポートに失敗しました',
+			'settings.blockSettings.regexHelp' => '正規表現ヘルプ',
+			'settings.blockSettings.regexHelpTitle' => '正規表現リファレンス',
+			'settings.blockSettings.regexHelpIntro' => '正規表現はキーワードより柔軟にタイトルを照合できます。よく使う例：',
+			'settings.blockSettings.regexHelpTapHint' => '例をタップするとそのまま入力されます。',
+			'settings.blockSettings.regexEx1Pattern' => '予告|特典|おまけ',
+			'settings.blockSettings.regexEx1Desc' => '「|」でいずれかに一致（「または」の意味）',
+			'settings.blockSettings.regexEx2Pattern' => '^【.*】',
+			'settings.blockSettings.regexEx2Desc' => '【…】で始まるタイトルに一致',
+			'settings.blockSettings.regexEx3Pattern' => '総集編\$',
+			'settings.blockSettings.regexEx3Desc' => '「総集編」で終わるタイトルに一致',
+			'settings.blockSettings.regexEx4Pattern' => '第.話',
+			'settings.blockSettings.regexEx4Desc' => '「.」は任意の1文字（「第1話」「第X話」に一致）',
+			'settings.blockSettings.regexEx5Pattern' => '\d{4}',
+			'settings.blockSettings.regexEx5Desc' => '「\d」は数字、{4} は4桁（年など）',
 			'settings.chatSettings.name' => 'チャット',
 			'settings.chatSettings.configureYourChatSettings' => 'チャット設定を構成する',
 			'settings.hardwareDecodingAuto' => '自動',
@@ -3900,6 +4006,8 @@ extension on TranslationsJa {
 			'videoDetail.likeAvatars.dialogDescription' => '誰か気になる？この「いいねアルバム」をめくってみよう～',
 			'videoDetail.likeAvatars.closeTooltip' => '閉じる',
 			'videoDetail.likeAvatars.retry' => '再試行',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.likeAvatars.noLikesYet' => 'まだ誰もここに現れていません。最初の一人になりましょう！',
 			'videoDetail.likeAvatars.pageInfo' => ({required Object page, required Object totalPages, required Object totalCount}) => '${page} / ${totalPages} ページ · 合計 ${totalCount} 人',
 			'videoDetail.likeAvatars.prevPage' => '前のページ',
@@ -3948,8 +4056,6 @@ extension on TranslationsJa {
 			'markdown.quote' => '引用',
 			'markdown.quoteDescription' => '> 符号で引用を作成し、複数の > で多段引用を作成',
 			'markdown.quoteSyntax' => '> これは一階引用です\n>> これは二階引用です',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.list' => 'リスト',
 			'markdown.listDescription' => '数字+点号で順序付きリストを作成し、- で順序なしリストを作成',
 			'markdown.listSyntax' => '1. 第一項\n2. 第二項\n\n- 順序なし項\n  - 子項\n  - 別の子項',
@@ -4414,6 +4520,8 @@ extension on TranslationsJa {
 			'translation.deeplxTranslationTestFailed' => 'DeepLX翻訳テスト失敗',
 			'translation.streamingTranslationTimeout' => 'ストリーミング翻訳タイムアウト、リソース強制クリーンアップ',
 			'translation.translationRequestTimeout' => '翻訳リクエストタイムアウト',
+			_ => null,
+		} ?? switch (path) {
 			'translation.streamingTranslationDataTimeout' => 'ストリーミング翻訳データ受信タイムアウト',
 			'translation.dataReceptionTimeout' => 'データ受信タイムアウト',
 			'translation.streamDataParseError' => 'ストリームデータ解析エラー',
@@ -4462,8 +4570,6 @@ extension on TranslationsJa {
 			'mediaPlayer.suggestion' => '提案',
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'AndroidデバイスはWEBM形式のサポートが限定的です。外部プレイヤーの使用またはWEBMをサポートするプレイヤーアプリのダウンロードをお勧めします',
 			'mediaPlayer.currentDeviceCodecNotSupported' => '現在のデバイスはこのビデオ形式のコーデックをサポートしていません',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.checkNetworkConnection' => 'ネットワーク接続を確認して再試行してください',
 			'mediaPlayer.appMayLackMediaPermission' => 'アプリに必要なメディア再生権限が不足している可能性があります',
 			'mediaPlayer.tryOtherVideoPlayer' => '他のビデオプレイヤーをお試しください',
@@ -4928,6 +5034,8 @@ extension on TranslationsJa {
 			'anime4k.presetDescriptions.restore_s_only' => '最速のCNNモデルのみを使用して画像欠陥を修復し、アップスケーリングは行いません。ネイティブ解像度再生で品質を向上させたい場合に適しています。',
 			'anime4k.presetDescriptions.denoise_bilateral_fast' => '従来のバイラテラルフィルタリングを使用して高速ノイズ除去を行い、非常に高速で軽度のノイズ処理に適しています。',
 			'anime4k.presetDescriptions.upscale_non_cnn' => '従来の高速アルゴリズムを使用してアップスケーリングを行い、最小限のパフォーマンスオーバーヘッドでプレーヤーのデフォルトよりも優れた効果。',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + ライン暗化、高速モードAにライン暗化効果を追加し、ラインをより目立たせ、スタイライズ処理を行います。',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + ライン細化、高品質モードAにライン細化効果を追加し、より洗練された外観にします。',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',

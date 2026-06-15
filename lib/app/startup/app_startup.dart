@@ -10,6 +10,7 @@ import 'package:i_iwara/app/services/batch_download_service.dart';
 import 'package:i_iwara/app/services/comment_service.dart';
 import 'package:i_iwara/app/services/config_backup_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/content_block_service.dart';
 import 'package:i_iwara/app/services/conversation_service.dart';
 import 'package:i_iwara/app/services/deep_link_service.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
@@ -323,6 +324,7 @@ class AppStartupCoordinator implements AppStartupRunner {
     _registerDeferredSingleton<EmojiLibraryService>(EmojiLibraryService());
     _registerDeferredSingleton<DlnaCastService>(DlnaCastService());
     _registerDeferredSingleton<HistoryRepository>(HistoryRepository());
+    _registerDeferredSingleton<ContentBlockService>(ContentBlockService());
 
     // 启动时按配置自动清理超期历史记录（默认关闭，不阻塞启动）
     _maybeAutoCleanupHistory();

@@ -2046,6 +2046,7 @@ class TranslationsSettingsEn {
 
 	late final TranslationsSettingsForumSettingsEn forumSettings = TranslationsSettingsForumSettingsEn._(_root);
 	late final TranslationsSettingsGallerySettingsEn gallerySettings = TranslationsSettingsGallerySettingsEn._(_root);
+	late final TranslationsSettingsBlockSettingsEn blockSettings = TranslationsSettingsBlockSettingsEn._(_root);
 	late final TranslationsSettingsChatSettingsEn chatSettings = TranslationsSettingsChatSettingsEn._(_root);
 
 	/// en: 'Auto'
@@ -5303,6 +5304,159 @@ class TranslationsSettingsGallerySettingsEn {
 	String get defaultViewerQualityDesc => 'Choose which image quality to show by default when opening the gallery viewer.';
 }
 
+// Path: settings.blockSettings
+class TranslationsSettingsBlockSettingsEn {
+	TranslationsSettingsBlockSettingsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Content Block'
+	String get title => 'Content Block';
+
+	/// en: 'Automatically hide videos and galleries whose title matches a keyword or pattern, or that come from a blocked user. All matching happens on your device — nothing is uploaded.'
+	String get subtitle => 'Automatically hide videos and galleries whose title matches a keyword or pattern, or that come from a blocked user. All matching happens on your device — nothing is uploaded.';
+
+	/// en: 'Blocked'
+	String get blocked => 'Blocked';
+
+	/// en: 'Show'
+	String get reveal => 'Show';
+
+	/// en: 'Block again'
+	String get reblock => 'Block again';
+
+	/// en: 'Why blocked?'
+	String get why => 'Why blocked?';
+
+	/// en: 'Manage rules'
+	String get manageRules => 'Manage rules';
+
+	/// en: 'Title contains "${value}"'
+	String reasonKeyword({required Object value}) => 'Title contains "${value}"';
+
+	/// en: 'Title matches "${value}"'
+	String reasonRegex({required Object value}) => 'Title matches "${value}"';
+
+	/// en: 'From a blocked user'
+	String get reasonUser => 'From a blocked user';
+
+	/// en: 'Add rule'
+	String get addRule => 'Add rule';
+
+	/// en: 'Edit rule'
+	String get editRule => 'Edit rule';
+
+	/// en: 'Delete rule'
+	String get deleteRule => 'Delete rule';
+
+	/// en: 'Rule type'
+	String get ruleType => 'Rule type';
+
+	/// en: 'Keyword'
+	String get keyword => 'Keyword';
+
+	/// en: 'Regex'
+	String get regex => 'Regex';
+
+	/// en: 'User'
+	String get userId => 'User';
+
+	/// en: 'Text to match'
+	String get value => 'Text to match';
+
+	/// en: 'Case sensitive'
+	String get caseSensitive => 'Case sensitive';
+
+	/// en: 'e.g. trailer|teaser'
+	String get regexHint => 'e.g. trailer|teaser';
+
+	/// en: 'Please enter the text to match'
+	String get valueRequired => 'Please enter the text to match';
+
+	/// en: 'That's not a valid regular expression'
+	String get invalidRegex => 'That\'s not a valid regular expression';
+
+	/// en: 'No rules yet. Tap + to add one.'
+	String get noRules => 'No rules yet. Tap + to add one.';
+
+	/// en: 'Block'
+	String get blockUser => 'Block';
+
+	/// en: 'Unblock'
+	String get unblockUser => 'Unblock';
+
+	/// en: 'Block "${name}"? Their videos and galleries will be hidden from lists and search.'
+	String blockUserConfirm({required Object name}) => 'Block "${name}"? Their videos and galleries will be hidden from lists and search.';
+
+	/// en: 'User blocked'
+	String get userBlocked => 'User blocked';
+
+	/// en: 'User unblocked'
+	String get userUnblocked => 'User unblocked';
+
+	/// en: 'Export'
+	String get exportRules => 'Export';
+
+	/// en: 'Import'
+	String get importRules => 'Import';
+
+	/// en: 'Rules exported'
+	String get exportSuccess => 'Rules exported';
+
+	/// en: 'Couldn't export rules'
+	String get exportFailed => 'Couldn\'t export rules';
+
+	/// en: 'Imported ${count} rule(s)'
+	String importSuccess({required Object count}) => 'Imported ${count} rule(s)';
+
+	/// en: 'Couldn't import rules'
+	String get importFailed => 'Couldn\'t import rules';
+
+	/// en: 'Pattern help'
+	String get regexHelp => 'Pattern help';
+
+	/// en: 'Regex reference'
+	String get regexHelpTitle => 'Regex reference';
+
+	/// en: 'A regular expression matches titles more flexibly than a plain keyword. Some common examples:'
+	String get regexHelpIntro => 'A regular expression matches titles more flexibly than a plain keyword. Some common examples:';
+
+	/// en: 'Tap an example to fill it in.'
+	String get regexHelpTapHint => 'Tap an example to fill it in.';
+
+	/// en: 'trailer|teaser|bonus'
+	String get regexEx1Pattern => 'trailer|teaser|bonus';
+
+	/// en: 'Match any one of these words ("|" means "or")'
+	String get regexEx1Desc => 'Match any one of these words ("|" means "or")';
+
+	/// en: '^\[.*\]'
+	String get regexEx2Pattern => '^\[.*\]';
+
+	/// en: 'Titles that start with [brackets]'
+	String get regexEx2Desc => 'Titles that start with [brackets]';
+
+	/// en: 'Collection$'
+	String get regexEx3Pattern => 'Collection\$';
+
+	/// en: 'Titles that end with "Collection"'
+	String get regexEx3Desc => 'Titles that end with "Collection"';
+
+	/// en: 'Ep\.\d+'
+	String get regexEx4Pattern => 'Ep\.\d+';
+
+	/// en: '\d+ is one or more digits — matches "Ep.12"'
+	String get regexEx4Desc => '\d+ is one or more digits — matches "Ep.12"';
+
+	/// en: '\d{4}'
+	String get regexEx5Pattern => '\d{4}';
+
+	/// en: '\d is a digit and {4} means four in a row (e.g. a year)'
+	String get regexEx5Desc => '\d is a digit and {4} means four in a row (e.g. a year)';
+}
+
 // Path: settings.chatSettings
 class TranslationsSettingsChatSettingsEn {
 	TranslationsSettingsChatSettingsEn._(this._root);
@@ -7661,6 +7815,54 @@ extension on Translations {
 			'settings.gallerySettings.gallerySettingsSubtitle' => 'Configure gallery viewer preferences',
 			'settings.gallerySettings.defaultViewerQuality' => 'Default viewer quality',
 			'settings.gallerySettings.defaultViewerQualityDesc' => 'Choose which image quality to show by default when opening the gallery viewer.',
+			'settings.blockSettings.title' => 'Content Block',
+			'settings.blockSettings.subtitle' => 'Automatically hide videos and galleries whose title matches a keyword or pattern, or that come from a blocked user. All matching happens on your device — nothing is uploaded.',
+			'settings.blockSettings.blocked' => 'Blocked',
+			'settings.blockSettings.reveal' => 'Show',
+			'settings.blockSettings.reblock' => 'Block again',
+			'settings.blockSettings.why' => 'Why blocked?',
+			'settings.blockSettings.manageRules' => 'Manage rules',
+			'settings.blockSettings.reasonKeyword' => ({required Object value}) => 'Title contains "${value}"',
+			'settings.blockSettings.reasonRegex' => ({required Object value}) => 'Title matches "${value}"',
+			'settings.blockSettings.reasonUser' => 'From a blocked user',
+			'settings.blockSettings.addRule' => 'Add rule',
+			'settings.blockSettings.editRule' => 'Edit rule',
+			'settings.blockSettings.deleteRule' => 'Delete rule',
+			'settings.blockSettings.ruleType' => 'Rule type',
+			'settings.blockSettings.keyword' => 'Keyword',
+			'settings.blockSettings.regex' => 'Regex',
+			'settings.blockSettings.userId' => 'User',
+			'settings.blockSettings.value' => 'Text to match',
+			'settings.blockSettings.caseSensitive' => 'Case sensitive',
+			'settings.blockSettings.regexHint' => 'e.g. trailer|teaser',
+			'settings.blockSettings.valueRequired' => 'Please enter the text to match',
+			'settings.blockSettings.invalidRegex' => 'That\'s not a valid regular expression',
+			'settings.blockSettings.noRules' => 'No rules yet. Tap + to add one.',
+			'settings.blockSettings.blockUser' => 'Block',
+			'settings.blockSettings.unblockUser' => 'Unblock',
+			'settings.blockSettings.blockUserConfirm' => ({required Object name}) => 'Block "${name}"? Their videos and galleries will be hidden from lists and search.',
+			'settings.blockSettings.userBlocked' => 'User blocked',
+			'settings.blockSettings.userUnblocked' => 'User unblocked',
+			'settings.blockSettings.exportRules' => 'Export',
+			'settings.blockSettings.importRules' => 'Import',
+			'settings.blockSettings.exportSuccess' => 'Rules exported',
+			'settings.blockSettings.exportFailed' => 'Couldn\'t export rules',
+			'settings.blockSettings.importSuccess' => ({required Object count}) => 'Imported ${count} rule(s)',
+			'settings.blockSettings.importFailed' => 'Couldn\'t import rules',
+			'settings.blockSettings.regexHelp' => 'Pattern help',
+			'settings.blockSettings.regexHelpTitle' => 'Regex reference',
+			'settings.blockSettings.regexHelpIntro' => 'A regular expression matches titles more flexibly than a plain keyword. Some common examples:',
+			'settings.blockSettings.regexHelpTapHint' => 'Tap an example to fill it in.',
+			'settings.blockSettings.regexEx1Pattern' => 'trailer|teaser|bonus',
+			'settings.blockSettings.regexEx1Desc' => 'Match any one of these words ("|" means "or")',
+			'settings.blockSettings.regexEx2Pattern' => '^\[.*\]',
+			'settings.blockSettings.regexEx2Desc' => 'Titles that start with [brackets]',
+			'settings.blockSettings.regexEx3Pattern' => 'Collection\$',
+			'settings.blockSettings.regexEx3Desc' => 'Titles that end with "Collection"',
+			'settings.blockSettings.regexEx4Pattern' => 'Ep\.\d+',
+			'settings.blockSettings.regexEx4Desc' => '\d+ is one or more digits — matches "Ep.12"',
+			'settings.blockSettings.regexEx5Pattern' => '\d{4}',
+			'settings.blockSettings.regexEx5Desc' => '\d is a digit and {4} means four in a row (e.g. a year)',
 			'settings.chatSettings.name' => 'Chat',
 			'settings.chatSettings.configureYourChatSettings' => 'Configure Your Chat Settings',
 			'settings.hardwareDecodingAuto' => 'Auto',
@@ -7988,6 +8190,8 @@ extension on Translations {
 			'videoDetail.likeAvatars.dialogDescription' => 'Curious who they are? Flip through this "Like Album"~',
 			'videoDetail.likeAvatars.closeTooltip' => 'Close',
 			'videoDetail.likeAvatars.retry' => 'Retry',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.likeAvatars.noLikesYet' => 'No one has appeared here yet. Be the first!',
 			'videoDetail.likeAvatars.pageInfo' => ({required Object page, required Object totalPages, required Object totalCount}) => 'Page ${page} / ${totalPages} · Total ${totalCount} people',
 			'videoDetail.likeAvatars.prevPage' => 'Previous Page',
@@ -8036,8 +8240,6 @@ extension on Translations {
 			'markdown.quote' => 'Quote',
 			'markdown.quoteDescription' => 'Use > symbol to create quote, multiple > to create multi-level quote',
 			'markdown.quoteSyntax' => '> This is a first-level quote\n>> This is a second-level quote',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.list' => 'List',
 			'markdown.listDescription' => 'Create ordered list with number+dot, create unordered list with -',
 			'markdown.listSyntax' => '1. First item\n2. Second item\n\n- Unordered item\n  - Subitem\n  - Another subitem',
@@ -8502,6 +8704,8 @@ extension on Translations {
 			'translation.deeplxTranslationTestFailed' => 'DeepLX translation test failed',
 			'translation.streamingTranslationTimeout' => 'Streaming translation timeout, forcing resource cleanup',
 			'translation.translationRequestTimeout' => 'Translation request timeout',
+			_ => null,
+		} ?? switch (path) {
 			'translation.streamingTranslationDataTimeout' => 'Streaming translation data reception timeout',
 			'translation.dataReceptionTimeout' => 'Data reception timeout',
 			'translation.streamDataParseError' => 'Error parsing stream data',
@@ -8550,8 +8754,6 @@ extension on Translations {
 			'navigationOrderSettings.sidebarPreview' => 'Sidebar Preview:',
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'Confirm Reset Navigation Order',
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => 'Are you sure you want to reset the navigation order to default settings?',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.cancel' => 'Cancel',
 			'navigationOrderSettings.show' => 'Show',
 			'navigationOrderSettings.hide' => 'Hide',
@@ -9016,6 +9218,8 @@ extension on Translations {
 			'anime4k.presetDescriptions.restore_s_only' => 'Repair only using the fastest CNN model, no upscaling. Suitable for native resolution playback where you want to improve quality.',
 			'anime4k.presetDescriptions.denoise_bilateral_fast' => 'Fast denoising using traditional bilateral filtering, extremely fast, suitable for processing light noise.',
 			'anime4k.presetDescriptions.upscale_non_cnn' => 'Fast upscaling using traditional algorithms, very low performance overhead, better than player defaults.',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + Line darkening, adding line darkening effects on top of fast mode A for more prominent, stylized lines.',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + Line thinning, adding line thinning effects on top of high quality mode A for more refined appearance.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',

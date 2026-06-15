@@ -239,6 +239,7 @@ class _ProfileImageModelTabListWidgetState
                       width: MediaQuery.of(context).size.width <= 600
                           ? MediaQuery.of(context).size.width / 2 - 8
                           : 200,
+                      disableBlock: true,
                       isMultiSelectMode: widget.isMultiSelectMode,
                       isSelected: widget.selectedItemIds.contains(image.id),
                       onSelect: () => widget.onItemSelect?.call(image),
