@@ -1103,11 +1103,32 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
         ? MarkdownConfig.darkConfig
         : MarkdownConfig.defaultConfig;
 
+    final baseTable = baseConfig.table;
+
     return baseConfig.copy(
       configs: [
         widget.showHorizontalRules
             ? baseConfig.hr
             : const HrConfig(height: 0, color: Colors.transparent),
+        // 当表格列较多、宽度超出屏幕时，包裹一层横向滚动以便查看被遮挡的列
+        TableConfig(
+          columnWidths: baseTable.columnWidths,
+          defaultColumnWidth: baseTable.defaultColumnWidth,
+          textDirection: baseTable.textDirection,
+          border: baseTable.border,
+          defaultVerticalAlignment: baseTable.defaultVerticalAlignment,
+          textBaseline: baseTable.textBaseline,
+          headerRowDecoration: baseTable.headerRowDecoration,
+          bodyRowDecoration: baseTable.bodyRowDecoration,
+          headerStyle: baseTable.headerStyle,
+          bodyStyle: baseTable.bodyStyle,
+          headPadding: baseTable.headPadding,
+          bodyPadding: baseTable.bodyPadding,
+          wrapper: (table) => SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: table,
+          ),
+        ),
         LinkConfig(
           onTap: _onTapLink,
           style: TextStyle(

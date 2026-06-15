@@ -713,6 +713,7 @@ settings:
     userUnblocked: User unblocked
     exportRules: Export
     importRules: Import
+    importExport: Import / Export
     exportSuccess: Rules exported
     exportFailed: Couldn't export rules
     importSuccess: 'Imported ${count} rule(s)'
@@ -731,6 +732,29 @@ settings:
     regexEx4Desc: '\d+ is one or more digits — matches "Ep.12"'
     regexEx5Pattern: '\d{4}'
     regexEx5Desc: \d is a digit and {4} means four in a row (e.g. a year)
+    regexEx1Sample: "New Game Teaser Out Now"
+    regexEx2Sample: "[Remux] Full Movie"
+    regexEx3Sample: "Spring Art Collection"
+    regexEx4Sample: "My Show Ep.12 Recap"
+    regexEx5Sample: "Best of 2024 Highlights"
+    regexHelpSampleLabel: "Example title"
+    regexHelpMatchedTag: "Blocked"
+    regexHelpNoMatch: "No match"
+    regexEx6Pattern: '[Ss]eason'
+    regexEx6Desc: '[Ss] matches an uppercase or lowercase S — here it catches "Season"'
+    regexEx6Sample: 'Final Season Trailer'
+    regexEx7Pattern: 'the (movie|series)'
+    regexEx7Desc: 'Parentheses () group alternatives — matches "the movie" or "the series"'
+    regexEx7Sample: 'Watch the Series Now'
+    regexEx8Pattern: 'seasons?'
+    regexEx8Desc: 's? makes the previous letter optional — matches "season" and "seasons"'
+    regexEx8Sample: 'Two Seasons Bundle'
+    regexEx9Pattern: '!+'
+    regexEx9Desc: '+ means one or more — matches !, !!, !!! ...'
+    regexEx9Sample: 'OMG!!! Must Watch'
+    regexEx10Pattern: 'bonus.*scene'
+    regexEx10Desc: '.* matches anything in between — "bonus … scene"'
+    regexEx10Sample: 'Bonus Deleted Scene'
   # Chat
   chatSettings:
     name: Chat

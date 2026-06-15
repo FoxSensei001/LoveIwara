@@ -2163,6 +2163,7 @@ class _TranslationsSettingsBlockSettingsJa implements TranslationsSettingsBlockS
 	@override String get userUnblocked => 'ブロックを解除しました';
 	@override String get exportRules => 'エクスポート';
 	@override String get importRules => 'インポート';
+	@override String get importExport => 'インポート / エクスポート';
 	@override String get exportSuccess => 'ルールをエクスポートしました';
 	@override String get exportFailed => 'エクスポートに失敗しました';
 	@override String importSuccess({required Object count}) => '${count} 件のルールをインポートしました';
@@ -2181,6 +2182,29 @@ class _TranslationsSettingsBlockSettingsJa implements TranslationsSettingsBlockS
 	@override String get regexEx4Desc => '「.」は任意の1文字（「第1話」「第X話」に一致）';
 	@override String get regexEx5Pattern => '\d{4}';
 	@override String get regexEx5Desc => '「\d」は数字、{4} は4桁（年など）';
+	@override String get regexEx1Sample => '新作の予告公開中';
+	@override String get regexEx2Sample => '【総集編】夏まつり';
+	@override String get regexEx3Sample => '夏まつり 総集編';
+	@override String get regexEx4Sample => '番外 第3話 配信';
+	@override String get regexEx5Sample => '2024 年ベスト';
+	@override String get regexHelpSampleLabel => 'タイトル例';
+	@override String get regexHelpMatchedTag => 'ブロック対象';
+	@override String get regexHelpNoMatch => '一致なし';
+	@override String get regexEx6Pattern => '[完未]結';
+	@override String get regexEx6Desc => '「[完未]」は「完」か「未」のどちらか1文字、完結 / 未結 に一致';
+	@override String get regexEx6Sample => 'アニメ 完結 記念';
+	@override String get regexEx7Pattern => '(予告|宣伝)映像';
+	@override String get regexEx7Desc => '丸括弧 () で複数の語をグループ化、予告映像 か 宣伝映像 に一致';
+	@override String get regexEx7Sample => '最新宣伝映像';
+	@override String get regexEx8Pattern => '予告(編)?';
+	@override String get regexEx8Desc => '(編)? は「編」があってもなくてもよい、予告 か 予告編 に一致';
+	@override String get regexEx8Sample => '新作予告 公開';
+	@override String get regexEx9Pattern => 'w+';
+	@override String get regexEx9Desc => '「+」は1個以上、w・ww・www に一致';
+	@override String get regexEx9Sample => '面白いwww 動画';
+	@override String get regexEx10Pattern => '予告.*版';
+	@override String get regexEx10Desc => '「.*」は間の任意の文字に一致、「予告…版」に一致';
+	@override String get regexEx10Sample => '予告 完全版 公開';
 }
 
 // Path: settings.chatSettings
@@ -3661,6 +3685,7 @@ extension on TranslationsJa {
 			'settings.blockSettings.userUnblocked' => 'ブロックを解除しました',
 			'settings.blockSettings.exportRules' => 'エクスポート',
 			'settings.blockSettings.importRules' => 'インポート',
+			'settings.blockSettings.importExport' => 'インポート / エクスポート',
 			'settings.blockSettings.exportSuccess' => 'ルールをエクスポートしました',
 			'settings.blockSettings.exportFailed' => 'エクスポートに失敗しました',
 			'settings.blockSettings.importSuccess' => ({required Object count}) => '${count} 件のルールをインポートしました',
@@ -3679,6 +3704,29 @@ extension on TranslationsJa {
 			'settings.blockSettings.regexEx4Desc' => '「.」は任意の1文字（「第1話」「第X話」に一致）',
 			'settings.blockSettings.regexEx5Pattern' => '\d{4}',
 			'settings.blockSettings.regexEx5Desc' => '「\d」は数字、{4} は4桁（年など）',
+			'settings.blockSettings.regexEx1Sample' => '新作の予告公開中',
+			'settings.blockSettings.regexEx2Sample' => '【総集編】夏まつり',
+			'settings.blockSettings.regexEx3Sample' => '夏まつり 総集編',
+			'settings.blockSettings.regexEx4Sample' => '番外 第3話 配信',
+			'settings.blockSettings.regexEx5Sample' => '2024 年ベスト',
+			'settings.blockSettings.regexHelpSampleLabel' => 'タイトル例',
+			'settings.blockSettings.regexHelpMatchedTag' => 'ブロック対象',
+			'settings.blockSettings.regexHelpNoMatch' => '一致なし',
+			'settings.blockSettings.regexEx6Pattern' => '[完未]結',
+			'settings.blockSettings.regexEx6Desc' => '「[完未]」は「完」か「未」のどちらか1文字、完結 / 未結 に一致',
+			'settings.blockSettings.regexEx6Sample' => 'アニメ 完結 記念',
+			'settings.blockSettings.regexEx7Pattern' => '(予告|宣伝)映像',
+			'settings.blockSettings.regexEx7Desc' => '丸括弧 () で複数の語をグループ化、予告映像 か 宣伝映像 に一致',
+			'settings.blockSettings.regexEx7Sample' => '最新宣伝映像',
+			'settings.blockSettings.regexEx8Pattern' => '予告(編)?',
+			'settings.blockSettings.regexEx8Desc' => '(編)? は「編」があってもなくてもよい、予告 か 予告編 に一致',
+			'settings.blockSettings.regexEx8Sample' => '新作予告 公開',
+			'settings.blockSettings.regexEx9Pattern' => 'w+',
+			'settings.blockSettings.regexEx9Desc' => '「+」は1個以上、w・ww・www に一致',
+			'settings.blockSettings.regexEx9Sample' => '面白いwww 動画',
+			'settings.blockSettings.regexEx10Pattern' => '予告.*版',
+			'settings.blockSettings.regexEx10Desc' => '「.*」は間の任意の文字に一致、「予告…版」に一致',
+			'settings.blockSettings.regexEx10Sample' => '予告 完全版 公開',
 			'settings.chatSettings.name' => 'チャット',
 			'settings.chatSettings.configureYourChatSettings' => 'チャット設定を構成する',
 			'settings.hardwareDecodingAuto' => '自動',
@@ -3982,6 +4030,8 @@ extension on TranslationsJa {
 			'videoDetail.cast.deviceTypes.basicDevice' => '基本デバイス',
 			'videoDetail.cast.deviceTypes.dimmableLight' => 'スマートライト',
 			'videoDetail.cast.deviceTypes.wlanAccessPoint' => '無線アクセスポイント',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.deviceTypes.wlanConnectionDevice' => '無線接続デバイス',
 			'videoDetail.cast.deviceTypes.printer' => 'プリンター',
 			'videoDetail.cast.deviceTypes.scanner' => 'スキャナー',
@@ -4006,8 +4056,6 @@ extension on TranslationsJa {
 			'videoDetail.likeAvatars.dialogDescription' => '誰か気になる？この「いいねアルバム」をめくってみよう～',
 			'videoDetail.likeAvatars.closeTooltip' => '閉じる',
 			'videoDetail.likeAvatars.retry' => '再試行',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.likeAvatars.noLikesYet' => 'まだ誰もここに現れていません。最初の一人になりましょう！',
 			'videoDetail.likeAvatars.pageInfo' => ({required Object page, required Object totalPages, required Object totalCount}) => '${page} / ${totalPages} ページ · 合計 ${totalCount} 人',
 			'videoDetail.likeAvatars.prevPage' => '前のページ',
@@ -4496,6 +4544,8 @@ extension on TranslationsJa {
 			'translation.freeEndpoint' => 'Free - 無料エンドポイント、レート制限がある場合があります',
 			'translation.proEndpoint' => 'Pro - dl_sessionが必要、より安定',
 			'translation.officialEndpoint' => 'Official - 公式API形式',
+			_ => null,
+		} ?? switch (path) {
 			'translation.finalRequestUrl' => '最終リクエストURL',
 			'translation.apiKeyOptional' => 'API Key (オプション)',
 			'translation.apiKeyOptionalHint' => '保護されたDeepLXサービスへのアクセス用',
@@ -4520,8 +4570,6 @@ extension on TranslationsJa {
 			'translation.deeplxTranslationTestFailed' => 'DeepLX翻訳テスト失敗',
 			'translation.streamingTranslationTimeout' => 'ストリーミング翻訳タイムアウト、リソース強制クリーンアップ',
 			'translation.translationRequestTimeout' => '翻訳リクエストタイムアウト',
-			_ => null,
-		} ?? switch (path) {
 			'translation.streamingTranslationDataTimeout' => 'ストリーミング翻訳データ受信タイムアウト',
 			'translation.dataReceptionTimeout' => 'データ受信タイムアウト',
 			'translation.streamDataParseError' => 'ストリームデータ解析エラー',
@@ -5010,6 +5058,8 @@ extension on TranslationsJa {
 			'anime4k.highQualityPresets' => '高品質プリセット',
 			'anime4k.fastPresets' => '高速プリセット',
 			'anime4k.litePresets' => '軽量プリセット',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.moreLitePresets' => 'より軽量なプリセット',
 			'anime4k.customPresets' => 'カスタムプリセット',
 			'anime4k.presetGroups.highQuality' => '高品質',
@@ -5034,8 +5084,6 @@ extension on TranslationsJa {
 			'anime4k.presetDescriptions.restore_s_only' => '最速のCNNモデルのみを使用して画像欠陥を修復し、アップスケーリングは行いません。ネイティブ解像度再生で品質を向上させたい場合に適しています。',
 			'anime4k.presetDescriptions.denoise_bilateral_fast' => '従来のバイラテラルフィルタリングを使用して高速ノイズ除去を行い、非常に高速で軽度のノイズ処理に適しています。',
 			'anime4k.presetDescriptions.upscale_non_cnn' => '従来の高速アルゴリズムを使用してアップスケーリングを行い、最小限のパフォーマンスオーバーヘッドでプレーヤーのデフォルトよりも優れた効果。',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + ライン暗化、高速モードAにライン暗化効果を追加し、ラインをより目立たせ、スタイライズ処理を行います。',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + ライン細化、高品質モードAにライン細化効果を追加し、より洗練された外観にします。',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',

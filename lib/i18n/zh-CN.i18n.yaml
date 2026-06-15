@@ -720,6 +720,7 @@ settings:
     userUnblocked: 已取消屏蔽
     exportRules: 导出
     importRules: 导入
+    importExport: 导入 / 导出
     exportSuccess: 规则已导出
     exportFailed: 导出失败
     importSuccess: '已导入 ${count} 条规则'
@@ -738,6 +739,29 @@ settings:
     regexEx4Desc: 「.」代表任意一个字，可匹配「第1话」「第X话」
     regexEx5Pattern: '\d{4}'
     regexEx5Desc: 「\d」是数字，{4} 表示连续 4 位，可匹配年份等
+    regexEx1Sample: "新作预告抢先看"
+    regexEx2Sample: "【合集】夏日特辑"
+    regexEx3Sample: "夏日泳装合集"
+    regexEx4Sample: "番外 第3话 上线"
+    regexEx5Sample: "2024 年度精选"
+    regexHelpSampleLabel: "示例标题"
+    regexHelpMatchedTag: "会被屏蔽"
+    regexHelpNoMatch: "未命中"
+    regexEx6Pattern: '[完未]结'
+    regexEx6Desc: '「[完未]」表示「完」或「未」其中一个字，可匹配 完结 / 未结'
+    regexEx6Sample: '番剧 完结 合集'
+    regexEx7Pattern: '(预告|宣传)片'
+    regexEx7Desc: '小括号 () 把多个词归为一组，可匹配 预告片 或 宣传片'
+    regexEx7Sample: '首部宣传片公开'
+    regexEx8Pattern: '预告(片)?'
+    regexEx8Desc: '(片)? 表示「片」可有可无，可匹配 预告 或 预告片'
+    regexEx8Sample: '新作预告 上线'
+    regexEx9Pattern: '哈+'
+    regexEx9Desc: '「+」表示前一个字一个或多个，可匹配 哈、哈哈、哈哈哈'
+    regexEx9Sample: '搞笑 哈哈哈 合集'
+    regexEx10Pattern: '预告.*版'
+    regexEx10Desc: '「.*」匹配中间任意内容，可匹配「预告…版」'
+    regexEx10Sample: '预告 完整版 公开'
   # 聊天页
   chatSettings:
     name: 聊天

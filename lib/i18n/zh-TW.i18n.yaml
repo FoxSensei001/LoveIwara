@@ -714,6 +714,7 @@ settings:
     userUnblocked: 已取消封鎖
     exportRules: 匯出
     importRules: 匯入
+    importExport: 匯入 / 匯出
     exportSuccess: 規則已匯出
     exportFailed: 匯出失敗
     importSuccess: '已匯入 ${count} 條規則'
@@ -732,6 +733,29 @@ settings:
     regexEx4Desc: 「.」代表任一個字，可比對「第1話」「第X話」
     regexEx5Pattern: '\d{4}'
     regexEx5Desc: 「\d」是數字，{4} 表示連續 4 位，可比對年份等
+    regexEx1Sample: "新作預告搶先看"
+    regexEx2Sample: "【合集】夏日特輯"
+    regexEx3Sample: "夏日泳裝合集"
+    regexEx4Sample: "番外 第3話 上線"
+    regexEx5Sample: "2024 年度精選"
+    regexHelpSampleLabel: "範例標題"
+    regexHelpMatchedTag: "會被封鎖"
+    regexHelpNoMatch: "未命中"
+    regexEx6Pattern: '[完未]結'
+    regexEx6Desc: '「[完未]」表示「完」或「未」其中一個字，可比對 完結 / 未結'
+    regexEx6Sample: '番劇 完結 合集'
+    regexEx7Pattern: '(預告|宣傳)片'
+    regexEx7Desc: '小括號 () 把多個詞歸為一組，可比對 預告片 或 宣傳片'
+    regexEx7Sample: '首部宣傳片公開'
+    regexEx8Pattern: '預告(片)?'
+    regexEx8Desc: '(片)? 表示「片」可有可無，可比對 預告 或 預告片'
+    regexEx8Sample: '新作預告 上線'
+    regexEx9Pattern: '哈+'
+    regexEx9Desc: '「+」表示前一個字一個或多個，可比對 哈、哈哈、哈哈哈'
+    regexEx9Sample: '搞笑 哈哈哈 合集'
+    regexEx10Pattern: '預告.*版'
+    regexEx10Desc: '「.*」比對中間任意內容，可比對「預告…版」'
+    regexEx10Sample: '預告 完整版 公開'
   # 聊天頁
   chatSettings:
     name: 聊天

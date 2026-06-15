@@ -2168,6 +2168,7 @@ class _TranslationsSettingsBlockSettingsZhCn implements TranslationsSettingsBloc
 	@override String get userUnblocked => '已取消屏蔽';
 	@override String get exportRules => '导出';
 	@override String get importRules => '导入';
+	@override String get importExport => '导入 / 导出';
 	@override String get exportSuccess => '规则已导出';
 	@override String get exportFailed => '导出失败';
 	@override String importSuccess({required Object count}) => '已导入 ${count} 条规则';
@@ -2186,6 +2187,29 @@ class _TranslationsSettingsBlockSettingsZhCn implements TranslationsSettingsBloc
 	@override String get regexEx4Desc => '「.」代表任意一个字，可匹配「第1话」「第X话」';
 	@override String get regexEx5Pattern => '\d{4}';
 	@override String get regexEx5Desc => '「\d」是数字，{4} 表示连续 4 位，可匹配年份等';
+	@override String get regexEx1Sample => '新作预告抢先看';
+	@override String get regexEx2Sample => '【合集】夏日特辑';
+	@override String get regexEx3Sample => '夏日泳装合集';
+	@override String get regexEx4Sample => '番外 第3话 上线';
+	@override String get regexEx5Sample => '2024 年度精选';
+	@override String get regexHelpSampleLabel => '示例标题';
+	@override String get regexHelpMatchedTag => '会被屏蔽';
+	@override String get regexHelpNoMatch => '未命中';
+	@override String get regexEx6Pattern => '[完未]结';
+	@override String get regexEx6Desc => '「[完未]」表示「完」或「未」其中一个字，可匹配 完结 / 未结';
+	@override String get regexEx6Sample => '番剧 完结 合集';
+	@override String get regexEx7Pattern => '(预告|宣传)片';
+	@override String get regexEx7Desc => '小括号 () 把多个词归为一组，可匹配 预告片 或 宣传片';
+	@override String get regexEx7Sample => '首部宣传片公开';
+	@override String get regexEx8Pattern => '预告(片)?';
+	@override String get regexEx8Desc => '(片)? 表示「片」可有可无，可匹配 预告 或 预告片';
+	@override String get regexEx8Sample => '新作预告 上线';
+	@override String get regexEx9Pattern => '哈+';
+	@override String get regexEx9Desc => '「+」表示前一个字一个或多个，可匹配 哈、哈哈、哈哈哈';
+	@override String get regexEx9Sample => '搞笑 哈哈哈 合集';
+	@override String get regexEx10Pattern => '预告.*版';
+	@override String get regexEx10Desc => '「.*」匹配中间任意内容，可匹配「预告…版」';
+	@override String get regexEx10Sample => '预告 完整版 公开';
 }
 
 // Path: settings.chatSettings
@@ -3671,6 +3695,7 @@ extension on TranslationsZhCn {
 			'settings.blockSettings.userUnblocked' => '已取消屏蔽',
 			'settings.blockSettings.exportRules' => '导出',
 			'settings.blockSettings.importRules' => '导入',
+			'settings.blockSettings.importExport' => '导入 / 导出',
 			'settings.blockSettings.exportSuccess' => '规则已导出',
 			'settings.blockSettings.exportFailed' => '导出失败',
 			'settings.blockSettings.importSuccess' => ({required Object count}) => '已导入 ${count} 条规则',
@@ -3689,6 +3714,29 @@ extension on TranslationsZhCn {
 			'settings.blockSettings.regexEx4Desc' => '「.」代表任意一个字，可匹配「第1话」「第X话」',
 			'settings.blockSettings.regexEx5Pattern' => '\d{4}',
 			'settings.blockSettings.regexEx5Desc' => '「\d」是数字，{4} 表示连续 4 位，可匹配年份等',
+			'settings.blockSettings.regexEx1Sample' => '新作预告抢先看',
+			'settings.blockSettings.regexEx2Sample' => '【合集】夏日特辑',
+			'settings.blockSettings.regexEx3Sample' => '夏日泳装合集',
+			'settings.blockSettings.regexEx4Sample' => '番外 第3话 上线',
+			'settings.blockSettings.regexEx5Sample' => '2024 年度精选',
+			'settings.blockSettings.regexHelpSampleLabel' => '示例标题',
+			'settings.blockSettings.regexHelpMatchedTag' => '会被屏蔽',
+			'settings.blockSettings.regexHelpNoMatch' => '未命中',
+			'settings.blockSettings.regexEx6Pattern' => '[完未]结',
+			'settings.blockSettings.regexEx6Desc' => '「[完未]」表示「完」或「未」其中一个字，可匹配 完结 / 未结',
+			'settings.blockSettings.regexEx6Sample' => '番剧 完结 合集',
+			'settings.blockSettings.regexEx7Pattern' => '(预告|宣传)片',
+			'settings.blockSettings.regexEx7Desc' => '小括号 () 把多个词归为一组，可匹配 预告片 或 宣传片',
+			'settings.blockSettings.regexEx7Sample' => '首部宣传片公开',
+			'settings.blockSettings.regexEx8Pattern' => '预告(片)?',
+			'settings.blockSettings.regexEx8Desc' => '(片)? 表示「片」可有可无，可匹配 预告 或 预告片',
+			'settings.blockSettings.regexEx8Sample' => '新作预告 上线',
+			'settings.blockSettings.regexEx9Pattern' => '哈+',
+			'settings.blockSettings.regexEx9Desc' => '「+」表示前一个字一个或多个，可匹配 哈、哈哈、哈哈哈',
+			'settings.blockSettings.regexEx9Sample' => '搞笑 哈哈哈 合集',
+			'settings.blockSettings.regexEx10Pattern' => '预告.*版',
+			'settings.blockSettings.regexEx10Desc' => '「.*」匹配中间任意内容，可匹配「预告…版」',
+			'settings.blockSettings.regexEx10Sample' => '预告 完整版 公开',
 			'settings.chatSettings.name' => '聊天',
 			'settings.chatSettings.configureYourChatSettings' => '配置您的聊天设置',
 			'settings.hardwareDecodingAuto' => '自动',
@@ -3987,6 +4035,8 @@ extension on TranslationsZhCn {
 			'videoDetail.cast.castFailed' => ({required Object error}) => '投屏失败: ${error}\n请尝试重新搜索设备或切换网络',
 			'videoDetail.cast.castStopped' => '已停止投屏',
 			'videoDetail.cast.deviceTypes.mediaRenderer' => '媒体播放器',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.deviceTypes.mediaServer' => '媒体服务器',
 			'videoDetail.cast.deviceTypes.internetGatewayDevice' => '路由器',
 			'videoDetail.cast.deviceTypes.basicDevice' => '基础设备',
@@ -4011,8 +4061,6 @@ extension on TranslationsZhCn {
 			'videoDetail.cast.dlnaCastSheet.cast' => '投屏',
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => '已连接到: ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => '未连接设备',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => '停止投屏',
 			'videoDetail.likeAvatars.dialogTitle' => '谁在偷偷喜欢',
 			'videoDetail.likeAvatars.dialogDescription' => '好奇他们是谁？翻翻这本「点赞相册」吧～',
@@ -4501,6 +4549,8 @@ extension on TranslationsZhCn {
 			'translation.deeplxDescription' => 'DeepLX 是 DeepL 翻译的开源实现，支持 Free、Pro 和 Official 三种端点模式',
 			'translation.serverAddress' => '服务器地址',
 			'translation.serverAddressHint' => 'https://api.deeplx.org',
+			_ => null,
+		} ?? switch (path) {
 			'translation.serverAddressHelperText' => 'DeepLX 服务器的基础地址',
 			'translation.endpointType' => '端点类型',
 			'translation.freeEndpoint' => 'Free - 免费端点，可能有频率限制',
@@ -4525,8 +4575,6 @@ extension on TranslationsZhCn {
 			'translation.connectionFailed' => '连接失败',
 			'translation.translationFailed' => '翻译失败',
 			'translation.aiTranslationFailed' => 'AI翻译失败',
-			_ => null,
-		} ?? switch (path) {
 			'translation.deeplxTranslationFailed' => 'DeepLX翻译失败',
 			'translation.aiTranslationTestFailed' => 'AI翻译测试失败',
 			'translation.deeplxTranslationTestFailed' => 'DeepLX翻译测试失败',
@@ -5015,6 +5063,8 @@ extension on TranslationsZhCn {
 			'anime4k.realTimeVideoUpscalingAndDenoising' => 'Anime4K 实时视频上采样和降噪，提升动画视频质量',
 			'anime4k.settings' => 'Anime4K 设置',
 			'anime4k.preset' => 'Anime4K 预设',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.disable' => '关闭 Anime4K',
 			'anime4k.disableDescription' => '禁用视频增强效果',
 			'anime4k.highQualityPresets' => '高质量预设',
@@ -5039,8 +5089,6 @@ extension on TranslationsZhCn {
 			'anime4k.presetDescriptions.mode_a_a_fast' => 'Mode A+A的快速版本，在性能有限的设备上追求更高的感知质量。',
 			'anime4k.presetDescriptions.mode_b_b_fast' => 'Mode B+B的快速版本，为性能有限的设备提供增强的线条修复和瑕疵处理。',
 			'anime4k.presetDescriptions.mode_c_a_fast' => 'Mode C+A的快速版本，在快速处理高质量片源的同时，进行轻度的线条修复。',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.upscale_only_s' => '仅使用最快的CNN模型进行x2放大，无修复和降噪，性能开销最低。',
 			'anime4k.presetDescriptions.upscale_deblur_fast' => '使用快速的非CNN算法进行放大和去模糊，效果优于传统算法，性能开销很低。',
 			'anime4k.presetDescriptions.restore_s_only' => '仅使用最快的CNN模型修复画面瑕疵，不进行放大。适用于原生分辨率播放，但希望改善画质的情况。',

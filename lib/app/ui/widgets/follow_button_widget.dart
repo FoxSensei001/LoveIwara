@@ -159,7 +159,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
               ),
               ListTile(
                 enabled: !isProcessing.value,
-                leading: const Icon(Icons.person_remove),
+                leading: const Icon(Icons.notifications_off),
                 title: Text(t.common.unfollow),
                 trailing: isProcessing.value
                     ? const SizedBox(
@@ -320,7 +320,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
     if (!_currentUser.following) {
       return ElevatedButton.icon(
         onPressed: () => _handleFollow(context),
-        icon: const Icon(Icons.person_add, size: 18),
+        icon: const Icon(Icons.notifications_none, size: 18),
         label: Text(t.common.follow),
       );
     }
@@ -341,7 +341,10 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
         onPressed: () {
           _showFollowOptionsSheet(context);
         },
-        icon: Icon(isSpecialFollowed ? Icons.stars : Icons.check, size: 18),
+        icon: Icon(
+          isSpecialFollowed ? Icons.stars : Icons.notifications_active,
+          size: 18,
+        ),
         label: Text(t.common.followed),
       );
     });
@@ -354,7 +357,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
     }
     if (!_currentUser.following) {
       return ActionIconButtonScaffold(
-        icon: Icons.person_add_alt_1,
+        icon: Icons.notifications_none,
         tooltip: t.common.follow,
         filled: true,
         onPressed: () => _handleFollow(context),
@@ -365,7 +368,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
         (u) => u.id == _currentUser.id,
       );
       return ActionIconButtonScaffold(
-        icon: isSpecialFollowed ? Icons.star : Icons.check,
+        icon: isSpecialFollowed ? Icons.star : Icons.notifications_active,
         tooltip: t.common.followed,
         selected: true,
         highlightColor: isSpecialFollowed ? Colors.amber : null,

@@ -2166,6 +2166,7 @@ class _TranslationsSettingsBlockSettingsZhTw implements TranslationsSettingsBloc
 	@override String get userUnblocked => '已取消封鎖';
 	@override String get exportRules => '匯出';
 	@override String get importRules => '匯入';
+	@override String get importExport => '匯入 / 匯出';
 	@override String get exportSuccess => '規則已匯出';
 	@override String get exportFailed => '匯出失敗';
 	@override String importSuccess({required Object count}) => '已匯入 ${count} 條規則';
@@ -2184,6 +2185,29 @@ class _TranslationsSettingsBlockSettingsZhTw implements TranslationsSettingsBloc
 	@override String get regexEx4Desc => '「.」代表任一個字，可比對「第1話」「第X話」';
 	@override String get regexEx5Pattern => '\d{4}';
 	@override String get regexEx5Desc => '「\d」是數字，{4} 表示連續 4 位，可比對年份等';
+	@override String get regexEx1Sample => '新作預告搶先看';
+	@override String get regexEx2Sample => '【合集】夏日特輯';
+	@override String get regexEx3Sample => '夏日泳裝合集';
+	@override String get regexEx4Sample => '番外 第3話 上線';
+	@override String get regexEx5Sample => '2024 年度精選';
+	@override String get regexHelpSampleLabel => '範例標題';
+	@override String get regexHelpMatchedTag => '會被封鎖';
+	@override String get regexHelpNoMatch => '未命中';
+	@override String get regexEx6Pattern => '[完未]結';
+	@override String get regexEx6Desc => '「[完未]」表示「完」或「未」其中一個字，可比對 完結 / 未結';
+	@override String get regexEx6Sample => '番劇 完結 合集';
+	@override String get regexEx7Pattern => '(預告|宣傳)片';
+	@override String get regexEx7Desc => '小括號 () 把多個詞歸為一組，可比對 預告片 或 宣傳片';
+	@override String get regexEx7Sample => '首部宣傳片公開';
+	@override String get regexEx8Pattern => '預告(片)?';
+	@override String get regexEx8Desc => '(片)? 表示「片」可有可無，可比對 預告 或 預告片';
+	@override String get regexEx8Sample => '新作預告 上線';
+	@override String get regexEx9Pattern => '哈+';
+	@override String get regexEx9Desc => '「+」表示前一個字一個或多個，可比對 哈、哈哈、哈哈哈';
+	@override String get regexEx9Sample => '搞笑 哈哈哈 合集';
+	@override String get regexEx10Pattern => '預告.*版';
+	@override String get regexEx10Desc => '「.*」比對中間任意內容，可比對「預告…版」';
+	@override String get regexEx10Sample => '預告 完整版 公開';
 }
 
 // Path: settings.chatSettings
@@ -3664,6 +3688,7 @@ extension on TranslationsZhTw {
 			'settings.blockSettings.userUnblocked' => '已取消封鎖',
 			'settings.blockSettings.exportRules' => '匯出',
 			'settings.blockSettings.importRules' => '匯入',
+			'settings.blockSettings.importExport' => '匯入 / 匯出',
 			'settings.blockSettings.exportSuccess' => '規則已匯出',
 			'settings.blockSettings.exportFailed' => '匯出失敗',
 			'settings.blockSettings.importSuccess' => ({required Object count}) => '已匯入 ${count} 條規則',
@@ -3682,6 +3707,29 @@ extension on TranslationsZhTw {
 			'settings.blockSettings.regexEx4Desc' => '「.」代表任一個字，可比對「第1話」「第X話」',
 			'settings.blockSettings.regexEx5Pattern' => '\d{4}',
 			'settings.blockSettings.regexEx5Desc' => '「\d」是數字，{4} 表示連續 4 位，可比對年份等',
+			'settings.blockSettings.regexEx1Sample' => '新作預告搶先看',
+			'settings.blockSettings.regexEx2Sample' => '【合集】夏日特輯',
+			'settings.blockSettings.regexEx3Sample' => '夏日泳裝合集',
+			'settings.blockSettings.regexEx4Sample' => '番外 第3話 上線',
+			'settings.blockSettings.regexEx5Sample' => '2024 年度精選',
+			'settings.blockSettings.regexHelpSampleLabel' => '範例標題',
+			'settings.blockSettings.regexHelpMatchedTag' => '會被封鎖',
+			'settings.blockSettings.regexHelpNoMatch' => '未命中',
+			'settings.blockSettings.regexEx6Pattern' => '[完未]結',
+			'settings.blockSettings.regexEx6Desc' => '「[完未]」表示「完」或「未」其中一個字，可比對 完結 / 未結',
+			'settings.blockSettings.regexEx6Sample' => '番劇 完結 合集',
+			'settings.blockSettings.regexEx7Pattern' => '(預告|宣傳)片',
+			'settings.blockSettings.regexEx7Desc' => '小括號 () 把多個詞歸為一組，可比對 預告片 或 宣傳片',
+			'settings.blockSettings.regexEx7Sample' => '首部宣傳片公開',
+			'settings.blockSettings.regexEx8Pattern' => '預告(片)?',
+			'settings.blockSettings.regexEx8Desc' => '(片)? 表示「片」可有可無，可比對 預告 或 預告片',
+			'settings.blockSettings.regexEx8Sample' => '新作預告 上線',
+			'settings.blockSettings.regexEx9Pattern' => '哈+',
+			'settings.blockSettings.regexEx9Desc' => '「+」表示前一個字一個或多個，可比對 哈、哈哈、哈哈哈',
+			'settings.blockSettings.regexEx9Sample' => '搞笑 哈哈哈 合集',
+			'settings.blockSettings.regexEx10Pattern' => '預告.*版',
+			'settings.blockSettings.regexEx10Desc' => '「.*」比對中間任意內容，可比對「預告…版」',
+			'settings.blockSettings.regexEx10Sample' => '預告 完整版 公開',
 			'settings.chatSettings.name' => '聊天',
 			'settings.chatSettings.configureYourChatSettings' => '配置您的聊天設定',
 			'settings.hardwareDecodingAuto' => '自動',
@@ -3985,6 +4033,8 @@ extension on TranslationsZhTw {
 			'videoDetail.noDownloadUrl' => '沒有下載連結',
 			'videoDetail.startDownloading' => '開始下載',
 			'videoDetail.downloadFailed' => '下載失敗，請稍後再試',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.downloadSuccess' => '下載成功',
 			'videoDetail.download' => '下載',
 			'videoDetail.downloadManager' => '下載管理',
@@ -4009,8 +4059,6 @@ extension on TranslationsZhTw {
 			'videoDetail.cast.castStopped' => '已停止投影',
 			'videoDetail.cast.deviceTypes.mediaRenderer' => '媒體播放器',
 			'videoDetail.cast.deviceTypes.mediaServer' => '媒體伺服器',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.deviceTypes.internetGatewayDevice' => '路由器',
 			'videoDetail.cast.deviceTypes.basicDevice' => '基礎裝置',
 			'videoDetail.cast.deviceTypes.dimmableLight' => '智慧燈',
@@ -4499,6 +4547,8 @@ extension on TranslationsZhTw {
 			'translation.streamingTranslationSupported' => '支援流式翻譯',
 			'translation.streamingTranslationNotSupported' => '不支援流式翻譯',
 			'translation.streamingTranslationDescription' => '流式翻譯可以在翻譯過程中即時顯示結果，提供更好的使用者體驗',
+			_ => null,
+		} ?? switch (path) {
 			'translation.baseUrlInputHelperText' => '當以#結尾時，將以輸入的URL作為實際請求地址',
 			'translation.usingFullUrlWithHash' => '使用完整URL（以#結尾）',
 			'translation.currentActualUrl' => ({required Object url}) => '目前實際URL: ${url}',
@@ -4523,8 +4573,6 @@ extension on TranslationsZhTw {
 			'translation.notEnabled' => '未啟用',
 			'translation.deeplxTranslationService' => 'DeepLX 翻譯服務',
 			'translation.deeplxDescription' => 'DeepLX 是 DeepL 翻譯的開源實現，支援 Free、Pro 和 Official 三種端點模式',
-			_ => null,
-		} ?? switch (path) {
 			'translation.serverAddress' => '伺服器地址',
 			'translation.serverAddressHint' => 'https://api.deeplx.org',
 			'translation.serverAddressHelperText' => 'DeepLX 伺服器的基礎地址',
@@ -5013,6 +5061,8 @@ extension on TranslationsZhTw {
 			'anime4k.preset' => 'Anime4K 預設',
 			'anime4k.disable' => '關閉 Anime4K',
 			'anime4k.disableDescription' => '停用影片增強效果',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.highQualityPresets' => '高品質預設',
 			'anime4k.fastPresets' => '快速預設',
 			'anime4k.litePresets' => '輕量級預設',
@@ -5037,8 +5087,6 @@ extension on TranslationsZhTw {
 			'anime4k.presetDescriptions.mode_c_a_fast' => 'Mode C+A的快速版本，在快速處理高品質片源的同時，進行輕度的線條修復。',
 			'anime4k.presetDescriptions.upscale_only_s' => '僅使用最快的CNN模型進行x2放大，無修復和降噪，性能開銷最低。',
 			'anime4k.presetDescriptions.upscale_deblur_fast' => '使用快速的非CNN演算法進行放大和去模糊，效果優於傳統演算法，性能開銷很低。',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.restore_s_only' => '僅使用最快的CNN模型修復畫面瑕疵，不進行放大。適用於原生解析度播放，但希望改善畫質的情況。',
 			'anime4k.presetDescriptions.denoise_bilateral_fast' => '使用傳統的雙邊濾波器進行降噪，速度極快，適用於處理輕微噪點。',
 			'anime4k.presetDescriptions.upscale_non_cnn' => '使用快速的傳統演算法進行放大，性能開銷極低，效果優於播放器內建演算法。',

@@ -5402,6 +5402,9 @@ class TranslationsSettingsBlockSettingsEn {
 	/// en: 'Import'
 	String get importRules => 'Import';
 
+	/// en: 'Import / Export'
+	String get importExport => 'Import / Export';
+
 	/// en: 'Rules exported'
 	String get exportSuccess => 'Rules exported';
 
@@ -5455,6 +5458,75 @@ class TranslationsSettingsBlockSettingsEn {
 
 	/// en: '\d is a digit and {4} means four in a row (e.g. a year)'
 	String get regexEx5Desc => '\d is a digit and {4} means four in a row (e.g. a year)';
+
+	/// en: 'New Game Teaser Out Now'
+	String get regexEx1Sample => 'New Game Teaser Out Now';
+
+	/// en: '[Remux] Full Movie'
+	String get regexEx2Sample => '[Remux] Full Movie';
+
+	/// en: 'Spring Art Collection'
+	String get regexEx3Sample => 'Spring Art Collection';
+
+	/// en: 'My Show Ep.12 Recap'
+	String get regexEx4Sample => 'My Show Ep.12 Recap';
+
+	/// en: 'Best of 2024 Highlights'
+	String get regexEx5Sample => 'Best of 2024 Highlights';
+
+	/// en: 'Example title'
+	String get regexHelpSampleLabel => 'Example title';
+
+	/// en: 'Blocked'
+	String get regexHelpMatchedTag => 'Blocked';
+
+	/// en: 'No match'
+	String get regexHelpNoMatch => 'No match';
+
+	/// en: '[Ss]eason'
+	String get regexEx6Pattern => '[Ss]eason';
+
+	/// en: '[Ss] matches an uppercase or lowercase S — here it catches "Season"'
+	String get regexEx6Desc => '[Ss] matches an uppercase or lowercase S — here it catches "Season"';
+
+	/// en: 'Final Season Trailer'
+	String get regexEx6Sample => 'Final Season Trailer';
+
+	/// en: 'the (movie|series)'
+	String get regexEx7Pattern => 'the (movie|series)';
+
+	/// en: 'Parentheses () group alternatives — matches "the movie" or "the series"'
+	String get regexEx7Desc => 'Parentheses () group alternatives — matches "the movie" or "the series"';
+
+	/// en: 'Watch the Series Now'
+	String get regexEx7Sample => 'Watch the Series Now';
+
+	/// en: 'seasons?'
+	String get regexEx8Pattern => 'seasons?';
+
+	/// en: 's? makes the previous letter optional — matches "season" and "seasons"'
+	String get regexEx8Desc => 's? makes the previous letter optional — matches "season" and "seasons"';
+
+	/// en: 'Two Seasons Bundle'
+	String get regexEx8Sample => 'Two Seasons Bundle';
+
+	/// en: '!+'
+	String get regexEx9Pattern => '!+';
+
+	/// en: '+ means one or more — matches !, !!, !!! ...'
+	String get regexEx9Desc => '+ means one or more — matches !, !!, !!! ...';
+
+	/// en: 'OMG!!! Must Watch'
+	String get regexEx9Sample => 'OMG!!! Must Watch';
+
+	/// en: 'bonus.*scene'
+	String get regexEx10Pattern => 'bonus.*scene';
+
+	/// en: '.* matches anything in between — "bonus … scene"'
+	String get regexEx10Desc => '.* matches anything in between — "bonus … scene"';
+
+	/// en: 'Bonus Deleted Scene'
+	String get regexEx10Sample => 'Bonus Deleted Scene';
 }
 
 // Path: settings.chatSettings
@@ -7845,6 +7917,7 @@ extension on Translations {
 			'settings.blockSettings.userUnblocked' => 'User unblocked',
 			'settings.blockSettings.exportRules' => 'Export',
 			'settings.blockSettings.importRules' => 'Import',
+			'settings.blockSettings.importExport' => 'Import / Export',
 			'settings.blockSettings.exportSuccess' => 'Rules exported',
 			'settings.blockSettings.exportFailed' => 'Couldn\'t export rules',
 			'settings.blockSettings.importSuccess' => ({required Object count}) => 'Imported ${count} rule(s)',
@@ -7863,6 +7936,29 @@ extension on Translations {
 			'settings.blockSettings.regexEx4Desc' => '\d+ is one or more digits — matches "Ep.12"',
 			'settings.blockSettings.regexEx5Pattern' => '\d{4}',
 			'settings.blockSettings.regexEx5Desc' => '\d is a digit and {4} means four in a row (e.g. a year)',
+			'settings.blockSettings.regexEx1Sample' => 'New Game Teaser Out Now',
+			'settings.blockSettings.regexEx2Sample' => '[Remux] Full Movie',
+			'settings.blockSettings.regexEx3Sample' => 'Spring Art Collection',
+			'settings.blockSettings.regexEx4Sample' => 'My Show Ep.12 Recap',
+			'settings.blockSettings.regexEx5Sample' => 'Best of 2024 Highlights',
+			'settings.blockSettings.regexHelpSampleLabel' => 'Example title',
+			'settings.blockSettings.regexHelpMatchedTag' => 'Blocked',
+			'settings.blockSettings.regexHelpNoMatch' => 'No match',
+			'settings.blockSettings.regexEx6Pattern' => '[Ss]eason',
+			'settings.blockSettings.regexEx6Desc' => '[Ss] matches an uppercase or lowercase S — here it catches "Season"',
+			'settings.blockSettings.regexEx6Sample' => 'Final Season Trailer',
+			'settings.blockSettings.regexEx7Pattern' => 'the (movie|series)',
+			'settings.blockSettings.regexEx7Desc' => 'Parentheses () group alternatives — matches "the movie" or "the series"',
+			'settings.blockSettings.regexEx7Sample' => 'Watch the Series Now',
+			'settings.blockSettings.regexEx8Pattern' => 'seasons?',
+			'settings.blockSettings.regexEx8Desc' => 's? makes the previous letter optional — matches "season" and "seasons"',
+			'settings.blockSettings.regexEx8Sample' => 'Two Seasons Bundle',
+			'settings.blockSettings.regexEx9Pattern' => '!+',
+			'settings.blockSettings.regexEx9Desc' => '+ means one or more — matches !, !!, !!! ...',
+			'settings.blockSettings.regexEx9Sample' => 'OMG!!! Must Watch',
+			'settings.blockSettings.regexEx10Pattern' => 'bonus.*scene',
+			'settings.blockSettings.regexEx10Desc' => '.* matches anything in between — "bonus … scene"',
+			'settings.blockSettings.regexEx10Sample' => 'Bonus Deleted Scene',
 			'settings.chatSettings.name' => 'Chat',
 			'settings.chatSettings.configureYourChatSettings' => 'Configure Your Chat Settings',
 			'settings.hardwareDecodingAuto' => 'Auto',
@@ -8166,6 +8262,8 @@ extension on Translations {
 			'videoDetail.cast.deviceTypes.basicDevice' => 'Basic Device',
 			'videoDetail.cast.deviceTypes.dimmableLight' => 'Smart Light',
 			'videoDetail.cast.deviceTypes.wlanAccessPoint' => 'WLAN Access Point',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.deviceTypes.wlanConnectionDevice' => 'WLAN Connection Device',
 			'videoDetail.cast.deviceTypes.printer' => 'Printer',
 			'videoDetail.cast.deviceTypes.scanner' => 'Scanner',
@@ -8190,8 +8288,6 @@ extension on Translations {
 			'videoDetail.likeAvatars.dialogDescription' => 'Curious who they are? Flip through this "Like Album"~',
 			'videoDetail.likeAvatars.closeTooltip' => 'Close',
 			'videoDetail.likeAvatars.retry' => 'Retry',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.likeAvatars.noLikesYet' => 'No one has appeared here yet. Be the first!',
 			'videoDetail.likeAvatars.pageInfo' => ({required Object page, required Object totalPages, required Object totalCount}) => 'Page ${page} / ${totalPages} · Total ${totalCount} people',
 			'videoDetail.likeAvatars.prevPage' => 'Previous Page',
@@ -8680,6 +8776,8 @@ extension on Translations {
 			'translation.freeEndpoint' => 'Free - Free endpoint, may have rate limits',
 			'translation.proEndpoint' => 'Pro - Requires dl_session, more stable',
 			'translation.officialEndpoint' => 'Official - Official API format',
+			_ => null,
+		} ?? switch (path) {
 			'translation.finalRequestUrl' => 'Final Request URL',
 			'translation.apiKeyOptional' => 'API Key (Optional)',
 			'translation.apiKeyOptionalHint' => 'For accessing protected DeepLX services',
@@ -8704,8 +8802,6 @@ extension on Translations {
 			'translation.deeplxTranslationTestFailed' => 'DeepLX translation test failed',
 			'translation.streamingTranslationTimeout' => 'Streaming translation timeout, forcing resource cleanup',
 			'translation.translationRequestTimeout' => 'Translation request timeout',
-			_ => null,
-		} ?? switch (path) {
 			'translation.streamingTranslationDataTimeout' => 'Streaming translation data reception timeout',
 			'translation.dataReceptionTimeout' => 'Data reception timeout',
 			'translation.streamDataParseError' => 'Error parsing stream data',
@@ -9194,6 +9290,8 @@ extension on Translations {
 			'anime4k.highQualityPresets' => 'High Quality Presets',
 			'anime4k.fastPresets' => 'Fast Presets',
 			'anime4k.litePresets' => 'Lightweight Presets',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.moreLitePresets' => 'More Lightweight Presets',
 			'anime4k.customPresets' => 'Custom Presets',
 			'anime4k.presetGroups.highQuality' => 'High Quality',
@@ -9218,8 +9316,6 @@ extension on Translations {
 			'anime4k.presetDescriptions.restore_s_only' => 'Repair only using the fastest CNN model, no upscaling. Suitable for native resolution playback where you want to improve quality.',
 			'anime4k.presetDescriptions.denoise_bilateral_fast' => 'Fast denoising using traditional bilateral filtering, extremely fast, suitable for processing light noise.',
 			'anime4k.presetDescriptions.upscale_non_cnn' => 'Fast upscaling using traditional algorithms, very low performance overhead, better than player defaults.',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + Line darkening, adding line darkening effects on top of fast mode A for more prominent, stylized lines.',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + Line thinning, adding line thinning effects on top of high quality mode A for more refined appearance.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
