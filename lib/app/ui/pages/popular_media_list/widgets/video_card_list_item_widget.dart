@@ -622,27 +622,6 @@ class VideoCardMetaLine extends StatelessWidget {
                 color: theme.colorScheme.onSurfaceVariant,
                 maxTextWidth: chipTextMaxWidth,
               ),
-            if (video.isExternalVideo)
-              Container(
-                constraints: BoxConstraints(maxWidth: compact ? 92 : 140),
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(99),
-                ),
-                child: Text(
-                  video.externalVideoDomain.isEmpty
-                      ? slang.t.common.externalVideo
-                      : video.externalVideoDomain,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.primary,
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
           ],
         );
       },

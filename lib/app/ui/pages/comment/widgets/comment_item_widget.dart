@@ -542,6 +542,19 @@ class _CommentItemState extends State<CommentItem> {
         comment.user?.id == widget.authorUserId ||
         comment.user?.role.contains('admin') == true;
 
+    // 计算评论卡片高亮：内容作者优先（secondary 绿色系），其次当前登录用户（primary 蓝色系）。
+    // 二者兼具时按「作者」强调，但下方角标仍会同时显示「作者」「我」。
+    final currentUserId = _userService.currentUser.value?.id;
+    final commentUserId = comment.user?.id;
+    final isMe = commentUserId != null && commentUserId == currentUserId;
+    final isContentAuthor = commentUserId != null &&
+        widget.authorUserId != null &&
+        commentUserId == widget.authorUserId;
+    final colorScheme = Theme.of(context).colorScheme;
+    final Color? highlightColor = isContentAuthor
+        ? colorScheme.secondary
+        : (isMe ? colorScheme.primary : null);
+
     return RepaintBoundary(
       child: Padding(
         padding: EdgeInsets.only(
@@ -550,7 +563,9 @@ class _CommentItemState extends State<CommentItem> {
           top: 6.0,
           bottom: 6.0,
         ),
-        child: Column(
+        child: _wrapWithHighlight(
+          highlightColor,
+          Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             MouseRegion(
@@ -695,8 +710,30 @@ class _CommentItemState extends State<CommentItem> {
               ),
             ),
           ],
+          ),
         ),
       ),
+    );
+  }
+
+  /// 当评论来自内容作者或当前登录用户时，给整条评论加左侧强调条 + 淡色背景，
+  /// 让其在评论流中「一眼可辨」；否则原样返回，普通评论保持轻量样式不变。
+  Widget _wrapWithHighlight(Color? highlightColor, Widget child) {
+    if (highlightColor == null) return child;
+    return Stack(
+      children: [
+        // 左侧强调竖条，随卡片高度自适应拉伸
+        Positioned(
+          left: 0,
+          top: 0,
+          bottom: 0,
+          child: Container(width: 3, color: highlightColor),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
+          child: child,
+        ),
+      ],
     );
   }
 
