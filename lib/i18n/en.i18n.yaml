@@ -1460,6 +1460,12 @@ download:
   gallery: Gallery
   other: Other
   clearFilters: Clear filters
+  pauseAll: Pause all
+  resumeAll: Start all
+  emptyTaskList: No download tasks yet
+  noMatchingTasks: No matching tasks
+  maxConcurrentDownloads: Max concurrent downloads
+  maxConcurrentDownloadsDesc: 'Number of tasks downloading at the same time (1-5)'
   stillInDevelopment: Still in development
   saveToAppDirectory: Save to app directory
   alreadyDownloadedWithQuality: 'Already downloaded with the same quality, continue downloading?'

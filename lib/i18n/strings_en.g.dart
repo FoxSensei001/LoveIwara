@@ -3097,6 +3097,24 @@ class TranslationsDownloadEn {
 	/// en: 'Clear filters'
 	String get clearFilters => 'Clear filters';
 
+	/// en: 'Pause all'
+	String get pauseAll => 'Pause all';
+
+	/// en: 'Start all'
+	String get resumeAll => 'Start all';
+
+	/// en: 'No download tasks yet'
+	String get emptyTaskList => 'No download tasks yet';
+
+	/// en: 'No matching tasks'
+	String get noMatchingTasks => 'No matching tasks';
+
+	/// en: 'Max concurrent downloads'
+	String get maxConcurrentDownloads => 'Max concurrent downloads';
+
+	/// en: 'Number of tasks downloading at the same time (1-5)'
+	String get maxConcurrentDownloadsDesc => 'Number of tasks downloading at the same time (1-5)';
+
 	/// en: 'Still in development'
 	String get stillInDevelopment => 'Still in development';
 
@@ -8604,6 +8622,12 @@ extension on Translations {
 			'download.gallery' => 'Gallery',
 			'download.other' => 'Other',
 			'download.clearFilters' => 'Clear filters',
+			'download.pauseAll' => 'Pause all',
+			'download.resumeAll' => 'Start all',
+			'download.emptyTaskList' => 'No download tasks yet',
+			'download.noMatchingTasks' => 'No matching tasks',
+			'download.maxConcurrentDownloads' => 'Max concurrent downloads',
+			'download.maxConcurrentDownloadsDesc' => 'Number of tasks downloading at the same time (1-5)',
 			'download.stillInDevelopment' => 'Still in development',
 			'download.saveToAppDirectory' => 'Save to app directory',
 			'download.alreadyDownloadedWithQuality' => 'Already downloaded with the same quality, continue downloading?',
@@ -8770,14 +8794,14 @@ extension on Translations {
 			'translation.deeplxTranslationService' => 'DeepLX Translation Service',
 			'translation.deeplxDescription' => 'DeepLX is an open source implementation of DeepL translation, supporting Free, Pro and Official endpoint modes',
 			'translation.serverAddress' => 'Server Address',
+			_ => null,
+		} ?? switch (path) {
 			'translation.serverAddressHint' => 'https://api.deeplx.org',
 			'translation.serverAddressHelperText' => 'Base address of DeepLX server',
 			'translation.endpointType' => 'Endpoint Type',
 			'translation.freeEndpoint' => 'Free - Free endpoint, may have rate limits',
 			'translation.proEndpoint' => 'Pro - Requires dl_session, more stable',
 			'translation.officialEndpoint' => 'Official - Official API format',
-			_ => null,
-		} ?? switch (path) {
 			'translation.finalRequestUrl' => 'Final Request URL',
 			'translation.apiKeyOptional' => 'API Key (Optional)',
 			'translation.apiKeyOptionalHint' => 'For accessing protected DeepLX services',
@@ -9284,14 +9308,14 @@ extension on Translations {
 			'tagSelector.delete' => 'Delete',
 			'anime4k.realTimeVideoUpscalingAndDenoising' => 'Real-time video upscaling and denoising, improving animation video quality',
 			'anime4k.settings' => 'Anime4K Settings',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.preset' => 'Anime4K Preset',
 			'anime4k.disable' => 'Disable Anime4K',
 			'anime4k.disableDescription' => 'Disable video enhancement effects',
 			'anime4k.highQualityPresets' => 'High Quality Presets',
 			'anime4k.fastPresets' => 'Fast Presets',
 			'anime4k.litePresets' => 'Lightweight Presets',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.moreLitePresets' => 'More Lightweight Presets',
 			'anime4k.customPresets' => 'Custom Presets',
 			'anime4k.presetGroups.highQuality' => 'High Quality',

@@ -1246,6 +1246,12 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	@override String get gallery => '图库';
 	@override String get other => '其他';
 	@override String get clearFilters => '清除筛选';
+	@override String get pauseAll => '全部暂停';
+	@override String get resumeAll => '全部开始';
+	@override String get emptyTaskList => '暂无下载任务';
+	@override String get noMatchingTasks => '没有匹配的任务';
+	@override String get maxConcurrentDownloads => '最大同时下载数';
+	@override String get maxConcurrentDownloadsDesc => '同时进行下载的任务数量（1-5）';
 	@override String downloadCompletedWithName({required Object fileName}) => '下载完成: ${fileName}';
 	@override String get stillInDevelopment => '开发中';
 	@override String get saveToAppDirectory => '保存到应用目录';
@@ -4381,6 +4387,12 @@ extension on TranslationsZhCn {
 			'download.gallery' => '图库',
 			'download.other' => '其他',
 			'download.clearFilters' => '清除筛选',
+			'download.pauseAll' => '全部暂停',
+			'download.resumeAll' => '全部开始',
+			'download.emptyTaskList' => '暂无下载任务',
+			'download.noMatchingTasks' => '没有匹配的任务',
+			'download.maxConcurrentDownloads' => '最大同时下载数',
+			'download.maxConcurrentDownloadsDesc' => '同时进行下载的任务数量（1-5）',
 			'download.downloadCompletedWithName' => ({required Object fileName}) => '下载完成: ${fileName}',
 			'download.stillInDevelopment' => '开发中',
 			'download.saveToAppDirectory' => '保存到应用目录',
@@ -4543,14 +4555,14 @@ extension on TranslationsZhCn {
 			'translation.fastResponseDescription' => '翻译速度快，延迟低',
 			'translation.stableAndReliable' => '稳定可靠',
 			'translation.stableAndReliableDescription' => '基于Google官方API',
+			_ => null,
+		} ?? switch (path) {
 			'translation.enabledDefaultService' => '已启用 - 默认翻译服务',
 			'translation.notEnabled' => '未启用',
 			'translation.deeplxTranslationService' => 'DeepLX 翻译服务',
 			'translation.deeplxDescription' => 'DeepLX 是 DeepL 翻译的开源实现，支持 Free、Pro 和 Official 三种端点模式',
 			'translation.serverAddress' => '服务器地址',
 			'translation.serverAddressHint' => 'https://api.deeplx.org',
-			_ => null,
-		} ?? switch (path) {
 			'translation.serverAddressHelperText' => 'DeepLX 服务器的基础地址',
 			'translation.endpointType' => '端点类型',
 			'translation.freeEndpoint' => 'Free - 免费端点，可能有频率限制',
@@ -5057,14 +5069,14 @@ extension on TranslationsZhCn {
 			'tagSelector.addTagTooltip' => '添加标签',
 			'tagSelector.removeTagTooltip' => '删除标签',
 			'tagSelector.cancelSelection' => '取消选择',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.selectAll' => '全选',
 			'tagSelector.cancelSelectAll' => '取消全选',
 			'tagSelector.delete' => '删除',
 			'anime4k.realTimeVideoUpscalingAndDenoising' => 'Anime4K 实时视频上采样和降噪，提升动画视频质量',
 			'anime4k.settings' => 'Anime4K 设置',
 			'anime4k.preset' => 'Anime4K 预设',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.disable' => '关闭 Anime4K',
 			'anime4k.disableDescription' => '禁用视频增强效果',
 			'anime4k.highQualityPresets' => '高质量预设',

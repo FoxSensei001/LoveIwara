@@ -1273,6 +1273,12 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	@override String get gallery => '圖庫';
 	@override String get other => '其他';
 	@override String get clearFilters => '清除篩選';
+	@override String get pauseAll => '全部暫停';
+	@override String get resumeAll => '全部開始';
+	@override String get emptyTaskList => '暫無下載任務';
+	@override String get noMatchingTasks => '沒有符合的任務';
+	@override String get maxConcurrentDownloads => '最大同時下載數';
+	@override String get maxConcurrentDownloadsDesc => '同時進行下載的任務數量（1-5）';
 	@override String get stillInDevelopment => '開發中';
 	@override String get saveToAppDirectory => '儲存到應用程式目錄';
 	@override String get alreadyDownloadedWithQuality => '已有相同清晰度的任務，是否繼續下載？';
@@ -4406,6 +4412,12 @@ extension on TranslationsZhTw {
 			'download.gallery' => '圖庫',
 			'download.other' => '其他',
 			'download.clearFilters' => '清除篩選',
+			'download.pauseAll' => '全部暫停',
+			'download.resumeAll' => '全部開始',
+			'download.emptyTaskList' => '暫無下載任務',
+			'download.noMatchingTasks' => '沒有符合的任務',
+			'download.maxConcurrentDownloads' => '最大同時下載數',
+			'download.maxConcurrentDownloadsDesc' => '同時進行下載的任務數量（1-5）',
 			'download.stillInDevelopment' => '開發中',
 			'download.saveToAppDirectory' => '儲存到應用程式目錄',
 			'download.alreadyDownloadedWithQuality' => '已有相同清晰度的任務，是否繼續下載？',
@@ -4541,14 +4553,14 @@ extension on TranslationsZhTw {
 			'translation.aiTranslationWillBeDisabled' => 'AI翻譯將被自動關閉',
 			'translation.aiTranslationWillBeDisabledDueToConfigChange' => '由於修改了基礎配置,AI翻譯將被自動關閉',
 			'translation.aiTranslationWillBeDisabledDueToPromptChange' => '由於修改了翻譯提示詞,AI翻譯將被自動關閉',
+			_ => null,
+		} ?? switch (path) {
 			'translation.aiTranslationWillBeDisabledDueToParamChange' => '由於修改了參數配置,AI翻譯將被自動關閉',
 			'translation.onlyOpenAIAPISupported' => '目前僅支援OpenAI相容的API格式（application/json請求體格式）',
 			'translation.streamingTranslation' => '流式翻譯',
 			'translation.streamingTranslationSupported' => '支援流式翻譯',
 			'translation.streamingTranslationNotSupported' => '不支援流式翻譯',
 			'translation.streamingTranslationDescription' => '流式翻譯可以在翻譯過程中即時顯示結果，提供更好的使用者體驗',
-			_ => null,
-		} ?? switch (path) {
 			'translation.baseUrlInputHelperText' => '當以#結尾時，將以輸入的URL作為實際請求地址',
 			'translation.usingFullUrlWithHash' => '使用完整URL（以#結尾）',
 			'translation.currentActualUrl' => ({required Object url}) => '目前實際URL: ${url}',
@@ -5055,14 +5067,14 @@ extension on TranslationsZhTw {
 			'tagSelector.cancelSelection' => '取消選擇',
 			'tagSelector.selectAll' => '全選',
 			'tagSelector.cancelSelectAll' => '取消全選',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.delete' => '刪除',
 			'anime4k.realTimeVideoUpscalingAndDenoising' => 'Anime4K 即時影片上採樣和降噪，提升動畫影片品質',
 			'anime4k.settings' => 'Anime4K 設定',
 			'anime4k.preset' => 'Anime4K 預設',
 			'anime4k.disable' => '關閉 Anime4K',
 			'anime4k.disableDescription' => '停用影片增強效果',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.highQualityPresets' => '高品質預設',
 			'anime4k.fastPresets' => '快速預設',
 			'anime4k.litePresets' => '輕量級預設',

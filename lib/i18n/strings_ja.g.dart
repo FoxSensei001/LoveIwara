@@ -1242,6 +1242,12 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String get gallery => 'ギャラリー';
 	@override String get other => 'その他';
 	@override String get clearFilters => 'フィルターをクリア';
+	@override String get pauseAll => 'すべて一時停止';
+	@override String get resumeAll => 'すべて開始';
+	@override String get emptyTaskList => 'ダウンロードタスクがありません';
+	@override String get noMatchingTasks => '一致するタスクがありません';
+	@override String get maxConcurrentDownloads => '最大同時ダウンロード数';
+	@override String get maxConcurrentDownloadsDesc => '同時にダウンロードするタスク数（1-5）';
 	@override String get stillInDevelopment => '開発中';
 	@override String get saveToAppDirectory => 'アプリケーションディレクトリに保存';
 	@override String get alreadyDownloadedWithQuality => 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？';
@@ -4372,6 +4378,12 @@ extension on TranslationsJa {
 			'download.gallery' => 'ギャラリー',
 			'download.other' => 'その他',
 			'download.clearFilters' => 'フィルターをクリア',
+			'download.pauseAll' => 'すべて一時停止',
+			'download.resumeAll' => 'すべて開始',
+			'download.emptyTaskList' => 'ダウンロードタスクがありません',
+			'download.noMatchingTasks' => '一致するタスクがありません',
+			'download.maxConcurrentDownloads' => '最大同時ダウンロード数',
+			'download.maxConcurrentDownloadsDesc' => '同時にダウンロードするタスク数（1-5）',
 			'download.stillInDevelopment' => '開発中',
 			'download.saveToAppDirectory' => 'アプリケーションディレクトリに保存',
 			'download.alreadyDownloadedWithQuality' => 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？',
@@ -4538,14 +4550,14 @@ extension on TranslationsJa {
 			'translation.deeplxTranslationService' => 'DeepLX 翻訳サービス',
 			'translation.deeplxDescription' => 'DeepLXはDeepL翻訳のオープンソース実装で、Free、Pro、Officialの3つのエンドポイントモードをサポートしています',
 			'translation.serverAddress' => 'サーバーアドレス',
+			_ => null,
+		} ?? switch (path) {
 			'translation.serverAddressHint' => 'https://api.deeplx.org',
 			'translation.serverAddressHelperText' => 'DeepLXサーバーのベースアドレス',
 			'translation.endpointType' => 'エンドポイントタイプ',
 			'translation.freeEndpoint' => 'Free - 無料エンドポイント、レート制限がある場合があります',
 			'translation.proEndpoint' => 'Pro - dl_sessionが必要、より安定',
 			'translation.officialEndpoint' => 'Official - 公式API形式',
-			_ => null,
-		} ?? switch (path) {
 			'translation.finalRequestUrl' => '最終リクエストURL',
 			'translation.apiKeyOptional' => 'API Key (オプション)',
 			'translation.apiKeyOptionalHint' => '保護されたDeepLXサービスへのアクセス用',
@@ -5052,14 +5064,14 @@ extension on TranslationsJa {
 			'tagSelector.delete' => '削除',
 			'anime4k.realTimeVideoUpscalingAndDenoising' => 'Anime4K リアルタイムビデオアップスケーリングとノイズ除去、アニメーション動画の品質向上',
 			'anime4k.settings' => 'Anime4K 設定',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.preset' => 'Anime4K プリセット',
 			'anime4k.disable' => 'Anime4K を無効にする',
 			'anime4k.disableDescription' => 'ビデオ強化効果を無効にする',
 			'anime4k.highQualityPresets' => '高品質プリセット',
 			'anime4k.fastPresets' => '高速プリセット',
 			'anime4k.litePresets' => '軽量プリセット',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.moreLitePresets' => 'より軽量なプリセット',
 			'anime4k.customPresets' => 'カスタムプリセット',
 			'anime4k.presetGroups.highQuality' => '高品質',

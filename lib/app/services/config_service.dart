@@ -367,6 +367,7 @@ enum ConfigKey {
   SHOW_SUBSCRIPTION_TUTORIAL, // 是否显示订阅页面教程指导
   // 下载相关配置
   LAST_DOWNLOAD_QUALITY, // 上次下载的视频清晰度
+  MAX_CONCURRENT_DOWNLOADS, // 最大同时下载任务数
   // 日志系统配置
   LOGGING_ENABLED, // 日志总开关
   LOG_PERSISTENCE_ENABLED, // 日志持久化开关
@@ -593,6 +594,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'show_subscription_tutorial';
       case ConfigKey.LAST_DOWNLOAD_QUALITY:
         return 'last_download_quality';
+      case ConfigKey.MAX_CONCURRENT_DOWNLOADS:
+        return 'max_concurrent_downloads';
       case ConfigKey.LOGGING_ENABLED:
         return 'logging_enabled';
       case ConfigKey.LOG_PERSISTENCE_ENABLED:
@@ -838,6 +841,8 @@ extension ConfigKeyExtension on ConfigKey {
         return true; // 默认显示订阅页面教程指导
       case ConfigKey.LAST_DOWNLOAD_QUALITY:
         return 'source'; // 默认清晰度为 source
+      case ConfigKey.MAX_CONCURRENT_DOWNLOADS:
+        return 3; // 默认最多同时下载 3 个任务
       case ConfigKey.LOGGING_ENABLED:
         return false;
       case ConfigKey.LOG_PERSISTENCE_ENABLED:

@@ -8,6 +8,7 @@ import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_status_colors.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/status_label_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -447,8 +448,14 @@ class GalleryDownloadTaskItem extends StatelessWidget {
           ),
           gradient: LinearGradient(
             colors: [
-              _getProgressColor(task.status).withValues(alpha: alphaStart),
-              _getProgressColor(task.status).withValues(alpha: alphaEnd),
+              downloadStatusColor(
+                context,
+                task.status,
+              ).withValues(alpha: alphaStart),
+              downloadStatusColor(
+                context,
+                task.status,
+              ).withValues(alpha: alphaEnd),
             ],
             stops: [progress.clamp(0.0, 1.0), progress.clamp(0.0, 1.0)],
           ),
@@ -500,19 +507,6 @@ class GalleryDownloadTaskItem extends StatelessWidget {
     });
   }
 
-  Color _getProgressColor(DownloadStatus status) {
-    switch (status) {
-      case DownloadStatus.completed:
-        return Colors.green;
-      case DownloadStatus.failed:
-        return Colors.red;
-      case DownloadStatus.paused:
-        return Colors.orange;
-      default:
-        return Colors.blue;
-    }
-  }
-
   // 窄屏下载中状态的专用显示组件
   Widget _buildSmallScreenDownloadingStatus(
     BuildContext context,
@@ -520,13 +514,13 @@ class GalleryDownloadTaskItem extends StatelessWidget {
   ) {
     String progressText;
     if (task.totalBytes > 0) {
-      final downloaded = _formatFileSize(task.downloadedBytes);
-      final total = _formatFileSize(task.totalBytes);
+      final downloaded = _formatImageCount(task.downloadedBytes);
+      final total = _formatImageCount(task.totalBytes);
       final progress = (task.downloadedBytes / task.totalBytes * 100)
           .toStringAsFixed(1);
       progressText = '$downloaded/$total ($progress%)';
     } else {
-      final downloaded = _formatFileSize(task.downloadedBytes);
+      final downloaded = _formatImageCount(task.downloadedBytes);
       progressText = downloaded;
     }
 
@@ -586,8 +580,8 @@ class GalleryDownloadTaskItem extends StatelessWidget {
         if (task.totalBytes > 0) {
           final progress = (task.downloadedBytes / task.totalBytes * 100)
               .toStringAsFixed(1);
-          final downloaded = _formatFileSize(task.downloadedBytes);
-          final total = _formatFileSize(task.totalBytes);
+          final downloaded = _formatImageCount(task.downloadedBytes);
+          final total = _formatImageCount(task.totalBytes);
 
           return t.download.downloadingProgressForImageProgress(
             downloaded: downloaded,
@@ -595,15 +589,15 @@ class GalleryDownloadTaskItem extends StatelessWidget {
             progress: progress,
           );
         } else {
-          final downloaded = _formatFileSize(task.downloadedBytes);
+          final downloaded = _formatImageCount(task.downloadedBytes);
           return t.download.downloadingOnlyDownloaded(downloaded: downloaded);
         }
       case DownloadStatus.paused:
         if (task.totalBytes > 0) {
           final progress = (task.downloadedBytes / task.totalBytes * 100)
               .toStringAsFixed(1);
-          final downloaded = _formatFileSize(task.downloadedBytes);
-          final total = _formatFileSize(task.totalBytes);
+          final downloaded = _formatImageCount(task.downloadedBytes);
+          final total = _formatImageCount(task.totalBytes);
 
           // 窄屏设备使用更紧凑的格式
           if (isSmallScreen) {
@@ -616,24 +610,23 @@ class GalleryDownloadTaskItem extends StatelessWidget {
             progress: progress,
           );
         } else {
-          final downloaded = _formatFileSize(task.downloadedBytes);
+          final downloaded = _formatImageCount(task.downloadedBytes);
           return t.download.pausedAndDownloaded(downloaded: downloaded);
         }
       case DownloadStatus.completed:
-        final size = _formatFileSize(task.downloadedBytes);
-        return t.download.downloadedWithSize(size: size);
+        // 图库单位是“张”，不能用字节语义的 downloadedWithSize 展示。
+        // 直接展示已下载 / 总张数的纯计数。
+        return '${_formatImageCount(task.downloadedBytes)}'
+            '/${_formatImageCount(task.totalBytes)}';
       case DownloadStatus.failed:
         return t.download.errors.downloadFailed;
     }
   }
 
-  String _formatFileSize(int bytes) {
-    double size = bytes.toDouble();
-
-    String sizeStr = size >= 10
-        ? size.round().toString()
-        : size.toStringAsFixed(1);
-    return sizeStr;
+  /// 图库任务的 downloadedBytes / totalBytes 实际是“图片张数”而非字节，
+  /// 这里只做计数格式化（不带 KB/MB 等字节单位）。
+  String _formatImageCount(int count) {
+    return count.toString();
   }
 
   void _showMoreOptionsDialog(BuildContext context) {

@@ -1467,6 +1467,12 @@ download:
   gallery: 图库
   other: 其他
   clearFilters: 清除筛选
+  pauseAll: 全部暂停
+  resumeAll: 全部开始
+  emptyTaskList: 暂无下载任务
+  noMatchingTasks: 没有匹配的任务
+  maxConcurrentDownloads: 最大同时下载数
+  maxConcurrentDownloadsDesc: '同时进行下载的任务数量（1-5）'
   downloadCompletedWithName: '下载完成: ${fileName}'
   stillInDevelopment: 开发中
   saveToAppDirectory: 保存到应用目录

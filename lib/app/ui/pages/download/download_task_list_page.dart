@@ -51,6 +51,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
 
   // 用于监听任务状态变更
   int _lastStatusVersion = -1;
+  Worker? _statusChangedWorker;
 
   // 批量删除模式
   bool _isSelectionMode = false;
@@ -126,10 +127,29 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     _historySource = _HistoryDownloadTasksSource(_downloadTaskRepository);
     _reloadPendingTasks();
     _reloadFailedTasks();
+
+    // 监听任务状态变更，将刷新（含 setState / DB 读）等副作用移出 build。
+    _statusChangedWorker = ever(
+      DownloadService.to.taskStatusChangedNotifier,
+      (int currentVersion) {
+        if (currentVersion == _lastStatusVersion) return;
+        _lastStatusVersion = currentVersion;
+        // 延后到帧回调后执行，避免在 build/通知阶段触发 setState。
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          // 刷新顶部区域
+          _refreshPendingTasksIfNeeded();
+          _refreshFailedTasksIfNeeded();
+          // 刷新历史区域
+          _historySource.refresh(true);
+        });
+      },
+    );
   }
 
   @override
   void dispose() {
+    _statusChangedWorker?.dispose();
     _scrollController.dispose();
     _historySource.dispose();
     _searchController.dispose();
@@ -165,34 +185,32 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
           ),
         ),
         actions: [
-          if (!_isSelectionMode)
+          if (!_isSelectionMode) ...[
+            IconButton(
+              icon: const Icon(Icons.play_arrow_outlined),
+              tooltip: t.download.resumeAll,
+              onPressed: () => DownloadService.to.resumeAll(),
+            ),
+            IconButton(
+              icon: const Icon(Icons.pause_outlined),
+              tooltip: t.download.pauseAll,
+              onPressed: () => DownloadService.to.pauseAll(),
+            ),
             IconButton(
               icon: const Icon(Icons.delete_sweep_outlined),
               tooltip: t.common.batchDelete,
               onPressed: _enterSelectionMode,
             ),
+          ],
         ],
       ),
       body: Stack(
         children: [
           // Main content (列表在底层)
           Obx(() {
-            // 监听任务状态变更
-            final currentVersion =
-                DownloadService.to.taskStatusChangedNotifier.value;
-            if (currentVersion != _lastStatusVersion) {
-              _lastStatusVersion = currentVersion;
-              // 刷新顶部区域
-              _refreshPendingTasksIfNeeded();
-              _refreshFailedTasksIfNeeded();
-              // 刷新历史区域
-              Future.microtask(() {
-                if (mounted) {
-                  _historySource.refresh(true);
-                }
-              });
-            }
-
+            // 仅订阅任务状态变更以触发重建；实际的刷新副作用在
+            // initState 注册的 worker 中处理（见 _statusChangedWorker）。
+            DownloadService.to.taskStatusChangedNotifier.value;
             return _buildSingleList();
           }),
           // 顶部悬浮的搜索栏（透明背景，紧贴 AppBar 下方）
@@ -608,6 +626,50 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     return true;
   }
 
+  /// 构建空状态视图。
+  /// - 存在搜索 / 筛选条件时：提示无匹配结果，并提供“清除筛选”入口。
+  /// - 无任何任务时：提示暂无下载任务。
+  Widget _buildEmptyState({required bool hasActiveFilter}) {
+    final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              hasActiveFilter
+                  ? Icons.search_off
+                  : Icons.download_done_outlined,
+              size: 64,
+              color: colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              hasActiveFilter
+                  ? t.download.noMatchingTasks
+                  : t.download.emptyTaskList,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            if (hasActiveFilter) ...[
+              const SizedBox(height: 16),
+              TextButton.icon(
+                onPressed: _clearFilters,
+                icon: const Icon(Icons.filter_alt_off),
+                label: Text(t.download.clearFilters),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildSingleList() {
     // 获取正在下载的任务 (apply filters)
     final downloadingTasks = DownloadService.to.tasks.values
@@ -667,6 +729,14 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     final appBarTotalHeight =
         kToolbarHeight + MediaQuery.of(context).padding.top;
 
+    // 是否存在搜索 / 筛选条件（用于区分“暂无任务”与“无匹配结果”）
+    final bool hasActiveFilter =
+        _searchQuery.isNotEmpty ||
+        _statusFilter != DownloadStatusFilter.all ||
+        _typeFilter != DownloadTypeFilter.all;
+    // 顶部活跃区域是否有内容（决定 history 为空时是否接管为整页空状态）
+    final bool hasActiveWidgets = activeWidgets.isNotEmpty;
+
     return LoadingMoreCustomScrollView(
       controller: _scrollController,
       slivers: [
@@ -675,7 +745,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
           padding: EdgeInsets.only(top: appBarTotalHeight + filterBarHeight),
         ),
         // 顶部活跃区域
-        if (activeWidgets.isNotEmpty)
+        if (hasActiveWidgets)
           SliverList(delegate: SliverChildListDelegate(activeWidgets)),
         // 底部历史区域（无限滚动）
         LoadingMoreSliverList<DownloadTask>(
@@ -691,12 +761,24 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
               MediaQuery.of(context).padding.bottom +
                   (_isSelectionMode ? 80 : 0), // 多选模式下增加底部padding防止遮挡
             ),
-            indicatorBuilder: (context, status) => myLoadingMoreIndicator(
-              context,
-              status,
-              isSliver: true,
-              loadingMoreBase: _historySource,
-            ),
+            indicatorBuilder: (context, status) {
+              // history 为空时：若顶部活跃区域也无内容，则用自定义整页空状态
+              // 接管（区分“暂无任务”/“无匹配结果”）；否则保持默认指示器。
+              if (status == IndicatorStatus.empty &&
+                  !hasActiveWidgets &&
+                  !_isFilterLoading) {
+                return SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: _buildEmptyState(hasActiveFilter: hasActiveFilter),
+                );
+              }
+              return myLoadingMoreIndicator(
+                context,
+                status,
+                isSliver: true,
+                loadingMoreBase: _historySource,
+              );
+            },
           ),
         ),
       ],

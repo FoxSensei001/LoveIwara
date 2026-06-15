@@ -70,6 +70,14 @@ class DuplicateTaskException implements Exception {
   String toString() => message;
 }
 
+/// 无法获取保存路径异常
+class NoSavePathException implements Exception {
+  final String message;
+  NoSavePathException([this.message = 'No save path']);
+  @override
+  String toString() => message;
+}
+
 /// 批量下载服务
 class BatchDownloadService extends GetxService {
   static BatchDownloadService get to => Get.find<BatchDownloadService>();
@@ -157,6 +165,15 @@ class BatchDownloadService extends GetxService {
               videoId: video.id,
               title: video.title ?? '',
               reason: BatchDownloadFailureReason.alreadyExists,
+            ),
+          );
+        } on NoSavePathException {
+          skippedCount.value++;
+          failures.add(
+            BatchDownloadFailure(
+              videoId: video.id,
+              title: video.title ?? '',
+              reason: BatchDownloadFailureReason.noSavePath,
             ),
           );
         } catch (e) {
@@ -261,15 +278,9 @@ class BatchDownloadService extends GetxService {
     );
 
     if (savePath == null) {
-      failures.add(
-        BatchDownloadFailure(
-          videoId: video.id,
-          title: video.title ?? '',
-          reason: BatchDownloadFailureReason.noSavePath,
-        ),
-      );
-      skippedCount.value++;
-      return;
+      // 抛异常交由外层统一计数；不能在这里手动 skippedCount++ 后 return，
+      // 否则外层 try 正常返回又会 successCount++，同一条被重复计数。
+      throw NoSavePathException();
     }
 
     // 6. 创建下载任务

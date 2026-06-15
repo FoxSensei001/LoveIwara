@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_status_colors.dart';
 
 class StatusLabel extends StatelessWidget {
   final DownloadStatus status;
@@ -11,22 +12,9 @@ class StatusLabel extends StatelessWidget {
     this.text = '',
   });
 
-  Color _getStatusColor() {
-    switch (status) {
-      case DownloadStatus.failed:
-        return Colors.red;
-      case DownloadStatus.completed:
-        return Colors.green;
-      case DownloadStatus.paused:
-        return Colors.orange;
-      default:
-        return Colors.blue;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final statusColor = _getStatusColor();
+    final statusColor = downloadStatusColor(context, status);
     if (text.isEmpty) {
       return const SizedBox.shrink();
     }

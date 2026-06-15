@@ -24,6 +24,12 @@ class DownloadTask {
   String? quality;
   /// 任务创建时间（来自数据库 created_at 字段，用于 UI 分组展示）
   final DateTime? createdAt;
+
+  /// 任务最近更新时间（来自数据库 updated_at 字段）
+  DateTime? updatedAt;
+
+  /// 任务完成时间（来自数据库 completed_at 字段，用于历史按完成时间展示/排序）
+  DateTime? completedAt;
   int speed = 0; // 当前下载速度(bytes/s)
   DateTime? lastSpeedUpdateTime; // 上次速度更新时间
   int lastDownloadedBytes = 0; // 上次下载的字节数
@@ -43,7 +49,18 @@ class DownloadTask {
     this.mediaId,
     this.quality,
     this.createdAt,
+    this.updatedAt,
+    this.completedAt,
   }) : id = id ?? SnowflakeIdGenerator.getInstance().nextId();
+
+  /// 兼容「秒级 / 毫秒级」两种历史时间戳：
+  /// created_at 用 strftime('%s') 存的是秒；updated_at/completed_at 由应用层
+  /// 写的是毫秒。为容错历史数据，小于 1e12 的值按秒处理，否则按毫秒。
+  static DateTime? _parseTimestamp(Object? raw) {
+    if (raw is! int) return null;
+    final ms = raw < 1000000000000 ? raw * 1000 : raw;
+    return DateTime.fromMillisecondsSinceEpoch(ms);
+  }
 
   // 从数据库行转换
   factory DownloadTask.fromRow(Map<String, dynamic> row) {
@@ -79,6 +96,10 @@ class DownloadTask {
               (row['created_at'] as int) * 1000,
             )
           : null,
+      updatedAt: _parseTimestamp(row['updated_at']),
+      completedAt: row.containsKey('completed_at')
+          ? _parseTimestamp(row['completed_at'])
+          : null,
     );
   }
 
@@ -99,6 +120,7 @@ class DownloadTask {
       'media_id': mediaId,
       'quality': quality,
       'updated_at': DateTime.now().millisecondsSinceEpoch,
+      'completed_at': completedAt?.millisecondsSinceEpoch,
     };
   }
 

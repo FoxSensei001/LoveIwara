@@ -7,6 +7,7 @@ import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -37,7 +38,27 @@ class DownloadService extends GetxService {
 
   final _repository = DownloadTaskRepository();
 
-  static const maxConcurrentDownloads = 3;
+  /// 允许的并发下载数范围
+  static const minConcurrentDownloads = 1;
+  static const maxConcurrentDownloadsLimit = 5;
+  static const defaultConcurrentDownloads = 3;
+
+  /// 最大并发下载数，可在设置中调整（[minConcurrentDownloads]~[maxConcurrentDownloadsLimit]）。
+  /// 读取配置失败时回退默认值，保证下载流程不被配置异常阻断。
+  int get maxConcurrentDownloads {
+    try {
+      if (Get.isRegistered<ConfigService>()) {
+        final v =
+            Get.find<ConfigService>()[ConfigKey.MAX_CONCURRENT_DOWNLOADS]
+                as int;
+        return v.clamp(minConcurrentDownloads, maxConcurrentDownloadsLimit);
+      }
+    } catch (e) {
+      LogUtils.w('读取最大并发下载数配置失败，使用默认值: $e', 'DownloadService');
+    }
+    return defaultConcurrentDownloads;
+  }
+
   final dio = Dio()..options.persistentConnection = false;
 
   DownloadTaskRepository get repository => _repository;
@@ -65,6 +86,10 @@ class DownloadService extends GetxService {
   final _activeTasks = <String, DownloadTask>{}.obs;
   // 活跃下载列表，key是任务的id，value是下载任务的CancelToken
   final _activeDownloads = <String, CancelToken>{};
+  // 取消后的资源清理 Future，key 是任务 id。
+  // 取消（pause/delete）会触发 whenCancel 异步关闭 raf/取消订阅，
+  // deleteTask 删除文件前需要 await 它，确保文件句柄已真正释放（尤其 Windows）。
+  final _cancelCleanupFutures = <String, Future<void>>{};
   // 下载队列，存储的是任务的id
   final _downloadQueue = <String>[].obs;
 
@@ -315,6 +340,39 @@ class DownloadService extends GetxService {
     }
   }
 
+  /// 全部暂停：暂停所有「下载中」+「等待中」的任务
+  Future<void> pauseAll() async {
+    LogUtils.i('全部暂停', 'DownloadService');
+    final ids = <String>{};
+    ids.addAll(_activeTasks.keys);
+    ids.addAll(_downloadQueue);
+    try {
+      final tasks = await _repository
+          .getDownloadingAndPendingTasksOrderByCreatedAtAsc();
+      ids.addAll(tasks.map((t) => t.id));
+    } catch (e) {
+      LogUtils.w('全部暂停时获取待暂停任务失败: $e', 'DownloadService');
+    }
+    for (final id in ids) {
+      await pauseTask(id);
+    }
+  }
+
+  /// 全部开始：恢复所有「已暂停」的任务
+  Future<void> resumeAll() async {
+    LogUtils.i('全部开始', 'DownloadService');
+    try {
+      final paused = await _repository.getAllTasksByStatus(
+        DownloadStatus.paused,
+      );
+      for (final task in paused) {
+        await resumeTask(task.id);
+      }
+    } catch (e) {
+      LogUtils.w('全部开始失败: $e', 'DownloadService');
+    }
+  }
+
   void _clearMemoryTask(String taskId, String message) {
     // 从内存中移除
     _activeTasks.remove(taskId);
@@ -360,8 +418,16 @@ class DownloadService extends GetxService {
           _activeDownloads.containsKey(taskId)) {
         LogUtils.d('任务正在下载中，先取消下载: $taskId', 'DownloadService');
         _clearMemoryTask(taskId, '删除任务前取消下载');
-        // 等待文件资源释放
-        await Future.delayed(const Duration(milliseconds: 500));
+        // 等待 whenCancel 真正关闭文件句柄/取消订阅再删文件，避免「句柄未释放」
+        // 导致删除失败（Windows 上尤为明显）。拿不到清理 Future 时退回固定延时兜底。
+        final cleanup = _cancelCleanupFutures[taskId];
+        if (cleanup != null) {
+          try {
+            await cleanup;
+          } catch (_) {}
+        } else {
+          await Future.delayed(const Duration(milliseconds: 500));
+        }
       }
 
       // 尝试删除文件，支持重试
@@ -472,6 +538,9 @@ class DownloadService extends GetxService {
     }
   }
 
+  /// 外部（如设置页调高并发数后）主动触发队列检查，立即启动更多等待中任务。
+  void kickQueue() => _processQueue();
+
   // 处理下载队列
   void _processQueue() async {
     // 防止并发调用导致超过最大并发数
@@ -484,20 +553,19 @@ class DownloadService extends GetxService {
       // 使用 while 循环持续处理队列，直到达到并发上限或队列为空
       while (_activeDownloads.length < maxConcurrentDownloads &&
           _downloadQueue.isNotEmpty) {
-        // 取出队首任务 id
-        final taskId = _downloadQueue.first;
+        // 先「同步」从队首取出并移除任务 id，再去 await 查库。
+        // 关键：不能「读队首 -> await -> removeAt(0)」，因为 await 期间用户
+        // pause/delete 会按值 _downloadQueue.remove(taskId)，队首可能已前移，
+        // 此时 removeAt(0) 会误删另一个 pending 任务，导致其永不下载（卡死）。
+        final taskId = _downloadQueue.removeAt(0);
 
         // 通过数据库获取最新任务信息，pending 任务不常驻内存
         final task = await _repository.getTaskById(taskId);
 
-        // 仅对仍为 pending 的任务进行下载；否则跳过
+        // 仅对仍为 pending 的任务进行下载；否则跳过（已被取出，无需再移除）
         if (task == null || task.status != DownloadStatus.pending) {
-          _downloadQueue.removeAt(0);
           continue; // 继续处理队列中的下一个任务
         }
-
-        // 从下载队列中移除任务
-        _downloadQueue.removeAt(0);
 
         // 记录开始下载的时间
         LogUtils.i(
@@ -537,6 +605,28 @@ class DownloadService extends GetxService {
     const maxRetries = 3;
     const retryDelay = Duration(seconds: 3);
 
+    // 取消处理只注册一次。绝不能放进重试循环：否则每轮重试都会注册一个
+    // whenCancel 回调，取消时会触发 N 次清理与状态写入，造成状态抖动。
+    // 闭包按引用捕获 raf/subscription，取消触发时读到的是最新一轮的值。
+    bool cancelHandled = false;
+    cancelToken.whenCancel.then((_) {
+      if (cancelHandled) return;
+      cancelHandled = true;
+      final cleanup = () async {
+        LogUtils.i('下载已取消: ${task.fileName}', 'DownloadService');
+        await _cleanupDownload(task, raf, subscription);
+        // 取消即视为暂停。pauseTask 可能已先把状态写成 paused，这里幂等确保一次；
+        // 但若调用方已将其置为 completed/failed 等终态，则不覆盖。
+        if (task.status != DownloadStatus.completed &&
+            task.status != DownloadStatus.failed) {
+          task.status = DownloadStatus.paused;
+          await _updateTaskStatus(task);
+        }
+      }();
+      _cancelCleanupFutures[task.id] = cleanup;
+      cleanup.whenComplete(() => _cancelCleanupFutures.remove(task.id));
+    });
+
     while (retryCount < maxRetries) {
       try {
         LogUtils.i(
@@ -544,16 +634,23 @@ class DownloadService extends GetxService {
           'DownloadService',
         );
 
-        // 验证已下载的部分
+        // 验证已下载的部分。
+        // downloadedBytes 是每秒节流写库的，崩溃/被杀时磁盘实际字节往往比库里
+        // 记录的「多」一点。因此一律以磁盘实际大小为准来续传，而不是因为
+        // 「磁盘比记录大」就删档从头下——否则节流写库会让断点续传几乎永远失效。
         final file = File(task.savePath);
         if (await file.exists()) {
           final fileSize = await file.length();
-          if (fileSize > task.downloadedBytes) {
-            // 已下载的文件比记录的大，说明可能有问题，重新下载
+          if (task.totalBytes > 0 && fileSize > task.totalBytes) {
+            // 磁盘文件比总大小还大，说明文件确实损坏，删档重下
+            LogUtils.w(
+              '本地文件($fileSize)大于总大小(${task.totalBytes})，删档重下: ${task.fileName}',
+              'DownloadService',
+            );
             task.downloadedBytes = 0;
             await file.delete();
-          } else if (fileSize < task.downloadedBytes) {
-            // 实际文件比记录的小，更新已下载大小
+          } else {
+            // 以磁盘实际大小为准续传（含 fileSize 大于/小于记录两种情况）
             task.downloadedBytes = fileSize;
           }
         } else {
@@ -731,13 +828,14 @@ class DownloadService extends GetxService {
           onDone: () async {
             LogUtils.i('下载完成: ${task.fileName}', 'DownloadService');
 
+            int finalSize;
             try {
               // 确保缓冲区写入磁盘后再校验大小
               final localRaf = raf;
               try {
                 await localRaf?.flush();
               } catch (_) {}
-              final finalSize = localRaf != null
+              finalSize = localRaf != null
                   ? await localRaf.length()
                   : await file.length();
               if (task.totalBytes > 0 && finalSize != task.totalBytes) {
@@ -760,12 +858,37 @@ class DownloadService extends GetxService {
             // 正常完成路径
             await _cleanupDownload(task, raf, subscription);
             task.status = DownloadStatus.completed;
-            task.downloadedBytes = task.totalBytes;
+            // 若服务端未提供大小（totalBytes==0，无法做完整性校验），以磁盘
+            // 实际写入大小作为最终大小，避免把 downloadedBytes/totalBytes 错误
+            // 清零，否则 UI 会显示「0 字节」、缓存判定也会异常。
+            if (task.totalBytes > 0) {
+              task.downloadedBytes = task.totalBytes;
+            } else {
+              task.totalBytes = finalSize;
+              task.downloadedBytes = finalSize;
+              LogUtils.w(
+                '下载完成但服务端未提供大小，按实际写入大小记录: $finalSize (${task.fileName})',
+                'DownloadService',
+              );
+            }
+            task.completedAt = DateTime.now();
             await _updateTaskStatus(task);
             completer.complete();
             _processQueue();
           },
           onError: (error) async {
+            // 取消（pause/delete）会让 stream 抛出 DioException(cancel)。
+            // 取消的状态写入统一交给上面的 whenCancel 路径处理，这里绝不能把
+            // 取消当成 failed 写库——否则会与 whenCancel 写 paused 形成竞态，
+            // 最终状态不确定（“取消后却显示失败”）。
+            if (error is DioException &&
+                error.type == DioExceptionType.cancel) {
+              await _releaseResources(task, raf, subscription);
+              if (!completer.isCompleted) {
+                completer.completeError(error);
+              }
+              return;
+            }
             LogUtils.e('下载出错: $error', tag: 'DownloadService', error: error);
             try {
               await _releaseResources(task, raf, subscription);
@@ -797,13 +920,6 @@ class DownloadService extends GetxService {
           },
           cancelOnError: true,
         );
-
-        cancelToken.whenCancel.then((_) async {
-          LogUtils.i('下载已取消: ${task.fileName}', 'DownloadService');
-          await _cleanupDownload(task, raf, subscription);
-          task.status = DownloadStatus.paused; // [更新内存状态]
-          await _updateTaskStatus(task); // [更新持久化信息]
-        });
 
         try {
           await completer.future;
@@ -1228,22 +1344,18 @@ class DownloadService extends GetxService {
 
   /// 获取已完成的图库下载的本地图片路径映射
   /// [galleryId] 图库ID
-  /// 返回 Map<String, String>，key 为图片ID，value 为本地文件路径
+  /// 返回 `Map<String, String>`，key 为图片ID，value 为本地文件路径
   /// 如果没有找到已完成的下载任务或文件不存在则返回空 Map
   Future<Map<String, String>> getCompletedGalleryLocalPaths(
     String galleryId,
   ) async {
     try {
-      // 获取该图库的所有下载任务
-      final tasks = await _repository.getAllTasksByStatus(
-        DownloadStatus.completed,
-      );
+      // 走 (media_type, media_id) 索引精确取该图库的任务，避免全表扫描已完成任务
+      final tasks = await _repository.getTasksByMedia('gallery', galleryId);
 
       // 找到匹配图库ID且已完成的任务
       for (final task in tasks) {
-        if (task.mediaType == 'gallery' &&
-            task.mediaId == galleryId &&
-            task.status == DownloadStatus.completed &&
+        if (task.status == DownloadStatus.completed &&
             task.extData?.type == DownloadTaskExtDataType.gallery) {
           final galleryData = GalleryDownloadExtData.fromJson(
             task.extData!.data,
@@ -1441,6 +1553,7 @@ class DownloadService extends GetxService {
               imageUrl,
               imageId,
               galleryData.imageList.length,
+              cancelToken,
             );
 
             if (success) {
@@ -1502,6 +1615,9 @@ class DownloadService extends GetxService {
         task.status = allSuccess
             ? DownloadStatus.completed
             : DownloadStatus.failed;
+        if (allSuccess) {
+          task.completedAt = DateTime.now();
+        }
         if (!allSuccess) {
           task.error = slang.t.download.errors.partialDownloadFailed;
           LogUtils.e(
@@ -1554,10 +1670,12 @@ class DownloadService extends GetxService {
     String url,
     String imageId,
     int totalImages,
+    CancelToken cancelToken,
   ) async {
     final fileName = '$imageId${path_lib.extension(url)}';
     final savePath = path_lib.normalize(path_lib.join(task.savePath, fileName));
 
+    RandomAccessFile? raf;
     try {
       // 更新下载状态为下载中
       _updateGalleryProgress(task.id, imageId, false);
@@ -1565,26 +1683,35 @@ class DownloadService extends GetxService {
       task.status = DownloadStatus.downloading;
       await _repository.updateTask(task);
 
+      // 使用流式下载并直接写盘，避免把整张原图（可能数十 MB）读进内存；
+      // 同时传入 cancelToken，使暂停能立即中断当前图片下载而非等整张下完。
       final response = await dio.get(
         url,
+        cancelToken: cancelToken,
         options: Options(
-          responseType: ResponseType.bytes,
+          responseType: ResponseType.stream,
           followRedirects: true,
           headers: {'Accept': '*/*'}, // 接受所有类型的响应
         ),
-        onReceiveProgress: (received, total) {
-          if (total != -1) {
-            _updateImageProgress(task.id, imageId, received / total);
-            // 这里可以考虑 notifyProgress，但图库下载通常图片较小，
-            // 且 _startGalleryDownload 外层循环也会调用 notify，
-            // 或者在这里也调用但要注意节流
-            _notifyProgress(task.id);
-          }
-        },
       );
 
+      final total =
+          int.tryParse(response.headers.value('content-length') ?? '') ?? -1;
       final file = File(savePath);
-      await file.writeAsBytes(response.data);
+      await file.parent.create(recursive: true);
+      raf = await file.open(mode: FileMode.writeOnly);
+      int received = 0;
+      await for (final chunk
+          in (response.data.stream as Stream<List<int>>)) {
+        raf.writeFromSync(chunk);
+        received += chunk.length;
+        if (total > 0) {
+          _updateImageProgress(task.id, imageId, received / total);
+          _notifyProgress(task.id);
+        }
+      }
+      await raf.close();
+      raf = null;
 
       // 更新进度
       _updateGalleryProgress(task.id, imageId, true);
@@ -1630,6 +1757,12 @@ class DownloadService extends GetxService {
 
       return true;
     } catch (e) {
+      // 关闭可能未关闭的文件句柄，避免泄漏
+      if (raf != null) {
+        try {
+          await raf.close();
+        } catch (_) {}
+      }
       LogUtils.e('下载图片失败: $url', tag: 'DownloadService', error: e);
       _updateGalleryProgress(task.id, imageId, false);
       _updateImageProgress(task.id, imageId, 0);

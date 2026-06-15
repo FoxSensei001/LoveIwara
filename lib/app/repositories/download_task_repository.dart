@@ -74,11 +74,12 @@ class DownloadTaskRepository {
           ? jsonEncode(task.extData!.toJson())
           : null;
 
+      // updated_at 显式写入毫秒时间戳，避免依赖建表的秒级默认值导致单位混用
       _db.execute(
         '''
         INSERT INTO download_tasks
-        (id, url, save_path, file_name, total_bytes, downloaded_bytes, status, supports_range, error, ext_data, media_type, media_id, quality)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (id, url, save_path, file_name, total_bytes, downloaded_bytes, status, supports_range, error, ext_data, media_type, media_id, quality, updated_at, completed_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ''',
         [
           task.id,
@@ -94,6 +95,8 @@ class DownloadTaskRepository {
           task.mediaType,
           task.mediaId,
           task.quality,
+          DateTime.now().millisecondsSinceEpoch,
+          task.completedAt?.millisecondsSinceEpoch,
         ],
       );
     } catch (e) {
@@ -124,7 +127,8 @@ class DownloadTaskRepository {
             media_type = ?,
             media_id = ?,
             quality = ?,
-            updated_at = ?
+            updated_at = ?,
+            completed_at = ?
         WHERE id = ?
       ''',
         [
@@ -141,6 +145,7 @@ class DownloadTaskRepository {
           task.mediaId,
           task.quality,
           DateTime.now().millisecondsSinceEpoch,
+          task.completedAt?.millisecondsSinceEpoch,
           task.id,
         ],
       );
@@ -303,6 +308,24 @@ class DownloadTaskRepository {
     }
   }
 
+  /// 按媒体维度（media_type + media_id）获取任务，走 (media_type, media_id) 索引，
+  /// 避免对全表/某状态全量扫描。
+  Future<List<DownloadTask>> getTasksByMedia(
+    String mediaType,
+    String mediaId,
+  ) async {
+    try {
+      final results = _db.select('''
+        SELECT * FROM download_tasks
+        WHERE media_type = ? AND media_id = ?
+      ''', [mediaType, mediaId]);
+      return results.map((row) => DownloadTask.fromRow(row)).toList();
+    } catch (e) {
+      LogUtils.e('获取媒体任务失败', tag: 'DownloadTaskRepository', error: e);
+      rethrow;
+    }
+  }
+
   /// 分页获取历史任务（paused/completed，不含failed），按创建时间降序排列
   Future<List<DownloadTask>> getHistoryTasks({
     required int offset,
@@ -375,14 +398,14 @@ class DownloadTaskRepository {
       // Type filter (based on ext_data JSON)
       switch (typeFilter) {
         case 'video':
-          whereClauses.add("json_extract(ext_data, '\$.type') = 'video'");
+          whereClauses.add("media_type = 'video'");
           break;
         case 'gallery':
-          whereClauses.add("json_extract(ext_data, '\$.type') = 'gallery'");
+          whereClauses.add("media_type = 'gallery'");
           break;
         case 'other':
           whereClauses.add(
-            "(ext_data IS NULL OR (json_extract(ext_data, '\$.type') != 'video' AND json_extract(ext_data, '\$.type') != 'gallery'))",
+            "(media_type IS NULL OR media_type NOT IN ('video', 'gallery'))",
           );
           break;
         case 'all':
@@ -446,14 +469,14 @@ class DownloadTaskRepository {
       // Type filter
       switch (typeFilter) {
         case 'video':
-          whereClauses.add("json_extract(ext_data, '\$.type') = 'video'");
+          whereClauses.add("media_type = 'video'");
           break;
         case 'gallery':
-          whereClauses.add("json_extract(ext_data, '\$.type') = 'gallery'");
+          whereClauses.add("media_type = 'gallery'");
           break;
         case 'other':
           whereClauses.add(
-            "(ext_data IS NULL OR (json_extract(ext_data, '\$.type') != 'video' AND json_extract(ext_data, '\$.type') != 'gallery'))",
+            "(media_type IS NULL OR media_type NOT IN ('video', 'gallery'))",
           );
           break;
         case 'all':

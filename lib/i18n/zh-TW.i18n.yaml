@@ -1506,6 +1506,12 @@ download:
   gallery: 圖庫
   other: 其他
   clearFilters: 清除篩選
+  pauseAll: 全部暫停
+  resumeAll: 全部開始
+  emptyTaskList: 暫無下載任務
+  noMatchingTasks: 沒有符合的任務
+  maxConcurrentDownloads: 最大同時下載數
+  maxConcurrentDownloadsDesc: '同時進行下載的任務數量（1-5）'
   stillInDevelopment: 開發中
   saveToAppDirectory: 儲存到應用程式目錄
   alreadyDownloadedWithQuality: '已有相同清晰度的任務，是否繼續下載？'

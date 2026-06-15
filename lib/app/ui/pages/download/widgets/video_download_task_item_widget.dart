@@ -8,6 +8,7 @@ import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_status_colors.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/status_label_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -419,8 +420,14 @@ class VideoDownloadTaskItem extends StatelessWidget {
           ),
           gradient: LinearGradient(
             colors: [
-              _getProgressColor(task.status).withValues(alpha: alphaStart),
-              _getProgressColor(task.status).withValues(alpha: alphaEnd),
+              downloadStatusColor(
+                context,
+                task.status,
+              ).withValues(alpha: alphaStart),
+              downloadStatusColor(
+                context,
+                task.status,
+              ).withValues(alpha: alphaEnd),
             ],
             stops: [progress.clamp(0.0, 1.0), progress.clamp(0.0, 1.0)],
           ),
@@ -712,19 +719,6 @@ class VideoDownloadTaskItem extends StatelessWidget {
     final minutes = duration.inMinutes;
     final remainingSeconds = duration.inSeconds - minutes * 60;
     return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
-  }
-
-  Color _getProgressColor(DownloadStatus status) {
-    switch (status) {
-      case DownloadStatus.completed:
-        return Colors.green;
-      case DownloadStatus.failed:
-        return Colors.red;
-      case DownloadStatus.paused:
-        return Colors.orange;
-      default:
-        return Colors.blue;
-    }
   }
 
   String _getStatusText(BuildContext context) {
