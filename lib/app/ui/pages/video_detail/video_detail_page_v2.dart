@@ -226,8 +226,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       );
       return;
     }
-    // 暂停播放
-    controller.player.pause();
+    // 暂停播放（即便视频源尚未加载完成也能正确抑制后续自动播放）
+    controller.pausePlayback();
     // 重置屏幕亮度
     controller.setDefaultBrightness();
     // 如果当前为应用全屏状态，则恢复UI
@@ -1065,7 +1065,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                     IconButton(
                       onPressed: () {
                         if (controller.videoPlaying.value) {
-                          controller.player.pause();
+                          controller.pausePlayback();
                         } else {
                           unawaited(controller.playFromUserAction());
                         }

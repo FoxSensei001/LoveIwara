@@ -641,6 +641,43 @@ settings:
   jumpLink: リンクをジャンプ
   language: 言語
   languageChanged: 言語設定が変更されました。アプリを再起動して有効にしてください。
+  keybinding:
+    title: キーボードショートカット
+    entryLabel: キーボードショートカット
+    entryDesc: プレーヤーのキーボードショートカットをカスタマイズ（主にデスクトップ向け）
+    desktopHint: ショートカットは主にデスクトップのキーボードで有効です。モバイルでは通常ジェスチャーを使用します。
+    resetAll: すべて既定に戻す
+    resetAllConfirm: すべてのプレーヤーショートカットを既定に戻しますか？
+    resetToDefault: 既定に戻す
+    notSet: 未設定
+    addShortcut: ショートカットを追加
+    removeShortcut: このショートカットを削除
+    pressNewShortcut: 新しいショートカットを押してください…
+    recordingCancelHint: Esc でキャンセル
+    reservedKey: このキーはシステム予約のため割り当てできません
+    conflictTitle: ショートカットの競合
+    conflictMessage: この組み合わせは既に「${action}」に割り当てられています。続行すると既存の割り当ては解除されます。
+    conflictContinue: それでも割り当てる
+    categoryPlayback: 再生
+    categorySeek: シーク
+    categoryVolume: 音量
+    categoryDisplay: 表示
+    actionPlayPause: 再生 / 一時停止
+    actionSpeedUp: 再生速度を上げる
+    actionSpeedDown: 再生速度を下げる
+    actionSeekForward: 早送り
+    actionSeekBackward: 巻き戻し
+    actionVolumeUp: 音量を上げる
+    actionVolumeDown: 音量を下げる
+    actionToggleMute: ミュート切替
+    actionToggleFullscreen: 全画面切替
+    seekLongPressHint: 早送り / 巻き戻しキーを長押しすると長押し速度モードになります
+    zoomSectionTitle: 画面ズーム（固定）
+    zoomFixedNote: 以下のショートカットは固定で変更できません
+    zoomScaleLabel: 画面をズーム
+    zoomScaleHint: Ctrl + ホイール
+    zoomRotateLabel: 画面を回転
+    zoomRotateHint: Shift + ホイール
   gestureControl: ジェスチャー制御
   leftDoubleTapRewind: 左側ダブルタップリワインド
   rightDoubleTapFastForward: 右側ダブルタップファストフォワード

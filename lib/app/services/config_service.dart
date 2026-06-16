@@ -382,6 +382,8 @@ enum ConfigKey {
   LOG_HANG_MAX_ROTATED_FILES, // 卡顿日志轮转文件数量
   // 内容屏蔽（关键词/正则/用户ID），存为规则 JSON 列表
   CONTENT_BLOCK_RULES,
+  // 播放器自定义快捷键（差量覆盖），存为 JSON：{actionId: ["chord", ...]}
+  PLAYER_KEYBINDINGS,
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -623,6 +625,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'log_hang_max_rotated_files';
       case ConfigKey.CONTENT_BLOCK_RULES:
         return 'content_block_rules';
+      case ConfigKey.PLAYER_KEYBINDINGS:
+        return 'player_keybindings';
     }
   }
 
@@ -792,7 +796,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.ENABLE_LONG_PRESS_FAST_FORWARD:
         return true;
       case ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR:
-        return true;
+        return false;
       case ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK:
         return true; // 默认开启横向滑动调整进度
       case ConfigKey.ENABLE_VIDEO_GESTURE_ZOOM:
@@ -877,6 +881,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 2;
       case ConfigKey.CONTENT_BLOCK_RULES:
         return <dynamic>[];
+      case ConfigKey.PLAYER_KEYBINDINGS:
+        return <String, dynamic>{};
     }
   }
 }

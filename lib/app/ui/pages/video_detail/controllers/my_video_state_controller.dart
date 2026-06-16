@@ -147,6 +147,11 @@ class MyVideoStateController extends GetxController
   bool _pendingOpenPlayerAfterVideoSourceFetch = false;
   Duration _deferredInitialPlaybackPosition = Duration.zero;
   bool _isStartingDeferredInitialPlayback = false;
+
+  /// 在视频源尚未加载完成时，用户点击了暂停或离开了当前页面。
+  /// 此时 player 还未 open，直接 pause() 无效；加载完成后的延迟初始播放
+  /// 必须尊重这个意图，不能自动开始播放（否则会出现"页面已切走仍听到背景声音"）。
+  bool _suppressAutoPlayOnReady = false;
   // 显示用的时间变量
   final Rx<Duration> toShowCurrentPosition = Duration.zero.obs;
   Timer? _displayUpdateTimer;
@@ -292,6 +297,7 @@ class MyVideoStateController extends GetxController
   final RxBool isSlidingVolumeZone = false.obs; // 是否在滑动音量区域
   final RxBool isLongPressing = false.obs; // 是否在长按
   final RxDouble currentLongPressSpeed = 1.0.obs; // 长按时的当前播放速度（可通过滑动调整）
+  final RxBool isShowingPlaybackSpeedInfo = false.obs; // 是否在显示倍速调整的临时提示
 
   // 节流相关变量
   Timer? _positionUpdateThrottleTimer;
@@ -903,6 +909,9 @@ class MyVideoStateController extends GetxController
 
     showToolbars();
 
+    // 用户显式请求播放，撤销此前在加载阶段产生的暂停意图。
+    _suppressAutoPlayOnReady = false;
+
     if (videoPlayerReady.value) {
       if (!videoPlaying.value) {
         await player.play();
@@ -938,9 +947,29 @@ class MyVideoStateController extends GetxController
       return;
     }
 
+    // 用户显式请求播放，撤销此前在加载阶段产生的暂停意图。
+    _suppressAutoPlayOnReady = false;
+
     if (!videoPlaying.value) {
       await player.play();
       animateToTop();
+    }
+  }
+
+  /// 暂停播放（用户点击暂停按钮或离开当前页面时调用）。
+  ///
+  /// 与直接调用 [player.pause] 不同，此方法在视频源尚未加载完成时也能正确工作：
+  /// 它会记录暂停意图（[_suppressAutoPlayOnReady]），使得加载完成后的延迟初始
+  /// 播放不会自动开始，从而避免"页面已切走却仍听到背景声音"的问题。
+  void pausePlayback() {
+    if (_isDisposed) return;
+    _suppressAutoPlayOnReady = true;
+    // 立即反映到 UI（切换为播放图标），即便此时 player 尚未 open。
+    videoPlaying.value = false;
+    try {
+      player.pause();
+    } catch (e) {
+      LogUtils.w('暂停播放时出错: $e', 'MyVideoStateController');
     }
   }
 
@@ -1068,12 +1097,15 @@ class MyVideoStateController extends GetxController
           ? defaultResolutionTag
           : resolvedVideoResolutions.first.label;
 
+      // 若加载阶段用户已点击暂停或离开了页面，则尊重该意图，加载完成后不自动播放。
+      final bool effectivePlayOnOpen = playOnOpen && !_suppressAutoPlayOnReady;
+
       await resetVideoInfo(
         title: videoInfo.value!.title ?? '',
         resolutionTag: targetResolutionTag,
         videoResolutions: resolvedVideoResolutions,
         position: _deferredInitialPlaybackPosition,
-        playOnOpen: playOnOpen,
+        playOnOpen: effectivePlayOnOpen,
       );
     } finally {
       _isStartingDeferredInitialPlayback = false;

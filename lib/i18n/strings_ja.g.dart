@@ -783,6 +783,7 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get jumpLink => 'リンクをジャンプ';
 	@override String get language => '言語';
 	@override String get languageChanged => '言語設定が変更されました。アプリを再起動して有効にしてください。';
+	@override late final _TranslationsSettingsKeybindingJa keybinding = _TranslationsSettingsKeybindingJa._(_root);
 	@override String get gestureControl => 'ジェスチャー制御';
 	@override String get leftDoubleTapRewind => '左側ダブルタップリワインド';
 	@override String get rightDoubleTapFastForward => '右側ダブルタップファストフォワード';
@@ -2130,6 +2131,51 @@ class _TranslationsErrorsNetworkJa implements TranslationsErrorsNetworkEn {
 	@override String get noRouteToHost => 'ホストに到達できません';
 	@override String get connectionFailed => '接続に失敗しました';
 	@override String get sslConnectionFailed => 'SSL接続に失敗しました。ネットワーク設定を確認してください';
+}
+
+// Path: settings.keybinding
+class _TranslationsSettingsKeybindingJa implements TranslationsSettingsKeybindingEn {
+	_TranslationsSettingsKeybindingJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'キーボードショートカット';
+	@override String get entryLabel => 'キーボードショートカット';
+	@override String get entryDesc => 'プレーヤーのキーボードショートカットをカスタマイズ（主にデスクトップ向け）';
+	@override String get desktopHint => 'ショートカットは主にデスクトップのキーボードで有効です。モバイルでは通常ジェスチャーを使用します。';
+	@override String get resetAll => 'すべて既定に戻す';
+	@override String get resetAllConfirm => 'すべてのプレーヤーショートカットを既定に戻しますか？';
+	@override String get resetToDefault => '既定に戻す';
+	@override String get notSet => '未設定';
+	@override String get addShortcut => 'ショートカットを追加';
+	@override String get removeShortcut => 'このショートカットを削除';
+	@override String get pressNewShortcut => '新しいショートカットを押してください…';
+	@override String get recordingCancelHint => 'Esc でキャンセル';
+	@override String get reservedKey => 'このキーはシステム予約のため割り当てできません';
+	@override String get conflictTitle => 'ショートカットの競合';
+	@override String conflictMessage({required Object action}) => 'この組み合わせは既に「${action}」に割り当てられています。続行すると既存の割り当ては解除されます。';
+	@override String get conflictContinue => 'それでも割り当てる';
+	@override String get categoryPlayback => '再生';
+	@override String get categorySeek => 'シーク';
+	@override String get categoryVolume => '音量';
+	@override String get categoryDisplay => '表示';
+	@override String get actionPlayPause => '再生 / 一時停止';
+	@override String get actionSpeedUp => '再生速度を上げる';
+	@override String get actionSpeedDown => '再生速度を下げる';
+	@override String get actionSeekForward => '早送り';
+	@override String get actionSeekBackward => '巻き戻し';
+	@override String get actionVolumeUp => '音量を上げる';
+	@override String get actionVolumeDown => '音量を下げる';
+	@override String get actionToggleMute => 'ミュート切替';
+	@override String get actionToggleFullscreen => '全画面切替';
+	@override String get seekLongPressHint => '早送り / 巻き戻しキーを長押しすると長押し速度モードになります';
+	@override String get zoomSectionTitle => '画面ズーム（固定）';
+	@override String get zoomFixedNote => '以下のショートカットは固定で変更できません';
+	@override String get zoomScaleLabel => '画面をズーム';
+	@override String get zoomScaleHint => 'Ctrl + ホイール';
+	@override String get zoomRotateLabel => '画面を回転';
+	@override String get zoomRotateHint => 'Shift + ホイール';
 }
 
 // Path: settings.forumSettings
@@ -3684,6 +3730,42 @@ extension on TranslationsJa {
 			'settings.jumpLink' => 'リンクをジャンプ',
 			'settings.language' => '言語',
 			'settings.languageChanged' => '言語設定が変更されました。アプリを再起動して有効にしてください。',
+			'settings.keybinding.title' => 'キーボードショートカット',
+			'settings.keybinding.entryLabel' => 'キーボードショートカット',
+			'settings.keybinding.entryDesc' => 'プレーヤーのキーボードショートカットをカスタマイズ（主にデスクトップ向け）',
+			'settings.keybinding.desktopHint' => 'ショートカットは主にデスクトップのキーボードで有効です。モバイルでは通常ジェスチャーを使用します。',
+			'settings.keybinding.resetAll' => 'すべて既定に戻す',
+			'settings.keybinding.resetAllConfirm' => 'すべてのプレーヤーショートカットを既定に戻しますか？',
+			'settings.keybinding.resetToDefault' => '既定に戻す',
+			'settings.keybinding.notSet' => '未設定',
+			'settings.keybinding.addShortcut' => 'ショートカットを追加',
+			'settings.keybinding.removeShortcut' => 'このショートカットを削除',
+			'settings.keybinding.pressNewShortcut' => '新しいショートカットを押してください…',
+			'settings.keybinding.recordingCancelHint' => 'Esc でキャンセル',
+			'settings.keybinding.reservedKey' => 'このキーはシステム予約のため割り当てできません',
+			'settings.keybinding.conflictTitle' => 'ショートカットの競合',
+			'settings.keybinding.conflictMessage' => ({required Object action}) => 'この組み合わせは既に「${action}」に割り当てられています。続行すると既存の割り当ては解除されます。',
+			'settings.keybinding.conflictContinue' => 'それでも割り当てる',
+			'settings.keybinding.categoryPlayback' => '再生',
+			'settings.keybinding.categorySeek' => 'シーク',
+			'settings.keybinding.categoryVolume' => '音量',
+			'settings.keybinding.categoryDisplay' => '表示',
+			'settings.keybinding.actionPlayPause' => '再生 / 一時停止',
+			'settings.keybinding.actionSpeedUp' => '再生速度を上げる',
+			'settings.keybinding.actionSpeedDown' => '再生速度を下げる',
+			'settings.keybinding.actionSeekForward' => '早送り',
+			'settings.keybinding.actionSeekBackward' => '巻き戻し',
+			'settings.keybinding.actionVolumeUp' => '音量を上げる',
+			'settings.keybinding.actionVolumeDown' => '音量を下げる',
+			'settings.keybinding.actionToggleMute' => 'ミュート切替',
+			'settings.keybinding.actionToggleFullscreen' => '全画面切替',
+			'settings.keybinding.seekLongPressHint' => '早送り / 巻き戻しキーを長押しすると長押し速度モードになります',
+			'settings.keybinding.zoomSectionTitle' => '画面ズーム（固定）',
+			'settings.keybinding.zoomFixedNote' => '以下のショートカットは固定で変更できません',
+			'settings.keybinding.zoomScaleLabel' => '画面をズーム',
+			'settings.keybinding.zoomScaleHint' => 'Ctrl + ホイール',
+			'settings.keybinding.zoomRotateLabel' => '画面を回転',
+			'settings.keybinding.zoomRotateHint' => 'Shift + ホイール',
 			'settings.gestureControl' => 'ジェスチャー制御',
 			'settings.leftDoubleTapRewind' => '左側ダブルタップリワインド',
 			'settings.rightDoubleTapFastForward' => '右側ダブルタップファストフォワード',
@@ -4059,6 +4141,8 @@ extension on TranslationsJa {
 			'videoDetail.gestureGuide.mDoubleTap' => 'ダブルタップ：左で巻き戻し / 中央で一時停止 / 右で早送り',
 			'videoDetail.gestureGuide.mHorizontalDrag' => '横スワイプ：シーク',
 			'videoDetail.gestureGuide.mVerticalDrag' => '縦スワイプ：左で明るさ / 右で音量',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.mLongPress' => '長押し：一時的な倍速再生',
 			'videoDetail.gestureGuide.mPinch' => '2本指ピンチ：映像を拡大',
 			'videoDetail.gestureGuide.mRotate' => '2本指回転：映像を回転',
@@ -4095,8 +4179,6 @@ extension on TranslationsJa {
 			'videoDetail.resourceDeleted' => 'このビデオは削除されたようです :/',
 			'videoDetail.noDownloadUrl' => 'ダウンロードURLがありません',
 			'videoDetail.startDownloading' => 'ダウンロードを開始',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.downloadFailed' => 'ダウンロードに失敗しました。後でもう一度お試しください',
 			'videoDetail.downloadSuccess' => 'ダウンロードに成功しました',
 			'videoDetail.download' => 'ダウンロード',
@@ -4573,6 +4655,8 @@ extension on TranslationsJa {
 			'translation.modelNameHintText' => '例：gpt-4-turbo',
 			'translation.maxTokens' => '最大トークン数',
 			'translation.maxTokensHintText' => '例：32000',
+			_ => null,
+		} ?? switch (path) {
 			'translation.temperature' => '温度係数',
 			'translation.temperatureHintText' => '0.0-2.0',
 			'translation.clickTestButtonToVerifyAPIConnection' => 'テストボタンをクリックしてAPI接続を検証',
@@ -4609,8 +4693,6 @@ extension on TranslationsJa {
 			'translation.disableAITranslation' => 'AI翻訳を無効にする',
 			'translation.currentValue' => '現在値',
 			'translation.configureTranslationStrategy' => '翻訳戦略を設定',
-			_ => null,
-		} ?? switch (path) {
 			'translation.advancedSettings' => '高度な設定',
 			'translation.translationPrompt' => '翻訳プロンプト',
 			'translation.promptHint' => '翻訳プロンプトを入力してください。[TL]を目標言語のプレースホルダーとして使用します',
@@ -5087,6 +5169,8 @@ extension on TranslationsJa {
 			'searchFilter.notIn' => 'いずれも含まない',
 			'searchFilter.username' => 'ユーザー名',
 			'searchFilter.nickname' => 'ニックネーム',
+			_ => null,
+		} ?? switch (path) {
 			'searchFilter.registrationDate' => '登録日',
 			'searchFilter.description' => '説明',
 			'searchFilter.title' => 'タイトル',
@@ -5123,8 +5207,6 @@ extension on TranslationsJa {
 			'firstTimeSetup.welcome.subtitle' => 'パーソナライズ設定を始めましょう',
 			'firstTimeSetup.welcome.description' => '数ステップで最適な体験を提供します',
 			'firstTimeSetup.basic.title' => '基本設定',
-			_ => null,
-		} ?? switch (path) {
 			'firstTimeSetup.basic.subtitle' => '体験をパーソナライズ',
 			'firstTimeSetup.basic.description' => 'ご希望の機能設定を選択',
 			'firstTimeSetup.network.title' => 'ネットワーク設定',

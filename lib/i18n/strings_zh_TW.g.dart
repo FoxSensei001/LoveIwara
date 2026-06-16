@@ -783,6 +783,7 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get jumpLink => '跳轉連結';
 	@override String get language => '語言';
 	@override String get languageChanged => '語言設定已更改，請重新啟動應用以生效。';
+	@override late final _TranslationsSettingsKeybindingZhTw keybinding = _TranslationsSettingsKeybindingZhTw._(_root);
 	@override String get gestureControl => '手勢控制';
 	@override String get leftDoubleTapRewind => '左側雙擊後退';
 	@override String get rightDoubleTapFastForward => '右側雙擊快進';
@@ -2133,6 +2134,51 @@ class _TranslationsErrorsNetworkZhTw implements TranslationsErrorsNetworkEn {
 	@override String get noRouteToHost => '無法找到主機';
 	@override String get connectionFailed => '連線失敗';
 	@override String get sslConnectionFailed => 'SSL連線失敗，請檢查網路設定';
+}
+
+// Path: settings.keybinding
+class _TranslationsSettingsKeybindingZhTw implements TranslationsSettingsKeybindingEn {
+	_TranslationsSettingsKeybindingZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '鍵盤快捷鍵';
+	@override String get entryLabel => '鍵盤快捷鍵';
+	@override String get entryDesc => '自訂播放器的鍵盤快捷鍵（主要用於桌面端）';
+	@override String get desktopHint => '快捷鍵主要在桌面端鍵盤上生效，行動端通常使用手勢控制。';
+	@override String get resetAll => '全部恢復預設';
+	@override String get resetAllConfirm => '確定要將所有播放器快捷鍵恢復為預設設定嗎？';
+	@override String get resetToDefault => '恢復預設';
+	@override String get notSet => '未設定';
+	@override String get addShortcut => '新增快捷鍵';
+	@override String get removeShortcut => '移除此快捷鍵';
+	@override String get pressNewShortcut => '請按下新的快捷鍵…';
+	@override String get recordingCancelHint => '按 Esc 取消';
+	@override String get reservedKey => '該按鍵為系統保留，無法綁定';
+	@override String get conflictTitle => '快捷鍵衝突';
+	@override String conflictMessage({required Object action}) => '該組合已綁定到「${action}」，繼續將解除其原有綁定。';
+	@override String get conflictContinue => '仍然綁定';
+	@override String get categoryPlayback => '播放控制';
+	@override String get categorySeek => '進度';
+	@override String get categoryVolume => '音量';
+	@override String get categoryDisplay => '顯示';
+	@override String get actionPlayPause => '播放 / 暫停';
+	@override String get actionSpeedUp => '加快倍速';
+	@override String get actionSpeedDown => '減慢倍速';
+	@override String get actionSeekForward => '快進';
+	@override String get actionSeekBackward => '快退';
+	@override String get actionVolumeUp => '增大音量';
+	@override String get actionVolumeDown => '減小音量';
+	@override String get actionToggleMute => '靜音切換';
+	@override String get actionToggleFullscreen => '全螢幕切換';
+	@override String get seekLongPressHint => '長按快進 / 快退鍵可觸發長按倍速模式';
+	@override String get zoomSectionTitle => '畫面縮放（固定）';
+	@override String get zoomFixedNote => '以下快捷鍵為固定，無法修改';
+	@override String get zoomScaleLabel => '縮放畫面';
+	@override String get zoomScaleHint => 'Ctrl + 滾輪';
+	@override String get zoomRotateLabel => '旋轉畫面';
+	@override String get zoomRotateHint => 'Shift + 滾輪';
 }
 
 // Path: settings.forumSettings
@@ -3687,6 +3733,42 @@ extension on TranslationsZhTw {
 			'settings.jumpLink' => '跳轉連結',
 			'settings.language' => '語言',
 			'settings.languageChanged' => '語言設定已更改，請重新啟動應用以生效。',
+			'settings.keybinding.title' => '鍵盤快捷鍵',
+			'settings.keybinding.entryLabel' => '鍵盤快捷鍵',
+			'settings.keybinding.entryDesc' => '自訂播放器的鍵盤快捷鍵（主要用於桌面端）',
+			'settings.keybinding.desktopHint' => '快捷鍵主要在桌面端鍵盤上生效，行動端通常使用手勢控制。',
+			'settings.keybinding.resetAll' => '全部恢復預設',
+			'settings.keybinding.resetAllConfirm' => '確定要將所有播放器快捷鍵恢復為預設設定嗎？',
+			'settings.keybinding.resetToDefault' => '恢復預設',
+			'settings.keybinding.notSet' => '未設定',
+			'settings.keybinding.addShortcut' => '新增快捷鍵',
+			'settings.keybinding.removeShortcut' => '移除此快捷鍵',
+			'settings.keybinding.pressNewShortcut' => '請按下新的快捷鍵…',
+			'settings.keybinding.recordingCancelHint' => '按 Esc 取消',
+			'settings.keybinding.reservedKey' => '該按鍵為系統保留，無法綁定',
+			'settings.keybinding.conflictTitle' => '快捷鍵衝突',
+			'settings.keybinding.conflictMessage' => ({required Object action}) => '該組合已綁定到「${action}」，繼續將解除其原有綁定。',
+			'settings.keybinding.conflictContinue' => '仍然綁定',
+			'settings.keybinding.categoryPlayback' => '播放控制',
+			'settings.keybinding.categorySeek' => '進度',
+			'settings.keybinding.categoryVolume' => '音量',
+			'settings.keybinding.categoryDisplay' => '顯示',
+			'settings.keybinding.actionPlayPause' => '播放 / 暫停',
+			'settings.keybinding.actionSpeedUp' => '加快倍速',
+			'settings.keybinding.actionSpeedDown' => '減慢倍速',
+			'settings.keybinding.actionSeekForward' => '快進',
+			'settings.keybinding.actionSeekBackward' => '快退',
+			'settings.keybinding.actionVolumeUp' => '增大音量',
+			'settings.keybinding.actionVolumeDown' => '減小音量',
+			'settings.keybinding.actionToggleMute' => '靜音切換',
+			'settings.keybinding.actionToggleFullscreen' => '全螢幕切換',
+			'settings.keybinding.seekLongPressHint' => '長按快進 / 快退鍵可觸發長按倍速模式',
+			'settings.keybinding.zoomSectionTitle' => '畫面縮放（固定）',
+			'settings.keybinding.zoomFixedNote' => '以下快捷鍵為固定，無法修改',
+			'settings.keybinding.zoomScaleLabel' => '縮放畫面',
+			'settings.keybinding.zoomScaleHint' => 'Ctrl + 滾輪',
+			'settings.keybinding.zoomRotateLabel' => '旋轉畫面',
+			'settings.keybinding.zoomRotateHint' => 'Shift + 滾輪',
 			'settings.gestureControl' => '手勢控制',
 			'settings.leftDoubleTapRewind' => '左側雙擊後退',
 			'settings.rightDoubleTapFastForward' => '右側雙擊快進',
@@ -4062,6 +4144,8 @@ extension on TranslationsZhTw {
 			'videoDetail.thisIsAPrivateVideo' => '這是私密影片',
 			'videoDetail.getVideoInfoFailed' => '取得影片資訊失敗，請稍後再試',
 			'videoDetail.noVideoSourceFound' => '未找到對應的影片來源',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => '標籤 "${tagId}" 已複製到剪貼簿',
 			'videoDetail.errorLoadingVideo' => '載入影片時出錯',
 			'videoDetail.play' => '播放',
@@ -4098,8 +4182,6 @@ extension on TranslationsZhTw {
 			'videoDetail.gestureGuide.dDoubleTap' => '雙擊：播放 / 暫停',
 			'videoDetail.gestureGuide.dKeys' => '方向鍵：快退 / 快進；空白鍵：播放 / 暫停',
 			'videoDetail.gestureGuide.dTrackpadPinch' => '觸控板捏合：縮放畫面',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.dTrackpadRotate' => '觸控板旋轉：旋轉畫面',
 			'videoDetail.gestureGuide.dCtrlWheel' => 'Ctrl + 滾輪：以游標為中心縮放',
 			'videoDetail.gestureGuide.dShiftWheel' => 'Shift + 滾輪：以游標為中心旋轉',
@@ -4576,6 +4658,8 @@ extension on TranslationsZhTw {
 			'favorite.deleteFolderTitle' => '刪除資料夾',
 			'favorite.deleteFolderConfirmWithTitle' => ({required Object title}) => '確定要刪除 ${title} 資料夾嗎？',
 			'favorite.removeItemTitle' => '刪除項目',
+			_ => null,
+		} ?? switch (path) {
 			'favorite.removeItemConfirmWithTitle' => ({required Object title}) => '確定要刪除 ${title} 項目嗎？',
 			'favorite.removeItemSuccess' => '項目已從收藏夾中刪除',
 			'favorite.removeItemFailed' => '刪除項目失敗',
@@ -4612,8 +4696,6 @@ extension on TranslationsZhTw {
 			'translation.clickTestButtonToVerifyAPIConnection' => '點擊測試按鈕驗證API連接有效性',
 			'translation.requestPreview' => '請求預覽',
 			'translation.enableAITranslation' => 'AI翻譯',
-			_ => null,
-		} ?? switch (path) {
 			'translation.enabled' => '已啟用',
 			'translation.disabled' => '已停用',
 			'translation.testing' => '測試中...',
@@ -5090,6 +5172,8 @@ extension on TranslationsZhTw {
 			'searchFilter.filterSettings' => '篩選項設定',
 			'searchFilter.field' => '欄位',
 			'searchFilter.operator' => '運算子',
+			_ => null,
+		} ?? switch (path) {
 			'searchFilter.language' => '語言',
 			'searchFilter.value' => '值',
 			'searchFilter.dateRange' => '日期範圍',
@@ -5126,8 +5210,6 @@ extension on TranslationsZhTw {
 			'searchFilter.title' => '標題',
 			'searchFilter.body' => '內容',
 			'searchFilter.author' => '作者',
-			_ => null,
-		} ?? switch (path) {
 			'searchFilter.publishDate' => '發布日期',
 			'searchFilter.private' => '私密',
 			'searchFilter.duration' => '時長(秒)',

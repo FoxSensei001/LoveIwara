@@ -647,6 +647,43 @@ settings:
   jumpLink: 跳转链接
   language: 语言
   languageChanged: 语言设置已更改，请重启应用以生效。
+  keybinding:
+    title: 键盘快捷键
+    entryLabel: 键盘快捷键
+    entryDesc: 自定义播放器的键盘快捷键（主要用于桌面端）
+    desktopHint: 快捷键主要在桌面端键盘上生效，移动端通常使用手势控制。
+    resetAll: 全部恢复默认
+    resetAllConfirm: 确定要将所有播放器快捷键恢复为默认设置吗？
+    resetToDefault: 恢复默认
+    notSet: 未设置
+    addShortcut: 添加快捷键
+    removeShortcut: 移除此快捷键
+    pressNewShortcut: 请按下新的快捷键…
+    recordingCancelHint: 按 Esc 取消
+    reservedKey: 该按键为系统保留，无法绑定
+    conflictTitle: 快捷键冲突
+    conflictMessage: 该组合已绑定到「${action}」，继续将解除其原有绑定。
+    conflictContinue: 仍然绑定
+    categoryPlayback: 播放控制
+    categorySeek: 进度
+    categoryVolume: 音量
+    categoryDisplay: 显示
+    actionPlayPause: 播放 / 暂停
+    actionSpeedUp: 加快倍速
+    actionSpeedDown: 减慢倍速
+    actionSeekForward: 快进
+    actionSeekBackward: 快退
+    actionVolumeUp: 增大音量
+    actionVolumeDown: 减小音量
+    actionToggleMute: 静音切换
+    actionToggleFullscreen: 全屏切换
+    seekLongPressHint: 长按快进 / 快退键可触发长按倍速模式
+    zoomSectionTitle: 画面缩放（固定）
+    zoomFixedNote: 以下快捷键为固定，无法修改
+    zoomScaleLabel: 缩放画面
+    zoomScaleHint: Ctrl + 滚轮
+    zoomRotateLabel: 旋转画面
+    zoomRotateHint: Shift + 滚轮
   gestureControl: 手势控制
   leftDoubleTapRewind: 左侧双击后退
   rightDoubleTapFastForward: 右侧双击快进

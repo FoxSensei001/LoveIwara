@@ -1955,6 +1955,8 @@ class TranslationsSettingsEn {
 	/// en: 'Language setting has been changed, please restart the app to take effect.'
 	String get languageChanged => 'Language setting has been changed, please restart the app to take effect.';
 
+	late final TranslationsSettingsKeybindingEn keybinding = TranslationsSettingsKeybindingEn._(_root);
+
 	/// en: 'Gesture Control'
 	String get gestureControl => 'Gesture Control';
 
@@ -5337,6 +5339,123 @@ class TranslationsErrorsNetworkEn {
 	String get sslConnectionFailed => 'SSL connection failed, please check your network settings';
 }
 
+// Path: settings.keybinding
+class TranslationsSettingsKeybindingEn {
+	TranslationsSettingsKeybindingEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Keyboard Shortcuts'
+	String get title => 'Keyboard Shortcuts';
+
+	/// en: 'Keyboard Shortcuts'
+	String get entryLabel => 'Keyboard Shortcuts';
+
+	/// en: 'Customize the player's keyboard shortcuts (mainly for desktop)'
+	String get entryDesc => 'Customize the player\'s keyboard shortcuts (mainly for desktop)';
+
+	/// en: 'Shortcuts apply mainly to desktop keyboards; mobile usually uses gestures.'
+	String get desktopHint => 'Shortcuts apply mainly to desktop keyboards; mobile usually uses gestures.';
+
+	/// en: 'Reset All to Default'
+	String get resetAll => 'Reset All to Default';
+
+	/// en: 'Reset all player shortcuts to their defaults?'
+	String get resetAllConfirm => 'Reset all player shortcuts to their defaults?';
+
+	/// en: 'Reset to Default'
+	String get resetToDefault => 'Reset to Default';
+
+	/// en: 'Not set'
+	String get notSet => 'Not set';
+
+	/// en: 'Add Shortcut'
+	String get addShortcut => 'Add Shortcut';
+
+	/// en: 'Remove this shortcut'
+	String get removeShortcut => 'Remove this shortcut';
+
+	/// en: 'Press the new shortcut…'
+	String get pressNewShortcut => 'Press the new shortcut…';
+
+	/// en: 'Press Esc to cancel'
+	String get recordingCancelHint => 'Press Esc to cancel';
+
+	/// en: 'This key is reserved by the system and cannot be bound'
+	String get reservedKey => 'This key is reserved by the system and cannot be bound';
+
+	/// en: 'Shortcut Conflict'
+	String get conflictTitle => 'Shortcut Conflict';
+
+	/// en: 'This combination is already bound to "${action}". Continuing will remove the existing binding.'
+	String conflictMessage({required Object action}) => 'This combination is already bound to "${action}". Continuing will remove the existing binding.';
+
+	/// en: 'Bind Anyway'
+	String get conflictContinue => 'Bind Anyway';
+
+	/// en: 'Playback'
+	String get categoryPlayback => 'Playback';
+
+	/// en: 'Seek'
+	String get categorySeek => 'Seek';
+
+	/// en: 'Volume'
+	String get categoryVolume => 'Volume';
+
+	/// en: 'Display'
+	String get categoryDisplay => 'Display';
+
+	/// en: 'Play / Pause'
+	String get actionPlayPause => 'Play / Pause';
+
+	/// en: 'Increase Speed'
+	String get actionSpeedUp => 'Increase Speed';
+
+	/// en: 'Decrease Speed'
+	String get actionSpeedDown => 'Decrease Speed';
+
+	/// en: 'Seek Forward'
+	String get actionSeekForward => 'Seek Forward';
+
+	/// en: 'Seek Backward'
+	String get actionSeekBackward => 'Seek Backward';
+
+	/// en: 'Volume Up'
+	String get actionVolumeUp => 'Volume Up';
+
+	/// en: 'Volume Down'
+	String get actionVolumeDown => 'Volume Down';
+
+	/// en: 'Toggle Mute'
+	String get actionToggleMute => 'Toggle Mute';
+
+	/// en: 'Toggle Fullscreen'
+	String get actionToggleFullscreen => 'Toggle Fullscreen';
+
+	/// en: 'Hold the seek forward / backward key to trigger long-press speed mode'
+	String get seekLongPressHint => 'Hold the seek forward / backward key to trigger long-press speed mode';
+
+	/// en: 'Picture Zoom (Fixed)'
+	String get zoomSectionTitle => 'Picture Zoom (Fixed)';
+
+	/// en: 'The shortcuts below are fixed and cannot be changed'
+	String get zoomFixedNote => 'The shortcuts below are fixed and cannot be changed';
+
+	/// en: 'Zoom Picture'
+	String get zoomScaleLabel => 'Zoom Picture';
+
+	/// en: 'Ctrl + Wheel'
+	String get zoomScaleHint => 'Ctrl + Wheel';
+
+	/// en: 'Rotate Picture'
+	String get zoomRotateLabel => 'Rotate Picture';
+
+	/// en: 'Shift + Wheel'
+	String get zoomRotateHint => 'Shift + Wheel';
+}
+
 // Path: settings.forumSettings
 class TranslationsSettingsForumSettingsEn {
 	TranslationsSettingsForumSettingsEn._(this._root);
@@ -8007,6 +8126,42 @@ extension on Translations {
 			'settings.jumpLink' => 'Jump Link',
 			'settings.language' => 'Language',
 			'settings.languageChanged' => 'Language setting has been changed, please restart the app to take effect.',
+			'settings.keybinding.title' => 'Keyboard Shortcuts',
+			'settings.keybinding.entryLabel' => 'Keyboard Shortcuts',
+			'settings.keybinding.entryDesc' => 'Customize the player\'s keyboard shortcuts (mainly for desktop)',
+			'settings.keybinding.desktopHint' => 'Shortcuts apply mainly to desktop keyboards; mobile usually uses gestures.',
+			'settings.keybinding.resetAll' => 'Reset All to Default',
+			'settings.keybinding.resetAllConfirm' => 'Reset all player shortcuts to their defaults?',
+			'settings.keybinding.resetToDefault' => 'Reset to Default',
+			'settings.keybinding.notSet' => 'Not set',
+			'settings.keybinding.addShortcut' => 'Add Shortcut',
+			'settings.keybinding.removeShortcut' => 'Remove this shortcut',
+			'settings.keybinding.pressNewShortcut' => 'Press the new shortcut…',
+			'settings.keybinding.recordingCancelHint' => 'Press Esc to cancel',
+			'settings.keybinding.reservedKey' => 'This key is reserved by the system and cannot be bound',
+			'settings.keybinding.conflictTitle' => 'Shortcut Conflict',
+			'settings.keybinding.conflictMessage' => ({required Object action}) => 'This combination is already bound to "${action}". Continuing will remove the existing binding.',
+			'settings.keybinding.conflictContinue' => 'Bind Anyway',
+			'settings.keybinding.categoryPlayback' => 'Playback',
+			'settings.keybinding.categorySeek' => 'Seek',
+			'settings.keybinding.categoryVolume' => 'Volume',
+			'settings.keybinding.categoryDisplay' => 'Display',
+			'settings.keybinding.actionPlayPause' => 'Play / Pause',
+			'settings.keybinding.actionSpeedUp' => 'Increase Speed',
+			'settings.keybinding.actionSpeedDown' => 'Decrease Speed',
+			'settings.keybinding.actionSeekForward' => 'Seek Forward',
+			'settings.keybinding.actionSeekBackward' => 'Seek Backward',
+			'settings.keybinding.actionVolumeUp' => 'Volume Up',
+			'settings.keybinding.actionVolumeDown' => 'Volume Down',
+			'settings.keybinding.actionToggleMute' => 'Toggle Mute',
+			'settings.keybinding.actionToggleFullscreen' => 'Toggle Fullscreen',
+			'settings.keybinding.seekLongPressHint' => 'Hold the seek forward / backward key to trigger long-press speed mode',
+			'settings.keybinding.zoomSectionTitle' => 'Picture Zoom (Fixed)',
+			'settings.keybinding.zoomFixedNote' => 'The shortcuts below are fixed and cannot be changed',
+			'settings.keybinding.zoomScaleLabel' => 'Zoom Picture',
+			'settings.keybinding.zoomScaleHint' => 'Ctrl + Wheel',
+			'settings.keybinding.zoomRotateLabel' => 'Rotate Picture',
+			'settings.keybinding.zoomRotateHint' => 'Shift + Wheel',
 			'settings.gestureControl' => 'Gesture Control',
 			'settings.leftDoubleTapRewind' => 'Left Double Tap Rewind',
 			'settings.rightDoubleTapFastForward' => 'Right Double Tap Fast Forward',
@@ -8382,6 +8537,8 @@ extension on Translations {
 			'videoDetail.gestureGuide.mDoubleTap' => 'Double tap: rewind (left) / pause (center) / fast-forward (right)',
 			'videoDetail.gestureGuide.mHorizontalDrag' => 'Horizontal swipe: seek',
 			'videoDetail.gestureGuide.mVerticalDrag' => 'Vertical swipe: brightness (left) / volume (right)',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.mLongPress' => 'Long press: temporary speed-up',
 			'videoDetail.gestureGuide.mPinch' => 'Two-finger pinch: zoom the picture',
 			'videoDetail.gestureGuide.mRotate' => 'Two-finger rotate: rotate the picture',
@@ -8418,8 +8575,6 @@ extension on Translations {
 			'videoDetail.resourceDeleted' => 'This video seems to have been deleted :/',
 			'videoDetail.noDownloadUrl' => 'No download URL',
 			'videoDetail.startDownloading' => 'Start downloading',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.downloadFailed' => 'Download failed, please try again later',
 			'videoDetail.downloadSuccess' => 'Download success',
 			'videoDetail.download' => 'Download',
@@ -8896,6 +9051,8 @@ extension on Translations {
 			'translation.modelNameHintText' => 'For example: gpt-4-turbo',
 			'translation.maxTokens' => 'Max Tokens',
 			'translation.maxTokensHintText' => 'For example: 32000',
+			_ => null,
+		} ?? switch (path) {
 			'translation.temperature' => 'Temperature',
 			'translation.temperatureHintText' => '0.0-2.0',
 			'translation.clickTestButtonToVerifyAPIConnection' => 'Click test button to verify API connection validity',
@@ -8932,8 +9089,6 @@ extension on Translations {
 			'translation.disableAITranslation' => 'Disable AI Translation',
 			'translation.currentValue' => 'Current Value',
 			'translation.configureTranslationStrategy' => 'Configure Translation Strategy',
-			_ => null,
-		} ?? switch (path) {
 			'translation.advancedSettings' => 'Advanced Settings',
 			'translation.translationPrompt' => 'Translation Prompt',
 			'translation.promptHint' => 'Please enter translation prompt, use [TL] as the placeholder for the target language',
@@ -9410,6 +9565,8 @@ extension on Translations {
 			'searchFilter.notIn' => 'Not Contains Any',
 			'searchFilter.username' => 'Username',
 			'searchFilter.nickname' => 'Nickname',
+			_ => null,
+		} ?? switch (path) {
 			'searchFilter.registrationDate' => 'Registration Date',
 			'searchFilter.description' => 'Description',
 			'searchFilter.title' => 'Title',
@@ -9446,8 +9603,6 @@ extension on Translations {
 			'firstTimeSetup.welcome.subtitle' => 'Let\'s start your personalized setup journey',
 			'firstTimeSetup.welcome.description' => 'Just a few steps to tailor the best experience for you',
 			'firstTimeSetup.basic.title' => 'Basic Settings',
-			_ => null,
-		} ?? switch (path) {
 			'firstTimeSetup.basic.subtitle' => 'Personalize your experience',
 			'firstTimeSetup.basic.description' => 'Choose the preferences that suit you',
 			'firstTimeSetup.network.title' => 'Network Settings',

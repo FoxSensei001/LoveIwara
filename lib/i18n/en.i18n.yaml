@@ -640,6 +640,43 @@ settings:
   jumpLink: Jump Link
   language: Language
   languageChanged: Language setting has been changed, please restart the app to take effect.
+  keybinding:
+    title: Keyboard Shortcuts
+    entryLabel: Keyboard Shortcuts
+    entryDesc: Customize the player's keyboard shortcuts (mainly for desktop)
+    desktopHint: Shortcuts apply mainly to desktop keyboards; mobile usually uses gestures.
+    resetAll: Reset All to Default
+    resetAllConfirm: Reset all player shortcuts to their defaults?
+    resetToDefault: Reset to Default
+    notSet: Not set
+    addShortcut: Add Shortcut
+    removeShortcut: Remove this shortcut
+    pressNewShortcut: Press the new shortcut…
+    recordingCancelHint: Press Esc to cancel
+    reservedKey: This key is reserved by the system and cannot be bound
+    conflictTitle: Shortcut Conflict
+    conflictMessage: This combination is already bound to "${action}". Continuing will remove the existing binding.
+    conflictContinue: Bind Anyway
+    categoryPlayback: Playback
+    categorySeek: Seek
+    categoryVolume: Volume
+    categoryDisplay: Display
+    actionPlayPause: Play / Pause
+    actionSpeedUp: Increase Speed
+    actionSpeedDown: Decrease Speed
+    actionSeekForward: Seek Forward
+    actionSeekBackward: Seek Backward
+    actionVolumeUp: Volume Up
+    actionVolumeDown: Volume Down
+    actionToggleMute: Toggle Mute
+    actionToggleFullscreen: Toggle Fullscreen
+    seekLongPressHint: Hold the seek forward / backward key to trigger long-press speed mode
+    zoomSectionTitle: Picture Zoom (Fixed)
+    zoomFixedNote: The shortcuts below are fixed and cannot be changed
+    zoomScaleLabel: Zoom Picture
+    zoomScaleHint: Ctrl + Wheel
+    zoomRotateLabel: Rotate Picture
+    zoomRotateHint: Shift + Wheel
   gestureControl: Gesture Control
   leftDoubleTapRewind: Left Double Tap Rewind
   rightDoubleTapFastForward: Right Double Tap Fast Forward

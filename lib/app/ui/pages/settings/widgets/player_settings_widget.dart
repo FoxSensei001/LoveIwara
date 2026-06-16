@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/ui/pages/settings/player_keybinding_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/three_section_slider.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/video_gesture_guide.dart';
 import 'package:i_iwara/app/ui/widgets/anime4k_settings_widget.dart';
@@ -19,7 +20,11 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class PlayerSettingsWidget extends StatelessWidget {
   final ConfigService _configService = Get.find();
 
-  PlayerSettingsWidget({super.key});
+  /// 在播放器内（底部弹窗）展示时为 true：快捷键配置改用底部抽屉；
+  /// 在设置页中为 false：快捷键配置仍跳转独立页面。
+  final bool openKeybindingAsSheet;
+
+  PlayerSettingsWidget({super.key, this.openKeybindingAsSheet = false});
 
   void _onThreeSectionSliderChangeFinished(
     double leftRatio,
@@ -629,6 +634,32 @@ class PlayerSettingsWidget extends StatelessWidget {
             ),
           ),
         ),
+        const SizedBox(height: 20),
+
+        // -------- 键盘快捷键 --------
+        _sectionLabel(context, t.settings.keybinding.title),
+        _groupCard(context, [
+          ListTile(
+            leading: Icon(
+              Icons.keyboard,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            title: Text(
+              t.settings.keybinding.entryLabel,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            subtitle: Text(
+              t.settings.keybinding.entryDesc,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => openKeybindingAsSheet
+                ? PlayerKeybindingSettingsPage.openSheet(context)
+                : PlayerKeybindingSettingsPage.open(context),
+          ),
+        ]),
         const SizedBox(height: 20),
 
         // -------- 手势控制 --------

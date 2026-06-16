@@ -1117,7 +1117,7 @@ class SettingsContent extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          PlayerSettingsWidget(),
+          PlayerSettingsWidget(openKeybindingAsSheet: true),
           const SizedBox(height: 16),
           if (ProxyUtil.isSupportedPlatform())
             ProxySettingsWidget(embedded: true),

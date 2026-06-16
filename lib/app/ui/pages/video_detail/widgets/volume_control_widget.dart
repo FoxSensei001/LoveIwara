@@ -27,6 +27,10 @@ class _VolumeControlState extends State<VolumeControl>
     with SingleTickerProviderStateMixin {
   bool _isHovered = false;
 
+  // 通过点击静音按钮触发「一键静音」前的音量。仅当本次静音由点击触发时才记录，
+  // 用于再次点击时恢复到静音前的音量。手动拖动音量条会清空它（见 Slider.onChanged）。
+  double? _volumeBeforeMute;
+
   // 定义动画控制器和动画
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -93,7 +97,22 @@ class _VolumeControlState extends State<VolumeControl>
                 child: InkWell(
                   borderRadius: BorderRadius.circular(20),
                   onTap: () {
-                    widget.myVideoStateController.setVolume(0, save: false);
+                    final double current =
+                        widget.configService[ConfigKey.VOLUME_KEY];
+                    if (current > 0) {
+                      // 一键静音：记录静音前的音量，便于再次点击时恢复。
+                      _volumeBeforeMute = current;
+                      widget.myVideoStateController.setVolume(0, save: false);
+                    } else {
+                      // 已静音：若此前是通过点击本按钮静音的，则恢复到静音前音量；
+                      // 否则（如手动拖到 0）回到一个合理的默认音量。
+                      final double restore = _volumeBeforeMute ?? 0.5;
+                      widget.myVideoStateController.setVolume(
+                        restore > 0 ? restore : 0.5,
+                        save: false,
+                      );
+                      _volumeBeforeMute = null;
+                    }
                   },
                   child: Container(
                     width:
@@ -143,6 +162,10 @@ class _VolumeControlState extends State<VolumeControl>
                             ),
                             autofocus: false,
                             onChanged: (double newVolume) {
+                              // 手动调节音量后，清除「点击静音」记录，避免下次点击恢复到过期音量。
+                              if (newVolume > 0) {
+                                _volumeBeforeMute = null;
+                              }
                               widget.myVideoStateController.setVolume(
                                 newVolume,
                               );

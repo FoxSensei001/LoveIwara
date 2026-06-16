@@ -788,6 +788,7 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get jumpLink => '跳转链接';
 	@override String get language => '语言';
 	@override String get languageChanged => '语言设置已更改，请重启应用以生效。';
+	@override late final _TranslationsSettingsKeybindingZhCn keybinding = _TranslationsSettingsKeybindingZhCn._(_root);
 	@override String get gestureControl => '手势控制';
 	@override String get leftDoubleTapRewind => '左侧双击后退';
 	@override String get rightDoubleTapFastForward => '右侧双击快进';
@@ -2135,6 +2136,51 @@ class _TranslationsErrorsNetworkZhCn implements TranslationsErrorsNetworkEn {
 	@override String get noRouteToHost => '无法找到主机';
 	@override String get connectionFailed => '连接失败';
 	@override String get sslConnectionFailed => 'SSL连接失败，请检查网络设置';
+}
+
+// Path: settings.keybinding
+class _TranslationsSettingsKeybindingZhCn implements TranslationsSettingsKeybindingEn {
+	_TranslationsSettingsKeybindingZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '键盘快捷键';
+	@override String get entryLabel => '键盘快捷键';
+	@override String get entryDesc => '自定义播放器的键盘快捷键（主要用于桌面端）';
+	@override String get desktopHint => '快捷键主要在桌面端键盘上生效，移动端通常使用手势控制。';
+	@override String get resetAll => '全部恢复默认';
+	@override String get resetAllConfirm => '确定要将所有播放器快捷键恢复为默认设置吗？';
+	@override String get resetToDefault => '恢复默认';
+	@override String get notSet => '未设置';
+	@override String get addShortcut => '添加快捷键';
+	@override String get removeShortcut => '移除此快捷键';
+	@override String get pressNewShortcut => '请按下新的快捷键…';
+	@override String get recordingCancelHint => '按 Esc 取消';
+	@override String get reservedKey => '该按键为系统保留，无法绑定';
+	@override String get conflictTitle => '快捷键冲突';
+	@override String conflictMessage({required Object action}) => '该组合已绑定到「${action}」，继续将解除其原有绑定。';
+	@override String get conflictContinue => '仍然绑定';
+	@override String get categoryPlayback => '播放控制';
+	@override String get categorySeek => '进度';
+	@override String get categoryVolume => '音量';
+	@override String get categoryDisplay => '显示';
+	@override String get actionPlayPause => '播放 / 暂停';
+	@override String get actionSpeedUp => '加快倍速';
+	@override String get actionSpeedDown => '减慢倍速';
+	@override String get actionSeekForward => '快进';
+	@override String get actionSeekBackward => '快退';
+	@override String get actionVolumeUp => '增大音量';
+	@override String get actionVolumeDown => '减小音量';
+	@override String get actionToggleMute => '静音切换';
+	@override String get actionToggleFullscreen => '全屏切换';
+	@override String get seekLongPressHint => '长按快进 / 快退键可触发长按倍速模式';
+	@override String get zoomSectionTitle => '画面缩放（固定）';
+	@override String get zoomFixedNote => '以下快捷键为固定，无法修改';
+	@override String get zoomScaleLabel => '缩放画面';
+	@override String get zoomScaleHint => 'Ctrl + 滚轮';
+	@override String get zoomRotateLabel => '旋转画面';
+	@override String get zoomRotateHint => 'Shift + 滚轮';
 }
 
 // Path: settings.forumSettings
@@ -3694,6 +3740,42 @@ extension on TranslationsZhCn {
 			'settings.jumpLink' => '跳转链接',
 			'settings.language' => '语言',
 			'settings.languageChanged' => '语言设置已更改，请重启应用以生效。',
+			'settings.keybinding.title' => '键盘快捷键',
+			'settings.keybinding.entryLabel' => '键盘快捷键',
+			'settings.keybinding.entryDesc' => '自定义播放器的键盘快捷键（主要用于桌面端）',
+			'settings.keybinding.desktopHint' => '快捷键主要在桌面端键盘上生效，移动端通常使用手势控制。',
+			'settings.keybinding.resetAll' => '全部恢复默认',
+			'settings.keybinding.resetAllConfirm' => '确定要将所有播放器快捷键恢复为默认设置吗？',
+			'settings.keybinding.resetToDefault' => '恢复默认',
+			'settings.keybinding.notSet' => '未设置',
+			'settings.keybinding.addShortcut' => '添加快捷键',
+			'settings.keybinding.removeShortcut' => '移除此快捷键',
+			'settings.keybinding.pressNewShortcut' => '请按下新的快捷键…',
+			'settings.keybinding.recordingCancelHint' => '按 Esc 取消',
+			'settings.keybinding.reservedKey' => '该按键为系统保留，无法绑定',
+			'settings.keybinding.conflictTitle' => '快捷键冲突',
+			'settings.keybinding.conflictMessage' => ({required Object action}) => '该组合已绑定到「${action}」，继续将解除其原有绑定。',
+			'settings.keybinding.conflictContinue' => '仍然绑定',
+			'settings.keybinding.categoryPlayback' => '播放控制',
+			'settings.keybinding.categorySeek' => '进度',
+			'settings.keybinding.categoryVolume' => '音量',
+			'settings.keybinding.categoryDisplay' => '显示',
+			'settings.keybinding.actionPlayPause' => '播放 / 暂停',
+			'settings.keybinding.actionSpeedUp' => '加快倍速',
+			'settings.keybinding.actionSpeedDown' => '减慢倍速',
+			'settings.keybinding.actionSeekForward' => '快进',
+			'settings.keybinding.actionSeekBackward' => '快退',
+			'settings.keybinding.actionVolumeUp' => '增大音量',
+			'settings.keybinding.actionVolumeDown' => '减小音量',
+			'settings.keybinding.actionToggleMute' => '静音切换',
+			'settings.keybinding.actionToggleFullscreen' => '全屏切换',
+			'settings.keybinding.seekLongPressHint' => '长按快进 / 快退键可触发长按倍速模式',
+			'settings.keybinding.zoomSectionTitle' => '画面缩放（固定）',
+			'settings.keybinding.zoomFixedNote' => '以下快捷键为固定，无法修改',
+			'settings.keybinding.zoomScaleLabel' => '缩放画面',
+			'settings.keybinding.zoomScaleHint' => 'Ctrl + 滚轮',
+			'settings.keybinding.zoomRotateLabel' => '旋转画面',
+			'settings.keybinding.zoomRotateHint' => 'Shift + 滚轮',
 			'settings.gestureControl' => '手势控制',
 			'settings.leftDoubleTapRewind' => '左侧双击后退',
 			'settings.rightDoubleTapFastForward' => '右侧双击快进',
@@ -4064,6 +4146,8 @@ extension on TranslationsZhCn {
 			'videoDetail.gestureGuide.viewGuide' => '查看手势与交互指引',
 			'videoDetail.gestureGuide.basicTitle' => '基础操作',
 			'videoDetail.gestureGuide.zoomTitle' => '缩放 / 旋转 / 平移',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.restoreTip' => '点击右下角「还原」按钮可复位缩放、旋转与位置。',
 			'videoDetail.gestureGuide.mTap' => '单击：显示 / 隐藏控制栏',
 			'videoDetail.gestureGuide.mDoubleTap' => '双击：左侧后退 / 中央暂停 / 右侧快进',
@@ -4100,8 +4184,6 @@ extension on TranslationsZhCn {
 			'videoDetail.authorOtherVideos' => '作者的其他视频',
 			'videoDetail.relatedVideos' => '相关视频',
 			'videoDetail.privateVideo' => '这是一个私密视频',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.externalVideo' => '这是一个站外视频',
 			'videoDetail.openInBrowser' => '在浏览器中打开',
 			'videoDetail.resourceDeleted' => '这个视频貌似被删除了 :/',
@@ -4578,6 +4660,8 @@ extension on TranslationsZhCn {
 			'translation.operationSuggestion2' => '2. 避免翻译涉及暴力、成人等敏感内容',
 			'translation.apiConfig' => 'API配置',
 			'translation.modifyConfigWillAutoCloseAITranslation' => '修改配置将自动关闭AI翻译，需重新测试后打开',
+			_ => null,
+		} ?? switch (path) {
 			'translation.apiAddress' => 'API地址',
 			'translation.modelName' => '模型名称',
 			'translation.modelNameHintText' => '例如：gpt-4-turbo',
@@ -4614,8 +4698,6 @@ extension on TranslationsZhCn {
 			'translation.mustBeGreaterThan' => '必须大于',
 			'translation.invalidAPIResponse' => '无效的API响应',
 			'translation.connectionFailedForMessage' => ({required Object message}) => '连接失败: ${message}',
-			_ => null,
-		} ?? switch (path) {
 			'translation.aiTranslationNotEnabledHint' => 'AI翻译未启用，请在设置中启用',
 			'translation.goToSettings' => '前往设置',
 			'translation.disableAITranslation' => '禁用AI翻译',
@@ -5092,6 +5174,8 @@ extension on TranslationsZhCn {
 			'searchFilter.greaterEqual' => '>=',
 			'searchFilter.lessThan' => '<',
 			'searchFilter.lessEqual' => '<=',
+			_ => null,
+		} ?? switch (path) {
 			'searchFilter.range' => '范围',
 			'searchFilter.kIn' => '包含任意一项',
 			'searchFilter.notIn' => '不包含任意一项',
@@ -5128,8 +5212,6 @@ extension on TranslationsZhCn {
 			'searchFilter.sortTypes.relevance' => '相关性',
 			'searchFilter.sortTypes.latest' => '最新',
 			'searchFilter.sortTypes.views' => '观看次数',
-			_ => null,
-		} ?? switch (path) {
 			'searchFilter.sortTypes.likes' => '点赞数',
 			'firstTimeSetup.welcome.title' => '欢迎使用',
 			'firstTimeSetup.welcome.subtitle' => '让我们开始您的个性化设置之旅',

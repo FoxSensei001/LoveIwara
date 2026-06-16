@@ -530,6 +530,12 @@ class BottomToolbar extends StatelessWidget {
     });
   }
 
+  // 倍速展示格式化：去掉多余的小数 0（1.0 -> 1，1.5 -> 1.5）。
+  static String _formatPlaybackSpeed(double speed) {
+    final String s = speed.toStringAsFixed(2);
+    return s.replaceFirst(RegExp(r'\.?0+$'), '');
+  }
+
   /// 播放速度切换器
   Widget _buildPlaybackSpeedSwitcher(BuildContext context, double iconSize) {
     final t = slang.Translations.of(context);
@@ -558,14 +564,32 @@ class BottomToolbar extends StatelessWidget {
         initialValue: currentSpeed,
         tooltip: t.videoDetail.switchPlaybackSpeed,
         child: Container(
-          width: touchSize,
           height: touchSize,
+          padding: const EdgeInsets.symmetric(horizontal: 6.0),
           alignment: Alignment.center,
-          child: SvgPicture.asset(
-            'assets/svg/playback_speed.svg',
-            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-            width: iconSize,
-            height: iconSize,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SvgPicture.asset(
+                'assets/svg/playback_speed.svg',
+                colorFilter: const ColorFilter.mode(
+                  Colors.white,
+                  BlendMode.srcIn,
+                ),
+                width: iconSize,
+                height: iconSize,
+              ),
+              const SizedBox(width: 4),
+              // 显示当前视频的实时倍速，便于通过快捷键调整后一眼确认。
+              Text(
+                '${_formatPlaybackSpeed(currentSpeed)}x',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: currentScreenIsFullScreen ? 13 : 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
         ),
         onSelected: (double selected) {
@@ -583,7 +607,7 @@ class BottomToolbar extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('${speed}x'),
+                  Text('${_formatPlaybackSpeed(speed)}x'),
                   if (speed == currentSpeed)
                     const Icon(Icons.check, color: Colors.blue),
                 ],
@@ -711,7 +735,7 @@ class BottomToolbar extends StatelessWidget {
             onPressed: () async {
               VibrateUtils.vibrate();
               if (myVideoStateController.videoPlaying.value) {
-                myVideoStateController.videoController.player.pause();
+                myVideoStateController.pausePlayback();
               } else {
                 await myVideoStateController.playFromUserAction();
               }

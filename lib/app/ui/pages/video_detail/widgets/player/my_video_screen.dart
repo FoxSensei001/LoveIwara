@@ -9,6 +9,8 @@ import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/video_fullscreen_handoff.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/player_keybinding/player_action.dart';
+import 'package:i_iwara/app/services/player_keybinding/player_keybinding_service.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/rapple_painter.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -79,10 +81,13 @@ class MyVideoScreen extends StatefulWidget {
 }
 
 class _MyVideoScreenState extends State<MyVideoScreen>
-    with TickerProviderStateMixin, WindowListener {
+    with TickerProviderStateMixin, WindowListener, WidgetsBindingObserver {
   final FocusNode _focusNode = FocusNode();
   final ConfigService _configService = Get.find();
   final AppService _appService = Get.find();
+  final PlayerKeybindingService _keybindingService = Get.find();
+  // 静音切换前的音量，用于「取消静音」时恢复。
+  double? _volumeBeforeMute;
   bool _isSyncingDesktopFullscreenExit = false;
   bool _innerPlaylistExpanded = false;
   bool _isSwitchingInnerPlaylistVideo = false;
@@ -90,9 +95,31 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
   Timer? _autoHideTimer;
   Timer? _volumeInfoTimer; // 添加音量提示计时器
+  Timer? _playbackSpeedInfoTimer; // 倍速调整的临时提示计时器
+
+  // 倍速调整可用档位（与底部工具栏 / 设置页保持一致）。
+  static const List<double> _playbackSpeedSteps = [
+    0.25,
+    0.5,
+    0.75,
+    1.0,
+    1.25,
+    1.5,
+    1.75,
+    2.0,
+    2.5,
+    3.0,
+  ];
   DateTime? _lastLeftKeyPressTime;
   DateTime? _lastRightKeyPressTime;
   static const Duration _debounceTime = Duration(milliseconds: 300);
+
+  // 进度键长按倍速：按住超过阈值进入长按倍速模式，松开恢复。
+  Timer? _seekHoldTimer;
+  int? _heldSeekKeyId;
+  PlayerAction? _heldSeekAction;
+  bool _seekLongPressActive = false;
+  static const Duration _seekLongPressThreshold = Duration(milliseconds: 350);
 
   late AnimationController _leftRippleController1;
   late AnimationController _leftRippleController2;
@@ -128,6 +155,10 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   void initState() {
     LogUtils.d("[${widget.isFullScreen ? '全屏' : '内嵌'} 初始化]", 'MyVideoScreen');
     super.initState();
+    // 监听焦点丢失与应用生命周期变化：按住进度键期间若失焦/切窗口/进入后台，
+    // KeyUpEvent 可能不再回到本 KeyboardListener，需要主动收尾长按倍速，避免卡在倍速态。
+    WidgetsBinding.instance.addObserver(this);
+    _focusNode.addListener(_handleFocusChange);
     // 如果是全屏状态
     if (widget.isFullScreen) {
       _appService.hideSystemUI();
@@ -256,6 +287,17 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       // 恢复播放
       // widget.myVideoStateController.player.play();
     }
+    // 先摘除监听，避免下面 dispose 焦点节点触发 unfocus 回调，碰到已 dispose 的控制器。
+    WidgetsBinding.instance.removeObserver(this);
+    _focusNode.removeListener(_handleFocusChange);
+    // 清理进度键长按倍速状态（不经 _setLongPressing，避免触碰即将 dispose 的动画控制器）。
+    _seekHoldTimer?.cancel();
+    if (_seekLongPressActive) {
+      final controller = widget.myVideoStateController;
+      controller.isLongPressing.value = false;
+      controller.setPlaybackSpeed(controller.playerPlaybackSpeed.value);
+      _seekLongPressActive = false;
+    }
     _focusNode.dispose();
     _leftRippleController1.dispose();
     _leftRippleController2.dispose();
@@ -264,6 +306,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     _infoMessageFadeController.dispose();
     _autoHideTimer?.cancel();
     _volumeInfoTimer?.cancel(); // 取消音量提示计时器
+    _playbackSpeedInfoTimer?.cancel(); // 取消倍速提示计时器
     _blurUpdateTimer?.cancel(); // 清理模糊背景更新定时器
     _orientationCheckTimer?.cancel(); // 取消重力感应监听
     widget.myVideoStateController.setMouseHoverToolbarRevealSuppressed(false);
@@ -339,6 +382,195 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     _triggerRightRipple();
   }
 
+  /// 播放器键盘事件入口：区分按下/松开，以支持进度键长按倍速。
+  void _handlePlayerKeyEvent(KeyEvent event) {
+    // 松开进度键：决定是点按 seek 还是退出长按倍速。
+    if (event is KeyUpEvent) {
+      if (_heldSeekKeyId != null &&
+          event.logicalKey.keyId == _heldSeekKeyId) {
+        _finishSeekHold();
+      }
+      return;
+    }
+    // 仅处理首次按下；KeyRepeatEvent 交给定时器判定长按。
+    if (event is! KeyDownEvent) return;
+
+    final action = _keybindingService.resolve(event);
+    if (action == null) return;
+
+    // 初始播放封面阶段只允许「播放/暂停」唤起首次播放。
+    if (widget.myVideoStateController.shouldShowInitialPlaybackCover) {
+      if (action == PlayerAction.playPause) {
+        unawaited(widget.myVideoStateController.requestInitialPlayback());
+      }
+      return;
+    }
+
+    // 进度键：按下先挂起，松开时再区分点按/长按。
+    if (action == PlayerAction.seekForward ||
+        action == PlayerAction.seekBackward) {
+      _beginSeekHold(action, event.logicalKey.keyId);
+      return;
+    }
+
+    _dispatchKeybindingAction(action);
+  }
+
+  /// 将解析出的快捷键动作分派到对应的播放器行为。
+  void _dispatchKeybindingAction(PlayerAction action) {
+    final controller = widget.myVideoStateController;
+    switch (action) {
+      case PlayerAction.playPause:
+        if (controller.videoPlaying.value) {
+          controller.pausePlayback();
+        } else {
+          unawaited(controller.playFromUserAction());
+        }
+        break;
+      case PlayerAction.speedUp:
+        _adjustPlaybackSpeed(1);
+        break;
+      case PlayerAction.speedDown:
+        _adjustPlaybackSpeed(-1);
+        break;
+      case PlayerAction.seekForward:
+        _handleRightKeyPress();
+        break;
+      case PlayerAction.seekBackward:
+        _handleLeftKeyPress();
+        break;
+      case PlayerAction.volumeUp:
+        _adjustVolumeBy(0.1);
+        break;
+      case PlayerAction.volumeDown:
+        _adjustVolumeBy(-0.1);
+        break;
+      case PlayerAction.toggleMute:
+        _toggleMute();
+        break;
+      case PlayerAction.toggleFullscreen:
+        _toggleFullscreen();
+        break;
+    }
+  }
+
+  void _adjustVolumeBy(double delta) {
+    final double currentVolume = _configService[ConfigKey.VOLUME_KEY];
+    final double newVolume = (currentVolume + delta).clamp(0.0, 1.0);
+    widget.myVideoStateController.setVolume(newVolume);
+    if (newVolume > 0) _volumeBeforeMute = null;
+    _showVolumeInfo();
+  }
+
+  void _toggleMute() {
+    final double currentVolume = _configService[ConfigKey.VOLUME_KEY];
+    if (currentVolume > 0) {
+      _volumeBeforeMute = currentVolume;
+      widget.myVideoStateController.setVolume(0.0);
+    } else {
+      final double restore = (_volumeBeforeMute ?? 0.4).clamp(0.0, 1.0);
+      widget.myVideoStateController.setVolume(restore > 0 ? restore : 0.4);
+      _volumeBeforeMute = null;
+    }
+    _showVolumeInfo();
+  }
+
+  void _toggleFullscreen() {
+    final controller = widget.myVideoStateController;
+    if (controller.isFullscreen.value) {
+      unawaited(controller.exitFullscreen());
+    } else {
+      unawaited(controller.enterFullscreen());
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // 进度键的「点按 = 单次快进/快退，长按 = 长按倍速」处理
+  // ---------------------------------------------------------------------------
+
+  /// 进度键按下：先记录待定状态，松开时再区分点按/长按。
+  void _beginSeekHold(PlayerAction action, int keyId) {
+    // 异常情况下已有按住的进度键，先收尾。
+    if (_heldSeekKeyId != null) {
+      _cancelSeekHold();
+    }
+    _heldSeekAction = action;
+    _heldSeekKeyId = keyId;
+    _seekLongPressActive = false;
+    _seekHoldTimer?.cancel();
+    _seekHoldTimer = Timer(_seekLongPressThreshold, _enterSeekLongPress);
+  }
+
+  /// 按住超过阈值：进入长按倍速模式（复用手势长按的同一套逻辑）。
+  void _enterSeekLongPress() {
+    final controller = widget.myVideoStateController;
+    // 暂停/缓冲时不进入倍速，保持为「松开即单次 seek」。
+    if (!controller.videoPlaying.value || controller.videoBuffering.value) {
+      return;
+    }
+    _seekLongPressActive = true;
+    _setLongPressing(LongPressType.normal, true);
+  }
+
+  /// 进度键松开：长按则退出倍速，否则执行一次快进/快退。
+  void _finishSeekHold() {
+    _seekHoldTimer?.cancel();
+    _seekHoldTimer = null;
+    final action = _heldSeekAction;
+    final wasLongPress = _seekLongPressActive;
+    _heldSeekKeyId = null;
+    _heldSeekAction = null;
+    _seekLongPressActive = false;
+
+    if (wasLongPress) {
+      _exitSeekLongPress();
+    } else if (action == PlayerAction.seekForward) {
+      _handleRightKeyPress();
+    } else if (action == PlayerAction.seekBackward) {
+      _handleLeftKeyPress();
+    }
+  }
+
+  /// 退出长按倍速并恢复正常倍速（对齐手势 _onLongPressEnd 的恢复逻辑）。
+  void _exitSeekLongPress() {
+    _setLongPressing(LongPressType.normal, false);
+    Timer(const Duration(milliseconds: 50), () {
+      if (mounted) {
+        final controller = widget.myVideoStateController;
+        controller.setPlaybackSpeed(controller.playerPlaybackSpeed.value);
+      }
+    });
+  }
+
+  /// 焦点丢失（切窗口、系统弹窗、被路由遮挡等）时，KeyUpEvent 可能不再到达，
+  /// 主动收尾长按倍速，避免卡在倍速态。
+  void _handleFocusChange() {
+    if (!_focusNode.hasFocus) {
+      _cancelSeekHold();
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // 进入后台/失活时同样收尾，避免回前台后仍停留在长按倍速。
+    if (state != AppLifecycleState.resumed) {
+      _cancelSeekHold();
+    }
+  }
+
+  /// 收尾进度键按住状态（如切换按键、失焦、生命周期变化、销毁时）。
+  void _cancelSeekHold() {
+    _seekHoldTimer?.cancel();
+    _seekHoldTimer = null;
+    if (_seekLongPressActive) {
+      _exitSeekLongPress();
+    }
+    _heldSeekKeyId = null;
+    _heldSeekAction = null;
+    _seekLongPressActive = false;
+  }
+
   void _triggerLeftRipple() {
     if (_isLeftRippleActive1 || _isLeftRippleActive2) return;
     setState(() {
@@ -406,6 +638,46 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     } else {
       widget.myVideoStateController.toggleToolbars();
     }
+  }
+
+  /// 按档位调整「当前视频」的播放倍速（不写入默认配置，因此不影响其它视频），
+  /// 并在播放器上弹出临时提示。
+  void _adjustPlaybackSpeed(int direction) {
+    final controller = widget.myVideoStateController;
+    final double current = controller.playerPlaybackSpeed.value;
+    final double next = direction > 0
+        ? _playbackSpeedSteps.firstWhere(
+            (s) => s > current + 0.001,
+            orElse: () => _playbackSpeedSteps.last,
+          )
+        : _playbackSpeedSteps.lastWhere(
+            (s) => s < current - 0.001,
+            orElse: () => _playbackSpeedSteps.first,
+          );
+    if (next != current) {
+      // persistAsDefault 默认 false：仅作用于当前视频，不改写默认倍速。
+      controller.setPlaybackSpeed(next);
+    }
+    _showPlaybackSpeedInfo();
+  }
+
+  // 显示倍速调整的临时提示（屏幕中央偏上，约 1 秒后淡出）。
+  void _showPlaybackSpeedInfo() {
+    _playbackSpeedInfoTimer?.cancel();
+    final controller = widget.myVideoStateController;
+    controller.isShowingPlaybackSpeedInfo.value = true;
+    // 与音量/亮度提示共用同一组淡入淡出动画。
+    controller.isSlidingVolumeZone.value = false;
+    controller.isSlidingBrightnessZone.value = false;
+    _infoMessageFadeController.forward();
+
+    _playbackSpeedInfoTimer = Timer(const Duration(seconds: 1), () {
+      if (mounted) {
+        _infoMessageFadeController.reverse().whenComplete(() {
+          controller.isShowingPlaybackSpeedInfo.value = false;
+        });
+      }
+    });
   }
 
   // 添加显示音量提示的方法
@@ -651,66 +923,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                   },
                   child: KeyboardListener(
                     focusNode: _focusNode,
-                    onKeyEvent: (KeyEvent event) {
-                      if (event is KeyDownEvent) {
-                        if (widget
-                            .myVideoStateController
-                            .shouldShowInitialPlaybackCover) {
-                          if (event.logicalKey == LogicalKeyboardKey.space) {
-                            unawaited(
-                              widget.myVideoStateController
-                                  .requestInitialPlayback(),
-                            );
-                          }
-                          return;
-                        }
-                        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-                          _handleLeftKeyPress();
-                        } else if (event.logicalKey ==
-                            LogicalKeyboardKey.arrowRight) {
-                          _handleRightKeyPress();
-                        } else if (event.logicalKey ==
-                            LogicalKeyboardKey.space) {
-                          if (widget
-                              .myVideoStateController
-                              .videoPlaying
-                              .value) {
-                            widget.myVideoStateController.player.pause();
-                          } else {
-                            unawaited(
-                              widget.myVideoStateController
-                                  .playFromUserAction(),
-                            );
-                          }
-                        } else if (event.logicalKey ==
-                            LogicalKeyboardKey.arrowUp) {
-                          // 获取当前音量
-                          double currentVolume =
-                              _configService[ConfigKey.VOLUME_KEY];
-                          // 增加音量，每次增加0.1，最大为1.0
-                          double newVolume = (currentVolume + 0.1).clamp(
-                            0.0,
-                            1.0,
-                          );
-                          widget.myVideoStateController.setVolume(newVolume);
-                          // 显示音量提示
-                          _showVolumeInfo();
-                        } else if (event.logicalKey ==
-                            LogicalKeyboardKey.arrowDown) {
-                          // 获取当前音量
-                          double currentVolume =
-                              _configService[ConfigKey.VOLUME_KEY];
-                          // 减少音量，每次减少0.1，最小为0.0
-                          double newVolume = (currentVolume - 0.1).clamp(
-                            0.0,
-                            1.0,
-                          );
-                          widget.myVideoStateController.setVolume(newVolume);
-                          // 显示音量提示
-                          _showVolumeInfo();
-                        }
-                      }
-                    },
+                    onKeyEvent: _handlePlayerKeyEvent,
                     child: Container(
                       padding: EdgeInsets.only(top: paddingTop),
                       // 画面缩放/平移手势层：作为整个播放器栈的祖先，可靠侦测双指捏合
@@ -1063,7 +1276,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             onTap: _onTap,
             onDoubleTap: () {
               if (widget.myVideoStateController.videoPlaying.value) {
-                widget.myVideoStateController.player.pause();
+                widget.myVideoStateController.pausePlayback();
               } else {
                 unawaited(widget.myVideoStateController.playFromUserAction());
               }
@@ -1442,7 +1655,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                 VibrateUtils.vibrate();
 
                 if (myVideoStateController.videoPlaying.value) {
-                  myVideoStateController.player.pause();
+                  myVideoStateController.pausePlayback();
                 } else {
                   await myVideoStateController.playFromUserAction();
                 }
@@ -1538,6 +1751,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         return _buildFadeTransition(child: _buildVolumeInfoMessage());
       } else if (controller.isSlidingBrightnessZone.value) {
         return _buildFadeTransition(child: _buildBrightnessInfoMessage());
+      } else if (controller.isShowingPlaybackSpeedInfo.value) {
+        return _buildFadeTransition(child: _buildPlaybackSpeedInfoContent());
       }
       return const SizedBox.shrink();
     });
@@ -1621,6 +1836,30 @@ class _MyVideoScreenState extends State<MyVideoScreen>
           const SizedBox(width: 4),
           Text(
             brightnessText,
+            style: const TextStyle(color: Colors.white, fontSize: 16),
+          ),
+        ],
+      );
+    });
+  }
+
+  // 倍速展示格式化：去掉多余的小数 0（1.0 -> 1，1.5 -> 1.5）。
+  static String _formatPlaybackSpeed(double speed) {
+    final String s = speed.toStringAsFixed(2);
+    return s.replaceFirst(RegExp(r'\.?0+$'), '');
+  }
+
+  // 倍速调整的提示内容（图标 + 当前倍速）。
+  Widget _buildPlaybackSpeedInfoContent() {
+    return Obx(() {
+      final double speed = widget.myVideoStateController.playerPlaybackSpeed.value;
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.speed, color: Colors.white),
+          const SizedBox(width: 4),
+          Text(
+            '${_formatPlaybackSpeed(speed)}x',
             style: const TextStyle(color: Colors.white, fontSize: 16),
           ),
         ],

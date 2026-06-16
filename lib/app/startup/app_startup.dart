@@ -11,6 +11,7 @@ import 'package:i_iwara/app/services/comment_service.dart';
 import 'package:i_iwara/app/services/config_backup_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/content_block_service.dart';
+import 'package:i_iwara/app/services/player_keybinding/player_keybinding_service.dart';
 import 'package:i_iwara/app/services/conversation_service.dart';
 import 'package:i_iwara/app/services/deep_link_service.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
@@ -330,6 +331,10 @@ class AppStartupCoordinator implements AppStartupRunner {
     _registerDeferredSingleton<DlnaCastService>(DlnaCastService());
     _registerDeferredSingleton<HistoryRepository>(HistoryRepository());
     _registerDeferredSingleton<ContentBlockService>(ContentBlockService());
+    // 播放器自定义快捷键服务（依赖 ConfigService，onInit 时加载键位表）
+    _registerDeferredSingleton<PlayerKeybindingService>(
+      PlayerKeybindingService(),
+    );
 
     // 启动时按配置自动清理超期历史记录（默认关闭，不阻塞启动）
     _maybeAutoCleanupHistory();
