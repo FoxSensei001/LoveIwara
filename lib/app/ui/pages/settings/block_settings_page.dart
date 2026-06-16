@@ -29,9 +29,19 @@ class BlockSettingsPage extends StatelessWidget {
       slang.t.settings.blockSettings;
 
   void _addRule(BuildContext context, {BlockRule? existing}) {
+    // 新增规则时，根据当前所处的 tab 自动选择对应的规则类型。
+    final controller = DefaultTabController.maybeOf(context);
+    BlockRuleType? initialType;
+    if (existing == null && controller != null) {
+      final index = controller.index;
+      if (index >= 0 && index < BlockRuleType.values.length) {
+        initialType = BlockRuleType.values[index];
+      }
+    }
     showAppBottomSheet(
       _RuleEditorSheet(
         existing: existing,
+        initialType: initialType,
         onSubmit: (rule) async {
           if (existing == null) {
             await _service.addRule(
@@ -43,6 +53,13 @@ class BlockSettingsPage extends StatelessWidget {
             );
           } else {
             await _service.updateRule(rule);
+          }
+          // 提交后自动跳到该规则类型对应的 tab。
+          final targetIndex = BlockRuleType.values.indexOf(rule.type);
+          if (controller != null &&
+              targetIndex >= 0 &&
+              controller.index != targetIndex) {
+            controller.animateTo(targetIndex);
           }
         },
       ),
@@ -97,10 +114,14 @@ class BlockSettingsPage extends StatelessWidget {
       child: Scaffold(
         floatingActionButton: Padding(
           padding: EdgeInsets.only(bottom: fabGap),
-          child: FloatingActionButton.extended(
-            onPressed: () => _addRule(context),
-            icon: const Icon(Icons.add),
-            label: Text(_t.addRule),
+          // 用 Builder 取得 DefaultTabController 下层的 context，
+          // 否则 _addRule 里 DefaultTabController.maybeOf 会向上找不到 controller。
+          child: Builder(
+            builder: (context) => FloatingActionButton.extended(
+              onPressed: () => _addRule(context),
+              icon: const Icon(Icons.add),
+              label: Text(_t.addRule),
+            ),
           ),
         ),
         body: NestedScrollView(
@@ -692,9 +713,15 @@ class _EmptyState extends StatelessWidget {
 /// 并使用 [AppService.tryPop] 关闭弹窗。
 class _RuleEditorSheet extends StatefulWidget {
   final BlockRule? existing;
+  // 新增规则时的初始规则类型（来自当前 tab）；为空则默认关键词。
+  final BlockRuleType? initialType;
   final Future<void> Function(BlockRule rule) onSubmit;
 
-  const _RuleEditorSheet({this.existing, required this.onSubmit});
+  const _RuleEditorSheet({
+    this.existing,
+    this.initialType,
+    required this.onSubmit,
+  });
 
   @override
   State<_RuleEditorSheet> createState() => _RuleEditorSheetState();
@@ -716,7 +743,8 @@ class _RuleEditorSheetState extends State<_RuleEditorSheet> {
   @override
   void initState() {
     super.initState();
-    _type = widget.existing?.type ?? BlockRuleType.keyword;
+    _type =
+        widget.existing?.type ?? widget.initialType ?? BlockRuleType.keyword;
     _valueController = TextEditingController(
       text: widget.existing?.type == BlockRuleType.userId
           ? ''

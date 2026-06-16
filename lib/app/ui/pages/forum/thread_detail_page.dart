@@ -45,6 +45,8 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
     with SingleTickerProviderStateMixin {
   final double appBarHeight = 56.0;
   static const double _cardRadius = 14.0;
+  // 楼主强调色（琥珀），与楼层卡片中发帖人保持一致
+  static const Color _authorAccent = Color(0xFFFFB300);
   late ThreadDetailRepository listSourceRepository;
   final ScrollController _scrollController = ScrollController();
   final Rx<ForumThreadModel?> _thread = Rx<ForumThreadModel?>(null);
@@ -664,28 +666,28 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
       tag: _threadHeroTag(thread.id),
       child: Card(
         elevation: 0,
+        color: Color.alphaBlend(
+          _authorAccent.withValues(alpha: 0.06),
+          colorScheme.surfaceContainerLowest,
+        ),
         margin: EdgeInsets.symmetric(
           horizontal: isWideScreen ? 16.0 : 8.0,
           vertical: 4.0,
         ),
-        shape: _forumCardShape(context),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(_cardRadius),
+          side: BorderSide(color: _authorAccent.withValues(alpha: 0.35)),
+        ),
         clipBehavior: Clip.antiAlias,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: Stack(
           children: [
-            Container(
-              padding: const EdgeInsets.fromLTRB(12, 11, 12, 11),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(
-                  alpha: 0.5,
-                ),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(_cardRadius),
-                  topRight: Radius.circular(_cardRadius),
-                ),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 11, 12, 11),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   MouseRegion(
                     cursor: SystemMouseCursors.click,
@@ -768,6 +770,14 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
                   ),
                 ],
               ),
+            ),
+            // 用户信息行与内容行之间的细分割线
+            Divider(
+              height: 1,
+              thickness: 0.5,
+              indent: 12,
+              endIndent: 12,
+              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
@@ -887,6 +897,15 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
                   ),
                 ],
               ),
+            ),
+          ],
+        ),
+            // 左侧楼主强调色竖条，覆盖全卡高度
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              child: Container(width: 3.5, color: _authorAccent),
             ),
           ],
         ),

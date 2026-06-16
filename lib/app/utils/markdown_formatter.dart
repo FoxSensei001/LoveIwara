@@ -300,8 +300,26 @@ class MarkdownFormatter {
     });
   }
 
+  /// 判断链接目标是否为真正的网址（绝对 http/https 链接且含主机名）。
+  ///
+  /// 用于过滤掉相对地址、锚点(#xxx)、mailto: 以及夹带的特殊字符等，
+  /// 这些不是网页链接，不应在前面渲染链接图标。
+  bool _isWebUrl(String url) {
+    final trimmed = url.trim();
+    if (trimmed.isEmpty) return false;
+    final uri = Uri.tryParse(trimmed);
+    if (uri == null) return false;
+    final scheme = uri.scheme.toLowerCase();
+    return (scheme == 'http' || scheme == 'https') && uri.host.isNotEmpty;
+  }
+
   /// 获取链接前缀图标
   String _getLinkPrefix(String url) {
+    // 非网址（相对地址、锚点、特殊字符等）不加图标，避免误判为网页链接
+    if (!_isWebUrl(url)) {
+      return '';
+    }
+
     // 1. 尝试识别 Iwara 特殊链接
     final info = UrlUtils.parseUrl(url);
     if (info.isIwaraUrl && info.type != IwaraUrlType.unknown) {

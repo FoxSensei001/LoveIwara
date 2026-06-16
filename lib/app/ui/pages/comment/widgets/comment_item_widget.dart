@@ -182,59 +182,6 @@ class _CommentItemState extends State<CommentItem> {
     );
   }
 
-  Widget _buildCommentTag(String text, Color color, IconData icon) {
-    return Builder(
-      builder: (context) {
-        final colorScheme = Theme.of(context).colorScheme;
-        Color tagColor;
-        switch (text) {
-          case String t when t == slang.t.common.me:
-            tagColor = colorScheme.primary;
-            break;
-          case String t when t == slang.t.common.premium:
-            tagColor = colorScheme.tertiary;
-            break;
-          case String t when t == slang.t.common.author:
-            tagColor = colorScheme.secondary;
-            break;
-          case String t when t == slang.t.common.admin:
-            tagColor = colorScheme.error;
-            break;
-          default:
-            tagColor = colorScheme.primary;
-        }
-
-        return Container(
-          margin: const EdgeInsets.only(right: 4),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-          decoration: BoxDecoration(
-            color: tagColor.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: tagColor.withValues(alpha: 0.12),
-              width: 0.5,
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 10, color: tagColor.withValues(alpha: 0.8)),
-              const SizedBox(width: 4),
-              Text(
-                text,
-                style: TextStyle(
-                  color: tagColor.withValues(alpha: 0.8),
-                  fontSize: 10,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildTimeInfo(Comment comment, BuildContext context) {
     final t = slang.Translations.of(context);
     if (comment.createdAt == null) return const SizedBox.shrink();
@@ -536,11 +483,6 @@ class _CommentItemState extends State<CommentItem> {
   Widget build(BuildContext context) {
     final comment = widget.comment;
     final t = slang.Translations.of(context);
-    final hasCommentTags =
-        comment.user?.id == _userService.currentUser.value?.id ||
-        comment.user?.premium == true ||
-        comment.user?.id == widget.authorUserId ||
-        comment.user?.role.contains('admin') == true;
 
     // 计算评论卡片高亮：内容作者优先（secondary 绿色系），其次当前登录用户（primary 蓝色系）。
     // 二者兼具时按「作者」强调，但下方角标仍会同时显示「作者」「我」。
@@ -575,7 +517,7 @@ class _CommentItemState extends State<CommentItem> {
                   comment.user?.username ?? '',
                 ),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     _buildUserAvatar(comment),
                     const SizedBox(width: 6),
@@ -619,41 +561,6 @@ class _CommentItemState extends State<CommentItem> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          if (hasCommentTags)
-                            SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (comment.user?.id ==
-                                      _userService.currentUser.value?.id)
-                                    _buildCommentTag(
-                                      t.common.me,
-                                      Colors.blue,
-                                      Icons.person,
-                                    ),
-                                  if (comment.user?.premium == true)
-                                    _buildCommentTag(
-                                      t.common.premium,
-                                      Colors.purple,
-                                      Icons.star,
-                                    ),
-                                  if (comment.user?.id == widget.authorUserId)
-                                    _buildCommentTag(
-                                      t.common.author,
-                                      Colors.green,
-                                      Icons.verified_user,
-                                    ),
-                                  if (comment.user?.role.contains('admin') ==
-                                      true)
-                                    _buildCommentTag(
-                                      t.common.admin,
-                                      Colors.red,
-                                      Icons.admin_panel_settings,
-                                    ),
-                                ],
-                              ),
-                            ),
                         ],
                       ),
                     ),
