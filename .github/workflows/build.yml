@@ -174,14 +174,18 @@ jobs:
         run: npm install -g appdmg
 
       - name: Import Developer ID certificate
-        # Only runs when a signing cert secret is present. On a clean
+        # No-ops unless a signing cert secret is present. On a clean
         # GitHub-hosted runner the Developer ID identity does not exist until
         # the .p12 is imported into a keychain, so codesign would otherwise fail.
-        if: ${{ secrets.MACOS_CERT_BASE64 != '' }}
+        # (Gated inside the script: the `secrets` context is not allowed in `if:`.)
         env:
           MACOS_CERT_BASE64: ${{ secrets.MACOS_CERT_BASE64 }}
           MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
         run: |
+          if [ -z "$MACOS_CERT_BASE64" ]; then
+            echo "No MACOS_CERT_BASE64 configured; skipping certificate import."
+            exit 0
+          fi
           KEYCHAIN="$RUNNER_TEMP/app-signing.keychain-db"
           KEYCHAIN_PW="$(openssl rand -base64 24)"
           CERT_P12="$RUNNER_TEMP/cert.p12"
