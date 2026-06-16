@@ -1,0 +1,14 @@
+{
+  "title": "i_iwara",
+  "icon": "volume.icns",
+  "background": "background.png",
+  "icon-size": 116,
+  "window": {
+    "size": { "width": 680, "height": 420 }
+  },
+  "contents": [
+    { "x": 175, "y": 175, "type": "file", "path": "__APP_PATH__" },
+    { "x": 505, "y": 175, "type": "link", "path": "/Applications" },
+    { "x": 340, "y": 350, "type": "file", "path": "__NOTE_PATH__" }
+  ]
+}

@@ -126,6 +126,11 @@ jobs:
         run: flutter pub get
 
       - name: Build Windows with Installer
+        env:
+          # Authenticode signing is gated on these secrets; unset -> unsigned (no-op).
+          # WINDOWS_CERT_BASE64 = base64 of the .pfx (build.py decodes it to a temp file).
+          WINDOWS_CERT_BASE64: ${{ secrets.WINDOWS_CERT_BASE64 }}
+          WINDOWS_CERT_PASSWORD: ${{ secrets.WINDOWS_CERT_PASSWORD }}
         run: python windows/build.py
 
       - name: Prepare Windows Artifacts
@@ -165,19 +170,50 @@ jobs:
       - name: Build macOS
         run: flutter build macos --release
 
-      - name: Create DMG
-        run: |
-          mkdir -p dist
-          mkdir -p dist/dmg_contents
-          cp -R build/macos/Build/Products/Release/i_iwara.app dist/dmg_contents/
-          ln -s /Applications dist/dmg_contents/Applications
-          hdiutil create -volname "i_iwara" -srcfolder dist/dmg_contents -ov -format UDZO "dist/i_iwara.dmg"
+      - name: Install appdmg
+        run: npm install -g appdmg
 
-      - name: Add version to filename
+      - name: Import Developer ID certificate
+        # Only runs when a signing cert secret is present. On a clean
+        # GitHub-hosted runner the Developer ID identity does not exist until
+        # the .p12 is imported into a keychain, so codesign would otherwise fail.
+        if: ${{ secrets.MACOS_CERT_BASE64 != '' }}
+        env:
+          MACOS_CERT_BASE64: ${{ secrets.MACOS_CERT_BASE64 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
         run: |
-          APP_VERSION=$(grep "version:" pubspec.yaml | cut -d':' -f2 | tr -d ' ' | cut -d'+' -f1)
+          KEYCHAIN="$RUNNER_TEMP/app-signing.keychain-db"
+          KEYCHAIN_PW="$(openssl rand -base64 24)"
+          CERT_P12="$RUNNER_TEMP/cert.p12"
+          echo "$MACOS_CERT_BASE64" | base64 --decode > "$CERT_P12"
+          security create-keychain -p "$KEYCHAIN_PW" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PW" "$KEYCHAIN"
+          security import "$CERT_P12" -k "$KEYCHAIN" -P "$MACOS_CERT_PASSWORD" \
+            -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: \
+            -k "$KEYCHAIN_PW" "$KEYCHAIN" >/dev/null
+          security list-keychains -d user -s "$KEYCHAIN" \
+            $(security list-keychains -d user | sed s/\"//g)
+          rm -f "$CERT_P12"
+
+      - name: Create branded DMG
+        env:
+          # Developer ID signing + notarization is gated on these secrets being
+          # present; when unset the script ad-hoc signs and skips notarization.
+          # Partial config fails the build (see build_dmg.sh) unless
+          # ALLOW_UNSIGNED_RELEASE=1.
+          MACOS_SIGN_IDENTITY: ${{ secrets.MACOS_SIGN_IDENTITY }}
+          MACOS_CERT_BASE64: ${{ secrets.MACOS_CERT_BASE64 }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+        run: bash macos/packaging/build_dmg.sh
+
+      - name: Collect macOS artifact
+        run: |
           mkdir -p result
-          mv dist/i_iwara.dmg result/i_iwara-$APP_VERSION-macos.dmg
+          mv build/macos/i_iwara-*-macos.dmg result/
 
       - name: Upload macOS build
         uses: actions/upload-artifact@v7

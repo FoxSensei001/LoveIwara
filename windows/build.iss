@@ -1,11 +1,13 @@
 ; Inno Setup Script for i_iwara
-; 注意: {{version}} 和 {{root_path}} 会在构建时被 build.py 替换
+; 注意: {{version}}、{{version4}} 和 {{root_path}} 会在构建时被 build.py 替换
 
 #define MyAppName "i_iwara"
 #define MyAppVersion "{{version}}"
-#define MyAppPublisher "i_iwara"
+#define MyAppVersion4 "{{version4}}"
+#define MyAppPublisher "FoxSensei"
 #define MyAppURL "https://github.com/FoxSensei001/i_iwara"
 #define MyAppExeName "i_iwara.exe"
+#define MyAppCopyright "Copyright (C) 2024-2026 FoxSensei"
 #define RootPath "{{root_path}}"
 
 [Setup]
@@ -13,10 +15,12 @@
 AppId={{B8F9E8A0-1234-5678-9ABC-DEF012345678}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
+AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
+AppCopyright={#MyAppCopyright}
 DefaultDirName={autopf}\{#MyAppName}
 DisableProgramGroupPage=yes
 ; 输出配置
@@ -25,10 +29,31 @@ OutputBaseFilename=i_iwara-{#MyAppVersion}-windows-setup
 SetupIconFile={#RootPath}\windows\runner\resources\app_icon.ico
 Compression=lzma2/ultra64
 SolidCompression=yes
+; 现代向导外观 + 品牌横幅 (按 DPI 自动选择最佳尺寸)
 WizardStyle=modern
+WizardImageFile={#RootPath}\windows\packaging\wizard_large.bmp,{#RootPath}\windows\packaging\wizard_large_1.bmp,{#RootPath}\windows\packaging\wizard_large_2.bmp,{#RootPath}\windows\packaging\wizard_large_3.bmp,{#RootPath}\windows\packaging\wizard_large_4.bmp
+WizardSmallImageFile={#RootPath}\windows\packaging\wizard_small.bmp,{#RootPath}\windows\packaging\wizard_small_1.bmp,{#RootPath}\windows\packaging\wizard_small_2.bmp,{#RootPath}\windows\packaging\wizard_small_3.bmp,{#RootPath}\windows\packaging\wizard_small_4.bmp,{#RootPath}\windows\packaging\wizard_small_5.bmp,{#RootPath}\windows\packaging\wizard_small_6.bmp
+; 安装器 EXE 文件属性 (右键 -> 属性 -> 详细信息)
+VersionInfoVersion={#MyAppVersion4}
+VersionInfoCompany={#MyAppPublisher}
+VersionInfoProductName={#MyAppName}
+VersionInfoProductVersion={#MyAppVersion}
+VersionInfoDescription={#MyAppName} Setup
+VersionInfoCopyright={#MyAppCopyright}
+; 卸载项 (应用和功能) 显示图标与名称
+UninstallDisplayIcon={app}\{#MyAppExeName}
+UninstallDisplayName={#MyAppName}
 ; 权限和架构
 PrivilegesRequired=lowest
+PrivilegesRequiredOverridesAllowed=dialog
 ArchitecturesInstallIn64BitMode=x64compatible
+; 仅支持 Windows 10 及以上
+MinVersion=10.0
+; 安装/卸载时若应用在运行, 由 Inno 的 Restart Manager 在用户确认后优雅关闭
+; (发送关闭消息而非强杀, 失败会显示重试页面, 不会丢失用户状态)
+CloseApplications=yes
+CloseApplicationsFilter=*.exe,*.dll
+RestartApplications=no
 ; 文件关联需要更改通知
 ChangesAssociations=yes
 
