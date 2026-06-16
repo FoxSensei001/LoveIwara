@@ -798,6 +798,10 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get enableMouseHoverShowToolbar => '鼠标悬浮时显示工具栏';
 	@override String get enableMouseHoverShowToolbarInfo => '开启后，当鼠标悬浮在播放器上移动时会自动显示工具栏，停止移动3秒后自动隐藏';
 	@override String get enableHorizontalDragSeek => '横向滑动调整进度';
+	@override String get enableVideoGestureZoom => '双指缩放视频画面';
+	@override String get enableVideoGestureZoomInfo => '双指捏合（桌面端为 Ctrl + 鼠标滚轮）缩放视频画面，缩放后可拖动移动画面。';
+	@override String get showCenterPlayPauseButton => '中央播放/暂停按钮';
+	@override String get showCenterPlayPauseButtonDesc => '显示播放器中央的大号播放/暂停按钮。';
 	@override String get audioVideoConfig => '音视频配置';
 	@override String get expandBuffer => '扩大缓冲区';
 	@override String get expandBufferInfo => '开启后缓冲区增大，加载时间变长但播放更流畅';
@@ -940,6 +944,8 @@ class _TranslationsVideoDetailZhCn implements TranslationsVideoDetailEn {
 	@override String get brightnessLowest => '亮度已最低';
 	@override String get volume => '音量';
 	@override String get volumeMuted => '音量已静音';
+	@override String get restoreDefaultZoom => '还原';
+	@override late final _TranslationsVideoDetailGestureGuideZhCn gestureGuide = _TranslationsVideoDetailGestureGuideZhCn._(_root);
 	@override String get home => '主页';
 	@override String get videoPlayer => '视频播放器';
 	@override String get videoPlayerInfo => '播放器信息';
@@ -2476,6 +2482,36 @@ class _TranslationsVideoDetailLocalInfoZhCn implements TranslationsVideoDetailLo
 	@override String get openFolderFailed => '打开文件夹失败';
 }
 
+// Path: videoDetail.gestureGuide
+class _TranslationsVideoDetailGestureGuideZhCn implements TranslationsVideoDetailGestureGuideEn {
+	_TranslationsVideoDetailGestureGuideZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '手势与交互指引';
+	@override String get viewGuide => '查看手势与交互指引';
+	@override String get basicTitle => '基础操作';
+	@override String get zoomTitle => '缩放 / 旋转 / 平移';
+	@override String get restoreTip => '点击右下角「还原」按钮可复位缩放、旋转与位置。';
+	@override String get mTap => '单击：显示 / 隐藏控制栏';
+	@override String get mDoubleTap => '双击：左侧后退 / 中央暂停 / 右侧快进';
+	@override String get mHorizontalDrag => '横向滑动：调整进度';
+	@override String get mVerticalDrag => '竖向滑动：左侧亮度 / 右侧音量';
+	@override String get mLongPress => '长按：临时倍速播放';
+	@override String get mPinch => '双指捏合：缩放画面';
+	@override String get mRotate => '双指旋转：旋转画面';
+	@override String get mPan => '双指拖动：移动画面（放大后）';
+	@override String get dTap => '单击：显示 / 隐藏控制栏';
+	@override String get dDoubleTap => '双击：播放 / 暂停';
+	@override String get dKeys => '方向键：快退 / 快进；空格：播放 / 暂停';
+	@override String get dTrackpadPinch => '触控板捏合：缩放画面';
+	@override String get dTrackpadRotate => '触控板旋转：旋转画面';
+	@override String get dCtrlWheel => 'Ctrl + 滚轮：以光标为中心缩放';
+	@override String get dShiftWheel => 'Shift + 滚轮：以光标为中心旋转';
+	@override String get dDrag => '鼠标拖动：移动画面（放大后）';
+}
+
 // Path: videoDetail.player
 class _TranslationsVideoDetailPlayerZhCn implements TranslationsVideoDetailPlayerEn {
 	_TranslationsVideoDetailPlayerZhCn._(this._root);
@@ -3668,6 +3704,10 @@ extension on TranslationsZhCn {
 			'settings.enableMouseHoverShowToolbar' => '鼠标悬浮时显示工具栏',
 			'settings.enableMouseHoverShowToolbarInfo' => '开启后，当鼠标悬浮在播放器上移动时会自动显示工具栏，停止移动3秒后自动隐藏',
 			'settings.enableHorizontalDragSeek' => '横向滑动调整进度',
+			'settings.enableVideoGestureZoom' => '双指缩放视频画面',
+			'settings.enableVideoGestureZoomInfo' => '双指捏合（桌面端为 Ctrl + 鼠标滚轮）缩放视频画面，缩放后可拖动移动画面。',
+			'settings.showCenterPlayPauseButton' => '中央播放/暂停按钮',
+			'settings.showCenterPlayPauseButtonDesc' => '显示播放器中央的大号播放/暂停按钮。',
 			'settings.audioVideoConfig' => '音视频配置',
 			'settings.expandBuffer' => '扩大缓冲区',
 			'settings.expandBufferInfo' => '开启后缓冲区增大，加载时间变长但播放更流畅',
@@ -4019,6 +4059,28 @@ extension on TranslationsZhCn {
 			'videoDetail.brightnessLowest' => '亮度已最低',
 			'videoDetail.volume' => '音量',
 			'videoDetail.volumeMuted' => '音量已静音',
+			'videoDetail.restoreDefaultZoom' => '还原',
+			'videoDetail.gestureGuide.title' => '手势与交互指引',
+			'videoDetail.gestureGuide.viewGuide' => '查看手势与交互指引',
+			'videoDetail.gestureGuide.basicTitle' => '基础操作',
+			'videoDetail.gestureGuide.zoomTitle' => '缩放 / 旋转 / 平移',
+			'videoDetail.gestureGuide.restoreTip' => '点击右下角「还原」按钮可复位缩放、旋转与位置。',
+			'videoDetail.gestureGuide.mTap' => '单击：显示 / 隐藏控制栏',
+			'videoDetail.gestureGuide.mDoubleTap' => '双击：左侧后退 / 中央暂停 / 右侧快进',
+			'videoDetail.gestureGuide.mHorizontalDrag' => '横向滑动：调整进度',
+			'videoDetail.gestureGuide.mVerticalDrag' => '竖向滑动：左侧亮度 / 右侧音量',
+			'videoDetail.gestureGuide.mLongPress' => '长按：临时倍速播放',
+			'videoDetail.gestureGuide.mPinch' => '双指捏合：缩放画面',
+			'videoDetail.gestureGuide.mRotate' => '双指旋转：旋转画面',
+			'videoDetail.gestureGuide.mPan' => '双指拖动：移动画面（放大后）',
+			'videoDetail.gestureGuide.dTap' => '单击：显示 / 隐藏控制栏',
+			'videoDetail.gestureGuide.dDoubleTap' => '双击：播放 / 暂停',
+			'videoDetail.gestureGuide.dKeys' => '方向键：快退 / 快进；空格：播放 / 暂停',
+			'videoDetail.gestureGuide.dTrackpadPinch' => '触控板捏合：缩放画面',
+			'videoDetail.gestureGuide.dTrackpadRotate' => '触控板旋转：旋转画面',
+			'videoDetail.gestureGuide.dCtrlWheel' => 'Ctrl + 滚轮：以光标为中心缩放',
+			'videoDetail.gestureGuide.dShiftWheel' => 'Shift + 滚轮：以光标为中心旋转',
+			'videoDetail.gestureGuide.dDrag' => '鼠标拖动：移动画面（放大后）',
 			'videoDetail.home' => '主页',
 			'videoDetail.videoPlayer' => '视频播放器',
 			'videoDetail.videoPlayerInfo' => '播放器信息',
@@ -4038,6 +4100,8 @@ extension on TranslationsZhCn {
 			'videoDetail.authorOtherVideos' => '作者的其他视频',
 			'videoDetail.relatedVideos' => '相关视频',
 			'videoDetail.privateVideo' => '这是一个私密视频',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.externalVideo' => '这是一个站外视频',
 			'videoDetail.openInBrowser' => '在浏览器中打开',
 			'videoDetail.resourceDeleted' => '这个视频貌似被删除了 :/',
@@ -4064,8 +4128,6 @@ extension on TranslationsZhCn {
 			'videoDetail.cast.dlnaCast' => '投屏',
 			'videoDetail.cast.unableToStartCastingSearch' => ({required Object error}) => '启动投屏搜索失败: ${error}',
 			'videoDetail.cast.startCastingTo' => ({required Object deviceName}) => '开始投屏到 ${deviceName}',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.castFailed' => ({required Object error}) => '投屏失败: ${error}\n请尝试重新搜索设备或切换网络',
 			'videoDetail.cast.castStopped' => '已停止投屏',
 			'videoDetail.cast.deviceTypes.mediaRenderer' => '媒体播放器',
@@ -4552,6 +4614,8 @@ extension on TranslationsZhCn {
 			'translation.mustBeGreaterThan' => '必须大于',
 			'translation.invalidAPIResponse' => '无效的API响应',
 			'translation.connectionFailedForMessage' => ({required Object message}) => '连接失败: ${message}',
+			_ => null,
+		} ?? switch (path) {
 			'translation.aiTranslationNotEnabledHint' => 'AI翻译未启用，请在设置中启用',
 			'translation.goToSettings' => '前往设置',
 			'translation.disableAITranslation' => '禁用AI翻译',
@@ -4578,8 +4642,6 @@ extension on TranslationsZhCn {
 			'translation.streamingTranslationWarning' => '注意：此功能需要API服务支持流式传输，部分模型可能不支持',
 			'translation.translationService' => '翻译服务',
 			'translation.translationServiceDescription' => '选择您偏好的翻译服务',
-			_ => null,
-		} ?? switch (path) {
 			'translation.googleTranslation' => 'Google 翻译',
 			'translation.googleTranslationDescription' => '免费的在线翻译服务，支持多种语言',
 			'translation.aiTranslation' => 'AI 翻译',
@@ -5066,6 +5128,8 @@ extension on TranslationsZhCn {
 			'searchFilter.sortTypes.relevance' => '相关性',
 			'searchFilter.sortTypes.latest' => '最新',
 			'searchFilter.sortTypes.views' => '观看次数',
+			_ => null,
+		} ?? switch (path) {
 			'searchFilter.sortTypes.likes' => '点赞数',
 			'firstTimeSetup.welcome.title' => '欢迎使用',
 			'firstTimeSetup.welcome.subtitle' => '让我们开始您的个性化设置之旅',
@@ -5092,8 +5156,6 @@ extension on TranslationsZhCn {
 			'firstTimeSetup.completion.checkboxSubtitle' => '不同意将无法使用本应用',
 			'firstTimeSetup.common.settingsChangeableTip' => '这些设置都可以在应用设置中随时修改',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => '请先同意用户协议和社区规则',
-			_ => null,
-		} ?? switch (path) {
 			'proxyHelper.systemProxyDetected' => '检测到系统代理',
 			'proxyHelper.copied' => '已复制',
 			'proxyHelper.copy' => '复制',

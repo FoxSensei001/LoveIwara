@@ -657,6 +657,10 @@ settings:
   enableMouseHoverShowToolbar: 鼠标悬浮时显示工具栏
   enableMouseHoverShowToolbarInfo: 开启后，当鼠标悬浮在播放器上移动时会自动显示工具栏，停止移动3秒后自动隐藏
   enableHorizontalDragSeek: 横向滑动调整进度
+  enableVideoGestureZoom: 双指缩放视频画面
+  enableVideoGestureZoomInfo: 双指捏合（桌面端为 Ctrl + 鼠标滚轮）缩放视频画面，缩放后可拖动移动画面。
+  showCenterPlayPauseButton: 中央播放/暂停按钮
+  showCenterPlayPauseButtonDesc: 显示播放器中央的大号播放/暂停按钮。
   # 音视频配置相关
   audioVideoConfig: 音视频配置
   expandBuffer: 扩大缓冲区
@@ -1046,6 +1050,29 @@ videoDetail:
   brightnessLowest: 亮度已最低
   volume: 音量
   volumeMuted: 音量已静音
+  restoreDefaultZoom: 还原
+  gestureGuide:
+    title: 手势与交互指引
+    viewGuide: 查看手势与交互指引
+    basicTitle: 基础操作
+    zoomTitle: 缩放 / 旋转 / 平移
+    restoreTip: 点击右下角「还原」按钮可复位缩放、旋转与位置。
+    mTap: '单击：显示 / 隐藏控制栏'
+    mDoubleTap: '双击：左侧后退 / 中央暂停 / 右侧快进'
+    mHorizontalDrag: '横向滑动：调整进度'
+    mVerticalDrag: '竖向滑动：左侧亮度 / 右侧音量'
+    mLongPress: '长按：临时倍速播放'
+    mPinch: '双指捏合：缩放画面'
+    mRotate: '双指旋转：旋转画面'
+    mPan: '双指拖动：移动画面（放大后）'
+    dTap: '单击：显示 / 隐藏控制栏'
+    dDoubleTap: '双击：播放 / 暂停'
+    dKeys: '方向键：快退 / 快进；空格：播放 / 暂停'
+    dTrackpadPinch: '触控板捏合：缩放画面'
+    dTrackpadRotate: '触控板旋转：旋转画面'
+    dCtrlWheel: 'Ctrl + 滚轮：以光标为中心缩放'
+    dShiftWheel: 'Shift + 滚轮：以光标为中心旋转'
+    dDrag: '鼠标拖动：移动画面（放大后）'
   home: 主页
   videoPlayer: 视频播放器
   videoPlayerInfo: 播放器信息

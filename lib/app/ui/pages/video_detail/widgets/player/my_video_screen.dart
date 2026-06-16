@@ -23,6 +23,7 @@ import 'bottom_toolbar_widget.dart';
 import 'fullscreen_inner_playlist_drawer.dart';
 import 'gesture_area_widget.dart';
 import 'top_toolbar_widget.dart';
+import 'video_zoom_view.dart';
 import 'widgets/playback_speed_animation_widget.dart';
 import 'widgets/loading_state_widget.dart';
 import 'widgets/error_state_widget.dart';
@@ -396,6 +397,10 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
   // 单击事件
   void _onTap() {
+    // 双指捏合进行中时忽略单击，避免误触发显隐控件
+    if (widget.myVideoStateController.isPinchingVideo) {
+      return;
+    }
     if (widget.myVideoStateController.isToolbarsLocked.value) {
       widget.myVideoStateController.showLockButton();
     } else {
@@ -708,50 +713,21 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                     },
                     child: Container(
                       padding: EdgeInsets.only(top: paddingTop),
+                      // 画面缩放/平移手势层：作为整个播放器栈的祖先，可靠侦测双指捏合
                       child: Obx(() {
-                        final controller = widget.myVideoStateController;
-                        final showInitialPlaybackCover =
-                            controller.shouldShowInitialPlaybackCover;
-                        final showPlaybackChrome =
-                            controller.shouldShowPlaybackChrome;
-
-                        return Stack(
-                          children: [
-                            // 视频播放区域
-                            _buildVideoPlayer(),
-                            if (showInitialPlaybackCover)
-                              _buildInitialPlaybackCover(),
-                            // 手势监听区域（抽取后减少整体重绘）
-                            if (showPlaybackChrome)
-                              ..._buildGestureAreas(screenSize),
-                            // 工具栏部分
-                            if (showPlaybackChrome) ..._buildToolbars(),
-                            // 双击波纹动画等效果
-                            if (showPlaybackChrome)
-                              _buildRippleEffects(screenSize, maxRadius),
-                            // 中央控制面板，比如播放/暂停按钮
-                            _buildVideoControlOverlay(
-                              playPauseIconSize,
-                              bufferingSize,
-                            ),
-                            if (controller.shouldShowLoadingBackButton)
-                              _buildLoadingBackButton(),
-                            // InfoMessage 提示区域
-                            if (controller.shouldShowOverlayHud)
-                              _buildInfoMessage(),
-                            // 播放速度信息提示（左下角）
-                            if (controller.shouldShowOverlayHud)
-                              _buildPlaybackSpeedInfoMessage(),
-                            // 添加底部进度条
-                            if (controller.shouldShowOverlayHud)
-                              _buildBottomProgressBar(),
-                            // 添加遮罩层
-                            if (showPlaybackChrome) _buildMaskLayer(),
-                            // 添加锁定按钮
-                            if (showPlaybackChrome) _buildLockButton(),
-                            if (controller.shouldShowOverlayHud)
-                              _buildInnerPlaylistOverlay(screenSize),
-                          ],
+                        final zoomEnabled =
+                            _configService[ConfigKey
+                                    .ENABLE_VIDEO_GESTURE_ZOOM] ==
+                                true;
+                        return VideoZoomGestureLayer(
+                          controller: widget.myVideoStateController,
+                          enabled: zoomEnabled,
+                          child: _buildPlayerStack(
+                            screenSize,
+                            playPauseIconSize,
+                            bufferingSize,
+                            maxRadius,
+                          ),
                         );
                       }),
                     ),
@@ -769,16 +745,81 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     return playerScaffold;
   }
 
+  Widget _buildPlayerStack(
+    Size screenSize,
+    double playPauseIconSize,
+    double bufferingSize,
+    double maxRadius,
+  ) {
+    return Obx(() {
+      final controller = widget.myVideoStateController;
+      final showInitialPlaybackCover =
+          controller.shouldShowInitialPlaybackCover;
+      final showPlaybackChrome = controller.shouldShowPlaybackChrome;
+
+      return Stack(
+        children: [
+          // 视频播放区域
+          _buildVideoPlayer(),
+          if (showInitialPlaybackCover) _buildInitialPlaybackCover(),
+          // 手势监听区域（抽取后减少整体重绘）
+          if (showPlaybackChrome) ..._buildGestureAreas(screenSize),
+          // 工具栏部分
+          if (showPlaybackChrome) ..._buildToolbars(),
+          // 双击波纹动画等效果
+          if (showPlaybackChrome) _buildRippleEffects(screenSize, maxRadius),
+          // 中央控制面板，比如播放/暂停按钮
+          _buildVideoControlOverlay(playPauseIconSize, bufferingSize),
+          if (controller.shouldShowLoadingBackButton) _buildLoadingBackButton(),
+          // InfoMessage 提示区域
+          if (controller.shouldShowOverlayHud) _buildInfoMessage(),
+          // 播放速度信息提示（左下角）
+          if (controller.shouldShowOverlayHud) _buildPlaybackSpeedInfoMessage(),
+          // 添加底部进度条
+          if (controller.shouldShowOverlayHud) _buildBottomProgressBar(),
+          // 添加遮罩层
+          if (showPlaybackChrome) _buildMaskLayer(),
+          // 添加锁定按钮
+          if (showPlaybackChrome) _buildLockButton(),
+          if (controller.shouldShowOverlayHud)
+            _buildInnerPlaylistOverlay(screenSize),
+        ],
+      );
+    });
+  }
+
   Widget _buildVideoPlayer() {
-    return Center(
-      child: Obx(
-        () => AspectRatio(
-          aspectRatio: widget.myVideoStateController.aspectRatio.value,
-          child: Video(
-            controller: widget.myVideoStateController.videoController,
-            controls: null,
-          ),
-        ),
+    return ClipRect(
+      child: Center(
+        child: Obx(() {
+          final controller = widget.myVideoStateController;
+          final scale = controller.videoZoomScale.value;
+          final offset = controller.videoZoomOffset.value;
+          final rotation = controller.videoZoomRotation.value;
+          Widget video = AspectRatio(
+            aspectRatio: controller.aspectRatio.value,
+            child: Video(
+              controller: controller.videoController,
+              controls: null,
+            ),
+          );
+          // 仅在缩放/平移/旋转时套用 Transform，未变换时保持原始渲染路径
+          if (scale != 1.0 || offset != Offset.zero || rotation != 0.0) {
+            video = Transform.translate(
+              offset: offset,
+              child: Transform.rotate(
+                angle: rotation,
+                alignment: Alignment.center,
+                child: Transform.scale(
+                  scale: scale,
+                  alignment: Alignment.center,
+                  child: video,
+                ),
+              ),
+            );
+          }
+          return video;
+        }),
       ),
     );
   }
@@ -1274,6 +1315,9 @@ class _MyVideoScreenState extends State<MyVideoScreen>
           child: _buildBufferingAnimation(controller, bufferingSize),
         );
       case VideoCenterOverlayState.playbackControls:
+        if (_configService[ConfigKey.SHOW_CENTER_PLAY_PAUSE_BUTTON] != true) {
+          return const SizedBox.shrink();
+        }
         return Center(
           child: _buildPlayPauseIcon(controller, playPauseIconSize),
         );
@@ -1390,6 +1434,10 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             color: Colors.transparent,
             child: InkWell(
               onTap: () async {
+                // 双指捏合进行中时忽略，避免误触发暂停/播放
+                if (myVideoStateController.isPinchingVideo) {
+                  return;
+                }
                 // 添加震动反馈
                 VibrateUtils.vibrate();
 

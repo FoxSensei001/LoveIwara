@@ -1985,6 +1985,18 @@ class TranslationsSettingsEn {
 	/// en: 'Horizontal Swipe to Seek'
 	String get enableHorizontalDragSeek => 'Horizontal Swipe to Seek';
 
+	/// en: 'Pinch to Zoom Video Frame'
+	String get enableVideoGestureZoom => 'Pinch to Zoom Video Frame';
+
+	/// en: 'Pinch with two fingers (or Ctrl + mouse wheel on desktop) to zoom the video picture, then drag to move it around.'
+	String get enableVideoGestureZoomInfo => 'Pinch with two fingers (or Ctrl + mouse wheel on desktop) to zoom the video picture, then drag to move it around.';
+
+	/// en: 'Center Play/Pause Button'
+	String get showCenterPlayPauseButton => 'Center Play/Pause Button';
+
+	/// en: 'Show the large play/pause button in the center of the player.'
+	String get showCenterPlayPauseButtonDesc => 'Show the large play/pause button in the center of the player.';
+
 	/// en: 'Audio Video Configuration'
 	String get audioVideoConfig => 'Audio Video Configuration';
 
@@ -2322,6 +2334,11 @@ class TranslationsVideoDetailEn {
 
 	/// en: 'Volume is muted'
 	String get volumeMuted => 'Volume is muted';
+
+	/// en: 'Restore'
+	String get restoreDefaultZoom => 'Restore';
+
+	late final TranslationsVideoDetailGestureGuideEn gestureGuide = TranslationsVideoDetailGestureGuideEn._(_root);
 
 	/// en: 'Home'
 	String get home => 'Home';
@@ -6175,6 +6192,78 @@ class TranslationsVideoDetailLocalInfoEn {
 	String get openFolderFailed => 'Failed to open folder';
 }
 
+// Path: videoDetail.gestureGuide
+class TranslationsVideoDetailGestureGuideEn {
+	TranslationsVideoDetailGestureGuideEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Gestures & Interaction Guide'
+	String get title => 'Gestures & Interaction Guide';
+
+	/// en: 'Gestures & Interaction Guide'
+	String get viewGuide => 'Gestures & Interaction Guide';
+
+	/// en: 'Basic Controls'
+	String get basicTitle => 'Basic Controls';
+
+	/// en: 'Zoom / Rotate / Pan'
+	String get zoomTitle => 'Zoom / Rotate / Pan';
+
+	/// en: 'Tap the "Restore" button at the bottom-right to reset zoom, rotation and position.'
+	String get restoreTip => 'Tap the "Restore" button at the bottom-right to reset zoom, rotation and position.';
+
+	/// en: 'Single tap: show / hide controls'
+	String get mTap => 'Single tap: show / hide controls';
+
+	/// en: 'Double tap: rewind (left) / pause (center) / fast-forward (right)'
+	String get mDoubleTap => 'Double tap: rewind (left) / pause (center) / fast-forward (right)';
+
+	/// en: 'Horizontal swipe: seek'
+	String get mHorizontalDrag => 'Horizontal swipe: seek';
+
+	/// en: 'Vertical swipe: brightness (left) / volume (right)'
+	String get mVerticalDrag => 'Vertical swipe: brightness (left) / volume (right)';
+
+	/// en: 'Long press: temporary speed-up'
+	String get mLongPress => 'Long press: temporary speed-up';
+
+	/// en: 'Two-finger pinch: zoom the picture'
+	String get mPinch => 'Two-finger pinch: zoom the picture';
+
+	/// en: 'Two-finger rotate: rotate the picture'
+	String get mRotate => 'Two-finger rotate: rotate the picture';
+
+	/// en: 'Two-finger drag: move the picture (when zoomed)'
+	String get mPan => 'Two-finger drag: move the picture (when zoomed)';
+
+	/// en: 'Click: show / hide controls'
+	String get dTap => 'Click: show / hide controls';
+
+	/// en: 'Double click: play / pause'
+	String get dDoubleTap => 'Double click: play / pause';
+
+	/// en: 'Arrow keys: rewind / forward; Space: play / pause'
+	String get dKeys => 'Arrow keys: rewind / forward; Space: play / pause';
+
+	/// en: 'Trackpad pinch: zoom the picture'
+	String get dTrackpadPinch => 'Trackpad pinch: zoom the picture';
+
+	/// en: 'Trackpad rotate: rotate the picture'
+	String get dTrackpadRotate => 'Trackpad rotate: rotate the picture';
+
+	/// en: 'Ctrl + wheel: zoom around the cursor'
+	String get dCtrlWheel => 'Ctrl + wheel: zoom around the cursor';
+
+	/// en: 'Shift + wheel: rotate around the cursor'
+	String get dShiftWheel => 'Shift + wheel: rotate around the cursor';
+
+	/// en: 'Mouse drag: move the picture (when zoomed)'
+	String get dDrag => 'Mouse drag: move the picture (when zoomed)';
+}
+
 // Path: videoDetail.player
 class TranslationsVideoDetailPlayerEn {
 	TranslationsVideoDetailPlayerEn._(this._root);
@@ -7928,6 +8017,10 @@ extension on Translations {
 			'settings.enableMouseHoverShowToolbar' => 'Enable Mouse Hover Show Toolbar',
 			'settings.enableMouseHoverShowToolbarInfo' => 'When enabled, the video toolbar will be shown when the mouse is hovering over the player. It will be automatically hidden after 3 seconds of inactivity.',
 			'settings.enableHorizontalDragSeek' => 'Horizontal Swipe to Seek',
+			'settings.enableVideoGestureZoom' => 'Pinch to Zoom Video Frame',
+			'settings.enableVideoGestureZoomInfo' => 'Pinch with two fingers (or Ctrl + mouse wheel on desktop) to zoom the video picture, then drag to move it around.',
+			'settings.showCenterPlayPauseButton' => 'Center Play/Pause Button',
+			'settings.showCenterPlayPauseButtonDesc' => 'Show the large play/pause button in the center of the player.',
 			'settings.audioVideoConfig' => 'Audio Video Configuration',
 			'settings.expandBuffer' => 'Expand Buffer',
 			'settings.expandBufferInfo' => 'When enabled, the buffer size increases, loading time becomes longer but playback is smoother',
@@ -8279,6 +8372,28 @@ extension on Translations {
 			'videoDetail.brightnessLowest' => 'Brightness is lowest',
 			'videoDetail.volume' => 'Volume',
 			'videoDetail.volumeMuted' => 'Volume is muted',
+			'videoDetail.restoreDefaultZoom' => 'Restore',
+			'videoDetail.gestureGuide.title' => 'Gestures & Interaction Guide',
+			'videoDetail.gestureGuide.viewGuide' => 'Gestures & Interaction Guide',
+			'videoDetail.gestureGuide.basicTitle' => 'Basic Controls',
+			'videoDetail.gestureGuide.zoomTitle' => 'Zoom / Rotate / Pan',
+			'videoDetail.gestureGuide.restoreTip' => 'Tap the "Restore" button at the bottom-right to reset zoom, rotation and position.',
+			'videoDetail.gestureGuide.mTap' => 'Single tap: show / hide controls',
+			'videoDetail.gestureGuide.mDoubleTap' => 'Double tap: rewind (left) / pause (center) / fast-forward (right)',
+			'videoDetail.gestureGuide.mHorizontalDrag' => 'Horizontal swipe: seek',
+			'videoDetail.gestureGuide.mVerticalDrag' => 'Vertical swipe: brightness (left) / volume (right)',
+			'videoDetail.gestureGuide.mLongPress' => 'Long press: temporary speed-up',
+			'videoDetail.gestureGuide.mPinch' => 'Two-finger pinch: zoom the picture',
+			'videoDetail.gestureGuide.mRotate' => 'Two-finger rotate: rotate the picture',
+			'videoDetail.gestureGuide.mPan' => 'Two-finger drag: move the picture (when zoomed)',
+			'videoDetail.gestureGuide.dTap' => 'Click: show / hide controls',
+			'videoDetail.gestureGuide.dDoubleTap' => 'Double click: play / pause',
+			'videoDetail.gestureGuide.dKeys' => 'Arrow keys: rewind / forward; Space: play / pause',
+			'videoDetail.gestureGuide.dTrackpadPinch' => 'Trackpad pinch: zoom the picture',
+			'videoDetail.gestureGuide.dTrackpadRotate' => 'Trackpad rotate: rotate the picture',
+			'videoDetail.gestureGuide.dCtrlWheel' => 'Ctrl + wheel: zoom around the cursor',
+			'videoDetail.gestureGuide.dShiftWheel' => 'Shift + wheel: rotate around the cursor',
+			'videoDetail.gestureGuide.dDrag' => 'Mouse drag: move the picture (when zoomed)',
 			'videoDetail.home' => 'Home',
 			'videoDetail.videoPlayer' => 'Video Player',
 			'videoDetail.videoPlayerInfo' => 'Video Player Info',
@@ -8303,6 +8418,8 @@ extension on Translations {
 			'videoDetail.resourceDeleted' => 'This video seems to have been deleted :/',
 			'videoDetail.noDownloadUrl' => 'No download URL',
 			'videoDetail.startDownloading' => 'Start downloading',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.downloadFailed' => 'Download failed, please try again later',
 			'videoDetail.downloadSuccess' => 'Download success',
 			'videoDetail.download' => 'Download',
@@ -8329,8 +8446,6 @@ extension on Translations {
 			'videoDetail.cast.deviceTypes.mediaRenderer' => 'Media Player',
 			'videoDetail.cast.deviceTypes.mediaServer' => 'Media Server',
 			'videoDetail.cast.deviceTypes.internetGatewayDevice' => 'Router',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.deviceTypes.basicDevice' => 'Basic Device',
 			'videoDetail.cast.deviceTypes.dimmableLight' => 'Smart Light',
 			'videoDetail.cast.deviceTypes.wlanAccessPoint' => 'WLAN Access Point',
@@ -8817,6 +8932,8 @@ extension on Translations {
 			'translation.disableAITranslation' => 'Disable AI Translation',
 			'translation.currentValue' => 'Current Value',
 			'translation.configureTranslationStrategy' => 'Configure Translation Strategy',
+			_ => null,
+		} ?? switch (path) {
 			'translation.advancedSettings' => 'Advanced Settings',
 			'translation.translationPrompt' => 'Translation Prompt',
 			'translation.promptHint' => 'Please enter translation prompt, use [TL] as the placeholder for the target language',
@@ -8843,8 +8960,6 @@ extension on Translations {
 			'translation.aiTranslation' => 'AI Translation',
 			'translation.aiTranslationDescription' => 'Intelligent translation service based on large language models',
 			'translation.deeplxTranslation' => 'DeepLX Translation',
-			_ => null,
-		} ?? switch (path) {
 			'translation.deeplxTranslationDescription' => 'Open source implementation of DeepL translation, providing high-quality translation',
 			'translation.googleTranslationFeatures' => 'Features',
 			'translation.freeToUse' => 'Free to use',
@@ -9331,6 +9446,8 @@ extension on Translations {
 			'firstTimeSetup.welcome.subtitle' => 'Let\'s start your personalized setup journey',
 			'firstTimeSetup.welcome.description' => 'Just a few steps to tailor the best experience for you',
 			'firstTimeSetup.basic.title' => 'Basic Settings',
+			_ => null,
+		} ?? switch (path) {
 			'firstTimeSetup.basic.subtitle' => 'Personalize your experience',
 			'firstTimeSetup.basic.description' => 'Choose the preferences that suit you',
 			'firstTimeSetup.network.title' => 'Network Settings',
@@ -9357,8 +9474,6 @@ extension on Translations {
 			'proxyHelper.copy' => 'Copy',
 			'tagSelector.selectTags' => 'Select Tags',
 			'tagSelector.clickToSelectTags' => 'Click to select tags',
-			_ => null,
-		} ?? switch (path) {
 			'tagSelector.addTag' => 'Add Tag',
 			'tagSelector.removeTag' => 'Remove Tag',
 			'tagSelector.deleteTag' => 'Delete Tag',

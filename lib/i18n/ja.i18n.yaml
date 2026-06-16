@@ -651,6 +651,10 @@ settings:
   enableMouseHoverShowToolbar: マウスホバー時にツールバーを表示
   enableMouseHoverShowToolbarInfo: 有効にすると、マウスがプレーヤー上にあるときにツールバーが表示されます。3秒間の非アクティブ時に自動的に非表示になります。
   enableHorizontalDragSeek: 横スワイプでシーク
+  enableVideoGestureZoom: ピンチで映像を拡大
+  enableVideoGestureZoomInfo: 2本指のピンチ（デスクトップでは Ctrl + マウスホイール）で映像を拡大し、拡大後はドラッグで移動できます。
+  showCenterPlayPauseButton: 中央の再生/一時停止ボタン
+  showCenterPlayPauseButtonDesc: プレーヤー中央の大きな再生/一時停止ボタンを表示します。
   # オーディオビデオ設定
   audioVideoConfig: オーディオビデオ設定
   expandBuffer: バッファ拡張
@@ -1040,6 +1044,29 @@ videoDetail:
   brightnessLowest: 明るさが最低になっています
   volume: 音量
   volumeMuted: 音量がミュートされています
+  restoreDefaultZoom: リセット
+  gestureGuide:
+    title: ジェスチャー・操作ガイド
+    viewGuide: ジェスチャー・操作ガイドを見る
+    basicTitle: 基本操作
+    zoomTitle: 拡大 / 回転 / 移動
+    restoreTip: 右下の「リセット」ボタンで拡大・回転・位置を元に戻せます。
+    mTap: 'シングルタップ：コントロールの表示 / 非表示'
+    mDoubleTap: 'ダブルタップ：左で巻き戻し / 中央で一時停止 / 右で早送り'
+    mHorizontalDrag: '横スワイプ：シーク'
+    mVerticalDrag: '縦スワイプ：左で明るさ / 右で音量'
+    mLongPress: '長押し：一時的な倍速再生'
+    mPinch: '2本指ピンチ：映像を拡大'
+    mRotate: '2本指回転：映像を回転'
+    mPan: '2本指ドラッグ：映像を移動（拡大時）'
+    dTap: 'クリック：コントロールの表示 / 非表示'
+    dDoubleTap: 'ダブルクリック：再生 / 一時停止'
+    dKeys: '矢印キー：巻き戻し / 早送り、スペース：再生 / 一時停止'
+    dTrackpadPinch: 'トラックパッドのピンチ：映像を拡大'
+    dTrackpadRotate: 'トラックパッドの回転：映像を回転'
+    dCtrlWheel: 'Ctrl + ホイール：カーソル中心に拡大'
+    dShiftWheel: 'Shift + ホイール：カーソル中心に回転'
+    dDrag: 'マウスドラッグ：映像を移動（拡大時）'
   home: ホーム
   videoPlayer: ビデオプレーヤー
   videoPlayerInfo: プレーヤー情報

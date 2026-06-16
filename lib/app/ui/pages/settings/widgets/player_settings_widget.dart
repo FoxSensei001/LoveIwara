@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/three_section_slider.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/video_gesture_guide.dart';
 import 'package:i_iwara/app/ui/widgets/anime4k_settings_widget.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
@@ -486,6 +487,18 @@ class PlayerSettingsWidget extends StatelessWidget {
                   value;
             },
           ),
+          // 屏幕中央播放/暂停按钮
+          _switchTile(
+            context: context,
+            iconData: Icons.play_circle_outline,
+            label: t.settings.showCenterPlayPauseButton,
+            description: t.settings.showCenterPlayPauseButtonDesc,
+            rxValue: _configService
+                .settings[ConfigKey.SHOW_CENTER_PLAY_PAUSE_BUTTON]!,
+            onChanged: (value) {
+              _configService[ConfigKey.SHOW_CENTER_PLAY_PAUSE_BUTTON] = value;
+            },
+          ),
           // 全屏下一个提示
           _switchTile(
             context: context,
@@ -695,6 +708,29 @@ class PlayerSettingsWidget extends StatelessWidget {
             onChanged: (value) {
               _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] = value;
             },
+          ),
+          _switchTile(
+            context: context,
+            iconData: Icons.pinch,
+            label: t.settings.enableVideoGestureZoom,
+            description: t.settings.enableVideoGestureZoomInfo,
+            rxValue:
+                _configService.settings[ConfigKey.ENABLE_VIDEO_GESTURE_ZOOM]!,
+            onChanged: (value) {
+              _configService[ConfigKey.ENABLE_VIDEO_GESTURE_ZOOM] = value;
+            },
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.help_outline,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            title: Text(
+              t.videoDetail.gestureGuide.viewGuide,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => VideoGestureGuideDialog.show(context),
           ),
         ]),
         const SizedBox(height: 20),

@@ -97,6 +97,11 @@ class GestureAreaState extends State<GestureArea>
   }
 
   void _onDoubleTap() {
+    // 双指捏合进行中时忽略双击；缩放完成后双击恢复原有（暂停/快进）行为
+    if (widget.myVideoStateController.isPinchingVideo) {
+      return;
+    }
+
     VibrateUtils.vibrate();
 
     switch (widget.region) {
@@ -166,6 +171,10 @@ class GestureAreaState extends State<GestureArea>
   }
 
   void _onLongPressStart(LongPressStartDetails details) async {
+    // 仅在双指捏合进行中时让位；缩放后仍可长按倍速（其平移会让位给长按，见缩放层）
+    if (widget.myVideoStateController.isPinchingVideo) {
+      return;
+    }
     // 检查长按快进配置
     if (_configService[ConfigKey.ENABLE_LONG_PRESS_FAST_FORWARD] != true) {
       return;
@@ -345,6 +354,11 @@ class GestureAreaState extends State<GestureArea>
       return;
     }
 
+    // 缩放/平移进行中时，竖滑音量/亮度让位给画面移动
+    if (widget.myVideoStateController.shouldBlockSingleFingerGesture) {
+      return;
+    }
+
     // 检查是否从边缘区域开始滑动
     if (_verticalDragStartY != null) {
       const edgeThreshold = CommonConstants.videoPlayerEdgeGestureThreshold;
@@ -472,6 +486,12 @@ class GestureAreaState extends State<GestureArea>
       onHorizontalDragStart:
           _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
           ? (details) {
+              // 缩放/平移进行中时，横滑进度让位给画面移动
+              if (widget
+                  .myVideoStateController
+                  .shouldBlockSingleFingerGesture) {
+                return;
+              }
               // 清理上一次手势可能残留的节流状态与缓存详情,避免新手势首帧被吞
               EasyThrottle.cancel(_horizontalDragThrottleTag);
               _latestHorizontalDragUpdateDetails = null;
@@ -483,6 +503,10 @@ class GestureAreaState extends State<GestureArea>
       onHorizontalDragUpdate:
           _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
           ? (details) {
+              // 捏合开始后，立即停止横滑进度，避免与画面移动冲突
+              if (widget.myVideoStateController.isPinchingVideo) {
+                return;
+              }
               // 始终记录最新一帧,节流闭包内读取最新值(尾沿语义),避免只应用窗口内首帧的偏小位移
               _latestHorizontalDragUpdateDetails = details;
               // 使用节流控制横向滑动更新频率，避免频繁更新进度条
@@ -501,6 +525,14 @@ class GestureAreaState extends State<GestureArea>
       onHorizontalDragEnd:
           _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
           ? (details) {
+              // 捏合进行中：丢弃这次横滑，不执行 seek，避免误跳进度
+              if (widget.myVideoStateController.isPinchingVideo) {
+                EasyThrottle.cancel(_horizontalDragThrottleTag);
+                _latestHorizontalDragUpdateDetails = null;
+                widget.myVideoStateController.setInteracting(false);
+                widget.myVideoStateController.showSeekPreview(false);
+                return;
+              }
               // 取消挂起的节流并补发最后一帧,确保 previewPosition 落在真正的手指终点,
               // 否则被丢弃的尾帧会让 onHorizontalDragEnd 读到偏旧的预览值而 seek 回退
               EasyThrottle.cancel(_horizontalDragThrottleTag);

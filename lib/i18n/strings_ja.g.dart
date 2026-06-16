@@ -793,6 +793,10 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get enableMouseHoverShowToolbar => 'マウスホバー時にツールバーを表示';
 	@override String get enableMouseHoverShowToolbarInfo => '有効にすると、マウスがプレーヤー上にあるときにツールバーが表示されます。3秒間の非アクティブ時に自動的に非表示になります。';
 	@override String get enableHorizontalDragSeek => '横スワイプでシーク';
+	@override String get enableVideoGestureZoom => 'ピンチで映像を拡大';
+	@override String get enableVideoGestureZoomInfo => '2本指のピンチ（デスクトップでは Ctrl + マウスホイール）で映像を拡大し、拡大後はドラッグで移動できます。';
+	@override String get showCenterPlayPauseButton => '中央の再生/一時停止ボタン';
+	@override String get showCenterPlayPauseButtonDesc => 'プレーヤー中央の大きな再生/一時停止ボタンを表示します。';
 	@override String get audioVideoConfig => 'オーディオビデオ設定';
 	@override String get expandBuffer => 'バッファ拡張';
 	@override String get expandBufferInfo => '有効にすると、バッファサイズが増加し、読み込み時間が長くなりますが、再生がスムーズになります';
@@ -935,6 +939,8 @@ class _TranslationsVideoDetailJa implements TranslationsVideoDetailEn {
 	@override String get brightnessLowest => '明るさが最低になっています';
 	@override String get volume => '音量';
 	@override String get volumeMuted => '音量がミュートされています';
+	@override String get restoreDefaultZoom => 'リセット';
+	@override late final _TranslationsVideoDetailGestureGuideJa gestureGuide = _TranslationsVideoDetailGestureGuideJa._(_root);
 	@override String get home => 'ホーム';
 	@override String get videoPlayer => 'ビデオプレーヤー';
 	@override String get videoPlayerInfo => 'プレーヤー情報';
@@ -2471,6 +2477,36 @@ class _TranslationsVideoDetailLocalInfoJa implements TranslationsVideoDetailLoca
 	@override String get openFolderFailed => 'フォルダを開けませんでした';
 }
 
+// Path: videoDetail.gestureGuide
+class _TranslationsVideoDetailGestureGuideJa implements TranslationsVideoDetailGestureGuideEn {
+	_TranslationsVideoDetailGestureGuideJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'ジェスチャー・操作ガイド';
+	@override String get viewGuide => 'ジェスチャー・操作ガイドを見る';
+	@override String get basicTitle => '基本操作';
+	@override String get zoomTitle => '拡大 / 回転 / 移動';
+	@override String get restoreTip => '右下の「リセット」ボタンで拡大・回転・位置を元に戻せます。';
+	@override String get mTap => 'シングルタップ：コントロールの表示 / 非表示';
+	@override String get mDoubleTap => 'ダブルタップ：左で巻き戻し / 中央で一時停止 / 右で早送り';
+	@override String get mHorizontalDrag => '横スワイプ：シーク';
+	@override String get mVerticalDrag => '縦スワイプ：左で明るさ / 右で音量';
+	@override String get mLongPress => '長押し：一時的な倍速再生';
+	@override String get mPinch => '2本指ピンチ：映像を拡大';
+	@override String get mRotate => '2本指回転：映像を回転';
+	@override String get mPan => '2本指ドラッグ：映像を移動（拡大時）';
+	@override String get dTap => 'クリック：コントロールの表示 / 非表示';
+	@override String get dDoubleTap => 'ダブルクリック：再生 / 一時停止';
+	@override String get dKeys => '矢印キー：巻き戻し / 早送り、スペース：再生 / 一時停止';
+	@override String get dTrackpadPinch => 'トラックパッドのピンチ：映像を拡大';
+	@override String get dTrackpadRotate => 'トラックパッドの回転：映像を回転';
+	@override String get dCtrlWheel => 'Ctrl + ホイール：カーソル中心に拡大';
+	@override String get dShiftWheel => 'Shift + ホイール：カーソル中心に回転';
+	@override String get dDrag => 'マウスドラッグ：映像を移動（拡大時）';
+}
+
 // Path: videoDetail.player
 class _TranslationsVideoDetailPlayerJa implements TranslationsVideoDetailPlayerEn {
 	_TranslationsVideoDetailPlayerJa._(this._root);
@@ -3658,6 +3694,10 @@ extension on TranslationsJa {
 			'settings.enableMouseHoverShowToolbar' => 'マウスホバー時にツールバーを表示',
 			'settings.enableMouseHoverShowToolbarInfo' => '有効にすると、マウスがプレーヤー上にあるときにツールバーが表示されます。3秒間の非アクティブ時に自動的に非表示になります。',
 			'settings.enableHorizontalDragSeek' => '横スワイプでシーク',
+			'settings.enableVideoGestureZoom' => 'ピンチで映像を拡大',
+			'settings.enableVideoGestureZoomInfo' => '2本指のピンチ（デスクトップでは Ctrl + マウスホイール）で映像を拡大し、拡大後はドラッグで移動できます。',
+			'settings.showCenterPlayPauseButton' => '中央の再生/一時停止ボタン',
+			'settings.showCenterPlayPauseButtonDesc' => 'プレーヤー中央の大きな再生/一時停止ボタンを表示します。',
 			'settings.audioVideoConfig' => 'オーディオビデオ設定',
 			'settings.expandBuffer' => 'バッファ拡張',
 			'settings.expandBufferInfo' => '有効にすると、バッファサイズが増加し、読み込み時間が長くなりますが、再生がスムーズになります',
@@ -4009,6 +4049,28 @@ extension on TranslationsJa {
 			'videoDetail.brightnessLowest' => '明るさが最低になっています',
 			'videoDetail.volume' => '音量',
 			'videoDetail.volumeMuted' => '音量がミュートされています',
+			'videoDetail.restoreDefaultZoom' => 'リセット',
+			'videoDetail.gestureGuide.title' => 'ジェスチャー・操作ガイド',
+			'videoDetail.gestureGuide.viewGuide' => 'ジェスチャー・操作ガイドを見る',
+			'videoDetail.gestureGuide.basicTitle' => '基本操作',
+			'videoDetail.gestureGuide.zoomTitle' => '拡大 / 回転 / 移動',
+			'videoDetail.gestureGuide.restoreTip' => '右下の「リセット」ボタンで拡大・回転・位置を元に戻せます。',
+			'videoDetail.gestureGuide.mTap' => 'シングルタップ：コントロールの表示 / 非表示',
+			'videoDetail.gestureGuide.mDoubleTap' => 'ダブルタップ：左で巻き戻し / 中央で一時停止 / 右で早送り',
+			'videoDetail.gestureGuide.mHorizontalDrag' => '横スワイプ：シーク',
+			'videoDetail.gestureGuide.mVerticalDrag' => '縦スワイプ：左で明るさ / 右で音量',
+			'videoDetail.gestureGuide.mLongPress' => '長押し：一時的な倍速再生',
+			'videoDetail.gestureGuide.mPinch' => '2本指ピンチ：映像を拡大',
+			'videoDetail.gestureGuide.mRotate' => '2本指回転：映像を回転',
+			'videoDetail.gestureGuide.mPan' => '2本指ドラッグ：映像を移動（拡大時）',
+			'videoDetail.gestureGuide.dTap' => 'クリック：コントロールの表示 / 非表示',
+			'videoDetail.gestureGuide.dDoubleTap' => 'ダブルクリック：再生 / 一時停止',
+			'videoDetail.gestureGuide.dKeys' => '矢印キー：巻き戻し / 早送り、スペース：再生 / 一時停止',
+			'videoDetail.gestureGuide.dTrackpadPinch' => 'トラックパッドのピンチ：映像を拡大',
+			'videoDetail.gestureGuide.dTrackpadRotate' => 'トラックパッドの回転：映像を回転',
+			'videoDetail.gestureGuide.dCtrlWheel' => 'Ctrl + ホイール：カーソル中心に拡大',
+			'videoDetail.gestureGuide.dShiftWheel' => 'Shift + ホイール：カーソル中心に回転',
+			'videoDetail.gestureGuide.dDrag' => 'マウスドラッグ：映像を移動（拡大時）',
 			'videoDetail.home' => 'ホーム',
 			'videoDetail.videoPlayer' => 'ビデオプレーヤー',
 			'videoDetail.videoPlayerInfo' => 'プレーヤー情報',
@@ -4033,6 +4095,8 @@ extension on TranslationsJa {
 			'videoDetail.resourceDeleted' => 'このビデオは削除されたようです :/',
 			'videoDetail.noDownloadUrl' => 'ダウンロードURLがありません',
 			'videoDetail.startDownloading' => 'ダウンロードを開始',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.downloadFailed' => 'ダウンロードに失敗しました。後でもう一度お試しください',
 			'videoDetail.downloadSuccess' => 'ダウンロードに成功しました',
 			'videoDetail.download' => 'ダウンロード',
@@ -4059,8 +4123,6 @@ extension on TranslationsJa {
 			'videoDetail.cast.deviceTypes.mediaRenderer' => 'メディアレンダラー',
 			'videoDetail.cast.deviceTypes.mediaServer' => 'メディアサーバー',
 			'videoDetail.cast.deviceTypes.internetGatewayDevice' => 'ルーター',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.deviceTypes.basicDevice' => '基本デバイス',
 			'videoDetail.cast.deviceTypes.dimmableLight' => 'スマートライト',
 			'videoDetail.cast.deviceTypes.wlanAccessPoint' => '無線アクセスポイント',
@@ -4547,6 +4609,8 @@ extension on TranslationsJa {
 			'translation.disableAITranslation' => 'AI翻訳を無効にする',
 			'translation.currentValue' => '現在値',
 			'translation.configureTranslationStrategy' => '翻訳戦略を設定',
+			_ => null,
+		} ?? switch (path) {
 			'translation.advancedSettings' => '高度な設定',
 			'translation.translationPrompt' => '翻訳プロンプト',
 			'translation.promptHint' => '翻訳プロンプトを入力してください。[TL]を目標言語のプレースホルダーとして使用します',
@@ -4573,8 +4637,6 @@ extension on TranslationsJa {
 			'translation.aiTranslation' => 'AI 翻訳',
 			'translation.aiTranslationDescription' => '大規模言語モデルに基づくインテリジェント翻訳サービス',
 			'translation.deeplxTranslation' => 'DeepLX 翻訳',
-			_ => null,
-		} ?? switch (path) {
 			'translation.deeplxTranslationDescription' => 'DeepL翻訳のオープンソース実装、高品質な翻訳を提供',
 			'translation.googleTranslationFeatures' => '機能',
 			'translation.freeToUse' => '無料で使用',
@@ -5061,6 +5123,8 @@ extension on TranslationsJa {
 			'firstTimeSetup.welcome.subtitle' => 'パーソナライズ設定を始めましょう',
 			'firstTimeSetup.welcome.description' => '数ステップで最適な体験を提供します',
 			'firstTimeSetup.basic.title' => '基本設定',
+			_ => null,
+		} ?? switch (path) {
 			'firstTimeSetup.basic.subtitle' => '体験をパーソナライズ',
 			'firstTimeSetup.basic.description' => 'ご希望の機能設定を選択',
 			'firstTimeSetup.network.title' => 'ネットワーク設定',
@@ -5087,8 +5151,6 @@ extension on TranslationsJa {
 			'proxyHelper.copy' => 'コピー',
 			'tagSelector.selectTags' => 'タグを選択',
 			'tagSelector.clickToSelectTags' => 'タグを選択するにはクリック',
-			_ => null,
-		} ?? switch (path) {
 			'tagSelector.addTag' => 'タグを追加',
 			'tagSelector.removeTag' => 'タグを削除',
 			'tagSelector.deleteTag' => 'タグを削除',

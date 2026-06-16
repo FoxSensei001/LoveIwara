@@ -793,6 +793,10 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get enableMouseHoverShowToolbar => '滑鼠懸停時顯示工具列';
 	@override String get enableMouseHoverShowToolbarInfo => '開啟後，當滑鼠懸停在播放器上移動時會自動顯示工具列，停止移動3秒後自動隱藏';
 	@override String get enableHorizontalDragSeek => '橫向滑動調整進度';
+	@override String get enableVideoGestureZoom => '雙指縮放影片畫面';
+	@override String get enableVideoGestureZoomInfo => '雙指捏合（桌面端為 Ctrl + 滑鼠滾輪）縮放影片畫面，縮放後可拖動移動畫面。';
+	@override String get showCenterPlayPauseButton => '中央播放/暫停按鈕';
+	@override String get showCenterPlayPauseButtonDesc => '顯示播放器中央的大號播放/暫停按鈕。';
 	@override String get audioVideoConfig => '影音配置';
 	@override String get expandBuffer => '擴大緩衝區';
 	@override String get expandBufferInfo => '開啟後緩衝區增大，載入時間變長但播放更流暢';
@@ -963,6 +967,8 @@ class _TranslationsVideoDetailZhTw implements TranslationsVideoDetailEn {
 	@override String get brightnessLowest => '亮度已最低';
 	@override String get volume => '音量';
 	@override String get volumeMuted => '音量已靜音';
+	@override String get restoreDefaultZoom => '還原';
+	@override late final _TranslationsVideoDetailGestureGuideZhTw gestureGuide = _TranslationsVideoDetailGestureGuideZhTw._(_root);
 	@override String get home => '首頁';
 	@override String get videoPlayer => '影片播放器';
 	@override String get videoPlayerInfo => '播放器資訊';
@@ -2562,6 +2568,36 @@ class _TranslationsVideoDetailLocalInfoZhTw implements TranslationsVideoDetailLo
 	@override String get openFolderFailed => '開啟資料夾失敗';
 }
 
+// Path: videoDetail.gestureGuide
+class _TranslationsVideoDetailGestureGuideZhTw implements TranslationsVideoDetailGestureGuideEn {
+	_TranslationsVideoDetailGestureGuideZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '手勢與互動指引';
+	@override String get viewGuide => '檢視手勢與互動指引';
+	@override String get basicTitle => '基礎操作';
+	@override String get zoomTitle => '縮放 / 旋轉 / 平移';
+	@override String get restoreTip => '點擊右下角「還原」按鈕可復位縮放、旋轉與位置。';
+	@override String get mTap => '單擊：顯示 / 隱藏控制列';
+	@override String get mDoubleTap => '雙擊：左側後退 / 中央暫停 / 右側快進';
+	@override String get mHorizontalDrag => '橫向滑動：調整進度';
+	@override String get mVerticalDrag => '垂直滑動：左側亮度 / 右側音量';
+	@override String get mLongPress => '長按：臨時倍速播放';
+	@override String get mPinch => '雙指捏合：縮放畫面';
+	@override String get mRotate => '雙指旋轉：旋轉畫面';
+	@override String get mPan => '雙指拖動：移動畫面（放大後）';
+	@override String get dTap => '單擊：顯示 / 隱藏控制列';
+	@override String get dDoubleTap => '雙擊：播放 / 暫停';
+	@override String get dKeys => '方向鍵：快退 / 快進；空白鍵：播放 / 暫停';
+	@override String get dTrackpadPinch => '觸控板捏合：縮放畫面';
+	@override String get dTrackpadRotate => '觸控板旋轉：旋轉畫面';
+	@override String get dCtrlWheel => 'Ctrl + 滾輪：以游標為中心縮放';
+	@override String get dShiftWheel => 'Shift + 滾輪：以游標為中心旋轉';
+	@override String get dDrag => '滑鼠拖動：移動畫面（放大後）';
+}
+
 // Path: videoDetail.player
 class _TranslationsVideoDetailPlayerZhTw implements TranslationsVideoDetailPlayerEn {
 	_TranslationsVideoDetailPlayerZhTw._(this._root);
@@ -3661,6 +3697,10 @@ extension on TranslationsZhTw {
 			'settings.enableMouseHoverShowToolbar' => '滑鼠懸停時顯示工具列',
 			'settings.enableMouseHoverShowToolbarInfo' => '開啟後，當滑鼠懸停在播放器上移動時會自動顯示工具列，停止移動3秒後自動隱藏',
 			'settings.enableHorizontalDragSeek' => '橫向滑動調整進度',
+			'settings.enableVideoGestureZoom' => '雙指縮放影片畫面',
+			'settings.enableVideoGestureZoomInfo' => '雙指捏合（桌面端為 Ctrl + 滑鼠滾輪）縮放影片畫面，縮放後可拖動移動畫面。',
+			'settings.showCenterPlayPauseButton' => '中央播放/暫停按鈕',
+			'settings.showCenterPlayPauseButtonDesc' => '顯示播放器中央的大號播放/暫停按鈕。',
 			'settings.audioVideoConfig' => '影音配置',
 			'settings.expandBuffer' => '擴大緩衝區',
 			'settings.expandBufferInfo' => '開啟後緩衝區增大，載入時間變長但播放更流暢',
@@ -4040,6 +4080,30 @@ extension on TranslationsZhTw {
 			'videoDetail.brightnessLowest' => '亮度已最低',
 			'videoDetail.volume' => '音量',
 			'videoDetail.volumeMuted' => '音量已靜音',
+			'videoDetail.restoreDefaultZoom' => '還原',
+			'videoDetail.gestureGuide.title' => '手勢與互動指引',
+			'videoDetail.gestureGuide.viewGuide' => '檢視手勢與互動指引',
+			'videoDetail.gestureGuide.basicTitle' => '基礎操作',
+			'videoDetail.gestureGuide.zoomTitle' => '縮放 / 旋轉 / 平移',
+			'videoDetail.gestureGuide.restoreTip' => '點擊右下角「還原」按鈕可復位縮放、旋轉與位置。',
+			'videoDetail.gestureGuide.mTap' => '單擊：顯示 / 隱藏控制列',
+			'videoDetail.gestureGuide.mDoubleTap' => '雙擊：左側後退 / 中央暫停 / 右側快進',
+			'videoDetail.gestureGuide.mHorizontalDrag' => '橫向滑動：調整進度',
+			'videoDetail.gestureGuide.mVerticalDrag' => '垂直滑動：左側亮度 / 右側音量',
+			'videoDetail.gestureGuide.mLongPress' => '長按：臨時倍速播放',
+			'videoDetail.gestureGuide.mPinch' => '雙指捏合：縮放畫面',
+			'videoDetail.gestureGuide.mRotate' => '雙指旋轉：旋轉畫面',
+			'videoDetail.gestureGuide.mPan' => '雙指拖動：移動畫面（放大後）',
+			'videoDetail.gestureGuide.dTap' => '單擊：顯示 / 隱藏控制列',
+			'videoDetail.gestureGuide.dDoubleTap' => '雙擊：播放 / 暫停',
+			'videoDetail.gestureGuide.dKeys' => '方向鍵：快退 / 快進；空白鍵：播放 / 暫停',
+			'videoDetail.gestureGuide.dTrackpadPinch' => '觸控板捏合：縮放畫面',
+			_ => null,
+		} ?? switch (path) {
+			'videoDetail.gestureGuide.dTrackpadRotate' => '觸控板旋轉：旋轉畫面',
+			'videoDetail.gestureGuide.dCtrlWheel' => 'Ctrl + 滾輪：以游標為中心縮放',
+			'videoDetail.gestureGuide.dShiftWheel' => 'Shift + 滾輪：以游標為中心旋轉',
+			'videoDetail.gestureGuide.dDrag' => '滑鼠拖動：移動畫面（放大後）',
 			'videoDetail.home' => '首頁',
 			'videoDetail.videoPlayer' => '影片播放器',
 			'videoDetail.videoPlayerInfo' => '播放器資訊',
@@ -4062,8 +4126,6 @@ extension on TranslationsZhTw {
 			'videoDetail.externalVideo' => '這是一個站外影片',
 			'videoDetail.openInBrowser' => '在瀏覽器中打開',
 			'videoDetail.resourceDeleted' => '這個影片好像被刪除了 :/',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.noDownloadUrl' => '沒有下載連結',
 			'videoDetail.startDownloading' => '開始下載',
 			'videoDetail.downloadFailed' => '下載失敗，請稍後再試',
@@ -4550,6 +4612,8 @@ extension on TranslationsZhTw {
 			'translation.clickTestButtonToVerifyAPIConnection' => '點擊測試按鈕驗證API連接有效性',
 			'translation.requestPreview' => '請求預覽',
 			'translation.enableAITranslation' => 'AI翻譯',
+			_ => null,
+		} ?? switch (path) {
 			'translation.enabled' => '已啟用',
 			'translation.disabled' => '已停用',
 			'translation.testing' => '測試中...',
@@ -4576,8 +4640,6 @@ extension on TranslationsZhTw {
 			'translation.mustBeGreaterThan' => '必須大於',
 			'translation.invalidAPIResponse' => '無效的API響應',
 			'translation.connectionFailedForMessage' => ({required Object message}) => '連線失敗: ${message}',
-			_ => null,
-		} ?? switch (path) {
 			'translation.aiTranslationNotEnabledHint' => 'AI翻譯未啟用，請在設定中啟用',
 			'translation.goToSettings' => '前往設定',
 			'translation.disableAITranslation' => '停用AI翻譯',
@@ -5064,6 +5126,8 @@ extension on TranslationsZhTw {
 			'searchFilter.title' => '標題',
 			'searchFilter.body' => '內容',
 			'searchFilter.author' => '作者',
+			_ => null,
+		} ?? switch (path) {
 			'searchFilter.publishDate' => '發布日期',
 			'searchFilter.private' => '私密',
 			'searchFilter.duration' => '時長(秒)',
@@ -5090,8 +5154,6 @@ extension on TranslationsZhTw {
 			'searchFilter.sortTypes.relevance' => '相關性',
 			'searchFilter.sortTypes.latest' => '最新',
 			'searchFilter.sortTypes.views' => '觀看次數',
-			_ => null,
-		} ?? switch (path) {
 			'searchFilter.sortTypes.likes' => '按讚數',
 			'tagSelector.selectTags' => '選擇標籤',
 			'tagSelector.clickToSelectTags' => '點擊選擇標籤',

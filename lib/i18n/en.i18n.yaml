@@ -650,6 +650,10 @@ settings:
   enableMouseHoverShowToolbar: Enable Mouse Hover Show Toolbar
   enableMouseHoverShowToolbarInfo: When enabled, the video toolbar will be shown when the mouse is hovering over the player. It will be automatically hidden after 3 seconds of inactivity.
   enableHorizontalDragSeek: Horizontal Swipe to Seek
+  enableVideoGestureZoom: Pinch to Zoom Video Frame
+  enableVideoGestureZoomInfo: Pinch with two fingers (or Ctrl + mouse wheel on desktop) to zoom the video picture, then drag to move it around.
+  showCenterPlayPauseButton: Center Play/Pause Button
+  showCenterPlayPauseButtonDesc: Show the large play/pause button in the center of the player.
   # Audio Video Configuration
   audioVideoConfig: Audio Video Configuration
   expandBuffer: Expand Buffer
@@ -1039,6 +1043,29 @@ videoDetail:
   brightnessLowest: Brightness is lowest
   volume: Volume
   volumeMuted: Volume is muted
+  restoreDefaultZoom: Restore
+  gestureGuide:
+    title: Gestures & Interaction Guide
+    viewGuide: Gestures & Interaction Guide
+    basicTitle: Basic Controls
+    zoomTitle: Zoom / Rotate / Pan
+    restoreTip: 'Tap the "Restore" button at the bottom-right to reset zoom, rotation and position.'
+    mTap: 'Single tap: show / hide controls'
+    mDoubleTap: 'Double tap: rewind (left) / pause (center) / fast-forward (right)'
+    mHorizontalDrag: 'Horizontal swipe: seek'
+    mVerticalDrag: 'Vertical swipe: brightness (left) / volume (right)'
+    mLongPress: 'Long press: temporary speed-up'
+    mPinch: 'Two-finger pinch: zoom the picture'
+    mRotate: 'Two-finger rotate: rotate the picture'
+    mPan: 'Two-finger drag: move the picture (when zoomed)'
+    dTap: 'Click: show / hide controls'
+    dDoubleTap: 'Double click: play / pause'
+    dKeys: 'Arrow keys: rewind / forward; Space: play / pause'
+    dTrackpadPinch: 'Trackpad pinch: zoom the picture'
+    dTrackpadRotate: 'Trackpad rotate: rotate the picture'
+    dCtrlWheel: 'Ctrl + wheel: zoom around the cursor'
+    dShiftWheel: 'Shift + wheel: rotate around the cursor'
+    dDrag: 'Mouse drag: move the picture (when zoomed)'
   home: Home
   videoPlayer: Video Player
   videoPlayerInfo: Video Player Info

@@ -6,6 +6,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import '../../../../../../utils/proxy/proxy_util.dart';
 import '../../../../../routes/app_router.dart';
 import '../../../settings/widgets/player_settings_widget.dart';
+import 'video_gesture_guide.dart';
 import '../../../settings/widgets/proxy_setting_widget.dart';
 import '../../controllers/my_video_state_controller.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
@@ -1096,17 +1097,30 @@ class SettingsContent extends StatelessWidget {
               ),
             ),
           ),
-          Text(
-            t.videoDetail.videoPlayerSettings,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).primaryColor,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  t.videoDetail.videoPlayerSettings,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+              ),
+              IconButton(
+                tooltip: t.videoDetail.gestureGuide.viewGuide,
+                icon: const Icon(Icons.help_outline),
+                color: Theme.of(context).primaryColor,
+                onPressed: () => VideoGestureGuideDialog.show(context),
+              ),
+            ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           PlayerSettingsWidget(),
           const SizedBox(height: 16),
-          if (ProxyUtil.isSupportedPlatform()) ProxySettingsWidget(),
+          if (ProxyUtil.isSupportedPlatform())
+            ProxySettingsWidget(embedded: true),
         ],
       ),
     );

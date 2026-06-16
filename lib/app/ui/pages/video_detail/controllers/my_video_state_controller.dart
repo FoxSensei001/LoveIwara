@@ -172,6 +172,58 @@ class MyVideoStateController extends GetxController
   final RxBool isFullscreen = false.obs;
   final RxList<VideoSource> currentVideoSourceList = <VideoSource>[].obs;
 
+  // ---- 视频画面缩放 / 平移 / 旋转（双指捏合 + 旋转、Ctrl+滚轮、拖动移动画面）----
+  /// 当前画面缩放倍数（1.0 表示原始大小）
+  final RxDouble videoZoomScale = 1.0.obs;
+  /// 当前画面平移偏移（相对于画面中心，单位：逻辑像素）
+  final Rx<Offset> videoZoomOffset = const Offset(0, 0).obs;
+  /// 当前画面旋转角度（弧度）
+  final RxDouble videoZoomRotation = 0.0.obs;
+  /// 还原信号：自增以通知缩放层执行带动画的复位
+  final RxInt videoZoomResetSignal = 0.obs;
+  /// 是否正在进行双指捏合
+  bool isPinchingVideo = false;
+
+  /// 画面是否已被缩放/平移/旋转
+  bool get isVideoZoomed =>
+      (videoZoomScale.value - 1.0).abs() > 0.0001 ||
+      videoZoomOffset.value != const Offset(0, 0) ||
+      videoZoomRotation.value.abs() > 0.0001;
+
+  /// 单指拖动类手势（进度/音量/亮度）是否应让位：
+  /// - 双指捏合进行中始终让位；
+  /// - 桌面端缩放后，鼠标拖动用于平移画面，因此让位进度/音量，避免与平移冲突；
+  /// - 移动端缩放后单指手势保持原有行为（平移改由双指拖动），不让位。
+  bool get shouldBlockSingleFingerGesture =>
+      isPinchingVideo || (GetPlatform.isDesktop && isVideoZoomed);
+
+  /// 由缩放层写入当前的缩放 / 平移 / 旋转
+  void applyVideoZoom(double scale, Offset offset, double rotation) {
+    videoZoomScale.value = scale;
+    videoZoomOffset.value = offset;
+    videoZoomRotation.value = rotation;
+  }
+
+  /// 请求带动画地还原画面（缩放层监听 [videoZoomResetSignal]）
+  void requestResetVideoZoom() {
+    if (!isVideoZoomed) return;
+    videoZoomResetSignal.value++;
+  }
+
+  /// 立即还原画面（无动画），用于切换视频/全屏等场景
+  void resetVideoZoomImmediately() {
+    isPinchingVideo = false;
+    if (videoZoomScale.value != 1.0) {
+      videoZoomScale.value = 1.0;
+    }
+    if (videoZoomOffset.value != const Offset(0, 0)) {
+      videoZoomOffset.value = const Offset(0, 0);
+    }
+    if (videoZoomRotation.value != 0.0) {
+      videoZoomRotation.value = 0.0;
+    }
+  }
+
   // 快进和后退时间设置
   final RxList<BufferRange> buffers = <BufferRange>[].obs; // 缓冲区段列表
 
@@ -2774,6 +2826,8 @@ class MyVideoStateController extends GetxController
   /// 进入全屏模式
   Future<void> enterFullscreen() async {
     if (isFullscreen.value) return;
+    // 全屏切换时复位画面缩放，避免内嵌与全屏之间残留缩放状态
+    resetVideoZoomImmediately();
     // 保存进入全屏前的播放状态
     final wasPlaying = videoPlaying.value;
     var reuseNativeFullscreen =
@@ -2809,6 +2863,8 @@ class MyVideoStateController extends GetxController
   /// 退出全屏模式
   Future<void> exitFullscreen() async {
     if (!isFullscreen.value) return;
+    // 全屏切换时复位画面缩放，避免内嵌与全屏之间残留缩放状态
+    resetVideoZoomImmediately();
     // 保存退出全屏前的播放状态
     final wasPlaying = videoPlaying.value;
     appS.showSystemUI();

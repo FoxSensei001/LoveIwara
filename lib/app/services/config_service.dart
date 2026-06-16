@@ -336,6 +336,8 @@ enum ConfigKey {
   ENABLE_LONG_PRESS_FAST_FORWARD, // 长按快进
   ENABLE_MOUSE_HOVER_SHOW_TOOLBAR, // 鼠标悬浮显示工具栏
   ENABLE_HORIZONTAL_DRAG_SEEK, // 横向滑动调整进度
+  ENABLE_VIDEO_GESTURE_ZOOM, // 双指/Ctrl+滚轮缩放与拖动画面
+  SHOW_CENTER_PLAY_PAUSE_BUTTON, // 是否显示屏幕中央的播放/暂停按钮
   // 下载设置
   CUSTOM_DOWNLOAD_PATH, // 自定义下载路径
   ENABLE_CUSTOM_DOWNLOAD_PATH, // 启用自定义下载路径
@@ -551,6 +553,10 @@ extension ConfigKeyExtension on ConfigKey {
         return 'enable_mouse_hover_show_toolbar';
       case ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK:
         return 'enable_horizontal_drag_seek';
+      case ConfigKey.ENABLE_VIDEO_GESTURE_ZOOM:
+        return 'enable_video_gesture_zoom';
+      case ConfigKey.SHOW_CENTER_PLAY_PAUSE_BUTTON:
+        return 'show_center_play_pause_button';
       case ConfigKey.CUSTOM_DOWNLOAD_PATH:
         return 'custom_download_path';
       case ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH:
@@ -651,7 +657,8 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.VOLUME_KEY:
         return 0.4;
       case ConfigKey.KEEP_LAST_VOLUME_KEY:
-        return false;
+        // PC 端默认开启「记住音量」，移动端默认关闭
+        return GetPlatform.isDesktop;
       case ConfigKey.USE_PROXY:
         return false;
       case ConfigKey.PROXY_URL:
@@ -788,6 +795,10 @@ extension ConfigKeyExtension on ConfigKey {
         return true;
       case ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK:
         return true; // 默认开启横向滑动调整进度
+      case ConfigKey.ENABLE_VIDEO_GESTURE_ZOOM:
+        return true; // 默认开启画面缩放与拖动
+      case ConfigKey.SHOW_CENTER_PLAY_PAUSE_BUTTON:
+        return true; // 默认显示屏幕中央播放/暂停按钮
       case ConfigKey.CUSTOM_DOWNLOAD_PATH:
         return '';
       case ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH:

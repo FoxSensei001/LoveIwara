@@ -41,6 +41,7 @@ class BlurredSliverAppBar extends StatelessWidget {
   final double expandedHeight;
   final bool pinned;
   final bool floating;
+  final List<Widget>? actions;
 
   const BlurredSliverAppBar({
     super.key,
@@ -49,6 +50,7 @@ class BlurredSliverAppBar extends StatelessWidget {
     this.expandedHeight = kToolbarHeight,
     this.pinned = true,
     this.floating = false,
+    this.actions,
   });
 
   @override
@@ -70,6 +72,7 @@ class BlurredSliverAppBar extends StatelessWidget {
         ),
       ),
       automaticallyImplyLeading: !isWideScreen,
+      actions: actions,
       pinned: pinned,
       floating: floating,
       expandedHeight: expandedHeight,

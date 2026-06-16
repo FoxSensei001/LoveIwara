@@ -651,6 +651,10 @@ settings:
   enableMouseHoverShowToolbar: 滑鼠懸停時顯示工具列
   enableMouseHoverShowToolbarInfo: 開啟後，當滑鼠懸停在播放器上移動時會自動顯示工具列，停止移動3秒後自動隱藏
   enableHorizontalDragSeek: 橫向滑動調整進度
+  enableVideoGestureZoom: 雙指縮放影片畫面
+  enableVideoGestureZoomInfo: 雙指捏合（桌面端為 Ctrl + 滑鼠滾輪）縮放影片畫面，縮放後可拖動移動畫面。
+  showCenterPlayPauseButton: 中央播放/暫停按鈕
+  showCenterPlayPauseButtonDesc: 顯示播放器中央的大號播放/暫停按鈕。
   # 影音配置相關
   audioVideoConfig: 影音配置
   expandBuffer: 擴大緩衝區
@@ -1082,6 +1086,29 @@ videoDetail:
   brightnessLowest: 亮度已最低
   volume: 音量
   volumeMuted: 音量已靜音
+  restoreDefaultZoom: 還原
+  gestureGuide:
+    title: 手勢與互動指引
+    viewGuide: 檢視手勢與互動指引
+    basicTitle: 基礎操作
+    zoomTitle: 縮放 / 旋轉 / 平移
+    restoreTip: 點擊右下角「還原」按鈕可復位縮放、旋轉與位置。
+    mTap: '單擊：顯示 / 隱藏控制列'
+    mDoubleTap: '雙擊：左側後退 / 中央暫停 / 右側快進'
+    mHorizontalDrag: '橫向滑動：調整進度'
+    mVerticalDrag: '垂直滑動：左側亮度 / 右側音量'
+    mLongPress: '長按：臨時倍速播放'
+    mPinch: '雙指捏合：縮放畫面'
+    mRotate: '雙指旋轉：旋轉畫面'
+    mPan: '雙指拖動：移動畫面（放大後）'
+    dTap: '單擊：顯示 / 隱藏控制列'
+    dDoubleTap: '雙擊：播放 / 暫停'
+    dKeys: '方向鍵：快退 / 快進；空白鍵：播放 / 暫停'
+    dTrackpadPinch: '觸控板捏合：縮放畫面'
+    dTrackpadRotate: '觸控板旋轉：旋轉畫面'
+    dCtrlWheel: 'Ctrl + 滾輪：以游標為中心縮放'
+    dShiftWheel: 'Shift + 滾輪：以游標為中心旋轉'
+    dDrag: '滑鼠拖動：移動畫面（放大後）'
   home: 首頁
   videoPlayer: 影片播放器
   videoPlayerInfo: 播放器資訊

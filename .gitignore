@@ -65,3 +65,7 @@ android/build/
 # AI assistant / local notes (not committed)
 /CLAUDE.md
 /UPDATE_NOTES.md
+
+# Research / reference repos (not committed)
+/research/
+.omc

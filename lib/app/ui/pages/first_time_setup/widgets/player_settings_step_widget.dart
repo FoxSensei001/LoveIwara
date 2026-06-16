@@ -43,6 +43,7 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
   late bool showFullscreenUpNextHint;
   late bool keepToolbarVisibleByDefault;
   late bool enableMouseHoverShowToolbar;
+  late bool enableVideoGestureZoom;
 
   @override
   void initState() {
@@ -72,6 +73,8 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
         configService[ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE];
     enableMouseHoverShowToolbar =
         configService[ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR];
+    enableVideoGestureZoom =
+        configService[ConfigKey.ENABLE_VIDEO_GESTURE_ZOOM];
   }
 
   Future<void> _setBool(
@@ -383,6 +386,19 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
               ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR,
               v,
               (x) => enableMouseHoverShowToolbar = x,
+            ),
+            isNarrow: isNarrow,
+          ),
+          const StepDivider(),
+          SwitchSettingTile(
+            icon: Icons.pinch,
+            title: slang.t.settings.enableVideoGestureZoom,
+            subtitle: slang.t.settings.enableVideoGestureZoomInfo,
+            value: enableVideoGestureZoom,
+            onChanged: (v) => _setBool(
+              ConfigKey.ENABLE_VIDEO_GESTURE_ZOOM,
+              v,
+              (x) => enableVideoGestureZoom = x,
             ),
             isNarrow: isNarrow,
           ),
