@@ -82,31 +82,24 @@ else
   codesign --deep --force --sign - "$APP_PATH"
 fi
 
-# --- stage the install note with a friendly name ----------------------------
+# --- materialize appdmg spec with absolute paths ----------------------------
+# appdmg resolves relative paths against the spec's dir; we substitute an
+# absolute path for the app bundle so the spec stays location-agnostic.
 WORK_DIR="$(mktemp -d -t iwara_dmg)"
 trap 'rm -rf "$WORK_DIR"' EXIT
-NOTE_PATH="${WORK_DIR}/安装说明 Read Me.txt"
-cp "${PKG_DIR}/INSTALL_NOTE.md" "$NOTE_PATH"
-
-# --- materialize appdmg spec with absolute paths ----------------------------
-# appdmg resolves relative paths against the spec's dir; we substitute absolute
-# paths for the app bundle and staged note so the spec stays location-agnostic.
 SPEC="${WORK_DIR}/appdmg.json"
 APP_ABS="${REPO_ROOT}/${APP_PATH}"
-python3 - "$DMG_ASSETS/appdmg.json" "$SPEC" "$APP_ABS" "$NOTE_PATH" <<'PY'
-import json, sys
-src, dst, app_path, note_path = sys.argv[1:5]
+python3 - "$DMG_ASSETS/appdmg.json" "$SPEC" "$APP_ABS" <<'PY'
+import json, os, sys
+src, dst, app_path = sys.argv[1:4]
 spec = json.load(open(src, encoding="utf-8"))
 # Resolve asset paths (icon/background) to absolute against the source dir.
-import os
 base = os.path.dirname(os.path.abspath(src))
 spec["icon"] = os.path.join(base, spec["icon"])
 spec["background"] = os.path.join(base, spec["background"])
 for item in spec["contents"]:
     if item.get("path") == "__APP_PATH__":
         item["path"] = app_path
-    elif item.get("path") == "__NOTE_PATH__":
-        item["path"] = note_path
 json.dump(spec, open(dst, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 PY
 

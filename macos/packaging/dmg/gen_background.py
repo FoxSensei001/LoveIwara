@@ -10,8 +10,7 @@ appdmg picks up background@2x.png automatically for retina (it builds the
 HiDPI .tiff internally), so build_dmg.sh just references background.png.
 
 The geometry here MUST stay in sync with macos/packaging/dmg/appdmg.json:
-  window 680x420, icon size 116, app icon at (175,175),
-  Applications at (505,175), install note at (340,350)
+  window 660x400, icon size 120, app icon at (165,180), Applications at (495,180)
 
 Run locally after changing the source icon or layout:
     python3 macos/packaging/dmg/gen_background.py
@@ -29,11 +28,10 @@ SOURCE_ICON = REPO_ROOT / "assets" / "icon" / "launcher_icon_v2.png"
 OUT_DIR = Path(__file__).resolve().parent
 
 # 1x layout (must match appdmg.json geometry in build_dmg.sh)
-W, H = 680, 420
-ICON_Y = 175          # vertical center of the app / Applications row
-APP_X = 175           # app (.app) icon center x
-APPLICATIONS_X = 505  # Applications drop link center x
-NOTE_Y = 350          # install-note icon center (bottom, centered)
+W, H = 660, 400
+ICON_Y = 180          # vertical center of the app / Applications row
+APP_X = 165           # app (.app) icon center x
+APPLICATIONS_X = 495  # Applications drop link center x
 
 # Warm palette derived from the app's brand orange.
 BG_TOP = (255, 249, 243)
@@ -114,8 +112,9 @@ def render(scale: int) -> Image.Image:
 
     # Note: Finder renders each icon's own name label beneath it, so we do not
     # bake "i_iwara"/"Applications" captions here (they would double up).
-    # The install-note icon sits centered at NOTE_Y; add a short hint above it.
-    centered_text(d, w / 2, (NOTE_Y - 78) * scale,
+    # A discreet first-launch hint for the (unsigned) build, baked into the
+    # background rather than shipped as a separate file in the window.
+    centered_text(d, w / 2, (H - 44) * scale,
                   "首次打开请右键点按图标 → 打开 · First launch: right-click → Open",
                   load_font(13 * scale), TEXT_MUTED)
     return img
