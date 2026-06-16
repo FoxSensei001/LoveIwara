@@ -62,21 +62,23 @@ def main():
         # 3. Process Inno Setup script
         print("\nStep 3/4: Preparing Inno Setup configuration...")
 
-        # Check and download Chinese translation file
+        # The Chinese translation file is vendored in the repo so the build does
+        # not depend on a CDN at compile time. Only fall back to a download if it
+        # is somehow missing, and degrade gracefully (English-only) if that fails.
         chinese_isl_path = "windows/ChineseSimplified.isl"
         if not os.path.exists(chinese_isl_path):
-            print("Downloading Chinese translation file...")
+            print("Chinese translation file missing, attempting download...")
             try:
                 import httpx
                 url = "https://cdn.jsdelivr.net/gh/kira-96/Inno-Setup-Chinese-Simplified-Translation@latest/ChineseSimplified.isl"
-                response = httpx.get(url)
+                response = httpx.get(url, timeout=30, follow_redirects=True)
                 response.raise_for_status()
                 with open(chinese_isl_path, 'wb') as f:
                     f.write(response.content)
                 print("Chinese translation file downloaded successfully")
             except Exception as e:
                 print(f"Warning: Failed to download Chinese translation file: {e}")
-                print("Continuing with English interface")
+                print("Continuing with English interface only")
 
         # Read original build.iss
         iss_path = "windows/build.iss"
@@ -87,6 +89,14 @@ def main():
         # Keep Windows path format with backslashes for Inno Setup
         root_path = os.getcwd()
         new_iss_content = iss_content.replace('{{version}}', version).replace('{{root_path}}', root_path)
+
+        # If the Chinese translation file is unavailable, drop the language entry
+        # instead of letting Inno Setup fail on a missing include file.
+        if not os.path.exists(chinese_isl_path):
+            new_iss_content = '\n'.join(
+                line for line in new_iss_content.splitlines()
+                if 'ChineseSimplified.isl' not in line
+            )
 
         # Write temporary changes
         with open(iss_path, 'w', encoding='utf-8') as f:
