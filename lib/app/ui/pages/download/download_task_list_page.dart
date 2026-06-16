@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
@@ -129,22 +130,21 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     _reloadFailedTasks();
 
     // 监听任务状态变更，将刷新（含 setState / DB 读）等副作用移出 build。
-    _statusChangedWorker = ever(
-      DownloadService.to.taskStatusChangedNotifier,
-      (int currentVersion) {
-        if (currentVersion == _lastStatusVersion) return;
-        _lastStatusVersion = currentVersion;
-        // 延后到帧回调后执行，避免在 build/通知阶段触发 setState。
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted) return;
-          // 刷新顶部区域
-          _refreshPendingTasksIfNeeded();
-          _refreshFailedTasksIfNeeded();
-          // 刷新历史区域
-          _historySource.refresh(true);
-        });
-      },
-    );
+    _statusChangedWorker = ever(DownloadService.to.taskStatusChangedNotifier, (
+      int currentVersion,
+    ) {
+      if (currentVersion == _lastStatusVersion) return;
+      _lastStatusVersion = currentVersion;
+      // 延后到帧回调后执行，避免在 build/通知阶段触发 setState。
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        // 刷新顶部区域
+        _refreshPendingTasksIfNeeded();
+        _refreshFailedTasksIfNeeded();
+        // 刷新历史区域
+        _historySource.refresh(true);
+      });
+    });
   }
 
   @override
@@ -174,6 +174,18 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
+        // AppBar 透明，需按主题显式设置状态栏图标明暗，否则会沿用上一页
+        // （如视频详情页的白色图标），在浅色背景下看不见。
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness:
+              Theme.of(context).brightness == Brightness.dark
+              ? Brightness.light
+              : Brightness.dark,
+          statusBarBrightness: Theme.of(context).brightness == Brightness.dark
+              ? Brightness.dark
+              : Brightness.light,
+        ),
         flexibleSpace: ClipRect(
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
@@ -640,9 +652,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              hasActiveFilter
-                  ? Icons.search_off
-                  : Icons.download_done_outlined,
+              hasActiveFilter ? Icons.search_off : Icons.download_done_outlined,
               size: 64,
               color: colorScheme.onSurfaceVariant,
             ),
@@ -1018,12 +1028,18 @@ class _HistoryDownloadTasksSource extends LoadingMoreBase<DownloadTask> {
           _typeFilter != 'all';
 
       List<DownloadTask> tasks;
-      if (hasFilters) {
+      if (_statusFilter == 'failed') {
+        // 失败任务由顶部 failed section 负责展示，历史列表保持为空避免重复。
+        tasks = const <DownloadTask>[];
+      } else if (hasFilters) {
+        final historyStatusFilter = _statusFilter == 'all'
+            ? 'history'
+            : _statusFilter;
         tasks = await _repository.searchTasks(
           offset: length,
           limit: pageSize,
           searchQuery: _searchQuery.isNotEmpty ? _searchQuery : null,
-          statusFilter: _statusFilter,
+          statusFilter: historyStatusFilter,
           typeFilter: _typeFilter,
         );
       } else {

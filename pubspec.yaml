@@ -83,6 +83,8 @@ dependencies:
 
   device_info_plus: ^11.5.0
   dartantic_ai: ^3.4.1
+  flutter_local_notifications: ^22.0.1
+  local_notifier: ^0.1.6
 dev_dependencies:
   flutter_test:
     sdk: flutter

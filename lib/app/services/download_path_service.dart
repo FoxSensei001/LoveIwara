@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -15,13 +16,13 @@ import 'package:path/path.dart' as path;
 
 /// 路径验证原因枚举
 enum PathValidationReason {
-  valid,                    // 路径有效
-  noPermission,            // 缺少权限
+  valid, // 路径有效
+  noPermission, // 缺少权限
   noPublicDirectoryAccess, // 无公共目录访问权限
-  cannotCreate,            // 无法创建目录
-  notWritable,             // 不可写
-  lowSpace,                // 空间不足
-  unknown,                 // 未知错误
+  cannotCreate, // 无法创建目录
+  notWritable, // 不可写
+  lowSpace, // 空间不足
+  unknown, // 未知错误
 }
 
 /// 路径验证结果
@@ -108,6 +109,76 @@ class DownloadPathService extends GetxService {
     });
   }
 
+  static String _comparisonPath(String rawPath) {
+    final normalized = path.normalize(path.absolute(rawPath));
+    return Platform.isWindows ? normalized.toLowerCase() : normalized;
+  }
+
+  static bool isPathInsideBase(String basePath, String candidatePath) {
+    final base = _comparisonPath(basePath);
+    final candidate = _comparisonPath(candidatePath);
+    if (candidate == base) return true;
+
+    final baseWithSeparator = base.endsWith(path.separator)
+        ? base
+        : '$base${path.separator}';
+    return candidate.startsWith(baseWithSeparator);
+  }
+
+  static String safeJoinUnderBase(String basePath, List<String> pathSegments) {
+    final candidate = path.normalize(path.joinAll([basePath, ...pathSegments]));
+    if (!isPathInsideBase(basePath, candidate)) {
+      throw ArgumentError.value(candidate, 'pathSegments', '下载路径不能位于基础下载目录之外');
+    }
+    return candidate;
+  }
+
+  static String _appendNumericSuffix(
+    String originalPath,
+    int suffix, {
+    required bool isDirectory,
+  }) {
+    final directory = path.dirname(originalPath);
+    final basename = path.basename(originalPath);
+
+    if (isDirectory) {
+      return path.join(directory, '$basename ($suffix)');
+    }
+
+    final extension = path.extension(basename);
+    final nameWithoutExtension = path.basenameWithoutExtension(basename);
+    return path.join(directory, '$nameWithoutExtension ($suffix)$extension');
+  }
+
+  /// 返回一个没有被文件系统或下载任务占用的路径。
+  ///
+  /// [isReserved] 用于把数据库中尚未落盘的任务也纳入冲突检测。
+  static Future<String> resolveAvailablePath(
+    String desiredPath, {
+    required bool isDirectory,
+    FutureOr<bool> Function(String candidate)? isReserved,
+    int maxAttempts = 100,
+  }) async {
+    for (var attempt = 0; attempt < maxAttempts; attempt++) {
+      final candidate = attempt == 0
+          ? desiredPath
+          : _appendNumericSuffix(
+              desiredPath,
+              attempt,
+              isDirectory: isDirectory,
+            );
+
+      final fileSystemType = await FileSystemEntity.type(candidate);
+      final existsOnDisk = fileSystemType != FileSystemEntityType.notFound;
+      final reserved = await (isReserved?.call(candidate) ?? false);
+      if (!existsOnDisk && !reserved) {
+        return candidate;
+      }
+    }
+
+    throw StateError('无法生成未占用的下载路径: $desiredPath');
+  }
+
   /// 获取视频下载路径
   Future<String?> getVideoDownloadPath({
     required Video video,
@@ -116,37 +187,42 @@ class DownloadPathService extends GetxService {
   }) async {
     try {
       // 生成文件名
-      final template = _configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] as String;
+      final template =
+          _configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] as String;
       LogUtils.d('使用文件命名模板: $template', 'DownloadPathService');
 
       final filename = _filenameTemplateService.generateVideoFilename(
         template: template,
         video: video,
         quality: quality,
-        originalFilename: downloadUrl != null ? _extractFilenameFromUrl(downloadUrl) : null,
+        originalFilename: downloadUrl != null
+            ? _extractFilenameFromUrl(downloadUrl)
+            : null,
       );
       LogUtils.d('生成的文件名: $filename', 'DownloadPathService');
 
-      final isCustomPathEnabled = _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
-      final customPath = _configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String;
-      LogUtils.d('自定义路径启用状态: $isCustomPathEnabled, 自定义路径: $customPath', 'DownloadPathService');
+      final isCustomPathEnabled =
+          _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
+      final customPath =
+          _configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String;
+      LogUtils.d(
+        '自定义路径启用状态: $isCustomPathEnabled, 自定义路径: $customPath',
+        'DownloadPathService',
+      );
 
       if (GetPlatform.isDesktop && !isCustomPathEnabled) {
         // 桌面平台且未启用自定义路径：让用户选择保存位置
         final result = await getSaveLocation(
           suggestedName: filename,
           acceptedTypeGroups: [
-            const XTypeGroup(
-              label: 'MP4 Video',
-              extensions: ['mp4'],
-            ),
+            const XTypeGroup(label: 'MP4 Video', extensions: ['mp4']),
           ],
         );
         return result?.path;
       } else {
         // 移动平台或桌面端启用自定义路径：使用配置的路径
         final basePath = await _getBasePath('');
-        return path.join(basePath, filename);
+        return safeJoinUnderBase(basePath, [filename]);
       }
     } catch (e) {
       LogUtils.e('获取视频下载路径失败', tag: 'DownloadPathService', error: e);
@@ -163,20 +239,23 @@ class DownloadPathService extends GetxService {
   }) async {
     try {
       // 生成文件名
-      final template = _configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] as String;
+      final template =
+          _configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] as String;
       LogUtils.d('批量下载使用文件命名模板: $template', 'DownloadPathService');
 
       final filename = _filenameTemplateService.generateVideoFilename(
         template: template,
         video: video,
         quality: quality,
-        originalFilename: downloadUrl != null ? _extractFilenameFromUrl(downloadUrl) : null,
+        originalFilename: downloadUrl != null
+            ? _extractFilenameFromUrl(downloadUrl)
+            : null,
       );
       LogUtils.d('批量下载生成的文件名: $filename', 'DownloadPathService');
 
       // 批量下载始终使用默认路径，不弹出对话框
       final basePath = await _getBasePath('');
-      return path.join(basePath, filename);
+      return safeJoinUnderBase(basePath, [filename]);
     } catch (e) {
       LogUtils.e('获取视频批量下载路径失败', tag: 'DownloadPathService', error: e);
       return null;
@@ -184,35 +263,32 @@ class DownloadPathService extends GetxService {
   }
 
   /// 获取图库下载路径
-  Future<String?> getGalleryDownloadPath({
-    required ImageModel gallery,
-  }) async {
+  Future<String?> getGalleryDownloadPath({required ImageModel gallery}) async {
     try {
       // 生成文件夹名
-      final template = _configService[ConfigKey.GALLERY_FILENAME_TEMPLATE] as String;
+      final template =
+          _configService[ConfigKey.GALLERY_FILENAME_TEMPLATE] as String;
       final foldername = _filenameTemplateService.generateGalleryFoldername(
         template: template,
         gallery: gallery,
       );
 
-      final isCustomPathEnabled = _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
+      final isCustomPathEnabled =
+          _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
 
       if (GetPlatform.isDesktop && !isCustomPathEnabled) {
         // 桌面平台且未启用自定义路径：让用户选择保存位置
         final result = await getSaveLocation(
           suggestedName: foldername,
           acceptedTypeGroups: [
-            const XTypeGroup(
-              label: 'folders',
-              extensions: [''],
-            ),
+            const XTypeGroup(label: 'folders', extensions: ['']),
           ],
         );
         return result?.path;
       } else {
         // 移动平台或桌面端启用自定义路径：使用配置的路径
         final basePath = await _getBasePath('');
-        return path.join(basePath, foldername);
+        return safeJoinUnderBase(basePath, [foldername]);
       }
     } catch (e) {
       LogUtils.e('获取图库下载路径失败', tag: 'DownloadPathService', error: e);
@@ -230,7 +306,8 @@ class DownloadPathService extends GetxService {
   }) async {
     try {
       // 生成文件名
-      final template = _configService[ConfigKey.IMAGE_FILENAME_TEMPLATE] as String;
+      final template =
+          _configService[ConfigKey.IMAGE_FILENAME_TEMPLATE] as String;
       final filename = _filenameTemplateService.generateImageFilename(
         template: template,
         title: title,
@@ -242,22 +319,33 @@ class DownloadPathService extends GetxService {
 
       // 移动平台：使用配置的路径（单张图片下载通常在移动端）
       final basePath = await _getBasePath('');
-      final sanitizedTitle = title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
-      return path.join(basePath, sanitizedTitle, filename);
+      final sanitizedTitle = FilenameTemplateService.sanitizePathSegment(
+        title,
+        fallback: 'images',
+      );
+      return safeJoinUnderBase(basePath, [sanitizedTitle, filename]);
     } catch (e) {
       LogUtils.e('获取图片下载路径失败', tag: 'DownloadPathService', error: e);
       // 返回默认路径
       final basePath = await _getBasePath('');
-      return path.join(basePath, originalFilename ?? 'image.jpg');
+      final filename = FilenameTemplateService.sanitizePathSegment(
+        originalFilename ?? 'image.jpg',
+        fallback: 'image.jpg',
+      );
+      return safeJoinUnderBase(basePath, [filename]);
     }
   }
 
   /// 获取基础下载路径
   Future<String> _getBasePath(String subPath) async {
-    final isCustomPathEnabled = _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
+    final isCustomPathEnabled =
+        _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
     final customPath = _configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String;
 
-    LogUtils.d('_getBasePath - 子路径: $subPath, 启用自定义: $isCustomPathEnabled, 自定义路径: $customPath', 'DownloadPathService');
+    LogUtils.d(
+      '_getBasePath - 子路径: $subPath, 启用自定义: $isCustomPathEnabled, 自定义路径: $customPath',
+      'DownloadPathService',
+    );
 
     if (isCustomPathEnabled && customPath.isNotEmpty) {
       final permissionService = Get.find<PermissionService>();
@@ -268,7 +356,11 @@ class DownloadPathService extends GetxService {
 
         if (!hasPermission) {
           LogUtils.w('无存储权限，使用应用专用目录', 'DownloadPathService');
-          final appDir = await CommonUtils.getAppDirectory(pathSuffix: subPath.isEmpty ? 'downloads' : path.join('downloads', subPath));
+          final appDir = await CommonUtils.getAppDirectory(
+            pathSuffix: subPath.isEmpty
+                ? 'downloads'
+                : path.join('downloads', subPath),
+          );
           return appDir.path;
         }
       }
@@ -280,20 +372,34 @@ class DownloadPathService extends GetxService {
         // Android平台：检查路径是否为公共目录
         if (isPublicDirectory(customPath)) {
           // 检查是否有访问公共目录的权限
-          final canAccessPublic = await permissionService.canAccessPublicDirectories();
+          final canAccessPublic = await permissionService
+              .canAccessPublicDirectories();
           if (!canAccessPublic) {
-            LogUtils.w('无公共目录访问权限，使用应用专用目录替代: $customPath', 'DownloadPathService');
-            final appDir = await CommonUtils.getAppDirectory(pathSuffix: subPath.isEmpty ? 'downloads' : path.join('downloads', subPath));
+            LogUtils.w(
+              '无公共目录访问权限，使用应用专用目录替代: $customPath',
+              'DownloadPathService',
+            );
+            final appDir = await CommonUtils.getAppDirectory(
+              pathSuffix: subPath.isEmpty
+                  ? 'downloads'
+                  : path.join('downloads', subPath),
+            );
             finalPath = appDir.path;
           } else {
-            finalPath = subPath.isEmpty ? customPath : path.join(customPath, subPath);
+            finalPath = subPath.isEmpty
+                ? customPath
+                : path.join(customPath, subPath);
           }
         } else {
-          finalPath = subPath.isEmpty ? customPath : path.join(customPath, subPath);
+          finalPath = subPath.isEmpty
+              ? customPath
+              : path.join(customPath, subPath);
         }
       } else {
         // 其他平台直接使用自定义路径
-        finalPath = subPath.isEmpty ? customPath : path.join(customPath, subPath);
+        finalPath = subPath.isEmpty
+            ? customPath
+            : path.join(customPath, subPath);
       }
 
       final customDir = Directory(finalPath);
@@ -302,8 +408,16 @@ class DownloadPathService extends GetxService {
           await customDir.create(recursive: true);
           LogUtils.d('创建自定义目录: ${customDir.path}', 'DownloadPathService');
         } catch (e) {
-          LogUtils.e('创建自定义目录失败，使用应用专用目录', tag: 'DownloadPathService', error: e);
-          final appDir = await CommonUtils.getAppDirectory(pathSuffix: subPath.isEmpty ? 'downloads' : path.join('downloads', subPath));
+          LogUtils.e(
+            '创建自定义目录失败，使用应用专用目录',
+            tag: 'DownloadPathService',
+            error: e,
+          );
+          final appDir = await CommonUtils.getAppDirectory(
+            pathSuffix: subPath.isEmpty
+                ? 'downloads'
+                : path.join('downloads', subPath),
+          );
           return appDir.path;
         }
       }
@@ -314,12 +428,20 @@ class DownloadPathService extends GetxService {
         return customDir.path;
       } else {
         LogUtils.w('自定义目录不可写，使用应用专用目录', 'DownloadPathService');
-        final appDir = await CommonUtils.getAppDirectory(pathSuffix: subPath.isEmpty ? 'downloads' : path.join('downloads', subPath));
+        final appDir = await CommonUtils.getAppDirectory(
+          pathSuffix: subPath.isEmpty
+              ? 'downloads'
+              : path.join('downloads', subPath),
+        );
         return appDir.path;
       }
     } else {
       // 使用默认应用路径
-      final dir = await CommonUtils.getAppDirectory(pathSuffix: subPath.isEmpty ? 'downloads' : path.join('downloads', subPath));
+      final dir = await CommonUtils.getAppDirectory(
+        pathSuffix: subPath.isEmpty
+            ? 'downloads'
+            : path.join('downloads', subPath),
+      );
       LogUtils.d('使用默认路径: ${dir.path}', 'DownloadPathService');
       return dir.path;
     }
@@ -373,7 +495,12 @@ class DownloadPathService extends GetxService {
   /// 检查目录是否可写
   Future<bool> _isDirectoryWritable(String dirPath) async {
     try {
-      final testFile = File(path.join(dirPath, '.test_write_${DateTime.now().millisecondsSinceEpoch}'));
+      final testFile = File(
+        path.join(
+          dirPath,
+          '.test_write_${DateTime.now().millisecondsSinceEpoch}',
+        ),
+      );
       await testFile.writeAsString('test');
       await testFile.delete();
       return true;
@@ -406,7 +533,9 @@ class DownloadPathService extends GetxService {
   String _formatBytes(int bytes) {
     if (bytes < 1024) return '${bytes}B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)}KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)}MB';
+    if (bytes < 1024 * 1024 * 1024) {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)}MB';
+    }
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)}GB';
   }
 
@@ -442,7 +571,8 @@ class DownloadPathService extends GetxService {
 
         // 2. 检查是否为公共目录且无相应权限
         if (isPublicDirectory(pathStr)) {
-          final canAccessPublic = await permissionService.canAccessPublicDirectories();
+          final canAccessPublic = await permissionService
+              .canAccessPublicDirectories();
           if (!canAccessPublic) {
             return PathValidationResult(
               isValid: false,
@@ -480,7 +610,8 @@ class DownloadPathService extends GetxService {
 
       // 5. 检查可用空间
       final freeSpace = await _getAvailableSpace(pathStr);
-      if (freeSpace != null && freeSpace < 100 * 1024 * 1024) { // 小于100MB
+      if (freeSpace != null && freeSpace < 100 * 1024 * 1024) {
+        // 小于100MB
         return PathValidationResult(
           isValid: true,
           reason: PathValidationReason.lowSpace,
@@ -538,35 +669,52 @@ class DownloadPathService extends GetxService {
 
   /// 获取当前配置的下载路径信息
   Map<String, dynamic> getDownloadPathInfo() {
-    final isCustomPathEnabled = _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
+    final isCustomPathEnabled =
+        _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
     final customPath = _configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String;
-    
+
     return {
       'isCustomPathEnabled': isCustomPathEnabled,
       'customPath': customPath,
-      'videoTemplate': _configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] as String,
-      'galleryTemplate': _configService[ConfigKey.GALLERY_FILENAME_TEMPLATE] as String,
-      'imageTemplate': _configService[ConfigKey.IMAGE_FILENAME_TEMPLATE] as String,
+      'videoTemplate':
+          _configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] as String,
+      'galleryTemplate':
+          _configService[ConfigKey.GALLERY_FILENAME_TEMPLATE] as String,
+      'imageTemplate':
+          _configService[ConfigKey.IMAGE_FILENAME_TEMPLATE] as String,
     };
   }
 
   /// 重置为默认配置
   Future<void> resetToDefault() async {
-    await _configService.setSetting(ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH, false);
+    await _configService.setSetting(
+      ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH,
+      false,
+    );
     await _configService.setSetting(ConfigKey.CUSTOM_DOWNLOAD_PATH, '');
-    await _configService.setSetting(ConfigKey.VIDEO_FILENAME_TEMPLATE, '%title_%quality');
-    await _configService.setSetting(ConfigKey.GALLERY_FILENAME_TEMPLATE, '%title_%id');
-    await _configService.setSetting(ConfigKey.IMAGE_FILENAME_TEMPLATE, '%title_%filename');
+    await _configService.setSetting(
+      ConfigKey.VIDEO_FILENAME_TEMPLATE,
+      '%title_%quality',
+    );
+    await _configService.setSetting(
+      ConfigKey.GALLERY_FILENAME_TEMPLATE,
+      '%title_%id',
+    );
+    await _configService.setSetting(
+      ConfigKey.IMAGE_FILENAME_TEMPLATE,
+      '%title_%filename',
+    );
   }
 
   /// 获取路径状态信息
   PathStatusInfo getPathStatusInfo() {
-    final isCustomPathEnabled = _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
+    final isCustomPathEnabled =
+        _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
     final customPath = _configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String;
 
     if (!isCustomPathEnabled || customPath.isEmpty) {
       return PathStatusInfo(
-        currentPath: '',  // Will be resolved asynchronously
+        currentPath: '', // Will be resolved asynchronously
         isCustomPath: false,
         isValid: true,
         validationResult: PathValidationResult(
@@ -581,7 +729,7 @@ class DownloadPathService extends GetxService {
     return PathStatusInfo(
       currentPath: customPath,
       isCustomPath: true,
-      isValid: false,  // Will be validated asynchronously
+      isValid: false, // Will be validated asynchronously
       validationResult: PathValidationResult(
         isValid: false,
         reason: PathValidationReason.unknown,
@@ -594,7 +742,8 @@ class DownloadPathService extends GetxService {
 
   /// 获取路径状态信息（异步版本，用于详细验证）
   Future<PathStatusInfo> getPathStatusInfoAsync() async {
-    final isCustomPathEnabled = _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
+    final isCustomPathEnabled =
+        _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
     final customPath = _configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String;
 
     if (!isCustomPathEnabled || customPath.isEmpty) {
@@ -613,7 +762,9 @@ class DownloadPathService extends GetxService {
     }
 
     final validationResult = await validatePath(customPath);
-    final actualPath = validationResult.isValid ? customPath : await getDefaultDownloadPath();
+    final actualPath = validationResult.isValid
+        ? customPath
+        : await getDefaultDownloadPath();
 
     return PathStatusInfo(
       currentPath: actualPath,
@@ -630,68 +781,83 @@ class DownloadPathService extends GetxService {
 
     // 1. 外部应用专用目录（默认推荐）
     final appDir = await CommonUtils.getAppDirectory(pathSuffix: 'downloads');
-    paths.add(RecommendedPath(
-      path: appDir.path,
-      name: _t.externalAppPrivateDirectory,
-      description: _t.externalAppPrivateDirectoryDesc,
-      type: RecommendedPathType.appPrivate,
-      isRecommended: true,
-    ));
+    paths.add(
+      RecommendedPath(
+        path: appDir.path,
+        name: _t.externalAppPrivateDirectory,
+        description: _t.externalAppPrivateDirectoryDesc,
+        type: RecommendedPathType.appPrivate,
+        isRecommended: true,
+      ),
+    );
 
     // 2. 内部应用专用目录（备选推荐）
-    final internalAppDir = await CommonUtils.getInternalAppDirectory(pathSuffix: 'downloads');
-    paths.add(RecommendedPath(
-      path: internalAppDir.path,
-      name: _t.internalAppPrivateDirectory,
-      description: _t.internalAppPrivateDirectoryDesc,
-      type: RecommendedPathType.appPrivate,
-      isRecommended: false,
-    ));
+    final internalAppDir = await CommonUtils.getInternalAppDirectory(
+      pathSuffix: 'downloads',
+    );
+    paths.add(
+      RecommendedPath(
+        path: internalAppDir.path,
+        name: _t.internalAppPrivateDirectory,
+        description: _t.internalAppPrivateDirectoryDesc,
+        type: RecommendedPathType.appPrivate,
+        isRecommended: false,
+      ),
+    );
 
     if (GetPlatform.isAndroid) {
       final permissionService = Get.find<PermissionService>();
-      final hasPermission = await permissionService.canAccessPublicDirectories();
+      final hasPermission = await permissionService
+          .canAccessPublicDirectories();
 
       if (hasPermission) {
         // 3. 下载目录
-        paths.add(RecommendedPath(
-          path: '/storage/emulated/0/Download',
-          name: _t.downloadDirectory,
-          description: _t.downloadDirectoryDesc,
-          type: RecommendedPathType.publicDownload,
-          isRecommended: true,
-        ));
+        paths.add(
+          RecommendedPath(
+            path: '/storage/emulated/0/Download',
+            name: _t.downloadDirectory,
+            description: _t.downloadDirectoryDesc,
+            type: RecommendedPathType.publicDownload,
+            isRecommended: true,
+          ),
+        );
 
         // 4. 影片目录
-        paths.add(RecommendedPath(
-          path: '/storage/emulated/0/Movies',
-          name: _t.moviesDirectory,
-          description: _t.moviesDirectoryDesc,
-          type: RecommendedPathType.publicMovies,
-          isRecommended: false,
-        ));
+        paths.add(
+          RecommendedPath(
+            path: '/storage/emulated/0/Movies',
+            name: _t.moviesDirectory,
+            description: _t.moviesDirectoryDesc,
+            type: RecommendedPathType.publicMovies,
+            isRecommended: false,
+          ),
+        );
       } else {
         // 无权限时显示但标记为不可用
-        paths.add(RecommendedPath(
-          path: '/storage/emulated/0/Download',
-          name: _t.downloadDirectory,
-          description: _t.requiresStoragePermission,
-          type: RecommendedPathType.publicDownload,
-          isRecommended: false,
-          requiresPermission: true,
-        ));
+        paths.add(
+          RecommendedPath(
+            path: '/storage/emulated/0/Download',
+            name: _t.downloadDirectory,
+            description: _t.requiresStoragePermission,
+            type: RecommendedPathType.publicDownload,
+            isRecommended: false,
+            requiresPermission: true,
+          ),
+        );
       }
     } else if (GetPlatform.isIOS) {
       // iOS推荐路径
       try {
         final documentsDir = await CommonUtils.getAppDirectory();
-        paths.add(RecommendedPath(
-          path: documentsDir.path,
-          name: _t.documentsDirectory,
-          description: _t.documentsDirectoryDesc,
-          type: RecommendedPathType.appPrivate,
-          isRecommended: true,
-        ));
+        paths.add(
+          RecommendedPath(
+            path: documentsDir.path,
+            name: _t.documentsDirectory,
+            description: _t.documentsDirectoryDesc,
+            type: RecommendedPathType.appPrivate,
+            isRecommended: true,
+          ),
+        );
       } catch (e) {
         LogUtils.e('获取iOS文档目录失败', tag: 'DownloadPathService', error: e);
       }
@@ -700,13 +866,15 @@ class DownloadPathService extends GetxService {
       try {
         // 应用文档目录
         final documentsDir = await CommonUtils.getAppDirectory();
-        paths.add(RecommendedPath(
-          path: documentsDir.path,
-          name: _t.appDocumentsDirectory,
-          description: _t.appDocumentsDirectoryDesc,
-          type: RecommendedPathType.appPrivate,
-          isRecommended: true,
-        ));
+        paths.add(
+          RecommendedPath(
+            path: documentsDir.path,
+            name: _t.appDocumentsDirectory,
+            description: _t.appDocumentsDirectoryDesc,
+            type: RecommendedPathType.appPrivate,
+            isRecommended: true,
+          ),
+        );
 
         // 系统下载目录（如果可以获取）
         try {
@@ -716,13 +884,15 @@ class DownloadPathService extends GetxService {
             if (userHome != null) {
               final downloadsPath = path.join(userHome, 'Downloads');
               if (await Directory(downloadsPath).exists()) {
-                paths.add(RecommendedPath(
-                  path: downloadsPath,
-                  name: _t.downloadsFolder,
-                  description: _t.downloadsFolderDesc,
-                  type: RecommendedPathType.publicDownload,
-                  isRecommended: false,
-                ));
+                paths.add(
+                  RecommendedPath(
+                    path: downloadsPath,
+                    name: _t.downloadsFolder,
+                    description: _t.downloadsFolderDesc,
+                    type: RecommendedPathType.publicDownload,
+                    isRecommended: false,
+                  ),
+                );
               }
             }
           } else if (GetPlatform.isMacOS || GetPlatform.isLinux) {
@@ -731,13 +901,15 @@ class DownloadPathService extends GetxService {
             if (userHome != null) {
               final downloadsPath = path.join(userHome, 'Downloads');
               if (await Directory(downloadsPath).exists()) {
-                paths.add(RecommendedPath(
-                  path: downloadsPath,
-                  name: _t.downloadsFolder,
-                  description: _t.downloadsFolderDesc,
-                  type: RecommendedPathType.publicDownload,
-                  isRecommended: false,
-                ));
+                paths.add(
+                  RecommendedPath(
+                    path: downloadsPath,
+                    name: _t.downloadsFolder,
+                    description: _t.downloadsFolderDesc,
+                    type: RecommendedPathType.publicDownload,
+                    isRecommended: false,
+                  ),
+                );
               }
             }
           }
@@ -803,8 +975,10 @@ class DownloadPathService extends GetxService {
     try {
       _pathStatusLoading.value = true;
 
-      final isCustomPathEnabled = _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
-      final customPath = _configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String;
+      final isCustomPathEnabled =
+          _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
+      final customPath =
+          _configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String;
 
       if (!isCustomPathEnabled || customPath.isEmpty) {
         final defaultPath = await getDefaultDownloadPath();
@@ -823,7 +997,9 @@ class DownloadPathService extends GetxService {
       }
 
       final validationResult = await validatePath(customPath);
-      final actualPath = validationResult.isValid ? customPath : await getDefaultDownloadPath();
+      final actualPath = validationResult.isValid
+          ? customPath
+          : await getDefaultDownloadPath();
       _pathStatus.value = PathStatusInfo(
         currentPath: actualPath,
         isCustomPath: validationResult.isValid,
@@ -855,11 +1031,11 @@ class DownloadPathService extends GetxService {
 
 /// 路径状态信息
 class PathStatusInfo {
-  final String currentPath;      // 当前实际使用的路径
-  final bool isCustomPath;       // 是否为自定义路径
-  final bool isValid;           // 路径是否有效
+  final String currentPath; // 当前实际使用的路径
+  final bool isCustomPath; // 是否为自定义路径
+  final bool isValid; // 路径是否有效
   final PathValidationResult validationResult;
-  final String? selectedPath;   // 用户选择的路径（可能与实际路径不同）
+  final String? selectedPath; // 用户选择的路径（可能与实际路径不同）
 
   const PathStatusInfo({
     required this.currentPath,
@@ -872,10 +1048,10 @@ class PathStatusInfo {
 
 /// 推荐路径类型
 enum RecommendedPathType {
-  appPrivate,      // 应用专用目录
-  publicDownload,  // 公共下载目录
-  publicMovies,    // 公共影片目录
-  custom,          // 自定义目录
+  appPrivate, // 应用专用目录
+  publicDownload, // 公共下载目录
+  publicMovies, // 公共影片目录
+  custom, // 自定义目录
 }
 
 /// 推荐路径

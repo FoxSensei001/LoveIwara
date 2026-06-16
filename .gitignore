@@ -60,3 +60,8 @@ android/build/
 
 # Local reference repositories (not committed)
 /third_party/network_demo/
+.ace-tool/
+
+# AI assistant / local notes (not committed)
+/CLAUDE.md
+/UPDATE_NOTES.md

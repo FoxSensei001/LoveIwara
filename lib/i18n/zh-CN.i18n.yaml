@@ -792,6 +792,9 @@ settings:
   cdnNotTestedStatus: 未测速
   downloadSettings:
     downloadSettings: 下载设置
+    enableDownloadNotifications: 下载通知
+    enableDownloadNotificationsDescription: 单个下载完成或失败时弹出系统通知
+    notificationPermissionDenied: 通知权限被拒绝。应用内通知仍可用；如需系统通知请在系统设置中开启。
     storagePermissionStatus: 存储权限状态
     accessPublicDirectoryNeedStoragePermission: 访问公共目录需要存储权限
     checkingPermissionStatus: 检查权限状态...
@@ -1360,6 +1363,7 @@ download:
     videoInfoNotFound: 视频信息不存在
     unknown: 未知
     downloadTaskAlreadyExists: 下载任务已存在
+    downloadTaskSavePathConflict: 该保存路径已被其他任务占用
     videoAlreadyDownloaded: 该视频已下载
     downloadFailedForMessage: '添加下载任务失败: ${errorInfo}'
     userPausedDownload: 用户暂停下载
@@ -1496,6 +1500,7 @@ download:
     selectedGalleriesCount(count): '已选择 ${count} 个图库'
     qualityNote: 如果所选清晰度不可用，将使用最佳可用清晰度
     progress(current, total): '处理中 ${current}/${total}'
+    queued: 已入队
     success: 成功
     skipped: 跳过
     failed: 失败
@@ -1506,6 +1511,16 @@ download:
     reasonNoSavePath: 无法获取保存路径
     reasonOther: 其他错误
     startDownload: 开始下载
+
+downloadNotifications:
+  completedTitle: 下载完成
+  failedTitle: 下载失败
+  completedBody: '${name} 下载成功'
+  failedBody: '${name} 下载失败'
+  completedToast: '${name} 已下载完成'
+  failedToast: '${name} 下载失败'
+  channelName: 下载状态
+  channelDescription: 下载完成与失败的通知
 favorite:
   errors:
     addFailed: 追加失败

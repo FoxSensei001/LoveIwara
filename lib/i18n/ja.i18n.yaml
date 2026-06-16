@@ -786,6 +786,9 @@ settings:
   cdnNotTestedStatus: 未テスト
   downloadSettings:
     downloadSettings: ダウンロード設定
+    enableDownloadNotifications: ダウンロード通知
+    enableDownloadNotificationsDescription: 単一のダウンロードが完了または失敗したときにシステム通知を表示します
+    notificationPermissionDenied: 通知権限が拒否されました。アプリ内通知は引き続き利用できます。システム通知が必要な場合は設定で有効にしてください。
     storagePermissionStatus: ストレージ権限状態
     accessPublicDirectoryNeedStoragePermission: パブリックディレクトリにアクセスするにはストレージ権限が必要です
     checkingPermissionStatus: 権限状態を確認中...
@@ -1355,6 +1358,7 @@ download:
     videoInfoNotFound: ビデオ情報が見つかりません
     unknown: 不明
     downloadTaskAlreadyExists: ダウンロードタスクが既に存在します
+    downloadTaskSavePathConflict: 保存先パスは既に他のタスクで使用されています
     videoAlreadyDownloaded: ビデオはすでにダウンロードされています
     downloadFailedForMessage: 'ダウンロードタスクの追加に失敗しました: ${errorInfo}'
     userPausedDownload: ユーザーがダウンロードを一時停止
@@ -1491,6 +1495,7 @@ download:
     selectedGalleriesCount(count): '${count}件のギャラリーを選択'
     qualityNote: 選択した品質が利用できない場合は、最適な品質が使用されます
     progress(current, total): '処理中 ${current}/${total}'
+    queued: キュー追加
     success: 成功
     skipped: スキップ
     failed: 失敗
@@ -1501,6 +1506,16 @@ download:
     reasonNoSavePath: 保存パスを取得できません
     reasonOther: その他のエラー
     startDownload: ダウンロード開始
+
+downloadNotifications:
+  completedTitle: ダウンロード完了
+  failedTitle: ダウンロード失敗
+  completedBody: '${name} のダウンロードが完了しました'
+  failedBody: '${name} のダウンロードに失敗しました'
+  completedToast: '${name} をダウンロードしました'
+  failedToast: '${name} のダウンロードに失敗しました'
+  channelName: ダウンロード状態
+  channelDescription: ダウンロードの完了と失敗の通知
 
 favorite:
   errors:

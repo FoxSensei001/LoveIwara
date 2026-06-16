@@ -10,6 +10,8 @@ android {
     ndkVersion "27.0.12077973"
 
     compileOptions {
+        // flutter_local_notifications 需要 core library desugaring 支持
+        coreLibraryDesugaringEnabled true
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
@@ -46,6 +48,8 @@ android {
         }
         debug {
             signingConfig signingConfigs.debug
+            // 加后缀，使 debug 包可与正式版并排安装、互不影响数据（仅本地调试用）
+            applicationIdSuffix ".debug"
         }
     }
 
@@ -79,6 +83,7 @@ android {
 dependencies {
     implementation 'com.google.errorprone:error_prone_annotations:2.10.0'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
 }
 
 flutter {

@@ -85,6 +85,43 @@ class PermissionService extends GetxService {
     }
   }
 
+  /// 检查是否有通知权限。
+  /// Android：`Permission.notification` 在 Android 13 以下系统默认授予，
+  /// permission_handler 会直接返回 granted；其他平台交由各自插件处理，返回 true。
+  Future<bool> hasNotificationPermission() async {
+    try {
+      if (GetPlatform.isAndroid) {
+        return await Permission.notification.isGranted;
+      }
+      return true;
+    } catch (e) {
+      LogUtils.e('检查通知权限失败', tag: 'PermissionService', error: e);
+      return false;
+    }
+  }
+
+  /// 请求通知权限（主要针对 Android 13+ 的 POST_NOTIFICATIONS）。
+  /// Android 13 以下系统默认授予，request 会直接返回 granted；被永久拒绝时
+  /// 引导用户到系统设置。其他平台返回 true（由对应插件自行请求）。
+  Future<bool> requestNotificationPermission() async {
+    try {
+      if (GetPlatform.isAndroid) {
+        if (await Permission.notification.isGranted) {
+          return true;
+        }
+        final status = await Permission.notification.request();
+        if (status.isPermanentlyDenied) {
+          await openAppSettings();
+        }
+        return status.isGranted;
+      }
+      return true;
+    } catch (e) {
+      LogUtils.e('请求通知权限失败', tag: 'PermissionService', error: e);
+      return false;
+    }
+  }
+
   /// 获取权限状态详情
   Future<PermissionStatus> getStoragePermissionStatus() async {
     try {

@@ -64,6 +64,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsConversationEn conversation = TranslationsConversationEn._(_root);
 	late final TranslationsSplashEn splash = TranslationsSplashEn._(_root);
 	late final TranslationsDownloadEn download = TranslationsDownloadEn._(_root);
+	late final TranslationsDownloadNotificationsEn downloadNotifications = TranslationsDownloadNotificationsEn._(_root);
 	late final TranslationsFavoriteEn favorite = TranslationsFavoriteEn._(_root);
 	late final TranslationsTranslationEn translation = TranslationsTranslationEn._(_root);
 	late final TranslationsNavigationOrderSettingsEn navigationOrderSettings = TranslationsNavigationOrderSettingsEn._(_root);
@@ -3133,6 +3134,39 @@ class TranslationsDownloadEn {
 	late final TranslationsDownloadBatchDownloadEn batchDownload = TranslationsDownloadBatchDownloadEn._(_root);
 }
 
+// Path: downloadNotifications
+class TranslationsDownloadNotificationsEn {
+	TranslationsDownloadNotificationsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Download complete'
+	String get completedTitle => 'Download complete';
+
+	/// en: 'Download failed'
+	String get failedTitle => 'Download failed';
+
+	/// en: '${name} downloaded successfully'
+	String completedBody({required Object name}) => '${name} downloaded successfully';
+
+	/// en: '${name} failed to download'
+	String failedBody({required Object name}) => '${name} failed to download';
+
+	/// en: '${name} downloaded'
+	String completedToast({required Object name}) => '${name} downloaded';
+
+	/// en: '${name} download failed'
+	String failedToast({required Object name}) => '${name} download failed';
+
+	/// en: 'Download status'
+	String get channelName => 'Download status';
+
+	/// en: 'Notifications for completed and failed downloads'
+	String get channelDescription => 'Notifications for completed and failed downloads';
+}
+
 // Path: favorite
 class TranslationsFavoriteEn {
 	TranslationsFavoriteEn._(this._root);
@@ -5573,6 +5607,15 @@ class TranslationsSettingsDownloadSettingsEn {
 	/// en: 'Download Settings'
 	String get downloadSettings => 'Download Settings';
 
+	/// en: 'Download Notifications'
+	String get enableDownloadNotifications => 'Download Notifications';
+
+	/// en: 'Show a system notification when a single download completes or fails'
+	String get enableDownloadNotificationsDescription => 'Show a system notification when a single download completes or fails';
+
+	/// en: 'Notification permission denied. In-app notifications still work; enable system notifications in settings.'
+	String get notificationPermissionDenied => 'Notification permission denied. In-app notifications still work; enable system notifications in settings.';
+
 	/// en: 'Storage Permission Status'
 	String get storagePermissionStatus => 'Storage Permission Status';
 
@@ -6519,6 +6562,9 @@ class TranslationsDownloadErrorsEn {
 	/// en: 'Download task already exists'
 	String get downloadTaskAlreadyExists => 'Download task already exists';
 
+	/// en: 'The save path is already in use by another task'
+	String get downloadTaskSavePathConflict => 'The save path is already in use by another task';
+
 	/// en: 'Video already downloaded'
 	String get videoAlreadyDownloaded => 'Video already downloaded';
 
@@ -6722,6 +6768,9 @@ class TranslationsDownloadBatchDownloadEn {
 
 	/// en: 'Processing ${current}/${total}'
 	String progress({required Object current, required Object total}) => 'Processing ${current}/${total}';
+
+	/// en: 'Queued'
+	String get queued => 'Queued';
 
 	/// en: 'Success'
 	String get success => 'Success';
@@ -8002,6 +8051,9 @@ extension on Translations {
 			'settings.cdnUnreachableStatus' => 'Unreachable',
 			'settings.cdnNotTestedStatus' => 'Not Tested',
 			'settings.downloadSettings.downloadSettings' => 'Download Settings',
+			'settings.downloadSettings.enableDownloadNotifications' => 'Download Notifications',
+			'settings.downloadSettings.enableDownloadNotificationsDescription' => 'Show a system notification when a single download completes or fails',
+			'settings.downloadSettings.notificationPermissionDenied' => 'Notification permission denied. In-app notifications still work; enable system notifications in settings.',
 			'settings.downloadSettings.storagePermissionStatus' => 'Storage Permission Status',
 			'settings.downloadSettings.accessPublicDirectoryNeedStoragePermission' => 'Access Public Directory Need Storage Permission',
 			'settings.downloadSettings.checkingPermissionStatus' => 'Checking Permission Status...',
@@ -8277,11 +8329,11 @@ extension on Translations {
 			'videoDetail.cast.deviceTypes.mediaRenderer' => 'Media Player',
 			'videoDetail.cast.deviceTypes.mediaServer' => 'Media Server',
 			'videoDetail.cast.deviceTypes.internetGatewayDevice' => 'Router',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.deviceTypes.basicDevice' => 'Basic Device',
 			'videoDetail.cast.deviceTypes.dimmableLight' => 'Smart Light',
 			'videoDetail.cast.deviceTypes.wlanAccessPoint' => 'WLAN Access Point',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.deviceTypes.wlanConnectionDevice' => 'WLAN Connection Device',
 			'videoDetail.cast.deviceTypes.printer' => 'Printer',
 			'videoDetail.cast.deviceTypes.scanner' => 'Scanner',
@@ -8513,6 +8565,7 @@ extension on Translations {
 			'download.errors.downloadFailed' => 'Download failed',
 			'download.errors.videoInfoNotFound' => 'Video info not found',
 			'download.errors.downloadTaskAlreadyExists' => 'Download task already exists',
+			'download.errors.downloadTaskSavePathConflict' => 'The save path is already in use by another task',
 			'download.errors.videoAlreadyDownloaded' => 'Video already downloaded',
 			'download.errors.downloadFailedForMessage' => ({required Object errorInfo}) => 'Add download task failed: ${errorInfo}',
 			'download.errors.userPausedDownload' => 'User paused download',
@@ -8649,6 +8702,7 @@ extension on Translations {
 			'download.batchDownload.selectedGalleriesCount' => ({required Object count}) => 'Selected ${count} gallery(ies)',
 			'download.batchDownload.qualityNote' => 'If the selected quality is unavailable, the best available quality will be used',
 			'download.batchDownload.progress' => ({required Object current, required Object total}) => 'Processing ${current}/${total}',
+			'download.batchDownload.queued' => 'Queued',
 			'download.batchDownload.success' => 'Success',
 			'download.batchDownload.skipped' => 'Skipped',
 			'download.batchDownload.failed' => 'Failed',
@@ -8659,6 +8713,14 @@ extension on Translations {
 			'download.batchDownload.reasonNoSavePath' => 'Cannot get save path',
 			'download.batchDownload.reasonOther' => 'Other error',
 			'download.batchDownload.startDownload' => 'Start Download',
+			'downloadNotifications.completedTitle' => 'Download complete',
+			'downloadNotifications.failedTitle' => 'Download failed',
+			'downloadNotifications.completedBody' => ({required Object name}) => '${name} downloaded successfully',
+			'downloadNotifications.failedBody' => ({required Object name}) => '${name} failed to download',
+			'downloadNotifications.completedToast' => ({required Object name}) => '${name} downloaded',
+			'downloadNotifications.failedToast' => ({required Object name}) => '${name} download failed',
+			'downloadNotifications.channelName' => 'Download status',
+			'downloadNotifications.channelDescription' => 'Notifications for completed and failed downloads',
 			'favorite.errors.addFailed' => 'Add failed',
 			'favorite.errors.addSuccess' => 'Add success',
 			'favorite.errors.deleteFolderFailed' => 'Delete folder failed',
@@ -8781,6 +8843,8 @@ extension on Translations {
 			'translation.aiTranslation' => 'AI Translation',
 			'translation.aiTranslationDescription' => 'Intelligent translation service based on large language models',
 			'translation.deeplxTranslation' => 'DeepLX Translation',
+			_ => null,
+		} ?? switch (path) {
 			'translation.deeplxTranslationDescription' => 'Open source implementation of DeepL translation, providing high-quality translation',
 			'translation.googleTranslationFeatures' => 'Features',
 			'translation.freeToUse' => 'Free to use',
@@ -8794,8 +8858,6 @@ extension on Translations {
 			'translation.deeplxTranslationService' => 'DeepLX Translation Service',
 			'translation.deeplxDescription' => 'DeepLX is an open source implementation of DeepL translation, supporting Free, Pro and Official endpoint modes',
 			'translation.serverAddress' => 'Server Address',
-			_ => null,
-		} ?? switch (path) {
 			'translation.serverAddressHint' => 'https://api.deeplx.org',
 			'translation.serverAddressHelperText' => 'Base address of DeepLX server',
 			'translation.endpointType' => 'Endpoint Type',
@@ -9295,6 +9357,8 @@ extension on Translations {
 			'proxyHelper.copy' => 'Copy',
 			'tagSelector.selectTags' => 'Select Tags',
 			'tagSelector.clickToSelectTags' => 'Click to select tags',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.addTag' => 'Add Tag',
 			'tagSelector.removeTag' => 'Remove Tag',
 			'tagSelector.deleteTag' => 'Delete Tag',
@@ -9308,8 +9372,6 @@ extension on Translations {
 			'tagSelector.delete' => 'Delete',
 			'anime4k.realTimeVideoUpscalingAndDenoising' => 'Real-time video upscaling and denoising, improving animation video quality',
 			'anime4k.settings' => 'Anime4K Settings',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.preset' => 'Anime4K Preset',
 			'anime4k.disable' => 'Disable Anime4K',
 			'anime4k.disableDescription' => 'Disable video enhancement effects',

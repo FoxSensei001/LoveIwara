@@ -785,6 +785,9 @@ settings:
   cdnNotTestedStatus: Not Tested
   downloadSettings:
     downloadSettings: Download Settings
+    enableDownloadNotifications: Download Notifications
+    enableDownloadNotificationsDescription: Show a system notification when a single download completes or fails
+    notificationPermissionDenied: Notification permission denied. In-app notifications still work; enable system notifications in settings.
     storagePermissionStatus: Storage Permission Status
     accessPublicDirectoryNeedStoragePermission: Access Public Directory Need Storage Permission
     checkingPermissionStatus: Checking Permission Status...
@@ -1351,6 +1354,7 @@ download:
     downloadFailed: Download failed
     videoInfoNotFound: Video info not found
     downloadTaskAlreadyExists: Download task already exists
+    downloadTaskSavePathConflict: The save path is already in use by another task
     videoAlreadyDownloaded: Video already downloaded
     downloadFailedForMessage: 'Add download task failed: ${errorInfo}'
     userPausedDownload: User paused download
@@ -1488,6 +1492,7 @@ download:
     selectedGalleriesCount(count): 'Selected ${count} gallery(ies)'
     qualityNote: If the selected quality is unavailable, the best available quality will be used
     progress(current, total): 'Processing ${current}/${total}'
+    queued: Queued
     success: Success
     skipped: Skipped
     failed: Failed
@@ -1498,6 +1503,16 @@ download:
     reasonNoSavePath: Cannot get save path
     reasonOther: Other error
     startDownload: Start Download
+
+downloadNotifications:
+  completedTitle: Download complete
+  failedTitle: Download failed
+  completedBody: '${name} downloaded successfully'
+  failedBody: '${name} failed to download'
+  completedToast: '${name} downloaded'
+  failedToast: '${name} download failed'
+  channelName: Download status
+  channelDescription: Notifications for completed and failed downloads
 
 favorite:
   errors:

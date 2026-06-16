@@ -368,6 +368,7 @@ enum ConfigKey {
   // 下载相关配置
   LAST_DOWNLOAD_QUALITY, // 上次下载的视频清晰度
   MAX_CONCURRENT_DOWNLOADS, // 最大同时下载任务数
+  DOWNLOAD_NOTIFICATIONS_ENABLED, // 下载完成/失败通知（系统通知+应用内通知）总开关
   // 日志系统配置
   LOGGING_ENABLED, // 日志总开关
   LOG_PERSISTENCE_ENABLED, // 日志持久化开关
@@ -596,6 +597,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'last_download_quality';
       case ConfigKey.MAX_CONCURRENT_DOWNLOADS:
         return 'max_concurrent_downloads';
+      case ConfigKey.DOWNLOAD_NOTIFICATIONS_ENABLED:
+        return 'download_notifications_enabled';
       case ConfigKey.LOGGING_ENABLED:
         return 'logging_enabled';
       case ConfigKey.LOG_PERSISTENCE_ENABLED:
@@ -843,6 +846,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'source'; // 默认清晰度为 source
       case ConfigKey.MAX_CONCURRENT_DOWNLOADS:
         return 3; // 默认最多同时下载 3 个任务
+      case ConfigKey.DOWNLOAD_NOTIFICATIONS_ENABLED:
+        return true; // 默认开启下载完成/失败通知（系统通知仍受系统权限控制）
       case ConfigKey.LOGGING_ENABLED:
         return false;
       case ConfigKey.LOG_PERSISTENCE_ENABLED:

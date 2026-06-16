@@ -6,6 +6,7 @@ import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/filename_template_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/services/download_notification_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/recommended_paths_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/download_test_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
@@ -124,6 +125,10 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
               delegate: SliverChildListDelegate([
                 // 最大并发下载数设置
                 _buildConcurrencySection(context),
+                const SizedBox(height: 16),
+
+                // 下载完成/失败通知开关
+                _buildNotificationSection(context),
                 const SizedBox(height: 16),
 
                 // 文件命名模板设置
@@ -628,6 +633,74 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                   DownloadService.to.kickQueue();
                 }
               },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNotificationSection(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.notifications_outlined,
+                  color: colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    t.settings.downloadSettings.enableDownloadNotifications,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+              ],
+            ),
+            Obx(
+              () => SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  t.settings.downloadSettings
+                      .enableDownloadNotificationsDescription,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).textTheme.bodySmall?.color,
+                      ),
+                ),
+                value:
+                    configService[ConfigKey.DOWNLOAD_NOTIFICATIONS_ENABLED] ??
+                    true,
+                onChanged: (value) async {
+                  configService[ConfigKey.DOWNLOAD_NOTIFICATIONS_ENABLED] =
+                      value;
+                  // 开启时请求系统通知权限；被拒绝时提示（应用内通知仍可用）。
+                  if (value &&
+                      Get.isRegistered<DownloadNotificationService>()) {
+                    final granted = await DownloadNotificationService.to
+                        .requestPermission();
+                    if (!granted) {
+                      showToastWidget(
+                        MDToastWidget(
+                          message: t.settings.downloadSettings
+                              .notificationPermissionDenied,
+                          type: MDToastType.warning,
+                        ),
+                      );
+                    }
+                  }
+                },
+              ),
             ),
           ],
         ),

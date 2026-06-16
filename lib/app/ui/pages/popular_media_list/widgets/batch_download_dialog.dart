@@ -155,23 +155,28 @@ class _BatchDownloadDialogState<T> extends State<BatchDownloadDialog<T>> {
           ),
         ),
         const SizedBox(height: 16),
-        ...List.generate(_qualityOptions.length, (index) {
-          final quality = _qualityOptions[index];
-          return RadioListTile<String>(
-            title: Text(quality),
-            value: quality,
-            groupValue: _selectedQuality,
-            onChanged: (value) {
-              if (value != null) {
-                setState(() {
-                  _selectedQuality = value;
-                });
-              }
-            },
-            dense: true,
-            contentPadding: EdgeInsets.zero,
-          );
-        }),
+        RadioGroup<String>(
+          groupValue: _selectedQuality,
+          onChanged: (value) {
+            if (value != null) {
+              setState(() {
+                _selectedQuality = value;
+              });
+            }
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(_qualityOptions.length, (index) {
+              final quality = _qualityOptions[index];
+              return RadioListTile<String>(
+                title: Text(quality),
+                value: quality,
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+              );
+            }),
+          ),
+        ),
       ],
     );
   }
@@ -180,7 +185,7 @@ class _BatchDownloadDialogState<T> extends State<BatchDownloadDialog<T>> {
     return Obx(() {
       final processed = _batchDownloadService.processedCount.value;
       final total = _batchDownloadService.totalCount.value;
-      final success = _batchDownloadService.successCount.value;
+      final queued = _batchDownloadService.queuedCount.value;
       final failed = _batchDownloadService.failedCount.value;
       final skipped = _batchDownloadService.skippedCount.value;
       final currentTitle = _batchDownloadService.currentProcessingTitle.value;
@@ -215,8 +220,8 @@ class _BatchDownloadDialogState<T> extends State<BatchDownloadDialog<T>> {
                 context,
                 Icons.check_circle,
                 Colors.green,
-                success.toString(),
-                t.download.batchDownload.success,
+                queued.toString(),
+                t.download.batchDownload.queued,
               ),
               const SizedBox(width: 8),
               _buildStatChip(
@@ -308,8 +313,8 @@ class _BatchDownloadDialogState<T> extends State<BatchDownloadDialog<T>> {
               context,
               Icons.check_circle,
               Colors.green,
-              result.success.toString(),
-              t.download.batchDownload.success,
+              result.queued.toString(),
+              t.download.batchDownload.queued,
             ),
             const SizedBox(width: 8),
             _buildStatChip(
@@ -489,7 +494,7 @@ class _BatchDownloadDialogState<T> extends State<BatchDownloadDialog<T>> {
       }
 
       LogUtils.i(
-        '批量下载完成: 成功=${result.success}, 失败=${result.failed}, 跳过=${result.skipped}',
+        '批量下载完成: 入队=${result.queued}, 失败=${result.failed}, 跳过=${result.skipped}',
         'BatchDownloadDialog',
       );
 

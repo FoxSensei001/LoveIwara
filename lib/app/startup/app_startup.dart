@@ -15,6 +15,7 @@ import 'package:i_iwara/app/services/conversation_service.dart';
 import 'package:i_iwara/app/services/deep_link_service.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/services/download_notification_service.dart';
 import 'package:i_iwara/app/services/emoji_library_service.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/services/filename_template_service.dart';
@@ -310,6 +311,10 @@ class AppStartupCoordinator implements AppStartupRunner {
     _registerDeferredLazy<ConversationService>(() => ConversationService());
 
     _registerDeferredSingleton<PermissionService>(PermissionService());
+    // 系统通知服务需在 DownloadService 之前注册，确保派发钩子能解析到它。
+    _registerDeferredSingleton<DownloadNotificationService>(
+      DownloadNotificationService(),
+    );
     _registerDeferredSingleton<DownloadService>(DownloadService());
     _registerDeferredSingleton<DownloadPathService>(DownloadPathService());
     _registerDeferredSingleton<FilenameTemplateService>(

@@ -3,12 +3,16 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/download_notification_service.dart';
+import 'package:i_iwara/app/services/download_path_service.dart';
+import 'package:i_iwara/app/services/filename_template_service.dart';
+import 'package:i_iwara/app/services/message_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:path/path.dart' as path_lib;
@@ -37,6 +41,12 @@ class DownloadService extends GetxService {
   RxInt get taskStatusChangedNotifier => _taskStatusChangedNotifier;
 
   final _repository = DownloadTaskRepository();
+
+  /// 已派发「终态通知」（完成/失败）的任务 id 集合，用于去重：
+  /// 同一次终态转换只通知一次。当任务重新回到非终态（pending/downloading/
+  /// paused）时会从集合移除，从而允许「续传后再次失败」「重下后再次完成」等
+  /// 真正的新一次终态再次通知。
+  final Set<String> _notifiedTerminalTaskIds = <String>{};
 
   /// 允许的并发下载数范围
   static const minConcurrentDownloads = 1;
@@ -150,6 +160,77 @@ class DownloadService extends GetxService {
     _galleryImageProgress[taskId] = imageProgress;
   }
 
+  bool _enqueueTaskId(String taskId) {
+    if (_downloadQueue.contains(taskId) ||
+        _activeDownloads.containsKey(taskId)) {
+      LogUtils.d('任务已在队列或下载中，跳过重复入队: $taskId', 'DownloadService');
+      return false;
+    }
+    _downloadQueue.add(taskId);
+    return true;
+  }
+
+  bool _galleryImageExists(GalleryDownloadExtData galleryData, String imageId) {
+    final localPath = galleryData.localPaths[imageId];
+    return localPath != null && File(localPath).existsSync();
+  }
+
+  int _countDownloadedGalleryImages(GalleryDownloadExtData galleryData) {
+    return galleryData.imageList.keys
+        .where((imageId) => _galleryImageExists(galleryData, imageId))
+        .length;
+  }
+
+  void _syncGalleryProgressFromData(
+    String taskId,
+    GalleryDownloadExtData galleryData,
+  ) {
+    final previousImageProgress = _galleryImageProgress[taskId] ?? {};
+    _galleryDownloadProgress[taskId] = {
+      for (final imageId in galleryData.imageList.keys)
+        imageId: _galleryImageExists(galleryData, imageId),
+    };
+    _galleryImageProgress[taskId] = {
+      for (final imageId in galleryData.imageList.keys)
+        imageId: _galleryImageExists(galleryData, imageId)
+            ? 1.0
+            : previousImageProgress[imageId] ?? 0.0,
+    };
+  }
+
+  void _refreshGalleryTaskProgress(
+    DownloadTask task,
+    GalleryDownloadExtData galleryData,
+  ) {
+    _syncGalleryProgressFromData(task.id, galleryData);
+    task.totalBytes = galleryData.imageList.length;
+    task.downloadedBytes = _countDownloadedGalleryImages(galleryData);
+  }
+
+  static String _safeExtensionFromUrl(String url) {
+    String extension = '';
+    try {
+      extension = path_lib.extension(Uri.parse(url).path);
+    } catch (_) {
+      extension = path_lib.extension(url.split('?').first);
+    }
+
+    if (!RegExp(r'^\.[A-Za-z0-9]{1,10}$').hasMatch(extension)) {
+      return '.jpg';
+    }
+    return extension;
+  }
+
+  static String buildGalleryImageSavePath({
+    required String galleryDirectory,
+    required String imageId,
+    required String url,
+  }) {
+    final fileName =
+        '${FilenameTemplateService.sanitizePathSegment(imageId, fallback: 'image')}${_safeExtensionFromUrl(url)}';
+    return DownloadPathService.safeJoinUnderBase(galleryDirectory, [fileName]);
+  }
+
   // =============================== 初始化 ===============================
   @override
   Future<void> onInit() async {
@@ -182,7 +263,7 @@ class DownloadService extends GetxService {
         }
 
         // 队列中仅维护任务 id，顺序即为 created_at 升序
-        _downloadQueue.add(task.id);
+        _enqueueTaskId(task.id);
       }
 
       LogUtils.d(
@@ -211,8 +292,10 @@ class DownloadService extends GetxService {
   Future<void> addTask(DownloadTask task) async {
     LogUtils.d('添加任务: ${task.id}', 'DownloadService');
 
-    // 格式化task的下载路径
-    task.savePath = CommonUtils.formatSavePathUriByPath(task.savePath);
+    final requestedSavePath = CommonUtils.formatSavePathUriByPath(
+      task.savePath,
+    );
+    task.savePath = requestedSavePath;
     try {
       // 自动补全媒体索引字段，便于后续通过 media_type/media_id/quality 做高效查询
       try {
@@ -234,15 +317,29 @@ class DownloadService extends GetxService {
         LogUtils.w('自动填充下载任务媒体索引字段失败: $e', 'DownloadService');
       }
 
-      // 直接插入数据库，因为ID是唯一的
+      task.savePath = await _resolveUniqueTaskSavePath(task, requestedSavePath);
+
       task.status = DownloadStatus.pending;
-      await _repository.insertTask(task);
+      await _insertTaskWithSavePathRetry(task, requestedSavePath);
 
       // 仅添加到下载队列，pending 任务不常驻内存
-      _downloadQueue.add(task.id);
+      _enqueueTaskId(task.id);
 
       LogUtils.i('添加下载任务: ${task.fileName}', 'DownloadService');
       _processQueue();
+    } on DuplicateDownloadTaskException catch (e) {
+      final message = switch (e.type) {
+        DownloadTaskConflictType.media =>
+          slang.t.download.errors.downloadTaskAlreadyExists,
+        DownloadTaskConflictType.savePath =>
+          slang.t.download.errors.downloadTaskSavePathConflict,
+        DownloadTaskConflictType.id =>
+          slang.t.download.errors.downloadFailedForMessage(
+            errorInfo: _getErrorMessage(e),
+          ),
+      };
+      _showMessage(message, Colors.orange);
+      throw Exception(message);
     } catch (e) {
       LogUtils.e('添加下载任务失败', tag: 'DownloadService', error: e);
       _showMessage(
@@ -255,29 +352,82 @@ class DownloadService extends GetxService {
     }
   }
 
+  bool _taskUsesDirectorySavePath(DownloadTask task) {
+    return task.extData?.type == DownloadTaskExtDataType.gallery;
+  }
+
+  Future<String> _resolveUniqueTaskSavePath(
+    DownloadTask task,
+    String requestedSavePath,
+  ) {
+    return DownloadPathService.resolveAvailablePath(
+      requestedSavePath,
+      isDirectory: _taskUsesDirectorySavePath(task),
+      isReserved: (candidate) {
+        final normalized = CommonUtils.formatSavePathUriByPath(candidate);
+        return _repository.existsTaskBySavePath(normalized);
+      },
+    );
+  }
+
+  Future<void> _insertTaskWithSavePathRetry(
+    DownloadTask task,
+    String requestedSavePath,
+  ) async {
+    for (var attempt = 0; attempt < 3; attempt++) {
+      try {
+        await _repository.insertTask(task);
+        return;
+      } on DuplicateDownloadTaskException catch (e) {
+        if (e.type == DownloadTaskConflictType.savePath && attempt < 2) {
+          task.savePath = await _resolveUniqueTaskSavePath(
+            task,
+            requestedSavePath,
+          );
+          continue;
+        }
+        rethrow;
+      }
+    }
+  }
+
   // 暂停任务 [内存 -> 数据库]
   Future<void> pauseTask(String taskId) async {
-    LogUtils.d('暂停任务: $taskId', 'DownloadService');
-
-    // 优先从内存中获取下载中任务，如不存在则从数据库获取
-    final task = _activeTasks[taskId] ?? await _repository.getTaskById(taskId);
-    if (task == null) {
-      LogUtils.d('任务不存在: $taskId', 'DownloadService');
+    if (_processingTaskIds.contains(taskId)) {
       return;
     }
+    _processingTaskIds.add(taskId);
 
-    task.status = DownloadStatus.paused;
-    // [优先更新持久化信息]
-    await _repository.updateTask(task);
+    LogUtils.d('暂停任务: $taskId', 'DownloadService');
 
-    // 从内存/队列中移除、取消下载、移除计时器
-    _clearMemoryTask(taskId, '用户暂停下载');
+    try {
+      // 优先从内存中获取下载中任务，如不存在则从数据库获取
+      final task =
+          _activeTasks[taskId] ?? await _repository.getTaskById(taskId);
+      if (task == null) {
+        LogUtils.d('任务不存在: $taskId', 'DownloadService');
+        return;
+      }
 
-    // 通知UI变更
-    _taskStatusChangedNotifier.value++;
+      task.status = DownloadStatus.paused;
+      // [优先更新持久化信息]
+      await _repository.updateTask(task);
 
-    // 处理等待队列中的下一个任务
-    _processQueue();
+      // 清理内存前先判断是否真有进行中的下载，供取消等待判断是否需要兜底延时。
+      final hadActiveDownload = _activeDownloads.containsKey(taskId);
+
+      // 从内存/队列中移除、取消下载、移除计时器
+      _clearMemoryTask(taskId, '用户暂停下载');
+      await _waitForCancelCleanup(taskId, hadActiveDownload: hadActiveDownload);
+
+      // 通知UI变更
+      _taskStatusChangedNotifier.value++;
+
+      // 处理等待队列中的下一个任务
+      _processQueue();
+    } finally {
+      _processingTaskIds.remove(taskId);
+    }
   }
 
   // 恢复任务 [数据库 -> 内存]
@@ -318,6 +468,8 @@ class DownloadService extends GetxService {
             task.status = DownloadStatus.failed;
             task.error = slang.t.download.errors.canNotRefreshVideoTask;
             await _repository.updateTask(task); // [更新持久化信息]
+            // 此路径不经过 _updateTaskStatus，需显式派发终态通知。
+            await _dispatchTerminalNotification(task);
             _clearMemoryTask(taskId, '刷新视频任务失败，无法处理');
             LogUtils.d('刷新视频任务失败，无法处理: $taskId', 'DownloadService');
             return;
@@ -327,8 +479,10 @@ class DownloadService extends GetxService {
           await _repository.updateTask(task);
         }
 
+        // 重新回到等待队列，解除终态通知去重，允许后续真正的新终态再次通知。
+        _notifiedTerminalTaskIds.remove(taskId);
         // 仅将任务 id 加入等待队列，pending 任务不常驻内存
-        _downloadQueue.add(taskId);
+        _enqueueTaskId(taskId);
 
         // 通知任务状态变更
         _taskStatusChangedNotifier.value++;
@@ -383,7 +537,145 @@ class DownloadService extends GetxService {
     // 移除计时器和进度追踪器
     _taskTimers[taskId]?.cancel();
     _taskTimers.remove(taskId);
+    // 释放终态通知去重令牌：删除/暂停等清理后，集合不再无界增长；任务若再次
+    // 进入终态（如重下）会被当作一次新的终态正常通知。
+    _notifiedTerminalTaskIds.remove(taskId);
     // 不立即移除 _progressTriggers，因为 UI 可能还在监听，让它自然回收或在适当时候清理
+  }
+
+  /// 等待被取消任务的资源（文件句柄/订阅）真正释放后再返回。
+  ///
+  /// [hadActiveDownload] 表示调用方在清理内存前该任务确有进行中的下载。
+  /// 若任务原本就处于 pending/已暂停（没有 dio/stream 在跑），则无需等待，
+  /// 直接返回，避免对图库等无清理回调的任务白等 500ms。
+  Future<void> _waitForCancelCleanup(
+    String taskId, {
+    required bool hadActiveDownload,
+  }) async {
+    if (!hadActiveDownload) return;
+
+    for (var i = 0; i < 3; i++) {
+      final cleanup = _cancelCleanupFutures[taskId];
+      if (cleanup != null) {
+        try {
+          await cleanup;
+        } catch (_) {}
+        return;
+      }
+      await Future<void>.delayed(Duration.zero);
+    }
+
+    // 图库下载没有 RandomAccessFile 清理回调；视频回调若尚未注册，也给
+    // dio/stream 取消路径一个短暂窗口，避免立即重启或删除同一路径。
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+  }
+
+  static String _deleteComparisonPath(String rawPath) {
+    final normalized = path_lib.normalize(path_lib.absolute(rawPath));
+    return Platform.isWindows ? normalized.toLowerCase() : normalized;
+  }
+
+  static bool _sameDeletePath(String left, String right) {
+    return _deleteComparisonPath(left) == _deleteComparisonPath(right);
+  }
+
+  /// 用户主目录：*nix 走 HOME，Windows 走 USERPROFILE（Windows 上通常没有 HOME）。
+  static String? get _userHomeDirectory {
+    final home = Platform.environment['HOME'];
+    if (home != null && home.isNotEmpty) return home;
+    final userProfile = Platform.environment['USERPROFILE'];
+    if (userProfile != null && userProfile.isNotEmpty) return userProfile;
+    return null;
+  }
+
+  static bool _isProtectedRecursiveDeletePath(String targetPath) {
+    final protectedPaths = <String>[
+      path_lib.separator,
+      // 文件系统根（含 Windows 盘符根，如 C:\）也视为受保护，避免误删整个磁盘。
+      path_lib.rootPrefix(targetPath),
+      if (_userHomeDirectory case final home?) ...[
+        home,
+        path_lib.join(home, 'Desktop'),
+        path_lib.join(home, 'Documents'),
+        path_lib.join(home, 'Downloads'),
+        path_lib.join(home, 'Pictures'),
+        path_lib.join(home, 'Movies'),
+        path_lib.join(home, 'Music'),
+      ],
+    ];
+
+    return protectedPaths.any((protectedPath) {
+      return protectedPath.isNotEmpty &&
+          _sameDeletePath(targetPath, protectedPath);
+    });
+  }
+
+  static bool isSafeDeleteTarget(
+    String rawPath,
+    FileSystemEntityType entityType,
+  ) {
+    if (rawPath.trim().isEmpty) return false;
+
+    final targetPath = _deleteComparisonPath(rawPath);
+    final basename = path_lib.basename(targetPath);
+    if (basename.isEmpty || basename == '.' || basename == '..') {
+      return false;
+    }
+
+    final parent = path_lib.dirname(targetPath);
+    if (parent == targetPath) return false;
+
+    if (entityType == FileSystemEntityType.directory &&
+        _isProtectedRecursiveDeletePath(targetPath)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<List<String>> _knownDownloadRoots() async {
+    final roots = <String>[];
+
+    try {
+      final defaultDir = await CommonUtils.getAppDirectory(
+        pathSuffix: 'downloads',
+      );
+      roots.add(defaultDir.path);
+    } catch (e) {
+      LogUtils.w('获取默认下载根目录失败: $e', 'DownloadService');
+    }
+
+    try {
+      if (Get.isRegistered<ConfigService>()) {
+        final configService = Get.find<ConfigService>();
+        final isCustomPathEnabled =
+            configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
+        final customPath =
+            configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String;
+        if (isCustomPathEnabled && customPath.trim().isNotEmpty) {
+          roots.add(customPath);
+        }
+      }
+    } catch (e) {
+      LogUtils.w('获取自定义下载根目录失败: $e', 'DownloadService');
+    }
+
+    return roots.toSet().toList();
+  }
+
+  Future<bool> _isSafeDeleteTargetForTask(
+    DownloadTask task,
+    FileSystemEntityType entityType,
+  ) async {
+    if (!isSafeDeleteTarget(task.savePath, entityType)) return false;
+    if (entityType != FileSystemEntityType.directory) return true;
+
+    final roots = await _knownDownloadRoots();
+    if (roots.isEmpty) return true;
+
+    return roots.any((root) {
+      return DownloadPathService.isPathInsideBase(root, task.savePath);
+    });
   }
 
   // 删除任务
@@ -419,15 +711,8 @@ class DownloadService extends GetxService {
         LogUtils.d('任务正在下载中，先取消下载: $taskId', 'DownloadService');
         _clearMemoryTask(taskId, '删除任务前取消下载');
         // 等待 whenCancel 真正关闭文件句柄/取消订阅再删文件，避免「句柄未释放」
-        // 导致删除失败（Windows 上尤为明显）。拿不到清理 Future 时退回固定延时兜底。
-        final cleanup = _cancelCleanupFutures[taskId];
-        if (cleanup != null) {
-          try {
-            await cleanup;
-          } catch (_) {}
-        } else {
-          await Future.delayed(const Duration(milliseconds: 500));
-        }
+        // 导致删除失败（Windows 上尤为明显）。拿不到清理 Future 时退回短延时兜底。
+        await _waitForCancelCleanup(taskId, hadActiveDownload: true);
       }
 
       // 尝试删除文件，支持重试
@@ -435,6 +720,16 @@ class DownloadService extends GetxService {
       int retryCount = 0;
       const maxRetries = 3;
       const retryDelay = Duration(milliseconds: 300);
+      final deleteTargetType = FileSystemEntity.typeSync(task.savePath);
+
+      if (!await _isSafeDeleteTargetForTask(task, deleteTargetType)) {
+        LogUtils.e('拒绝删除不安全的下载目标: ${task.savePath}', tag: 'DownloadService');
+        if (!ignoreFileDeleteError) {
+          _showMessage(slang.t.download.errors.deleteFileError, Colors.red);
+          return;
+        }
+        isDeleteSuccess = true;
+      }
 
       while (!isDeleteSuccess && retryCount < maxRetries) {
         final fileOrDir = FileSystemEntity.typeSync(task.savePath);
@@ -563,7 +858,9 @@ class DownloadService extends GetxService {
         final task = await _repository.getTaskById(taskId);
 
         // 仅对仍为 pending 的任务进行下载；否则跳过（已被取出，无需再移除）
-        if (task == null || task.status != DownloadStatus.pending) {
+        if (task == null ||
+            task.status != DownloadStatus.pending ||
+            _activeDownloads.containsKey(taskId)) {
           continue; // 继续处理队列中的下一个任务
         }
 
@@ -764,7 +1061,10 @@ class DownloadService extends GetxService {
               task.totalBytes = parsed;
               LogUtils.d('从下载响应获取文件大小: ${task.totalBytes}', 'DownloadService');
             } else {
-              LogUtils.w('无法解析 content-length: $contentLength', 'DownloadService');
+              LogUtils.w(
+                '无法解析 content-length: $contentLength',
+                'DownloadService',
+              );
             }
           }
         }
@@ -1093,6 +1393,92 @@ class DownloadService extends GetxService {
 
     // 通知任务状态变更
     _taskStatusChangedNotifier.value++;
+
+    // 统一的终态通知派发入口（视频完成/失败、图库 outer-catch 失败均走此处）。
+    await _dispatchTerminalNotification(task);
+  }
+
+  /// 取任务的展示标题：优先用扩展数据里的媒体标题，回退到文件名。
+  String _noticeTitleFor(DownloadTask task) {
+    try {
+      final ext = task.extData;
+      if (ext != null) {
+        final title = ext.data['title'] as String?;
+        if (title != null && title.trim().isNotEmpty) {
+          return title;
+        }
+      }
+    } catch (_) {
+      // 忽略解析异常，回退到文件名
+    }
+    return task.fileName;
+  }
+
+  /// 在任务进入终态（完成/失败）时，统一派发：应用内通知中心记录 + 即时 toast +
+  /// 系统通知。通过 [_notifiedTerminalTaskIds] 去重，保证每次终态转换仅触发一次；
+  /// 非终态调用则重新「武装」该任务，允许后续真正的新终态再次通知。
+  ///
+  /// 该方法可能从多个站点被调用（_updateTaskStatus、图库主完成路径、续传刷新失败
+  /// 路径），去重集合使重复路由无害。
+  Future<void> _dispatchTerminalNotification(DownloadTask task) async {
+    final isCompleted = task.status == DownloadStatus.completed;
+    final isFailed = task.status == DownloadStatus.failed;
+
+    if (!isCompleted && !isFailed) {
+      // 非终态：重新武装，允许后续真正的新终态再次通知。
+      _notifiedTerminalTaskIds.remove(task.id);
+      return;
+    }
+
+    // 总开关：统一控制系统通知 + 应用内通知 + toast。
+    // 注意要在去重 add 之前判断——关闭时直接返回，不消费去重令牌，
+    // 这样后续真正开启后该任务的新终态仍能正常通知。
+    try {
+      if (Get.isRegistered<ConfigService>()) {
+        final enabled =
+            Get.find<ConfigService>()[ConfigKey.DOWNLOAD_NOTIFICATIONS_ENABLED]
+                as bool? ??
+            true;
+        if (!enabled) return;
+      }
+    } catch (e) {
+      LogUtils.w('读取下载通知开关失败，按开启处理: $e', 'DownloadService');
+    }
+
+    // 去重：同一次终态转换只通知一次。
+    if (!_notifiedTerminalTaskIds.add(task.id)) {
+      return;
+    }
+
+    final title = _noticeTitleFor(task);
+
+    try {
+      // 1) 即时应用内 toast
+      if (Get.isRegistered<MessageService>()) {
+        Get.find<MessageService>().showMessage(
+          isCompleted
+              ? slang.t.downloadNotifications.completedToast(name: title)
+              : slang.t.downloadNotifications.failedToast(name: title),
+          isCompleted ? MDToastType.success : MDToastType.error,
+        );
+      }
+
+      // 2) 系统通知（不 await：Android 首次可能弹权限框，避免阻塞下载队列推进）
+      if (Get.isRegistered<DownloadNotificationService>()) {
+        final svc = Get.find<DownloadNotificationService>();
+        unawaited(
+          isCompleted
+              ? svc.showDownloadComplete(taskId: task.id, title: title)
+              : svc.showDownloadFailed(
+                  taskId: task.id,
+                  title: title,
+                  error: task.error,
+                ),
+        );
+      }
+    } catch (e) {
+      LogUtils.e('派发下载终态通知失败', tag: 'DownloadService', error: e);
+    }
   }
 
   String _getErrorMessage(dynamic error) {
@@ -1190,9 +1576,9 @@ class DownloadService extends GetxService {
       LogUtils.i('重试下载任务: ${task.fileName}', 'DownloadService');
       task.error = null;
       task.status = DownloadStatus.pending;
-      if (!_downloadQueue.contains(taskId)) {
-        _downloadQueue.add(taskId);
-      }
+      // 解除终态通知去重，重下完成/失败时可再次通知。
+      _notifiedTerminalTaskIds.remove(taskId);
+      _enqueueTaskId(taskId);
       await _repository.updateTask(task);
 
       // 通知UI并处理队列
@@ -1451,38 +1837,20 @@ class DownloadService extends GetxService {
     // 清理其他资源
     _activeTasks.clear();
     _downloadQueue.clear();
+    _notifiedTerminalTaskIds.clear();
 
     super.onClose();
   }
 
+  /// 统一通过 [MessageService]（oktoast）展示提示，替代散落的原生 SnackBar。
+  /// 沿用旧签名（含 [Color]）以免改动十余处调用点：红色映射为 error，其余为 info。
   void _showMessage(String message, Color color) {
-    // 改用 Flutter 自带的 ScaffoldMessenger + 当前 context 来展示 SnackBar，
-    // 避免依赖 Overlay 直接抛出 “No Overlay widget found”。
-    final context = rootNavigatorKey.currentContext;
-    if (context == null) {
-      LogUtils.w(
-        '当前没有可用的 BuildContext，跳过 SnackBar 提示: $message',
-        'DownloadService',
-      );
-      return;
+    final type = color == Colors.red ? MDToastType.error : MDToastType.info;
+    if (Get.isRegistered<MessageService>()) {
+      Get.find<MessageService>().showMessage(message, type);
+    } else {
+      LogUtils.w('MessageService 未注册，跳过提示: $message', 'DownloadService');
     }
-
-    final messenger = ScaffoldMessenger.maybeOf(context);
-    if (messenger == null) {
-      LogUtils.w(
-        '当前 context 下没有 ScaffoldMessenger，跳过 SnackBar 提示: $message',
-        'DownloadService',
-      );
-      return;
-    }
-
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 2),
-        backgroundColor: color,
-      ),
-    );
   }
 
   // 图库下载的方法
@@ -1504,24 +1872,9 @@ class DownloadService extends GetxService {
       _galleryDownloadProgress.remove(task.id);
       _galleryImageProgress.remove(task.id);
 
-      // 初始化进度跟踪状态
-      _galleryDownloadProgress[task.id] = {
-        for (var image in galleryData.imageList.entries) image.key: false,
-      };
-      _galleryImageProgress[task.id] = {
-        for (var image in galleryData.imageList.entries) image.key: 0,
-      };
-
       // 更新任务状态为下载中
       task.status = DownloadStatus.downloading;
-      task.totalBytes = galleryData.imageList.length;
-
-      // 计算已下载的图片数量
-      task.downloadedBytes = galleryData.imageList.entries.where((entry) {
-        final imageId = entry.key;
-        final localPath = galleryData.localPaths[imageId];
-        return localPath != null && File(localPath).existsSync();
-      }).length;
+      _refreshGalleryTaskProgress(task, galleryData);
 
       await _updateTaskStatus(task);
 
@@ -1552,21 +1905,16 @@ class DownloadService extends GetxService {
               task,
               imageUrl,
               imageId,
-              galleryData.imageList.length,
               cancelToken,
             );
 
             if (success) {
               // 验证文件确实下载成功
-              final localPath = galleryData.localPaths[imageId];
-              if (localPath != null && File(localPath).existsSync()) {
-                task.downloadedBytes = galleryData.imageList.entries.where((
-                  entry,
-                ) {
-                  final imgId = entry.key;
-                  final path = galleryData.localPaths[imgId];
-                  return path != null && File(path).existsSync();
-                }).length;
+              final latestGalleryData = GalleryDownloadExtData.fromJson(
+                task.extData!.data,
+              );
+              if (_galleryImageExists(latestGalleryData, imageId)) {
+                _refreshGalleryTaskProgress(task, latestGalleryData);
                 await _repository.updateTask(task);
                 // _activeTasks[task.id] = task; // 移除此行
                 _notifyProgress(task.id);
@@ -1599,18 +1947,16 @@ class DownloadService extends GetxService {
         task.status = DownloadStatus.paused;
       } else {
         // 重新获取最新的任务数据（因为可能在下载过程中已经更新）
-        final galleryData = GalleryDownloadExtData.fromJson(task.extData!.data);
+        final latestGalleryData = GalleryDownloadExtData.fromJson(
+          task.extData!.data,
+        );
 
         // 检查是否所有图片都下载成功
-        final allSuccess = galleryData.imageList.entries.every((entry) {
-          final imageId = entry.key;
-          final localPath = galleryData.localPaths[imageId];
-          return localPath != null && File(localPath).existsSync();
+        final allSuccess = latestGalleryData.imageList.keys.every((imageId) {
+          return _galleryImageExists(latestGalleryData, imageId);
         });
 
-        task.downloadedBytes = galleryData.localPaths.entries
-            .where((entry) => File(entry.value).existsSync())
-            .length;
+        _refreshGalleryTaskProgress(task, latestGalleryData);
 
         task.status = allSuccess
             ? DownloadStatus.completed
@@ -1642,6 +1988,9 @@ class DownloadService extends GetxService {
       _taskStatusChangedNotifier.value++; // 状态变更，通知列表刷新
       _notifyProgress(task.id); // 确保最后一次进度被更新
 
+      // 图库主完成/部分失败路径不经过 _updateTaskStatus，需显式派发终态通知。
+      await _dispatchTerminalNotification(task);
+
       // 等待一段时间后清理进度状态
       await Future.delayed(const Duration(seconds: 1));
       _galleryDownloadProgress.remove(task.id);
@@ -1669,11 +2018,13 @@ class DownloadService extends GetxService {
     DownloadTask task,
     String url,
     String imageId,
-    int totalImages,
     CancelToken cancelToken,
   ) async {
-    final fileName = '$imageId${path_lib.extension(url)}';
-    final savePath = path_lib.normalize(path_lib.join(task.savePath, fileName));
+    final savePath = buildGalleryImageSavePath(
+      galleryDirectory: task.savePath,
+      imageId: imageId,
+      url: url,
+    );
 
     RandomAccessFile? raf;
     try {
@@ -1701,8 +2052,7 @@ class DownloadService extends GetxService {
       await file.parent.create(recursive: true);
       raf = await file.open(mode: FileMode.writeOnly);
       int received = 0;
-      await for (final chunk
-          in (response.data.stream as Stream<List<int>>)) {
+      await for (final chunk in (response.data.stream as Stream<List<int>>)) {
         raf.writeFromSync(chunk);
         received += chunk.length;
         if (total > 0) {
@@ -1717,17 +2067,6 @@ class DownloadService extends GetxService {
       _updateGalleryProgress(task.id, imageId, true);
       _updateImageProgress(task.id, imageId, 1.0);
       _notifyProgress(task.id); // 通知 UI 更新
-
-      // 计算总进度
-      final downloadedCount =
-          _galleryDownloadProgress[task.id]?.values
-              .where((downloaded) => downloaded)
-              .length ??
-          0;
-
-      // 更新任务进度
-      task.downloadedBytes = downloadedCount;
-      task.totalBytes = totalImages;
 
       // 更新GalleryDownloadExtData中的localPaths
       if (task.extData?.type == DownloadTaskExtDataType.gallery) {
@@ -1747,6 +2086,7 @@ class DownloadService extends GetxService {
           type: DownloadTaskExtDataType.gallery,
           data: updatedData.toJson(),
         );
+        _refreshGalleryTaskProgress(task, updatedData);
 
         // 立即更新到数据库和内存
         await _repository.updateTask(task);

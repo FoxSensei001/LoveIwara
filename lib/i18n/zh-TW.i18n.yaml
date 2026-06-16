@@ -786,6 +786,9 @@ settings:
   cdnNotTestedStatus: 尚未測速
   downloadSettings:
     downloadSettings: 下載設定
+    enableDownloadNotifications: 下載通知
+    enableDownloadNotificationsDescription: 單個下載完成或失敗時彈出系統通知
+    notificationPermissionDenied: 通知權限被拒絕。應用內通知仍可用；如需系統通知請在系統設定中開啟。
     storagePermissionStatus: 儲存權限狀態
     accessPublicDirectoryNeedStoragePermission: 訪問公共目錄需要儲存權限
     checkingPermissionStatus: 檢查權限狀態...
@@ -1398,6 +1401,7 @@ download:
     videoInfoNotFound: 影片資訊不存在
     unknown: 未知
     downloadTaskAlreadyExists: 下載任務已存在
+    downloadTaskSavePathConflict: 該儲存路徑已被其他任務佔用
     videoAlreadyDownloaded: 該影片已下載
     downloadFailedForMessage: '添加下載任務失敗: ${errorInfo}'
     userPausedDownload: 使用者暫停下載
@@ -1534,6 +1538,7 @@ download:
     selectedGalleriesCount(count): '已選擇 ${count} 個圖庫'
     qualityNote: 如果所選清晰度不可用，將使用最佳可用清晰度
     progress(current, total): '處理中 ${current}/${total}'
+    queued: 已入隊
     success: 成功
     skipped: 跳過
     failed: 失敗
@@ -1544,6 +1549,16 @@ download:
     reasonNoSavePath: 無法取得儲存路徑
     reasonOther: 其他錯誤
     startDownload: 開始下載
+
+downloadNotifications:
+  completedTitle: 下載完成
+  failedTitle: 下載失敗
+  completedBody: '${name} 下載成功'
+  failedBody: '${name} 下載失敗'
+  completedToast: '${name} 已下載完成'
+  failedToast: '${name} 下載失敗'
+  channelName: 下載狀態
+  channelDescription: 下載完成與失敗的通知
 
 favorite:
   errors:

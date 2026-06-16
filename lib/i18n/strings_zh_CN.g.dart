@@ -61,6 +61,7 @@ class TranslationsZhCn with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsConversationZhCn conversation = _TranslationsConversationZhCn._(_root);
 	@override late final _TranslationsSplashZhCn splash = _TranslationsSplashZhCn._(_root);
 	@override late final _TranslationsDownloadZhCn download = _TranslationsDownloadZhCn._(_root);
+	@override late final _TranslationsDownloadNotificationsZhCn downloadNotifications = _TranslationsDownloadNotificationsZhCn._(_root);
 	@override late final _TranslationsFavoriteZhCn favorite = _TranslationsFavoriteZhCn._(_root);
 	@override late final _TranslationsTranslationZhCn translation = _TranslationsTranslationZhCn._(_root);
 	@override late final _TranslationsMediaPlayerZhCn mediaPlayer = _TranslationsMediaPlayerZhCn._(_root);
@@ -1261,6 +1262,23 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	@override late final _TranslationsDownloadBatchDownloadZhCn batchDownload = _TranslationsDownloadBatchDownloadZhCn._(_root);
 }
 
+// Path: downloadNotifications
+class _TranslationsDownloadNotificationsZhCn implements TranslationsDownloadNotificationsEn {
+	_TranslationsDownloadNotificationsZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get completedTitle => '下载完成';
+	@override String get failedTitle => '下载失败';
+	@override String completedBody({required Object name}) => '${name} 下载成功';
+	@override String failedBody({required Object name}) => '${name} 下载失败';
+	@override String completedToast({required Object name}) => '${name} 已下载完成';
+	@override String failedToast({required Object name}) => '${name} 下载失败';
+	@override String get channelName => '下载状态';
+	@override String get channelDescription => '下载完成与失败的通知';
+}
+
 // Path: favorite
 class _TranslationsFavoriteZhCn implements TranslationsFavoriteEn {
 	_TranslationsFavoriteZhCn._(this._root);
@@ -2237,6 +2255,9 @@ class _TranslationsSettingsDownloadSettingsZhCn implements TranslationsSettingsD
 
 	// Translations
 	@override String get downloadSettings => '下载设置';
+	@override String get enableDownloadNotifications => '下载通知';
+	@override String get enableDownloadNotificationsDescription => '单个下载完成或失败时弹出系统通知';
+	@override String get notificationPermissionDenied => '通知权限被拒绝。应用内通知仍可用；如需系统通知请在系统设置中开启。';
 	@override String get storagePermissionStatus => '存储权限状态';
 	@override String get accessPublicDirectoryNeedStoragePermission => '访问公共目录需要存储权限';
 	@override String get checkingPermissionStatus => '检查权限状态...';
@@ -2662,6 +2683,7 @@ class _TranslationsDownloadErrorsZhCn implements TranslationsDownloadErrorsEn {
 	@override String get videoInfoNotFound => '视频信息不存在';
 	@override String get unknown => '未知';
 	@override String get downloadTaskAlreadyExists => '下载任务已存在';
+	@override String get downloadTaskSavePathConflict => '该保存路径已被其他任务占用';
 	@override String get videoAlreadyDownloaded => '该视频已下载';
 	@override String downloadFailedForMessage({required Object errorInfo}) => '添加下载任务失败: ${errorInfo}';
 	@override String get userPausedDownload => '用户暂停下载';
@@ -2735,6 +2757,7 @@ class _TranslationsDownloadBatchDownloadZhCn implements TranslationsDownloadBatc
 	@override String selectedGalleriesCount({required Object count}) => '已选择 ${count} 个图库';
 	@override String get qualityNote => '如果所选清晰度不可用，将使用最佳可用清晰度';
 	@override String progress({required Object current, required Object total}) => '处理中 ${current}/${total}';
+	@override String get queued => '已入队';
 	@override String get success => '成功';
 	@override String get skipped => '跳过';
 	@override String get failed => '失败';
@@ -3768,6 +3791,9 @@ extension on TranslationsZhCn {
 			'settings.cdnUnreachableStatus' => '不可达',
 			'settings.cdnNotTestedStatus' => '未测速',
 			'settings.downloadSettings.downloadSettings' => '下载设置',
+			'settings.downloadSettings.enableDownloadNotifications' => '下载通知',
+			'settings.downloadSettings.enableDownloadNotificationsDescription' => '单个下载完成或失败时弹出系统通知',
+			'settings.downloadSettings.notificationPermissionDenied' => '通知权限被拒绝。应用内通知仍可用；如需系统通知请在系统设置中开启。',
 			'settings.downloadSettings.storagePermissionStatus' => '存储权限状态',
 			'settings.downloadSettings.accessPublicDirectoryNeedStoragePermission' => '访问公共目录需要存储权限',
 			'settings.downloadSettings.checkingPermissionStatus' => '检查权限状态...',
@@ -4038,11 +4064,11 @@ extension on TranslationsZhCn {
 			'videoDetail.cast.dlnaCast' => '投屏',
 			'videoDetail.cast.unableToStartCastingSearch' => ({required Object error}) => '启动投屏搜索失败: ${error}',
 			'videoDetail.cast.startCastingTo' => ({required Object deviceName}) => '开始投屏到 ${deviceName}',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.castFailed' => ({required Object error}) => '投屏失败: ${error}\n请尝试重新搜索设备或切换网络',
 			'videoDetail.cast.castStopped' => '已停止投屏',
 			'videoDetail.cast.deviceTypes.mediaRenderer' => '媒体播放器',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.deviceTypes.mediaServer' => '媒体服务器',
 			'videoDetail.cast.deviceTypes.internetGatewayDevice' => '路由器',
 			'videoDetail.cast.deviceTypes.basicDevice' => '基础设备',
@@ -4280,6 +4306,7 @@ extension on TranslationsZhCn {
 			'download.errors.videoInfoNotFound' => '视频信息不存在',
 			'download.errors.unknown' => '未知',
 			'download.errors.downloadTaskAlreadyExists' => '下载任务已存在',
+			'download.errors.downloadTaskSavePathConflict' => '该保存路径已被其他任务占用',
 			'download.errors.videoAlreadyDownloaded' => '该视频已下载',
 			'download.errors.downloadFailedForMessage' => ({required Object errorInfo}) => '添加下载任务失败: ${errorInfo}',
 			'download.errors.userPausedDownload' => '用户暂停下载',
@@ -4415,6 +4442,7 @@ extension on TranslationsZhCn {
 			'download.batchDownload.selectedGalleriesCount' => ({required Object count}) => '已选择 ${count} 个图库',
 			'download.batchDownload.qualityNote' => '如果所选清晰度不可用，将使用最佳可用清晰度',
 			'download.batchDownload.progress' => ({required Object current, required Object total}) => '处理中 ${current}/${total}',
+			'download.batchDownload.queued' => '已入队',
 			'download.batchDownload.success' => '成功',
 			'download.batchDownload.skipped' => '跳过',
 			'download.batchDownload.failed' => '失败',
@@ -4425,6 +4453,14 @@ extension on TranslationsZhCn {
 			'download.batchDownload.reasonNoSavePath' => '无法获取保存路径',
 			'download.batchDownload.reasonOther' => '其他错误',
 			'download.batchDownload.startDownload' => '开始下载',
+			'downloadNotifications.completedTitle' => '下载完成',
+			'downloadNotifications.failedTitle' => '下载失败',
+			'downloadNotifications.completedBody' => ({required Object name}) => '${name} 下载成功',
+			'downloadNotifications.failedBody' => ({required Object name}) => '${name} 下载失败',
+			'downloadNotifications.completedToast' => ({required Object name}) => '${name} 已下载完成',
+			'downloadNotifications.failedToast' => ({required Object name}) => '${name} 下载失败',
+			'downloadNotifications.channelName' => '下载状态',
+			'downloadNotifications.channelDescription' => '下载完成与失败的通知',
 			'favorite.errors.addFailed' => '追加失败',
 			'favorite.errors.addSuccess' => '追加成功',
 			'favorite.errors.deleteFolderFailed' => '删除文件夹失败',
@@ -4542,6 +4578,8 @@ extension on TranslationsZhCn {
 			'translation.streamingTranslationWarning' => '注意：此功能需要API服务支持流式传输，部分模型可能不支持',
 			'translation.translationService' => '翻译服务',
 			'translation.translationServiceDescription' => '选择您偏好的翻译服务',
+			_ => null,
+		} ?? switch (path) {
 			'translation.googleTranslation' => 'Google 翻译',
 			'translation.googleTranslationDescription' => '免费的在线翻译服务，支持多种语言',
 			'translation.aiTranslation' => 'AI 翻译',
@@ -4555,8 +4593,6 @@ extension on TranslationsZhCn {
 			'translation.fastResponseDescription' => '翻译速度快，延迟低',
 			'translation.stableAndReliable' => '稳定可靠',
 			'translation.stableAndReliableDescription' => '基于Google官方API',
-			_ => null,
-		} ?? switch (path) {
 			'translation.enabledDefaultService' => '已启用 - 默认翻译服务',
 			'translation.notEnabled' => '未启用',
 			'translation.deeplxTranslationService' => 'DeepLX 翻译服务',
@@ -5056,6 +5092,8 @@ extension on TranslationsZhCn {
 			'firstTimeSetup.completion.checkboxSubtitle' => '不同意将无法使用本应用',
 			'firstTimeSetup.common.settingsChangeableTip' => '这些设置都可以在应用设置中随时修改',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => '请先同意用户协议和社区规则',
+			_ => null,
+		} ?? switch (path) {
 			'proxyHelper.systemProxyDetected' => '检测到系统代理',
 			'proxyHelper.copied' => '已复制',
 			'proxyHelper.copy' => '复制',
@@ -5069,8 +5107,6 @@ extension on TranslationsZhCn {
 			'tagSelector.addTagTooltip' => '添加标签',
 			'tagSelector.removeTagTooltip' => '删除标签',
 			'tagSelector.cancelSelection' => '取消选择',
-			_ => null,
-		} ?? switch (path) {
 			'tagSelector.selectAll' => '全选',
 			'tagSelector.cancelSelectAll' => '取消全选',
 			'tagSelector.delete' => '删除',

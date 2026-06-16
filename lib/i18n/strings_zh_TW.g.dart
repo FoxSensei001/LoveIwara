@@ -63,6 +63,7 @@ class TranslationsZhTw with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsConversationZhTw conversation = _TranslationsConversationZhTw._(_root);
 	@override late final _TranslationsSplashZhTw splash = _TranslationsSplashZhTw._(_root);
 	@override late final _TranslationsDownloadZhTw download = _TranslationsDownloadZhTw._(_root);
+	@override late final _TranslationsDownloadNotificationsZhTw downloadNotifications = _TranslationsDownloadNotificationsZhTw._(_root);
 	@override late final _TranslationsFavoriteZhTw favorite = _TranslationsFavoriteZhTw._(_root);
 	@override late final _TranslationsTranslationZhTw translation = _TranslationsTranslationZhTw._(_root);
 	@override late final _TranslationsMediaPlayerZhTw mediaPlayer = _TranslationsMediaPlayerZhTw._(_root);
@@ -1287,6 +1288,23 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	@override late final _TranslationsDownloadBatchDownloadZhTw batchDownload = _TranslationsDownloadBatchDownloadZhTw._(_root);
 }
 
+// Path: downloadNotifications
+class _TranslationsDownloadNotificationsZhTw implements TranslationsDownloadNotificationsEn {
+	_TranslationsDownloadNotificationsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get completedTitle => '下載完成';
+	@override String get failedTitle => '下載失敗';
+	@override String completedBody({required Object name}) => '${name} 下載成功';
+	@override String failedBody({required Object name}) => '${name} 下載失敗';
+	@override String completedToast({required Object name}) => '${name} 已下載完成';
+	@override String failedToast({required Object name}) => '${name} 下載失敗';
+	@override String get channelName => '下載狀態';
+	@override String get channelDescription => '下載完成與失敗的通知';
+}
+
 // Path: favorite
 class _TranslationsFavoriteZhTw implements TranslationsFavoriteEn {
 	_TranslationsFavoriteZhTw._(this._root);
@@ -2235,6 +2253,9 @@ class _TranslationsSettingsDownloadSettingsZhTw implements TranslationsSettingsD
 
 	// Translations
 	@override String get downloadSettings => '下載設定';
+	@override String get enableDownloadNotifications => '下載通知';
+	@override String get enableDownloadNotificationsDescription => '單個下載完成或失敗時彈出系統通知';
+	@override String get notificationPermissionDenied => '通知權限被拒絕。應用內通知仍可用；如需系統通知請在系統設定中開啟。';
 	@override String get storagePermissionStatus => '儲存權限狀態';
 	@override String get accessPublicDirectoryNeedStoragePermission => '訪問公共目錄需要儲存權限';
 	@override String get checkingPermissionStatus => '檢查權限狀態...';
@@ -2748,6 +2769,7 @@ class _TranslationsDownloadErrorsZhTw implements TranslationsDownloadErrorsEn {
 	@override String get videoInfoNotFound => '影片資訊不存在';
 	@override String get unknown => '未知';
 	@override String get downloadTaskAlreadyExists => '下載任務已存在';
+	@override String get downloadTaskSavePathConflict => '該儲存路徑已被其他任務佔用';
 	@override String get videoAlreadyDownloaded => '該影片已下載';
 	@override String downloadFailedForMessage({required Object errorInfo}) => '添加下載任務失敗: ${errorInfo}';
 	@override String get userPausedDownload => '使用者暫停下載';
@@ -2821,6 +2843,7 @@ class _TranslationsDownloadBatchDownloadZhTw implements TranslationsDownloadBatc
 	@override String selectedGalleriesCount({required Object count}) => '已選擇 ${count} 個圖庫';
 	@override String get qualityNote => '如果所選清晰度不可用，將使用最佳可用清晰度';
 	@override String progress({required Object current, required Object total}) => '處理中 ${current}/${total}';
+	@override String get queued => '已入隊';
 	@override String get success => '成功';
 	@override String get skipped => '跳過';
 	@override String get failed => '失敗';
@@ -3761,6 +3784,9 @@ extension on TranslationsZhTw {
 			'settings.cdnUnreachableStatus' => '無法連線',
 			'settings.cdnNotTestedStatus' => '尚未測速',
 			'settings.downloadSettings.downloadSettings' => '下載設定',
+			'settings.downloadSettings.enableDownloadNotifications' => '下載通知',
+			'settings.downloadSettings.enableDownloadNotificationsDescription' => '單個下載完成或失敗時彈出系統通知',
+			'settings.downloadSettings.notificationPermissionDenied' => '通知權限被拒絕。應用內通知仍可用；如需系統通知請在系統設定中開啟。',
 			'settings.downloadSettings.storagePermissionStatus' => '儲存權限狀態',
 			'settings.downloadSettings.accessPublicDirectoryNeedStoragePermission' => '訪問公共目錄需要儲存權限',
 			'settings.downloadSettings.checkingPermissionStatus' => '檢查權限狀態...',
@@ -4036,11 +4062,11 @@ extension on TranslationsZhTw {
 			'videoDetail.externalVideo' => '這是一個站外影片',
 			'videoDetail.openInBrowser' => '在瀏覽器中打開',
 			'videoDetail.resourceDeleted' => '這個影片好像被刪除了 :/',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.noDownloadUrl' => '沒有下載連結',
 			'videoDetail.startDownloading' => '開始下載',
 			'videoDetail.downloadFailed' => '下載失敗，請稍後再試',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.downloadSuccess' => '下載成功',
 			'videoDetail.download' => '下載',
 			'videoDetail.downloadManager' => '下載管理',
@@ -4304,6 +4330,7 @@ extension on TranslationsZhTw {
 			'download.errors.videoInfoNotFound' => '影片資訊不存在',
 			'download.errors.unknown' => '未知',
 			'download.errors.downloadTaskAlreadyExists' => '下載任務已存在',
+			'download.errors.downloadTaskSavePathConflict' => '該儲存路徑已被其他任務佔用',
 			'download.errors.videoAlreadyDownloaded' => '該影片已下載',
 			'download.errors.downloadFailedForMessage' => ({required Object errorInfo}) => '添加下載任務失敗: ${errorInfo}',
 			'download.errors.userPausedDownload' => '使用者暫停下載',
@@ -4439,6 +4466,7 @@ extension on TranslationsZhTw {
 			'download.batchDownload.selectedGalleriesCount' => ({required Object count}) => '已選擇 ${count} 個圖庫',
 			'download.batchDownload.qualityNote' => '如果所選清晰度不可用，將使用最佳可用清晰度',
 			'download.batchDownload.progress' => ({required Object current, required Object total}) => '處理中 ${current}/${total}',
+			'download.batchDownload.queued' => '已入隊',
 			'download.batchDownload.success' => '成功',
 			'download.batchDownload.skipped' => '跳過',
 			'download.batchDownload.failed' => '失敗',
@@ -4449,6 +4477,14 @@ extension on TranslationsZhTw {
 			'download.batchDownload.reasonNoSavePath' => '無法取得儲存路徑',
 			'download.batchDownload.reasonOther' => '其他錯誤',
 			'download.batchDownload.startDownload' => '開始下載',
+			'downloadNotifications.completedTitle' => '下載完成',
+			'downloadNotifications.failedTitle' => '下載失敗',
+			'downloadNotifications.completedBody' => ({required Object name}) => '${name} 下載成功',
+			'downloadNotifications.failedBody' => ({required Object name}) => '${name} 下載失敗',
+			'downloadNotifications.completedToast' => ({required Object name}) => '${name} 已下載完成',
+			'downloadNotifications.failedToast' => ({required Object name}) => '${name} 下載失敗',
+			'downloadNotifications.channelName' => '下載狀態',
+			'downloadNotifications.channelDescription' => '下載完成與失敗的通知',
 			'favorite.errors.addFailed' => '追加失敗',
 			'favorite.errors.addSuccess' => '追加成功',
 			'favorite.errors.deleteFolderFailed' => '刪除資料夾失敗',
@@ -4540,6 +4576,8 @@ extension on TranslationsZhTw {
 			'translation.mustBeGreaterThan' => '必須大於',
 			'translation.invalidAPIResponse' => '無效的API響應',
 			'translation.connectionFailedForMessage' => ({required Object message}) => '連線失敗: ${message}',
+			_ => null,
+		} ?? switch (path) {
 			'translation.aiTranslationNotEnabledHint' => 'AI翻譯未啟用，請在設定中啟用',
 			'translation.goToSettings' => '前往設定',
 			'translation.disableAITranslation' => '停用AI翻譯',
@@ -4553,8 +4591,6 @@ extension on TranslationsZhTw {
 			'translation.aiTranslationWillBeDisabled' => 'AI翻譯將被自動關閉',
 			'translation.aiTranslationWillBeDisabledDueToConfigChange' => '由於修改了基礎配置,AI翻譯將被自動關閉',
 			'translation.aiTranslationWillBeDisabledDueToPromptChange' => '由於修改了翻譯提示詞,AI翻譯將被自動關閉',
-			_ => null,
-		} ?? switch (path) {
 			'translation.aiTranslationWillBeDisabledDueToParamChange' => '由於修改了參數配置,AI翻譯將被自動關閉',
 			'translation.onlyOpenAIAPISupported' => '目前僅支援OpenAI相容的API格式（application/json請求體格式）',
 			'translation.streamingTranslation' => '流式翻譯',
@@ -5054,6 +5090,8 @@ extension on TranslationsZhTw {
 			'searchFilter.sortTypes.relevance' => '相關性',
 			'searchFilter.sortTypes.latest' => '最新',
 			'searchFilter.sortTypes.views' => '觀看次數',
+			_ => null,
+		} ?? switch (path) {
 			'searchFilter.sortTypes.likes' => '按讚數',
 			'tagSelector.selectTags' => '選擇標籤',
 			'tagSelector.clickToSelectTags' => '點擊選擇標籤',
@@ -5067,8 +5105,6 @@ extension on TranslationsZhTw {
 			'tagSelector.cancelSelection' => '取消選擇',
 			'tagSelector.selectAll' => '全選',
 			'tagSelector.cancelSelectAll' => '取消全選',
-			_ => null,
-		} ?? switch (path) {
 			'tagSelector.delete' => '刪除',
 			'anime4k.realTimeVideoUpscalingAndDenoising' => 'Anime4K 即時影片上採樣和降噪，提升動畫影片品質',
 			'anime4k.settings' => 'Anime4K 設定',

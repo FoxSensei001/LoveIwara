@@ -40,14 +40,18 @@ class BatchDownloadFailure {
 /// 批量下载结果
 class BatchDownloadResult {
   final int total;
-  final int success;
+  final int queued;
   final int failed;
   final int skipped;
   final List<BatchDownloadFailure> failures;
 
+  /// 兼容旧调用方。这里的“成功”仅表示成功创建下载任务，不代表文件已完成下载。
+  @Deprecated('Use queued instead. Batch download only enqueues tasks.')
+  int get success => queued;
+
   BatchDownloadResult({
     required this.total,
-    required this.success,
+    required this.queued,
     required this.failed,
     required this.skipped,
     required this.failures,
@@ -92,11 +96,15 @@ class BatchDownloadService extends GetxService {
   // 批量下载进度状态
   final RxInt totalCount = 0.obs;
   final RxInt processedCount = 0.obs;
-  final RxInt successCount = 0.obs;
+  final RxInt queuedCount = 0.obs;
   final RxInt failedCount = 0.obs;
   final RxInt skippedCount = 0.obs;
   final RxBool isProcessing = false.obs;
   final RxString currentProcessingTitle = ''.obs;
+
+  /// 兼容旧调用方。批量下载这里只统计已成功入队的任务。
+  @Deprecated('Use queuedCount instead. Batch download only enqueues tasks.')
+  RxInt get successCount => queuedCount;
 
   // 失败列表
   final RxList<BatchDownloadFailure> failures = <BatchDownloadFailure>[].obs;
@@ -125,7 +133,7 @@ class BatchDownloadService extends GetxService {
     isProcessing.value = true;
     totalCount.value = videos.length;
     processedCount.value = 0;
-    successCount.value = 0;
+    queuedCount.value = 0;
     failedCount.value = 0;
     skippedCount.value = 0;
     failures.clear();
@@ -148,7 +156,7 @@ class BatchDownloadService extends GetxService {
 
         try {
           await _downloadSingleVideo(video, quality);
-          successCount.value++;
+          queuedCount.value++;
         } on PrivateVideoException {
           skippedCount.value++;
           failures.add(
@@ -195,12 +203,12 @@ class BatchDownloadService extends GetxService {
 
         // 更新已完成数量（成功 + 失败 + 跳过）
         processedCount.value =
-            successCount.value + failedCount.value + skippedCount.value;
+            queuedCount.value + failedCount.value + skippedCount.value;
       }
 
       final result = BatchDownloadResult(
         total: totalCount.value,
-        success: successCount.value,
+        queued: queuedCount.value,
         failed: failedCount.value,
         skipped: skippedCount.value,
         failures: List.from(failures),
@@ -279,7 +287,7 @@ class BatchDownloadService extends GetxService {
 
     if (savePath == null) {
       // 抛异常交由外层统一计数；不能在这里手动 skippedCount++ 后 return，
-      // 否则外层 try 正常返回又会 successCount++，同一条被重复计数。
+      // 否则外层 try 正常返回又会 queuedCount++，同一条被重复计数。
       throw NoSavePathException();
     }
 
@@ -371,7 +379,7 @@ class BatchDownloadService extends GetxService {
     isProcessing.value = true;
     totalCount.value = galleries.length;
     processedCount.value = 0;
-    successCount.value = 0;
+    queuedCount.value = 0;
     failedCount.value = 0;
     skippedCount.value = 0;
     failures.clear();
@@ -390,7 +398,7 @@ class BatchDownloadService extends GetxService {
 
         try {
           await _downloadSingleGallery(gallery);
-          successCount.value++;
+          queuedCount.value++;
         } on PrivateVideoException {
           skippedCount.value++;
           failures.add(
@@ -428,12 +436,12 @@ class BatchDownloadService extends GetxService {
 
         // 更新已完成数量（成功 + 失败 + 跳过）
         processedCount.value =
-            successCount.value + failedCount.value + skippedCount.value;
+            queuedCount.value + failedCount.value + skippedCount.value;
       }
 
       final result = BatchDownloadResult(
         total: totalCount.value,
-        success: successCount.value,
+        queued: queuedCount.value,
         failed: failedCount.value,
         skipped: skippedCount.value,
         failures: List.from(failures),
@@ -526,7 +534,7 @@ class BatchDownloadService extends GetxService {
   void reset() {
     totalCount.value = 0;
     processedCount.value = 0;
-    successCount.value = 0;
+    queuedCount.value = 0;
     failedCount.value = 0;
     skippedCount.value = 0;
     isProcessing.value = false;

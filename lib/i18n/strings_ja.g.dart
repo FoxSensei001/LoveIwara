@@ -61,6 +61,7 @@ class TranslationsJa with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _TranslationsConversationJa conversation = _TranslationsConversationJa._(_root);
 	@override late final _TranslationsSplashJa splash = _TranslationsSplashJa._(_root);
 	@override late final _TranslationsDownloadJa download = _TranslationsDownloadJa._(_root);
+	@override late final _TranslationsDownloadNotificationsJa downloadNotifications = _TranslationsDownloadNotificationsJa._(_root);
 	@override late final _TranslationsFavoriteJa favorite = _TranslationsFavoriteJa._(_root);
 	@override late final _TranslationsTranslationJa translation = _TranslationsTranslationJa._(_root);
 	@override late final _TranslationsMediaPlayerJa mediaPlayer = _TranslationsMediaPlayerJa._(_root);
@@ -1256,6 +1257,23 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override late final _TranslationsDownloadBatchDownloadJa batchDownload = _TranslationsDownloadBatchDownloadJa._(_root);
 }
 
+// Path: downloadNotifications
+class _TranslationsDownloadNotificationsJa implements TranslationsDownloadNotificationsEn {
+	_TranslationsDownloadNotificationsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get completedTitle => 'ダウンロード完了';
+	@override String get failedTitle => 'ダウンロード失敗';
+	@override String completedBody({required Object name}) => '${name} のダウンロードが完了しました';
+	@override String failedBody({required Object name}) => '${name} のダウンロードに失敗しました';
+	@override String completedToast({required Object name}) => '${name} をダウンロードしました';
+	@override String failedToast({required Object name}) => '${name} のダウンロードに失敗しました';
+	@override String get channelName => 'ダウンロード状態';
+	@override String get channelDescription => 'ダウンロードの完了と失敗の通知';
+}
+
 // Path: favorite
 class _TranslationsFavoriteJa implements TranslationsFavoriteEn {
 	_TranslationsFavoriteJa._(this._root);
@@ -2232,6 +2250,9 @@ class _TranslationsSettingsDownloadSettingsJa implements TranslationsSettingsDow
 
 	// Translations
 	@override String get downloadSettings => 'ダウンロード設定';
+	@override String get enableDownloadNotifications => 'ダウンロード通知';
+	@override String get enableDownloadNotificationsDescription => '単一のダウンロードが完了または失敗したときにシステム通知を表示します';
+	@override String get notificationPermissionDenied => '通知権限が拒否されました。アプリ内通知は引き続き利用できます。システム通知が必要な場合は設定で有効にしてください。';
 	@override String get storagePermissionStatus => 'ストレージ権限状態';
 	@override String get accessPublicDirectoryNeedStoragePermission => 'パブリックディレクトリにアクセスするにはストレージ権限が必要です';
 	@override String get checkingPermissionStatus => '権限状態を確認中...';
@@ -2657,6 +2678,7 @@ class _TranslationsDownloadErrorsJa implements TranslationsDownloadErrorsEn {
 	@override String get videoInfoNotFound => 'ビデオ情報が見つかりません';
 	@override String get unknown => '不明';
 	@override String get downloadTaskAlreadyExists => 'ダウンロードタスクが既に存在します';
+	@override String get downloadTaskSavePathConflict => '保存先パスは既に他のタスクで使用されています';
 	@override String get videoAlreadyDownloaded => 'ビデオはすでにダウンロードされています';
 	@override String downloadFailedForMessage({required Object errorInfo}) => 'ダウンロードタスクの追加に失敗しました: ${errorInfo}';
 	@override String get userPausedDownload => 'ユーザーがダウンロードを一時停止';
@@ -2730,6 +2752,7 @@ class _TranslationsDownloadBatchDownloadJa implements TranslationsDownloadBatchD
 	@override String selectedGalleriesCount({required Object count}) => '${count}件のギャラリーを選択';
 	@override String get qualityNote => '選択した品質が利用できない場合は、最適な品質が使用されます';
 	@override String progress({required Object current, required Object total}) => '処理中 ${current}/${total}';
+	@override String get queued => 'キュー追加';
 	@override String get success => '成功';
 	@override String get skipped => 'スキップ';
 	@override String get failed => '失敗';
@@ -3758,6 +3781,9 @@ extension on TranslationsJa {
 			'settings.cdnUnreachableStatus' => '到達不可',
 			'settings.cdnNotTestedStatus' => '未テスト',
 			'settings.downloadSettings.downloadSettings' => 'ダウンロード設定',
+			'settings.downloadSettings.enableDownloadNotifications' => 'ダウンロード通知',
+			'settings.downloadSettings.enableDownloadNotificationsDescription' => '単一のダウンロードが完了または失敗したときにシステム通知を表示します',
+			'settings.downloadSettings.notificationPermissionDenied' => '通知権限が拒否されました。アプリ内通知は引き続き利用できます。システム通知が必要な場合は設定で有効にしてください。',
 			'settings.downloadSettings.storagePermissionStatus' => 'ストレージ権限状態',
 			'settings.downloadSettings.accessPublicDirectoryNeedStoragePermission' => 'パブリックディレクトリにアクセスするにはストレージ権限が必要です',
 			'settings.downloadSettings.checkingPermissionStatus' => '権限状態を確認中...',
@@ -4033,11 +4059,11 @@ extension on TranslationsJa {
 			'videoDetail.cast.deviceTypes.mediaRenderer' => 'メディアレンダラー',
 			'videoDetail.cast.deviceTypes.mediaServer' => 'メディアサーバー',
 			'videoDetail.cast.deviceTypes.internetGatewayDevice' => 'ルーター',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.deviceTypes.basicDevice' => '基本デバイス',
 			'videoDetail.cast.deviceTypes.dimmableLight' => 'スマートライト',
 			'videoDetail.cast.deviceTypes.wlanAccessPoint' => '無線アクセスポイント',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.deviceTypes.wlanConnectionDevice' => '無線接続デバイス',
 			'videoDetail.cast.deviceTypes.printer' => 'プリンター',
 			'videoDetail.cast.deviceTypes.scanner' => 'スキャナー',
@@ -4270,6 +4296,7 @@ extension on TranslationsJa {
 			'download.errors.videoInfoNotFound' => 'ビデオ情報が見つかりません',
 			'download.errors.unknown' => '不明',
 			'download.errors.downloadTaskAlreadyExists' => 'ダウンロードタスクが既に存在します',
+			'download.errors.downloadTaskSavePathConflict' => '保存先パスは既に他のタスクで使用されています',
 			'download.errors.videoAlreadyDownloaded' => 'ビデオはすでにダウンロードされています',
 			'download.errors.downloadFailedForMessage' => ({required Object errorInfo}) => 'ダウンロードタスクの追加に失敗しました: ${errorInfo}',
 			'download.errors.userPausedDownload' => 'ユーザーがダウンロードを一時停止',
@@ -4405,6 +4432,7 @@ extension on TranslationsJa {
 			'download.batchDownload.selectedGalleriesCount' => ({required Object count}) => '${count}件のギャラリーを選択',
 			'download.batchDownload.qualityNote' => '選択した品質が利用できない場合は、最適な品質が使用されます',
 			'download.batchDownload.progress' => ({required Object current, required Object total}) => '処理中 ${current}/${total}',
+			'download.batchDownload.queued' => 'キュー追加',
 			'download.batchDownload.success' => '成功',
 			'download.batchDownload.skipped' => 'スキップ',
 			'download.batchDownload.failed' => '失敗',
@@ -4415,6 +4443,14 @@ extension on TranslationsJa {
 			'download.batchDownload.reasonNoSavePath' => '保存パスを取得できません',
 			'download.batchDownload.reasonOther' => 'その他のエラー',
 			'download.batchDownload.startDownload' => 'ダウンロード開始',
+			'downloadNotifications.completedTitle' => 'ダウンロード完了',
+			'downloadNotifications.failedTitle' => 'ダウンロード失敗',
+			'downloadNotifications.completedBody' => ({required Object name}) => '${name} のダウンロードが完了しました',
+			'downloadNotifications.failedBody' => ({required Object name}) => '${name} のダウンロードに失敗しました',
+			'downloadNotifications.completedToast' => ({required Object name}) => '${name} をダウンロードしました',
+			'downloadNotifications.failedToast' => ({required Object name}) => '${name} のダウンロードに失敗しました',
+			'downloadNotifications.channelName' => 'ダウンロード状態',
+			'downloadNotifications.channelDescription' => 'ダウンロードの完了と失敗の通知',
 			'favorite.errors.addFailed' => '追加に失敗しました',
 			'favorite.errors.addSuccess' => '追加に成功しました',
 			'favorite.errors.deleteFolderFailed' => 'フォルダーの削除に失敗しました',
@@ -4537,6 +4573,8 @@ extension on TranslationsJa {
 			'translation.aiTranslation' => 'AI 翻訳',
 			'translation.aiTranslationDescription' => '大規模言語モデルに基づくインテリジェント翻訳サービス',
 			'translation.deeplxTranslation' => 'DeepLX 翻訳',
+			_ => null,
+		} ?? switch (path) {
 			'translation.deeplxTranslationDescription' => 'DeepL翻訳のオープンソース実装、高品質な翻訳を提供',
 			'translation.googleTranslationFeatures' => '機能',
 			'translation.freeToUse' => '無料で使用',
@@ -4550,8 +4588,6 @@ extension on TranslationsJa {
 			'translation.deeplxTranslationService' => 'DeepLX 翻訳サービス',
 			'translation.deeplxDescription' => 'DeepLXはDeepL翻訳のオープンソース実装で、Free、Pro、Officialの3つのエンドポイントモードをサポートしています',
 			'translation.serverAddress' => 'サーバーアドレス',
-			_ => null,
-		} ?? switch (path) {
 			'translation.serverAddressHint' => 'https://api.deeplx.org',
 			'translation.serverAddressHelperText' => 'DeepLXサーバーのベースアドレス',
 			'translation.endpointType' => 'エンドポイントタイプ',
@@ -5051,6 +5087,8 @@ extension on TranslationsJa {
 			'proxyHelper.copy' => 'コピー',
 			'tagSelector.selectTags' => 'タグを選択',
 			'tagSelector.clickToSelectTags' => 'タグを選択するにはクリック',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.addTag' => 'タグを追加',
 			'tagSelector.removeTag' => 'タグを削除',
 			'tagSelector.deleteTag' => 'タグを削除',
@@ -5064,8 +5102,6 @@ extension on TranslationsJa {
 			'tagSelector.delete' => '削除',
 			'anime4k.realTimeVideoUpscalingAndDenoising' => 'Anime4K リアルタイムビデオアップスケーリングとノイズ除去、アニメーション動画の品質向上',
 			'anime4k.settings' => 'Anime4K 設定',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.preset' => 'Anime4K プリセット',
 			'anime4k.disable' => 'Anime4K を無効にする',
 			'anime4k.disableDescription' => 'ビデオ強化効果を無効にする',

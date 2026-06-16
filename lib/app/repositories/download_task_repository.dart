@@ -4,14 +4,69 @@ import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 import 'dart:convert';
 
-class DownloadTaskRepository {
-  late final CommonDatabase _db;
+enum DownloadTaskConflictType { id, media, savePath }
 
-  DownloadTaskRepository() {
-    _db = DatabaseService().database;
-  }
+class DuplicateDownloadTaskException implements Exception {
+  final DownloadTaskConflictType type;
+  final String message;
+
+  const DuplicateDownloadTaskException(this.type, this.message);
+
+  @override
+  String toString() => message;
+}
+
+class DownloadTaskRepository {
+  final CommonDatabase _db;
+
+  DownloadTaskRepository([CommonDatabase? database])
+    : _db = database ?? DatabaseService().database;
 
   CommonDatabase get db => _db;
+
+  static const _normalizedHistorySortExpression = '''
+    CASE
+      WHEN status = 'completed' AND completed_at IS NOT NULL THEN
+        CASE WHEN completed_at < 1000000000000 THEN completed_at * 1000 ELSE completed_at END
+      WHEN updated_at IS NOT NULL THEN
+        CASE WHEN updated_at < 1000000000000 THEN updated_at * 1000 ELSE updated_at END
+      ELSE created_at * 1000
+    END
+  ''';
+
+  static String _escapeLikeQuery(String query) {
+    return query
+        .replaceAll(r'\', r'\\')
+        .replaceAll('%', r'\%')
+        .replaceAll('_', r'\_');
+  }
+
+  static DuplicateDownloadTaskException? _mapConflictException(Object error) {
+    if (error is! SqliteException) return null;
+
+    final message = error.message;
+    if (message.contains('duplicate_download_task_media')) {
+      return const DuplicateDownloadTaskException(
+        DownloadTaskConflictType.media,
+        'duplicate download task media',
+      );
+    }
+    if (message.contains('duplicate_download_task_save_path')) {
+      return const DuplicateDownloadTaskException(
+        DownloadTaskConflictType.savePath,
+        'duplicate download task save path',
+      );
+    }
+    if (message.contains('download_tasks.id') ||
+        message.contains('UNIQUE constraint failed: download_tasks.id')) {
+      return const DuplicateDownloadTaskException(
+        DownloadTaskConflictType.id,
+        'duplicate download task id',
+      );
+    }
+
+    return null;
+  }
 
   // 获取所有任务
   Future<List<DownloadTask>> getAllTasks() async {
@@ -100,6 +155,13 @@ class DownloadTaskRepository {
         ],
       );
     } catch (e) {
+      final conflict = _mapConflictException(e);
+      if (conflict != null) {
+        if (LogUtils.isInitialized) {
+          LogUtils.w('插入下载任务冲突: ${conflict.message}', 'DownloadTaskRepository');
+        }
+        throw conflict;
+      }
       LogUtils.e('插入下载任务失败', tag: 'DownloadTaskRepository', error: e);
       rethrow;
     }
@@ -150,6 +212,13 @@ class DownloadTaskRepository {
         ],
       );
     } catch (e) {
+      final conflict = _mapConflictException(e);
+      if (conflict != null) {
+        if (LogUtils.isInitialized) {
+          LogUtils.w('更新下载任务冲突: ${conflict.message}', 'DownloadTaskRepository');
+        }
+        throw conflict;
+      }
       LogUtils.e('更新下载任务失败', tag: 'DownloadTaskRepository', error: e);
       rethrow;
     }
@@ -209,31 +278,40 @@ class DownloadTaskRepository {
     int offset = 0,
     int limit = 20,
   }) async {
-    final results = _db.select('''
+    final results = _db.select(
+      '''
       SELECT * FROM download_tasks
       WHERE status = 'completed'
-      ORDER BY created_at DESC
+      ORDER BY $_normalizedHistorySortExpression DESC, created_at DESC
       LIMIT ? OFFSET ?
-    ''', [limit, offset]);
+    ''',
+      [limit, offset],
+    );
     return results.map((row) => DownloadTask.fromRow(row)).toList();
   }
 
   // 获取任务总数
   Future<Map<String, int>> getTasksCount() async {
-    final activeCount = _db.select('''
+    final activeCount =
+        _db.select('''
       SELECT COUNT(*) as count FROM download_tasks
       WHERE status IN ('downloading', 'paused', 'pending')
-    ''').first['count'] as int;
+    ''').first['count']
+            as int;
 
-    final completedCount = _db.select('''
+    final completedCount =
+        _db.select('''
       SELECT COUNT(*) as count FROM download_tasks
       WHERE status = 'completed'
-    ''').first['count'] as int;
+    ''').first['count']
+            as int;
 
-    final failedCount = _db.select('''
+    final failedCount =
+        _db.select('''
       SELECT COUNT(*) as count FROM download_tasks
       WHERE status = 'failed'
-    ''').first['count'] as int;
+    ''').first['count']
+            as int;
 
     return {
       'active': activeCount,
@@ -255,10 +333,9 @@ class DownloadTaskRepository {
   }
 
   Future<DownloadTask?> getTaskById(String taskId) async {
-    final result = _db.select(
-      'SELECT * FROM download_tasks WHERE id = ?',
-      [taskId],
-    );
+    final result = _db.select('SELECT * FROM download_tasks WHERE id = ?', [
+      taskId,
+    ]);
 
     if (result.isNotEmpty) {
       return DownloadTask.fromRow(result.first);
@@ -269,10 +346,10 @@ class DownloadTaskRepository {
 
   Future<void> updateTaskStatusById(String id, DownloadStatus status) async {
     try {
-      _db.execute(
-        'UPDATE download_tasks SET status = ? WHERE id = ?',
-        [status.name, id],
-      );
+      _db.execute('UPDATE download_tasks SET status = ? WHERE id = ?', [
+        status.name,
+        id,
+      ]);
     } catch (e) {
       LogUtils.e('更新下载任务状态失败', tag: 'DownloadTaskRepository', error: e);
       rethrow;
@@ -282,11 +359,14 @@ class DownloadTaskRepository {
   /// 基于媒体信息判断任务是否存在（任意状态）
   Future<bool> existsTaskByMedia(String mediaType, String mediaId) async {
     try {
-      final result = _db.select('''
+      final result = _db.select(
+        '''
         SELECT 1 FROM download_tasks
         WHERE media_type = ? AND media_id = ?
         LIMIT 1
-      ''', [mediaType, mediaId]);
+      ''',
+        [mediaType, mediaId],
+      );
       return result.isNotEmpty;
     } catch (e) {
       LogUtils.e('检查媒体任务是否存在失败', tag: 'DownloadTaskRepository', error: e);
@@ -294,13 +374,34 @@ class DownloadTaskRepository {
     }
   }
 
+  /// 判断保存路径是否已被任意任务占用。
+  Future<bool> existsTaskBySavePath(String savePath) async {
+    try {
+      final result = _db.select(
+        '''
+        SELECT 1 FROM download_tasks
+        WHERE save_path = ?
+        LIMIT 1
+      ''',
+        [savePath],
+      );
+      return result.isNotEmpty;
+    } catch (e) {
+      LogUtils.e('检查保存路径是否占用失败', tag: 'DownloadTaskRepository', error: e);
+      rethrow;
+    }
+  }
+
   /// 获取指定视频ID的所有下载任务（任意状态）
   Future<List<DownloadTask>> getVideoTasksByMedia(String videoId) async {
     try {
-      final results = _db.select('''
+      final results = _db.select(
+        '''
         SELECT * FROM download_tasks
         WHERE media_type = 'video' AND media_id = ?
-      ''', [videoId]);
+      ''',
+        [videoId],
+      );
       return results.map((row) => DownloadTask.fromRow(row)).toList();
     } catch (e) {
       LogUtils.e('获取视频媒体任务失败', tag: 'DownloadTaskRepository', error: e);
@@ -315,10 +416,13 @@ class DownloadTaskRepository {
     String mediaId,
   ) async {
     try {
-      final results = _db.select('''
+      final results = _db.select(
+        '''
         SELECT * FROM download_tasks
         WHERE media_type = ? AND media_id = ?
-      ''', [mediaType, mediaId]);
+      ''',
+        [mediaType, mediaId],
+      );
       return results.map((row) => DownloadTask.fromRow(row)).toList();
     } catch (e) {
       LogUtils.e('获取媒体任务失败', tag: 'DownloadTaskRepository', error: e);
@@ -326,18 +430,21 @@ class DownloadTaskRepository {
     }
   }
 
-  /// 分页获取历史任务（paused/completed，不含failed），按创建时间降序排列
+  /// 分页获取历史任务（paused/completed，不含failed），按完成/更新时间降序排列
   Future<List<DownloadTask>> getHistoryTasks({
     required int offset,
     required int limit,
   }) async {
     try {
-      final results = _db.select('''
+      final results = _db.select(
+        '''
         SELECT * FROM download_tasks
         WHERE status IN ('paused', 'completed')
-        ORDER BY created_at DESC
+        ORDER BY $_normalizedHistorySortExpression DESC, created_at DESC
         LIMIT ? OFFSET ?
-      ''', [limit, offset]);
+      ''',
+        [limit, offset],
+      );
       return results.map((row) => DownloadTask.fromRow(row)).toList();
     } catch (e) {
       LogUtils.e('获取历史任务失败', tag: 'DownloadTaskRepository', error: e);
@@ -362,7 +469,8 @@ class DownloadTaskRepository {
 
   /// Search and filter tasks with pagination
   /// [searchQuery] - Search in fileName (case-insensitive)
-  /// [statusFilter] - Filter by status: 'all', 'failed', 'downloaded' (completed)
+  /// [statusFilter] - Filter by status: 'all', 'history' (paused/completed),
+  /// 'failed', 'downloaded' (completed)
   /// [typeFilter] - Filter by type: 'all', 'video', 'gallery', 'other'
   Future<List<DownloadTask>> searchTasks({
     required int offset,
@@ -377,8 +485,8 @@ class DownloadTaskRepository {
 
       // Search query filter
       if (searchQuery != null && searchQuery.trim().isNotEmpty) {
-        whereClauses.add("file_name LIKE ?");
-        params.add('%${searchQuery.trim()}%');
+        whereClauses.add("file_name LIKE ? ESCAPE '\\'");
+        params.add('%${_escapeLikeQuery(searchQuery.trim())}%');
       }
 
       // Status filter
@@ -388,6 +496,9 @@ class DownloadTaskRepository {
           break;
         case 'downloaded':
           whereClauses.add("status = 'completed'");
+          break;
+        case 'history':
+          whereClauses.add("status IN ('paused', 'completed')");
           break;
         case 'all':
         default:
@@ -418,11 +529,18 @@ class DownloadTaskRepository {
           ? 'WHERE ${whereClauses.join(' AND ')}'
           : '';
 
+      final orderBy = switch (statusFilter) {
+        'history' || 'downloaded' =>
+          '$_normalizedHistorySortExpression DESC, created_at DESC',
+        'failed' => 'updated_at DESC, created_at DESC',
+        _ => 'created_at DESC',
+      };
+
       final sql =
           '''
         SELECT * FROM download_tasks
         $whereClause
-        ORDER BY created_at DESC
+        ORDER BY $orderBy
         LIMIT ? OFFSET ?
       ''';
 
@@ -449,8 +567,8 @@ class DownloadTaskRepository {
 
       // Search query filter
       if (searchQuery != null && searchQuery.trim().isNotEmpty) {
-        whereClauses.add("file_name LIKE ?");
-        params.add('%${searchQuery.trim()}%');
+        whereClauses.add("file_name LIKE ? ESCAPE '\\'");
+        params.add('%${_escapeLikeQuery(searchQuery.trim())}%');
       }
 
       // Status filter
@@ -460,6 +578,9 @@ class DownloadTaskRepository {
           break;
         case 'downloaded':
           whereClauses.add("status = 'completed'");
+          break;
+        case 'history':
+          whereClauses.add("status IN ('paused', 'completed')");
           break;
         case 'all':
         default:

@@ -22,6 +22,7 @@ class DownloadTask {
 
   /// 媒体质量，仅视频任务使用，例如 '1080', '720' 等
   String? quality;
+
   /// 任务创建时间（来自数据库 created_at 字段，用于 UI 分组展示）
   final DateTime? createdAt;
 
@@ -33,7 +34,7 @@ class DownloadTask {
   int speed = 0; // 当前下载速度(bytes/s)
   DateTime? lastSpeedUpdateTime; // 上次速度更新时间
   int lastDownloadedBytes = 0; // 上次下载的字节数
-  
+
   DownloadTask({
     String? id,
     required this.url,
@@ -90,12 +91,7 @@ class DownloadTask {
       mediaType: row['media_type'] as String?,
       mediaId: row['media_id'] as String?,
       quality: row['quality'] as String?,
-      // 数据库存的是类似 1764675573 的「秒级时间戳」，这里需要转换成毫秒
-      createdAt: row['created_at'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(
-              (row['created_at'] as int) * 1000,
-            )
-          : null,
+      createdAt: _parseTimestamp(row['created_at']),
       updatedAt: _parseTimestamp(row['updated_at']),
       completedAt: row.containsKey('completed_at')
           ? _parseTimestamp(row['completed_at'])
@@ -139,30 +135,21 @@ class DownloadTask {
   }
 }
 
-enum DownloadStatus {
-  pending,
-  downloading,
-  paused,
-  completed,
-  failed,
-}
+enum DownloadStatus { pending, downloading, paused, completed, failed }
 
 class FileSystemException implements Exception {
   final String message;
   final FileErrorType type;
 
-  FileSystemException({
-    required this.message,
-    required this.type,
-  });
+  FileSystemException({required this.message, required this.type});
 }
 
 enum FileErrorType {
-  accessDenied,     // 访问被拒绝
-  notFound,         // 文件不存在
-  alreadyExists,    // 文件已存在
-  insufficientSpace,// 空间不足
-  ioError,          // IO错误
+  accessDenied, // 访问被拒绝
+  notFound, // 文件不存在
+  alreadyExists, // 文件已存在
+  insufficientSpace, // 空间不足
+  ioError, // IO错误
 }
 
 class NetworkException implements Exception {
@@ -178,10 +165,10 @@ class NetworkException implements Exception {
 }
 
 enum NetworkErrorType {
-  noNetwork,        // 无网络连接
-  timeout,          // 连接超时
-  serverError,      // 服务器错误
-  invalidUrl,       // 无效URL
-  canceledByUser,   // 用户取消
+  noNetwork, // 无网络连接
+  timeout, // 连接超时
+  serverError, // 服务器错误
+  invalidUrl, // 无效URL
+  canceledByUser, // 用户取消
   storageNotEnough, // 存储空间不足
 }
