@@ -660,24 +660,41 @@ settings:
   keybinding:
     title: 键盘快捷键
     entryLabel: 键盘快捷键
-    entryDesc: 自定义播放器的键盘快捷键（主要用于桌面端）
+    entryDesc: 自定义应用的键盘快捷键（主要用于桌面端）
     desktopHint: 快捷键主要在桌面端键盘上生效，移动端通常使用手势控制。
     resetAll: 全部恢复默认
-    resetAllConfirm: 确定要将所有播放器快捷键恢复为默认设置吗？
+    resetAllConfirm: 确定要将所有快捷键恢复为默认设置吗？
     resetToDefault: 恢复默认
+    resetScope: 恢复此区域默认
     notSet: 未设置
     addShortcut: 添加快捷键
     removeShortcut: 移除此快捷键
     pressNewShortcut: 请按下新的快捷键…
     recordingCancelHint: 按 Esc 取消
+    mouseHint: 也可绑定鼠标侧键（后退 / 前进）或中键
     reservedKey: 该按键为系统保留，无法绑定
     conflictTitle: 快捷键冲突
     conflictMessage: 该组合已绑定到「${action}」，继续将解除其原有绑定。
     conflictContinue: 仍然绑定
+    shadowWarningTitle: 全局快捷键重叠
+    shadowWarningMessage: 该组合已全局绑定到「${action}」。在此绑定会在本区域内覆盖该动作。
+    globalShadowedMessage: 该组合已在「${scope}」中绑定到「${action}」，进入该区域后此全局快捷键会被其覆盖。
+    searchHint: 搜索快捷键…
+    scopeGlobal: 全局
+    scopeGallery: 图库
+    scopeVideo: 视频
+    categoryNavigation: 导航
+    categoryZoom: 缩放
     categoryPlayback: 播放控制
     categorySeek: 进度
     categoryVolume: 音量
     categoryDisplay: 显示
+    actionGlobalBack: 返回
+    actionGalleryNext: 下一张
+    actionGalleryPrevious: 上一张
+    actionGalleryZoomIn: 放大
+    actionGalleryZoomOut: 缩小
+    actionGalleryResetZoom: 重置缩放
     actionPlayPause: 播放 / 暂停
     actionSpeedUp: 加快倍速
     actionSpeedDown: 减慢倍速

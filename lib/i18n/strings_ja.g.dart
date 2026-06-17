@@ -2178,24 +2178,41 @@ class _TranslationsSettingsKeybindingJa implements TranslationsSettingsKeybindin
 	// Translations
 	@override String get title => 'キーボードショートカット';
 	@override String get entryLabel => 'キーボードショートカット';
-	@override String get entryDesc => 'プレーヤーのキーボードショートカットをカスタマイズ（主にデスクトップ向け）';
+	@override String get entryDesc => 'アプリのキーボードショートカットをカスタマイズ（主にデスクトップ向け）';
 	@override String get desktopHint => 'ショートカットは主にデスクトップのキーボードで有効です。モバイルでは通常ジェスチャーを使用します。';
 	@override String get resetAll => 'すべて既定に戻す';
-	@override String get resetAllConfirm => 'すべてのプレーヤーショートカットを既定に戻しますか？';
+	@override String get resetAllConfirm => 'すべてのショートカットを既定に戻しますか？';
 	@override String get resetToDefault => '既定に戻す';
+	@override String get resetScope => 'このセクションを既定に戻す';
 	@override String get notSet => '未設定';
 	@override String get addShortcut => 'ショートカットを追加';
 	@override String get removeShortcut => 'このショートカットを削除';
 	@override String get pressNewShortcut => '新しいショートカットを押してください…';
 	@override String get recordingCancelHint => 'Esc でキャンセル';
+	@override String get mouseHint => 'マウスのサイドボタン（戻る / 進む）や中ボタンも割り当て可能です';
 	@override String get reservedKey => 'このキーはシステム予約のため割り当てできません';
 	@override String get conflictTitle => 'ショートカットの競合';
 	@override String conflictMessage({required Object action}) => 'この組み合わせは既に「${action}」に割り当てられています。続行すると既存の割り当ては解除されます。';
 	@override String get conflictContinue => 'それでも割り当てる';
+	@override String get shadowWarningTitle => 'グローバルショートカットの重複';
+	@override String shadowWarningMessage({required Object action}) => 'この組み合わせは既に「${action}」にグローバル割り当てされています。ここで割り当てると、このセクション内ではその動作が上書きされます。';
+	@override String globalShadowedMessage({required Object scope, required Object action}) => 'この組み合わせは既に「${scope}」で「${action}」に割り当てられています。そのセクション内では、このグローバルショートカットは上書きされます。';
+	@override String get searchHint => 'ショートカットを検索…';
+	@override String get scopeGlobal => 'グローバル';
+	@override String get scopeGallery => 'ギャラリー';
+	@override String get scopeVideo => '動画';
+	@override String get categoryNavigation => 'ナビゲーション';
+	@override String get categoryZoom => 'ズーム';
 	@override String get categoryPlayback => '再生';
 	@override String get categorySeek => 'シーク';
 	@override String get categoryVolume => '音量';
 	@override String get categoryDisplay => '表示';
+	@override String get actionGlobalBack => '戻る';
+	@override String get actionGalleryNext => '次の写真';
+	@override String get actionGalleryPrevious => '前の写真';
+	@override String get actionGalleryZoomIn => 'ズームイン';
+	@override String get actionGalleryZoomOut => 'ズームアウト';
+	@override String get actionGalleryResetZoom => 'ズームリセット';
 	@override String get actionPlayPause => '再生 / 一時停止';
 	@override String get actionSpeedUp => '再生速度を上げる';
 	@override String get actionSpeedDown => '再生速度を下げる';
@@ -3797,24 +3814,41 @@ extension on TranslationsJa {
 			'settings.languageChanged' => '言語設定が変更されました。アプリを再起動して有効にしてください。',
 			'settings.keybinding.title' => 'キーボードショートカット',
 			'settings.keybinding.entryLabel' => 'キーボードショートカット',
-			'settings.keybinding.entryDesc' => 'プレーヤーのキーボードショートカットをカスタマイズ（主にデスクトップ向け）',
+			'settings.keybinding.entryDesc' => 'アプリのキーボードショートカットをカスタマイズ（主にデスクトップ向け）',
 			'settings.keybinding.desktopHint' => 'ショートカットは主にデスクトップのキーボードで有効です。モバイルでは通常ジェスチャーを使用します。',
 			'settings.keybinding.resetAll' => 'すべて既定に戻す',
-			'settings.keybinding.resetAllConfirm' => 'すべてのプレーヤーショートカットを既定に戻しますか？',
+			'settings.keybinding.resetAllConfirm' => 'すべてのショートカットを既定に戻しますか？',
 			'settings.keybinding.resetToDefault' => '既定に戻す',
+			'settings.keybinding.resetScope' => 'このセクションを既定に戻す',
 			'settings.keybinding.notSet' => '未設定',
 			'settings.keybinding.addShortcut' => 'ショートカットを追加',
 			'settings.keybinding.removeShortcut' => 'このショートカットを削除',
 			'settings.keybinding.pressNewShortcut' => '新しいショートカットを押してください…',
 			'settings.keybinding.recordingCancelHint' => 'Esc でキャンセル',
+			'settings.keybinding.mouseHint' => 'マウスのサイドボタン（戻る / 進む）や中ボタンも割り当て可能です',
 			'settings.keybinding.reservedKey' => 'このキーはシステム予約のため割り当てできません',
 			'settings.keybinding.conflictTitle' => 'ショートカットの競合',
 			'settings.keybinding.conflictMessage' => ({required Object action}) => 'この組み合わせは既に「${action}」に割り当てられています。続行すると既存の割り当ては解除されます。',
 			'settings.keybinding.conflictContinue' => 'それでも割り当てる',
+			'settings.keybinding.shadowWarningTitle' => 'グローバルショートカットの重複',
+			'settings.keybinding.shadowWarningMessage' => ({required Object action}) => 'この組み合わせは既に「${action}」にグローバル割り当てされています。ここで割り当てると、このセクション内ではその動作が上書きされます。',
+			'settings.keybinding.globalShadowedMessage' => ({required Object scope, required Object action}) => 'この組み合わせは既に「${scope}」で「${action}」に割り当てられています。そのセクション内では、このグローバルショートカットは上書きされます。',
+			'settings.keybinding.searchHint' => 'ショートカットを検索…',
+			'settings.keybinding.scopeGlobal' => 'グローバル',
+			'settings.keybinding.scopeGallery' => 'ギャラリー',
+			'settings.keybinding.scopeVideo' => '動画',
+			'settings.keybinding.categoryNavigation' => 'ナビゲーション',
+			'settings.keybinding.categoryZoom' => 'ズーム',
 			'settings.keybinding.categoryPlayback' => '再生',
 			'settings.keybinding.categorySeek' => 'シーク',
 			'settings.keybinding.categoryVolume' => '音量',
 			'settings.keybinding.categoryDisplay' => '表示',
+			'settings.keybinding.actionGlobalBack' => '戻る',
+			'settings.keybinding.actionGalleryNext' => '次の写真',
+			'settings.keybinding.actionGalleryPrevious' => '前の写真',
+			'settings.keybinding.actionGalleryZoomIn' => 'ズームイン',
+			'settings.keybinding.actionGalleryZoomOut' => 'ズームアウト',
+			'settings.keybinding.actionGalleryResetZoom' => 'ズームリセット',
 			'settings.keybinding.actionPlayPause' => '再生 / 一時停止',
 			'settings.keybinding.actionSpeedUp' => '再生速度を上げる',
 			'settings.keybinding.actionSpeedDown' => '再生速度を下げる',
@@ -4179,6 +4213,8 @@ extension on TranslationsJa {
 			'videoDetail.localInfo.videoInfo' => 'ビデオ情報',
 			'videoDetail.localInfo.currentQuality' => '現在の品質',
 			'videoDetail.localInfo.duration' => '再生時間',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.localInfo.resolution' => '解像度',
 			'videoDetail.localInfo.fileInfo' => 'ファイル情報',
 			'videoDetail.localInfo.fileName' => 'ファイル名',
@@ -4196,8 +4232,6 @@ extension on TranslationsJa {
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'タグ "${tagId}" がクリップボードにコピーされました',
 			'videoDetail.errorLoadingVideo' => 'ビデオの読み込み中にエラーが発生しました',
 			'videoDetail.play' => '再生',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.pause' => '一時停止',
 			'videoDetail.exitAppFullscreen' => 'アプリの全画面表示を終了',
 			'videoDetail.enterAppFullscreen' => 'アプリを全画面表示',
@@ -4693,6 +4727,8 @@ extension on TranslationsJa {
 			'favorite.createFolderFailed' => 'フォルダーの作成に失敗しました',
 			'favorite.createFolder' => 'フォルダーを作成',
 			'favorite.enterFolderName' => 'フォルダー名を入力',
+			_ => null,
+		} ?? switch (path) {
 			'favorite.enterFolderNameHere' => 'フォルダー名を入力してください...',
 			'favorite.create' => '作成',
 			'favorite.items' => 'アイテム',
@@ -4710,8 +4746,6 @@ extension on TranslationsJa {
 			'favorite.localizeFavorite' => 'ローカライズお気に入り',
 			'favorite.editFolderTitle' => 'フォルダー名を編集',
 			'favorite.editFolderSuccess' => 'フォルダー名を更新しました',
-			_ => null,
-		} ?? switch (path) {
 			'favorite.editFolderFailed' => 'フォルダー名の更新に失敗しました',
 			'favorite.searchTags' => 'タグを検索',
 			'translation.currentService' => '現在のサービス',
@@ -5207,6 +5241,8 @@ extension on TranslationsJa {
 			'navigationOrderSettings.hide' => '非表示',
 			'navigationOrderSettings.hidden' => '非表示中',
 			'navigationOrderSettings.hideHint' => '目のアイコンをタップしてフォーラムとニュースの表示・非表示を切り替えます',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.videoDescription' => '人気の動画コンテンツを閲覧',
 			'navigationOrderSettings.galleryDescription' => '画像とギャラリーを閲覧',
 			'navigationOrderSettings.subscriptionDescription' => 'フォローしているユーザーの最新コンテンツを表示',
@@ -5224,8 +5260,6 @@ extension on TranslationsJa {
 			'searchFilter.generatedQuery' => '生成されたクエリ',
 			'searchFilter.copyToClipboard' => 'クリップボードにコピー',
 			'searchFilter.copied' => 'コピーしました',
-			_ => null,
-		} ?? switch (path) {
 			'searchFilter.filterCount' => ({required Object count}) => '${count} 個のフィルター',
 			'searchFilter.filterSettings' => 'フィルター設定',
 			'searchFilter.field' => 'フィールド',

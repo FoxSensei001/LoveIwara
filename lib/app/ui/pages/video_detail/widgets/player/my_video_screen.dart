@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -9,8 +10,9 @@ import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/video_fullscreen_handoff.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/services/player_keybinding/player_action.dart';
-import 'package:i_iwara/app/services/player_keybinding/player_keybinding_service.dart';
+import 'package:i_iwara/app/services/player_keybinding/keybinding_service.dart';
+import 'package:i_iwara/app/services/player_keybinding/shortcut_action.dart';
+import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/rapple_painter.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -85,7 +87,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   final FocusNode _focusNode = FocusNode();
   final ConfigService _configService = Get.find();
   final AppService _appService = Get.find();
-  final PlayerKeybindingService _keybindingService = Get.find();
+  final KeybindingService _keybindingService = Get.find();
   // 静音切换前的音量，用于「取消静音」时恢复。
   double? _volumeBeforeMute;
   bool _isSyncingDesktopFullscreenExit = false;
@@ -117,7 +119,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   // 进度键长按倍速：按住超过阈值进入长按倍速模式，松开恢复。
   Timer? _seekHoldTimer;
   int? _heldSeekKeyId;
-  PlayerAction? _heldSeekAction;
+  ShortcutAction? _heldSeekAction;
   bool _seekLongPressActive = false;
   static const Duration _seekLongPressThreshold = Duration(milliseconds: 350);
 
@@ -383,33 +385,58 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   }
 
   /// 播放器键盘事件入口：区分按下/松开，以支持进度键长按倍速。
-  void _handlePlayerKeyEvent(KeyEvent event) {
+  KeyEventResult _handlePlayerKeyEvent(FocusNode node, KeyEvent event) {
     // 松开进度键：决定是点按 seek 还是退出长按倍速。
     if (event is KeyUpEvent) {
-      if (_heldSeekKeyId != null &&
-          event.logicalKey.keyId == _heldSeekKeyId) {
+      if (_heldSeekKeyId != null && event.logicalKey.keyId == _heldSeekKeyId) {
         _finishSeekHold();
+        return KeyEventResult.handled;
       }
-      return;
+      return KeyEventResult.ignored;
     }
     // 仅处理首次按下；KeyRepeatEvent 交给定时器判定长按。
-    if (event is! KeyDownEvent) return;
+    if (event is! KeyDownEvent) return KeyEventResult.ignored;
 
-    final action = _keybindingService.resolve(event);
+    final action = _keybindingService.resolve(event, ShortcutScope.video);
+    if (action == null) return KeyEventResult.ignored;
+
+    // 初始播放封面阶段只允许「播放/暂停」唤起首次播放。
+    if (widget.myVideoStateController.shouldShowInitialPlaybackCover) {
+      if (action == ShortcutAction.playPause) {
+        unawaited(widget.myVideoStateController.requestInitialPlayback());
+      }
+      // 命中视频域绑定即视为已消费，阻止事件冒泡到全局快捷键层造成重复触发。
+      return KeyEventResult.handled;
+    }
+
+    // 进度键：按下先挂起，松开时再区分点按/长按。
+    if (action == ShortcutAction.seekForward ||
+        action == ShortcutAction.seekBackward) {
+      _beginSeekHold(action, event.logicalKey.keyId);
+      return KeyEventResult.handled;
+    }
+
+    _dispatchKeybindingAction(action);
+    return KeyEventResult.handled;
+  }
+
+  /// 播放器鼠标按下入口：仅处理鼠标侧键/中键绑定（左右键留给点按/手势系统）。
+  ///
+  /// 鼠标按键不参与「长按倍速」，进度动作走一次性点按 seek（[_dispatchKeybindingAction]
+  /// 内部对 seek 调用的就是点按处理）。
+  void _handlePlayerPointerDown(PointerDownEvent event) {
+    if (event.kind != PointerDeviceKind.mouse) return;
+    final action = _keybindingService.resolvePointer(
+      event,
+      ShortcutScope.video,
+    );
     if (action == null) return;
 
     // 初始播放封面阶段只允许「播放/暂停」唤起首次播放。
     if (widget.myVideoStateController.shouldShowInitialPlaybackCover) {
-      if (action == PlayerAction.playPause) {
+      if (action == ShortcutAction.playPause) {
         unawaited(widget.myVideoStateController.requestInitialPlayback());
       }
-      return;
-    }
-
-    // 进度键：按下先挂起，松开时再区分点按/长按。
-    if (action == PlayerAction.seekForward ||
-        action == PlayerAction.seekBackward) {
-      _beginSeekHold(action, event.logicalKey.keyId);
       return;
     }
 
@@ -417,39 +444,44 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   }
 
   /// 将解析出的快捷键动作分派到对应的播放器行为。
-  void _dispatchKeybindingAction(PlayerAction action) {
+  ///
+  /// 解析时已限定 [ShortcutScope.video]，故只会收到视频域动作；其余动作（全局/图库）
+  /// 由对应层处理，这里 default 兜底忽略。
+  void _dispatchKeybindingAction(ShortcutAction action) {
     final controller = widget.myVideoStateController;
     switch (action) {
-      case PlayerAction.playPause:
+      case ShortcutAction.playPause:
         if (controller.videoPlaying.value) {
           controller.pausePlayback();
         } else {
           unawaited(controller.playFromUserAction());
         }
         break;
-      case PlayerAction.speedUp:
+      case ShortcutAction.speedUp:
         _adjustPlaybackSpeed(1);
         break;
-      case PlayerAction.speedDown:
+      case ShortcutAction.speedDown:
         _adjustPlaybackSpeed(-1);
         break;
-      case PlayerAction.seekForward:
+      case ShortcutAction.seekForward:
         _handleRightKeyPress();
         break;
-      case PlayerAction.seekBackward:
+      case ShortcutAction.seekBackward:
         _handleLeftKeyPress();
         break;
-      case PlayerAction.volumeUp:
+      case ShortcutAction.volumeUp:
         _adjustVolumeBy(0.1);
         break;
-      case PlayerAction.volumeDown:
+      case ShortcutAction.volumeDown:
         _adjustVolumeBy(-0.1);
         break;
-      case PlayerAction.toggleMute:
+      case ShortcutAction.toggleMute:
         _toggleMute();
         break;
-      case PlayerAction.toggleFullscreen:
+      case ShortcutAction.toggleFullscreen:
         _toggleFullscreen();
+        break;
+      default:
         break;
     }
   }
@@ -489,7 +521,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   // ---------------------------------------------------------------------------
 
   /// 进度键按下：先记录待定状态，松开时再区分点按/长按。
-  void _beginSeekHold(PlayerAction action, int keyId) {
+  void _beginSeekHold(ShortcutAction action, int keyId) {
     // 异常情况下已有按住的进度键，先收尾。
     if (_heldSeekKeyId != null) {
       _cancelSeekHold();
@@ -524,9 +556,9 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
     if (wasLongPress) {
       _exitSeekLongPress();
-    } else if (action == PlayerAction.seekForward) {
+    } else if (action == ShortcutAction.seekForward) {
       _handleRightKeyPress();
-    } else if (action == PlayerAction.seekBackward) {
+    } else if (action == ShortcutAction.seekBackward) {
       _handleLeftKeyPress();
     }
   }
@@ -921,28 +953,31 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                     // 鼠标在播放器区域内移动时，处理移动事件
                     widget.myVideoStateController.onMouseMoveInPlayer();
                   },
-                  child: KeyboardListener(
-                    focusNode: _focusNode,
-                    onKeyEvent: _handlePlayerKeyEvent,
-                    child: Container(
-                      padding: EdgeInsets.only(top: paddingTop),
-                      // 画面缩放/平移手势层：作为整个播放器栈的祖先，可靠侦测双指捏合
-                      child: Obx(() {
-                        final zoomEnabled =
-                            _configService[ConfigKey
-                                    .ENABLE_VIDEO_GESTURE_ZOOM] ==
-                                true;
-                        return VideoZoomGestureLayer(
-                          controller: widget.myVideoStateController,
-                          enabled: zoomEnabled,
-                          child: _buildPlayerStack(
-                            screenSize,
-                            playPauseIconSize,
-                            bufferingSize,
-                            maxRadius,
-                          ),
-                        );
-                      }),
+                  child: Listener(
+                    onPointerDown: _handlePlayerPointerDown,
+                    child: Focus(
+                      focusNode: _focusNode,
+                      onKeyEvent: _handlePlayerKeyEvent,
+                      child: Container(
+                        padding: EdgeInsets.only(top: paddingTop),
+                        // 画面缩放/平移手势层：作为整个播放器栈的祖先，可靠侦测双指捏合
+                        child: Obx(() {
+                          final zoomEnabled =
+                              _configService[ConfigKey
+                                  .ENABLE_VIDEO_GESTURE_ZOOM] ==
+                              true;
+                          return VideoZoomGestureLayer(
+                            controller: widget.myVideoStateController,
+                            enabled: zoomEnabled,
+                            child: _buildPlayerStack(
+                              screenSize,
+                              playPauseIconSize,
+                              bufferingSize,
+                              maxRadius,
+                            ),
+                          );
+                        }),
+                      ),
                     ),
                   ),
                 ),
@@ -1852,7 +1887,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   // 倍速调整的提示内容（图标 + 当前倍速）。
   Widget _buildPlaybackSpeedInfoContent() {
     return Obx(() {
-      final double speed = widget.myVideoStateController.playerPlaybackSpeed.value;
+      final double speed =
+          widget.myVideoStateController.playerPlaybackSpeed.value;
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [

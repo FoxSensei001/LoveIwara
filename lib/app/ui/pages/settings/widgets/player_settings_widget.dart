@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/ui/pages/settings/player_keybinding_settings_page.dart';
+import 'package:i_iwara/app/ui/pages/settings/keybinding_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/three_section_slider.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/video_gesture_guide.dart';
 import 'package:i_iwara/app/ui/widgets/anime4k_settings_widget.dart';
@@ -432,8 +432,7 @@ class PlayerSettingsWidget extends StatelessWidget {
               description: t
                   .settings
                   .thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain,
-              rxValue:
-                  _configService.settings[ConfigKey.KEEP_LAST_VOLUME_KEY]!,
+              rxValue: _configService.settings[ConfigKey.KEEP_LAST_VOLUME_KEY]!,
               onChanged: (value) {
                 _configService[ConfigKey.KEEP_LAST_VOLUME_KEY] = value;
               },
@@ -484,8 +483,9 @@ class PlayerSettingsWidget extends StatelessWidget {
             label: t.settings.showVideoProgressBottomBarWhenToolbarHidden,
             description:
                 t.settings.showVideoProgressBottomBarWhenToolbarHiddenDesc,
-            rxValue: _configService.settings[ConfigKey
-                .SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN]!,
+            rxValue:
+                _configService.settings[ConfigKey
+                    .SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN]!,
             onChanged: (value) {
               _configService[ConfigKey
                       .SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN] =
@@ -510,8 +510,8 @@ class PlayerSettingsWidget extends StatelessWidget {
             iconData: Icons.queue_play_next,
             label: t.settings.showFullscreenUpNextHint,
             description: t.settings.showFullscreenUpNextHintDesc,
-            rxValue:
-                _configService.settings[ConfigKey.SHOW_FULLSCREEN_UP_NEXT_HINT]!,
+            rxValue: _configService
+                .settings[ConfigKey.SHOW_FULLSCREEN_UP_NEXT_HINT]!,
             onChanged: (value) {
               _configService[ConfigKey.SHOW_FULLSCREEN_UP_NEXT_HINT] = value;
             },
@@ -550,8 +550,9 @@ class PlayerSettingsWidget extends StatelessWidget {
               description: t
                   .settings
                   .thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen,
-              rxValue: _configService.settings[ConfigKey
-                  .RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN]!,
+              rxValue:
+                  _configService.settings[ConfigKey
+                      .RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN]!,
               onChanged: (value) {
                 _configService[ConfigKey
                         .RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN] =
@@ -588,7 +589,9 @@ class PlayerSettingsWidget extends StatelessWidget {
         Card(
           elevation: 1,
           margin: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
             child: Column(
@@ -619,47 +622,23 @@ class PlayerSettingsWidget extends StatelessWidget {
                 const SizedBox(height: 16),
                 ThreeSectionSlider(
                   onSlideChangeCallback: _onThreeSectionSliderChangeFinished,
-                  initialLeftRatio: _configService[ConfigKey
-                      .VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
+                  initialLeftRatio:
+                      _configService[ConfigKey
+                          .VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
                   initialMiddleRatio:
                       (1 -
                               _configService[ConfigKey
                                       .VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO] *
                                   2)
                           .toDouble(),
-                  initialRightRatio: _configService[ConfigKey
-                      .VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
+                  initialRightRatio:
+                      _configService[ConfigKey
+                          .VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
                 ),
               ],
             ),
           ),
         ),
-        const SizedBox(height: 20),
-
-        // -------- 键盘快捷键 --------
-        _sectionLabel(context, t.settings.keybinding.title),
-        _groupCard(context, [
-          ListTile(
-            leading: Icon(
-              Icons.keyboard,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            title: Text(
-              t.settings.keybinding.entryLabel,
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            subtitle: Text(
-              t.settings.keybinding.entryDesc,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => openKeybindingAsSheet
-                ? PlayerKeybindingSettingsPage.openSheet(context)
-                : PlayerKeybindingSettingsPage.open(context),
-          ),
-        ]),
         const SizedBox(height: 20),
 
         // -------- 手势控制 --------
@@ -669,8 +648,8 @@ class PlayerSettingsWidget extends StatelessWidget {
             context: context,
             iconData: Icons.fast_rewind,
             label: t.settings.leftDoubleTapRewind,
-            rxValue:
-                _configService.settings[ConfigKey.ENABLE_LEFT_DOUBLE_TAP_REWIND]!,
+            rxValue: _configService
+                .settings[ConfigKey.ENABLE_LEFT_DOUBLE_TAP_REWIND]!,
             onChanged: (value) {
               _configService[ConfigKey.ENABLE_LEFT_DOUBLE_TAP_REWIND] = value;
             },
@@ -705,7 +684,8 @@ class PlayerSettingsWidget extends StatelessWidget {
               rxValue: _configService
                   .settings[ConfigKey.ENABLE_LEFT_VERTICAL_SWIPE_BRIGHTNESS]!,
               onChanged: (value) {
-                _configService[ConfigKey.ENABLE_LEFT_VERTICAL_SWIPE_BRIGHTNESS] =
+                _configService[ConfigKey
+                        .ENABLE_LEFT_VERTICAL_SWIPE_BRIGHTNESS] =
                     value;
               },
             ),

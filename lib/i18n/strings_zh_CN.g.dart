@@ -2183,24 +2183,41 @@ class _TranslationsSettingsKeybindingZhCn implements TranslationsSettingsKeybind
 	// Translations
 	@override String get title => '键盘快捷键';
 	@override String get entryLabel => '键盘快捷键';
-	@override String get entryDesc => '自定义播放器的键盘快捷键（主要用于桌面端）';
+	@override String get entryDesc => '自定义应用的键盘快捷键（主要用于桌面端）';
 	@override String get desktopHint => '快捷键主要在桌面端键盘上生效，移动端通常使用手势控制。';
 	@override String get resetAll => '全部恢复默认';
-	@override String get resetAllConfirm => '确定要将所有播放器快捷键恢复为默认设置吗？';
+	@override String get resetAllConfirm => '确定要将所有快捷键恢复为默认设置吗？';
 	@override String get resetToDefault => '恢复默认';
+	@override String get resetScope => '恢复此区域默认';
 	@override String get notSet => '未设置';
 	@override String get addShortcut => '添加快捷键';
 	@override String get removeShortcut => '移除此快捷键';
 	@override String get pressNewShortcut => '请按下新的快捷键…';
 	@override String get recordingCancelHint => '按 Esc 取消';
+	@override String get mouseHint => '也可绑定鼠标侧键（后退 / 前进）或中键';
 	@override String get reservedKey => '该按键为系统保留，无法绑定';
 	@override String get conflictTitle => '快捷键冲突';
 	@override String conflictMessage({required Object action}) => '该组合已绑定到「${action}」，继续将解除其原有绑定。';
 	@override String get conflictContinue => '仍然绑定';
+	@override String get shadowWarningTitle => '全局快捷键重叠';
+	@override String shadowWarningMessage({required Object action}) => '该组合已全局绑定到「${action}」。在此绑定会在本区域内覆盖该动作。';
+	@override String globalShadowedMessage({required Object scope, required Object action}) => '该组合已在「${scope}」中绑定到「${action}」，进入该区域后此全局快捷键会被其覆盖。';
+	@override String get searchHint => '搜索快捷键…';
+	@override String get scopeGlobal => '全局';
+	@override String get scopeGallery => '图库';
+	@override String get scopeVideo => '视频';
+	@override String get categoryNavigation => '导航';
+	@override String get categoryZoom => '缩放';
 	@override String get categoryPlayback => '播放控制';
 	@override String get categorySeek => '进度';
 	@override String get categoryVolume => '音量';
 	@override String get categoryDisplay => '显示';
+	@override String get actionGlobalBack => '返回';
+	@override String get actionGalleryNext => '下一张';
+	@override String get actionGalleryPrevious => '上一张';
+	@override String get actionGalleryZoomIn => '放大';
+	@override String get actionGalleryZoomOut => '缩小';
+	@override String get actionGalleryResetZoom => '重置缩放';
 	@override String get actionPlayPause => '播放 / 暂停';
 	@override String get actionSpeedUp => '加快倍速';
 	@override String get actionSpeedDown => '减慢倍速';
@@ -3807,24 +3824,41 @@ extension on TranslationsZhCn {
 			'settings.languageChanged' => '语言设置已更改，请重启应用以生效。',
 			'settings.keybinding.title' => '键盘快捷键',
 			'settings.keybinding.entryLabel' => '键盘快捷键',
-			'settings.keybinding.entryDesc' => '自定义播放器的键盘快捷键（主要用于桌面端）',
+			'settings.keybinding.entryDesc' => '自定义应用的键盘快捷键（主要用于桌面端）',
 			'settings.keybinding.desktopHint' => '快捷键主要在桌面端键盘上生效，移动端通常使用手势控制。',
 			'settings.keybinding.resetAll' => '全部恢复默认',
-			'settings.keybinding.resetAllConfirm' => '确定要将所有播放器快捷键恢复为默认设置吗？',
+			'settings.keybinding.resetAllConfirm' => '确定要将所有快捷键恢复为默认设置吗？',
 			'settings.keybinding.resetToDefault' => '恢复默认',
+			'settings.keybinding.resetScope' => '恢复此区域默认',
 			'settings.keybinding.notSet' => '未设置',
 			'settings.keybinding.addShortcut' => '添加快捷键',
 			'settings.keybinding.removeShortcut' => '移除此快捷键',
 			'settings.keybinding.pressNewShortcut' => '请按下新的快捷键…',
 			'settings.keybinding.recordingCancelHint' => '按 Esc 取消',
+			'settings.keybinding.mouseHint' => '也可绑定鼠标侧键（后退 / 前进）或中键',
 			'settings.keybinding.reservedKey' => '该按键为系统保留，无法绑定',
 			'settings.keybinding.conflictTitle' => '快捷键冲突',
 			'settings.keybinding.conflictMessage' => ({required Object action}) => '该组合已绑定到「${action}」，继续将解除其原有绑定。',
 			'settings.keybinding.conflictContinue' => '仍然绑定',
+			'settings.keybinding.shadowWarningTitle' => '全局快捷键重叠',
+			'settings.keybinding.shadowWarningMessage' => ({required Object action}) => '该组合已全局绑定到「${action}」。在此绑定会在本区域内覆盖该动作。',
+			'settings.keybinding.globalShadowedMessage' => ({required Object scope, required Object action}) => '该组合已在「${scope}」中绑定到「${action}」，进入该区域后此全局快捷键会被其覆盖。',
+			'settings.keybinding.searchHint' => '搜索快捷键…',
+			'settings.keybinding.scopeGlobal' => '全局',
+			'settings.keybinding.scopeGallery' => '图库',
+			'settings.keybinding.scopeVideo' => '视频',
+			'settings.keybinding.categoryNavigation' => '导航',
+			'settings.keybinding.categoryZoom' => '缩放',
 			'settings.keybinding.categoryPlayback' => '播放控制',
 			'settings.keybinding.categorySeek' => '进度',
 			'settings.keybinding.categoryVolume' => '音量',
 			'settings.keybinding.categoryDisplay' => '显示',
+			'settings.keybinding.actionGlobalBack' => '返回',
+			'settings.keybinding.actionGalleryNext' => '下一张',
+			'settings.keybinding.actionGalleryPrevious' => '上一张',
+			'settings.keybinding.actionGalleryZoomIn' => '放大',
+			'settings.keybinding.actionGalleryZoomOut' => '缩小',
+			'settings.keybinding.actionGalleryResetZoom' => '重置缩放',
 			'settings.keybinding.actionPlayPause' => '播放 / 暂停',
 			'settings.keybinding.actionSpeedUp' => '加快倍速',
 			'settings.keybinding.actionSpeedDown' => '减慢倍速',
@@ -4184,6 +4218,8 @@ extension on TranslationsZhCn {
 			'subscriptions.selectUser' => '选择用户',
 			'subscriptions.noSubscribedUsers' => '暂无已订阅的用户',
 			'subscriptions.showAllSubscribedUsersContent' => '显示所有已订阅用户的内容',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.pipMode' => '画中画模式',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => '从上次播放位置继续播放: ${position}',
 			'videoDetail.localInfo.videoInfo' => '视频信息',
@@ -4201,8 +4237,6 @@ extension on TranslationsZhCn {
 			'videoDetail.videoIdIsEmpty' => '视频ID为空',
 			'videoDetail.videoInfoIsEmpty' => '视频信息为空',
 			'videoDetail.thisIsAPrivateVideo' => '这是一个私密视频',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.getVideoInfoFailed' => '获取视频信息失败，请稍后再试',
 			'videoDetail.noVideoSourceFound' => '未找到对应的视频源',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => '标签 "${tagId}" 已复制到剪贴板',
@@ -4698,6 +4732,8 @@ extension on TranslationsZhCn {
 			'favorite.removeFailed' => '删除失败',
 			'favorite.removeConfirmation' => '确定要删除这个项目吗？',
 			'favorite.removeConfirmationSuccess' => '项目已从收藏夹中删除',
+			_ => null,
+		} ?? switch (path) {
 			'favorite.removeConfirmationFailed' => '删除项目失败',
 			'favorite.createFolderSuccess' => '文件夹创建成功',
 			'favorite.createFolderFailed' => '创建文件夹失败',
@@ -4715,8 +4751,6 @@ extension on TranslationsZhCn {
 			'favorite.deleteFolderConfirmWithTitle' => ({required Object title}) => '确定要删除 ${title} 文件夹吗？',
 			'favorite.removeItemTitle' => '删除项目',
 			'favorite.removeItemConfirmWithTitle' => ({required Object title}) => '确定要删除 ${title} 项目吗？',
-			_ => null,
-		} ?? switch (path) {
 			'favorite.removeItemSuccess' => '项目已从收藏夹中删除',
 			'favorite.removeItemFailed' => '删除项目失败',
 			'favorite.localizeFavorite' => '本地收藏',
@@ -5212,6 +5246,8 @@ extension on TranslationsZhCn {
 			'navigationOrderSettings.sidebarPreview' => '侧边栏预览：',
 			'navigationOrderSettings.confirmResetNavigationOrder' => '确认重置导航顺序',
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => '确定要将导航顺序重置为默认设置吗？',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.cancel' => '取消',
 			'navigationOrderSettings.show' => '显示',
 			'navigationOrderSettings.hide' => '隐藏',
@@ -5229,8 +5265,6 @@ extension on TranslationsZhCn {
 			'news.openInBrowser' => '在浏览器中打开',
 			'searchFilter.selectField' => '选择字段',
 			'searchFilter.add' => '添加',
-			_ => null,
-		} ?? switch (path) {
 			'searchFilter.clear' => '清空',
 			'searchFilter.clearAll' => '清空全部',
 			'searchFilter.generatedQuery' => '生成的查询',

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/gestures.dart'
     show PointerSignalEvent, PointerScrollEvent;
 import 'package:flutter/services.dart';
+import 'package:i_iwara/app/services/player_keybinding/shortcut_action.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:photo_view/photo_view.dart';
 
@@ -14,6 +15,7 @@ class GalleryControls {
   final VoidCallback? onPrevious;
   final Function(bool fine)? onZoomIn;
   final Function(bool fine)? onZoomOut;
+  final VoidCallback? onResetZoom;
 
   bool isCtrlPressed = false;
   int currentIndex = 0;
@@ -27,7 +29,31 @@ class GalleryControls {
     this.onPrevious,
     this.onZoomIn,
     this.onZoomOut,
+    this.onResetZoom,
   });
+
+  /// 统一快捷键派发
+  bool dispatch(ShortcutAction action) {
+    switch (action) {
+      case ShortcutAction.galleryNext:
+        onNext?.call();
+        return true;
+      case ShortcutAction.galleryPrevious:
+        onPrevious?.call();
+        return true;
+      case ShortcutAction.galleryZoomIn:
+        zoomIn();
+        return true;
+      case ShortcutAction.galleryZoomOut:
+        zoomOut();
+        return true;
+      case ShortcutAction.galleryResetZoom:
+        resetZoom();
+        return true;
+      default:
+        return false;
+    }
+  }
 
   /// 初始化音量键监听（仅移动平台）
   Future<void> initVolumeKeyListener() async {
@@ -63,9 +89,10 @@ class GalleryControls {
     }
   }
 
-  /// 处理键盘按键事件
+  /// 处理键盘按键事件（旧版保持，兼容）
   ///
-  /// 返回值表示本次事件是否触发了「实际动作」（翻页/缩放/重置等），便于调用方决定是否刷新 UI。
+  /// 新代码直接通过 KeybindingService + dispatch。
+  @Deprecated('Use KeybindingService.resolve + dispatch')
   bool handleKeyPress(KeyEvent event) {
     if (event is KeyDownEvent &&
         (event.logicalKey == LogicalKeyboardKey.controlLeft ||
@@ -163,6 +190,7 @@ class GalleryControls {
     controllers[currentIndex]
       ..scale = 1.0
       ..position = Offset.zero;
+    onResetZoom?.call();
   }
 
   /// 双击缩放处理

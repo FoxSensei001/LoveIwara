@@ -654,24 +654,41 @@ settings:
   keybinding:
     title: キーボードショートカット
     entryLabel: キーボードショートカット
-    entryDesc: プレーヤーのキーボードショートカットをカスタマイズ（主にデスクトップ向け）
+    entryDesc: アプリのキーボードショートカットをカスタマイズ（主にデスクトップ向け）
     desktopHint: ショートカットは主にデスクトップのキーボードで有効です。モバイルでは通常ジェスチャーを使用します。
     resetAll: すべて既定に戻す
-    resetAllConfirm: すべてのプレーヤーショートカットを既定に戻しますか？
+    resetAllConfirm: すべてのショートカットを既定に戻しますか？
     resetToDefault: 既定に戻す
+    resetScope: このセクションを既定に戻す
     notSet: 未設定
     addShortcut: ショートカットを追加
     removeShortcut: このショートカットを削除
     pressNewShortcut: 新しいショートカットを押してください…
     recordingCancelHint: Esc でキャンセル
+    mouseHint: マウスのサイドボタン（戻る / 進む）や中ボタンも割り当て可能です
     reservedKey: このキーはシステム予約のため割り当てできません
     conflictTitle: ショートカットの競合
     conflictMessage: この組み合わせは既に「${action}」に割り当てられています。続行すると既存の割り当ては解除されます。
     conflictContinue: それでも割り当てる
+    shadowWarningTitle: グローバルショートカットの重複
+    shadowWarningMessage: この組み合わせは既に「${action}」にグローバル割り当てされています。ここで割り当てると、このセクション内ではその動作が上書きされます。
+    globalShadowedMessage: この組み合わせは既に「${scope}」で「${action}」に割り当てられています。そのセクション内では、このグローバルショートカットは上書きされます。
+    searchHint: ショートカットを検索…
+    scopeGlobal: グローバル
+    scopeGallery: ギャラリー
+    scopeVideo: 動画
+    categoryNavigation: ナビゲーション
+    categoryZoom: ズーム
     categoryPlayback: 再生
     categorySeek: シーク
     categoryVolume: 音量
     categoryDisplay: 表示
+    actionGlobalBack: 戻る
+    actionGalleryNext: 次の写真
+    actionGalleryPrevious: 前の写真
+    actionGalleryZoomIn: ズームイン
+    actionGalleryZoomOut: ズームアウト
+    actionGalleryResetZoom: ズームリセット
     actionPlayPause: 再生 / 一時停止
     actionSpeedUp: 再生速度を上げる
     actionSpeedDown: 再生速度を下げる

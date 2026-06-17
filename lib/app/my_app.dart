@@ -6,6 +6,9 @@ import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/version_service.dart';
+import 'package:i_iwara/app/services/player_keybinding/keybinding_service.dart';
+import 'package:i_iwara/app/services/player_keybinding/shortcut_action.dart';
+import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
 import 'package:i_iwara/app/ui/widgets/global_drawer_content_widget.dart';
 import 'package:i_iwara/app/ui/widgets/privacy_over_lay_widget.dart';
 import 'package:i_iwara/app/ui/widgets/window_layout_widget.dart';
@@ -16,7 +19,6 @@ import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 
-import 'models/dto/escape_intent.dart';
 import 'services/theme_service.dart';
 import 'services/message_service.dart';
 import 'services/deep_link_service.dart';
@@ -491,25 +493,25 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
   }
 
   Widget _shortCutsWrapper(BuildContext context, Widget child) {
-    return Shortcuts(
-      shortcuts: {
-        LogicalKeySet(LogicalKeyboardKey.escape): const EscapeIntent(),
+    return Focus(
+      // Non-focusable, only participates in event bubbling (default eventResult ignored)
+      canRequestFocus: false,
+      skipTraversal: true,
+      onKeyEvent: (node, event) {
+        if (event is! KeyDownEvent) return KeyEventResult.ignored;
+        final service = Get.find<KeybindingService>();
+        final action = service.resolve(event, ShortcutScope.global);
+        if (action == ShortcutAction.globalBack) {
+          if (PopCoordinator.shouldConfirmExitAtHomeRoot()) {
+            SystemNavigator.pop();
+          } else {
+            PopCoordinator.handleBack(context);
+          }
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
       },
-      child: Actions(
-        actions: {
-          EscapeIntent: CallbackAction<EscapeIntent>(
-            onInvoke: (intent) {
-              if (PopCoordinator.shouldConfirmExitAtHomeRoot()) {
-                SystemNavigator.pop();
-              } else {
-                PopCoordinator.handleBack(context);
-              }
-              return null;
-            },
-          ),
-        },
-        child: child,
-      ),
+      child: child,
     );
   }
 

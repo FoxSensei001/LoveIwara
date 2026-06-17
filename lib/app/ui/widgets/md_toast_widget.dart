@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
 
 enum MDToastType { success, error, info, warning }
+
 enum MDToastStyle { filled, outlined, light }
 
 class MDToastWidget extends StatelessWidget {
@@ -37,29 +38,29 @@ class MDToastWidget extends StatelessWidget {
   Color get _backgroundColor {
     switch (type) {
       case MDToastType.success:
-        return style == MDToastStyle.filled 
+        return style == MDToastStyle.filled
             ? Colors.green.shade800
             : style == MDToastStyle.light
-                ? Colors.green.shade50
-                : Colors.transparent;
+            ? Colors.green.shade50
+            : Colors.transparent;
       case MDToastType.error:
         return style == MDToastStyle.filled
             ? Colors.red.shade800
             : style == MDToastStyle.light
-                ? Colors.red.shade50
-                : Colors.transparent;
+            ? Colors.red.shade50
+            : Colors.transparent;
       case MDToastType.warning:
         return style == MDToastStyle.filled
             ? Colors.orange.shade800
             : style == MDToastStyle.light
-                ? Colors.orange.shade50
-                : Colors.transparent;
+            ? Colors.orange.shade50
+            : Colors.transparent;
       case MDToastType.info:
-      return style == MDToastStyle.filled
+        return style == MDToastStyle.filled
             ? Colors.grey.shade800
             : style == MDToastStyle.light
-                ? Colors.grey.shade50
-                : Colors.transparent;
+            ? Colors.grey.shade50
+            : Colors.transparent;
     }
   }
 
@@ -72,7 +73,7 @@ class MDToastWidget extends StatelessWidget {
       case MDToastType.warning:
         return Colors.orange.shade800;
       case MDToastType.info:
-      return Colors.grey.shade800;
+        return Colors.grey.shade800;
     }
   }
 
@@ -93,7 +94,7 @@ class MDToastWidget extends StatelessWidget {
       case MDToastType.warning:
         return Icons.warning_amber_rounded;
       case MDToastType.info:
-      return Icons.info_outline;
+        return Icons.info_outline;
     }
   }
 
@@ -101,7 +102,8 @@ class MDToastWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget toastContent = Container(
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 16),
-      padding: padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding:
+          padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: _backgroundColor,
         borderRadius: BorderRadius.circular(borderRadius ?? 8),
@@ -121,23 +123,17 @@ class MDToastWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (leftIcon != null)
-            Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: leftIcon,
-            )
+            Padding(padding: const EdgeInsets.only(right: 12), child: leftIcon)
           else
             Padding(
               padding: const EdgeInsets.only(right: 12),
-              child: Icon(
-                _defaultIcon,
-                color: _textColor,
-                size: 20,
-              ),
+              child: Icon(_defaultIcon, color: _textColor, size: 20),
             ),
           Flexible(
             child: Text(
               message,
-              style: textStyle?.copyWith(color: _textColor) ??
+              style:
+                  textStyle?.copyWith(color: _textColor) ??
                   TextStyle(
                     color: _textColor,
                     fontSize: 14,
@@ -146,10 +142,7 @@ class MDToastWidget extends StatelessWidget {
             ),
           ),
           if (rightIcon != null)
-            Padding(
-              padding: const EdgeInsets.only(left: 12),
-              child: rightIcon,
-            ),
+            Padding(padding: const EdgeInsets.only(left: 12), child: rightIcon),
           if (dismissible)
             Padding(
               padding: const EdgeInsets.only(left: 8),
@@ -168,10 +161,7 @@ class MDToastWidget extends StatelessWidget {
     );
 
     if (onTap != null) {
-      toastContent = GestureDetector(
-        onTap: onTap,
-        child: toastContent,
-      );
+      toastContent = GestureDetector(onTap: onTap, child: toastContent);
     }
 
     return toastContent;

@@ -653,24 +653,41 @@ settings:
   keybinding:
     title: Keyboard Shortcuts
     entryLabel: Keyboard Shortcuts
-    entryDesc: Customize the player's keyboard shortcuts (mainly for desktop)
+    entryDesc: Customize the app's keyboard shortcuts (mainly for desktop)
     desktopHint: Shortcuts apply mainly to desktop keyboards; mobile usually uses gestures.
     resetAll: Reset All to Default
-    resetAllConfirm: Reset all player shortcuts to their defaults?
+    resetAllConfirm: Reset all app shortcuts to their defaults?
     resetToDefault: Reset to Default
+    resetScope: Reset This Section
     notSet: Not set
     addShortcut: Add Shortcut
     removeShortcut: Remove this shortcut
     pressNewShortcut: Press the new shortcut…
     recordingCancelHint: Press Esc to cancel
+    mouseHint: You can also bind mouse side buttons (back / forward) or the middle button
     reservedKey: This key is reserved by the system and cannot be bound
     conflictTitle: Shortcut Conflict
     conflictMessage: This combination is already bound to "${action}". Continuing will remove the existing binding.
     conflictContinue: Bind Anyway
+    shadowWarningTitle: Global Shortcut Overlap
+    shadowWarningMessage: This combination is bound to "${action}" globally. Binding it here will override that action inside this section only.
+    globalShadowedMessage: This combination is already bound to "${action}" in ${scope}. Inside that section this global shortcut will be overridden by it.
+    searchHint: Search shortcuts…
+    scopeGlobal: Global
+    scopeGallery: Gallery
+    scopeVideo: Video
+    categoryNavigation: Navigation
+    categoryZoom: Zoom
     categoryPlayback: Playback
     categorySeek: Seek
     categoryVolume: Volume
     categoryDisplay: Display
+    actionGlobalBack: Go Back
+    actionGalleryNext: Next Photo
+    actionGalleryPrevious: Previous Photo
+    actionGalleryZoomIn: Zoom In
+    actionGalleryZoomOut: Zoom Out
+    actionGalleryResetZoom: Reset Zoom
     actionPlayPause: Play / Pause
     actionSpeedUp: Increase Speed
     actionSpeedDown: Decrease Speed

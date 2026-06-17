@@ -2181,24 +2181,41 @@ class _TranslationsSettingsKeybindingZhTw implements TranslationsSettingsKeybind
 	// Translations
 	@override String get title => '鍵盤快捷鍵';
 	@override String get entryLabel => '鍵盤快捷鍵';
-	@override String get entryDesc => '自訂播放器的鍵盤快捷鍵（主要用於桌面端）';
+	@override String get entryDesc => '自訂應用的鍵盤快捷鍵（主要用於桌面端）';
 	@override String get desktopHint => '快捷鍵主要在桌面端鍵盤上生效，行動端通常使用手勢控制。';
 	@override String get resetAll => '全部恢復預設';
-	@override String get resetAllConfirm => '確定要將所有播放器快捷鍵恢復為預設設定嗎？';
+	@override String get resetAllConfirm => '確定要將所有快捷鍵恢復為預設設定嗎？';
 	@override String get resetToDefault => '恢復預設';
+	@override String get resetScope => '恢復此區域預設';
 	@override String get notSet => '未設定';
 	@override String get addShortcut => '新增快捷鍵';
 	@override String get removeShortcut => '移除此快捷鍵';
 	@override String get pressNewShortcut => '請按下新的快捷鍵…';
 	@override String get recordingCancelHint => '按 Esc 取消';
+	@override String get mouseHint => '也可綁定滑鼠側鍵（後退 / 前進）或中鍵';
 	@override String get reservedKey => '該按鍵為系統保留，無法綁定';
 	@override String get conflictTitle => '快捷鍵衝突';
 	@override String conflictMessage({required Object action}) => '該組合已綁定到「${action}」，繼續將解除其原有綁定。';
 	@override String get conflictContinue => '仍然綁定';
+	@override String get shadowWarningTitle => '全域快捷鍵重疊';
+	@override String shadowWarningMessage({required Object action}) => '該組合已全域綁定到「${action}」。在此綁定會在此區域內覆蓋該動作。';
+	@override String globalShadowedMessage({required Object scope, required Object action}) => '該組合已在「${scope}」中綁定到「${action}」，進入該區域後此全域快捷鍵會被其覆蓋。';
+	@override String get searchHint => '搜尋快捷鍵…';
+	@override String get scopeGlobal => '全域';
+	@override String get scopeGallery => '圖庫';
+	@override String get scopeVideo => '影片';
+	@override String get categoryNavigation => '導覽';
+	@override String get categoryZoom => '縮放';
 	@override String get categoryPlayback => '播放控制';
 	@override String get categorySeek => '進度';
 	@override String get categoryVolume => '音量';
 	@override String get categoryDisplay => '顯示';
+	@override String get actionGlobalBack => '返回';
+	@override String get actionGalleryNext => '下一張';
+	@override String get actionGalleryPrevious => '上一張';
+	@override String get actionGalleryZoomIn => '放大';
+	@override String get actionGalleryZoomOut => '縮小';
+	@override String get actionGalleryResetZoom => '重置縮放';
 	@override String get actionPlayPause => '播放 / 暫停';
 	@override String get actionSpeedUp => '加快倍速';
 	@override String get actionSpeedDown => '減慢倍速';
@@ -3800,24 +3817,41 @@ extension on TranslationsZhTw {
 			'settings.languageChanged' => '語言設定已更改，請重新啟動應用以生效。',
 			'settings.keybinding.title' => '鍵盤快捷鍵',
 			'settings.keybinding.entryLabel' => '鍵盤快捷鍵',
-			'settings.keybinding.entryDesc' => '自訂播放器的鍵盤快捷鍵（主要用於桌面端）',
+			'settings.keybinding.entryDesc' => '自訂應用的鍵盤快捷鍵（主要用於桌面端）',
 			'settings.keybinding.desktopHint' => '快捷鍵主要在桌面端鍵盤上生效，行動端通常使用手勢控制。',
 			'settings.keybinding.resetAll' => '全部恢復預設',
-			'settings.keybinding.resetAllConfirm' => '確定要將所有播放器快捷鍵恢復為預設設定嗎？',
+			'settings.keybinding.resetAllConfirm' => '確定要將所有快捷鍵恢復為預設設定嗎？',
 			'settings.keybinding.resetToDefault' => '恢復預設',
+			'settings.keybinding.resetScope' => '恢復此區域預設',
 			'settings.keybinding.notSet' => '未設定',
 			'settings.keybinding.addShortcut' => '新增快捷鍵',
 			'settings.keybinding.removeShortcut' => '移除此快捷鍵',
 			'settings.keybinding.pressNewShortcut' => '請按下新的快捷鍵…',
 			'settings.keybinding.recordingCancelHint' => '按 Esc 取消',
+			'settings.keybinding.mouseHint' => '也可綁定滑鼠側鍵（後退 / 前進）或中鍵',
 			'settings.keybinding.reservedKey' => '該按鍵為系統保留，無法綁定',
 			'settings.keybinding.conflictTitle' => '快捷鍵衝突',
 			'settings.keybinding.conflictMessage' => ({required Object action}) => '該組合已綁定到「${action}」，繼續將解除其原有綁定。',
 			'settings.keybinding.conflictContinue' => '仍然綁定',
+			'settings.keybinding.shadowWarningTitle' => '全域快捷鍵重疊',
+			'settings.keybinding.shadowWarningMessage' => ({required Object action}) => '該組合已全域綁定到「${action}」。在此綁定會在此區域內覆蓋該動作。',
+			'settings.keybinding.globalShadowedMessage' => ({required Object scope, required Object action}) => '該組合已在「${scope}」中綁定到「${action}」，進入該區域後此全域快捷鍵會被其覆蓋。',
+			'settings.keybinding.searchHint' => '搜尋快捷鍵…',
+			'settings.keybinding.scopeGlobal' => '全域',
+			'settings.keybinding.scopeGallery' => '圖庫',
+			'settings.keybinding.scopeVideo' => '影片',
+			'settings.keybinding.categoryNavigation' => '導覽',
+			'settings.keybinding.categoryZoom' => '縮放',
 			'settings.keybinding.categoryPlayback' => '播放控制',
 			'settings.keybinding.categorySeek' => '進度',
 			'settings.keybinding.categoryVolume' => '音量',
 			'settings.keybinding.categoryDisplay' => '顯示',
+			'settings.keybinding.actionGlobalBack' => '返回',
+			'settings.keybinding.actionGalleryNext' => '下一張',
+			'settings.keybinding.actionGalleryPrevious' => '上一張',
+			'settings.keybinding.actionGalleryZoomIn' => '放大',
+			'settings.keybinding.actionGalleryZoomOut' => '縮小',
+			'settings.keybinding.actionGalleryResetZoom' => '重置縮放',
 			'settings.keybinding.actionPlayPause' => '播放 / 暫停',
 			'settings.keybinding.actionSpeedUp' => '加快倍速',
 			'settings.keybinding.actionSpeedDown' => '減慢倍速',
@@ -4182,6 +4216,8 @@ extension on TranslationsZhTw {
 			'proxyHelper.copied' => '已複製',
 			'proxyHelper.copy' => '複製',
 			'signIn.pleaseLoginFirst' => '請先登入',
+			_ => null,
+		} ?? switch (path) {
 			'signIn.alreadySignedInToday' => '您今天已經簽到過了！',
 			'signIn.youDidNotStickToTheSignIn' => '您未能持續簽到。',
 			'signIn.signInSuccess' => '簽到成功！',
@@ -4199,8 +4235,6 @@ extension on TranslationsZhTw {
 			'signIn.dateRangeCantBeMoreThanOneYear' => '日期範圍不能超過1年',
 			'signIn.signIn' => '簽到',
 			'signIn.signInRecord' => '簽到紀錄',
-			_ => null,
-		} ?? switch (path) {
 			'signIn.totalSignIns' => '總簽到次數',
 			'signIn.pleaseSelectSignInStatus' => '請選擇簽到狀態',
 			'subscriptions.pleaseLoginFirstToViewYourSubscriptions' => '請登入以查看您的訂閱內容。',
@@ -4696,6 +4730,8 @@ extension on TranslationsZhTw {
 			'download.batchDownload.failed' => '失敗',
 			'download.batchDownload.failureDetails' => '失敗詳情',
 			'download.batchDownload.reasonPrivateVideo' => '私人影片',
+			_ => null,
+		} ?? switch (path) {
 			'download.batchDownload.reasonAlreadyExists' => '任務已存在',
 			'download.batchDownload.reasonNoSource' => '無下載源',
 			'download.batchDownload.reasonNoSavePath' => '無法取得儲存路徑',
@@ -4713,8 +4749,6 @@ extension on TranslationsZhTw {
 			'favorite.errors.addSuccess' => '追加成功',
 			'favorite.errors.deleteFolderFailed' => '刪除資料夾失敗',
 			'favorite.errors.deleteFolderSuccess' => '刪除資料夾成功',
-			_ => null,
-		} ?? switch (path) {
 			'favorite.errors.folderNameCannotBeEmpty' => '資料夾名稱不能為空',
 			'favorite.add' => '追加',
 			'favorite.addSuccess' => '追加成功',
@@ -5210,6 +5244,8 @@ extension on TranslationsZhTw {
 			'layoutSettings.columnsCannotExceed12' => '欄數不能超過12',
 			'layoutSettings.breakpointConflict' => '斷點已存在',
 			'layoutSettings.confirmResetLayoutSettings' => '重設版面配置設定',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.confirmResetLayoutSettingsDesc' => '確定要重設所有版面配置設定到預設值嗎？\n\n將復原為：\n• 自動模式\n• 預設斷點配置',
 			'layoutSettings.resetToDefaults' => '重設為預設值',
 			'layoutSettings.confirmDeleteBreakpoint' => '刪除斷點',
@@ -5227,8 +5263,6 @@ extension on TranslationsZhTw {
 			'navigationOrderSettings.customNavigationOrder' => '自訂導航順序',
 			'navigationOrderSettings.customNavigationOrderDesc' => '拖曳調整底部導航欄和側邊欄中各個頁面的顯示順序',
 			'navigationOrderSettings.restartRequired' => '需重啟應用生效',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.navigationItemSorting' => '導航項目排序',
 			'navigationOrderSettings.done' => '完成',
 			'navigationOrderSettings.edit' => '編輯',

@@ -16,6 +16,7 @@ import 'download_settings_page.dart';
 import 'display_settings_page.dart';
 import 'gallery_settings_page.dart';
 import 'block_settings_page.dart';
+import 'keybinding_settings_page.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'about_page.dart';
 import 'diagnostics_page.dart';
@@ -367,14 +368,19 @@ class _SettingsPageState extends State<SettingsPage> {
             index: ProxyUtil.isSupportedPlatform() ? 1 : 0,
           ),
           _SettingItem(
+            title: t.settings.keybinding.title,
+            icon: Icons.keyboard,
+            index: ProxyUtil.isSupportedPlatform() ? 2 : 1,
+          ),
+          _SettingItem(
             title: t.settings.appSettings,
             icon: Icons.settings,
-            index: ProxyUtil.isSupportedPlatform() ? 2 : 1,
+            index: ProxyUtil.isSupportedPlatform() ? 3 : 2,
           ),
           _SettingItem(
             title: t.settings.downloadSettings.downloadSettingsTitle,
             icon: Icons.download,
-            index: ProxyUtil.isSupportedPlatform() ? 4 : 3,
+            index: ProxyUtil.isSupportedPlatform() ? 5 : 4,
           ),
         ],
       ),
@@ -384,32 +390,32 @@ class _SettingsPageState extends State<SettingsPage> {
           _SettingItem(
             title: t.settings.chatSettings.name,
             icon: Icons.forum,
-            index: ProxyUtil.isSupportedPlatform() ? 3 : 2,
+            index: ProxyUtil.isSupportedPlatform() ? 4 : 3,
           ),
           _SettingItem(
             title: t.settings.playerSettings,
             icon: Icons.play_circle_outline,
-            index: ProxyUtil.isSupportedPlatform() ? 5 : 4,
+            index: ProxyUtil.isSupportedPlatform() ? 6 : 5,
           ),
           _SettingItem(
             title: t.settings.themeSettings,
             icon: Icons.color_lens,
-            index: ProxyUtil.isSupportedPlatform() ? 6 : 5,
+            index: ProxyUtil.isSupportedPlatform() ? 7 : 6,
           ),
           _SettingItem(
             title: t.displaySettings.layoutSettings,
             icon: Icons.display_settings,
-            index: ProxyUtil.isSupportedPlatform() ? 7 : 6,
+            index: ProxyUtil.isSupportedPlatform() ? 8 : 7,
           ),
           _SettingItem(
             title: t.settings.gallerySettings.gallerySettingsTitle,
             icon: Icons.photo_library_outlined,
-            index: ProxyUtil.isSupportedPlatform() ? 8 : 7,
+            index: ProxyUtil.isSupportedPlatform() ? 9 : 8,
           ),
           _SettingItem(
             title: t.settings.blockSettings.title,
             icon: Icons.block,
-            index: ProxyUtil.isSupportedPlatform() ? 11 : 10,
+            index: ProxyUtil.isSupportedPlatform() ? 12 : 11,
           ),
         ],
       ),
@@ -419,12 +425,12 @@ class _SettingsPageState extends State<SettingsPage> {
           _SettingItem(
             title: t.settings.about,
             icon: Icons.info_outline,
-            index: ProxyUtil.isSupportedPlatform() ? 9 : 8,
+            index: ProxyUtil.isSupportedPlatform() ? 10 : 9,
           ),
           _SettingItem(
             title: t.settings.diagnosticsAndFeedback,
             icon: Icons.bug_report_outlined,
-            index: ProxyUtil.isSupportedPlatform() ? 10 : 9,
+            index: ProxyUtil.isSupportedPlatform() ? 11 : 10,
           ),
         ],
       ),
@@ -582,25 +588,27 @@ class _SettingsPageState extends State<SettingsPage> {
         return ProxySettingsPage(isWideScreen: enableTwoViews);
       case 1: // 翻译设置
         return TranslationSettingsPage(isWideScreen: enableTwoViews);
-      case 2: // 应用设置
+      case 2: // 键盘快捷键设置
+        return KeybindingSettingsPage(isWideScreen: enableTwoViews);
+      case 3: // 应用设置
         return AppSettingsPage(isWideScreen: enableTwoViews);
-      case 3: // 聊天设置
+      case 4: // 聊天设置
         return ForumSettingsPage(useSettingsNavi: true);
-      case 4: // 下载设置
+      case 5: // 下载设置
         return DownloadSettingsPage(isWideScreen: enableTwoViews);
-      case 5: // 播放器设置
+      case 6: // 播放器设置
         return PlayerSettingsPage(isWideScreen: enableTwoViews);
-      case 6: // 主题设置
+      case 7: // 主题设置
         return ThemeSettingsPage(isWideScreen: enableTwoViews);
-      case 7: // 显示设置
+      case 8: // 显示设置
         return DisplaySettingsPage(useSettingsNavi: true);
-      case 8: // 图库设置
+      case 9: // 图库设置
         return GallerySettingsPage(isWideScreen: enableTwoViews);
-      case 11: // 内容屏蔽
+      case 12: // 内容屏蔽
         return BlockSettingsPage(isWideScreen: enableTwoViews);
-      case 9: // 关于
+      case 10: // 关于
         return AboutPage(isWideScreen: enableTwoViews);
-      case 10: // 诊断与反馈
+      case 11: // 诊断与反馈
         return DiagnosticsPage(isWideScreen: enableTwoViews);
       default:
         return const SizedBox();

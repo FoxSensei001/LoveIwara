@@ -5440,8 +5440,8 @@ class TranslationsSettingsKeybindingEn {
 	/// en: 'Keyboard Shortcuts'
 	String get entryLabel => 'Keyboard Shortcuts';
 
-	/// en: 'Customize the player's keyboard shortcuts (mainly for desktop)'
-	String get entryDesc => 'Customize the player\'s keyboard shortcuts (mainly for desktop)';
+	/// en: 'Customize the app's keyboard shortcuts (mainly for desktop)'
+	String get entryDesc => 'Customize the app\'s keyboard shortcuts (mainly for desktop)';
 
 	/// en: 'Shortcuts apply mainly to desktop keyboards; mobile usually uses gestures.'
 	String get desktopHint => 'Shortcuts apply mainly to desktop keyboards; mobile usually uses gestures.';
@@ -5449,11 +5449,14 @@ class TranslationsSettingsKeybindingEn {
 	/// en: 'Reset All to Default'
 	String get resetAll => 'Reset All to Default';
 
-	/// en: 'Reset all player shortcuts to their defaults?'
-	String get resetAllConfirm => 'Reset all player shortcuts to their defaults?';
+	/// en: 'Reset all app shortcuts to their defaults?'
+	String get resetAllConfirm => 'Reset all app shortcuts to their defaults?';
 
 	/// en: 'Reset to Default'
 	String get resetToDefault => 'Reset to Default';
+
+	/// en: 'Reset This Section'
+	String get resetScope => 'Reset This Section';
 
 	/// en: 'Not set'
 	String get notSet => 'Not set';
@@ -5470,6 +5473,9 @@ class TranslationsSettingsKeybindingEn {
 	/// en: 'Press Esc to cancel'
 	String get recordingCancelHint => 'Press Esc to cancel';
 
+	/// en: 'You can also bind mouse side buttons (back / forward) or the middle button'
+	String get mouseHint => 'You can also bind mouse side buttons (back / forward) or the middle button';
+
 	/// en: 'This key is reserved by the system and cannot be bound'
 	String get reservedKey => 'This key is reserved by the system and cannot be bound';
 
@@ -5482,6 +5488,33 @@ class TranslationsSettingsKeybindingEn {
 	/// en: 'Bind Anyway'
 	String get conflictContinue => 'Bind Anyway';
 
+	/// en: 'Global Shortcut Overlap'
+	String get shadowWarningTitle => 'Global Shortcut Overlap';
+
+	/// en: 'This combination is bound to "${action}" globally. Binding it here will override that action inside this section only.'
+	String shadowWarningMessage({required Object action}) => 'This combination is bound to "${action}" globally. Binding it here will override that action inside this section only.';
+
+	/// en: 'This combination is already bound to "${action}" in ${scope}. Inside that section this global shortcut will be overridden by it.'
+	String globalShadowedMessage({required Object action, required Object scope}) => 'This combination is already bound to "${action}" in ${scope}. Inside that section this global shortcut will be overridden by it.';
+
+	/// en: 'Search shortcuts…'
+	String get searchHint => 'Search shortcuts…';
+
+	/// en: 'Global'
+	String get scopeGlobal => 'Global';
+
+	/// en: 'Gallery'
+	String get scopeGallery => 'Gallery';
+
+	/// en: 'Video'
+	String get scopeVideo => 'Video';
+
+	/// en: 'Navigation'
+	String get categoryNavigation => 'Navigation';
+
+	/// en: 'Zoom'
+	String get categoryZoom => 'Zoom';
+
 	/// en: 'Playback'
 	String get categoryPlayback => 'Playback';
 
@@ -5493,6 +5526,24 @@ class TranslationsSettingsKeybindingEn {
 
 	/// en: 'Display'
 	String get categoryDisplay => 'Display';
+
+	/// en: 'Go Back'
+	String get actionGlobalBack => 'Go Back';
+
+	/// en: 'Next Photo'
+	String get actionGalleryNext => 'Next Photo';
+
+	/// en: 'Previous Photo'
+	String get actionGalleryPrevious => 'Previous Photo';
+
+	/// en: 'Zoom In'
+	String get actionGalleryZoomIn => 'Zoom In';
+
+	/// en: 'Zoom Out'
+	String get actionGalleryZoomOut => 'Zoom Out';
+
+	/// en: 'Reset Zoom'
+	String get actionGalleryResetZoom => 'Reset Zoom';
 
 	/// en: 'Play / Pause'
 	String get actionPlayPause => 'Play / Pause';
@@ -8264,24 +8315,41 @@ extension on Translations {
 			'settings.languageChanged' => 'Language setting has been changed, please restart the app to take effect.',
 			'settings.keybinding.title' => 'Keyboard Shortcuts',
 			'settings.keybinding.entryLabel' => 'Keyboard Shortcuts',
-			'settings.keybinding.entryDesc' => 'Customize the player\'s keyboard shortcuts (mainly for desktop)',
+			'settings.keybinding.entryDesc' => 'Customize the app\'s keyboard shortcuts (mainly for desktop)',
 			'settings.keybinding.desktopHint' => 'Shortcuts apply mainly to desktop keyboards; mobile usually uses gestures.',
 			'settings.keybinding.resetAll' => 'Reset All to Default',
-			'settings.keybinding.resetAllConfirm' => 'Reset all player shortcuts to their defaults?',
+			'settings.keybinding.resetAllConfirm' => 'Reset all app shortcuts to their defaults?',
 			'settings.keybinding.resetToDefault' => 'Reset to Default',
+			'settings.keybinding.resetScope' => 'Reset This Section',
 			'settings.keybinding.notSet' => 'Not set',
 			'settings.keybinding.addShortcut' => 'Add Shortcut',
 			'settings.keybinding.removeShortcut' => 'Remove this shortcut',
 			'settings.keybinding.pressNewShortcut' => 'Press the new shortcut…',
 			'settings.keybinding.recordingCancelHint' => 'Press Esc to cancel',
+			'settings.keybinding.mouseHint' => 'You can also bind mouse side buttons (back / forward) or the middle button',
 			'settings.keybinding.reservedKey' => 'This key is reserved by the system and cannot be bound',
 			'settings.keybinding.conflictTitle' => 'Shortcut Conflict',
 			'settings.keybinding.conflictMessage' => ({required Object action}) => 'This combination is already bound to "${action}". Continuing will remove the existing binding.',
 			'settings.keybinding.conflictContinue' => 'Bind Anyway',
+			'settings.keybinding.shadowWarningTitle' => 'Global Shortcut Overlap',
+			'settings.keybinding.shadowWarningMessage' => ({required Object action}) => 'This combination is bound to "${action}" globally. Binding it here will override that action inside this section only.',
+			'settings.keybinding.globalShadowedMessage' => ({required Object action, required Object scope}) => 'This combination is already bound to "${action}" in ${scope}. Inside that section this global shortcut will be overridden by it.',
+			'settings.keybinding.searchHint' => 'Search shortcuts…',
+			'settings.keybinding.scopeGlobal' => 'Global',
+			'settings.keybinding.scopeGallery' => 'Gallery',
+			'settings.keybinding.scopeVideo' => 'Video',
+			'settings.keybinding.categoryNavigation' => 'Navigation',
+			'settings.keybinding.categoryZoom' => 'Zoom',
 			'settings.keybinding.categoryPlayback' => 'Playback',
 			'settings.keybinding.categorySeek' => 'Seek',
 			'settings.keybinding.categoryVolume' => 'Volume',
 			'settings.keybinding.categoryDisplay' => 'Display',
+			'settings.keybinding.actionGlobalBack' => 'Go Back',
+			'settings.keybinding.actionGalleryNext' => 'Next Photo',
+			'settings.keybinding.actionGalleryPrevious' => 'Previous Photo',
+			'settings.keybinding.actionGalleryZoomIn' => 'Zoom In',
+			'settings.keybinding.actionGalleryZoomOut' => 'Zoom Out',
+			'settings.keybinding.actionGalleryResetZoom' => 'Reset Zoom',
 			'settings.keybinding.actionPlayPause' => 'Play / Pause',
 			'settings.keybinding.actionSpeedUp' => 'Increase Speed',
 			'settings.keybinding.actionSpeedDown' => 'Decrease Speed',
@@ -8646,6 +8714,8 @@ extension on Translations {
 			'videoDetail.localInfo.videoInfo' => 'Video Info',
 			'videoDetail.localInfo.currentQuality' => 'Current Quality',
 			'videoDetail.localInfo.duration' => 'Duration',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.localInfo.resolution' => 'Resolution',
 			'videoDetail.localInfo.fileInfo' => 'File Info',
 			'videoDetail.localInfo.fileName' => 'File Name',
@@ -8663,8 +8733,6 @@ extension on Translations {
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'Tag "${tagId}" copied to clipboard',
 			'videoDetail.errorLoadingVideo' => 'Error loading video',
 			'videoDetail.play' => 'Play',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.pause' => 'Pause',
 			'videoDetail.exitAppFullscreen' => 'Exit App Fullscreen',
 			'videoDetail.enterAppFullscreen' => 'Enter App Fullscreen',
@@ -9160,6 +9228,8 @@ extension on Translations {
 			'favorite.createFolderFailed' => 'Failed to create folder',
 			'favorite.createFolder' => 'Create Folder',
 			'favorite.enterFolderName' => 'Enter folder name',
+			_ => null,
+		} ?? switch (path) {
 			'favorite.enterFolderNameHere' => 'Enter folder name here...',
 			'favorite.create' => 'Create',
 			'favorite.items' => 'Items',
@@ -9177,8 +9247,6 @@ extension on Translations {
 			'favorite.localizeFavorite' => 'Local Favorite',
 			'favorite.editFolderTitle' => 'Edit Folder',
 			'favorite.editFolderSuccess' => 'Folder updated successfully',
-			_ => null,
-		} ?? switch (path) {
 			'favorite.editFolderFailed' => 'Failed to update folder',
 			'favorite.searchTags' => 'Search tags',
 			'translation.currentService' => 'Current Service',
@@ -9674,6 +9742,8 @@ extension on Translations {
 			'emoji.selectEmoji' => 'Select Emoji',
 			'emoji.noEmojisInGroup' => 'No emojis in this group',
 			'emoji.goToSettingsToAddEmojis' => 'Go to settings to add emojis',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.emojiManagement' => 'Emoji Management',
 			'emoji.manageEmojiGroupsAndImages' => 'Manage emoji groups and images',
 			'emoji.uploadLocalImages' => 'Upload Local Images',
@@ -9691,8 +9761,6 @@ extension on Translations {
 			'searchFilter.generatedQuery' => 'Generated Query',
 			'searchFilter.copyToClipboard' => 'Copy to Clipboard',
 			'searchFilter.copied' => 'Copied',
-			_ => null,
-		} ?? switch (path) {
 			'searchFilter.filterCount' => ({required Object count}) => '${count} filters',
 			'searchFilter.filterSettings' => 'Filter Settings',
 			'searchFilter.field' => 'Field',

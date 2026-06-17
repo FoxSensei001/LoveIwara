@@ -3,9 +3,10 @@ import 'dart:io';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/player_keybinding/keybinding_service.dart';
+import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
 import 'package:i_iwara/common/gallery_image_quality.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -20,6 +21,7 @@ import 'image_widget.dart';
 import 'navigation_controls.dart';
 import 'gallery_controls.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/pages/settings/keybinding_settings_page.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class MyGalleryPhotoViewWrapper extends StatefulWidget {
@@ -279,17 +281,19 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   }
 
   bool _handleKeyPress(KeyEvent event) {
-    if (event is KeyDownEvent &&
-        event.logicalKey == LogicalKeyboardKey.escape) {
-      Navigator.of(context).maybePop();
-      return true;
+    // 保留 Esc 本地优先关闭评论抽屉（在 gallery_detail_page.dart），
+    // 否则这里让它冒泡到全局 Esc。
+    final service = Get.find<KeybindingService>();
+    final action = service.resolve(event, ShortcutScope.gallery);
+    if (action != null) {
+      final didAct = _galleryControls.dispatch(action);
+      if (didAct) {
+        _showUiAndAutoHide();
+        setState(() {});
+        return true;
+      }
     }
-    final didAct = _galleryControls.handleKeyPress(event);
-    if (didAct) {
-      _showUiAndAutoHide();
-      setState(() {});
-      return true;
-    }
+    // 未命中（包括 Esc）时返回 ignored，让它冒泡到根 global_back。
     return false;
   }
 
@@ -935,6 +939,21 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                                                 ),
                                               ],
                                             ),
+                                          // 快捷键设置按钮
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.keyboard,
+                                              color: Colors.white,
+                                            ),
+                                            tooltip:
+                                                t.settings.keybinding.title,
+                                            onPressed: () =>
+                                                KeybindingSettingsPage.openSheet(
+                                                  context,
+                                                  scopeFilter:
+                                                      ShortcutScope.gallery,
+                                                ),
+                                          ),
                                           // 三个点菜单按钮
                                           if (widget.enableMenu)
                                             IconButton(

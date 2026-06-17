@@ -1,16 +1,25 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 /// 一个可序列化的「按键组合」（trigger 键 + 修饰键）。
 ///
-/// - [keyId] 取自 [LogicalKeyboardKey.keyId]，跨 Flutter 版本稳定，适合持久化；
+/// 既能表达键盘按键，也能表达鼠标按键（侧键/中键），二者互斥：
+/// - 键盘组合：[pointerButton] 为 null，[keyId] 取自 [LogicalKeyboardKey.keyId]，
+///   跨 Flutter 版本稳定，适合持久化；
+/// - 鼠标组合：[pointerButton] 为按钮位掩码（[kMiddleMouseButton] / [kBackMouseButton]
+///   / [kForwardMouseButton]），此时 [keyId] 恒为 0；
 /// - 修饰键用四个布尔位表示，匹配时要求与当前实际修饰键状态「完全一致」
 ///   （即纯方向键不会被 Ctrl+方向键误触发）；
-/// - 序列化格式形如 `ctrl+shift+4294967304`，便于直接存入 ConfigService 的 JSON。
+/// - 序列化格式形如 `ctrl+shift+4294967304`（键盘）或 `ctrl+mouse8`（鼠标），
+///   便于直接存入 ConfigService 的 JSON。
 @immutable
 class KeyChord {
   final int keyId;
+
+  /// 鼠标按钮位掩码；为 null 表示这是一个键盘组合。
+  final int? pointerButton;
   final bool control;
   final bool shift;
   final bool alt;
@@ -18,6 +27,7 @@ class KeyChord {
 
   const KeyChord({
     required this.keyId,
+    this.pointerButton,
     this.control = false,
     this.shift = false,
     this.alt = false,
@@ -39,11 +49,30 @@ class KeyChord {
          meta: meta,
        );
 
+  /// 由鼠标按钮位掩码构造（用于鼠标侧键/中键绑定）。
+  const KeyChord.pointer(
+    int button, {
+    bool control = false,
+    bool shift = false,
+    bool alt = false,
+    bool meta = false,
+  }) : this(
+         keyId: 0,
+         pointerButton: button,
+         control: control,
+         shift: shift,
+         alt: alt,
+         meta: meta,
+       );
+
+  /// 是否为鼠标按键组合。
+  bool get isPointer => pointerButton != null;
+
   LogicalKeyboardKey get logicalKey => LogicalKeyboardKey(keyId);
 
   bool get hasModifier => control || shift || alt || meta;
 
-  /// 捕获一次按下事件，结合当前硬件修饰键状态生成键位组合。
+  /// 捕获一次键盘按下事件，结合当前硬件修饰键状态生成键位组合。
   ///
   /// 当按下的本身就是修饰键（Ctrl/Shift/Alt/Meta）时返回 null，表示尚未构成有效组合。
   static KeyChord? fromEvent(KeyEvent event) {
@@ -59,9 +88,46 @@ class KeyChord {
     );
   }
 
-  /// 该组合是否匹配某次按下事件（修饰键状态需完全一致）。
+  /// 捕获一次鼠标按下事件并生成鼠标组合。
+  ///
+  /// 只接受「可绑定」的按钮（中键 / 后退键 / 前进键），以免抢占左键点按、
+  /// 右键菜单等既有交互；不可绑定时返回 null。
+  static KeyChord? fromPointerEvent(PointerDownEvent event) {
+    final button = _capturableButton(event.buttons);
+    if (button == null) return null;
+    final keyboard = HardwareKeyboard.instance;
+    return KeyChord.pointer(
+      button,
+      control: keyboard.isControlPressed,
+      shift: keyboard.isShiftPressed,
+      alt: keyboard.isAltPressed,
+      meta: keyboard.isMetaPressed,
+    );
+  }
+
+  /// 可被绑定的鼠标按钮（仅中键 / 后退键 / 前进键，需为唯一按下的按钮）。
+  static int? _capturableButton(int buttons) {
+    if (buttons == kMiddleMouseButton) return kMiddleMouseButton;
+    if (buttons == kBackMouseButton) return kBackMouseButton;
+    if (buttons == kForwardMouseButton) return kForwardMouseButton;
+    return null;
+  }
+
+  /// 该组合是否匹配某次键盘按下事件（修饰键状态需完全一致）。
   bool matches(KeyEvent event) {
+    if (isPointer) return false;
     if (event.logicalKey.keyId != keyId) return false;
+    return _modifiersMatch();
+  }
+
+  /// 该组合是否匹配某次鼠标按下事件（按钮 + 修饰键需完全一致）。
+  bool matchesPointer(PointerDownEvent event) {
+    if (!isPointer) return false;
+    if (event.buttons != pointerButton) return false;
+    return _modifiersMatch();
+  }
+
+  bool _modifiersMatch() {
     final keyboard = HardwareKeyboard.instance;
     return keyboard.isControlPressed == control &&
         keyboard.isShiftPressed == shift &&
@@ -75,7 +141,7 @@ class KeyChord {
     if (shift) parts.add('shift');
     if (alt) parts.add('alt');
     if (meta) parts.add('meta');
-    parts.add(keyId.toString());
+    parts.add(isPointer ? 'mouse$pointerButton' : keyId.toString());
     return parts.join('+');
   }
 
@@ -83,6 +149,7 @@ class KeyChord {
     final parts = raw.split('+');
     bool control = false, shift = false, alt = false, meta = false;
     int? keyId;
+    int? pointerButton;
     for (final part in parts) {
       switch (part) {
         case 'ctrl':
@@ -98,8 +165,21 @@ class KeyChord {
           meta = true;
           break;
         default:
-          keyId = int.tryParse(part);
+          if (part.startsWith('mouse')) {
+            pointerButton = int.tryParse(part.substring(5));
+          } else {
+            keyId = int.tryParse(part);
+          }
       }
+    }
+    if (pointerButton != null) {
+      return KeyChord.pointer(
+        pointerButton,
+        control: control,
+        shift: shift,
+        alt: alt,
+        meta: meta,
+      );
     }
     if (keyId == null) return null;
     return KeyChord(
@@ -111,7 +191,7 @@ class KeyChord {
     );
   }
 
-  /// 人类可读的展示文本，如 `Ctrl + ←`、`⌘ + F`。
+  /// 人类可读的展示文本，如 `Ctrl + ←`、`⌘ + F`、`Mouse ◀`。
   String get displayLabel {
     final segments = <String>[];
     if (control) segments.add('Ctrl');
@@ -123,6 +203,9 @@ class KeyChord {
   }
 
   String _keyLabel() {
+    if (isPointer) {
+      return _pointerButtonLabels[pointerButton] ?? 'Mouse($pointerButton)';
+    }
     final friendly = _friendlyKeyLabels[keyId];
     if (friendly != null) return friendly;
     final label = logicalKey.keyLabel;
@@ -131,6 +214,12 @@ class KeyChord {
     final debug = logicalKey.debugName ?? 'Key($keyId)';
     return debug;
   }
+
+  static const Map<int, String> _pointerButtonLabels = {
+    kMiddleMouseButton: 'Mouse ⬤',
+    kBackMouseButton: 'Mouse ◀',
+    kForwardMouseButton: 'Mouse ▶',
+  };
 
   static bool _isModifierKey(LogicalKeyboardKey key) {
     return key == LogicalKeyboardKey.controlLeft ||
@@ -176,13 +265,15 @@ class KeyChord {
   bool operator ==(Object other) =>
       other is KeyChord &&
       other.keyId == keyId &&
+      other.pointerButton == pointerButton &&
       other.control == control &&
       other.shift == shift &&
       other.alt == alt &&
       other.meta == meta;
 
   @override
-  int get hashCode => Object.hash(keyId, control, shift, alt, meta);
+  int get hashCode =>
+      Object.hash(keyId, pointerButton, control, shift, alt, meta);
 
   @override
   String toString() => 'KeyChord(${serialize()})';
