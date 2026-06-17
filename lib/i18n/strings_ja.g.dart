@@ -50,6 +50,7 @@ class TranslationsJa with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _TranslationsSearchJa search = _TranslationsSearchJa._(_root);
 	@override late final _TranslationsMediaListJa mediaList = _TranslationsMediaListJa._(_root);
 	@override late final _TranslationsSettingsJa settings = _TranslationsSettingsJa._(_root);
+	@override late final _TranslationsFavoriteTagsJa favoriteTags = _TranslationsFavoriteTagsJa._(_root);
 	@override late final _TranslationsOreno3dJa oreno3d = _TranslationsOreno3dJa._(_root);
 	@override late final _TranslationsSignInJa signIn = _TranslationsSignInJa._(_root);
 	@override late final _TranslationsSubscriptionsJa subscriptions = _TranslationsSubscriptionsJa._(_root);
@@ -855,6 +856,30 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get cdnUnreachableStatus => '到達不可';
 	@override String get cdnNotTestedStatus => '未テスト';
 	@override late final _TranslationsSettingsDownloadSettingsJa downloadSettings = _TranslationsSettingsDownloadSettingsJa._(_root);
+}
+
+// Path: favoriteTags
+class _TranslationsFavoriteTagsJa implements TranslationsFavoriteTagsEn {
+	_TranslationsFavoriteTagsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'お気に入りタグ';
+	@override String get emptyIwara => 'お気に入りの Iwara タグはまだありません';
+	@override String get emptyOreno3d => 'お気に入りはまだありません';
+	@override String get addIwaraTag => 'Iwara タグを追加';
+	@override String get quickPickHint => 'お気に入りは検索のクイック選択に表示されます。';
+	@override String get pickerTitle => 'Oreno3D を選択';
+	@override String get searchHint => '名前または原語で検索';
+	@override String worksCount({required Object count}) => '${count} 作品';
+	@override String get browseEntry => '原作 / キャラ / タグを閲覧';
+	@override String get favoritesSection => 'お気に入り';
+	@override String get addFavorite => '追加';
+	@override String get iwaraTitle => 'お気に入りの Iwara タグ';
+	@override String get oreno3dTitle => 'お気に入りの Oreno3D タグ';
+	@override String get changeTag => 'タグを変更';
+	@override String get switchToText => 'テキスト検索';
 }
 
 // Path: oreno3d
@@ -4079,6 +4104,21 @@ extension on TranslationsJa {
 			'settings.downloadSettings.suchAsTitleQuality' => '例: %title_%quality',
 			'settings.downloadSettings.suchAsTitleId' => '例: %title_%id',
 			'settings.downloadSettings.suchAsTitleFilename' => '例: %title_%filename',
+			'favoriteTags.title' => 'お気に入りタグ',
+			'favoriteTags.emptyIwara' => 'お気に入りの Iwara タグはまだありません',
+			'favoriteTags.emptyOreno3d' => 'お気に入りはまだありません',
+			'favoriteTags.addIwaraTag' => 'Iwara タグを追加',
+			'favoriteTags.quickPickHint' => 'お気に入りは検索のクイック選択に表示されます。',
+			'favoriteTags.pickerTitle' => 'Oreno3D を選択',
+			'favoriteTags.searchHint' => '名前または原語で検索',
+			'favoriteTags.worksCount' => ({required Object count}) => '${count} 作品',
+			'favoriteTags.browseEntry' => '原作 / キャラ / タグを閲覧',
+			'favoriteTags.favoritesSection' => 'お気に入り',
+			'favoriteTags.addFavorite' => '追加',
+			'favoriteTags.iwaraTitle' => 'お気に入りの Iwara タグ',
+			'favoriteTags.oreno3dTitle' => 'お気に入りの Oreno3D タグ',
+			'favoriteTags.changeTag' => 'タグを変更',
+			'favoriteTags.switchToText' => 'テキスト検索',
 			'oreno3d.name' => 'Oreno3D',
 			'oreno3d.tags' => 'タグ',
 			'oreno3d.characters' => 'キャラクター',
@@ -4156,6 +4196,8 @@ extension on TranslationsJa {
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'タグ "${tagId}" がクリップボードにコピーされました',
 			'videoDetail.errorLoadingVideo' => 'ビデオの読み込み中にエラーが発生しました',
 			'videoDetail.play' => '再生',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.pause' => '一時停止',
 			'videoDetail.exitAppFullscreen' => 'アプリの全画面表示を終了',
 			'videoDetail.enterAppFullscreen' => 'アプリを全画面表示',
@@ -4171,8 +4213,6 @@ extension on TranslationsJa {
 			'videoDetail.brightnessLowest' => '明るさが最低になっています',
 			'videoDetail.volume' => '音量',
 			'videoDetail.volumeMuted' => '音量がミュートされています',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.restoreDefaultZoom' => 'リセット',
 			'videoDetail.gestureGuide.title' => 'ジェスチャー・操作ガイド',
 			'videoDetail.gestureGuide.viewGuide' => 'ジェスチャー・操作ガイドを見る',
@@ -4670,6 +4710,8 @@ extension on TranslationsJa {
 			'favorite.localizeFavorite' => 'ローカライズお気に入り',
 			'favorite.editFolderTitle' => 'フォルダー名を編集',
 			'favorite.editFolderSuccess' => 'フォルダー名を更新しました',
+			_ => null,
+		} ?? switch (path) {
 			'favorite.editFolderFailed' => 'フォルダー名の更新に失敗しました',
 			'favorite.searchTags' => 'タグを検索',
 			'translation.currentService' => '現在のサービス',
@@ -4685,8 +4727,6 @@ extension on TranslationsJa {
 			'translation.riskWarning' => '風險提示',
 			'translation.dureToRisk1' => 'ユーザーが生成したテキストが原因で、AIサービスプロバイダーのコンテンツポリシーに違反する内容が含まれる場合があります',
 			'translation.dureToRisk2' => '不当なコンテンツはAPIキーの停止やサービスの終了を引き起こす可能性があります',
-			_ => null,
-		} ?? switch (path) {
 			'translation.operationSuggestion' => '操作推奨',
 			'translation.operationSuggestion1' => '1. 翻訳前に内容を厳格に審査してください',
 			'translation.operationSuggestion2' => '2. 暴力、成人向けコンテンツなどを翻訳しないでください',
@@ -5184,6 +5224,8 @@ extension on TranslationsJa {
 			'searchFilter.generatedQuery' => '生成されたクエリ',
 			'searchFilter.copyToClipboard' => 'クリップボードにコピー',
 			'searchFilter.copied' => 'コピーしました',
+			_ => null,
+		} ?? switch (path) {
 			'searchFilter.filterCount' => ({required Object count}) => '${count} 個のフィルター',
 			'searchFilter.filterSettings' => 'フィルター設定',
 			'searchFilter.field' => 'フィールド',
@@ -5199,8 +5241,6 @@ extension on TranslationsJa {
 			'searchFilter.boolean' => 'ブール値',
 			'searchFilter.tags' => 'タグ',
 			'searchFilter.select' => '選択',
-			_ => null,
-		} ?? switch (path) {
 			'searchFilter.clickToSelectDate' => '日付を選択するにはクリック',
 			'searchFilter.pleaseEnterValidNumber' => '有効な数値を入力してください',
 			'searchFilter.pleaseEnterValidDate' => '有効な日付形式を入力してください (YYYY-MM-DD)',

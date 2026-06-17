@@ -50,6 +50,7 @@ class TranslationsZhTw with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsSearchZhTw search = _TranslationsSearchZhTw._(_root);
 	@override late final _TranslationsMediaListZhTw mediaList = _TranslationsMediaListZhTw._(_root);
 	@override late final _TranslationsSettingsZhTw settings = _TranslationsSettingsZhTw._(_root);
+	@override late final _TranslationsFavoriteTagsZhTw favoriteTags = _TranslationsFavoriteTagsZhTw._(_root);
 	@override late final _TranslationsOreno3dZhTw oreno3d = _TranslationsOreno3dZhTw._(_root);
 	@override late final _TranslationsFirstTimeSetupZhTw firstTimeSetup = _TranslationsFirstTimeSetupZhTw._(_root);
 	@override late final _TranslationsProxyHelperZhTw proxyHelper = _TranslationsProxyHelperZhTw._(_root);
@@ -855,6 +856,30 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get cdnUnreachableStatus => '無法連線';
 	@override String get cdnNotTestedStatus => '尚未測速';
 	@override late final _TranslationsSettingsDownloadSettingsZhTw downloadSettings = _TranslationsSettingsDownloadSettingsZhTw._(_root);
+}
+
+// Path: favoriteTags
+class _TranslationsFavoriteTagsZhTw implements TranslationsFavoriteTagsEn {
+	_TranslationsFavoriteTagsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '收藏標籤';
+	@override String get emptyIwara => '還沒有收藏的 Iwara 標籤';
+	@override String get emptyOreno3d => '還沒有收藏';
+	@override String get addIwaraTag => '新增 Iwara 標籤';
+	@override String get quickPickHint => '收藏的項目會出現在搜尋的快速選擇中。';
+	@override String get pickerTitle => '選擇 Oreno3D';
+	@override String get searchHint => '按名稱或原文搜尋';
+	@override String worksCount({required Object count}) => '${count} 作品';
+	@override String get browseEntry => '瀏覽 原作 / 角色 / 標籤';
+	@override String get favoritesSection => '收藏';
+	@override String get addFavorite => '新增';
+	@override String get iwaraTitle => '收藏的 Iwara 標籤';
+	@override String get oreno3dTitle => '收藏的 Oreno3d 標籤';
+	@override String get changeTag => '更換標籤';
+	@override String get switchToText => '文字搜尋';
 }
 
 // Path: oreno3d
@@ -4082,6 +4107,21 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.suchAsTitleQuality' => '例如: %title_%quality',
 			'settings.downloadSettings.suchAsTitleId' => '例如: %title_%id',
 			'settings.downloadSettings.suchAsTitleFilename' => '例如: %title_%filename',
+			'favoriteTags.title' => '收藏標籤',
+			'favoriteTags.emptyIwara' => '還沒有收藏的 Iwara 標籤',
+			'favoriteTags.emptyOreno3d' => '還沒有收藏',
+			'favoriteTags.addIwaraTag' => '新增 Iwara 標籤',
+			'favoriteTags.quickPickHint' => '收藏的項目會出現在搜尋的快速選擇中。',
+			'favoriteTags.pickerTitle' => '選擇 Oreno3D',
+			'favoriteTags.searchHint' => '按名稱或原文搜尋',
+			'favoriteTags.worksCount' => ({required Object count}) => '${count} 作品',
+			'favoriteTags.browseEntry' => '瀏覽 原作 / 角色 / 標籤',
+			'favoriteTags.favoritesSection' => '收藏',
+			'favoriteTags.addFavorite' => '新增',
+			'favoriteTags.iwaraTitle' => '收藏的 Iwara 標籤',
+			'favoriteTags.oreno3dTitle' => '收藏的 Oreno3d 標籤',
+			'favoriteTags.changeTag' => '更換標籤',
+			'favoriteTags.switchToText' => '文字搜尋',
 			'oreno3d.name' => 'Oreno3D',
 			'oreno3d.tags' => '標籤',
 			'oreno3d.characters' => '角色',
@@ -4159,6 +4199,8 @@ extension on TranslationsZhTw {
 			'signIn.dateRangeCantBeMoreThanOneYear' => '日期範圍不能超過1年',
 			'signIn.signIn' => '簽到',
 			'signIn.signInRecord' => '簽到紀錄',
+			_ => null,
+		} ?? switch (path) {
 			'signIn.totalSignIns' => '總簽到次數',
 			'signIn.pleaseSelectSignInStatus' => '請選擇簽到狀態',
 			'subscriptions.pleaseLoginFirstToViewYourSubscriptions' => '請登入以查看您的訂閱內容。',
@@ -4174,8 +4216,6 @@ extension on TranslationsZhTw {
 			'videoDetail.localInfo.fileInfo' => '檔案資訊',
 			'videoDetail.localInfo.fileName' => '檔案名稱',
 			'videoDetail.localInfo.fileSize' => '檔案大小',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.localInfo.filePath' => '檔案路徑',
 			'videoDetail.localInfo.copyPath' => '複製路徑',
 			'videoDetail.localInfo.openFolder' => '開啟資料夾',
@@ -4673,6 +4713,8 @@ extension on TranslationsZhTw {
 			'favorite.errors.addSuccess' => '追加成功',
 			'favorite.errors.deleteFolderFailed' => '刪除資料夾失敗',
 			'favorite.errors.deleteFolderSuccess' => '刪除資料夾成功',
+			_ => null,
+		} ?? switch (path) {
 			'favorite.errors.folderNameCannotBeEmpty' => '資料夾名稱不能為空',
 			'favorite.add' => '追加',
 			'favorite.addSuccess' => '追加成功',
@@ -4688,8 +4730,6 @@ extension on TranslationsZhTw {
 			'favorite.createFolder' => '建立資料夾',
 			'favorite.enterFolderName' => '輸入資料夾名稱',
 			'favorite.enterFolderNameHere' => '在此輸入資料夾名稱...',
-			_ => null,
-		} ?? switch (path) {
 			'favorite.create' => '建立',
 			'favorite.items' => '項目',
 			'favorite.newFolderName' => '新資料夾',
@@ -5187,6 +5227,8 @@ extension on TranslationsZhTw {
 			'navigationOrderSettings.customNavigationOrder' => '自訂導航順序',
 			'navigationOrderSettings.customNavigationOrderDesc' => '拖曳調整底部導航欄和側邊欄中各個頁面的顯示順序',
 			'navigationOrderSettings.restartRequired' => '需重啟應用生效',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.navigationItemSorting' => '導航項目排序',
 			'navigationOrderSettings.done' => '完成',
 			'navigationOrderSettings.edit' => '編輯',
@@ -5202,8 +5244,6 @@ extension on TranslationsZhTw {
 			'navigationOrderSettings.hidden' => '已隱藏',
 			'navigationOrderSettings.hideHint' => '點擊眼睛圖示可顯示或隱藏論壇和新聞',
 			'navigationOrderSettings.videoDescription' => '瀏覽熱門影片內容',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.galleryDescription' => '瀏覽圖片和畫廊',
 			'navigationOrderSettings.subscriptionDescription' => '查看追蹤使用者的最新內容',
 			'navigationOrderSettings.forumDescription' => '參與社群討論',

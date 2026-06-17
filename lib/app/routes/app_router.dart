@@ -54,6 +54,8 @@ import 'package:i_iwara/app/ui/pages/follows/follows_page.dart';
 import 'package:i_iwara/app/ui/pages/favorite/favorite_list_page.dart';
 import 'package:i_iwara/app/ui/pages/favorite/favorite_folder_detail_page.dart';
 import 'package:i_iwara/app/ui/pages/tag_blacklist/tag_blacklist_page.dart';
+import 'package:i_iwara/app/ui/pages/favorite_tags/favorite_tags_page.dart'
+    show FavoriteIwaraTagsPage, FavoriteOreno3dTagsPage;
 import 'package:i_iwara/app/ui/pages/profile/personal_profile_page.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/my_gallery_photo_view_wrapper.dart';
 import 'package:i_iwara/app/ui/pages/emoji_library/emoji_library_page.dart';
@@ -656,6 +658,20 @@ final GoRouter appRouter = GoRouter(
           path: '/tag_blacklist',
           name: 'tag_blacklist',
           builder: (context, state) => const TagBlacklistPage(),
+        ),
+
+        // 收藏的 Iwara 标签管理
+        GoRoute(
+          path: '/favorite_iwara_tags',
+          name: 'favorite_iwara_tags',
+          builder: (context, state) => const FavoriteIwaraTagsPage(),
+        ),
+
+        // 收藏的 Oreno3d 标签管理（原作/角色/标签）
+        GoRoute(
+          path: '/favorite_oreno3d_tags',
+          name: 'favorite_oreno3d_tags',
+          builder: (context, state) => const FavoriteOreno3dTagsPage(),
         ),
 
         // 个人资料页

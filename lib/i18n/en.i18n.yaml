@@ -980,6 +980,22 @@ settings:
     suchAsTitleQuality: 'For example: %title_%quality'
     suchAsTitleId: 'For example: %title_%id'
     suchAsTitleFilename: 'For example: %title_%filename'
+favoriteTags:
+  title: Favorite Tags
+  emptyIwara: No favorite Iwara tags yet
+  emptyOreno3d: No favorites yet
+  addIwaraTag: Add Iwara tag
+  quickPickHint: Favorited items appear as quick picks in search.
+  pickerTitle: Select Oreno3D
+  searchHint: Search by name or original
+  worksCount: '${count} works'
+  browseEntry: Browse origin / character / tag
+  favoritesSection: Favorites
+  addFavorite: Add
+  iwaraTitle: Favorite Iwara Tags
+  oreno3dTitle: Favorite Oreno3D Tags
+  changeTag: Change tag
+  switchToText: Text search
 oreno3d:
   name: Oreno3D
   tags: Tags

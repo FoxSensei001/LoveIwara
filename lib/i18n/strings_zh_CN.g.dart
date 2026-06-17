@@ -50,6 +50,7 @@ class TranslationsZhCn with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsSearchZhCn search = _TranslationsSearchZhCn._(_root);
 	@override late final _TranslationsMediaListZhCn mediaList = _TranslationsMediaListZhCn._(_root);
 	@override late final _TranslationsSettingsZhCn settings = _TranslationsSettingsZhCn._(_root);
+	@override late final _TranslationsFavoriteTagsZhCn favoriteTags = _TranslationsFavoriteTagsZhCn._(_root);
 	@override late final _TranslationsOreno3dZhCn oreno3d = _TranslationsOreno3dZhCn._(_root);
 	@override late final _TranslationsSignInZhCn signIn = _TranslationsSignInZhCn._(_root);
 	@override late final _TranslationsSubscriptionsZhCn subscriptions = _TranslationsSubscriptionsZhCn._(_root);
@@ -860,6 +861,30 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get cdnUnreachableStatus => '不可达';
 	@override String get cdnNotTestedStatus => '未测速';
 	@override late final _TranslationsSettingsDownloadSettingsZhCn downloadSettings = _TranslationsSettingsDownloadSettingsZhCn._(_root);
+}
+
+// Path: favoriteTags
+class _TranslationsFavoriteTagsZhCn implements TranslationsFavoriteTagsEn {
+	_TranslationsFavoriteTagsZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '收藏标签';
+	@override String get emptyIwara => '还没有收藏的 Iwara 标签';
+	@override String get emptyOreno3d => '还没有收藏';
+	@override String get addIwaraTag => '添加 Iwara 标签';
+	@override String get quickPickHint => '收藏的条目会出现在搜索的快速选择中。';
+	@override String get pickerTitle => '选择 Oreno3D';
+	@override String get searchHint => '按名称或原文搜索';
+	@override String worksCount({required Object count}) => '${count} 作品';
+	@override String get browseEntry => '浏览 原作 / 角色 / 标签';
+	@override String get favoritesSection => '收藏';
+	@override String get addFavorite => '添加';
+	@override String get iwaraTitle => '收藏的 Iwara 标签';
+	@override String get oreno3dTitle => '收藏的 Oreno3d 标签';
+	@override String get changeTag => '更换标签';
+	@override String get switchToText => '文本搜索';
 }
 
 // Path: oreno3d
@@ -4089,6 +4114,21 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.suchAsTitleQuality' => '例如: %title_%quality',
 			'settings.downloadSettings.suchAsTitleId' => '例如: %title_%id',
 			'settings.downloadSettings.suchAsTitleFilename' => '例如: %title_%filename',
+			'favoriteTags.title' => '收藏标签',
+			'favoriteTags.emptyIwara' => '还没有收藏的 Iwara 标签',
+			'favoriteTags.emptyOreno3d' => '还没有收藏',
+			'favoriteTags.addIwaraTag' => '添加 Iwara 标签',
+			'favoriteTags.quickPickHint' => '收藏的条目会出现在搜索的快速选择中。',
+			'favoriteTags.pickerTitle' => '选择 Oreno3D',
+			'favoriteTags.searchHint' => '按名称或原文搜索',
+			'favoriteTags.worksCount' => ({required Object count}) => '${count} 作品',
+			'favoriteTags.browseEntry' => '浏览 原作 / 角色 / 标签',
+			'favoriteTags.favoritesSection' => '收藏',
+			'favoriteTags.addFavorite' => '添加',
+			'favoriteTags.iwaraTitle' => '收藏的 Iwara 标签',
+			'favoriteTags.oreno3dTitle' => '收藏的 Oreno3d 标签',
+			'favoriteTags.changeTag' => '更换标签',
+			'favoriteTags.switchToText' => '文本搜索',
 			'oreno3d.name' => 'Oreno3D',
 			'oreno3d.tags' => '标签',
 			'oreno3d.characters' => '角色',
@@ -4161,6 +4201,8 @@ extension on TranslationsZhCn {
 			'videoDetail.videoIdIsEmpty' => '视频ID为空',
 			'videoDetail.videoInfoIsEmpty' => '视频信息为空',
 			'videoDetail.thisIsAPrivateVideo' => '这是一个私密视频',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.getVideoInfoFailed' => '获取视频信息失败，请稍后再试',
 			'videoDetail.noVideoSourceFound' => '未找到对应的视频源',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => '标签 "${tagId}" 已复制到剪贴板',
@@ -4176,8 +4218,6 @@ extension on TranslationsZhCn {
 			'videoDetail.switchPlaybackSpeed' => '切换播放倍速',
 			'videoDetail.rewindSeconds' => ({required Object num}) => '后退${num}秒',
 			'videoDetail.fastForwardSeconds' => ({required Object num}) => '快进${num}秒',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.playbackSpeedIng' => ({required Object rate}) => '正在以${rate}倍速播放',
 			'videoDetail.brightness' => '亮度',
 			'videoDetail.brightnessLowest' => '亮度已最低',
@@ -4675,6 +4715,8 @@ extension on TranslationsZhCn {
 			'favorite.deleteFolderConfirmWithTitle' => ({required Object title}) => '确定要删除 ${title} 文件夹吗？',
 			'favorite.removeItemTitle' => '删除项目',
 			'favorite.removeItemConfirmWithTitle' => ({required Object title}) => '确定要删除 ${title} 项目吗？',
+			_ => null,
+		} ?? switch (path) {
 			'favorite.removeItemSuccess' => '项目已从收藏夹中删除',
 			'favorite.removeItemFailed' => '删除项目失败',
 			'favorite.localizeFavorite' => '本地收藏',
@@ -4690,8 +4732,6 @@ extension on TranslationsZhCn {
 			'translation.translation' => '翻译',
 			'translation.needVerification' => '需要验证',
 			'translation.needVerificationContent' => '请先通过连接测试才能启用AI翻译',
-			_ => null,
-		} ?? switch (path) {
 			'translation.confirm' => '确定',
 			'translation.disclaimer' => '使用须知',
 			'translation.riskWarning' => '风险提示',
@@ -5189,6 +5229,8 @@ extension on TranslationsZhCn {
 			'news.openInBrowser' => '在浏览器中打开',
 			'searchFilter.selectField' => '选择字段',
 			'searchFilter.add' => '添加',
+			_ => null,
+		} ?? switch (path) {
 			'searchFilter.clear' => '清空',
 			'searchFilter.clearAll' => '清空全部',
 			'searchFilter.generatedQuery' => '生成的查询',
@@ -5204,8 +5246,6 @@ extension on TranslationsZhCn {
 			'searchFilter.numberRange' => '数值范围',
 			'searchFilter.from' => '从',
 			'searchFilter.to' => '到',
-			_ => null,
-		} ?? switch (path) {
 			'searchFilter.date' => '日期',
 			'searchFilter.number' => '数值',
 			'searchFilter.boolean' => '布尔值',

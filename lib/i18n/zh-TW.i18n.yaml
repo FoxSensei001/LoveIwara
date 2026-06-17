@@ -981,6 +981,22 @@ settings:
     suchAsTitleQuality: '例如: %title_%quality'
     suchAsTitleId: '例如: %title_%id'
     suchAsTitleFilename: '例如: %title_%filename'
+favoriteTags:
+  title: 收藏標籤
+  emptyIwara: 還沒有收藏的 Iwara 標籤
+  emptyOreno3d: 還沒有收藏
+  addIwaraTag: 新增 Iwara 標籤
+  quickPickHint: 收藏的項目會出現在搜尋的快速選擇中。
+  pickerTitle: 選擇 Oreno3D
+  searchHint: 按名稱或原文搜尋
+  worksCount: '${count} 作品'
+  browseEntry: 瀏覽 原作 / 角色 / 標籤
+  favoritesSection: 收藏
+  addFavorite: 新增
+  iwaraTitle: 收藏的 Iwara 標籤
+  oreno3dTitle: 收藏的 Oreno3d 標籤
+  changeTag: 更換標籤
+  switchToText: 文字搜尋
 oreno3d:
   name: Oreno3D
   tags: 標籤

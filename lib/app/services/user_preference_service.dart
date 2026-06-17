@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/dto/user_dto.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
+import 'package:i_iwara/app/models/oreno3d_favorite.model.dart';
 import 'package:i_iwara/app/repositories/commons_repository.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/models/search_record.model.dart';
@@ -19,11 +20,15 @@ class UserPreferenceService extends GetxService {
   // 喜欢的作者
   final RxList<UserDTO> likedUsers = <UserDTO>[].obs;
 
+  // 收藏的 Oreno3d 实体（原作 / 角色 / 标签），用于搜索快速选择
+  final RxList<Oreno3dFavorite> oreno3dFavorites = <Oreno3dFavorite>[].obs;
+
   final int maxSearchRecordCount = 50;
 
   final String _videoSearchHistoryKey = 'videoSearchHistory';
   final String _videoSearchTagHistoryKey = 'videoSearchTagHistory';
   final String _likedUsers = 'likedUsers';
+  final String _oreno3dFavoritesKey = 'oreno3dFavorites';
 
   final RxBool searchRecordEnabled = true.obs;
   final String _searchRecordEnabledKey = 'searchRecordEnabled';
@@ -54,7 +59,18 @@ class UserPreferenceService extends GetxService {
     await _loadUserLikeUsernames();
     await _loadVideoSearchHistory();
     await _loadVideoSearchTagHistory();
+    await _loadOreno3dFavorites();
   }
+
+  // 判断某个 Oreno3d 实体是否已收藏
+  bool isOreno3dFavorite(String type, String? id) {
+    if (id == null) return false;
+    return oreno3dFavorites.any((e) => e.type == type && e.id == id);
+  }
+
+  // 取指定类别的 Oreno3d 收藏（origin / character / tag）
+  List<Oreno3dFavorite> oreno3dFavoritesOfType(String type) =>
+      oreno3dFavorites.where((e) => e.type == type).toList();
 
   // 加载搜索记录开关状态
   Future<void> _loadSearchRecordEnabled() async {
@@ -247,6 +263,60 @@ class UserPreferenceService extends GetxService {
       await CommonsRepository.instance.deleteData(_videoSearchTagHistoryKey);
     } catch (e) {
       LogUtils.e('清空视频搜索标签失败', tag: _tag, error: e);
+    }
+  }
+
+  // 加载 Oreno3d 收藏
+  Future<void> _loadOreno3dFavorites() async {
+    try {
+      final String? data = await CommonsRepository.instance.getData(
+        _oreno3dFavoritesKey,
+      );
+      if (data != null && data.isNotEmpty) {
+        List<dynamic> list = jsonDecode(data);
+        oreno3dFavorites.addAll(
+          list.map((e) => Oreno3dFavorite.fromJson(e as Map<String, dynamic>)),
+        );
+      }
+    } catch (e) {
+      LogUtils.e('加载 Oreno3d 收藏失败', tag: _tag, error: e);
+      await CommonsRepository.instance.deleteData(_oreno3dFavoritesKey);
+    }
+  }
+
+  // 添加 Oreno3d 收藏（按 type+id 去重，新增置顶）
+  Future<void> addOreno3dFavorite(Oreno3dFavorite favorite) async {
+    oreno3dFavorites.removeWhere(
+      (e) => e.type == favorite.type && e.id == favorite.id,
+    );
+    oreno3dFavorites.insert(0, favorite);
+    await _saveOreno3dFavorites();
+  }
+
+  // 删除 Oreno3d 收藏
+  Future<void> removeOreno3dFavorite(String type, String id) async {
+    oreno3dFavorites.removeWhere((e) => e.type == type && e.id == id);
+    await _saveOreno3dFavorites();
+  }
+
+  Future<void> _saveOreno3dFavorites() async {
+    try {
+      await CommonsRepository.instance.setData(
+        _oreno3dFavoritesKey,
+        jsonEncode(oreno3dFavorites.map((e) => e.toJson()).toList()),
+      );
+    } catch (e) {
+      LogUtils.e('保存 Oreno3d 收藏失败', tag: _tag, error: e);
+    }
+  }
+
+  // 清空 Oreno3d 收藏
+  Future<void> clearOreno3dFavorites() async {
+    oreno3dFavorites.clear();
+    try {
+      await CommonsRepository.instance.deleteData(_oreno3dFavoritesKey);
+    } catch (e) {
+      LogUtils.e('清空 Oreno3d 收藏失败', tag: _tag, error: e);
     }
   }
 

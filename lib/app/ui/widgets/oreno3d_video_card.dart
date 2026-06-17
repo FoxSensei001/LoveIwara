@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/models/oreno3d_video.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/oreno3d_localization_service.dart';
 import 'package:i_iwara/app/services/search_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -51,14 +52,14 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
             highlightColor: Theme.of(
               context,
             ).highlightColor.withValues(alpha: 0.1),
-            child: _buildContent(),
+            child: _buildContent(context),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -71,7 +72,7 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildTitle(),
+              _buildTitle(context),
               const SizedBox(height: 4),
               _buildAuthor(),
               const SizedBox(height: 4),
@@ -112,12 +113,24 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
     );
   }
 
-  Widget _buildTitle() {
-    return Text(
-      widget.video.title,
-      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-      maxLines: 2,
-      overflow: TextOverflow.ellipsis,
+  Widget _buildTitle(BuildContext context) {
+    const double fontSize = 14;
+    const double lineHeight = 1.3;
+    // 固定占两行高度（随文字缩放），标题不足两行时也保持卡片对齐。
+    final double scaledFontSize =
+        MediaQuery.textScalerOf(context).scale(fontSize);
+    return SizedBox(
+      height: scaledFontSize * lineHeight * 2,
+      child: Text(
+        widget.video.title,
+        style: const TextStyle(
+          fontSize: fontSize,
+          fontWeight: FontWeight.w500,
+          height: lineHeight,
+        ),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
     );
   }
 
@@ -179,7 +192,7 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
-            tag,
+            Oreno3dLocalizationService.displayByName(tag),
             style: TextStyle(
               fontSize: 10,
               color: Theme.of(context).colorScheme.onSurfaceVariant,

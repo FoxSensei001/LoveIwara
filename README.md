@@ -280,6 +280,8 @@ These are best-effort translations of 2600+ ACG / Vtuber / NSFW terms and may co
 2. Regenerate the merged artifact and bundled asset: `dart run tool/data/iwara_tags/build_localized_min.dart`.
 3. Commit both the source and the generated `iwara_tags.min.json` (see [`tool/data/iwara_tags/README.md`](tool/data/iwara_tags/README.md)).
 
+The third-party **Oreno3d** metadata (origins / characters / tags) is localized the same way — dictionary in [`tool/data/oreno3d_tags/`](tool/data/oreno3d_tags/), bundled asset + jsDelivr CDN, shown in your current language on the video detail page and search cards.
+
 ## 🙏 Acknowledgments
 
 This project drew inspiration and learned many best practices from these excellent repositories:

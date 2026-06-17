@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/services/oreno3d_localization_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -75,9 +76,16 @@ class Oreno3dTagsWidget extends StatelessWidget {
           spacing: UIConstants.iconTextSpacing,
           runSpacing: UIConstants.smallSpacing,
           children: items.map((item) {
+            // 展示当前语言译名（按 类别 + id 映射，缺失回退原名）；
+            // 跳转/搜索仍用原始 id。
+            final localizedName = Oreno3dLocalizationService.displayName(
+              type: type,
+              id: item.id,
+              name: item.name,
+            );
             return _buildSearchableTag(
               id: item.id ?? item.name,
-              name: item.name,
+              name: localizedName,
               type: type,
               color: color,
             );

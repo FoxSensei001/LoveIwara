@@ -24,8 +24,6 @@ import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart'; // 导入共享常量和组件
-import 'package:url_launcher/url_launcher.dart';
-import 'package:markdown_widget/markdown_widget.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
@@ -663,8 +661,6 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                     ExpandableSectionWidget(
                       title: t.oreno3d.name,
                       icon: Icons.view_in_ar,
-                      onHelpTap: () => _showOreno3dInfoDialog(context),
-                      showHelpButton: true,
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(UIConstants.cardPadding),
@@ -820,8 +816,6 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                     ExpandableSectionWidget(
                       title: t.oreno3d.name,
                       icon: Icons.view_in_ar,
-                      onHelpTap: () => _showOreno3dInfoDialog(context),
-                      showHelpButton: true,
                       child: Oreno3dTagsWidget(
                         oreno3dDetail: oreno3dDetail,
                         onSearchTap: _handleOreno3dSearch,
@@ -1624,53 +1618,6 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
     return result ?? false;
   }
 
-  void _showOreno3dInfoDialog(BuildContext context) {
-    final t = slang.Translations.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.oreno3d.name),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: MarkdownWidget(
-            data: t.oreno3d.thirdPartyTagsExplanation,
-            shrinkWrap: true,
-            selectable: true,
-            config: MarkdownConfig(
-              configs: [
-                const PConfig(textStyle: TextStyle(fontSize: 14, height: 1.5)),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.common.cancel),
-          ),
-          FilledButton.icon(
-            onPressed: () async {
-              const url = 'https://github.com/FoxSensei001/oreno3d_i18n';
-              try {
-                if (await canLaunchUrl(Uri.parse(url))) {
-                  await launchUrl(
-                    Uri.parse(url),
-                    mode: LaunchMode.externalApplication,
-                  );
-                }
-              } catch (e) {
-                LogUtils.e('打开链接失败', error: e, tag: 'VideoInfoTabWidget');
-              }
-            },
-            icon: const Icon(Icons.open_in_new, size: 16),
-            label: Text(t.common.visit),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 处理 Oreno3D 搜索点击事件
   /// 处理 Oreno3D 搜索点击事件
   void _handleOreno3dSearch(String id, String type, String name) {
     LogUtils.d(

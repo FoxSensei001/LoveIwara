@@ -196,6 +196,24 @@ class GlobalDrawerColumns extends StatelessWidget {
                     ),
                     _buildMenuItem(
                       context,
+                      icon: Icons.favorite_outline,
+                      title: slang.t.favoriteTags.iwaraTitle,
+                      onTap: () {
+                        NaviService.navigateToFavoriteIwaraTagsPage();
+                        AppService.switchGlobalDrawer();
+                      },
+                    ),
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.view_in_ar_outlined,
+                      title: slang.t.favoriteTags.oreno3dTitle,
+                      onTap: () {
+                        NaviService.navigateToFavoriteOreno3dTagsPage();
+                        AppService.switchGlobalDrawer();
+                      },
+                    ),
+                    _buildMenuItem(
+                      context,
                       icon: Icons.block,
                       title: slang.t.settings.blockSettings.title,
                       onTap: () {

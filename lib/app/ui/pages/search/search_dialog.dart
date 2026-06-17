@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/oreno3d_localization_service.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
+import 'package:i_iwara/app/ui/widgets/oreno3d_tag_picker_dialog.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/google_search_panel_widget.dart';
@@ -182,6 +185,85 @@ class _SearchContentState extends State<_SearchContent> {
     AppService.tryPop();
   }
 
+  /// 浏览指定 Oreno3d 实体（原作/角色/标签），关闭搜索弹窗后跳转浏览。
+  void _browseOreno3d(String type, String id, String name) {
+    _dismiss();
+    NaviService.toSearchPage(
+      searchInfo: '',
+      segment: SearchSegment.oreno3d,
+      searchType: type,
+      extData: {'searchType': type, 'id': id, 'name': name},
+      sort: _selectedSort.value,
+    );
+  }
+
+  void _openOreno3dPicker() {
+    showAppDialog(
+      Oreno3dTagPickerDialog(
+        initialType: 'tag',
+        closeOnSelect: true,
+        onSelected: (e) => _browseOreno3d(e.type, e.id, e.name),
+      ),
+    );
+  }
+
+  /// segment 为 oreno3d 时显示：收藏快捷区 + 浏览原作/角色/标签入口。
+  Widget _buildOreno3dSection() {
+    return Obx(() {
+      if (_selectedSegment.value != SearchSegment.oreno3d) {
+        return const SizedBox.shrink();
+      }
+      final t = slang.t;
+      final favorites = userPreferenceService.oreno3dFavorites;
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            OutlinedButton.icon(
+              onPressed: _openOreno3dPicker,
+              icon: const Icon(Icons.travel_explore, size: 18),
+              label: Text(t.favoriteTags.browseEntry),
+            ),
+            if (favorites.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                t.favoriteTags.favoritesSection,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: favorites
+                    .map(
+                      (fav) => ActionChip(
+                        label: Text(
+                          Oreno3dLocalizationService.displayName(
+                            type: fav.type,
+                            id: fav.id,
+                            name: fav.name,
+                          ),
+                        ),
+                        onPressed: () => _browseOreno3d(
+                          fav.type,
+                          fav.id,
+                          fav.name,
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ],
+          ],
+        ),
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -219,6 +301,7 @@ class _SearchContentState extends State<_SearchContent> {
             onFiltersChanged: (filters) => _filters.assignAll(filters),
             selectedSort: _selectedSort,
           ),
+          _buildOreno3dSection(),
           _GoogleSearchSection(scrollController: _scrollController),
           _SearchHistorySection(
             userPreferenceService: userPreferenceService,

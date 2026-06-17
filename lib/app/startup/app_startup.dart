@@ -36,6 +36,7 @@ import 'package:i_iwara/app/services/search_service.dart';
 import 'package:i_iwara/app/services/storage_service.dart';
 import 'package:i_iwara/app/services/tag_service.dart';
 import 'package:i_iwara/app/services/tag_localization_service.dart';
+import 'package:i_iwara/app/services/oreno3d_localization_service.dart';
 import 'package:i_iwara/app/services/theme_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/services/upload_service.dart';
@@ -337,6 +338,11 @@ class AppStartupCoordinator implements AppStartupRunner {
       TagLocalizationService(),
     );
     unawaited(Get.find<TagLocalizationService>().init());
+    // Oreno3d 元数据（原作/角色/标签）本地化词库：同样后台加载，不阻塞启动
+    _registerDeferredSingleton<Oreno3dLocalizationService>(
+      Oreno3dLocalizationService(),
+    );
+    unawaited(Get.find<Oreno3dLocalizationService>().init());
     // 播放器自定义快捷键服务（依赖 ConfigService，onInit 时加载键位表）
     _registerDeferredSingleton<PlayerKeybindingService>(
       PlayerKeybindingService(),

@@ -400,12 +400,46 @@ class _SearchResultState extends State<SearchResult> {
     return false;
   }
 
-  // 构建标签显示组件
-  Widget _buildTagDisplayWidget() {
-    return TagDisplayWidget(
-      tagName: searchController.currentSingleTagNameBehindSearchInput.value,
-      onCopy: _copyTagToClipboard,
-      onTranslate: _showTranslationDialog,
+  // 构建 oreno3d 单实体浏览栏：标签名 + 翻译 + 更换标签 / 改用文本搜索
+  Widget _buildOreno3dBrowseBar() {
+    final t = slang.Translations.of(context);
+    return Expanded(
+      child: Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: _copyTagToClipboard,
+              child: Container(
+                height: 44,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                alignment: Alignment.centerLeft,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Text(
+                    '#${searchController.currentSingleTagNameBehindSearchInput.value}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.translate, size: 20),
+            tooltip: t.common.translate,
+            onPressed: _showTranslationDialog,
+          ),
+          // 搜索按钮：直接打开搜索弹窗（弹窗内可换原作/角色/标签或改文本搜索）
+          IconButton(
+            icon: const Icon(Icons.search, size: 20),
+            tooltip: t.common.search,
+            onPressed: _showSearchDialog,
+          ),
+        ],
+      ),
     );
   }
 
@@ -470,6 +504,11 @@ class _SearchResultState extends State<SearchResult> {
     searchController.updateSegment(segment);
     searchController.updateFilters(filters);
     searchController.updateSort(sort);
+
+    // 文本搜索：清除 oreno3d 单实体浏览状态，避免仍按 id 浏览
+    searchController.updateExtData(null);
+    searchController.updateSearchType('');
+    searchController.updateCurrentSingleTagNameBehindSearchInput('');
 
     // 更新UI
     _searchController.text = searchInfo;
@@ -551,7 +590,7 @@ class _SearchResultState extends State<SearchResult> {
           // 根据条件决定是否显示搜索输入框
           Obx(
             () => _shouldHideSearchInput()
-                ? _buildTagDisplayWidget()
+                ? _buildOreno3dBrowseBar()
                 : _buildSearchInputField(),
           ),
           _buildSegmentSelector(),

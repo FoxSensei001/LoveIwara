@@ -571,6 +571,16 @@ class NaviService {
     appRouter.push('/tag_blacklist');
   }
 
+  /// 跳转到「收藏的 Iwara 标签」管理页
+  static void navigateToFavoriteIwaraTagsPage() {
+    appRouter.push('/favorite_iwara_tags');
+  }
+
+  /// 跳转到「收藏的 Oreno3d 标签」管理页
+  static void navigateToFavoriteOreno3dTagsPage() {
+    appRouter.push('/favorite_oreno3d_tags');
+  }
+
   /// 跳转到个人资料页
   static void navigateToPersonalProfilePage() {
     appRouter.push('/personal_profile');

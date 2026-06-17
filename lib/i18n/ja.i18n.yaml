@@ -981,6 +981,22 @@ settings:
     suchAsTitleQuality: '例: %title_%quality'
     suchAsTitleId: '例: %title_%id'
     suchAsTitleFilename: '例: %title_%filename'
+favoriteTags:
+  title: お気に入りタグ
+  emptyIwara: お気に入りの Iwara タグはまだありません
+  emptyOreno3d: お気に入りはまだありません
+  addIwaraTag: Iwara タグを追加
+  quickPickHint: お気に入りは検索のクイック選択に表示されます。
+  pickerTitle: Oreno3D を選択
+  searchHint: 名前または原語で検索
+  worksCount: '${count} 作品'
+  browseEntry: 原作 / キャラ / タグを閲覧
+  favoritesSection: お気に入り
+  addFavorite: 追加
+  iwaraTitle: お気に入りの Iwara タグ
+  oreno3dTitle: お気に入りの Oreno3D タグ
+  changeTag: タグを変更
+  switchToText: テキスト検索
 oreno3d:
   name: Oreno3D
   tags: タグ

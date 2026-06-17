@@ -66,6 +66,14 @@ class CommonConstants {
   static const String iwaraTagsLocalizationCdnUrl =
       'https://cdn.jsdelivr.net/gh/FoxSensei001/LoveIwara@master/tool/data/iwara_tags/iwara_tags.min.json';
 
+  // Oreno3d 元数据（原作/角色/标签）本地化映射 —— 打包内兜底资源（离线可用）
+  static const String oreno3dTagsLocalizationAsset =
+      'assets/data/oreno3d_tags.min.json';
+
+  // Oreno3d 元数据本地化映射 —— jsDelivr CDN（指向本仓库 tool/data 下的快照，便于热更新词库）
+  static const String oreno3dTagsLocalizationCdnUrl =
+      'https://cdn.jsdelivr.net/gh/FoxSensei001/LoveIwara@master/tool/data/oreno3d_tags/oreno3d_tags.min.json';
+
   // 是否设置过亮度
   static bool isSetBrightness = false;
 

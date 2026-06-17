@@ -280,6 +280,8 @@ Iwara 的原始标签是英文式的 key（如 `mother`、`blue_archive`）。Ap
 2. 重新生成合并产物与打包资源：`dart run tool/data/iwara_tags/build_localized_min.dart`。
 3. 同时提交源文件与生成的 `iwara_tags.min.json`（详见 [`tool/data/iwara_tags/README.md`](tool/data/iwara_tags/README.md)）。
 
+第三方 **Oreno3d** 的元数据（原作 / 角色 / 标签）采用同样方式本地化——词库位于 [`tool/data/oreno3d_tags/`](tool/data/oreno3d_tags/)，打包资源 + jsDelivr CDN，在视频详情页与搜索卡片上按当前语言展示。
+
 ## 🙏 致谢
 
 本项目在开发过程中受到以下优秀项目的启发，并从中学习了许多实现方式与最佳实践：

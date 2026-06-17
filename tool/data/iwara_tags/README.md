@@ -4,13 +4,13 @@
 
 ## 目录结构
 
-- [fetch_iwara_tags.dart](file:///Users/chenguanxi/IdeaProjects/LoveIwara/tool/data/iwara_tags/fetch_iwara_tags.dart)：用于从 Iwara API 自动抓取全部标签并保存为本地 Snapshot 的 Dart 命令行工具。
-- [fetch_iwara_tags_web.html](file:///Users/chenguanxi/IdeaProjects/LoveIwara/tool/data/iwara_tags/fetch_iwara_tags_web.html)：抓取标签的网页端可视化辅助工具。
-- [iwara_tags.json](file:///Users/chenguanxi/IdeaProjects/LoveIwara/tool/data/iwara_tags/iwara_tags.json)：自动抓取下来的原始标签元数据文件（包含 2669 个标签）。
-- [iwara_tags_localized.json](file:///Users/chenguanxi/IdeaProjects/LoveIwara/tool/data/iwara_tags/iwara_tags_localized.json)：由 AI 翻译生成的格式化多语言映射文件（包含 A-Z 字母排序的美化排版）。
-- [iwara_tags_localized.min.json](file:///Users/chenguanxi/IdeaProjects/LoveIwara/tool/data/iwara_tags/iwara_tags_localized.min.json)：去除了所有换行、空格及无用空白的最轻量压缩版映射文件，最大化节省网络与前端加载空间效率。
-- [iwara_tags.min.json](file:///Users/chenguanxi/IdeaProjects/LoveIwara/tool/data/iwara_tags/iwara_tags.min.json)：**App / CDN 实际消费的合并产物**。把原始元数据（`type` / `sensitive`）与四语言译名合并为一份紧凑文件，供客户端做「展示本地化」与「本地搜索」。
-- [build_localized_min.dart](file:///Users/chenguanxi/IdeaProjects/LoveIwara/tool/data/iwara_tags/build_localized_min.dart)：合并脚本，由前两个文件生成 `iwara_tags.min.json`，并同步一份到打包资源 `assets/data/iwara_tags.min.json`。
+- [fetch_iwara_tags.dart](fetch_iwara_tags.dart)：用于从 Iwara API 自动抓取全部标签并保存为本地 Snapshot 的 Dart 命令行工具。
+- [fetch_iwara_tags_web.html](fetch_iwara_tags_web.html)：抓取标签的网页端可视化辅助工具。
+- [iwara_tags.json](iwara_tags.json)：自动抓取下来的原始标签元数据文件（包含 2669 个标签）。
+- [iwara_tags_localized.json](iwara_tags_localized.json)：由 AI 翻译生成的格式化多语言映射文件（包含 A-Z 字母排序的美化排版）。
+- [iwara_tags_localized.min.json](iwara_tags_localized.min.json)：去除了所有换行、空格及无用空白的最轻量压缩版映射文件，最大化节省网络与前端加载空间效率。
+- [iwara_tags.min.json](iwara_tags.min.json)：**App / CDN 实际消费的合并产物**。把原始元数据（`type` / `sensitive`）与四语言译名合并为一份紧凑文件，供客户端做「展示本地化」与「本地搜索」。
+- [build_localized_min.dart](build_localized_min.dart)：合并脚本，由前两个文件生成 `iwara_tags.min.json`，并同步一份到打包资源 `assets/data/iwara_tags.min.json`。
 
 ---
 

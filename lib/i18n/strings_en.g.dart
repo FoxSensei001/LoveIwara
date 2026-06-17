@@ -53,6 +53,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsSearchEn search = TranslationsSearchEn._(_root);
 	late final TranslationsMediaListEn mediaList = TranslationsMediaListEn._(_root);
 	late final TranslationsSettingsEn settings = TranslationsSettingsEn._(_root);
+	late final TranslationsFavoriteTagsEn favoriteTags = TranslationsFavoriteTagsEn._(_root);
 	late final TranslationsOreno3dEn oreno3d = TranslationsOreno3dEn._(_root);
 	late final TranslationsSignInEn signIn = TranslationsSignInEn._(_root);
 	late final TranslationsSubscriptionsEn subscriptions = TranslationsSubscriptionsEn._(_root);
@@ -2161,6 +2162,60 @@ class TranslationsSettingsEn {
 	String get cdnNotTestedStatus => 'Not Tested';
 
 	late final TranslationsSettingsDownloadSettingsEn downloadSettings = TranslationsSettingsDownloadSettingsEn._(_root);
+}
+
+// Path: favoriteTags
+class TranslationsFavoriteTagsEn {
+	TranslationsFavoriteTagsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Favorite Tags'
+	String get title => 'Favorite Tags';
+
+	/// en: 'No favorite Iwara tags yet'
+	String get emptyIwara => 'No favorite Iwara tags yet';
+
+	/// en: 'No favorites yet'
+	String get emptyOreno3d => 'No favorites yet';
+
+	/// en: 'Add Iwara tag'
+	String get addIwaraTag => 'Add Iwara tag';
+
+	/// en: 'Favorited items appear as quick picks in search.'
+	String get quickPickHint => 'Favorited items appear as quick picks in search.';
+
+	/// en: 'Select Oreno3D'
+	String get pickerTitle => 'Select Oreno3D';
+
+	/// en: 'Search by name or original'
+	String get searchHint => 'Search by name or original';
+
+	/// en: '${count} works'
+	String worksCount({required Object count}) => '${count} works';
+
+	/// en: 'Browse origin / character / tag'
+	String get browseEntry => 'Browse origin / character / tag';
+
+	/// en: 'Favorites'
+	String get favoritesSection => 'Favorites';
+
+	/// en: 'Add'
+	String get addFavorite => 'Add';
+
+	/// en: 'Favorite Iwara Tags'
+	String get iwaraTitle => 'Favorite Iwara Tags';
+
+	/// en: 'Favorite Oreno3D Tags'
+	String get oreno3dTitle => 'Favorite Oreno3D Tags';
+
+	/// en: 'Change tag'
+	String get changeTag => 'Change tag';
+
+	/// en: 'Text search'
+	String get switchToText => 'Text search';
 }
 
 // Path: oreno3d
@@ -8516,6 +8571,21 @@ extension on Translations {
 			'settings.downloadSettings.suchAsTitleQuality' => 'For example: %title_%quality',
 			'settings.downloadSettings.suchAsTitleId' => 'For example: %title_%id',
 			'settings.downloadSettings.suchAsTitleFilename' => 'For example: %title_%filename',
+			'favoriteTags.title' => 'Favorite Tags',
+			'favoriteTags.emptyIwara' => 'No favorite Iwara tags yet',
+			'favoriteTags.emptyOreno3d' => 'No favorites yet',
+			'favoriteTags.addIwaraTag' => 'Add Iwara tag',
+			'favoriteTags.quickPickHint' => 'Favorited items appear as quick picks in search.',
+			'favoriteTags.pickerTitle' => 'Select Oreno3D',
+			'favoriteTags.searchHint' => 'Search by name or original',
+			'favoriteTags.worksCount' => ({required Object count}) => '${count} works',
+			'favoriteTags.browseEntry' => 'Browse origin / character / tag',
+			'favoriteTags.favoritesSection' => 'Favorites',
+			'favoriteTags.addFavorite' => 'Add',
+			'favoriteTags.iwaraTitle' => 'Favorite Iwara Tags',
+			'favoriteTags.oreno3dTitle' => 'Favorite Oreno3D Tags',
+			'favoriteTags.changeTag' => 'Change tag',
+			'favoriteTags.switchToText' => 'Text search',
 			'oreno3d.name' => 'Oreno3D',
 			'oreno3d.tags' => 'Tags',
 			'oreno3d.characters' => 'Characters',
@@ -8593,6 +8663,8 @@ extension on Translations {
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'Tag "${tagId}" copied to clipboard',
 			'videoDetail.errorLoadingVideo' => 'Error loading video',
 			'videoDetail.play' => 'Play',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.pause' => 'Pause',
 			'videoDetail.exitAppFullscreen' => 'Exit App Fullscreen',
 			'videoDetail.enterAppFullscreen' => 'Enter App Fullscreen',
@@ -8608,8 +8680,6 @@ extension on Translations {
 			'videoDetail.brightnessLowest' => 'Brightness is lowest',
 			'videoDetail.volume' => 'Volume',
 			'videoDetail.volumeMuted' => 'Volume is muted',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.restoreDefaultZoom' => 'Restore',
 			'videoDetail.gestureGuide.title' => 'Gestures & Interaction Guide',
 			'videoDetail.gestureGuide.viewGuide' => 'Gestures & Interaction Guide',
@@ -9107,6 +9177,8 @@ extension on Translations {
 			'favorite.localizeFavorite' => 'Local Favorite',
 			'favorite.editFolderTitle' => 'Edit Folder',
 			'favorite.editFolderSuccess' => 'Folder updated successfully',
+			_ => null,
+		} ?? switch (path) {
 			'favorite.editFolderFailed' => 'Failed to update folder',
 			'favorite.searchTags' => 'Search tags',
 			'translation.currentService' => 'Current Service',
@@ -9122,8 +9194,6 @@ extension on Translations {
 			'translation.riskWarning' => 'Risk Warning',
 			'translation.dureToRisk1' => 'Due to the text being generated by users, it may contain content that violates the content policy of the AI service provider',
 			'translation.dureToRisk2' => 'Inappropriate content may lead to API key suspension or service termination',
-			_ => null,
-		} ?? switch (path) {
 			'translation.operationSuggestion' => 'Operation Suggestion',
 			'translation.operationSuggestion1' => '1. Use before strictly reviewing the content to be translated',
 			'translation.operationSuggestion2' => '2. Avoid translating content involving violence, adult content, etc.',
@@ -9621,6 +9691,8 @@ extension on Translations {
 			'searchFilter.generatedQuery' => 'Generated Query',
 			'searchFilter.copyToClipboard' => 'Copy to Clipboard',
 			'searchFilter.copied' => 'Copied',
+			_ => null,
+		} ?? switch (path) {
 			'searchFilter.filterCount' => ({required Object count}) => '${count} filters',
 			'searchFilter.filterSettings' => 'Filter Settings',
 			'searchFilter.field' => 'Field',
@@ -9636,8 +9708,6 @@ extension on Translations {
 			'searchFilter.boolean' => 'Boolean',
 			'searchFilter.tags' => 'Tags',
 			'searchFilter.select' => 'Select',
-			_ => null,
-		} ?? switch (path) {
 			'searchFilter.clickToSelectDate' => 'Click to select date',
 			'searchFilter.pleaseEnterValidNumber' => 'Please enter valid number',
 			'searchFilter.pleaseEnterValidDate' => 'Please enter valid date format (YYYY-MM-DD)',
