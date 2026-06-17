@@ -276,6 +276,16 @@ common:
   detail: 詳細
   parseExceptionDestopHint: ' - デスクトップユーザーは設定でプロキシを構成できます'
   iwaraTags: Iwara タグ
+  tagInfo: タグ情報
+  tagOriginalKey: 元のタグ
+  tagTranslation: 翻訳
+  copy: コピー
+  copiedToClipboard: クリップボードにコピーしました
+  showOriginalTag: 元のタグを表示
+  showTranslatedTag: 翻訳を表示
+  tagTranslationFeedback: 翻訳に疑問がありますか？フィードバック
+  tagLocalizationGuideTitle: タグの翻訳について
+  tagLocalizationGuideContent: "アプリは Iwara の元のタグ（例：mother）を、現在の言語の訳名で表示します。\n\n• タグ検索では、訳名でも元のタグでも一致します。\n• タグを長押し / 右クリックすると、元のタグと訳名を確認・コピーできます。\n• 訳名はコミュニティによる有志翻訳であり、誤りが含まれる場合があります。"
   likeThisVideo: この動画が好きな人
   operation: 操作
   replies: 返信

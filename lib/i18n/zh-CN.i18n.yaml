@@ -279,6 +279,16 @@ common:
   detail: 详情
   parseExceptionDestopHint: ' - 桌面端用户可以在设置中配置代理'
   iwaraTags: Iwara 标签
+  tagInfo: 标签信息
+  tagOriginalKey: 原始标签
+  tagTranslation: 译文
+  copy: 复制
+  copiedToClipboard: 已复制到剪贴板
+  showOriginalTag: 显示原始标签
+  showTranslatedTag: 显示译文
+  tagTranslationFeedback: 对翻译有疑问？点此反馈
+  tagLocalizationGuideTitle: 关于标签本地化
+  tagLocalizationGuideContent: "应用会把 Iwara 的原始标签（如 mother）显示为你当前语言的译名。\n\n• 搜索标签时，输入译名或原始标签都能匹配。\n• 长按 / 右键标签可查看并复制原始标签与译文。\n• 译名由社区维护，属尽力翻译，可能存在错误。"
   likeThisVideo: 喜欢这个视频的人
   operation: 操作
   replies: 回复

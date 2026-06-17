@@ -18,8 +18,7 @@ import 'package:oktoast/oktoast.dart';
 import '../../../../../common/enums/media_enums.dart';
 import '../../../../services/app_service.dart';
 import '../../popular_media_list/widgets/media_description_widget.dart';
-import '../../video_detail/widgets/detail/expandable_section_widget.dart';
-import '../../video_detail/widgets/detail/tags_display_widget.dart';
+import '../../video_detail/widgets/detail/iwara_tags_section.dart';
 import '../../video_detail/widgets/detail/like_avatars_widget.dart';
 import '../controllers/gallery_detail_controller.dart';
 import '../../../widgets/follow_button_widget.dart';
@@ -300,21 +299,16 @@ class ImageModelDetailContent extends StatelessWidget {
 
   // 构建标签区域（对齐视频详情页）
   Widget _buildTagsSection(BuildContext context) {
-    final t = slang.Translations.of(context);
     return Obx(() {
       final tags = controller.imageModelInfo.value?.tags;
       if (tags == null || tags.isEmpty) return const SizedBox.shrink();
 
-      return ExpandableSectionWidget(
-        title: t.common.iwaraTags,
-        icon: Icons.label,
-        child: TagsDisplayWidget(
-          tags: tags,
-          onTagTap: (tag) {
-            // 点击标签跳转到标签图库列表页
-            NaviService.navigateToTagGalleryListPage(tag);
-          },
-        ),
+      return IwaraTagsSection(
+        tags: tags,
+        onTagTap: (tag) {
+          // 点击标签跳转到标签图库列表页
+          NaviService.navigateToTagGalleryListPage(tag);
+        },
       );
     });
   }

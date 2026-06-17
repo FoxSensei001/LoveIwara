@@ -35,6 +35,7 @@ import 'package:i_iwara/app/services/post_service.dart';
 import 'package:i_iwara/app/services/search_service.dart';
 import 'package:i_iwara/app/services/storage_service.dart';
 import 'package:i_iwara/app/services/tag_service.dart';
+import 'package:i_iwara/app/services/tag_localization_service.dart';
 import 'package:i_iwara/app/services/theme_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/services/upload_service.dart';
@@ -331,6 +332,11 @@ class AppStartupCoordinator implements AppStartupRunner {
     _registerDeferredSingleton<DlnaCastService>(DlnaCastService());
     _registerDeferredSingleton<HistoryRepository>(HistoryRepository());
     _registerDeferredSingleton<ContentBlockService>(ContentBlockService());
+    // 标签本地化词库：注册后后台加载（缓存 -> 打包资源 -> CDN 刷新），不阻塞启动
+    _registerDeferredSingleton<TagLocalizationService>(
+      TagLocalizationService(),
+    );
+    unawaited(Get.find<TagLocalizationService>().init());
     // 播放器自定义快捷键服务（依赖 ConfigService，onInit 时加载键位表）
     _registerDeferredSingleton<PlayerKeybindingService>(
       PlayerKeybindingService(),

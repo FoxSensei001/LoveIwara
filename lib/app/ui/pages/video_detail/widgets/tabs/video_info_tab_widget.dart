@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/video_description_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/expandable_section_widget.dart';
-import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/tags_display_widget.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/iwara_tags_section.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/oreno3d_tags_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/like_avatars_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
@@ -613,7 +613,6 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
   }
 
   Widget _buildVideoTagsSection(BuildContext context) {
-    final t = slang.Translations.of(context);
     return Obx(() {
       final tags = widget.controller.videoInfo.value?.tags;
       if (tags == null || tags.isEmpty) return const SizedBox.shrink();
@@ -622,16 +621,12 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: UIConstants.sectionSpacing),
-          ExpandableSectionWidget(
-            title: t.common.iwaraTags,
-            icon: Icons.label,
-            child: TagsDisplayWidget(
-              tags: tags,
-              onTagTap: (tag) {
-                // 点击标签跳转到标签视频列表页面
-                NaviService.navigateToTagVideoListPage(tag);
-              },
-            ),
+          IwaraTagsSection(
+            tags: tags,
+            onTagTap: (tag) {
+              // 点击标签跳转到标签视频列表页面
+              NaviService.navigateToTagVideoListPage(tag);
+            },
           ),
         ],
       );

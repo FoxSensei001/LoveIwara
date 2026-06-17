@@ -58,6 +58,14 @@ class CommonConstants {
   // 图片资源基础URL
   static const String iwaraImageBaseUrl = 'https://i.iwara.tv';
 
+  // Iwara 标签本地化映射 —— 打包内的兜底资源（离线可用）
+  static const String iwaraTagsLocalizationAsset =
+      'assets/data/iwara_tags.min.json';
+
+  // Iwara 标签本地化映射 —— jsDelivr CDN（指向本仓库 tool/data 下的快照，便于热更新词库）
+  static const String iwaraTagsLocalizationCdnUrl =
+      'https://cdn.jsdelivr.net/gh/FoxSensei001/LoveIwara@master/tool/data/iwara_tags/iwara_tags.min.json';
+
   // 是否设置过亮度
   static bool isSetBrightness = false;
 

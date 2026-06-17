@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
+import 'package:i_iwara/app/services/tag_localization_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 标签视频列表页面的简化搜索配置弹窗
@@ -152,7 +153,7 @@ class _TagVideoSearchConfigWidgetState
               runSpacing: 8,
               children: widget.fixedTags.map((tag) {
                 return Chip(
-                  label: Text(tag.id),
+                  label: Text(TagLocalizationService.displayName(tag.id)),
                   backgroundColor: Theme.of(
                     context,
                   ).colorScheme.primaryContainer,

@@ -10,6 +10,9 @@ class ExpandableSectionWidget extends StatefulWidget {
   final bool showHelpButton;
   final bool showToggleButton;
 
+  /// 头部右侧、展开/收起按钮左侧的自定义操作控件（如标签的「原文/译文」切换）。
+  final Widget? headerAction;
+
   const ExpandableSectionWidget({
     super.key,
     required this.title,
@@ -19,6 +22,7 @@ class ExpandableSectionWidget extends StatefulWidget {
     this.onHelpTap,
     this.showHelpButton = false,
     this.showToggleButton = true,
+    this.headerAction,
   });
 
   @override
@@ -85,6 +89,7 @@ class _ExpandableSectionWidgetState extends State<ExpandableSectionWidget>
                   ),
                 ),
               ),
+              if (widget.headerAction != null) widget.headerAction!,
               if (widget.showHelpButton)
                 Material(
                   color: Colors.transparent,

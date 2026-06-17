@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/tag_localization_service.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -115,7 +116,10 @@ class _AddSearchTagDialogState extends State<AddSearchTagDialog> {
 
                     final tag = tagController.tags[index];
                     return ListTile(
-                      title: Text(tag.id, style: const TextStyle(fontSize: 16)),
+                      title: Text(
+                        TagLocalizationService.displayNameWithId(tag.id),
+                        style: const TextStyle(fontSize: 16),
+                      ),
                       subtitle: _buildTagRatings(tag, context),
                       trailing: Obx(
                         () => IconButton(

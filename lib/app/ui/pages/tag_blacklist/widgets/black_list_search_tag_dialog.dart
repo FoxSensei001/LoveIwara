@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/tag_localization_service.dart';
 import 'package:i_iwara/app/services/tag_service.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
@@ -29,6 +30,10 @@ class _BlackListTagSearchDialogState extends State<BlackListTagSearchDialog> {
   final RxBool hasMore = false.obs;
   int currentPage = 0;
 
+  /// 远端实际已加载的标签数量（不含首页合并进来的本地词库命中），
+  /// 用于分页判断，避免本地结果让 `tags.length` 虚高、提前停止加载更多。
+  int remoteLoadedCount = 0;
+
   @override
   void initState() {
     super.initState();
@@ -53,6 +58,7 @@ class _BlackListTagSearchDialogState extends State<BlackListTagSearchDialog> {
     errorMessage.value = '';
     if (!loadMore) {
       currentPage = 0;
+      remoteLoadedCount = 0;
       tags.clear();
       selectedTags.clear();
     }
@@ -66,11 +72,21 @@ class _BlackListTagSearchDialogState extends State<BlackListTagSearchDialog> {
 
       if (result.isSuccess && result.data != null) {
         if (loadMore) {
-          tags.addAll(result.data!.results);
+          // 加载更多：仅追加 API 结果，并按 id 去重，避免与首页合并的本地结果重复。
+          final existing = tags.map((t) => t.id).toSet();
+          tags.addAll(
+            result.data!.results.where((t) => !existing.contains(t.id)),
+          );
         } else {
-          tags.value = result.data!.results;
+          // 首页：把本地词库命中（当前语言译名 / 原始 key）合并到 API 结果前。
+          final query = textEditingController.text.trim();
+          tags.value = query.isEmpty
+              ? result.data!.results
+              : TagLocalizationService.mergeLocal(query, result.data!.results);
         }
-        hasMore.value = tags.length < result.data!.count;
+        // 仅按远端已加载数量与总数比较,本地合并结果不参与分页判断。
+        remoteLoadedCount += result.data!.results.length;
+        hasMore.value = remoteLoadedCount < result.data!.count;
         currentPage++;
       } else {
         hasError.value = true;
@@ -193,7 +209,10 @@ class _BlackListTagSearchDialogState extends State<BlackListTagSearchDialog> {
 
                     final tag = tags[index];
                     return ListTile(
-                      title: Text(tag.id, style: const TextStyle(fontSize: 16)),
+                      title: Text(
+                        TagLocalizationService.displayNameWithId(tag.id),
+                        style: const TextStyle(fontSize: 16),
+                      ),
                       subtitle: _buildTagRatings(tag, context),
                       trailing: Obx(
                         () => Checkbox(

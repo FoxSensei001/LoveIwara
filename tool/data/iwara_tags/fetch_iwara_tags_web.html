@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Iwara Tag Fetcher</title>
+    <style>
+      :root {
+        --bg: #f4efe7;
+        --panel: rgba(255, 252, 246, 0.92);
+        --ink: #1d1c1a;
+        --muted: #6a655d;
+        --line: rgba(29, 28, 26, 0.12);
+        --accent: #155eef;
+        --accent-strong: #0f49c8;
+        --accent-soft: rgba(21, 94, 239, 0.12);
+        --danger: #b42318;
+        --shadow: 0 20px 60px rgba(32, 26, 16, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(21, 94, 239, 0.12), transparent 34%),
+          radial-gradient(circle at bottom right, rgba(180, 35, 24, 0.08), transparent 24%),
+          linear-gradient(180deg, #fbf8f2 0%, var(--bg) 100%);
+      }
+
+      main {
+        width: min(1080px, calc(100vw - 32px));
+        margin: 32px auto 48px;
+      }
+
+      .hero {
+        padding: 28px;
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-strong);
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 18px 0 10px;
+        font-size: clamp(32px, 6vw, 56px);
+        line-height: 0.95;
+      }
+
+      .subtitle {
+        max-width: 760px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.6;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 20px;
+        margin-top: 22px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.72);
+        padding: 22px;
+      }
+
+      .card h2 {
+        margin: 0 0 8px;
+        font-size: 22px;
+      }
+
+      .card p,
+      .card li,
+      .meta {
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 20px;
+      }
+
+      label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+
+      input,
+      textarea,
+      button {
+        width: 100%;
+        font: inherit;
+      }
+
+      input,
+      textarea {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #fff;
+        color: var(--ink);
+        padding: 14px 16px;
+      }
+
+      textarea {
+        min-height: 220px;
+        resize: vertical;
+        font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      button {
+        border: 0;
+        border-radius: 16px;
+        padding: 14px 18px;
+        cursor: pointer;
+        transition:
+          transform 140ms ease,
+          background 140ms ease,
+          opacity 140ms ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
+        transform: none;
+      }
+
+      .primary {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .secondary {
+        background: #fff;
+        color: var(--ink);
+        border: 1px solid var(--line);
+      }
+
+      .ghost {
+        background: transparent;
+        color: var(--ink);
+        border: 1px dashed var(--line);
+      }
+
+      .status {
+        margin-top: 18px;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: rgba(21, 94, 239, 0.08);
+        color: var(--ink);
+      }
+
+      .status.error {
+        background: rgba(180, 35, 24, 0.1);
+        color: var(--danger);
+      }
+
+      .facts {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .fact {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.72);
+      }
+
+      .fact strong {
+        display: block;
+        font-size: 28px;
+        line-height: 1;
+      }
+
+      .fact span {
+        display: block;
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .preview {
+        margin-top: 16px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .chip {
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(29, 28, 26, 0.06);
+        font-size: 13px;
+      }
+
+      code {
+        font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+        font-size: 0.95em;
+      }
+
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .controls,
+        .actions,
+        .facts {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <div class="eyebrow">Browser-first tag snapshot</div>
+        <h1>Iwara Tag Fetcher</h1>
+        <p class="subtitle">
+          This page helps fetch the full <code>/tags</code> catalog in a browser
+          context and save it as a JSON snapshot for translation work. Use the
+          direct fetch button first. If Cloudflare or CORS blocks the local page,
+          use the generated same-origin console script on
+          <code>https://apiq.iwara.tv</code>.
+        </p>
+      </section>
+
+      <section class="layout">
+        <div class="card">
+          <h2>Fetch Controls</h2>
+          <p class="meta">
+            Direct mode uses browser <code>fetch()</code>. It works best after
+            you have already opened <code>https://apiq.iwara.tv/tags</code> in the
+            same browser and passed any Cloudflare challenge.
+          </p>
+
+          <div class="controls">
+            <div>
+              <label for="pageSize">Page Size</label>
+              <input id="pageSize" type="number" min="1" value="100" />
+            </div>
+            <div>
+              <label for="outputName">Download Filename</label>
+              <input id="outputName" type="text" value="iwara_tags.json" />
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="fetchButton" class="primary">Direct Fetch</button>
+            <button id="downloadButton" class="secondary" disabled>
+              Download JSON
+            </button>
+            <button id="copyScriptButton" class="ghost">
+              Copy Console Script
+            </button>
+          </div>
+
+          <div id="status" class="status">
+            Waiting. No snapshot fetched yet.
+          </div>
+
+          <div class="facts">
+            <div class="fact">
+              <strong id="tagCount">0</strong>
+              <span>Tags</span>
+            </div>
+            <div class="fact">
+              <strong id="pageCount">0</strong>
+              <span>Pages</span>
+            </div>
+            <div class="fact">
+              <strong id="fetchedAt">-</strong>
+              <span>Fetched At</span>
+            </div>
+          </div>
+
+          <div id="preview" class="preview"></div>
+        </div>
+
+        <div class="card">
+          <h2>Same-Origin Fallback</h2>
+          <p>
+            If the local page cannot fetch the API, open
+            <code>https://apiq.iwara.tv/tags?limit=1&page=0</code> in the same
+            browser, clear the Cloudflare challenge, then paste the script below
+            into DevTools Console.
+          </p>
+
+          <ol>
+            <li>Open the API page in a tab and wait until it is no longer blocked.</li>
+            <li>Open DevTools Console on that tab.</li>
+            <li>Paste the generated script and press Enter.</li>
+            <li>The browser will download the JSON snapshot automatically.</li>
+          </ol>
+
+          <textarea id="consoleScript" spellcheck="false"></textarea>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const apiBase = "https://apiq.iwara.tv";
+      const pageSizeInput = document.getElementById("pageSize");
+      const outputNameInput = document.getElementById("outputName");
+      const fetchButton = document.getElementById("fetchButton");
+      const downloadButton = document.getElementById("downloadButton");
+      const copyScriptButton = document.getElementById("copyScriptButton");
+      const statusEl = document.getElementById("status");
+      const tagCountEl = document.getElementById("tagCount");
+      const pageCountEl = document.getElementById("pageCount");
+      const fetchedAtEl = document.getElementById("fetchedAt");
+      const previewEl = document.getElementById("preview");
+      const consoleScriptEl = document.getElementById("consoleScript");
+
+      let latestSnapshot = null;
+
+      function escapeFileName(name) {
+        const safe = name.trim().replace(/[\\/:*?"<>|]+/g, "_");
+        return safe || "iwara_tags.json";
+      }
+
+      function setStatus(message, isError = false) {
+        statusEl.textContent = message;
+        statusEl.classList.toggle("error", isError);
+      }
+
+      function pageSize() {
+        const parsed = Number.parseInt(pageSizeInput.value, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 100;
+      }
+
+      function buildSnapshot(tags, pages) {
+        return {
+          version: 1,
+          source: `${apiBase}/tags`,
+          fetchedAt: new Date().toISOString(),
+          requestedPageSize: pageSize(),
+          pageSize: pageSize(),
+          count: tags.length,
+          expectedCount: tags.length,
+          pages,
+          tags,
+        };
+      }
+
+      function updateSummary(snapshot) {
+        tagCountEl.textContent = String(snapshot.count);
+        pageCountEl.textContent = String(snapshot.pages);
+        fetchedAtEl.textContent = new Date(snapshot.fetchedAt).toLocaleTimeString();
+        previewEl.innerHTML = "";
+
+        snapshot.tags.slice(0, 18).forEach((tag) => {
+          const chip = document.createElement("div");
+          chip.className = "chip";
+          chip.textContent = tag.id || "(missing id)";
+          previewEl.appendChild(chip);
+        });
+      }
+
+      function downloadSnapshot(snapshot) {
+        const blob = new Blob(
+          [JSON.stringify(snapshot, null, 2)],
+          { type: "application/json" },
+        );
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = escapeFileName(outputNameInput.value);
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function buildConsoleScript() {
+        const limit = pageSize();
+        const filename = escapeFileName(outputNameInput.value);
+
+        return `(() => {
+  const limit = ${limit};
+  const filename = ${JSON.stringify(filename)};
+  const source = "${apiBase}/tags";
+
+  async function fetchAllTags() {
+    const seenIds = new Set();
+    const tags = [];
+    let page = 0;
+    let expectedCount = 0;
+    let actualPageSize = 0;
+
+    while (true) {
+      const url = new URL(source);
+      url.searchParams.set("page", String(page));
+      url.searchParams.set("limit", String(limit));
+
+      const response = await fetch(url.toString(), {
+        credentials: "include",
+        headers: {
+          "Accept": "application/json, text/plain, */*",
+          "x-site": "www.iwara.tv",
+        },
+      });
+
+      if (!response.ok) {
+        const body = await response.text();
+        throw new Error(\`Request failed at page \${page}: status=\${response.status} body=\${body.slice(0, 240)}\`);
+      }
+
+      const data = await response.json();
+      const results = Array.isArray(data.results) ? data.results : [];
+      expectedCount = Number(data.count || 0);
+      actualPageSize = Number(data.limit || results.length || actualPageSize || limit);
+
+      for (const tag of results) {
+        if (!tag || typeof tag !== "object") continue;
+        const id = String(tag.id || "");
+        if (!id || seenIds.has(id)) continue;
+        seenIds.add(id);
+        tags.push(tag);
+      }
+
+      const fetchedCount = (page + 1) * actualPageSize;
+      const reachedEnd = results.length === 0 || tags.length >= expectedCount || fetchedCount >= expectedCount;
+      if (reachedEnd) break;
+      page += 1;
+    }
+
+    tags.sort((a, b) => String(a.id || "").localeCompare(String(b.id || "")));
+
+      return {
+        version: 1,
+        source,
+        fetchedAt: new Date().toISOString(),
+        requestedPageSize: limit,
+        pageSize: actualPageSize || limit,
+        count: tags.length,
+        expectedCount,
+        pages: page + 1,
+        tags,
+      };
+    }
+
+  function downloadJson(snapshot) {
+    const blob = new Blob([JSON.stringify(snapshot, null, 2)], {
+      type: "application/json",
+    });
+    const blobUrl = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = blobUrl;
+    anchor.download = filename;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(blobUrl);
+  }
+
+  fetchAllTags()
+    .then((snapshot) => {
+      console.log("Iwara tag snapshot ready:", snapshot);
+      downloadJson(snapshot);
+    })
+    .catch((error) => {
+      console.error("Failed to fetch Iwara tags:", error);
+    });
+})();`;
+      }
+
+      async function directFetch() {
+        fetchButton.disabled = true;
+        setStatus("Fetching tags in browser context...");
+
+        try {
+          const seenIds = new Set();
+          const tags = [];
+          let page = 0;
+          let expectedCount = 0;
+          let actualPageSize = 0;
+
+          while (true) {
+            const url = new URL(`${apiBase}/tags`);
+            url.searchParams.set("page", String(page));
+            url.searchParams.set("limit", String(pageSize()));
+
+            const response = await fetch(url.toString(), {
+              credentials: "include",
+              headers: {
+                "Accept": "application/json, text/plain, */*",
+                "x-site": "www.iwara.tv",
+              },
+            });
+
+            if (!response.ok) {
+              const body = await response.text();
+              const normalized = body.toLowerCase();
+              if (
+                normalized.includes("just a moment") ||
+                normalized.includes("enable javascript and cookies to continue") ||
+                normalized.includes("/cdn-cgi/challenge-platform/")
+              ) {
+                throw new Error(
+                  "Cloudflare challenge page was returned. Open the API URL in the same browser first, then retry or use the console script fallback.",
+                );
+              }
+              throw new Error(
+                `Request failed at page ${page}: status=${response.status} body=${body.slice(0, 240)}`,
+              );
+            }
+
+            const data = await response.json();
+            const results = Array.isArray(data.results) ? data.results : [];
+            expectedCount = Number(data.count || 0);
+            actualPageSize = Number(data.limit || results.length || actualPageSize || pageSize());
+
+            for (const tag of results) {
+              if (!tag || typeof tag !== "object") continue;
+              const id = String(tag.id || "");
+              if (!id || seenIds.has(id)) continue;
+              seenIds.add(id);
+              tags.push(tag);
+            }
+
+            const fetchedCount = (page + 1) * actualPageSize;
+            const reachedEnd =
+              results.length === 0 ||
+              tags.length >= expectedCount ||
+              fetchedCount >= expectedCount;
+            if (reachedEnd) {
+              latestSnapshot = {
+                version: 1,
+                source: `${apiBase}/tags`,
+                fetchedAt: new Date().toISOString(),
+                requestedPageSize: pageSize(),
+                pageSize: actualPageSize || pageSize(),
+                count: tags.length,
+                expectedCount,
+                pages: page + 1,
+                tags: tags.sort((a, b) => String(a.id || "").localeCompare(String(b.id || ""))),
+              };
+              break;
+            }
+
+            page += 1;
+            setStatus(`Fetched page ${page}. Collected ${tags.length} tags...`);
+          }
+
+          downloadButton.disabled = false;
+          updateSummary(latestSnapshot);
+          setStatus(
+            `Fetch complete. Collected ${latestSnapshot.count} tags across ${latestSnapshot.pages} pages.`,
+          );
+        } catch (error) {
+          setStatus(String(error.message || error), true);
+        } finally {
+          fetchButton.disabled = false;
+        }
+      }
+
+      pageSizeInput.addEventListener("input", () => {
+        consoleScriptEl.value = buildConsoleScript();
+      });
+
+      outputNameInput.addEventListener("input", () => {
+        consoleScriptEl.value = buildConsoleScript();
+      });
+
+      fetchButton.addEventListener("click", directFetch);
+
+      downloadButton.addEventListener("click", () => {
+        if (!latestSnapshot) return;
+        downloadSnapshot(latestSnapshot);
+      });
+
+      copyScriptButton.addEventListener("click", async () => {
+        const script = buildConsoleScript();
+        consoleScriptEl.value = script;
+
+        try {
+          await navigator.clipboard.writeText(script);
+          setStatus("Console script copied. Paste it into DevTools on apiq.iwara.tv.");
+        } catch (error) {
+          setStatus(
+            `Could not copy automatically. The script is still shown on the page. ${error.message || error}`,
+            true,
+          );
+        }
+      });
+
+      consoleScriptEl.value = buildConsoleScript();
+    </script>
+  </body>
+</html>

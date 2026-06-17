@@ -368,6 +368,16 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get detail => '详情';
 	@override String get parseExceptionDestopHint => ' - 桌面端用户可以在设置中配置代理';
 	@override String get iwaraTags => 'Iwara 标签';
+	@override String get tagInfo => '标签信息';
+	@override String get tagOriginalKey => '原始标签';
+	@override String get tagTranslation => '译文';
+	@override String get copy => '复制';
+	@override String get copiedToClipboard => '已复制到剪贴板';
+	@override String get showOriginalTag => '显示原始标签';
+	@override String get showTranslatedTag => '显示译文';
+	@override String get tagTranslationFeedback => '对翻译有疑问？点此反馈';
+	@override String get tagLocalizationGuideTitle => '关于标签本地化';
+	@override String get tagLocalizationGuideContent => '应用会把 Iwara 的原始标签（如 mother）显示为你当前语言的译名。\n\n• 搜索标签时，输入译名或原始标签都能匹配。\n• 长按 / 右键标签可查看并复制原始标签与译文。\n• 译名由社区维护，属尽力翻译，可能存在错误。';
 	@override String get likeThisVideo => '喜欢这个视频的人';
 	@override String get operation => '操作';
 	@override String get replies => '回复';
@@ -3388,6 +3398,16 @@ extension on TranslationsZhCn {
 			'common.detail' => '详情',
 			'common.parseExceptionDestopHint' => ' - 桌面端用户可以在设置中配置代理',
 			'common.iwaraTags' => 'Iwara 标签',
+			'common.tagInfo' => '标签信息',
+			'common.tagOriginalKey' => '原始标签',
+			'common.tagTranslation' => '译文',
+			'common.copy' => '复制',
+			'common.copiedToClipboard' => '已复制到剪贴板',
+			'common.showOriginalTag' => '显示原始标签',
+			'common.showTranslatedTag' => '显示译文',
+			'common.tagTranslationFeedback' => '对翻译有疑问？点此反馈',
+			'common.tagLocalizationGuideTitle' => '关于标签本地化',
+			'common.tagLocalizationGuideContent' => '应用会把 Iwara 的原始标签（如 mother）显示为你当前语言的译名。\n\n• 搜索标签时，输入译名或原始标签都能匹配。\n• 长按 / 右键标签可查看并复制原始标签与译文。\n• 译名由社区维护，属尽力翻译，可能存在错误。',
 			'common.likeThisVideo' => '喜欢这个视频的人',
 			'common.operation' => '操作',
 			'common.replies' => '回复',
@@ -3622,6 +3642,8 @@ extension on TranslationsZhCn {
 			'settings.testProxyFailedWithException' => ({required Object exception}) => '代理请求出错: ${exception}',
 			'settings.proxyConfig' => '代理配置',
 			'settings.thisIsHttpProxyAddress' => '此处为http代理地址',
+			_ => null,
+		} ?? switch (path) {
 			'settings.checkProxy' => '检查代理',
 			'settings.proxyAddress' => '代理地址',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => '请输入代理服务器的URL，例如 127.0.0.1:8080',
@@ -3632,8 +3654,6 @@ extension on TranslationsZhCn {
 			'settings.playerSettings' => '播放器设置',
 			'settings.networkSettings' => '网络设置',
 			'settings.customizeYourPlaybackExperience' => '自定义您的播放体验',
-			_ => null,
-		} ?? switch (path) {
 			'settings.chooseYourFavoriteAppAppearance' => '选择您喜欢的应用外观',
 			'settings.configureYourProxyServer' => '配置您的代理服务器',
 			'settings.settings' => '设置',
@@ -4136,6 +4156,8 @@ extension on TranslationsZhCn {
 			'videoDetail.switchPlaybackSpeed' => '切换播放倍速',
 			'videoDetail.rewindSeconds' => ({required Object num}) => '后退${num}秒',
 			'videoDetail.fastForwardSeconds' => ({required Object num}) => '快进${num}秒',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.playbackSpeedIng' => ({required Object rate}) => '正在以${rate}倍速播放',
 			'videoDetail.brightness' => '亮度',
 			'videoDetail.brightnessLowest' => '亮度已最低',
@@ -4146,8 +4168,6 @@ extension on TranslationsZhCn {
 			'videoDetail.gestureGuide.viewGuide' => '查看手势与交互指引',
 			'videoDetail.gestureGuide.basicTitle' => '基础操作',
 			'videoDetail.gestureGuide.zoomTitle' => '缩放 / 旋转 / 平移',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.restoreTip' => '点击右下角「还原」按钮可复位缩放、旋转与位置。',
 			'videoDetail.gestureGuide.mTap' => '单击：显示 / 隐藏控制栏',
 			'videoDetail.gestureGuide.mDoubleTap' => '双击：左侧后退 / 中央暂停 / 右侧快进',
@@ -4650,6 +4670,8 @@ extension on TranslationsZhCn {
 			'translation.translation' => '翻译',
 			'translation.needVerification' => '需要验证',
 			'translation.needVerificationContent' => '请先通过连接测试才能启用AI翻译',
+			_ => null,
+		} ?? switch (path) {
 			'translation.confirm' => '确定',
 			'translation.disclaimer' => '使用须知',
 			'translation.riskWarning' => '风险提示',
@@ -4660,8 +4682,6 @@ extension on TranslationsZhCn {
 			'translation.operationSuggestion2' => '2. 避免翻译涉及暴力、成人等敏感内容',
 			'translation.apiConfig' => 'API配置',
 			'translation.modifyConfigWillAutoCloseAITranslation' => '修改配置将自动关闭AI翻译，需重新测试后打开',
-			_ => null,
-		} ?? switch (path) {
 			'translation.apiAddress' => 'API地址',
 			'translation.modelName' => '模型名称',
 			'translation.modelNameHintText' => '例如：gpt-4-turbo',
@@ -5164,6 +5184,8 @@ extension on TranslationsZhCn {
 			'searchFilter.pleaseEnterValidDate' => '请输入有效的日期格式 (YYYY-MM-DD)',
 			'searchFilter.startValueMustBeLessThanEndValue' => '起始值必须小于结束值',
 			'searchFilter.startDateMustBeBeforeEndDate' => '起始日期必须早于结束日期',
+			_ => null,
+		} ?? switch (path) {
 			'searchFilter.pleaseFillStartValue' => '请填写起始值',
 			'searchFilter.pleaseFillEndValue' => '请填写结束值',
 			'searchFilter.rangeValueFormatError' => '范围值格式错误',
@@ -5174,8 +5196,6 @@ extension on TranslationsZhCn {
 			'searchFilter.greaterEqual' => '>=',
 			'searchFilter.lessThan' => '<',
 			'searchFilter.lessEqual' => '<=',
-			_ => null,
-		} ?? switch (path) {
 			'searchFilter.range' => '范围',
 			'searchFilter.kIn' => '包含任意一项',
 			'searchFilter.notIn' => '不包含任意一项',

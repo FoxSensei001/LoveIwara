@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
+import 'package:i_iwara/app/services/tag_localization_service.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -254,7 +255,7 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
                         label: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(tag.id),
+                            Text(TagLocalizationService.displayName(tag.id)),
                             if (tag.type == MediaRating.ECCHI.value || tag.sensitive) ...[
                               const SizedBox(width: 4),
                               Icon(
@@ -428,7 +429,10 @@ class _AddTagDialogState extends State<AddTagDialog> {
 
                     final tag = tagController.tags[index];
                     return ListTile(
-                      title: Text(tag.id, style: const TextStyle(fontSize: 16)),
+                      title: Text(
+                        TagLocalizationService.displayNameWithId(tag.id),
+                        style: const TextStyle(fontSize: 16),
+                      ),
                       subtitle: _buildTagRatings(tag, context),
                       trailing: Obx(() => IconButton(
                         icon: Icon(
@@ -608,7 +612,7 @@ class _RemoveTagDialogState extends State<RemoveTagDialog> {
                       label: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(tag.id),
+                          Text(TagLocalizationService.displayName(tag.id)),
                           if (tag.type == MediaRating.ECCHI.value || tag.sensitive) ...[
                             const SizedBox(width: 4),
                             Icon(

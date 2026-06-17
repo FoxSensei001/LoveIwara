@@ -260,6 +260,26 @@ steps:
 
 目前的翻译大多由机器生成。如果你愿意协助改进，请从简体中文模板入手：[`lib/i18n/zh-CN.i18n.yaml`](lib/i18n/zh-CN.i18n.yaml)，然后运行 `dart run slang`。
 
+### 🏷️ Iwara 标签本地化
+
+Iwara 的原始标签是英文式的 key（如 `mother`、`blue_archive`）。App 内置了一份社区维护的词库，把每个标签映射为 **简体中文 / 繁体中文 / 日语 / 英语**，因此在详情页、搜索、标签列表页都会按你当前的语言展示标签。
+
+工作方式：
+
+- **词库**：位于 [`tool/data/iwara_tags/`](tool/data/iwara_tags/)，App 实际消费合并压缩后的 [`iwara_tags.min.json`](tool/data/iwara_tags/iwara_tags.min.json)。
+- **分发**：随包内置一份离线兜底（`assets/data/iwara_tags.min.json`），并通过 jsDelivr CDN 热更新——因此**无需重新发版**也能改进译名。
+- **应用内**：标签 chip 显示译名；详情页标签卡片的展开/收起那一行有一个图标按钮，可在 **原始 key ⇄ 译文** 间切换；长按 / 右键标签（或在标签列表页点击标签标题）会弹出弹窗，同时给出译文与原始 key、复制按钮以及反馈入口。
+
+这些是对 2600+ 个 ACG / Vtuber / NSFW 词条的尽力翻译，可能存在错误。
+
+> **发现翻译有误或不通顺？** 欢迎到专门的 issue 反馈：**https://github.com/FoxSensei001/LoveIwara/issues/98**（App 内的标签弹窗也会链接到这里）。
+
+**提交修正**（面向维护者 / 贡献者）：
+
+1. 编辑可读版 [`iwara_tags_localized.json`](tool/data/iwara_tags/iwara_tags_localized.json)（每个标签的 `zh-CN` / `zh-TW` / `ja` / `en`）。
+2. 重新生成合并产物与打包资源：`dart run tool/data/iwara_tags/build_localized_min.dart`。
+3. 同时提交源文件与生成的 `iwara_tags.min.json`（详见 [`tool/data/iwara_tags/README.md`](tool/data/iwara_tags/README.md)）。
+
 ## 🙏 致谢
 
 本项目在开发过程中受到以下优秀项目的启发，并从中学习了许多实现方式与最佳实践：

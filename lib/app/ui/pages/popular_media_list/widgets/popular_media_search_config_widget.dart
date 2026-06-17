@@ -2,7 +2,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/tag_localization_service.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
+import 'package:i_iwara/app/ui/widgets/tag_detail_dialog.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/widget_extensions.dart';
 import '../../../../../common/enums/media_enums.dart';
@@ -42,6 +44,9 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
   late UserPreferenceService _userPreferenceService;
   final ScrollController _scrollController = ScrollController();
   final ScrollController _monthScrollController = ScrollController();
+
+  /// 标签 chip 是否展示原始 key（false 时展示当前语言译名）。
+  bool _showOriginalTags = false;
 
   @override
   void initState() {
@@ -367,6 +372,14 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
     );
   }
 
+  /// 可选标签里是否存在「译名 ≠ 原始 key」——决定是否显示「原文/译文」切换按钮。
+  bool get _hasMeaningfulTagTranslation {
+    for (final tag in _userPreferenceService.videoSearchTagHistory.value) {
+      if (TagLocalizationService.displayName(tag.id) != tag.id) return true;
+    }
+    return false;
+  }
+
   // 构建标签选择部分
   Widget _buildTagSelectionSection(BuildContext context) {
     final t = slang.Translations.of(context);
@@ -379,6 +392,25 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
             Text('${t.common.tag}: ', style: const TextStyle(fontSize: 16)),
             Row(
               children: [
+                // 标签本地化引导
+                IconButton(
+                  icon: const Icon(Icons.help_outline),
+                  tooltip: t.common.tagLocalizationGuideTitle,
+                  onPressed: () => showTagLocalizationGuideDialog(context),
+                ),
+                // 切换标签 chip 显示：原始 key / 当前译文
+                if (_hasMeaningfulTagTranslation)
+                  IconButton(
+                    icon: Icon(
+                      _showOriginalTags ? Icons.translate : Icons.tag,
+                    ),
+                    tooltip: _showOriginalTags
+                        ? t.common.showTranslatedTag
+                        : t.common.showOriginalTag,
+                    onPressed: () => setState(
+                      () => _showOriginalTags = !_showOriginalTags,
+                    ),
+                  ),
                 const SizedBox(width: 8),
                 IconButton(
                   icon: const Icon(Icons.remove),
@@ -425,7 +457,11 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
             runSpacing: 8,
             children: remappedTags.map((tag) {
               return FilterChip(
-                label: Text(tag.id),
+                label: Text(
+                  _showOriginalTags
+                      ? tag.id
+                      : TagLocalizationService.displayName(tag.id),
+                ),
                 selected: tags.any((element) => element.id == tag.id),
                 onSelected: (bool selected) {
                   setState(() {

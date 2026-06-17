@@ -366,6 +366,16 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get detail => '詳細';
 	@override String get parseExceptionDestopHint => ' - デスクトップユーザーは設定でプロキシを構成できます';
 	@override String get iwaraTags => 'Iwara タグ';
+	@override String get tagInfo => 'タグ情報';
+	@override String get tagOriginalKey => '元のタグ';
+	@override String get tagTranslation => '翻訳';
+	@override String get copy => 'コピー';
+	@override String get copiedToClipboard => 'クリップボードにコピーしました';
+	@override String get showOriginalTag => '元のタグを表示';
+	@override String get showTranslatedTag => '翻訳を表示';
+	@override String get tagTranslationFeedback => '翻訳に疑問がありますか？フィードバック';
+	@override String get tagLocalizationGuideTitle => 'タグの翻訳について';
+	@override String get tagLocalizationGuideContent => 'アプリは Iwara の元のタグ（例：mother）を、現在の言語の訳名で表示します。\n\n• タグ検索では、訳名でも元のタグでも一致します。\n• タグを長押し / 右クリックすると、元のタグと訳名を確認・コピーできます。\n• 訳名はコミュニティによる有志翻訳であり、誤りが含まれる場合があります。';
 	@override String get likeThisVideo => 'この動画が好きな人';
 	@override String get operation => '操作';
 	@override String get replies => '返信';
@@ -3381,6 +3391,16 @@ extension on TranslationsJa {
 			'common.detail' => '詳細',
 			'common.parseExceptionDestopHint' => ' - デスクトップユーザーは設定でプロキシを構成できます',
 			'common.iwaraTags' => 'Iwara タグ',
+			'common.tagInfo' => 'タグ情報',
+			'common.tagOriginalKey' => '元のタグ',
+			'common.tagTranslation' => '翻訳',
+			'common.copy' => 'コピー',
+			'common.copiedToClipboard' => 'クリップボードにコピーしました',
+			'common.showOriginalTag' => '元のタグを表示',
+			'common.showTranslatedTag' => '翻訳を表示',
+			'common.tagTranslationFeedback' => '翻訳に疑問がありますか？フィードバック',
+			'common.tagLocalizationGuideTitle' => 'タグの翻訳について',
+			'common.tagLocalizationGuideContent' => 'アプリは Iwara の元のタグ（例：mother）を、現在の言語の訳名で表示します。\n\n• タグ検索では、訳名でも元のタグでも一致します。\n• タグを長押し / 右クリックすると、元のタグと訳名を確認・コピーできます。\n• 訳名はコミュニティによる有志翻訳であり、誤りが含まれる場合があります。',
 			'common.likeThisVideo' => 'この動画が好きな人',
 			'common.operation' => '操作',
 			'common.replies' => '返信',
@@ -3617,6 +3637,8 @@ extension on TranslationsJa {
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => 'プロキシサーバーのURLを入力してください（例: 127.0.0.1:8080）',
 			'settings.enableProxy' => 'プロキシを有効にする',
 			'settings.left' => '左',
+			_ => null,
+		} ?? switch (path) {
 			'settings.middle' => '中央',
 			'settings.right' => '右',
 			'settings.playerSettings' => 'プレイヤー設定',
@@ -3627,8 +3649,6 @@ extension on TranslationsJa {
 			'settings.settings' => '設定',
 			'settings.themeSettings' => 'テーマ設定',
 			'settings.followSystem' => 'システムに従う',
-			_ => null,
-		} ?? switch (path) {
 			'settings.lightMode' => 'ライトモード',
 			'settings.darkMode' => 'ダークモード',
 			'settings.presetTheme' => 'プリセットテーマ',
@@ -4131,6 +4151,8 @@ extension on TranslationsJa {
 			'videoDetail.brightnessLowest' => '明るさが最低になっています',
 			'videoDetail.volume' => '音量',
 			'videoDetail.volumeMuted' => '音量がミュートされています',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.restoreDefaultZoom' => 'リセット',
 			'videoDetail.gestureGuide.title' => 'ジェスチャー・操作ガイド',
 			'videoDetail.gestureGuide.viewGuide' => 'ジェスチャー・操作ガイドを見る',
@@ -4141,8 +4163,6 @@ extension on TranslationsJa {
 			'videoDetail.gestureGuide.mDoubleTap' => 'ダブルタップ：左で巻き戻し / 中央で一時停止 / 右で早送り',
 			'videoDetail.gestureGuide.mHorizontalDrag' => '横スワイプ：シーク',
 			'videoDetail.gestureGuide.mVerticalDrag' => '縦スワイプ：左で明るさ / 右で音量',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.mLongPress' => '長押し：一時的な倍速再生',
 			'videoDetail.gestureGuide.mPinch' => '2本指ピンチ：映像を拡大',
 			'videoDetail.gestureGuide.mRotate' => '2本指回転：映像を回転',
@@ -4645,6 +4665,8 @@ extension on TranslationsJa {
 			'translation.riskWarning' => '風險提示',
 			'translation.dureToRisk1' => 'ユーザーが生成したテキストが原因で、AIサービスプロバイダーのコンテンツポリシーに違反する内容が含まれる場合があります',
 			'translation.dureToRisk2' => '不当なコンテンツはAPIキーの停止やサービスの終了を引き起こす可能性があります',
+			_ => null,
+		} ?? switch (path) {
 			'translation.operationSuggestion' => '操作推奨',
 			'translation.operationSuggestion1' => '1. 翻訳前に内容を厳格に審査してください',
 			'translation.operationSuggestion2' => '2. 暴力、成人向けコンテンツなどを翻訳しないでください',
@@ -4655,8 +4677,6 @@ extension on TranslationsJa {
 			'translation.modelNameHintText' => '例：gpt-4-turbo',
 			'translation.maxTokens' => '最大トークン数',
 			'translation.maxTokensHintText' => '例：32000',
-			_ => null,
-		} ?? switch (path) {
 			'translation.temperature' => '温度係数',
 			'translation.temperatureHintText' => '0.0-2.0',
 			'translation.clickTestButtonToVerifyAPIConnection' => 'テストボタンをクリックしてAPI接続を検証',
@@ -5159,6 +5179,8 @@ extension on TranslationsJa {
 			'searchFilter.rangeValueFormatError' => '範囲値の形式エラー',
 			'searchFilter.contains' => '含む',
 			'searchFilter.equals' => '等しい',
+			_ => null,
+		} ?? switch (path) {
 			'searchFilter.notEquals' => '等しくない',
 			'searchFilter.greaterThan' => '>',
 			'searchFilter.greaterEqual' => '>=',
@@ -5169,8 +5191,6 @@ extension on TranslationsJa {
 			'searchFilter.notIn' => 'いずれも含まない',
 			'searchFilter.username' => 'ユーザー名',
 			'searchFilter.nickname' => 'ニックネーム',
-			_ => null,
-		} ?? switch (path) {
 			'searchFilter.registrationDate' => '登録日',
 			'searchFilter.description' => '説明',
 			'searchFilter.title' => 'タイトル',

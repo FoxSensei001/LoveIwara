@@ -260,6 +260,26 @@ steps:
 
 Translations are currently mostly machine-generated. If you'd like to help improve them, start from the Simplified Chinese template: [`lib/i18n/zh-CN.i18n.yaml`](lib/i18n/zh-CN.i18n.yaml), then run `dart run slang`.
 
+### 🏷️ Iwara Tag Localization
+
+Iwara's raw tags are English-ish keys (e.g. `mother`, `blue_archive`). The app ships a community-maintained dictionary that maps every tag to **Simplified Chinese / Traditional Chinese / Japanese / English**, so tags render in your current language across detail pages, search, and the tag list page.
+
+How it works:
+
+- **Dictionary**: lives in [`tool/data/iwara_tags/`](tool/data/iwara_tags/). The app consumes the merged, minified [`iwara_tags.min.json`](tool/data/iwara_tags/iwara_tags.min.json).
+- **Delivery**: bundled as an offline fallback (`assets/data/iwara_tags.min.json`) and hot-updated from the jsDelivr CDN — so wording can improve **without shipping a new app build**.
+- **In the app**: tag chips show the localized name. On a detail-page tag card, the expand/collapse row has an icon button to toggle **original key ⇄ translation**; long-press / right-click a tag (or tap the tag title on the tag list page) opens a dialog with both the translation and the original key, copy buttons, and a feedback link.
+
+These are best-effort translations of 2600+ ACG / Vtuber / NSFW terms and may contain mistakes.
+
+> **Spotted a wrong or awkward translation?** Please report it on the dedicated issue: **https://github.com/FoxSensei001/LoveIwara/issues/98** (the in-app tag dialog links here too).
+
+**Contributing a fix** (for maintainers/contributors):
+
+1. Edit the human-readable [`iwara_tags_localized.json`](tool/data/iwara_tags/iwara_tags_localized.json) (per-tag `zh-CN` / `zh-TW` / `ja` / `en`).
+2. Regenerate the merged artifact and bundled asset: `dart run tool/data/iwara_tags/build_localized_min.dart`.
+3. Commit both the source and the generated `iwara_tags.min.json` (see [`tool/data/iwara_tags/README.md`](tool/data/iwara_tags/README.md)).
+
 ## 🙏 Acknowledgments
 
 This project drew inspiration and learned many best practices from these excellent repositories:

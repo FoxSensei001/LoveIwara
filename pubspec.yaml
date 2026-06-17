@@ -118,6 +118,7 @@ flutter:
     - assets/svg/
     - assets/icon/launcher_icon_v2.png
     - assets/anime4k_shaders/
+    - assets/data/
 
 dependency_overrides:
   js: ^0.7.1

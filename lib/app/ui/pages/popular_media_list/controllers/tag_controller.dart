@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
+import 'package:i_iwara/app/services/tag_localization_service.dart';
 import 'package:i_iwara/app/services/tag_service.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
@@ -43,6 +44,16 @@ class TagController extends GetxController {
 
       if (refresh) {
         tags.clear();
+        // 首页：把本地词库命中的标签（支持「当前语言译名 / 原始 key」）合并到 API 结果前，
+        // 这样输入中文/日文也能搜到，且原始 key 仍可用。
+        final query = searchInput.trim();
+        if (query.isNotEmpty) {
+          newTags = TagLocalizationService.mergeLocal(query, newTags);
+        }
+      } else {
+        // 加载更多：仅追加 API 结果，并按 id 去重，避免与已合并的本地结果重复。
+        final existing = tags.map((t) => t.id).toSet();
+        newTags = newTags.where((t) => !existing.contains(t.id)).toList();
       }
       tags.addAll(newTags);
       page++;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
+import 'package:i_iwara/app/services/tag_localization_service.dart';
 import 'package:i_iwara/app/ui/pages/tag_blacklist/widgets/black_list_search_tag_dialog.dart';
 import 'package:i_iwara/app/ui/pages/tag_blacklist/controllers/tag_blacklist_controller.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
@@ -194,7 +195,7 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
                       runSpacing: 8.0,
                       children: controller.blacklistTags.map((tag) {
                         return Chip(
-                          label: Text(tag.id),
+                          label: Text(TagLocalizationService.displayName(tag.id)),
                           avatar: _buildTagIcon(tag),
                           deleteIcon: const Icon(Icons.close, size: 18),
                           onDeleted: () => controller.removeTag(tag),

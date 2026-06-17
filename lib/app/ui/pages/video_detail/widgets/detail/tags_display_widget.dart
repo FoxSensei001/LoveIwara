@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:oktoast/oktoast.dart';
-import 'package:super_clipboard/super_clipboard.dart';
 
 import '../../../../../models/tag.model.dart';
-import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/services/tag_localization_service.dart';
+import 'package:i_iwara/app/ui/widgets/tag_detail_dialog.dart';
 
-
+/// 标签流式布局（展示用）。
+///
+/// 「原文/译文」切换由外层（如 [IwaraTagsSection]）通过 [showOriginal] 控制；
+/// 本组件仅负责渲染、点击跳转，以及长按 / 右键弹出标签详情。
 class TagsDisplayWidget extends StatelessWidget {
   final List<Tag> tags;
   final Function(Tag)? onTagTap;
-  final int initialVisibleCount;
+
+  /// 是否展示原始 key（false 时展示当前语言译名）。
+  final bool showOriginal;
+
   final double spacing;
   final double runSpacing;
 
@@ -18,7 +22,7 @@ class TagsDisplayWidget extends StatelessWidget {
     super.key,
     required this.tags,
     this.onTagTap,
-    this.initialVisibleCount = 5,
+    this.showOriginal = false,
     this.spacing = 8.0,
     this.runSpacing = 4.0,
   });
@@ -29,26 +33,26 @@ class TagsDisplayWidget extends StatelessWidget {
       onTagTap!(tag);
       return;
     }
-    
-    // 否则保持原来的复制行为
-    final data = DataWriterItem();
-    data.add(Formats.plainText(tag.id));
-    SystemClipboard.instance?.write([data]);
-    showToastWidget(
-      MDToastWidget(
-        message: slang.t.videoDetail.tagCopiedToClipboard(tagId: tag.id), 
-        type: MDToastType.success
-      ),
-      position: ToastPosition.bottom, 
-      duration: const Duration(seconds: 1)
-    );
+    // 否则保持原来的复制行为（复制原始 key）
+    copyTagText(tag.id);
   }
 
-  Widget _buildTagChip(Tag tag) {
-    return MouseRegion(
+  Widget _buildTagChip(BuildContext context, Tag tag) {
+    final localized = TagLocalizationService.displayName(tag.id);
+    final hasTranslation = localized != tag.id;
+    final label = showOriginal ? tag.id : localized;
+    // 悬浮提示展示「另一面」：当前显示译名则提示原始 key，反之亦然。
+    final tooltip = hasTranslation
+        ? (showOriginal ? localized : tag.id)
+        : null;
+
+    final chip = MouseRegion(
       cursor: SystemMouseCursors.click,
       child: InkWell(
         onTap: () => _handleTagTap(tag),
+        // 长按 / 右键：弹出标签详情（译文 + 原始 key + 复制 + 反馈）。
+        onLongPress: () => showTagDetailDialog(context, tag),
+        onSecondaryTap: () => showTagDetailDialog(context, tag),
         borderRadius: BorderRadius.circular(16),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -65,7 +69,7 @@ class TagsDisplayWidget extends StatelessWidget {
             ),
           ),
           child: Text(
-            tag.id,
+            label,
             style: const TextStyle(
               fontSize: 13,
               height: 1.2,
@@ -74,6 +78,11 @@ class TagsDisplayWidget extends StatelessWidget {
         ),
       ),
     );
+
+    if (tooltip != null) {
+      return Tooltip(message: tooltip, child: chip);
+    }
+    return chip;
   }
 
   @override
@@ -81,11 +90,10 @@ class TagsDisplayWidget extends StatelessWidget {
     if (tags.isEmpty) {
       return const SizedBox.shrink();
     }
-
     return Wrap(
       spacing: spacing,
       runSpacing: runSpacing,
-      children: tags.map(_buildTagChip).toList(),
+      children: tags.map((tag) => _buildTagChip(context, tag)).toList(),
     );
   }
 }

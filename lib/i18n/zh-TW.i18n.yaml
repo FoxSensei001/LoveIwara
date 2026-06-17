@@ -275,6 +275,16 @@ common:
   detail: 詳情
   parseExceptionDestopHint: ' - 桌面端使用者可以在設定中配置代理'
   iwaraTags: Iwara 標籤
+  tagInfo: 標籤資訊
+  tagOriginalKey: 原始標籤
+  tagTranslation: 譯文
+  copy: 複製
+  copiedToClipboard: 已複製到剪貼簿
+  showOriginalTag: 顯示原始標籤
+  showTranslatedTag: 顯示譯文
+  tagTranslationFeedback: 對翻譯有疑問？點此回報
+  tagLocalizationGuideTitle: 關於標籤本地化
+  tagLocalizationGuideContent: "應用會把 Iwara 的原始標籤（如 mother）顯示為你目前語言的譯名。\n\n• 搜尋標籤時，輸入譯名或原始標籤都能匹配。\n• 長按 / 右鍵標籤可檢視並複製原始標籤與譯文。\n• 譯名由社群維護，屬盡力翻譯，可能存在錯誤。"
   likeThisVideo: 喜歡這個影片的人
   operation: 操作
   replies: 回覆

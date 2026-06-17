@@ -275,6 +275,16 @@ common:
   detail: Detail
   parseExceptionDestopHint: ' - Desktop users can configure proxy in settings'
   iwaraTags: Iwara Tags
+  tagInfo: Tag Info
+  tagOriginalKey: Original Tag
+  tagTranslation: Translation
+  copy: Copy
+  copiedToClipboard: Copied to clipboard
+  showOriginalTag: Show Original Tag
+  showTranslatedTag: Show Translation
+  tagTranslationFeedback: Have doubts about a translation? Give feedback
+  tagLocalizationGuideTitle: About Tag Localization
+  tagLocalizationGuideContent: "The app shows Iwara's raw tags (e.g. mother) using the name in your current language.\n\n• When searching tags, both the translation and the original tag match.\n• Long-press / right-click a tag to view and copy its original key and translation.\n• Translations are community-maintained and best-effort — they may contain mistakes."
   likeThisVideo: Like This Video
   operation: Operation
   replies: Replies

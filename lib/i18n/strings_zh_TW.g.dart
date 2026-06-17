@@ -366,6 +366,16 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get detail => '詳情';
 	@override String get parseExceptionDestopHint => ' - 桌面端使用者可以在設定中配置代理';
 	@override String get iwaraTags => 'Iwara 標籤';
+	@override String get tagInfo => '標籤資訊';
+	@override String get tagOriginalKey => '原始標籤';
+	@override String get tagTranslation => '譯文';
+	@override String get copy => '複製';
+	@override String get copiedToClipboard => '已複製到剪貼簿';
+	@override String get showOriginalTag => '顯示原始標籤';
+	@override String get showTranslatedTag => '顯示譯文';
+	@override String get tagTranslationFeedback => '對翻譯有疑問？點此回報';
+	@override String get tagLocalizationGuideTitle => '關於標籤本地化';
+	@override String get tagLocalizationGuideContent => '應用會把 Iwara 的原始標籤（如 mother）顯示為你目前語言的譯名。\n\n• 搜尋標籤時，輸入譯名或原始標籤都能匹配。\n• 長按 / 右鍵標籤可檢視並複製原始標籤與譯文。\n• 譯名由社群維護，屬盡力翻譯，可能存在錯誤。';
 	@override String get likeThisVideo => '喜歡這個影片的人';
 	@override String get operation => '操作';
 	@override String get replies => '回覆';
@@ -3384,6 +3394,16 @@ extension on TranslationsZhTw {
 			'common.detail' => '詳情',
 			'common.parseExceptionDestopHint' => ' - 桌面端使用者可以在設定中配置代理',
 			'common.iwaraTags' => 'Iwara 標籤',
+			'common.tagInfo' => '標籤資訊',
+			'common.tagOriginalKey' => '原始標籤',
+			'common.tagTranslation' => '譯文',
+			'common.copy' => '複製',
+			'common.copiedToClipboard' => '已複製到剪貼簿',
+			'common.showOriginalTag' => '顯示原始標籤',
+			'common.showTranslatedTag' => '顯示譯文',
+			'common.tagTranslationFeedback' => '對翻譯有疑問？點此回報',
+			'common.tagLocalizationGuideTitle' => '關於標籤本地化',
+			'common.tagLocalizationGuideContent' => '應用會把 Iwara 的原始標籤（如 mother）顯示為你目前語言的譯名。\n\n• 搜尋標籤時，輸入譯名或原始標籤都能匹配。\n• 長按 / 右鍵標籤可檢視並複製原始標籤與譯文。\n• 譯名由社群維護，屬盡力翻譯，可能存在錯誤。',
 			'common.likeThisVideo' => '喜歡這個影片的人',
 			'common.operation' => '操作',
 			'common.replies' => '回覆',
@@ -3620,6 +3640,8 @@ extension on TranslationsZhTw {
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => '請輸入代理伺服器的 URL，例如 127.0.0.1:8080',
 			'settings.enableProxy' => '啟用代理',
 			'settings.left' => '左側',
+			_ => null,
+		} ?? switch (path) {
 			'settings.middle' => '中間',
 			'settings.right' => '右側',
 			'settings.playerSettings' => '播放器設定',
@@ -3630,8 +3652,6 @@ extension on TranslationsZhTw {
 			'settings.settings' => '設定',
 			'settings.themeSettings' => '主題設定',
 			'settings.followSystem' => '跟隨系統',
-			_ => null,
-		} ?? switch (path) {
 			'settings.lightMode' => '淺色模式',
 			'settings.darkMode' => '深色模式',
 			'settings.presetTheme' => '預設主題',
@@ -4134,6 +4154,8 @@ extension on TranslationsZhTw {
 			'videoDetail.localInfo.fileInfo' => '檔案資訊',
 			'videoDetail.localInfo.fileName' => '檔案名稱',
 			'videoDetail.localInfo.fileSize' => '檔案大小',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.localInfo.filePath' => '檔案路徑',
 			'videoDetail.localInfo.copyPath' => '複製路徑',
 			'videoDetail.localInfo.openFolder' => '開啟資料夾',
@@ -4144,8 +4166,6 @@ extension on TranslationsZhTw {
 			'videoDetail.thisIsAPrivateVideo' => '這是私密影片',
 			'videoDetail.getVideoInfoFailed' => '取得影片資訊失敗，請稍後再試',
 			'videoDetail.noVideoSourceFound' => '未找到對應的影片來源',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => '標籤 "${tagId}" 已複製到剪貼簿',
 			'videoDetail.errorLoadingVideo' => '載入影片時出錯',
 			'videoDetail.play' => '播放',
@@ -4648,6 +4668,8 @@ extension on TranslationsZhTw {
 			'favorite.createFolder' => '建立資料夾',
 			'favorite.enterFolderName' => '輸入資料夾名稱',
 			'favorite.enterFolderNameHere' => '在此輸入資料夾名稱...',
+			_ => null,
+		} ?? switch (path) {
 			'favorite.create' => '建立',
 			'favorite.items' => '項目',
 			'favorite.newFolderName' => '新資料夾',
@@ -4658,8 +4680,6 @@ extension on TranslationsZhTw {
 			'favorite.deleteFolderTitle' => '刪除資料夾',
 			'favorite.deleteFolderConfirmWithTitle' => ({required Object title}) => '確定要刪除 ${title} 資料夾嗎？',
 			'favorite.removeItemTitle' => '刪除項目',
-			_ => null,
-		} ?? switch (path) {
 			'favorite.removeItemConfirmWithTitle' => ({required Object title}) => '確定要刪除 ${title} 項目嗎？',
 			'favorite.removeItemSuccess' => '項目已從收藏夾中刪除',
 			'favorite.removeItemFailed' => '刪除項目失敗',
@@ -5162,6 +5182,8 @@ extension on TranslationsZhTw {
 			'news.broadcast' => '廣播',
 			'news.openInBrowser' => '在瀏覽器中開啟',
 			'searchFilter.selectField' => '選擇欄位',
+			_ => null,
+		} ?? switch (path) {
 			'searchFilter.add' => '新增',
 			'searchFilter.clear' => '清空',
 			'searchFilter.clearAll' => '清空全部',
@@ -5172,8 +5194,6 @@ extension on TranslationsZhTw {
 			'searchFilter.filterSettings' => '篩選項設定',
 			'searchFilter.field' => '欄位',
 			'searchFilter.operator' => '運算子',
-			_ => null,
-		} ?? switch (path) {
 			'searchFilter.language' => '語言',
 			'searchFilter.value' => '值',
 			'searchFilter.dateRange' => '日期範圍',

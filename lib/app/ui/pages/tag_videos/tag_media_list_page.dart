@@ -14,9 +14,11 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/popular_vide
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_tab_view.dart';
 import 'package:i_iwara/app/ui/pages/tag_videos/widgets/tag_video_search_config_widget.dart';
 import 'package:i_iwara/app/ui/widgets/grid_speed_dial.dart';
+import 'package:i_iwara/app/ui/widgets/tag_detail_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/i18n/strings.g.dart';
 
 /// 标签媒体列表页面 - 精简版本
 class TagMediaListPage extends StatefulWidget {
@@ -218,7 +220,7 @@ class _TagMediaListPageState extends State<TagMediaListPage>
   @override
   Widget build(BuildContext context) {
     const double tabBarHeight = 40.0;
-    const double headerHeight = 48.0; // 新增header高度
+    const double headerHeight = 48.0; // header高度
     final systemStatusBarHeight = MediaQuery.of(context).padding.top;
     final double topBarVisibleHeight =
         headerHeight + tabBarHeight; // 现在包含header和tab两行
@@ -311,14 +313,36 @@ class _TagMediaListPageState extends State<TagMediaListPage>
                                   icon: const Icon(Icons.arrow_back),
                                   onPressed: () => Navigator.of(context).pop(),
                                 ),
+                                // 原始 key：点击可查看「原文 + 译文 + 复制 + 反馈」详情
                                 Expanded(
-                                  child: Text(
-                                    '# ${widget.tag.id}',
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w600,
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(6),
+                                    onTap: () => showTagDetailDialog(
+                                      context,
+                                      widget.tag,
                                     ),
-                                    overflow: TextOverflow.ellipsis,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 6,
+                                      ),
+                                      child: Text(
+                                        '# ${widget.tag.id}',
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                // 问号 icon：打开详情弹窗（原文 + 译文 + 复制 + 反馈）
+                                IconButton(
+                                  icon: const Icon(Icons.help_outline, size: 18),
+                                  tooltip: t.common.tagInfo,
+                                  onPressed: () => showTagDetailDialog(
+                                    context,
+                                    widget.tag,
                                   ),
                                 ),
                               ],
