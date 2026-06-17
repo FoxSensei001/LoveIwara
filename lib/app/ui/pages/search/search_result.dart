@@ -22,6 +22,7 @@ import 'package:i_iwara/app/models/image.model.dart';
 
 import 'search_dialog.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/tag_detail_dialog.dart';
 
 class SearchResultController extends GetxController {
   // 搜索状态管理
@@ -427,6 +428,12 @@ class _SearchResultState extends State<SearchResult> {
               ),
             ),
           ),
+          // 详情按钮：与 Iwara 标签同款——译文 + 原文 + 复制 + 翻译纠错反馈
+          IconButton(
+            icon: const Icon(Icons.help_outline, size: 20),
+            tooltip: t.common.tagInfo,
+            onPressed: _showOreno3dTagDetailDialog,
+          ),
           IconButton(
             icon: const Icon(Icons.translate, size: 20),
             tooltip: t.common.translate,
@@ -462,6 +469,17 @@ class _SearchResultState extends State<SearchResult> {
     showTranslationDialog(
       context,
       text: searchController.currentSingleTagNameBehindSearchInput.value,
+    );
+  }
+
+  // 显示 Oreno3d 实体详情（译文 + 原文 + 复制 + 翻译纠错反馈），与 Iwara 标签同款
+  void _showOreno3dTagDetailDialog() {
+    showOreno3dTagDetailDialog(
+      context,
+      type: searchController.searchType.value,
+      id: searchController.extData.value?['id'] as String?,
+      localizedName:
+          searchController.currentSingleTagNameBehindSearchInput.value,
     );
   }
 

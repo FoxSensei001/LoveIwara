@@ -285,6 +285,29 @@ class Oreno3dLocalizationService extends GetxService {
     }
   }
 
+  /// 注册安全的「原文（日文原名）」获取（按类别 + id，缺失回退 [fallback]）。
+  static String originalDisplay({
+    required String type,
+    String? id,
+    required String fallback,
+  }) {
+    if (!Get.isRegistered<Oreno3dLocalizationService>()) return fallback;
+    return to.originalName(type: type, id: id, fallback: fallback);
+  }
+
+  /// 按 (类别, id) 取日文原名；缺失回退到 [fallback]。
+  String originalName({
+    required String type,
+    String? id,
+    required String fallback,
+  }) {
+    if (id != null && id.isNotEmpty) {
+      final e = _mapForType(type)?[id];
+      if (e != null && e.ja.isNotEmpty) return e.ja;
+    }
+    return fallback;
+  }
+
   /// 按 (类别, id) 取译名；无 id 命中时按日文原名兜底；再回退到原名。
   String localize({required String type, String? id, required String name}) {
     if (id != null && id.isNotEmpty) {

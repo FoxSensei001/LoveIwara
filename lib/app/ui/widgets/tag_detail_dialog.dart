@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/services/tag_localization_service.dart';
+import 'package:i_iwara/app/services/oreno3d_localization_service.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -48,6 +49,58 @@ Future<void> showTagDetailDialog(BuildContext context, Tag tag) {
             _TagDetailCopyRow(
               label: t.common.tagOriginalKey,
               value: tag.id,
+            ),
+            const SizedBox(height: 8),
+            const Divider(height: 1),
+            const SizedBox(height: 8),
+            // 翻译纠错 / 反馈引导
+            const TagTranslationFeedbackLink(),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(t.common.close),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+/// 弹出 Oreno3d 实体详情：展示「译文」与「原文（日文原名）」并各自提供复制按钮，附翻译纠错入口。
+///
+/// 与 [showTagDetailDialog] 同款设计，复用复制行与反馈链接组件；
+/// 原文按 (类别, id) 从本地词库解析，缺失时回退为译名。
+Future<void> showOreno3dTagDetailDialog(
+  BuildContext context, {
+  required String type,
+  String? id,
+  required String localizedName,
+}) {
+  final original = Oreno3dLocalizationService.originalDisplay(
+    type: type,
+    id: id,
+    fallback: localizedName,
+  );
+  return showDialog(
+    context: context,
+    builder: (context) {
+      final t = slang.Translations.of(context);
+      return AlertDialog(
+        title: Text(t.common.tagInfo),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _TagDetailCopyRow(
+              label: t.common.tagTranslation,
+              value: localizedName,
+            ),
+            const SizedBox(height: 12),
+            _TagDetailCopyRow(
+              label: t.common.tagOriginalKey,
+              value: original,
             ),
             const SizedBox(height: 8),
             const Divider(height: 1),
