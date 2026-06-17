@@ -1529,6 +1529,7 @@ class _TranslationsTranslationZhTw implements TranslationsTranslationEn {
 	@override String get selectProviderPreset => '選擇預設';
 	@override String get presetCustom => '自訂';
 	@override String presetApplied({required Object name}) => '已套用預設：${name}';
+	@override late final _TranslationsTranslationPresetNamesZhTw presetNames = _TranslationsTranslationPresetNamesZhTw._(_root);
 	@override String get fetchModelList => '取得模型清單';
 	@override String get fetchingModels => '取得中…';
 	@override String get selectModel => '選擇模型';
@@ -2960,6 +2961,25 @@ class _TranslationsFavoriteErrorsZhTw implements TranslationsFavoriteErrorsEn {
 	@override String get deleteFolderFailed => '刪除資料夾失敗';
 	@override String get deleteFolderSuccess => '刪除資料夾成功';
 	@override String get folderNameCannotBeEmpty => '資料夾名稱不能為空';
+}
+
+// Path: translation.presetNames
+class _TranslationsTranslationPresetNamesZhTw implements TranslationsTranslationPresetNamesEn {
+	_TranslationsTranslationPresetNamesZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get openai => 'OpenAI (GPT-4o / GPT-4.1)';
+	@override String get openaiReasoning => 'OpenAI 推理 (o1 / o3 / o4)';
+	@override String get anthropic => 'Anthropic Claude';
+	@override String get anthropicReasoning => 'Anthropic Claude 推理 (extended thinking)';
+	@override String get gemini => 'Google Gemini (原生)';
+	@override String get geminiReasoning => 'Google Gemini 推理 (thinking)';
+	@override String get deepseek => 'DeepSeek (deepseek-chat)';
+	@override String get deepseekReasoner => 'DeepSeek 推理 (deepseek-reasoner / R1)';
+	@override String get siliconflow => 'SiliconFlow 矽基流動';
+	@override String get zhipu => '智譜 GLM';
 }
 
 // Path: diagnostics.healthAlert
@@ -4846,6 +4866,16 @@ extension on TranslationsZhTw {
 			'translation.selectProviderPreset' => '選擇預設',
 			'translation.presetCustom' => '自訂',
 			'translation.presetApplied' => ({required Object name}) => '已套用預設：${name}',
+			'translation.presetNames.openai' => 'OpenAI (GPT-4o / GPT-4.1)',
+			'translation.presetNames.openaiReasoning' => 'OpenAI 推理 (o1 / o3 / o4)',
+			'translation.presetNames.anthropic' => 'Anthropic Claude',
+			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude 推理 (extended thinking)',
+			'translation.presetNames.gemini' => 'Google Gemini (原生)',
+			'translation.presetNames.geminiReasoning' => 'Google Gemini 推理 (thinking)',
+			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
+			'translation.presetNames.deepseekReasoner' => 'DeepSeek 推理 (deepseek-reasoner / R1)',
+			'translation.presetNames.siliconflow' => 'SiliconFlow 矽基流動',
+			'translation.presetNames.zhipu' => '智譜 GLM',
 			'translation.fetchModelList' => '取得模型清單',
 			'translation.fetchingModels' => '取得中…',
 			'translation.selectModel' => '選擇模型',
@@ -5172,6 +5202,8 @@ extension on TranslationsZhTw {
 			'navigationOrderSettings.hidden' => '已隱藏',
 			'navigationOrderSettings.hideHint' => '點擊眼睛圖示可顯示或隱藏論壇和新聞',
 			'navigationOrderSettings.videoDescription' => '瀏覽熱門影片內容',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.galleryDescription' => '瀏覽圖片和畫廊',
 			'navigationOrderSettings.subscriptionDescription' => '查看追蹤使用者的最新內容',
 			'navigationOrderSettings.forumDescription' => '參與社群討論',
@@ -5182,8 +5214,6 @@ extension on TranslationsZhTw {
 			'news.broadcast' => '廣播',
 			'news.openInBrowser' => '在瀏覽器中開啟',
 			'searchFilter.selectField' => '選擇欄位',
-			_ => null,
-		} ?? switch (path) {
 			'searchFilter.add' => '新增',
 			'searchFilter.clear' => '清空',
 			'searchFilter.clearAll' => '清空全部',

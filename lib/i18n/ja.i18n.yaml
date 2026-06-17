@@ -1797,6 +1797,17 @@ translation:
   selectProviderPreset: プリセットを選択
   presetCustom: カスタム
   presetApplied: 'プリセットを適用しました：${name}'
+  presetNames:
+    openai: OpenAI (GPT-4o / GPT-4.1)
+    openaiReasoning: OpenAI 推論 (o1 / o3 / o4)
+    anthropic: Anthropic Claude
+    anthropicReasoning: Anthropic Claude 推論 (extended thinking)
+    gemini: Google Gemini (ネイティブ)
+    geminiReasoning: Google Gemini 推論 (thinking)
+    deepseek: DeepSeek (deepseek-chat)
+    deepseekReasoner: DeepSeek 推論 (deepseek-reasoner / R1)
+    siliconflow: SiliconFlow
+    zhipu: Zhipu GLM
   fetchModelList: モデル一覧を取得
   fetchingModels: 取得中…
   selectModel: モデルを選択

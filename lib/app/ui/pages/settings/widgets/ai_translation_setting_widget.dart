@@ -654,7 +654,7 @@ class _AITranslationSettingsWidgetState
                   (p) => DropdownMenuItem<String>(
                     value: p.id,
                     child: Text(
-                      p.id == 'custom' ? slang.t.translation.presetCustom : p.name,
+                      _localizedPresetName(p),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -669,6 +669,37 @@ class _AITranslationSettingsWidgetState
         ),
       ],
     );
+  }
+
+  /// 解析预设的本地化展示名称；品牌名保留原样，仅描述性文案随语言切换。
+  String _localizedPresetName(_ProviderPreset preset) {
+    final names = slang.t.translation.presetNames;
+    switch (preset.id) {
+      case 'custom':
+        return slang.t.translation.presetCustom;
+      case 'openai':
+        return names.openai;
+      case 'openai_reasoning':
+        return names.openaiReasoning;
+      case 'anthropic':
+        return names.anthropic;
+      case 'anthropic_reasoning':
+        return names.anthropicReasoning;
+      case 'gemini':
+        return names.gemini;
+      case 'gemini_reasoning':
+        return names.geminiReasoning;
+      case 'deepseek':
+        return names.deepseek;
+      case 'deepseek_reasoner':
+        return names.deepseekReasoner;
+      case 'siliconflow':
+        return names.siliconflow;
+      case 'zhipu':
+        return names.zhipu;
+      default:
+        return preset.name;
+    }
   }
 
   void _applyProviderPreset(_ProviderPreset preset) {
@@ -691,7 +722,9 @@ class _AITranslationSettingsWidgetState
 
     showToastWidget(
       MDToastWidget(
-        message: slang.t.translation.presetApplied(name: preset.name),
+        message: slang.t.translation.presetApplied(
+          name: _localizedPresetName(preset),
+        ),
         type: MDToastType.success,
       ),
       position: ToastPosition.bottom,

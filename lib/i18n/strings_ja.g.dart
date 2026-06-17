@@ -1498,6 +1498,7 @@ class _TranslationsTranslationJa implements TranslationsTranslationEn {
 	@override String get selectProviderPreset => 'プリセットを選択';
 	@override String get presetCustom => 'カスタム';
 	@override String presetApplied({required Object name}) => 'プリセットを適用しました：${name}';
+	@override late final _TranslationsTranslationPresetNamesJa presetNames = _TranslationsTranslationPresetNamesJa._(_root);
 	@override String get fetchModelList => 'モデル一覧を取得';
 	@override String get fetchingModels => '取得中…';
 	@override String get selectModel => 'モデルを選択';
@@ -2869,6 +2870,25 @@ class _TranslationsFavoriteErrorsJa implements TranslationsFavoriteErrorsEn {
 	@override String get deleteFolderFailed => 'フォルダーの削除に失敗しました';
 	@override String get deleteFolderSuccess => 'フォルダーの削除に成功しました';
 	@override String get folderNameCannotBeEmpty => 'フォルダー名を入力してください';
+}
+
+// Path: translation.presetNames
+class _TranslationsTranslationPresetNamesJa implements TranslationsTranslationPresetNamesEn {
+	_TranslationsTranslationPresetNamesJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get openai => 'OpenAI (GPT-4o / GPT-4.1)';
+	@override String get openaiReasoning => 'OpenAI 推論 (o1 / o3 / o4)';
+	@override String get anthropic => 'Anthropic Claude';
+	@override String get anthropicReasoning => 'Anthropic Claude 推論 (extended thinking)';
+	@override String get gemini => 'Google Gemini (ネイティブ)';
+	@override String get geminiReasoning => 'Google Gemini 推論 (thinking)';
+	@override String get deepseek => 'DeepSeek (deepseek-chat)';
+	@override String get deepseekReasoner => 'DeepSeek 推論 (deepseek-reasoner / R1)';
+	@override String get siliconflow => 'SiliconFlow';
+	@override String get zhipu => 'Zhipu GLM';
 }
 
 // Path: diagnostics.healthAlert
@@ -4812,6 +4832,16 @@ extension on TranslationsJa {
 			'translation.selectProviderPreset' => 'プリセットを選択',
 			'translation.presetCustom' => 'カスタム',
 			'translation.presetApplied' => ({required Object name}) => 'プリセットを適用しました：${name}',
+			'translation.presetNames.openai' => 'OpenAI (GPT-4o / GPT-4.1)',
+			'translation.presetNames.openaiReasoning' => 'OpenAI 推論 (o1 / o3 / o4)',
+			'translation.presetNames.anthropic' => 'Anthropic Claude',
+			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude 推論 (extended thinking)',
+			'translation.presetNames.gemini' => 'Google Gemini (ネイティブ)',
+			'translation.presetNames.geminiReasoning' => 'Google Gemini 推論 (thinking)',
+			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
+			'translation.presetNames.deepseekReasoner' => 'DeepSeek 推論 (deepseek-reasoner / R1)',
+			'translation.presetNames.siliconflow' => 'SiliconFlow',
+			'translation.presetNames.zhipu' => 'Zhipu GLM',
 			'translation.fetchModelList' => 'モデル一覧を取得',
 			'translation.fetchingModels' => '取得中…',
 			'translation.selectModel' => 'モデルを選択',
@@ -5169,6 +5199,8 @@ extension on TranslationsJa {
 			'searchFilter.boolean' => 'ブール値',
 			'searchFilter.tags' => 'タグ',
 			'searchFilter.select' => '選択',
+			_ => null,
+		} ?? switch (path) {
 			'searchFilter.clickToSelectDate' => '日付を選択するにはクリック',
 			'searchFilter.pleaseEnterValidNumber' => '有効な数値を入力してください',
 			'searchFilter.pleaseEnterValidDate' => '有効な日付形式を入力してください (YYYY-MM-DD)',
@@ -5179,8 +5211,6 @@ extension on TranslationsJa {
 			'searchFilter.rangeValueFormatError' => '範囲値の形式エラー',
 			'searchFilter.contains' => '含む',
 			'searchFilter.equals' => '等しい',
-			_ => null,
-		} ?? switch (path) {
 			'searchFilter.notEquals' => '等しくない',
 			'searchFilter.greaterThan' => '>',
 			'searchFilter.greaterEqual' => '>=',

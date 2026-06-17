@@ -1800,6 +1800,17 @@ translation:
   selectProviderPreset: 选择预设
   presetCustom: 自定义
   presetApplied: '已应用预设：${name}'
+  presetNames:
+    openai: OpenAI (GPT-4o / GPT-4.1)
+    openaiReasoning: OpenAI 推理 (o1 / o3 / o4)
+    anthropic: Anthropic Claude
+    anthropicReasoning: Anthropic Claude 推理 (extended thinking)
+    gemini: Google Gemini (原生)
+    geminiReasoning: Google Gemini 推理 (thinking)
+    deepseek: DeepSeek (deepseek-chat)
+    deepseekReasoner: DeepSeek 推理 (deepseek-reasoner / R1)
+    siliconflow: SiliconFlow 硅基流动
+    zhipu: 智谱 GLM
   fetchModelList: 获取模型列表
   fetchingModels: 获取中…
   selectModel: 选择模型

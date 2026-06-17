@@ -1503,6 +1503,7 @@ class _TranslationsTranslationZhCn implements TranslationsTranslationEn {
 	@override String get selectProviderPreset => '选择预设';
 	@override String get presetCustom => '自定义';
 	@override String presetApplied({required Object name}) => '已应用预设：${name}';
+	@override late final _TranslationsTranslationPresetNamesZhCn presetNames = _TranslationsTranslationPresetNamesZhCn._(_root);
 	@override String get fetchModelList => '获取模型列表';
 	@override String get fetchingModels => '获取中…';
 	@override String get selectModel => '选择模型';
@@ -2874,6 +2875,25 @@ class _TranslationsFavoriteErrorsZhCn implements TranslationsFavoriteErrorsEn {
 	@override String get deleteFolderFailed => '删除文件夹失败';
 	@override String get deleteFolderSuccess => '删除文件夹成功';
 	@override String get folderNameCannotBeEmpty => '文件夹名称不能为空';
+}
+
+// Path: translation.presetNames
+class _TranslationsTranslationPresetNamesZhCn implements TranslationsTranslationPresetNamesEn {
+	_TranslationsTranslationPresetNamesZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get openai => 'OpenAI (GPT-4o / GPT-4.1)';
+	@override String get openaiReasoning => 'OpenAI 推理 (o1 / o3 / o4)';
+	@override String get anthropic => 'Anthropic Claude';
+	@override String get anthropicReasoning => 'Anthropic Claude 推理 (extended thinking)';
+	@override String get gemini => 'Google Gemini (原生)';
+	@override String get geminiReasoning => 'Google Gemini 推理 (thinking)';
+	@override String get deepseek => 'DeepSeek (deepseek-chat)';
+	@override String get deepseekReasoner => 'DeepSeek 推理 (deepseek-reasoner / R1)';
+	@override String get siliconflow => 'SiliconFlow 硅基流动';
+	@override String get zhipu => '智谱 GLM';
 }
 
 // Path: diagnostics.healthAlert
@@ -4822,6 +4842,16 @@ extension on TranslationsZhCn {
 			'translation.selectProviderPreset' => '选择预设',
 			'translation.presetCustom' => '自定义',
 			'translation.presetApplied' => ({required Object name}) => '已应用预设：${name}',
+			'translation.presetNames.openai' => 'OpenAI (GPT-4o / GPT-4.1)',
+			'translation.presetNames.openaiReasoning' => 'OpenAI 推理 (o1 / o3 / o4)',
+			'translation.presetNames.anthropic' => 'Anthropic Claude',
+			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude 推理 (extended thinking)',
+			'translation.presetNames.gemini' => 'Google Gemini (原生)',
+			'translation.presetNames.geminiReasoning' => 'Google Gemini 推理 (thinking)',
+			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
+			'translation.presetNames.deepseekReasoner' => 'DeepSeek 推理 (deepseek-reasoner / R1)',
+			'translation.presetNames.siliconflow' => 'SiliconFlow 硅基流动',
+			'translation.presetNames.zhipu' => '智谱 GLM',
 			'translation.fetchModelList' => '获取模型列表',
 			'translation.fetchingModels' => '获取中…',
 			'translation.selectModel' => '选择模型',
@@ -5174,6 +5204,8 @@ extension on TranslationsZhCn {
 			'searchFilter.numberRange' => '数值范围',
 			'searchFilter.from' => '从',
 			'searchFilter.to' => '到',
+			_ => null,
+		} ?? switch (path) {
 			'searchFilter.date' => '日期',
 			'searchFilter.number' => '数值',
 			'searchFilter.boolean' => '布尔值',
@@ -5184,8 +5216,6 @@ extension on TranslationsZhCn {
 			'searchFilter.pleaseEnterValidDate' => '请输入有效的日期格式 (YYYY-MM-DD)',
 			'searchFilter.startValueMustBeLessThanEndValue' => '起始值必须小于结束值',
 			'searchFilter.startDateMustBeBeforeEndDate' => '起始日期必须早于结束日期',
-			_ => null,
-		} ?? switch (path) {
 			'searchFilter.pleaseFillStartValue' => '请填写起始值',
 			'searchFilter.pleaseFillEndValue' => '请填写结束值',
 			'searchFilter.rangeValueFormatError' => '范围值格式错误',

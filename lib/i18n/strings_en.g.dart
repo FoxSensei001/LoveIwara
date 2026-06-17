@@ -3804,6 +3804,8 @@ class TranslationsTranslationEn {
 	/// en: 'Preset applied: ${name}'
 	String presetApplied({required Object name}) => 'Preset applied: ${name}';
 
+	late final TranslationsTranslationPresetNamesEn presetNames = TranslationsTranslationPresetNamesEn._(_root);
+
 	/// en: 'Fetch model list'
 	String get fetchModelList => 'Fetch model list';
 
@@ -7065,6 +7067,45 @@ class TranslationsFavoriteErrorsEn {
 	String get folderNameCannotBeEmpty => 'Folder name cannot be empty';
 }
 
+// Path: translation.presetNames
+class TranslationsTranslationPresetNamesEn {
+	TranslationsTranslationPresetNamesEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'OpenAI (GPT-4o / GPT-4.1)'
+	String get openai => 'OpenAI (GPT-4o / GPT-4.1)';
+
+	/// en: 'OpenAI Reasoning (o1 / o3 / o4)'
+	String get openaiReasoning => 'OpenAI Reasoning (o1 / o3 / o4)';
+
+	/// en: 'Anthropic Claude'
+	String get anthropic => 'Anthropic Claude';
+
+	/// en: 'Anthropic Claude Reasoning (extended thinking)'
+	String get anthropicReasoning => 'Anthropic Claude Reasoning (extended thinking)';
+
+	/// en: 'Google Gemini (native)'
+	String get gemini => 'Google Gemini (native)';
+
+	/// en: 'Google Gemini Reasoning (thinking)'
+	String get geminiReasoning => 'Google Gemini Reasoning (thinking)';
+
+	/// en: 'DeepSeek (deepseek-chat)'
+	String get deepseek => 'DeepSeek (deepseek-chat)';
+
+	/// en: 'DeepSeek Reasoning (deepseek-reasoner / R1)'
+	String get deepseekReasoner => 'DeepSeek Reasoning (deepseek-reasoner / R1)';
+
+	/// en: 'SiliconFlow'
+	String get siliconflow => 'SiliconFlow';
+
+	/// en: 'Zhipu GLM'
+	String get zhipu => 'Zhipu GLM';
+}
+
 // Path: diagnostics.healthAlert
 class TranslationsDiagnosticsHealthAlertEn {
 	TranslationsDiagnosticsHealthAlertEn._(this._root);
@@ -9228,6 +9269,16 @@ extension on Translations {
 			'translation.selectProviderPreset' => 'Select a preset',
 			'translation.presetCustom' => 'Custom',
 			'translation.presetApplied' => ({required Object name}) => 'Preset applied: ${name}',
+			'translation.presetNames.openai' => 'OpenAI (GPT-4o / GPT-4.1)',
+			'translation.presetNames.openaiReasoning' => 'OpenAI Reasoning (o1 / o3 / o4)',
+			'translation.presetNames.anthropic' => 'Anthropic Claude',
+			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude Reasoning (extended thinking)',
+			'translation.presetNames.gemini' => 'Google Gemini (native)',
+			'translation.presetNames.geminiReasoning' => 'Google Gemini Reasoning (thinking)',
+			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
+			'translation.presetNames.deepseekReasoner' => 'DeepSeek Reasoning (deepseek-reasoner / R1)',
+			'translation.presetNames.siliconflow' => 'SiliconFlow',
+			'translation.presetNames.zhipu' => 'Zhipu GLM',
 			'translation.fetchModelList' => 'Fetch model list',
 			'translation.fetchingModels' => 'Fetching...',
 			'translation.selectModel' => 'Select Model',
@@ -9585,6 +9636,8 @@ extension on Translations {
 			'searchFilter.boolean' => 'Boolean',
 			'searchFilter.tags' => 'Tags',
 			'searchFilter.select' => 'Select',
+			_ => null,
+		} ?? switch (path) {
 			'searchFilter.clickToSelectDate' => 'Click to select date',
 			'searchFilter.pleaseEnterValidNumber' => 'Please enter valid number',
 			'searchFilter.pleaseEnterValidDate' => 'Please enter valid date format (YYYY-MM-DD)',
@@ -9595,8 +9648,6 @@ extension on Translations {
 			'searchFilter.rangeValueFormatError' => 'Range value format error',
 			'searchFilter.contains' => 'Contains',
 			'searchFilter.equals' => 'Equals',
-			_ => null,
-		} ?? switch (path) {
 			'searchFilter.notEquals' => 'Not Equals',
 			'searchFilter.greaterThan' => '>',
 			'searchFilter.greaterEqual' => '>=',

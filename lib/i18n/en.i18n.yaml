@@ -1793,6 +1793,17 @@ translation:
   selectProviderPreset: Select a preset
   presetCustom: Custom
   presetApplied: 'Preset applied: ${name}'
+  presetNames:
+    openai: OpenAI (GPT-4o / GPT-4.1)
+    openaiReasoning: OpenAI Reasoning (o1 / o3 / o4)
+    anthropic: Anthropic Claude
+    anthropicReasoning: Anthropic Claude Reasoning (extended thinking)
+    gemini: Google Gemini (native)
+    geminiReasoning: Google Gemini Reasoning (thinking)
+    deepseek: DeepSeek (deepseek-chat)
+    deepseekReasoner: DeepSeek Reasoning (deepseek-reasoner / R1)
+    siliconflow: SiliconFlow
+    zhipu: Zhipu GLM
   fetchModelList: Fetch model list
   fetchingModels: Fetching...
   selectModel: Select Model
