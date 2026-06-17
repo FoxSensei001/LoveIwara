@@ -197,8 +197,10 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     }
 
     try {
+      // 换行符 -> 硬换行（`  \n`）属于纯渲染层面的调整，原文与渲染结果
+      // 视觉上基本一致，不应被视为“加工痕迹”，否则任何含换行的纯文本都会
+      // 误触发“显示原始文本”按钮。因此这里不把它计入 hasChanges。
       final newProcessed = _markdownFormatter.replaceNewlines(processed);
-      if (newProcessed != processed) hasChanges = true;
       processed = newProcessed;
       if (!_isCurrentMarkdownTask(token)) return;
     } catch (e) {
