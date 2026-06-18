@@ -584,7 +584,7 @@ class PopularMediaListPageBaseState<
     final colorScheme = Theme.of(context).colorScheme;
 
     return Obx(() {
-      if (userService.isLogin && userService.currentUser.value != null) {
+      if (userService.hasLoadedProfile && userService.currentUser.value != null) {
         return SizedBox(
           width: _topBarButtonSize,
           height: _topBarButtonSize,
@@ -964,7 +964,7 @@ class PopularMediaListPageBaseState<
                                         children: [
                                           // Compact avatar
                                           Obx(() {
-                                            if (userService.isLogin &&
+                                            if (userService.hasLoadedProfile &&
                                                 userService.currentUser.value !=
                                                     null) {
                                               return SizedBox(

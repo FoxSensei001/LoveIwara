@@ -312,6 +312,7 @@ auth:
   refreshCaptcha: 刷新验证码
   captchaNotLoaded: 无法加载验证码
   loginSuccess: 登录成功
+  loginSuccessProfilePending: 已登录，正在加载资料…
   emailVerificationSent: 邮箱指令已发送
   notLoggedIn: 未登录
   clickToLogin: 点击此处登录
@@ -322,7 +323,7 @@ auth:
   pleaseEnterUsernameOrEmail: 请输入用户名或邮箱
   username: 用户名或邮箱
   pleaseEnterUsername: 请输入用户名或邮箱
-  rememberMe: "记住账号和密码"
+  rememberMe: "记住用户名"
   registerNoticeTitle: 前往官网注册账号
   registerNoticeDescription: "应用内已不再提供注册功能。请前往 Iwara 官网创建账号，完成后回到这里登录即可。"
   registerNoticeReturnTip: "注册完成后，返回此处使用账号登录。"

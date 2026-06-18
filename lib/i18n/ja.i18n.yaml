@@ -308,6 +308,7 @@ auth:
   refreshCaptcha: キャプチャを更新
   captchaNotLoaded: キャプチャを読み込めませんでした
   loginSuccess: ログインに成功しました
+  loginSuccessProfilePending: ログインしました。プロフィールを読み込んでいます…
   emailVerificationSent: メール認証が送信されました
   notLoggedIn: ログインしていません
   clickToLogin: こちらをクリックしてログイン
@@ -316,7 +317,7 @@ auth:
   logoutFailed: ログアウトに失敗しました
   usernameOrEmail: ユーザー名またはメールアドレス
   pleaseEnterUsernameOrEmail: ユーザー名またはメールアドレスを入力してください
-  rememberMe: ユーザー名とパスワードを記憶
+  rememberMe: ユーザー名を記憶
   registerNoticeTitle: 公式サイトで新規登録
   registerNoticeDescription: "アプリ内での新規登録は提供されなくなりました。Iwara 公式サイトでアカウントを作成し、こちらに戻ってログインしてください。"
   registerNoticeReturnTip: "登録後、こちらに戻ってアカウントでログインしてください。"

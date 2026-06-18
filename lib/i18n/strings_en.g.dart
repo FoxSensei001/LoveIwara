@@ -989,6 +989,9 @@ class TranslationsAuthEn {
 	/// en: 'Login Success'
 	String get loginSuccess => 'Login Success';
 
+	/// en: 'Logged in. Loading your profile…'
+	String get loginSuccessProfilePending => 'Logged in. Loading your profile…';
+
 	/// en: 'Email verification sent'
 	String get emailVerificationSent => 'Email verification sent';
 
@@ -1013,8 +1016,8 @@ class TranslationsAuthEn {
 	/// en: 'Please enter username or email'
 	String get pleaseEnterUsernameOrEmail => 'Please enter username or email';
 
-	/// en: 'Remember Username and Password'
-	String get rememberMe => 'Remember Username and Password';
+	/// en: 'Remember Username'
+	String get rememberMe => 'Remember Username';
 
 	/// en: 'Register on the official website'
 	String get registerNoticeTitle => 'Register on the official website';
@@ -8037,6 +8040,7 @@ extension on Translations {
 			'auth.refreshCaptcha' => 'Refresh Captcha',
 			'auth.captchaNotLoaded' => 'Captcha not loaded',
 			'auth.loginSuccess' => 'Login Success',
+			'auth.loginSuccessProfilePending' => 'Logged in. Loading your profile…',
 			'auth.emailVerificationSent' => 'Email verification sent',
 			'auth.notLoggedIn' => 'Not Logged In',
 			'auth.clickToLogin' => 'Click to Login',
@@ -8045,7 +8049,7 @@ extension on Translations {
 			'auth.logoutFailed' => 'Logout Failed',
 			'auth.usernameOrEmail' => 'Username or Email',
 			'auth.pleaseEnterUsernameOrEmail' => 'Please enter username or email',
-			'auth.rememberMe' => 'Remember Username and Password',
+			'auth.rememberMe' => 'Remember Username',
 			'auth.registerNoticeTitle' => 'Register on the official website',
 			'auth.registerNoticeDescription' => 'In-app registration is no longer available. Please head to the official Iwara website to create your account, then come back here to log in.',
 			'auth.registerNoticeReturnTip' => 'After registering, return here and log in with your account.',
@@ -8251,9 +8255,9 @@ extension on Translations {
 			'settings.proxyAddress' => 'Proxy Address',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => 'Please enter the URL of the proxy server, for example 127.0.0.1:8080',
 			'settings.enableProxy' => 'Enable Proxy',
-			'settings.left' => 'Left',
 			_ => null,
 		} ?? switch (path) {
+			'settings.left' => 'Left',
 			'settings.middle' => 'Middle',
 			'settings.right' => 'Right',
 			'settings.playerSettings' => 'Player Settings',
@@ -8765,9 +8769,9 @@ extension on Translations {
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => 'Resume from last position: ${position}',
 			'videoDetail.localInfo.videoInfo' => 'Video Info',
 			'videoDetail.localInfo.currentQuality' => 'Current Quality',
-			'videoDetail.localInfo.duration' => 'Duration',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.localInfo.duration' => 'Duration',
 			'videoDetail.localInfo.resolution' => 'Resolution',
 			'videoDetail.localInfo.fileInfo' => 'File Info',
 			'videoDetail.localInfo.fileName' => 'File Name',
@@ -9279,9 +9283,9 @@ extension on Translations {
 			'favorite.createFolderSuccess' => 'Folder created successfully',
 			'favorite.createFolderFailed' => 'Failed to create folder',
 			'favorite.createFolder' => 'Create Folder',
-			'favorite.enterFolderName' => 'Enter folder name',
 			_ => null,
 		} ?? switch (path) {
+			'favorite.enterFolderName' => 'Enter folder name',
 			'favorite.enterFolderNameHere' => 'Enter folder name here...',
 			'favorite.create' => 'Create',
 			'favorite.items' => 'Items',
@@ -9793,9 +9797,9 @@ extension on Translations {
 			'emoji.imageCount' => ({required Object count}) => '${count} images',
 			'emoji.selectEmoji' => 'Select Emoji',
 			'emoji.noEmojisInGroup' => 'No emojis in this group',
-			'emoji.goToSettingsToAddEmojis' => 'Go to settings to add emojis',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.goToSettingsToAddEmojis' => 'Go to settings to add emojis',
 			'emoji.emojiManagement' => 'Emoji Management',
 			'emoji.manageEmojiGroupsAndImages' => 'Manage emoji groups and images',
 			'emoji.uploadLocalImages' => 'Upload Local Images',

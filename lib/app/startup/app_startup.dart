@@ -287,7 +287,7 @@ class AppStartupCoordinator implements AppStartupRunner {
           error: error,
           stackTrace: stackTrace,
         );
-        _registerDeferredSingleton<UserService>(UserService());
+        _tryRegisterFallbackUserService();
       }
     } catch (error, stackTrace) {
       LogUtils.e(
@@ -296,7 +296,31 @@ class AppStartupCoordinator implements AppStartupRunner {
         error: error,
         stackTrace: stackTrace,
       );
+      _tryRegisterF
+      allbackUserService();
+    }
+  }
+
+  /// 兜底注册 UserService —— 仅当其构造依赖(AuthService/ApiService)确实就绪时才尝试，
+  /// 否则 UserService 构造会立即 Get.find 这些服务而二次抛错、冲垮启动(MEDIUM#5)。
+  void _tryRegisterFallbackUserService() {
+    if (Get.isRegistered<UserService>()) return;
+    if (!Get.isRegistered<AuthService>() || !Get.isRegistered<ApiService>()) {
+      LogUtils.e(
+        'AuthService/ApiService 未就绪，跳过 UserService 兜底注册以避免二次崩溃',
+        tag: '启动初始化',
+      );
+      return;
+    }
+    try {
       _registerDeferredSingleton<UserService>(UserService());
+    } catch (error, stackTrace) {
+      LogUtils.e(
+        'UserService 兜底注册仍失败',
+        tag: '启动初始化',
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
   }
 

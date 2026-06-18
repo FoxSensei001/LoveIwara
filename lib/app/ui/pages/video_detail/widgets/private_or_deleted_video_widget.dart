@@ -39,7 +39,7 @@ class _PrivateOrDeletedVideoWidgetState extends State<PrivateOrDeletedVideoWidge
   }
 
   Future<void> _checkRelationshipStatus() async {
-    if (!_userService.isLogin || widget.author == null) return;
+    if (!_userService.isAuthenticated || widget.author == null) return;
 
     try {
       final response = await Get.find<ApiService>()

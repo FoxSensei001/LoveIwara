@@ -4240,7 +4240,7 @@ class MyVideoStateController extends GetxController
     try {
       final userService = Get.find<UserService>();
       // 只在用户已登录时检查状态
-      if (!userService.isLogin) {
+      if (!userService.isAuthenticated) {
         isInAnyFavorite.value = false;
         isInAnyPlaylist.value = false;
         return;

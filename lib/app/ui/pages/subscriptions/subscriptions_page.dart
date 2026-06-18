@@ -443,7 +443,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
 
     // 显示教程指导（延迟执行，确保页面完全加载）
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && userService.isLogin) {
+      if (mounted && userService.isAuthenticated) {
         TutorialService().showSubscriptionTutorial(context);
       }
     });
@@ -600,7 +600,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (userService.isLogin) {
+      if (userService.isAuthenticated) {
         return _buildLoggedInView(context);
       } else {
         return _buildNotLoggedIn(context);

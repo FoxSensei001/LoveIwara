@@ -169,8 +169,19 @@ class ApiService extends GetxService {
       return false;
     }
     final data = response.data;
-    return data is Map<String, dynamic> &&
-        data['message'] == 'errors.forbidden';
+    if (data is Map<String, dynamic> && data['message'] == 'errors.forbidden') {
+      return true;
+    }
+    // Cloudflare challenge / 无法解析的 403：也尝试匿名回退，避免把 CF 抖动
+    // 当成硬 403 抛给用户(N2)。注意 errors.privateVideo 等可解析消息不会命中这里。
+    if (response.extra['cloudflare_parse_failed'] == true) {
+      return true;
+    }
+    final cfMitigated = response.headers.value('cf-mitigated');
+    if (cfMitigated != null && cfMitigated.contains('challenge')) {
+      return true;
+    }
+    return false;
   }
 
   void _setAuthorizationHeader(
@@ -219,8 +230,10 @@ class ApiService extends GetxService {
 
     final requestId = _ensureRequestId(options);
 
+    // 以 refresh token 为准：access token 可能为空(正在重建)，
+    // 仍应等待在途刷新，而非裸发请求导致 401→误登出(#4 配套)。
     if (tokenManager.isRefreshing &&
-        _authService.hasToken &&
+        _authService.hasRefreshToken &&
         access != ApiRequestAccess.publicOnly) {
       LogUtils.d(
         '$_tag[$requestId] Token 正在刷新中，请求 ${options.path} 等待刷新完成 '
@@ -312,6 +325,20 @@ class ApiService extends GetxService {
         'success=${result.success}, authError=${result.isAuthError}, '
         'cost=${refreshCostMs}ms, access=${access.name}',
       );
+
+      // 等待期间请求可能已被取消：此时不得再调用 handler，避免违反 Dio
+      // "handler 不可重复完成" 契约(N4)。
+      if (options.cancelToken?.isCancelled ?? false) {
+        LogUtils.d('$_tag[$requestId] 等待刷新期间请求已取消: ${options.path}');
+        handler.reject(
+          d_dio.DioException(
+            requestOptions: options,
+            type: d_dio.DioExceptionType.cancel,
+            message: 'Request cancelled while waiting for token refresh',
+          ),
+        );
+        return;
+      }
 
       if (result.success) {
         _setAuthorizationHeader(options, _authService.accessToken);
@@ -432,8 +459,9 @@ class ApiService extends GetxService {
       return null;
     }
 
-    // 检查是否有有效的 refresh token
-    if (!_authService.hasToken || _authService.isAuthTokenExpired) {
+    // 检查是否有有效的 refresh token（不要求 access token 也在：
+    // access 可能为空但 refresh 有效，应尝试刷新而非直接登出）(#4 配套)。
+    if (!_authService.hasRefreshToken || _authService.isAuthTokenExpired) {
       LogUtils.w('$_tag[$requestId] 没有有效的 refresh token，需要重新登录');
       await _authService.handleTokenExpired();
       return null;
@@ -557,6 +585,15 @@ class ApiService extends GetxService {
   Future<d_dio.Response?> _handleNetworkRetry(d_dio.DioException error) async {
     final options = error.requestOptions;
 
+    // 仅对幂等方法做网络重试：POST/PUT/PATCH/DELETE 在 send/receive 超时后
+    // 可能已被服务端处理，重试会导致重复提交(点赞/评论/关注等)(N1)。
+    final method = options.method.toUpperCase();
+    const idempotentMethods = {'GET', 'HEAD', 'OPTIONS'};
+    if (!idempotentMethods.contains(method)) {
+      LogUtils.d('$_tag 非幂等方法($method)不做网络重试，避免重复提交');
+      return null;
+    }
+
     // 获取当前重试次数
     final currentRetry = options.extra[_retryCountKey] as int? ?? 0;
     final maxRetries =
@@ -621,6 +658,12 @@ class ApiService extends GetxService {
         final error = e.error;
         if (error != null) {
           final errorStr = error.toString().toLowerCase();
+          // 证书错误不重试：重试也只会再次失败(N-low)。
+          if (errorStr.contains('certificate') ||
+              errorStr.contains('cert_') ||
+              errorStr.contains('tls_')) {
+            return false;
+          }
           if (errorStr.contains('handshake') ||
               errorStr.contains('socket') ||
               errorStr.contains('connection') ||

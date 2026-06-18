@@ -266,7 +266,7 @@ class _ThreadListPageState extends State<ThreadListPage>
 
   void _showCreateThreadDialog(BuildContext context, String categoryId) {
     UserService userService = Get.find<UserService>();
-    if (!userService.isLogin) {
+    if (!userService.isAuthenticated) {
       AppService.switchGlobalDrawer();
       showToastWidget(
         MDToastWidget(

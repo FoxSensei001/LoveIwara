@@ -16,7 +16,7 @@ class TutorialService {
         configService[ConfigKey.SHOW_SUBSCRIPTION_TUTORIAL] as bool;
 
     // 只有在用户已登录且配置允许的情况下才显示教程
-    if (!shouldShow || !userService.isLogin) return;
+    if (!shouldShow || !userService.isAuthenticated) return;
 
     // 创建教程目标列表
     final List<TargetFocus> targets = [

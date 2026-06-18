@@ -38,7 +38,7 @@ class NotificationListRepository extends LoadingMoreBase<Map<String, dynamic>> {
   Future<bool> loadData([bool isLoadMoreAction = false]) async {
     bool isSuccess = false;
     try {
-      if (!_userService.isLogin) {
+      if (!_userService.isAuthenticated) {
         showToastWidget(MDToastWidget(
           message: slang.t.errors.pleaseLoginFirst,
           type: MDToastType.error,
@@ -46,8 +46,14 @@ class NotificationListRepository extends LoadingMoreBase<Map<String, dynamic>> {
         return false;
       }
 
+      // 已认证但资料可能尚未加载完成：此处空安全，避免 NPE，交由资料就绪后重试。
+      final userId = _userService.currentUser.value?.id;
+      if (userId == null || userId.isEmpty) {
+        return false;
+      }
+
       final result = await _userService.fetchUserNotifications(
-        _userService.currentUser.value!.id,
+        userId,
         page: _pageIndex,
         limit: 20,
       );

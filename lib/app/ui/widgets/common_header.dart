@@ -63,7 +63,7 @@ class CommonHeader extends StatelessWidget {
                     ),
                   ),
                 );
-              } else if (userService.isLogin) {
+              } else if (userService.hasLoadedProfile) {
                 return Stack(
                   children: [
                     AvatarWidget(

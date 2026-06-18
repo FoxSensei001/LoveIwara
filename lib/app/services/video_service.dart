@@ -237,7 +237,11 @@ class VideoService extends GetxService {
       return null;
     }
     try {
-      final response = await _apiService.get(ApiConstants.video(videoId));
+      // 双态公开读：登录带 token 拿 liked 等增强，刷新中短等后匿名拿公开内容(#6)。
+      final response = await _apiService.get(
+        ApiConstants.video(videoId),
+        requestAccess: ApiRequestAccess.optionalAuthShortWait,
+      );
       return Video.fromJson(response.data);
     } catch (e) {
       LogUtils.e('获取视频详情失败', tag: 'VideoService', error: e);
@@ -253,6 +257,7 @@ class VideoService extends GetxService {
     try {
       final response = await _apiService.get(
         ApiConstants.video(videoId.trim()),
+        requestAccess: ApiRequestAccess.optionalAuthShortWait,
       );
       return ApiResult.success(data: Video.fromJson(response.data));
     } catch (e) {
@@ -272,6 +277,8 @@ class VideoService extends GetxService {
         headers: {
           'X-Version': XVersionCalculatorUtil.calculateXVersion(fileUrl),
         },
+        // 视频源清单：公开资源，避免登录刷新窗口阻塞播放(#6)。
+        requestAccess: ApiRequestAccess.optionalAuthShortWait,
       );
       return (response.data as List)
           .map((item) => VideoSource.fromJson(item))

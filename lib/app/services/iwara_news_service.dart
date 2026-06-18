@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -233,29 +234,40 @@ class IwaraNewsService extends GetxService {
   Future<String> _getString(Uri uri) async {
     final request = await _client.getUrl(uri).timeout(_requestTimeout);
     request.headers.set(HttpHeaders.acceptHeader, 'application/json, text/html');
-    final response = await request.close().timeout(_requestTimeout);
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      // drain 掉响应体，避免该连接无法回到 keep-alive 连接池复用
-      await response.drain<void>().catchError((_) {});
-      throw HttpException('Request failed: ${response.statusCode}', uri: uri);
+    try {
+      final response = await request.close().timeout(_requestTimeout);
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        // drain 掉响应体，避免该连接无法回到 keep-alive 连接池复用
+        await response.drain<void>().catchError((_) {});
+        throw HttpException('Request failed: ${response.statusCode}', uri: uri);
+      }
+      return await response
+          .transform(utf8.decoder)
+          .join()
+          .timeout(_requestTimeout);
+    } on TimeoutException {
+      // 超时时主动中止底层请求/socket，避免连接泄漏至 idleTimeout(N6)。
+      request.abort();
+      rethrow;
     }
-    return await response
-        .transform(utf8.decoder)
-        .join()
-        .timeout(_requestTimeout);
   }
 
   Future<String> _getHtml(Uri uri) async {
     final request = await _client.getUrl(uri).timeout(_requestTimeout);
-    final response = await request.close().timeout(_requestTimeout);
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      await response.drain<void>().catchError((_) {});
-      throw HttpException('Request failed: ${response.statusCode}', uri: uri);
+    try {
+      final response = await request.close().timeout(_requestTimeout);
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        await response.drain<void>().catchError((_) {});
+        throw HttpException('Request failed: ${response.statusCode}', uri: uri);
+      }
+      return await response
+          .transform(utf8.decoder)
+          .join()
+          .timeout(_requestTimeout);
+    } on TimeoutException {
+      request.abort();
+      rethrow;
     }
-    return await response
-        .transform(utf8.decoder)
-        .join()
-        .timeout(_requestTimeout);
   }
 
   int _asInt(dynamic value) {

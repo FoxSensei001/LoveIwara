@@ -307,6 +307,7 @@ auth:
   refreshCaptcha: Refresh Captcha
   captchaNotLoaded: Captcha not loaded
   loginSuccess: Login Success
+  loginSuccessProfilePending: Logged in. Loading your profile…
   emailVerificationSent: Email verification sent
   notLoggedIn: Not Logged In
   clickToLogin: Click to Login
@@ -315,7 +316,7 @@ auth:
   logoutFailed: Logout Failed
   usernameOrEmail: Username or Email
   pleaseEnterUsernameOrEmail: Please enter username or email
-  rememberMe: "Remember Username and Password"
+  rememberMe: "Remember Username"
   registerNoticeTitle: Register on the official website
   registerNoticeDescription: "In-app registration is no longer available. Please head to the official Iwara website to create your account, then come back here to log in."
   registerNoticeReturnTip: "After registering, return here and log in with your account."

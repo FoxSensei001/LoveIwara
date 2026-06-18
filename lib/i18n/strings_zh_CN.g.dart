@@ -411,6 +411,7 @@ class _TranslationsAuthZhCn implements TranslationsAuthEn {
 	@override String get refreshCaptcha => '刷新验证码';
 	@override String get captchaNotLoaded => '无法加载验证码';
 	@override String get loginSuccess => '登录成功';
+	@override String get loginSuccessProfilePending => '已登录，正在加载资料…';
 	@override String get emailVerificationSent => '邮箱指令已发送';
 	@override String get notLoggedIn => '未登录';
 	@override String get clickToLogin => '点击此处登录';
@@ -421,7 +422,7 @@ class _TranslationsAuthZhCn implements TranslationsAuthEn {
 	@override String get pleaseEnterUsernameOrEmail => '请输入用户名或邮箱';
 	@override String get username => '用户名或邮箱';
 	@override String get pleaseEnterUsername => '请输入用户名或邮箱';
-	@override String get rememberMe => '记住账号和密码';
+	@override String get rememberMe => '记住用户名';
 	@override String get registerNoticeTitle => '前往官网注册账号';
 	@override String get registerNoticeDescription => '应用内已不再提供注册功能。请前往 Iwara 官网创建账号，完成后回到这里登录即可。';
 	@override String get registerNoticeReturnTip => '注册完成后，返回此处使用账号登录。';
@@ -3516,6 +3517,7 @@ extension on TranslationsZhCn {
 			'auth.refreshCaptcha' => '刷新验证码',
 			'auth.captchaNotLoaded' => '无法加载验证码',
 			'auth.loginSuccess' => '登录成功',
+			'auth.loginSuccessProfilePending' => '已登录，正在加载资料…',
 			'auth.emailVerificationSent' => '邮箱指令已发送',
 			'auth.notLoggedIn' => '未登录',
 			'auth.clickToLogin' => '点击此处登录',
@@ -3526,7 +3528,7 @@ extension on TranslationsZhCn {
 			'auth.pleaseEnterUsernameOrEmail' => '请输入用户名或邮箱',
 			'auth.username' => '用户名或邮箱',
 			'auth.pleaseEnterUsername' => '请输入用户名或邮箱',
-			'auth.rememberMe' => '记住账号和密码',
+			'auth.rememberMe' => '记住用户名',
 			'auth.registerNoticeTitle' => '前往官网注册账号',
 			'auth.registerNoticeDescription' => '应用内已不再提供注册功能。请前往 Iwara 官网创建账号，完成后回到这里登录即可。',
 			'auth.registerNoticeReturnTip' => '注册完成后，返回此处使用账号登录。',
@@ -3727,9 +3729,9 @@ extension on TranslationsZhCn {
 			'settings.testProxyFailedWithStatusCode' => ({required Object code}) => '代理请求失败，状态码: ${code}',
 			'settings.testProxyFailedWithException' => ({required Object exception}) => '代理请求出错: ${exception}',
 			'settings.proxyConfig' => '代理配置',
-			'settings.thisIsHttpProxyAddress' => '此处为http代理地址',
 			_ => null,
 		} ?? switch (path) {
+			'settings.thisIsHttpProxyAddress' => '此处为http代理地址',
 			'settings.checkProxy' => '检查代理',
 			'settings.proxyAddress' => '代理地址',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => '请输入代理服务器的URL，例如 127.0.0.1:8080',
@@ -4241,9 +4243,9 @@ extension on TranslationsZhCn {
 			'subscriptions.pleaseLoginFirstToViewYourSubscriptions' => '请登录以查看您的订阅内容。',
 			'subscriptions.selectUser' => '选择用户',
 			'subscriptions.noSubscribedUsers' => '暂无已订阅的用户',
-			'subscriptions.showAllSubscribedUsersContent' => '显示所有已订阅用户的内容',
 			_ => null,
 		} ?? switch (path) {
+			'subscriptions.showAllSubscribedUsersContent' => '显示所有已订阅用户的内容',
 			'videoDetail.pipMode' => '画中画模式',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => '从上次播放位置继续播放: ${position}',
 			'videoDetail.localInfo.videoInfo' => '视频信息',
@@ -4755,9 +4757,9 @@ extension on TranslationsZhCn {
 			'favorite.removeSuccess' => '删除成功',
 			'favorite.removeFailed' => '删除失败',
 			'favorite.removeConfirmation' => '确定要删除这个项目吗？',
-			'favorite.removeConfirmationSuccess' => '项目已从收藏夹中删除',
 			_ => null,
 		} ?? switch (path) {
+			'favorite.removeConfirmationSuccess' => '项目已从收藏夹中删除',
 			'favorite.removeConfirmationFailed' => '删除项目失败',
 			'favorite.createFolderSuccess' => '文件夹创建成功',
 			'favorite.createFolderFailed' => '创建文件夹失败',
@@ -5269,9 +5271,9 @@ extension on TranslationsZhCn {
 			'navigationOrderSettings.bottomNavigationPreview' => '底部导航栏预览：',
 			'navigationOrderSettings.sidebarPreview' => '侧边栏预览：',
 			'navigationOrderSettings.confirmResetNavigationOrder' => '确认重置导航顺序',
-			'navigationOrderSettings.confirmResetNavigationOrderDesc' => '确定要将导航顺序重置为默认设置吗？',
 			_ => null,
 		} ?? switch (path) {
+			'navigationOrderSettings.confirmResetNavigationOrderDesc' => '确定要将导航顺序重置为默认设置吗？',
 			'navigationOrderSettings.cancel' => '取消',
 			'navigationOrderSettings.show' => '显示',
 			'navigationOrderSettings.hide' => '隐藏',

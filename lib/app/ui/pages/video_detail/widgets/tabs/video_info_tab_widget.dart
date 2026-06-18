@@ -968,7 +968,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
     final t = slang.Translations.of(context);
     final UserService userService = Get.find();
 
-    if (!userService.isLogin) {
+    if (!userService.isAuthenticated) {
       showToastWidget(
         MDToastWidget(
           message: t.errors.pleaseLoginFirst,
@@ -1395,7 +1395,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
       return;
     }
     final UserService userService = Get.find();
-    if (!userService.isLogin) {
+    if (!userService.isAuthenticated) {
       LogUtils.w('用户未登录，无法下载', 'VideoInfoTabWidget');
       showToastWidget(
         MDToastWidget(

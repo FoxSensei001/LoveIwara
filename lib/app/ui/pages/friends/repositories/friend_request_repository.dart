@@ -27,9 +27,14 @@ class FriendRequestRepository extends LoadingMoreBase<UserRequestDTO> {
   Future<bool> loadData([bool isLoadMoreAction = false]) async {
     bool isSuccess = false;
     try {
+      // 空安全：资料未加载完成时不崩，交由资料就绪后重试。
+      final userId = _userService.currentUser.value?.id;
+      if (userId == null || userId.isEmpty) {
+        return false;
+      }
       final result = await _userService.fetchUserFriendsRequests(
         page: _pageIndex,
-        userId: _userService.currentUser.value!.id,
+        userId: userId,
       );
 
       if (result.isSuccess && result.data != null) {

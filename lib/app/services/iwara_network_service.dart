@@ -13,6 +13,9 @@ import '../../utils/logger_utils.dart';
 class IwaraNetworkService extends GetxService {
   static const String _tag = 'IwaraNetworkService';
 
+  // 全站点共享同一个 CookieJar：iwara.tv 与 iwara.ai 是同一账号/后端
+  // (同一 API host apiq.iwara.tv，x-site 仅作内容过滤/展示)，因此共享
+  // cookie 与 Authorization 是有意为之、正确的；不需要按站点分区(N3)。
   final CookieJar cookieJar = CookieJar();
   final Set<Dio> _registeredDios = <Dio>{};
 

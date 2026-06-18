@@ -317,7 +317,7 @@ class _ForumPageState extends State<ForumPage> {
 
   void _showPostDialog() {
     UserService userService = Get.find<UserService>();
-    if (!userService.isLogin) {
+    if (!userService.isAuthenticated) {
       AppService.switchGlobalDrawer();
       showToastWidget(
         MDToastWidget(
@@ -386,7 +386,7 @@ class _ForumPageState extends State<ForumPage> {
                       ),
                     ),
                   );
-                } else if (userService.isLogin) {
+                } else if (userService.hasLoadedProfile) {
                   return Stack(
                     clipBehavior: Clip.none,
                     children: [
