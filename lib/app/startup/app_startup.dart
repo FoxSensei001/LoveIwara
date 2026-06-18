@@ -296,8 +296,7 @@ class AppStartupCoordinator implements AppStartupRunner {
         error: error,
         stackTrace: stackTrace,
       );
-      _tryRegisterF
-      allbackUserService();
+      _tryRegisterFallbackUserService();
     }
   }
 
