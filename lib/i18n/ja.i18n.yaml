@@ -2438,3 +2438,18 @@ siteMode:
   openInSite: '${site} で開く'
   confirmUsing: '確認すると、以降のリクエストは ${site} モードを使用します。'
   switched: '${site} に切り替えました。アプリは再読み込みされました。'
+savedSearchConfig:
+  title: 保存した絞り込み
+  empty: 保存した絞り込み設定はまだありません
+  saveTooltip: 現在の絞り込みを保存
+  namePromptTitle: 絞り込みを保存
+  nameLabel: 名前
+  nameHint: 名前を入力
+  saveSuccess: 絞り込みを保存しました
+  deleteSuccess: 絞り込みを削除しました
+  addCurrent: 現在の絞り込みを保存
+  reorderHint: 長押しでドラッグして並べ替え
+  rename: 名前を変更
+  unnamed: 無名
+  noConditions: すべてのコンテンツ（絞り込みなし）
+  tagsCount: '${count} 個のタグ'

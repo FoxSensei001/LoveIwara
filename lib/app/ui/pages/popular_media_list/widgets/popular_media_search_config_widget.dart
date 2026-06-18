@@ -22,12 +22,16 @@ class PopularMediaSearchConfig extends StatefulWidget {
   final String searchRating;
   final Function(List<Tag> tags, String year, String rating) onConfirm;
 
+  /// 保存当前筛选为「快速筛选配置」。为空时不展示保存按钮。
+  final Function(List<Tag> tags, String year, String rating)? onSave;
+
   const PopularMediaSearchConfig({
     super.key,
     required this.searchTags,
     required this.searchYear,
     required this.searchRating,
     required this.onConfirm,
+    this.onSave,
   });
 
   @override
@@ -69,6 +73,18 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
     );
   }
 
+  /// 把已选的年份与月份组合成最终的日期字符串（'' / 'YYYY' / 'YYYY-MM'）。
+  String _buildFinalDate() {
+    String finalDate = '';
+    if (year.isNotEmpty) {
+      finalDate = year;
+      if (month.isNotEmpty) {
+        finalDate = '$year-$month';
+      }
+    }
+    return finalDate;
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -106,20 +122,31 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
                 Positioned(
                   right: 0,
                   top: 0,
-                  child: IconButton(
-                    icon: const Icon(Icons.check),
-                    onPressed: () {
-                      // 组合年份和月份为最终的日期字符串
-                      String finalDate = '';
-                      if (year.isNotEmpty) {
-                        finalDate = year;
-                        if (month.isNotEmpty) {
-                          finalDate = '$year-$month';
-                        }
-                      }
-                      widget.onConfirm(tags, finalDate, _selectedRating.value);
-                      AppService.tryPop();
-                    },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (widget.onSave != null)
+                        IconButton(
+                          icon: const Icon(Icons.bookmark_add_outlined),
+                          tooltip: t.savedSearchConfig.saveTooltip,
+                          onPressed: () => widget.onSave!(
+                            tags,
+                            _buildFinalDate(),
+                            _selectedRating.value,
+                          ),
+                        ),
+                      IconButton(
+                        icon: const Icon(Icons.check),
+                        onPressed: () {
+                          widget.onConfirm(
+                            tags,
+                            _buildFinalDate(),
+                            _selectedRating.value,
+                          );
+                          AppService.tryPop();
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -133,18 +160,24 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
         appBar: AppBar(
           title: Text(t.settings.searchConfig),
           actions: [
+            if (widget.onSave != null)
+              IconButton(
+                icon: const Icon(Icons.bookmark_add_outlined),
+                tooltip: t.savedSearchConfig.saveTooltip,
+                onPressed: () => widget.onSave!(
+                  tags,
+                  _buildFinalDate(),
+                  _selectedRating.value,
+                ),
+              ),
             IconButton(
               icon: const Icon(Icons.check),
               onPressed: () {
-                // 组合年份和月份为最终的日期字符串
-                String finalDate = '';
-                if (year.isNotEmpty) {
-                  finalDate = year;
-                  if (month.isNotEmpty) {
-                    finalDate = '$year-$month';
-                  }
-                }
-                widget.onConfirm(tags, finalDate, _selectedRating.value);
+                widget.onConfirm(
+                  tags,
+                  _buildFinalDate(),
+                  _selectedRating.value,
+                );
                 AppService.tryPop();
               },
             ),

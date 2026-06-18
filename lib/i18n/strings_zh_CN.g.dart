@@ -82,6 +82,7 @@ class TranslationsZhCn with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsTagSelectorZhCn tagSelector = _TranslationsTagSelectorZhCn._(_root);
 	@override late final _TranslationsAnime4kZhCn anime4k = _TranslationsAnime4kZhCn._(_root);
 	@override late final _TranslationsSiteModeZhCn siteMode = _TranslationsSiteModeZhCn._(_root);
+	@override late final _TranslationsSavedSearchConfigZhCn savedSearchConfig = _TranslationsSavedSearchConfigZhCn._(_root);
 }
 
 // Path: personalProfile
@@ -2124,6 +2125,29 @@ class _TranslationsSiteModeZhCn implements TranslationsSiteModeEn {
 	@override String openInSite({required Object site}) => '打开到 ${site}';
 	@override String confirmUsing({required Object site}) => '确认后，后续请求将统一使用 ${site} 模式。';
 	@override String switched({required Object site}) => '已切换到 ${site}，应用已刷新。';
+}
+
+// Path: savedSearchConfig
+class _TranslationsSavedSearchConfigZhCn implements TranslationsSavedSearchConfigEn {
+	_TranslationsSavedSearchConfigZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '已保存筛选';
+	@override String get empty => '还没有保存的筛选配置';
+	@override String get saveTooltip => '保存当前筛选';
+	@override String get namePromptTitle => '保存筛选配置';
+	@override String get nameLabel => '名称';
+	@override String get nameHint => '请输入名称';
+	@override String get saveSuccess => '已保存筛选配置';
+	@override String get deleteSuccess => '已删除筛选配置';
+	@override String get addCurrent => '保存当前筛选';
+	@override String get reorderHint => '长按拖动可调整顺序';
+	@override String get rename => '重命名';
+	@override String get unnamed => '未命名';
+	@override String get noConditions => '全部内容（无筛选）';
+	@override String tagsCount({required Object count}) => '${count} 个标签';
 }
 
 // Path: common.pagination
@@ -5445,6 +5469,20 @@ extension on TranslationsZhCn {
 			'siteMode.openInSite' => ({required Object site}) => '打开到 ${site}',
 			'siteMode.confirmUsing' => ({required Object site}) => '确认后，后续请求将统一使用 ${site} 模式。',
 			'siteMode.switched' => ({required Object site}) => '已切换到 ${site}，应用已刷新。',
+			'savedSearchConfig.title' => '已保存筛选',
+			'savedSearchConfig.empty' => '还没有保存的筛选配置',
+			'savedSearchConfig.saveTooltip' => '保存当前筛选',
+			'savedSearchConfig.namePromptTitle' => '保存筛选配置',
+			'savedSearchConfig.nameLabel' => '名称',
+			'savedSearchConfig.nameHint' => '请输入名称',
+			'savedSearchConfig.saveSuccess' => '已保存筛选配置',
+			'savedSearchConfig.deleteSuccess' => '已删除筛选配置',
+			'savedSearchConfig.addCurrent' => '保存当前筛选',
+			'savedSearchConfig.reorderHint' => '长按拖动可调整顺序',
+			'savedSearchConfig.rename' => '重命名',
+			'savedSearchConfig.unnamed' => '未命名',
+			'savedSearchConfig.noConditions' => '全部内容（无筛选）',
+			'savedSearchConfig.tagsCount' => ({required Object count}) => '${count} 个标签',
 			_ => null,
 		};
 	}

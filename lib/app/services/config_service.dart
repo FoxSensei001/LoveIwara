@@ -384,6 +384,8 @@ enum ConfigKey {
   CONTENT_BLOCK_RULES,
   // 播放器自定义快捷键（差量覆盖），存为 JSON：{actionId: ["chord", ...]}
   PLAYER_KEYBINDINGS,
+  // 热门视频/图库的已保存快速筛选配置，存为 JSON：{segment: [config, ...]}
+  POPULAR_SAVED_SEARCH_CONFIGS,
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -627,6 +629,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'content_block_rules';
       case ConfigKey.PLAYER_KEYBINDINGS:
         return 'player_keybindings';
+      case ConfigKey.POPULAR_SAVED_SEARCH_CONFIGS:
+        return 'popular_saved_search_configs';
     }
   }
 
@@ -882,6 +886,8 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.CONTENT_BLOCK_RULES:
         return <dynamic>[];
       case ConfigKey.PLAYER_KEYBINDINGS:
+        return <String, dynamic>{};
+      case ConfigKey.POPULAR_SAVED_SEARCH_CONFIGS:
         return <String, dynamic>{};
     }
   }

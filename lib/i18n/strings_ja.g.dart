@@ -82,6 +82,7 @@ class TranslationsJa with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _TranslationsTagSelectorJa tagSelector = _TranslationsTagSelectorJa._(_root);
 	@override late final _TranslationsAnime4kJa anime4k = _TranslationsAnime4kJa._(_root);
 	@override late final _TranslationsSiteModeJa siteMode = _TranslationsSiteModeJa._(_root);
+	@override late final _TranslationsSavedSearchConfigJa savedSearchConfig = _TranslationsSavedSearchConfigJa._(_root);
 }
 
 // Path: personalProfile
@@ -2119,6 +2120,29 @@ class _TranslationsSiteModeJa implements TranslationsSiteModeEn {
 	@override String openInSite({required Object site}) => '${site} で開く';
 	@override String confirmUsing({required Object site}) => '確認すると、以降のリクエストは ${site} モードを使用します。';
 	@override String switched({required Object site}) => '${site} に切り替えました。アプリは再読み込みされました。';
+}
+
+// Path: savedSearchConfig
+class _TranslationsSavedSearchConfigJa implements TranslationsSavedSearchConfigEn {
+	_TranslationsSavedSearchConfigJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '保存した絞り込み';
+	@override String get empty => '保存した絞り込み設定はまだありません';
+	@override String get saveTooltip => '現在の絞り込みを保存';
+	@override String get namePromptTitle => '絞り込みを保存';
+	@override String get nameLabel => '名前';
+	@override String get nameHint => '名前を入力';
+	@override String get saveSuccess => '絞り込みを保存しました';
+	@override String get deleteSuccess => '絞り込みを削除しました';
+	@override String get addCurrent => '現在の絞り込みを保存';
+	@override String get reorderHint => '長押しでドラッグして並べ替え';
+	@override String get rename => '名前を変更';
+	@override String get unnamed => '無名';
+	@override String get noConditions => 'すべてのコンテンツ（絞り込みなし）';
+	@override String tagsCount({required Object count}) => '${count} 個のタグ';
 }
 
 // Path: common.pagination
@@ -5435,6 +5459,20 @@ extension on TranslationsJa {
 			'siteMode.openInSite' => ({required Object site}) => '${site} で開く',
 			'siteMode.confirmUsing' => ({required Object site}) => '確認すると、以降のリクエストは ${site} モードを使用します。',
 			'siteMode.switched' => ({required Object site}) => '${site} に切り替えました。アプリは再読み込みされました。',
+			'savedSearchConfig.title' => '保存した絞り込み',
+			'savedSearchConfig.empty' => '保存した絞り込み設定はまだありません',
+			'savedSearchConfig.saveTooltip' => '現在の絞り込みを保存',
+			'savedSearchConfig.namePromptTitle' => '絞り込みを保存',
+			'savedSearchConfig.nameLabel' => '名前',
+			'savedSearchConfig.nameHint' => '名前を入力',
+			'savedSearchConfig.saveSuccess' => '絞り込みを保存しました',
+			'savedSearchConfig.deleteSuccess' => '絞り込みを削除しました',
+			'savedSearchConfig.addCurrent' => '現在の絞り込みを保存',
+			'savedSearchConfig.reorderHint' => '長押しでドラッグして並べ替え',
+			'savedSearchConfig.rename' => '名前を変更',
+			'savedSearchConfig.unnamed' => '無名',
+			'savedSearchConfig.noConditions' => 'すべてのコンテンツ（絞り込みなし）',
+			'savedSearchConfig.tagsCount' => ({required Object count}) => '${count} 個のタグ',
 			_ => null,
 		};
 	}

@@ -82,6 +82,7 @@ class TranslationsZhTw with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsTagSelectorZhTw tagSelector = _TranslationsTagSelectorZhTw._(_root);
 	@override late final _TranslationsAnime4kZhTw anime4k = _TranslationsAnime4kZhTw._(_root);
 	@override late final _TranslationsSiteModeZhTw siteMode = _TranslationsSiteModeZhTw._(_root);
+	@override late final _TranslationsSavedSearchConfigZhTw savedSearchConfig = _TranslationsSavedSearchConfigZhTw._(_root);
 }
 
 // Path: personalProfile
@@ -2122,6 +2123,29 @@ class _TranslationsSiteModeZhTw implements TranslationsSiteModeEn {
 	@override String openInSite({required Object site}) => '開啟到 ${site}';
 	@override String confirmUsing({required Object site}) => '確認後，後續請求將統一使用 ${site} 模式。';
 	@override String switched({required Object site}) => '已切換到 ${site}，應用已重新整理。';
+}
+
+// Path: savedSearchConfig
+class _TranslationsSavedSearchConfigZhTw implements TranslationsSavedSearchConfigEn {
+	_TranslationsSavedSearchConfigZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '已儲存篩選';
+	@override String get empty => '還沒有儲存的篩選設定';
+	@override String get saveTooltip => '儲存目前篩選';
+	@override String get namePromptTitle => '儲存篩選設定';
+	@override String get nameLabel => '名稱';
+	@override String get nameHint => '請輸入名稱';
+	@override String get saveSuccess => '已儲存篩選設定';
+	@override String get deleteSuccess => '已刪除篩選設定';
+	@override String get addCurrent => '儲存目前篩選';
+	@override String get reorderHint => '長按拖曳可調整順序';
+	@override String get rename => '重新命名';
+	@override String get unnamed => '未命名';
+	@override String get noConditions => '全部內容（無篩選）';
+	@override String tagsCount({required Object count}) => '${count} 個標籤';
 }
 
 // Path: common.pagination
@@ -5441,6 +5465,20 @@ extension on TranslationsZhTw {
 			'siteMode.openInSite' => ({required Object site}) => '開啟到 ${site}',
 			'siteMode.confirmUsing' => ({required Object site}) => '確認後，後續請求將統一使用 ${site} 模式。',
 			'siteMode.switched' => ({required Object site}) => '已切換到 ${site}，應用已重新整理。',
+			'savedSearchConfig.title' => '已儲存篩選',
+			'savedSearchConfig.empty' => '還沒有儲存的篩選設定',
+			'savedSearchConfig.saveTooltip' => '儲存目前篩選',
+			'savedSearchConfig.namePromptTitle' => '儲存篩選設定',
+			'savedSearchConfig.nameLabel' => '名稱',
+			'savedSearchConfig.nameHint' => '請輸入名稱',
+			'savedSearchConfig.saveSuccess' => '已儲存篩選設定',
+			'savedSearchConfig.deleteSuccess' => '已刪除篩選設定',
+			'savedSearchConfig.addCurrent' => '儲存目前篩選',
+			'savedSearchConfig.reorderHint' => '長按拖曳可調整順序',
+			'savedSearchConfig.rename' => '重新命名',
+			'savedSearchConfig.unnamed' => '未命名',
+			'savedSearchConfig.noConditions' => '全部內容（無篩選）',
+			'savedSearchConfig.tagsCount' => ({required Object count}) => '${count} 個標籤',
 			_ => null,
 		};
 	}

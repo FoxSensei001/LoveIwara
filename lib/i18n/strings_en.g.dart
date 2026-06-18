@@ -85,6 +85,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsTagSelectorEn tagSelector = TranslationsTagSelectorEn._(_root);
 	late final TranslationsAnime4kEn anime4k = TranslationsAnime4kEn._(_root);
 	late final TranslationsSiteModeEn siteMode = TranslationsSiteModeEn._(_root);
+	late final TranslationsSavedSearchConfigEn savedSearchConfig = TranslationsSavedSearchConfigEn._(_root);
 }
 
 // Path: personalProfile
@@ -5318,6 +5319,57 @@ class TranslationsSiteModeEn {
 	String switched({required Object site}) => 'Switched to ${site}. The app has been refreshed.';
 }
 
+// Path: savedSearchConfig
+class TranslationsSavedSearchConfigEn {
+	TranslationsSavedSearchConfigEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Saved Filters'
+	String get title => 'Saved Filters';
+
+	/// en: 'No saved filters yet'
+	String get empty => 'No saved filters yet';
+
+	/// en: 'Save current filter'
+	String get saveTooltip => 'Save current filter';
+
+	/// en: 'Save Filter'
+	String get namePromptTitle => 'Save Filter';
+
+	/// en: 'Name'
+	String get nameLabel => 'Name';
+
+	/// en: 'Enter a name'
+	String get nameHint => 'Enter a name';
+
+	/// en: 'Filter saved'
+	String get saveSuccess => 'Filter saved';
+
+	/// en: 'Filter removed'
+	String get deleteSuccess => 'Filter removed';
+
+	/// en: 'Save current filter'
+	String get addCurrent => 'Save current filter';
+
+	/// en: 'Long-press and drag to reorder'
+	String get reorderHint => 'Long-press and drag to reorder';
+
+	/// en: 'Rename'
+	String get rename => 'Rename';
+
+	/// en: 'Unnamed'
+	String get unnamed => 'Unnamed';
+
+	/// en: 'All content (no filter)'
+	String get noConditions => 'All content (no filter)';
+
+	/// en: '${count} tags'
+	String tagsCount({required Object count}) => '${count} tags';
+}
+
 // Path: common.pagination
 class TranslationsCommonPaginationEn {
 	TranslationsCommonPaginationEn._(this._root);
@@ -9936,6 +9988,20 @@ extension on Translations {
 			'siteMode.openInSite' => ({required Object site}) => 'Open in ${site}',
 			'siteMode.confirmUsing' => ({required Object site}) => 'After confirming, future requests will use ${site} mode.',
 			'siteMode.switched' => ({required Object site}) => 'Switched to ${site}. The app has been refreshed.',
+			'savedSearchConfig.title' => 'Saved Filters',
+			'savedSearchConfig.empty' => 'No saved filters yet',
+			'savedSearchConfig.saveTooltip' => 'Save current filter',
+			'savedSearchConfig.namePromptTitle' => 'Save Filter',
+			'savedSearchConfig.nameLabel' => 'Name',
+			'savedSearchConfig.nameHint' => 'Enter a name',
+			'savedSearchConfig.saveSuccess' => 'Filter saved',
+			'savedSearchConfig.deleteSuccess' => 'Filter removed',
+			'savedSearchConfig.addCurrent' => 'Save current filter',
+			'savedSearchConfig.reorderHint' => 'Long-press and drag to reorder',
+			'savedSearchConfig.rename' => 'Rename',
+			'savedSearchConfig.unnamed' => 'Unnamed',
+			'savedSearchConfig.noConditions' => 'All content (no filter)',
+			'savedSearchConfig.tagsCount' => ({required Object count}) => '${count} tags',
 			_ => null,
 		};
 	}

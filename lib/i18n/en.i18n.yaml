@@ -2434,3 +2434,18 @@ siteMode:
   openInSite: 'Open in ${site}'
   confirmUsing: 'After confirming, future requests will use ${site} mode.'
   switched: 'Switched to ${site}. The app has been refreshed.'
+savedSearchConfig:
+  title: Saved Filters
+  empty: No saved filters yet
+  saveTooltip: Save current filter
+  namePromptTitle: Save Filter
+  nameLabel: Name
+  nameHint: Enter a name
+  saveSuccess: Filter saved
+  deleteSuccess: Filter removed
+  addCurrent: Save current filter
+  reorderHint: Long-press and drag to reorder
+  rename: Rename
+  unnamed: Unnamed
+  noConditions: All content (no filter)
+  tagsCount: '${count} tags'

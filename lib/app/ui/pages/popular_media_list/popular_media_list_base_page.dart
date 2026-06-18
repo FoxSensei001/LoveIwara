@@ -7,6 +7,8 @@ import 'package:i_iwara/app/models/video.model.dart';
 
 import 'package:i_iwara/app/models/sort.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
+import 'package:i_iwara/app/models/saved_search_config.model.dart';
+import 'package:i_iwara/app/services/saved_search_config_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -14,7 +16,10 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/popular_medi
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_tab_view.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/saved_search_config_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -84,6 +89,13 @@ class PopularMediaListPageBaseState<
   late PopularMediaListController _mediaListController;
   late BatchSelectController<T> _batchSelectController;
   final UserService userService = Get.find<UserService>();
+
+  /// 用于打开右侧「已保存筛选」抽屉。
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  late final SavedSearchConfigService _savedConfigService;
+
+  /// 当前栏目的 segment 标识（video / image），用于区分保存的筛选配置。
+  String get _segmentKey => widget.searchSegment.name;
 
   final Map<SortId, R> _repositories = {};
   final Map<SortId, C> _controllers = {};
@@ -187,6 +199,10 @@ class PopularMediaListPageBaseState<
   @override
   void initState() {
     super.initState();
+    if (!Get.isRegistered<SavedSearchConfigService>()) {
+      Get.put(SavedSearchConfigService(), permanent: true);
+    }
+    _savedConfigService = Get.find<SavedSearchConfigService>();
     _mediaListController = Get.put(
       PopularMediaListController(),
       tag: widget.controllerTag,
@@ -379,8 +395,105 @@ class PopularMediaListPageBaseState<
         onConfirm: (tags, year, rating) {
           setParams(tags: tags, year: year, rating: rating);
         },
+        onSave: (tags, year, rating) {
+          _promptSaveConfig(tags: tags, date: year, rating: rating);
+        },
       ),
     );
+  }
+
+  /// 打开右侧「已保存筛选」抽屉。
+  void _openSavedConfigDrawer() {
+    _scaffoldKey.currentState?.openEndDrawer();
+  }
+
+  /// 根据筛选条件生成一个默认名称（评级/日期/标签数）。
+  String _buildDefaultConfigName({
+    required List<Tag> tags,
+    required String date,
+    required String rating,
+  }) {
+    final parts = <String>[];
+    if (rating.isNotEmpty) {
+      final r = MediaRating.values.firstWhere(
+        (e) => e.value == rating,
+        orElse: () => MediaRating.ALL,
+      );
+      if (r != MediaRating.ALL) parts.add(r.label);
+    }
+    if (date.isNotEmpty) parts.add(date);
+    if (tags.isNotEmpty) {
+      parts.add(t.savedSearchConfig.tagsCount(count: tags.length));
+    }
+    return parts.isEmpty ? t.savedSearchConfig.noConditions : parts.join(' · ');
+  }
+
+  /// 弹出命名对话框，将给定筛选条件保存为一条新的快速筛选配置。
+  Future<void> _promptSaveConfig({
+    required List<Tag> tags,
+    required String date,
+    required String rating,
+  }) async {
+    final controller = TextEditingController(
+      text: _buildDefaultConfigName(tags: tags, date: date, rating: rating),
+    );
+    final name = await showAppDialog<String>(
+      Builder(
+        builder: (dialogContext) => AlertDialog(
+          title: Text(t.savedSearchConfig.namePromptTitle),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: InputDecoration(
+              labelText: t.savedSearchConfig.nameLabel,
+              hintText: t.savedSearchConfig.nameHint,
+            ),
+            onSubmitted: (v) =>
+                Navigator.of(dialogContext).pop(v.trim()),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(t.common.cancel),
+            ),
+            TextButton(
+              onPressed: () =>
+                  Navigator.of(dialogContext).pop(controller.text.trim()),
+              child: Text(t.common.save),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (name == null) return;
+
+    final config = SavedSearchConfig(
+      id: DateTime.now().microsecondsSinceEpoch.toString(),
+      name: name.isEmpty
+          ? _buildDefaultConfigName(tags: tags, date: date, rating: rating)
+          : name,
+      tags: List<Tag>.from(tags),
+      date: date,
+      rating: rating,
+    );
+    await _savedConfigService.add(_segmentKey, config);
+    showToastWidget(
+      MDToastWidget(
+        message: t.savedSearchConfig.saveSuccess,
+        type: MDToastType.success,
+      ),
+      position: ToastPosition.bottom,
+    );
+  }
+
+  /// 应用一条已保存的筛选配置，并关闭抽屉。
+  void _applySavedConfig(SavedSearchConfig config) {
+    setParams(
+      tags: List<Tag>.from(config.tags),
+      year: config.date,
+      rating: config.rating,
+    );
+    _scaffoldKey.currentState?.closeEndDrawer();
   }
 
   Widget _buildTabDropdown(BuildContext context) {
@@ -733,6 +846,15 @@ class PopularMediaListPageBaseState<
     _mediaListController.configureHeaderExtent(headerHeight);
 
     return Scaffold(
+      key: _scaffoldKey,
+      endDrawer: SavedSearchConfigDrawer(
+        segment: _segmentKey,
+        onApply: _applySavedConfig,
+        onAddCurrent: () {
+          _scaffoldKey.currentState?.closeEndDrawer();
+          _promptSaveConfig(tags: tags, date: year, rating: rating);
+        },
+      ),
       body: LayoutBuilder(
         builder: (context, constraints) {
           return Stack(
@@ -1123,14 +1245,6 @@ class PopularMediaListPageBaseState<
                                       ),
                                     );
                                   }),
-                                  _buildAnimatedIconButton(
-                                    isVisible: showHeader,
-                                    child: IconButton(
-                                      icon: const Icon(Icons.filter_list),
-                                      onPressed: _openParamsModal,
-                                      tooltip: t.common.search,
-                                    ),
-                                  ),
                                   Obx(() {
                                     return _buildAnimatedIconButton(
                                       isVisible: showHeader,
@@ -1154,6 +1268,37 @@ class PopularMediaListPageBaseState<
                                     );
                                   }),
                                 ],
+                                // 快捷筛选入口（所有宽度始终可见）
+                                SizedBox(
+                                  width: 40,
+                                  height: 40,
+                                  child: IconButton(
+                                    padding: EdgeInsets.zero,
+                                    icon: const Icon(Icons.filter_list),
+                                    tooltip: t.searchFilter.filterSettings,
+                                    onPressed: _openParamsModal,
+                                  ),
+                                ),
+                                // 已保存筛选入口（存在已保存配置时显示）
+                                Obx(() {
+                                  if (_savedConfigService
+                                      .listFor(_segmentKey)
+                                      .isEmpty) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  return SizedBox(
+                                    width: 40,
+                                    height: 40,
+                                    child: IconButton(
+                                      padding: EdgeInsets.zero,
+                                      icon: const Icon(
+                                        Icons.bookmarks_outlined,
+                                      ),
+                                      tooltip: t.savedSearchConfig.title,
+                                      onPressed: _openSavedConfigDrawer,
+                                    ),
+                                  );
+                                }),
                                 _buildTopBarOverflowMenu(
                                   maxWidth: constraints.maxWidth,
                                   showHeader: showHeader,

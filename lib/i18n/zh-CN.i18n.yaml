@@ -2441,3 +2441,18 @@ siteMode:
   openInSite: '打开到 ${site}'
   confirmUsing: '确认后，后续请求将统一使用 ${site} 模式。'
   switched: '已切换到 ${site}，应用已刷新。'
+savedSearchConfig:
+  title: 已保存筛选
+  empty: 还没有保存的筛选配置
+  saveTooltip: 保存当前筛选
+  namePromptTitle: 保存筛选配置
+  nameLabel: 名称
+  nameHint: 请输入名称
+  saveSuccess: 已保存筛选配置
+  deleteSuccess: 已删除筛选配置
+  addCurrent: 保存当前筛选
+  reorderHint: 长按拖动可调整顺序
+  rename: 重命名
+  unnamed: 未命名
+  noConditions: 全部内容（无筛选）
+  tagsCount: '${count} 个标签'

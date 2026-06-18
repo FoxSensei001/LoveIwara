@@ -2443,3 +2443,18 @@ siteMode:
   openInSite: '開啟到 ${site}'
   confirmUsing: '確認後，後續請求將統一使用 ${site} 模式。'
   switched: '已切換到 ${site}，應用已重新整理。'
+savedSearchConfig:
+  title: 已儲存篩選
+  empty: 還沒有儲存的篩選設定
+  saveTooltip: 儲存目前篩選
+  namePromptTitle: 儲存篩選設定
+  nameLabel: 名稱
+  nameHint: 請輸入名稱
+  saveSuccess: 已儲存篩選設定
+  deleteSuccess: 已刪除篩選設定
+  addCurrent: 儲存目前篩選
+  reorderHint: 長按拖曳可調整順序
+  rename: 重新命名
+  unnamed: 未命名
+  noConditions: 全部內容（無篩選）
+  tagsCount: '${count} 個標籤'
