@@ -253,6 +253,24 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   @override
   void dispose() {
     LogUtils.w('dispose start: uniqueTag=$uniqueTag', 'MyVideoDetailPage');
+
+    // 应用内全屏（isDesktopAppFullScreen）不会被页面 PopScope 拦截，
+    // 因此可能在未退出该模式时直接关闭视频页，残留 showTitleBar/showRailNavi
+    // 为隐藏态，导致窗口无法拖动、被锁死在视频分区。这里兜底恢复系统 UI。
+    // showSystemUI() 正是进入应用内全屏所用 hideSystemUI(hideTitleBar:false) 的逆操作，
+    // 是完整的清理。
+    //
+    // 系统全屏（isFullscreen）不在此处理：其 PopScope 会拦截返回并先走
+    // controller.exitFullscreen()（含 native 退出与窗口几何恢复），且全屏 overlay
+    // (MyVideoScreen) 自身 dispose 也会恢复系统 UI；在此只做半截恢复反而会掩盖问题。
+    try {
+      if (controller.isDesktopAppFullScreen.value) {
+        appService.showSystemUI();
+      }
+    } catch (_) {
+      // controller 可能因初始化失败而未赋值（late），忽略即可
+    }
+
     // 销毁Tab控制器
     tabController.dispose();
     _forceEnterFullscreenWorker?.dispose();

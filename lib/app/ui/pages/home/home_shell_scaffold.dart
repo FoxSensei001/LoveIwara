@@ -12,6 +12,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:i_iwara/utils/easy_throttle.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/app/utils/exit_confirm_util.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/routes/home_shell_navigation.dart';
 
@@ -282,10 +283,12 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
               return;
             }
 
-            // At home root → exit immediately
+            // At home root → 二次确认退出（5s 内再次返回才真正退出）
             if (isAtRoot) {
-              // Home root: exit immediately (no "press again" confirmation).
-              SystemNavigator.pop();
+              ExitConfirmUtil.handleExit(
+                context,
+                () => SystemNavigator.pop(),
+              );
               return;
             }
 

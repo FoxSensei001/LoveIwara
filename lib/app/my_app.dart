@@ -17,6 +17,7 @@ import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/app/utils/exit_confirm_util.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 
 import 'services/theme_service.dart';
@@ -503,7 +504,8 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
         final action = service.resolve(event, ShortcutScope.global);
         if (action == ShortcutAction.globalBack) {
           if (PopCoordinator.shouldConfirmExitAtHomeRoot()) {
-            SystemNavigator.pop();
+            // 首页根路由：二次确认退出（5s 内再次返回才真正退出）
+            ExitConfirmUtil.handleExit(context, () => SystemNavigator.pop());
           } else {
             PopCoordinator.handleBack(context);
           }

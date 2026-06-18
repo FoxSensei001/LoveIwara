@@ -69,3 +69,7 @@ android/build/
 # Research / reference repos (not committed)
 /research/
 .omc
+
+# Local AI / tooling caches (not committed)
+/.codegraph/
+/.playwright-mcp/

@@ -446,6 +446,14 @@ class _TopToolbarState extends State<TopToolbar> {
                         onPressed: () {
                           if (isFullScreen) {
                             widget.myVideoStateController.exitFullscreen();
+                          } else if (widget
+                              .myVideoStateController
+                              .isDesktopAppFullScreen
+                              .value) {
+                            // 应用内全屏下，返回键先退出应用内全屏，而不是关闭页面
+                            widget.myVideoStateController.isDesktopAppFullScreen
+                                .value = false;
+                            Get.find<AppService>().showSystemUI();
                           } else {
                             AppService.tryPop();
                           }
