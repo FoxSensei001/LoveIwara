@@ -1,9 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:local_notifier/local_notifier.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
+import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -261,17 +263,73 @@ class DownloadNotificationService extends GetxService {
 
   void _pushDedup(String route) {
     try {
-      // 已在目标页则不重复入栈，避免多次点击堆叠同一路由。
-      if (_currentLocation() == route) return;
+      // 仅对下载列表页做去重判断
+      if (route == Routes.DOWNLOAD_TASK_LIST) {
+        if (_isAlreadyOnDownloadPage()) {
+          return;
+        }
+      } else {
+        // 其他路由保持原来的判断逻辑
+        if (_currentLocation() == route) return;
+      }
       appRouter.push(route);
     } catch (e) {
       LogUtils.w('处理下载通知点击跳转失败: $e', 'DownloadNotificationService');
     }
   }
 
+  /// 判断是否已经在下载列表页
+  bool _isAlreadyOnDownloadPage() {
+    // 方法 1: 检查 GoRouter 的当前配置
+    try {
+      final config = appRouter.routerDelegate.currentConfiguration;
+      // 检查所有匹配的路由
+      for (final match in config.matches) {
+        if (match.matchedLocation == Routes.DOWNLOAD_TASK_LIST) {
+          return true;
+        }
+      }
+      if (config.uri.path == Routes.DOWNLOAD_TASK_LIST) {
+        return true;
+      }
+    } catch (_) {
+      // 忽略检查错误
+    }
+
+    // 方法 2: 检查 widget 树中是否有 DownloadTaskListPage
+    try {
+      final shellContext = shellNavigatorKey.currentContext;
+      if (shellContext != null) {
+        bool found = false;
+        void visitor(Element element) {
+          if (element.widget is DownloadTaskListPage) {
+            found = true;
+            return;
+          }
+          element.visitChildren(visitor);
+        }
+        shellContext.visitChildElements(visitor);
+        if (found) {
+          return true;
+        }
+      }
+    } catch (_) {
+      // 忽略检查错误
+    }
+
+    return false;
+  }
+
   String _currentLocation() {
     try {
-      return appRouter.routerDelegate.currentConfiguration.uri.path;
+      // 获取完整的路由配置
+      final config = appRouter.routerDelegate.currentConfiguration;
+      // 检查最后一个匹配的路由
+      if (config.matches.isNotEmpty) {
+        return config.matches.last.matchedLocation;
+      }
+      // 兜底返回 uri.path
+      return config.uri.path;
     } catch (_) {
       return '';
     }

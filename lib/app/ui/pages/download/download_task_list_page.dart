@@ -50,6 +50,17 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   bool _isLoadingFailedTasks = false;
   int _lastFailedVersion = -1;
 
+  // 加载期间若有更新的状态版本到来，则置脏并在本轮加载结束后重跑，
+  // 避免“加载中丢弃后续更新”导致快照永远停留在旧状态的竞态。
+  bool _pendingReloadDirty = false;
+  bool _failedReloadDirty = false;
+
+  // 历史区域刷新串行化：LoadingMoreBase 不支持并发 refresh，
+  // 并发会相互 clear/addAll 造成列表被清空或漏掉“刚完成”的任务。
+  bool _isRefreshingHistory = false;
+  bool _historyRefreshDirty = false;
+  int _lastHistoryVersion = -1;
+
   // 用于监听任务状态变更
   int _lastStatusVersion = -1;
   Worker? _statusChangedWorker;
@@ -141,8 +152,8 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
         // 刷新顶部区域
         _refreshPendingTasksIfNeeded();
         _refreshFailedTasksIfNeeded();
-        // 刷新历史区域
-        _historySource.refresh(true);
+        // 刷新历史区域（串行 + 版本重跑，避免并发 refresh 漏掉刚完成的任务）
+        _refreshHistory();
       });
     });
   }
@@ -570,6 +581,8 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       statusFilter: statusFilterStr,
       typeFilter: typeFilterStr,
     );
+    // 历史区域通过串行刷新触发（updateFilters 不再自行 refresh，避免并发）
+    _refreshHistory();
 
     // Also filter the pending and failed tasks
     await _reloadPendingTasks();
@@ -681,15 +694,28 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   }
 
   Widget _buildSingleList() {
+    // 跨分区去重：在状态切换的过渡窗口，同一任务可能同时存在于
+    // _activeTasks（下载中）与 _pendingTasks/_failedTasks 的旧快照里。
+    // 这里按“下载中 > 失败 > 等待中”的优先级保证每个任务最多只出现一次，
+    // 修复“重试后失败任务与处理中任务同时显示”这类重复项问题。
+    final seenIds = <String>{};
+
     // 获取正在下载的任务 (apply filters)
     final downloadingTasks = DownloadService.to.tasks.values
         .where((task) => task.status == DownloadStatus.downloading)
         .where(_filterTask)
+        .where((task) => seenIds.add(task.id))
         .toList();
 
-    // Apply filters to pending and failed tasks
-    final filteredPendingTasks = _pendingTasks.where(_filterTask).toList();
-    final filteredFailedTasks = _failedTasks.where(_filterTask).toList();
+    // Apply filters to failed and pending tasks (with cross-section dedup)
+    final filteredFailedTasks = _failedTasks
+        .where(_filterTask)
+        .where((task) => seenIds.add(task.id))
+        .toList();
+    final filteredPendingTasks = _pendingTasks
+        .where(_filterTask)
+        .where((task) => seenIds.add(task.id))
+        .toList();
 
     // 构建顶部活跃区域的 widgets
     final List<Widget> activeWidgets = [];
@@ -915,38 +941,51 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     }
   }
 
-  /// 根据 DownloadService 的任务状态版本，按需刷新等待中任务
+  /// 根据 DownloadService 的任务状态版本，按需刷新等待中任务。
+  /// 注意：加载进行中也要触发（通过置脏让本轮加载结束后重跑），
+  /// 否则加载窗口内到来的状态变更会被永久丢弃。
   void _refreshPendingTasksIfNeeded() {
     final currentVersion = DownloadService.to.taskStatusChangedNotifier.value;
-    if (_isLoadingPendingTasks || currentVersion == _lastPendingVersion) {
+    if (!_isLoadingPendingTasks && currentVersion == _lastPendingVersion) {
       return;
     }
     _reloadPendingTasks();
   }
 
-  /// 根据 DownloadService 的任务状态版本，按需刷新失败任务
+  /// 根据 DownloadService 的任务状态版本，按需刷新失败任务。
   void _refreshFailedTasksIfNeeded() {
     final currentVersion = DownloadService.to.taskStatusChangedNotifier.value;
-    if (_isLoadingFailedTasks || currentVersion == _lastFailedVersion) {
+    if (!_isLoadingFailedTasks && currentVersion == _lastFailedVersion) {
       return;
     }
     _reloadFailedTasks();
   }
 
-  /// 重新加载等待中任务
+  /// 重新加载等待中任务。
+  /// 若加载期间状态版本又发生变化（或加载中被再次请求），结束后会自动重跑，
+  /// 保证最终读到的是最新的数据库状态，杜绝“丢失更新”竞态。
   Future<void> _reloadPendingTasks() async {
-    if (_isLoadingPendingTasks) return;
+    if (_isLoadingPendingTasks) {
+      _pendingReloadDirty = true;
+      return;
+    }
 
     _isLoadingPendingTasks = true;
-    _lastPendingVersion = DownloadService.to.taskStatusChangedNotifier.value;
-
     try {
-      final tasks = await _downloadTaskRepository
-          .getPendingTasksOrderByCreatedAtAsc();
-      if (!mounted) return;
-      setState(() {
-        _pendingTasks = tasks;
-      });
+      do {
+        _pendingReloadDirty = false;
+        final versionAtLoad =
+            DownloadService.to.taskStatusChangedNotifier.value;
+        final tasks = await _downloadTaskRepository
+            .getPendingTasksOrderByCreatedAtAsc();
+        _lastPendingVersion = versionAtLoad;
+        if (!mounted) return;
+        setState(() {
+          _pendingTasks = tasks;
+        });
+      } while (_pendingReloadDirty ||
+          DownloadService.to.taskStatusChangedNotifier.value !=
+              _lastPendingVersion);
     } catch (e) {
       // 读取等待中任务失败时，静默处理，避免影响主流程
     } finally {
@@ -954,24 +993,63 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     }
   }
 
-  /// 重新加载失败任务
+  /// 重新加载失败任务（语义同 [_reloadPendingTasks]，带版本重跑）。
   Future<void> _reloadFailedTasks() async {
-    if (_isLoadingFailedTasks) return;
+    if (_isLoadingFailedTasks) {
+      _failedReloadDirty = true;
+      return;
+    }
 
     _isLoadingFailedTasks = true;
-    _lastFailedVersion = DownloadService.to.taskStatusChangedNotifier.value;
-
     try {
-      final tasks = await _downloadTaskRepository
-          .getFailedTasksOrderByUpdatedAtDesc();
-      if (!mounted) return;
-      setState(() {
-        _failedTasks = tasks;
-      });
+      do {
+        _failedReloadDirty = false;
+        final versionAtLoad =
+            DownloadService.to.taskStatusChangedNotifier.value;
+        final tasks = await _downloadTaskRepository
+            .getFailedTasksOrderByUpdatedAtDesc();
+        _lastFailedVersion = versionAtLoad;
+        if (!mounted) return;
+        setState(() {
+          _failedTasks = tasks;
+        });
+      } while (_failedReloadDirty ||
+          DownloadService.to.taskStatusChangedNotifier.value !=
+              _lastFailedVersion);
     } catch (e) {
       // 读取失败任务失败时，静默处理，避免影响主流程
     } finally {
       _isLoadingFailedTasks = false;
+    }
+  }
+
+  /// 串行刷新历史区域（paused/completed）。
+  /// 历史列表基于 LoadingMoreBase，并发 refresh 会相互 clear/addAll，
+  /// 造成列表被清空或漏掉“刚完成”的任务（正是“下载完成后不刷新”的根因）。
+  /// 这里串行化并在版本变化时重跑，确保最终读到最新状态。
+  Future<void> _refreshHistory() async {
+    if (!mounted) return;
+    if (_isRefreshingHistory) {
+      _historyRefreshDirty = true;
+      return;
+    }
+
+    _isRefreshingHistory = true;
+    try {
+      do {
+        _historyRefreshDirty = false;
+        final versionAtRefresh =
+            DownloadService.to.taskStatusChangedNotifier.value;
+        await _historySource.refresh(true);
+        _lastHistoryVersion = versionAtRefresh;
+        if (!mounted) return;
+      } while (_historyRefreshDirty ||
+          DownloadService.to.taskStatusChangedNotifier.value !=
+              _lastHistoryVersion);
+    } catch (e) {
+      // 刷新历史失败时静默处理，避免影响主流程
+    } finally {
+      _isRefreshingHistory = false;
     }
   }
 }
@@ -1004,7 +1082,8 @@ class _HistoryDownloadTasksSource extends LoadingMoreBase<DownloadTask> {
     _searchQuery = searchQuery;
     _statusFilter = statusFilter;
     _typeFilter = typeFilter;
-    refresh(true);
+    // 不在此处 refresh：由页面侧 _refreshHistory() 串行触发，
+    // 避免与 worker 的历史刷新并发，导致列表被 clear/addAll 互相干扰。
   }
 
   @override
