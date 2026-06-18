@@ -1450,47 +1450,86 @@ class MyVideoStateController extends GetxController
       if (_isDisposed) return;
 
       oreno3dClient = Oreno3dClient();
-      // 净化关键词：iwara 标题常含破折号，会让 oreno3d 搜索退化为返回整站最热
-      // 视频（参见 issue #95），必须先去掉这类字符再搜索。
-      final searchResult = await oreno3dClient.searchVideos(
-        keyword: Oreno3dMatchUtil.sanitizeKeyword(videoTitle),
-      );
 
-      // 仅靠标题/作者的相似度无法保证匹配到同一个视频（参见 issue #95，
-      // 经常匹配到完全无关的视频）。oreno3d 详情页中包含真实的 iwara 播放链接，
-      // 因此这里改为：按相似度排序候选项 -> 逐个拉取详情 -> 用 iwara 视频ID 校验，
-      // 只有 iwara ID 完全一致才认为匹配成功。
-      final candidates = _rankOreno3dCandidates(
-        searchResult.videos,
-        videoTitle,
-        authorName,
-      );
+      // oreno3d 不支持按 iwara ID 检索，只能用关键词搜索 + 详情页 iwara 链接做 ID 校验。
+      // 实测把整条 iwara 标题原样塞进去，会因 token 太多 / 含通用词被热门视频挤掉
+      // （参见 issue #95 + 后续观察），所以这里按显著度抽出**多个候选关键词**：
+      // 优先用最独特的 CJK 长词去搜，搜不到再回退到 ASCII 词对、最后才是完整标题。
+      // 第一个通过 iwara-ID 校验就立刻退出，避免无谓请求。
+      final keywordCandidates =
+          Oreno3dMatchUtil.extractKeywordCandidates(videoTitle);
 
-      // 最多校验前若干个候选项，避免请求过多
-      const maxCandidatesToVerify = 5;
-      for (final video in candidates.take(maxCandidatesToVerify)) {
+      // 跨候选去重：同一条 oreno3d 视频可能在多个关键词下都进入候选列表，
+      // 没必要重复拉详情。
+      final verifiedOreno3dIds = <String>{};
+      // 单个候选关键词最多校验前若干个搜索结果，避免请求量爆炸。
+      const maxCandidatesPerKeyword = 3;
+      // 全局最多校验次数，限制最坏情况下的请求总量。
+      const maxTotalVerifications = 8;
+      var totalVerifications = 0;
+
+      bool matched = false;
+
+      keywordLoop:
+      for (final keyword in keywordCandidates) {
         if (_isDisposed) return;
+        if (totalVerifications >= maxTotalVerifications) break;
+        if (keyword.isEmpty) continue;
 
-        final detail = await oreno3dClient.getVideoDetailParsed(video.id);
-
-        if (_isDisposed) return;
-        if (detail == null) continue;
-
-        // 用 iwara 视频ID 校验：只接受指向当前视频的 oreno3d 详情
-        if (detail.extractIwaraId() == currentIwaraId) {
-          oreno3dVideoDetail.value = detail;
+        Oreno3dSearchResult searchResult;
+        try {
+          searchResult = await oreno3dClient.searchVideos(keyword: keyword);
+        } catch (e) {
+          // 单个候选搜索失败不应中断整个流程，继续尝试下一个。
+          if (_isDisposed) return;
           LogUtils.d(
-            '成功匹配oreno3d视频(已通过iwara ID校验): ${detail.title}',
+            'oreno3d 搜索关键词"$keyword"失败，尝试下一个候选: $e',
             'MyVideoStateController',
           );
-          return;
+          continue;
+        }
+        if (_isDisposed) return;
+
+        final ranked = _rankOreno3dCandidates(
+          searchResult.videos,
+          videoTitle,
+          authorName,
+        );
+
+        var perKeywordVerifications = 0;
+        for (final video in ranked) {
+          if (_isDisposed) return;
+          if (perKeywordVerifications >= maxCandidatesPerKeyword) break;
+          if (totalVerifications >= maxTotalVerifications) break keywordLoop;
+          if (!verifiedOreno3dIds.add(video.id)) continue; // 已校验过
+
+          totalVerifications++;
+          perKeywordVerifications++;
+
+          final detail = await oreno3dClient.getVideoDetailParsed(video.id);
+
+          if (_isDisposed) return;
+          if (detail == null) continue;
+
+          if (detail.extractIwaraId() == currentIwaraId) {
+            oreno3dVideoDetail.value = detail;
+            LogUtils.d(
+              '成功匹配oreno3d视频(关键词="$keyword", 已通过iwara ID校验): ${detail.title}',
+              'MyVideoStateController',
+            );
+            matched = true;
+            break keywordLoop;
+          }
         }
       }
 
-      LogUtils.d(
-        '未找到与当前iwara视频ID($currentIwaraId)匹配的oreno3d视频',
-        'MyVideoStateController',
-      );
+      if (!matched) {
+        LogUtils.d(
+          '未找到与当前iwara视频ID($currentIwaraId)匹配的oreno3d视频'
+          '(尝试关键词: ${keywordCandidates.length}个, 校验详情: $totalVerifications次)',
+          'MyVideoStateController',
+        );
+      }
     } catch (e) {
       if (!_isDisposed) {
         LogUtils.e(
