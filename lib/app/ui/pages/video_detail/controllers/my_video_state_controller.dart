@@ -3516,6 +3516,13 @@ class MyVideoStateController extends GetxController
     }
 
     handleSeek(target);
+
+    // handleSeek 会恢复播放（videoPlaying=true），窄屏下固定头部会从“收缩态的工具栏
+    // 高度”重新展开为完整视频高度。但此时滚动偏移仍停留在收缩位置，scrollRatio > 0，
+    // 顶部工具栏浮层（顶栏）不会自动隐藏，导致展开后的播放器顶部残留一条顶栏。
+    // 这里把滚动归零（与 playFromUserAction / 顶栏播放按钮一致），让 scrollRatio 回到 0，
+    // 顶栏随之淡出。
+    animateToTop();
   }
 
   // 添加关闭提示的方法:
