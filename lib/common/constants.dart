@@ -231,6 +231,16 @@ class KeyConstants {
   static const String cfClearance = 'cfClearance';
 
   static const String userAgent = 'userAgent';
+
+  // 账号绑定的用户资料缓存（与 token 同属安全存储，登出时一并清理）
+  static const String cachedUserData = 'cached_user_data';
+  static const String cachedUserDataTimestamp = 'cached_user_data_timestamp';
+  static const String cachedUserDataSubject = 'cached_user_data_subject';
+
+  // 会话作废代次（登出墓碑）：登出/过期时递增并持久化；保存 token 时盖上当前代次。
+  // 启动加载 token 时校验代次，使「删除失败而残留的旧 token」无法复活(HIGH#3)。
+  static const String authRevocationCounter = 'auth_revocation_counter';
+  static const String authTokenStamp = 'auth_token_stamp';
 }
 
 class ApiConstants {

@@ -60,13 +60,30 @@ class HttpClientFactory {
       cleaned = cleaned.substring(0, cleaned.length - 1);
     }
 
-    final colonIdx = cleaned.lastIndexOf(':');
-    if (colonIdx == -1) throw ArgumentError('Invalid proxy URL: $url');
-    final host = cleaned.substring(0, colonIdx);
+    String host;
+    String portStr;
+    if (cleaned.startsWith('[')) {
+      // IPv6 字面量: [::1]:7890 —— 不能用 lastIndexOf(':') 切分
+      final end = cleaned.indexOf(']');
+      if (end == -1) throw ArgumentError('Invalid IPv6 proxy URL: $url');
+      host = cleaned.substring(1, end);
+      final rest = cleaned.substring(end + 1);
+      if (!rest.startsWith(':')) {
+        throw ArgumentError('Missing proxy port in URL: $url');
+      }
+      portStr = rest.substring(1);
+    } else {
+      final colonIdx = cleaned.lastIndexOf(':');
+      if (colonIdx == -1) throw ArgumentError('Invalid proxy URL: $url');
+      host = cleaned.substring(0, colonIdx);
+      portStr = cleaned.substring(colonIdx + 1);
+    }
     // 用 tryParse 兜底：端口非法时抛 ArgumentError（与本方法既有契约一致），
-    // 而非 FormatException，便于调用方统一捕获
-    final port = int.tryParse(cleaned.substring(colonIdx + 1).trim());
-    if (port == null) throw ArgumentError('Invalid proxy port in URL: $url');
+    // 而非 FormatException，便于调用方统一捕获；并校验端口范围。
+    final port = int.tryParse(portStr.trim());
+    if (port == null || port < 1 || port > 65535) {
+      throw ArgumentError('Invalid proxy port in URL: $url');
+    }
     return (host, port);
   }
 
@@ -104,6 +121,9 @@ class HttpClientFactory {
 
   /// 关闭当前共享 HttpClient，下次请求时自动创建新实例。
   /// 用于代理设置变更后重置连接。
+  /// 注意：该 HttpClient 由 ApiService/AuthService/TokenManager/News 共享，
+  /// 代理变更(reset)会影响连接池；`force:false` 会等待空闲连接，但变更瞬间
+  /// 正在传输的请求可能报错。仅在设置页等低频场景调用(N5)。
   void reset({bool force = false}) {
     if (_httpClient != null) {
       LogUtils.d('$_tag 重置共享 HttpClient (force: $force)');

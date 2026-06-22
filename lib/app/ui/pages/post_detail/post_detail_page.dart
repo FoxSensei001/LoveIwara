@@ -156,7 +156,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                     return;
                                   }
                                   final UserService userService = Get.find();
-                                  if (!userService.isLogin) {
+                                  if (!userService.isAuthenticated) {
                                     showToastWidget(
                                       MDToastWidget(
                                         message:

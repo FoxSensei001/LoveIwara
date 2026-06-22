@@ -6,6 +6,7 @@ import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
 
 import '../../../../../common/constants.dart';
+import '../../../../models/api_request_access.model.dart';
 import '../../../../models/api_result.model.dart';
 import '../../../../models/user.model.dart';
 import '../../../../services/api_service.dart';
@@ -94,8 +95,10 @@ class AuthorProfileController extends GetxController {
   /// 抓取作者详情
   Future<void> fetchAuthorDescription() async {
     try {
+      // 双态公开读：登录带 token 拿 following 等增强，刷新中短等后匿名拿公开内容(#6)。
       final authorData = await _apiService.get(
         ApiConstants.userProfile(username),
+        requestAccess: ApiRequestAccess.optionalAuthShortWait,
       );
       author.value = User.fromJson(authorData.data['user']);
       _bindCommentController(author.value!.id);
@@ -156,7 +159,7 @@ class AuthorProfileController extends GetxController {
   /// 获取当前用户与作者的关系状态
   /// status: pending, friends, none
   Future<void> fetchRelationshipStatus() async {
-    if (author.value == null || !_userService.isLogin) {
+    if (author.value == null || !_userService.isAuthenticated) {
       return;
     }
 

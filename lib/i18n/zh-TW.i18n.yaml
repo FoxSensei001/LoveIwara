@@ -307,6 +307,7 @@ auth:
   refreshCaptcha: 更新驗證碼
   captchaNotLoaded: 無法載入驗證碼
   loginSuccess: 登入成功
+  loginSuccessProfilePending: 已登入，正在載入資料…
   emailVerificationSent: 已發送郵件驗證指令
   notLoggedIn: 尚未登入
   clickToLogin: 點擊此處登入
@@ -315,7 +316,7 @@ auth:
   logoutFailed: 登出失敗
   usernameOrEmail: 使用者名稱或電子郵件
   pleaseEnterUsernameOrEmail: 請輸入使用者名稱或電子郵件
-  rememberMe: 記住帳號密碼
+  rememberMe: 記住使用者名稱
   registerNoticeTitle: 前往官網註冊帳號
   registerNoticeDescription: "應用程式內已不再提供註冊功能。請前往 Iwara 官網建立帳號，完成後回到這裡登入即可。"
   registerNoticeReturnTip: "註冊完成後，返回此處使用帳號登入。"

@@ -17,8 +17,10 @@ class GalleryService extends GetxService {
   /// 获取图库的详情
   Future<ApiResult<ImageModel>> fetchGalleryDetail(String imageModelId) async {
     try {
+      // 双态公开读：登录带 token 拿 liked 等增强，刷新中短等后匿名拿公开内容(#6)。
       var response = await _apiService.get(
         ApiConstants.imageDetail(imageModelId),
+        requestAccess: ApiRequestAccess.optionalAuthShortWait,
       );
       ImageModel imageModel = ImageModel.fromJson(response.data);
       return ApiResult.success(data: imageModel);

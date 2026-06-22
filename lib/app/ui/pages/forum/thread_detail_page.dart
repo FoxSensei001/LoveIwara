@@ -361,7 +361,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
                   );
                   return;
                 }
-                if (!_userService.isLogin) {
+                if (!_userService.isAuthenticated) {
                   showToastWidget(
                     MDToastWidget(
                       message: slang.t.errors.pleaseLoginFirst,

@@ -45,7 +45,7 @@ class _FriendButtonWidgetState extends State<FriendButtonWidget> {
   }
 
   Future<void> _fetchFriendStatus() async {
-    if (!_userService.isLogin) {
+    if (!_userService.isAuthenticated) {
       setState(() => _isLoading = false);
       return;
     }
@@ -160,7 +160,7 @@ class _FriendButtonWidgetState extends State<FriendButtonWidget> {
   Future<void> _handleFriendAction(BuildContext context) async {
     final t = slang.Translations.of(context);
     
-    if (!_userService.isLogin) {
+    if (!_userService.isAuthenticated) {
       showToastWidget(
         MDToastWidget(
           message: t.errors.pleaseLoginFirst,

@@ -125,7 +125,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                 onTap: () async {
                   VibrateUtils.vibrate();
                   final UserService userService = Get.find();
-                  if (!userService.isLogin) {
+                  if (!userService.isAuthenticated) {
                     showToastWidget(
                       MDToastWidget(
                         message: t.errors.pleaseLoginFirst,
@@ -171,7 +171,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                 onTap: () async {
                   VibrateUtils.vibrate();
                   final UserService userService = Get.find();
-                  if (!userService.isLogin) {
+                  if (!userService.isAuthenticated) {
                     showToastWidget(
                       MDToastWidget(
                         message: t.errors.pleaseLoginFirst,

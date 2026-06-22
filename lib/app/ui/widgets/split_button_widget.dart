@@ -192,7 +192,7 @@ class _FilledLikeButtonState extends State<FilledLikeButton> {
     if (_isLoading) return;
     // 如果 liked 为 null，说明正在加载状态，不允许操作
     if (_isLiked == null) return;
-    if (!_userService.isLogin) {
+    if (!_userService.isAuthenticated) {
       showToastWidget(
         MDToastWidget(
           message: t.errors.pleaseLoginFirst,

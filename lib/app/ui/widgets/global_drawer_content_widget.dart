@@ -236,13 +236,25 @@ class GlobalDrawerColumns extends StatelessWidget {
 
   // Helper for login required navigation
   void _handleLoginRequiredNavi(VoidCallback naviCall, BuildContext context) {
-    if (userService.isLogin) {
-      naviCall();
-      AppService.switchGlobalDrawer();
-    } else {
+    if (!userService.isAuthenticated) {
       AppService.switchGlobalDrawer();
       _showLoginError(context);
+      return;
     }
+    // 已认证但资料尚未加载完成：导航目标需要 currentUser 字段，
+    // 先提示稍候而非 NPE（naviCall 内部会解引用 currentUser.value!）。
+    if (userService.currentUser.value == null) {
+      AppService.switchGlobalDrawer();
+      showToastWidget(
+        MDToastWidget(
+          message: slang.t.auth.loginSuccessProfilePending,
+          type: MDToastType.warning,
+        ),
+      );
+      return;
+    }
+    naviCall();
+    AppService.switchGlobalDrawer();
   }
 
   void _showLoginError(BuildContext context) {
@@ -383,10 +395,18 @@ class GlobalDrawerColumns extends StatelessWidget {
       child: GestureDetector(
         onTap: () {
           AppService.switchGlobalDrawer();
-          if (!userService.isLogin) {
+          if (!userService.isAuthenticated) {
             LoginService.showLogin();
+          } else if (user == null) {
+            // 已认证但资料尚未加载完成：跳转需要 username，先提示稍候而非 NPE。
+            showToastWidget(
+              MDToastWidget(
+                message: slang.t.auth.loginSuccessProfilePending,
+                type: MDToastType.warning,
+              ),
+            );
           } else {
-            NaviService.navigateToAuthorProfilePage(user!.username);
+            NaviService.navigateToAuthorProfilePage(user.username);
           }
         },
         child: Container(
@@ -437,7 +457,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (userService.isLogin) ...[
+                          if (userService.hasLoadedProfile) ...[
                             buildUserName(
                               context,
                               user,
@@ -554,7 +574,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                 label: slang.t.settings.jumpLink,
                 onTap: () => LinkInputDialogWidget.show(),
               ),
-              if (userService.isLogin)
+              if (userService.hasLoadedProfile)
                 _BottomActionItem(
                   icon: Icons.logout_outlined,
                   label: slang.t.common.logout,

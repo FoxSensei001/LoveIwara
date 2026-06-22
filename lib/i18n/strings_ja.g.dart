@@ -409,6 +409,7 @@ class _TranslationsAuthJa implements TranslationsAuthEn {
 	@override String get refreshCaptcha => 'キャプチャを更新';
 	@override String get captchaNotLoaded => 'キャプチャを読み込めませんでした';
 	@override String get loginSuccess => 'ログインに成功しました';
+	@override String get loginSuccessProfilePending => 'ログインしました。プロフィールを読み込んでいます…';
 	@override String get emailVerificationSent => 'メール認証が送信されました';
 	@override String get notLoggedIn => 'ログインしていません';
 	@override String get clickToLogin => 'こちらをクリックしてログイン';
@@ -417,7 +418,7 @@ class _TranslationsAuthJa implements TranslationsAuthEn {
 	@override String get logoutFailed => 'ログアウトに失敗しました';
 	@override String get usernameOrEmail => 'ユーザー名またはメールアドレス';
 	@override String get pleaseEnterUsernameOrEmail => 'ユーザー名またはメールアドレスを入力してください';
-	@override String get rememberMe => 'ユーザー名とパスワードを記憶';
+	@override String get rememberMe => 'ユーザー名を記憶';
 	@override String get registerNoticeTitle => '公式サイトで新規登録';
 	@override String get registerNoticeDescription => 'アプリ内での新規登録は提供されなくなりました。Iwara 公式サイトでアカウントを作成し、こちらに戻ってログインしてください。';
 	@override String get registerNoticeReturnTip => '登録後、こちらに戻ってアカウントでログインしてください。';
@@ -3533,6 +3534,7 @@ extension on TranslationsJa {
 			'auth.refreshCaptcha' => 'キャプチャを更新',
 			'auth.captchaNotLoaded' => 'キャプチャを読み込めませんでした',
 			'auth.loginSuccess' => 'ログインに成功しました',
+			'auth.loginSuccessProfilePending' => 'ログインしました。プロフィールを読み込んでいます…',
 			'auth.emailVerificationSent' => 'メール認証が送信されました',
 			'auth.notLoggedIn' => 'ログインしていません',
 			'auth.clickToLogin' => 'こちらをクリックしてログイン',
@@ -3541,7 +3543,7 @@ extension on TranslationsJa {
 			'auth.logoutFailed' => 'ログアウトに失敗しました',
 			'auth.usernameOrEmail' => 'ユーザー名またはメールアドレス',
 			'auth.pleaseEnterUsernameOrEmail' => 'ユーザー名またはメールアドレスを入力してください',
-			'auth.rememberMe' => 'ユーザー名とパスワードを記憶',
+			'auth.rememberMe' => 'ユーザー名を記憶',
 			'auth.registerNoticeTitle' => '公式サイトで新規登録',
 			'auth.registerNoticeDescription' => 'アプリ内での新規登録は提供されなくなりました。Iwara 公式サイトでアカウントを作成し、こちらに戻ってログインしてください。',
 			'auth.registerNoticeReturnTip' => '登録後、こちらに戻ってアカウントでログインしてください。',
@@ -3747,9 +3749,9 @@ extension on TranslationsJa {
 			'settings.proxyAddress' => 'プロキシアドレス',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => 'プロキシサーバーのURLを入力してください（例: 127.0.0.1:8080）',
 			'settings.enableProxy' => 'プロキシを有効にする',
-			'settings.left' => '左',
 			_ => null,
 		} ?? switch (path) {
+			'settings.left' => '左',
 			'settings.middle' => '中央',
 			'settings.right' => '右',
 			'settings.playerSettings' => 'プレイヤー設定',
@@ -4261,9 +4263,9 @@ extension on TranslationsJa {
 			'subscriptions.showAllSubscribedUsersContent' => 'すべての購読中のユーザーのコンテンツを表示',
 			'videoDetail.pipMode' => 'ピプモード',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => '${position} から続けて再生',
-			'videoDetail.localInfo.videoInfo' => 'ビデオ情報',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.localInfo.videoInfo' => 'ビデオ情報',
 			'videoDetail.localInfo.currentQuality' => '現在の品質',
 			'videoDetail.localInfo.duration' => '再生時間',
 			'videoDetail.localInfo.resolution' => '解像度',
@@ -4775,9 +4777,9 @@ extension on TranslationsJa {
 			'favorite.removeConfirmationSuccess' => 'アイテムがお気に入りから削除されました',
 			'favorite.removeConfirmationFailed' => 'アイテムをお気に入りから削除に失敗しました',
 			'favorite.createFolderSuccess' => 'フォルダーが作成されました',
-			'favorite.createFolderFailed' => 'フォルダーの作成に失敗しました',
 			_ => null,
 		} ?? switch (path) {
+			'favorite.createFolderFailed' => 'フォルダーの作成に失敗しました',
 			'favorite.createFolder' => 'フォルダーを作成',
 			'favorite.enterFolderName' => 'フォルダー名を入力',
 			'favorite.enterFolderNameHere' => 'フォルダー名を入力してください...',
@@ -5289,9 +5291,9 @@ extension on TranslationsJa {
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => 'ナビゲーション順序をデフォルト設定にリセットしてもよろしいですか？',
 			'navigationOrderSettings.cancel' => 'キャンセル',
 			'navigationOrderSettings.show' => '表示',
-			'navigationOrderSettings.hide' => '非表示',
 			_ => null,
 		} ?? switch (path) {
+			'navigationOrderSettings.hide' => '非表示',
 			'navigationOrderSettings.hidden' => '非表示中',
 			'navigationOrderSettings.hideHint' => '目のアイコンをタップしてフォーラムとニュースの表示・非表示を切り替えます',
 			'navigationOrderSettings.videoDescription' => '人気の動画コンテンツを閲覧',

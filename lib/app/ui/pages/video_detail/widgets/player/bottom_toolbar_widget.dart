@@ -82,7 +82,7 @@ class BottomToolbar extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   // 在全屏且未登录时隐藏点赞和关注按钮
-                  if (_userService.isLogin) ...[
+                  if (_userService.hasLoadedProfile) ...[
                     _buildLikeButton(),
                     _spacer8,
                     _buildFollowButton(),
@@ -826,7 +826,8 @@ class BottomToolbar extends StatelessWidget {
                 myVideoStateController.isDesktopAppFullScreen.value = false;
                 appService.showSystemUI();
               } else {
-                appService.hideSystemUI();
+                // 应用内全屏：仅隐藏侧边导航，保留顶栏，避免顶部 safeArea 留白丢失
+                appService.hideSystemUI(hideTitleBar: false);
                 myVideoStateController.isDesktopAppFullScreen.value = true;
               }
             },

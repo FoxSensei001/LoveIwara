@@ -127,7 +127,7 @@ class CommentsTabWidget extends StatelessWidget {
     CommentController commentController,
   ) {
     final t = slang.Translations.of(context);
-    if (!Get.find<UserService>().isLogin) {
+    if (!Get.find<UserService>().isAuthenticated) {
       showToastWidget(
         MDToastWidget(
           message: t.errors.pleaseLoginFirst,

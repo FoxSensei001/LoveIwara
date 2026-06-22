@@ -409,6 +409,7 @@ class _TranslationsAuthZhTw implements TranslationsAuthEn {
 	@override String get refreshCaptcha => '更新驗證碼';
 	@override String get captchaNotLoaded => '無法載入驗證碼';
 	@override String get loginSuccess => '登入成功';
+	@override String get loginSuccessProfilePending => '已登入，正在載入資料…';
 	@override String get emailVerificationSent => '已發送郵件驗證指令';
 	@override String get notLoggedIn => '尚未登入';
 	@override String get clickToLogin => '點擊此處登入';
@@ -417,7 +418,7 @@ class _TranslationsAuthZhTw implements TranslationsAuthEn {
 	@override String get logoutFailed => '登出失敗';
 	@override String get usernameOrEmail => '使用者名稱或電子郵件';
 	@override String get pleaseEnterUsernameOrEmail => '請輸入使用者名稱或電子郵件';
-	@override String get rememberMe => '記住帳號密碼';
+	@override String get rememberMe => '記住使用者名稱';
 	@override String get registerNoticeTitle => '前往官網註冊帳號';
 	@override String get registerNoticeDescription => '應用程式內已不再提供註冊功能。請前往 Iwara 官網建立帳號，完成後回到這裡登入即可。';
 	@override String get registerNoticeReturnTip => '註冊完成後，返回此處使用帳號登入。';
@@ -3536,6 +3537,7 @@ extension on TranslationsZhTw {
 			'auth.refreshCaptcha' => '更新驗證碼',
 			'auth.captchaNotLoaded' => '無法載入驗證碼',
 			'auth.loginSuccess' => '登入成功',
+			'auth.loginSuccessProfilePending' => '已登入，正在載入資料…',
 			'auth.emailVerificationSent' => '已發送郵件驗證指令',
 			'auth.notLoggedIn' => '尚未登入',
 			'auth.clickToLogin' => '點擊此處登入',
@@ -3544,7 +3546,7 @@ extension on TranslationsZhTw {
 			'auth.logoutFailed' => '登出失敗',
 			'auth.usernameOrEmail' => '使用者名稱或電子郵件',
 			'auth.pleaseEnterUsernameOrEmail' => '請輸入使用者名稱或電子郵件',
-			'auth.rememberMe' => '記住帳號密碼',
+			'auth.rememberMe' => '記住使用者名稱',
 			'auth.registerNoticeTitle' => '前往官網註冊帳號',
 			'auth.registerNoticeDescription' => '應用程式內已不再提供註冊功能。請前往 Iwara 官網建立帳號，完成後回到這裡登入即可。',
 			'auth.registerNoticeReturnTip' => '註冊完成後，返回此處使用帳號登入。',
@@ -3750,9 +3752,9 @@ extension on TranslationsZhTw {
 			'settings.proxyAddress' => '代理地址',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => '請輸入代理伺服器的 URL，例如 127.0.0.1:8080',
 			'settings.enableProxy' => '啟用代理',
-			'settings.left' => '左側',
 			_ => null,
 		} ?? switch (path) {
+			'settings.left' => '左側',
 			'settings.middle' => '中間',
 			'settings.right' => '右側',
 			'settings.playerSettings' => '播放器設定',
@@ -4264,9 +4266,9 @@ extension on TranslationsZhTw {
 			'firstTimeSetup.common.settingsChangeableTip' => '這些設定可在應用設定中隨時修改',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => '請先同意使用者協議與社群規則',
 			'proxyHelper.systemProxyDetected' => '檢測到系統代理',
-			'proxyHelper.copied' => '已複製',
 			_ => null,
 		} ?? switch (path) {
+			'proxyHelper.copied' => '已複製',
 			'proxyHelper.copy' => '複製',
 			'signIn.pleaseLoginFirst' => '請先登入',
 			'signIn.alreadySignedInToday' => '您今天已經簽到過了！',
@@ -4778,9 +4780,9 @@ extension on TranslationsZhTw {
 			'download.batchDownload.queued' => '已入隊',
 			'download.batchDownload.success' => '成功',
 			'download.batchDownload.skipped' => '跳過',
-			'download.batchDownload.failed' => '失敗',
 			_ => null,
 		} ?? switch (path) {
+			'download.batchDownload.failed' => '失敗',
 			'download.batchDownload.failureDetails' => '失敗詳情',
 			'download.batchDownload.reasonPrivateVideo' => '私人影片',
 			'download.batchDownload.reasonAlreadyExists' => '任務已存在',
@@ -5292,9 +5294,9 @@ extension on TranslationsZhTw {
 			'layoutSettings.breakpointAlreadyExists' => '斷點已存在',
 			'layoutSettings.enterColumns' => '請輸入欄數',
 			'layoutSettings.enterValidColumns' => '請輸入有效欄數',
-			'layoutSettings.columnsCannotExceed12' => '欄數不能超過12',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.columnsCannotExceed12' => '欄數不能超過12',
 			'layoutSettings.breakpointConflict' => '斷點已存在',
 			'layoutSettings.confirmResetLayoutSettings' => '重設版面配置設定',
 			'layoutSettings.confirmResetLayoutSettingsDesc' => '確定要重設所有版面配置設定到預設值嗎？\n\n將復原為：\n• 自動模式\n• 預設斷點配置',

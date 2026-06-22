@@ -141,18 +141,59 @@ class StorageService {
   }
 
   //==================== 安全存储 ====================
-  Future<void> writeSecureData(String key, String value) async {
+  /// 安全存储当前是否可用（写入/删除失败会将其置为不可用）。
+  bool get isSecureStorageAvailable => _useSecureStorage;
+
+  /// 测试专用：直接设置安全存储可用性（单例状态需在用例间复位）。
+  @visibleForTesting
+  void debugSetSecureStorageAvailable(bool value) {
+    _useSecureStorage = value;
+  }
+
+  /// 尽力清空全部安全存储（登出时个别删除失败的兜底，HIGH#3）。
+  Future<void> wipeSecureStorage() async {
+    try {
+      await _secureStorage.deleteAll();
+    } catch (e) {
+      LogUtils.e('清空安全存储失败', tag: _tag, error: e);
+    }
+  }
+
+  /// 写入安全数据。
+  /// [allowPlaintextFallback] 为 false 时采用 fail-closed：安全存储不可用就**不**落普通存储，
+  /// 用于 token 等敏感数据，避免明文降级(HIGH#1)。此时数据仅保留在内存(调用方持有)。
+  Future<void> writeSecureData(
+    String key,
+    String value, {
+    bool allowPlaintextFallback = true,
+  }) async {
     if (_useSecureStorage) {
       try {
         await _secureStorage.write(key: key, value: value);
+        // 安全写入成功后清掉可能残留的 fallback 副本，保持单一真相，
+        // 避免日后被 readSecureData 当作待迁移数据迁回(HIGH#2)。
+        if (_box != null) {
+          try {
+            await _box!.remove(_securePrefix + key);
+          } catch (_) {}
+        }
         return;
       } catch (e) {
-        LogUtils.w('写入安全存储失败，回退到普通存储', _tag);
+        LogUtils.w('写入安全存储失败', _tag);
         _useSecureStorage = false;
       }
     }
-    // 回退到普通存储
-    await box.write(_securePrefix + key, value);
+    // 敏感数据 fail-closed：不写明文，仅内存会话(HIGH#1)。
+    if (!allowPlaintextFallback) {
+      LogUtils.w('安全存储不可用，按 fail-closed 跳过持久化: $key', _tag);
+      return;
+    }
+    // 非敏感数据回退到普通存储（box 未初始化时跳过，避免抛错）
+    if (_box != null) {
+      await _box!.write(_securePrefix + key, value);
+    } else {
+      LogUtils.w('普通存储未初始化，跳过写入: $key', _tag);
+    }
   }
 
   Future<String?> readSecureData(String key) async {
@@ -162,13 +203,13 @@ class StorageService {
 
         // 如果安全存储中没有数据，检查是否有回退数据需要迁移
         if (value == null) {
-          final fallbackValue = box.read<String>(_securePrefix + key);
+          final fallbackValue = _box?.read<String>(_securePrefix + key);
           if (fallbackValue != null) {
             LogUtils.d('发现回退数据，正在迁移: $key', _tag);
             // 迁移到安全存储
             await _secureStorage.write(key: key, value: fallbackValue);
             // 删除旧数据
-            await box.remove(_securePrefix + key);
+            await _box?.remove(_securePrefix + key);
             return fallbackValue;
           }
         }
@@ -186,22 +227,26 @@ class StorageService {
         _useSecureStorage = false;
       }
     }
-    // 回退到普通存储
-    return box.read<String>(_securePrefix + key);
+    // 回退到普通存储（box 未初始化时返回 null，避免抛错）
+    return _box?.read<String>(_securePrefix + key);
   }
 
   Future<void> deleteSecureData(String key) async {
     if (_useSecureStorage) {
       try {
         await _secureStorage.delete(key: key);
-        return;
       } catch (e) {
         LogUtils.w('删除安全存储数据失败，回退到普通存储', _tag);
         _useSecureStorage = false;
       }
     }
-    // 回退到普通存储
-    await box.remove(_securePrefix + key);
+    // 始终同时删除 fallback 副本：否则 readSecureData 在安全存储为空时
+    // 会把它迁回安全存储，造成「登出后 token 复活」(HIGH#2)。
+    if (_box != null) {
+      try {
+        await _box!.remove(_securePrefix + key);
+      } catch (_) {}
+    }
   }
 
   Future<void> writeSecureObject(String key, Map<String, dynamic> value) async {
@@ -220,22 +265,26 @@ class StorageService {
     }
   }
 
-  Future<void> writeCredentials(String username, String password) async {
+  /// 记住用户名（仅用于登录页预填）。不再保存密码 —— 持久登录依赖 refresh token。
+  /// 安全存储不可用时禁止持久化，避免明文降级(HIGH#3)。
+  Future<void> writeRememberedUsername(String username) async {
+    if (!_useSecureStorage) {
+      LogUtils.w('安全存储不可用，跳过记住用户名以避免明文降级', _tag);
+      await clearCredentials();
+      return;
+    }
     await writeSecureData('username', username);
-    await writeSecureData('password', password);
+    // 清除任何历史遗留的明文密码。
+    await deleteSecureData('password');
   }
 
-  Future<Map<String, String>?> readCredentials() async {
-    final username = await readSecureData('username');
-    final password = await readSecureData('password');
-    if (username != null && password != null) {
-      return {'username': username, 'password': password};
-    }
-    return null;
+  Future<String?> readRememberedUsername() async {
+    return readSecureData('username');
   }
 
   Future<void> clearCredentials() async {
     await deleteSecureData('username');
+    // 'password' 为历史遗留键，始终一并清除。
     await deleteSecureData('password');
   }
 }

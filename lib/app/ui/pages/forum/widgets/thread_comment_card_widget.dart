@@ -166,7 +166,7 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
 
   bool _ensureLoggedIn() {
     final userService = Get.find<UserService>();
-    if (!userService.isLogin) {
+    if (!userService.isAuthenticated) {
       AppService.switchGlobalDrawer();
       showToastWidget(
         MDToastWidget(

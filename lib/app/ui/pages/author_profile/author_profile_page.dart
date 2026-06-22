@@ -269,7 +269,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                                   return;
                                 }
                                 final UserService userService = Get.find();
-                                if (!userService.isLogin) {
+                                if (!userService.isAuthenticated) {
                                   showToastWidget(
                                     MDToastWidget(
                                       message: t.errors.pleaseLoginFirst,

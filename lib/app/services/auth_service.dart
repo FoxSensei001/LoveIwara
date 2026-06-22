@@ -22,6 +22,26 @@ import 'message_service.dart';
 import 'token_manager.dart';
 import 'iwara_network_service.dart';
 
+/// 登录会话状态机：登录态的唯一权威来源。
+/// UI 仍可读 [AuthService.isAuthenticated]（由本枚举派生），
+/// 但所有状态迁移都集中在 [AuthService._transitionTo]。
+enum AuthSessionState {
+  /// 无 token
+  unauthenticated,
+
+  /// 启动/前台恢复时刷新中（UI 视作登录中，不闪退登录）
+  refreshing,
+
+  /// refresh token 有效
+  authenticated,
+
+  /// token 有效但网络刷新/拉资料失败，沿用缓存
+  degradedOffline,
+
+  /// refresh token 失效/过期 → 需重新登录
+  expired,
+}
+
 /// 认证服务
 /// 使用 TokenManager 管理 token，专注于用户登录/登出逻辑
 class AuthService extends GetxService {
@@ -45,7 +65,9 @@ class AuthService extends GetxService {
     ),
   );
 
-  // 统一的认证状态管理
+  // 统一的认证状态管理：sessionState 为权威源，_isAuthenticated 为派生镜像，
+  // 兼容现有 UI 调用点与 authStateStream（Stream<bool>）。
+  final Rx<AuthSessionState> sessionState = AuthSessionState.unauthenticated.obs;
   final RxBool _isAuthenticated = false.obs;
   bool get isAuthenticated => _isAuthenticated.value;
 
@@ -55,10 +77,27 @@ class AuthService extends GetxService {
   // 认证状态变化流
   Stream<bool> get authStateStream => _isAuthenticated.stream;
 
+  /// 唯一的状态迁移点。更新 sessionState 并把 _isAuthenticated 镜像为
+  /// {authenticated, degradedOffline, refreshing} → true，其余 → false。
+  void _transitionTo(AuthSessionState next) {
+    final prev = sessionState.value;
+    if (prev != next) {
+      sessionState.value = next;
+      LogUtils.d('$_tag 会话状态: $prev -> $next');
+    }
+    final boolAuth = next == AuthSessionState.authenticated ||
+        next == AuthSessionState.degradedOffline ||
+        next == AuthSessionState.refreshing;
+    if (_isAuthenticated.value != boolAuth) {
+      _isAuthenticated.value = boolAuth;
+    }
+  }
+
   // 代理 TokenManager 的属性
   String? get authToken => _tokenManager.authToken;
   String? get accessToken => _tokenManager.accessToken;
   bool get hasToken => _tokenManager.hasToken;
+  bool get hasRefreshToken => _tokenManager.hasRefreshToken;
   bool get isAuthTokenExpired => _tokenManager.isAuthTokenExpired;
   bool get isAccessTokenExpired => _tokenManager.isAccessTokenExpired;
   bool get isAccessTokenActuallyExpired =>
@@ -96,7 +135,21 @@ class AuthService extends GetxService {
       // 初始化 TokenManager
       await _tokenManager.init();
 
-      if (_tokenManager.hasToken) {
+      // 后台刷新发现 refresh token 失效时，统一走静默登出清理(#2)。
+      _tokenManager.onAuthInvalidated = (reason) {
+        LogUtils.w('$_tag 收到 TokenManager 认证失效通知: $reason');
+        _handleTokenExpiredSilently();
+      };
+
+      // 后台定时器刷新成功时，把会话状态从 refreshing/degradedOffline
+      // 收敛到 authenticated(A3/A4)。
+      _tokenManager.onRefreshSucceeded = () {
+        _updateAuthenticationState();
+      };
+
+      // 以 refresh token 为准：access token 可能因写入/迁移失败而丢失，
+      // 但只要 refresh token 仍有效就应重建会话，而非假登出(#4)。
+      if (_tokenManager.hasRefreshToken) {
         // 验证 token 有效性
         if (_tokenManager.isAuthTokenExpired) {
           LogUtils.i('$_tag Auth token 已过期，需要重新登录');
@@ -104,7 +157,7 @@ class AuthService extends GetxService {
           return this;
         }
 
-        // 如果 access token 需要刷新，同步开始刷新（但不等待结果）
+        // 如果 access token 缺失或需要刷新，同步开始刷新（但不等待结果）
         // 这样 isRefreshing 标志会立即设置为 true
         if (_tokenManager.isAccessTokenExpired) {
           LogUtils.i('$_tag Access token 需要刷新，开始刷新');
@@ -117,8 +170,14 @@ class AuthService extends GetxService {
           }
         }
 
-        // 设置认证状态
-        _isAuthenticated.value = true;
+        // 设置认证状态：access token 缺失/待刷新(含 UI 未就绪而延后的 pending)
+        // 一律视为「会话恢复中」refreshing，避免把无可用 access token 的会话
+        // 误显示成完整登录(MEDIUM#4)；access 有效才是 authenticated。
+        _transitionTo(
+          _tokenManager.isAccessTokenExpired
+              ? AuthSessionState.refreshing
+              : AuthSessionState.authenticated,
+        );
 
         // 启动后台刷新定时器
         _tokenManager.startBackgroundRefresh(immediateCheck: false);
@@ -141,13 +200,16 @@ class AuthService extends GetxService {
     if (_pendingInitialRefresh && _tokenManager.isAccessTokenExpired) {
       _pendingInitialRefresh = false;
       LogUtils.d('$_tag UI Ready，开始延后的 access token 刷新');
+      // 明确处于会话恢复中，直到刷新成功才转 authenticated(MEDIUM#4)。
+      _transitionTo(AuthSessionState.refreshing);
       _startRefreshWithoutWaiting();
       startedImmediateRefresh = true;
     }
 
     // Ensure the background refresh timer is active and run the first check
     // only after UI is ready (Cloudflare challenge needs a valid context).
-    if (_tokenManager.hasToken && !_tokenManager.isAuthTokenExpired) {
+    // 以 refresh token 为准：access 可能缺失/重建中，仍需调度刷新与重试(HIGH#1)。
+    if (_tokenManager.hasRefreshToken && !_tokenManager.isAuthTokenExpired) {
       _tokenManager.startBackgroundRefresh(
         immediateCheck: !startedImmediateRefresh,
       );
@@ -173,12 +235,19 @@ class AuthService extends GetxService {
         .then((result) {
           if (result.success) {
             LogUtils.d('$_tag 后台刷新 token 成功');
+            // 把状态从 refreshing 收敛到 authenticated，避免 sessionState 卡在刷新中(M2)。
+            _updateAuthenticationState();
           } else if (result.isAuthError) {
             LogUtils.w('$_tag 后台刷新失败，需要重新登录: ${result.errorMessage}');
             _handleTokenExpiredSilently();
           } else {
             LogUtils.w('$_tag 后台刷新遇到网络错误: ${result.errorMessage}');
-            // 网络错误不清理 token，等待下次重试
+            // 网络错误不清理 token：refresh token 仍有效则进入降级离线态(而非永远卡在
+            // refreshing)，后台定时器会继续重试(HIGH#1)。
+            if (_tokenManager.hasRefreshToken &&
+                !_tokenManager.isAuthTokenExpired) {
+              _transitionTo(AuthSessionState.degradedOffline);
+            }
           }
         })
         .catchError((e) {
@@ -205,19 +274,33 @@ class AuthService extends GetxService {
 
   /// 应用恢复到前台时调用
   Future<void> onAppResumed() async {
-    await _tokenManager.onAppResumed();
+    final result = await _tokenManager.onAppResumed();
+    // refresh token 已失效：真正清理并登出，不要只翻 flag 留下脏 token(#4)。
+    if (result != null && result.isAuthError) {
+      LogUtils.w('$_tag 前台恢复发现认证失效，执行静默登出: ${result.errorMessage}');
+      await _handleTokenExpiredSilently();
+      return;
+    }
+    // 网络错误：refresh token 仍有效但刷新失败 → 降级离线态(M1)，不登出。
+    if (result != null &&
+        !result.success &&
+        _tokenManager.hasRefreshToken &&
+        !_tokenManager.isAuthTokenExpired) {
+      LogUtils.w('$_tag 前台恢复刷新遇网络错误，进入降级离线态: ${result.errorMessage}');
+      _transitionTo(AuthSessionState.degradedOffline);
+      return;
+    }
     _updateAuthenticationState();
   }
 
   /// 更新认证状态
   void _updateAuthenticationState() {
-    final wasAuthenticated = _isAuthenticated.value;
     final isNowAuthenticated =
         _tokenManager.hasToken && !_tokenManager.isAuthTokenExpired;
-
-    if (wasAuthenticated != isNowAuthenticated) {
-      _isAuthenticated.value = isNowAuthenticated;
-      LogUtils.d('$_tag 认证状态变化: $wasAuthenticated -> $isNowAuthenticated');
+    if (isNowAuthenticated) {
+      _transitionTo(AuthSessionState.authenticated);
+    } else if (sessionState.value != AuthSessionState.unauthenticated) {
+      _transitionTo(AuthSessionState.expired);
     }
   }
 
@@ -235,23 +318,28 @@ class AuthService extends GetxService {
       if (response.statusCode == 200 &&
           data is Map<String, dynamic> &&
           data['token'] != null) {
-        LogUtils.d('$_tag 登录成功，保存 auth token');
+        LogUtils.d('$_tag 登录成功，staging 提交会话');
 
-        // 保存 auth token
-        await _tokenManager.saveAuthToken(data['token']);
+        // staging/commit：先隔离用候选 refresh token 换 access token，
+        // 成功才提交为当前会话；失败不摧毁旧会话(MEDIUM#4)。
+        final staged = await _tokenManager.loginWithRefreshToken(data['token']);
 
-        // 刷新获取 access token
-        LogUtils.d('$_tag 获取 access token...');
-        final refreshResult = await _tokenManager.refreshAccessToken();
-
-        if (!refreshResult.success) {
-          LogUtils.e('$_tag 获取 access token 失败: ${refreshResult.errorMessage}');
-          await _tokenManager.clearTokens();
-          return ApiResult.fail(t.errors.loginFailed);
+        if (!staged.success) {
+          LogUtils.e('$_tag 登录换取 access token 失败: ${staged.errorMessage}');
+          // 注意：不调用 clearTokens，旧会话(若有)保持不变。
+          return ApiResult.fail(
+            staged.isAuthError ? t.errors.loginFailed : t.errors.networkError,
+          );
         }
 
         // 更新认证状态
-        _isAuthenticated.value = true;
+        _transitionTo(AuthSessionState.authenticated);
+
+        // 切号场景下 bool 流可能不触发(authenticated→authenticated)，
+        // 主动清空旧账号的内存资料，避免新账号资料加载完成前显示旧账号(A5)。
+        try {
+          Get.find<UserService>().beginReauth();
+        } catch (_) {}
 
         // 启动后台刷新
         _tokenManager.startBackgroundRefresh();
@@ -293,7 +381,7 @@ class AuthService extends GetxService {
   Future<void> logout() async {
     try {
       await _tokenManager.clearTokens();
-      _isAuthenticated.value = false;
+      _transitionTo(AuthSessionState.unauthenticated);
 
       try {
         Get.find<UserService>().handleLogout();
@@ -304,16 +392,17 @@ class AuthService extends GetxService {
       LogUtils.d('$_tag 用户已登出');
     } catch (e) {
       LogUtils.e('$_tag 登出过程中发生错误', error: e);
-      _isAuthenticated.value = false;
+      _transitionTo(AuthSessionState.unauthenticated);
     }
   }
 
-  /// 处理 token 过期（显示提示）
+  /// 处理 token 过期（显示提示）。
+  /// 始终清理 token —— 即使 _isAuthenticated 已为 false，也可能残留脏 token(#4)。
   Future<void> handleTokenExpired() async {
-    if (!_isAuthenticated.value) return;
+    final hadSession = _isAuthenticated.value || _tokenManager.hasToken;
 
     await _tokenManager.clearTokens();
-    _isAuthenticated.value = false;
+    _transitionTo(AuthSessionState.expired);
 
     try {
       Get.find<UserService>().handleLogout();
@@ -321,17 +410,21 @@ class AuthService extends GetxService {
       LogUtils.e('$_tag 通知 UserService 登出失败', error: e);
     }
 
-    _messageService.showMessage(t.errors.pleaseLoginAgain, MDToastType.warning);
+    // 仅在原先确有会话时提示，避免无会话时的误报 toast。
+    if (hadSession) {
+      _messageService.showMessage(
+        t.errors.pleaseLoginAgain,
+        MDToastType.warning,
+      );
+    }
 
     LogUtils.d('$_tag 用户已登出（token 过期）');
   }
 
-  /// 静默处理 token 过期
+  /// 静默处理 token 过期。始终清理 token，确保不残留脏 token(#4)。
   Future<void> _handleTokenExpiredSilently() async {
-    if (!_isAuthenticated.value && !_tokenManager.hasToken) return;
-
     await _tokenManager.clearTokens();
-    _isAuthenticated.value = false;
+    _transitionTo(AuthSessionState.expired);
 
     try {
       Get.find<UserService>().handleLogout();

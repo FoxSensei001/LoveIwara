@@ -107,12 +107,12 @@ class _LoginDialogState extends State<LoginDialog> {
     try {
       final rememberMe =
           _configService[ConfigKey.REMEMBER_ME_KEY] as bool? ?? false;
-      final credentials = await _storage.readCredentials();
+      // 仅预填用户名；不再保存/回填密码(HIGH#3)。
+      final username = await _storage.readRememberedUsername();
       if (!mounted) return;
       setState(() {
         _rememberMe = rememberMe;
-        _loginEmailController.text = credentials?['username'] ?? '';
-        _loginPasswordController.text = credentials?['password'] ?? '';
+        _loginEmailController.text = username ?? '';
       });
     } catch (error) {
       LogUtils.e('加载保存的凭据失败: $error', tag: 'LoginDialogV2');
@@ -164,16 +164,20 @@ class _LoginDialogState extends State<LoginDialog> {
         password,
       );
       if (result.isSuccess) {
-        await _userService.fetchUserProfile();
+        // 登录已成功(token 已就绪)；资料拉取成败决定提示文案，
+        // 避免"成功 toast + 资料为空"的割裂(#3)。资料失败时后台会重试。
+        final profileLoaded = await _userService.fetchUserProfile();
         showToastWidget(
           MDToastWidget(
-            message: slang.t.auth.loginSuccess,
-            type: MDToastType.success,
+            message: profileLoaded
+                ? slang.t.auth.loginSuccess
+                : slang.t.auth.loginSuccessProfilePending,
+            type: profileLoaded ? MDToastType.success : MDToastType.warning,
           ),
         );
         _userService.startNotificationTimer();
         if (_rememberMe) {
-          await _storage.writeCredentials(usernameOrEmail, password);
+          await _storage.writeRememberedUsername(usernameOrEmail);
         } else {
           await _storage.clearCredentials();
         }

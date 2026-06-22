@@ -51,10 +51,12 @@ class UserService extends GetxService {
   // 但考虑到数据新鲜度，设置为7天比较合理
   static const Duration _cacheValidDuration = Duration(days: 7);
 
-  bool get isLogin => currentUser.value != null;
+  /// 资料是否已加载（仅用于头像/资料展示，不代表登录态）。
+  bool get hasLoadedProfile => currentUser.value != null;
+
   RxBool isLogining = RxBool(false);
 
-  // 新增：基于token的认证状态
+  // 登录态权威源：基于 token（委托 AuthService.sessionState）。
   bool get isAuthenticated => _authService.isAuthenticated;
 
   String get userAvatar =>
@@ -198,7 +200,9 @@ class UserService extends GetxService {
 
   // 初始化用户数据
   void _initializeUserData() {
-    if (_authService.hasToken) {
+    // 以 refresh token 为准：access token 可能仍在刷新中重建，
+    // /user 请求会在 ApiService 层等待刷新完成(#4)。
+    if (_authService.hasRefreshToken) {
       try {
         LogUtils.d('$_tag 存在有效TOKEN，尝试加载用户数据');
         // 先尝试加载缓存的用户数据
@@ -225,8 +229,19 @@ class UserService extends GetxService {
     LogUtils.d('$_tag 用户数据已清理');
   }
 
-  // 抓取用户资料
-  Future<void> fetchUserProfile() async {
+  /// 重新登录/切号时调用：清空旧账号的内存资料与计数，
+  /// 等待调用方随后 fetchUserProfile 加载新账号(A5)。
+  /// 不动持久缓存（其已按 token subject 绑定，会在加载时自动校验丢弃）。
+  void beginReauth() {
+    currentUser.value = null;
+    _cachedUser = null;
+    _lastUserDataUpdate = null;
+    clearAllNotificationCounts();
+    LogUtils.d('$_tag 切号/重登：已清空旧账号内存资料');
+  }
+
+  // 抓取用户资料。返回是否成功，便于调用方(如登录页)据此决定提示文案(#3)。
+  Future<bool> fetchUserProfile() async {
     return _performLockedOperation(() async {
       try {
         isLogining.value = true;
@@ -268,8 +283,10 @@ class UserService extends GetxService {
         LogUtils.d('$_tag 用户资料解析完成: ${user.name}');
         // 获取到用户资料后启动通知计数定时器
         startNotificationTimer();
+        return true;
       } catch (e) {
         LogUtils.e('抓取用户资料失败', error: e);
+        return false;
       } finally {
         isLogining.value = false;
       }
@@ -295,7 +312,7 @@ class UserService extends GetxService {
     }
 
     // 登录
-    if (!_authService.hasToken) {
+    if (!_authService.isAuthenticated) {
       LoginService.showLogin();
       return ApiResult.fail(t.errors.pleaseLoginFirst);
     }
@@ -317,7 +334,7 @@ class UserService extends GetxService {
     }
 
     // 登录
-    if (!_authService.hasToken) {
+    if (!_authService.isAuthenticated) {
       LoginService.showLogin();
       return ApiResult.fail(t.errors.pleaseLoginFirst);
     }
@@ -339,7 +356,7 @@ class UserService extends GetxService {
     }
 
     // 登录
-    if (!_authService.hasToken) {
+    if (!_authService.isAuthenticated) {
       LoginService.showLogin();
       return ApiResult.fail(t.errors.pleaseLoginFirst);
     }
@@ -361,7 +378,7 @@ class UserService extends GetxService {
     }
 
     // 登录
-    if (!_authService.hasToken) {
+    if (!_authService.isAuthenticated) {
       LoginService.showLogin();
       return ApiResult.fail(t.errors.pleaseLoginFirst);
     }
@@ -755,12 +772,29 @@ class UserService extends GetxService {
   // 加载缓存的用户数据
   Future<void> _loadCachedUserData() async {
     try {
-      final cachedUserJson = await _storage.readSecureData('cached_user_data');
+      final cachedUserJson = await _storage.readSecureData(
+        KeyConstants.cachedUserData,
+      );
       final lastUpdateStr = await _storage.readSecureData(
-        'cached_user_data_timestamp',
+        KeyConstants.cachedUserDataTimestamp,
       );
 
       if (cachedUserJson != null && lastUpdateStr != null) {
+        // 校验缓存归属：当前 token subject 已知时，缓存 subject 必须与之一致，
+        // 否则判定为跨账号残留并丢弃(#5)——这也覆盖了旧缓存未写 subject(null)的情况。
+        // 仅当当前 subject 无法解析时才宽松沿用，避免误登出。
+        final cachedSubject = await _storage.readSecureData(
+          KeyConstants.cachedUserDataSubject,
+        );
+        final currentSubject = _authService.tokenManager.authTokenSubject;
+        if (currentSubject != null && cachedSubject != currentSubject) {
+          LogUtils.w(
+            '$_tag 缓存用户数据归属不符(cached=$cachedSubject, current=$currentSubject)，丢弃',
+          );
+          await _clearCachedUserData();
+          return;
+        }
+
         final lastUpdate = DateTime.tryParse(lastUpdateStr);
         if (lastUpdate != null) {
           _lastUserDataUpdate = lastUpdate;
@@ -798,11 +832,21 @@ class UserService extends GetxService {
       _lastUserDataUpdate = DateTime.now();
 
       final userJson = jsonEncode(user.toJson());
-      await _storage.writeSecureData('cached_user_data', userJson);
+      await _storage.writeSecureData(KeyConstants.cachedUserData, userJson);
       await _storage.writeSecureData(
-        'cached_user_data_timestamp',
+        KeyConstants.cachedUserDataTimestamp,
         _lastUserDataUpdate!.toIso8601String(),
       );
+      // 绑定缓存归属的账号标识(#5)。
+      final subject = _authService.tokenManager.authTokenSubject;
+      if (subject != null) {
+        await _storage.writeSecureData(
+          KeyConstants.cachedUserDataSubject,
+          subject,
+        );
+      } else {
+        await _storage.deleteSecureData(KeyConstants.cachedUserDataSubject);
+      }
 
       LogUtils.d('$_tag 用户数据已缓存');
     } catch (e) {
@@ -813,8 +857,9 @@ class UserService extends GetxService {
   // 清理缓存的用户数据
   Future<void> _clearCachedUserData() async {
     try {
-      await _storage.deleteSecureData('cached_user_data');
-      await _storage.deleteSecureData('cached_user_data_timestamp');
+      await _storage.deleteSecureData(KeyConstants.cachedUserData);
+      await _storage.deleteSecureData(KeyConstants.cachedUserDataTimestamp);
+      await _storage.deleteSecureData(KeyConstants.cachedUserDataSubject);
       LogUtils.d('$_tag 缓存用户数据已清理');
     } catch (e) {
       LogUtils.e('$_tag 清理缓存用户数据失败', error: e);
@@ -830,7 +875,9 @@ class UserService extends GetxService {
     }
 
     Future.microtask(() async {
-      if (_authService.hasToken) {
+      // 以 refresh token 为准：access token 可能仍在重建，
+      // /user 请求会在 ApiService 层等待刷新完成(#4)。
+      if (_authService.hasRefreshToken) {
         try {
           LogUtils.d('$_tag 开始后台刷新用户数据');
           // 启动阶段短暂延后，确保网络栈（Cloudflare context）已绑定

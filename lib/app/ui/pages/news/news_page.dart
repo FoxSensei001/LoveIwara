@@ -554,7 +554,7 @@ class _NewsTopBarTitle extends StatelessWidget {
               userService.notificationCount.value +
               userService.messagesCount.value;
 
-          if (user != null && userService.isLogin) {
+          if (user != null && userService.hasLoadedProfile) {
             return SizedBox(
               width: 36,
               height: 36,
