@@ -1097,7 +1097,15 @@ class DownloadService extends GetxService {
             try {
               final localRaf = raf;
               if (localRaf != null) {
-                localRaf.writeFromSync(chunk);
+                // 暂停流背压：异步写盘期间不投递下一个 chunk，保证写入顺序，
+                // 同时避免 writeFromSync 同步写大块时卡住 UI 线程（Windows 上
+                // 杀毒实时扫描会让同步写偶发阻塞数秒）。
+                subscription?.pause();
+                try {
+                  await localRaf.writeFrom(chunk);
+                } finally {
+                  subscription?.resume();
+                }
                 // chunk.length 在该 stream 中被推断为 num，需显式转 int
                 task.downloadedBytes += (chunk.length as int);
                 // 不再直接更新 _activeTasks以避免触发整个列表的重建
@@ -2053,7 +2061,8 @@ class DownloadService extends GetxService {
       raf = await file.open(mode: FileMode.writeOnly);
       int received = 0;
       await for (final chunk in (response.data.stream as Stream<List<int>>)) {
-        raf.writeFromSync(chunk);
+        // 异步写入，避免同步写盘在 Windows 上被杀毒实时扫描卡住 UI
+        await raf.writeFrom(chunk);
         received += chunk.length;
         if (total > 0) {
           _updateImageProgress(task.id, imageId, received / total);
