@@ -359,6 +359,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
       return ActionIconButtonScaffold(
         icon: Icons.notifications_none,
         tooltip: t.common.follow,
+        label: t.common.follow,
         filled: true,
         onPressed: () => _handleFollow(context),
       );
@@ -370,6 +371,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
       return ActionIconButtonScaffold(
         icon: isSpecialFollowed ? Icons.star : Icons.notifications_active,
         tooltip: t.common.followed,
+        label: t.common.followed,
         selected: true,
         highlightColor: isSpecialFollowed ? Colors.amber : null,
         onPressed: () => _showFollowOptionsSheet(context),

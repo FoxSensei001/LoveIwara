@@ -134,6 +134,7 @@ class _FriendButtonWidgetState extends State<FriendButtonWidget> {
       return ActionIconButtonScaffold(
         icon: Icons.hourglass_top,
         tooltip: t.common.cancelFriendRequest,
+        label: t.common.cancelFriendRequest,
         selected: true,
         highlightColor: Colors.orange,
         onPressed: () => _handleFriendAction(context),
@@ -143,6 +144,7 @@ class _FriendButtonWidgetState extends State<FriendButtonWidget> {
       return ActionIconButtonScaffold(
         icon: Icons.how_to_reg,
         tooltip: t.common.removeFriend,
+        label: t.common.removeFriend,
         selected: true,
         onPressed: () => _handleFriendAction(context),
       );
@@ -150,6 +152,7 @@ class _FriendButtonWidgetState extends State<FriendButtonWidget> {
     return ActionIconButtonScaffold(
       icon: Icons.person_add_alt_1,
       tooltip: t.common.addFriend,
+      label: t.common.addFriend,
       onPressed: () => _handleFriendAction(context),
     );
   }

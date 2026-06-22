@@ -8,6 +8,10 @@ class ActionIconButtonScaffold extends StatelessWidget {
   final String tooltip;
   final VoidCallback? onPressed;
 
+  /// 可选的简短文字标签。提供时渲染为「图标 + 文字」的胶囊按钮，
+  /// 让用户一眼看懂按钮含义；为空时退化为纯图标圆形按钮。
+  final String? label;
+
   /// 主操作：实心强调样式。
   final bool filled;
 
@@ -25,6 +29,7 @@ class ActionIconButtonScaffold extends StatelessWidget {
     required this.icon,
     required this.tooltip,
     this.onPressed,
+    this.label,
     this.filled = false,
     this.selected = false,
     this.highlightColor,
@@ -34,6 +39,7 @@ class ActionIconButtonScaffold extends StatelessWidget {
     : icon = Icons.hourglass_empty,
       tooltip = '',
       onPressed = null,
+      label = null,
       filled = false,
       selected = false,
       highlightColor = null,
@@ -71,19 +77,46 @@ class ActionIconButtonScaffold extends StatelessWidget {
       fg = scheme.onSurfaceVariant;
     }
 
+    final hasLabel = label != null && label!.isNotEmpty;
+
     return Tooltip(
       message: tooltip,
       child: Material(
         color: bg,
-        shape: const CircleBorder(),
+        shape: hasLabel ? const StadiumBorder() : const CircleBorder(),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onPressed,
-          child: SizedBox(
-            width: _size,
-            height: _size,
-            child: Icon(icon, size: 20, color: fg),
-          ),
+          child: hasLabel
+              ? ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: _size),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(icon, size: 18, color: fg),
+                        const SizedBox(width: 6),
+                        Text(
+                          label!,
+                          style: TextStyle(
+                            color: fg,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : SizedBox(
+                  width: _size,
+                  height: _size,
+                  child: Icon(icon, size: 20, color: fg),
+                ),
         ),
       ),
     );

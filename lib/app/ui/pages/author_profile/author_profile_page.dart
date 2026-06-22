@@ -940,80 +940,71 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                                 }),
                               ],
                             ),
-                            SizedBox(height: isNarrowScreen ? 4 : 8),
-                            SizedBox(
-                              width: double.infinity,
-                              child: Wrap(
-                                spacing: 10.0,
-                                runSpacing: 8.0,
-                                alignment: WrapAlignment.start,
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                children: [
-                                  // 朋友按钮
-                                  Obx(() {
-                                    // 如果是本人，则不显示按钮
-                                    if (userService.currentUser.value?.id ==
-                                        profileController.author.value?.id) {
-                                      return const SizedBox.shrink();
-                                    }
-
-                                    return FriendButtonWidget(
-                                      iconOnly: true,
-                                      user: profileController.author.value!,
-                                      onUserUpdated: (updatedUser) {
-                                        profileController.author.value =
-                                            updatedUser;
-                                        profileController
-                                            .isFriendRequestPending
-                                            .value = !profileController
-                                            .isFriendRequestPending
-                                            .value;
-                                      },
-                                    );
-                                  }),
-                                  // 关注按钮
-                                  Obx(() {
-                                    // 如果是本人，则不显示按钮
-                                    if (userService.currentUser.value?.id ==
-                                        profileController.author.value?.id) {
-                                      return const SizedBox.shrink();
-                                    }
-
-                                    if (profileController.author.value ==
-                                        null) {
-                                      return const SizedBox.shrink();
-                                    }
-
-                                    return FollowButtonWidget(
-                                      iconOnly: true,
-                                      user: profileController.author.value!,
-                                      onUserUpdated: (updatedUser) {
-                                        profileController.author.value =
-                                            updatedUser;
-                                      },
-                                    );
-                                  }),
-                                  // 屏蔽按钮（本地内容屏蔽）
-                                  Obx(() {
-                                    if (userService.currentUser.value?.id ==
-                                        profileController.author.value?.id) {
-                                      return const SizedBox.shrink();
-                                    }
-                                    if (profileController.author.value ==
-                                        null) {
-                                      return const SizedBox.shrink();
-                                    }
-                                    return BlockUserButtonWidget(
-                                      iconOnly: true,
-                                      user: profileController.author.value!,
-                                    );
-                                  }),
-                                ],
-                              ),
-                            ),
                           ],
                         ),
                       ),
+                    ],
+                  ),
+                  // 操作按钮：占满整行宽度，空间不足时自动换行
+                  SizedBox(height: isNarrowScreen ? 8 : 12),
+                  Wrap(
+                    spacing: 10.0,
+                    runSpacing: 8.0,
+                    alignment: WrapAlignment.start,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      // 朋友按钮
+                      Obx(() {
+                        // 如果是本人，则不显示按钮
+                        if (userService.currentUser.value?.id ==
+                            profileController.author.value?.id) {
+                          return const SizedBox.shrink();
+                        }
+
+                        return FriendButtonWidget(
+                          iconOnly: true,
+                          user: profileController.author.value!,
+                          onUserUpdated: (updatedUser) {
+                            profileController.author.value = updatedUser;
+                            profileController.isFriendRequestPending.value =
+                                !profileController.isFriendRequestPending.value;
+                          },
+                        );
+                      }),
+                      // 关注按钮
+                      Obx(() {
+                        // 如果是本人，则不显示按钮
+                        if (userService.currentUser.value?.id ==
+                            profileController.author.value?.id) {
+                          return const SizedBox.shrink();
+                        }
+
+                        if (profileController.author.value == null) {
+                          return const SizedBox.shrink();
+                        }
+
+                        return FollowButtonWidget(
+                          iconOnly: true,
+                          user: profileController.author.value!,
+                          onUserUpdated: (updatedUser) {
+                            profileController.author.value = updatedUser;
+                          },
+                        );
+                      }),
+                      // 屏蔽按钮（本地内容屏蔽）
+                      Obx(() {
+                        if (userService.currentUser.value?.id ==
+                            profileController.author.value?.id) {
+                          return const SizedBox.shrink();
+                        }
+                        if (profileController.author.value == null) {
+                          return const SizedBox.shrink();
+                        }
+                        return BlockUserButtonWidget(
+                          iconOnly: true,
+                          user: profileController.author.value!,
+                        );
+                      }),
                     ],
                   ),
                   SizedBox(height: isNarrowScreen ? 4 : 8),

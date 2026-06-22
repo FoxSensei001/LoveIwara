@@ -75,6 +75,7 @@ class BlockUserButtonWidget extends StatelessWidget {
         return ActionIconButtonScaffold(
           icon: blocked ? Icons.block : Icons.block_outlined,
           tooltip: blocked ? t.unblockUser : t.blockUser,
+          label: blocked ? t.unblockUser : t.blockUser,
           selected: blocked,
           highlightColor: blocked
               ? Theme.of(context).colorScheme.error
