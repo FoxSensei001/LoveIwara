@@ -386,6 +386,8 @@ enum ConfigKey {
   PLAYER_KEYBINDINGS,
   // 热门视频/图库的已保存快速筛选配置，存为 JSON：{segment: [config, ...]}
   POPULAR_SAVED_SEARCH_CONFIGS,
+  // 搜索结果页的已保存搜索，存为 JSON：[savedSearch, ...]
+  SEARCH_SAVED_QUERIES,
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -631,6 +633,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'player_keybindings';
       case ConfigKey.POPULAR_SAVED_SEARCH_CONFIGS:
         return 'popular_saved_search_configs';
+      case ConfigKey.SEARCH_SAVED_QUERIES:
+        return 'search_saved_queries';
     }
   }
 
@@ -889,6 +893,8 @@ extension ConfigKeyExtension on ConfigKey {
         return <String, dynamic>{};
       case ConfigKey.POPULAR_SAVED_SEARCH_CONFIGS:
         return <String, dynamic>{};
+      case ConfigKey.SEARCH_SAVED_QUERIES:
+        return <dynamic>[];
     }
   }
 }

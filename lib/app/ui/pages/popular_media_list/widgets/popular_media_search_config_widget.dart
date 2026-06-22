@@ -22,16 +22,12 @@ class PopularMediaSearchConfig extends StatefulWidget {
   final String searchRating;
   final Function(List<Tag> tags, String year, String rating) onConfirm;
 
-  /// 保存当前筛选为「快速筛选配置」。为空时不展示保存按钮。
-  final Function(List<Tag> tags, String year, String rating)? onSave;
-
   const PopularMediaSearchConfig({
     super.key,
     required this.searchTags,
     required this.searchYear,
     required this.searchRating,
     required this.onConfirm,
-    this.onSave,
   });
 
   @override
@@ -125,16 +121,6 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (widget.onSave != null)
-                        IconButton(
-                          icon: const Icon(Icons.bookmark_add_outlined),
-                          tooltip: t.savedSearchConfig.saveTooltip,
-                          onPressed: () => widget.onSave!(
-                            tags,
-                            _buildFinalDate(),
-                            _selectedRating.value,
-                          ),
-                        ),
                       IconButton(
                         icon: const Icon(Icons.check),
                         onPressed: () {
@@ -160,16 +146,6 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
         appBar: AppBar(
           title: Text(t.settings.searchConfig),
           actions: [
-            if (widget.onSave != null)
-              IconButton(
-                icon: const Icon(Icons.bookmark_add_outlined),
-                tooltip: t.savedSearchConfig.saveTooltip,
-                onPressed: () => widget.onSave!(
-                  tags,
-                  _buildFinalDate(),
-                  _selectedRating.value,
-                ),
-              ),
             IconButton(
               icon: const Icon(Icons.check),
               onPressed: () {

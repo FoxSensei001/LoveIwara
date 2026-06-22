@@ -86,6 +86,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsAnime4kEn anime4k = TranslationsAnime4kEn._(_root);
 	late final TranslationsSiteModeEn siteMode = TranslationsSiteModeEn._(_root);
 	late final TranslationsSavedSearchConfigEn savedSearchConfig = TranslationsSavedSearchConfigEn._(_root);
+	late final TranslationsSavedSearchEn savedSearch = TranslationsSavedSearchEn._(_root);
 }
 
 // Path: personalProfile
@@ -1932,6 +1933,12 @@ class TranslationsSettingsEn {
 
 	/// en: 'Importing will overwrite your current settings and history (browsing history, playback progress, favorites, etc.). Continue?'
 	String get importConfigOverwriteWarning => 'Importing will overwrite your current settings and history (browsing history, playback progress, favorites, etc.). Continue?';
+
+	/// en: 'Import successful'
+	String get importConfigRestartTitle => 'Import successful';
+
+	/// en: 'Your configuration has been imported. Please fully close and reopen the app for all changes to take effect.'
+	String get importConfigRestartContent => 'Your configuration has been imported. Please fully close and reopen the app for all changes to take effect.';
 
 	/// en: 'History Update Logs'
 	String get historyUpdateLogs => 'History Update Logs';
@@ -5370,6 +5377,54 @@ class TranslationsSavedSearchConfigEn {
 	String tagsCount({required Object count}) => '${count} tags';
 }
 
+// Path: savedSearch
+class TranslationsSavedSearchEn {
+	TranslationsSavedSearchEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Saved Searches'
+	String get title => 'Saved Searches';
+
+	/// en: 'No saved searches yet'
+	String get empty => 'No saved searches yet';
+
+	/// en: 'Save current search'
+	String get saveTooltip => 'Save current search';
+
+	/// en: 'Save Search'
+	String get namePromptTitle => 'Save Search';
+
+	/// en: 'Name'
+	String get nameLabel => 'Name';
+
+	/// en: 'Enter a name'
+	String get nameHint => 'Enter a name';
+
+	/// en: 'Search saved'
+	String get saveSuccess => 'Search saved';
+
+	/// en: 'Search removed'
+	String get deleteSuccess => 'Search removed';
+
+	/// en: 'Save current search'
+	String get addCurrent => 'Save current search';
+
+	/// en: 'Long-press and drag to reorder'
+	String get reorderHint => 'Long-press and drag to reorder';
+
+	/// en: 'Rename'
+	String get rename => 'Rename';
+
+	/// en: '(No keyword)'
+	String get noKeyword => '(No keyword)';
+
+	/// en: '${count} filters'
+	String filtersCount({required Object count}) => '${count} filters';
+}
+
 // Path: common.pagination
 class TranslationsCommonPaginationEn {
 	TranslationsCommonPaginationEn._(this._root);
@@ -8347,6 +8402,8 @@ extension on Translations {
 			'settings.exportIncludeSensitive' => 'Include sensitive info',
 			'settings.exportIncludeSensitiveDesc' => 'Includes API keys, session tokens and proxy address. Only enable when backing up to your own device.',
 			'settings.importConfigOverwriteWarning' => 'Importing will overwrite your current settings and history (browsing history, playback progress, favorites, etc.). Continue?',
+			'settings.importConfigRestartTitle' => 'Import successful',
+			'settings.importConfigRestartContent' => 'Your configuration has been imported. Please fully close and reopen the app for all changes to take effect.',
 			'settings.historyUpdateLogs' => 'History Update Logs',
 			'settings.noUpdateLogs' => 'No update logs available',
 			'settings.versionLabel' => 'Version: {version}',
@@ -8764,10 +8821,10 @@ extension on Translations {
 			'videoDetail.pipMode' => 'PiP Mode',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => 'Resume from last position: ${position}',
 			'videoDetail.localInfo.videoInfo' => 'Video Info',
-			'videoDetail.localInfo.currentQuality' => 'Current Quality',
-			'videoDetail.localInfo.duration' => 'Duration',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.localInfo.currentQuality' => 'Current Quality',
+			'videoDetail.localInfo.duration' => 'Duration',
 			'videoDetail.localInfo.resolution' => 'Resolution',
 			'videoDetail.localInfo.fileInfo' => 'File Info',
 			'videoDetail.localInfo.fileName' => 'File Name',
@@ -9278,10 +9335,10 @@ extension on Translations {
 			'favorite.removeConfirmationFailed' => 'Failed to remove item from favorites',
 			'favorite.createFolderSuccess' => 'Folder created successfully',
 			'favorite.createFolderFailed' => 'Failed to create folder',
-			'favorite.createFolder' => 'Create Folder',
-			'favorite.enterFolderName' => 'Enter folder name',
 			_ => null,
 		} ?? switch (path) {
+			'favorite.createFolder' => 'Create Folder',
+			'favorite.enterFolderName' => 'Enter folder name',
 			'favorite.enterFolderNameHere' => 'Enter folder name here...',
 			'favorite.create' => 'Create',
 			'favorite.items' => 'Items',
@@ -9792,10 +9849,10 @@ extension on Translations {
 			'emoji.confirmDeleteGroup' => 'Are you sure you want to delete this emoji group? All images in the group will also be deleted.',
 			'emoji.imageCount' => ({required Object count}) => '${count} images',
 			'emoji.selectEmoji' => 'Select Emoji',
-			'emoji.noEmojisInGroup' => 'No emojis in this group',
-			'emoji.goToSettingsToAddEmojis' => 'Go to settings to add emojis',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.noEmojisInGroup' => 'No emojis in this group',
+			'emoji.goToSettingsToAddEmojis' => 'Go to settings to add emojis',
 			'emoji.emojiManagement' => 'Emoji Management',
 			'emoji.manageEmojiGroupsAndImages' => 'Manage emoji groups and images',
 			'emoji.uploadLocalImages' => 'Upload Local Images',
@@ -10002,6 +10059,19 @@ extension on Translations {
 			'savedSearchConfig.unnamed' => 'Unnamed',
 			'savedSearchConfig.noConditions' => 'All content (no filter)',
 			'savedSearchConfig.tagsCount' => ({required Object count}) => '${count} tags',
+			'savedSearch.title' => 'Saved Searches',
+			'savedSearch.empty' => 'No saved searches yet',
+			'savedSearch.saveTooltip' => 'Save current search',
+			'savedSearch.namePromptTitle' => 'Save Search',
+			'savedSearch.nameLabel' => 'Name',
+			'savedSearch.nameHint' => 'Enter a name',
+			'savedSearch.saveSuccess' => 'Search saved',
+			'savedSearch.deleteSuccess' => 'Search removed',
+			'savedSearch.addCurrent' => 'Save current search',
+			'savedSearch.reorderHint' => 'Long-press and drag to reorder',
+			'savedSearch.rename' => 'Rename',
+			'savedSearch.noKeyword' => '(No keyword)',
+			'savedSearch.filtersCount' => ({required Object count}) => '${count} filters',
 			_ => null,
 		};
 	}

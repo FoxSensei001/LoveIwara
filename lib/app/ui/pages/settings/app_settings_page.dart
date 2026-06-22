@@ -275,7 +275,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     );
     if (confirmed != true) return;
     try {
-      await Get.find<ConfigBackupService>().importConfig();
+      final imported = await Get.find<ConfigBackupService>().importConfig();
+      if (imported && mounted) {
+        await _showImportRestartDialog();
+      }
     } catch (e) {
       showToastWidget(
         MDToastWidget(
@@ -284,6 +287,27 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         ),
       );
     }
+  }
+
+  // 导入成功后提示需重启：导入只写入数据库，配置在应用启动时加载到内存，
+  // 因此需用户完全关闭并重新打开应用，所有更改才会生效。
+  Future<void> _showImportRestartDialog() async {
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(slang.t.settings.importConfigRestartTitle),
+          content: Text(slang.t.settings.importConfigRestartContent),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(slang.t.common.confirm),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override

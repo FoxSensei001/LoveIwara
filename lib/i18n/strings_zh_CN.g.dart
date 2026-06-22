@@ -83,6 +83,7 @@ class TranslationsZhCn with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsAnime4kZhCn anime4k = _TranslationsAnime4kZhCn._(_root);
 	@override late final _TranslationsSiteModeZhCn siteMode = _TranslationsSiteModeZhCn._(_root);
 	@override late final _TranslationsSavedSearchConfigZhCn savedSearchConfig = _TranslationsSavedSearchConfigZhCn._(_root);
+	@override late final _TranslationsSavedSearchZhCn savedSearch = _TranslationsSavedSearchZhCn._(_root);
 }
 
 // Path: personalProfile
@@ -782,6 +783,8 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get exportIncludeSensitive => '包含敏感信息';
 	@override String get exportIncludeSensitiveDesc => '包含 API 密钥、会话令牌和代理地址。仅在备份到自己的设备时开启。';
 	@override String get importConfigOverwriteWarning => '导入会覆盖当前的设置与历史记录（浏览历史、播放进度、收藏等），确定继续吗？';
+	@override String get importConfigRestartTitle => '导入成功';
+	@override String get importConfigRestartContent => '配置已导入。请完全关闭并重新打开应用，所有更改才会生效。';
 	@override String get historyUpdateLogs => '历代更新日志';
 	@override String get noUpdateLogs => '未获取到更新日志';
 	@override String get versionLabel => '版本: {version}';
@@ -2148,6 +2151,28 @@ class _TranslationsSavedSearchConfigZhCn implements TranslationsSavedSearchConfi
 	@override String get unnamed => '未命名';
 	@override String get noConditions => '全部内容（无筛选）';
 	@override String tagsCount({required Object count}) => '${count} 个标签';
+}
+
+// Path: savedSearch
+class _TranslationsSavedSearchZhCn implements TranslationsSavedSearchEn {
+	_TranslationsSavedSearchZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '已保存搜索';
+	@override String get empty => '还没有保存的搜索';
+	@override String get saveTooltip => '保存当前搜索';
+	@override String get namePromptTitle => '保存搜索';
+	@override String get nameLabel => '名称';
+	@override String get nameHint => '请输入名称';
+	@override String get saveSuccess => '已保存搜索';
+	@override String get deleteSuccess => '已删除搜索';
+	@override String get addCurrent => '保存当前搜索';
+	@override String get reorderHint => '长按拖动可调整顺序';
+	@override String get rename => '重命名';
+	@override String get noKeyword => '（无关键词）';
+	@override String filtersCount({required Object count}) => '${count} 个筛选';
 }
 
 // Path: common.pagination
@@ -3828,6 +3853,8 @@ extension on TranslationsZhCn {
 			'settings.exportIncludeSensitive' => '包含敏感信息',
 			'settings.exportIncludeSensitiveDesc' => '包含 API 密钥、会话令牌和代理地址。仅在备份到自己的设备时开启。',
 			'settings.importConfigOverwriteWarning' => '导入会覆盖当前的设置与历史记录（浏览历史、播放进度、收藏等），确定继续吗？',
+			'settings.importConfigRestartTitle' => '导入成功',
+			'settings.importConfigRestartContent' => '配置已导入。请完全关闭并重新打开应用，所有更改才会生效。',
 			'settings.historyUpdateLogs' => '历代更新日志',
 			'settings.noUpdateLogs' => '未获取到更新日志',
 			'settings.versionLabel' => '版本: {version}',
@@ -4240,10 +4267,10 @@ extension on TranslationsZhCn {
 			'signIn.pleaseSelectSignInStatus' => '请选择签到状态',
 			'subscriptions.pleaseLoginFirstToViewYourSubscriptions' => '请登录以查看您的订阅内容。',
 			'subscriptions.selectUser' => '选择用户',
-			'subscriptions.noSubscribedUsers' => '暂无已订阅的用户',
-			'subscriptions.showAllSubscribedUsersContent' => '显示所有已订阅用户的内容',
 			_ => null,
 		} ?? switch (path) {
+			'subscriptions.noSubscribedUsers' => '暂无已订阅的用户',
+			'subscriptions.showAllSubscribedUsersContent' => '显示所有已订阅用户的内容',
 			'videoDetail.pipMode' => '画中画模式',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => '从上次播放位置继续播放: ${position}',
 			'videoDetail.localInfo.videoInfo' => '视频信息',
@@ -4754,10 +4781,10 @@ extension on TranslationsZhCn {
 			'favorite.remove' => '删除',
 			'favorite.removeSuccess' => '删除成功',
 			'favorite.removeFailed' => '删除失败',
-			'favorite.removeConfirmation' => '确定要删除这个项目吗？',
-			'favorite.removeConfirmationSuccess' => '项目已从收藏夹中删除',
 			_ => null,
 		} ?? switch (path) {
+			'favorite.removeConfirmation' => '确定要删除这个项目吗？',
+			'favorite.removeConfirmationSuccess' => '项目已从收藏夹中删除',
 			'favorite.removeConfirmationFailed' => '删除项目失败',
 			'favorite.createFolderSuccess' => '文件夹创建成功',
 			'favorite.createFolderFailed' => '创建文件夹失败',
@@ -5268,10 +5295,10 @@ extension on TranslationsZhCn {
 			'navigationOrderSettings.previewEffect' => '预览效果',
 			'navigationOrderSettings.bottomNavigationPreview' => '底部导航栏预览：',
 			'navigationOrderSettings.sidebarPreview' => '侧边栏预览：',
-			'navigationOrderSettings.confirmResetNavigationOrder' => '确认重置导航顺序',
-			'navigationOrderSettings.confirmResetNavigationOrderDesc' => '确定要将导航顺序重置为默认设置吗？',
 			_ => null,
 		} ?? switch (path) {
+			'navigationOrderSettings.confirmResetNavigationOrder' => '确认重置导航顺序',
+			'navigationOrderSettings.confirmResetNavigationOrderDesc' => '确定要将导航顺序重置为默认设置吗？',
 			'navigationOrderSettings.cancel' => '取消',
 			'navigationOrderSettings.show' => '显示',
 			'navigationOrderSettings.hide' => '隐藏',
@@ -5483,6 +5510,19 @@ extension on TranslationsZhCn {
 			'savedSearchConfig.unnamed' => '未命名',
 			'savedSearchConfig.noConditions' => '全部内容（无筛选）',
 			'savedSearchConfig.tagsCount' => ({required Object count}) => '${count} 个标签',
+			'savedSearch.title' => '已保存搜索',
+			'savedSearch.empty' => '还没有保存的搜索',
+			'savedSearch.saveTooltip' => '保存当前搜索',
+			'savedSearch.namePromptTitle' => '保存搜索',
+			'savedSearch.nameLabel' => '名称',
+			'savedSearch.nameHint' => '请输入名称',
+			'savedSearch.saveSuccess' => '已保存搜索',
+			'savedSearch.deleteSuccess' => '已删除搜索',
+			'savedSearch.addCurrent' => '保存当前搜索',
+			'savedSearch.reorderHint' => '长按拖动可调整顺序',
+			'savedSearch.rename' => '重命名',
+			'savedSearch.noKeyword' => '（无关键词）',
+			'savedSearch.filtersCount' => ({required Object count}) => '${count} 个筛选',
 			_ => null,
 		};
 	}

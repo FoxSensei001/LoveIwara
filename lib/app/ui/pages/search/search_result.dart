@@ -23,6 +23,9 @@ import 'package:i_iwara/app/models/image.model.dart';
 import 'search_dialog.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/tag_detail_dialog.dart';
+import 'package:i_iwara/app/models/saved_search.model.dart';
+import 'package:i_iwara/app/services/saved_search_service.dart';
+import 'widgets/saved_search_drawer.dart';
 
 class SearchResultController extends GetxController {
   // 搜索状态管理
@@ -180,9 +183,17 @@ class _SearchResultState extends State<SearchResult> {
   final ScrollController _scrollController = ScrollController();
   late SearchResultController searchController;
 
+  /// 用于打开右侧「已保存搜索」抽屉。
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  late final SavedSearchService _savedSearchService;
+
   @override
   void initState() {
     super.initState();
+    if (!Get.isRegistered<SavedSearchService>()) {
+      Get.put(SavedSearchService(), permanent: true);
+    }
+    _savedSearchService = Get.find<SavedSearchService>();
     _initializeSearchController();
     _setupSearchController();
     _setupSearchTextController();
@@ -533,6 +544,106 @@ class _SearchResultState extends State<SearchResult> {
     searchController.refreshSearch();
   }
 
+  // 打开右侧「已保存搜索」抽屉
+  void _openSavedSearchDrawer() {
+    _scaffoldKey.currentState?.openEndDrawer();
+  }
+
+  // 根据当前搜索条件生成一个默认名称
+  String _buildDefaultSearchName() {
+    final keyword = searchController.currentSearch.value.trim();
+    final tagName =
+        searchController.currentSingleTagNameBehindSearchInput.value.trim();
+    final segment = searchController.selectedSegment.value;
+    final segmentLabel = SavedSearchDrawer.segmentLabel(segment);
+
+    if (keyword.isNotEmpty) return '$segmentLabel · $keyword';
+    if (tagName.isNotEmpty) return '$segmentLabel · #$tagName';
+    return segmentLabel;
+  }
+
+  // 弹出命名对话框，将当前搜索条件保存为一条已保存搜索
+  Future<void> _promptSaveCurrentSearch() async {
+    final t = slang.Translations.of(context);
+    // 收起抽屉，避免命名弹窗被遮挡
+    _scaffoldKey.currentState?.closeEndDrawer();
+
+    final defaultName = _buildDefaultSearchName();
+    final controller = TextEditingController(text: defaultName);
+    final name = await showAppDialog<String>(
+      Builder(
+        builder: (dialogContext) => AlertDialog(
+          title: Text(t.savedSearch.namePromptTitle),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: InputDecoration(
+              labelText: t.savedSearch.nameLabel,
+              hintText: t.savedSearch.nameHint,
+            ),
+            onSubmitted: (v) => Navigator.of(dialogContext).pop(v.trim()),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(t.common.cancel),
+            ),
+            TextButton(
+              onPressed: () =>
+                  Navigator.of(dialogContext).pop(controller.text.trim()),
+              child: Text(t.common.save),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (name == null) return;
+
+    final extData = searchController.extData.value;
+    final search = SavedSearch(
+      id: DateTime.now().microsecondsSinceEpoch.toString(),
+      name: name.isEmpty ? defaultName : name,
+      keyword: searchController.currentSearch.value,
+      segment: searchController.selectedSegment.value,
+      sort: searchController.selectedSort.value,
+      filters: searchController.filters.toList(),
+      searchType: searchController.searchType.value,
+      extData: extData == null ? null : Map<String, dynamic>.from(extData),
+      singleTagName:
+          searchController.currentSingleTagNameBehindSearchInput.value,
+    );
+    await _savedSearchService.add(search);
+    showToastWidget(
+      MDToastWidget(
+        message: t.savedSearch.saveSuccess,
+        type: MDToastType.success,
+      ),
+      position: ToastPosition.bottom,
+    );
+  }
+
+  // 应用一条已保存搜索并关闭抽屉
+  void _applySavedSearch(SavedSearch search) {
+    // 注意顺序：updateSegment 会重置排序与筛选项，须在其后再设置排序/筛选项
+    searchController.updateSearch(search.keyword);
+    searchController.updateSegment(search.segment);
+    searchController.updateSort(search.sort);
+    searchController.updateFilters(search.filters.toList());
+
+    // 还原 Oreno3D 单实体浏览态（普通搜索时这些值为空）
+    searchController.updateExtData(
+      search.extData == null ? null : Map<String, dynamic>.from(search.extData!),
+    );
+    searchController.updateSearchType(search.searchType);
+    searchController.updateCurrentSingleTagNameBehindSearchInput(
+      search.singleTagName,
+    );
+
+    _searchController.text = search.keyword;
+    searchController.refreshSearch();
+    _scaffoldKey.currentState?.closeEndDrawer();
+  }
+
   // 构建分段选择器
   Widget _buildSegmentSelector() {
     return Obx(
@@ -596,6 +707,12 @@ class _SearchResultState extends State<SearchResult> {
         icon: const Icon(Icons.refresh),
         tooltip: t.common.refresh,
       ),
+      // 已保存搜索入口（始终显示）
+      IconButton(
+        onPressed: _openSavedSearchDrawer,
+        icon: const Icon(Icons.bookmarks_outlined),
+        tooltip: t.savedSearch.title,
+      ),
     ];
   }
 
@@ -631,6 +748,11 @@ class _SearchResultState extends State<SearchResult> {
     final String uniqueTag = 'search_result_${identityHashCode(this)}';
 
     return Scaffold(
+      key: _scaffoldKey,
+      endDrawer: SavedSearchDrawer(
+        onApply: _applySavedSearch,
+        onAddCurrent: _promptSaveCurrentSearch,
+      ),
       appBar: AppBar(
         title: Text(t.search.searchResult),
         actions: _buildAppBarActions(),

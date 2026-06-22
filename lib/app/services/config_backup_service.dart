@@ -169,10 +169,12 @@ class ConfigBackupService extends GetxService {
   ///
   /// 导入会先选择并解析文件，再整体覆盖现有数据。为兼容不同应用版本之间的 schema 差异，
   /// 仅导入当前数据库中确实存在的表与列，未知表 / 未知列会被安全跳过。
-  Future<void> importConfig() async {
+  /// 返回 true 表示确实完成了一次导入；用户取消选择文件时返回 false。
+  /// 导入失败会抛出异常，由调用方处理。
+  Future<bool> importConfig() async {
     if (_isTaskRunning) {
       showToastWidget(MDToastWidget(message: slang.t.common.taskRunning, type: MDToastType.error));
-      return;
+      return false;
     }
     _isTaskRunning = true;
     _showLoading();
@@ -184,7 +186,7 @@ class ConfigBackupService extends GetxService {
         final filePath = await FlutterFileDialog.pickFile(params: params);
         if (filePath == null) {
           showToastWidget(MDToastWidget(message: slang.t.common.operationCancelled, type: MDToastType.info));
-          return; // 用户取消选择
+          return false; // 用户取消选择
         }
         final file = File(filePath);
         content = await file.readAsString();
@@ -194,7 +196,7 @@ class ConfigBackupService extends GetxService {
         final fs.XFile? file = await fs.openFile(acceptedTypeGroups: [typeGroup]);
         if (file == null) {
           showToastWidget(MDToastWidget(message: slang.t.common.operationCancelled, type: MDToastType.info));
-          return; // 用户取消选择
+          return false; // 用户取消选择
         }
         content = await file.readAsString();
       }
@@ -274,7 +276,7 @@ class ConfigBackupService extends GetxService {
       } finally {
         db.execute('PRAGMA foreign_keys = ON;');
       }
-      showToastWidget(MDToastWidget(message: slang.t.settings.importConfigSuccess, type: MDToastType.success));
+      return true;
     } catch (e) {
       LogUtils.e("配置导入失败: ${e.toString()}", error: e, tag: "ConfigBackupService");
       throw Exception("配置导入失败: ${e.toString()}");

@@ -633,6 +633,8 @@ settings:
   exportIncludeSensitive: "包含敏感資訊"
   exportIncludeSensitiveDesc: "包含 API 金鑰、工作階段權杖與代理位址。僅在備份到自己的裝置時開啟。"
   importConfigOverwriteWarning: "匯入會覆蓋目前的設定與歷史紀錄（瀏覽紀錄、播放進度、收藏等），確定要繼續嗎？"
+  importConfigRestartTitle: "匯入成功"
+  importConfigRestartContent: "設定已匯入。請完全關閉並重新開啟應用程式，所有變更才會生效。"
   historyUpdateLogs: "歷代更新日誌"
   noUpdateLogs: "未獲取到更新日誌"
   versionLabel: "版本: {version}"
@@ -2458,3 +2460,17 @@ savedSearchConfig:
   unnamed: 未命名
   noConditions: 全部內容（無篩選）
   tagsCount: '${count} 個標籤'
+savedSearch:
+  title: 已儲存搜尋
+  empty: 還沒有儲存的搜尋
+  saveTooltip: 儲存目前搜尋
+  namePromptTitle: 儲存搜尋
+  nameLabel: 名稱
+  nameHint: 請輸入名稱
+  saveSuccess: 已儲存搜尋
+  deleteSuccess: 已刪除搜尋
+  addCurrent: 儲存目前搜尋
+  reorderHint: 長按拖曳可調整順序
+  rename: 重新命名
+  noKeyword: （無關鍵字）
+  filtersCount: '${count} 個篩選'

@@ -78,6 +78,29 @@ class Filter {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'field': field,
+      'locale': locale,
+      'operator': operator.name,
+      'value': value,
+    };
+  }
+
+  factory Filter.fromJson(Map<String, dynamic> json) {
+    return Filter(
+      id: json['id']?.toString() ?? '',
+      field: json['field']?.toString() ?? '',
+      locale: json['locale'] as String?,
+      operator: FilterOperator.values.firstWhere(
+        (e) => e.name == json['operator'],
+        orElse: () => FilterOperator.CONTAINS,
+      ),
+      value: json['value'],
+    );
+  }
+
   // to string
   @override
   String toString() {

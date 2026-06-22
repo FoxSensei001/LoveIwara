@@ -702,7 +702,7 @@ class NaviService {
     appRouter.push(
       '/settings_page',
       extra: SettingsPageExtra(
-        initialPage: ProxyUtil.isSupportedPlatform() ? 11 : 10,
+        initialPage: ProxyUtil.isSupportedPlatform() ? 12 : 11,
       ),
     );
   }

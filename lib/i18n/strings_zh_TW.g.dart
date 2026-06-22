@@ -83,6 +83,7 @@ class TranslationsZhTw with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsAnime4kZhTw anime4k = _TranslationsAnime4kZhTw._(_root);
 	@override late final _TranslationsSiteModeZhTw siteMode = _TranslationsSiteModeZhTw._(_root);
 	@override late final _TranslationsSavedSearchConfigZhTw savedSearchConfig = _TranslationsSavedSearchConfigZhTw._(_root);
+	@override late final _TranslationsSavedSearchZhTw savedSearch = _TranslationsSavedSearchZhTw._(_root);
 }
 
 // Path: personalProfile
@@ -777,6 +778,8 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get exportIncludeSensitive => '包含敏感資訊';
 	@override String get exportIncludeSensitiveDesc => '包含 API 金鑰、工作階段權杖與代理位址。僅在備份到自己的裝置時開啟。';
 	@override String get importConfigOverwriteWarning => '匯入會覆蓋目前的設定與歷史紀錄（瀏覽紀錄、播放進度、收藏等），確定要繼續嗎？';
+	@override String get importConfigRestartTitle => '匯入成功';
+	@override String get importConfigRestartContent => '設定已匯入。請完全關閉並重新開啟應用程式，所有變更才會生效。';
 	@override String get historyUpdateLogs => '歷代更新日誌';
 	@override String get noUpdateLogs => '未獲取到更新日誌';
 	@override String get versionLabel => '版本: {version}';
@@ -2146,6 +2149,28 @@ class _TranslationsSavedSearchConfigZhTw implements TranslationsSavedSearchConfi
 	@override String get unnamed => '未命名';
 	@override String get noConditions => '全部內容（無篩選）';
 	@override String tagsCount({required Object count}) => '${count} 個標籤';
+}
+
+// Path: savedSearch
+class _TranslationsSavedSearchZhTw implements TranslationsSavedSearchEn {
+	_TranslationsSavedSearchZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '已儲存搜尋';
+	@override String get empty => '還沒有儲存的搜尋';
+	@override String get saveTooltip => '儲存目前搜尋';
+	@override String get namePromptTitle => '儲存搜尋';
+	@override String get nameLabel => '名稱';
+	@override String get nameHint => '請輸入名稱';
+	@override String get saveSuccess => '已儲存搜尋';
+	@override String get deleteSuccess => '已刪除搜尋';
+	@override String get addCurrent => '儲存目前搜尋';
+	@override String get reorderHint => '長按拖曳可調整順序';
+	@override String get rename => '重新命名';
+	@override String get noKeyword => '（無關鍵字）';
+	@override String filtersCount({required Object count}) => '${count} 個篩選';
 }
 
 // Path: common.pagination
@@ -3821,6 +3846,8 @@ extension on TranslationsZhTw {
 			'settings.exportIncludeSensitive' => '包含敏感資訊',
 			'settings.exportIncludeSensitiveDesc' => '包含 API 金鑰、工作階段權杖與代理位址。僅在備份到自己的裝置時開啟。',
 			'settings.importConfigOverwriteWarning' => '匯入會覆蓋目前的設定與歷史紀錄（瀏覽紀錄、播放進度、收藏等），確定要繼續嗎？',
+			'settings.importConfigRestartTitle' => '匯入成功',
+			'settings.importConfigRestartContent' => '設定已匯入。請完全關閉並重新開啟應用程式，所有變更才會生效。',
 			'settings.historyUpdateLogs' => '歷代更新日誌',
 			'settings.noUpdateLogs' => '未獲取到更新日誌',
 			'settings.versionLabel' => '版本: {version}',
@@ -4238,10 +4265,10 @@ extension on TranslationsZhTw {
 			'firstTimeSetup.common.agreeAgreementSnackbar' => '請先同意使用者協議與社群規則',
 			'proxyHelper.systemProxyDetected' => '檢測到系統代理',
 			'proxyHelper.copied' => '已複製',
-			'proxyHelper.copy' => '複製',
-			'signIn.pleaseLoginFirst' => '請先登入',
 			_ => null,
 		} ?? switch (path) {
+			'proxyHelper.copy' => '複製',
+			'signIn.pleaseLoginFirst' => '請先登入',
 			'signIn.alreadySignedInToday' => '您今天已經簽到過了！',
 			'signIn.youDidNotStickToTheSignIn' => '您未能持續簽到。',
 			'signIn.signInSuccess' => '簽到成功！',
@@ -4752,10 +4779,10 @@ extension on TranslationsZhTw {
 			'download.batchDownload.success' => '成功',
 			'download.batchDownload.skipped' => '跳過',
 			'download.batchDownload.failed' => '失敗',
-			'download.batchDownload.failureDetails' => '失敗詳情',
-			'download.batchDownload.reasonPrivateVideo' => '私人影片',
 			_ => null,
 		} ?? switch (path) {
+			'download.batchDownload.failureDetails' => '失敗詳情',
+			'download.batchDownload.reasonPrivateVideo' => '私人影片',
 			'download.batchDownload.reasonAlreadyExists' => '任務已存在',
 			'download.batchDownload.reasonNoSource' => '無下載源',
 			'download.batchDownload.reasonNoSavePath' => '無法取得儲存路徑',
@@ -5266,10 +5293,10 @@ extension on TranslationsZhTw {
 			'layoutSettings.enterColumns' => '請輸入欄數',
 			'layoutSettings.enterValidColumns' => '請輸入有效欄數',
 			'layoutSettings.columnsCannotExceed12' => '欄數不能超過12',
-			'layoutSettings.breakpointConflict' => '斷點已存在',
-			'layoutSettings.confirmResetLayoutSettings' => '重設版面配置設定',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.breakpointConflict' => '斷點已存在',
+			'layoutSettings.confirmResetLayoutSettings' => '重設版面配置設定',
 			'layoutSettings.confirmResetLayoutSettingsDesc' => '確定要重設所有版面配置設定到預設值嗎？\n\n將復原為：\n• 自動模式\n• 預設斷點配置',
 			'layoutSettings.resetToDefaults' => '重設為預設值',
 			'layoutSettings.confirmDeleteBreakpoint' => '刪除斷點',
@@ -5479,6 +5506,19 @@ extension on TranslationsZhTw {
 			'savedSearchConfig.unnamed' => '未命名',
 			'savedSearchConfig.noConditions' => '全部內容（無篩選）',
 			'savedSearchConfig.tagsCount' => ({required Object count}) => '${count} 個標籤',
+			'savedSearch.title' => '已儲存搜尋',
+			'savedSearch.empty' => '還沒有儲存的搜尋',
+			'savedSearch.saveTooltip' => '儲存目前搜尋',
+			'savedSearch.namePromptTitle' => '儲存搜尋',
+			'savedSearch.nameLabel' => '名稱',
+			'savedSearch.nameHint' => '請輸入名稱',
+			'savedSearch.saveSuccess' => '已儲存搜尋',
+			'savedSearch.deleteSuccess' => '已刪除搜尋',
+			'savedSearch.addCurrent' => '儲存目前搜尋',
+			'savedSearch.reorderHint' => '長按拖曳可調整順序',
+			'savedSearch.rename' => '重新命名',
+			'savedSearch.noKeyword' => '（無關鍵字）',
+			'savedSearch.filtersCount' => ({required Object count}) => '${count} 個篩選',
 			_ => null,
 		};
 	}

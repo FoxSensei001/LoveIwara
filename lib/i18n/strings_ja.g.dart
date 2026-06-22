@@ -83,6 +83,7 @@ class TranslationsJa with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _TranslationsAnime4kJa anime4k = _TranslationsAnime4kJa._(_root);
 	@override late final _TranslationsSiteModeJa siteMode = _TranslationsSiteModeJa._(_root);
 	@override late final _TranslationsSavedSearchConfigJa savedSearchConfig = _TranslationsSavedSearchConfigJa._(_root);
+	@override late final _TranslationsSavedSearchJa savedSearch = _TranslationsSavedSearchJa._(_root);
 }
 
 // Path: personalProfile
@@ -777,6 +778,8 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get exportIncludeSensitive => '機密情報を含める';
 	@override String get exportIncludeSensitiveDesc => 'APIキー、セッショントークン、プロキシアドレスを含みます。自分のデバイスにバックアップする場合のみ有効にしてください。';
 	@override String get importConfigOverwriteWarning => 'インポートすると現在の設定と履歴（閲覧履歴、再生進捗、お気に入りなど）が上書きされます。続行しますか？';
+	@override String get importConfigRestartTitle => 'インポート完了';
+	@override String get importConfigRestartContent => '設定をインポートしました。すべての変更を反映するには、アプリを完全に終了してから再起動してください。';
 	@override String get historyUpdateLogs => '歴代アップデートログ';
 	@override String get noUpdateLogs => 'アップデートログが取得できませんでした';
 	@override String get versionLabel => 'バージョン: {version}';
@@ -2143,6 +2146,28 @@ class _TranslationsSavedSearchConfigJa implements TranslationsSavedSearchConfigE
 	@override String get unnamed => '無名';
 	@override String get noConditions => 'すべてのコンテンツ（絞り込みなし）';
 	@override String tagsCount({required Object count}) => '${count} 個のタグ';
+}
+
+// Path: savedSearch
+class _TranslationsSavedSearchJa implements TranslationsSavedSearchEn {
+	_TranslationsSavedSearchJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '保存した検索';
+	@override String get empty => '保存した検索はまだありません';
+	@override String get saveTooltip => '現在の検索を保存';
+	@override String get namePromptTitle => '検索を保存';
+	@override String get nameLabel => '名前';
+	@override String get nameHint => '名前を入力';
+	@override String get saveSuccess => '検索を保存しました';
+	@override String get deleteSuccess => '検索を削除しました';
+	@override String get addCurrent => '現在の検索を保存';
+	@override String get reorderHint => '長押しでドラッグして並べ替え';
+	@override String get rename => '名前を変更';
+	@override String get noKeyword => '（キーワードなし）';
+	@override String filtersCount({required Object count}) => '${count} 個の絞り込み';
 }
 
 // Path: common.pagination
@@ -3818,6 +3843,8 @@ extension on TranslationsJa {
 			'settings.exportIncludeSensitive' => '機密情報を含める',
 			'settings.exportIncludeSensitiveDesc' => 'APIキー、セッショントークン、プロキシアドレスを含みます。自分のデバイスにバックアップする場合のみ有効にしてください。',
 			'settings.importConfigOverwriteWarning' => 'インポートすると現在の設定と履歴（閲覧履歴、再生進捗、お気に入りなど）が上書きされます。続行しますか？',
+			'settings.importConfigRestartTitle' => 'インポート完了',
+			'settings.importConfigRestartContent' => '設定をインポートしました。すべての変更を反映するには、アプリを完全に終了してから再起動してください。',
 			'settings.historyUpdateLogs' => '歴代アップデートログ',
 			'settings.noUpdateLogs' => 'アップデートログが取得できませんでした',
 			'settings.versionLabel' => 'バージョン: {version}',
@@ -4235,10 +4262,10 @@ extension on TranslationsJa {
 			'videoDetail.pipMode' => 'ピプモード',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => '${position} から続けて再生',
 			'videoDetail.localInfo.videoInfo' => 'ビデオ情報',
-			'videoDetail.localInfo.currentQuality' => '現在の品質',
-			'videoDetail.localInfo.duration' => '再生時間',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.localInfo.currentQuality' => '現在の品質',
+			'videoDetail.localInfo.duration' => '再生時間',
 			'videoDetail.localInfo.resolution' => '解像度',
 			'videoDetail.localInfo.fileInfo' => 'ファイル情報',
 			'videoDetail.localInfo.fileName' => 'ファイル名',
@@ -4749,10 +4776,10 @@ extension on TranslationsJa {
 			'favorite.removeConfirmationFailed' => 'アイテムをお気に入りから削除に失敗しました',
 			'favorite.createFolderSuccess' => 'フォルダーが作成されました',
 			'favorite.createFolderFailed' => 'フォルダーの作成に失敗しました',
-			'favorite.createFolder' => 'フォルダーを作成',
-			'favorite.enterFolderName' => 'フォルダー名を入力',
 			_ => null,
 		} ?? switch (path) {
+			'favorite.createFolder' => 'フォルダーを作成',
+			'favorite.enterFolderName' => 'フォルダー名を入力',
 			'favorite.enterFolderNameHere' => 'フォルダー名を入力してください...',
 			'favorite.create' => '作成',
 			'favorite.items' => 'アイテム',
@@ -5263,10 +5290,10 @@ extension on TranslationsJa {
 			'navigationOrderSettings.cancel' => 'キャンセル',
 			'navigationOrderSettings.show' => '表示',
 			'navigationOrderSettings.hide' => '非表示',
-			'navigationOrderSettings.hidden' => '非表示中',
-			'navigationOrderSettings.hideHint' => '目のアイコンをタップしてフォーラムとニュースの表示・非表示を切り替えます',
 			_ => null,
 		} ?? switch (path) {
+			'navigationOrderSettings.hidden' => '非表示中',
+			'navigationOrderSettings.hideHint' => '目のアイコンをタップしてフォーラムとニュースの表示・非表示を切り替えます',
 			'navigationOrderSettings.videoDescription' => '人気の動画コンテンツを閲覧',
 			'navigationOrderSettings.galleryDescription' => '画像とギャラリーを閲覧',
 			'navigationOrderSettings.subscriptionDescription' => 'フォローしているユーザーの最新コンテンツを表示',
@@ -5473,6 +5500,19 @@ extension on TranslationsJa {
 			'savedSearchConfig.unnamed' => '無名',
 			'savedSearchConfig.noConditions' => 'すべてのコンテンツ（絞り込みなし）',
 			'savedSearchConfig.tagsCount' => ({required Object count}) => '${count} 個のタグ',
+			'savedSearch.title' => '保存した検索',
+			'savedSearch.empty' => '保存した検索はまだありません',
+			'savedSearch.saveTooltip' => '現在の検索を保存',
+			'savedSearch.namePromptTitle' => '検索を保存',
+			'savedSearch.nameLabel' => '名前',
+			'savedSearch.nameHint' => '名前を入力',
+			'savedSearch.saveSuccess' => '検索を保存しました',
+			'savedSearch.deleteSuccess' => '検索を削除しました',
+			'savedSearch.addCurrent' => '現在の検索を保存',
+			'savedSearch.reorderHint' => '長押しでドラッグして並べ替え',
+			'savedSearch.rename' => '名前を変更',
+			'savedSearch.noKeyword' => '（キーワードなし）',
+			'savedSearch.filtersCount' => ({required Object count}) => '${count} 個の絞り込み',
 			_ => null,
 		};
 	}

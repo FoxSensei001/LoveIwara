@@ -639,6 +639,8 @@ settings:
   exportIncludeSensitive: "包含敏感信息"
   exportIncludeSensitiveDesc: "包含 API 密钥、会话令牌和代理地址。仅在备份到自己的设备时开启。"
   importConfigOverwriteWarning: "导入会覆盖当前的设置与历史记录（浏览历史、播放进度、收藏等），确定继续吗？"
+  importConfigRestartTitle: "导入成功"
+  importConfigRestartContent: "配置已导入。请完全关闭并重新打开应用，所有更改才会生效。"
   historyUpdateLogs: "历代更新日志"
   noUpdateLogs: "未获取到更新日志"
   versionLabel: "版本: {version}"
@@ -2456,3 +2458,17 @@ savedSearchConfig:
   unnamed: 未命名
   noConditions: 全部内容（无筛选）
   tagsCount: '${count} 个标签'
+savedSearch:
+  title: 已保存搜索
+  empty: 还没有保存的搜索
+  saveTooltip: 保存当前搜索
+  namePromptTitle: 保存搜索
+  nameLabel: 名称
+  nameHint: 请输入名称
+  saveSuccess: 已保存搜索
+  deleteSuccess: 已删除搜索
+  addCurrent: 保存当前搜索
+  reorderHint: 长按拖动可调整顺序
+  rename: 重命名
+  noKeyword: （无关键词）
+  filtersCount: '${count} 个筛选'

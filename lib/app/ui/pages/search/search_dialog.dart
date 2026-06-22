@@ -16,6 +16,11 @@ import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/app/ui/widgets/responsive_dialog_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_builder_widget.dart';
+import 'package:i_iwara/app/models/saved_search.model.dart';
+import 'package:i_iwara/app/services/saved_search_service.dart';
+import 'package:i_iwara/app/ui/pages/search/widgets/saved_search_drawer.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:oktoast/oktoast.dart';
 
 class SearchDialog extends StatelessWidget {
   final String userInputKeywords;
@@ -75,6 +80,8 @@ class _SearchContentState extends State<_SearchContent> {
   final FocusNode _focusNode = FocusNode();
   late UserPreferenceService userPreferenceService;
 
+  late final SavedSearchService _savedSearchService;
+
   // 搜索状态
   final RxString _searchPlaceholder = ''.obs;
   final RxString _searchErrorText = ''.obs;
@@ -91,6 +98,10 @@ class _SearchContentState extends State<_SearchContent> {
   void initState() {
     super.initState();
     userPreferenceService = Get.find<UserPreferenceService>();
+    if (!Get.isRegistered<SavedSearchService>()) {
+      Get.put(SavedSearchService(), permanent: true);
+    }
+    _savedSearchService = Get.find<SavedSearchService>();
 
     // 设置初始搜索内容和 segment
     _controller.text = widget.userInputKeywords;
@@ -207,6 +218,110 @@ class _SearchContentState extends State<_SearchContent> {
     );
   }
 
+  // 打开全局右侧「已保存搜索」抽屉
+  void _openSavedSearchDrawer() {
+    showSavedSearchDrawer(
+      onApply: _applySavedSearch,
+      onAddCurrent: _promptSaveCurrentSearch,
+    );
+  }
+
+  // 根据当前弹窗内的搜索条件生成默认名称
+  String _buildDefaultSearchName() {
+    final keyword = _controller.text.trim();
+    final segmentLabel = SavedSearchDrawer.segmentLabel(_selectedSegment.value);
+    if (keyword.isNotEmpty) return '$segmentLabel · $keyword';
+    return segmentLabel;
+  }
+
+  // 弹出命名对话框，将弹窗内当前搜索条件保存为一条已保存搜索
+  Future<void> _promptSaveCurrentSearch() async {
+    final t = slang.Translations.of(context);
+
+    final defaultName = _buildDefaultSearchName();
+    final controller = TextEditingController(text: defaultName);
+    final name = await showAppDialog<String>(
+      Builder(
+        builder: (dialogContext) => AlertDialog(
+          title: Text(t.savedSearch.namePromptTitle),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: InputDecoration(
+              labelText: t.savedSearch.nameLabel,
+              hintText: t.savedSearch.nameHint,
+            ),
+            onSubmitted: (v) => Navigator.of(dialogContext).pop(v.trim()),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(t.common.cancel),
+            ),
+            TextButton(
+              onPressed: () =>
+                  Navigator.of(dialogContext).pop(controller.text.trim()),
+              child: Text(t.common.save),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (name == null) return;
+
+    final search = SavedSearch(
+      id: DateTime.now().microsecondsSinceEpoch.toString(),
+      name: name.isEmpty ? defaultName : name,
+      keyword: _controller.text,
+      segment: _selectedSegment.value,
+      sort: _selectedSort.value,
+      filters: _filters.toList(),
+    );
+    await _savedSearchService.add(search);
+    showToastWidget(
+      MDToastWidget(
+        message: t.savedSearch.saveSuccess,
+        type: MDToastType.success,
+      ),
+      position: ToastPosition.bottom,
+    );
+  }
+
+  // 应用一条已保存搜索：关闭弹窗后执行搜索/浏览
+  void _applySavedSearch(SavedSearch search) {
+    // Oreno3D 单实体浏览：直接按 id 跳转浏览
+    final extData = search.extData;
+    if (extData != null) {
+      final type = extData['searchType'] as String?;
+      final id = extData['id'] as String?;
+      final name = (extData['name'] as String?) ?? search.singleTagName;
+      if (type != null && id != null) {
+        _dismiss();
+        NaviService.toSearchPage(
+          searchInfo: '',
+          segment: SearchSegment.oreno3d,
+          searchType: type,
+          extData: {'searchType': type, 'id': id, 'name': name},
+          sort: search.sort,
+        );
+        return;
+      }
+    }
+
+    // 普通文本/筛选搜索
+    if (userPreferenceService.searchRecordEnabled.value &&
+        search.keyword.isNotEmpty) {
+      userPreferenceService.addVideoSearchHistory(search.keyword);
+    }
+    _dismiss();
+    widget.onSearch(
+      search.keyword,
+      search.segment,
+      search.filters.toList(),
+      search.sort,
+    );
+  }
+
   /// segment 为 oreno3d 时显示：收藏快捷区 + 浏览原作/角色/标签入口。
   Widget _buildOreno3dSection() {
     return Obx(() {
@@ -300,6 +415,7 @@ class _SearchContentState extends State<_SearchContent> {
             filters: _filters,
             onFiltersChanged: (filters) => _filters.assignAll(filters),
             selectedSort: _selectedSort,
+            onOpenSavedSearch: _openSavedSearchDrawer,
           ),
           _buildOreno3dSection(),
           _GoogleSearchSection(scrollController: _scrollController),
@@ -390,6 +506,7 @@ class _SearchControlsSection extends StatelessWidget {
   final RxList<Filter> filters;
   final Function(List<Filter>) onFiltersChanged;
   final RxString selectedSort;
+  final VoidCallback onOpenSavedSearch;
 
   const _SearchControlsSection({
     required this.selectedSegment,
@@ -398,6 +515,7 @@ class _SearchControlsSection extends StatelessWidget {
     required this.filters,
     required this.onFiltersChanged,
     required this.selectedSort,
+    required this.onOpenSavedSearch,
   });
 
   @override
@@ -799,6 +917,19 @@ class _SearchControlsSection extends StatelessWidget {
               );
             }
 
+            Widget savedSearchButton() {
+              return IconButton(
+                onPressed: onOpenSavedSearch,
+                icon: const Icon(Icons.bookmarks_outlined),
+                tooltip: t.savedSearch.title,
+                constraints: iconButtonConstraints,
+                style: iconButtonStyle(
+                  backgroundColor: colorScheme.surfaceContainer,
+                  foregroundColor: colorScheme.onSurfaceVariant,
+                ),
+              );
+            }
+
             final leftControls = <Widget>[
               segmentButton(),
               if (showSortButton) ...[const SizedBox(width: 6), sortButton()],
@@ -820,6 +951,8 @@ class _SearchControlsSection extends StatelessWidget {
                     ),
                   ),
                 ),
+                const SizedBox(width: 6),
+                savedSearchButton(),
                 const SizedBox(width: 8),
                 searchButton(),
               ],

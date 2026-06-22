@@ -633,6 +633,8 @@ settings:
   exportIncludeSensitive: "機密情報を含める"
   exportIncludeSensitiveDesc: "APIキー、セッショントークン、プロキシアドレスを含みます。自分のデバイスにバックアップする場合のみ有効にしてください。"
   importConfigOverwriteWarning: "インポートすると現在の設定と履歴（閲覧履歴、再生進捗、お気に入りなど）が上書きされます。続行しますか？"
+  importConfigRestartTitle: "インポート完了"
+  importConfigRestartContent: "設定をインポートしました。すべての変更を反映するには、アプリを完全に終了してから再起動してください。"
   historyUpdateLogs: "歴代アップデートログ"
   noUpdateLogs: "アップデートログが取得できませんでした"
   versionLabel: "バージョン: {version}"
@@ -2453,3 +2455,17 @@ savedSearchConfig:
   unnamed: 無名
   noConditions: すべてのコンテンツ（絞り込みなし）
   tagsCount: '${count} 個のタグ'
+savedSearch:
+  title: 保存した検索
+  empty: 保存した検索はまだありません
+  saveTooltip: 現在の検索を保存
+  namePromptTitle: 検索を保存
+  nameLabel: 名前
+  nameHint: 名前を入力
+  saveSuccess: 検索を保存しました
+  deleteSuccess: 検索を削除しました
+  addCurrent: 現在の検索を保存
+  reorderHint: 長押しでドラッグして並べ替え
+  rename: 名前を変更
+  noKeyword: （キーワードなし）
+  filtersCount: '${count} 個の絞り込み'

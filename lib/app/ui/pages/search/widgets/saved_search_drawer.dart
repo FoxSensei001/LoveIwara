@@ -1,69 +1,133 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/models/saved_search_config.model.dart';
-import 'package:i_iwara/app/services/saved_search_config_service.dart';
+import 'package:i_iwara/app/models/saved_search.model.dart';
+import 'package:i_iwara/app/routes/app_router.dart';
+import 'package:i_iwara/app/services/saved_search_service.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
-/// 右侧抽屉：展示并管理当前栏目（视频/图库）已保存的快速筛选配置。
-/// 支持点击应用、删除、重命名、拖动排序，以及保存当前筛选为新配置。
-class SavedSearchConfigDrawer extends StatelessWidget {
-  final String segment;
+/// 以「全局右侧抽屉」形式展示「已保存搜索」。
+///
+/// 通过 root navigator 推入一个从屏幕右侧滑入的全高面板，覆盖整个界面，
+/// 不受调用方（如搜索弹窗）自身布局边界的限制。
+/// 点击应用或保存当前搜索时，会先关闭该抽屉再回调。
+Future<void> showSavedSearchDrawer({
+  required void Function(SavedSearch search) onApply,
+  required VoidCallback onAddCurrent,
+}) {
+  final context = rootNavigatorKey.currentContext;
+  if (context == null) return Future.value();
 
-  /// 应用某个已保存配置。
-  final void Function(SavedSearchConfig config) onApply;
+  return showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierColor: Colors.black54,
+    transitionDuration: const Duration(milliseconds: 250),
+    pageBuilder: (ctx, animation, secondaryAnimation) {
+      return Align(
+        alignment: Alignment.centerRight,
+        child: SavedSearchDrawer(
+          onApply: (search) {
+            Navigator.of(ctx).pop();
+            onApply(search);
+          },
+          onAddCurrent: () {
+            Navigator.of(ctx).pop();
+            onAddCurrent();
+          },
+        ),
+      );
+    },
+    transitionBuilder: (ctx, animation, secondaryAnimation, child) {
+      return SlideTransition(
+        position: CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+        ).drive(Tween(begin: const Offset(1, 0), end: Offset.zero)),
+        child: child,
+      );
+    },
+  );
+}
 
-  /// 将「当前激活的筛选条件」保存为一条新配置。
+/// 右侧抽屉：展示并管理「已保存搜索」。
+/// 支持点击应用、删除、重命名、拖动排序，以及保存当前搜索为新条目。
+class SavedSearchDrawer extends StatelessWidget {
+  /// 应用某个已保存搜索。
+  final void Function(SavedSearch search) onApply;
+
+  /// 将「当前激活的搜索条件」保存为一条新条目。
   final VoidCallback onAddCurrent;
 
-  const SavedSearchConfigDrawer({
+  const SavedSearchDrawer({
     super.key,
-    required this.segment,
     required this.onApply,
     required this.onAddCurrent,
   });
 
-  SavedSearchConfigService get _service =>
-      Get.find<SavedSearchConfigService>();
+  SavedSearchService get _service => Get.find<SavedSearchService>();
 
-  String _summaryOf(BuildContext context, SavedSearchConfig config) {
+  /// 各搜索分类的展示名。
+  static String segmentLabel(SearchSegment segment) {
+    switch (segment) {
+      case SearchSegment.video:
+        return slang.t.common.video;
+      case SearchSegment.image:
+        return slang.t.common.gallery;
+      case SearchSegment.post:
+        return slang.t.common.post;
+      case SearchSegment.user:
+        return slang.t.common.user;
+      case SearchSegment.forum:
+        return slang.t.forum.forum;
+      case SearchSegment.forum_posts:
+        return slang.t.forum.posts;
+      case SearchSegment.oreno3d:
+        return 'Oreno3D';
+      case SearchSegment.playlist:
+        return slang.t.common.playlist;
+    }
+  }
+
+  String _summaryOf(BuildContext context, SavedSearch search) {
     final t = slang.Translations.of(context);
-    final parts = <String>[];
+    final parts = <String>[segmentLabel(search.segment)];
 
-    if (config.rating.isNotEmpty) {
-      final rating = MediaRating.values.firstWhere(
-        (r) => r.value == config.rating,
-        orElse: () => MediaRating.ALL,
-      );
-      if (rating != MediaRating.ALL) parts.add(rating.label);
-    }
-    if (config.date.isNotEmpty) parts.add(config.date);
-    if (config.tags.isNotEmpty) {
-      parts.add(t.savedSearchConfig.tagsCount(count: config.tags.length));
+    if (search.filters.isNotEmpty) {
+      parts.add(t.savedSearch.filtersCount(count: search.filters.length));
     }
 
-    if (parts.isEmpty) return t.savedSearchConfig.noConditions;
     return parts.join(' · ');
   }
 
-  Future<void> _renameConfig(
+  /// 标题：优先用户命名，其次关键词/标签名，最后兜底文案。
+  String _displayName(BuildContext context, SavedSearch search) {
+    final t = slang.Translations.of(context);
+    if (search.name.isNotEmpty) return search.name;
+    if (search.singleTagName.isNotEmpty) return '#${search.singleTagName}';
+    if (search.keyword.isNotEmpty) return search.keyword;
+    return t.savedSearch.noKeyword;
+  }
+
+  Future<void> _renameSearch(
     BuildContext context,
-    SavedSearchConfig config,
+    SavedSearch search,
   ) async {
     final t = slang.Translations.of(context);
-    final controller = TextEditingController(text: config.name);
+    final controller = TextEditingController(text: search.name);
     final newName = await showAppDialog<String>(
       Builder(
         builder: (dialogContext) => AlertDialog(
-          title: Text(t.savedSearchConfig.rename),
+          title: Text(t.savedSearch.rename),
           content: TextField(
             controller: controller,
             autofocus: true,
             decoration: InputDecoration(
-              labelText: t.savedSearchConfig.nameLabel,
-              hintText: t.savedSearchConfig.nameHint,
+              labelText: t.savedSearch.nameLabel,
+              hintText: t.savedSearch.nameHint,
             ),
             onSubmitted: (v) => Navigator.of(dialogContext).pop(v.trim()),
           ),
@@ -82,7 +146,7 @@ class SavedSearchConfigDrawer extends StatelessWidget {
       ),
     );
     if (newName != null && newName.isNotEmpty) {
-      await _service.rename(segment, config.id, newName);
+      await _service.rename(search.id, newName);
     }
   }
 
@@ -95,7 +159,7 @@ class SavedSearchConfigDrawer extends StatelessWidget {
       child: SafeArea(
         child: Column(
           children: [
-            // 头部：标题 + 保存当前筛选
+            // 头部：标题 + 保存当前搜索
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 8, 8),
               child: Row(
@@ -104,13 +168,13 @@ class SavedSearchConfigDrawer extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      t.savedSearchConfig.title,
+                      t.savedSearch.title,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.save_outlined),
-                    tooltip: t.savedSearchConfig.addCurrent,
+                    tooltip: t.savedSearch.addCurrent,
                     onPressed: onAddCurrent,
                   ),
                 ],
@@ -119,10 +183,10 @@ class SavedSearchConfigDrawer extends StatelessWidget {
             const Divider(height: 1),
             Expanded(
               child: Obx(() {
-                final list = _service.listFor(segment);
+                final list = _service.list;
                 if (list.isEmpty) {
                   return Center(
-                    child: MyEmptyWidget(message: t.savedSearchConfig.empty),
+                    child: MyEmptyWidget(message: t.savedSearch.empty),
                   );
                 }
                 return ReorderableListView.builder(
@@ -130,7 +194,7 @@ class SavedSearchConfigDrawer extends StatelessWidget {
                   itemCount: list.length,
                   buildDefaultDragHandles: false,
                   onReorder: (oldIndex, newIndex) =>
-                      _service.reorder(segment, oldIndex, newIndex),
+                      _service.reorder(oldIndex, newIndex),
                   proxyDecorator: (child, index, animation) {
                     return Material(
                       elevation: 4,
@@ -140,15 +204,12 @@ class SavedSearchConfigDrawer extends StatelessWidget {
                     );
                   },
                   itemBuilder: (context, index) {
-                    final config = list[index];
-                    final displayName = config.name.isNotEmpty
-                        ? config.name
-                        : t.savedSearchConfig.unnamed;
+                    final search = list[index];
                     return Material(
-                      key: ValueKey(config.id),
+                      key: ValueKey(search.id),
                       type: MaterialType.transparency,
                       child: InkWell(
-                        onTap: () => onApply(config),
+                        onTap: () => onApply(search),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
@@ -170,7 +231,7 @@ class SavedSearchConfigDrawer extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      displayName,
+                                      _displayName(context, search),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style:
@@ -178,7 +239,7 @@ class SavedSearchConfigDrawer extends StatelessWidget {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      _summaryOf(context, config),
+                                      _summaryOf(context, search),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: Theme.of(context)
@@ -194,8 +255,8 @@ class SavedSearchConfigDrawer extends StatelessWidget {
                               ),
                               IconButton(
                                 icon: const Icon(Icons.edit_outlined, size: 20),
-                                tooltip: t.savedSearchConfig.rename,
-                                onPressed: () => _renameConfig(context, config),
+                                tooltip: t.savedSearch.rename,
+                                onPressed: () => _renameSearch(context, search),
                               ),
                               IconButton(
                                 icon: Icon(
@@ -204,8 +265,7 @@ class SavedSearchConfigDrawer extends StatelessWidget {
                                   color: colorScheme.error,
                                 ),
                                 tooltip: t.common.delete,
-                                onPressed: () =>
-                                    _service.remove(segment, config.id),
+                                onPressed: () => _service.remove(search.id),
                               ),
                             ],
                           ),
@@ -220,7 +280,7 @@ class SavedSearchConfigDrawer extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(12),
               child: Text(
-                t.savedSearchConfig.reorderHint,
+                t.savedSearch.reorderHint,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),

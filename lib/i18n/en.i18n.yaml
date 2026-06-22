@@ -632,6 +632,8 @@ settings:
   exportIncludeSensitive: "Include sensitive info"
   exportIncludeSensitiveDesc: "Includes API keys, session tokens and proxy address. Only enable when backing up to your own device."
   importConfigOverwriteWarning: "Importing will overwrite your current settings and history (browsing history, playback progress, favorites, etc.). Continue?"
+  importConfigRestartTitle: "Import successful"
+  importConfigRestartContent: "Your configuration has been imported. Please fully close and reopen the app for all changes to take effect."
   historyUpdateLogs: "History Update Logs"
   noUpdateLogs: "No update logs available"
   versionLabel: "Version: {version}"
@@ -2449,3 +2451,17 @@ savedSearchConfig:
   unnamed: Unnamed
   noConditions: All content (no filter)
   tagsCount: '${count} tags'
+savedSearch:
+  title: Saved Searches
+  empty: No saved searches yet
+  saveTooltip: Save current search
+  namePromptTitle: Save Search
+  nameLabel: Name
+  nameHint: Enter a name
+  saveSuccess: Search saved
+  deleteSuccess: Search removed
+  addCurrent: Save current search
+  reorderHint: Long-press and drag to reorder
+  rename: Rename
+  noKeyword: (No keyword)
+  filtersCount: '${count} filters'

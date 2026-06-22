@@ -395,9 +395,6 @@ class PopularMediaListPageBaseState<
         onConfirm: (tags, year, rating) {
           setParams(tags: tags, year: year, rating: rating);
         },
-        onSave: (tags, year, rating) {
-          _promptSaveConfig(tags: tags, date: year, rating: rating);
-        },
       ),
     );
   }
@@ -1279,26 +1276,19 @@ class PopularMediaListPageBaseState<
                                     onPressed: _openParamsModal,
                                   ),
                                 ),
-                                // 已保存筛选入口（存在已保存配置时显示）
-                                Obx(() {
-                                  if (_savedConfigService
-                                      .listFor(_segmentKey)
-                                      .isEmpty) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  return SizedBox(
-                                    width: 40,
-                                    height: 40,
-                                    child: IconButton(
-                                      padding: EdgeInsets.zero,
-                                      icon: const Icon(
-                                        Icons.bookmarks_outlined,
-                                      ),
-                                      tooltip: t.savedSearchConfig.title,
-                                      onPressed: _openSavedConfigDrawer,
+                                // 已保存筛选入口（始终显示）
+                                SizedBox(
+                                  width: 40,
+                                  height: 40,
+                                  child: IconButton(
+                                    padding: EdgeInsets.zero,
+                                    icon: const Icon(
+                                      Icons.bookmarks_outlined,
                                     ),
-                                  );
-                                }),
+                                    tooltip: t.savedSearchConfig.title,
+                                    onPressed: _openSavedConfigDrawer,
+                                  ),
+                                ),
                                 _buildTopBarOverflowMenu(
                                   maxWidth: constraints.maxWidth,
                                   showHeader: showHeader,
