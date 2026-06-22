@@ -23,6 +23,18 @@ class PopCoordinator {
   static ChildBackButtonDispatcher? _backDispatcher;
   static DateTime? _lastSystemBackConsumedAt;
 
+  /// 防止 [handleBack] 同步重入。
+  ///
+  /// 触发场景：某个路由上同时挂了多个 [PopScope]（例如视频详情页自身的
+  /// PopScope + 评论区 GridSpeedDial 内部的 PopScope）。当 GridSpeedDial 的
+  /// 遮罩展开时，它的 PopScope 让路由 `popDisposition` 变为 doNotPop，于是
+  /// [Navigator.maybePop] 会**同步**回调该路由上所有 PopScope 的
+  /// onPopInvoked。视频页 PopScope 的兜底分支会再调用
+  /// `AppService.tryPop -> handleBack -> maybePop`，从而无限递归把主线程卡死。
+  /// 用一个同步重入标记切断这条递归即可——首轮 maybePop 期间 GridSpeedDial
+  /// 自己的 onPopInvoked 已经把遮罩关掉了。
+  static bool _handlingBack = false;
+
   /// Whether the last Android system back event was consumed by [PopCoordinator]
   /// very recently.
   ///
@@ -125,64 +137,78 @@ class PopCoordinator {
 
   /// 按照优先级链执行一次返回动作。
   static void handleBack(BuildContext context) {
-    LogUtils.d(
-      'handleBack 开始：overlayCount=${OverlayTracker.instance.overlayCount}, '
-          'rootCanPop=${rootNavigatorKey.currentState?.canPop() ?? false}, '
-          'shellCanPop=${shellNavigatorKey.currentState?.canPop() ?? false}',
-      'PopCoordinator',
-    );
-
-    // 1. 如果全局 Drawer 打开，优先关闭
-    final scaffoldState = AppService.globalDrawerKey.currentState;
-    if (scaffoldState?.isDrawerOpen ?? false) {
-      scaffoldState!.closeDrawer();
-      LogUtils.d('handleBack -> 关闭全局 Drawer', 'PopCoordinator');
+    // 同步重入保护：见 [_handlingBack]。某个路由上的嵌套 PopScope 在
+    // maybePop 的同步 onPopInvoked 里再次走到这里时，直接忽略，避免无限递归。
+    if (_handlingBack) {
+      LogUtils.w(
+        'handleBack 重入被忽略（避免嵌套 PopScope/maybePop 递归卡死）',
+        'PopCoordinator',
+      );
       return;
     }
+    _handlingBack = true;
+    try {
+      LogUtils.d(
+        'handleBack 开始：overlayCount=${OverlayTracker.instance.overlayCount}, '
+            'rootCanPop=${rootNavigatorKey.currentState?.canPop() ?? false}, '
+            'shellCanPop=${shellNavigatorKey.currentState?.canPop() ?? false}',
+        'PopCoordinator',
+      );
 
-    // 2. 关闭遮罩层（对话框 / BottomSheet 等）
-    if (_tryPopOverlayRoute(context: context)) {
-      LogUtils.d('handleBack -> 关闭遮罩层', 'PopCoordinator');
-      return;
+      // 1. 如果全局 Drawer 打开，优先关闭
+      final scaffoldState = AppService.globalDrawerKey.currentState;
+      if (scaffoldState?.isDrawerOpen ?? false) {
+        scaffoldState!.closeDrawer();
+        LogUtils.d('handleBack -> 关闭全局 Drawer', 'PopCoordinator');
+        return;
+      }
+
+      // 2. 关闭遮罩层（对话框 / BottomSheet 等）
+      if (_tryPopOverlayRoute(context: context)) {
+        LogUtils.d('handleBack -> 关闭遮罩层', 'PopCoordinator');
+        return;
+      }
+
+      // 3. SettingsPage 内部导航返回
+      if (SettingsPage.canPopInternally()) {
+        SettingsPage.popInternally();
+        LogUtils.d('handleBack -> SettingsPage 内部返回', 'PopCoordinator');
+        return;
+      }
+
+      final rootNav = rootNavigatorKey.currentState;
+      final shellNav = shellNavigatorKey.currentState;
+
+      // 4a. 当 root & shell 都可以返回时，优先弹出根路由。
+      // 这样可以避免在有顶层全屏页（例如全屏播放器）覆盖 shell 时，错误地关闭 shell 里的详情页。
+      if (rootNav != null && rootNav.canPop()) {
+        // 使用 maybePop，以尊重 PopScope/WillPopScope（例如页内全屏的拦截）。
+        unawaited(rootNav.maybePop());
+        LogUtils.d('handleBack -> 根 Navigator maybePop', 'PopCoordinator');
+        return;
+      }
+
+      // 4b. Shell Navigator 可返回（Shell 内部推入的详情页）
+      if (shellNav != null && shellNav.canPop()) {
+        // 使用 maybePop，以尊重 PopScope/WillPopScope（例如页内全屏的拦截）。
+        unawaited(shellNav.maybePop());
+        LogUtils.d('handleBack -> Shell Navigator maybePop', 'PopCoordinator');
+        return;
+      }
+
+      // 4c. GoRouter 还能 pop（根级全屏页等）
+      if (appRouter.canPop()) {
+        appRouter.pop();
+        LogUtils.d('handleBack -> GoRouter pop', 'PopCoordinator');
+        return;
+      }
+
+      // 5. 已经没有可弹出的页面 → 退出应用
+      LogUtils.d('handleBack -> 触发 SystemNavigator.pop 退出应用', 'PopCoordinator');
+      SystemNavigator.pop();
+    } finally {
+      _handlingBack = false;
     }
-
-    // 3. SettingsPage 内部导航返回
-    if (SettingsPage.canPopInternally()) {
-      SettingsPage.popInternally();
-      LogUtils.d('handleBack -> SettingsPage 内部返回', 'PopCoordinator');
-      return;
-    }
-
-    final rootNav = rootNavigatorKey.currentState;
-    final shellNav = shellNavigatorKey.currentState;
-
-    // 4a. 当 root & shell 都可以返回时，优先弹出根路由。
-    // 这样可以避免在有顶层全屏页（例如全屏播放器）覆盖 shell 时，错误地关闭 shell 里的详情页。
-    if (rootNav != null && rootNav.canPop()) {
-      // 使用 maybePop，以尊重 PopScope/WillPopScope（例如页内全屏的拦截）。
-      unawaited(rootNav.maybePop());
-      LogUtils.d('handleBack -> 根 Navigator maybePop', 'PopCoordinator');
-      return;
-    }
-
-    // 4b. Shell Navigator 可返回（Shell 内部推入的详情页）
-    if (shellNav != null && shellNav.canPop()) {
-      // 使用 maybePop，以尊重 PopScope/WillPopScope（例如页内全屏的拦截）。
-      unawaited(shellNav.maybePop());
-      LogUtils.d('handleBack -> Shell Navigator maybePop', 'PopCoordinator');
-      return;
-    }
-
-    // 4c. GoRouter 还能 pop（根级全屏页等）
-    if (appRouter.canPop()) {
-      appRouter.pop();
-      LogUtils.d('handleBack -> GoRouter pop', 'PopCoordinator');
-      return;
-    }
-
-    // 5. 已经没有可弹出的页面 → 退出应用
-    LogUtils.d('handleBack -> 触发 SystemNavigator.pop 退出应用', 'PopCoordinator');
-    SystemNavigator.pop();
   }
 
   /// 检查在走 GoRouter 默认返回逻辑之前，是否有需要先关闭的遮罩层或 Drawer。
