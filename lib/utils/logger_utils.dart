@@ -196,6 +196,13 @@ class LogUtils {
     }
   }
 
+  /// 同步标记本次为正常退出（删除崩溃标记）。退出路径应在任何慢清理之前
+  /// 第一时间调用，避免清理超时/被杀时误报崩溃。详见
+  /// [LogService.markCleanExitSync]。
+  static void markCleanExitSync() {
+    _logService?.markCleanExitSync();
+  }
+
   // 关闭日志
   static Future<void> close() async {
     final svc = _logService;

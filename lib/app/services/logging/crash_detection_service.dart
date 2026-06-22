@@ -65,6 +65,23 @@ class CrashDetectionService {
     }
   }
 
+  /// 同步删除崩溃标记。退出路径应在任何「慢且可被打断」的清理（flush、停
+  /// watchdog、关库）之前调用：删除标记只是一次小文件操作，能在进程被杀或
+  /// 超时退出前完成；而 [checkAndRecover] 仅在标记仍存在时才读取 fatal /
+  /// hang 快照——删掉标记即让整个崩溃检测对本次关闭窗口失效，从而避免「正常
+  /// 关闭但清理太慢/被杀」被误报为崩溃。与 [recordFatalErrorSync] 同样采用
+  /// 同步 IO，理由一致：必须在临近退出时可靠落地。
+  void markCleanExitSync() {
+    try {
+      final marker = File(_paths.crashMarkerFile);
+      if (marker.existsSync()) {
+        marker.deleteSync();
+      }
+    } catch (e) {
+      debugPrint('[CrashDetection] Failed to delete marker (sync): $e');
+    }
+  }
+
   Future<CrashRecoveryResult> checkAndRecover() async {
     try {
       final marker = File(_paths.crashMarkerFile);

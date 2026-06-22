@@ -230,11 +230,21 @@ class LogService extends GetxService {
     await _flushBuffer(immediate: true);
   }
 
+  /// 同步标记本次为正常退出。退出编排方（桌面 onWindowClose / 移动端 detached）
+  /// 应在 flush / 停 watchdog / 关库等慢操作**之前**第一时间调用，使后续清理
+  /// 无论超时还是被杀都不会误报崩溃。详见 [CrashDetectionService.markCleanExitSync]。
+  void markCleanExitSync() {
+    if (!_initialized) return;
+    _crash.markCleanExitSync();
+  }
+
   Future<void> close() async {
     if (!_initialized) return;
     _flushTimer?.cancel();
-    // 先 flush 落盘，再停子系统（markCleanExit 删除崩溃标记）；
-    // 否则若 flush 阶段发生异常退出，标记已删会丢失本次崩溃判定窗口。
+    // 注意：正常退出路径已在 close() 之前通过 markCleanExitSync() 同步删除了
+    // 崩溃标记，因此这里 _stopPersistenceSubsystems 里的 markCleanExit 多为
+    // 幂等的二次删除。close() 自身仍保持「先 flush 再停子系统」的顺序，作为
+    // 未提前标记的直接调用方的兜底（先把日志落盘）。
     if (_policy.persistenceEnabled) {
       await _flushBuffer(immediate: true);
     } else {

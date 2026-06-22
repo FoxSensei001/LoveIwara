@@ -214,8 +214,21 @@ Future<void> _initializeDesktop() async {
 class DesktopWindowListener extends WindowListener {
   @override
   void onWindowClose() async {
-    await _closeServices();
-    // await windowManager.destroy();
+    // 1. 第一时间同步标记正常退出：删除崩溃标记后，崩溃检测对本次关闭窗口
+    //    即失效（checkAndRecover 只在标记存在时才读 fatal/hang 快照）。这样
+    //    后续清理无论超时还是被强杀，下次启动都不会误报崩溃。
+    LogUtils.markCleanExitSync();
+    // 2. 隐藏窗口，让用户立刻感知到「已关闭」，避免清理期间窗口卡住数秒。
+    try {
+      await windowManager.hide();
+    } catch (_) {}
+    // 3. 后台限时清理（flush / 停 watchdog / 关库）：正常很快，但日志 flush
+    //    偶发偏慢。给 1.5s 上限，超时直接退出，不让用户干等——此时标记已删，
+    //    超时退出也不会误报崩溃。
+    await _closeServices().timeout(
+      const Duration(milliseconds: 1500),
+      onTimeout: () {},
+    );
     exit(0);
   }
 
@@ -343,8 +356,11 @@ class _AppLifecycleObserver extends WidgetsBindingObserver {
     if (_marking) return;
     _marking = true;
     try {
+      // 先同步删除崩溃标记（一次小文件删除，能在进程被杀前完成），再 best-effort
+      // flush。即使 flush 没跑完进程就被系统回收，也不会误报崩溃；而真正的运行时
+      // 崩溃发生在 detached 之前，标记仍在，照常能被检测到。
+      _logService.crash.markCleanExitSync();
       await _logService.flush();
-      await _logService.crash.markCleanExit();
     } finally {
       _marking = false;
     }
@@ -354,12 +370,8 @@ class _AppLifecycleObserver extends WidgetsBindingObserver {
 /// 确保在应用退出前关闭日志文件
 Future<void> _closeServices() async {
   try {
-    // 标记正常退出并刷新日志
-    if (Get.isRegistered<LogService>()) {
-      final logService = Get.find<LogService>();
-      await logService.flush();
-      await logService.crash.markCleanExit();
-    }
+    // LogUtils.close() 内部已完成 flush + stop watchdog + markCleanExit，
+    // 这里不再重复 flush，避免关闭时多一次同步 IO。
 
     await LogUtils.close();
 
