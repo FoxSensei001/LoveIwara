@@ -1,0 +1,25 @@
+name: screen_brightness_windows
+description: >-
+  本地空实现，覆盖上游 screen_brightness_windows，阻止其在 Windows 上通过 DDC/CI
+  操作物理显示器亮度（上游会在 WM_CLOSE 时把缓存亮度写回硬件，导致关闭软件后整屏变黑）。
+  纯 Dart，无原生代码，所以不会注册任何 WndProc 钩子。
+version: 2.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  screen_brightness_platform_interface: ">=2.1.0 <3.0.0"
+
+flutter:
+  plugin:
+    implements: screen_brightness
+    platforms:
+      windows:
+        # 仅 dartPluginClass、不声明 pluginClass —— 不编译/注册任何 C++，
+        # 因此不会挂上游那个在 WM_CLOSE 写硬件亮度的 WndProc。
+        dartPluginClass: ScreenBrightnessWindows
