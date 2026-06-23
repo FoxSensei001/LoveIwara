@@ -166,17 +166,9 @@ class _SearchContentState extends State<_SearchContent> {
   void _handleSubmit(String value) {
     _searchErrorText.value = '';
 
-    if (value.isEmpty) {
-      if (_searchPlaceholder.isNotEmpty) {
-        _controller.text = _searchPlaceholder.value;
-        _focusNode.requestFocus();
-      } else {
-        _searchErrorText.value = slang.t.search.pleaseEnterSearchContent;
-      }
-      return;
-    }
-
-    if (userPreferenceService.searchRecordEnabled.value) {
+    // 允许不输入关键词直接搜索（例如仅凭筛选项/排序浏览，或 oreno3d 浏览）。
+    // 仅在确实输入了内容时才记录搜索历史。
+    if (value.isNotEmpty && userPreferenceService.searchRecordEnabled.value) {
       userPreferenceService.addVideoSearchHistory(value);
     }
 
@@ -363,11 +355,8 @@ class _SearchContentState extends State<_SearchContent> {
                             name: fav.name,
                           ),
                         ),
-                        onPressed: () => _browseOreno3d(
-                          fav.type,
-                          fav.id,
-                          fav.name,
-                        ),
+                        onPressed: () =>
+                            _browseOreno3d(fav.type, fav.id, fav.name),
                       ),
                     )
                     .toList(),
