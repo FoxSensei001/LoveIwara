@@ -122,10 +122,5 @@ flutter:
 
 dependency_overrides:
   js: ^0.7.1
-  # 用本地纯 Dart 空实现顶替上游 screen_brightness_windows：上游会在 WM_CLOSE 时
-  # 通过 DDC/CI 把缓存亮度写回物理显示器，导致关闭软件后整屏亮度被调成 0。
-  # 详见 packages/screen_brightness_windows/。
-  screen_brightness_windows:
-    path: packages/screen_brightness_windows
 
 license: MIT
