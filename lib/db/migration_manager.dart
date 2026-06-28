@@ -13,6 +13,7 @@ import 'package:i_iwara/db/migrations/migration_v14_favorite_folder_order.dart';
 import 'package:i_iwara/db/migrations/migration_v15_download_task_completed_at.dart';
 import 'package:i_iwara/db/migrations/migration_v16_download_task_status_index.dart';
 import 'package:i_iwara/db/migrations/migration_v17_download_task_conflict_triggers.dart';
+import 'package:i_iwara/db/migrations/migration_v18_download_category.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 
@@ -44,6 +45,7 @@ class MigrationManager {
     MigrationV15DownloadTaskCompletedAt(),
     MigrationV16DownloadTaskStatusIndex(),
     MigrationV17DownloadTaskConflictTriggers(),
+    MigrationV18DownloadCategory(),
     // [TODO_PLACEHOLDER] 将来新增的迁移在这里添加
   ];
 

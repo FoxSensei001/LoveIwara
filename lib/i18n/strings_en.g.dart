@@ -3230,6 +3230,7 @@ class TranslationsDownloadEn {
 	String get noMatchingTasks => 'No matching tasks';
 
 	late final TranslationsDownloadDeleteByDateEn deleteByDate = TranslationsDownloadDeleteByDateEn._(_root);
+	late final TranslationsDownloadCategoryEn category = TranslationsDownloadCategoryEn._(_root);
 
 	/// en: 'Max concurrent downloads'
 	String get maxConcurrentDownloads => 'Max concurrent downloads';
@@ -7256,6 +7257,81 @@ class TranslationsDownloadDeleteByDateEn {
 	String resultPartial({required Object deleted, required Object skipped}) => 'Deleted ${deleted} task(s); ${skipped} skipped (in use)';
 }
 
+// Path: download.category
+class TranslationsDownloadCategoryEn {
+	TranslationsDownloadCategoryEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Manage categories'
+	String get manageTitle => 'Manage categories';
+
+	/// en: 'Categories'
+	String get label => 'Categories';
+
+	/// en: 'Uncategorized'
+	String get uncategorized => 'Uncategorized';
+
+	/// en: 'Manage'
+	String get manage => 'Manage';
+
+	/// en: 'New category name'
+	String get newCategoryHint => 'New category name';
+
+	/// en: 'Category created'
+	String get createSuccess => 'Category created';
+
+	/// en: 'Failed to create category'
+	String get createFailed => 'Failed to create category';
+
+	/// en: 'Category name cannot be empty'
+	String get nameEmpty => 'Category name cannot be empty';
+
+	/// en: 'No categories yet. Create one to organize your downloads.'
+	String get emptyHint => 'No categories yet. Create one to organize your downloads.';
+
+	/// en: 'Move to category'
+	String get moveTo => 'Move to category';
+
+	/// en: 'Move ${count} item(s) to…'
+	String moveToWithCount({required Object count}) => 'Move ${count} item(s) to…';
+
+	/// en: 'Moved to ${title}'
+	String moveSuccess({required Object title}) => 'Moved to ${title}';
+
+	/// en: 'Moved to Uncategorized'
+	String get moveToUncategorizedSuccess => 'Moved to Uncategorized';
+
+	/// en: 'Failed to move'
+	String get moveFailed => 'Failed to move';
+
+	/// en: 'Rename category'
+	String get renameTitle => 'Rename category';
+
+	/// en: 'Enter category name'
+	String get renameHint => 'Enter category name';
+
+	/// en: 'Category renamed'
+	String get renameSuccess => 'Category renamed';
+
+	/// en: 'Failed to rename category'
+	String get renameFailed => 'Failed to rename category';
+
+	/// en: 'Delete category'
+	String get deleteTitle => 'Delete category';
+
+	/// en: 'Delete category "${title}"? Its ${count} download(s) will be moved to Uncategorized; the files will not be deleted.'
+	String deleteConfirm({required Object title, required Object count}) => 'Delete category "${title}"? Its ${count} download(s) will be moved to Uncategorized; the files will not be deleted.';
+
+	/// en: 'Category deleted'
+	String get deleteSuccess => 'Category deleted';
+
+	/// en: 'Failed to delete category'
+	String get deleteFailed => 'Failed to delete category';
+}
+
 // Path: download.batchDownload
 class TranslationsDownloadBatchDownloadEn {
 	TranslationsDownloadBatchDownloadEn._(this._root);
@@ -9386,6 +9462,28 @@ extension on Translations {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Deleting ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Deleted ${count} task(s)',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Deleted ${deleted} task(s); ${skipped} skipped (in use)',
+			'download.category.manageTitle' => 'Manage categories',
+			'download.category.label' => 'Categories',
+			'download.category.uncategorized' => 'Uncategorized',
+			'download.category.manage' => 'Manage',
+			'download.category.newCategoryHint' => 'New category name',
+			'download.category.createSuccess' => 'Category created',
+			'download.category.createFailed' => 'Failed to create category',
+			'download.category.nameEmpty' => 'Category name cannot be empty',
+			'download.category.emptyHint' => 'No categories yet. Create one to organize your downloads.',
+			'download.category.moveTo' => 'Move to category',
+			'download.category.moveToWithCount' => ({required Object count}) => 'Move ${count} item(s) to…',
+			'download.category.moveSuccess' => ({required Object title}) => 'Moved to ${title}',
+			'download.category.moveToUncategorizedSuccess' => 'Moved to Uncategorized',
+			'download.category.moveFailed' => 'Failed to move',
+			'download.category.renameTitle' => 'Rename category',
+			'download.category.renameHint' => 'Enter category name',
+			'download.category.renameSuccess' => 'Category renamed',
+			'download.category.renameFailed' => 'Failed to rename category',
+			'download.category.deleteTitle' => 'Delete category',
+			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'Delete category "${title}"? Its ${count} download(s) will be moved to Uncategorized; the files will not be deleted.',
+			'download.category.deleteSuccess' => 'Category deleted',
+			'download.category.deleteFailed' => 'Failed to delete category',
 			'download.maxConcurrentDownloads' => 'Max concurrent downloads',
 			'download.maxConcurrentDownloadsDesc' => 'Number of tasks downloading at the same time (1-5)',
 			'download.stillInDevelopment' => 'Still in development',
@@ -9403,6 +9501,8 @@ extension on Translations {
 			'download.batchDownload.failedToGetSavePath' => 'Failed to get save path',
 			'download.batchDownload.batchDownloadFailedWithException' => ({required Object exception}) => 'Batch download failed: ${exception}',
 			'download.batchDownload.selectQuality' => 'Select Quality',
+			_ => null,
+		} ?? switch (path) {
 			'download.batchDownload.downloading' => 'Downloading',
 			'download.batchDownload.downloadResult' => 'Download Result',
 			'download.batchDownload.selectedVideosCount' => ({required Object count}) => 'Selected ${count} video(s)',
@@ -9425,8 +9525,6 @@ extension on Translations {
 			'downloadNotifications.completedBody' => ({required Object name}) => '${name} downloaded successfully',
 			'downloadNotifications.failedBody' => ({required Object name}) => '${name} failed to download',
 			'downloadNotifications.completedToast' => ({required Object name}) => '${name} downloaded',
-			_ => null,
-		} ?? switch (path) {
 			'downloadNotifications.failedToast' => ({required Object name}) => '${name} download failed',
 			'downloadNotifications.channelName' => 'Download status',
 			'downloadNotifications.channelDescription' => 'Notifications for completed and failed downloads',
@@ -9917,6 +10015,8 @@ extension on Translations {
 			'emoji.small' => 'Small',
 			'emoji.medium' => 'Medium',
 			'emoji.large' => 'Large',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.extraLarge' => 'Extra Large',
 			'emoji.copyEmojiLinkSuccess' => 'Emoji link copied',
 			'emoji.preview' => 'Emoji Preview',
@@ -9939,8 +10039,6 @@ extension on Translations {
 			'emoji.addImageByUrl' => 'Add by URL',
 			'emoji.addImageUrl' => 'Add Image URL',
 			'emoji.imageUrl' => 'Image URL',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.enterImageUrl' => 'Please enter image URL',
 			'emoji.add' => 'Add',
 			'emoji.batchImport' => 'Batch Import',

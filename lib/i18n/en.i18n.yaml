@@ -1597,6 +1597,29 @@ download:
     deleting: 'Deleting ${done}/${total}…'
     resultSuccess: 'Deleted ${count} task(s)'
     resultPartial: 'Deleted ${deleted} task(s); ${skipped} skipped (in use)'
+  category:
+    manageTitle: Manage categories
+    label: Categories
+    uncategorized: Uncategorized
+    manage: Manage
+    newCategoryHint: New category name
+    createSuccess: Category created
+    createFailed: Failed to create category
+    nameEmpty: Category name cannot be empty
+    emptyHint: No categories yet. Create one to organize your downloads.
+    moveTo: Move to category
+    moveToWithCount: 'Move ${count} item(s) to…'
+    moveSuccess: 'Moved to ${title}'
+    moveToUncategorizedSuccess: Moved to Uncategorized
+    moveFailed: Failed to move
+    renameTitle: Rename category
+    renameHint: Enter category name
+    renameSuccess: Category renamed
+    renameFailed: Failed to rename category
+    deleteTitle: Delete category
+    deleteConfirm: 'Delete category "${title}"? Its ${count} download(s) will be moved to Uncategorized; the files will not be deleted.'
+    deleteSuccess: Category deleted
+    deleteFailed: Failed to delete category
   maxConcurrentDownloads: Max concurrent downloads
   maxConcurrentDownloadsDesc: 'Number of tasks downloading at the same time (1-5)'
   stillInDevelopment: Still in development

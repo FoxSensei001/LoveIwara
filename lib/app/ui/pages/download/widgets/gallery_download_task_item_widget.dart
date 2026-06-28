@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/move_to_category_sheet.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
@@ -112,6 +113,18 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                         ],
                       ),
                       onTap: () => showDownloadDetailDialog(context, task),
+                    ),
+                    // 移至分类
+                    PopupMenuItem(
+                      child: Row(
+                        children: [
+                          const Icon(Icons.drive_file_move_outline),
+                          const SizedBox(width: 8),
+                          Text(t.download.category.moveTo),
+                        ],
+                      ),
+                      onTap: () =>
+                          showMoveToCategorySheet(context, [task.id]),
                     ),
                     if (Platform.isWindows ||
                         Platform.isMacOS ||
@@ -695,6 +708,15 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                           leading: const Icon(Icons.info),
                           title: Text(t.download.downloadDetail),
                           onTap: () => showDownloadDetailDialog(context, task),
+                        ),
+                        // 移至分类
+                        ListTile(
+                          leading: const Icon(Icons.drive_file_move_outline),
+                          title: Text(t.download.category.moveTo),
+                          onTap: () {
+                            Navigator.pop(context);
+                            showMoveToCategorySheet(context, [task.id]);
+                          },
                         ),
                         if (Platform.isWindows ||
                             Platform.isMacOS ||

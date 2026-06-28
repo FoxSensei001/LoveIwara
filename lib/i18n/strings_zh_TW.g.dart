@@ -1328,6 +1328,7 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	@override String get emptyTaskList => '暫無下載任務';
 	@override String get noMatchingTasks => '沒有符合的任務';
 	@override late final _TranslationsDownloadDeleteByDateZhTw deleteByDate = _TranslationsDownloadDeleteByDateZhTw._(_root);
+	@override late final _TranslationsDownloadCategoryZhTw category = _TranslationsDownloadCategoryZhTw._(_root);
 	@override String get maxConcurrentDownloads => '最大同時下載數';
 	@override String get maxConcurrentDownloadsDesc => '同時進行下載的任務數量（1-5）';
 	@override String get stillInDevelopment => '開發中';
@@ -3045,6 +3046,37 @@ class _TranslationsDownloadDeleteByDateZhTw implements TranslationsDownloadDelet
 	@override String deleting({required Object done, required Object total}) => '正在刪除 ${done}/${total}…';
 	@override String resultSuccess({required Object count}) => '已刪除 ${count} 個任務';
 	@override String resultPartial({required Object deleted, required Object skipped}) => '已刪除 ${deleted} 個任務，略過 ${skipped} 個（被佔用）';
+}
+
+// Path: download.category
+class _TranslationsDownloadCategoryZhTw implements TranslationsDownloadCategoryEn {
+	_TranslationsDownloadCategoryZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get manageTitle => '管理分類';
+	@override String get label => '分類';
+	@override String get uncategorized => '未分類';
+	@override String get manage => '管理';
+	@override String get newCategoryHint => '新分類名稱';
+	@override String get createSuccess => '分類已建立';
+	@override String get createFailed => '建立分類失敗';
+	@override String get nameEmpty => '分類名稱不能為空';
+	@override String get emptyHint => '還沒有分類，新建一個來整理你的下載。';
+	@override String get moveTo => '移至分類';
+	@override String moveToWithCount({required Object count}) => '移動 ${count} 項到…';
+	@override String moveSuccess({required Object title}) => '已移至「${title}」';
+	@override String get moveToUncategorizedSuccess => '已移至「未分類」';
+	@override String get moveFailed => '移動失敗';
+	@override String get renameTitle => '重新命名分類';
+	@override String get renameHint => '輸入分類名稱';
+	@override String get renameSuccess => '已重新命名';
+	@override String get renameFailed => '重新命名失敗';
+	@override String get deleteTitle => '刪除分類';
+	@override String deleteConfirm({required Object title, required Object count}) => '刪除分類「${title}」？該分類下的 ${count} 個下載將移到「未分類」，檔案不會被刪除。';
+	@override String get deleteSuccess => '分類已刪除';
+	@override String get deleteFailed => '刪除分類失敗';
 }
 
 // Path: download.batchDownload
@@ -4814,6 +4846,30 @@ extension on TranslationsZhTw {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '正在刪除 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '已刪除 ${count} 個任務',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '已刪除 ${deleted} 個任務，略過 ${skipped} 個（被佔用）',
+			'download.category.manageTitle' => '管理分類',
+			'download.category.label' => '分類',
+			'download.category.uncategorized' => '未分類',
+			'download.category.manage' => '管理',
+			'download.category.newCategoryHint' => '新分類名稱',
+			'download.category.createSuccess' => '分類已建立',
+			'download.category.createFailed' => '建立分類失敗',
+			'download.category.nameEmpty' => '分類名稱不能為空',
+			_ => null,
+		} ?? switch (path) {
+			'download.category.emptyHint' => '還沒有分類，新建一個來整理你的下載。',
+			'download.category.moveTo' => '移至分類',
+			'download.category.moveToWithCount' => ({required Object count}) => '移動 ${count} 項到…',
+			'download.category.moveSuccess' => ({required Object title}) => '已移至「${title}」',
+			'download.category.moveToUncategorizedSuccess' => '已移至「未分類」',
+			'download.category.moveFailed' => '移動失敗',
+			'download.category.renameTitle' => '重新命名分類',
+			'download.category.renameHint' => '輸入分類名稱',
+			'download.category.renameSuccess' => '已重新命名',
+			'download.category.renameFailed' => '重新命名失敗',
+			'download.category.deleteTitle' => '刪除分類',
+			'download.category.deleteConfirm' => ({required Object title, required Object count}) => '刪除分類「${title}」？該分類下的 ${count} 個下載將移到「未分類」，檔案不會被刪除。',
+			'download.category.deleteSuccess' => '分類已刪除',
+			'download.category.deleteFailed' => '刪除分類失敗',
 			'download.maxConcurrentDownloads' => '最大同時下載數',
 			'download.maxConcurrentDownloadsDesc' => '同時進行下載的任務數量（1-5）',
 			'download.stillInDevelopment' => '開發中',
@@ -4822,8 +4878,6 @@ extension on TranslationsZhTw {
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => '此視頻已有${qualities}清晰度的任務，是否繼續下載？',
 			'download.otherQualities' => '其他清晰度',
 			'download.batchDownload.title' => '批量下載',
-			_ => null,
-		} ?? switch (path) {
 			'download.batchDownload.downloadTaskAlreadyRunning' => '任務正在運行中，請稍候',
 			'download.batchDownload.userCancelled' => '用戶取消',
 			'download.batchDownload.failedToGetVideoInfo' => '無法獲取影片資訊',
@@ -5314,6 +5368,8 @@ extension on TranslationsZhTw {
 			'emoji.doNotCloseDialog' => '請不要關閉此對話框',
 			'emoji.uploadSuccess' => ({required Object count}) => '成功上傳 ${count} 張圖片',
 			'emoji.uploadFailed' => ({required Object count}) => '失敗 ${count} 張',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.uploadFailedMessage' => '圖片上傳失敗，請檢查網路連接或檔案格式',
 			'emoji.uploadErrorMessage' => ({required Object error}) => '上傳過程中發生錯誤: ${error}',
 			'displaySettings.title' => '顯示設定',
@@ -5336,8 +5392,6 @@ extension on TranslationsZhTw {
 			'layoutSettings.fixedColumns' => '固定欄數',
 			'layoutSettings.columns' => '欄',
 			'layoutSettings.breakpointConfig' => '斷點配置',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.add' => '新增',
 			'layoutSettings.defaultColumns' => '預設欄數',
 			'layoutSettings.defaultColumnsDesc' => '大螢幕預設顯示',

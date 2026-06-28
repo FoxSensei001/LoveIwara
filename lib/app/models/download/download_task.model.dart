@@ -23,6 +23,9 @@ class DownloadTask {
   /// 媒体质量，仅视频任务使用，例如 '1080', '720' 等
   String? quality;
 
+  /// 所属分类（自定义文件夹）id；null 表示「未分类」。可变元数据。
+  String? categoryId;
+
   /// 任务创建时间（来自数据库 created_at 字段，用于 UI 分组展示）
   final DateTime? createdAt;
 
@@ -49,6 +52,7 @@ class DownloadTask {
     this.mediaType,
     this.mediaId,
     this.quality,
+    this.categoryId,
     this.createdAt,
     this.updatedAt,
     this.completedAt,
@@ -91,6 +95,10 @@ class DownloadTask {
       mediaType: row['media_type'] as String?,
       mediaId: row['media_id'] as String?,
       quality: row['quality'] as String?,
+      // 防御式读取：兼容 v18 迁移前的旧行 / 测试注入的旧 schema
+      categoryId: row.containsKey('category_id')
+          ? row['category_id'] as String?
+          : null,
       createdAt: _parseTimestamp(row['created_at']),
       updatedAt: _parseTimestamp(row['updated_at']),
       completedAt: row.containsKey('completed_at')
@@ -115,6 +123,7 @@ class DownloadTask {
       'media_type': mediaType,
       'media_id': mediaId,
       'quality': quality,
+      'category_id': categoryId,
       'updated_at': DateTime.now().millisecondsSinceEpoch,
       'completed_at': completedAt?.millisecondsSinceEpoch,
     };

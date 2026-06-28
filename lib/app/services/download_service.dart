@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
+import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/download_notification_service.dart';
@@ -58,6 +59,15 @@ class DownloadService extends GetxService {
   // 获取任务状态变更通知器 [仅在任务状态变更时，进行通知，用于刷新UI列表数据]
   RxInt get taskStatusChangedNotifier => _taskStatusChangedNotifier;
 
+  // 分类（增删改 / 排序）变更通知器，用于刷新分类标签条与管理页。
+  final _categoriesChangedNotifier = 0.obs;
+  RxInt get categoriesChangedNotifier => _categoriesChangedNotifier;
+
+  // 删除任务时广播被删除的 id，供列表「就地移除」对应行而非整列重载，
+  // 从而在删除后保留滚动位置（解决「删一条就跳回最近下载」的问题）。
+  final _removedTaskIdsNotifier = Rx<List<String>>(const []);
+  Rx<List<String>> get removedTaskIdsNotifier => _removedTaskIdsNotifier;
+
   final _repository = DownloadTaskRepository();
 
   /// 已派发「终态通知」（完成/失败）的任务 id 集合，用于去重：
@@ -104,6 +114,93 @@ class DownloadService extends GetxService {
   // 获取下载队列的id列表
   List<String> getQueueIds() {
     return _downloadQueue.toList();
+  }
+
+  // =============================== 下载分类（自定义文件夹）===============================
+
+  /// 获取所有分类（带任务计数）。
+  Future<List<DownloadCategory>> getAllCategories() =>
+      _repository.getAllCategories();
+
+  /// 「未分类」任务数量。
+  Future<int> getUncategorizedCount() => _repository.getUncategorizedCount();
+
+  /// 新建分类。
+  Future<DownloadCategory?> createCategory({
+    required String title,
+    String? description,
+  }) async {
+    final category = await _repository.createCategory(
+      title: title,
+      description: description,
+    );
+    if (category != null) _categoriesChangedNotifier.value++;
+    return category;
+  }
+
+  /// 重命名 / 编辑分类。
+  Future<bool> updateCategory(
+    String id, {
+    required String title,
+    String? description,
+  }) async {
+    final ok = await _repository.updateCategory(
+      id,
+      title: title,
+      description: description,
+    );
+    if (ok) _categoriesChangedNotifier.value++;
+    return ok;
+  }
+
+  /// 删除分类（不删文件，任务退回未分类）。
+  Future<bool> deleteCategory(String id) async {
+    final ok = await _repository.deleteCategory(id);
+    if (ok) {
+      // 同步内存中活跃任务的 categoryId：被删分类下「正在下载」的任务，其内存
+      // 对象仍持有该分类 id；若不清空，下一次整行 updateTask（下载循环每秒触发）
+      // 会把悬空 id 重新写回 DB，导致该任务既不在「未分类」也不在任何分类下，
+      // 在各分类筛选中均不可见。
+      for (final t in _activeTasks.values) {
+        if (t.categoryId == id) t.categoryId = null;
+      }
+      _categoriesChangedNotifier.value++;
+      // 任务的归属变了（退回未分类），刷新列表。
+      _taskStatusChangedNotifier.value++;
+    }
+    return ok;
+  }
+
+  /// 批量更新分类顺序。
+  Future<bool> updateCategoriesOrder(List<String> ids) async {
+    final ok = await _repository.updateCategoriesOrder(ids);
+    if (ok) _categoriesChangedNotifier.value++;
+    return ok;
+  }
+
+  /// 把一批任务归入某分类（categoryId 为 null 表示退回未分类）。
+  Future<void> assignTasksToCategory(
+    List<String> taskIds,
+    String? categoryId,
+  ) async {
+    if (taskIds.isEmpty) return;
+    // 防御：分类可能在「移至分类」弹窗打开期间被删除。若写入一个已不存在的
+    // 分类 id 会产生悬空引用（任务在所有分类/未分类筛选下都不可见），这里把
+    // 不存在的分类视为「未分类」(null)。
+    String? effectiveId = categoryId;
+    if (effectiveId != null && !await _repository.categoryExists(effectiveId)) {
+      effectiveId = null;
+    }
+    await _repository.assignTasksToCategory(taskIds, effectiveId);
+    // 同步内存中活跃（下载中）任务的 categoryId，避免后续整行 updateTask 把
+    // 刚写入的分类覆盖回旧值（窄 UPDATE 只改了 DB，没改内存对象）。
+    for (final id in taskIds) {
+      final t = _activeTasks[id];
+      if (t != null) t.categoryId = effectiveId;
+    }
+    // 元数据变更不会自动触发列表刷新，这里手动 bump。
+    _taskStatusChangedNotifier.value++;
+    _categoriesChangedNotifier.value++; // 分类计数变化
   }
 
   // =============================== 内部方法 ===============================
@@ -848,9 +945,9 @@ class DownloadService extends GetxService {
 
       _clearMemoryTask(taskId, '任务已删除');
 
-      // 通知任务状态变更，触发UI刷新
+      // 通知列表「就地移除」该任务行（保留滚动位置），而非整列重载。
       if (notify) {
-        _taskStatusChangedNotifier.value++;
+        _removedTaskIdsNotifier.value = [taskId];
       }
       return true;
     } finally {
@@ -863,8 +960,18 @@ class DownloadService extends GetxService {
     List<String> taskIds, {
     bool ignoreFileDeleteError = false,
   }) async {
+    final removed = <String>[];
     for (final taskId in taskIds) {
-      await deleteTask(taskId, ignoreFileDeleteError: ignoreFileDeleteError);
+      final ok = await deleteTask(
+        taskId,
+        ignoreFileDeleteError: ignoreFileDeleteError,
+        notify: false,
+      );
+      if (ok) removed.add(taskId);
+    }
+    // 统一广播一次被删除的 id，列表就地移除（保留滚动位置）。
+    if (removed.isNotEmpty) {
+      _removedTaskIdsNotifier.value = removed;
     }
   }
 

@@ -1297,6 +1297,7 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String get emptyTaskList => 'ダウンロードタスクがありません';
 	@override String get noMatchingTasks => '一致するタスクがありません';
 	@override late final _TranslationsDownloadDeleteByDateJa deleteByDate = _TranslationsDownloadDeleteByDateJa._(_root);
+	@override late final _TranslationsDownloadCategoryJa category = _TranslationsDownloadCategoryJa._(_root);
 	@override String get maxConcurrentDownloads => '最大同時ダウンロード数';
 	@override String get maxConcurrentDownloadsDesc => '同時にダウンロードするタスク数（1-5）';
 	@override String get stillInDevelopment => '開発中';
@@ -2954,6 +2955,37 @@ class _TranslationsDownloadDeleteByDateJa implements TranslationsDownloadDeleteB
 	@override String deleting({required Object done, required Object total}) => '削除中 ${done}/${total}…';
 	@override String resultSuccess({required Object count}) => '${count}件のタスクを削除しました';
 	@override String resultPartial({required Object deleted, required Object skipped}) => '${deleted}件を削除、${skipped}件をスキップ（使用中）';
+}
+
+// Path: download.category
+class _TranslationsDownloadCategoryJa implements TranslationsDownloadCategoryEn {
+	_TranslationsDownloadCategoryJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get manageTitle => 'カテゴリーの管理';
+	@override String get label => 'カテゴリー';
+	@override String get uncategorized => '未分類';
+	@override String get manage => '管理';
+	@override String get newCategoryHint => '新しいカテゴリー名';
+	@override String get createSuccess => 'カテゴリーを作成しました';
+	@override String get createFailed => 'カテゴリーの作成に失敗しました';
+	@override String get nameEmpty => 'カテゴリー名を入力してください';
+	@override String get emptyHint => 'カテゴリーがまだありません。作成してダウンロードを整理しましょう。';
+	@override String get moveTo => 'カテゴリーへ移動';
+	@override String moveToWithCount({required Object count}) => '${count}件をカテゴリーへ移動…';
+	@override String moveSuccess({required Object title}) => '「${title}」へ移動しました';
+	@override String get moveToUncategorizedSuccess => '「未分類」へ移動しました';
+	@override String get moveFailed => '移動に失敗しました';
+	@override String get renameTitle => 'カテゴリー名の変更';
+	@override String get renameHint => 'カテゴリー名を入力';
+	@override String get renameSuccess => '名前を変更しました';
+	@override String get renameFailed => '名前の変更に失敗しました';
+	@override String get deleteTitle => 'カテゴリーの削除';
+	@override String deleteConfirm({required Object title, required Object count}) => 'カテゴリー「${title}」を削除しますか？このカテゴリーの${count}件のダウンロードは「未分類」へ移動され、ファイルは削除されません。';
+	@override String get deleteSuccess => 'カテゴリーを削除しました';
+	@override String get deleteFailed => 'カテゴリーの削除に失敗しました';
 }
 
 // Path: download.batchDownload
@@ -4780,6 +4812,28 @@ extension on TranslationsJa {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '削除中 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count}件のタスクを削除しました',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '${deleted}件を削除、${skipped}件をスキップ（使用中）',
+			'download.category.manageTitle' => 'カテゴリーの管理',
+			'download.category.label' => 'カテゴリー',
+			'download.category.uncategorized' => '未分類',
+			'download.category.manage' => '管理',
+			'download.category.newCategoryHint' => '新しいカテゴリー名',
+			'download.category.createSuccess' => 'カテゴリーを作成しました',
+			'download.category.createFailed' => 'カテゴリーの作成に失敗しました',
+			'download.category.nameEmpty' => 'カテゴリー名を入力してください',
+			'download.category.emptyHint' => 'カテゴリーがまだありません。作成してダウンロードを整理しましょう。',
+			'download.category.moveTo' => 'カテゴリーへ移動',
+			'download.category.moveToWithCount' => ({required Object count}) => '${count}件をカテゴリーへ移動…',
+			'download.category.moveSuccess' => ({required Object title}) => '「${title}」へ移動しました',
+			'download.category.moveToUncategorizedSuccess' => '「未分類」へ移動しました',
+			'download.category.moveFailed' => '移動に失敗しました',
+			'download.category.renameTitle' => 'カテゴリー名の変更',
+			'download.category.renameHint' => 'カテゴリー名を入力',
+			'download.category.renameSuccess' => '名前を変更しました',
+			'download.category.renameFailed' => '名前の変更に失敗しました',
+			'download.category.deleteTitle' => 'カテゴリーの削除',
+			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'カテゴリー「${title}」を削除しますか？このカテゴリーの${count}件のダウンロードは「未分類」へ移動され、ファイルは削除されません。',
+			'download.category.deleteSuccess' => 'カテゴリーを削除しました',
+			'download.category.deleteFailed' => 'カテゴリーの削除に失敗しました',
 			'download.maxConcurrentDownloads' => '最大同時ダウンロード数',
 			'download.maxConcurrentDownloadsDesc' => '同時にダウンロードするタスク数（1-5）',
 			'download.stillInDevelopment' => '開発中',
@@ -4797,6 +4851,8 @@ extension on TranslationsJa {
 			'download.batchDownload.failedToGetSavePath' => '保存パスの取得に失敗しました',
 			'download.batchDownload.batchDownloadFailedWithException' => ({required Object exception}) => '一括ダウンロードに失敗しました: ${exception}',
 			'download.batchDownload.selectQuality' => '品質を選択',
+			_ => null,
+		} ?? switch (path) {
 			'download.batchDownload.downloading' => 'ダウンロード中',
 			'download.batchDownload.downloadResult' => 'ダウンロード結果',
 			'download.batchDownload.selectedVideosCount' => ({required Object count}) => '${count}件の動画を選択',
@@ -4819,8 +4875,6 @@ extension on TranslationsJa {
 			'downloadNotifications.completedBody' => ({required Object name}) => '${name} のダウンロードが完了しました',
 			'downloadNotifications.failedBody' => ({required Object name}) => '${name} のダウンロードに失敗しました',
 			'downloadNotifications.completedToast' => ({required Object name}) => '${name} をダウンロードしました',
-			_ => null,
-		} ?? switch (path) {
 			'downloadNotifications.failedToast' => ({required Object name}) => '${name} のダウンロードに失敗しました',
 			'downloadNotifications.channelName' => 'ダウンロード状態',
 			'downloadNotifications.channelDescription' => 'ダウンロードの完了と失敗の通知',
@@ -5311,6 +5365,8 @@ extension on TranslationsJa {
 			'layoutSettings.editBreakpoint' => 'ブレークポイントを編集',
 			'layoutSettings.deleteBreakpoint' => 'ブレークポイントを削除',
 			'layoutSettings.screenWidthLabel' => '画面幅',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.screenWidthHint' => '600',
 			'layoutSettings.columnsLabel' => 'カラム数',
 			'layoutSettings.columnsHint' => '3',
@@ -5333,8 +5389,6 @@ extension on TranslationsJa {
 			'layoutSettings.breakpointRangeDescFirst' => ({required Object width}) => '≤${width}px',
 			'layoutSettings.breakpointRangeDescMiddle' => ({required Object start, required Object end}) => '${start}-${end}px',
 			'layoutSettings.edit' => '編集',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.delete' => '削除',
 			'layoutSettings.cancel' => 'キャンセル',
 			'layoutSettings.save' => '保存',

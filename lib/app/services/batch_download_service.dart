@@ -120,6 +120,7 @@ class BatchDownloadService extends GetxService {
   Future<BatchDownloadResult> batchDownloadVideos({
     required List<Video> videos,
     required String quality,
+    String? categoryId,
     Function(int current, int total, String title)? onProgress,
     Function(BatchDownloadResult result)? onComplete,
   }) async {
@@ -155,7 +156,7 @@ class BatchDownloadService extends GetxService {
         );
 
         try {
-          await _downloadSingleVideo(video, quality);
+          await _downloadSingleVideo(video, quality, categoryId);
           queuedCount.value++;
         } on PrivateVideoException {
           skippedCount.value++;
@@ -229,7 +230,11 @@ class BatchDownloadService extends GetxService {
   }
 
   /// 下载单个视频
-  Future<void> _downloadSingleVideo(Video video, String quality) async {
+  Future<void> _downloadSingleVideo(
+    Video video,
+    String quality,
+    String? categoryId,
+  ) async {
     // 1. 获取视频详情（检查是否私人视频）
     Video? videoInfo;
     try {
@@ -316,6 +321,7 @@ class BatchDownloadService extends GetxService {
       mediaId: videoInfo.id,
       quality: targetSource.name,
     );
+    task.categoryId = categoryId;
 
     await _downloadService.addTask(task);
     LogUtils.d('批量下载：添加任务成功 - ${videoInfo.title}', 'BatchDownloadService');
@@ -366,6 +372,7 @@ class BatchDownloadService extends GetxService {
   /// [onComplete] 完成回调
   Future<BatchDownloadResult> batchDownloadGalleries({
     required List<ImageModel> galleries,
+    String? categoryId,
     Function(int current, int total, String title)? onProgress,
     Function(BatchDownloadResult result)? onComplete,
   }) async {
@@ -397,7 +404,7 @@ class BatchDownloadService extends GetxService {
         onProgress?.call(processedCount.value, galleries.length, gallery.title);
 
         try {
-          await _downloadSingleGallery(gallery);
+          await _downloadSingleGallery(gallery, categoryId);
           queuedCount.value++;
         } on PrivateVideoException {
           skippedCount.value++;
@@ -457,7 +464,10 @@ class BatchDownloadService extends GetxService {
   }
 
   /// 下载单个图库
-  Future<void> _downloadSingleGallery(ImageModel gallery) async {
+  Future<void> _downloadSingleGallery(
+    ImageModel gallery,
+    String? categoryId,
+  ) async {
     // 1. 获取图库详情
     final result = await _galleryService.fetchGalleryDetail(gallery.id);
     if (!result.isSuccess || result.data == null) {
@@ -525,6 +535,7 @@ class BatchDownloadService extends GetxService {
       mediaType: 'gallery',
       mediaId: galleryInfo.id,
     );
+    task.categoryId = categoryId;
 
     await _downloadService.addTask(task);
     LogUtils.d('批量下载：添加图库任务成功 - ${galleryInfo.title}', 'BatchDownloadService');

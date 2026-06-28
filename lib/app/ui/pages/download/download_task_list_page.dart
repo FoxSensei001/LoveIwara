@@ -1,14 +1,18 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
+import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/ui/pages/download/download_category_manage_page.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/move_to_category_sheet.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/default_download_task_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_scale.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/video_download_task_item_widget.dart';
@@ -39,6 +43,8 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   final DownloadTaskRepository _downloadTaskRepository =
       DownloadTaskRepository();
   final ScrollController _scrollController = ScrollController();
+  // 分类标签条的横向滚动控制器（用于鼠标滚轮转横向滑动）
+  final ScrollController _categoryStripController = ScrollController();
   late _HistoryDownloadTasksSource _historySource;
 
   // 等待中任务列表
@@ -76,6 +82,13 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   DownloadTypeFilter _typeFilter = DownloadTypeFilter.all;
   final TextEditingController _searchController = TextEditingController();
   bool _isFilterLoading = false;
+
+  // 分类筛选状态：'all' | 'uncategorized' | <categoryId>
+  String _categoryFilter = 'all';
+  List<DownloadCategory> _categories = [];
+  int _uncategorizedCount = 0;
+  Worker? _categoriesChangedWorker;
+  Worker? _removedTaskIdsWorker;
 
   void _enterSelectionMode() {
     setState(() {
@@ -242,6 +255,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     _historySource = _HistoryDownloadTasksSource(_downloadTaskRepository);
     _reloadPendingTasks();
     _reloadFailedTasks();
+    _reloadCategories();
 
     // 监听任务状态变更，将刷新（含 setState / DB 读）等副作用移出 build。
     _statusChangedWorker = ever(DownloadService.to.taskStatusChangedNotifier, (
@@ -257,6 +271,32 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
         _refreshFailedTasksIfNeeded();
         // 刷新历史区域（串行 + 版本重跑，避免并发 refresh 漏掉刚完成的任务）
         _refreshHistory();
+        // 任务增删 / 完成会影响各分类计数，顺带刷新分类条。
+        _reloadCategories();
+      });
+    });
+
+    // 分类增删改 / 排序变更时刷新分类条与筛选。
+    _categoriesChangedWorker = ever(
+      DownloadService.to.categoriesChangedNotifier,
+      (_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          _reloadCategories();
+        });
+      },
+    );
+
+    // 删除任务：就地移除对应行，保留滚动位置（不整列重载）。
+    _removedTaskIdsWorker = ever(DownloadService.to.removedTaskIdsNotifier, (
+      List<String> ids,
+    ) {
+      if (ids.isEmpty) return;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _removeTasksInPlace(ids);
+        // 删除影响各分类计数，刷新分类条。
+        _reloadCategories();
       });
     });
   }
@@ -264,7 +304,10 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   @override
   void dispose() {
     _statusChangedWorker?.dispose();
+    _categoriesChangedWorker?.dispose();
+    _removedTaskIdsWorker?.dispose();
     _scrollController.dispose();
+    _categoryStripController.dispose();
     _historySource.dispose();
     _searchController.dispose();
     super.dispose();
@@ -329,6 +372,13 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
               tooltip: t.download.moreOptions,
               onSelected: (value) {
                 switch (value) {
+                  case 'manageCategory':
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const DownloadCategoryManagePage(),
+                      ),
+                    );
+                    break;
                   case 'batchDelete':
                     _enterSelectionMode();
                     break;
@@ -338,6 +388,20 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
                 }
               },
               itemBuilder: (context) => [
+                PopupMenuItem<String>(
+                  value: 'manageCategory',
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.folder_outlined,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(t.download.category.manageTitle),
+                    ],
+                  ),
+                ),
                 PopupMenuItem<String>(
                   value: 'batchDelete',
                   child: Row(
@@ -390,6 +454,9 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _buildFilterBar(),
+                  // 分类标签条：始终显示，便于发现并进入分类系统
+                  // （无分类时显示「全部 + 管理分类」入口）。
+                  _buildCategoryStrip(),
                   // Loading indicator for filter
                   if (_isFilterLoading) const LinearProgressIndicator(),
                 ],
@@ -407,13 +474,33 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
                 });
               },
               customActionBuilder: (context) {
-                return FloatingActionButton.small(
-                  heroTag: 'batchDeleteFAB_downloadList',
-                  onPressed: _deleteSelectedTasks,
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                  foregroundColor: Theme.of(context).colorScheme.onError,
-                  tooltip: t.common.delete,
-                  child: const Icon(Icons.delete),
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 移至分类
+                    FloatingActionButton.small(
+                      heroTag: 'batchMoveCategoryFAB_downloadList',
+                      onPressed: _moveSelectedToCategory,
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.primaryContainer,
+                      foregroundColor: Theme.of(
+                        context,
+                      ).colorScheme.onPrimaryContainer,
+                      tooltip: t.download.category.moveTo,
+                      child: const Icon(Icons.drive_file_move_outline),
+                    ),
+                    const SizedBox(height: 8),
+                    // 删除
+                    FloatingActionButton.small(
+                      heroTag: 'batchDeleteFAB_downloadList',
+                      onPressed: _deleteSelectedTasks,
+                      backgroundColor: Theme.of(context).colorScheme.error,
+                      foregroundColor: Theme.of(context).colorScheme.onError,
+                      tooltip: t.common.delete,
+                      child: const Icon(Icons.delete),
+                    ),
+                  ],
                 );
               },
             ),
@@ -429,10 +516,11 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     final colorScheme = Theme.of(context).colorScheme;
     final hasActiveFilter =
         _statusFilter != DownloadStatusFilter.all ||
-        _typeFilter != DownloadTypeFilter.all;
+        _typeFilter != DownloadTypeFilter.all ||
+        _categoryFilter != 'all';
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
+      padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
       color: Colors.transparent,
       child: Row(
         children: [
@@ -462,7 +550,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
                 ),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 12,
-                  vertical: 8,
+                  vertical: 6,
                 ),
                 isDense: true,
               ),
@@ -484,6 +572,13 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
               child: hasActiveFilter
                   ? IconButton(
                       key: const ValueKey('clear_filter'),
+                      iconSize: 24,
+                      visualDensity: VisualDensity.compact,
+                      constraints: const BoxConstraints(
+                        minWidth: 44,
+                        minHeight: 44,
+                      ),
+                      padding: EdgeInsets.zero,
                       icon: Icon(
                         Icons.filter_alt_off,
                         color: colorScheme.error,
@@ -496,18 +591,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
           ),
           // Status filter dropdown - 根据状态显示不同图标
           PopupMenuButton<DownloadStatusFilter>(
-            icon: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              transitionBuilder: (child, animation) =>
-                  ScaleTransition(scale: animation, child: child),
-              child: Icon(
-                _getStatusIcon(_statusFilter),
-                key: ValueKey(_statusFilter),
-                color: _statusFilter != DownloadStatusFilter.all
-                    ? colorScheme.primary
-                    : null,
-              ),
-            ),
+            padding: const EdgeInsets.all(10),
             tooltip: t.download.statusLabel(
               label: _getStatusLabel(_statusFilter, t),
             ),
@@ -537,21 +621,23 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
                 isSelected: _statusFilter == DownloadStatusFilter.downloaded,
               ),
             ],
-          ),
-          // Type filter dropdown - 根据类型显示不同图标
-          PopupMenuButton<DownloadTypeFilter>(
-            icon: AnimatedSwitcher(
+            child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 200),
               transitionBuilder: (child, animation) =>
                   ScaleTransition(scale: animation, child: child),
               child: Icon(
-                _getTypeIcon(_typeFilter),
-                key: ValueKey(_typeFilter),
-                color: _typeFilter != DownloadTypeFilter.all
+                _getStatusIcon(_statusFilter),
+                key: ValueKey(_statusFilter),
+                size: 26,
+                color: _statusFilter != DownloadStatusFilter.all
                     ? colorScheme.primary
                     : null,
               ),
             ),
+          ),
+          // Type filter dropdown - 根据类型显示不同图标
+          PopupMenuButton<DownloadTypeFilter>(
+            padding: const EdgeInsets.all(10),
             tooltip: t.download.typeLabel(label: _getTypeLabel(_typeFilter, t)),
             onSelected: (value) {
               setState(() {
@@ -585,6 +671,19 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
                 isSelected: _typeFilter == DownloadTypeFilter.other,
               ),
             ],
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              transitionBuilder: (child, animation) =>
+                  ScaleTransition(scale: animation, child: child),
+              child: Icon(
+                _getTypeIcon(_typeFilter),
+                key: ValueKey(_typeFilter),
+                size: 26,
+                color: _typeFilter != DownloadTypeFilter.all
+                    ? colorScheme.primary
+                    : null,
+              ),
+            ),
           ),
         ],
       ),
@@ -693,8 +792,214 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       _searchController.clear();
       _statusFilter = DownloadStatusFilter.all;
       _typeFilter = DownloadTypeFilter.all;
+      _categoryFilter = 'all';
     });
     _applyFilters();
+  }
+
+  /// 切换当前分类筛选。
+  void _onCategorySelected(String value) {
+    if (_categoryFilter == value) return;
+    setState(() => _categoryFilter = value);
+    _applyFilters();
+  }
+
+  /// 重新加载分类列表与未分类计数；若当前选中分类已被删除则回退到「全部」。
+  Future<void> _reloadCategories() async {
+    try {
+      final cats = await DownloadService.to.getAllCategories();
+      final uncat = await DownloadService.to.getUncategorizedCount();
+      if (!mounted) return;
+      var nextFilter = _categoryFilter;
+      final selectedCategoryGone =
+          nextFilter != 'all' &&
+          nextFilter != 'uncategorized' &&
+          !cats.any((c) => c.id == nextFilter);
+      // 选中「未分类」后又把所有分类删光时，标签条会整条隐藏（仅在有分类时显示），
+      // 若不重置会留下一个看不见、无法点掉的筛选，这里一并回到「全部」。
+      final uncategorizedStrandedWhenStripHidden =
+          nextFilter == 'uncategorized' && cats.isEmpty;
+      if (selectedCategoryGone || uncategorizedStrandedWhenStripHidden) {
+        nextFilter = 'all';
+      }
+      final filterChanged = nextFilter != _categoryFilter;
+      setState(() {
+        _categories = cats;
+        _uncategorizedCount = uncat;
+        _categoryFilter = nextFilter;
+      });
+      if (filterChanged) _applyFilters();
+    } catch (_) {
+      // 分类加载失败时静默处理，不影响主列表
+    }
+  }
+
+  /// 批量「移至分类」：用已选任务打开移动弹窗，移动后退出多选。
+  Future<void> _moveSelectedToCategory() async {
+    if (_selectedTaskIds.isEmpty) return;
+    final moved = await showMoveToCategorySheet(
+      context,
+      _selectedTaskIds.toList(),
+    );
+    if (moved == true) _exitSelectionMode();
+  }
+
+  /// 删除后就地移除对应行，尽量保留滚动位置（避免整列重载导致跳回顶部）。
+  /// - 纯历史区删除：仅通知历史数据源就地刷新，不重建页面，滚动位置不变。
+  /// - 涉及顶部「下载中/失败/等待」区或活跃任务：重建一次页面（这些区域本就在
+  ///   视口上方，删除其元素时位置变化属预期）。
+  void _removeTasksInPlace(List<String> ids) {
+    final idSet = ids.toSet();
+
+    final historyBefore = _historySource.length;
+    _historySource.removeWhere((t) => idSet.contains(t.id));
+    final historyChanged = _historySource.length != historyBefore;
+
+    final topBefore = _pendingTasks.length + _failedTasks.length;
+    _pendingTasks.removeWhere((t) => idSet.contains(t.id));
+    _failedTasks.removeWhere((t) => idSet.contains(t.id));
+    final topChanged =
+        (_pendingTasks.length + _failedTasks.length) != topBefore;
+
+    final pureHistoryChange = historyChanged && !topChanged;
+    if (pureHistoryChange) {
+      if (_historySource.isEmpty) {
+        // 历史已空：走一次完整刷新让「空状态」正确显示（此时无内容，跳动无感）。
+        _refreshHistory();
+      } else {
+        _historySource.setState();
+      }
+      return;
+    }
+
+    // 顶部「下载中/失败/等待」区或活跃任务受影响：需 setState 重建页面才能反映。
+    // 重建会改变历史上方的内容高度，使历史滚动位置漂移；这里记录重建前的偏移与
+    // 内容总高度，重建后按高度缩减量补偿，尽量让用户停留在原处。
+    // （纯顶部删除时补偿精确；同时删顶部+历史时为近似，但不会跳回顶部。）
+    if (historyChanged) _historySource.setState();
+    if (!mounted) return;
+    final hasClients = _scrollController.hasClients;
+    final beforeOffset = hasClients ? _scrollController.offset : 0.0;
+    final beforeMax = hasClients
+        ? _scrollController.position.maxScrollExtent
+        : 0.0;
+    setState(() {});
+    if (hasClients) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_scrollController.hasClients) return;
+        final afterMax = _scrollController.position.maxScrollExtent;
+        final shrink = beforeMax - afterMax; // 内容总高度缩减量 ≈ 被删元素总高
+        if (shrink <= 0) return;
+        final target = (beforeOffset - shrink).clamp(0.0, afterMax);
+        if ((target - _scrollController.offset).abs() > 0.5) {
+          _scrollController.jumpTo(target);
+        }
+      });
+    }
+  }
+
+  /// 顶部分类标签条：全部 / 未分类 / 各分类（带计数）/ 管理入口。
+  Widget _buildCategoryStrip() {
+    final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    Widget buildChip({
+      required String label,
+      int? count,
+      required bool selected,
+      required VoidCallback onTap,
+    }) {
+      return Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: ChoiceChip(
+          label: Text(count != null ? '$label · $count' : label),
+          selected: selected,
+          onSelected: (_) => onTap(),
+          visualDensity: VisualDensity.compact,
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+      );
+    }
+
+    return SizedBox(
+      height: 40,
+      child: Listener(
+        // 鼠标悬浮在分类条上滚动滚轮时，把纵向滚轮增量转成横向滑动。
+        // 仅当分类条确有横向可滚动空间时才接管事件，否则交还底层纵向列表。
+        onPointerSignal: (event) {
+          if (event is PointerScrollEvent &&
+              _categoryStripController.hasClients) {
+            final maxExtent = _categoryStripController.position.maxScrollExtent;
+            if (maxExtent <= 0) return;
+            final delta = event.scrollDelta.dy != 0
+                ? event.scrollDelta.dy
+                : event.scrollDelta.dx;
+            GestureBinding.instance.pointerSignalResolver.register(event, (e) {
+              if (!_categoryStripController.hasClients) return;
+              final target = (_categoryStripController.offset + delta).clamp(
+                0.0,
+                _categoryStripController.position.maxScrollExtent,
+              );
+              _categoryStripController.jumpTo(target);
+            });
+          }
+        },
+        child: ListView(
+          controller: _categoryStripController,
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+          children: [
+            // 管理 / 新建入口放在最前：无分类时用更醒目的「管理分类」标签。
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: ActionChip(
+                avatar: Icon(
+                  _categories.isEmpty
+                      ? Icons.create_new_folder_outlined
+                      : Icons.settings_outlined,
+                  size: 16,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                label: Text(
+                  _categories.isEmpty
+                      ? t.download.category.manageTitle
+                      : t.download.category.manage,
+                ),
+                visualDensity: VisualDensity.compact,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const DownloadCategoryManagePage(),
+                    ),
+                  );
+                },
+              ),
+            ),
+            buildChip(
+              label: t.common.all,
+              selected: _categoryFilter == 'all',
+              onTap: () => _onCategorySelected('all'),
+            ),
+            // 「未分类」仅在已有分类时才有意义（无分类时等同「全部」）。
+            if (_categories.isNotEmpty)
+              buildChip(
+                label: t.download.category.uncategorized,
+                count: _uncategorizedCount,
+                selected: _categoryFilter == 'uncategorized',
+                onTap: () => _onCategorySelected('uncategorized'),
+              ),
+            for (final c in _categories)
+              buildChip(
+                label: c.title,
+                count: c.itemCount ?? 0,
+                selected: _categoryFilter == c.id,
+                onTap: () => _onCategorySelected(c.id),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _onSearchChanged(String value) {
@@ -726,6 +1031,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       searchQuery: _searchQuery,
       statusFilter: statusFilterStr,
       typeFilter: typeFilterStr,
+      categoryFilter: _categoryFilter,
     );
     // 历史区域通过串行刷新触发（updateFilters 不再自行 refresh，避免并发）
     _refreshHistory();
@@ -748,7 +1054,8 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     final hasActiveFilter =
         _searchQuery.isNotEmpty ||
         _statusFilter != DownloadStatusFilter.all ||
-        _typeFilter != DownloadTypeFilter.all;
+        _typeFilter != DownloadTypeFilter.all ||
+        _categoryFilter != 'all';
 
     // If no filter is active, show all
     if (!hasActiveFilter) return true;
@@ -791,6 +1098,18 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
         break;
       case DownloadTypeFilter.all:
         // Show all types
+        break;
+    }
+
+    // Category filter
+    switch (_categoryFilter) {
+      case 'all':
+        break;
+      case 'uncategorized':
+        if (task.categoryId != null) return false;
+        break;
+      default:
+        if (task.categoryId != _categoryFilter) return false;
         break;
     }
 
@@ -906,7 +1225,10 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     }
 
     // 搜索栏高度 (padding + content + border)
-    const filterBarHeight = 56.0;
+    const filterBarHeight = 54.0;
+    // 分类标签条高度
+    const categoryStripHeight = 40.0;
+    final double topInsetHeight = filterBarHeight + categoryStripHeight;
     // AppBar 高度 + 状态栏高度
     final appBarTotalHeight =
         kToolbarHeight + MediaQuery.of(context).padding.top;
@@ -915,7 +1237,8 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     final bool hasActiveFilter =
         _searchQuery.isNotEmpty ||
         _statusFilter != DownloadStatusFilter.all ||
-        _typeFilter != DownloadTypeFilter.all;
+        _typeFilter != DownloadTypeFilter.all ||
+        _categoryFilter != 'all';
     // 顶部活跃区域是否有内容（决定 history 为空时是否接管为整页空状态）
     final bool hasActiveWidgets = activeWidgets.isNotEmpty;
 
@@ -924,7 +1247,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       slivers: [
         // 顶部留白，为悬浮的 AppBar 和搜索栏留出空间
         SliverPadding(
-          padding: EdgeInsets.only(top: appBarTotalHeight + filterBarHeight),
+          padding: EdgeInsets.only(top: appBarTotalHeight + topInsetHeight),
         ),
         // 顶部活跃区域
         if (hasActiveWidgets)
@@ -1005,7 +1328,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
         '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 2),
       child: Text(
         dateString,
         style: textTheme.titleSmall?.copyWith(
@@ -1023,7 +1346,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
 
   Widget _buildSectionHeader({required String title, required int count}) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
       child: Row(
         children: [
           Text(title, style: Theme.of(context).textTheme.titleMedium),
@@ -1212,6 +1535,7 @@ class _HistoryDownloadTasksSource extends LoadingMoreBase<DownloadTask> {
   String _searchQuery = '';
   String _statusFilter = 'all';
   String _typeFilter = 'all';
+  String _categoryFilter = 'all';
 
   static const int pageSize = 20;
 
@@ -1225,10 +1549,12 @@ class _HistoryDownloadTasksSource extends LoadingMoreBase<DownloadTask> {
     required String searchQuery,
     required String statusFilter,
     required String typeFilter,
+    required String categoryFilter,
   }) {
     _searchQuery = searchQuery;
     _statusFilter = statusFilter;
     _typeFilter = typeFilter;
+    _categoryFilter = categoryFilter;
     // 不在此处 refresh：由页面侧 _refreshHistory() 串行触发，
     // 避免与 worker 的历史刷新并发，导致列表被 clear/addAll 互相干扰。
   }
@@ -1251,7 +1577,8 @@ class _HistoryDownloadTasksSource extends LoadingMoreBase<DownloadTask> {
       final bool hasFilters =
           _searchQuery.isNotEmpty ||
           _statusFilter != 'all' ||
-          _typeFilter != 'all';
+          _typeFilter != 'all' ||
+          _categoryFilter != 'all';
 
       List<DownloadTask> tasks;
       if (_statusFilter == 'failed') {
@@ -1267,6 +1594,7 @@ class _HistoryDownloadTasksSource extends LoadingMoreBase<DownloadTask> {
           searchQuery: _searchQuery.isNotEmpty ? _searchQuery : null,
           statusFilter: historyStatusFilter,
           typeFilter: _typeFilter,
+          categoryFilter: _categoryFilter,
         );
       } else {
         tasks = await _repository.getHistoryTasks(

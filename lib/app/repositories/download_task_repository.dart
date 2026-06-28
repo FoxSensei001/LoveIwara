@@ -1,4 +1,5 @@
 import 'package:i_iwara/app/models/download/download_task.model.dart';
+import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/db/database_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
@@ -133,8 +134,8 @@ class DownloadTaskRepository {
       _db.execute(
         '''
         INSERT INTO download_tasks
-        (id, url, save_path, file_name, total_bytes, downloaded_bytes, status, supports_range, error, ext_data, media_type, media_id, quality, updated_at, completed_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (id, url, save_path, file_name, total_bytes, downloaded_bytes, status, supports_range, error, ext_data, media_type, media_id, quality, category_id, updated_at, completed_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ''',
         [
           task.id,
@@ -150,6 +151,7 @@ class DownloadTaskRepository {
           task.mediaType,
           task.mediaId,
           task.quality,
+          task.categoryId,
           DateTime.now().millisecondsSinceEpoch,
           task.completedAt?.millisecondsSinceEpoch,
         ],
@@ -189,6 +191,7 @@ class DownloadTaskRepository {
             media_type = ?,
             media_id = ?,
             quality = ?,
+            category_id = ?,
             updated_at = ?,
             completed_at = ?
         WHERE id = ?
@@ -206,6 +209,7 @@ class DownloadTaskRepository {
           task.mediaType,
           task.mediaId,
           task.quality,
+          task.categoryId,
           DateTime.now().millisecondsSinceEpoch,
           task.completedAt?.millisecondsSinceEpoch,
           task.id,
@@ -518,6 +522,7 @@ class DownloadTaskRepository {
     String? searchQuery,
     String statusFilter = 'all',
     String typeFilter = 'all',
+    String categoryFilter = 'all',
   }) async {
     try {
       final whereClauses = <String>[];
@@ -565,6 +570,20 @@ class DownloadTaskRepository {
           break;
       }
 
+      // Category filter（自定义分类；'all' 不限，'uncategorized' 表示未分类(NULL)，
+      // 否则为具体分类 id。分类 id 为 UUID，不会与上述字面量冲突。）
+      switch (categoryFilter) {
+        case 'all':
+          break;
+        case 'uncategorized':
+          whereClauses.add('category_id IS NULL');
+          break;
+        default:
+          whereClauses.add('category_id = ?');
+          params.add(categoryFilter);
+          break;
+      }
+
       final whereClause = whereClauses.isNotEmpty
           ? 'WHERE ${whereClauses.join(' AND ')}'
           : '';
@@ -600,6 +619,7 @@ class DownloadTaskRepository {
     String? searchQuery,
     String statusFilter = 'all',
     String typeFilter = 'all',
+    String categoryFilter = 'all',
   }) async {
     try {
       final whereClauses = <String>[];
@@ -645,6 +665,19 @@ class DownloadTaskRepository {
           break;
       }
 
+      // Category filter（同 searchTasks）
+      switch (categoryFilter) {
+        case 'all':
+          break;
+        case 'uncategorized':
+          whereClauses.add('category_id IS NULL');
+          break;
+        default:
+          whereClauses.add('category_id = ?');
+          params.add(categoryFilter);
+          break;
+      }
+
       final whereClause = whereClauses.isNotEmpty
           ? 'WHERE ${whereClauses.join(' AND ')}'
           : '';
@@ -659,6 +692,186 @@ class DownloadTaskRepository {
       return results.first['count'] as int;
     } catch (e) {
       LogUtils.e('获取筛选任务数量失败', tag: 'DownloadTaskRepository', error: e);
+      rethrow;
+    }
+  }
+
+  // ============================ 下载分类（download_categories）============================
+
+  /// 获取所有分类，携带各分类下的任务数量（item_count），按自定义顺序排列。
+  Future<List<DownloadCategory>> getAllCategories() async {
+    try {
+      final results = _db.select('''
+        SELECT c.*, COUNT(t.id) AS item_count
+        FROM download_categories c
+        LEFT JOIN download_tasks t ON t.category_id = c.id
+        GROUP BY c.id
+        ORDER BY c.display_order ASC, c.created_at DESC
+      ''');
+      return results.map((row) => DownloadCategory.fromRow(row)).toList();
+    } catch (e) {
+      LogUtils.e('获取下载分类列表失败', tag: 'DownloadTaskRepository', error: e);
+      return [];
+    }
+  }
+
+  /// 「未分类」任务数量（category_id IS NULL）。
+  Future<int> getUncategorizedCount() async {
+    try {
+      final result = _db.select(
+        'SELECT COUNT(*) AS count FROM download_tasks WHERE category_id IS NULL',
+      );
+      return result.first['count'] as int;
+    } catch (e) {
+      LogUtils.e('获取未分类任务数量失败', tag: 'DownloadTaskRepository', error: e);
+      return 0;
+    }
+  }
+
+  /// 新建分类，display_order 自动追加到末尾。
+  Future<DownloadCategory?> createCategory({
+    required String title,
+    String? description,
+  }) async {
+    try {
+      final orderRow = _db.select(
+        'SELECT COALESCE(MAX(display_order), -1) + 1 AS next FROM download_categories',
+      );
+      final nextOrder = orderRow.first['next'] as int;
+      final category = DownloadCategory(
+        title: title,
+        description: description,
+        displayOrder: nextOrder,
+      );
+      _db.execute(
+        '''
+        INSERT INTO download_categories (id, title, description, created_at, updated_at, display_order)
+        VALUES (?, ?, ?, ?, ?, ?)
+      ''',
+        [
+          category.id,
+          category.title,
+          category.description,
+          category.createdAt.millisecondsSinceEpoch ~/ 1000,
+          category.updatedAt.millisecondsSinceEpoch ~/ 1000,
+          category.displayOrder,
+        ],
+      );
+      return category;
+    } catch (e) {
+      LogUtils.e('创建下载分类失败', tag: 'DownloadTaskRepository', error: e);
+      return null;
+    }
+  }
+
+  /// 重命名 / 编辑分类。
+  Future<bool> updateCategory(
+    String id, {
+    required String title,
+    String? description,
+  }) async {
+    try {
+      _db.execute(
+        '''
+        UPDATE download_categories
+        SET title = ?, description = ?, updated_at = ?
+        WHERE id = ?
+      ''',
+        [
+          title,
+          description,
+          DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          id,
+        ],
+      );
+      return true;
+    } catch (e) {
+      LogUtils.e('更新下载分类失败', tag: 'DownloadTaskRepository', error: e);
+      return false;
+    }
+  }
+
+  /// 删除分类（不删文件）：先把该分类下的任务退回「未分类」，再删分类行。
+  Future<bool> deleteCategory(String id) async {
+    try {
+      _db.execute('BEGIN TRANSACTION');
+      try {
+        _db.execute(
+          'UPDATE download_tasks SET category_id = NULL WHERE category_id = ?',
+          [id],
+        );
+        _db.execute('DELETE FROM download_categories WHERE id = ?', [id]);
+        _db.execute('COMMIT');
+        return true;
+      } catch (e) {
+        _db.execute('ROLLBACK');
+        rethrow;
+      }
+    } catch (e) {
+      LogUtils.e('删除下载分类失败', tag: 'DownloadTaskRepository', error: e);
+      return false;
+    }
+  }
+
+  /// 按给定顺序批量更新 display_order。
+  Future<bool> updateCategoriesOrder(List<String> ids) async {
+    try {
+      _db.execute('BEGIN TRANSACTION');
+      try {
+        final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+        for (var i = 0; i < ids.length; i++) {
+          _db.execute(
+            'UPDATE download_categories SET display_order = ?, updated_at = ? WHERE id = ?',
+            [i, now, ids[i]],
+          );
+        }
+        _db.execute('COMMIT');
+        return true;
+      } catch (e) {
+        _db.execute('ROLLBACK');
+        rethrow;
+      }
+    } catch (e) {
+      LogUtils.e('更新下载分类排序失败', tag: 'DownloadTaskRepository', error: e);
+      return false;
+    }
+  }
+
+  /// 分类是否存在（写入前防御悬空引用）。出错时保守返回 true（保留用户意图）。
+  Future<bool> categoryExists(String id) async {
+    try {
+      final r = _db.select(
+        'SELECT 1 FROM download_categories WHERE id = ? LIMIT 1',
+        [id],
+      );
+      return r.isNotEmpty;
+    } catch (e) {
+      LogUtils.e('检查分类是否存在失败', tag: 'DownloadTaskRepository', error: e);
+      return true;
+    }
+  }
+
+  /// 把一批任务归入某分类（categoryId 为 null 表示退回未分类）。
+  ///
+  /// 只更新 category_id 与 updated_at，刻意不触碰 media/save_path 列，
+  /// 从而不会触发 v17 的唯一性触发器。
+  Future<void> assignTasksToCategory(
+    List<String> taskIds,
+    String? categoryId,
+  ) async {
+    if (taskIds.isEmpty) return;
+    try {
+      final placeholders = List.filled(taskIds.length, '?').join(', ');
+      _db.execute(
+        'UPDATE download_tasks SET category_id = ?, updated_at = ? WHERE id IN ($placeholders)',
+        [
+          categoryId,
+          DateTime.now().millisecondsSinceEpoch,
+          ...taskIds,
+        ],
+      );
+    } catch (e) {
+      LogUtils.e('归类下载任务失败', tag: 'DownloadTaskRepository', error: e);
       rethrow;
     }
   }

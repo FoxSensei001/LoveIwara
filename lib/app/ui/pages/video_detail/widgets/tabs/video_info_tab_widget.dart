@@ -30,6 +30,7 @@ import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/add_video_to_playlist_dialog.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/share_video_bottom_sheet.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
@@ -43,10 +44,7 @@ import 'package:i_iwara/app/ui/widgets/split_button_widget.dart'
 class VideoInfoTabWidget extends StatefulWidget {
   final MyVideoStateController controller;
 
-  const VideoInfoTabWidget({
-    super.key,
-    required this.controller,
-  });
+  const VideoInfoTabWidget({super.key, required this.controller});
 
   @override
   State<VideoInfoTabWidget> createState() => _VideoInfoTabWidgetState();
@@ -1082,9 +1080,9 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
         label: '${t.common.download} $qualityLabel',
         icon: downloadIcon,
         isPrimary: isPrimary,
-        onPressed: isDisabled
-            ? null
-            : () => _handleDownloadWithQuality(context, currentQuality),
+        // 主按钮：打开下载对话框（可选清晰度 + 分类）。
+        // 下拉菜单仍保留按清晰度的「秒下」（沿用记住的默认分类）。
+        onPressed: isDisabled ? null : () => _showDownloadDialog(context),
         menuItems: [
           // 置顶菜单项：查看下载列表
           PopupMenuItem<String>(
@@ -1259,6 +1257,13 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
         mediaId: videoInfo.id,
         quality: source.name,
       );
+      // 应用记住的下载分类作为默认值（空字符串视为未分类）
+      final lastCategoryId =
+          Get.find<ConfigService>()[ConfigKey.LAST_DOWNLOAD_CATEGORY_ID]
+              as String?;
+      task.categoryId = (lastCategoryId == null || lastCategoryId.isEmpty)
+          ? null
+          : lastCategoryId;
       LogUtils.d('添加下载任务: ${task.id}', 'VideoInfoTabWidget');
 
       await DownloadService.to.addTask(task);
@@ -1382,6 +1387,8 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
   void _showDownloadDialog(BuildContext context) {
     LogUtils.d('尝试显示下载对话框', 'VideoInfoTabWidget'); // Changed tag for clarity
     final t = slang.Translations.of(context);
+    // 捕获页面 context：弹窗内的 context 在 pop 后会失效，重复确认框需改用它。
+    final BuildContext pageContext = context;
     final sources = widget.controller.currentVideoSourceList;
 
     if (sources.isEmpty) {
@@ -1407,163 +1414,223 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
       return;
     }
 
+    // 初始化下载分类：从配置读取上次选择（空字符串视为未分类/null）
+    final lastCategoryRaw =
+        Get.find<ConfigService>()[ConfigKey.LAST_DOWNLOAD_CATEGORY_ID]
+            as String?;
+    String? selectedCategoryId =
+        (lastCategoryRaw == null || lastCategoryRaw.isEmpty)
+        ? null
+        : lastCategoryRaw;
+
     try {
       showAppDialog(
-        AlertDialog(
-          title: Text(t.common.selectQuality),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: sources.map((source) {
-              return ListTile(
-                title: Text(source.name ?? t.download.errors.unknown),
-                onTap: () async {
-                  LogUtils.d('选择下载质量: ${source.name}', 'VideoInfoTabWidget');
-                  AppService.tryPop();
+        StatefulBuilder(
+          builder: (context, setDialogState) => AlertDialog(
+            title: Text(t.common.selectQuality),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DownloadCategoryPicker(
+                      value: selectedCategoryId,
+                      onChanged: (value) {
+                        setDialogState(() {
+                          selectedCategoryId = value;
+                        });
+                      },
+                    ),
+                    ...sources.map((source) {
+                      return ListTile(
+                        title: Text(source.name ?? t.download.errors.unknown),
+                        onTap: () async {
+                          LogUtils.d(
+                            '选择下载质量: ${source.name}',
+                            'VideoInfoTabWidget',
+                          );
+                          AppService.tryPop();
 
-                  // 重新从 controller 获取最新的视频源列表，避免使用过期的源
-                  final latestSources =
-                      widget.controller.currentVideoSourceList;
-                  final latestSource = latestSources.firstWhereOrNull(
-                    (s) =>
-                        (s.name?.toLowerCase() ?? '') ==
-                        (source.name?.toLowerCase() ?? ''),
-                  );
+                          // 重新从 controller 获取最新的视频源列表，避免使用过期的源
+                          final latestSources =
+                              widget.controller.currentVideoSourceList;
+                          final latestSource = latestSources.firstWhereOrNull(
+                            (s) =>
+                                (s.name?.toLowerCase() ?? '') ==
+                                (source.name?.toLowerCase() ?? ''),
+                          );
 
-                  if (latestSource == null || latestSource.download == null) {
-                    LogUtils.w('所选质量没有下载链接或源已失效', 'VideoInfoTabWidget');
-                    showToastWidget(
-                      MDToastWidget(
-                        message: t.videoDetail.noDownloadUrl,
-                        type: MDToastType.error,
-                      ),
-                      position: ToastPosition.top,
-                    );
-                    return;
-                  }
+                          if (latestSource == null ||
+                              latestSource.download == null) {
+                            LogUtils.w('所选质量没有下载链接或源已失效', 'VideoInfoTabWidget');
+                            showToastWidget(
+                              MDToastWidget(
+                                message: t.videoDetail.noDownloadUrl,
+                                type: MDToastType.error,
+                              ),
+                              position: ToastPosition.top,
+                            );
+                            return;
+                          }
 
-                  try {
-                    final videoInfo = widget.controller.videoInfo.value;
-                    if (videoInfo == null) {
-                      LogUtils.e('下载失败：视频信息为空', tag: 'VideoInfoTabWidget');
-                      throw Exception(t.download.errors.videoInfoNotFound);
-                    }
+                          try {
+                            final videoInfo = widget.controller.videoInfo.value;
+                            if (videoInfo == null) {
+                              LogUtils.e(
+                                '下载失败：视频信息为空',
+                                tag: 'VideoInfoTabWidget',
+                              );
+                              throw Exception(
+                                t.download.errors.videoInfoNotFound,
+                              );
+                            }
 
-                    // 创建视频下载的额外信息，使用最新获取的视频源
-                    final videoExtData = VideoDownloadExtData(
-                      id: videoInfo.id,
-                      title: videoInfo.title,
-                      thumbnail: videoInfo.thumbnailUrl,
-                      authorName: videoInfo.user?.name,
-                      authorUsername: videoInfo.user?.username,
-                      authorAvatar: videoInfo.user?.avatar?.avatarUrl,
-                      duration: videoInfo.file?.duration,
-                      quality: latestSource.name,
-                    );
-                    LogUtils.d('创建下载任务元数据，使用最新视频源', 'VideoInfoTabWidget');
+                            // 创建视频下载的额外信息，使用最新获取的视频源
+                            final videoExtData = VideoDownloadExtData(
+                              id: videoInfo.id,
+                              title: videoInfo.title,
+                              thumbnail: videoInfo.thumbnailUrl,
+                              authorName: videoInfo.user?.name,
+                              authorUsername: videoInfo.user?.username,
+                              authorAvatar: videoInfo.user?.avatar?.avatarUrl,
+                              duration: videoInfo.file?.duration,
+                              quality: latestSource.name,
+                            );
+                            LogUtils.d(
+                              '创建下载任务元数据，使用最新视频源',
+                              'VideoInfoTabWidget',
+                            );
 
-                    // 检查是否存在重复任务
-                    final duplicateCheck = await DownloadService.to
-                        .checkVideoTaskDuplicate(
-                          videoInfo.id,
-                          latestSource.name ?? 'unknown',
-                        );
+                            // 检查是否存在重复任务
+                            final duplicateCheck = await DownloadService.to
+                                .checkVideoTaskDuplicate(
+                                  videoInfo.id,
+                                  latestSource.name ?? 'unknown',
+                                );
 
-                    // 如果存在重复任务，显示确认对话框
-                    if (duplicateCheck.hasSameVideoSameQuality ||
-                        duplicateCheck.hasSameVideoDifferentQuality) {
-                      // 检查 context 是否仍然有效
-                      if (!context.mounted) {
-                        LogUtils.d('Context 已失效，取消下载操作', 'VideoInfoTabWidget');
-                        return;
-                      }
+                            // 如果存在重复任务，显示确认对话框
+                            if (duplicateCheck.hasSameVideoSameQuality ||
+                                duplicateCheck.hasSameVideoDifferentQuality) {
+                              // 弹窗已 pop，改用页面 context 判断有效性并弹重复确认框
+                              if (!pageContext.mounted) {
+                                LogUtils.d(
+                                  'Context 已失效，取消下载操作',
+                                  'VideoInfoTabWidget',
+                                );
+                                return;
+                              }
 
-                      final shouldContinue = await _showDuplicateTaskDialog(
-                        context,
-                        duplicateCheck.hasSameVideoSameQuality,
-                        duplicateCheck.existingQualities,
+                              final shouldContinue =
+                                  await _showDuplicateTaskDialog(
+                                    pageContext,
+                                    duplicateCheck.hasSameVideoSameQuality,
+                                    duplicateCheck.existingQualities,
+                                  );
+
+                              if (!shouldContinue) {
+                                LogUtils.d('用户取消了重复任务下载', 'VideoInfoTabWidget');
+                                return;
+                              }
+                            }
+
+                            // 在创建下载任务之前获取保存路径
+                            final savePath = await _getSavePath(
+                              videoInfo.title ?? 'video',
+                              latestSource.name ?? 'unknown',
+                              latestSource.download ?? 'unknown',
+                            );
+
+                            if (savePath == null) {
+                              LogUtils.d('用户取消了下载操作', 'VideoInfoTabWidget');
+                              showToastWidget(
+                                MDToastWidget(
+                                  message: t.common.operationCancelled,
+                                  type: MDToastType.info,
+                                ),
+                              );
+                              return;
+                            }
+
+                            final task = DownloadTask(
+                              url: latestSource.download!,
+                              savePath: savePath,
+                              fileName:
+                                  '${videoInfo.title ?? 'video'}_${latestSource.name}.mp4',
+                              supportsRange: true,
+                              extData: DownloadTaskExtData(
+                                type: DownloadTaskExtDataType.video,
+                                data: videoExtData.toJson(),
+                              ),
+                              mediaType: 'video',
+                              mediaId: videoInfo.id,
+                              quality: latestSource.name,
+                            );
+                            // 应用所选下载分类（空字符串/未选择视为未分类）
+                            task.categoryId =
+                                (selectedCategoryId?.isEmpty ?? true)
+                                ? null
+                                : selectedCategoryId;
+                            LogUtils.d(
+                              '添加下载任务: ${task.id}',
+                              'VideoInfoTabWidget',
+                            );
+
+                            await DownloadService.to.addTask(task);
+
+                            // 标记视频有下载任务
+                            widget.controller.markVideoHasDownloadTask();
+
+                            // 保存选择的清晰度到配置
+                            final configService = Get.find<ConfigService>();
+                            configService.setSetting(
+                              ConfigKey.LAST_DOWNLOAD_QUALITY,
+                              latestSource.name ?? 'unknown',
+                            );
+                            // 记住所选下载分类作为下次默认值
+                            configService.setSetting(
+                              ConfigKey.LAST_DOWNLOAD_CATEGORY_ID,
+                              selectedCategoryId ?? '',
+                            );
+
+                            if (!mounted) return;
+                            _showDownloadStartedSnackBar();
+                          } catch (e) {
+                            LogUtils.e(
+                              '添加下载任务失败: $e',
+                              tag: 'VideoInfoTabWidget',
+                              error: e,
+                            );
+                            String message;
+                            if (e.toString().contains(
+                              t.download.errors.downloadTaskAlreadyExists,
+                            )) {
+                              message =
+                                  t.download.errors.downloadTaskAlreadyExists;
+                            } else if (e.toString().contains(
+                              t.download.errors.videoAlreadyDownloaded,
+                            )) {
+                              message =
+                                  t.download.errors.videoAlreadyDownloaded;
+                            } else {
+                              message = t.download.errors.downloadFailed;
+                            }
+
+                            showToastWidget(
+                              MDToastWidget(
+                                message: message,
+                                type: MDToastType.error,
+                              ),
+                              position: ToastPosition.top,
+                            );
+                          }
+                        },
                       );
-
-                      if (!shouldContinue) {
-                        LogUtils.d('用户取消了重复任务下载', 'VideoInfoTabWidget');
-                        return;
-                      }
-                    }
-
-                    // 在创建下载任务之前获取保存路径
-                    final savePath = await _getSavePath(
-                      videoInfo.title ?? 'video',
-                      latestSource.name ?? 'unknown',
-                      latestSource.download ?? 'unknown',
-                    );
-
-                    if (savePath == null) {
-                      LogUtils.d('用户取消了下载操作', 'VideoInfoTabWidget');
-                      showToastWidget(
-                        MDToastWidget(
-                          message: t.common.operationCancelled,
-                          type: MDToastType.info,
-                        ),
-                      );
-                      return;
-                    }
-
-                    final task = DownloadTask(
-                      url: latestSource.download!,
-                      savePath: savePath,
-                      fileName:
-                          '${videoInfo.title ?? 'video'}_${latestSource.name}.mp4',
-                      supportsRange: true,
-                      extData: DownloadTaskExtData(
-                        type: DownloadTaskExtDataType.video,
-                        data: videoExtData.toJson(),
-                      ),
-                      mediaType: 'video',
-                      mediaId: videoInfo.id,
-                      quality: latestSource.name,
-                    );
-                    LogUtils.d('添加下载任务: ${task.id}', 'VideoInfoTabWidget');
-
-                    await DownloadService.to.addTask(task);
-
-                    // 标记视频有下载任务
-                    widget.controller.markVideoHasDownloadTask();
-
-                    // 保存选择的清晰度到配置
-                    final configService = Get.find<ConfigService>();
-                    configService.setSetting(
-                      ConfigKey.LAST_DOWNLOAD_QUALITY,
-                      latestSource.name ?? 'unknown',
-                    );
-
-                    if (!mounted) return;
-                    _showDownloadStartedSnackBar();
-                  } catch (e) {
-                    LogUtils.e(
-                      '添加下载任务失败: $e',
-                      tag: 'VideoInfoTabWidget',
-                      error: e,
-                    );
-                    String message;
-                    if (e.toString().contains(
-                      t.download.errors.downloadTaskAlreadyExists,
-                    )) {
-                      message = t.download.errors.downloadTaskAlreadyExists;
-                    } else if (e.toString().contains(
-                      t.download.errors.videoAlreadyDownloaded,
-                    )) {
-                      message = t.download.errors.videoAlreadyDownloaded;
-                    } else {
-                      message = t.download.errors.downloadFailed;
-                    }
-
-                    showToastWidget(
-                      MDToastWidget(message: message, type: MDToastType.error),
-                      position: ToastPosition.top,
-                    );
-                  }
-                },
-              );
-            }).toList(),
+                    }),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       );
@@ -1637,5 +1704,4 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
       },
     );
   }
-
 }

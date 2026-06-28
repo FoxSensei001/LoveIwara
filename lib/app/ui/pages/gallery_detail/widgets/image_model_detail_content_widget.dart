@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
@@ -539,6 +540,13 @@ class ImageModelDetailContent extends StatelessWidget {
         mediaType: 'gallery',
         mediaId: imageModel.id,
       );
+      // 应用记住的下载分类作为默认值（空字符串视为未分类）
+      final lastCategoryId =
+          Get.find<ConfigService>()[ConfigKey.LAST_DOWNLOAD_CATEGORY_ID]
+              as String?;
+      task.categoryId = (lastCategoryId == null || lastCategoryId.isEmpty)
+          ? null
+          : lastCategoryId;
 
       await DownloadService.to.addTask(task);
 

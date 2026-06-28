@@ -1301,6 +1301,7 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	@override String get emptyTaskList => '暂无下载任务';
 	@override String get noMatchingTasks => '没有匹配的任务';
 	@override late final _TranslationsDownloadDeleteByDateZhCn deleteByDate = _TranslationsDownloadDeleteByDateZhCn._(_root);
+	@override late final _TranslationsDownloadCategoryZhCn category = _TranslationsDownloadCategoryZhCn._(_root);
 	@override String get maxConcurrentDownloads => '最大同时下载数';
 	@override String get maxConcurrentDownloadsDesc => '同时进行下载的任务数量（1-5）';
 	@override String downloadCompletedWithName({required Object fileName}) => '下载完成: ${fileName}';
@@ -2959,6 +2960,37 @@ class _TranslationsDownloadDeleteByDateZhCn implements TranslationsDownloadDelet
 	@override String deleting({required Object done, required Object total}) => '正在删除 ${done}/${total}…';
 	@override String resultSuccess({required Object count}) => '已删除 ${count} 个任务';
 	@override String resultPartial({required Object deleted, required Object skipped}) => '已删除 ${deleted} 个任务，跳过 ${skipped} 个（被占用）';
+}
+
+// Path: download.category
+class _TranslationsDownloadCategoryZhCn implements TranslationsDownloadCategoryEn {
+	_TranslationsDownloadCategoryZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get manageTitle => '管理分类';
+	@override String get label => '分类';
+	@override String get uncategorized => '未分类';
+	@override String get manage => '管理';
+	@override String get newCategoryHint => '新分类名称';
+	@override String get createSuccess => '分类已创建';
+	@override String get createFailed => '创建分类失败';
+	@override String get nameEmpty => '分类名称不能为空';
+	@override String get emptyHint => '还没有分类，新建一个来整理你的下载。';
+	@override String get moveTo => '移至分类';
+	@override String moveToWithCount({required Object count}) => '移动 ${count} 项到…';
+	@override String moveSuccess({required Object title}) => '已移至「${title}」';
+	@override String get moveToUncategorizedSuccess => '已移至「未分类」';
+	@override String get moveFailed => '移动失败';
+	@override String get renameTitle => '重命名分类';
+	@override String get renameHint => '输入分类名称';
+	@override String get renameSuccess => '已重命名';
+	@override String get renameFailed => '重命名失败';
+	@override String get deleteTitle => '删除分类';
+	@override String deleteConfirm({required Object title, required Object count}) => '删除分类「${title}」？该分类下的 ${count} 个下载将移到「未分类」，文件不会被删除。';
+	@override String get deleteSuccess => '分类已删除';
+	@override String get deleteFailed => '删除分类失败';
 }
 
 // Path: download.batchDownload
@@ -4789,6 +4821,28 @@ extension on TranslationsZhCn {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '正在删除 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '已删除 ${count} 个任务',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '已删除 ${deleted} 个任务，跳过 ${skipped} 个（被占用）',
+			'download.category.manageTitle' => '管理分类',
+			'download.category.label' => '分类',
+			'download.category.uncategorized' => '未分类',
+			'download.category.manage' => '管理',
+			'download.category.newCategoryHint' => '新分类名称',
+			'download.category.createSuccess' => '分类已创建',
+			'download.category.createFailed' => '创建分类失败',
+			'download.category.nameEmpty' => '分类名称不能为空',
+			'download.category.emptyHint' => '还没有分类，新建一个来整理你的下载。',
+			'download.category.moveTo' => '移至分类',
+			'download.category.moveToWithCount' => ({required Object count}) => '移动 ${count} 项到…',
+			'download.category.moveSuccess' => ({required Object title}) => '已移至「${title}」',
+			'download.category.moveToUncategorizedSuccess' => '已移至「未分类」',
+			'download.category.moveFailed' => '移动失败',
+			'download.category.renameTitle' => '重命名分类',
+			'download.category.renameHint' => '输入分类名称',
+			'download.category.renameSuccess' => '已重命名',
+			'download.category.renameFailed' => '重命名失败',
+			'download.category.deleteTitle' => '删除分类',
+			'download.category.deleteConfirm' => ({required Object title, required Object count}) => '删除分类「${title}」？该分类下的 ${count} 个下载将移到「未分类」，文件不会被删除。',
+			'download.category.deleteSuccess' => '分类已删除',
+			'download.category.deleteFailed' => '删除分类失败',
 			'download.maxConcurrentDownloads' => '最大同时下载数',
 			'download.maxConcurrentDownloadsDesc' => '同时进行下载的任务数量（1-5）',
 			'download.downloadCompletedWithName' => ({required Object fileName}) => '下载完成: ${fileName}',
@@ -4802,6 +4856,8 @@ extension on TranslationsZhCn {
 			'download.batchDownload.userCancelled' => '用户取消',
 			'download.batchDownload.failedToGetVideoInfo' => '无法获取视频信息',
 			'download.batchDownload.failedToGetVideoSource' => '无法获取视频源',
+			_ => null,
+		} ?? switch (path) {
 			'download.batchDownload.failedToGetGalleryInfo' => '无法获取图库信息',
 			'download.batchDownload.galleryNoImages' => '图库中没有图片',
 			'download.batchDownload.failedToGetSavePath' => '无法获取保存路径',
@@ -4824,8 +4880,6 @@ extension on TranslationsZhCn {
 			'download.batchDownload.reasonNoSavePath' => '无法获取保存路径',
 			'download.batchDownload.reasonOther' => '其他错误',
 			'download.batchDownload.startDownload' => '开始下载',
-			_ => null,
-		} ?? switch (path) {
 			'downloadNotifications.completedTitle' => '下载完成',
 			'downloadNotifications.failedTitle' => '下载失败',
 			'downloadNotifications.completedBody' => ({required Object name}) => '${name} 下载成功',
@@ -5316,6 +5370,8 @@ extension on TranslationsZhCn {
 			'layoutSettings.defaultColumns' => '默认列数',
 			'layoutSettings.defaultColumnsDesc' => '大屏幕默认显示',
 			'layoutSettings.previewEffect' => '预览效果',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.screenWidth' => '屏幕宽度',
 			'layoutSettings.addBreakpoint' => '添加断点',
 			'layoutSettings.editBreakpoint' => '编辑断点',
@@ -5338,8 +5394,6 @@ extension on TranslationsZhCn {
 			'layoutSettings.confirmDeleteBreakpoint' => '删除断点',
 			'layoutSettings.confirmDeleteBreakpointDesc' => ({required Object width}) => '确定要删除 ${width}px 断点吗？',
 			'layoutSettings.noCustomBreakpoints' => '暂无自定义断点，使用默认列数',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.breakpointRange' => '断点区间',
 			'layoutSettings.breakpointRangeDesc' => ({required Object range}) => '${range}px',
 			'layoutSettings.breakpointRangeDescFirst' => ({required Object width}) => '≤${width}px',

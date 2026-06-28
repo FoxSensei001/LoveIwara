@@ -1600,6 +1600,29 @@ download:
     deleting: 削除中 ${done}/${total}…
     resultSuccess: ${count}件のタスクを削除しました
     resultPartial: ${deleted}件を削除、${skipped}件をスキップ（使用中）
+  category:
+    manageTitle: カテゴリーの管理
+    label: カテゴリー
+    uncategorized: 未分類
+    manage: 管理
+    newCategoryHint: 新しいカテゴリー名
+    createSuccess: カテゴリーを作成しました
+    createFailed: カテゴリーの作成に失敗しました
+    nameEmpty: カテゴリー名を入力してください
+    emptyHint: カテゴリーがまだありません。作成してダウンロードを整理しましょう。
+    moveTo: カテゴリーへ移動
+    moveToWithCount: '${count}件をカテゴリーへ移動…'
+    moveSuccess: '「${title}」へ移動しました'
+    moveToUncategorizedSuccess: 「未分類」へ移動しました
+    moveFailed: 移動に失敗しました
+    renameTitle: カテゴリー名の変更
+    renameHint: カテゴリー名を入力
+    renameSuccess: 名前を変更しました
+    renameFailed: 名前の変更に失敗しました
+    deleteTitle: カテゴリーの削除
+    deleteConfirm: 'カテゴリー「${title}」を削除しますか？このカテゴリーの${count}件のダウンロードは「未分類」へ移動され、ファイルは削除されません。'
+    deleteSuccess: カテゴリーを削除しました
+    deleteFailed: カテゴリーの削除に失敗しました
   maxConcurrentDownloads: 最大同時ダウンロード数
   maxConcurrentDownloadsDesc: '同時にダウンロードするタスク数（1-5）'
   stillInDevelopment: 開発中

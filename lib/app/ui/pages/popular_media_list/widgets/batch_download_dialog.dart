@@ -5,6 +5,7 @@ import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/batch_download_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
@@ -50,6 +51,9 @@ class _BatchDownloadDialogState<T> extends State<BatchDownloadDialog<T>> {
   // 选中的清晰度
   String _selectedQuality = 'Source';
 
+  // 选中的下载分类 ID（null 表示未分类）
+  String? _selectedCategoryId;
+
   // 可选清晰度列表
   final List<String> _qualityOptions = ['Source', 'Preview', '540', '360'];
 
@@ -72,6 +76,13 @@ class _BatchDownloadDialogState<T> extends State<BatchDownloadDialog<T>> {
   @override
   void initState() {
     super.initState();
+    // 读取上次选择的下载分类（空字符串视为未分类/null）
+    final lastCategoryId =
+        _configService[ConfigKey.LAST_DOWNLOAD_CATEGORY_ID] as String?;
+    _selectedCategoryId =
+        (lastCategoryId == null || lastCategoryId.isEmpty)
+        ? null
+        : lastCategoryId;
     // 图库下载直接开始，不需要选择清晰度
     if (!_isVideoDownload) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -155,6 +166,15 @@ class _BatchDownloadDialogState<T> extends State<BatchDownloadDialog<T>> {
           ),
         ),
         const SizedBox(height: 16),
+        DownloadCategoryPicker(
+          value: _selectedCategoryId,
+          onChanged: (value) {
+            setState(() {
+              _selectedCategoryId = value;
+            });
+          },
+        ),
+        const SizedBox(height: 8),
         RadioGroup<String>(
           groupValue: _selectedQuality,
           onChanged: (value) {
@@ -475,6 +495,14 @@ class _BatchDownloadDialogState<T> extends State<BatchDownloadDialog<T>> {
       ConfigKey.LAST_DOWNLOAD_QUALITY,
       _selectedQuality,
     );
+    // 记住所选下载分类作为下次默认值
+    _configService.setSetting(
+      ConfigKey.LAST_DOWNLOAD_CATEGORY_ID,
+      _selectedCategoryId ?? '',
+    );
+    // 空字符串/未选择视为未分类
+    final String? categoryId =
+        (_selectedCategoryId?.isEmpty ?? true) ? null : _selectedCategoryId;
 
     setState(() {
       _phase = _DialogPhase.downloading;
@@ -486,10 +514,12 @@ class _BatchDownloadDialogState<T> extends State<BatchDownloadDialog<T>> {
         result = await _batchDownloadService.batchDownloadVideos(
           videos: widget.mediaItems.cast<Video>(),
           quality: _selectedQuality,
+          categoryId: categoryId,
         );
       } else {
         result = await _batchDownloadService.batchDownloadGalleries(
           galleries: widget.mediaItems.cast<ImageModel>(),
+          categoryId: categoryId,
         );
       }
 

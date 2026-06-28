@@ -1643,6 +1643,29 @@ download:
     deleting: 正在刪除 ${done}/${total}…
     resultSuccess: 已刪除 ${count} 個任務
     resultPartial: 已刪除 ${deleted} 個任務，略過 ${skipped} 個（被佔用）
+  category:
+    manageTitle: 管理分類
+    label: 分類
+    uncategorized: 未分類
+    manage: 管理
+    newCategoryHint: 新分類名稱
+    createSuccess: 分類已建立
+    createFailed: 建立分類失敗
+    nameEmpty: 分類名稱不能為空
+    emptyHint: 還沒有分類，新建一個來整理你的下載。
+    moveTo: 移至分類
+    moveToWithCount: '移動 ${count} 項到…'
+    moveSuccess: '已移至「${title}」'
+    moveToUncategorizedSuccess: 已移至「未分類」
+    moveFailed: 移動失敗
+    renameTitle: 重新命名分類
+    renameHint: 輸入分類名稱
+    renameSuccess: 已重新命名
+    renameFailed: 重新命名失敗
+    deleteTitle: 刪除分類
+    deleteConfirm: '刪除分類「${title}」？該分類下的 ${count} 個下載將移到「未分類」，檔案不會被刪除。'
+    deleteSuccess: 分類已刪除
+    deleteFailed: 刪除分類失敗
   maxConcurrentDownloads: 最大同時下載數
   maxConcurrentDownloadsDesc: '同時進行下載的任務數量（1-5）'
   stillInDevelopment: 開發中
