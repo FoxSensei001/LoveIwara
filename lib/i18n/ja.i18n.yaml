@@ -473,6 +473,7 @@ search:
   usedTimes: 使用回数
   lastUsed: 最後の使用
   noSearchHistoryRecords: 検索履歴がありません
+  clearSearchHistoryConfirm: すべての検索履歴を消去してもよろしいですか？この操作は元に戻せません。
   notSupportCurrentSearchType: '現在の検索タイプ ${searchType} はまだ実装されていません。お楽しみに'
   searchResult: 検索結果
   unsupportedSearchType: 'サポートされていない検索タイプ: ${searchType}'

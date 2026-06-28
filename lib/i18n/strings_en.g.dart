@@ -1445,6 +1445,9 @@ class TranslationsSearchEn {
 	/// en: 'No search history'
 	String get noSearchHistoryRecords => 'No search history';
 
+	/// en: 'Are you sure you want to clear all search history? This cannot be undone.'
+	String get clearSearchHistoryConfirm => 'Are you sure you want to clear all search history? This cannot be undone.';
+
 	/// en: 'Not support current search type ${searchType}, please wait for the update'
 	String notSupportCurrentSearchType({required Object searchType}) => 'Not support current search type ${searchType}, please wait for the update';
 
@@ -8308,6 +8311,7 @@ extension on Translations {
 			'search.usedTimes' => 'Used Times',
 			'search.lastUsed' => 'Last Used',
 			'search.noSearchHistoryRecords' => 'No search history',
+			'search.clearSearchHistoryConfirm' => 'Are you sure you want to clear all search history? This cannot be undone.',
 			'search.notSupportCurrentSearchType' => ({required Object searchType}) => 'Not support current search type ${searchType}, please wait for the update',
 			'search.searchResult' => 'Search Result',
 			'search.unsupportedSearchType' => ({required Object searchType}) => 'Unsupported search type: ${searchType}',
@@ -8371,9 +8375,9 @@ extension on Translations {
 			'settings.checkProxy' => 'Check Proxy',
 			'settings.proxyAddress' => 'Proxy Address',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => 'Please enter the URL of the proxy server, for example 127.0.0.1:8080',
-			'settings.enableProxy' => 'Enable Proxy',
 			_ => null,
 		} ?? switch (path) {
+			'settings.enableProxy' => 'Enable Proxy',
 			'settings.left' => 'Left',
 			'settings.middle' => 'Middle',
 			'settings.right' => 'Right',
@@ -8885,9 +8889,9 @@ extension on Translations {
 			'subscriptions.noSubscribedUsers' => 'No subscribed users',
 			'subscriptions.showAllSubscribedUsersContent' => 'Show all subscribed users content',
 			'videoDetail.pipMode' => 'PiP Mode',
-			'videoDetail.resumeFromLastPosition' => ({required Object position}) => 'Resume from last position: ${position}',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.resumeFromLastPosition' => ({required Object position}) => 'Resume from last position: ${position}',
 			'videoDetail.localInfo.videoInfo' => 'Video Info',
 			'videoDetail.localInfo.currentQuality' => 'Current Quality',
 			'videoDetail.localInfo.duration' => 'Duration',
@@ -9399,9 +9403,9 @@ extension on Translations {
 			'downloadNotifications.completedBody' => ({required Object name}) => '${name} downloaded successfully',
 			'downloadNotifications.failedBody' => ({required Object name}) => '${name} failed to download',
 			'downloadNotifications.completedToast' => ({required Object name}) => '${name} downloaded',
-			'downloadNotifications.failedToast' => ({required Object name}) => '${name} download failed',
 			_ => null,
 		} ?? switch (path) {
+			'downloadNotifications.failedToast' => ({required Object name}) => '${name} download failed',
 			'downloadNotifications.channelName' => 'Download status',
 			'downloadNotifications.channelDescription' => 'Notifications for completed and failed downloads',
 			'favorite.errors.addFailed' => 'Add failed',
@@ -9913,9 +9917,9 @@ extension on Translations {
 			'emoji.addImageByUrl' => 'Add by URL',
 			'emoji.addImageUrl' => 'Add Image URL',
 			'emoji.imageUrl' => 'Image URL',
-			'emoji.enterImageUrl' => 'Please enter image URL',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.enterImageUrl' => 'Please enter image URL',
 			'emoji.add' => 'Add',
 			'emoji.batchImport' => 'Batch Import',
 			'emoji.enterJsonUrlArray' => 'Please enter JSON format URL array:',

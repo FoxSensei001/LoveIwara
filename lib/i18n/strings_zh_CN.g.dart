@@ -608,6 +608,7 @@ class _TranslationsSearchZhCn implements TranslationsSearchEn {
 	@override String get usedTimes => '使用次数';
 	@override String get lastUsed => '最后使用';
 	@override String get noSearchHistoryRecords => '没有搜索历史';
+	@override String get clearSearchHistoryConfirm => '确定要清除所有搜索历史吗？此操作无法撤销。';
 	@override String notSupportCurrentSearchType({required Object searchType}) => '暂未实现当前搜索类型 ${searchType}，敬请期待';
 	@override String get searchResult => '搜索结果';
 	@override String unsupportedSearchType({required Object searchType}) => '不支持的搜索类型: ${searchType}';
@@ -3722,6 +3723,7 @@ extension on TranslationsZhCn {
 			'search.usedTimes' => '使用次数',
 			'search.lastUsed' => '最后使用',
 			'search.noSearchHistoryRecords' => '没有搜索历史',
+			'search.clearSearchHistoryConfirm' => '确定要清除所有搜索历史吗？此操作无法撤销。',
 			'search.notSupportCurrentSearchType' => ({required Object searchType}) => '暂未实现当前搜索类型 ${searchType}，敬请期待',
 			'search.searchResult' => '搜索结果',
 			'search.unsupportedSearchType' => ({required Object searchType}) => '不支持的搜索类型: ${searchType}',
@@ -3780,9 +3782,9 @@ extension on TranslationsZhCn {
 			'settings.proxyNormalWork' => '代理正常工作。',
 			'settings.testProxyFailedWithStatusCode' => ({required Object code}) => '代理请求失败，状态码: ${code}',
 			'settings.testProxyFailedWithException' => ({required Object exception}) => '代理请求出错: ${exception}',
-			'settings.proxyConfig' => '代理配置',
 			_ => null,
 		} ?? switch (path) {
+			'settings.proxyConfig' => '代理配置',
 			'settings.thisIsHttpProxyAddress' => '此处为http代理地址',
 			'settings.checkProxy' => '检查代理',
 			'settings.proxyAddress' => '代理地址',
@@ -4294,9 +4296,9 @@ extension on TranslationsZhCn {
 			'signIn.signInRecord' => '签到记录',
 			'signIn.totalSignIns' => '总成功签到',
 			'signIn.pleaseSelectSignInStatus' => '请选择签到状态',
-			'subscriptions.pleaseLoginFirstToViewYourSubscriptions' => '请登录以查看您的订阅内容。',
 			_ => null,
 		} ?? switch (path) {
+			'subscriptions.pleaseLoginFirstToViewYourSubscriptions' => '请登录以查看您的订阅内容。',
 			'subscriptions.selectUser' => '选择用户',
 			'subscriptions.noSubscribedUsers' => '暂无已订阅的用户',
 			'subscriptions.showAllSubscribedUsersContent' => '显示所有已订阅用户的内容',
@@ -4808,9 +4810,9 @@ extension on TranslationsZhCn {
 			'download.batchDownload.reasonNoSavePath' => '无法获取保存路径',
 			'download.batchDownload.reasonOther' => '其他错误',
 			'download.batchDownload.startDownload' => '开始下载',
-			'downloadNotifications.completedTitle' => '下载完成',
 			_ => null,
 		} ?? switch (path) {
+			'downloadNotifications.completedTitle' => '下载完成',
 			'downloadNotifications.failedTitle' => '下载失败',
 			'downloadNotifications.completedBody' => ({required Object name}) => '${name} 下载成功',
 			'downloadNotifications.failedBody' => ({required Object name}) => '${name} 下载失败',
@@ -5322,9 +5324,9 @@ extension on TranslationsZhCn {
 			'layoutSettings.confirmDeleteBreakpoint' => '删除断点',
 			'layoutSettings.confirmDeleteBreakpointDesc' => ({required Object width}) => '确定要删除 ${width}px 断点吗？',
 			'layoutSettings.noCustomBreakpoints' => '暂无自定义断点，使用默认列数',
-			'layoutSettings.breakpointRange' => '断点区间',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.breakpointRange' => '断点区间',
 			'layoutSettings.breakpointRangeDesc' => ({required Object range}) => '${range}px',
 			'layoutSettings.breakpointRangeDescFirst' => ({required Object width}) => '≤${width}px',
 			'layoutSettings.breakpointRangeDescMiddle' => ({required Object start, required Object end}) => '${start}-${end}px',

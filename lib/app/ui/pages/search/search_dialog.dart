@@ -45,6 +45,17 @@ class SearchDialog extends StatelessWidget {
     return ResponsiveDialogWidget(
       title: t.common.search,
       maxWidth: 800,
+      headerActions: [
+        IconButton(
+          onPressed: () {
+            // 关闭当前搜索弹窗，改用底部 sheet 承载谷歌搜索内容
+            AppService.tryPop();
+            GoogleSearchBottomSheet.show();
+          },
+          icon: const Icon(Icons.travel_explore),
+          tooltip: t.search.googleSearch,
+        ),
+      ],
       content: _SearchContent(
         userInputKeywords: userInputKeywords,
         initialSegment: initialSegment,
@@ -322,46 +333,61 @@ class _SearchContentState extends State<_SearchContent> {
       }
       final t = slang.t;
       final favorites = userPreferenceService.oreno3dFavorites;
+      // 浏览入口已移入上方控制栏，这里仅保留收藏快捷区
+      if (favorites.isEmpty) {
+        return const SizedBox.shrink();
+      }
       return Padding(
         padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            OutlinedButton.icon(
-              onPressed: _openOreno3dPicker,
-              icon: const Icon(Icons.travel_explore, size: 18),
-              label: Text(t.favoriteTags.browseEntry),
-            ),
-            if (favorites.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Text(
-                t.favoriteTags.favoritesSection,
-                style: TextStyle(
-                  fontSize: 12,
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    t.favoriteTags.favoritesSection,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                  ),
+                ),
+                // 设置入口：跳转到 Oreno3D 收藏标签管理页（与全局抽屉一致）
+                IconButton(
+                  onPressed: () {
+                    _dismiss();
+                    NaviService.navigateToFavoriteOreno3dTagsPage();
+                  },
+                  icon: const Icon(Icons.settings_outlined, size: 18),
+                  tooltip: t.favoriteTags.oreno3dTitle,
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
                   color: Theme.of(context).colorScheme.outline,
                 ),
-              ),
-              const SizedBox(height: 4),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: favorites
-                    .map(
-                      (fav) => ActionChip(
-                        label: Text(
-                          Oreno3dLocalizationService.displayName(
-                            type: fav.type,
-                            id: fav.id,
-                            name: fav.name,
-                          ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: favorites
+                  .map(
+                    (fav) => ActionChip(
+                      label: Text(
+                        Oreno3dLocalizationService.displayName(
+                          type: fav.type,
+                          id: fav.id,
+                          name: fav.name,
                         ),
-                        onPressed: () =>
-                            _browseOreno3d(fav.type, fav.id, fav.name),
                       ),
-                    )
-                    .toList(),
-              ),
-            ],
+                      onPressed: () =>
+                          _browseOreno3d(fav.type, fav.id, fav.name),
+                    ),
+                  )
+                  .toList(),
+            ),
           ],
         ),
       );
@@ -405,9 +431,9 @@ class _SearchContentState extends State<_SearchContent> {
             onFiltersChanged: (filters) => _filters.assignAll(filters),
             selectedSort: _selectedSort,
             onOpenSavedSearch: _openSavedSearchDrawer,
+            onBrowseOreno3d: _openOreno3dPicker,
           ),
           _buildOreno3dSection(),
-          _GoogleSearchSection(scrollController: _scrollController),
           _SearchHistorySection(
             userPreferenceService: userPreferenceService,
             onRemoveHistoryItem: _removeHistoryItem,
@@ -496,6 +522,7 @@ class _SearchControlsSection extends StatelessWidget {
   final Function(List<Filter>) onFiltersChanged;
   final RxString selectedSort;
   final VoidCallback onOpenSavedSearch;
+  final VoidCallback onBrowseOreno3d;
 
   const _SearchControlsSection({
     required this.selectedSegment,
@@ -505,6 +532,7 @@ class _SearchControlsSection extends StatelessWidget {
     required this.onFiltersChanged,
     required this.selectedSort,
     required this.onOpenSavedSearch,
+    required this.onBrowseOreno3d,
   });
 
   @override
@@ -919,12 +947,30 @@ class _SearchControlsSection extends StatelessWidget {
               );
             }
 
+            // Oreno3D 浏览原作/角色/标签入口，作为单独图标放进控制栏
+            Widget oreno3dBrowseButton() {
+              return IconButton(
+                onPressed: onBrowseOreno3d,
+                icon: const Icon(Icons.travel_explore),
+                tooltip: t.favoriteTags.browseEntry,
+                constraints: iconButtonConstraints,
+                style: iconButtonStyle(
+                  backgroundColor: colorScheme.surfaceContainer,
+                  foregroundColor: colorScheme.onSurfaceVariant,
+                ),
+              );
+            }
+
             final leftControls = <Widget>[
               segmentButton(),
               if (showSortButton) ...[const SizedBox(width: 6), sortButton()],
               if (seg != SearchSegment.oreno3d) ...[
                 const SizedBox(width: 6),
                 filterButton(),
+              ],
+              if (seg == SearchSegment.oreno3d) ...[
+                const SizedBox(width: 6),
+                oreno3dBrowseButton(),
               ],
             ];
 
@@ -985,20 +1031,6 @@ class _SearchControlsSection extends StatelessWidget {
   }
 }
 
-class _GoogleSearchSection extends StatelessWidget {
-  final ScrollController scrollController;
-
-  const _GoogleSearchSection({required this.scrollController});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: GoogleSearchPanelWidget(scrollController: scrollController),
-    );
-  }
-}
-
 class _SearchHistorySection extends StatelessWidget {
   final UserPreferenceService userPreferenceService;
   final Function(int) onRemoveHistoryItem;
@@ -1015,6 +1047,8 @@ class _SearchHistorySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      // 拉伸子项占满宽度，否则窄屏下标题会被居中而非靠左
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _SearchHistoryHeader(
           userPreferenceService: userPreferenceService,
@@ -1053,10 +1087,12 @@ class _SearchHistoryHeader extends StatelessWidget {
           builder: (context, constraints) {
             final compact = constraints.maxWidth < 420;
 
+            // 与「收藏」分区标签保持一致的样式
             final title = Text(
               t.search.searchHistory,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
+              style: TextStyle(
+                fontSize: 12,
+                color: theme.colorScheme.outline,
               ),
             );
 
@@ -1166,11 +1202,43 @@ class _ClearHistoryButton extends StatelessWidget {
     final t = slang.Translations.of(context);
 
     return TextButton.icon(
-      onPressed: onClearHistory,
+      onPressed: () => _confirmClear(context, t),
       icon: const Icon(Icons.delete_outline, size: 18),
       label: Text(t.common.clear),
       style: TextButton.styleFrom(
         foregroundColor: Theme.of(context).colorScheme.error,
+      ),
+    );
+  }
+
+  // 清除前二次确认，避免误触清空搜索历史
+  void _confirmClear(BuildContext context, slang.Translations t) {
+    showAppDialog(
+      Builder(
+        builder: (dialogContext) {
+          final colorScheme = Theme.of(dialogContext).colorScheme;
+          return AlertDialog(
+            title: Text(t.common.clear),
+            content: Text(t.search.clearSearchHistoryConfirm),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: Text(t.common.cancel),
+              ),
+              FilledButton(
+                onPressed: () {
+                  Navigator.of(dialogContext).pop();
+                  onClearHistory();
+                },
+                style: FilledButton.styleFrom(
+                  backgroundColor: colorScheme.error,
+                  foregroundColor: colorScheme.onError,
+                ),
+                child: Text(t.common.clear),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

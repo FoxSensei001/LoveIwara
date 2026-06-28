@@ -472,6 +472,7 @@ search:
   usedTimes: 使用次數
   lastUsed: 最後使用
   noSearchHistoryRecords: 沒有搜尋歷史
+  clearSearchHistoryConfirm: 確定要清除所有搜尋歷史嗎？此操作無法復原。
   notSupportCurrentSearchType: '目前尚未支援此搜尋類型 ${searchType}，敬請期待'
   searchResult: 搜尋結果
   unsupportedSearchType: '不支援的搜尋類型: ${searchType}'

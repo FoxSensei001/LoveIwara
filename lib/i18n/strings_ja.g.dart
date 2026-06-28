@@ -603,6 +603,7 @@ class _TranslationsSearchJa implements TranslationsSearchEn {
 	@override String get usedTimes => '使用回数';
 	@override String get lastUsed => '最後の使用';
 	@override String get noSearchHistoryRecords => '検索履歴がありません';
+	@override String get clearSearchHistoryConfirm => 'すべての検索履歴を消去してもよろしいですか？この操作は元に戻せません。';
 	@override String notSupportCurrentSearchType({required Object searchType}) => '現在の検索タイプ ${searchType} はまだ実装されていません。お楽しみに';
 	@override String get searchResult => '検索結果';
 	@override String unsupportedSearchType({required Object searchType}) => 'サポートされていない検索タイプ: ${searchType}';
@@ -3712,6 +3713,7 @@ extension on TranslationsJa {
 			'search.usedTimes' => '使用回数',
 			'search.lastUsed' => '最後の使用',
 			'search.noSearchHistoryRecords' => '検索履歴がありません',
+			'search.clearSearchHistoryConfirm' => 'すべての検索履歴を消去してもよろしいですか？この操作は元に戻せません。',
 			'search.notSupportCurrentSearchType' => ({required Object searchType}) => '現在の検索タイプ ${searchType} はまだ実装されていません。お楽しみに',
 			'search.searchResult' => '検索結果',
 			'search.unsupportedSearchType' => ({required Object searchType}) => 'サポートされていない検索タイプ: ${searchType}',
@@ -3775,9 +3777,9 @@ extension on TranslationsJa {
 			'settings.checkProxy' => 'プロキシを確認',
 			'settings.proxyAddress' => 'プロキシアドレス',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => 'プロキシサーバーのURLを入力してください（例: 127.0.0.1:8080）',
-			'settings.enableProxy' => 'プロキシを有効にする',
 			_ => null,
 		} ?? switch (path) {
+			'settings.enableProxy' => 'プロキシを有効にする',
 			'settings.left' => '左',
 			'settings.middle' => '中央',
 			'settings.right' => '右',
@@ -4289,9 +4291,9 @@ extension on TranslationsJa {
 			'subscriptions.noSubscribedUsers' => '購読中のユーザーがいません',
 			'subscriptions.showAllSubscribedUsersContent' => 'すべての購読中のユーザーのコンテンツを表示',
 			'videoDetail.pipMode' => 'ピプモード',
-			'videoDetail.resumeFromLastPosition' => ({required Object position}) => '${position} から続けて再生',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.resumeFromLastPosition' => ({required Object position}) => '${position} から続けて再生',
 			'videoDetail.localInfo.videoInfo' => 'ビデオ情報',
 			'videoDetail.localInfo.currentQuality' => '現在の品質',
 			'videoDetail.localInfo.duration' => '再生時間',
@@ -4803,9 +4805,9 @@ extension on TranslationsJa {
 			'downloadNotifications.completedBody' => ({required Object name}) => '${name} のダウンロードが完了しました',
 			'downloadNotifications.failedBody' => ({required Object name}) => '${name} のダウンロードに失敗しました',
 			'downloadNotifications.completedToast' => ({required Object name}) => '${name} をダウンロードしました',
-			'downloadNotifications.failedToast' => ({required Object name}) => '${name} のダウンロードに失敗しました',
 			_ => null,
 		} ?? switch (path) {
+			'downloadNotifications.failedToast' => ({required Object name}) => '${name} のダウンロードに失敗しました',
 			'downloadNotifications.channelName' => 'ダウンロード状態',
 			'downloadNotifications.channelDescription' => 'ダウンロードの完了と失敗の通知',
 			'favorite.errors.addFailed' => '追加に失敗しました',
@@ -5317,9 +5319,9 @@ extension on TranslationsJa {
 			'layoutSettings.breakpointRangeDescFirst' => ({required Object width}) => '≤${width}px',
 			'layoutSettings.breakpointRangeDescMiddle' => ({required Object start, required Object end}) => '${start}-${end}px',
 			'layoutSettings.edit' => '編集',
-			'layoutSettings.delete' => '削除',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.delete' => '削除',
 			'layoutSettings.cancel' => 'キャンセル',
 			'layoutSettings.save' => '保存',
 			'navigationOrderSettings.title' => 'ナビゲーション順序設定',

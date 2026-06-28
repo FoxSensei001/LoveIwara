@@ -472,6 +472,7 @@ search:
   usedTimes: Used Times
   lastUsed: Last Used
   noSearchHistoryRecords: No search history
+  clearSearchHistoryConfirm: Are you sure you want to clear all search history? This cannot be undone.
   notSupportCurrentSearchType: 'Not support current search type ${searchType}, please wait for the update'
   searchResult: Search Result
   unsupportedSearchType: 'Unsupported search type: ${searchType}'

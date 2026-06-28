@@ -603,6 +603,7 @@ class _TranslationsSearchZhTw implements TranslationsSearchEn {
 	@override String get usedTimes => '使用次數';
 	@override String get lastUsed => '最後使用';
 	@override String get noSearchHistoryRecords => '沒有搜尋歷史';
+	@override String get clearSearchHistoryConfirm => '確定要清除所有搜尋歷史嗎？此操作無法復原。';
 	@override String notSupportCurrentSearchType({required Object searchType}) => '目前尚未支援此搜尋類型 ${searchType}，敬請期待';
 	@override String get searchResult => '搜尋結果';
 	@override String unsupportedSearchType({required Object searchType}) => '不支援的搜尋類型: ${searchType}';
@@ -3715,6 +3716,7 @@ extension on TranslationsZhTw {
 			'search.usedTimes' => '使用次數',
 			'search.lastUsed' => '最後使用',
 			'search.noSearchHistoryRecords' => '沒有搜尋歷史',
+			'search.clearSearchHistoryConfirm' => '確定要清除所有搜尋歷史嗎？此操作無法復原。',
 			'search.notSupportCurrentSearchType' => ({required Object searchType}) => '目前尚未支援此搜尋類型 ${searchType}，敬請期待',
 			'search.searchResult' => '搜尋結果',
 			'search.unsupportedSearchType' => ({required Object searchType}) => '不支援的搜尋類型: ${searchType}',
@@ -3778,9 +3780,9 @@ extension on TranslationsZhTw {
 			'settings.checkProxy' => '檢查代理',
 			'settings.proxyAddress' => '代理地址',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => '請輸入代理伺服器的 URL，例如 127.0.0.1:8080',
-			'settings.enableProxy' => '啟用代理',
 			_ => null,
 		} ?? switch (path) {
+			'settings.enableProxy' => '啟用代理',
 			'settings.left' => '左側',
 			'settings.middle' => '中間',
 			'settings.right' => '右側',
@@ -4292,9 +4294,9 @@ extension on TranslationsZhTw {
 			'firstTimeSetup.completion.checkboxSubtitle' => '不同意將無法使用本應用',
 			'firstTimeSetup.common.settingsChangeableTip' => '這些設定可在應用設定中隨時修改',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => '請先同意使用者協議與社群規則',
-			'proxyHelper.systemProxyDetected' => '檢測到系統代理',
 			_ => null,
 		} ?? switch (path) {
+			'proxyHelper.systemProxyDetected' => '檢測到系統代理',
 			'proxyHelper.copied' => '已複製',
 			'proxyHelper.copy' => '複製',
 			'signIn.pleaseLoginFirst' => '請先登入',
@@ -4806,9 +4808,9 @@ extension on TranslationsZhTw {
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => '此視頻已有${qualities}清晰度的任務，是否繼續下載？',
 			'download.otherQualities' => '其他清晰度',
 			'download.batchDownload.title' => '批量下載',
-			'download.batchDownload.downloadTaskAlreadyRunning' => '任務正在運行中，請稍候',
 			_ => null,
 		} ?? switch (path) {
+			'download.batchDownload.downloadTaskAlreadyRunning' => '任務正在運行中，請稍候',
 			'download.batchDownload.userCancelled' => '用戶取消',
 			'download.batchDownload.failedToGetVideoInfo' => '無法獲取影片資訊',
 			'download.batchDownload.failedToGetVideoSource' => '無法獲取影片源',
@@ -5320,9 +5322,9 @@ extension on TranslationsZhTw {
 			'layoutSettings.fixedColumns' => '固定欄數',
 			'layoutSettings.columns' => '欄',
 			'layoutSettings.breakpointConfig' => '斷點配置',
-			'layoutSettings.add' => '新增',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.add' => '新增',
 			'layoutSettings.defaultColumns' => '預設欄數',
 			'layoutSettings.defaultColumnsDesc' => '大螢幕預設顯示',
 			'layoutSettings.previewEffect' => '預覽效果',

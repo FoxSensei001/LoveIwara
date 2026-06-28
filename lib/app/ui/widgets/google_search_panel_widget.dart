@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/link_input_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:oktoast/oktoast.dart';
@@ -71,22 +72,27 @@ extension SearchTypeExtension on SearchType {
   }
 }
 
-/// 谷歌搜索辅助面板组件
-class GoogleSearchPanelWidget extends StatefulWidget {
-  const GoogleSearchPanelWidget({super.key, this.scrollController});
+/// 谷歌搜索辅助底部弹窗。
+///
+/// 以 BottomSheet 形式承载谷歌搜索内容，并妥善处理底部安全区域（手势条 / 刘海屏）
+/// 与键盘弹出时的内边距。
+class GoogleSearchBottomSheet extends StatefulWidget {
+  const GoogleSearchBottomSheet({super.key});
 
-  /// 滚动控制器，用于在展开谷歌搜索面板时自动滚动
-  final ScrollController? scrollController;
+  /// 展示谷歌搜索底部弹窗。
+  static Future<void> show() {
+    return showAppBottomSheet(
+      const GoogleSearchBottomSheet(),
+      isScrollControlled: true,
+    );
+  }
 
   @override
-  State<GoogleSearchPanelWidget> createState() =>
-      _GoogleSearchPanelWidgetState();
+  State<GoogleSearchBottomSheet> createState() =>
+      _GoogleSearchBottomSheetState();
 }
 
-class _GoogleSearchPanelWidgetState extends State<GoogleSearchPanelWidget> {
-  /// 是否展开谷歌搜索辅助面板
-  bool _isGoogleSearchPanelExpanded = false;
-
+class _GoogleSearchBottomSheetState extends State<GoogleSearchBottomSheet> {
   /// 谷歌搜索输入控制器
   final TextEditingController _googleSearchController = TextEditingController();
 
@@ -97,28 +103,6 @@ class _GoogleSearchPanelWidgetState extends State<GoogleSearchPanelWidget> {
   void dispose() {
     _googleSearchController.dispose();
     super.dispose();
-  }
-
-  /// 展开或收起谷歌搜索面板
-  void _toggleGoogleSearchPanel() {
-    setState(() {
-      _isGoogleSearchPanelExpanded = !_isGoogleSearchPanelExpanded;
-    });
-
-    // 如果是展开面板，延迟滚动到面板位置，确保UI已更新
-    if (_isGoogleSearchPanelExpanded && widget.scrollController != null) {
-      Future.delayed(const Duration(milliseconds: 100), () {
-        if (widget.scrollController!.hasClients) {
-          // 计算谷歌搜索面板的大致位置并滚动到那里
-          final offset = widget.scrollController!.position.pixels + 100.0;
-          widget.scrollController!.animateTo(
-            offset,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        }
-      });
-    }
   }
 
   /// 执行谷歌搜索
@@ -174,245 +158,216 @@ class _GoogleSearchPanelWidgetState extends State<GoogleSearchPanelWidget> {
     final t = slang.Translations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Card(
-      margin: EdgeInsets.zero,
-      clipBehavior: Clip.hardEdge,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: colorScheme.outline.withValues(alpha: 0.2),
-          width: 1,
+    return Padding(
+      // 键盘弹出时上抬内容，避免遮挡输入框
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: Container(
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
-      ),
-      elevation: 0,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 标题部分，可点击展开/收起
-          InkWell(
-            onTap: _toggleGoogleSearchPanel,
+        child: SafeArea(
+          // 处理底部安全区域（手势条 / Home Indicator）
+          top: false,
+          child: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(Icons.search, color: colorScheme.primary),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
+                  // 顶部拖拽指示条
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: colorScheme.onSurfaceVariant.withValues(
+                          alpha: 0.4,
+                        ),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  // 标题行
+                  Row(
+                    children: [
+                      Icon(Icons.search, color: colorScheme.primary),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
                           t.search.googleSearch,
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: colorScheme.onSurface,
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          t.search.googleSearchHint(
-                            webName: CommonConstants.webName,
-                          ),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        tooltip: t.common.close,
+                        onPressed: () => Navigator.of(context).maybePop(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    t.search.googleSearchDescription,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  Icon(
-                    _isGoogleSearchPanelExpanded
-                        ? Icons.expand_less
-                        : Icons.expand_more,
-                    color: colorScheme.primary,
+                  const SizedBox(height: 16),
+                  // MD3风格的搜索输入框
+                  TextField(
+                    controller: _googleSearchController,
+                    autofocus: true,
+                    textInputAction: TextInputAction.search,
+                    onSubmitted: (_) => _performGoogleSearch(),
+                    decoration: InputDecoration(
+                      hintText: t.search.googleSearchKeywordsHint,
+                      filled: true,
+                      fillColor: colorScheme.surfaceContainerHighest.withValues(
+                        alpha: 0.3,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(28),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // 搜索类型选择器
+                  Text(
+                    t.search.googleSearchScope,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8.0,
+                    runSpacing: 8.0,
+                    children: SearchType.values.map((type) {
+                      return FilterChip(
+                        selected: _selectedSearchType == type,
+                        label: Text(type.getDisplayName(context)),
+                        avatar: Icon(
+                          type.icon,
+                          size: 18,
+                          color: _selectedSearchType == type
+                              ? colorScheme.onSecondaryContainer
+                              : colorScheme.onSurfaceVariant,
+                        ),
+                        onSelected: (selected) {
+                          if (selected) {
+                            setState(() {
+                              _selectedSearchType = type;
+                            });
+                          }
+                        },
+                        selectedColor: colorScheme.secondaryContainer,
+                        backgroundColor: colorScheme.surfaceContainerHighest
+                            .withValues(alpha: 0.5),
+                        checkmarkColor: colorScheme.onSecondaryContainer,
+                        showCheckmark: false,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        visualDensity: VisualDensity.compact,
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 16),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      // 当宽度小于300时使用垂直布局
+                      if (constraints.maxWidth < 300) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            OutlinedButton.icon(
+                              icon: const Icon(Icons.link),
+                              label: Text(t.search.openLinkJump),
+                              onPressed: () {
+                                LinkInputDialogWidget.show();
+                              },
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 10,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            FilledButton.icon(
+                              icon: const Icon(Icons.search),
+                              label: Text(t.search.googleSearchButton),
+                              onPressed: _performGoogleSearch,
+                              style: FilledButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 10,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      } else {
+                        // 宽屏使用水平布局
+                        return Row(
+                          children: [
+                            OutlinedButton.icon(
+                              icon: const Icon(Icons.link),
+                              label: Text(t.search.openLinkJump),
+                              onPressed: () {
+                                LinkInputDialogWidget.show();
+                              },
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 10,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: FilledButton.icon(
+                                icon: const Icon(Icons.search),
+                                label: Text(t.search.googleSearchButton),
+                                onPressed: _performGoogleSearch,
+                                style: FilledButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 10,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                    },
                   ),
                 ],
               ),
             ),
           ),
-
-          // 展开的内容部分
-          AnimatedSize(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            child: SizedBox(
-              height: _isGoogleSearchPanelExpanded ? null : 0,
-              child: FadeTransition(
-                opacity: CurvedAnimation(
-                  parent: AlwaysStoppedAnimation(
-                    _isGoogleSearchPanelExpanded ? 1.0 : 0.0,
-                  ),
-                  curve: Curves.easeInOut,
-                ),
-                child: _isGoogleSearchPanelExpanded
-                    ? Padding(
-                        padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text(
-                              t.search.googleSearchDescription,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            // MD3风格的搜索输入框
-                            TextField(
-                              controller: _googleSearchController,
-                              decoration: InputDecoration(
-                                hintText: t.search.googleSearchKeywordsHint,
-                                filled: true,
-                                fillColor: colorScheme.surfaceContainerHighest
-                                    .withValues(alpha: 0.3),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(28),
-                                  borderSide: BorderSide.none,
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
-                                ),
-                                prefixIcon: Icon(
-                                  Icons.search,
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            // 搜索类型选择器 - 使用SegmentedButton
-                            Text(
-                              t.search.googleSearchScope,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Wrap(
-                              spacing: 8.0,
-                              runSpacing: 8.0,
-                              children: SearchType.values.map((type) {
-                                return FilterChip(
-                                  selected: _selectedSearchType == type,
-                                  label: Text(type.getDisplayName(context)),
-                                  avatar: Icon(
-                                    type.icon,
-                                    size: 18,
-                                    color: _selectedSearchType == type
-                                        ? colorScheme.onSecondaryContainer
-                                        : colorScheme.onSurfaceVariant,
-                                  ),
-                                  onSelected: (selected) {
-                                    if (selected) {
-                                      setState(() {
-                                        _selectedSearchType = type;
-                                      });
-                                    }
-                                  },
-                                  selectedColor: colorScheme.secondaryContainer,
-                                  backgroundColor: colorScheme
-                                      .surfaceContainerHighest
-                                      .withValues(alpha: 0.5),
-                                  checkmarkColor:
-                                      colorScheme.onSecondaryContainer,
-                                  showCheckmark: false,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 2,
-                                  ),
-                                  visualDensity: VisualDensity.compact,
-                                );
-                              }).toList(),
-                            ),
-                            const SizedBox(height: 16),
-                            LayoutBuilder(
-                              builder: (context, constraints) {
-                                // 当宽度小于300时使用垂直布局
-                                if (constraints.maxWidth < 300) {
-                                  return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      OutlinedButton.icon(
-                                        icon: const Icon(Icons.link),
-                                        label: Text(t.search.openLinkJump),
-                                        onPressed: () {
-                                          LinkInputDialogWidget.show();
-                                        },
-                                        style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 10,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      FilledButton.icon(
-                                        icon: const Icon(Icons.search),
-                                        label: Text(
-                                          t.search.googleSearchButton,
-                                        ),
-                                        onPressed: _performGoogleSearch,
-                                        style: FilledButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 10,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                } else {
-                                  // 宽屏使用水平布局
-                                  return Row(
-                                    children: [
-                                      OutlinedButton.icon(
-                                        icon: const Icon(Icons.link),
-                                        label: Text(t.search.openLinkJump),
-                                        onPressed: () {
-                                          LinkInputDialogWidget.show();
-                                        },
-                                        style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 10,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: FilledButton.icon(
-                                          icon: const Icon(Icons.search),
-                                          label: Text(
-                                            t.search.googleSearchButton,
-                                          ),
-                                          onPressed: _performGoogleSearch,
-                                          style: FilledButton.styleFrom(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 16,
-                                              vertical: 10,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                      )
-                    : const SizedBox(),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
