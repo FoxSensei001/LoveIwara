@@ -14,6 +14,8 @@ import '../models/user_avatar.model.dart';
 import '../models/user_notifications.model.dart';
 import '../models/api_result.model.dart';
 import '../models/user.model.dart';
+import '../models/tag.model.dart';
+import 'default_tag_blacklist_reminder.dart';
 import 'login_service.dart';
 import 'api_service.dart';
 import 'auth_service.dart';
@@ -931,6 +933,18 @@ class UserService extends GetxService {
         await _saveCachedUserData(user);
 
         LogUtils.d('$_tag 用户资料静默更新完成: ${user.name}');
+
+        // 启动恢复已登录会话、静默刷新资料后，按需提醒「网站默认标签黑名单」。
+        // 复用本次 /user 响应里的 tagBlacklist，零额外请求；内部对已提醒过的
+        // 用户名做持久化去重，覆盖不会再走手动登录的老用户。
+        final blacklist = data['tagBlacklist'] is List
+            ? (data['tagBlacklist'] as List)
+                .map((e) => Tag.fromJson(e as Map<String, dynamic>))
+                .toList()
+            : <Tag>[];
+        unawaited(
+          DefaultTagBlacklistReminder.checkAndRemind(blacklist: blacklist),
+        );
 
         // 获取到用户资料后启动通知计数定时器
         startNotificationTimer();

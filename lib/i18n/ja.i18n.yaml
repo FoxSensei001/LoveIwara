@@ -2489,3 +2489,9 @@ savedSearch:
   rename: 名前を変更
   noKeyword: （キーワードなし）
   filtersCount: '${count} 個の絞り込み'
+
+defaultBlacklistReminder:
+  title: デフォルトのタグブラックリストを検出しました
+  content: お使いのアカウントは、サイトが新規ユーザーごとに自動設定するデフォルトのタグブラックリストをそのまま使用しています。管理ページで確認・変更しますか？
+  goManage: 管理する
+  dismiss: 後で

@@ -2492,3 +2492,9 @@ savedSearch:
   rename: 重命名
   noKeyword: （无关键词）
   filtersCount: '${count} 个筛选'
+
+defaultBlacklistReminder:
+  title: 检测到网站默认标签黑名单
+  content: 你的账号当前仍在使用网站为每个新用户自动设置的默认标签黑名单。是否前往黑名单管理页查看并调整？
+  goManage: 去管理
+  dismiss: 暂不处理

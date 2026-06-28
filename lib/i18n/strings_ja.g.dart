@@ -84,6 +84,7 @@ class TranslationsJa with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _TranslationsSiteModeJa siteMode = _TranslationsSiteModeJa._(_root);
 	@override late final _TranslationsSavedSearchConfigJa savedSearchConfig = _TranslationsSavedSearchConfigJa._(_root);
 	@override late final _TranslationsSavedSearchJa savedSearch = _TranslationsSavedSearchJa._(_root);
+	@override late final _TranslationsDefaultBlacklistReminderJa defaultBlacklistReminder = _TranslationsDefaultBlacklistReminderJa._(_root);
 }
 
 // Path: personalProfile
@@ -2171,6 +2172,19 @@ class _TranslationsSavedSearchJa implements TranslationsSavedSearchEn {
 	@override String get rename => '名前を変更';
 	@override String get noKeyword => '（キーワードなし）';
 	@override String filtersCount({required Object count}) => '${count} 個の絞り込み';
+}
+
+// Path: defaultBlacklistReminder
+class _TranslationsDefaultBlacklistReminderJa implements TranslationsDefaultBlacklistReminderEn {
+	_TranslationsDefaultBlacklistReminderJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'デフォルトのタグブラックリストを検出しました';
+	@override String get content => 'お使いのアカウントは、サイトが新規ユーザーごとに自動設定するデフォルトのタグブラックリストをそのまま使用しています。管理ページで確認・変更しますか？';
+	@override String get goManage => '管理する';
+	@override String get dismiss => '後で';
 }
 
 // Path: common.pagination
@@ -5561,6 +5575,10 @@ extension on TranslationsJa {
 			'savedSearch.rename' => '名前を変更',
 			'savedSearch.noKeyword' => '（キーワードなし）',
 			'savedSearch.filtersCount' => ({required Object count}) => '${count} 個の絞り込み',
+			'defaultBlacklistReminder.title' => 'デフォルトのタグブラックリストを検出しました',
+			'defaultBlacklistReminder.content' => 'お使いのアカウントは、サイトが新規ユーザーごとに自動設定するデフォルトのタグブラックリストをそのまま使用しています。管理ページで確認・変更しますか？',
+			'defaultBlacklistReminder.goManage' => '管理する',
+			'defaultBlacklistReminder.dismiss' => '後で',
 			_ => null,
 		};
 	}

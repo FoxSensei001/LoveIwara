@@ -2494,3 +2494,9 @@ savedSearch:
   rename: 重新命名
   noKeyword: （無關鍵字）
   filtersCount: '${count} 個篩選'
+
+defaultBlacklistReminder:
+  title: 偵測到網站預設標籤黑名單
+  content: 你的帳號目前仍在使用網站為每個新使用者自動設定的預設標籤黑名單。是否前往黑名單管理頁查看並調整？
+  goManage: 去管理
+  dismiss: 暫不處理

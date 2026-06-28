@@ -388,6 +388,8 @@ enum ConfigKey {
   POPULAR_SAVED_SEARCH_CONFIGS,
   // 搜索结果页的已保存搜索，存为 JSON：[savedSearch, ...]
   SEARCH_SAVED_QUERIES,
+  // 已提醒过"处于网站默认标签黑名单"的用户名列表，存为 JSON：[username, ...]
+  DEFAULT_BLACKLIST_REMINDER_SEEN_USERS,
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -635,6 +637,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'popular_saved_search_configs';
       case ConfigKey.SEARCH_SAVED_QUERIES:
         return 'search_saved_queries';
+      case ConfigKey.DEFAULT_BLACKLIST_REMINDER_SEEN_USERS:
+        return 'default_blacklist_reminder_seen_users';
     }
   }
 
@@ -895,6 +899,8 @@ extension ConfigKeyExtension on ConfigKey {
         return <String, dynamic>{};
       case ConfigKey.SEARCH_SAVED_QUERIES:
         return <dynamic>[];
+      case ConfigKey.DEFAULT_BLACKLIST_REMINDER_SEEN_USERS:
+        return <String>[];
     }
   }
 }

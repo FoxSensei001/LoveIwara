@@ -2485,3 +2485,9 @@ savedSearch:
   rename: Rename
   noKeyword: (No keyword)
   filtersCount: '${count} filters'
+
+defaultBlacklistReminder:
+  title: Default Tag Blacklist Detected
+  content: Your account is still using the tag blacklist that the website automatically applies to every new account. Would you like to review and manage it?
+  goManage: Manage
+  dismiss: Not now

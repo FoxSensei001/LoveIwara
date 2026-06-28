@@ -1,4 +1,6 @@
 // pages/login/login_page_v2.dart
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
@@ -6,6 +8,7 @@ import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/services/auth_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/default_tag_blacklist_reminder.dart';
 import 'package:i_iwara/app/services/iwara_site_headers.dart';
 import 'package:i_iwara/app/services/storage_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
@@ -184,6 +187,8 @@ class _LoginDialogState extends State<LoginDialog> {
         if (mounted) {
           Navigator.of(context).pop(true);
         }
+        // 手动登录成功后，检测是否处于网站默认标签黑名单并按需提醒（不阻塞登录流程）。
+        unawaited(DefaultTagBlacklistReminder.checkAndRemind());
       } else {
         LogUtils.w('登录失败（业务返回）: ${result.message}', 'LoginDialogV2');
         showToastWidget(

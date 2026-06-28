@@ -87,6 +87,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsSiteModeEn siteMode = TranslationsSiteModeEn._(_root);
 	late final TranslationsSavedSearchConfigEn savedSearchConfig = TranslationsSavedSearchConfigEn._(_root);
 	late final TranslationsSavedSearchEn savedSearch = TranslationsSavedSearchEn._(_root);
+	late final TranslationsDefaultBlacklistReminderEn defaultBlacklistReminder = TranslationsDefaultBlacklistReminderEn._(_root);
 }
 
 // Path: personalProfile
@@ -5433,6 +5434,27 @@ class TranslationsSavedSearchEn {
 	String filtersCount({required Object count}) => '${count} filters';
 }
 
+// Path: defaultBlacklistReminder
+class TranslationsDefaultBlacklistReminderEn {
+	TranslationsDefaultBlacklistReminderEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Default Tag Blacklist Detected'
+	String get title => 'Default Tag Blacklist Detected';
+
+	/// en: 'Your account is still using the tag blacklist that the website automatically applies to every new account. Would you like to review and manage it?'
+	String get content => 'Your account is still using the tag blacklist that the website automatically applies to every new account. Would you like to review and manage it?';
+
+	/// en: 'Manage'
+	String get goManage => 'Manage';
+
+	/// en: 'Not now'
+	String get dismiss => 'Not now';
+}
+
 // Path: common.pagination
 class TranslationsCommonPaginationEn {
 	TranslationsCommonPaginationEn._(this._root);
@@ -10159,6 +10181,10 @@ extension on Translations {
 			'savedSearch.rename' => 'Rename',
 			'savedSearch.noKeyword' => '(No keyword)',
 			'savedSearch.filtersCount' => ({required Object count}) => '${count} filters',
+			'defaultBlacklistReminder.title' => 'Default Tag Blacklist Detected',
+			'defaultBlacklistReminder.content' => 'Your account is still using the tag blacklist that the website automatically applies to every new account. Would you like to review and manage it?',
+			'defaultBlacklistReminder.goManage' => 'Manage',
+			'defaultBlacklistReminder.dismiss' => 'Not now',
 			_ => null,
 		};
 	}

@@ -84,6 +84,7 @@ class TranslationsZhCn with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsSiteModeZhCn siteMode = _TranslationsSiteModeZhCn._(_root);
 	@override late final _TranslationsSavedSearchConfigZhCn savedSearchConfig = _TranslationsSavedSearchConfigZhCn._(_root);
 	@override late final _TranslationsSavedSearchZhCn savedSearch = _TranslationsSavedSearchZhCn._(_root);
+	@override late final _TranslationsDefaultBlacklistReminderZhCn defaultBlacklistReminder = _TranslationsDefaultBlacklistReminderZhCn._(_root);
 }
 
 // Path: personalProfile
@@ -2176,6 +2177,19 @@ class _TranslationsSavedSearchZhCn implements TranslationsSavedSearchEn {
 	@override String get rename => '重命名';
 	@override String get noKeyword => '（无关键词）';
 	@override String filtersCount({required Object count}) => '${count} 个筛选';
+}
+
+// Path: defaultBlacklistReminder
+class _TranslationsDefaultBlacklistReminderZhCn implements TranslationsDefaultBlacklistReminderEn {
+	_TranslationsDefaultBlacklistReminderZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '检测到网站默认标签黑名单';
+	@override String get content => '你的账号当前仍在使用网站为每个新用户自动设置的默认标签黑名单。是否前往黑名单管理页查看并调整？';
+	@override String get goManage => '去管理';
+	@override String get dismiss => '暂不处理';
 }
 
 // Path: common.pagination
@@ -5571,6 +5585,10 @@ extension on TranslationsZhCn {
 			'savedSearch.rename' => '重命名',
 			'savedSearch.noKeyword' => '（无关键词）',
 			'savedSearch.filtersCount' => ({required Object count}) => '${count} 个筛选',
+			'defaultBlacklistReminder.title' => '检测到网站默认标签黑名单',
+			'defaultBlacklistReminder.content' => '你的账号当前仍在使用网站为每个新用户自动设置的默认标签黑名单。是否前往黑名单管理页查看并调整？',
+			'defaultBlacklistReminder.goManage' => '去管理',
+			'defaultBlacklistReminder.dismiss' => '暂不处理',
 			_ => null,
 		};
 	}
