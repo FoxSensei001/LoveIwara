@@ -90,6 +90,19 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   Worker? _categoriesChangedWorker;
   Worker? _removedTaskIdsWorker;
 
+  // 历史区去重 / 删除残留防护：
+  // - _deletedTombstones：本次会话中已成功删除、但异步历史刷新可能尚未从
+  //   _historySource 中剔除的任务 id。删除“下载中”任务时，取消清理会把它瞬时
+  //   写回 paused 并触发历史刷新，可能与删除的就地移除发生竞态而被重新读入；
+  //   构建时据墓碑隐藏，保证删除后立刻消失、无需重进页面。刷新确认 DB 已无该
+  //   行后清除（见 _refreshHistory）。
+  // - _historyHiddenIds：每次构建时重算 = 活跃区(下载中/等待/失败)的全部 id ∪
+  //   _deletedTombstones。历史区是独立的 LoadingMoreSliverList，原本不参与
+  //   顶部区域的 seenIds 去重；命中该集合的历史行直接跳过渲染，杜绝同一任务在
+  //   “下载中/暂停”等区域与历史区同时出现（如续传一个旧的暂停任务时的重复显示）。
+  final Set<String> _deletedTombstones = <String>{};
+  Set<String> _historyHiddenIds = <String>{};
+
   void _enterSelectionMode() {
     setState(() {
       _isSelectionMode = true;
@@ -850,6 +863,11 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   ///   视口上方，删除其元素时位置变化属预期）。
   void _removeTasksInPlace(List<String> ids) {
     final idSet = ids.toSet();
+    // 记入墓碑：即使下方就地从 _historySource 移除，异步的历史刷新（尤其删除
+    // “下载中”任务时，取消清理瞬时写回 paused 触发的刷新）仍可能把刚删的行重新
+    // 读回。构建时据墓碑隐藏，保证删除后立刻消失、无需重进页面；刷新确认 DB 已
+    // 无该行后会清除墓碑（见 _refreshHistory）。
+    _deletedTombstones.addAll(idSet);
 
     final historyBefore = _historySource.length;
     _historySource.removeWhere((t) => idSet.contains(t.id));
@@ -1165,6 +1183,20 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     // 修复“重试后失败任务与处理中任务同时显示”这类重复项问题。
     final seenIds = <String>{};
 
+    // 历史区隐藏集合（每次构建重算）：活跃区(下载中/等待/失败)的全部 id ∪ 已删除
+    // 墓碑。历史区是独立的 LoadingMoreSliverList，不参与上面的 seenIds 去重，故在
+    // 此集中计算一份隐藏集合，构建历史行时据此跳过，修复两类“同一任务重复/残留”：
+    //  1) 续传一个旧的暂停任务：它会进入 _activeTasks(下载中)，但 _historySource
+    //     里可能仍残留它的暂停副本 → “下载中”与“暂停”两份同时显示；
+    //  2) 删除“下载中”任务：取消清理会瞬时把它写成 paused 并被历史刷新读入，与删除
+    //     的就地移除发生竞态而残留，需重进页面才消失。
+    _historyHiddenIds = <String>{
+      ...DownloadService.to.tasks.keys,
+      for (final t in _pendingTasks) t.id,
+      for (final t in _failedTasks) t.id,
+      ..._deletedTombstones,
+    };
+
     // 获取正在下载的任务 (apply filters)
     final downloadingTasks = DownloadService.to.tasks.values
         .where((task) => task.status == DownloadStatus.downloading)
@@ -1292,6 +1324,13 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
 
   /// 构建历史任务条目，按天插入日期标题
   Widget _buildHistoryItemWithDateHeader(DownloadTask task, int index) {
+    // 去重 / 删除残留防护：该 id 已在活跃区(下载中/等待/失败)展示或已被删除（墓碑），
+    // 历史区不再渲染，避免重复或残留。返回收缩占位以保持其余行的索引稳定（日期标题
+    // 改用“最近的可见行”比较，见下）。
+    if (_historyHiddenIds.contains(task.id)) {
+      return const SizedBox.shrink();
+    }
+
     final currentDate = task.createdAt;
 
     // 如果没有创建时间，直接渲染任务
@@ -1299,17 +1338,22 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       return _buildTaskItem(task);
     }
 
-    // 判断是否需要插入日期标题：列表第一个元素，或与前一个元素不是同一天
-    bool needHeader = false;
-    if (index == 0) {
-      needHeader = true;
-    } else {
-      final prevTask = _historySource[index - 1];
-      final prevDate = prevTask.createdAt;
-      if (prevDate == null || !_isSameDay(prevDate, currentDate)) {
-        needHeader = true;
-      }
+    // 判断是否需要插入日期标题：与“前一个可见行”不是同一天则需要。必须跳过被隐藏的
+    // 行——否则当某天的首行被隐藏时，同日的下一可见行会与隐藏行比较而漏掉日期标题。
+    DateTime? prevVisibleDate;
+    bool hasPrevVisible = false;
+    for (int i = index - 1; i >= 0; i--) {
+      final prev = _historySource[i];
+      if (_historyHiddenIds.contains(prev.id)) continue;
+      hasPrevVisible = true;
+      prevVisibleDate = prev.createdAt;
+      break;
     }
+
+    final needHeader =
+        !hasPrevVisible ||
+        prevVisibleDate == null ||
+        !_isSameDay(prevVisibleDate, currentDate);
 
     if (!needHeader) {
       return _buildTaskItem(task);
@@ -1516,6 +1560,21 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       } while (_historyRefreshDirty ||
           DownloadService.to.taskStatusChangedNotifier.value !=
               _lastHistoryVersion);
+
+      // 清理墓碑：刷新后历史源即来自 DB 的最新数据。若某个被删 id 已不在其中，说明
+      // DB 行确已删除，墓碑使命完成，移除以防无界增长，并允许该 id 日后合法重现。
+      // 反之若某次刷新恰好把“删除瞬时写回的 paused 行”读了进来（present 仍含该 id），
+      // 墓碑会被保留，继续隐藏该残留行，直至下一次刷新读到干净的 DB。
+      // 关键时序：取消清理写回 paused 发生在 deleteTask 删除 DB 行之前且被其 await，
+      // 因此墓碑加入时 paused 写已成往事、不存在“清墓碑后又有写回”的竞态。
+      if (_deletedTombstones.isNotEmpty) {
+        if (_historySource.isEmpty) {
+          _deletedTombstones.clear();
+        } else {
+          final present = <String>{for (final t in _historySource) t.id};
+          _deletedTombstones.removeWhere((id) => !present.contains(id));
+        }
+      }
     } catch (e) {
       // 刷新历史失败时静默处理，避免影响主流程
     } finally {
