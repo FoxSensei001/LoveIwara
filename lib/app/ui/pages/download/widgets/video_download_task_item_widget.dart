@@ -8,6 +8,7 @@ import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_scale.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_status_colors.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/status_label_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
@@ -29,11 +30,13 @@ class VideoDownloadTaskItem extends StatelessWidget {
     final videoData = VideoDownloadExtData.fromJson(task.extData!.data);
     final width = MediaQuery.of(context).size.width;
     final isSmallScreen = width < 600;
+    final scale = DownloadUiScale.of(context);
 
     // 从任务ID中提取清晰度信息
     final quality = videoData.quality;
 
-    return RepaintBoundary(
+    return DownloadActionButtonTheme(
+      child: RepaintBoundary(
       child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         clipBehavior: Clip.hardEdge,
@@ -193,7 +196,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
                   children: [
                     // 上部内容区域（带 padding）
                     Padding(
-                      padding: const EdgeInsets.all(12),
+                      padding: EdgeInsets.all(12 * scale),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -204,7 +207,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
                             isSmallScreen,
                             quality,
                           ),
-                          const SizedBox(width: 12),
+                          SizedBox(width: 12 * scale),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,9 +238,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
                                         children: [
                                           AvatarWidget(
                                             avatarUrl: videoData.authorAvatar,
-                                            size: 25,
+                                            size: 25 * scale,
                                           ),
-                                          const SizedBox(width: 12),
+                                          SizedBox(width: 12 * scale),
                                           Text(
                                             videoData.authorName!,
                                             style: Theme.of(
@@ -261,10 +264,10 @@ class VideoDownloadTaskItem extends StatelessWidget {
                                     .isTaskProcessing(task.id);
                                 return IconButton(
                                   icon: isProcessing
-                                      ? const SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
+                                      ? SizedBox(
+                                          width: 24 * scale,
+                                          height: 24 * scale,
+                                          child: const CircularProgressIndicator(
                                             strokeWidth: 2,
                                           ),
                                         )
@@ -289,6 +292,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
           ],
         ),
       ),
+      ),
     );
   }
 
@@ -298,21 +302,22 @@ class VideoDownloadTaskItem extends StatelessWidget {
     bool isSmallScreen,
     String? quality,
   ) {
+    final scale = DownloadUiScale.of(context);
     if (videoData.thumbnail == null) {
       return Container(
-        width: 120,
-        height: 80,
+        width: 120 * scale,
+        height: 80 * scale,
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const Center(child: Icon(Icons.video_library, size: 32)),
+        child: Center(child: Icon(Icons.video_library, size: 32 * scale)),
       );
     }
 
     return Container(
-      width: 120,
-      height: 80,
+      width: 120 * scale,
+      height: 80 * scale,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(8),
@@ -394,6 +399,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
     bool isSmallScreen,
   ) {
     final t = slang.Translations.of(context);
+    final scale = DownloadUiScale.of(context);
 
     return Obx(() {
       // 监听进度变更
@@ -432,7 +438,10 @@ class VideoDownloadTaskItem extends StatelessWidget {
             stops: [progress.clamp(0.0, 1.0), progress.clamp(0.0, 1.0)],
           ),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: EdgeInsets.symmetric(
+          horizontal: 12 * scale,
+          vertical: 8 * scale,
+        ),
         child: Row(
           children: [
             Expanded(
@@ -527,19 +536,21 @@ class VideoDownloadTaskItem extends StatelessWidget {
 
   Widget _buildMainActionButton(BuildContext context) {
     final t = slang.Translations.of(context);
+    final scale = DownloadUiScale.of(context);
 
     // 使用 Obx 监听处理状态
     return Obx(() {
       final isProcessing = DownloadService.to.isTaskProcessing(task.id);
 
-      // 如果正在处理中，显示 loading
+      // 处理中：用禁用态的图标按钮承载 loading，保持与其它按钮相同的
+      // 填充矩形外观与占位，避免切换时尺寸跳动。
       if (isProcessing) {
-        return const SizedBox(
-          width: 48,
-          height: 48,
-          child: Padding(
-            padding: EdgeInsets.all(12),
-            child: CircularProgressIndicator(strokeWidth: 2),
+        return IconButton(
+          onPressed: null,
+          icon: SizedBox(
+            width: 22 * scale,
+            height: 22 * scale,
+            child: const CircularProgressIndicator(strokeWidth: 2),
           ),
         );
       }

@@ -6,6 +6,7 @@ import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_scale.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_status_colors.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/status_label_widget.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
@@ -58,7 +59,9 @@ class DefaultDownloadTaskItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    return GestureDetector(
+    final scale = DownloadUiScale.of(context);
+    return DownloadActionButtonTheme(
+      child: GestureDetector(
       onSecondaryTapUp: (details) {
         final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
         final RelativeRect position = RelativeRect.fromRect(
@@ -154,14 +157,14 @@ class DefaultDownloadTaskItem extends StatelessWidget {
             children: [
               // 上部内容区域（带 padding）
               Padding(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(12 * scale),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // 文件图标
                     Container(
-                      width: 48,
-                      height: 48,
+                      width: 48 * scale,
+                      height: 48 * scale,
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(8),
@@ -174,18 +177,18 @@ class DefaultDownloadTaskItem extends StatelessWidget {
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) => Icon(
                               _getFileIcon(),
-                              size: 24,
+                              size: 24 * scale,
                               color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
                         )
                         : Icon(
                           _getFileIcon(),
-                          size: 24,
+                          size: 24 * scale,
                           color: Theme.of(context).colorScheme.primary,
                         ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12 * scale),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,10 +212,10 @@ class DefaultDownloadTaskItem extends StatelessWidget {
                           final isProcessing = DownloadService.to.isTaskProcessing(task.id);
                           return IconButton(
                             icon: isProcessing
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                ? SizedBox(
+                                    width: 24 * scale,
+                                    height: 24 * scale,
+                                    child: const CircularProgressIndicator(strokeWidth: 2),
                                   )
                                 : const Icon(Icons.delete_outline),
                             tooltip: t.download.deleteTask,
@@ -230,24 +233,27 @@ class DefaultDownloadTaskItem extends StatelessWidget {
           ),
         ),
       ),
+      ),
     );
   }
 
   Widget _buildMainActionButton(BuildContext context) {
     final t = slang.Translations.of(context);
+    final scale = DownloadUiScale.of(context);
 
     // 使用 Obx 监听处理状态
     return Obx(() {
       final isProcessing = DownloadService.to.isTaskProcessing(task.id);
 
-      // 如果正在处理中，显示 loading
+      // 处理中：用禁用态的图标按钮承载 loading，保持与其它按钮相同的
+      // 填充矩形外观与占位，避免切换时尺寸跳动。
       if (isProcessing) {
-        return const SizedBox(
-          width: 48,
-          height: 48,
-          child: Padding(
-            padding: EdgeInsets.all(12),
-            child: CircularProgressIndicator(strokeWidth: 2),
+        return IconButton(
+          onPressed: null,
+          icon: SizedBox(
+            width: 22 * scale,
+            height: 22 * scale,
+            child: const CircularProgressIndicator(strokeWidth: 2),
           ),
         );
       }
@@ -397,6 +403,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
 
   Widget _buildProgressStatusBar(BuildContext context) {
     final t = slang.Translations.of(context);
+    final scale = DownloadUiScale.of(context);
 
     return Obx(() {
       // 监听进度变更
@@ -435,7 +442,10 @@ class DefaultDownloadTaskItem extends StatelessWidget {
             stops: [progress.clamp(0.0, 1.0), progress.clamp(0.0, 1.0)],
           ),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: EdgeInsets.symmetric(
+          horizontal: 12 * scale,
+          vertical: 8 * scale,
+        ),
         child: Row(
           children: [
             Expanded(
