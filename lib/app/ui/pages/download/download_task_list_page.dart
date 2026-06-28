@@ -10,6 +10,7 @@ import 'package:i_iwara/app/repositories/download_task_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/default_download_task_item_widget.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_scale.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/video_download_task_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/gallery_download_task_item_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -133,6 +134,108 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     }
   }
 
+  /// 入口：打开“按日期删除”弹窗，拿到用户选择的日期条件后进入确认与删除流程。
+  Future<void> _showDeleteByDateDialog() async {
+    final selection = await showModalBottomSheet<_DateDeletionSelection>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => const _DeleteByDateDialog(),
+    );
+    if (selection == null || !mounted) return;
+    await _confirmAndDeleteByDate(selection);
+  }
+
+  /// 查询匹配任务 -> 二次确认 -> 带进度删除 -> 结果提示 -> 刷新列表。
+  Future<void> _confirmAndDeleteByDate(_DateDeletionSelection selection) async {
+    final t = slang.Translations.of(context);
+
+    // 1. 查询区间内的任务（任意状态）。
+    List<DownloadTask> tasks;
+    try {
+      tasks = await _downloadTaskRepository.getTasksByCreatedDateRange(
+        start: selection.start,
+        end: selection.end,
+      );
+    } catch (_) {
+      if (!mounted) return;
+      showToastWidget(
+        MDToastWidget(
+          message: t.download.errors.failedToLoadTasks,
+          type: MDToastType.error,
+        ),
+      );
+      return;
+    }
+    if (!mounted) return;
+
+    if (tasks.isEmpty) {
+      showToastWidget(
+        MDToastWidget(
+          message: t.download.deleteByDate.noMatch,
+          type: MDToastType.warning,
+        ),
+      );
+      return;
+    }
+
+    // 2. 二次确认（明确告知数量与不可撤销）。
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(t.download.deleteByDate.confirmTitle),
+        content: Text(
+          t.download.deleteByDate.confirmContent(count: tasks.length),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(t.common.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(t.common.confirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    // 3. 执行删除（耗时操作，弹出不可关闭的进度弹窗）。
+    final result = await showDialog<DeleteTasksResult>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => _DeleteProgressDialog(tasks: tasks),
+    );
+    if (!mounted || result == null) return;
+
+    // 4. 结果提示：全部成功 / 部分被占用跳过。
+    if (result.skipped == 0) {
+      showToastWidget(
+        MDToastWidget(
+          message: t.download.deleteByDate.resultSuccess(count: result.deleted),
+          type: MDToastType.success,
+        ),
+      );
+    } else {
+      showToastWidget(
+        MDToastWidget(
+          message: t.download.deleteByDate.resultPartial(
+            deleted: result.deleted,
+            skipped: result.skipped,
+          ),
+          type: MDToastType.warning,
+        ),
+      );
+    }
+
+    // 5. 刷新各分区列表。
+    await _reloadPendingTasks();
+    await _reloadFailedTasks();
+    await _refreshHistory();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -176,9 +279,10 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        // 普通模式下不再显示页面标题（按需求移除），仅在多选模式下显示已选数量。
         title: _isSelectionMode
             ? Text(t.common.selectedRecords(num: _selectedTaskIds.length))
-            : Text(t.download.downloadList),
+            : null,
         leading: _isSelectionMode
             ? null // 多选模式下隐藏返回按钮，退出按钮在左下角
             : null,
@@ -219,60 +323,102 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
               tooltip: t.download.pauseAll,
               onPressed: () => DownloadService.to.pauseAll(),
             ),
-            IconButton(
-              icon: const Icon(Icons.delete_sweep_outlined),
-              tooltip: t.common.batchDelete,
-              onPressed: _enterSelectionMode,
+            // “其他”菜单：批量删除 / 按日期删除，后续可扩展更多批量操作。
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert),
+              tooltip: t.download.moreOptions,
+              onSelected: (value) {
+                switch (value) {
+                  case 'batchDelete':
+                    _enterSelectionMode();
+                    break;
+                  case 'deleteByDate':
+                    _showDeleteByDateDialog();
+                    break;
+                }
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem<String>(
+                  value: 'batchDelete',
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.delete_sweep_outlined,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(t.common.batchDelete),
+                    ],
+                  ),
+                ),
+                PopupMenuItem<String>(
+                  value: 'deleteByDate',
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.auto_delete_outlined,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(t.download.deleteByDate.menuTitle),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ],
       ),
-      body: Stack(
-        children: [
-          // Main content (列表在底层)
-          Obx(() {
-            // 仅订阅任务状态变更以触发重建；实际的刷新副作用在
-            // initState 注册的 worker 中处理（见 _statusChangedWorker）。
-            DownloadService.to.taskStatusChangedNotifier.value;
-            return _buildSingleList();
-          }),
-          // 顶部悬浮的搜索栏（透明背景，紧贴 AppBar 下方）
-          Positioned(
-            top: kToolbarHeight + MediaQuery.of(context).padding.top,
-            left: 0,
-            right: 0,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildFilterBar(),
-                // Loading indicator for filter
-                if (_isFilterLoading) const LinearProgressIndicator(),
-              ],
+      body: DownloadScaleScope(
+        child: Stack(
+          children: [
+            // Main content (列表在底层)
+            Obx(() {
+              // 仅订阅任务状态变更以触发重建；实际的刷新副作用在
+              // initState 注册的 worker 中处理（见 _statusChangedWorker）。
+              DownloadService.to.taskStatusChangedNotifier.value;
+              return _buildSingleList();
+            }),
+            // 顶部悬浮的搜索栏（透明背景，紧贴 AppBar 下方）
+            Positioned(
+              top: kToolbarHeight + MediaQuery.of(context).padding.top,
+              left: 0,
+              right: 0,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildFilterBar(),
+                  // Loading indicator for filter
+                  if (_isFilterLoading) const LinearProgressIndicator(),
+                ],
+              ),
             ),
-          ),
-          // 左下角操作按钮组
-          BatchActionFab(
-            isMultiSelect: _isSelectionMode,
-            selectedCount: _selectedTaskIds.length,
-            heroTagPrefix: 'downloadList',
-            onExit: _exitSelectionMode,
-            onClear: () {
-              setState(() {
-                _selectedTaskIds.clear();
-              });
-            },
-            customActionBuilder: (context) {
-              return FloatingActionButton.small(
-                heroTag: 'batchDeleteFAB_downloadList',
-                onPressed: _deleteSelectedTasks,
-                backgroundColor: Theme.of(context).colorScheme.error,
-                foregroundColor: Theme.of(context).colorScheme.onError,
-                tooltip: t.common.delete,
-                child: const Icon(Icons.delete),
-              );
-            },
-          ),
-        ],
+            // 左下角操作按钮组
+            BatchActionFab(
+              isMultiSelect: _isSelectionMode,
+              selectedCount: _selectedTaskIds.length,
+              heroTagPrefix: 'downloadList',
+              onExit: _exitSelectionMode,
+              onClear: () {
+                setState(() {
+                  _selectedTaskIds.clear();
+                });
+              },
+              customActionBuilder: (context) {
+                return FloatingActionButton.small(
+                  heroTag: 'batchDeleteFAB_downloadList',
+                  onPressed: _deleteSelectedTasks,
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                  foregroundColor: Theme.of(context).colorScheme.onError,
+                  tooltip: t.common.delete,
+                  child: const Icon(Icons.delete),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -666,7 +812,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
           children: [
             Icon(
               hasActiveFilter ? Icons.search_off : Icons.download_done_outlined,
-              size: 64,
+              size: 64 * DownloadUiScale.of(context),
               color: colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 16),
@@ -900,6 +1046,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
 
     if (_isSelectionMode) {
       final isSelected = _selectedTaskIds.contains(task.id);
+      final scale = DownloadUiScale.of(context);
       return Stack(
         children: [
           // 列表项本身
@@ -918,7 +1065,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
                       child: Icon(
                         isSelected ? Icons.check_circle : Icons.circle_outlined,
                         color: isSelected ? Colors.white : Colors.white70,
-                        size: 40,
+                        size: 40 * scale,
                       ),
                     ),
                   ),
@@ -1244,4 +1391,354 @@ void showDownloadDetailDialog(BuildContext context, DownloadTask task) async {
       ),
     ),
   );
+}
+
+/// “按日期删除”弹窗的两种模式：日期区间 / 多少天以前。
+enum _DeleteByDateMode { range, days }
+
+/// 用户在“按日期删除”弹窗中确认后的选择结果。
+///
+/// [start]/[end] 为创建时间的闭区间边界（含端点），任一为 null 表示该侧不限。
+/// - 日期区间模式：start=所选起始日 00:00:00，end=所选结束日 23:59:59。
+/// - 多少天以前模式：start=null，end=（now - N 天）。
+class _DateDeletionSelection {
+  final DateTime? start;
+  final DateTime? end;
+  const _DateDeletionSelection({this.start, this.end});
+}
+
+/// “按日期删除”的条件选择弹窗。返回 [_DateDeletionSelection] 或 null（取消）。
+class _DeleteByDateDialog extends StatefulWidget {
+  const _DeleteByDateDialog();
+
+  @override
+  State<_DeleteByDateDialog> createState() => _DeleteByDateDialogState();
+}
+
+class _DeleteByDateDialogState extends State<_DeleteByDateDialog> {
+  _DeleteByDateMode _mode = _DeleteByDateMode.range;
+  DateTime? _startDate;
+  DateTime? _endDate;
+  final TextEditingController _daysController = TextEditingController(
+    text: '30',
+  );
+  static const List<int> _dayPresets = [7, 30, 90, 180];
+
+  @override
+  void dispose() {
+    _daysController.dispose();
+    super.dispose();
+  }
+
+  String _formatDate(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  /// 最大可输入的“多少天以前”。约 100 年，远小于 DateTime / Duration 的溢出边界，
+  /// 防止超大值导致 Duration(days:) 溢出回绕成“未来”时间点而误删全部历史。
+  static const int _maxDays = 36500;
+
+  int? get _days {
+    final v = int.tryParse(_daysController.text.trim());
+    if (v == null || v < 1) return null;
+    return v > _maxDays ? _maxDays : v;
+  }
+
+  bool get _canConfirm {
+    if (_mode == _DeleteByDateMode.range) {
+      return _startDate != null || _endDate != null;
+    }
+    return _days != null;
+  }
+
+  Future<void> _pickDate({required bool isStart}) async {
+    final now = DateTime.now();
+    final initial = (isStart ? _startDate : _endDate) ?? now;
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial.isAfter(now) ? now : initial,
+      firstDate: DateTime(2015),
+      lastDate: now,
+    );
+    if (picked == null) return;
+    setState(() {
+      if (isStart) {
+        _startDate = picked;
+      } else {
+        _endDate = picked;
+      }
+    });
+  }
+
+  void _onConfirm() {
+    final t = slang.Translations.of(context);
+    if (_mode == _DeleteByDateMode.range) {
+      final start = _startDate;
+      final end = _endDate;
+      if (start != null && end != null && start.isAfter(end)) {
+        showToastWidget(
+          MDToastWidget(
+            message: t.download.deleteByDate.invalidRange,
+            type: MDToastType.warning,
+          ),
+        );
+        return;
+      }
+      final normalizedStart = start == null
+          ? null
+          : DateTime(start.year, start.month, start.day);
+      final normalizedEnd = end == null
+          ? null
+          : DateTime(end.year, end.month, end.day, 23, 59, 59, 999);
+      Navigator.pop(
+        context,
+        _DateDeletionSelection(start: normalizedStart, end: normalizedEnd),
+      );
+    } else {
+      final days = _days;
+      if (days == null) return;
+      final cutoff = DateTime.now().subtract(Duration(days: days));
+      Navigator.pop(context, _DateDeletionSelection(start: null, end: cutoff));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    // 底部 sheet 布局：顶部由 showModalBottomSheet 的 dragHandle 处理；
+    // 底部用 SafeArea(top:false) + viewInsets.bottom 让内边距兼顾系统导航条与键盘。
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Text(
+                    t.download.deleteByDate.dialogTitle,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
+                DropdownButtonFormField<_DeleteByDateMode>(
+                  initialValue: _mode,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                  ),
+                  items: [
+                    DropdownMenuItem(
+                      value: _DeleteByDateMode.range,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.date_range, size: 20),
+                          const SizedBox(width: 8),
+                          Text(t.download.deleteByDate.modeRange),
+                        ],
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: _DeleteByDateMode.days,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.history, size: 20),
+                          const SizedBox(width: 8),
+                          Text(t.download.deleteByDate.modeDays),
+                        ],
+                      ),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) setState(() => _mode = value);
+                  },
+                ),
+                const SizedBox(height: 16),
+                if (_mode == _DeleteByDateMode.range) ...[
+                  _buildDateTile(
+                    label: t.download.deleteByDate.startDate,
+                    value: _startDate,
+                    notSet: t.download.deleteByDate.notSet,
+                    onTap: () => _pickDate(isStart: true),
+                    onClear: _startDate == null
+                        ? null
+                        : () => setState(() => _startDate = null),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildDateTile(
+                    label: t.download.deleteByDate.endDate,
+                    value: _endDate,
+                    notSet: t.download.deleteByDate.notSet,
+                    onTap: () => _pickDate(isStart: false),
+                    onClear: _endDate == null
+                        ? null
+                        : () => setState(() => _endDate = null),
+                  ),
+                ] else ...[
+                  Text(
+                    t.download.deleteByDate.olderThanDaysHint(days: _days ?? 0),
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _daysController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      // 限长 5 位，配合 _days 上的钳制，杜绝 Duration/DateTime 溢出。
+                      LengthLimitingTextInputFormatter(5),
+                    ],
+                    decoration: InputDecoration(
+                      isDense: true,
+                      border: const OutlineInputBorder(),
+                      suffixText: t.download.deleteByDate.daysUnit,
+                    ),
+                    onChanged: (_) => setState(() {}),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    children: _dayPresets.map((d) {
+                      return ChoiceChip(
+                        label: Text('$d'),
+                        selected: _days == d,
+                        onSelected: (_) {
+                          setState(() {
+                            _daysController.text = '$d';
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ],
+                const SizedBox(height: 16),
+                Text(
+                  t.download.deleteByDate.description,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(t.common.cancel),
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton(
+                      onPressed: _canConfirm ? _onConfirm : null,
+                      style: TextButton.styleFrom(foregroundColor: Colors.red),
+                      child: Text(t.common.delete),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDateTile({
+    required String label,
+    required DateTime? value,
+    required String notSet,
+    required VoidCallback onTap,
+    VoidCallback? onClear,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          isDense: true,
+          border: const OutlineInputBorder(),
+          suffixIcon: onClear != null
+              ? IconButton(
+                  icon: const Icon(Icons.clear, size: 18),
+                  onPressed: onClear,
+                )
+              : const Icon(Icons.calendar_today, size: 18),
+        ),
+        child: Text(
+          value != null ? _formatDate(value) : notSet,
+          style: TextStyle(
+            color: value != null
+                ? colorScheme.onSurface
+                : colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 删除进度弹窗：进入即开始执行 [DownloadService.deleteTasksWithProgress]，
+/// 完成后自动关闭并通过 [Navigator.pop] 返回 [DeleteTasksResult]。
+/// 删除期间禁止返回键 / 点击外部关闭，避免中断耗时操作。
+class _DeleteProgressDialog extends StatefulWidget {
+  final List<DownloadTask> tasks;
+  const _DeleteProgressDialog({required this.tasks});
+
+  @override
+  State<_DeleteProgressDialog> createState() => _DeleteProgressDialogState();
+}
+
+class _DeleteProgressDialogState extends State<_DeleteProgressDialog> {
+  late final int _total = widget.tasks.length;
+  int _done = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _run());
+  }
+
+  Future<void> _run() async {
+    final result = await DownloadService.to.deleteTasksWithProgress(
+      widget.tasks,
+      onProgress: (done, total) {
+        if (mounted) setState(() => _done = done);
+      },
+    );
+    if (mounted) Navigator.of(context).pop(result);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return PopScope(
+      canPop: false,
+      child: AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            LinearProgressIndicator(value: _total > 0 ? _done / _total : null),
+            const SizedBox(height: 16),
+            Text(t.download.deleteByDate.deleting(done: _done, total: _total)),
+          ],
+        ),
+      ),
+    );
+  }
 }

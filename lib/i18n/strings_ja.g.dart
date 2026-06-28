@@ -1294,6 +1294,7 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String get resumeAll => 'すべて開始';
 	@override String get emptyTaskList => 'ダウンロードタスクがありません';
 	@override String get noMatchingTasks => '一致するタスクがありません';
+	@override late final _TranslationsDownloadDeleteByDateJa deleteByDate = _TranslationsDownloadDeleteByDateJa._(_root);
 	@override String get maxConcurrentDownloads => '最大同時ダウンロード数';
 	@override String get maxConcurrentDownloadsDesc => '同時にダウンロードするタスク数（1-5）';
 	@override String get stillInDevelopment => '開発中';
@@ -2912,6 +2913,32 @@ class _TranslationsDownloadErrorsJa implements TranslationsDownloadErrorsEn {
 	@override String unsupportedImageFormatWithMessage({required Object extension}) => 'サポートされていない画像形式: ${extension}, デバイスにダウンロードして表示することができます';
 	@override String get imageLoadFailed => '画像の読み込みに失敗しました';
 	@override String get pleaseTryOtherViewer => '他のビューアーを使用してみてください';
+}
+
+// Path: download.deleteByDate
+class _TranslationsDownloadDeleteByDateJa implements TranslationsDownloadDeleteByDateEn {
+	_TranslationsDownloadDeleteByDateJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get menuTitle => '日付で削除';
+	@override String get dialogTitle => '日付で削除';
+	@override String get description => '作成日でダウンロードタスクを一括削除します。使用中のファイルはスキップされ、ファイルが既に存在しないタスクは整理されます。';
+	@override String get modeRange => '期間';
+	@override String get modeDays => '日数で指定';
+	@override String get startDate => '開始日';
+	@override String get endDate => '終了日';
+	@override String get notSet => '未設定';
+	@override String get daysUnit => '日';
+	@override String olderThanDaysHint({required Object days}) => '${days}日前より古いタスクを削除';
+	@override String get noMatch => '条件に一致するタスクがありません';
+	@override String get invalidRange => '開始日は終了日以前にしてください';
+	@override String get confirmTitle => '削除の確認';
+	@override String confirmContent({required Object count}) => '${count}件のダウンロードタスクとそのファイルを削除しますか？この操作は取り消せません。';
+	@override String deleting({required Object done, required Object total}) => '削除中 ${done}/${total}…';
+	@override String resultSuccess({required Object count}) => '${count}件のタスクを削除しました';
+	@override String resultPartial({required Object deleted, required Object skipped}) => '${deleted}件を削除、${skipped}件をスキップ（使用中）';
 }
 
 // Path: download.batchDownload
@@ -4720,6 +4747,23 @@ extension on TranslationsJa {
 			'download.resumeAll' => 'すべて開始',
 			'download.emptyTaskList' => 'ダウンロードタスクがありません',
 			'download.noMatchingTasks' => '一致するタスクがありません',
+			'download.deleteByDate.menuTitle' => '日付で削除',
+			'download.deleteByDate.dialogTitle' => '日付で削除',
+			'download.deleteByDate.description' => '作成日でダウンロードタスクを一括削除します。使用中のファイルはスキップされ、ファイルが既に存在しないタスクは整理されます。',
+			'download.deleteByDate.modeRange' => '期間',
+			'download.deleteByDate.modeDays' => '日数で指定',
+			'download.deleteByDate.startDate' => '開始日',
+			'download.deleteByDate.endDate' => '終了日',
+			'download.deleteByDate.notSet' => '未設定',
+			'download.deleteByDate.daysUnit' => '日',
+			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => '${days}日前より古いタスクを削除',
+			'download.deleteByDate.noMatch' => '条件に一致するタスクがありません',
+			'download.deleteByDate.invalidRange' => '開始日は終了日以前にしてください',
+			'download.deleteByDate.confirmTitle' => '削除の確認',
+			'download.deleteByDate.confirmContent' => ({required Object count}) => '${count}件のダウンロードタスクとそのファイルを削除しますか？この操作は取り消せません。',
+			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '削除中 ${done}/${total}…',
+			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count}件のタスクを削除しました',
+			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '${deleted}件を削除、${skipped}件をスキップ（使用中）',
 			'download.maxConcurrentDownloads' => '最大同時ダウンロード数',
 			'download.maxConcurrentDownloadsDesc' => '同時にダウンロードするタスク数（1-5）',
 			'download.stillInDevelopment' => '開発中',
@@ -4760,6 +4804,8 @@ extension on TranslationsJa {
 			'downloadNotifications.failedBody' => ({required Object name}) => '${name} のダウンロードに失敗しました',
 			'downloadNotifications.completedToast' => ({required Object name}) => '${name} をダウンロードしました',
 			'downloadNotifications.failedToast' => ({required Object name}) => '${name} のダウンロードに失敗しました',
+			_ => null,
+		} ?? switch (path) {
 			'downloadNotifications.channelName' => 'ダウンロード状態',
 			'downloadNotifications.channelDescription' => 'ダウンロードの完了と失敗の通知',
 			'favorite.errors.addFailed' => '追加に失敗しました',
@@ -4777,8 +4823,6 @@ extension on TranslationsJa {
 			'favorite.removeConfirmationSuccess' => 'アイテムがお気に入りから削除されました',
 			'favorite.removeConfirmationFailed' => 'アイテムをお気に入りから削除に失敗しました',
 			'favorite.createFolderSuccess' => 'フォルダーが作成されました',
-			_ => null,
-		} ?? switch (path) {
 			'favorite.createFolderFailed' => 'フォルダーの作成に失敗しました',
 			'favorite.createFolder' => 'フォルダーを作成',
 			'favorite.enterFolderName' => 'フォルダー名を入力',
@@ -5274,6 +5318,8 @@ extension on TranslationsJa {
 			'layoutSettings.breakpointRangeDescMiddle' => ({required Object start, required Object end}) => '${start}-${end}px',
 			'layoutSettings.edit' => '編集',
 			'layoutSettings.delete' => '削除',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.cancel' => 'キャンセル',
 			'layoutSettings.save' => '保存',
 			'navigationOrderSettings.title' => 'ナビゲーション順序設定',
@@ -5291,8 +5337,6 @@ extension on TranslationsJa {
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => 'ナビゲーション順序をデフォルト設定にリセットしてもよろしいですか？',
 			'navigationOrderSettings.cancel' => 'キャンセル',
 			'navigationOrderSettings.show' => '表示',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.hide' => '非表示',
 			'navigationOrderSettings.hidden' => '非表示中',
 			'navigationOrderSettings.hideHint' => '目のアイコンをタップしてフォーラムとニュースの表示・非表示を切り替えます',

@@ -246,6 +246,46 @@ class DownloadTaskRepository {
     }
   }
 
+  /// 按创建时间区间获取任务（任意状态），用于“按日期批量删除”。
+  ///
+  /// [start]/[end] 均为闭区间边界（含端点），任一为 null 表示该侧不限。
+  /// created_at 历史上以秒（strftime('%s')）存储，这里统一归一化为毫秒后再与
+  /// 入参（毫秒时间戳）比较，兼容个别历史毫秒值，避免单位混用导致漏删/误删。
+  Future<List<DownloadTask>> getTasksByCreatedDateRange({
+    DateTime? start,
+    DateTime? end,
+  }) async {
+    try {
+      const normalizedCreatedAt =
+          "(CASE WHEN created_at < 1000000000000 THEN created_at * 1000 ELSE created_at END)";
+      final whereClauses = <String>[];
+      final params = <Object?>[];
+
+      if (start != null) {
+        whereClauses.add('$normalizedCreatedAt >= ?');
+        params.add(start.millisecondsSinceEpoch);
+      }
+      if (end != null) {
+        whereClauses.add('$normalizedCreatedAt <= ?');
+        params.add(end.millisecondsSinceEpoch);
+      }
+
+      final whereClause = whereClauses.isNotEmpty
+          ? 'WHERE ${whereClauses.join(' AND ')}'
+          : '';
+
+      final results = _db.select('''
+        SELECT * FROM download_tasks
+        $whereClause
+        ORDER BY created_at DESC
+      ''', params);
+      return results.map((row) => DownloadTask.fromRow(row)).toList();
+    } catch (e) {
+      LogUtils.e('按日期区间获取下载任务失败', tag: 'DownloadTaskRepository', error: e);
+      rethrow;
+    }
+  }
+
   Future<List<DownloadTask>> getTasksByStatus(
     DownloadStatus? status, {
     int offset = 0,

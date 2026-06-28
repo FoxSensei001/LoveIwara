@@ -18,6 +18,24 @@ import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:path/path.dart' as path_lib;
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
+/// 批量删除结果统计（用于“按日期删除”等耗时批量操作的结果汇总）。
+class DeleteTasksResult {
+  /// 本次尝试删除的任务总数。
+  final int total;
+
+  /// 成功删除（或目标本就不存在被清理）的任务数。
+  final int deleted;
+
+  /// 因文件被占用 / 删除目标不安全等原因被跳过（记录保留）的任务数。
+  final int skipped;
+
+  const DeleteTasksResult({
+    required this.total,
+    required this.deleted,
+    required this.skipped,
+  });
+}
+
 /// 任务模型
 /// enum DownloadStatus {
 ///   pending,      // 等待中
@@ -680,13 +698,21 @@ class DownloadService extends GetxService {
 
   // 删除任务
   // 此任务可能在内存中，也可能在数据库中，需要先从内存中获取，如果获取不到，则从数据库中获取
-  Future<void> deleteTask(
+  //
+  // 返回值：true 表示任务记录已被移除（删除成功，或目标本就不存在 / 文件已丢失被清理）；
+  // false 表示因文件被占用、删除目标不安全等原因未能删除（任务记录仍保留）。
+  // [silent] 为 true 时不弹出任何 toast（用于批量删除，避免逐条刷屏）。
+  // [notify] 为 true 时在删除成功后递增状态版本触发 UI 刷新；批量删除可置 false，
+  // 由调用方在结束后统一刷新一次，避免长任务期间反复重载列表。
+  Future<bool> deleteTask(
     String taskId, {
     bool ignoreFileDeleteError = false,
+    bool silent = false,
+    bool notify = true,
   }) async {
     // 防止重复删除
     if (_processingTaskIds.contains(taskId)) {
-      return;
+      return false;
     }
     _processingTaskIds.add(taskId);
 
@@ -696,13 +722,15 @@ class DownloadService extends GetxService {
       // 获取任务信息
       task = _activeTasks[taskId] ?? await _repository.getTaskById(taskId);
 
-      // 如果内存和数据库中都没有任务信息，则直接返回
+      // 如果内存和数据库中都没有任务信息，则视为已删除（可能已被并发删除）
       if (task == null) {
-        LogUtils.e('任务不存在: $taskId', tag: 'DownloadService');
-        _showMessage(slang.t.download.errors.taskNotFound, Colors.red);
+        LogUtils.w('任务不存在，视为已删除: $taskId', 'DownloadService');
+        if (!silent) {
+          _showMessage(slang.t.download.errors.taskNotFound, Colors.red);
+        }
         // 防止内存问题，清理内存中的信息
         _clearMemoryTask(taskId, '任务不存在时的清理');
-        return;
+        return true;
       }
 
       // 如果任务正在下载中，先取消下载并等待资源释放
@@ -725,8 +753,10 @@ class DownloadService extends GetxService {
       if (!await _isSafeDeleteTargetForTask(task, deleteTargetType)) {
         LogUtils.e('拒绝删除不安全的下载目标: ${task.savePath}', tag: 'DownloadService');
         if (!ignoreFileDeleteError) {
-          _showMessage(slang.t.download.errors.deleteFileError, Colors.red);
-          return;
+          if (!silent) {
+            _showMessage(slang.t.download.errors.deleteFileError, Colors.red);
+          }
+          return false;
         }
         isDeleteSuccess = true;
       }
@@ -807,8 +837,10 @@ class DownloadService extends GetxService {
 
       if (!isDeleteSuccess && !ignoreFileDeleteError) {
         LogUtils.e('删除文件失败: ${task.savePath}', tag: 'DownloadService');
-        _showMessage(slang.t.download.errors.deleteFileError, Colors.red);
-        return;
+        if (!silent) {
+          _showMessage(slang.t.download.errors.deleteFileError, Colors.red);
+        }
+        return false;
       }
 
       // 从数据库删除任务记录
@@ -817,7 +849,10 @@ class DownloadService extends GetxService {
       _clearMemoryTask(taskId, '任务已删除');
 
       // 通知任务状态变更，触发UI刷新
-      _taskStatusChangedNotifier.value++;
+      if (notify) {
+        _taskStatusChangedNotifier.value++;
+      }
+      return true;
     } finally {
       _processingTaskIds.remove(taskId);
     }
@@ -831,6 +866,58 @@ class DownloadService extends GetxService {
     for (final taskId in taskIds) {
       await deleteTask(taskId, ignoreFileDeleteError: ignoreFileDeleteError);
     }
+  }
+
+  /// 带进度的批量删除（用于“按日期删除”等耗时批量操作）。
+  ///
+  /// 逐个删除并通过 [onProgress] 回报进度 `(已处理, 总数)`。删除过程中：
+  /// - 文件已不存在但状态未更新的任务：[deleteTask] 会将“目标不存在”视为成功并清理记录；
+  /// - 文件被其他进程占用 / 删除目标不安全的任务：跳过并计入 [DeleteTasksResult.skipped]，
+  ///   任务记录保留，避免产生“记录已删但文件残留”的孤儿文件。
+  ///
+  /// 为避免长时间操作期间反复触发列表重载，单条删除不发通知（notify=false），
+  /// 全部完成后统一递增一次状态版本触发刷新。
+  Future<DeleteTasksResult> deleteTasksWithProgress(
+    List<DownloadTask> tasks, {
+    void Function(int done, int total)? onProgress,
+    bool ignoreFileDeleteError = false,
+  }) async {
+    final total = tasks.length;
+    int deleted = 0;
+    int skipped = 0;
+
+    onProgress?.call(0, total);
+    for (var i = 0; i < tasks.length; i++) {
+      bool ok;
+      try {
+        ok = await deleteTask(
+          tasks[i].id,
+          ignoreFileDeleteError: ignoreFileDeleteError,
+          silent: true,
+          notify: false,
+        );
+      } catch (e) {
+        ok = false;
+        LogUtils.e(
+          '按日期批量删除单个任务失败: ${tasks[i].id}',
+          tag: 'DownloadService',
+          error: e,
+        );
+      }
+      if (ok) {
+        deleted++;
+      } else {
+        skipped++;
+      }
+      onProgress?.call(i + 1, total);
+    }
+
+    // 统一刷新一次（即使全部跳过也刷新，便于回收“文件已丢失”被清理的项）。
+    if (total > 0) {
+      _taskStatusChangedNotifier.value++;
+    }
+
+    return DeleteTasksResult(total: total, deleted: deleted, skipped: skipped);
   }
 
   /// 外部（如设置页调高并发数后）主动触发队列检查，立即启动更多等待中任务。

@@ -1578,6 +1578,24 @@ download:
   resumeAll: Start all
   emptyTaskList: No download tasks yet
   noMatchingTasks: No matching tasks
+  deleteByDate:
+    menuTitle: Delete by date
+    dialogTitle: Delete by date
+    description: 'Delete download tasks in bulk by creation date. Tasks whose files are in use are skipped; tasks whose files no longer exist are cleaned up.'
+    modeRange: Date range
+    modeDays: Older than
+    startDate: Start date
+    endDate: End date
+    notSet: Not set
+    daysUnit: days
+    olderThanDaysHint: 'Delete tasks created more than ${days} day(s) ago'
+    noMatch: No tasks match the selected condition
+    invalidRange: Start date must be on or before end date
+    confirmTitle: Confirm deletion
+    confirmContent: 'Delete ${count} download task(s) and their files? This cannot be undone.'
+    deleting: 'Deleting ${done}/${total}…'
+    resultSuccess: 'Deleted ${count} task(s)'
+    resultPartial: 'Deleted ${deleted} task(s); ${skipped} skipped (in use)'
   maxConcurrentDownloads: Max concurrent downloads
   maxConcurrentDownloadsDesc: 'Number of tasks downloading at the same time (1-5)'
   stillInDevelopment: Still in development

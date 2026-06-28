@@ -3225,6 +3225,8 @@ class TranslationsDownloadEn {
 	/// en: 'No matching tasks'
 	String get noMatchingTasks => 'No matching tasks';
 
+	late final TranslationsDownloadDeleteByDateEn deleteByDate = TranslationsDownloadDeleteByDateEn._(_root);
+
 	/// en: 'Max concurrent downloads'
 	String get maxConcurrentDownloads => 'Max concurrent downloads';
 
@@ -7169,6 +7171,66 @@ class TranslationsDownloadErrorsEn {
 	String get pleaseTryOtherViewer => 'Please try using other viewers to open';
 }
 
+// Path: download.deleteByDate
+class TranslationsDownloadDeleteByDateEn {
+	TranslationsDownloadDeleteByDateEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Delete by date'
+	String get menuTitle => 'Delete by date';
+
+	/// en: 'Delete by date'
+	String get dialogTitle => 'Delete by date';
+
+	/// en: 'Delete download tasks in bulk by creation date. Tasks whose files are in use are skipped; tasks whose files no longer exist are cleaned up.'
+	String get description => 'Delete download tasks in bulk by creation date. Tasks whose files are in use are skipped; tasks whose files no longer exist are cleaned up.';
+
+	/// en: 'Date range'
+	String get modeRange => 'Date range';
+
+	/// en: 'Older than'
+	String get modeDays => 'Older than';
+
+	/// en: 'Start date'
+	String get startDate => 'Start date';
+
+	/// en: 'End date'
+	String get endDate => 'End date';
+
+	/// en: 'Not set'
+	String get notSet => 'Not set';
+
+	/// en: 'days'
+	String get daysUnit => 'days';
+
+	/// en: 'Delete tasks created more than ${days} day(s) ago'
+	String olderThanDaysHint({required Object days}) => 'Delete tasks created more than ${days} day(s) ago';
+
+	/// en: 'No tasks match the selected condition'
+	String get noMatch => 'No tasks match the selected condition';
+
+	/// en: 'Start date must be on or before end date'
+	String get invalidRange => 'Start date must be on or before end date';
+
+	/// en: 'Confirm deletion'
+	String get confirmTitle => 'Confirm deletion';
+
+	/// en: 'Delete ${count} download task(s) and their files? This cannot be undone.'
+	String confirmContent({required Object count}) => 'Delete ${count} download task(s) and their files? This cannot be undone.';
+
+	/// en: 'Deleting ${done}/${total}…'
+	String deleting({required Object done, required Object total}) => 'Deleting ${done}/${total}…';
+
+	/// en: 'Deleted ${count} task(s)'
+	String resultSuccess({required Object count}) => 'Deleted ${count} task(s)';
+
+	/// en: 'Deleted ${deleted} task(s); ${skipped} skipped (in use)'
+	String resultPartial({required Object deleted, required Object skipped}) => 'Deleted ${deleted} task(s); ${skipped} skipped (in use)';
+}
+
 // Path: download.batchDownload
 class TranslationsDownloadBatchDownloadEn {
 	TranslationsDownloadBatchDownloadEn._(this._root);
@@ -9281,6 +9343,23 @@ extension on Translations {
 			'download.resumeAll' => 'Start all',
 			'download.emptyTaskList' => 'No download tasks yet',
 			'download.noMatchingTasks' => 'No matching tasks',
+			'download.deleteByDate.menuTitle' => 'Delete by date',
+			'download.deleteByDate.dialogTitle' => 'Delete by date',
+			'download.deleteByDate.description' => 'Delete download tasks in bulk by creation date. Tasks whose files are in use are skipped; tasks whose files no longer exist are cleaned up.',
+			'download.deleteByDate.modeRange' => 'Date range',
+			'download.deleteByDate.modeDays' => 'Older than',
+			'download.deleteByDate.startDate' => 'Start date',
+			'download.deleteByDate.endDate' => 'End date',
+			'download.deleteByDate.notSet' => 'Not set',
+			'download.deleteByDate.daysUnit' => 'days',
+			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => 'Delete tasks created more than ${days} day(s) ago',
+			'download.deleteByDate.noMatch' => 'No tasks match the selected condition',
+			'download.deleteByDate.invalidRange' => 'Start date must be on or before end date',
+			'download.deleteByDate.confirmTitle' => 'Confirm deletion',
+			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Delete ${count} download task(s) and their files? This cannot be undone.',
+			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Deleting ${done}/${total}…',
+			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Deleted ${count} task(s)',
+			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Deleted ${deleted} task(s); ${skipped} skipped (in use)',
 			'download.maxConcurrentDownloads' => 'Max concurrent downloads',
 			'download.maxConcurrentDownloadsDesc' => 'Number of tasks downloading at the same time (1-5)',
 			'download.stillInDevelopment' => 'Still in development',
@@ -9321,6 +9400,8 @@ extension on Translations {
 			'downloadNotifications.failedBody' => ({required Object name}) => '${name} failed to download',
 			'downloadNotifications.completedToast' => ({required Object name}) => '${name} downloaded',
 			'downloadNotifications.failedToast' => ({required Object name}) => '${name} download failed',
+			_ => null,
+		} ?? switch (path) {
 			'downloadNotifications.channelName' => 'Download status',
 			'downloadNotifications.channelDescription' => 'Notifications for completed and failed downloads',
 			'favorite.errors.addFailed' => 'Add failed',
@@ -9338,8 +9419,6 @@ extension on Translations {
 			'favorite.removeConfirmationSuccess' => 'Item removed from favorites',
 			'favorite.removeConfirmationFailed' => 'Failed to remove item from favorites',
 			'favorite.createFolderSuccess' => 'Folder created successfully',
-			_ => null,
-		} ?? switch (path) {
 			'favorite.createFolderFailed' => 'Failed to create folder',
 			'favorite.createFolder' => 'Create Folder',
 			'favorite.enterFolderName' => 'Enter folder name',
@@ -9835,6 +9914,8 @@ extension on Translations {
 			'emoji.addImageUrl' => 'Add Image URL',
 			'emoji.imageUrl' => 'Image URL',
 			'emoji.enterImageUrl' => 'Please enter image URL',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.add' => 'Add',
 			'emoji.batchImport' => 'Batch Import',
 			'emoji.enterJsonUrlArray' => 'Please enter JSON format URL array:',
@@ -9852,8 +9933,6 @@ extension on Translations {
 			'emoji.deleteGroup' => 'Delete Group',
 			'emoji.confirmDeleteGroup' => 'Are you sure you want to delete this emoji group? All images in the group will also be deleted.',
 			'emoji.imageCount' => ({required Object count}) => '${count} images',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.selectEmoji' => 'Select Emoji',
 			'emoji.noEmojisInGroup' => 'No emojis in this group',
 			'emoji.goToSettingsToAddEmojis' => 'Go to settings to add emojis',

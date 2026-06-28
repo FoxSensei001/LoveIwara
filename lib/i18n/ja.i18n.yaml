@@ -1581,6 +1581,24 @@ download:
   resumeAll: すべて開始
   emptyTaskList: ダウンロードタスクがありません
   noMatchingTasks: 一致するタスクがありません
+  deleteByDate:
+    menuTitle: 日付で削除
+    dialogTitle: 日付で削除
+    description: 作成日でダウンロードタスクを一括削除します。使用中のファイルはスキップされ、ファイルが既に存在しないタスクは整理されます。
+    modeRange: 期間
+    modeDays: 日数で指定
+    startDate: 開始日
+    endDate: 終了日
+    notSet: 未設定
+    daysUnit: 日
+    olderThanDaysHint: ${days}日前より古いタスクを削除
+    noMatch: 条件に一致するタスクがありません
+    invalidRange: 開始日は終了日以前にしてください
+    confirmTitle: 削除の確認
+    confirmContent: ${count}件のダウンロードタスクとそのファイルを削除しますか？この操作は取り消せません。
+    deleting: 削除中 ${done}/${total}…
+    resultSuccess: ${count}件のタスクを削除しました
+    resultPartial: ${deleted}件を削除、${skipped}件をスキップ（使用中）
   maxConcurrentDownloads: 最大同時ダウンロード数
   maxConcurrentDownloadsDesc: '同時にダウンロードするタスク数（1-5）'
   stillInDevelopment: 開発中

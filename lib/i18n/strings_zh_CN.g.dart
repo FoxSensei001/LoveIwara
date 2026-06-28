@@ -1298,6 +1298,7 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	@override String get resumeAll => '全部开始';
 	@override String get emptyTaskList => '暂无下载任务';
 	@override String get noMatchingTasks => '没有匹配的任务';
+	@override late final _TranslationsDownloadDeleteByDateZhCn deleteByDate = _TranslationsDownloadDeleteByDateZhCn._(_root);
 	@override String get maxConcurrentDownloads => '最大同时下载数';
 	@override String get maxConcurrentDownloadsDesc => '同时进行下载的任务数量（1-5）';
 	@override String downloadCompletedWithName({required Object fileName}) => '下载完成: ${fileName}';
@@ -2917,6 +2918,32 @@ class _TranslationsDownloadErrorsZhCn implements TranslationsDownloadErrorsEn {
 	@override String unsupportedImageFormatWithMessage({required Object extension}) => '不支持的图片格式: ${extension}, 可以尝试下载到设备上查看';
 	@override String get imageLoadFailed => '图片加载失败';
 	@override String get pleaseTryOtherViewer => '请尝试使用其他查看器打开';
+}
+
+// Path: download.deleteByDate
+class _TranslationsDownloadDeleteByDateZhCn implements TranslationsDownloadDeleteByDateEn {
+	_TranslationsDownloadDeleteByDateZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get menuTitle => '按日期删除';
+	@override String get dialogTitle => '按日期删除';
+	@override String get description => '按创建日期批量删除下载任务。被占用的文件会跳过；文件已不存在的任务会一并清理。';
+	@override String get modeRange => '日期区间';
+	@override String get modeDays => '多少天以前';
+	@override String get startDate => '开始日期';
+	@override String get endDate => '结束日期';
+	@override String get notSet => '未设置';
+	@override String get daysUnit => '天';
+	@override String olderThanDaysHint({required Object days}) => '删除 ${days} 天以前创建的任务';
+	@override String get noMatch => '没有符合条件的任务';
+	@override String get invalidRange => '开始日期不能晚于结束日期';
+	@override String get confirmTitle => '确认删除';
+	@override String confirmContent({required Object count}) => '确定删除这 ${count} 个下载任务及其文件吗？此操作不可撤销。';
+	@override String deleting({required Object done, required Object total}) => '正在删除 ${done}/${total}…';
+	@override String resultSuccess({required Object count}) => '已删除 ${count} 个任务';
+	@override String resultPartial({required Object deleted, required Object skipped}) => '已删除 ${deleted} 个任务，跳过 ${skipped} 个（被占用）';
 }
 
 // Path: download.batchDownload
@@ -4729,6 +4756,23 @@ extension on TranslationsZhCn {
 			'download.resumeAll' => '全部开始',
 			'download.emptyTaskList' => '暂无下载任务',
 			'download.noMatchingTasks' => '没有匹配的任务',
+			'download.deleteByDate.menuTitle' => '按日期删除',
+			'download.deleteByDate.dialogTitle' => '按日期删除',
+			'download.deleteByDate.description' => '按创建日期批量删除下载任务。被占用的文件会跳过；文件已不存在的任务会一并清理。',
+			'download.deleteByDate.modeRange' => '日期区间',
+			'download.deleteByDate.modeDays' => '多少天以前',
+			'download.deleteByDate.startDate' => '开始日期',
+			'download.deleteByDate.endDate' => '结束日期',
+			'download.deleteByDate.notSet' => '未设置',
+			'download.deleteByDate.daysUnit' => '天',
+			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => '删除 ${days} 天以前创建的任务',
+			'download.deleteByDate.noMatch' => '没有符合条件的任务',
+			'download.deleteByDate.invalidRange' => '开始日期不能晚于结束日期',
+			'download.deleteByDate.confirmTitle' => '确认删除',
+			'download.deleteByDate.confirmContent' => ({required Object count}) => '确定删除这 ${count} 个下载任务及其文件吗？此操作不可撤销。',
+			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '正在删除 ${done}/${total}…',
+			'download.deleteByDate.resultSuccess' => ({required Object count}) => '已删除 ${count} 个任务',
+			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '已删除 ${deleted} 个任务，跳过 ${skipped} 个（被占用）',
 			'download.maxConcurrentDownloads' => '最大同时下载数',
 			'download.maxConcurrentDownloadsDesc' => '同时进行下载的任务数量（1-5）',
 			'download.downloadCompletedWithName' => ({required Object fileName}) => '下载完成: ${fileName}',
@@ -4765,6 +4809,8 @@ extension on TranslationsZhCn {
 			'download.batchDownload.reasonOther' => '其他错误',
 			'download.batchDownload.startDownload' => '开始下载',
 			'downloadNotifications.completedTitle' => '下载完成',
+			_ => null,
+		} ?? switch (path) {
 			'downloadNotifications.failedTitle' => '下载失败',
 			'downloadNotifications.completedBody' => ({required Object name}) => '${name} 下载成功',
 			'downloadNotifications.failedBody' => ({required Object name}) => '${name} 下载失败',
@@ -4782,8 +4828,6 @@ extension on TranslationsZhCn {
 			'favorite.addFailed' => '追加失败',
 			'favorite.remove' => '删除',
 			'favorite.removeSuccess' => '删除成功',
-			_ => null,
-		} ?? switch (path) {
 			'favorite.removeFailed' => '删除失败',
 			'favorite.removeConfirmation' => '确定要删除这个项目吗？',
 			'favorite.removeConfirmationSuccess' => '项目已从收藏夹中删除',
@@ -5279,6 +5323,8 @@ extension on TranslationsZhCn {
 			'layoutSettings.confirmDeleteBreakpointDesc' => ({required Object width}) => '确定要删除 ${width}px 断点吗？',
 			'layoutSettings.noCustomBreakpoints' => '暂无自定义断点，使用默认列数',
 			'layoutSettings.breakpointRange' => '断点区间',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.breakpointRangeDesc' => ({required Object range}) => '${range}px',
 			'layoutSettings.breakpointRangeDescFirst' => ({required Object width}) => '≤${width}px',
 			'layoutSettings.breakpointRangeDescMiddle' => ({required Object start, required Object end}) => '${start}-${end}px',
@@ -5296,8 +5342,6 @@ extension on TranslationsZhCn {
 			'navigationOrderSettings.reset' => '重置',
 			'navigationOrderSettings.previewEffect' => '预览效果',
 			'navigationOrderSettings.bottomNavigationPreview' => '底部导航栏预览：',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.sidebarPreview' => '侧边栏预览：',
 			'navigationOrderSettings.confirmResetNavigationOrder' => '确认重置导航顺序',
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => '确定要将导航顺序重置为默认设置吗？',

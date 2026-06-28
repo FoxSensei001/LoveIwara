@@ -1325,6 +1325,7 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	@override String get resumeAll => '全部開始';
 	@override String get emptyTaskList => '暫無下載任務';
 	@override String get noMatchingTasks => '沒有符合的任務';
+	@override late final _TranslationsDownloadDeleteByDateZhTw deleteByDate = _TranslationsDownloadDeleteByDateZhTw._(_root);
 	@override String get maxConcurrentDownloads => '最大同時下載數';
 	@override String get maxConcurrentDownloadsDesc => '同時進行下載的任務數量（1-5）';
 	@override String get stillInDevelopment => '開發中';
@@ -3003,6 +3004,32 @@ class _TranslationsDownloadErrorsZhTw implements TranslationsDownloadErrorsEn {
 	@override String get pleaseTryOtherViewer => '請嘗試使用其他查看器打開';
 	@override String unsupportedImageFormatWithMessage({required Object extension}) => '不支援的圖片格式: ${extension}, 可以嘗試下載到裝置上查看';
 	@override String get imageLoadFailed => '圖片載入失敗';
+}
+
+// Path: download.deleteByDate
+class _TranslationsDownloadDeleteByDateZhTw implements TranslationsDownloadDeleteByDateEn {
+	_TranslationsDownloadDeleteByDateZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get menuTitle => '依日期刪除';
+	@override String get dialogTitle => '依日期刪除';
+	@override String get description => '依建立日期批次刪除下載任務。被佔用的檔案會略過；檔案已不存在的任務會一併清理。';
+	@override String get modeRange => '日期區間';
+	@override String get modeDays => '多少天以前';
+	@override String get startDate => '開始日期';
+	@override String get endDate => '結束日期';
+	@override String get notSet => '未設定';
+	@override String get daysUnit => '天';
+	@override String olderThanDaysHint({required Object days}) => '刪除 ${days} 天以前建立的任務';
+	@override String get noMatch => '沒有符合條件的任務';
+	@override String get invalidRange => '開始日期不能晚於結束日期';
+	@override String get confirmTitle => '確認刪除';
+	@override String confirmContent({required Object count}) => '確定刪除這 ${count} 個下載任務及其檔案嗎？此操作無法復原。';
+	@override String deleting({required Object done, required Object total}) => '正在刪除 ${done}/${total}…';
+	@override String resultSuccess({required Object count}) => '已刪除 ${count} 個任務';
+	@override String resultPartial({required Object deleted, required Object skipped}) => '已刪除 ${deleted} 個任務，略過 ${skipped} 個（被佔用）';
 }
 
 // Path: download.batchDownload
@@ -4754,6 +4781,23 @@ extension on TranslationsZhTw {
 			'download.resumeAll' => '全部開始',
 			'download.emptyTaskList' => '暫無下載任務',
 			'download.noMatchingTasks' => '沒有符合的任務',
+			'download.deleteByDate.menuTitle' => '依日期刪除',
+			'download.deleteByDate.dialogTitle' => '依日期刪除',
+			'download.deleteByDate.description' => '依建立日期批次刪除下載任務。被佔用的檔案會略過；檔案已不存在的任務會一併清理。',
+			'download.deleteByDate.modeRange' => '日期區間',
+			'download.deleteByDate.modeDays' => '多少天以前',
+			'download.deleteByDate.startDate' => '開始日期',
+			'download.deleteByDate.endDate' => '結束日期',
+			'download.deleteByDate.notSet' => '未設定',
+			'download.deleteByDate.daysUnit' => '天',
+			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => '刪除 ${days} 天以前建立的任務',
+			'download.deleteByDate.noMatch' => '沒有符合條件的任務',
+			'download.deleteByDate.invalidRange' => '開始日期不能晚於結束日期',
+			'download.deleteByDate.confirmTitle' => '確認刪除',
+			'download.deleteByDate.confirmContent' => ({required Object count}) => '確定刪除這 ${count} 個下載任務及其檔案嗎？此操作無法復原。',
+			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '正在刪除 ${done}/${total}…',
+			'download.deleteByDate.resultSuccess' => ({required Object count}) => '已刪除 ${count} 個任務',
+			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '已刪除 ${deleted} 個任務，略過 ${skipped} 個（被佔用）',
 			'download.maxConcurrentDownloads' => '最大同時下載數',
 			'download.maxConcurrentDownloadsDesc' => '同時進行下載的任務數量（1-5）',
 			'download.stillInDevelopment' => '開發中',
@@ -4763,6 +4807,8 @@ extension on TranslationsZhTw {
 			'download.otherQualities' => '其他清晰度',
 			'download.batchDownload.title' => '批量下載',
 			'download.batchDownload.downloadTaskAlreadyRunning' => '任務正在運行中，請稍候',
+			_ => null,
+		} ?? switch (path) {
 			'download.batchDownload.userCancelled' => '用戶取消',
 			'download.batchDownload.failedToGetVideoInfo' => '無法獲取影片資訊',
 			'download.batchDownload.failedToGetVideoSource' => '無法獲取影片源',
@@ -4780,8 +4826,6 @@ extension on TranslationsZhTw {
 			'download.batchDownload.queued' => '已入隊',
 			'download.batchDownload.success' => '成功',
 			'download.batchDownload.skipped' => '跳過',
-			_ => null,
-		} ?? switch (path) {
 			'download.batchDownload.failed' => '失敗',
 			'download.batchDownload.failureDetails' => '失敗詳情',
 			'download.batchDownload.reasonPrivateVideo' => '私人影片',
@@ -5277,6 +5321,8 @@ extension on TranslationsZhTw {
 			'layoutSettings.columns' => '欄',
 			'layoutSettings.breakpointConfig' => '斷點配置',
 			'layoutSettings.add' => '新增',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.defaultColumns' => '預設欄數',
 			'layoutSettings.defaultColumnsDesc' => '大螢幕預設顯示',
 			'layoutSettings.previewEffect' => '預覽效果',
@@ -5294,8 +5340,6 @@ extension on TranslationsZhTw {
 			'layoutSettings.breakpointAlreadyExists' => '斷點已存在',
 			'layoutSettings.enterColumns' => '請輸入欄數',
 			'layoutSettings.enterValidColumns' => '請輸入有效欄數',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.columnsCannotExceed12' => '欄數不能超過12',
 			'layoutSettings.breakpointConflict' => '斷點已存在',
 			'layoutSettings.confirmResetLayoutSettings' => '重設版面配置設定',
