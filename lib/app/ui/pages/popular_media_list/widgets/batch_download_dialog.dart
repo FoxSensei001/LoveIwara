@@ -79,16 +79,11 @@ class _BatchDownloadDialogState<T> extends State<BatchDownloadDialog<T>> {
     // 读取上次选择的下载分类（空字符串视为未分类/null）
     final lastCategoryId =
         _configService[ConfigKey.LAST_DOWNLOAD_CATEGORY_ID] as String?;
-    _selectedCategoryId =
-        (lastCategoryId == null || lastCategoryId.isEmpty)
+    _selectedCategoryId = (lastCategoryId == null || lastCategoryId.isEmpty)
         ? null
         : lastCategoryId;
-    // 图库下载直接开始，不需要选择清晰度
-    if (!_isVideoDownload) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _startDownload();
-      });
-    } else {
+    // 图库无清晰度，但同样进入选择阶段以便选择分类（不再自动开始下载）。
+    if (_isVideoDownload) {
       // 视频下载：尝试读取上次选择的清晰度
       final lastQuality =
           _configService[ConfigKey.LAST_DOWNLOAD_QUALITY] as String?;
@@ -124,7 +119,9 @@ class _BatchDownloadDialogState<T> extends State<BatchDownloadDialog<T>> {
   String _getTitle(slang.Translations t) {
     switch (_phase) {
       case _DialogPhase.selectQuality:
-        return t.download.batchDownload.selectQuality;
+        return _isVideoDownload
+            ? t.download.batchDownload.selectQuality
+            : t.download.batchDownload.title;
       case _DialogPhase.downloading:
         return t.download.batchDownload.downloading;
       case _DialogPhase.result:
@@ -159,13 +156,15 @@ class _BatchDownloadDialogState<T> extends State<BatchDownloadDialog<T>> {
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 16),
-        Text(
-          t.download.batchDownload.qualityNote,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+        if (_isVideoDownload) ...[
+          Text(
+            t.download.batchDownload.qualityNote,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
+          const SizedBox(height: 16),
+        ],
         DownloadCategoryPicker(
           value: _selectedCategoryId,
           onChanged: (value) {
@@ -174,29 +173,31 @@ class _BatchDownloadDialogState<T> extends State<BatchDownloadDialog<T>> {
             });
           },
         ),
-        const SizedBox(height: 8),
-        RadioGroup<String>(
-          groupValue: _selectedQuality,
-          onChanged: (value) {
-            if (value != null) {
-              setState(() {
-                _selectedQuality = value;
-              });
-            }
-          },
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: List.generate(_qualityOptions.length, (index) {
-              final quality = _qualityOptions[index];
-              return RadioListTile<String>(
-                title: Text(quality),
-                value: quality,
-                dense: true,
-                contentPadding: EdgeInsets.zero,
-              );
-            }),
+        if (_isVideoDownload) ...[
+          const SizedBox(height: 8),
+          RadioGroup<String>(
+            groupValue: _selectedQuality,
+            onChanged: (value) {
+              if (value != null) {
+                setState(() {
+                  _selectedQuality = value;
+                });
+              }
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: List.generate(_qualityOptions.length, (index) {
+                final quality = _qualityOptions[index];
+                return RadioListTile<String>(
+                  title: Text(quality),
+                  value: quality,
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                );
+              }),
+            ),
           ),
-        ),
+        ],
       ],
     );
   }
@@ -501,8 +502,9 @@ class _BatchDownloadDialogState<T> extends State<BatchDownloadDialog<T>> {
       _selectedCategoryId ?? '',
     );
     // 空字符串/未选择视为未分类
-    final String? categoryId =
-        (_selectedCategoryId?.isEmpty ?? true) ? null : _selectedCategoryId;
+    final String? categoryId = (_selectedCategoryId?.isEmpty ?? true)
+        ? null
+        : _selectedCategoryId;
 
     setState(() {
       _phase = _DialogPhase.downloading;

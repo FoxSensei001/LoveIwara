@@ -68,6 +68,19 @@ class DownloadService extends GetxService {
   final _removedTaskIdsNotifier = Rx<List<String>>(const []);
   Rx<List<String>> get removedTaskIdsNotifier => _removedTaskIdsNotifier;
 
+  /// 记住的「下载到分类」默认值（'' / 读取失败视为未分类/null）。
+  /// 供跳过弹窗的下载路径（单图保存等）沿用上次所选分类。
+  String? get stickyDownloadCategoryId {
+    try {
+      final v =
+          Get.find<ConfigService>()[ConfigKey.LAST_DOWNLOAD_CATEGORY_ID]
+              as String?;
+      return (v == null || v.isEmpty) ? null : v;
+    } catch (_) {
+      return null;
+    }
+  }
+
   final _repository = DownloadTaskRepository();
 
   /// 已派发「终态通知」（完成/失败）的任务 id 集合，用于去重：

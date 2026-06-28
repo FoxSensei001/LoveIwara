@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
-import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
@@ -498,6 +498,12 @@ class ImageModelDetailContent extends StatelessWidget {
         return;
       }
 
+      // 下载前选择分类（无分类时不弹框，直接用记住的默认值）
+      final categoryChoice = await showDownloadCategoryDialog(context);
+      if (!categoryChoice.confirmed) {
+        return; // 用户取消
+      }
+
       // 创建下载任务的扩展数据
       final extData = GalleryDownloadExtData(
         id: imageModel.id,
@@ -540,13 +546,8 @@ class ImageModelDetailContent extends StatelessWidget {
         mediaType: 'gallery',
         mediaId: imageModel.id,
       );
-      // 应用记住的下载分类作为默认值（空字符串视为未分类）
-      final lastCategoryId =
-          Get.find<ConfigService>()[ConfigKey.LAST_DOWNLOAD_CATEGORY_ID]
-              as String?;
-      task.categoryId = (lastCategoryId == null || lastCategoryId.isEmpty)
-          ? null
-          : lastCategoryId;
+      // 应用用户在弹窗中选择的分类
+      task.categoryId = categoryChoice.categoryId;
 
       await DownloadService.to.addTask(task);
 

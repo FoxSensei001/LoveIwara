@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_category.model.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/download_category_manage_page.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -76,17 +77,7 @@ class _DownloadCategoryPickerState extends State<DownloadCategoryPicker> {
       return const SizedBox.shrink();
     }
 
-    // 没有任何分类：提供「管理 / 新建」入口，而不是隐藏。
-    if (categories.isEmpty) {
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: OutlinedButton.icon(
-          onPressed: _openManage,
-          icon: const Icon(Icons.create_new_folder_outlined, size: 18),
-          label: Text(t.download.category.manageTitle),
-        ),
-      );
-    }
+    final isEmpty = categories.isEmpty;
 
     // 选中的 ID 已不存在时回退为未分类，避免 Dropdown 断言失败。
     final validValue =
@@ -132,7 +123,7 @@ class _DownloadCategoryPickerState extends State<DownloadCategoryPicker> {
         ),
         const SizedBox(width: 4),
         IconButton(
-          icon: const Icon(Icons.settings_outlined),
+          icon: Icon(isEmpty ? Icons.add : Icons.settings_outlined),
           tooltip: t.download.category.manageTitle,
           visualDensity: VisualDensity.compact,
           onPressed: _openManage,
@@ -140,4 +131,55 @@ class _DownloadCategoryPickerState extends State<DownloadCategoryPicker> {
       ],
     );
   }
+}
+
+/// 弹出「选择下载分类」对话框（用于无清晰度选择的下载，如整本图库）。
+///
+/// 始终弹出（即使没有分类，选择器也会显示「未分类」占位 + 新建入口）。
+/// - 用户确认 → 持久化所选分类为下次默认，返回 (confirmed: true, categoryId)。
+/// - 用户取消 → 返回 (confirmed: false, categoryId: null)。
+Future<({bool confirmed, String? categoryId})> showDownloadCategoryDialog(
+  BuildContext context,
+) async {
+  final configService = Get.find<ConfigService>();
+  final last = configService[ConfigKey.LAST_DOWNLOAD_CATEGORY_ID] as String?;
+  String? selected = (last == null || last.isEmpty) ? null : last;
+
+  final ok = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => StatefulBuilder(
+      builder: (context, setState) => AlertDialog(
+        title: Text(t.download.category.label),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DownloadCategoryPicker(
+                value: selected,
+                onChanged: (value) => setState(() => selected = value),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(t.common.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(t.common.download),
+          ),
+        ],
+      ),
+    ),
+  );
+
+  if (ok != true) return (confirmed: false, categoryId: null);
+  configService.setSetting(ConfigKey.LAST_DOWNLOAD_CATEGORY_ID, selected ?? '');
+  return (
+    confirmed: true,
+    categoryId: (selected?.isEmpty ?? true) ? null : selected,
+  );
 }

@@ -92,6 +92,8 @@ class ImageUtils {
         supportsRange: true,
         fileName: fileName,
       );
+      // 单图保存沿用记住的「下载到分类」默认值
+      task.categoryId = DownloadService.to.stickyDownloadCategoryId;
 
       await DownloadService.to.addTask(task);
 
