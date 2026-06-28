@@ -277,8 +277,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       if (currentVersion == _lastStatusVersion) return;
       _lastStatusVersion = currentVersion;
       // 延后到帧回调后执行，避免在 build/通知阶段触发 setState。
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
+      _runAfterFrame(() {
         // 刷新顶部区域
         _refreshPendingTasksIfNeeded();
         _refreshFailedTasksIfNeeded();
@@ -293,8 +292,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     _categoriesChangedWorker = ever(
       DownloadService.to.categoriesChangedNotifier,
       (_) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted) return;
+        _runAfterFrame(() {
           _reloadCategories();
         });
       },
@@ -305,13 +303,29 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       List<String> ids,
     ) {
       if (ids.isEmpty) return;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
+      _runAfterFrame(() {
         _removeTasksInPlace(ids);
         // 删除影响各分类计数，刷新分类条。
         _reloadCategories();
       });
     });
+  }
+
+  /// 在下一帧结束后执行 [action]（仍挂载时），用于把 setState / DB 读等副作用移出
+  /// build / 通知阶段。
+  ///
+  /// 关键：addPostFrameCallback 只是登记回调，本身不会请求新的一帧。应用空闲时
+  /// （未在下载、无动画、无 setState 待处理）注册的回调会一直挂起不执行——这正是
+  /// “没有下载任务时删除列表项不刷新、必须重进页面才看到被删除”的根因：删除是异步
+  /// 的（文件 IO + DB），完成并广播时确认弹窗的关闭动画往往已结束、界面进入空闲，
+  /// 于是回调永远等不到下一帧。这里追加 ensureVisualUpdate() 主动安排一帧，确保
+  /// 回调及时执行；若当前正处于某一帧之中则它无操作（本帧的 postFrame 回调照常触发）。
+  void _runAfterFrame(VoidCallback action) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      action();
+    });
+    WidgetsBinding.instance.ensureVisualUpdate();
   }
 
   @override
