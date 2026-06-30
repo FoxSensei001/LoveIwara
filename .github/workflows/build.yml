@@ -271,6 +271,22 @@ jobs:
           APP_VERSION=$(grep "version:" pubspec.yaml | cut -d':' -f2 | tr -d ' ' | cut -d'+' -f1)
           mkdir -p result
           cd build/ios/iphoneos
+
+          # --no-codesign leaves the embedded Flutter/plugin frameworks completely
+          # unsigned. AltStore/SideStore re-sign on-device with an old `ldid` that
+          # aborts on a fully-unsigned inner Mach-O:
+          #   ldid.cpp: _assert(): end >= size - 0x10  (ALTSigner.mm:497)
+          # Ad-hoc sign every embedded framework (inner-to-outer) then the app shell so
+          # each binary gets an LC_CODE_SIGNATURE; the sideloader overwrites these with
+          # the real Apple ID signature on install. Use `codesign -s -`, NOT `ldid -S`
+          # (which runs the same crashing assert).
+          find Runner.app -name _CodeSignature -type d -prune -exec rm -rf {} +
+          for f in Runner.app/Frameworks/*; do
+            [ -e "$f" ] || continue
+            codesign --force --sign - "$f"
+          done
+          codesign --force --sign - Runner.app
+
           mkdir Payload
           cp -r Runner.app Payload
           zip -r ../../../result/i_iwara-${APP_VERSION}-ios.ipa Payload
