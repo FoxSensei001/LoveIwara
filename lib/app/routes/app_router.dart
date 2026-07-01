@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
@@ -107,6 +109,42 @@ void refreshHomeBranch(int branchIndex) {
   if (widget is HomeWidgetInterface) {
     (widget as HomeWidgetInterface).refreshCurrent();
   }
+}
+
+/// 构建一个「跟手侧滑返回」的页面。
+///
+/// 仅在 iOS 上启用整页跟手侧滑：从页面**任意位置**向右滑动即可返回，页面跟手位移、
+/// 底层页视差跟随（视觉转场与系统默认的 Cupertino 转场一致，仅把手势区从最左边缘
+/// 扩展到全屏）。其它平台（Android / 桌面）维持框架默认的 [MaterialPage] 转场，
+/// 行为完全不变。
+///
+/// - [fullSwipe] 为 `false` 时退回「仅边缘可滑」（等价系统默认的窄边缘手势），
+///   供含横向手势控件（TabBarView / 图集翻页 / 播放器横滑）的页面使用，避免抢手势。
+///
+/// 手势底层通过 [SwipeablePageRoute]（继承 [CupertinoPageRoute]）直接调用
+/// `navigator.pop()`，并会自动尊重页面上的 [PopScope]：当 `canPop: false` 时手势
+/// 失效，因此不会与现有的 PopScope / PopCoordinator 返回逻辑冲突。弹窗覆盖当前页时
+/// 手势同样自动失效。
+Page<void> buildAdaptiveSwipeablePage(
+  GoRouterState state,
+  Widget child, {
+  bool fullSwipe = true,
+}) {
+  if (defaultTargetPlatform == TargetPlatform.iOS) {
+    return SwipeablePage<void>(
+      key: state.pageKey,
+      name: state.name ?? state.fullPath,
+      arguments: state.extra,
+      canOnlySwipeFromEdge: !fullSwipe,
+      builder: (context) => child,
+    );
+  }
+  return MaterialPage<void>(
+    key: state.pageKey,
+    name: state.name ?? state.fullPath,
+    arguments: state.extra,
+    child: child,
+  );
 }
 
 /// 全局唯一的 GoRouter 实例。
@@ -304,7 +342,7 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: '/news/:postId',
           name: 'news_detail',
-          builder: (context, state) {
+          pageBuilder: (context, state) {
             final postId = int.tryParse(state.pathParameters['postId'] ?? '');
             final postUrl = state.uri.queryParameters['url'];
             final extra = state.extra;
@@ -315,14 +353,20 @@ final GoRouter appRouter = GoRouter(
             if (postId == null &&
                 (resolvedPostUrl == null || resolvedPostUrl.isEmpty) &&
                 newsExtra == null) {
-              return const Scaffold(
-                body: Center(child: Text('Invalid news route')),
+              return buildAdaptiveSwipeablePage(
+                state,
+                const Scaffold(
+                  body: Center(child: Text('Invalid news route')),
+                ),
               );
             }
-            return NewsDetailPage(
-              postId: postId,
-              postUrl: resolvedPostUrl,
-              previewData: newsExtra,
+            return buildAdaptiveSwipeablePage(
+              state,
+              NewsDetailPage(
+                postId: postId,
+                postUrl: resolvedPostUrl,
+                previewData: newsExtra,
+              ),
             );
           },
         ),
@@ -401,15 +445,18 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: '/search_result',
           name: 'search_result',
-          builder: (context, state) {
+          pageBuilder: (context, state) {
             final extra = state.extra as SearchResultExtra?;
-            return SearchResult(
-              initialSearch: extra?.searchInfo ?? '',
-              initialSegment: extra?.segment ?? SearchSegment.video,
-              initialSearchType: extra?.searchType,
-              extData: extra?.extData,
-              initialFilters: extra?.filters,
-              initialSort: extra?.sort,
+            return buildAdaptiveSwipeablePage(
+              state,
+              SearchResult(
+                initialSearch: extra?.searchInfo ?? '',
+                initialSegment: extra?.segment ?? SearchSegment.video,
+                initialSearchType: extra?.searchType,
+                extData: extra?.extData,
+                initialFilters: extra?.filters,
+                initialSort: extra?.sort,
+              ),
             );
           },
         ),
@@ -493,29 +540,34 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: '/notification_list',
           name: 'notification_list',
-          builder: (context, state) => const NotificationListPage(),
+          pageBuilder: (context, state) =>
+              buildAdaptiveSwipeablePage(state, const NotificationListPage()),
         ),
 
         // 会话列表
         GoRoute(
           path: '/conversation',
           name: 'conversation',
-          builder: (context, state) => const ConversationPage(),
+          pageBuilder: (context, state) =>
+              buildAdaptiveSwipeablePage(state, const ConversationPage()),
         ),
 
         // 会话详情（消息列表）
         GoRoute(
           path: '/message_detail/:conversationId',
           name: 'message_detail',
-          builder: (context, state) {
+          pageBuilder: (context, state) {
             final conversationId = state.pathParameters['conversationId']!;
             final conversation = _resolveConversationForMessageDetail(
               state,
               conversationId,
             );
-            return MessageListWidget(
-              conversation: conversation,
-              fromNarrowScreen: true,
+            return buildAdaptiveSwipeablePage(
+              state,
+              MessageListWidget(
+                conversation: conversation,
+                fromNarrowScreen: true,
+              ),
             );
           },
         ),
@@ -524,13 +576,16 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: '/post/:id',
           name: 'post_detail',
-          builder: (context, state) {
+          pageBuilder: (context, state) {
             final id = state.pathParameters['id']!;
             final extra = state.extra;
             final postExtra = extra is PostDetailExtra ? extra : null;
             final initialPost =
                 postExtra?.initialPost ?? (extra is PostModel ? extra : null);
-            return PostDetailPage(postId: id, initialPost: initialPost);
+            return buildAdaptiveSwipeablePage(
+              state,
+              PostDetailPage(postId: id, initialPost: initialPost),
+            );
           },
         ),
 
@@ -538,12 +593,15 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: '/forum_threads/:categoryId',
           name: 'forum_thread_list',
-          builder: (context, state) {
+          pageBuilder: (context, state) {
             final categoryId = state.pathParameters['categoryId']!;
             final extra = state.extra as ForumThreadListExtra?;
-            return ThreadListPage(
-              categoryId: categoryId,
-              categoryName: extra?.categoryName ?? '',
+            return buildAdaptiveSwipeablePage(
+              state,
+              ThreadListPage(
+                categoryId: categoryId,
+                categoryName: extra?.categoryName ?? '',
+              ),
             );
           },
         ),
@@ -552,7 +610,7 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: '/forum_threads/:categoryId/:threadId',
           name: 'forum_thread_detail',
-          builder: (context, state) {
+          pageBuilder: (context, state) {
             final categoryId = state.pathParameters['categoryId']!;
             final threadId = state.pathParameters['threadId']!;
             final extra = state.extra;
@@ -560,10 +618,13 @@ final GoRouter appRouter = GoRouter(
             final initialThread =
                 threadExtra?.initialThread ??
                 (extra is ForumThreadModel ? extra : null);
-            return ThreadDetailPage(
-              categoryId: categoryId,
-              threadId: threadId,
-              initialThread: initialThread,
+            return buildAdaptiveSwipeablePage(
+              state,
+              ThreadDetailPage(
+                categoryId: categoryId,
+                threadId: threadId,
+                initialThread: initialThread,
+              ),
             );
           },
         ),
@@ -572,9 +633,9 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: '/tag_videos/:tagId',
           name: 'tag_videos',
-          builder: (context, state) {
+          pageBuilder: (context, state) {
             final tag = _resolveTag(state);
-            return TagVideoListPage(tag: tag);
+            return buildAdaptiveSwipeablePage(state, TagVideoListPage(tag: tag));
           },
         ),
 
@@ -582,9 +643,12 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: '/tag_galleries/:tagId',
           name: 'tag_galleries',
-          builder: (context, state) {
+          pageBuilder: (context, state) {
             final tag = _resolveTag(state);
-            return TagGalleryListPage(tag: tag);
+            return buildAdaptiveSwipeablePage(
+              state,
+              TagGalleryListPage(tag: tag),
+            );
           },
         ),
 
@@ -636,19 +700,23 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: '/local_favorite',
           name: 'local_favorite',
-          builder: (context, state) => const FavoriteListPage(),
+          pageBuilder: (context, state) =>
+              buildAdaptiveSwipeablePage(state, const FavoriteListPage()),
         ),
 
         // 本地收藏夹详情
         GoRoute(
           path: '/local_favorite_detail/:folderId',
           name: 'local_favorite_detail',
-          builder: (context, state) {
+          pageBuilder: (context, state) {
             final folderId = state.pathParameters['folderId']!;
             final extra = state.extra as LocalFavoriteDetailExtra?;
-            return FavoriteFolderDetailPage(
-              folderId: folderId,
-              folderTitle: extra?.folderTitle,
+            return buildAdaptiveSwipeablePage(
+              state,
+              FavoriteFolderDetailPage(
+                folderId: folderId,
+                folderTitle: extra?.folderTitle,
+              ),
             );
           },
         ),
@@ -657,7 +725,8 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: '/tag_blacklist',
           name: 'tag_blacklist',
-          builder: (context, state) => const TagBlacklistPage(),
+          pageBuilder: (context, state) =>
+              buildAdaptiveSwipeablePage(state, const TagBlacklistPage()),
         ),
 
         // 收藏的 Iwara 标签管理
@@ -678,28 +747,34 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: '/personal_profile',
           name: 'personal_profile',
-          builder: (context, state) => const PersonalProfilePage(),
+          pageBuilder: (context, state) =>
+              buildAdaptiveSwipeablePage(state, const PersonalProfilePage()),
         ),
 
         // 表情库
         GoRoute(
           path: '/emoji_library',
           name: 'emoji_library',
-          builder: (context, state) => const EmojiLibraryPage(),
+          pageBuilder: (context, state) =>
+              buildAdaptiveSwipeablePage(state, const EmojiLibraryPage()),
         ),
 
         // 布局设置
         GoRoute(
           path: '/layout_settings_page',
           name: 'layout_settings',
-          builder: (context, state) => const LayoutSettingsPage(),
+          pageBuilder: (context, state) =>
+              buildAdaptiveSwipeablePage(state, const LayoutSettingsPage()),
         ),
 
         // 导航顺序设置
         GoRoute(
           path: '/navigation_order_settings_page',
           name: 'navigation_order_settings',
-          builder: (context, state) => const NavigationOrderSettingsPage(),
+          pageBuilder: (context, state) => buildAdaptiveSwipeablePage(
+            state,
+            const NavigationOrderSettingsPage(),
+          ),
         ),
       ],
     ),

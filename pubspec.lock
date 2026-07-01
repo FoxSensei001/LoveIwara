@@ -105,6 +105,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
+  black_hole_flutter:
+    dependency: transitive
+    description:
+      name: black_hole_flutter
+      sha256: "91ca95379296fdedd11ac8c320c270ee05c28dd72ad9c70810c618a603e094dc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -1037,6 +1045,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.0.0"
+  list_diff:
+    dependency: transitive
+    description:
+      name: list_diff
+      sha256: ac2d99c4379d5175f1e4943850808e1bf4d5604fd46c1ec3060e7fb0c0fdab05
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   loading_more_list:
     dependency: "direct main"
     description:
@@ -1882,6 +1898,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.9.1"
+  swipeable_page_route:
+    dependency: "direct main"
+    description:
+      name: swipeable_page_route
+      sha256: "2ec747f65100d670a997b6209cb442d81bec08eb5bffa21867394513c65efee8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.8"
   synchronized:
     dependency: transitive
     description:
