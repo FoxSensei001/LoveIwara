@@ -18,7 +18,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import 'video_player_widget.dart';
 import 'image_widget.dart';
-import 'navigation_controls.dart';
 import 'gallery_controls.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/pages/settings/keybinding_settings_page.dart';
@@ -90,9 +89,6 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   DateTime? _pointerDownTime;
   int _edgeTapDirection = 0;
   bool _ignoreEdgeTapForCurrentPointer = false;
-
-  // 是否显示左右导航 UI，仅在长按时显示
-  bool _showNavigationOverlay = false;
 
   final AppService? _appService = Get.isRegistered<AppService>()
       ? Get.find<AppService>()
@@ -759,19 +755,10 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                       onTap: _toggleUiVisibility,
                       onLongPressStart: (details) {
                         if (!widget.enableMenu) return;
-                        setState(() {
-                          _showNavigationOverlay = true;
-                        });
                         _showImageMenu(
                           context,
                           activeGalleryItems[currentIndex],
                         );
-                      },
-                      onLongPressEnd: (details) {
-                        if (!widget.enableMenu) return;
-                        setState(() {
-                          _showNavigationOverlay = false;
-                        });
                       },
                       onSecondaryTapDown: (details) {
                         if (!widget.enableMenu) return;
@@ -856,19 +843,6 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                               itemCount: activeGalleryItems.length,
                               pageController: pageController,
                               onPageChanged: _onPageChanged,
-                            ),
-                          ),
-                          // 导航控制组件
-                          AnimatedOpacity(
-                            opacity: chromeOpacity,
-                            duration: const Duration(milliseconds: 180),
-                            child: NavigationControls(
-                              tapAreaWidth: _tapAreaWidth,
-                              showOverlay: _showNavigationOverlay,
-                              // 这里只负责「显示」左右渐变与箭头，真正的点击逻辑在 _onPointerDown/_onPointerUp 中处理
-                              canGoPrevious: currentIndex > 0,
-                              canGoNext:
-                                  currentIndex < activeGalleryItems.length - 1,
                             ),
                           ),
                           SafeArea(

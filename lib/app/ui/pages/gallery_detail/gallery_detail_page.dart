@@ -14,6 +14,7 @@ import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
+import 'package:i_iwara/app/ui/widgets/translatable_title.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:oktoast/oktoast.dart';
@@ -348,7 +349,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
     required int? imageCount,
     required double height,
   }) {
-    const borderRadius = BorderRadius.vertical(top: Radius.circular(14));
+    const borderRadius = BorderRadius.all(Radius.circular(14));
     return SizedBox(
       height: height,
       child: ClipRRect(
@@ -469,10 +470,8 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            displayTitle,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+          TranslatableTitle(
+            text: displayTitle,
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w700,
               height: 1.2,
