@@ -3876,6 +3876,16 @@ class MyVideoStateController extends GetxController
     return max(min(height1, height3), minVideoHeight);
   }
 
+  /// 是否为竖屏比例视频（高 > 宽）。仅按宽高比判定（`aspectRatio < 1`，正方形不计入），
+  /// 与“竖屏全屏渲染”那处逻辑不同——后者是「RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN
+  /// 配置开启 && aspectRatio < 1」的组合条件，此处不受该配置门控，只取宽高比部分。
+  ///
+  /// 窄屏布局下用于：即便处于播放态，也允许上下滑动 tabs 将播放器高度从最大收缩到
+  /// [minVideoHeight]，从而为 tabs 让出更多显示空间。收缩过程仍属播放态——由于收缩
+  /// 下限恰为 [minVideoHeight]，`scrollRatio` 全程保持为 0，因此不会出现暂停态滑动时
+  /// 才需要的顶部工具栏浮层。宽比例视频不适用此逻辑。
+  bool get isVerticalVideo => aspectRatio.value > 0 && aspectRatio.value < 1;
+
   void animateToTop() {
     // 仅当播放器未完全展开时才触发
     if (scrollController.hasClients && scrollController.offset > 0) {

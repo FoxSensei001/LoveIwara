@@ -519,9 +519,13 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     InnerPlaylistContext? innerPlaylistContext,
   ) {
     return Obx(() {
-      // 使用 Obx 包装整个 ExtendedNestedScrollView，确保 videoPlaying 状态变化时重建
-      // 读取一次以建立 Obx 依赖（播放/暂停切换时需重算固定头部高度）
+      // 使用 Obx 包装整个 ExtendedNestedScrollView，确保相关状态变化时重建。
+      // 读取一次以建立 Obx 依赖：播放/暂停切换、竖屏判定（宽高比）变化、以及初始封面
+      // 态切换到真正播放（videoPlayerReady 影响 shouldShowInitialPlaybackCover）时，
+      // 都需要重算固定头部高度。
       controller.videoPlaying.value;
+      controller.aspectRatio.value;
+      controller.videoPlayerReady.value;
       return ExtendedNestedScrollView(
         key: controller.nestedScrollViewKey,
         controller: controller.scrollController,
@@ -530,9 +534,23 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         ),
         onlyOneScrollInBody: true,
         pinnedHeaderSliverHeightBuilder: () {
-          // 核心逻辑：播放时返回视频高度，暂停时返回工具栏高度
+          // 核心逻辑：
+          // - 暂停态：固定头部收缩到工具栏高度，上滑 tabs 可将播放器收起并浮现顶部工具栏。
+          // - 播放态（普通/宽比例视频）：返回完整视频高度，头部完全钉住、不可收缩，
+          //   保证开始播放即放到最大高度。
+          // - 播放态 + 竖屏比例视频：改为返回 minVideoHeight 作为“钉住下限”，从而允许
+          //   上滑 tabs 将播放器从最大高度收缩到最小高度，为 tabs 让出更多空间；由于
+          //   下限恰为 minVideoHeight，scrollRatio 全程为 0，收缩过程不会出现顶部工具栏
+          //   （仍算作播放态）。此收缩仅在“真正播放中”生效——排除初始播放封面态
+          //   （关闭自动播放时 videoPlaying 默认仍为 true，此处需显式排除封面），避免尚未
+          //   开始播放的封面被上滑收缩。
           if (controller.videoPlaying.value ||
               controller.shouldShowInitialPlaybackCover) {
+            if (controller.videoPlaying.value &&
+                !controller.shouldShowInitialPlaybackCover &&
+                controller.isVerticalVideo) {
+              return controller.minVideoHeight;
+            }
             return controller.getCurrentVideoHeight(
               screenSize.width,
               screenSize.height,
