@@ -343,6 +343,11 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
 
     // 如果移动距离超过阈值（3 像素），标记为已移动
     if (deltaX.abs() > 3.0) {
+      // 首次判定为“真正开始拖动”时给一次触觉反馈（与拖动结束时保持一致），
+      // 仅在从未移动 -> 已移动的那一刻触发一次；纯点按不会走到这里，故不震动。
+      if (!_hasMoved && isMobile) {
+        HapticFeedback.lightImpact();
+      }
       _hasMoved = true;
     }
 

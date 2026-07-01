@@ -1120,6 +1120,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             onHorizontalDragStart:
                 _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
                 ? (details) {
+                    // 开始横向拖动 seek 时给一次触觉反馈（与进度条拖动开始保持一致）。
+                    VibrateUtils.vibrate();
                     _horizontalDragStartX = details.localPosition.dx;
                     _horizontalDragStartPosition =
                         widget.myVideoStateController.currentPosition;
@@ -1218,6 +1220,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             onHorizontalDragStart:
                 _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
                 ? (details) {
+                    // 开始横向拖动 seek 时给一次触觉反馈（与进度条拖动开始保持一致）。
+                    VibrateUtils.vibrate();
                     _horizontalDragStartX = details.localPosition.dx;
                     _horizontalDragStartPosition =
                         widget.myVideoStateController.currentPosition;
@@ -1322,6 +1326,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             onHorizontalDragStart:
                 _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
                 ? (details) {
+                    // 开始横向拖动 seek 时给一次触觉反馈（与进度条拖动开始保持一致）。
+                    VibrateUtils.vibrate();
                     _horizontalDragStartX = details.localPosition.dx;
                     _horizontalDragStartPosition =
                         widget.myVideoStateController.currentPosition;

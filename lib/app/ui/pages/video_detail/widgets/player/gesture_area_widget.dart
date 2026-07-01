@@ -180,7 +180,9 @@ class GestureAreaState extends State<GestureArea>
       return;
     }
 
-    VibrateUtils.vibrate(type: HapticFeedback.vibrate);
+    // 长按倍速激活反馈：统一使用较轻的 lightImpact（各平台一致），
+    // 避免此前 HapticFeedback.vibrate 在 iOS 上触发系统级整机强震而过度震手。
+    VibrateUtils.vibrate();
     // 如果视频在暂停或buffering状态，不处理
     if (!widget.myVideoStateController.videoPlaying.value ||
         widget.myVideoStateController.videoBuffering.value) {
