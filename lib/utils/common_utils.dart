@@ -115,24 +115,36 @@ class CommonUtils {
     }
   }
 
+  /// 将设置里的横屏方向（用户意图，与 Android 实际表现一致）映射为当前平台
+  /// 正确的 [DeviceOrientation]。
+  ///
+  /// iOS 上 Flutter 的 [DeviceOrientation.landscapeLeft] / [DeviceOrientation.landscapeRight]
+  /// 触发的物理旋转方向与 Android 相反（iOS 按“设备旋转的方向”命名，Flutter 按
+  /// “设备顶部的朝向”命名，二者互为镜像）。因此在 iOS 上做一次左右对调，才能让
+  /// 实际旋转方向与用户在设置里选择的、以及 Android 上的表现保持一致。
+  static DeviceOrientation _resolveLandscapeOrientation(String configValue) {
+    // 'landscape_left'（含默认/未知值）都视为“左侧横屏”意图。
+    final bool wantLeft = configValue != 'landscape_right';
+    if (Platform.isIOS) {
+      return wantLeft
+          ? DeviceOrientation.landscapeRight
+          : DeviceOrientation.landscapeLeft;
+    }
+    return wantLeft
+        ? DeviceOrientation.landscapeLeft
+        : DeviceOrientation.landscapeRight;
+  }
+
   /// 根据配置获取屏幕方向
   static Future<List<DeviceOrientation>> _getConfigBasedOrientations() async {
     try {
       final configService = Get.find<ConfigService>();
       final orientation =
           configService[ConfigKey.FULLSCREEN_ORIENTATION] as String;
-
-      switch (orientation) {
-        case 'landscape_left':
-          return [DeviceOrientation.landscapeLeft];
-        case 'landscape_right':
-          return [DeviceOrientation.landscapeRight];
-        default:
-          return [DeviceOrientation.landscapeLeft]; // 默认左侧横屏
-      }
+      return [_resolveLandscapeOrientation(orientation)];
     } catch (e) {
       debugPrint('获取配置方向失败: $e');
-      return [DeviceOrientation.landscapeLeft]; // 默认左侧横屏
+      return [_resolveLandscapeOrientation('landscape_left')]; // 默认左侧横屏
     }
   }
 
@@ -184,12 +196,8 @@ class CommonUtils {
         final configService = Get.find<ConfigService>();
         final defaultOrientation =
             configService[ConfigKey.FULLSCREEN_ORIENTATION] as String;
-
-        if (defaultOrientation == 'landscape_left') {
-          return DeviceOrientation.landscapeLeft;
-        } else if (defaultOrientation == 'landscape_right') {
-          return DeviceOrientation.landscapeRight;
-        }
+        // 与 _getConfigBasedOrientations 共用同一套 iOS 左右对调逻辑，保持一致。
+        return _resolveLandscapeOrientation(defaultOrientation);
       }
 
       return null;
