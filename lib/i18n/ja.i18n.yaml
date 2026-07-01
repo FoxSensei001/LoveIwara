@@ -709,6 +709,8 @@ settings:
     zoomScaleHint: Ctrl + ホイール
     zoomRotateLabel: 画面を回転
     zoomRotateHint: Shift + ホイール
+    zoomPinchGesture: ピンチ
+    zoomTwoFingerRotateGesture: 2本指で回転
   gestureControl: ジェスチャー制御
   leftDoubleTapRewind: 左側ダブルタップリワインド
   rightDoubleTapFastForward: 右側ダブルタップファストフォワード

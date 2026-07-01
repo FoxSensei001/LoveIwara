@@ -708,6 +708,8 @@ settings:
     zoomScaleHint: Ctrl + Wheel
     zoomRotateLabel: Rotate Picture
     zoomRotateHint: Shift + Wheel
+    zoomPinchGesture: Pinch
+    zoomTwoFingerRotateGesture: Two-finger Rotate
   gestureControl: Gesture Control
   leftDoubleTapRewind: Left Double Tap Rewind
   rightDoubleTapFastForward: Right Double Tap Fast Forward

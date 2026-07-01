@@ -267,9 +267,10 @@ class _KeybindingSettingsViewState extends State<KeybindingSettingsView> {
     final actions = ShortcutActionMetaExt.inScope(
       scope,
     ).where(_matchesQuery).toList();
+    // 画面缩放为固定手势展示：移动端有双指捏合/触控板缩放，桌面端额外有
+    // Ctrl/Shift + 滚轮，因此全平台都展示（不再限定桌面）。
     final showFixed =
         _query.isEmpty &&
-        GetPlatform.isDesktop &&
         (scope == ShortcutScope.gallery || scope == ShortcutScope.video);
     if (actions.isEmpty && !showFixed) return const [];
 
@@ -421,6 +422,7 @@ class _KeybindingSettingsViewState extends State<KeybindingSettingsView> {
 
   List<Widget> _buildFixedZoomSection(BuildContext context) {
     final theme = Theme.of(context);
+    final bool isDesktop = GetPlatform.isDesktop;
     return [
       _sectionLabel(context, _t.zoomSectionTitle),
       Card(
@@ -430,19 +432,17 @@ class _KeybindingSettingsViewState extends State<KeybindingSettingsView> {
         clipBehavior: Clip.antiAlias,
         child: Column(
           children: [
-            _fixedHintRow(
-              context,
-              Icons.zoom_in,
-              _t.zoomScaleLabel,
-              _t.zoomScaleHint,
-            ),
+            // 缩放：移动端/触控板双指捏合；桌面端额外 Ctrl + 滚轮。
+            _fixedHintRow(context, Icons.zoom_in, _t.zoomScaleLabel, [
+              _t.zoomPinchGesture,
+              if (isDesktop) _t.zoomScaleHint,
+            ]),
             const Divider(height: 1, thickness: 0.5, indent: 16, endIndent: 16),
-            _fixedHintRow(
-              context,
-              Icons.rotate_right,
-              _t.zoomRotateLabel,
-              _t.zoomRotateHint,
-            ),
+            // 旋转：移动端/触控板双指旋转；桌面端额外 Shift + 滚轮。
+            _fixedHintRow(context, Icons.rotate_right, _t.zoomRotateLabel, [
+              _t.zoomTwoFingerRotateGesture,
+              if (isDesktop) _t.zoomRotateHint,
+            ]),
           ],
         ),
       ),
@@ -459,26 +459,42 @@ class _KeybindingSettingsViewState extends State<KeybindingSettingsView> {
     ];
   }
 
+  /// 固定手势展示行：左侧图标 + 动作名，右侧一个或多个「固定手势」chip。
+  /// 用 Wrap 承载多个 chip，窄屏时自动换行，避免溢出。
   Widget _fixedHintRow(
     BuildContext context,
     IconData icon,
     String label,
-    String hint,
+    List<String> hints,
   ) {
     final theme = Theme.of(context);
-    return ListTile(
-      leading: Icon(icon, color: theme.colorScheme.onSurfaceVariant),
-      title: Text(label, style: theme.textTheme.bodyLarge),
-      trailing: Chip(
-        avatar: Icon(
-          Icons.lock_outline,
-          size: 14,
-          color: theme.colorScheme.onSurfaceVariant,
-        ),
-        label: Text(hint),
-        labelStyle: theme.textTheme.bodyMedium,
-        backgroundColor: theme.colorScheme.surfaceContainerHighest,
-        side: BorderSide.none,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      child: Row(
+        children: [
+          Icon(icon, color: theme.colorScheme.onSurfaceVariant),
+          const SizedBox(width: 16),
+          Expanded(child: Text(label, style: theme.textTheme.bodyLarge)),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Wrap(
+              alignment: WrapAlignment.end,
+              spacing: 6,
+              runSpacing: 4,
+              children: [
+                for (final hint in hints)
+                  Chip(
+                    label: Text(hint),
+                    labelStyle: theme.textTheme.bodyMedium,
+                    backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                    side: BorderSide.none,
+                    visualDensity: VisualDensity.compact,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

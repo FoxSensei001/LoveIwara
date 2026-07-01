@@ -5730,6 +5730,12 @@ class TranslationsSettingsKeybindingEn {
 
 	/// en: 'Shift + Wheel'
 	String get zoomRotateHint => 'Shift + Wheel';
+
+	/// en: 'Pinch'
+	String get zoomPinchGesture => 'Pinch';
+
+	/// en: 'Two-finger Rotate'
+	String get zoomTwoFingerRotateGesture => 'Two-finger Rotate';
 }
 
 // Path: settings.forumSettings
@@ -8643,6 +8649,8 @@ extension on Translations {
 			'settings.keybinding.zoomScaleHint' => 'Ctrl + Wheel',
 			'settings.keybinding.zoomRotateLabel' => 'Rotate Picture',
 			'settings.keybinding.zoomRotateHint' => 'Shift + Wheel',
+			'settings.keybinding.zoomPinchGesture' => 'Pinch',
+			'settings.keybinding.zoomTwoFingerRotateGesture' => 'Two-finger Rotate',
 			'settings.gestureControl' => 'Gesture Control',
 			'settings.leftDoubleTapRewind' => 'Left Double Tap Rewind',
 			'settings.rightDoubleTapFastForward' => 'Right Double Tap Fast Forward',
@@ -8985,10 +8993,10 @@ extension on Translations {
 			'subscriptions.pleaseLoginFirstToViewYourSubscriptions' => 'Please login first to view your subscriptions.',
 			'subscriptions.selectUser' => 'Select User',
 			'subscriptions.noSubscribedUsers' => 'No subscribed users',
-			'subscriptions.showAllSubscribedUsersContent' => 'Show all subscribed users content',
-			'videoDetail.pipMode' => 'PiP Mode',
 			_ => null,
 		} ?? switch (path) {
+			'subscriptions.showAllSubscribedUsersContent' => 'Show all subscribed users content',
+			'videoDetail.pipMode' => 'PiP Mode',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => 'Resume from last position: ${position}',
 			'videoDetail.localInfo.videoInfo' => 'Video Info',
 			'videoDetail.localInfo.currentQuality' => 'Current Quality',
@@ -9499,10 +9507,10 @@ extension on Translations {
 			'download.batchDownload.failedToGetGalleryInfo' => 'Failed to get gallery information',
 			'download.batchDownload.galleryNoImages' => 'Gallery has no images',
 			'download.batchDownload.failedToGetSavePath' => 'Failed to get save path',
-			'download.batchDownload.batchDownloadFailedWithException' => ({required Object exception}) => 'Batch download failed: ${exception}',
-			'download.batchDownload.selectQuality' => 'Select Quality',
 			_ => null,
 		} ?? switch (path) {
+			'download.batchDownload.batchDownloadFailedWithException' => ({required Object exception}) => 'Batch download failed: ${exception}',
+			'download.batchDownload.selectQuality' => 'Select Quality',
 			'download.batchDownload.downloading' => 'Downloading',
 			'download.batchDownload.downloadResult' => 'Download Result',
 			'download.batchDownload.selectedVideosCount' => ({required Object count}) => 'Selected ${count} video(s)',
@@ -10013,10 +10021,10 @@ extension on Translations {
 			'emoji.name' => 'Emoji',
 			'emoji.size' => 'Size',
 			'emoji.small' => 'Small',
-			'emoji.medium' => 'Medium',
-			'emoji.large' => 'Large',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.medium' => 'Medium',
+			'emoji.large' => 'Large',
 			'emoji.extraLarge' => 'Extra Large',
 			'emoji.copyEmojiLinkSuccess' => 'Emoji link copied',
 			'emoji.preview' => 'Emoji Preview',

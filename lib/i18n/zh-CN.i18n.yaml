@@ -715,6 +715,8 @@ settings:
     zoomScaleHint: Ctrl + 滚轮
     zoomRotateLabel: 旋转画面
     zoomRotateHint: Shift + 滚轮
+    zoomPinchGesture: 双指捏合
+    zoomTwoFingerRotateGesture: 双指旋转
   gestureControl: 手势控制
   leftDoubleTapRewind: 左侧双击后退
   rightDoubleTapFastForward: 右侧双击快进

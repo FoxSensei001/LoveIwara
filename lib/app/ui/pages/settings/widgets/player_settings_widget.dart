@@ -743,6 +743,23 @@ class PlayerSettingsWidget extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => VideoGestureGuideDialog.show(context),
           ),
+          // 快捷键设置入口：播放器内以底部抽屉弹出（默认视频作用域），
+          // 在整体设置页内则整页打开（全部作用域）。改动经 KeybindingService 的
+          // 响应式 bindings 即时生效，作用于当前已打开的播放器/图库。
+          ListTile(
+            leading: Icon(
+              Icons.keyboard,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            title: Text(
+              t.settings.keybinding.title,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => openKeybindingAsSheet
+                ? KeybindingSettingsPage.openSheet(context)
+                : KeybindingSettingsPage.open(context),
+          ),
         ]),
         const SizedBox(height: 20),
 

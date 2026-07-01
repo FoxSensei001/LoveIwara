@@ -2299,6 +2299,8 @@ class _TranslationsSettingsKeybindingZhTw implements TranslationsSettingsKeybind
 	@override String get zoomScaleHint => 'Ctrl + 滾輪';
 	@override String get zoomRotateLabel => '旋轉畫面';
 	@override String get zoomRotateHint => 'Shift + 滾輪';
+	@override String get zoomPinchGesture => '雙指捏合';
+	@override String get zoomTwoFingerRotateGesture => '雙指旋轉';
 }
 
 // Path: settings.forumSettings
@@ -3996,6 +3998,8 @@ extension on TranslationsZhTw {
 			'settings.keybinding.zoomScaleHint' => 'Ctrl + 滾輪',
 			'settings.keybinding.zoomRotateLabel' => '旋轉畫面',
 			'settings.keybinding.zoomRotateHint' => 'Shift + 滾輪',
+			'settings.keybinding.zoomPinchGesture' => '雙指捏合',
+			'settings.keybinding.zoomTwoFingerRotateGesture' => '雙指旋轉',
 			'settings.gestureControl' => '手勢控制',
 			'settings.leftDoubleTapRewind' => '左側雙擊後退',
 			'settings.rightDoubleTapFastForward' => '右側雙擊快進',
@@ -4338,10 +4342,10 @@ extension on TranslationsZhTw {
 			'firstTimeSetup.completion.agreementDesc' => '在使用本應用前，請您仔細閱讀並同意我們的使用者協議與社群規則。這些條款有助於維護良好的使用環境。',
 			'firstTimeSetup.completion.checkboxTitle' => '我已閱讀並同意使用者協議與社群規則',
 			'firstTimeSetup.completion.checkboxSubtitle' => '不同意將無法使用本應用',
-			'firstTimeSetup.common.settingsChangeableTip' => '這些設定可在應用設定中隨時修改',
-			'firstTimeSetup.common.agreeAgreementSnackbar' => '請先同意使用者協議與社群規則',
 			_ => null,
 		} ?? switch (path) {
+			'firstTimeSetup.common.settingsChangeableTip' => '這些設定可在應用設定中隨時修改',
+			'firstTimeSetup.common.agreeAgreementSnackbar' => '請先同意使用者協議與社群規則',
 			'proxyHelper.systemProxyDetected' => '檢測到系統代理',
 			'proxyHelper.copied' => '已複製',
 			'proxyHelper.copy' => '複製',
@@ -4852,10 +4856,10 @@ extension on TranslationsZhTw {
 			'download.category.manage' => '管理',
 			'download.category.newCategoryHint' => '新分類名稱',
 			'download.category.createSuccess' => '分類已建立',
-			'download.category.createFailed' => '建立分類失敗',
-			'download.category.nameEmpty' => '分類名稱不能為空',
 			_ => null,
 		} ?? switch (path) {
+			'download.category.createFailed' => '建立分類失敗',
+			'download.category.nameEmpty' => '分類名稱不能為空',
 			'download.category.emptyHint' => '還沒有分類，新建一個來整理你的下載。',
 			'download.category.moveTo' => '移至分類',
 			'download.category.moveToWithCount' => ({required Object count}) => '移動 ${count} 項到…',
@@ -5366,10 +5370,10 @@ extension on TranslationsZhTw {
 			'emoji.uploadingImages' => '正在上傳圖片',
 			'emoji.uploadingImagesProgress' => ({required Object count}) => '正在上傳 ${count} 張圖片，請稍候...',
 			'emoji.doNotCloseDialog' => '請不要關閉此對話框',
-			'emoji.uploadSuccess' => ({required Object count}) => '成功上傳 ${count} 張圖片',
-			'emoji.uploadFailed' => ({required Object count}) => '失敗 ${count} 張',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.uploadSuccess' => ({required Object count}) => '成功上傳 ${count} 張圖片',
+			'emoji.uploadFailed' => ({required Object count}) => '失敗 ${count} 張',
 			'emoji.uploadFailedMessage' => '圖片上傳失敗，請檢查網路連接或檔案格式',
 			'emoji.uploadErrorMessage' => ({required Object error}) => '上傳過程中發生錯誤: ${error}',
 			'displaySettings.title' => '顯示設定',

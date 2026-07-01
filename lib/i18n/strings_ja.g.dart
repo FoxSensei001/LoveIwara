@@ -2296,6 +2296,8 @@ class _TranslationsSettingsKeybindingJa implements TranslationsSettingsKeybindin
 	@override String get zoomScaleHint => 'Ctrl + ホイール';
 	@override String get zoomRotateLabel => '画面を回転';
 	@override String get zoomRotateHint => 'Shift + ホイール';
+	@override String get zoomPinchGesture => 'ピンチ';
+	@override String get zoomTwoFingerRotateGesture => '2本指で回転';
 }
 
 // Path: settings.forumSettings
@@ -3993,6 +3995,8 @@ extension on TranslationsJa {
 			'settings.keybinding.zoomScaleHint' => 'Ctrl + ホイール',
 			'settings.keybinding.zoomRotateLabel' => '画面を回転',
 			'settings.keybinding.zoomRotateHint' => 'Shift + ホイール',
+			'settings.keybinding.zoomPinchGesture' => 'ピンチ',
+			'settings.keybinding.zoomTwoFingerRotateGesture' => '2本指で回転',
 			'settings.gestureControl' => 'ジェスチャー制御',
 			'settings.leftDoubleTapRewind' => '左側ダブルタップリワインド',
 			'settings.rightDoubleTapFastForward' => '右側ダブルタップファストフォワード',
@@ -4335,10 +4339,10 @@ extension on TranslationsJa {
 			'subscriptions.pleaseLoginFirstToViewYourSubscriptions' => 'サブスクリプションを表示するにはログインしてください。',
 			'subscriptions.selectUser' => 'ユーザーを選択してください',
 			'subscriptions.noSubscribedUsers' => '購読中のユーザーがいません',
-			'subscriptions.showAllSubscribedUsersContent' => 'すべての購読中のユーザーのコンテンツを表示',
-			'videoDetail.pipMode' => 'ピプモード',
 			_ => null,
 		} ?? switch (path) {
+			'subscriptions.showAllSubscribedUsersContent' => 'すべての購読中のユーザーのコンテンツを表示',
+			'videoDetail.pipMode' => 'ピプモード',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => '${position} から続けて再生',
 			'videoDetail.localInfo.videoInfo' => 'ビデオ情報',
 			'videoDetail.localInfo.currentQuality' => '現在の品質',
@@ -4849,10 +4853,10 @@ extension on TranslationsJa {
 			'download.batchDownload.failedToGetGalleryInfo' => 'ギャラリー情報の取得に失敗しました',
 			'download.batchDownload.galleryNoImages' => 'ギャラリーに画像がありません',
 			'download.batchDownload.failedToGetSavePath' => '保存パスの取得に失敗しました',
-			'download.batchDownload.batchDownloadFailedWithException' => ({required Object exception}) => '一括ダウンロードに失敗しました: ${exception}',
-			'download.batchDownload.selectQuality' => '品質を選択',
 			_ => null,
 		} ?? switch (path) {
+			'download.batchDownload.batchDownloadFailedWithException' => ({required Object exception}) => '一括ダウンロードに失敗しました: ${exception}',
+			'download.batchDownload.selectQuality' => '品質を選択',
 			'download.batchDownload.downloading' => 'ダウンロード中',
 			'download.batchDownload.downloadResult' => 'ダウンロード結果',
 			'download.batchDownload.selectedVideosCount' => ({required Object count}) => '${count}件の動画を選択',
@@ -5363,10 +5367,10 @@ extension on TranslationsJa {
 			'layoutSettings.screenWidth' => '画面幅',
 			'layoutSettings.addBreakpoint' => 'ブレークポイントを追加',
 			'layoutSettings.editBreakpoint' => 'ブレークポイントを編集',
-			'layoutSettings.deleteBreakpoint' => 'ブレークポイントを削除',
-			'layoutSettings.screenWidthLabel' => '画面幅',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.deleteBreakpoint' => 'ブレークポイントを削除',
+			'layoutSettings.screenWidthLabel' => '画面幅',
 			'layoutSettings.screenWidthHint' => '600',
 			'layoutSettings.columnsLabel' => 'カラム数',
 			'layoutSettings.columnsHint' => '3',

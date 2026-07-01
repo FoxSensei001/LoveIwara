@@ -2301,6 +2301,8 @@ class _TranslationsSettingsKeybindingZhCn implements TranslationsSettingsKeybind
 	@override String get zoomScaleHint => 'Ctrl + 滚轮';
 	@override String get zoomRotateLabel => '旋转画面';
 	@override String get zoomRotateHint => 'Shift + 滚轮';
+	@override String get zoomPinchGesture => '双指捏合';
+	@override String get zoomTwoFingerRotateGesture => '双指旋转';
 }
 
 // Path: settings.forumSettings
@@ -4003,6 +4005,8 @@ extension on TranslationsZhCn {
 			'settings.keybinding.zoomScaleHint' => 'Ctrl + 滚轮',
 			'settings.keybinding.zoomRotateLabel' => '旋转画面',
 			'settings.keybinding.zoomRotateHint' => 'Shift + 滚轮',
+			'settings.keybinding.zoomPinchGesture' => '双指捏合',
+			'settings.keybinding.zoomTwoFingerRotateGesture' => '双指旋转',
 			'settings.gestureControl' => '手势控制',
 			'settings.leftDoubleTapRewind' => '左侧双击后退',
 			'settings.rightDoubleTapFastForward' => '右侧双击快进',
@@ -4340,10 +4344,10 @@ extension on TranslationsZhCn {
 			'signIn.dateRangeCantBeMoreThanOneYear' => '日期范围不能超过1年',
 			'signIn.signIn' => '签到',
 			'signIn.signInRecord' => '签到记录',
-			'signIn.totalSignIns' => '总成功签到',
-			'signIn.pleaseSelectSignInStatus' => '请选择签到状态',
 			_ => null,
 		} ?? switch (path) {
+			'signIn.totalSignIns' => '总成功签到',
+			'signIn.pleaseSelectSignInStatus' => '请选择签到状态',
 			'subscriptions.pleaseLoginFirstToViewYourSubscriptions' => '请登录以查看您的订阅内容。',
 			'subscriptions.selectUser' => '选择用户',
 			'subscriptions.noSubscribedUsers' => '暂无已订阅的用户',
@@ -4854,10 +4858,10 @@ extension on TranslationsZhCn {
 			'download.batchDownload.title' => '批量下载',
 			'download.batchDownload.downloadTaskAlreadyRunning' => '任务正在运行中，请稍候',
 			'download.batchDownload.userCancelled' => '用户取消',
-			'download.batchDownload.failedToGetVideoInfo' => '无法获取视频信息',
-			'download.batchDownload.failedToGetVideoSource' => '无法获取视频源',
 			_ => null,
 		} ?? switch (path) {
+			'download.batchDownload.failedToGetVideoInfo' => '无法获取视频信息',
+			'download.batchDownload.failedToGetVideoSource' => '无法获取视频源',
 			'download.batchDownload.failedToGetGalleryInfo' => '无法获取图库信息',
 			'download.batchDownload.galleryNoImages' => '图库中没有图片',
 			'download.batchDownload.failedToGetSavePath' => '无法获取保存路径',
@@ -5368,10 +5372,10 @@ extension on TranslationsZhCn {
 			'layoutSettings.breakpointConfig' => '断点配置',
 			'layoutSettings.add' => '添加',
 			'layoutSettings.defaultColumns' => '默认列数',
-			'layoutSettings.defaultColumnsDesc' => '大屏幕默认显示',
-			'layoutSettings.previewEffect' => '预览效果',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.defaultColumnsDesc' => '大屏幕默认显示',
+			'layoutSettings.previewEffect' => '预览效果',
 			'layoutSettings.screenWidth' => '屏幕宽度',
 			'layoutSettings.addBreakpoint' => '添加断点',
 			'layoutSettings.editBreakpoint' => '编辑断点',
