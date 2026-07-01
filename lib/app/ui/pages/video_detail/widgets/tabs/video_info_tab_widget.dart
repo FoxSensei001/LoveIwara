@@ -8,7 +8,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/oreno3d_tags_wi
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/like_avatars_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
-import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
+import 'package:i_iwara/app/ui/widgets/translatable_title.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
@@ -377,34 +377,11 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
           color: Theme.of(context).textTheme.bodyLarge?.color,
         );
 
-        final titleWidget = SelectableText.rich(
-          TextSpan(
-            style: textStyle,
-            children: [
-              TextSpan(text: displayTitle),
-              WidgetSpan(
-                alignment: PlaceholderAlignment.middle,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: IconButton(
-                    onPressed: () {
-                      showTranslationDialog(context, text: displayTitle);
-                    },
-                    icon: Icon(
-                      Icons.translate,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                ),
-              ),
-            ],
-          ),
+        return TranslatableTitle(
+          text: displayTitle,
+          style: textStyle,
+          selectable: true,
         );
-
-        return titleWidget;
       },
     );
   }
@@ -589,7 +566,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: UIConstants.listSpacing),
+          const SizedBox(height: UIConstants.sectionSpacing),
           _buildSectionCard(
             context,
             child: VideoDescriptionWidget(
@@ -811,13 +788,9 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                     )
                   // 有数据时显示内容
                   else if (oreno3dDetail != null)
-                    ExpandableSectionWidget(
-                      title: t.oreno3d.name,
-                      icon: Icons.view_in_ar,
-                      child: Oreno3dTagsWidget(
-                        oreno3dDetail: oreno3dDetail,
-                        onSearchTap: _handleOreno3dSearch,
-                      ),
+                    Oreno3dTagsSection(
+                      oreno3dDetail: oreno3dDetail,
+                      onSearchTap: _handleOreno3dSearch,
                     ),
                 ],
               )
