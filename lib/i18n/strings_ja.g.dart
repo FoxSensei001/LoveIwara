@@ -85,6 +85,7 @@ class TranslationsJa with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _TranslationsSavedSearchConfigJa savedSearchConfig = _TranslationsSavedSearchConfigJa._(_root);
 	@override late final _TranslationsSavedSearchJa savedSearch = _TranslationsSavedSearchJa._(_root);
 	@override late final _TranslationsDefaultBlacklistReminderJa defaultBlacklistReminder = _TranslationsDefaultBlacklistReminderJa._(_root);
+	@override late final _TranslationsColorVisionAssistJa colorVisionAssist = _TranslationsColorVisionAssistJa._(_root);
 }
 
 // Path: personalProfile
@@ -2186,6 +2187,27 @@ class _TranslationsDefaultBlacklistReminderJa implements TranslationsDefaultBlac
 	@override String get content => 'お使いのアカウントは、サイトが新規ユーザーごとに自動設定するデフォルトのタグブラックリストをそのまま使用しています。管理ページで確認・変更しますか？';
 	@override String get goManage => '管理する';
 	@override String get dismiss => '後で';
+}
+
+// Path: colorVisionAssist
+class _TranslationsColorVisionAssistJa implements TranslationsColorVisionAssistEn {
+	_TranslationsColorVisionAssistJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '色覚アシスト';
+	@override String get description => '色覚障がいのあるユーザー向けに動画の色を補正します。Anime4K と併用できます';
+	@override String get disable => 'オフ';
+	@override String get disableDescription => '色補正を行いません';
+	@override String get protanopia => '赤色覚アシスト（1型）';
+	@override String get protanopiaDescription => '1型色覚（赤の識別が困難）向け';
+	@override String get deuteranopia => '緑色覚アシスト（2型）';
+	@override String get deuteranopiaDescription => '2型色覚（緑の識別が困難）向け';
+	@override String get tritanopia => '青色覚アシスト（3型）';
+	@override String get tritanopiaDescription => '3型色覚（青と黄の識別が困難）向け';
+	@override String appliedToast({required Object filterName}) => '${filterName}を適用しました（即時反映）';
+	@override String get disabledToast => '色覚アシストをオフにしました';
 }
 
 // Path: common.pagination
@@ -5637,6 +5659,18 @@ extension on TranslationsJa {
 			'defaultBlacklistReminder.content' => 'お使いのアカウントは、サイトが新規ユーザーごとに自動設定するデフォルトのタグブラックリストをそのまま使用しています。管理ページで確認・変更しますか？',
 			'defaultBlacklistReminder.goManage' => '管理する',
 			'defaultBlacklistReminder.dismiss' => '後で',
+			'colorVisionAssist.title' => '色覚アシスト',
+			'colorVisionAssist.description' => '色覚障がいのあるユーザー向けに動画の色を補正します。Anime4K と併用できます',
+			'colorVisionAssist.disable' => 'オフ',
+			'colorVisionAssist.disableDescription' => '色補正を行いません',
+			'colorVisionAssist.protanopia' => '赤色覚アシスト（1型）',
+			'colorVisionAssist.protanopiaDescription' => '1型色覚（赤の識別が困難）向け',
+			'colorVisionAssist.deuteranopia' => '緑色覚アシスト（2型）',
+			'colorVisionAssist.deuteranopiaDescription' => '2型色覚（緑の識別が困難）向け',
+			'colorVisionAssist.tritanopia' => '青色覚アシスト（3型）',
+			'colorVisionAssist.tritanopiaDescription' => '3型色覚（青と黄の識別が困難）向け',
+			'colorVisionAssist.appliedToast' => ({required Object filterName}) => '${filterName}を適用しました（即時反映）',
+			'colorVisionAssist.disabledToast' => '色覚アシストをオフにしました',
 			_ => null,
 		};
 	}

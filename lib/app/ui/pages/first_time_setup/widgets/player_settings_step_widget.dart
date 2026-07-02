@@ -6,6 +6,7 @@ import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/layouts.dar
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/step_container.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/setting_tiles.dart';
 import 'package:i_iwara/app/ui/widgets/anime4k_settings_widget.dart';
+import 'package:i_iwara/app/ui/widgets/color_vision_settings_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
@@ -203,6 +204,12 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
           const StepDivider(),
           // Anime4K 设置
           const Anime4KSettingsWidget(showInfoCard: false, isNarrow: false),
+          const StepDivider(),
+          // 色觉辅助快速配置
+          ColorVisionSettingsWidget(
+            showInfoCard: true,
+            infoMessage: slang.t.colorVisionAssist.description,
+          ),
           const StepDivider(),
           NumberSettingTile(
             icon: Icons.fast_forward,

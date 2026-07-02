@@ -85,6 +85,7 @@ class TranslationsZhCn with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsSavedSearchConfigZhCn savedSearchConfig = _TranslationsSavedSearchConfigZhCn._(_root);
 	@override late final _TranslationsSavedSearchZhCn savedSearch = _TranslationsSavedSearchZhCn._(_root);
 	@override late final _TranslationsDefaultBlacklistReminderZhCn defaultBlacklistReminder = _TranslationsDefaultBlacklistReminderZhCn._(_root);
+	@override late final _TranslationsColorVisionAssistZhCn colorVisionAssist = _TranslationsColorVisionAssistZhCn._(_root);
 }
 
 // Path: personalProfile
@@ -2191,6 +2192,27 @@ class _TranslationsDefaultBlacklistReminderZhCn implements TranslationsDefaultBl
 	@override String get content => '你的账号当前仍在使用网站为每个新用户自动设置的默认标签黑名单。是否前往黑名单管理页查看并调整？';
 	@override String get goManage => '去管理';
 	@override String get dismiss => '暂不处理';
+}
+
+// Path: colorVisionAssist
+class _TranslationsColorVisionAssistZhCn implements TranslationsColorVisionAssistEn {
+	_TranslationsColorVisionAssistZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '色觉辅助';
+	@override String get description => '为色觉障碍用户矫正视频画面色彩，可与 Anime4K 同时开启';
+	@override String get disable => '关闭';
+	@override String get disableDescription => '不进行色彩矫正';
+	@override String get protanopia => '红色觉辅助';
+	@override String get protanopiaDescription => '适用于红色觉异常（难以分辨红色）';
+	@override String get deuteranopia => '绿色觉辅助';
+	@override String get deuteranopiaDescription => '适用于绿色觉异常（难以分辨绿色）';
+	@override String get tritanopia => '蓝色觉辅助';
+	@override String get tritanopiaDescription => '适用于蓝色觉异常（难以分辨蓝色与黄色）';
+	@override String appliedToast({required Object filterName}) => '已应用${filterName}，画面即时生效';
+	@override String get disabledToast => '已关闭色觉辅助滤镜';
 }
 
 // Path: common.pagination
@@ -5647,6 +5669,18 @@ extension on TranslationsZhCn {
 			'defaultBlacklistReminder.content' => '你的账号当前仍在使用网站为每个新用户自动设置的默认标签黑名单。是否前往黑名单管理页查看并调整？',
 			'defaultBlacklistReminder.goManage' => '去管理',
 			'defaultBlacklistReminder.dismiss' => '暂不处理',
+			'colorVisionAssist.title' => '色觉辅助',
+			'colorVisionAssist.description' => '为色觉障碍用户矫正视频画面色彩，可与 Anime4K 同时开启',
+			'colorVisionAssist.disable' => '关闭',
+			'colorVisionAssist.disableDescription' => '不进行色彩矫正',
+			'colorVisionAssist.protanopia' => '红色觉辅助',
+			'colorVisionAssist.protanopiaDescription' => '适用于红色觉异常（难以分辨红色）',
+			'colorVisionAssist.deuteranopia' => '绿色觉辅助',
+			'colorVisionAssist.deuteranopiaDescription' => '适用于绿色觉异常（难以分辨绿色）',
+			'colorVisionAssist.tritanopia' => '蓝色觉辅助',
+			'colorVisionAssist.tritanopiaDescription' => '适用于蓝色觉异常（难以分辨蓝色与黄色）',
+			'colorVisionAssist.appliedToast' => ({required Object filterName}) => '已应用${filterName}，画面即时生效',
+			'colorVisionAssist.disabledToast' => '已关闭色觉辅助滤镜',
 			_ => null,
 		};
 	}

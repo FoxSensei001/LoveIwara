@@ -2523,3 +2523,18 @@ defaultBlacklistReminder:
   content: 你的账号当前仍在使用网站为每个新用户自动设置的默认标签黑名单。是否前往黑名单管理页查看并调整？
   goManage: 去管理
   dismiss: 暂不处理
+
+# 色觉辅助（色盲滤镜）
+colorVisionAssist:
+  title: "色觉辅助"
+  description: "为色觉障碍用户矫正视频画面色彩，可与 Anime4K 同时开启"
+  disable: "关闭"
+  disableDescription: "不进行色彩矫正"
+  protanopia: "红色觉辅助"
+  protanopiaDescription: "适用于红色觉异常（难以分辨红色）"
+  deuteranopia: "绿色觉辅助"
+  deuteranopiaDescription: "适用于绿色觉异常（难以分辨绿色）"
+  tritanopia: "蓝色觉辅助"
+  tritanopiaDescription: "适用于蓝色觉异常（难以分辨蓝色与黄色）"
+  appliedToast: "已应用${filterName}，画面即时生效"
+  disabledToast: "已关闭色觉辅助滤镜"

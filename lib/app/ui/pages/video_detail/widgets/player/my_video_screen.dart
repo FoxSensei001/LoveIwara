@@ -15,6 +15,7 @@ import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/blurred_thumbnail_background.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/rapple_painter.dart';
+import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -882,9 +883,11 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   Widget _buildPiPLayout(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Video(
-        controller: widget.myVideoStateController.videoController,
-        controls: null,
+      body: ColorVisionFilterWrapper(
+        child: Video(
+          controller: widget.myVideoStateController.videoController,
+          controls: null,
+        ),
       ),
     );
   }
@@ -1034,9 +1037,11 @@ class _MyVideoScreenState extends State<MyVideoScreen>
           final rotation = controller.videoZoomRotation.value;
           Widget video = AspectRatio(
             aspectRatio: controller.aspectRatio.value,
-            child: Video(
-              controller: controller.videoController,
-              controls: null,
+            child: ColorVisionFilterWrapper(
+              child: Video(
+                controller: controller.videoController,
+                controls: null,
+              ),
             ),
           );
           // 仅在缩放/平移/旋转时套用 Transform，未变换时保持原始渲染路径
@@ -1072,16 +1077,27 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         height: toolbarHeight + statusBarHeight,
         child: Padding(
           padding: EdgeInsets.only(top: statusBarHeight),
-          child: IconButton(
-            tooltip: t.common.back,
-            icon: Icon(Icons.arrow_back, color: Colors.white, size: iconSize),
-            onPressed: () {
-              if (widget.isFullScreen) {
-                unawaited(widget.myVideoStateController.exitFullscreen());
-              } else {
-                AppService.tryPop(context: context);
-              }
-            },
+          // 独立透明 Material：该按钮在加载完成瞬间会被整体卸载，若墨水
+          // 效果（桌面端 hover 高亮）注册在外层 Scaffold 的 Material 上，
+          // 卸载后残留的 InkFeature 会在 paint 时触发
+          // 'referenceBox.attached' 断言；独立 Material 让墨水随按钮同生共死。
+          child: Material(
+            type: MaterialType.transparency,
+            child: IconButton(
+              tooltip: t.common.back,
+              icon: Icon(
+                Icons.arrow_back,
+                color: Colors.white,
+                size: iconSize,
+              ),
+              onPressed: () {
+                if (widget.isFullScreen) {
+                  unawaited(widget.myVideoStateController.exitFullscreen());
+                } else {
+                  AppService.tryPop(context: context);
+                }
+              },
+            ),
           ),
         ),
       ),
@@ -2173,10 +2189,12 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                       ),
                     ),
                     clipBehavior: Clip.antiAlias,
-                    child: Video(
-                      controller: controller.previewVideoController!,
-                      controls: null,
-                      fit: BoxFit.cover,
+                    child: ColorVisionFilterWrapper(
+                      child: Video(
+                        controller: controller.previewVideoController!,
+                        controls: null,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 // 时间文本（无论是否有预览视频都展示）

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 
 import '../../../../../../utils/common_utils.dart';
@@ -557,10 +558,12 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                 ),
               ),
               clipBehavior: Clip.antiAlias,
-              child: Video(
-                controller: widget.controller.previewVideoController!,
-                controls: null,
-                fit: BoxFit.cover,
+              child: ColorVisionFilterWrapper(
+                child: Video(
+                  controller: widget.controller.previewVideoController!,
+                  controls: null,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
           // 时间文本

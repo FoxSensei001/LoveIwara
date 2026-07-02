@@ -2520,3 +2520,18 @@ defaultBlacklistReminder:
   content: お使いのアカウントは、サイトが新規ユーザーごとに自動設定するデフォルトのタグブラックリストをそのまま使用しています。管理ページで確認・変更しますか？
   goManage: 管理する
   dismiss: 後で
+
+# 色覚アシスト（色覚補正フィルター）
+colorVisionAssist:
+  title: "色覚アシスト"
+  description: "色覚障がいのあるユーザー向けに動画の色を補正します。Anime4K と併用できます"
+  disable: "オフ"
+  disableDescription: "色補正を行いません"
+  protanopia: "赤色覚アシスト（1型）"
+  protanopiaDescription: "1型色覚（赤の識別が困難）向け"
+  deuteranopia: "緑色覚アシスト（2型）"
+  deuteranopiaDescription: "2型色覚（緑の識別が困難）向け"
+  tritanopia: "青色覚アシスト（3型）"
+  tritanopiaDescription: "3型色覚（青と黄の識別が困難）向け"
+  appliedToast: "${filterName}を適用しました（即時反映）"
+  disabledToast: "色覚アシストをオフにしました"

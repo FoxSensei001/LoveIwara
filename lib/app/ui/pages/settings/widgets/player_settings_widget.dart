@@ -5,6 +5,7 @@ import 'package:i_iwara/app/ui/pages/settings/keybinding_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/three_section_slider.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/video_gesture_guide.dart';
 import 'package:i_iwara/app/ui/widgets/anime4k_settings_widget.dart';
+import 'package:i_iwara/app/ui/widgets/color_vision_settings_widget.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -25,6 +26,13 @@ class PlayerSettingsWidget extends StatelessWidget {
   final bool openKeybindingAsSheet;
 
   PlayerSettingsWidget({super.key, this.openKeybindingAsSheet = false});
+
+  /// 分区之间（大标题+分组卡片 之间）的统一间距。
+  static const double _kGroupGap = 20;
+
+  /// 同一分区内、多个独立卡片/横幅之间的统一间距（例如「增强设置」下的
+  /// 警告横幅、剧院模式卡片、Anime4K 卡片、色觉辅助卡片）。
+  static const double _kItemGap = 12;
 
   void _onThreeSectionSliderChangeFinished(
     double leftRatio,
@@ -128,6 +136,7 @@ class PlayerSettingsWidget extends StatelessWidget {
     required ValueChanged<String> onChanged,
     String? description,
     Map<String, String>? optionLabels,
+    Map<String, String>? optionDescriptions,
   }) {
     final theme = Theme.of(context);
     final valueLabel = optionLabels?[currentValue] ?? currentValue;
@@ -151,6 +160,7 @@ class PlayerSettingsWidget extends StatelessWidget {
         currentValue: currentValue,
         options: options,
         optionLabels: optionLabels,
+        optionDescriptions: optionDescriptions,
         onChanged: onChanged,
       ),
     );
@@ -198,38 +208,6 @@ class PlayerSettingsWidget extends StatelessWidget {
     );
   }
 
-  /// 重要提示横幅（例如剧院模式的性能警告）。
-  Widget _warningBanner(BuildContext context, String text) {
-    final theme = Theme.of(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.errorContainer,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            Icons.warning_amber_rounded,
-            size: 20,
-            color: theme.colorScheme.onErrorContainer,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onErrorContainer,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   // 显示选择对话框
   Future<void> _showSelectionDialog({
     required BuildContext context,
@@ -239,6 +217,7 @@ class PlayerSettingsWidget extends StatelessWidget {
     required ValueChanged<String> onChanged,
     String? description,
     Map<String, String>? optionLabels,
+    Map<String, String>? optionDescriptions,
   }) async {
     final t = slang.Translations.of(context);
     final result = await showDialog<String>(
@@ -286,6 +265,9 @@ class PlayerSettingsWidget extends StatelessWidget {
                           .map(
                             (option) => RadioListTile<String>(
                               title: Text(optionLabels?[option] ?? option),
+                              subtitle: optionDescriptions?[option] == null
+                                  ? null
+                                  : Text(optionDescriptions![option]!),
                               value: option,
                             ),
                           )
@@ -408,7 +390,7 @@ class PlayerSettingsWidget extends StatelessWidget {
             },
           ),
         ]),
-        const SizedBox(height: 20),
+        const SizedBox(height: _kGroupGap),
 
         // -------- 播放控制：行为相关 --------
         _sectionLabel(context, t.settings.playbackBehaviorSettings),
@@ -582,7 +564,7 @@ class PlayerSettingsWidget extends StatelessWidget {
               ),
             ),
         ]),
-        const SizedBox(height: 20),
+        const SizedBox(height: _kGroupGap),
 
         // -------- 控制区域宽度 --------
         _sectionLabel(context, t.settings.playControlArea),
@@ -639,7 +621,7 @@ class PlayerSettingsWidget extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: _kGroupGap),
 
         // -------- 手势控制 --------
         _sectionLabel(context, t.settings.gestureControl),
@@ -761,17 +743,10 @@ class PlayerSettingsWidget extends StatelessWidget {
                 : KeybindingSettingsPage.open(context),
           ),
         ]),
-        const SizedBox(height: 20),
+        const SizedBox(height: _kGroupGap),
 
         // -------- 剧院模式 & 画质增强 --------
         _sectionLabel(context, t.settings.enhancementSettings),
-        _warningBanner(
-          context,
-          t
-              .settings
-              .theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt,
-        ),
-        const SizedBox(height: 8),
         _groupCard(context, [
           _switchTile(
             context: context,
@@ -783,12 +758,18 @@ class PlayerSettingsWidget extends StatelessWidget {
             },
           ),
         ]),
-        const SizedBox(height: 8),
+        const SizedBox(height: _kItemGap),
         Anime4KSettingsWidget(
           showInfoCard: true,
           infoMessage: t.anime4k.realTimeVideoUpscalingAndDenoising,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: _kItemGap),
+        // 色觉辅助滤镜（作用于所有播放器画面，与 Anime4K 可同时开启）
+        ColorVisionSettingsWidget(
+          showInfoCard: true,
+          infoMessage: t.colorVisionAssist.description,
+        ),
+        const SizedBox(height: _kGroupGap),
 
         // -------- 音视频配置 --------
         _sectionLabel(context, t.settings.audioVideoConfig),
@@ -887,7 +868,7 @@ class PlayerSettingsWidget extends StatelessWidget {
               },
             ),
         ]),
-        const SizedBox(height: 16),
+        const SizedBox(height: _kGroupGap),
         SizedBox(height: computeBottomSafeInset(MediaQuery.of(context))),
       ],
     );

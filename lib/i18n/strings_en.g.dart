@@ -88,6 +88,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsSavedSearchConfigEn savedSearchConfig = TranslationsSavedSearchConfigEn._(_root);
 	late final TranslationsSavedSearchEn savedSearch = TranslationsSavedSearchEn._(_root);
 	late final TranslationsDefaultBlacklistReminderEn defaultBlacklistReminder = TranslationsDefaultBlacklistReminderEn._(_root);
+	late final TranslationsColorVisionAssistEn colorVisionAssist = TranslationsColorVisionAssistEn._(_root);
 }
 
 // Path: personalProfile
@@ -5456,6 +5457,51 @@ class TranslationsDefaultBlacklistReminderEn {
 	String get dismiss => 'Not now';
 }
 
+// Path: colorVisionAssist
+class TranslationsColorVisionAssistEn {
+	TranslationsColorVisionAssistEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Color Vision Assist'
+	String get title => 'Color Vision Assist';
+
+	/// en: 'Corrects video colors for color-vision-deficient viewers, can be used together with Anime4K'
+	String get description => 'Corrects video colors for color-vision-deficient viewers, can be used together with Anime4K';
+
+	/// en: 'Off'
+	String get disable => 'Off';
+
+	/// en: 'No color correction'
+	String get disableDescription => 'No color correction';
+
+	/// en: 'Red Assist (Protanopia)'
+	String get protanopia => 'Red Assist (Protanopia)';
+
+	/// en: 'For protanopia — difficulty distinguishing red'
+	String get protanopiaDescription => 'For protanopia — difficulty distinguishing red';
+
+	/// en: 'Green Assist (Deuteranopia)'
+	String get deuteranopia => 'Green Assist (Deuteranopia)';
+
+	/// en: 'For deuteranopia — difficulty distinguishing green'
+	String get deuteranopiaDescription => 'For deuteranopia — difficulty distinguishing green';
+
+	/// en: 'Blue Assist (Tritanopia)'
+	String get tritanopia => 'Blue Assist (Tritanopia)';
+
+	/// en: 'For tritanopia — difficulty distinguishing blue and yellow'
+	String get tritanopiaDescription => 'For tritanopia — difficulty distinguishing blue and yellow';
+
+	/// en: '${filterName} applied, takes effect immediately'
+	String appliedToast({required Object filterName}) => '${filterName} applied, takes effect immediately';
+
+	/// en: 'Color vision assist disabled'
+	String get disabledToast => 'Color vision assist disabled';
+}
+
 // Path: common.pagination
 class TranslationsCommonPaginationEn {
 	TranslationsCommonPaginationEn._(this._root);
@@ -10291,6 +10337,18 @@ extension on Translations {
 			'defaultBlacklistReminder.content' => 'Your account is still using the tag blacklist that the website automatically applies to every new account. Would you like to review and manage it?',
 			'defaultBlacklistReminder.goManage' => 'Manage',
 			'defaultBlacklistReminder.dismiss' => 'Not now',
+			'colorVisionAssist.title' => 'Color Vision Assist',
+			'colorVisionAssist.description' => 'Corrects video colors for color-vision-deficient viewers, can be used together with Anime4K',
+			'colorVisionAssist.disable' => 'Off',
+			'colorVisionAssist.disableDescription' => 'No color correction',
+			'colorVisionAssist.protanopia' => 'Red Assist (Protanopia)',
+			'colorVisionAssist.protanopiaDescription' => 'For protanopia — difficulty distinguishing red',
+			'colorVisionAssist.deuteranopia' => 'Green Assist (Deuteranopia)',
+			'colorVisionAssist.deuteranopiaDescription' => 'For deuteranopia — difficulty distinguishing green',
+			'colorVisionAssist.tritanopia' => 'Blue Assist (Tritanopia)',
+			'colorVisionAssist.tritanopiaDescription' => 'For tritanopia — difficulty distinguishing blue and yellow',
+			'colorVisionAssist.appliedToast' => ({required Object filterName}) => '${filterName} applied, takes effect immediately',
+			'colorVisionAssist.disabledToast' => 'Color vision assist disabled',
 			_ => null,
 		};
 	}

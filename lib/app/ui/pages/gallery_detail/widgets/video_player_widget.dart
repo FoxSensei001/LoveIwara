@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -252,10 +253,12 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         fit: StackFit.expand,
         children: [
           // 视频播放器
-          Video(
-            controller: _videoController,
-            controls: NoVideoControls,
-            fit: BoxFit.contain,
+          ColorVisionFilterWrapper(
+            child: Video(
+              controller: _videoController,
+              controls: NoVideoControls,
+              fit: BoxFit.contain,
+            ),
           ),
 
           // 播放/暂停图标覆盖层
