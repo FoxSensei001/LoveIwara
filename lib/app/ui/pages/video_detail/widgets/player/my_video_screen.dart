@@ -146,12 +146,9 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   Duration? _bottomTooltipTime;
   bool _bottomTooltipVisible = false;
 
-  // 添加缓存的模糊背景
-  String? _lastThumbnailUrl;
-
-  // 添加尺寸缓存
-  Size? _lastSize;
-  Widget? _sizedBlurredBackground;
+  static const double _theaterBackgroundBlurSigma = 20.0;
+  static const double _theaterBackgroundScale = 1.08;
+  static const double _theaterBackgroundOpacity = 0.2;
 
   @override
   void initState() {
@@ -309,7 +306,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     _autoHideTimer?.cancel();
     _volumeInfoTimer?.cancel(); // 取消音量提示计时器
     _playbackSpeedInfoTimer?.cancel(); // 取消倍速提示计时器
-    _blurUpdateTimer?.cancel(); // 清理模糊背景更新定时器
     _orientationCheckTimer?.cancel(); // 取消重力感应监听
     widget.myVideoStateController.setMouseHoverToolbarRevealSuppressed(false);
     super.dispose();
@@ -912,14 +908,10 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               return const SizedBox.shrink();
             }
 
-            // 使用 LayoutBuilder 获取精确尺寸
-            return LayoutBuilder(
-              builder: (context, constraints) {
-                final size = Size(constraints.maxWidth, constraints.maxHeight);
-                final thumbnailUrl =
-                    widget.myVideoStateController.videoInfo.value?.thumbnailUrl;
-                return _createBlurredBackground(thumbnailUrl, size);
-              },
+            final thumbnailUrl =
+                widget.myVideoStateController.videoInfo.value?.thumbnailUrl;
+            return Positioned.fill(
+              child: _buildTheaterBackground(thumbnailUrl),
             );
           }),
           // 主要内容
@@ -2288,163 +2280,51 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     );
   }
 
-  // 优化模糊背景创建方法
-  void _updateBlurredBackground(String? thumbnailUrl, Size size) async {
-    // 如果尺寸和URL都没变，不需要更新
-    if (_lastSize == size && _lastThumbnailUrl == thumbnailUrl) {
-      return;
-    }
+  Widget _buildTheaterBackground(String? thumbnailUrl) {
+    final hasThumbnail = thumbnailUrl != null && thumbnailUrl.isNotEmpty;
+    final backgroundKey = ValueKey(hasThumbnail ? thumbnailUrl : 'empty');
 
-    _lastSize = size;
-    _lastThumbnailUrl = thumbnailUrl;
-
-    if (thumbnailUrl == null || thumbnailUrl.isEmpty) {
-      _sizedBlurredBackground = Container(
-        width: size.width,
-        height: size.height,
-        color: Colors.black,
-      );
-      return;
-    }
-
-    // 添加防抖机制，避免频繁的图像处理
-    if (_blurUpdateTimer?.isActive ?? false) {
-      _blurUpdateTimer!.cancel();
-    }
-
-    _blurUpdateTimer = Timer(const Duration(milliseconds: 300), () {
-      _performBlurUpdate(thumbnailUrl, size);
-    });
-  }
-
-  Timer? _blurUpdateTimer;
-
-  void _performBlurUpdate(String thumbnailUrl, Size size) async {
-    try {
-      // 1. 首先加载原始图片，使用较小的分辨率减少内存占用
-      final NetworkImage networkImage = NetworkImage(thumbnailUrl);
-      final ImageConfiguration config = ImageConfiguration(
-        size: Size(size.width * 0.5, size.height * 0.5), // 使用一半分辨率
-      );
-      final ImageStream stream = networkImage.resolve(config);
-      final Completer<ui.Image> completer = Completer<ui.Image>();
-
-      stream.addListener(
-        ImageStreamListener((ImageInfo info, bool _) {
-          completer.complete(info.image);
-        }),
-      );
-
-      final ui.Image originalImage = await completer.future;
-
-      // 2. 计算适当的绘制尺寸以保持宽高比
-      final double imageAspectRatio =
-          originalImage.width / originalImage.height;
-      final double screenAspectRatio = size.width / size.height;
-
-      double targetWidth = size.width;
-      double targetHeight = size.height;
-      double offsetX = 0;
-      double offsetY = 0;
-
-      if (imageAspectRatio > screenAspectRatio) {
-        // 图片比屏幕更宽，以高度为基准
-        targetWidth = size.height * imageAspectRatio;
-        offsetX = -(targetWidth - size.width) / 2;
-      } else {
-        // 图片比屏幕更高，以宽度为基准
-        targetHeight = size.width / imageAspectRatio;
-        offsetY = -(targetHeight - size.height) / 2;
-      }
-
-      // 3. 创建一个自定义画布，使用目标尺寸
-      final recorder = ui.PictureRecorder();
-      final canvas = Canvas(recorder);
-
-      // 4. 绘制图片并应用模糊效果
-      final paint = Paint()
-        ..imageFilter = ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20);
-
-      // 使用计算后的偏移量和尺寸绘制图片
-      canvas.drawImageRect(
-        originalImage,
-        Rect.fromLTWH(
-          0,
-          0,
-          originalImage.width.toDouble(),
-          originalImage.height.toDouble(),
-        ),
-        Rect.fromLTWH(offsetX, offsetY, targetWidth, targetHeight),
-        paint,
-      );
-
-      // 5. 将模糊后的图片转换为图像
-      final blurredImage = await recorder.endRecording().toImage(
-        size.width.toInt(),
-        size.height.toInt(),
-      );
-
-      // 6. 转换为字节数据
-      final byteData = await blurredImage.toByteData(
-        format: ui.ImageByteFormat.png,
-      );
-      final buffer = byteData!.buffer.asUint8List();
-
-      // 7. 创建新的缓存Widget
-      if (mounted) {
-        setState(() {
-          _sizedBlurredBackground = Stack(
+    final Widget background = hasThumbnail
+        ? Stack(
+            key: backgroundKey,
+            fit: StackFit.expand,
             children: [
-              Positioned.fill(child: Container(color: Colors.black)),
-              Positioned.fill(
-                child: Opacity(
-                  opacity: 0.2,
-                  child: Image.memory(
-                    buffer,
-                    fit: BoxFit.cover,
-                    width: size.width,
-                    height: size.height,
+              const ColoredBox(color: Colors.black),
+              Opacity(
+                opacity: _theaterBackgroundOpacity,
+                child: ClipRect(
+                  child: Transform.scale(
+                    scale: _theaterBackgroundScale,
+                    child: ImageFiltered(
+                      imageFilter: ui.ImageFilter.blur(
+                        sigmaX: _theaterBackgroundBlurSigma,
+                        sigmaY: _theaterBackgroundBlurSigma,
+                      ),
+                      child: CachedNetworkImage(
+                        imageUrl: thumbnailUrl,
+                        fit: BoxFit.cover,
+                        fadeInDuration: Duration.zero,
+                        fadeOutDuration: Duration.zero,
+                        placeholder: (context, url) =>
+                            const ColoredBox(color: Colors.black),
+                        errorWidget: (context, url, error) =>
+                            const ColoredBox(color: Colors.black),
+                      ),
+                    ),
                   ),
                 ),
               ),
             ],
-          );
-        });
-      }
-    } catch (e) {
-      LogUtils.e('创建模糊背景失败: $e', tag: 'MyVideoScreen');
-      _sizedBlurredBackground = Container(
-        width: size.width,
-        height: size.height,
-        color: Colors.black,
-      );
-    }
-  }
+          )
+        : const ColoredBox(key: ValueKey('empty'), color: Colors.black);
 
-  // 修改 _createBlurredBackground 方法
-  Widget _createBlurredBackground(String? thumbnailUrl, Size size) {
-    final shouldUpdate =
-        _sizedBlurredBackground == null ||
-        _lastSize != size ||
-        _lastThumbnailUrl != thumbnailUrl;
-    if (shouldUpdate) {
-      _updateBlurredBackground(thumbnailUrl, size);
-    }
-
-    final placeholder = Container(
-      width: size.width,
-      height: size.height,
-      color: Colors.black,
-    );
-
-    final child = _sizedBlurredBackground ?? placeholder;
-    final key = ValueKey(_sizedBlurredBackground == null ? 'black' : 'blur');
-
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 240),
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeInCubic,
-      child: KeyedSubtree(key: key, child: child),
+    return RepaintBoundary(
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 160),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        child: background,
+      ),
     );
   }
 }
