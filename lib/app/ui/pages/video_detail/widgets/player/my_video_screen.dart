@@ -1035,15 +1035,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
           final scale = controller.videoZoomScale.value;
           final offset = controller.videoZoomOffset.value;
           final rotation = controller.videoZoomRotation.value;
-          Widget video = AspectRatio(
-            aspectRatio: controller.aspectRatio.value,
-            child: ColorVisionFilterWrapper(
-              child: Video(
-                controller: controller.videoController,
-                controls: null,
-              ),
-            ),
-          );
+          Widget video = _buildFittedVideo(controller);
           // 仅在缩放/平移/旋转时套用 Transform，未变换时保持原始渲染路径
           if (scale != 1.0 || offset != Offset.zero || rotation != 0.0) {
             video = Transform.translate(
@@ -1063,6 +1055,42 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         }),
       ),
     );
+  }
+
+  /// 按「画面尺寸」模式构建视频画面（外层已有 ClipRect + Center 提供裁剪与居中）。
+  Widget _buildFittedVideo(MyVideoStateController controller) {
+    final fitMode = controller.screenFitMode.value;
+    final Widget videoWidget = ColorVisionFilterWrapper(
+      child: Video(
+        controller: controller.videoController,
+        controls: null,
+        fit: switch (fitMode) {
+          // 适应：帧比例即视频比例，contain 恰好铺满且不裁剪
+          PlayerScreenFitMode.fit => BoxFit.contain,
+          // 填充：保持比例铺满播放区域；Video 内部自带 FittedBox+ClipRect，
+          // 溢出在其自身盒内裁剪（外层 ClipRect 只负责兜住缩放 Transform 的越界绘制）
+          PlayerScreenFitMode.cover => BoxFit.cover,
+          // 拉伸 / 强制比例：把画面拉伸到目标帧
+          PlayerScreenFitMode.stretch ||
+          PlayerScreenFitMode.ratio16x9 ||
+          PlayerScreenFitMode.ratio4x3 => BoxFit.fill,
+        },
+      ),
+    );
+    switch (fitMode) {
+      case PlayerScreenFitMode.fit:
+        return AspectRatio(
+          aspectRatio: controller.aspectRatio.value,
+          child: videoWidget,
+        );
+      case PlayerScreenFitMode.stretch:
+      case PlayerScreenFitMode.cover:
+        return SizedBox.expand(child: videoWidget);
+      case PlayerScreenFitMode.ratio16x9:
+        return AspectRatio(aspectRatio: 16 / 9, child: videoWidget);
+      case PlayerScreenFitMode.ratio4x3:
+        return AspectRatio(aspectRatio: 4 / 3, child: videoWidget);
+    }
   }
 
   Widget _buildLoadingBackButton() {

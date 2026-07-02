@@ -799,6 +799,15 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get fullscreenOrientationDesc => 'この設定は、フルスクリーン時のデフォルト画面方向を決定します（モバイルのみ）';
 	@override String get fullscreenOrientationLeftLandscape => '左横画面';
 	@override String get fullscreenOrientationRightLandscape => '右横画面';
+	@override String get screenFit => '画面サイズ';
+	@override String get screenFitDesc => '現在のプレイヤーにのみ適用され、デフォルト設定としては保存されません。';
+	@override String get screenFitFit => 'フィット';
+	@override String get screenFitFitDesc => 'アスペクト比を保ったまま全体を表示します';
+	@override String get screenFitStretch => 'ストレッチ';
+	@override String get screenFitStretchDesc => '再生領域いっぱいに引き伸ばします（変形する場合があります）';
+	@override String get screenFitCover => 'クロップ';
+	@override String get screenFitCoverDesc => 'アスペクト比を保ったまま領域を埋め、はみ出た部分は切り取られます';
+	@override String get screenFitRatioDesc => 'この比率に引き伸ばして表示します（変形する場合があります）';
 	@override String get jumpLink => 'リンクをジャンプ';
 	@override String get language => '言語';
 	@override String get languageChanged => '言語設定が変更されました。アプリを再起動して有効にしてください。';
@@ -3961,6 +3970,15 @@ extension on TranslationsJa {
 			'settings.fullscreenOrientationDesc' => 'この設定は、フルスクリーン時のデフォルト画面方向を決定します（モバイルのみ）',
 			'settings.fullscreenOrientationLeftLandscape' => '左横画面',
 			'settings.fullscreenOrientationRightLandscape' => '右横画面',
+			'settings.screenFit' => '画面サイズ',
+			'settings.screenFitDesc' => '現在のプレイヤーにのみ適用され、デフォルト設定としては保存されません。',
+			'settings.screenFitFit' => 'フィット',
+			'settings.screenFitFitDesc' => 'アスペクト比を保ったまま全体を表示します',
+			'settings.screenFitStretch' => 'ストレッチ',
+			'settings.screenFitStretchDesc' => '再生領域いっぱいに引き伸ばします（変形する場合があります）',
+			'settings.screenFitCover' => 'クロップ',
+			'settings.screenFitCoverDesc' => 'アスペクト比を保ったまま領域を埋め、はみ出た部分は切り取られます',
+			'settings.screenFitRatioDesc' => 'この比率に引き伸ばして表示します（変形する場合があります）',
 			'settings.jumpLink' => 'リンクをジャンプ',
 			'settings.language' => '言語',
 			'settings.languageChanged' => '言語設定が変更されました。アプリを再起動して有効にしてください。',
@@ -4352,6 +4370,8 @@ extension on TranslationsJa {
 			'signIn.invalidDateRange' => '日付範囲が無効です',
 			'signIn.errorFormatText' => '日付形式が正しくありません',
 			'signIn.errorInvalidText' => '日付範囲が無効です',
+			_ => null,
+		} ?? switch (path) {
 			'signIn.errorInvalidRangeText' => '日付範囲が無効です',
 			'signIn.dateRangeCantBeMoreThanOneYear' => '日付範囲は1年を超えることはできません',
 			'signIn.signIn' => 'サインイン',
@@ -4361,8 +4381,6 @@ extension on TranslationsJa {
 			'subscriptions.pleaseLoginFirstToViewYourSubscriptions' => 'サブスクリプションを表示するにはログインしてください。',
 			'subscriptions.selectUser' => 'ユーザーを選択してください',
 			'subscriptions.noSubscribedUsers' => '購読中のユーザーがいません',
-			_ => null,
-		} ?? switch (path) {
 			'subscriptions.showAllSubscribedUsersContent' => 'すべての購読中のユーザーのコンテンツを表示',
 			'videoDetail.pipMode' => 'ピプモード',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => '${position} から続けて再生',
@@ -4866,6 +4884,8 @@ extension on TranslationsJa {
 			'download.saveToAppDirectory' => 'アプリケーションディレクトリに保存',
 			'download.alreadyDownloadedWithQuality' => 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'すでに品質が${qualities}のタスクがあります。続けてダウンロードしますか？',
+			_ => null,
+		} ?? switch (path) {
 			'download.otherQualities' => 'その他の品質',
 			'download.batchDownload.title' => '一括ダウンロード',
 			'download.batchDownload.downloadTaskAlreadyRunning' => 'タスクが実行中です。しばらくお待ちください',
@@ -4875,8 +4895,6 @@ extension on TranslationsJa {
 			'download.batchDownload.failedToGetGalleryInfo' => 'ギャラリー情報の取得に失敗しました',
 			'download.batchDownload.galleryNoImages' => 'ギャラリーに画像がありません',
 			'download.batchDownload.failedToGetSavePath' => '保存パスの取得に失敗しました',
-			_ => null,
-		} ?? switch (path) {
 			'download.batchDownload.batchDownloadFailedWithException' => ({required Object exception}) => '一括ダウンロードに失敗しました: ${exception}',
 			'download.batchDownload.selectQuality' => '品質を選択',
 			'download.batchDownload.downloading' => 'ダウンロード中',
@@ -5380,6 +5398,8 @@ extension on TranslationsJa {
 			'layoutSettings.manualModeDesc' => '固定カラム数を使用',
 			'layoutSettings.manualSettings' => '手動設定',
 			'layoutSettings.fixedColumns' => '固定カラム数',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.columns' => 'カラム',
 			'layoutSettings.breakpointConfig' => 'ブレークポイント設定',
 			'layoutSettings.add' => '追加',
@@ -5389,8 +5409,6 @@ extension on TranslationsJa {
 			'layoutSettings.screenWidth' => '画面幅',
 			'layoutSettings.addBreakpoint' => 'ブレークポイントを追加',
 			'layoutSettings.editBreakpoint' => 'ブレークポイントを編集',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.deleteBreakpoint' => 'ブレークポイントを削除',
 			'layoutSettings.screenWidthLabel' => '画面幅',
 			'layoutSettings.screenWidthHint' => '600',

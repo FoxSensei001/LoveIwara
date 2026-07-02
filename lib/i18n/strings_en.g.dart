@@ -1993,6 +1993,33 @@ class TranslationsSettingsEn {
 	/// en: 'Right Landscape'
 	String get fullscreenOrientationRightLandscape => 'Right Landscape';
 
+	/// en: 'Screen Size'
+	String get screenFit => 'Screen Size';
+
+	/// en: 'Only applies to the current player and won't be saved as the default.'
+	String get screenFitDesc => 'Only applies to the current player and won\'t be saved as the default.';
+
+	/// en: 'Fit'
+	String get screenFitFit => 'Fit';
+
+	/// en: 'Show the entire frame while keeping the aspect ratio'
+	String get screenFitFitDesc => 'Show the entire frame while keeping the aspect ratio';
+
+	/// en: 'Stretch'
+	String get screenFitStretch => 'Stretch';
+
+	/// en: 'Fill the player area; the image may be distorted'
+	String get screenFitStretchDesc => 'Fill the player area; the image may be distorted';
+
+	/// en: 'Fill'
+	String get screenFitCover => 'Fill';
+
+	/// en: 'Fill the player area keeping the aspect ratio; overflow is cropped'
+	String get screenFitCoverDesc => 'Fill the player area keeping the aspect ratio; overflow is cropped';
+
+	/// en: 'Force this aspect ratio; the image may be distorted'
+	String get screenFitRatioDesc => 'Force this aspect ratio; the image may be distorted';
+
 	/// en: 'Jump Link'
 	String get jumpLink => 'Jump Link';
 
@@ -8639,6 +8666,15 @@ extension on Translations {
 			'settings.fullscreenOrientationDesc' => 'This setting determines the default screen orientation when entering fullscreen (mobile only)',
 			'settings.fullscreenOrientationLeftLandscape' => 'Left Landscape',
 			'settings.fullscreenOrientationRightLandscape' => 'Right Landscape',
+			'settings.screenFit' => 'Screen Size',
+			'settings.screenFitDesc' => 'Only applies to the current player and won\'t be saved as the default.',
+			'settings.screenFitFit' => 'Fit',
+			'settings.screenFitFitDesc' => 'Show the entire frame while keeping the aspect ratio',
+			'settings.screenFitStretch' => 'Stretch',
+			'settings.screenFitStretchDesc' => 'Fill the player area; the image may be distorted',
+			'settings.screenFitCover' => 'Fill',
+			'settings.screenFitCoverDesc' => 'Fill the player area keeping the aspect ratio; overflow is cropped',
+			'settings.screenFitRatioDesc' => 'Force this aspect ratio; the image may be distorted',
 			'settings.jumpLink' => 'Jump Link',
 			'settings.language' => 'Language',
 			'settings.languageChanged' => 'Language setting has been changed, please restart the app to take effect.',
@@ -9030,6 +9066,8 @@ extension on Translations {
 			'signIn.invalidDateRange' => 'Invalid Date Range',
 			'signIn.errorFormatText' => 'Date Format Error',
 			'signIn.errorInvalidText' => 'Invalid Date Range',
+			_ => null,
+		} ?? switch (path) {
 			'signIn.errorInvalidRangeText' => 'Invalid Date Range',
 			'signIn.dateRangeCantBeMoreThanOneYear' => 'Date range cannot be more than one year',
 			'signIn.signIn' => 'Sign In',
@@ -9039,8 +9077,6 @@ extension on Translations {
 			'subscriptions.pleaseLoginFirstToViewYourSubscriptions' => 'Please login first to view your subscriptions.',
 			'subscriptions.selectUser' => 'Select User',
 			'subscriptions.noSubscribedUsers' => 'No subscribed users',
-			_ => null,
-		} ?? switch (path) {
 			'subscriptions.showAllSubscribedUsersContent' => 'Show all subscribed users content',
 			'videoDetail.pipMode' => 'PiP Mode',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => 'Resume from last position: ${position}',
@@ -9544,6 +9580,8 @@ extension on Translations {
 			'download.saveToAppDirectory' => 'Save to app directory',
 			'download.alreadyDownloadedWithQuality' => 'Already downloaded with the same quality, continue downloading?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Already downloaded with qualities: ${qualities}, continue downloading?',
+			_ => null,
+		} ?? switch (path) {
 			'download.otherQualities' => 'Other qualities',
 			'download.batchDownload.title' => 'Batch Download',
 			'download.batchDownload.downloadTaskAlreadyRunning' => 'A task is already running, please wait.',
@@ -9553,8 +9591,6 @@ extension on Translations {
 			'download.batchDownload.failedToGetGalleryInfo' => 'Failed to get gallery information',
 			'download.batchDownload.galleryNoImages' => 'Gallery has no images',
 			'download.batchDownload.failedToGetSavePath' => 'Failed to get save path',
-			_ => null,
-		} ?? switch (path) {
 			'download.batchDownload.batchDownloadFailedWithException' => ({required Object exception}) => 'Batch download failed: ${exception}',
 			'download.batchDownload.selectQuality' => 'Select Quality',
 			'download.batchDownload.downloading' => 'Downloading',
@@ -10058,6 +10094,8 @@ extension on Translations {
 			'log.todayLogs' => ({required Object count}) => 'Today Logs: ${count} logs',
 			'log.recent7DaysLogs' => ({required Object count}) => 'Recent 7 Days Logs: ${count} logs',
 			'log.totalLogs' => ({required Object count}) => 'Total Logs: ${count} logs',
+			_ => null,
+		} ?? switch (path) {
 			'log.setLogDatabaseSizeLimit' => 'Set Log Database Size Limit',
 			'log.currentLogSizeWithSize' => ({required Object size}) => 'Current Log Size: ${size}',
 			'log.warning' => 'Warning',
@@ -10067,8 +10105,6 @@ extension on Translations {
 			'emoji.name' => 'Emoji',
 			'emoji.size' => 'Size',
 			'emoji.small' => 'Small',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.medium' => 'Medium',
 			'emoji.large' => 'Large',
 			'emoji.extraLarge' => 'Extra Large',

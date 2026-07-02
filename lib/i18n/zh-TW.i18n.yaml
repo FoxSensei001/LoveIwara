@@ -652,6 +652,15 @@ settings:
   fullscreenOrientationDesc: 此設定決定豎屏進入全螢幕時螢幕的預設方向（僅行動端有效）
   fullscreenOrientationLeftLandscape: 左側橫螢幕
   fullscreenOrientationRightLandscape: 右側橫螢幕
+  screenFit: 畫面尺寸
+  screenFitDesc: 僅對當前播放器生效，不會儲存為預設設定。
+  screenFitFit: 適應
+  screenFitFitDesc: 保持比例完整顯示畫面
+  screenFitStretch: 拉伸
+  screenFitStretchDesc: 鋪滿播放區域，畫面可能變形
+  screenFitCover: 填充
+  screenFitCoverDesc: 保持比例鋪滿播放區域，超出部分將被裁剪
+  screenFitRatioDesc: 強制按該比例拉伸顯示，畫面可能變形
   jumpLink: 跳轉連結
   language: 語言
   languageChanged: 語言設定已更改，請重新啟動應用以生效。

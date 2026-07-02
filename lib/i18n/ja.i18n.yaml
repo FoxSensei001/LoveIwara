@@ -652,6 +652,15 @@ settings:
   fullscreenOrientationDesc: この設定は、フルスクリーン時のデフォルト画面方向を決定します（モバイルのみ）
   fullscreenOrientationLeftLandscape: 左横画面
   fullscreenOrientationRightLandscape: 右横画面
+  screenFit: 画面サイズ
+  screenFitDesc: 現在のプレイヤーにのみ適用され、デフォルト設定としては保存されません。
+  screenFitFit: フィット
+  screenFitFitDesc: アスペクト比を保ったまま全体を表示します
+  screenFitStretch: ストレッチ
+  screenFitStretchDesc: 再生領域いっぱいに引き伸ばします（変形する場合があります）
+  screenFitCover: クロップ
+  screenFitCoverDesc: アスペクト比を保ったまま領域を埋め、はみ出た部分は切り取られます
+  screenFitRatioDesc: この比率に引き伸ばして表示します（変形する場合があります）
   jumpLink: リンクをジャンプ
   language: 言語
   languageChanged: 言語設定が変更されました。アプリを再起動して有効にしてください。

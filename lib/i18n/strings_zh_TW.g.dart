@@ -799,6 +799,15 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get fullscreenOrientationDesc => '此設定決定豎屏進入全螢幕時螢幕的預設方向（僅行動端有效）';
 	@override String get fullscreenOrientationLeftLandscape => '左側橫螢幕';
 	@override String get fullscreenOrientationRightLandscape => '右側橫螢幕';
+	@override String get screenFit => '畫面尺寸';
+	@override String get screenFitDesc => '僅對當前播放器生效，不會儲存為預設設定。';
+	@override String get screenFitFit => '適應';
+	@override String get screenFitFitDesc => '保持比例完整顯示畫面';
+	@override String get screenFitStretch => '拉伸';
+	@override String get screenFitStretchDesc => '鋪滿播放區域，畫面可能變形';
+	@override String get screenFitCover => '填充';
+	@override String get screenFitCoverDesc => '保持比例鋪滿播放區域，超出部分將被裁剪';
+	@override String get screenFitRatioDesc => '強制按該比例拉伸顯示，畫面可能變形';
 	@override String get jumpLink => '跳轉連結';
 	@override String get language => '語言';
 	@override String get languageChanged => '語言設定已更改，請重新啟動應用以生效。';
@@ -3964,6 +3973,15 @@ extension on TranslationsZhTw {
 			'settings.fullscreenOrientationDesc' => '此設定決定豎屏進入全螢幕時螢幕的預設方向（僅行動端有效）',
 			'settings.fullscreenOrientationLeftLandscape' => '左側橫螢幕',
 			'settings.fullscreenOrientationRightLandscape' => '右側橫螢幕',
+			'settings.screenFit' => '畫面尺寸',
+			'settings.screenFitDesc' => '僅對當前播放器生效，不會儲存為預設設定。',
+			'settings.screenFitFit' => '適應',
+			'settings.screenFitFitDesc' => '保持比例完整顯示畫面',
+			'settings.screenFitStretch' => '拉伸',
+			'settings.screenFitStretchDesc' => '鋪滿播放區域，畫面可能變形',
+			'settings.screenFitCover' => '填充',
+			'settings.screenFitCoverDesc' => '保持比例鋪滿播放區域，超出部分將被裁剪',
+			'settings.screenFitRatioDesc' => '強制按該比例拉伸顯示，畫面可能變形',
 			'settings.jumpLink' => '跳轉連結',
 			'settings.language' => '語言',
 			'settings.languageChanged' => '語言設定已更改，請重新啟動應用以生效。',
@@ -4355,6 +4373,8 @@ extension on TranslationsZhTw {
 			'firstTimeSetup.theme.subtitle' => '選擇您喜歡的介面主題',
 			'firstTimeSetup.theme.description' => '個人化您的視覺體驗',
 			'firstTimeSetup.player.title' => '播放器設定',
+			_ => null,
+		} ?? switch (path) {
 			'firstTimeSetup.player.subtitle' => '配置播放控制偏好',
 			'firstTimeSetup.player.description' => '您可以在此快速設定常用的播放體驗',
 			'firstTimeSetup.completion.title' => '完成設定',
@@ -4364,8 +4384,6 @@ extension on TranslationsZhTw {
 			'firstTimeSetup.completion.agreementDesc' => '在使用本應用前，請您仔細閱讀並同意我們的使用者協議與社群規則。這些條款有助於維護良好的使用環境。',
 			'firstTimeSetup.completion.checkboxTitle' => '我已閱讀並同意使用者協議與社群規則',
 			'firstTimeSetup.completion.checkboxSubtitle' => '不同意將無法使用本應用',
-			_ => null,
-		} ?? switch (path) {
 			'firstTimeSetup.common.settingsChangeableTip' => '這些設定可在應用設定中隨時修改',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => '請先同意使用者協議與社群規則',
 			'proxyHelper.systemProxyDetected' => '檢測到系統代理',
@@ -4869,6 +4887,8 @@ extension on TranslationsZhTw {
 			'download.deleteByDate.invalidRange' => '開始日期不能晚於結束日期',
 			'download.deleteByDate.confirmTitle' => '確認刪除',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '確定刪除這 ${count} 個下載任務及其檔案嗎？此操作無法復原。',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '正在刪除 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '已刪除 ${count} 個任務',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '已刪除 ${deleted} 個任務，略過 ${skipped} 個（被佔用）',
@@ -4878,8 +4898,6 @@ extension on TranslationsZhTw {
 			'download.category.manage' => '管理',
 			'download.category.newCategoryHint' => '新分類名稱',
 			'download.category.createSuccess' => '分類已建立',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.createFailed' => '建立分類失敗',
 			'download.category.nameEmpty' => '分類名稱不能為空',
 			'download.category.emptyHint' => '還沒有分類，新建一個來整理你的下載。',
@@ -5383,6 +5401,8 @@ extension on TranslationsZhTw {
 			'emoji.deleteGroup' => '刪除分組',
 			'emoji.confirmDeleteGroup' => '確定要刪除這個表情包分組嗎？分組內的所有圖片也會被刪除。',
 			'emoji.imageCount' => ({required Object count}) => '${count}張圖片',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.selectEmoji' => '選擇表情包',
 			'emoji.noEmojisInGroup' => '該分組暫無表情包',
 			'emoji.goToSettingsToAddEmojis' => '前往設定添加表情包',
@@ -5392,8 +5412,6 @@ extension on TranslationsZhTw {
 			'emoji.uploadingImages' => '正在上傳圖片',
 			'emoji.uploadingImagesProgress' => ({required Object count}) => '正在上傳 ${count} 張圖片，請稍候...',
 			'emoji.doNotCloseDialog' => '請不要關閉此對話框',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.uploadSuccess' => ({required Object count}) => '成功上傳 ${count} 張圖片',
 			'emoji.uploadFailed' => ({required Object count}) => '失敗 ${count} 張',
 			'emoji.uploadFailedMessage' => '圖片上傳失敗，請檢查網路連接或檔案格式',

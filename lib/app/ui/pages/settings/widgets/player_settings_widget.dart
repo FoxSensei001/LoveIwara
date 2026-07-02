@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/keybinding_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/three_section_slider.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/video_gesture_guide.dart';
 import 'package:i_iwara/app/ui/widgets/anime4k_settings_widget.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_settings_widget.dart';
@@ -25,7 +26,15 @@ class PlayerSettingsWidget extends StatelessWidget {
   /// 在设置页中为 false：快捷键配置仍跳转独立页面。
   final bool openKeybindingAsSheet;
 
-  PlayerSettingsWidget({super.key, this.openKeybindingAsSheet = false});
+  /// 从播放器内呼出时传入当前播放器的控制器，用于展示只作用于该播放器的
+  /// 会话级选项（如「画面尺寸」）；从设置页进入时为 null，不显示这些选项。
+  final MyVideoStateController? playerController;
+
+  PlayerSettingsWidget({
+    super.key,
+    this.openKeybindingAsSheet = false,
+    this.playerController,
+  });
 
   /// 分区之间（大标题+分组卡片 之间）的统一间距。
   static const double _kGroupGap = 20;
@@ -299,6 +308,50 @@ class PlayerSettingsWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // -------- 画面尺寸（仅从播放器呼出时显示，只作用于当前播放器） --------
+        if (playerController != null) ...[
+          _sectionLabel(context, t.settings.screenFit),
+          _groupCard(context, [
+            Obx(
+              () => _selectionTile(
+                context: context,
+                iconData: Icons.aspect_ratio,
+                label: t.settings.screenFit,
+                description: t.settings.screenFitDesc,
+                currentValue: playerController!.screenFitMode.value.name,
+                options: PlayerScreenFitMode.values
+                    .map((mode) => mode.name)
+                    .toList(),
+                optionLabels: {
+                  PlayerScreenFitMode.fit.name: t.settings.screenFitFit,
+                  PlayerScreenFitMode.stretch.name:
+                      t.settings.screenFitStretch,
+                  PlayerScreenFitMode.cover.name: t.settings.screenFitCover,
+                  PlayerScreenFitMode.ratio16x9.name: '16:9',
+                  PlayerScreenFitMode.ratio4x3.name: '4:3',
+                },
+                optionDescriptions: {
+                  PlayerScreenFitMode.fit.name: t.settings.screenFitFitDesc,
+                  PlayerScreenFitMode.stretch.name:
+                      t.settings.screenFitStretchDesc,
+                  PlayerScreenFitMode.cover.name:
+                      t.settings.screenFitCoverDesc,
+                  PlayerScreenFitMode.ratio16x9.name:
+                      t.settings.screenFitRatioDesc,
+                  PlayerScreenFitMode.ratio4x3.name:
+                      t.settings.screenFitRatioDesc,
+                },
+                onChanged: (value) {
+                  playerController!.setScreenFitMode(
+                    PlayerScreenFitMode.values.byName(value),
+                  );
+                },
+              ),
+            ),
+          ]),
+          const SizedBox(height: _kGroupGap),
+        ],
+
         // -------- 播放控制：倍速相关 --------
         _sectionLabel(context, t.settings.playbackSpeedSettings),
         _groupCard(context, [

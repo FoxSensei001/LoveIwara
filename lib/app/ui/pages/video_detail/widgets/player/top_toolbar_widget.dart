@@ -1116,7 +1116,10 @@ class SettingsContent extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          PlayerSettingsWidget(openKeybindingAsSheet: true),
+          PlayerSettingsWidget(
+            openKeybindingAsSheet: true,
+            playerController: myVideoStateController,
+          ),
           const SizedBox(height: 16),
           if (ProxyUtil.isSupportedPlatform())
             ProxySettingsWidget(embedded: true),

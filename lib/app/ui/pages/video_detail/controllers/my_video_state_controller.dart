@@ -77,6 +77,16 @@ enum FullscreenMorphPhase {
   collapsing, // 从全屏收缩回内联矩形
 }
 
+/// 画面尺寸：视频画面在播放区域内的适配方式。
+/// 仅作用于当前播放器实例（随控制器销毁重置），不持久化为默认配置。
+enum PlayerScreenFitMode {
+  fit, // 适应：保持比例完整显示
+  stretch, // 拉伸：铺满播放区域，可能变形
+  cover, // 填充：保持比例铺满并裁剪超出部分
+  ratio16x9, // 强制 16:9
+  ratio4x3, // 强制 4:3
+}
+
 enum VideoCenterOverlayState {
   sourceError,
   loadingVideoInfo,
@@ -181,6 +191,19 @@ class MyVideoStateController extends GetxController
   final RxInt sourceVideoWidth = 1920.obs; // 视频宽度
   final RxInt sourceVideoHeight = 1080.obs; // 视频高度
   final RxDouble aspectRatio = (16 / 9).obs; // 视频宽高比
+
+  /// 画面尺寸（仅当前播放器生效，见 [PlayerScreenFitMode]）。
+  /// 只影响画面在播放区域内的渲染方式，不改变 [aspectRatio] 参与的布局计算。
+  /// 修改请走 [setScreenFitMode]，以便同步复位缩放状态。
+  final Rx<PlayerScreenFitMode> screenFitMode = PlayerScreenFitMode.fit.obs;
+
+  /// 切换画面尺寸。缩放层的平移钳制按 [aspectRatio] 推算画面矩形，与强制
+  /// 比例/拉伸后的实际画面不一致，因此切换时立即复位缩放/平移/旋转。
+  void setScreenFitMode(PlayerScreenFitMode mode) {
+    if (screenFitMode.value == mode) return;
+    resetVideoZoomImmediately();
+    screenFitMode.value = mode;
+  }
   final RxList<VideoResolution> videoResolutions = <VideoResolution>[].obs;
   final Rxn<String> currentResolutionTag = Rxn<String>();
   final RxBool isDescriptionExpanded = false.obs;

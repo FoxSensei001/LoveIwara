@@ -658,6 +658,15 @@ settings:
   fullscreenOrientationDesc: 此设置决定竖屏进入全屏时屏幕的默认方向（仅移动端有效）
   fullscreenOrientationLeftLandscape: 左侧横屏
   fullscreenOrientationRightLandscape: 右侧横屏
+  screenFit: 画面尺寸
+  screenFitDesc: 仅对当前播放器生效，不会保存为默认设置。
+  screenFitFit: 适应
+  screenFitFitDesc: 保持比例完整显示画面
+  screenFitStretch: 拉伸
+  screenFitStretchDesc: 铺满播放区域，画面可能变形
+  screenFitCover: 填充
+  screenFitCoverDesc: 保持比例铺满播放区域，超出部分将被裁剪
+  screenFitRatioDesc: 强制按该比例拉伸显示，画面可能变形
   jumpLink: 跳转链接
   language: 语言
   languageChanged: 语言设置已更改，请重启应用以生效。

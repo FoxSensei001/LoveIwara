@@ -804,6 +804,15 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get fullscreenOrientationDesc => '此设置决定竖屏进入全屏时屏幕的默认方向（仅移动端有效）';
 	@override String get fullscreenOrientationLeftLandscape => '左侧横屏';
 	@override String get fullscreenOrientationRightLandscape => '右侧横屏';
+	@override String get screenFit => '画面尺寸';
+	@override String get screenFitDesc => '仅对当前播放器生效，不会保存为默认设置。';
+	@override String get screenFitFit => '适应';
+	@override String get screenFitFitDesc => '保持比例完整显示画面';
+	@override String get screenFitStretch => '拉伸';
+	@override String get screenFitStretchDesc => '铺满播放区域，画面可能变形';
+	@override String get screenFitCover => '填充';
+	@override String get screenFitCoverDesc => '保持比例铺满播放区域，超出部分将被裁剪';
+	@override String get screenFitRatioDesc => '强制按该比例拉伸显示，画面可能变形';
 	@override String get jumpLink => '跳转链接';
 	@override String get language => '语言';
 	@override String get languageChanged => '语言设置已更改，请重启应用以生效。';
@@ -3971,6 +3980,15 @@ extension on TranslationsZhCn {
 			'settings.fullscreenOrientationDesc' => '此设置决定竖屏进入全屏时屏幕的默认方向（仅移动端有效）',
 			'settings.fullscreenOrientationLeftLandscape' => '左侧横屏',
 			'settings.fullscreenOrientationRightLandscape' => '右侧横屏',
+			'settings.screenFit' => '画面尺寸',
+			'settings.screenFitDesc' => '仅对当前播放器生效，不会保存为默认设置。',
+			'settings.screenFitFit' => '适应',
+			'settings.screenFitFitDesc' => '保持比例完整显示画面',
+			'settings.screenFitStretch' => '拉伸',
+			'settings.screenFitStretchDesc' => '铺满播放区域，画面可能变形',
+			'settings.screenFitCover' => '填充',
+			'settings.screenFitCoverDesc' => '保持比例铺满播放区域，超出部分将被裁剪',
+			'settings.screenFitRatioDesc' => '强制按该比例拉伸显示，画面可能变形',
 			'settings.jumpLink' => '跳转链接',
 			'settings.language' => '语言',
 			'settings.languageChanged' => '语言设置已更改，请重启应用以生效。',
@@ -4357,6 +4375,8 @@ extension on TranslationsZhCn {
 			'signIn.failureReason' => '未能坚持签到的原因',
 			'signIn.selectDateRange' => '选择日期范围',
 			'signIn.startDate' => '开始日期',
+			_ => null,
+		} ?? switch (path) {
 			'signIn.endDate' => '结束日期',
 			'signIn.invalidDate' => '日期格式错误',
 			'signIn.invalidDateRange' => '日期范围无效',
@@ -4366,8 +4386,6 @@ extension on TranslationsZhCn {
 			'signIn.dateRangeCantBeMoreThanOneYear' => '日期范围不能超过1年',
 			'signIn.signIn' => '签到',
 			'signIn.signInRecord' => '签到记录',
-			_ => null,
-		} ?? switch (path) {
 			'signIn.totalSignIns' => '总成功签到',
 			'signIn.pleaseSelectSignInStatus' => '请选择签到状态',
 			'subscriptions.pleaseLoginFirstToViewYourSubscriptions' => '请登录以查看您的订阅内容。',
@@ -4871,6 +4889,8 @@ extension on TranslationsZhCn {
 			'download.category.deleteFailed' => '删除分类失败',
 			'download.maxConcurrentDownloads' => '最大同时下载数',
 			'download.maxConcurrentDownloadsDesc' => '同时进行下载的任务数量（1-5）',
+			_ => null,
+		} ?? switch (path) {
 			'download.downloadCompletedWithName' => ({required Object fileName}) => '下载完成: ${fileName}',
 			'download.stillInDevelopment' => '开发中',
 			'download.saveToAppDirectory' => '保存到应用目录',
@@ -4880,8 +4900,6 @@ extension on TranslationsZhCn {
 			'download.batchDownload.title' => '批量下载',
 			'download.batchDownload.downloadTaskAlreadyRunning' => '任务正在运行中，请稍候',
 			'download.batchDownload.userCancelled' => '用户取消',
-			_ => null,
-		} ?? switch (path) {
 			'download.batchDownload.failedToGetVideoInfo' => '无法获取视频信息',
 			'download.batchDownload.failedToGetVideoSource' => '无法获取视频源',
 			'download.batchDownload.failedToGetGalleryInfo' => '无法获取图库信息',
@@ -5385,6 +5403,8 @@ extension on TranslationsZhCn {
 			'layoutSettings.layoutMode' => '布局模式',
 			'layoutSettings.reset' => '重置',
 			'layoutSettings.autoMode' => '自动模式',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.autoModeDesc' => '根据屏幕宽度自动调整',
 			'layoutSettings.manualMode' => '手动模式',
 			'layoutSettings.manualModeDesc' => '使用固定列数',
@@ -5394,8 +5414,6 @@ extension on TranslationsZhCn {
 			'layoutSettings.breakpointConfig' => '断点配置',
 			'layoutSettings.add' => '添加',
 			'layoutSettings.defaultColumns' => '默认列数',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.defaultColumnsDesc' => '大屏幕默认显示',
 			'layoutSettings.previewEffect' => '预览效果',
 			'layoutSettings.screenWidth' => '屏幕宽度',

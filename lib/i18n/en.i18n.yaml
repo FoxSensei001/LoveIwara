@@ -651,6 +651,15 @@ settings:
   fullscreenOrientationDesc: This setting determines the default screen orientation when entering fullscreen (mobile only)
   fullscreenOrientationLeftLandscape: Left Landscape
   fullscreenOrientationRightLandscape: Right Landscape
+  screenFit: Screen Size
+  screenFitDesc: Only applies to the current player and won't be saved as the default.
+  screenFitFit: Fit
+  screenFitFitDesc: Show the entire frame while keeping the aspect ratio
+  screenFitStretch: Stretch
+  screenFitStretchDesc: Fill the player area; the image may be distorted
+  screenFitCover: Fill
+  screenFitCoverDesc: Fill the player area keeping the aspect ratio; overflow is cropped
+  screenFitRatioDesc: Force this aspect ratio; the image may be distorted
   jumpLink: Jump Link
   language: Language
   languageChanged: Language setting has been changed, please restart the app to take effect.
