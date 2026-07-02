@@ -2,12 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../i18n/strings.g.dart' as slang;
+import '../../controllers/my_video_state_controller.dart';
+import 'rotated_modal_bottom_sheet.dart';
 
 /// 视频播放器手势 / 交互指引弹窗，按当前平台展示对应的操作说明。
 class VideoGestureGuideDialog extends StatelessWidget {
   const VideoGestureGuideDialog({super.key});
 
-  static Future<void> show(BuildContext context) {
+  /// 传入 [controller] 时，伪横屏全屏下会把对话框旋转进播放器坐标系
+  /// （见 [showPlayerRotationAwareDialog]）；否则原样走 [showDialog]。
+  static Future<void> show(
+    BuildContext context, {
+    MyVideoStateController? controller,
+  }) {
+    if (controller != null) {
+      return showPlayerRotationAwareDialog<void>(
+        context: context,
+        controller: controller,
+        builder: (_) => const VideoGestureGuideDialog(),
+      );
+    }
     return showDialog<void>(
       context: context,
       builder: (_) => const VideoGestureGuideDialog(),

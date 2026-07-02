@@ -18,6 +18,7 @@ import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import '../../controllers/my_video_state_controller.dart';
 import 'custom_slider_bar_shape_widget.dart';
 import 'toolbar_fade_visibility.dart';
+import 'rotated_modal_bottom_sheet.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
 
 class BottomToolbar extends StatelessWidget {
@@ -217,8 +218,10 @@ class BottomToolbar extends StatelessWidget {
     int selectedMinutes = currentPosition.inMinutes.remainder(60);
     int selectedSeconds = currentPosition.inSeconds.remainder(60);
 
-    showDialog(
+    // 伪横屏全屏下走旋转感知对话框，否则原样 showDialog。
+    showPlayerRotationAwareDialog(
       context: context,
+      controller: myVideoStateController,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(t.videoDetail.seekTo),
@@ -473,27 +476,58 @@ class BottomToolbar extends StatelessWidget {
       final uniqueResolutions = uniqueResolutionsMap.values.toList();
 
       final double touchSize = currentScreenIsFullScreen ? 36.0 : 28.0;
-      return PopupMenuButton<String>(
-        initialValue: currentResolution,
-        tooltip: t.videoDetail.switchResolution,
-        child: Container(
-          width: touchSize,
-          height: touchSize,
-          alignment: Alignment.center,
-          child: SvgPicture.asset(
+
+      void applyResolution(String selected) {
+        if (selected != currentResolution) {
+          // 保存用户手动选择的清晰度到新配置
+          _configService.setSetting(ConfigKey.DEFAULT_QUALITY_KEY, selected);
+          myVideoStateController.switchResolution(selected);
+        }
+      }
+
+      // 伪横屏全屏下 PopupMenu 会逃出旋转坐标系（方向错乱 + 定位错位），改用方向
+      // 正确的选项 sheet 承载清晰度列表。
+      if (playerOverlayNeedsRotation(myVideoStateController)) {
+        return _buildIconButton(
+          tooltip: t.videoDetail.switchResolution,
+          icon: SvgPicture.asset(
             _getResolutionIconAsset(currentResolution),
             colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
             width: iconSize,
             height: iconSize,
           ),
-        ),
-        onSelected: (String selected) {
-          if (selected != currentResolution) {
-            // 保存用户手动选择的清晰度到新配置
-            _configService.setSetting(ConfigKey.DEFAULT_QUALITY_KEY, selected);
-            myVideoStateController.switchResolution(selected);
-          }
-        },
+          onPressed: () async {
+            final selected = await showPlayerRotationAwareOptionSheet<String>(
+              context: context,
+              controller: myVideoStateController,
+              title: t.videoDetail.switchResolution,
+              options: [
+                for (final resolution in uniqueResolutions)
+                  PlayerPickerOption<String>(
+                    value: resolution.label,
+                    label: resolution.label,
+                    selected: resolution.label == currentResolution,
+                    leading: SvgPicture.asset(
+                      _getResolutionIconAsset(resolution.label),
+                      colorFilter: ColorFilter.mode(
+                        Theme.of(context).iconTheme.color ?? Colors.grey,
+                        BlendMode.srcIn,
+                      ),
+                      width: 24,
+                      height: 24,
+                    ),
+                  ),
+              ],
+            );
+            if (selected != null) applyResolution(selected);
+          },
+        );
+      }
+
+      return PopupMenuButton<String>(
+        initialValue: currentResolution,
+        tooltip: t.videoDetail.switchResolution,
+        onSelected: applyResolution,
         itemBuilder: (BuildContext context) {
           return uniqueResolutions.map((VideoResolution resolution) {
             final isSelected = resolution.label == currentResolution;
@@ -521,6 +555,17 @@ class BottomToolbar extends StatelessWidget {
             );
           }).toList();
         },
+        child: Container(
+          width: touchSize,
+          height: touchSize,
+          alignment: Alignment.center,
+          child: SvgPicture.asset(
+            _getResolutionIconAsset(currentResolution),
+            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+            width: iconSize,
+            height: iconSize,
+          ),
+        ),
       );
     });
   }
@@ -555,46 +600,77 @@ class BottomToolbar extends StatelessWidget {
       }
 
       final double touchSize = currentScreenIsFullScreen ? 36.0 : 28.0;
+
+      void applySpeed(double selected) {
+        if (selected != currentSpeed) {
+          myVideoStateController.setPlaybackSpeed(
+            selected,
+            persistAsDefault: true,
+          );
+        }
+      }
+
+      final Widget speedButtonChild = Container(
+        height: touchSize,
+        padding: const EdgeInsets.symmetric(horizontal: 6.0),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SvgPicture.asset(
+              'assets/svg/playback_speed.svg',
+              colorFilter: const ColorFilter.mode(
+                Colors.white,
+                BlendMode.srcIn,
+              ),
+              width: iconSize,
+              height: iconSize,
+            ),
+            const SizedBox(width: 4),
+            // 显示当前视频的实时倍速，便于通过快捷键调整后一眼确认。
+            Text(
+              '${_formatPlaybackSpeed(currentSpeed)}x',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: currentScreenIsFullScreen ? 13 : 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      );
+
+      // 伪横屏全屏下 PopupMenu 会逃出旋转坐标系，改用方向正确的选项 sheet。
+      if (playerOverlayNeedsRotation(myVideoStateController)) {
+        return Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14.0),
+            onTap: () async {
+              final selected = await showPlayerRotationAwareOptionSheet<double>(
+                context: context,
+                controller: myVideoStateController,
+                title: t.videoDetail.switchPlaybackSpeed,
+                options: [
+                  for (final speed in speeds)
+                    PlayerPickerOption<double>(
+                      value: speed,
+                      label: '${_formatPlaybackSpeed(speed)}x',
+                      selected: speed == currentSpeed,
+                    ),
+                ],
+              );
+              if (selected != null) applySpeed(selected);
+            },
+            child: speedButtonChild,
+          ),
+        );
+      }
+
       return PopupMenuButton<double>(
         initialValue: currentSpeed,
         tooltip: t.videoDetail.switchPlaybackSpeed,
-        child: Container(
-          height: touchSize,
-          padding: const EdgeInsets.symmetric(horizontal: 6.0),
-          alignment: Alignment.center,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SvgPicture.asset(
-                'assets/svg/playback_speed.svg',
-                colorFilter: const ColorFilter.mode(
-                  Colors.white,
-                  BlendMode.srcIn,
-                ),
-                width: iconSize,
-                height: iconSize,
-              ),
-              const SizedBox(width: 4),
-              // 显示当前视频的实时倍速，便于通过快捷键调整后一眼确认。
-              Text(
-                '${_formatPlaybackSpeed(currentSpeed)}x',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: currentScreenIsFullScreen ? 13 : 12,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
-        onSelected: (double selected) {
-          if (selected != currentSpeed) {
-            myVideoStateController.setPlaybackSpeed(
-              selected,
-              persistAsDefault: true,
-            );
-          }
-        },
+        onSelected: applySpeed,
         itemBuilder: (BuildContext context) {
           return speeds.map((double speed) {
             return PopupMenuItem<double>(
@@ -610,6 +686,7 @@ class BottomToolbar extends StatelessWidget {
             );
           }).toList();
         },
+        child: speedButtonChild,
       );
     });
   }

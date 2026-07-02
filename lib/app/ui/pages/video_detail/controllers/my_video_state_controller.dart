@@ -50,6 +50,7 @@ import '../../../../services/download_service.dart';
 import '../../../../models/download/download_task.model.dart';
 import '../../../../models/download/download_task_ext_data.model.dart';
 import '../widgets/player/custom_slider_bar_shape_widget.dart';
+import '../widgets/player/rotated_modal_bottom_sheet.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import '../widgets/private_or_deleted_video_widget.dart';
 import 'package:floating/floating.dart';
@@ -4390,6 +4391,25 @@ class MyVideoStateController extends GetxController
           SnackBar(
             content: Text(slang.t.videoDetail.cast.unableToGetVideoUrl),
             duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+      return;
+    }
+
+    // 伪横屏全屏下改用旋转感知 sheet，避免投屏面板按物理竖屏方向弹出；
+    // backgroundColor 透明对齐 showAppBottomSheet 默认（面板自绘背景）。
+    if (playerOverlayNeedsRotation(this)) {
+      final ctx = rootNavigatorKey.currentContext;
+      if (ctx != null) {
+        showPlayerRotationAwareModalBottomSheet(
+          context: ctx,
+          controller: this,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (_) => DlnaCastSheet(
+            videoUrl: videoUrl,
+            dlnaController: _dlnaCastService,
           ),
         );
       }
