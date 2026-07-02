@@ -67,6 +67,15 @@ enum VideoDetailPageLoadingState {
   playerError, // 播放器错误
 }
 
+/// 移动端应用内全屏 Hero 形变的阶段。
+/// none 表示无形变（未全屏、或已处于静止全屏态）；expanding/collapsing 期间
+/// 共享播放器寄宿在根 Overlay 的形变层中，内联槽位与页面内全屏宿主都不渲染它。
+enum FullscreenMorphPhase {
+  none,
+  expanding, // 从内联矩形放大铺满窗口
+  collapsing, // 从全屏收缩回内联矩形
+}
+
 enum VideoCenterOverlayState {
   sourceError,
   loadingVideoInfo,
@@ -177,15 +186,57 @@ class MyVideoStateController extends GetxController
   final RxBool isFullscreen = false.obs;
   final RxList<VideoSource> currentVideoSourceList = <VideoSource>[].obs;
 
+  // ---- 移动端应用内全屏 Hero 形变（不做系统旋转）----
+  /// 当前形变阶段；桌面端恒为 none。
+  final Rx<FullscreenMorphPhase> fullscreenMorphPhase =
+      FullscreenMorphPhase.none.obs;
+
+  /// 共享播放器实例的 GlobalKey：内联槽位 / 形变层 / 页面内全屏宿主之间通过
+  /// 它重 parent 同一个 MyVideoScreen（同一帧只允许一处构建），避免纹理重建黑帧。
+  final GlobalKey playerViewKey = GlobalKey(debugLabel: 'sharedPlayerView');
+
+  /// 内联播放器槽位的 GlobalKey：宽屏布局挂在播放器区域、窄屏布局挂在
+  /// SliverAppBar 的 flexibleSpace 上（两者互斥），用于实时测量形变起点/落点矩形。
+  final GlobalKey inlinePlayerSlotKey = GlobalKey(
+    debugLabel: 'inlinePlayerSlot',
+  );
+  Rect? _lastInlineSlotRect;
+
+  /// 退出全屏收缩落地后是否临时亮出工具栏。
+  /// 取决于退出前工具栏是否处于可见态：从底栏按钮退出（工具栏开着）→ 落地后
+  /// 临时亮出；安卓手势返回等场景（工具栏没开）→ 落地后保持隐藏。
+  bool _showToolbarsAfterFullscreenCollapse = false;
+
+  /// 全局方向锁「代数」：谁最后加锁谁负责解锁。路由接力时新页面加锁会使旧
+  /// 控制器的解锁自动变成 no-op；而接力失败（新页面从未加锁）时，旧控制器
+  /// 销毁仍能凭代数匹配兜底解锁，方向锁不会遗留在系统层。
+  static int _orientationLockGeneration = 0;
+  int? _heldOrientationLockGeneration;
+  bool _inAppFullscreenHandoffConsumed = false;
+
+  /// 移动端使用应用内伪横屏形变全屏；桌面端维持系统窗口全屏。
+  bool get useInAppFullscreenMorph =>
+      GetPlatform.isAndroid || GetPlatform.isIOS;
+
+  /// 全屏会话是否活跃（含静止全屏与两个方向的形变过程）。
+  /// 内联槽位在此期间必须渲染占位而非播放器，防止 GlobalKey 同帧重复。
+  bool get fullscreenSessionActive =>
+      isFullscreen.value ||
+      fullscreenMorphPhase.value != FullscreenMorphPhase.none;
+
   // ---- 视频画面缩放 / 平移 / 旋转（双指捏合 + 旋转、Ctrl+滚轮、拖动移动画面）----
   /// 当前画面缩放倍数（1.0 表示原始大小）
   final RxDouble videoZoomScale = 1.0.obs;
+
   /// 当前画面平移偏移（相对于画面中心，单位：逻辑像素）
   final Rx<Offset> videoZoomOffset = const Offset(0, 0).obs;
+
   /// 当前画面旋转角度（弧度）
   final RxDouble videoZoomRotation = 0.0.obs;
+
   /// 还原信号：自增以通知缩放层执行带动画的复位
   final RxInt videoZoomResetSignal = 0.obs;
+
   /// 是否正在进行双指捏合
   bool isPinchingVideo = false;
 
@@ -233,8 +284,6 @@ class MyVideoStateController extends GetxController
   final RxList<BufferRange> buffers = <BufferRange>[].obs; // 缓冲区段列表
 
   late AnimationController animationController;
-  late Animation<Offset> topBarAnimation;
-  late Animation<Offset> bottomBarAnimation;
 
   StreamSubscription<bool>? bufferingSubscription;
   StreamSubscription<Duration>? positionSubscription;
@@ -572,16 +621,8 @@ class MyVideoStateController extends GetxController
       );
       LogUtils.d('已初始化 animationController', 'MyVideoStateController');
 
-      topBarAnimation =
-          Tween<Offset>(begin: const Offset(0, -1), end: Offset.zero).animate(
-            CurvedAnimation(parent: animationController, curve: Curves.easeOut),
-          );
-
-      bottomBarAnimation =
-          Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(
-            CurvedAnimation(parent: animationController, curve: Curves.easeOut),
-          );
-
+      // 工具栏显隐已改为淡入淡出（直接以 animationController 作为不透明度），
+      // 原先的 top/bottomBarAnimation 位移动画随之移除。
       if (isLocalVideoMode) {
         // 本地播放模式：保持原行为，初始显示工具栏
         animationController.forward();
@@ -1456,8 +1497,9 @@ class MyVideoStateController extends GetxController
       // （参见 issue #95 + 后续观察），所以这里按显著度抽出**多个候选关键词**：
       // 优先用最独特的 CJK 长词去搜，搜不到再回退到 ASCII 词对、最后才是完整标题。
       // 第一个通过 iwara-ID 校验就立刻退出，避免无谓请求。
-      final keywordCandidates =
-          Oreno3dMatchUtil.extractKeywordCandidates(videoTitle);
+      final keywordCandidates = Oreno3dMatchUtil.extractKeywordCandidates(
+        videoTitle,
+      );
 
       // 跨候选去重：同一条 oreno3d 视频可能在多个关键词下都进入候选列表，
       // 没必要重复拉详情。
@@ -1526,7 +1568,7 @@ class MyVideoStateController extends GetxController
       if (!matched) {
         LogUtils.d(
           '未找到与当前iwara视频ID($currentIwaraId)匹配的oreno3d视频'
-          '(尝试关键词: ${keywordCandidates.length}个, 校验详情: $totalVerifications次)',
+              '(尝试关键词: ${keywordCandidates.length}个, 校验详情: $totalVerifications次)',
           'MyVideoStateController',
         );
       }
@@ -1557,16 +1599,18 @@ class MyVideoStateController extends GetxController
     String? authorName,
   ) {
     final scored = videos.map((video) {
-      final authorMatch = authorName != null &&
+      final authorMatch =
+          authorName != null &&
           video.author.toLowerCase() == authorName.toLowerCase();
       // 相似度比较使用原始标题（而非净化后的关键词），保证排序准确。
-      final similarity =
-          Oreno3dMatchUtil.titleSimilarity(videoTitle, video.title);
+      final similarity = Oreno3dMatchUtil.titleSimilarity(
+        videoTitle,
+        video.title,
+      );
       // 作者一致的候选项优先级更高
       final score = similarity + (authorMatch ? 1.0 : 0.0);
       return MapEntry(video, score);
-    }).toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    }).toList()..sort((a, b) => b.value.compareTo(a.value));
 
     return scored.map((e) => e.key).toList();
   }
@@ -1645,6 +1689,21 @@ class MyVideoStateController extends GetxController
   void onClose() {
     LogUtils.i('MyVideoStateController onClose 被调用', 'MyVideoStateController');
     _isDisposed = true;
+
+    // 移动端在全屏/形变中被销毁（如路由强退）时兜底恢复系统 UI 与屏幕方向。
+    // 路由接力场景：relinquishFullscreenForRouteHandoff 已清掉全屏/形变状态
+    // （showSystemUI 自然跳过）；方向锁解锁按代数机制判定——新页面已加锁则
+    // 本次解锁为 no-op，新页面未加锁则由此兜底，不会打断新页面的全屏。
+    if (useInAppFullscreenMorph) {
+      if (fullscreenSessionActive) {
+        try {
+          appS.showSystemUI();
+        } catch (e) {
+          LogUtils.e('销毁时恢复系统 UI 失败', tag: 'MyVideoStateController', error: e);
+        }
+      }
+      unawaited(_unlockOrientationAfterInAppFullscreen());
+    }
 
     // Controller 销毁时如果仍持有 PiP 所有权，释放它，避免残留状态影响后续 PiP。
     if (_pipOwnerKey == _pipControllerKey) {
@@ -2864,33 +2923,97 @@ class MyVideoStateController extends GetxController
       '[更新后的宽高比] $aspectRatio, 视频高度: $sourceVideoHeight, 视频宽度: $sourceVideoWidth',
       'MyVideoStateController',
     );
-    if (isFullscreen.value && (GetPlatform.isAndroid || GetPlatform.isIOS)) {
-      unawaited(_syncNativeFullscreenOrientation());
+    // 移动端应用内全屏的旋转方向由静止态宿主响应式计算（resolveActiveFullscreenQuarterTurns
+    // 读取 aspectRatio），宽高比迟到时会自动纠正，无需再做系统旋转同步。
+  }
+
+  /// 实时测量内联播放器槽位的窗口坐标矩形（形变起点/落点）。
+  /// 槽位不存在（如布局切换瞬间）时回退到最近一次成功测量的值。
+  Rect? measureInlinePlayerSlotRect() {
+    final ctx = inlinePlayerSlotKey.currentContext;
+    final ro = ctx?.findRenderObject();
+    if (ro is RenderBox && ro.attached && ro.hasSize) {
+      final rect = ro.localToGlobal(Offset.zero) & ro.size;
+      _lastInlineSlotRect = rect;
+      return rect;
+    }
+    return _lastInlineSlotRect;
+  }
+
+  /// 应用内全屏（静止态与形变快照）应使用的 RotatedBox quarterTurns。
+  /// 窗口已是横屏、或竖屏视频按配置竖屏全屏时不旋转；否则按设置的横屏方向转 90°。
+  int resolveActiveFullscreenQuarterTurns([BuildContext? context]) {
+    final ctx = context ?? rootNavigatorKey.currentContext;
+    final Orientation orientation = ctx != null
+        ? MediaQuery.of(ctx).orientation
+        : Orientation.portrait;
+    if (orientation == Orientation.landscape) return 0;
+    final bool renderVerticalVideoInVerticalScreen =
+        _configService[ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN];
+    if (renderVerticalVideoInVerticalScreen &&
+        aspectRatio.value > 0 &&
+        aspectRatio.value < 1) {
+      return 0;
+    }
+    final String orientationConfig =
+        _configService[ConfigKey.FULLSCREEN_ORIENTATION] as String? ??
+        'landscape_left';
+    return CommonUtils.resolveInAppQuarterTurns(orientationConfig);
+  }
+
+  /// 应用内伪横屏期间锁定窗口方向为当前朝向：应用平时跟随系统自由旋转，若不加锁，
+  /// 用户物理转动设备会叠加「系统旋转 + 应用内旋转」。锁到当前朝向不会触发系统
+  /// 旋转动画。
+  Future<void> _lockOrientationForInAppFullscreen() async {
+    _heldOrientationLockGeneration = ++_orientationLockGeneration;
+    final ctx = rootNavigatorKey.currentContext;
+    final bool isPortrait =
+        ctx == null || MediaQuery.of(ctx).orientation == Orientation.portrait;
+    try {
+      await SystemChrome.setPreferredOrientations(
+        isPortrait
+            ? const [DeviceOrientation.portraitUp]
+            : const [
+                DeviceOrientation.landscapeLeft,
+                DeviceOrientation.landscapeRight,
+              ],
+      );
+    } catch (e) {
+      LogUtils.e('锁定全屏方向失败', tag: 'MyVideoStateController', error: e);
     }
   }
 
-  Future<void> _syncNativeFullscreenOrientation() async {
-    if (!isFullscreen.value || (!GetPlatform.isAndroid && !GetPlatform.isIOS)) {
-      return;
+  /// 恢复平台默认方向（空列表 = 交还给 Info.plist / Manifest 配置）。
+  /// 若已有更新的持锁者（路由接力后的新页面），本次解锁自动变 no-op。
+  Future<void> _unlockOrientationAfterInAppFullscreen() async {
+    final held = _heldOrientationLockGeneration;
+    _heldOrientationLockGeneration = null;
+    if (held == null || held != _orientationLockGeneration) return;
+    try {
+      await SystemChrome.setPreferredOrientations(const []);
+    } catch (e) {
+      LogUtils.e('恢复屏幕方向失败', tag: 'MyVideoStateController', error: e);
     }
+  }
 
-    final context = rootNavigatorKey.currentContext;
-    if (context == null) {
-      return;
-    }
+  /// 放大形变完成（形变层动画回调）：此刻才隐藏系统 UI 与侧边栏——底层重排在
+  /// 形变层满窗遮盖下进行，并与「形变层退场 + 页面内全屏宿主进场」同帧完成交接。
+  void onFullscreenMorphExpandCompleted() {
+    if (!isFullscreen.value) return; // 已被中断转为退出
+    appS.hideSystemUI();
+    fullscreenMorphPhase.value = FullscreenMorphPhase.none;
+  }
 
-    final bool renderVerticalVideoInVerticalScreen =
-        _configService[ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN];
-    final currentOrientation = MediaQuery.of(context).orientation;
-
-    if (renderVerticalVideoInVerticalScreen && aspectRatio.value < 1) {
-      await CommonUtils.defaultEnterNativeFullscreen(toVerticalScreen: true);
-    } else if (currentOrientation == Orientation.landscape) {
-      await CommonUtils.defaultEnterNativeFullscreen();
-    } else {
-      await CommonUtils.defaultEnterNativeFullscreen(
-        useGravityOrientation: true,
-      );
+  /// 收缩形变完成：播放器交还内联槽位，解除方向锁。
+  void onFullscreenMorphCollapseCompleted() {
+    if (isFullscreen.value) return; // 已被中断重新进入全屏
+    fullscreenMorphPhase.value = FullscreenMorphPhase.none;
+    unawaited(_unlockOrientationAfterInAppFullscreen());
+    // Hero 动画结束后，仅当退出前工具栏本就可见时才临时亮出
+    // （自动隐藏计时器随后会再收起）；手势返回等未开工具栏的退出保持隐藏。
+    if (_showToolbarsAfterFullscreenCollapse) {
+      _showToolbarsAfterFullscreenCollapse = false;
+      showToolbars();
     }
   }
 
@@ -2899,6 +3022,32 @@ class MyVideoStateController extends GetxController
     if (isFullscreen.value) return;
     // 全屏切换时复位画面缩放，避免内嵌与全屏之间残留缩放状态
     resetVideoZoomImmediately();
+
+    if (useInAppFullscreenMorph) {
+      // —— 移动端：应用内伪横屏 Hero 形变，全程不做系统旋转 ——
+      // 工具栏瞬时收起，形变过程只呈现干净的视频画面
+      hideToolbarsImmediately();
+      final bool reuseInAppFullscreen =
+          !_inAppFullscreenHandoffConsumed &&
+          fullscreenHandoff?.nativeFullscreenActive == true;
+      _inAppFullscreenHandoffConsumed = true;
+      unawaited(_lockOrientationForInAppFullscreen());
+      if (reuseInAppFullscreen) {
+        // 全屏内切换视频的路由接力：上个页面已处于全屏视觉态，直接进入静止
+        // 全屏，不再形变。
+        isFullscreen.value = true;
+        appS.hideSystemUI();
+      } else {
+        measureInlinePlayerSlotRect();
+        isFullscreen.value = true;
+        fullscreenMorphPhase.value = FullscreenMorphPhase.expanding;
+        // 系统 UI（状态栏）与侧边栏留到形变完成后再隐藏，保证放大过程底层布局
+        // 零变化、无闪跳；见 onFullscreenMorphExpandCompleted。
+      }
+      return;
+    }
+
+    // —— 桌面端：维持系统窗口全屏 ——
     // 保存进入全屏前的播放状态
     final wasPlaying = videoPlaying.value;
     var reuseNativeFullscreen =
@@ -2917,9 +3066,7 @@ class MyVideoStateController extends GetxController
     isFullscreen.value = true;
     appS.hideSystemUI();
 
-    if (GetPlatform.isAndroid || GetPlatform.isIOS) {
-      await _syncNativeFullscreenOrientation();
-    } else if (!reuseNativeFullscreen) {
+    if (!reuseNativeFullscreen) {
       await CommonUtils.defaultEnterNativeFullscreen();
     }
 
@@ -2936,6 +3083,27 @@ class MyVideoStateController extends GetxController
     if (!isFullscreen.value) return;
     // 全屏切换时复位画面缩放，避免内嵌与全屏之间残留缩放状态
     resetVideoZoomImmediately();
+
+    if (useInAppFullscreenMorph) {
+      // —— 移动端：反向 Hero 形变 ——
+      // 记录退出前工具栏是否可见：可见（如从底栏按钮退出）则落地后临时亮出，
+      // 不可见（如安卓手势返回）则落地后保持隐藏。
+      _showToolbarsAfterFullscreenCollapse = animationController.value > 0;
+      // 工具栏瞬时收起，收缩过程只呈现干净的视频画面；
+      // 落地后是否亮出见 onFullscreenMorphCollapseCompleted。
+      hideToolbarsImmediately();
+      // 系统 UI 必须在收缩开始的瞬间恢复：状态栏/侧边栏回归引发的底层重排在
+      // 形变层满窗遮盖下完成，收缩动画每帧实时追踪内联槽位矩形即可精确落点。
+      // 放大形变被中断转为退出时系统 UI 从未被隐藏，跳过多余的恢复调用。
+      if (fullscreenMorphPhase.value != FullscreenMorphPhase.expanding) {
+        appS.showSystemUI();
+      }
+      isFullscreen.value = false;
+      fullscreenMorphPhase.value = FullscreenMorphPhase.collapsing;
+      return;
+    }
+
+    // —— 桌面端：维持系统窗口全屏退出 ——
     // 保存退出全屏前的播放状态
     final wasPlaying = videoPlaying.value;
     appS.showSystemUI();
@@ -2976,6 +3144,12 @@ class MyVideoStateController extends GetxController
     if (!isFullscreen.value) {
       return null;
     }
+    // 移动端形变进行中不产出接力包：此时系统 UI 状态与视觉均非静止全屏态，
+    // 新页面直接按静止全屏渲染会闪跳；让新页面从内联态重新走完整形变。
+    if (useInAppFullscreenMorph &&
+        fullscreenMorphPhase.value != FullscreenMorphPhase.none) {
+      return null;
+    }
 
     return VideoFullscreenHandoff(
       nativeFullscreenActive: true,
@@ -2993,6 +3167,10 @@ class MyVideoStateController extends GetxController
     }
 
     _suppressFullscreenCleanupOnce = true;
+    // 方向锁按代数机制自然交接：新页面加锁后本控制器的解锁自动失效；
+    // 新页面若始终未加锁，本控制器销毁时仍会兜底解锁。
+    // 同时清掉可能残留的形变态，避免页面销毁前的过渡帧里形变层仍按旧状态渲染。
+    fullscreenMorphPhase.value = FullscreenMorphPhase.none;
     isFullscreen.value = false;
   }
 
@@ -3208,6 +3386,15 @@ class MyVideoStateController extends GetxController
         _resetAutoHideTimer();
       }
     });
+  }
+
+  /// 立即隐藏顶部/底部工具栏（无动画）。
+  /// 移动端进入/退出全屏的瞬间调用：形变动画期间只呈现干净的视频画面，
+  /// 工具栏不跟着缩放漂移，落定后由用户点按再唤出。
+  void hideToolbarsImmediately() {
+    _autoHideTimer?.cancel();
+    animationController.value = 0.0;
+    isLockButtonVisible.value = false;
   }
 
   // 修改现有的 toggleToolbars 方法

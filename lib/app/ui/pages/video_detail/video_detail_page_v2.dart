@@ -12,6 +12,7 @@ import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/ui/pages/local_video_detail/widgets/local_video_info_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/my_video_screen.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/video_fullscreen_morph_overlay.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/video_info_tab_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/comments_tab_widget.dart';
@@ -75,6 +76,10 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   Worker? _forceEnterFullscreenWorker;
   bool _hasTriggeredForcedFullscreen = false;
 
+  /// 移动端全屏 Hero 形变层：挂在根 Overlay（可覆盖侧边栏），随页面创建/销毁。
+  /// 空闲时渲染空占位，仅在形变进行的两段动画期间接管共享播放器。
+  OverlayEntry? _fullscreenMorphEntry;
+
   // Tab控制器
   late TabController tabController;
   final RxInt currentTabIndex = 0.obs;
@@ -134,6 +139,28 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         if (widget.forceEnterFullscreen) {
           _scheduleForcedFullscreenEntry();
         }
+      }
+
+      // 移动端：把全屏形变层插入根 Overlay。必须在根 Overlay 上才能盖住宽屏
+      // 布局的侧边导航栏；静止全屏态它是空占位，弹窗/抽屉仍显示在播放器之上。
+      if (controller.useInAppFullscreenMorph) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted || _fullscreenMorphEntry != null) return;
+          final overlay = Overlay.maybeOf(context, rootOverlay: true);
+          if (overlay == null) {
+            LogUtils.w('未找到根 Overlay，全屏形变层未挂载', 'MyVideoDetailPage');
+            return;
+          }
+          _fullscreenMorphEntry = OverlayEntry(
+            builder: (_) => RestoreRawMediaQueryInsets(
+              child: VideoFullscreenMorphLayer(
+                controller: controller,
+                innerPlaylistContextResolver: _resolveInnerPlaylistContext,
+              ),
+            ),
+          );
+          overlay.insert(_fullscreenMorphEntry!);
+        });
       }
 
       // RouteAware 订阅在 didChangeDependencies 中完成
@@ -271,6 +298,11 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       // controller 可能因初始化失败而未赋值（late），忽略即可
     }
 
+    // 移除全屏形变层（须在 controller 删除前，形变层持有对它的引用）
+    _fullscreenMorphEntry?.remove();
+    _fullscreenMorphEntry?.dispose();
+    _fullscreenMorphEntry = null;
+
     // 销毁Tab控制器
     tabController.dispose();
     _forceEnterFullscreenWorker?.dispose();
@@ -337,6 +369,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
 
     return Obx(() {
       final fullscreenActive = controller.isFullscreen.value;
+      final morphActive =
+          controller.fullscreenMorphPhase.value != FullscreenMorphPhase.none;
       final overlayActive = OverlayTracker.instance.hasOverlay;
       final effectiveInnerPlaylistContext = _resolveInnerPlaylistContext();
 
@@ -347,7 +381,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         // allowing the page route to pop can leave the dialog behind.
         // Block page pop while an overlay is present, and delegate to
         // PopCoordinator via AppService.tryPop to close the overlay first.
-        canPop: !fullscreenActive && !overlayActive,
+        // 形变动画期间同样禁止页面 pop，避免页面连同根 Overlay 上的形变层被中途撕掉。
+        canPop: !fullscreenActive && !morphActive && !overlayActive,
         onPopInvokedWithResult: (didPop, result) {
           final overlayActiveNow = OverlayTracker.instance.hasOverlay;
           LogUtils.d(
@@ -359,6 +394,14 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
           );
 
           if (didPop) return;
+
+          // 收缩形变已在进行（isFullscreen 已为 false）：忽略重复返回，动画
+          // 结束后自然回到内联态。放大形变期间 isFullscreen 为 true，走下方
+          // exitFullscreen 分支即可从当前进度反向收回。
+          if (controller.fullscreenMorphPhase.value ==
+              FullscreenMorphPhase.collapsing) {
+            return;
+          }
 
           if (overlayActiveNow) {
             LogUtils.d(
@@ -391,6 +434,10 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                 child: Obx(() {
                   // 添加画中画模式判断
                   if (controller.isPiPMode.value) {
+                    // PiP 全程不参与共享 GlobalKey：其生命周期独立于内联槽位/
+                    // 形变层/全屏宿主，无条件独立实例可彻底排除与全屏会话状态
+                    // 组合出的同帧 Key 重复风险（纹理经同一 videoController
+                    // 共享，重建无黑帧）。
                     return MyVideoScreen(
                       myVideoStateController: controller,
                       isFullScreen: false,
@@ -441,11 +488,39 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
             if (fullscreenActive)
               Positioned.fill(
                 child: RestoreRawMediaQueryInsets(
-                  child: MyVideoScreen(
-                    isFullScreen: true,
-                    myVideoStateController: controller,
-                    innerPlaylistContext: effectiveInnerPlaylistContext,
-                  ),
+                  child: !controller.useInAppFullscreenMorph
+                      // 桌面端：维持原系统窗口全屏叠加层
+                      ? MyVideoScreen(
+                          isFullScreen: true,
+                          myVideoStateController: controller,
+                          innerPlaylistContext: effectiveInnerPlaylistContext,
+                        )
+                      // 移动端：形变期间播放器寄宿在根 Overlay 的形变层里，这里
+                      // 只在静止全屏态渲染伪横屏宿主（与形变层同帧交接同一实例）
+                      : morphActive
+                      ? const SizedBox.shrink()
+                      : Obx(() {
+                          // 显式读取一次以建立 Obx 依赖：resolveActiveFullscreenQuarterTurns
+                          // 内部的 Rx 读取存在早退/短路路径（窗口已横屏、竖屏配置关闭时），
+                          // 可能一个可观察变量都不读，Obx 会抛 ObxError。
+                          controller.aspectRatio.value;
+                          final turns = controller
+                              .resolveActiveFullscreenQuarterTurns(context);
+                          return RotatedBox(
+                            quarterTurns: turns,
+                            child: FakeRotatedMediaQuery(
+                              quarterTurns: turns,
+                              stripTopInset: true,
+                              child: MyVideoScreen(
+                                key: controller.playerViewKey,
+                                isFullScreen: true,
+                                myVideoStateController: controller,
+                                innerPlaylistContext:
+                                    effectiveInnerPlaylistContext,
+                              ),
+                            ),
+                          );
+                        }),
                 ),
               ),
           ],
@@ -476,27 +551,31 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         // 左侧纯播放器区域（自适应宽度）
         Expanded(
           child: SizedBox.expand(
-            child: _buildVideoArea(
-              context,
-              player: Obx(() {
-                // 站外、站内视频都显示播放器
-                if (controller.videoInfo.value?.isExternalVideo == true ||
-                    controller.videoPlayerReady.value) {
-                  return _buildPureVideoPlayer(
-                    screenSize.height,
-                    paddingTop,
-                    applyBottomSafeArea: true,
+            // 内联播放器槽位矩形追踪：全屏形变的起点与落点
+            child: KeyedSubtree(
+              key: controller.inlinePlayerSlotKey,
+              child: _buildVideoArea(
+                context,
+                player: Obx(() {
+                  // 站外、站内视频都显示播放器
+                  if (controller.videoInfo.value?.isExternalVideo == true ||
+                      controller.videoPlayerReady.value) {
+                    return _buildPureVideoPlayer(
+                      screenSize.height,
+                      paddingTop,
+                      applyBottomSafeArea: true,
+                      innerPlaylistContext: innerPlaylistContext,
+                    );
+                  }
+                  // 否则显示播放器（包含加载状态）
+                  return MyVideoScreen(
+                    myVideoStateController: controller,
+                    isFullScreen: false,
+                    enableBottomSafeArea: true,
                     innerPlaylistContext: innerPlaylistContext,
                   );
-                }
-                // 否则显示播放器（包含加载状态）
-                return MyVideoScreen(
-                  myVideoStateController: controller,
-                  isFullScreen: false,
-                  enableBottomSafeArea: true,
-                  innerPlaylistContext: innerPlaylistContext,
-                );
-              }),
+                }),
+              ),
             ),
           ),
         ),
@@ -581,50 +660,57 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                   screenSize.height,
                   paddingTop,
                 ),
-                flexibleSpace: Stack(
-                  children: [
-                    // 视频播放器
-                    Obx(() {
-                      final videoHeight = controller.getCurrentVideoHeight(
-                        screenSize.width,
-                        screenSize.height,
-                        paddingTop,
-                      );
+                // 内联播放器槽位矩形追踪：KeyedSubtree 的渲染盒即 SliverAppBar
+                // 当前实际可见区域（含播放态上滑收缩后的高度），形变以它为
+                // 起点/落点，而不是被裁剪掉底部的完整视频高度。
+                flexibleSpace: KeyedSubtree(
+                  key: controller.inlinePlayerSlotKey,
+                  child: Stack(
+                    children: [
+                      // 视频播放器
+                      Obx(() {
+                        final videoHeight = controller.getCurrentVideoHeight(
+                          screenSize.width,
+                          screenSize.height,
+                          paddingTop,
+                        );
 
-                      // 站外、站内视频都显示播放器
-                      if (controller.videoInfo.value?.isExternalVideo == true ||
-                          controller.videoPlayerReady.value ||
-                          controller.shouldShowInitialPlaybackCover) {
-                        return SizedBox(
-                          width: screenSize.width,
-                          height: videoHeight,
-                          child: _buildVideoArea(
-                            context,
-                            player: _buildVideoPlayerContent(
-                              innerPlaylistContext,
+                        // 站外、站内视频都显示播放器
+                        if (controller.videoInfo.value?.isExternalVideo ==
+                                true ||
+                            controller.videoPlayerReady.value ||
+                            controller.shouldShowInitialPlaybackCover) {
+                          return SizedBox(
+                            width: screenSize.width,
+                            height: videoHeight,
+                            child: _buildVideoArea(
+                              context,
+                              player: _buildVideoPlayerContent(
+                                innerPlaylistContext,
+                              ),
                             ),
-                          ),
-                        );
-                      }
-                      // 否则显示骨架屏
-                      else {
-                        return SizedBox(
-                          width: screenSize.width,
-                          height: videoHeight,
-                          child: _buildVideoArea(
-                            context,
-                            player: MyVideoScreen(
-                              myVideoStateController: controller,
-                              isFullScreen: false,
-                              innerPlaylistContext: innerPlaylistContext,
+                          );
+                        }
+                        // 否则显示骨架屏
+                        else {
+                          return SizedBox(
+                            width: screenSize.width,
+                            height: videoHeight,
+                            child: _buildVideoArea(
+                              context,
+                              player: MyVideoScreen(
+                                myVideoStateController: controller,
+                                isFullScreen: false,
+                                innerPlaylistContext: innerPlaylistContext,
+                              ),
                             ),
-                          ),
-                        );
-                      }
-                    }),
-                    // 顶部工具栏（根据滚动状态显示）
-                    Obx(() => _buildTopToolbarOverlay(context, t)),
-                  ],
+                          );
+                        }
+                      }),
+                      // 顶部工具栏（根据滚动状态显示）
+                      Obx(() => _buildTopToolbarOverlay(context, t)),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -654,9 +740,13 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         else if (controller.videoInfo.value?.isExternalVideo == true) {
           return _buildExternalVideoWidget(context);
         }
-        // 正常显示播放器
-        else if (!controller.isFullscreen.value) {
+        // 正常显示播放器（全屏会话期间——含形变过程——槽位渲染黑色占位，
+        // 共享播放器实例此时寄宿在形变层或全屏宿主中）
+        else if (!controller.fullscreenSessionActive) {
           return MyVideoScreen(
+            key: controller.useInAppFullscreenMorph
+                ? controller.playerViewKey
+                : null,
             isFullScreen: false,
             enableBottomSafeArea: applyBottomSafeArea,
             myVideoStateController: controller,
@@ -680,9 +770,12 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       else if (controller.videoInfo.value?.isExternalVideo == true) {
         return _buildExternalVideoWidget(context);
       }
-      // 正常显示播放器
-      else if (!controller.isFullscreen.value) {
+      // 正常显示播放器（全屏会话期间槽位渲染黑色占位，见 _buildPureVideoPlayer 注释）
+      else if (!controller.fullscreenSessionActive) {
         return MyVideoScreen(
+          key: controller.useInAppFullscreenMorph
+              ? controller.playerViewKey
+              : null,
           isFullScreen: false,
           myVideoStateController: controller,
           innerPlaylistContext: innerPlaylistContext,
@@ -876,7 +969,9 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
           if (!completer.isCompleted) completer.complete(info.image.clone());
         },
         onError: (Object error, StackTrace? stackTrace) {
-          if (!completer.isCompleted) completer.completeError(error, stackTrace);
+          if (!completer.isCompleted) {
+            completer.completeError(error, stackTrace);
+          }
         },
       );
       stream.addListener(listener);
@@ -1051,9 +1146,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
             ]
           : [
               // 在线模式：显示所有tab
-              VideoInfoTabWidget(
-                controller: controller,
-              ),
+              VideoInfoTabWidget(controller: controller),
               CommentsTabWidget(
                 commentController: commentController!,
                 videoController: controller,

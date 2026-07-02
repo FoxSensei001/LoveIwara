@@ -1443,9 +1443,11 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       return AnimatedBuilder(
         animation: widget.myVideoStateController.animationController,
         builder: (context, child) {
-          final toolbarVisibility =
-              (1 - widget.myVideoStateController.bottomBarAnimation.value.dy)
-                  .clamp(0.0, 1.0);
+          final toolbarVisibility = widget
+              .myVideoStateController
+              .animationController
+              .value
+              .clamp(0.0, 1.0);
 
           return FullscreenInnerPlaylistDrawer(
             items: _orderedInnerPlaylistItems,

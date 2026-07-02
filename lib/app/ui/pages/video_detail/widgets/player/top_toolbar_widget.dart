@@ -7,6 +7,7 @@ import '../../../../../../utils/proxy/proxy_util.dart';
 import '../../../../../routes/app_router.dart';
 import '../../../settings/widgets/player_settings_widget.dart';
 import 'video_gesture_guide.dart';
+import 'toolbar_fade_visibility.dart';
 import '../../../settings/widgets/proxy_setting_widget.dart';
 import '../../controllers/my_video_state_controller.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
@@ -403,247 +404,237 @@ class _TopToolbarState extends State<TopToolbar> {
     final double iconSize = isFullScreen ? 24.0 : 20.0;
     final double fontSize = isFullScreen ? 18.0 : 14.0;
 
-    return SlideTransition(
-      position: widget.myVideoStateController.topBarAnimation,
-      child: FadeTransition(
-        opacity: widget.myVideoStateController.animationController,
-        child: MouseRegion(
-          onEnter: (_) =>
-              widget.myVideoStateController.setToolbarHovering(true),
-          onExit: (_) =>
-              widget.myVideoStateController.setToolbarHovering(false),
-          child: Container(
-            height: toolbarHeight + statusBarHeight,
-            padding: EdgeInsets.only(top: statusBarHeight),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.black.withAlpha(179), Colors.transparent],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(77),
-                  offset: const Offset(0, 2),
-                  blurRadius: 4,
-                ),
-              ],
+    // 淡入淡出显隐（原为位移滑入滑出），隐藏后自动放行指针事件
+    return ToolbarFadeVisibility(
+      animation: widget.myVideoStateController.animationController,
+      child: MouseRegion(
+        onEnter: (_) => widget.myVideoStateController.setToolbarHovering(true),
+        onExit: (_) => widget.myVideoStateController.setToolbarHovering(false),
+        child: Container(
+          height: toolbarHeight + statusBarHeight,
+          padding: EdgeInsets.only(top: statusBarHeight),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.black.withAlpha(179), Colors.transparent],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // 左侧部分
-                Expanded(
-                  child: Row(
-                    children: [
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(77),
+                offset: const Offset(0, 2),
+                blurRadius: 4,
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // 左侧部分
+              Expanded(
+                child: Row(
+                  children: [
+                    IconButton(
+                      tooltip: t.common.back,
+                      icon: Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
+                        size: iconSize,
+                      ),
+                      onPressed: () {
+                        if (isFullScreen) {
+                          widget.myVideoStateController.exitFullscreen();
+                        } else if (widget
+                            .myVideoStateController
+                            .isDesktopAppFullScreen
+                            .value) {
+                          // 应用内全屏下，返回键先退出应用内全屏，而不是关闭页面
+                          widget
+                                  .myVideoStateController
+                                  .isDesktopAppFullScreen
+                                  .value =
+                              false;
+                          Get.find<AppService>().showSystemUI();
+                        } else {
+                          AppService.tryPop();
+                        }
+                      },
+                    ),
+                    if (!isFullScreen &&
+                        !widget
+                            .myVideoStateController
+                            .isDesktopAppFullScreen
+                            .value)
                       IconButton(
-                        tooltip: t.common.back,
+                        tooltip: t.videoDetail.home,
                         icon: Icon(
-                          Icons.arrow_back,
+                          Icons.home,
                           color: Colors.white,
                           size: iconSize,
                         ),
                         onPressed: () {
-                          if (isFullScreen) {
-                            widget.myVideoStateController.exitFullscreen();
-                          } else if (widget
-                              .myVideoStateController
-                              .isDesktopAppFullScreen
-                              .value) {
-                            // 应用内全屏下，返回键先退出应用内全屏，而不是关闭页面
-                            widget.myVideoStateController.isDesktopAppFullScreen
-                                .value = false;
-                            Get.find<AppService>().showSystemUI();
-                          } else {
-                            AppService.tryPop();
-                          }
+                          appRouter.go('/');
                         },
                       ),
-                      if (!isFullScreen &&
-                          !widget
-                              .myVideoStateController
-                              .isDesktopAppFullScreen
-                              .value)
-                        IconButton(
-                          tooltip: t.videoDetail.home,
-                          icon: Icon(
-                            Icons.home,
+                    Expanded(
+                      child: Obx(
+                        () => Text(
+                          widget
+                                  .myVideoStateController
+                                  .videoInfo
+                                  .value
+                                  ?.title ??
+                              t.videoDetail.videoPlayer,
+                          style: TextStyle(
                             color: Colors.white,
-                            size: iconSize,
+                            fontSize: fontSize,
                           ),
-                          onPressed: () {
-                            appRouter.go('/');
-                          },
-                        ),
-                      Expanded(
-                        child: Obx(
-                          () => Text(
-                            widget
-                                    .myVideoStateController
-                                    .videoInfo
-                                    .value
-                                    ?.title ??
-                                t.videoDetail.videoPlayer,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: fontSize,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+              ),
 
-                // 中间:[状态信息]全屏模式下显示时间、电量、网络状态
-                if (isFullScreen &&
-                    !((GetPlatform.isAndroid || GetPlatform.isIOS) &&
-                        MediaQuery.of(context).orientation ==
-                            Orientation.portrait))
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black12,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // 系统时间 (带动态 Icon)
+              // 中间:[状态信息]全屏模式下显示时间、电量、网络状态
+              if (isFullScreen &&
+                  !((GetPlatform.isAndroid || GetPlatform.isIOS) &&
+                      MediaQuery.of(context).orientation ==
+                          Orientation.portrait))
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black12,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // 系统时间 (带动态 Icon)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildTimeIcon(_currentTime),
+                          const SizedBox(width: 6),
+                          Text(
+                            _formatTime(_currentTime),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'RobotoMono',
+                            ),
+                          ),
+                        ],
+                      ),
+                      // 分隔符
+                      if (_batterySupported) ...[
+                        const SizedBox(width: 8),
+                        Container(width: 1, height: 12, color: Colors.white24),
+                        const SizedBox(width: 8),
+                      ],
+                      // 电量显示 (SVG 动态构建)
+                      if (_batterySupported) ...[
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            _buildTimeIcon(_currentTime),
+                            _buildBatterySvg(_batteryLevel, _batteryState),
                             const SizedBox(width: 6),
                             Text(
-                              _formatTime(_currentTime),
-                              style: const TextStyle(
-                                color: Colors.white,
+                              '$_batteryLevel%',
+                              style: TextStyle(
+                                color: (_batteryState == BatteryState.charging)
+                                    ? const Color(0xFF4CAF50)
+                                    : (_batteryLevel <= 20
+                                          ? const Color(0xFFF44336)
+                                          : Colors.white),
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                fontFamily: 'RobotoMono',
                               ),
                             ),
                           ],
                         ),
-                        // 分隔符
-                        if (_batterySupported) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            width: 1,
-                            height: 12,
-                            color: Colors.white24,
-                          ),
-                          const SizedBox(width: 8),
-                        ],
-                        // 电量显示 (SVG 动态构建)
-                        if (_batterySupported) ...[
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _buildBatterySvg(_batteryLevel, _batteryState),
-                              const SizedBox(width: 6),
-                              Text(
-                                '$_batteryLevel%',
-                                style: TextStyle(
-                                  color:
-                                      (_batteryState == BatteryState.charging)
-                                      ? const Color(0xFF4CAF50)
-                                      : (_batteryLevel <= 20
-                                            ? const Color(0xFFF44336)
-                                            : Colors.white),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                        // 电量与网络之间的分隔
-                        if (_shouldShowNetworkStatus()) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            width: 1,
-                            height: 12,
-                            color: Colors.white24,
-                          ),
-                          const SizedBox(width: 8),
-                        ],
-                        // 网络状态
-                        if (_shouldShowNetworkStatus()) _buildNetworkStatus(),
                       ],
-                    ),
+                      // 电量与网络之间的分隔
+                      if (_shouldShowNetworkStatus()) ...[
+                        const SizedBox(width: 8),
+                        Container(width: 1, height: 12, color: Colors.white24),
+                        const SizedBox(width: 8),
+                      ],
+                      // 网络状态
+                      if (_shouldShowNetworkStatus()) _buildNetworkStatus(),
+                    ],
                   ),
+                ),
 
-                // 右侧部分
-                Row(
-                  children: [
-                    if (!GetPlatform.isWeb &&
-                        !GetPlatform.isLinux &&
-                        !widget.myVideoStateController.isLocalVideoMode)
-                      IconButton(
-                        tooltip: t.videoDetail.cast.dlnaCast,
-                        icon: Icon(
-                          Icons.cast,
-                          color: Colors.white,
-                          size: iconSize,
-                        ),
-                        onPressed: () =>
-                            widget.myVideoStateController.showDlnaCastDialog(),
-                      ),
-                    if (GetPlatform.isAndroid)
-                      IconButton(
-                        tooltip: t.videoDetail.pipMode,
-                        icon: Icon(
-                          Icons.picture_in_picture_alt,
-                          color: Colors.white,
-                          size: iconSize,
-                        ),
-                        onPressed: () async {
-                          final floating = Floating();
-                          if (await floating.isPipAvailable) {
-                            final status = await floating.pipStatus;
-                            if (status == PiPStatus.disabled ||
-                                status == PiPStatus.automatic) {
-                              if (isFullScreen) {
-                                AppService.tryPop();
-                              }
-                              if (widget
-                                  .myVideoStateController
-                                  .isDesktopAppFullScreen
-                                  .value) {
-                                widget
-                                        .myVideoStateController
-                                        .isDesktopAppFullScreen
-                                        .value =
-                                    false;
-                              }
-                              widget.myVideoStateController.enterPiPMode();
-                            } else if (status == PiPStatus.enabled) {
-                              widget.myVideoStateController.exitPiPMode();
-                            }
-                          }
-                        },
-                      ),
-                    _buildAnime4KButton(context, iconSize),
+              // 右侧部分
+              Row(
+                children: [
+                  if (!GetPlatform.isWeb &&
+                      !GetPlatform.isLinux &&
+                      !widget.myVideoStateController.isLocalVideoMode)
                     IconButton(
-                      tooltip: t.videoDetail.moreSettings,
+                      tooltip: t.videoDetail.cast.dlnaCast,
                       icon: Icon(
-                        Icons.more_vert,
+                        Icons.cast,
                         color: Colors.white,
                         size: iconSize,
                       ),
-                      onPressed: () => showSettingsModal(context),
+                      onPressed: () =>
+                          widget.myVideoStateController.showDlnaCastDialog(),
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  if (GetPlatform.isAndroid)
+                    IconButton(
+                      tooltip: t.videoDetail.pipMode,
+                      icon: Icon(
+                        Icons.picture_in_picture_alt,
+                        color: Colors.white,
+                        size: iconSize,
+                      ),
+                      onPressed: () async {
+                        final floating = Floating();
+                        if (await floating.isPipAvailable) {
+                          final status = await floating.pipStatus;
+                          if (status == PiPStatus.disabled ||
+                              status == PiPStatus.automatic) {
+                            if (isFullScreen) {
+                              AppService.tryPop();
+                            }
+                            if (widget
+                                .myVideoStateController
+                                .isDesktopAppFullScreen
+                                .value) {
+                              widget
+                                      .myVideoStateController
+                                      .isDesktopAppFullScreen
+                                      .value =
+                                  false;
+                            }
+                            widget.myVideoStateController.enterPiPMode();
+                          } else if (status == PiPStatus.enabled) {
+                            widget.myVideoStateController.exitPiPMode();
+                          }
+                        }
+                      },
+                    ),
+                  _buildAnime4KButton(context, iconSize),
+                  IconButton(
+                    tooltip: t.videoDetail.moreSettings,
+                    icon: Icon(
+                      Icons.more_vert,
+                      color: Colors.white,
+                      size: iconSize,
+                    ),
+                    onPressed: () => showSettingsModal(context),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),

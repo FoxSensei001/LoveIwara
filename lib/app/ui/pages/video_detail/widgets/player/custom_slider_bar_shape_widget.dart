@@ -471,9 +471,6 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
   }) {
     // 基础高度：Thumb半径 + 间距（toolbar 展开时，tooltip 距离进度条的距离）
     const double baseBottom = _thumbOverlayRadius + 10;
-    // 细进度条高度 + 期望的 tooltip 距离细进度条的间距
-    // 当 toolbar 收缩时，tooltip 应该距离屏幕底部这个距离
-    const double thinProgressBarOffset = 3.0 + 12.0; // 细进度条 3px + 间距 12px
 
     // 计算 tooltip 的水平偏移量，确保不超出进度条边界
     // tooltip 宽度的一半
@@ -504,35 +501,9 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
         if (toolbarValue <= 0.0) {
           return const SizedBox.shrink();
         }
-        // 获取 bottomBarAnimation 的偏移量（y 值）
-        final double bottomBarOffsetY =
-            widget.controller.bottomBarAnimation.value.dy;
-
-        // 获取屏幕高度来计算实际的滑动距离
-        final double screenHeight = MediaQuery.of(context).size.height;
-        // bottomBarAnimation 的 Offset(0, 1) 表示向下滑动一个屏幕高度
-        // 所以实际的滑动距离 = bottomBarOffsetY * screenHeight
-        final double actualSlideDistance = bottomBarOffsetY * screenHeight;
-
-        // 计算动态的 bottom 值：
-        // - 当 toolbar 展开时（toolbarValue = 1, bottomBarOffsetY = 0）：tooltip 在进度条上方 baseBottom 距离
-        // - 当 toolbar 收缩时（toolbarValue = 0, bottomBarOffsetY = 1）：整个 toolbar 向下滑动
-        //   此时 tooltip 应该相对于屏幕底部定位，距离底部 thinProgressBarOffset
-        //
-        //   由于 tooltip 的 bottom 是相对于 Stack 的，而 Stack 在 toolbar 中
-        //   当 toolbar 向下滑动 actualSlideDistance 时，tooltip 也会跟着向下滑动
-        //   如果 tooltip 的 bottom = thinProgressBarOffset，那么 tooltip 实际距离屏幕底部 = thinProgressBarOffset + actualSlideDistance
-        //   这太远了，看不到
-        //
-        //   正确的计算逻辑：
-        //   - 展开时：bottom = baseBottom (26)
-        //   - 收缩时：tooltip 应该距离屏幕底部 thinProgressBarOffset (15)
-        //     由于 toolbar 向下滑动 actualSlideDistance，tooltip 的 bottom 需要 = thinProgressBarOffset + actualSlideDistance
-        //     这样当 toolbar 向下滑动后，tooltip 实际距离屏幕底部 = (thinProgressBarOffset + actualSlideDistance) - actualSlideDistance = thinProgressBarOffset
-        final double dynamicBottom = toolbarValue == 1.0
-            ? baseBottom // 展开时，使用基础位置
-            : thinProgressBarOffset +
-                  actualSlideDistance; // 收缩时，需要加上滑动距离，以补偿 toolbar 的向下滑动
+        // 工具栏已改为原位淡入淡出（不再位移滑出），可见期间 tooltip 固定在
+        // 进度条上方即可，无需再按工具栏的滑动距离做位置补偿。
+        const double dynamicBottom = baseBottom;
 
         return Positioned(
           left: xPosition,

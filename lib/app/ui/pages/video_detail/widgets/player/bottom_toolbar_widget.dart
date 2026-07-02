@@ -17,6 +17,7 @@ import '../../../../../services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import '../../controllers/my_video_state_controller.dart';
 import 'custom_slider_bar_shape_widget.dart';
+import 'toolbar_fade_visibility.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
 
 class BottomToolbar extends StatelessWidget {
@@ -64,34 +65,27 @@ class BottomToolbar extends StatelessWidget {
   }
 
   Widget _buildTopInteractionLayer(BuildContext context, bool isSmallScreen) {
-    return IgnorePointer(
-      ignoring: myVideoStateController.animationController.value == 0,
-      child: SlideTransition(
-        position: myVideoStateController.bottomBarAnimation,
-        child: FadeTransition(
-          opacity: myVideoStateController.animationController,
-          child: MouseRegion(
-            onEnter: (_) => myVideoStateController.setToolbarHovering(true),
-            onExit: (_) => myVideoStateController.setToolbarHovering(false),
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12.0,
-                vertical: 4.0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  // 在全屏且未登录时隐藏点赞和关注按钮
-                  if (_userService.hasLoadedProfile) ...[
-                    _buildLikeButton(),
-                    _spacer8,
-                    _buildFollowButton(),
-                    _spacer8,
-                  ],
-                  _buildAuthorInfo(isSmallScreen),
-                ],
-              ),
-            ),
+    // 淡入淡出显隐（原为位移滑入滑出 + 非响应式 IgnorePointer），
+    // ToolbarFadeVisibility 内部已带随动画每帧更新的指针放行
+    return ToolbarFadeVisibility(
+      animation: myVideoStateController.animationController,
+      child: MouseRegion(
+        onEnter: (_) => myVideoStateController.setToolbarHovering(true),
+        onExit: (_) => myVideoStateController.setToolbarHovering(false),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              // 在全屏且未登录时隐藏点赞和关注按钮
+              if (_userService.hasLoadedProfile) ...[
+                _buildLikeButton(),
+                _spacer8,
+                _buildFollowButton(),
+                _spacer8,
+              ],
+              _buildAuthorInfo(isSmallScreen),
+            ],
           ),
         ),
       ),
@@ -105,8 +99,9 @@ class BottomToolbar extends StatelessWidget {
     slang.Translations t,
     double bottomInset,
   ) {
-    return SlideTransition(
-      position: myVideoStateController.bottomBarAnimation,
+    // 淡入淡出显隐（原为位移滑入滑出），隐藏后自动放行指针事件
+    return ToolbarFadeVisibility(
+      animation: myVideoStateController.animationController,
       child: MouseRegion(
         onEnter: (_) => myVideoStateController.setToolbarHovering(true),
         onExit: (_) => myVideoStateController.setToolbarHovering(false),

@@ -115,6 +115,14 @@ class CommonUtils {
     }
   }
 
+  /// 将设置里的横屏方向映射为「应用内伪横屏」的 RotatedBox quarterTurns。
+  ///
+  /// 应用内旋转发生在 Flutter 内部（设备/窗口不转），不涉及 iOS 系统方向命名的
+  /// 镜像问题，因此无平台分支。若真机验证发现方向与预期相反，对调 1/3 即可。
+  static int resolveInAppQuarterTurns(String configValue) {
+    return configValue == 'landscape_right' ? 3 : 1;
+  }
+
   /// 将设置里的横屏方向（用户意图，与 Android 实际表现一致）映射为当前平台
   /// 正确的 [DeviceOrientation]。
   ///
