@@ -25,6 +25,7 @@ class MainActivity : FlutterActivity() {
     private val CHANNEL = "i_iwara/volume_key"
     private val SCREENSHOT_CHANNEL = "i_iwara/screenshot"
     private val FILE_HANDLER_CHANNEL = "com.example.i_iwara/file_handler"
+    private val DEVICE_FORM_FACTOR_CHANNEL = "i_iwara/device_form_factor"
 
     private var volumeKeyEnabled = false
     private var fileHandlerChannel: MethodChannel? = null
@@ -74,6 +75,14 @@ class MainActivity : FlutterActivity() {
                     }
                 }
 
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, DEVICE_FORM_FACTOR_CHANNEL)
+                .setMethodCallHandler { call, result ->
+                    when (call.method) {
+                        "getDeviceFormFactorInfo" -> result.success(getDeviceFormFactorInfo())
+                        else -> result.notImplemented()
+                    }
+                }
+
         // 初始化文件处理 MethodChannel
         fileHandlerChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, FILE_HANDLER_CHANNEL)
         fileHandlerChannel?.setMethodCallHandler { call, result ->
@@ -107,6 +116,16 @@ class MainActivity : FlutterActivity() {
                 }
             }
         }
+    }
+
+    private fun getDeviceFormFactorInfo(): Map<String, Any?> {
+        val smallestWidthDp = resources.configuration.smallestScreenWidthDp
+        return mapOf(
+                "platformIsTablet" to (smallestWidthDp >= 600),
+                "smallestWidthDp" to smallestWidthDp,
+                "model" to "${Build.MANUFACTURER} ${Build.MODEL}",
+                "source" to "android_smallest_width_dp"
+        )
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

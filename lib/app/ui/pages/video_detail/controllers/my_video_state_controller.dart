@@ -33,6 +33,7 @@ import 'package:volume_controller/volume_controller.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../../../../../utils/common_utils.dart';
+import '../../../../../utils/device_form_factor_utils.dart';
 import '../../../../../utils/easy_throttle.dart';
 import '../../../../../utils/glsl_shader_service.dart';
 import '../../../../../utils/x_version_calculator_utils.dart';
@@ -2961,39 +2962,31 @@ class MyVideoStateController extends GetxController
     return CommonUtils.resolveInAppQuarterTurns(orientationConfig);
   }
 
-  /// 应用内伪横屏期间锁定窗口方向为当前朝向：应用平时跟随系统自由旋转，若不加锁，
-  /// 用户物理转动设备会叠加「系统旋转 + 应用内旋转」。锁到当前朝向不会触发系统
-  /// 旋转动画。
+  /// 应用内伪横屏期间的方向策略：手机始终锁竖屏，平板继续交给系统重力旋转。
   Future<void> _lockOrientationForInAppFullscreen() async {
     _heldOrientationLockGeneration = ++_orientationLockGeneration;
-    final ctx = rootNavigatorKey.currentContext;
-    final bool isPortrait =
-        ctx == null || MediaQuery.of(ctx).orientation == Orientation.portrait;
+    final bool isPhone = await DeviceFormFactorUtils.isPhone();
+    if (!isPhone) {
+      await DeviceFormFactorUtils.applyMobileOrientationPolicy();
+      return;
+    }
+
     try {
-      await SystemChrome.setPreferredOrientations(
-        isPortrait
-            ? const [DeviceOrientation.portraitUp]
-            : const [
-                DeviceOrientation.landscapeLeft,
-                DeviceOrientation.landscapeRight,
-              ],
-      );
+      await SystemChrome.setPreferredOrientations(const [
+        DeviceOrientation.portraitUp,
+      ]);
     } catch (e) {
       LogUtils.e('锁定全屏方向失败', tag: 'MyVideoStateController', error: e);
     }
   }
 
-  /// 恢复平台默认方向（空列表 = 交还给 Info.plist / Manifest 配置）。
+  /// 恢复平台方向策略：手机回到竖屏锁定，平板交还给 Info.plist / Manifest 配置。
   /// 若已有更新的持锁者（路由接力后的新页面），本次解锁自动变 no-op。
   Future<void> _unlockOrientationAfterInAppFullscreen() async {
     final held = _heldOrientationLockGeneration;
     _heldOrientationLockGeneration = null;
     if (held == null || held != _orientationLockGeneration) return;
-    try {
-      await SystemChrome.setPreferredOrientations(const []);
-    } catch (e) {
-      LogUtils.e('恢复屏幕方向失败', tag: 'MyVideoStateController', error: e);
-    }
+    await DeviceFormFactorUtils.applyMobileOrientationPolicy();
   }
 
   /// 放大形变完成（形变层动画回调）：此刻才隐藏系统 UI 与侧边栏——底层重排在

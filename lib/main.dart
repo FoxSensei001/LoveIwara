@@ -13,6 +13,7 @@ import 'package:i_iwara/app/startup/app_startup_shell.dart';
 import 'package:i_iwara/db/database_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'app/ui/widgets/restart_app_widget.dart';
+import 'package:i_iwara/utils/device_form_factor_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/refresh_rate_helper.dart';
 import 'package:window_manager/window_manager.dart';
@@ -79,6 +80,7 @@ void main() {
         logService: logService,
         isProduction: isProduction,
       );
+      await DeviceFormFactorUtils.applyMobileOrientationPolicy();
 
       runApp(
         RestartApp.scope(

@@ -12,6 +12,7 @@ import MediaPlayer
   
   // 文件处理 MethodChannel
   private var fileHandlerChannel: FlutterMethodChannel?
+  private var deviceFormFactorChannel: FlutterMethodChannel?
   
   override func application(
     _ application: UIApplication,
@@ -26,6 +27,10 @@ import MediaPlayer
       name: "com.example.i_iwara/file_handler",
       binaryMessenger: controller.binaryMessenger
     )
+    deviceFormFactorChannel = FlutterMethodChannel(
+      name: "i_iwara/device_form_factor",
+      binaryMessenger: controller.binaryMessenger
+    )
     
     channel?.setMethodCallHandler({ [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
       switch call.method {
@@ -35,6 +40,15 @@ import MediaPlayer
       case "disableVolumeKeyListener":
         self?.disableVolumeKeyListener()
         result(nil)
+      default:
+        result(FlutterMethodNotImplemented)
+      }
+    })
+
+    deviceFormFactorChannel?.setMethodCallHandler({ [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
+      switch call.method {
+      case "getDeviceFormFactorInfo":
+        result(self?.deviceFormFactorInfo())
       default:
         result(FlutterMethodNotImplemented)
       }
@@ -107,5 +121,14 @@ import MediaPlayer
     fileHandlerChannel?.invokeMethod("onFileOpened", arguments: url.absoluteString)
     
     return true
+  }
+
+  private func deviceFormFactorInfo() -> [String: Any] {
+    let isTablet = UIDevice.current.userInterfaceIdiom == .pad
+    return [
+      "platformIsTablet": isTablet,
+      "model": UIDevice.current.model,
+      "source": "ios_user_interface_idiom"
+    ]
   }
 }
