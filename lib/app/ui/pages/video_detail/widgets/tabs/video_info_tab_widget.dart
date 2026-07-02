@@ -1105,8 +1105,14 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
     });
   }
 
-  /// 使用指定清晰度下载
-  void _handleDownloadWithQuality(BuildContext context, String? quality) {
+  /// 使用指定清晰度下载（split button 下拉菜单的「秒下」入口）
+  ///
+  /// 跳过的只是清晰度选择对话框；分类选择步骤仍需保留，
+  /// 与主按钮弹出的完整下载对话框保持一致，避免用户误以为该任务已按上次分类归档。
+  Future<void> _handleDownloadWithQuality(
+    BuildContext context,
+    String? quality,
+  ) async {
     if (quality == null) {
       _handleDownloadAction(context);
       return;
@@ -1123,15 +1129,25 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
       return;
     }
 
-    // 直接使用该清晰度下载，跳过选择对话框
-    _downloadWithSource(context, source);
+    // 补上被跳过的分类选择步骤
+    final categoryChoice = await showDownloadCategoryDialog(context);
+    if (!categoryChoice.confirmed) {
+      LogUtils.d('用户取消了下载分类选择', 'VideoInfoTabWidget');
+      return;
+    }
+
+    if (!context.mounted) return;
+
+    // 使用该清晰度下载，跳过清晰度选择对话框
+    _downloadWithSource(context, source, categoryId: categoryChoice.categoryId);
   }
 
   /// 使用指定的视频源下载
   Future<void> _downloadWithSource(
     BuildContext context,
-    VideoSource source,
-  ) async {
+    VideoSource source, {
+    String? categoryId,
+  }) async {
     final t = slang.Translations.of(context);
 
     if (source.download == null) {
@@ -1230,13 +1246,8 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
         mediaId: videoInfo.id,
         quality: source.name,
       );
-      // 应用记住的下载分类作为默认值（空字符串视为未分类）
-      final lastCategoryId =
-          Get.find<ConfigService>()[ConfigKey.LAST_DOWNLOAD_CATEGORY_ID]
-              as String?;
-      task.categoryId = (lastCategoryId == null || lastCategoryId.isEmpty)
-          ? null
-          : lastCategoryId;
+      // 分类由调用方（已过一次分类选择对话框）传入
+      task.categoryId = categoryId;
       LogUtils.d('添加下载任务: ${task.id}', 'VideoInfoTabWidget');
 
       await DownloadService.to.addTask(task);

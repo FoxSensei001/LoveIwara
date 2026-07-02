@@ -261,11 +261,17 @@ class DownloadNotificationService extends GetxService {
     LogUtils.w('路由长时间未就绪，放弃下载通知跳转: $route', 'DownloadNotificationService');
   }
 
+  /// 跳转到下载列表页（供应用内「下载完成」提示点击调用）。
+  /// 内部复用与系统通知点击一致的去重逻辑，已在下载列表页时不会重复跳转。
+  void openDownloadTaskList() {
+    _pushDedup(Routes.DOWNLOAD_TASK_LIST);
+  }
+
   void _pushDedup(String route) {
     try {
       // 仅对下载列表页做去重判断
       if (route == Routes.DOWNLOAD_TASK_LIST) {
-        if (_isAlreadyOnDownloadPage()) {
+        if (isAlreadyOnDownloadPage()) {
           return;
         }
       } else {
@@ -279,7 +285,7 @@ class DownloadNotificationService extends GetxService {
   }
 
   /// 判断是否已经在下载列表页
-  bool _isAlreadyOnDownloadPage() {
+  bool isAlreadyOnDownloadPage() {
     // 方法 1: 检查 GoRouter 的当前配置
     try {
       final config = appRouter.routerDelegate.currentConfiguration;

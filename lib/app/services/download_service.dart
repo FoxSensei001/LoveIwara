@@ -1670,12 +1670,28 @@ class DownloadService extends GetxService {
     try {
       // 1) 即时应用内 toast
       if (Get.isRegistered<MessageService>()) {
-        Get.find<MessageService>().showMessage(
-          isCompleted
-              ? slang.t.downloadNotifications.completedToast(name: title)
-              : slang.t.downloadNotifications.failedToast(name: title),
-          isCompleted ? MDToastType.success : MDToastType.error,
-        );
+        final messageService = Get.find<MessageService>();
+        if (isCompleted) {
+          // 下载完成提示固定展示在屏幕下方；若当前已在下载列表页则不展示跳转引导。
+          final notificationService =
+              Get.isRegistered<DownloadNotificationService>()
+              ? Get.find<DownloadNotificationService>()
+              : null;
+          final showJumpAction =
+              notificationService != null &&
+              !notificationService.isAlreadyOnDownloadPage();
+          messageService.showActionableMessage(
+            slang.t.downloadNotifications.completedToast(name: title),
+            MDToastType.success,
+            onTap: showJumpAction ? notificationService.openDownloadTaskList : null,
+            actionIcon: showJumpAction ? Icons.arrow_forward_ios_rounded : null,
+          );
+        } else {
+          messageService.showMessage(
+            slang.t.downloadNotifications.failedToast(name: title),
+            MDToastType.error,
+          );
+        }
       }
 
       // 2) 系统通知（不 await：Android 首次可能弹权限框，避免阻塞下载队列推进）
