@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -11,6 +11,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/ui/pages/local_video_detail/widgets/local_video_info_widget.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/blurred_thumbnail_background.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/my_video_screen.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/video_fullscreen_morph_overlay.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
@@ -848,7 +849,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         children: [
           // 模糊背景
           Positioned.fill(
-            child: _buildExternalVideoBackground(thumbnailUrl, screenSize),
+            child: BlurredThumbnailBackground(thumbnailUrl: thumbnailUrl),
           ),
           // 前景内容
           Positioned.fill(
@@ -914,158 +915,6 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         ],
       ),
     );
-  }
-
-  // 构建站外视频的模糊背景
-  Widget _buildExternalVideoBackground(String? thumbnailUrl, Size screenSize) {
-    if (thumbnailUrl == null || thumbnailUrl.isEmpty) {
-      // 如果没有缩略图，返回纯黑背景
-      return Container(
-        width: screenSize.width,
-        height: screenSize.height,
-        color: Colors.black,
-      );
-    }
-
-    // 创建模糊背景
-    return FutureBuilder<Widget>(
-      future: _createBlurredBackground(thumbnailUrl, screenSize),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done &&
-            snapshot.hasData) {
-          return snapshot.data!;
-        }
-        // 加载过程中显示纯黑背景
-        return Container(
-          width: screenSize.width,
-          height: screenSize.height,
-          color: Colors.black,
-        );
-      },
-    );
-  }
-
-  // 创建模糊背景的异步方法
-  Future<Widget> _createBlurredBackground(
-    String thumbnailUrl,
-    Size size,
-  ) async {
-    try {
-      // 1. 加载原始图片，使用较小的分辨率减少内存占用
-      final NetworkImage networkImage = NetworkImage(thumbnailUrl);
-      final ImageConfiguration config = ImageConfiguration(
-        size: Size(size.width * 0.5, size.height * 0.5), // 使用一半分辨率
-      );
-      final ImageStream stream = networkImage.resolve(config);
-      final Completer<ui.Image> completer = Completer<ui.Image>();
-
-      // 持有 listener 引用以便用完后移除，避免 ImageStream 监听器泄漏；
-      // 同时处理 onError，防止缩略图加载失败时 completer 永不完成导致挂起
-      late final ImageStreamListener listener;
-      listener = ImageStreamListener(
-        (ImageInfo info, bool _) {
-          // clone 出自己拥有的引用：传入的 info.image 由框架/缓存拥有且可能被多个
-          // listener 共享，不能直接持有或 dispose，必须 clone 后由本方法负责释放
-          if (!completer.isCompleted) completer.complete(info.image.clone());
-        },
-        onError: (Object error, StackTrace? stackTrace) {
-          if (!completer.isCompleted) {
-            completer.completeError(error, stackTrace);
-          }
-        },
-      );
-      stream.addListener(listener);
-
-      final ui.Image originalImage;
-      try {
-        originalImage = await completer.future;
-      } finally {
-        stream.removeListener(listener);
-      }
-
-      // 2. 计算适当的绘制尺寸以保持宽高比
-      final double imageAspectRatio =
-          originalImage.width / originalImage.height;
-      final double screenAspectRatio = size.width / size.height;
-
-      double targetWidth = size.width;
-      double targetHeight = size.height;
-      double offsetX = 0;
-      double offsetY = 0;
-
-      if (imageAspectRatio > screenAspectRatio) {
-        // 图片比屏幕更宽，以高度为基准
-        targetWidth = size.height * imageAspectRatio;
-        offsetX = -(targetWidth - size.width) / 2;
-      } else {
-        // 图片比屏幕更高，以宽度为基准
-        targetHeight = size.width / imageAspectRatio;
-        offsetY = -(targetHeight - size.height) / 2;
-      }
-
-      // 3. 创建一个自定义画布，使用目标尺寸
-      final recorder = ui.PictureRecorder();
-      final canvas = Canvas(recorder);
-
-      // 4. 绘制图片并应用模糊效果
-      final paint = Paint()
-        ..imageFilter = ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20);
-
-      // 使用计算后的偏移量和尺寸绘制图片
-      canvas.drawImageRect(
-        originalImage,
-        Rect.fromLTWH(
-          0,
-          0,
-          originalImage.width.toDouble(),
-          originalImage.height.toDouble(),
-        ),
-        Rect.fromLTWH(offsetX, offsetY, targetWidth, targetHeight),
-        paint,
-      );
-
-      // 原图已绘制完毕，释放其原生纹理内存
-      originalImage.dispose();
-
-      // 5. 将模糊后的图片转换为图像
-      final blurredImage = await recorder.endRecording().toImage(
-        size.width.toInt(),
-        size.height.toInt(),
-      );
-
-      // 6. 转换为字节数据
-      final byteData = await blurredImage.toByteData(
-        format: ui.ImageByteFormat.png,
-      );
-      // 已得到 PNG 字节，释放模糊图的原生纹理内存
-      blurredImage.dispose();
-      final buffer = byteData!.buffer.asUint8List();
-
-      // 7. 创建最终的模糊背景Widget
-      return Stack(
-        children: [
-          Positioned.fill(child: Container(color: Colors.black)),
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.2,
-              child: Image.memory(
-                buffer,
-                fit: BoxFit.cover,
-                width: size.width,
-                height: size.height,
-              ),
-            ),
-          ),
-        ],
-      );
-    } catch (e) {
-      // 如果出现错误，返回纯黑背景
-      return Container(
-        width: size.width,
-        height: size.height,
-        color: Colors.black,
-      );
-    }
   }
 
   // 构建Tab区域

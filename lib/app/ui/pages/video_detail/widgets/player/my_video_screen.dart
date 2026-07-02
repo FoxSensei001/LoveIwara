@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui' as ui;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
@@ -14,6 +13,7 @@ import 'package:i_iwara/app/services/player_keybinding/keybinding_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_action.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/blurred_thumbnail_background.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/rapple_painter.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
@@ -145,10 +145,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   double? _bottomTooltipX;
   Duration? _bottomTooltipTime;
   bool _bottomTooltipVisible = false;
-
-  static const double _theaterBackgroundBlurSigma = 20.0;
-  static const double _theaterBackgroundScale = 1.08;
-  static const double _theaterBackgroundOpacity = 0.2;
 
   @override
   void initState() {
@@ -911,7 +907,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             final thumbnailUrl =
                 widget.myVideoStateController.videoInfo.value?.thumbnailUrl;
             return Positioned.fill(
-              child: _buildTheaterBackground(thumbnailUrl),
+              child: BlurredThumbnailBackground(thumbnailUrl: thumbnailUrl),
             );
           }),
           // 主要内容
@@ -2280,53 +2276,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     );
   }
 
-  Widget _buildTheaterBackground(String? thumbnailUrl) {
-    final hasThumbnail = thumbnailUrl != null && thumbnailUrl.isNotEmpty;
-    final backgroundKey = ValueKey(hasThumbnail ? thumbnailUrl : 'empty');
-
-    final Widget background = hasThumbnail
-        ? Stack(
-            key: backgroundKey,
-            fit: StackFit.expand,
-            children: [
-              const ColoredBox(color: Colors.black),
-              Opacity(
-                opacity: _theaterBackgroundOpacity,
-                child: ClipRect(
-                  child: Transform.scale(
-                    scale: _theaterBackgroundScale,
-                    child: ImageFiltered(
-                      imageFilter: ui.ImageFilter.blur(
-                        sigmaX: _theaterBackgroundBlurSigma,
-                        sigmaY: _theaterBackgroundBlurSigma,
-                      ),
-                      child: CachedNetworkImage(
-                        imageUrl: thumbnailUrl,
-                        fit: BoxFit.cover,
-                        fadeInDuration: Duration.zero,
-                        fadeOutDuration: Duration.zero,
-                        placeholder: (context, url) =>
-                            const ColoredBox(color: Colors.black),
-                        errorWidget: (context, url, error) =>
-                            const ColoredBox(color: Colors.black),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          )
-        : const ColoredBox(key: ValueKey('empty'), color: Colors.black);
-
-    return RepaintBoundary(
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 160),
-        switchInCurve: Curves.easeOutCubic,
-        switchOutCurve: Curves.easeInCubic,
-        child: background,
-      ),
-    );
-  }
 }
 
 /// 长按类型 [滑动也属于长按]

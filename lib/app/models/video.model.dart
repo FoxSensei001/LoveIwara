@@ -166,8 +166,10 @@ class Video {
     }
     if (customThumbnail != null) {
       return 'https://i.iwara.tv/image/thumbnail/${customThumbnail!.id}/${customThumbnail!.name}';
+    } else if (file != null) {
+      return 'https://i.iwara.tv/image/thumbnail/${file!.id}/thumbnail-${_padNumber(thumbnail, 2)}.jpg';
     } else {
-      return 'https://i.iwara.tv/image/thumbnail/${file?.id}/thumbnail-${_padNumber(thumbnail, 2)}.jpg';
+      return '';
     }
   }
 
