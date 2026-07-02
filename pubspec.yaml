@@ -99,6 +99,10 @@ flutter_launcher_icons:
   android: true         # 为 Android 生成图标
   ios: true             # 为 iOS 生成图标
   image_path: "assets/icon/launcher_icon_v2.png"  # 图标的路径
+  # 自适应图标（Android 8.0+ / 国内 ROM 的圆形遮罩靠它渲染）：满版橙色背景 + 满版橙底 logo 前景，
+  # logo 位于画布 23%~77% 的安全区内，因此前景不做 inset，圆形遮罩下即为满版橙底居中 logo。
+  adaptive_icon_background: "#F89032"
+  adaptive_icon_foreground: "assets/icon/launcher_icon_v2.png"
   remove_alpha_ios: true  # （可选）去除 iOS 图标的透明度，避免上传到 App Store 时被拒绝
   windows:
     generate: true
