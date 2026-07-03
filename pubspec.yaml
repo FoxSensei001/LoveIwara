@@ -20,6 +20,7 @@ dependencies:
   go_router: ^14.8.1
   window_manager: ^0.5.0
   crypto: ^3.0.6
+  cryptography: ^2.7.0
   win32: ^5.14.0
   logger: ^2.5.0
   flutter_secure_storage: ^10.0.0
@@ -41,8 +42,10 @@ dependencies:
   loading_more_list: ^7.1.0
   waterfall_flow: ^3.1.1
   share_plus: ^12.0.1
-  slang: ^4.12.1
-  slang_flutter: ^4.12.1
+  # slang 三件套精确锁定：4.13+ 生成类名改为 Translations$xxx$en，
+  # 与仓库内已生成的 strings*.g.dart 及其手写引用不兼容，升级需同步迁移
+  slang: 4.12.1
+  slang_flutter: 4.12.1
   dynamic_color: ^1.7.0
   oktoast: ^3.4.0
   app_links: ^7.0.0
@@ -89,7 +92,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  slang_build_runner: ^4.12.1
+  slang_build_runner: 4.12.1 # 与 slang 同步锁定
   build_runner: ^2.11.1
   flutter_launcher_icons: ^0.14.3
   flutter_lints: ^6.0.0
