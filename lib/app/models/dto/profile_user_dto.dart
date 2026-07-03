@@ -1,5 +1,6 @@
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
+import 'package:i_iwara/app/models/user_avatar.model.dart';
 
 class ProfileUserDto {
   final User? user;
@@ -33,7 +34,7 @@ class ProfileUserDto {
 
 class Profile {
   final String? body;
-  final String? header;
+  final UserAvatar? header;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -45,14 +46,17 @@ class Profile {
   });
 
   factory Profile.fromJson(Map<String, dynamic> json) {
+    final headerJson = json['header'];
     return Profile(
-      body: json['body'],
-      header: json['header'],
-      createdAt: json['createdAt'] != null 
-          ? DateTime.parse(json['createdAt']) 
+      body: json['body']?.toString(),
+      header: headerJson is Map<String, dynamic>
+          ? UserAvatar.fromJson(headerJson)
           : null,
-      updatedAt: json['updatedAt'] != null 
-          ? DateTime.parse(json['updatedAt']) 
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'])
           : null,
     );
   }
