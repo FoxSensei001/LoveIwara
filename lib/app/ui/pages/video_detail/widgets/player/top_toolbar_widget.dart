@@ -1100,14 +1100,17 @@ class SettingsContent extends StatelessWidget {
                   t.videoDetail.videoPlayerSettings,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor,
+                    // 用 colorScheme.primary 而非 primaryColor：后者在 M3 暗色主题下会
+                    // 退化成深色 surface，导致标题在暗色弹窗里几乎不可见。
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ),
               IconButton(
                 tooltip: t.videoDetail.gestureGuide.viewGuide,
                 icon: const Icon(Icons.help_outline),
-                color: Theme.of(context).primaryColor,
+                // 同上：跟随主题强调色，兼顾亮色/暗色。
+                color: Theme.of(context).colorScheme.primary,
                 onPressed: () => VideoGestureGuideDialog.show(context),
               ),
             ],
