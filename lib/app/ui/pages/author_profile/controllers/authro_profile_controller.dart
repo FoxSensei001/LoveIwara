@@ -28,7 +28,6 @@ class AuthorProfileController extends GetxController {
   final RxInt followingCounts = 0.obs;
   final RxInt followerCounts = 0.obs;
   final RxBool isDescriptionExpanded = false.obs;
-  final Rxn<int> videoCounts = Rxn<int>();
 
   // 添加关系状态
   final RxBool isFriendRequestPending = false.obs;

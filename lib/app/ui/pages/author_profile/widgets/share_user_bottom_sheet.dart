@@ -21,7 +21,6 @@ class ShareUserBottomSheet extends StatefulWidget {
   final String? avatarUrl;
   final int followerCount;
   final int followingCount;
-  final int? videoCount;
   final int commentCount;
 
   const ShareUserBottomSheet({
@@ -32,7 +31,6 @@ class ShareUserBottomSheet extends StatefulWidget {
     this.avatarUrl,
     required this.followerCount,
     required this.followingCount,
-    this.videoCount,
     required this.commentCount,
   });
 
@@ -201,13 +199,6 @@ class _ShareUserBottomSheetState extends State<ShareUserBottomSheet> {
                           ),
                           t.common.following,
                         ),
-                        if (widget.videoCount != null)
-                          _buildStatItem(
-                            CommonUtils.formatFriendlyNumber(
-                              widget.videoCount!,
-                            ),
-                            t.common.video,
-                          ),
                         _buildStatItem(
                           CommonUtils.formatFriendlyNumber(widget.commentCount),
                           t.share.comments,

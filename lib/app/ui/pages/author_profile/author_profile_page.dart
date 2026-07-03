@@ -504,7 +504,6 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                             profileController.author.value?.avatar?.avatarUrl,
                         followerCount: profileController.followerCounts.value,
                         followingCount: profileController.followingCounts.value,
-                        videoCount: profileController.videoCounts.value,
                         commentCount: profileController
                             .commentController
                             .comments
@@ -915,29 +914,6 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                                     );
                                   }),
                                 ),
-
-                                // 视频数
-                                Obx(() {
-                                  final videoCount =
-                                      CommonUtils.formatFriendlyNumber(
-                                        profileController.videoCounts.value
-                                                ?.toInt() ??
-                                            0,
-                                      );
-                                  return Text(
-                                    '$videoCount ${t.common.video}',
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: isNarrowScreen
-                                          ? Theme.of(
-                                              context,
-                                            ).textTheme.bodySmall?.fontSize
-                                          : Theme.of(
-                                              context,
-                                            ).textTheme.bodyMedium?.fontSize,
-                                    ),
-                                  );
-                                }),
                               ],
                             ),
                           ],
@@ -1232,9 +1208,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                             userId: profileController.author.value!.id,
                             tabKey: t.common.video,
                             tc: videoSecondaryTC,
-                            onFetchFinished: ({int? count}) {
-                              profileController.videoCounts.value = count;
-                            },
+                            onFetchFinished: ({int? count}) {},
                             isMultiSelectMode:
                                 _videoBatchController.isMultiSelect.value,
                             selectedItemIds:
