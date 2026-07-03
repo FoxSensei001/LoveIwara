@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
 import 'package:i_iwara/db/migrations/migration_v17_download_task_conflict_triggers.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 import 'package:sqlite3/sqlite3.dart';
 
@@ -23,6 +24,7 @@ void createDownloadTasksTable(CommonDatabase db) {
       media_type TEXT,
       media_id TEXT,
       quality TEXT,
+      category_id TEXT,
       completed_at INTEGER
     );
   ''');
@@ -59,6 +61,11 @@ DownloadTask videoTask({
 void main() {
   late CommonDatabase db;
   late DownloadTaskRepository repository;
+
+  setUpAll(() async {
+    // 冲突拒绝路径会调用 LogUtils.e，需先初始化其 late logger。
+    await LogUtils.init(isProduction: true, enablePersistence: false);
+  });
 
   setUp(() {
     db = sqlite3.openInMemory();
