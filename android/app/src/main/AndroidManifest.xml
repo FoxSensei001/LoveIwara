@@ -14,6 +14,18 @@
         android:icon="@mipmap/ic_launcher"
         android:requestLegacyExternalStorage="true"
         android:enableOnBackInvokedCallback="false">
+        <!-- 大屏（平板 sw>=600dp）方向修复：Android 16 (API 36) 起系统默认忽略 App 的
+             screenOrientation / setRequestedOrientation，导致平板竖持点全屏转不到横屏。
+             下面两条声明让本 App 保留自己的方向控制：
+               - RESTRICTED_RESIZABILITY=true 针对 Android 16 的新行为；
+               - ALLOW_ORIENTATION_OVERRIDE=false 针对 OEM 的 ignoreOrientationRequest。
+             注意：targetSdk 升到 37 后该 opt-out 会失效，届时需改用自适应布局。 -->
+        <property
+            android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+            android:value="true" />
+        <property
+            android:name="android.window.PROPERTY_COMPAT_ALLOW_ORIENTATION_OVERRIDE"
+            android:value="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

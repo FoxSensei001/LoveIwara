@@ -42,6 +42,10 @@ class DeviceFormFactorUtils {
     'i_iwara/device_form_factor',
   );
 
+  static const MethodChannel _orientationChannel = MethodChannel(
+    'i_iwara/orientation',
+  );
+
   static MobileDeviceType? _cachedMobileDeviceType;
   static MobileDeviceFormFactorInfo? _cachedFormFactorInfo;
 
@@ -107,9 +111,32 @@ class DeviceFormFactorUtils {
             ? const [DeviceOrientation.portraitUp]
             : const [],
       );
+      // Android 原生同步基线：手机锁竖屏、平板放开（清除全屏施加的横屏强制）。
+      await forceNativeOrientation(
+        deviceType == MobileDeviceType.phone ? 'portrait' : 'unlock',
+      );
     } catch (e, s) {
       LogUtils.e(
         '应用移动端屏幕方向策略失败',
+        tag: 'DeviceFormFactor',
+        error: e,
+        stackTrace: s,
+      );
+    }
+  }
+
+  /// 原生强制屏幕方向（仅 Android 生效；iOS/桌面 no-op）。
+  /// mode: 'landscape'（横屏，SENSOR_LANDSCAPE 无视系统自动旋转锁）/ 'portrait' / 'unlock'。
+  /// 兜底 setPreferredOrientations 在部分安卓机型 / 关闭自动旋转时不转屏的问题。
+  static Future<void> forceNativeOrientation(String mode) async {
+    if (!GetPlatform.isAndroid) return;
+    try {
+      await _orientationChannel.invokeMethod<void>('setOrientation', mode);
+    } on MissingPluginException catch (e) {
+      LogUtils.w('原生方向通道未注册（旧原生层）: $e', 'DeviceFormFactor');
+    } catch (e, s) {
+      LogUtils.e(
+        '原生强制方向失败: $mode',
         tag: 'DeviceFormFactor',
         error: e,
         stackTrace: s,

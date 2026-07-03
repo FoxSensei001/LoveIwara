@@ -50,7 +50,6 @@ import '../../../../services/download_service.dart';
 import '../../../../models/download/download_task.model.dart';
 import '../../../../models/download/download_task_ext_data.model.dart';
 import '../widgets/player/custom_slider_bar_shape_widget.dart';
-import '../widgets/player/rotated_modal_bottom_sheet.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import '../widgets/private_or_deleted_video_widget.dart';
 import 'package:floating/floating.dart';
@@ -67,15 +66,6 @@ enum VideoDetailPageLoadingState {
   successFecthVideoDurationInfo, // 成功获取视频时长信息
   successFecthVideoHeightInfo, // 成功获取视频高度信息
   playerError, // 播放器错误
-}
-
-/// 移动端应用内全屏 Hero 形变的阶段。
-/// none 表示无形变（未全屏、或已处于静止全屏态）；expanding/collapsing 期间
-/// 共享播放器寄宿在根 Overlay 的形变层中，内联槽位与页面内全屏宿主都不渲染它。
-enum FullscreenMorphPhase {
-  none,
-  expanding, // 从内联矩形放大铺满窗口
-  collapsing, // 从全屏收缩回内联矩形
 }
 
 /// 画面尺寸：视频画面在播放区域内的适配方式。
@@ -205,49 +195,12 @@ class MyVideoStateController extends GetxController
     resetVideoZoomImmediately();
     screenFitMode.value = mode;
   }
+
   final RxList<VideoResolution> videoResolutions = <VideoResolution>[].obs;
   final Rxn<String> currentResolutionTag = Rxn<String>();
   final RxBool isDescriptionExpanded = false.obs;
   final RxBool isFullscreen = false.obs;
   final RxList<VideoSource> currentVideoSourceList = <VideoSource>[].obs;
-
-  // ---- 移动端应用内全屏 Hero 形变（不做系统旋转）----
-  /// 当前形变阶段；桌面端恒为 none。
-  final Rx<FullscreenMorphPhase> fullscreenMorphPhase =
-      FullscreenMorphPhase.none.obs;
-
-  /// 共享播放器实例的 GlobalKey：内联槽位 / 形变层 / 页面内全屏宿主之间通过
-  /// 它重 parent 同一个 MyVideoScreen（同一帧只允许一处构建），避免纹理重建黑帧。
-  final GlobalKey playerViewKey = GlobalKey(debugLabel: 'sharedPlayerView');
-
-  /// 内联播放器槽位的 GlobalKey：宽屏布局挂在播放器区域、窄屏布局挂在
-  /// SliverAppBar 的 flexibleSpace 上（两者互斥），用于实时测量形变起点/落点矩形。
-  final GlobalKey inlinePlayerSlotKey = GlobalKey(
-    debugLabel: 'inlinePlayerSlot',
-  );
-  Rect? _lastInlineSlotRect;
-
-  /// 退出全屏收缩落地后是否临时亮出工具栏。
-  /// 取决于退出前工具栏是否处于可见态：从底栏按钮退出（工具栏开着）→ 落地后
-  /// 临时亮出；安卓手势返回等场景（工具栏没开）→ 落地后保持隐藏。
-  bool _showToolbarsAfterFullscreenCollapse = false;
-
-  /// 全局方向锁「代数」：谁最后加锁谁负责解锁。路由接力时新页面加锁会使旧
-  /// 控制器的解锁自动变成 no-op；而接力失败（新页面从未加锁）时，旧控制器
-  /// 销毁仍能凭代数匹配兜底解锁，方向锁不会遗留在系统层。
-  static int _orientationLockGeneration = 0;
-  int? _heldOrientationLockGeneration;
-  bool _inAppFullscreenHandoffConsumed = false;
-
-  /// 移动端使用应用内伪横屏形变全屏；桌面端维持系统窗口全屏。
-  bool get useInAppFullscreenMorph =>
-      GetPlatform.isAndroid || GetPlatform.isIOS;
-
-  /// 全屏会话是否活跃（含静止全屏与两个方向的形变过程）。
-  /// 内联槽位在此期间必须渲染占位而非播放器，防止 GlobalKey 同帧重复。
-  bool get fullscreenSessionActive =>
-      isFullscreen.value ||
-      fullscreenMorphPhase.value != FullscreenMorphPhase.none;
 
   // ---- 视频画面缩放 / 平移 / 旋转（双指捏合 + 旋转、Ctrl+滚轮、拖动移动画面）----
   /// 当前画面缩放倍数（1.0 表示原始大小）
@@ -1715,19 +1668,17 @@ class MyVideoStateController extends GetxController
     LogUtils.i('MyVideoStateController onClose 被调用', 'MyVideoStateController');
     _isDisposed = true;
 
-    // 移动端在全屏/形变中被销毁（如路由强退）时兜底恢复系统 UI 与屏幕方向。
-    // 路由接力场景：relinquishFullscreenForRouteHandoff 已清掉全屏/形变状态
-    // （showSystemUI 自然跳过）；方向锁解锁按代数机制判定——新页面已加锁则
-    // 本次解锁为 no-op，新页面未加锁则由此兜底，不会打断新页面的全屏。
-    if (useInAppFullscreenMorph) {
-      if (fullscreenSessionActive) {
-        try {
-          appS.showSystemUI();
-        } catch (e) {
-          LogUtils.e('销毁时恢复系统 UI 失败', tag: 'MyVideoStateController', error: e);
-        }
+    // 移动端若在全屏中被直接销毁（如路由强退，未经 PopScope 正常退出）时，
+    // 兜底恢复系统 UI 与方向基线，避免停留在横屏/隐藏状态栏。正常退出走
+    // exitFullscreen（含 native 退出与方向恢复）；路由接力时
+    // relinquishFullscreenForRouteHandoff 已将 isFullscreen 置 false，此处自然跳过。
+    if (isFullscreen.value && (GetPlatform.isAndroid || GetPlatform.isIOS)) {
+      try {
+        appS.showSystemUI();
+      } catch (e) {
+        LogUtils.e('销毁时恢复系统 UI 失败', tag: 'MyVideoStateController', error: e);
       }
-      unawaited(_unlockOrientationAfterInAppFullscreen());
+      unawaited(DeviceFormFactorUtils.applyMobileOrientationPolicy());
     }
 
     // Controller 销毁时如果仍持有 PiP 所有权，释放它，避免残留状态影响后续 PiP。
@@ -2948,89 +2899,36 @@ class MyVideoStateController extends GetxController
       '[更新后的宽高比] $aspectRatio, 视频高度: $sourceVideoHeight, 视频宽度: $sourceVideoWidth',
       'MyVideoStateController',
     );
-    // 移动端应用内全屏的旋转方向由静止态宿主响应式计算（resolveActiveFullscreenQuarterTurns
-    // 读取 aspectRatio），宽高比迟到时会自动纠正，无需再做系统旋转同步。
-  }
-
-  /// 实时测量内联播放器槽位的窗口坐标矩形（形变起点/落点）。
-  /// 槽位不存在（如布局切换瞬间）时回退到最近一次成功测量的值。
-  Rect? measureInlinePlayerSlotRect() {
-    final ctx = inlinePlayerSlotKey.currentContext;
-    final ro = ctx?.findRenderObject();
-    if (ro is RenderBox && ro.attached && ro.hasSize) {
-      final rect = ro.localToGlobal(Offset.zero) & ro.size;
-      _lastInlineSlotRect = rect;
-      return rect;
+    if (isFullscreen.value && (GetPlatform.isAndroid || GetPlatform.isIOS)) {
+      unawaited(_syncNativeFullscreenOrientation());
     }
-    return _lastInlineSlotRect;
   }
 
-  /// 应用内全屏（静止态与形变快照）应使用的 RotatedBox quarterTurns。
-  /// 窗口已是横屏、或竖屏视频按配置竖屏全屏时不旋转；否则按设置的横屏方向转 90°。
-  int resolveActiveFullscreenQuarterTurns([BuildContext? context]) {
-    final ctx = context ?? rootNavigatorKey.currentContext;
-    final Orientation orientation = ctx != null
-        ? MediaQuery.of(ctx).orientation
-        : Orientation.portrait;
-    if (orientation == Orientation.landscape) return 0;
-    final bool renderVerticalVideoInVerticalScreen =
-        _configService[ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN];
-    if (renderVerticalVideoInVerticalScreen &&
-        aspectRatio.value > 0 &&
-        aspectRatio.value < 1) {
-      return 0;
-    }
-    final String orientationConfig =
-        _configService[ConfigKey.FULLSCREEN_ORIENTATION] as String? ??
-        'landscape_left';
-    return CommonUtils.resolveInAppQuarterTurns(orientationConfig);
-  }
-
-  /// 应用内伪横屏期间的方向策略：手机始终锁竖屏，平板继续交给系统重力旋转。
-  Future<void> _lockOrientationForInAppFullscreen() async {
-    _heldOrientationLockGeneration = ++_orientationLockGeneration;
-    final bool isPhone = await DeviceFormFactorUtils.isPhone();
-    if (!isPhone) {
-      await DeviceFormFactorUtils.applyMobileOrientationPolicy();
+  /// 移动端进入/更新系统全屏时按视频比例选择设备方向并真实旋转：
+  /// 竖屏视频且用户开启「竖屏视频竖屏全屏」→ 竖屏；其余（含宽比例视频）→ 强制横屏。
+  Future<void> _syncNativeFullscreenOrientation() async {
+    if (!isFullscreen.value || (!GetPlatform.isAndroid && !GetPlatform.isIOS)) {
       return;
     }
 
-    try {
-      await SystemChrome.setPreferredOrientations(const [
-        DeviceOrientation.portraitUp,
-      ]);
-    } catch (e) {
-      LogUtils.e('锁定全屏方向失败', tag: 'MyVideoStateController', error: e);
-    }
-  }
+    final bool renderVerticalVideoInVerticalScreen =
+        _configService[ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN];
+    // 只按视频自身比例判定「竖屏视频」，不读 MediaQuery 当前朝向——设备被竖屏偏好
+    // 锁住时 MediaQuery 会一直报竖屏，会让横屏视频拿不到横屏指令，正是「平板/手机
+    // 竖持点全屏出不来横屏」的根因之一。
+    final bool isVerticalVideo = aspectRatio.value > 0 && aspectRatio.value < 1;
 
-  /// 恢复平台方向策略：手机回到竖屏锁定，平板交还给 Info.plist / Manifest 配置。
-  /// 若已有更新的持锁者（路由接力后的新页面），本次解锁自动变 no-op。
-  Future<void> _unlockOrientationAfterInAppFullscreen() async {
-    final held = _heldOrientationLockGeneration;
-    _heldOrientationLockGeneration = null;
-    if (held == null || held != _orientationLockGeneration) return;
-    await DeviceFormFactorUtils.applyMobileOrientationPolicy();
-  }
+    LogUtils.i(
+      '[全屏方向] 进入全屏 aspectRatio=${aspectRatio.value.toStringAsFixed(3)} '
+          '竖屏视频=$isVerticalVideo 竖屏全屏配置=$renderVerticalVideoInVerticalScreen',
+      'MyVideoStateController',
+    );
 
-  /// 放大形变完成（形变层动画回调）：此刻才隐藏系统 UI 与侧边栏——底层重排在
-  /// 形变层满窗遮盖下进行，并与「形变层退场 + 页面内全屏宿主进场」同帧完成交接。
-  void onFullscreenMorphExpandCompleted() {
-    if (!isFullscreen.value) return; // 已被中断转为退出
-    appS.hideSystemUI();
-    fullscreenMorphPhase.value = FullscreenMorphPhase.none;
-  }
-
-  /// 收缩形变完成：播放器交还内联槽位，解除方向锁。
-  void onFullscreenMorphCollapseCompleted() {
-    if (isFullscreen.value) return; // 已被中断重新进入全屏
-    fullscreenMorphPhase.value = FullscreenMorphPhase.none;
-    unawaited(_unlockOrientationAfterInAppFullscreen());
-    // Hero 动画结束后，仅当退出前工具栏本就可见时才临时亮出
-    // （自动隐藏计时器随后会再收起）；手势返回等未开工具栏的退出保持隐藏。
-    if (_showToolbarsAfterFullscreenCollapse) {
-      _showToolbarsAfterFullscreenCollapse = false;
-      showToolbars();
+    if (renderVerticalVideoInVerticalScreen && isVerticalVideo) {
+      await CommonUtils.defaultEnterNativeFullscreen(toVerticalScreen: true);
+    } else {
+      // 非竖屏视频一律强制真实横屏：两个横屏方向都允许，设备真旋转。
+      await CommonUtils.defaultEnterNativeFullscreen();
     }
   }
 
@@ -3040,31 +2938,6 @@ class MyVideoStateController extends GetxController
     // 全屏切换时复位画面缩放，避免内嵌与全屏之间残留缩放状态
     resetVideoZoomImmediately();
 
-    if (useInAppFullscreenMorph) {
-      // —— 移动端：应用内伪横屏 Hero 形变，全程不做系统旋转 ——
-      // 工具栏瞬时收起，形变过程只呈现干净的视频画面
-      hideToolbarsImmediately();
-      final bool reuseInAppFullscreen =
-          !_inAppFullscreenHandoffConsumed &&
-          fullscreenHandoff?.nativeFullscreenActive == true;
-      _inAppFullscreenHandoffConsumed = true;
-      unawaited(_lockOrientationForInAppFullscreen());
-      if (reuseInAppFullscreen) {
-        // 全屏内切换视频的路由接力：上个页面已处于全屏视觉态，直接进入静止
-        // 全屏，不再形变。
-        isFullscreen.value = true;
-        appS.hideSystemUI();
-      } else {
-        measureInlinePlayerSlotRect();
-        isFullscreen.value = true;
-        fullscreenMorphPhase.value = FullscreenMorphPhase.expanding;
-        // 系统 UI（状态栏）与侧边栏留到形变完成后再隐藏，保证放大过程底层布局
-        // 零变化、无闪跳；见 onFullscreenMorphExpandCompleted。
-      }
-      return;
-    }
-
-    // —— 桌面端：维持系统窗口全屏 ——
     // 保存进入全屏前的播放状态
     final wasPlaying = videoPlaying.value;
     var reuseNativeFullscreen =
@@ -3083,7 +2956,11 @@ class MyVideoStateController extends GetxController
     isFullscreen.value = true;
     appS.hideSystemUI();
 
-    if (!reuseNativeFullscreen) {
+    // 移动端：设备真实旋转到目标方向（系统全屏，系统方向与画面一致）；
+    // 桌面端：系统窗口全屏。
+    if (GetPlatform.isAndroid || GetPlatform.isIOS) {
+      await _syncNativeFullscreenOrientation();
+    } else if (!reuseNativeFullscreen) {
       await CommonUtils.defaultEnterNativeFullscreen();
     }
 
@@ -3101,26 +2978,6 @@ class MyVideoStateController extends GetxController
     // 全屏切换时复位画面缩放，避免内嵌与全屏之间残留缩放状态
     resetVideoZoomImmediately();
 
-    if (useInAppFullscreenMorph) {
-      // —— 移动端：反向 Hero 形变 ——
-      // 记录退出前工具栏是否可见：可见（如从底栏按钮退出）则落地后临时亮出，
-      // 不可见（如安卓手势返回）则落地后保持隐藏。
-      _showToolbarsAfterFullscreenCollapse = animationController.value > 0;
-      // 工具栏瞬时收起，收缩过程只呈现干净的视频画面；
-      // 落地后是否亮出见 onFullscreenMorphCollapseCompleted。
-      hideToolbarsImmediately();
-      // 系统 UI 必须在收缩开始的瞬间恢复：状态栏/侧边栏回归引发的底层重排在
-      // 形变层满窗遮盖下完成，收缩动画每帧实时追踪内联槽位矩形即可精确落点。
-      // 放大形变被中断转为退出时系统 UI 从未被隐藏，跳过多余的恢复调用。
-      if (fullscreenMorphPhase.value != FullscreenMorphPhase.expanding) {
-        appS.showSystemUI();
-      }
-      isFullscreen.value = false;
-      fullscreenMorphPhase.value = FullscreenMorphPhase.collapsing;
-      return;
-    }
-
-    // —— 桌面端：维持系统窗口全屏退出 ——
     // 保存退出全屏前的播放状态
     final wasPlaying = videoPlaying.value;
     appS.showSystemUI();
@@ -3133,6 +2990,13 @@ class MyVideoStateController extends GetxController
         error: e,
         stackTrace: s,
       );
+    }
+
+    // 移动端恢复方向基线：手机锁回竖屏、平板交还系统。media_kit 退出全屏会把
+    // 方向放开为自由，而我们保留了全局锁竖屏策略，必须重新应用，避免退出后
+    // 手机停留在横屏。桌面端此调用为 no-op。
+    if (GetPlatform.isAndroid || GetPlatform.isIOS) {
+      await DeviceFormFactorUtils.applyMobileOrientationPolicy();
     }
 
     if (GetPlatform.isDesktop) {
@@ -3161,12 +3025,6 @@ class MyVideoStateController extends GetxController
     if (!isFullscreen.value) {
       return null;
     }
-    // 移动端形变进行中不产出接力包：此时系统 UI 状态与视觉均非静止全屏态，
-    // 新页面直接按静止全屏渲染会闪跳；让新页面从内联态重新走完整形变。
-    if (useInAppFullscreenMorph &&
-        fullscreenMorphPhase.value != FullscreenMorphPhase.none) {
-      return null;
-    }
 
     return VideoFullscreenHandoff(
       nativeFullscreenActive: true,
@@ -3184,10 +3042,6 @@ class MyVideoStateController extends GetxController
     }
 
     _suppressFullscreenCleanupOnce = true;
-    // 方向锁按代数机制自然交接：新页面加锁后本控制器的解锁自动失效；
-    // 新页面若始终未加锁，本控制器销毁时仍会兜底解锁。
-    // 同时清掉可能残留的形变态，避免页面销毁前的过渡帧里形变层仍按旧状态渲染。
-    fullscreenMorphPhase.value = FullscreenMorphPhase.none;
     isFullscreen.value = false;
   }
 
@@ -4391,25 +4245,6 @@ class MyVideoStateController extends GetxController
           SnackBar(
             content: Text(slang.t.videoDetail.cast.unableToGetVideoUrl),
             duration: const Duration(seconds: 5),
-          ),
-        );
-      }
-      return;
-    }
-
-    // 伪横屏全屏下改用旋转感知 sheet，避免投屏面板按物理竖屏方向弹出；
-    // backgroundColor 透明对齐 showAppBottomSheet 默认（面板自绘背景）。
-    if (playerOverlayNeedsRotation(this)) {
-      final ctx = rootNavigatorKey.currentContext;
-      if (ctx != null) {
-        showPlayerRotationAwareModalBottomSheet(
-          context: ctx,
-          controller: this,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (_) => DlnaCastSheet(
-            videoUrl: videoUrl,
-            dlnaController: _dlnaCastService,
           ),
         );
       }

@@ -1,6 +1,7 @@
 package m.c.g.a.i_iwara
 
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -26,6 +27,7 @@ class MainActivity : FlutterActivity() {
     private val SCREENSHOT_CHANNEL = "i_iwara/screenshot"
     private val FILE_HANDLER_CHANNEL = "com.example.i_iwara/file_handler"
     private val DEVICE_FORM_FACTOR_CHANNEL = "i_iwara/device_form_factor"
+    private val ORIENTATION_CHANNEL = "i_iwara/orientation"
 
     private var volumeKeyEnabled = false
     private var fileHandlerChannel: MethodChannel? = null
@@ -79,6 +81,29 @@ class MainActivity : FlutterActivity() {
                 .setMethodCallHandler { call, result ->
                     when (call.method) {
                         "getDeviceFormFactorInfo" -> result.success(getDeviceFormFactorInfo())
+                        else -> result.notImplemented()
+                    }
+                }
+
+        // 原生强制屏幕方向：setPreferredOrientations 在部分机型 / 关闭系统自动旋转
+        // 时不生效（平板竖持点全屏出不来横屏的根因）。SENSOR_LANDSCAPE 由 App 主动请求，
+        // 无视系统自动旋转锁，直接把 Activity 转到横屏。
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, ORIENTATION_CHANNEL)
+                .setMethodCallHandler { call, result ->
+                    when (call.method) {
+                        "setOrientation" -> {
+                            val mode = call.arguments as? String
+                            runOnUiThread {
+                                requestedOrientation = when (mode) {
+                                    "landscape" ->
+                                            ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+                                    "portrait" ->
+                                            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                                    else -> ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                                }
+                            }
+                            result.success(null)
+                        }
                         else -> result.notImplemented()
                     }
                 }

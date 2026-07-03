@@ -8,7 +8,6 @@ import '../../../../../routes/app_router.dart';
 import '../../../settings/widgets/player_settings_widget.dart';
 import 'video_gesture_guide.dart';
 import 'toolbar_fade_visibility.dart';
-import 'rotated_modal_bottom_sheet.dart';
 import '../../../settings/widgets/proxy_setting_widget.dart';
 import '../../controllers/my_video_state_controller.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
@@ -646,9 +645,8 @@ class _TopToolbarState extends State<TopToolbar> {
   // 为了简洁，这里省略了未修改的 modal 代码，实际使用时请保留原有的代码
 
   void showSettingsModal(BuildContext context) {
-    showPlayerRotationAwareModalBottomSheet(
+    showModalBottomSheet(
       context: context,
-      controller: widget.myVideoStateController,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -676,33 +674,6 @@ class _TopToolbarState extends State<TopToolbar> {
   Widget _buildAnime4KButton(BuildContext context, double iconSize) {
     Future<void> applyAnime4K(String value) => widget.myVideoStateController
         .switchAnime4KPreset(value == 'disable' ? '' : value);
-
-    // 伪横屏全屏下 PopupMenu 会逃出旋转坐标系（方向错乱 + 定位错位），改用方向
-    // 正确的 sheet 承载 Anime4K 预设列表。
-    if (playerOverlayNeedsRotation(widget.myVideoStateController)) {
-      return IconButton(
-        tooltip: slang.t.anime4k.settings,
-        icon: Icon(Icons.adjust, color: Colors.white, size: iconSize),
-        onPressed: () async {
-          final configService = Get.find<ConfigService>();
-          final currentPresetId =
-              configService[ConfigKey.ANIME4K_PRESET_ID] as String;
-          final selected =
-              await showPlayerRotationAwareModalBottomSheet<String>(
-                context: context,
-                controller: widget.myVideoStateController,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                ),
-                builder: (_) =>
-                    _Anime4KOptionSheet(currentPresetId: currentPresetId),
-              );
-          if (selected != null) {
-            await applyAnime4K(selected);
-          }
-        },
-      );
-    }
 
     return PopupMenuButton<String>(
       tooltip: slang.t.anime4k.settings,
@@ -1137,10 +1108,7 @@ class SettingsContent extends StatelessWidget {
                 tooltip: t.videoDetail.gestureGuide.viewGuide,
                 icon: const Icon(Icons.help_outline),
                 color: Theme.of(context).primaryColor,
-                onPressed: () => VideoGestureGuideDialog.show(
-                  context,
-                  controller: myVideoStateController,
-                ),
+                onPressed: () => VideoGestureGuideDialog.show(context),
               ),
             ],
           ),
@@ -1152,136 +1120,6 @@ class SettingsContent extends StatelessWidget {
           const SizedBox(height: 16),
           if (ProxyUtil.isSupportedPlatform())
             ProxySettingsWidget(embedded: true),
-        ],
-      ),
-    );
-  }
-}
-
-/// 伪横屏全屏下替代 Anime4K [PopupMenuButton] 的预设选择 sheet。
-/// 复用 [Anime4KPresets] 分组数据，选中即 pop 出预设 id（或 'disable'）。
-class _Anime4KOptionSheet extends StatelessWidget {
-  final String currentPresetId;
-
-  const _Anime4KOptionSheet({required this.currentPresetId});
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final bool isEnabled = currentPresetId.isNotEmpty;
-
-    Widget presetRow({
-      required String value,
-      required String name,
-      required String description,
-      required bool selected,
-    }) {
-      return ListTile(
-        leading: Icon(
-          selected ? Icons.check_circle : Icons.radio_button_unchecked,
-          color: selected
-              ? theme.colorScheme.primary
-              : theme.colorScheme.onSurfaceVariant,
-        ),
-        title: Text(
-          name,
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: selected ? theme.colorScheme.primary : null,
-          ),
-        ),
-        subtitle: description.isEmpty
-            ? null
-            : Text(description, style: theme.textTheme.bodySmall),
-        selected: selected,
-        onTap: () => Navigator.of(context).pop(value),
-      );
-    }
-
-    Widget sectionTitle(String text) => Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          text,
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: theme.colorScheme.primary,
-          ),
-        ),
-      ),
-    );
-
-    final List<MapEntry<String, List<Anime4KPreset>>> groups = [
-      MapEntry(
-        slang.t.anime4k.highQualityPresets,
-        Anime4KPresets.getPresetsByGroup(Anime4KPresetGroup.highQuality),
-      ),
-      MapEntry(
-        slang.t.anime4k.fastPresets,
-        Anime4KPresets.getPresetsByGroup(Anime4KPresetGroup.fast),
-      ),
-      MapEntry(
-        slang.t.anime4k.litePresets,
-        Anime4KPresets.getPresetsByGroup(Anime4KPresetGroup.lite),
-      ),
-      MapEntry(
-        slang.t.anime4k.moreLitePresets,
-        Anime4KPresets.getPresetsByGroup(Anime4KPresetGroup.moreLite),
-      ),
-      MapEntry(
-        slang.t.anime4k.customPresets,
-        Anime4KPresets.getPresetsByGroup(Anime4KPresetGroup.custom),
-      ),
-    ];
-
-    return SafeArea(
-      top: false,
-      child: ListView(
-        shrinkWrap: true,
-        padding: const EdgeInsets.only(bottom: 8),
-        children: [
-          const SizedBox(height: 8),
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.onSurfaceVariant.withValues(
-                  alpha: 0.4,
-                ),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-            child: Text(
-              slang.t.anime4k.realTimeVideoUpscalingAndDenoising,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          const Divider(),
-          presetRow(
-            value: 'disable',
-            name: slang.t.anime4k.disable,
-            description: slang.t.anime4k.disableDescription,
-            selected: !isEnabled,
-          ),
-          for (final group in groups)
-            if (group.value.isNotEmpty) ...[
-              sectionTitle(group.key),
-              for (final preset in group.value)
-                presetRow(
-                  value: preset.id,
-                  name: preset.name,
-                  description: preset.description,
-                  selected: currentPresetId == preset.id,
-                ),
-            ],
         ],
       ),
     );

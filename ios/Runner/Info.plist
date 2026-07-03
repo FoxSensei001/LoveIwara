@@ -24,13 +24,22 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- iPad 只有在禁用 Split View / Slide Over 多任务时，setPreferredOrientations
+	     才能可靠驱动播放器进入真实横屏全屏。 -->
+	<key>UIRequiresFullScreen</key>
+	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<!-- iPhone 必须声明允许横屏，否则 setPreferredOrientations 的横屏指令完全无效
+	     （真实旋转全屏依赖它）。全局竖屏基线由启动时的 setPreferredOrientations 锁定，
+	     这里只是「允许」，不会让非播放器页面跟随重力旋转。 -->
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>

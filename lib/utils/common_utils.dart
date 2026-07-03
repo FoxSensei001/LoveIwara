@@ -12,6 +12,7 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:path_provider/path_provider.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/utils/device_form_factor_utils.dart';
 import '../app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:path/path.dart' as p;
 import 'package:i_iwara/app/services/config_service.dart';
@@ -96,13 +97,23 @@ class CommonUtils {
           ];
         }
 
-        await Future.wait([
-          SystemChrome.setEnabledSystemUIMode(
-            SystemUiMode.immersiveSticky,
-            overlays: [],
-          ),
-          SystemChrome.setPreferredOrientations(orientations),
-        ]);
+        LogUtils.i(
+          '[全屏方向] setPreferredOrientations -> '
+              '${orientations.map((o) => o.name).join(', ')}',
+          'CommonUtils',
+        );
+
+        // 顺序执行且方向指令放最后：并发 Future.wait 里沉浸模式切换可能与方向
+        // 变更抢占，个别 Android 机型会吞掉旋转，出现「点全屏不转屏」。
+        await SystemChrome.setEnabledSystemUIMode(
+          SystemUiMode.immersiveSticky,
+          overlays: [],
+        );
+        await SystemChrome.setPreferredOrientations(orientations);
+        // Android 原生兜底强制方向：确保关闭系统自动旋转 / 平板竖持也真旋转。
+        await DeviceFormFactorUtils.forceNativeOrientation(
+          toVerticalScreen ? 'portrait' : 'landscape',
+        );
       } else if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
         // 此处使用media_kit_video的MethodChannel，
         await const MethodChannel(
@@ -113,14 +124,6 @@ class CommonUtils {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
     }
-  }
-
-  /// 将设置里的横屏方向映射为「应用内伪横屏」的 RotatedBox quarterTurns。
-  ///
-  /// 应用内旋转发生在 Flutter 内部（设备/窗口不转），不涉及 iOS 系统方向命名的
-  /// 镜像问题，因此无平台分支。若真机验证发现方向与预期相反，对调 1/3 即可。
-  static int resolveInAppQuarterTurns(String configValue) {
-    return configValue == 'landscape_right' ? 3 : 1;
   }
 
   /// 将设置里的横屏方向（用户意图，与 Android 实际表现一致）映射为当前平台
