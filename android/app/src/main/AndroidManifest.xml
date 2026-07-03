@@ -13,7 +13,9 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:requestLegacyExternalStorage="true"
-        android:enableOnBackInvokedCallback="false">
+        android:enableOnBackInvokedCallback="false"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/data_extraction_rules">
         <!-- 大屏（平板 sw>=600dp）方向修复：Android 16 (API 36) 起系统默认忽略 App 的
              screenOrientation / setRequestedOrientation，导致平板竖持点全屏转不到横屏。
              下面两条声明让本 App 保留自己的方向控制：

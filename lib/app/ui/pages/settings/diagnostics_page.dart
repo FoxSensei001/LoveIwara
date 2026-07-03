@@ -12,6 +12,7 @@ import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/services/logging/log_service.dart';
 import 'package:i_iwara/app/services/logging/log_models.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/storage_service.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
@@ -250,6 +251,8 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
                                 fontFamily: 'monospace',
                               ),
                             ),
+                          const SizedBox(height: 4),
+                          _buildSecureStorageRow(theme, t),
                         ],
                       ),
                     ),
@@ -754,6 +757,65 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
           ),
         ],
       ),
+    );
+  }
+
+  /// 安全存储健康状态行：定位「杀进程掉登录」一类问题的一手证据。
+  Widget _buildSecureStorageRow(ThemeData theme, slang.Translations t) {
+    final storage = StorageService();
+    final status = switch (storage.secureStorageHealth) {
+      SecureStorageHealth.healthy => t.diagnostics.secureStorageHealthy,
+      SecureStorageHealth.recoveredAfterReset =>
+        t.diagnostics.secureStorageRecovered,
+      SecureStorageHealth.unavailable =>
+        t.diagnostics.secureStorageUnavailable,
+    };
+    final dualWrite = storage.secureStorageUntrusted
+        ? t.diagnostics.secureStorageDualWrite
+        : '';
+    final healthy =
+        storage.secureStorageHealth == SecureStorageHealth.healthy &&
+        !storage.secureStorageUntrusted;
+    final error = storage.secureStorageLastError;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              t.diagnostics.secureStorageLabel,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                '$status$dualWrite',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: healthy ? null : theme.colorScheme.error,
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (!healthy && error != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              error,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontFamily: 'monospace',
+              ),
+            ),
+          ),
+      ],
     );
   }
 

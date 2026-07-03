@@ -75,6 +75,16 @@ class TokenManager {
 
   final StorageService _storage = StorageService();
 
+  // 会话存在标记（普通存储，非敏感）：保存 token 时盖上、登出时移除。
+  // 启动时「标记在而 token 消失」= 存储层静默丢失（如 Keystore 密钥跨进程
+  // 失效被插件清空自愈），据此触发双写保护，而不是让用户无限重登。
+  static const String _sessionMarkerKey = 'auth_session_marker';
+  static const String _lossCountKey = 'auth_secure_loss_count';
+
+  /// 连续静默丢失达到该次数后，标记设备安全存储不可信（启用双写）。
+  /// 取 2：换机还原等场景会产生一次合理的「有标记无 token」，不应立即降级。
+  static const int _lossCountThreshold = 2;
+
   // 独立的 Dio 实例，用于 token 刷新请求
   // 不使用主 ApiService 的 Dio，避免循环依赖和拦截器干扰
   late final dio.Dio _tokenDio;
@@ -226,6 +236,11 @@ class TokenManager {
       _authToken = await _storage.readSecureData(KeyConstants.authToken);
       _accessToken = await _storage.readSecureData(KeyConstants.accessToken);
 
+      // 静默丢失检测：token 消失但会话标记还在 → 存储层弄丢了数据(而非登出)。
+      if (_authToken == null) {
+        await _detectSilentTokenLoss();
+      }
+
       // 会话作废墓碑校验(HIGH#3)：若持久化 token 属于已登出会话
       // （登出时删除曾失败而残留），代次不符则丢弃，杜绝复活。
       if (_authToken != null) {
@@ -247,6 +262,8 @@ class TokenManager {
 
       if (_authToken != null) {
         _updateTokenExpireTime(_authToken!, isAuthToken: true);
+        // 会话成功恢复：重置连续丢失计数、保持存在标记。
+        await _noteSessionRestored();
       }
       if (_accessToken != null) {
         _updateTokenExpireTime(_accessToken!, isAuthToken: false);
@@ -334,6 +351,56 @@ class TokenManager {
     }
   }
 
+  /// 启动时检测「上个会话的 token 静默消失」并按连续次数升级双写保护。
+  /// 针对探测正常但数据跨进程丢失的机型（插件冷启动清空自愈、Keystore 抽风）。
+  Future<void> _detectSilentTokenLoss() async {
+    final box = _storage.boxOrNull;
+    if (box == null) return;
+    try {
+      final marker = box.read<String>(_sessionMarkerKey);
+      if (marker == null) return;
+      await box.remove(_sessionMarkerKey);
+      final count = (box.read<int>(_lossCountKey) ?? 0) + 1;
+      await box.write(_lossCountKey, count);
+      LogUtils.w(
+        '$_tag 检测到登录态静默丢失（第 $count 次，上次落盘=$marker）——'
+        'token 曾保存但未经登出即消失',
+      );
+      if (count >= _lossCountThreshold) {
+        await _storage.markSecureStorageUntrusted('token_silent_loss_x$count');
+      }
+    } catch (e) {
+      LogUtils.w('$_tag 静默丢失检测异常(忽略): $e');
+    }
+  }
+
+  /// 保存 token 成功后盖上会话存在标记。
+  /// 持久化被整体跳过时撤下标记（否则下次启动会误报静默丢失）。
+  Future<void> _armSessionMarker(SecureWriteResult dest) async {
+    final box = _storage.boxOrNull;
+    if (box == null) return;
+    try {
+      if (dest == SecureWriteResult.skipped) {
+        LogUtils.w('$_tag 登录态未能持久化（安全存储与降级兜底均不可用），重启后需重新登录');
+        await box.remove(_sessionMarkerKey);
+        return;
+      }
+      await box.write(_sessionMarkerKey, dest.name);
+    } catch (_) {}
+  }
+
+  /// 启动成功恢复会话：重置连续丢失计数并保持标记在位。
+  Future<void> _noteSessionRestored() async {
+    final box = _storage.boxOrNull;
+    if (box == null) return;
+    try {
+      if (!_storage.secureStorageUntrusted) {
+        await box.remove(_lossCountKey);
+      }
+      await box.write(_sessionMarkerKey, 'restored');
+    } catch (_) {}
+  }
+
   /// 读取持久化的会话作废代次（登出墓碑），缺失视为 0(HIGH#3)。
   Future<int> _readRevocationCounter() async {
     final raw = await _storage.readSecureData(
@@ -353,11 +420,12 @@ class TokenManager {
     _tokenGeneration++;
     _authToken = token;
     _updateTokenExpireTime(token, isAuthToken: true);
-    // token 为敏感数据：fail-closed，安全存储不可用时不落明文，仅内存会话(HIGH#1)。
-    await _storage.writeSecureData(
+    // token 为敏感数据：绝不落明文(HIGH#1)；安全存储不可用时降级为
+    // 本地密钥加密兜底，保证坏 Keystore 设备的登录也能持久化。
+    final dest = await _storage.writeSecureData(
       KeyConstants.authToken,
       token,
-      allowPlaintextFallback: false,
+      fallback: SecureWriteFallback.encrypted,
     );
     // 给当前 token 盖上会话作废代次，启动时据此校验残留(HIGH#3)。
     final counter = await _readRevocationCounter();
@@ -365,7 +433,11 @@ class TokenManager {
       KeyConstants.authTokenStamp,
       counter.toString(),
     );
-    LogUtils.i('$_tag Auth token 已保存 (代次=$_tokenGeneration, stamp=$counter)');
+    await _armSessionMarker(dest);
+    LogUtils.i(
+      '$_tag Auth token 已保存 '
+      '(代次=$_tokenGeneration, stamp=$counter, 落盘=${dest.name})',
+    );
   }
 
   /// 登录：staging/commit 模式(MEDIUM#4)。
@@ -433,15 +505,16 @@ class TokenManager {
     _accessToken = accessToken;
     _updateTokenExpireTime(refreshToken, isAuthToken: true);
     _updateTokenExpireTime(accessToken, isAuthToken: false);
-    await _storage.writeSecureData(
+    // 绝不落明文(HIGH#1)；安全存储不可用时降级为本地密钥加密兜底。
+    final dest = await _storage.writeSecureData(
       KeyConstants.authToken,
       refreshToken,
-      allowPlaintextFallback: false,
+      fallback: SecureWriteFallback.encrypted,
     );
     await _storage.writeSecureData(
       KeyConstants.accessToken,
       accessToken,
-      allowPlaintextFallback: false,
+      fallback: SecureWriteFallback.encrypted,
     );
     // 盖上当前会话作废代次(HIGH#3)。
     final counter = await _readRevocationCounter();
@@ -449,6 +522,7 @@ class TokenManager {
       KeyConstants.authTokenStamp,
       counter.toString(),
     );
+    await _armSessionMarker(dest);
   }
 
   /// 保存 access token
@@ -460,11 +534,11 @@ class TokenManager {
 
     _accessToken = token;
     _updateTokenExpireTime(token, isAuthToken: false);
-    // token 为敏感数据：fail-closed，不降级明文(HIGH#1)。
+    // 绝不落明文(HIGH#1)；安全存储不可用时降级为本地密钥加密兜底。
     await _storage.writeSecureData(
       KeyConstants.accessToken,
       token,
-      allowPlaintextFallback: false,
+      fallback: SecureWriteFallback.encrypted,
     );
     LogUtils.d('$_tag Access token 已保存');
   }
@@ -734,6 +808,11 @@ class TokenManager {
     if (pending != null && !pending.isCompleted) {
       pending.complete(TokenRefreshResult.authError('Tokens cleared'));
     }
+
+    // 会话结束：撤下存在标记，避免正常登出被误判为静默丢失。
+    try {
+      await _storage.boxOrNull?.remove(_sessionMarkerKey);
+    } catch (_) {}
 
     // 登出墓碑：递增并持久化会话作废代次，使「删除失败而残留的旧 token」
     // 在下次启动被代次校验作废，无法复活(HIGH#3)。

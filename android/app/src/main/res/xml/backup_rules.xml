@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 11- 自动备份规则（fullBackupContent）。
+     flutter_secure_storage 的密文/包裹密钥依赖本机 Keystore 私钥，跨设备还原后
+     只会留下解不开的坏数据（java.security.InvalidKeyException: Failed to unwrap key，
+     插件 README 明确要求排除）；降级加密密钥同理不入备份，保证备份中的密文不可解。 -->
+<full-backup-content>
+    <exclude domain="sharedpref" path="FlutterSecureStorage.xml" />
+    <exclude domain="sharedpref" path="FlutterSecureKeyStorage.xml" />
+    <exclude domain="sharedpref" path="FlutterSecureStorageConfiguration.xml" />
+    <exclude domain="sharedpref" path="FlutterSecureStorageConfiguration:FlutterSecureStorage.xml" />
+    <!-- 降级加密兜底的本地密钥（SecureFallbackCipher，位于 files/ 根目录） -->
+    <exclude domain="file" path="secure_fallback.key" />
+</full-backup-content>

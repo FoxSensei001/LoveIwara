@@ -1652,6 +1652,11 @@ class _TranslationsDiagnosticsZhTw implements TranslationsDiagnosticsEn {
 	@override String get appVersionLabel => '應用版本';
 	@override String memoryUsage({required Object memMB}) => '記憶體使用量: ${memMB}MB';
 	@override String get deviceInfoUnavailable => '無法取得裝置資訊';
+	@override String get secureStorageLabel => '安全儲存';
+	@override String get secureStorageHealthy => '可用';
+	@override String get secureStorageRecovered => '已自癒重置（歷史資料已清除）';
+	@override String get secureStorageUnavailable => '不可用（登入狀態使用降級加密保存）';
+	@override String get secureStorageDualWrite => '（雙寫保護已啟用）';
 	@override String get logPolicySectionTitle => '日誌策略';
 	@override String get configServiceUnavailable => '設定服務未初始化，無法調整日誌策略';
 	@override String get enableLoggingTitle => '啟用日誌記錄';
@@ -5221,6 +5226,11 @@ extension on TranslationsZhTw {
 			'diagnostics.appVersionLabel' => '應用版本',
 			'diagnostics.memoryUsage' => ({required Object memMB}) => '記憶體使用量: ${memMB}MB',
 			'diagnostics.deviceInfoUnavailable' => '無法取得裝置資訊',
+			'diagnostics.secureStorageLabel' => '安全儲存',
+			'diagnostics.secureStorageHealthy' => '可用',
+			'diagnostics.secureStorageRecovered' => '已自癒重置（歷史資料已清除）',
+			'diagnostics.secureStorageUnavailable' => '不可用（登入狀態使用降級加密保存）',
+			'diagnostics.secureStorageDualWrite' => '（雙寫保護已啟用）',
 			'diagnostics.logPolicySectionTitle' => '日誌策略',
 			'diagnostics.configServiceUnavailable' => '設定服務未初始化，無法調整日誌策略',
 			'diagnostics.enableLoggingTitle' => '啟用日誌記錄',
@@ -5396,13 +5406,13 @@ extension on TranslationsZhTw {
 			'emoji.groupName' => '分組名稱',
 			'emoji.enterGroupName' => '請輸入分組名稱',
 			'emoji.create' => '建立',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.editGroupName' => '編輯分組名稱',
 			'emoji.save' => '儲存',
 			'emoji.deleteGroup' => '刪除分組',
 			'emoji.confirmDeleteGroup' => '確定要刪除這個表情包分組嗎？分組內的所有圖片也會被刪除。',
 			'emoji.imageCount' => ({required Object count}) => '${count}張圖片',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.selectEmoji' => '選擇表情包',
 			'emoji.noEmojisInGroup' => '該分組暫無表情包',
 			'emoji.goToSettingsToAddEmojis' => '前往設定添加表情包',

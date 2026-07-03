@@ -1626,6 +1626,11 @@ class _TranslationsDiagnosticsZhCn implements TranslationsDiagnosticsEn {
 	@override String get appVersionLabel => '应用版本';
 	@override String memoryUsage({required Object memMB}) => '内存使用: ${memMB}MB';
 	@override String get deviceInfoUnavailable => '无法获取设备信息';
+	@override String get secureStorageLabel => '安全存储';
+	@override String get secureStorageHealthy => '可用';
+	@override String get secureStorageRecovered => '已自愈重置（历史数据已清除）';
+	@override String get secureStorageUnavailable => '不可用（登录态使用降级加密保存）';
+	@override String get secureStorageDualWrite => '（双写保护已启用）';
 	@override String get logPolicySectionTitle => '日志策略';
 	@override String get configServiceUnavailable => '配置服务未初始化，无法调整日志策略';
 	@override String get enableLoggingTitle => '启用日志记录';
@@ -5197,6 +5202,11 @@ extension on TranslationsZhCn {
 			'diagnostics.appVersionLabel' => '应用版本',
 			'diagnostics.memoryUsage' => ({required Object memMB}) => '内存使用: ${memMB}MB',
 			'diagnostics.deviceInfoUnavailable' => '无法获取设备信息',
+			'diagnostics.secureStorageLabel' => '安全存储',
+			'diagnostics.secureStorageHealthy' => '可用',
+			'diagnostics.secureStorageRecovered' => '已自愈重置（历史数据已清除）',
+			'diagnostics.secureStorageUnavailable' => '不可用（登录态使用降级加密保存）',
+			'diagnostics.secureStorageDualWrite' => '（双写保护已启用）',
 			'diagnostics.logPolicySectionTitle' => '日志策略',
 			'diagnostics.configServiceUnavailable' => '配置服务未初始化，无法调整日志策略',
 			'diagnostics.enableLoggingTitle' => '启用日志记录',
@@ -5398,13 +5408,13 @@ extension on TranslationsZhCn {
 			'displaySettings.customNavigationOrder' => '自定义导航顺序',
 			'displaySettings.customNavigationOrderDesc' => '调整底部导航栏和侧边栏中页面的显示顺序',
 			'layoutSettings.title' => '布局设置',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.descriptionTitle' => '布局配置说明',
 			'layoutSettings.descriptionContent' => '这里的配置将决定视频、图库列表页面中显示的列数。您可以选择自动模式让系统根据屏幕宽度自动调整，或选择手动模式固定列数。',
 			'layoutSettings.layoutMode' => '布局模式',
 			'layoutSettings.reset' => '重置',
 			'layoutSettings.autoMode' => '自动模式',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.autoModeDesc' => '根据屏幕宽度自动调整',
 			'layoutSettings.manualMode' => '手动模式',
 			'layoutSettings.manualModeDesc' => '使用固定列数',

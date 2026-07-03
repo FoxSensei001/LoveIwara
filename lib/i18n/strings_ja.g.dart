@@ -1621,6 +1621,11 @@ class _TranslationsDiagnosticsJa implements TranslationsDiagnosticsEn {
 	@override String get appVersionLabel => 'アプリバージョン';
 	@override String memoryUsage({required Object memMB}) => 'メモリ使用量: ${memMB}MB';
 	@override String get deviceInfoUnavailable => 'デバイス情報を取得できません';
+	@override String get secureStorageLabel => 'セキュアストレージ';
+	@override String get secureStorageHealthy => '利用可能';
+	@override String get secureStorageRecovered => 'リセットで自己修復済み（既存データは消去）';
+	@override String get secureStorageUnavailable => '利用不可（ログイン状態は代替暗号化で保存）';
+	@override String get secureStorageDualWrite => '（二重保存の保護が有効）';
 	@override String get logPolicySectionTitle => 'ログポリシー';
 	@override String get configServiceUnavailable => '設定サービスが未初期化のため、ログポリシーを調整できません';
 	@override String get enableLoggingTitle => 'ログ記録を有効化';
@@ -5187,6 +5192,11 @@ extension on TranslationsJa {
 			'diagnostics.appVersionLabel' => 'アプリバージョン',
 			'diagnostics.memoryUsage' => ({required Object memMB}) => 'メモリ使用量: ${memMB}MB',
 			'diagnostics.deviceInfoUnavailable' => 'デバイス情報を取得できません',
+			'diagnostics.secureStorageLabel' => 'セキュアストレージ',
+			'diagnostics.secureStorageHealthy' => '利用可能',
+			'diagnostics.secureStorageRecovered' => 'リセットで自己修復済み（既存データは消去）',
+			'diagnostics.secureStorageUnavailable' => '利用不可（ログイン状態は代替暗号化で保存）',
+			'diagnostics.secureStorageDualWrite' => '（二重保存の保護が有効）',
 			'diagnostics.logPolicySectionTitle' => 'ログポリシー',
 			'diagnostics.configServiceUnavailable' => '設定サービスが未初期化のため、ログポリシーを調整できません',
 			'diagnostics.enableLoggingTitle' => 'ログ記録を有効化',
@@ -5393,13 +5403,13 @@ extension on TranslationsJa {
 			'layoutSettings.layoutMode' => 'レイアウトモード',
 			'layoutSettings.reset' => 'リセット',
 			'layoutSettings.autoMode' => '自動モード',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.autoModeDesc' => '画面幅に基づいて自動調整',
 			'layoutSettings.manualMode' => '手動モード',
 			'layoutSettings.manualModeDesc' => '固定カラム数を使用',
 			'layoutSettings.manualSettings' => '手動設定',
 			'layoutSettings.fixedColumns' => '固定カラム数',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.columns' => 'カラム',
 			'layoutSettings.breakpointConfig' => 'ブレークポイント設定',
 			'layoutSettings.add' => '追加',

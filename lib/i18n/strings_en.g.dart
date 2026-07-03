@@ -4387,6 +4387,21 @@ class TranslationsDiagnosticsEn {
 	/// en: 'Unable to fetch device info'
 	String get deviceInfoUnavailable => 'Unable to fetch device info';
 
+	/// en: 'Secure storage'
+	String get secureStorageLabel => 'Secure storage';
+
+	/// en: 'Available'
+	String get secureStorageHealthy => 'Available';
+
+	/// en: 'Self-healed by reset (previous data cleared)'
+	String get secureStorageRecovered => 'Self-healed by reset (previous data cleared)';
+
+	/// en: 'Unavailable (login saved with fallback encryption)'
+	String get secureStorageUnavailable => 'Unavailable (login saved with fallback encryption)';
+
+	/// en: ' (dual-write protection on)'
+	String get secureStorageDualWrite => ' (dual-write protection on)';
+
 	/// en: 'Log Policy'
 	String get logPolicySectionTitle => 'Log Policy';
 
@@ -9965,6 +9980,11 @@ extension on Translations {
 			'diagnostics.appVersionLabel' => 'App Version',
 			'diagnostics.memoryUsage' => ({required Object memMB}) => 'Memory usage: ${memMB}MB',
 			'diagnostics.deviceInfoUnavailable' => 'Unable to fetch device info',
+			'diagnostics.secureStorageLabel' => 'Secure storage',
+			'diagnostics.secureStorageHealthy' => 'Available',
+			'diagnostics.secureStorageRecovered' => 'Self-healed by reset (previous data cleared)',
+			'diagnostics.secureStorageUnavailable' => 'Unavailable (login saved with fallback encryption)',
+			'diagnostics.secureStorageDualWrite' => ' (dual-write protection on)',
 			'diagnostics.logPolicySectionTitle' => 'Log Policy',
 			'diagnostics.configServiceUnavailable' => 'Config service is not initialized. Log policy cannot be adjusted.',
 			'diagnostics.enableLoggingTitle' => 'Enable logging',
@@ -10089,13 +10109,13 @@ extension on Translations {
 			'log.today' => 'Today',
 			'log.selectMergeRange' => 'Select Merge Range',
 			'log.selectMergeRangeHint' => 'Please select the log time range to merge',
+			_ => null,
+		} ?? switch (path) {
 			'log.selectMergeRangeDays' => ({required Object days}) => 'Recent ${days} days',
 			'log.logStats' => 'Log Stats',
 			'log.todayLogs' => ({required Object count}) => 'Today Logs: ${count} logs',
 			'log.recent7DaysLogs' => ({required Object count}) => 'Recent 7 Days Logs: ${count} logs',
 			'log.totalLogs' => ({required Object count}) => 'Total Logs: ${count} logs',
-			_ => null,
-		} ?? switch (path) {
 			'log.setLogDatabaseSizeLimit' => 'Set Log Database Size Limit',
 			'log.currentLogSizeWithSize' => ({required Object size}) => 'Current Log Size: ${size}',
 			'log.warning' => 'Warning',
