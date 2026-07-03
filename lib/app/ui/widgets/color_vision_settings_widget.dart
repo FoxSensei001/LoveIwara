@@ -174,6 +174,12 @@ class ColorVisionSettingsWidget extends StatelessWidget {
             Icon(Icons.invert_colors, color: Theme.of(context).primaryColor),
             const SizedBox(width: 8),
             Expanded(child: Text(t.colorVisionAssist.title)),
+            IconButton(
+              onPressed: () => AppService.tryPop(),
+              icon: const Icon(Icons.close),
+              tooltip: t.common.close,
+              visualDensity: VisualDensity.compact,
+            ),
           ],
         ),
         content: SizedBox(
@@ -259,13 +265,6 @@ class ColorVisionSettingsWidget extends StatelessWidget {
             ),
           ),
         ),
-        actions: [
-          TextButton.icon(
-            onPressed: () => AppService.tryPop(),
-            icon: const Icon(Icons.close),
-            label: Text(t.common.close),
-          ),
-        ],
       ),
       barrierDismissible: true,
     );
