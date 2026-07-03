@@ -55,6 +55,7 @@ class ApiFailureResolver {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
+      case DioExceptionType.transformTimeout:
         return ApiFailureDetails(
           kind: ApiFailureKind.networkTimeout,
           statusCode: statusCode,

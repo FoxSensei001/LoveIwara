@@ -295,6 +295,8 @@ class Oreno3dClient {
         return Exception(slang.t.oreno3d.errors.sendTimeout);
       case DioExceptionType.receiveTimeout:
         return Exception(slang.t.oreno3d.errors.receiveTimeout);
+      case DioExceptionType.transformTimeout:
+        return Exception(slang.t.oreno3d.errors.receiveTimeout);
       case DioExceptionType.badCertificate:
         return Exception(slang.t.oreno3d.errors.badCertificate);
       case DioExceptionType.badResponse:
