@@ -2212,6 +2212,7 @@ class _TranslationsColorVisionAssistJa implements TranslationsColorVisionAssistE
 	// Translations
 	@override String get title => '色覚アシスト';
 	@override String get description => '色覚障がいのあるユーザー向けに動画の色を補正します。Anime4K と併用できます';
+	@override String get galleryDescription => '色覚障がいのあるユーザー向けにギャラリー画像の色を補正します（プレイヤーの設定とは独立）';
 	@override String get disable => 'オフ';
 	@override String get disableDescription => '色補正を行いません';
 	@override String get protanopia => '赤色覚アシスト（1型）';
@@ -5689,6 +5690,7 @@ extension on TranslationsJa {
 			'defaultBlacklistReminder.dismiss' => '後で',
 			'colorVisionAssist.title' => '色覚アシスト',
 			'colorVisionAssist.description' => '色覚障がいのあるユーザー向けに動画の色を補正します。Anime4K と併用できます',
+			'colorVisionAssist.galleryDescription' => '色覚障がいのあるユーザー向けにギャラリー画像の色を補正します（プレイヤーの設定とは独立）',
 			'colorVisionAssist.disable' => 'オフ',
 			'colorVisionAssist.disableDescription' => '色補正を行いません',
 			'colorVisionAssist.protanopia' => '赤色覚アシスト（1型）',

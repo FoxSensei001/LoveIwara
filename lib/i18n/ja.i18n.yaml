@@ -2539,6 +2539,7 @@ defaultBlacklistReminder:
 colorVisionAssist:
   title: "色覚アシスト"
   description: "色覚障がいのあるユーザー向けに動画の色を補正します。Anime4K と併用できます"
+  galleryDescription: "色覚障がいのあるユーザー向けにギャラリー画像の色を補正します（プレイヤーの設定とは独立）"
   disable: "オフ"
   disableDescription: "色補正を行いません"
   protanopia: "赤色覚アシスト（1型）"

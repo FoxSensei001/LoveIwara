@@ -2215,6 +2215,7 @@ class _TranslationsColorVisionAssistZhTw implements TranslationsColorVisionAssis
 	// Translations
 	@override String get title => '色覺輔助';
 	@override String get description => '為色覺障礙使用者矯正影片畫面色彩，可與 Anime4K 同時開啟';
+	@override String get galleryDescription => '為色覺障礙使用者矯正圖庫圖片色彩（與播放器開關相互獨立）';
 	@override String get disable => '關閉';
 	@override String get disableDescription => '不進行色彩矯正';
 	@override String get protanopia => '紅色覺輔助';
@@ -5695,6 +5696,7 @@ extension on TranslationsZhTw {
 			'defaultBlacklistReminder.dismiss' => '暫不處理',
 			'colorVisionAssist.title' => '色覺輔助',
 			'colorVisionAssist.description' => '為色覺障礙使用者矯正影片畫面色彩，可與 Anime4K 同時開啟',
+			'colorVisionAssist.galleryDescription' => '為色覺障礙使用者矯正圖庫圖片色彩（與播放器開關相互獨立）',
 			'colorVisionAssist.disable' => '關閉',
 			'colorVisionAssist.disableDescription' => '不進行色彩矯正',
 			'colorVisionAssist.protanopia' => '紅色覺輔助',

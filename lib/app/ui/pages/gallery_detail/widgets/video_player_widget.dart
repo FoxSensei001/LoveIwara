@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -252,8 +253,9 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // 视频播放器
+          // 视频播放器（图库内容跟随图库色觉辅助开关，与播放器开关独立）
           ColorVisionFilterWrapper(
+            configKey: ConfigKey.GALLERY_COLOR_VISION_FILTER_ID,
             child: Video(
               controller: _videoController,
               controls: NoVideoControls,

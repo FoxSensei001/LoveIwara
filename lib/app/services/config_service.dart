@@ -367,7 +367,8 @@ enum ConfigKey {
   // Anime4K 预设配置
   ANIME4K_PRESET_ID, // 当前选中的 Anime4K 预设 ID，空字符串表示禁用
   // 色觉辅助滤镜配置
-  COLOR_VISION_FILTER_ID, // 当前选中的色觉辅助滤镜 ID，空字符串表示关闭
+  COLOR_VISION_FILTER_ID, // 播放器色觉辅助滤镜 ID，空字符串表示关闭
+  GALLERY_COLOR_VISION_FILTER_ID, // 图库色觉辅助滤镜 ID（与播放器独立），空字符串表示关闭
   // 教程指导相关配置
   SHOW_SUBSCRIPTION_TUTORIAL, // 是否显示订阅页面教程指导
   // 下载相关配置
@@ -613,6 +614,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'anime4k_preset_id';
       case ConfigKey.COLOR_VISION_FILTER_ID:
         return 'color_vision_filter_id';
+      case ConfigKey.GALLERY_COLOR_VISION_FILTER_ID:
+        return 'gallery_color_vision_filter_id';
       case ConfigKey.SHOW_SUBSCRIPTION_TUTORIAL:
         return 'show_subscription_tutorial';
       case ConfigKey.LAST_DOWNLOAD_QUALITY:
@@ -880,7 +883,9 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.ANIME4K_PRESET_ID:
         return ''; // 默认禁用 Anime4K（空字符串表示禁用）
       case ConfigKey.COLOR_VISION_FILTER_ID:
-        return ''; // 默认关闭色觉辅助滤镜（空字符串表示关闭）
+        return ''; // 默认关闭播放器色觉辅助滤镜（空字符串表示关闭）
+      case ConfigKey.GALLERY_COLOR_VISION_FILTER_ID:
+        return ''; // 默认关闭图库色觉辅助滤镜（空字符串表示关闭）
       case ConfigKey.SHOW_SUBSCRIPTION_TUTORIAL:
         return true; // 默认显示订阅页面教程指导
       case ConfigKey.LAST_DOWNLOAD_QUALITY:

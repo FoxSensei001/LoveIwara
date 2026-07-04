@@ -5,6 +5,7 @@ import 'package:flutter/scheduler.dart'; // Import TickerProvider
 import 'package:flutter/services.dart'; // Import for keyboard events
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
@@ -844,6 +845,7 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
             Hero(
               tag: widget.imageItem.data.id,
               child: ColorVisionFilterWrapper(
+                configKey: ConfigKey.GALLERY_COLOR_VISION_FILTER_ID,
                 child: Video(
                   controller: _videoController,
                   controls: null,

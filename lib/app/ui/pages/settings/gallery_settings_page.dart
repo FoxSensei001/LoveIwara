@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/widgets/color_vision_settings_widget.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/gallery_image_quality.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -110,6 +111,14 @@ class GallerySettingsPage extends StatelessWidget {
                       }),
                     ],
                   ),
+                ),
+                const SizedBox(height: 20),
+                // 图库色觉辅助（与播放器色觉辅助为独立开关）
+                ColorVisionSettingsWidget(
+                  showInfoCard: false,
+                  configKey: ConfigKey.GALLERY_COLOR_VISION_FILTER_ID,
+                  descriptionOverride:
+                      slang.t.colorVisionAssist.galleryDescription,
                 ),
               ]),
             ),

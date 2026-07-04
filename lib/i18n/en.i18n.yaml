@@ -2535,6 +2535,7 @@ defaultBlacklistReminder:
 colorVisionAssist:
   title: "Color Vision Assist"
   description: "Corrects video colors for color-vision-deficient viewers, can be used together with Anime4K"
+  galleryDescription: "Corrects gallery image colors for color-vision-deficient viewers (independent of the player switch)"
   disable: "Off"
   disableDescription: "No color correction"
   protanopia: "Red Assist (Protanopia)"

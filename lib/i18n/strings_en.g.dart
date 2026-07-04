@@ -5513,6 +5513,9 @@ class TranslationsColorVisionAssistEn {
 	/// en: 'Corrects video colors for color-vision-deficient viewers, can be used together with Anime4K'
 	String get description => 'Corrects video colors for color-vision-deficient viewers, can be used together with Anime4K';
 
+	/// en: 'Corrects gallery image colors for color-vision-deficient viewers (independent of the player switch)'
+	String get galleryDescription => 'Corrects gallery image colors for color-vision-deficient viewers (independent of the player switch)';
+
 	/// en: 'Off'
 	String get disable => 'Off';
 
@@ -10395,6 +10398,7 @@ extension on Translations {
 			'defaultBlacklistReminder.dismiss' => 'Not now',
 			'colorVisionAssist.title' => 'Color Vision Assist',
 			'colorVisionAssist.description' => 'Corrects video colors for color-vision-deficient viewers, can be used together with Anime4K',
+			'colorVisionAssist.galleryDescription' => 'Corrects gallery image colors for color-vision-deficient viewers (independent of the player switch)',
 			'colorVisionAssist.disable' => 'Off',
 			'colorVisionAssist.disableDescription' => 'No color correction',
 			'colorVisionAssist.protanopia' => 'Red Assist (Protanopia)',

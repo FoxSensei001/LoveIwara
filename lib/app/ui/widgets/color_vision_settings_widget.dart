@@ -13,14 +13,22 @@ import 'package:oktoast/oktoast.dart';
 ///
 /// 与 [Anime4KSettingsWidget] 保持一致的卡片交互风格，供设置页与
 /// 首次启动引导页复用，避免逻辑重复。
+///
+/// [configKey] 指定读写的配置键：默认播放器 [ConfigKey.COLOR_VISION_FILTER_ID]，
+/// 图库设置页传入 [ConfigKey.GALLERY_COLOR_VISION_FILTER_ID] 使用独立开关；
+/// [descriptionOverride] 可覆盖默认说明文案（如图库场景改为「图片」措辞）。
 class ColorVisionSettingsWidget extends StatelessWidget {
   final bool showInfoCard;
   final String? infoMessage;
+  final ConfigKey configKey;
+  final String? descriptionOverride;
 
   const ColorVisionSettingsWidget({
     super.key,
     this.showInfoCard = true,
     this.infoMessage,
+    this.configKey = ConfigKey.COLOR_VISION_FILTER_ID,
+    this.descriptionOverride,
   });
 
   @override
@@ -62,7 +70,7 @@ class ColorVisionSettingsWidget extends StatelessWidget {
     );
   }
 
-  Map<String, String> _optionLabels() {
+  static Map<String, String> _optionLabels() {
     final t = slang.t;
     return {
       ColorVisionFilterType.none.id: t.colorVisionAssist.disable,
@@ -73,7 +81,7 @@ class ColorVisionSettingsWidget extends StatelessWidget {
     };
   }
 
-  Map<String, String> _optionDescriptions() {
+  static Map<String, String> _optionDescriptions() {
     final t = slang.t;
     return {
       ColorVisionFilterType.none.id: t.colorVisionAssist.disableDescription,
@@ -89,10 +97,10 @@ class ColorVisionSettingsWidget extends StatelessWidget {
   Widget _buildSelector(BuildContext context, ConfigService configService) {
     final t = slang.t;
     final optionLabels = _optionLabels();
+    final description = descriptionOverride ?? t.colorVisionAssist.description;
 
     return Obx(() {
-      final currentId =
-          configService[ConfigKey.COLOR_VISION_FILTER_ID] as String;
+      final currentId = configService[configKey] as String;
       final currentType = ColorVisionFilterType.fromId(currentId);
       final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -111,7 +119,11 @@ class ColorVisionSettingsWidget extends StatelessWidget {
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: () => _showSelectionDialog(context, configService),
+          onTap: () => showSelectionDialog(
+            context,
+            configKey: configKey,
+            description: description,
+          ),
           child: Row(
             children: [
               Icon(
@@ -132,7 +144,7 @@ class ColorVisionSettingsWidget extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      t.colorVisionAssist.description,
+                      description,
                       style: Theme.of(
                         context,
                       ).textTheme.bodySmall?.copyWith(color: Colors.grey),
@@ -159,13 +171,19 @@ class ColorVisionSettingsWidget extends StatelessWidget {
     });
   }
 
-  Future<void> _showSelectionDialog(
-    BuildContext context,
-    ConfigService configService,
-  ) async {
+  /// 弹出色觉辅助档位选择对话框（可复用于设置卡片与图库三点菜单）。
+  ///
+  /// [configKey] 决定读写哪个开关（播放器 / 图库），[description] 覆盖顶部说明文案。
+  static Future<void> showSelectionDialog(
+    BuildContext context, {
+    ConfigKey configKey = ConfigKey.COLOR_VISION_FILTER_ID,
+    String? description,
+  }) async {
     final t = slang.t;
+    final configService = Get.find<ConfigService>();
     final optionLabels = _optionLabels();
     final optionDescriptions = _optionDescriptions();
+    final headerText = description ?? t.colorVisionAssist.description;
 
     await showAppDialog<void>(
       AlertDialog(
@@ -196,7 +214,7 @@ class ColorVisionSettingsWidget extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: Text(
-                      t.colorVisionAssist.description,
+                      headerText,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -204,9 +222,7 @@ class ColorVisionSettingsWidget extends StatelessWidget {
                   ),
                   ...ColorVisionFilterType.values.map((type) {
                     final isSelected =
-                        (configService[ConfigKey.COLOR_VISION_FILTER_ID]
-                            as String) ==
-                        type.id;
+                        (configService[configKey] as String) == type.id;
                     return Container(
                       margin: const EdgeInsets.only(bottom: 8),
                       decoration: BoxDecoration(
@@ -254,7 +270,12 @@ class ColorVisionSettingsWidget extends StatelessWidget {
                                 color: Colors.grey[400],
                               ),
                         onTap: () {
-                          _applySelection(configService, type, optionLabels);
+                          _applySelection(
+                            configService,
+                            type,
+                            configKey,
+                            optionLabels,
+                          );
                           AppService.tryPop();
                         },
                       ),
@@ -270,18 +291,18 @@ class ColorVisionSettingsWidget extends StatelessWidget {
     );
   }
 
-  void _applySelection(
+  static void _applySelection(
     ConfigService configService,
     ColorVisionFilterType type,
+    ConfigKey configKey,
     Map<String, String> optionLabels,
   ) {
     final t = slang.t;
-    final previousId =
-        configService[ConfigKey.COLOR_VISION_FILTER_ID] as String;
+    final previousId = configService[configKey] as String;
     if (previousId == type.id) return;
 
-    configService[ConfigKey.COLOR_VISION_FILTER_ID] = type.id;
-    // 滤镜即时作用于所有播放器画面，提示用户已生效
+    configService[configKey] = type.id;
+    // 滤镜即时作用于目标画面，提示用户已生效
     showToastWidget(
       MDToastWidget(
         message: type == ColorVisionFilterType.none

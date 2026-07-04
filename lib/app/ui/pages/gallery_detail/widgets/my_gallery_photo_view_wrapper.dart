@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/keybinding_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
 import 'package:i_iwara/common/gallery_image_quality.dart';
@@ -21,6 +22,8 @@ import 'image_widget.dart';
 import 'gallery_controls.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/pages/settings/keybinding_settings_page.dart';
+import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
+import 'package:i_iwara/app/ui/widgets/color_vision_settings_widget.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class MyGalleryPhotoViewWrapper extends StatefulWidget {
@@ -647,15 +650,14 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     // 如果禁用了菜单，直接返回
     if (!widget.enableMenu) return;
 
+    final t = slang.Translations.of(context);
+
     // 动态生成菜单项
     final menuItems = widget.menuItemsBuilder != null
         ? widget.menuItemsBuilder!(context, item)
         : <MenuItem>[];
 
-    // 如果没有菜单项，不显示对话框
-    if (menuItems.isEmpty) return;
-
-    // 使用 showAppDialog 显示菜单
+    // 使用 showAppDialog 显示菜单（末尾始终附带「图库色觉辅助」入口）
     showAppDialog(
       Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -664,10 +666,8 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 菜单项列表
-              ...menuItems.asMap().entries.map((entry) {
-                final index = entry.key;
-                final menuItem = entry.value;
+              // 菜单项列表（每项后均带分隔线，因末尾还有色觉辅助入口）
+              ...menuItems.map((menuItem) {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -679,11 +679,24 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                         menuItem.onTap(); // 执行菜单项动作
                       },
                     ),
-                    // 添加分隔线，最后一项不添加
-                    if (index < menuItems.length - 1) const Divider(height: 1),
+                    const Divider(height: 1),
                   ],
                 );
               }),
+              // 图库色觉辅助（独立于播放器色觉辅助开关）
+              ListTile(
+                leading: const Icon(Icons.invert_colors),
+                title: Text(t.colorVisionAssist.title),
+                subtitle: Text(t.colorVisionAssist.galleryDescription),
+                onTap: () {
+                  AppService.tryPop(); // 关闭菜单对话框
+                  ColorVisionSettingsWidget.showSelectionDialog(
+                    context,
+                    configKey: ConfigKey.GALLERY_COLOR_VISION_FILTER_ID,
+                    description: t.colorVisionAssist.galleryDescription,
+                  );
+                },
+              ),
             ],
           ),
         ),
@@ -815,6 +828,16 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                                           headers: activeItem.headers,
                                         ),
                                 );
+
+                                // 图片跟随「图库色觉辅助」独立开关（webm 由播放器
+                                // 组件内部同键包装，此处仅处理静态图片，避免叠加）。
+                                if (!isVideo) {
+                                  mediaChild = ColorVisionFilterWrapper(
+                                    configKey: ConfigKey
+                                        .GALLERY_COLOR_VISION_FILTER_ID,
+                                    child: mediaChild,
+                                  );
+                                }
 
                                 if (!isVideo && heroTag != null) {
                                   mediaChild = Hero(

@@ -2544,6 +2544,7 @@ defaultBlacklistReminder:
 colorVisionAssist:
   title: "色覺輔助"
   description: "為色覺障礙使用者矯正影片畫面色彩，可與 Anime4K 同時開啟"
+  galleryDescription: "為色覺障礙使用者矯正圖庫圖片色彩（與播放器開關相互獨立）"
   disable: "關閉"
   disableDescription: "不進行色彩矯正"
   protanopia: "紅色覺輔助"
