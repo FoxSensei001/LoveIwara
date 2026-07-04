@@ -1143,6 +1143,8 @@ videoDetail:
   gestureGuide:
     title: ジェスチャー・操作ガイド
     viewGuide: ジェスチャー・操作ガイドを見る
+    firstTimeIntro: プレーヤーのジェスチャーを数秒で確認しましょう。このガイドはプレーヤー設定からいつでも再表示できます。
+    startWatching: 確認して再生を始める
     basicTitle: 基本操作
     zoomTitle: 拡大 / 回転 / 移動
     restoreTip: 右下の「リセット」ボタンで拡大・回転・位置を元に戻せます。
@@ -1153,15 +1155,13 @@ videoDetail:
     mLongPress: '長押し：一時的な倍速再生'
     mPinch: '2本指ピンチ：映像を拡大'
     mRotate: '2本指回転：映像を回転'
-    mPan: '2本指ドラッグ：映像を移動（拡大時）'
     dTap: 'クリック：コントロールの表示 / 非表示'
-    dDoubleTap: 'ダブルクリック：再生 / 一時停止'
-    dKeys: '矢印キー：巻き戻し / 早送り、スペース：再生 / 一時停止'
+    dDoubleTap: 'ダブルクリック：左で巻き戻し / 中央で一時停止 / 右で早送り'
+    dKeys: 'シークキー：シングルで巻き戻し / 早送り、長押しで倍速再生；速度キー：通常再生中に倍速を段階調整；スペース：再生 / 一時停止'
     dTrackpadPinch: 'トラックパッドのピンチ：映像を拡大'
     dTrackpadRotate: 'トラックパッドの回転：映像を回転'
     dCtrlWheel: 'Ctrl + ホイール：カーソル中心に拡大'
     dShiftWheel: 'Shift + ホイール：カーソル中心に回転'
-    dDrag: 'マウスドラッグ：映像を移動（拡大時）'
   home: ホーム
   videoPlayer: ビデオプレーヤー
   videoPlayerInfo: プレーヤー情報

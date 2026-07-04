@@ -6695,6 +6695,12 @@ class TranslationsVideoDetailGestureGuideEn {
 	/// en: 'Gestures & Interaction Guide'
 	String get viewGuide => 'Gestures & Interaction Guide';
 
+	/// en: 'Take a few seconds to learn the player gestures. You can reopen this guide anytime from the player settings.'
+	String get firstTimeIntro => 'Take a few seconds to learn the player gestures. You can reopen this guide anytime from the player settings.';
+
+	/// en: 'Got it, start watching'
+	String get startWatching => 'Got it, start watching';
+
 	/// en: 'Basic Controls'
 	String get basicTitle => 'Basic Controls';
 
@@ -6725,17 +6731,14 @@ class TranslationsVideoDetailGestureGuideEn {
 	/// en: 'Two-finger rotate: rotate the picture'
 	String get mRotate => 'Two-finger rotate: rotate the picture';
 
-	/// en: 'Two-finger drag: move the picture (when zoomed)'
-	String get mPan => 'Two-finger drag: move the picture (when zoomed)';
-
 	/// en: 'Click: show / hide controls'
 	String get dTap => 'Click: show / hide controls';
 
-	/// en: 'Double click: play / pause'
-	String get dDoubleTap => 'Double click: play / pause';
+	/// en: 'Double click: rewind (left) / pause (center) / fast-forward (right)'
+	String get dDoubleTap => 'Double click: rewind (left) / pause (center) / fast-forward (right)';
 
-	/// en: 'Arrow keys: rewind / forward; Space: play / pause'
-	String get dKeys => 'Arrow keys: rewind / forward; Space: play / pause';
+	/// en: 'Seek keys: tap to jump back / forward, hold to speed up; speed keys: step the playback speed during normal play; Space: play / pause'
+	String get dKeys => 'Seek keys: tap to jump back / forward, hold to speed up; speed keys: step the playback speed during normal play; Space: play / pause';
 
 	/// en: 'Trackpad pinch: zoom the picture'
 	String get dTrackpadPinch => 'Trackpad pinch: zoom the picture';
@@ -6748,9 +6751,6 @@ class TranslationsVideoDetailGestureGuideEn {
 
 	/// en: 'Shift + wheel: rotate around the cursor'
 	String get dShiftWheel => 'Shift + wheel: rotate around the cursor';
-
-	/// en: 'Mouse drag: move the picture (when zoomed)'
-	String get dDrag => 'Mouse drag: move the picture (when zoomed)';
 }
 
 // Path: videoDetail.player
@@ -9133,6 +9133,8 @@ extension on Translations {
 			'videoDetail.restoreDefaultZoom' => 'Restore',
 			'videoDetail.gestureGuide.title' => 'Gestures & Interaction Guide',
 			'videoDetail.gestureGuide.viewGuide' => 'Gestures & Interaction Guide',
+			'videoDetail.gestureGuide.firstTimeIntro' => 'Take a few seconds to learn the player gestures. You can reopen this guide anytime from the player settings.',
+			'videoDetail.gestureGuide.startWatching' => 'Got it, start watching',
 			'videoDetail.gestureGuide.basicTitle' => 'Basic Controls',
 			'videoDetail.gestureGuide.zoomTitle' => 'Zoom / Rotate / Pan',
 			'videoDetail.gestureGuide.restoreTip' => 'Tap the "Restore" button at the bottom-right to reset zoom, rotation and position.',
@@ -9143,15 +9145,13 @@ extension on Translations {
 			'videoDetail.gestureGuide.mLongPress' => 'Long press: temporary speed-up',
 			'videoDetail.gestureGuide.mPinch' => 'Two-finger pinch: zoom the picture',
 			'videoDetail.gestureGuide.mRotate' => 'Two-finger rotate: rotate the picture',
-			'videoDetail.gestureGuide.mPan' => 'Two-finger drag: move the picture (when zoomed)',
 			'videoDetail.gestureGuide.dTap' => 'Click: show / hide controls',
-			'videoDetail.gestureGuide.dDoubleTap' => 'Double click: play / pause',
-			'videoDetail.gestureGuide.dKeys' => 'Arrow keys: rewind / forward; Space: play / pause',
+			'videoDetail.gestureGuide.dDoubleTap' => 'Double click: rewind (left) / pause (center) / fast-forward (right)',
+			'videoDetail.gestureGuide.dKeys' => 'Seek keys: tap to jump back / forward, hold to speed up; speed keys: step the playback speed during normal play; Space: play / pause',
 			'videoDetail.gestureGuide.dTrackpadPinch' => 'Trackpad pinch: zoom the picture',
 			'videoDetail.gestureGuide.dTrackpadRotate' => 'Trackpad rotate: rotate the picture',
 			'videoDetail.gestureGuide.dCtrlWheel' => 'Ctrl + wheel: zoom around the cursor',
 			'videoDetail.gestureGuide.dShiftWheel' => 'Shift + wheel: rotate around the cursor',
-			'videoDetail.gestureGuide.dDrag' => 'Mouse drag: move the picture (when zoomed)',
 			'videoDetail.home' => 'Home',
 			'videoDetail.videoPlayer' => 'Video Player',
 			'videoDetail.videoPlayerInfo' => 'Video Player Info',

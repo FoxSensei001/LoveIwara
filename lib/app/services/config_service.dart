@@ -363,6 +363,7 @@ enum ConfigKey {
   FULLSCREEN_ORIENTATION, // 进入全屏后的屏幕方向
   // 首次设置相关
   FIRST_TIME_SETUP_COMPLETED, // 首次设置是否已完成
+  VIDEO_GESTURE_GUIDE_SHOWN, // 视频手势指引页是否已展示（首次进入视频详情前显示一次）
   // Anime4K 预设配置
   ANIME4K_PRESET_ID, // 当前选中的 Anime4K 预设 ID，空字符串表示禁用
   // 色觉辅助滤镜配置
@@ -606,6 +607,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'fullscreen_orientation';
       case ConfigKey.FIRST_TIME_SETUP_COMPLETED:
         return 'first_time_setup_completed';
+      case ConfigKey.VIDEO_GESTURE_GUIDE_SHOWN:
+        return 'video_gesture_guide_shown';
       case ConfigKey.ANIME4K_PRESET_ID:
         return 'anime4k_preset_id';
       case ConfigKey.COLOR_VISION_FILTER_ID:
@@ -872,6 +875,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'landscape_left'; // 默认左侧横屏
       case ConfigKey.FIRST_TIME_SETUP_COMPLETED:
         return false;
+      case ConfigKey.VIDEO_GESTURE_GUIDE_SHOWN:
+        return false; // 默认未展示，首次进入视频详情前显示一次
       case ConfigKey.ANIME4K_PRESET_ID:
         return ''; // 默认禁用 Anime4K（空字符串表示禁用）
       case ConfigKey.COLOR_VISION_FILTER_ID:

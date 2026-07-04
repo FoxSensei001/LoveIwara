@@ -2695,6 +2695,8 @@ class _TranslationsVideoDetailGestureGuideZhCn implements TranslationsVideoDetai
 	// Translations
 	@override String get title => '手势与交互指引';
 	@override String get viewGuide => '查看手势与交互指引';
+	@override String get firstTimeIntro => '花几秒了解播放器手势，之后可随时在播放器设置里再次查看。';
+	@override String get startWatching => '知道了，开始观看';
 	@override String get basicTitle => '基础操作';
 	@override String get zoomTitle => '缩放 / 旋转 / 平移';
 	@override String get restoreTip => '点击右下角「还原」按钮可复位缩放、旋转与位置。';
@@ -2705,15 +2707,13 @@ class _TranslationsVideoDetailGestureGuideZhCn implements TranslationsVideoDetai
 	@override String get mLongPress => '长按：临时倍速播放';
 	@override String get mPinch => '双指捏合：缩放画面';
 	@override String get mRotate => '双指旋转：旋转画面';
-	@override String get mPan => '双指拖动：移动画面（放大后）';
 	@override String get dTap => '单击：显示 / 隐藏控制栏';
-	@override String get dDoubleTap => '双击：播放 / 暂停';
-	@override String get dKeys => '方向键：快退 / 快进；空格：播放 / 暂停';
+	@override String get dDoubleTap => '双击：左侧后退 / 中央暂停 / 右侧快进';
+	@override String get dKeys => '快退 / 快进键：单击瞬间跳转，长按进入倍速播放；调速键：常速播放时逐档调整倍速；空格：播放 / 暂停';
 	@override String get dTrackpadPinch => '触控板捏合：缩放画面';
 	@override String get dTrackpadRotate => '触控板旋转：旋转画面';
 	@override String get dCtrlWheel => 'Ctrl + 滚轮：以光标为中心缩放';
 	@override String get dShiftWheel => 'Shift + 滚轮：以光标为中心旋转';
-	@override String get dDrag => '鼠标拖动：移动画面（放大后）';
 }
 
 // Path: videoDetail.player
@@ -4437,6 +4437,8 @@ extension on TranslationsZhCn {
 			'videoDetail.restoreDefaultZoom' => '还原',
 			'videoDetail.gestureGuide.title' => '手势与交互指引',
 			'videoDetail.gestureGuide.viewGuide' => '查看手势与交互指引',
+			'videoDetail.gestureGuide.firstTimeIntro' => '花几秒了解播放器手势，之后可随时在播放器设置里再次查看。',
+			'videoDetail.gestureGuide.startWatching' => '知道了，开始观看',
 			'videoDetail.gestureGuide.basicTitle' => '基础操作',
 			'videoDetail.gestureGuide.zoomTitle' => '缩放 / 旋转 / 平移',
 			'videoDetail.gestureGuide.restoreTip' => '点击右下角「还原」按钮可复位缩放、旋转与位置。',
@@ -4447,15 +4449,13 @@ extension on TranslationsZhCn {
 			'videoDetail.gestureGuide.mLongPress' => '长按：临时倍速播放',
 			'videoDetail.gestureGuide.mPinch' => '双指捏合：缩放画面',
 			'videoDetail.gestureGuide.mRotate' => '双指旋转：旋转画面',
-			'videoDetail.gestureGuide.mPan' => '双指拖动：移动画面（放大后）',
 			'videoDetail.gestureGuide.dTap' => '单击：显示 / 隐藏控制栏',
-			'videoDetail.gestureGuide.dDoubleTap' => '双击：播放 / 暂停',
-			'videoDetail.gestureGuide.dKeys' => '方向键：快退 / 快进；空格：播放 / 暂停',
+			'videoDetail.gestureGuide.dDoubleTap' => '双击：左侧后退 / 中央暂停 / 右侧快进',
+			'videoDetail.gestureGuide.dKeys' => '快退 / 快进键：单击瞬间跳转，长按进入倍速播放；调速键：常速播放时逐档调整倍速；空格：播放 / 暂停',
 			'videoDetail.gestureGuide.dTrackpadPinch' => '触控板捏合：缩放画面',
 			'videoDetail.gestureGuide.dTrackpadRotate' => '触控板旋转：旋转画面',
 			'videoDetail.gestureGuide.dCtrlWheel' => 'Ctrl + 滚轮：以光标为中心缩放',
 			'videoDetail.gestureGuide.dShiftWheel' => 'Shift + 滚轮：以光标为中心旋转',
-			'videoDetail.gestureGuide.dDrag' => '鼠标拖动：移动画面（放大后）',
 			'videoDetail.home' => '主页',
 			'videoDetail.videoPlayer' => '视频播放器',
 			'videoDetail.videoPlayerInfo' => '播放器信息',

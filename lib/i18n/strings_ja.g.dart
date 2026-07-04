@@ -2690,6 +2690,8 @@ class _TranslationsVideoDetailGestureGuideJa implements TranslationsVideoDetailG
 	// Translations
 	@override String get title => 'ジェスチャー・操作ガイド';
 	@override String get viewGuide => 'ジェスチャー・操作ガイドを見る';
+	@override String get firstTimeIntro => 'プレーヤーのジェスチャーを数秒で確認しましょう。このガイドはプレーヤー設定からいつでも再表示できます。';
+	@override String get startWatching => '確認して再生を始める';
 	@override String get basicTitle => '基本操作';
 	@override String get zoomTitle => '拡大 / 回転 / 移動';
 	@override String get restoreTip => '右下の「リセット」ボタンで拡大・回転・位置を元に戻せます。';
@@ -2700,15 +2702,13 @@ class _TranslationsVideoDetailGestureGuideJa implements TranslationsVideoDetailG
 	@override String get mLongPress => '長押し：一時的な倍速再生';
 	@override String get mPinch => '2本指ピンチ：映像を拡大';
 	@override String get mRotate => '2本指回転：映像を回転';
-	@override String get mPan => '2本指ドラッグ：映像を移動（拡大時）';
 	@override String get dTap => 'クリック：コントロールの表示 / 非表示';
-	@override String get dDoubleTap => 'ダブルクリック：再生 / 一時停止';
-	@override String get dKeys => '矢印キー：巻き戻し / 早送り、スペース：再生 / 一時停止';
+	@override String get dDoubleTap => 'ダブルクリック：左で巻き戻し / 中央で一時停止 / 右で早送り';
+	@override String get dKeys => 'シークキー：シングルで巻き戻し / 早送り、長押しで倍速再生；速度キー：通常再生中に倍速を段階調整；スペース：再生 / 一時停止';
 	@override String get dTrackpadPinch => 'トラックパッドのピンチ：映像を拡大';
 	@override String get dTrackpadRotate => 'トラックパッドの回転：映像を回転';
 	@override String get dCtrlWheel => 'Ctrl + ホイール：カーソル中心に拡大';
 	@override String get dShiftWheel => 'Shift + ホイール：カーソル中心に回転';
-	@override String get dDrag => 'マウスドラッグ：映像を移動（拡大時）';
 }
 
 // Path: videoDetail.player
@@ -4427,6 +4427,8 @@ extension on TranslationsJa {
 			'videoDetail.restoreDefaultZoom' => 'リセット',
 			'videoDetail.gestureGuide.title' => 'ジェスチャー・操作ガイド',
 			'videoDetail.gestureGuide.viewGuide' => 'ジェスチャー・操作ガイドを見る',
+			'videoDetail.gestureGuide.firstTimeIntro' => 'プレーヤーのジェスチャーを数秒で確認しましょう。このガイドはプレーヤー設定からいつでも再表示できます。',
+			'videoDetail.gestureGuide.startWatching' => '確認して再生を始める',
 			'videoDetail.gestureGuide.basicTitle' => '基本操作',
 			'videoDetail.gestureGuide.zoomTitle' => '拡大 / 回転 / 移動',
 			'videoDetail.gestureGuide.restoreTip' => '右下の「リセット」ボタンで拡大・回転・位置を元に戻せます。',
@@ -4437,15 +4439,13 @@ extension on TranslationsJa {
 			'videoDetail.gestureGuide.mLongPress' => '長押し：一時的な倍速再生',
 			'videoDetail.gestureGuide.mPinch' => '2本指ピンチ：映像を拡大',
 			'videoDetail.gestureGuide.mRotate' => '2本指回転：映像を回転',
-			'videoDetail.gestureGuide.mPan' => '2本指ドラッグ：映像を移動（拡大時）',
 			'videoDetail.gestureGuide.dTap' => 'クリック：コントロールの表示 / 非表示',
-			'videoDetail.gestureGuide.dDoubleTap' => 'ダブルクリック：再生 / 一時停止',
-			'videoDetail.gestureGuide.dKeys' => '矢印キー：巻き戻し / 早送り、スペース：再生 / 一時停止',
+			'videoDetail.gestureGuide.dDoubleTap' => 'ダブルクリック：左で巻き戻し / 中央で一時停止 / 右で早送り',
+			'videoDetail.gestureGuide.dKeys' => 'シークキー：シングルで巻き戻し / 早送り、長押しで倍速再生；速度キー：通常再生中に倍速を段階調整；スペース：再生 / 一時停止',
 			'videoDetail.gestureGuide.dTrackpadPinch' => 'トラックパッドのピンチ：映像を拡大',
 			'videoDetail.gestureGuide.dTrackpadRotate' => 'トラックパッドの回転：映像を回転',
 			'videoDetail.gestureGuide.dCtrlWheel' => 'Ctrl + ホイール：カーソル中心に拡大',
 			'videoDetail.gestureGuide.dShiftWheel' => 'Shift + ホイール：カーソル中心に回転',
-			'videoDetail.gestureGuide.dDrag' => 'マウスドラッグ：映像を移動（拡大時）',
 			'videoDetail.home' => 'ホーム',
 			'videoDetail.videoPlayer' => 'ビデオプレーヤー',
 			'videoDetail.videoPlayerInfo' => 'プレーヤー情報',

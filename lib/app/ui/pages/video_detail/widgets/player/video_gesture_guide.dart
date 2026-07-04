@@ -41,12 +41,10 @@ class VideoGestureGuideDialog extends StatelessWidget {
             _GuideEntry(Icons.rotate_right, g.dTrackpadRotate),
             _GuideEntry(Icons.zoom_in, g.dCtrlWheel),
             _GuideEntry(Icons.rotate_90_degrees_ccw, g.dShiftWheel),
-            _GuideEntry(Icons.open_with, g.dDrag),
           ]
         : [
             _GuideEntry(Icons.pinch, g.mPinch),
             _GuideEntry(Icons.rotate_right, g.mRotate),
-            _GuideEntry(Icons.open_with, g.mPan),
           ];
 
     return AlertDialog(

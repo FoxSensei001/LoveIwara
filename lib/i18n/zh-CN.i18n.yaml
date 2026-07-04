@@ -1149,6 +1149,8 @@ videoDetail:
   gestureGuide:
     title: 手势与交互指引
     viewGuide: 查看手势与交互指引
+    firstTimeIntro: 花几秒了解播放器手势，之后可随时在播放器设置里再次查看。
+    startWatching: 知道了，开始观看
     basicTitle: 基础操作
     zoomTitle: 缩放 / 旋转 / 平移
     restoreTip: 点击右下角「还原」按钮可复位缩放、旋转与位置。
@@ -1159,15 +1161,13 @@ videoDetail:
     mLongPress: '长按：临时倍速播放'
     mPinch: '双指捏合：缩放画面'
     mRotate: '双指旋转：旋转画面'
-    mPan: '双指拖动：移动画面（放大后）'
     dTap: '单击：显示 / 隐藏控制栏'
-    dDoubleTap: '双击：播放 / 暂停'
-    dKeys: '方向键：快退 / 快进；空格：播放 / 暂停'
+    dDoubleTap: '双击：左侧后退 / 中央暂停 / 右侧快进'
+    dKeys: '快退 / 快进键：单击瞬间跳转，长按进入倍速播放；调速键：常速播放时逐档调整倍速；空格：播放 / 暂停'
     dTrackpadPinch: '触控板捏合：缩放画面'
     dTrackpadRotate: '触控板旋转：旋转画面'
     dCtrlWheel: 'Ctrl + 滚轮：以光标为中心缩放'
     dShiftWheel: 'Shift + 滚轮：以光标为中心旋转'
-    dDrag: '鼠标拖动：移动画面（放大后）'
   home: 主页
   videoPlayer: 视频播放器
   videoPlayerInfo: 播放器信息

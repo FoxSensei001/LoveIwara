@@ -1142,6 +1142,8 @@ videoDetail:
   gestureGuide:
     title: Gestures & Interaction Guide
     viewGuide: Gestures & Interaction Guide
+    firstTimeIntro: Take a few seconds to learn the player gestures. You can reopen this guide anytime from the player settings.
+    startWatching: Got it, start watching
     basicTitle: Basic Controls
     zoomTitle: Zoom / Rotate / Pan
     restoreTip: 'Tap the "Restore" button at the bottom-right to reset zoom, rotation and position.'
@@ -1152,15 +1154,13 @@ videoDetail:
     mLongPress: 'Long press: temporary speed-up'
     mPinch: 'Two-finger pinch: zoom the picture'
     mRotate: 'Two-finger rotate: rotate the picture'
-    mPan: 'Two-finger drag: move the picture (when zoomed)'
     dTap: 'Click: show / hide controls'
-    dDoubleTap: 'Double click: play / pause'
-    dKeys: 'Arrow keys: rewind / forward; Space: play / pause'
+    dDoubleTap: 'Double click: rewind (left) / pause (center) / fast-forward (right)'
+    dKeys: 'Seek keys: tap to jump back / forward, hold to speed up; speed keys: step the playback speed during normal play; Space: play / pause'
     dTrackpadPinch: 'Trackpad pinch: zoom the picture'
     dTrackpadRotate: 'Trackpad rotate: rotate the picture'
     dCtrlWheel: 'Ctrl + wheel: zoom around the cursor'
     dShiftWheel: 'Shift + wheel: rotate around the cursor'
-    dDrag: 'Mouse drag: move the picture (when zoomed)'
   home: Home
   videoPlayer: Video Player
   videoPlayerInfo: Video Player Info

@@ -397,19 +397,22 @@ class NaviService {
     bool forceEnterFullscreen = false,
     Video? initialVideoInfo,
     VideoFullscreenHandoff? fullscreenHandoff,
-  }) {
+  }) async {
     final normalizedId = id.trim();
-    if (normalizedId.isEmpty) return Future<Object?>.value();
+    if (normalizedId.isEmpty) return null;
 
     try {
       final currentPath = appRouter.routeInformationProvider.value.uri.path;
       final targetPath = '/video_detail/$normalizedId';
       if (currentPath == targetPath) {
-        return Future<Object?>.value();
+        return null;
       }
     } catch (_) {
       // ignore and continue push
     }
+
+    // 首次进入视频详情前，先展示一次手势指引页（失败不阻断正常跳转）。
+    await _maybeShowFirstTimeGestureGuide();
 
     final future = appRouter.push(
       '/video_detail/$normalizedId',
@@ -431,6 +434,27 @@ class NaviService {
     );
     _ensureAndroidBackDispatcherPriority('push video_detail/$normalizedId');
     return future;
+  }
+
+  /// 首次进入视频详情前展示一次手势指引页。
+  ///
+  /// 先置位「已展示」再推入指引页：既保证只出现一次，也避免指引展示期间
+  /// 用户再次触发跳转导致指引页重复入栈。指引流程出现任何异常都不应阻断
+  /// 正常的视频详情跳转。
+  static Future<void> _maybeShowFirstTimeGestureGuide() async {
+    try {
+      if (!Get.isRegistered<ConfigService>()) return;
+      final config = Get.find<ConfigService>();
+      if (config[ConfigKey.VIDEO_GESTURE_GUIDE_SHOWN] == true) return;
+      await config.setSetting(
+        ConfigKey.VIDEO_GESTURE_GUIDE_SHOWN,
+        true,
+        save: true,
+      );
+      await appRouter.push('/video_gesture_guide');
+    } catch (e) {
+      LogUtils.e('展示视频手势指引页失败', tag: 'AppService', error: e);
+    }
   }
 
   /// 跳转到登录页
