@@ -48,9 +48,9 @@ One codebase → Android · Windows · macOS · Linux · iOS
 ### 🖥️ Platforms
 | Android | Windows | macOS | Linux | iOS |
 |:---:|:---:|:---:|:---:|:---:|
-| ✅ | ✅ | ✅ | ⚠️ *untested¹* | ⚠️ *untested¹* |
+| ✅ | ✅ | ✅ | ⚠️ *untested¹* | ✅ |
 
-<sub>¹ Linux & iOS builds are produced but currently untested due to a lack of test devices.</sub>
+<sub>¹ Linux builds are produced but currently untested due to a lack of test devices.</sub>
 
 ### 🎥 Video
 - Smooth playback powered by **media_kit** (libmpv)
