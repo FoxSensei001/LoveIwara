@@ -19,13 +19,19 @@ jobs:
       - name: Tải các thư viện phụ thuộc (Dependencies)
         run: flutter pub get
 
-      - name: Vô hiệu hóa Code Signing cấu hình cứng (Bypass Error)
+      - name: Triệt tiêu Code Signing từ gốc cấu hình (Force Disable)
         run: |
-          sed -i '' '/DEVELOPMENT_TEAM/d' ios/Runner.xcodeproj/project.pbxproj
-          sed -i '' '/PROVISIONING_PROFILE_SPECIFIER/d' ios/Runner.xcodeproj/project.pbxproj
-          sed -i '' '/CODE_SIGN_IDENTITY/d' ios/Runner.xcodeproj/project.pbxproj
+          # Ghi đè lệnh cấm ký duyệt vào file cấu hình lõi của Flutter
+          echo "CODE_SIGNING_ALLOWED=NO" >> ios/Flutter/Release.xcconfig
+          echo "CODE_SIGNING_REQUIRED=NO" >> ios/Flutter/Release.xcconfig
+          echo "CODE_SIGN_IDENTITY=" >> ios/Flutter/Release.xcconfig
+          echo "EXPANDED_CODE_SIGN_IDENTITY=" >> ios/Flutter/Release.xcconfig
+          
+          # Xóa các tàn dư Team ID cũ của tác giả
+          sed -i '' '/DEVELOPMENT_TEAM/d' ios/Runner.xcodeproj/project.pbxproj || true
+          sed -i '' '/PROVISIONING_PROFILE_SPECIFIER/d' ios/Runner.xcodeproj/project.pbxproj || true
 
-      - name: Build file ứng dụng iOS (Không cần chữ ký)
+      - name: Build file ứng dụng iOS
         run: flutter build ios --release --no-codesign
 
       - name: Đóng gói thành định dạng file .ipa
