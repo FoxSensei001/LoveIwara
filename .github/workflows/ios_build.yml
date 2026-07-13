@@ -16,61 +16,43 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Tải các thư viện phụ thuộc (Dependencies)
+      - name: Tải Dependencies
         run: flutter pub get
 
-      - name: Cài đặt CocoaPods (Thư viện iOS)
+      - name: Tiêm mã chặn Signing vào các thư viện (Podfile)
         run: |
-          cd ios
-          pod install
-          cd ..
-
-      - name: Vô hiệu hóa Code Signing triệt để (Bằng Ruby Script)
-        run: |
-          sudo gem install xcodeproj
-          cat <<EOF > disable_signing.rb
-          require 'xcodeproj'
-          
-          # Tắt signing cho Project chính
-          project_path = 'ios/Runner.xcodeproj'
-          project = Xcodeproj::Project.open(project_path)
-          project.targets.each do |target|
-            target.build_configurations.each do |config|
-              config.build_settings['CODE_SIGNING_REQUIRED'] = 'NO'
-              config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
-              config.build_settings['CODE_SIGN_IDENTITY'] = ''
-              config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ''
-              # Ép chế độ ký duyệt về thủ công để Xcode không tự tìm kiếm chứng chỉ
-              config.build_settings['CODE_SIGN_STYLE'] = 'Manual'
-              config.build_settings.delete('DEVELOPMENT_TEAM')
-              config.build_settings.delete('PROVISIONING_PROFILE_SPECIFIER')
-            end
-          end
-          project.save
-          
-          # Tắt signing cho tất cả các thư viện phụ thuộc (Pods)
-          pod_project_path = 'ios/Pods/Pods.xcodeproj'
-          if File.exist?(pod_project_path)
-            pod_project = Xcodeproj::Project.open(pod_project_path)
-            pod_project.targets.each do |target|
+          echo "
+          post_install do |installer|
+            installer.pods_project.targets.each do |target|
               target.build_configurations.each do |config|
-                config.build_settings['CODE_SIGNING_REQUIRED'] = 'NO'
                 config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+                config.build_settings['CODE_SIGNING_REQUIRED'] = 'NO'
                 config.build_settings['CODE_SIGN_IDENTITY'] = ''
               end
             end
-            pod_project.save
-          end
-          EOF
-          ruby disable_signing.rb
+          end" >> ios/Podfile
 
-      - name: Build file ứng dụng iOS
-        run: flutter build ios --release --no-codesign
+      - name: Biên dịch iOS bằng lệnh Native Xcode (Ép tắt Signing)
+        run: |
+          cd ios
+          pod install
+          # Gọi trực tiếp công cụ xcodebuild của Apple thay vì qua Flutter
+          xcodebuild clean build \
+            -workspace Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -sdk iphoneos \
+            CODE_SIGNING_ALLOWED="NO" \
+            CODE_SIGNING_REQUIRED="NO" \
+            CODE_SIGN_IDENTITY="" \
+            EXPANDED_CODE_SIGN_IDENTITY="" \
+            SYMROOT="$(PWD)/build"
 
       - name: Đóng gói thành định dạng file .ipa
         run: |
           mkdir -p Payload
-          mv build/ios/iphoneos/Runner.app Payload/
+          # xcodebuild lưu file vào thư mục Release-iphoneos
+          mv ios/build/Release-iphoneos/Runner.app Payload/
           zip -r -9 LoveIwara.ipa Payload/
 
       - name: Xuất file để tải về
