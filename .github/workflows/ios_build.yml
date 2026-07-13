@@ -1,0 +1,35 @@
+name: Build iOS IPA (Unsigned)
+
+on:
+  workflow_dispatch: 
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+
+    steps:
+      - name: Lấy mã nguồn
+        uses: actions/checkout@v4
+
+      - name: Cài đặt Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Tải các thư viện phụ thuộc (Dependencies)
+        run: flutter pub get
+
+      - name: Build file ứng dụng iOS (Không cần chữ ký)
+        run: flutter build ios --release --no-codesign
+
+      - name: Đóng gói thành định dạng file .ipa
+        run: |
+          mkdir -p Payload
+          mv build/ios/iphoneos/Runner.app Payload/
+          zip -r -9 LoveIwara.ipa Payload/
+
+      - name: Xuất file để tải về
+        uses: actions/upload-artifact@v4
+        with:
+          name: LoveIwara-iOS-App
+          path: LoveIwara.ipa
