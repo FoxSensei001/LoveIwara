@@ -1,0 +1,67 @@
+name: Build iOS IPA (Unsigned)
+
+on:
+  workflow_dispatch: 
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+
+    steps:
+      - name: Lấy mã nguồn
+        uses: actions/checkout@v4
+
+      - name: Cài đặt Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Tải Dependencies
+        run: flutter pub get
+
+      - name: Sửa Podfile an toàn tuyệt đối (Bypass Multiple Hooks)
+        run: |
+          ruby -i -e '
+            lines = File.readlines("ios/Podfile")
+            File.open("ios/Podfile", "w") do |f|
+              lines.each do |line|
+                f.puts line
+                # Tìm đúng dòng cấu hình của Flutter và chèn mã tắt Signing vào ngay bên dưới
+                if line.include?("flutter_additional_ios_build_settings(target)")
+                  f.puts "        target.build_configurations.each do |config|"
+                  f.puts "          config.build_settings[\"CODE_SIGNING_ALLOWED\"] = \"NO\""
+                  f.puts "          config.build_settings[\"CODE_SIGNING_REQUIRED\"] = \"NO\""
+                  f.puts "          config.build_settings[\"CODE_SIGN_IDENTITY\"] = \"\""
+                  f.puts "        end"
+                end
+              end
+            end
+          '
+
+      - name: Biên dịch iOS bằng Native Xcode
+        run: |
+          cd ios
+          pod install
+          # Ép Xcode build bỏ qua hoàn toàn chứng chỉ
+          xcodebuild clean build \
+            -workspace Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -sdk iphoneos \
+            CODE_SIGNING_ALLOWED="NO" \
+            CODE_SIGNING_REQUIRED="NO" \
+            CODE_SIGN_IDENTITY="" \
+            EXPANDED_CODE_SIGN_IDENTITY="" \
+            SYMROOT="$(PWD)/build"
+
+      - name: Đóng gói thành định dạng file .ipa
+        run: |
+          mkdir -p Payload
+          mv ios/build/Release-iphoneos/Runner.app Payload/
+          zip -r -9 LoveIwara.ipa Payload/
+
+      - name: Xuất file để tải về
+        uses: actions/upload-artifact@v4
+        with:
+          name: LoveIwara-iOS-App
+          path: LoveIwara.ipa
