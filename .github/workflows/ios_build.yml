@@ -19,6 +19,12 @@ jobs:
       - name: Tải các thư viện phụ thuộc (Dependencies)
         run: flutter pub get
 
+      - name: Vô hiệu hóa Code Signing cấu hình cứng (Bypass Error)
+        run: |
+          sed -i '' '/DEVELOPMENT_TEAM/d' ios/Runner.xcodeproj/project.pbxproj
+          sed -i '' '/PROVISIONING_PROFILE_SPECIFIER/d' ios/Runner.xcodeproj/project.pbxproj
+          sed -i '' '/CODE_SIGN_IDENTITY/d' ios/Runner.xcodeproj/project.pbxproj
+
       - name: Build file ứng dụng iOS (Không cần chữ ký)
         run: flutter build ios --release --no-codesign
 
