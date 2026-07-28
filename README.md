@@ -90,6 +90,7 @@ One codebase → Android · Windows · macOS · Linux · iOS
 - **Downloads** *(beta)*: videos / galleries / single files, with custom paths (incl. external SD/TF card on Android)
 - **Backup & restore**: export / import configuration and history
 - **Translation** of descriptions, posts, comments, forums, conversations, and more
+- **App lock** with PIN / biometrics
 - "Remember last volume" option (PC)
 
 ### 🌍 Multi-language
