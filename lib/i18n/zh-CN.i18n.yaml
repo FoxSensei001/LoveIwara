@@ -607,6 +607,8 @@ settings:
   appLockDisabledSummary: 未开启
   appLockTimeout: 离开应用后锁定
   appLockTimeoutDesc: 应用进入后台多久后需要重新验证
+  appLockAfterScreenOff: 锁屏后锁定
+  appLockAfterScreenOffDesc: 系统锁屏后，再次进入应用时需要重新验证
   appLockTimeoutDisabled: 禁用
   appLockImmediately: 立即
   appLockSeconds: '${seconds} 秒'

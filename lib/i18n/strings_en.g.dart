@@ -1840,6 +1840,12 @@ class TranslationsSettingsEn {
 	/// en: 'Time allowed in the background before authentication is required'
 	String get appLockTimeoutDesc => 'Time allowed in the background before authentication is required';
 
+	/// en: 'Lock after screen lock'
+	String get appLockAfterScreenOff => 'Lock after screen lock';
+
+	/// en: 'Require authentication after the device screen is locked'
+	String get appLockAfterScreenOffDesc => 'Require authentication after the device screen is locked';
+
 	/// en: 'Disabled'
 	String get appLockTimeoutDisabled => 'Disabled';
 
@@ -8732,6 +8738,8 @@ extension on Translations {
 			'settings.appLockDisabledSummary' => 'Off',
 			'settings.appLockTimeout' => 'Lock after leaving app',
 			'settings.appLockTimeoutDesc' => 'Time allowed in the background before authentication is required',
+			'settings.appLockAfterScreenOff' => 'Lock after screen lock',
+			'settings.appLockAfterScreenOffDesc' => 'Require authentication after the device screen is locked',
 			'settings.appLockTimeoutDisabled' => 'Disabled',
 			'settings.appLockImmediately' => 'Immediately',
 			'settings.appLockSeconds' => ({required Object seconds}) => '${seconds} seconds',
@@ -9181,10 +9189,10 @@ extension on Translations {
 			'oreno3d.sortTypes.latest' => 'Latest',
 			'oreno3d.sortTypes.popularity' => 'Popular',
 			'oreno3d.errors.requestFailed' => 'Request failed, status code',
-			'oreno3d.errors.connectionTimeout' => 'Connection timeout, please check network connection',
-			'oreno3d.errors.sendTimeout' => 'Send request timeout',
 			_ => null,
 		} ?? switch (path) {
+			'oreno3d.errors.connectionTimeout' => 'Connection timeout, please check network connection',
+			'oreno3d.errors.sendTimeout' => 'Send request timeout',
 			'oreno3d.errors.receiveTimeout' => 'Receive response timeout',
 			'oreno3d.errors.badCertificate' => 'Certificate verification failed',
 			'oreno3d.errors.resourceNotFound' => 'Requested resource not found',
@@ -9695,10 +9703,10 @@ extension on Translations {
 			'download.deleteByDate.notSet' => 'Not set',
 			'download.deleteByDate.daysUnit' => 'days',
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => 'Delete tasks created more than ${days} day(s) ago',
-			'download.deleteByDate.noMatch' => 'No tasks match the selected condition',
-			'download.deleteByDate.invalidRange' => 'Start date must be on or before end date',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.noMatch' => 'No tasks match the selected condition',
+			'download.deleteByDate.invalidRange' => 'Start date must be on or before end date',
 			'download.deleteByDate.confirmTitle' => 'Confirm deletion',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Delete ${count} download task(s) and their files? This cannot be undone.',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Deleting ${done}/${total}…',
@@ -10209,10 +10217,10 @@ extension on Translations {
 			'log.exportCurrentLogs' => 'Export Current Logs',
 			'log.exportCurrentLogsDesc' => 'Export the current application logs to help developers diagnose problems',
 			'log.exportHistoryLogs' => 'Export History Logs',
-			'log.exportHistoryLogsDesc' => 'Export logs within a specified date range',
-			'log.exportMergedLogs' => 'Export Merged Logs',
 			_ => null,
 		} ?? switch (path) {
+			'log.exportHistoryLogsDesc' => 'Export logs within a specified date range',
+			'log.exportMergedLogs' => 'Export Merged Logs',
 			'log.exportMergedLogsDesc' => 'Export merged logs within a specified date range',
 			'log.showLogStats' => 'Show Log Stats',
 			'log.logExportSuccess' => 'Log export success',

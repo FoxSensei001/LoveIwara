@@ -271,6 +271,7 @@ enum ConfigKey {
   ACTIVE_BACKGROUND_PRIVACY_MODE,
   APP_LOCK_ENABLED,
   APP_LOCK_TIMEOUT_SECONDS,
+  APP_LOCK_AFTER_SCREEN_OFF,
   APP_LOCK_BIOMETRICS_ENABLED,
   DEFAULT_LANGUAGE_KEY,
   APP_SITE_MODE, // 应用站点模式：main / ai
@@ -445,6 +446,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'app_lock_enabled';
       case ConfigKey.APP_LOCK_TIMEOUT_SECONDS:
         return 'app_lock_timeout_seconds';
+      case ConfigKey.APP_LOCK_AFTER_SCREEN_OFF:
+        return 'app_lock_after_screen_off';
       case ConfigKey.APP_LOCK_BIOMETRICS_ENABLED:
         return 'app_lock_biometrics_enabled';
       case ConfigKey.DEFAULT_LANGUAGE_KEY:
@@ -709,6 +712,8 @@ extension ConfigKeyExtension on ConfigKey {
         return false;
       case ConfigKey.APP_LOCK_TIMEOUT_SECONDS:
         return -1;
+      case ConfigKey.APP_LOCK_AFTER_SCREEN_OFF:
+        return false;
       case ConfigKey.APP_LOCK_BIOMETRICS_ENABLED:
         return false;
       case ConfigKey.DEFAULT_LANGUAGE_KEY:

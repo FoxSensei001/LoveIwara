@@ -748,6 +748,8 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get appLockDisabledSummary => 'オフ';
 	@override String get appLockTimeout => 'アプリを離れた後にロック';
 	@override String get appLockTimeoutDesc => 'バックグラウンド移行後、再認証を要求するまでの時間';
+	@override String get appLockAfterScreenOff => '画面ロック後にロック';
+	@override String get appLockAfterScreenOffDesc => '端末の画面ロック後、アプリに戻るときに再認証を要求します';
 	@override String get appLockTimeoutDisabled => '無効';
 	@override String get appLockImmediately => 'すぐに';
 	@override String appLockSeconds({required Object seconds}) => '${seconds} 秒';
@@ -3958,6 +3960,8 @@ extension on TranslationsJa {
 			'settings.appLockDisabledSummary' => 'オフ',
 			'settings.appLockTimeout' => 'アプリを離れた後にロック',
 			'settings.appLockTimeoutDesc' => 'バックグラウンド移行後、再認証を要求するまでの時間',
+			'settings.appLockAfterScreenOff' => '画面ロック後にロック',
+			'settings.appLockAfterScreenOffDesc' => '端末の画面ロック後、アプリに戻るときに再認証を要求します',
 			'settings.appLockTimeoutDisabled' => '無効',
 			'settings.appLockImmediately' => 'すぐに',
 			'settings.appLockSeconds' => ({required Object seconds}) => '${seconds} 秒',
@@ -4407,10 +4411,10 @@ extension on TranslationsJa {
 			'oreno3d.sortTypes.latest' => '新着',
 			'oreno3d.sortTypes.popularity' => '人気',
 			'oreno3d.errors.requestFailed' => 'リクエストが失敗しました、ステータスコード',
-			'oreno3d.errors.connectionTimeout' => '接続がタイムアウトしました、ネットワーク接続を確認してください',
-			'oreno3d.errors.sendTimeout' => 'リクエスト送信がタイムアウトしました',
 			_ => null,
 		} ?? switch (path) {
+			'oreno3d.errors.connectionTimeout' => '接続がタイムアウトしました、ネットワーク接続を確認してください',
+			'oreno3d.errors.sendTimeout' => 'リクエスト送信がタイムアウトしました',
 			'oreno3d.errors.receiveTimeout' => 'レスポンス受信がタイムアウトしました',
 			'oreno3d.errors.badCertificate' => '証明書の検証に失敗しました',
 			'oreno3d.errors.resourceNotFound' => '要求されたリソースが見つかりません',
@@ -4921,10 +4925,10 @@ extension on TranslationsJa {
 			'download.deleteByDate.notSet' => '未設定',
 			'download.deleteByDate.daysUnit' => '日',
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => '${days}日前より古いタスクを削除',
-			'download.deleteByDate.noMatch' => '条件に一致するタスクがありません',
-			'download.deleteByDate.invalidRange' => '開始日は終了日以前にしてください',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.noMatch' => '条件に一致するタスクがありません',
+			'download.deleteByDate.invalidRange' => '開始日は終了日以前にしてください',
 			'download.deleteByDate.confirmTitle' => '削除の確認',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '${count}件のダウンロードタスクとそのファイルを削除しますか？この操作は取り消せません。',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '削除中 ${done}/${total}…',
@@ -5435,10 +5439,10 @@ extension on TranslationsJa {
 			'emoji.import' => 'インポート',
 			'emoji.importSuccess' => ({required Object count}) => '${count}枚の画像をインポートしました',
 			'emoji.jsonFormatError' => 'JSON形式エラー、入力を確認してください',
-			'emoji.createGroup' => '絵文字グループを作成',
-			'emoji.groupName' => 'グループ名',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.createGroup' => '絵文字グループを作成',
+			'emoji.groupName' => 'グループ名',
 			'emoji.enterGroupName' => 'グループ名を入力してください',
 			'emoji.create' => '作成',
 			'emoji.editGroupName' => 'グループ名を編集',

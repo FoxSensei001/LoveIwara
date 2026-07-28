@@ -600,6 +600,8 @@ settings:
   appLockDisabledSummary: Off
   appLockTimeout: Lock after leaving app
   appLockTimeoutDesc: Time allowed in the background before authentication is required
+  appLockAfterScreenOff: Lock after screen lock
+  appLockAfterScreenOffDesc: Require authentication after the device screen is locked
   appLockTimeoutDisabled: Disabled
   appLockImmediately: Immediately
   appLockSeconds: '${seconds} seconds'

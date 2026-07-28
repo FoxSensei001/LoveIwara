@@ -161,6 +161,18 @@ class _AppLockSettingsSectionState extends State<AppLockSettingsSection> {
                     ),
                   ),
                   const Divider(height: 1),
+                  if (GetPlatform.isAndroid) ...[
+                    SwitchListTile(
+                      secondary: const Icon(Icons.screen_lock_portrait),
+                      title: Text(slang.t.settings.appLockAfterScreenOff),
+                      subtitle: Text(
+                        slang.t.settings.appLockAfterScreenOffDesc,
+                      ),
+                      value: _service.lockAfterScreenOff,
+                      onChanged: _service.setLockAfterScreenOff,
+                    ),
+                    const Divider(height: 1),
+                  ],
                   SwitchListTile(
                     secondary: const Icon(Icons.fingerprint),
                     title: Text(slang.t.settings.appLockUseBiometrics),

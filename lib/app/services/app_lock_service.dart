@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:cryptography/cryptography.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/storage_service.dart';
@@ -25,6 +26,9 @@ class AppLockService extends GetxService {
        _localAuth = localAuthentication ?? LocalAuthentication();
 
   static const String _credentialKey = 'app_lock_pin_v1';
+  static const MethodChannel _platformChannel = MethodChannel(
+    'i_iwara/app_lock',
+  );
   static const int _iterations = 120000;
   static const int _saltLength = 16;
 
@@ -44,6 +48,8 @@ class AppLockService extends GetxService {
   bool get biometricsEnabled =>
       _config[ConfigKey.APP_LOCK_BIOMETRICS_ENABLED] as bool;
   int get timeoutSeconds => _config[ConfigKey.APP_LOCK_TIMEOUT_SECONDS] as int;
+  bool get lockAfterScreenOff =>
+      _config[ConfigKey.APP_LOCK_AFTER_SCREEN_OFF] as bool;
 
   Duration get retryAfter {
     final until = _blockedUntil;
@@ -61,6 +67,9 @@ class AppLockService extends GetxService {
       await _config.setSetting(ConfigKey.APP_LOCK_BIOMETRICS_ENABLED, false);
     }
     isLocked.value = enabled;
+    if (GetPlatform.isAndroid) {
+      _platformChannel.setMethodCallHandler(_handlePlatformCall);
+    }
     await refreshBiometricAvailability();
     return this;
   }
@@ -138,6 +147,10 @@ class AppLockService extends GetxService {
     await _config.setSetting(ConfigKey.APP_LOCK_TIMEOUT_SECONDS, seconds);
   }
 
+  Future<void> setLockAfterScreenOff(bool value) async {
+    await _config.setSetting(ConfigKey.APP_LOCK_AFTER_SCREEN_OFF, value);
+  }
+
   Future<void> setBiometricsEnabled(bool value) async {
     await _config.setSetting(ConfigKey.APP_LOCK_BIOMETRICS_ENABLED, value);
   }
@@ -200,8 +213,18 @@ class AppLockService extends GetxService {
     }
   }
 
+  void onSystemScreenLocked() {
+    if (enabled && lockAfterScreenOff) isLocked.value = true;
+  }
+
   void lockNow() {
     if (enabled) isLocked.value = true;
+  }
+
+  Future<void> _handlePlatformCall(MethodCall call) async {
+    if (call.method == 'onSystemScreenLocked') {
+      onSystemScreenLocked();
+    }
   }
 
   Future<Map<String, Object>?> _readCredential() async {

@@ -55,6 +55,20 @@ void main() {
     expect(service.isLocked.value, isFalse);
   });
 
+  test('screen lock locks when the option is enabled', () {
+    config.settings[ConfigKey.APP_LOCK_AFTER_SCREEN_OFF]!.value = true;
+
+    service.onSystemScreenLocked();
+
+    expect(service.isLocked.value, isTrue);
+  });
+
+  test('screen lock is ignored when the option is disabled', () {
+    service.onSystemScreenLocked();
+
+    expect(service.isLocked.value, isFalse);
+  });
+
   test('disabled app lock ignores lifecycle changes', () {
     config.settings[ConfigKey.APP_LOCK_ENABLED]!.value = false;
     config.settings[ConfigKey.APP_LOCK_TIMEOUT_SECONDS]!.value = 0;

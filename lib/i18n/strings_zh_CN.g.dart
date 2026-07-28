@@ -753,6 +753,8 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get appLockDisabledSummary => '未开启';
 	@override String get appLockTimeout => '离开应用后锁定';
 	@override String get appLockTimeoutDesc => '应用进入后台多久后需要重新验证';
+	@override String get appLockAfterScreenOff => '锁屏后锁定';
+	@override String get appLockAfterScreenOffDesc => '系统锁屏后，再次进入应用时需要重新验证';
 	@override String get appLockTimeoutDisabled => '禁用';
 	@override String get appLockImmediately => '立即';
 	@override String appLockSeconds({required Object seconds}) => '${seconds} 秒';
@@ -3968,6 +3970,8 @@ extension on TranslationsZhCn {
 			'settings.appLockDisabledSummary' => '未开启',
 			'settings.appLockTimeout' => '离开应用后锁定',
 			'settings.appLockTimeoutDesc' => '应用进入后台多久后需要重新验证',
+			'settings.appLockAfterScreenOff' => '锁屏后锁定',
+			'settings.appLockAfterScreenOffDesc' => '系统锁屏后，再次进入应用时需要重新验证',
 			'settings.appLockTimeoutDisabled' => '禁用',
 			'settings.appLockImmediately' => '立即',
 			'settings.appLockSeconds' => ({required Object seconds}) => '${seconds} 秒',
@@ -4412,10 +4416,10 @@ extension on TranslationsZhCn {
 			'oreno3d.characters' => '角色',
 			'oreno3d.origin' => '原作',
 			'oreno3d.thirdPartyTagsExplanation' => '此处显示的**标签**、**角色**和**原作**信息来自第三方站点 **Oreno3D**，仅供参考。\n\n由于此信息来源只有日文，目前缺乏国际化适配。\n\n如果你有兴趣参与国际化建设，欢迎访问相关仓库贡献你的力量！',
-			'oreno3d.sortTypes.hot' => '热门',
-			'oreno3d.sortTypes.favorites' => '高评价',
 			_ => null,
 		} ?? switch (path) {
+			'oreno3d.sortTypes.hot' => '热门',
+			'oreno3d.sortTypes.favorites' => '高评价',
 			'oreno3d.sortTypes.latest' => '最新',
 			'oreno3d.sortTypes.popularity' => '人气',
 			'oreno3d.errors.requestFailed' => '请求失败，状态码',
@@ -4926,10 +4930,10 @@ extension on TranslationsZhCn {
 			'download.deleteByDate.modeRange' => '日期区间',
 			'download.deleteByDate.modeDays' => '多少天以前',
 			'download.deleteByDate.startDate' => '开始日期',
-			'download.deleteByDate.endDate' => '结束日期',
-			'download.deleteByDate.notSet' => '未设置',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.endDate' => '结束日期',
+			'download.deleteByDate.notSet' => '未设置',
 			'download.deleteByDate.daysUnit' => '天',
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => '删除 ${days} 天以前创建的任务',
 			'download.deleteByDate.noMatch' => '没有符合条件的任务',
@@ -5440,10 +5444,10 @@ extension on TranslationsZhCn {
 			'emoji.add' => '添加',
 			'emoji.batchImport' => '批量导入',
 			'emoji.enterJsonUrlArray' => '请输入JSON格式的URL数组:',
-			'emoji.formatExample' => '格式示例:\n["url1", "url2", "url3"]',
-			'emoji.pasteJsonUrlArray' => '请粘贴JSON格式的URL数组',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.formatExample' => '格式示例:\n["url1", "url2", "url3"]',
+			'emoji.pasteJsonUrlArray' => '请粘贴JSON格式的URL数组',
 			'emoji.import' => '导入',
 			'emoji.importSuccess' => ({required Object count}) => '成功导入${count}张图片',
 			'emoji.jsonFormatError' => 'JSON格式错误，请检查输入',

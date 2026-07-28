@@ -601,6 +601,8 @@ settings:
   appLockDisabledSummary: 未開啟
   appLockTimeout: 離開應用程式後鎖定
   appLockTimeoutDesc: 應用程式進入背景多久後需要重新驗證
+  appLockAfterScreenOff: 鎖定螢幕後鎖定
+  appLockAfterScreenOffDesc: 系統鎖定螢幕後，再次進入應用程式時需要重新驗證
   appLockTimeoutDisabled: 停用
   appLockImmediately: 立即
   appLockSeconds: '${seconds} 秒'
