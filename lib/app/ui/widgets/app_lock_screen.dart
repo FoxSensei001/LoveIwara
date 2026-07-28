@@ -55,9 +55,7 @@ class _AppLockScreenState extends State<AppLockScreen> {
       return;
     }
     _biometricPrompted = true;
-    final success = await _service.authenticateBiometrically(
-      reason: slang.t.settings.appLockAuthenticateReason,
-    );
+    final success = await _service.authenticateBiometrically();
     if (!success && mounted) _focusNode.requestFocus();
   }
 
@@ -96,12 +94,14 @@ class _AppLockScreenState extends State<AppLockScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final isMobile = GetPlatform.isAndroid || GetPlatform.isIOS;
     return PopScope(
       canPop: false,
       child: Material(
         color: colors.surface,
         child: SafeArea(
-          child: Center(
+          child: Align(
+            alignment: isMobile ? const Alignment(0, -0.35) : Alignment.center,
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: ConstrainedBox(
@@ -175,12 +175,7 @@ class _AppLockScreenState extends State<AppLockScreen> {
                               ? null
                               : () async {
                                   final success = await _service
-                                      .authenticateBiometrically(
-                                        reason: slang
-                                            .t
-                                            .settings
-                                            .appLockAuthenticateReason,
-                                      );
+                                      .authenticateBiometrically();
                                   if (!success && mounted) {
                                     setState(() {
                                       _error = slang

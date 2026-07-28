@@ -95,9 +95,7 @@ class _AppLockSettingsSectionState extends State<AppLockSettingsSection> {
       await _service.setBiometricsEnabled(false);
       return;
     }
-    final authenticated = await _service.authenticateBiometrically(
-      reason: slang.t.settings.appLockEnableBiometricsReason,
-    );
+    final authenticated = await _service.authenticateBiometrically();
     if (authenticated) {
       await _service.setBiometricsEnabled(true);
     } else if (mounted) {

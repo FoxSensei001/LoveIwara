@@ -5,7 +5,9 @@ import 'package:cryptography/cryptography.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/storage_service.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:local_auth/local_auth.dart';
+import 'package:local_auth_android/local_auth_android.dart';
 
 /// Owns app-lock credentials and runtime lock state.
 ///
@@ -140,17 +142,33 @@ class AppLockService extends GetxService {
     await _config.setSetting(ConfigKey.APP_LOCK_BIOMETRICS_ENABLED, value);
   }
 
-  Future<bool> authenticateBiometrically({required String reason}) async {
+  Future<bool> authenticateBiometrically() async {
     if (!biometricAvailable.value || isAuthenticating.value) return false;
     isAuthenticating.value = true;
     try {
-      final authenticated = await _localAuth.authenticate(
-        localizedReason: reason,
-        // Windows Hello does not expose a biometric-only mode. It still uses
-        // the OS-protected strong-authentication prompt on that platform.
-        biometricOnly: !GetPlatform.isWindows,
-        persistAcrossBackgrounding: true,
-      );
+      final authenticated = GetPlatform.isAndroid
+          ? await _localAuth.authenticate(
+              // Android requires a non-empty reason, but the native prompt's
+              // description is optional. A space keeps that redundant row
+              // visually empty while the OS provides the sensor guidance.
+              localizedReason: ' ',
+              authMessages: [
+                AndroidAuthMessages(
+                  signInTitle: slang.t.settings.appLockUseBiometrics,
+                  signInHint: '',
+                  cancelButton: slang.t.common.cancel,
+                ),
+              ],
+              biometricOnly: true,
+              persistAcrossBackgrounding: true,
+            )
+          : await _localAuth.authenticate(
+              localizedReason: slang.t.settings.appLockAuthenticateReason,
+              // Windows Hello does not expose a biometric-only mode. It still
+              // uses the OS-protected strong-authentication prompt.
+              biometricOnly: !GetPlatform.isWindows,
+              persistAcrossBackgrounding: true,
+            );
       if (authenticated) {
         isLocked.value = false;
         _resetFailures();
