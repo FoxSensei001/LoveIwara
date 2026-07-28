@@ -26,55 +26,38 @@ class _AppLockSettingsSectionState extends State<AppLockSettingsSection> {
   }
 
   Future<String?> _askForPin({required String title}) async {
-    final controller = TextEditingController();
-    final result = await showDialog<String>(
+    return showDialog<String>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(title),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          obscureText: true,
-          maxLength: 8,
-          keyboardType: TextInputType.number,
-          textInputAction: TextInputAction.done,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          decoration: InputDecoration(
-            labelText: slang.t.settings.appLockEnterPin,
-            helperText: slang.t.settings.appLockPinRequirements,
-          ),
-          onSubmitted: (_) => Navigator.pop(dialogContext, controller.text),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(slang.t.common.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, controller.text),
-            child: Text(slang.t.common.confirm),
-          ),
-        ],
-      ),
+      builder: (_) => _PinEntryDialog(title: title),
     );
-    controller.dispose();
-    return result;
+  }
+
+  Future<_NewPinValues?> _askForNewPin({required String title}) {
+    return showDialog<_NewPinValues>(
+      context: context,
+      builder: (_) => _NewPinDialog(title: title),
+    );
+  }
+
+  Future<_ChangePinValues?> _askForPinChange() {
+    return showDialog<_ChangePinValues>(
+      context: context,
+      builder: (_) => const _ChangePinDialog(),
+    );
   }
 
   Future<void> _enable() async {
-    final first = await _askForPin(title: slang.t.settings.appLockSetPin);
-    if (first == null || !mounted) return;
-    if (!_service.isValidPin(first)) {
+    final values = await _askForNewPin(title: slang.t.settings.appLockSetPin);
+    if (values == null || !mounted) return;
+    if (!_service.isValidPin(values.pin)) {
       _showMessage(slang.t.settings.appLockPinRequirements);
       return;
     }
-    final second = await _askForPin(title: slang.t.settings.appLockConfirmPin);
-    if (second == null || !mounted) return;
-    if (first != second) {
+    if (values.pin != values.confirmation) {
       _showMessage(slang.t.settings.appLockPinsDoNotMatch);
       return;
     }
-    if (!await _service.enableWithPin(first) && mounted) {
+    if (!await _service.enableWithPin(values.pin) && mounted) {
       _showMessage(slang.t.settings.appLockSetupFailed);
     }
   }
@@ -88,25 +71,21 @@ class _AppLockSettingsSectionState extends State<AppLockSettingsSection> {
   }
 
   Future<void> _changePin() async {
-    final current = await _askForPin(title: slang.t.settings.appLockCurrentPin);
-    if (current == null || !mounted) return;
-    if (!await _service.verifyPin(current)) {
-      if (mounted) _showMessage(slang.t.settings.appLockInvalidPin);
-      return;
-    }
-    final next = await _askForPin(title: slang.t.settings.appLockNewPin);
-    if (next == null || !mounted) return;
-    if (!_service.isValidPin(next)) {
+    final values = await _askForPinChange();
+    if (values == null || !mounted) return;
+    if (!_service.isValidPin(values.newPin)) {
       _showMessage(slang.t.settings.appLockPinRequirements);
       return;
     }
-    final confirm = await _askForPin(title: slang.t.settings.appLockConfirmPin);
-    if (confirm == null || !mounted) return;
-    if (next != confirm) {
+    if (values.newPin != values.confirmation) {
       _showMessage(slang.t.settings.appLockPinsDoNotMatch);
       return;
     }
-    if (!await _service.enableWithPin(next) && mounted) {
+    if (!await _service.verifyPin(values.currentPin)) {
+      if (mounted) _showMessage(slang.t.settings.appLockInvalidPin);
+      return;
+    }
+    if (!await _service.enableWithPin(values.newPin) && mounted) {
       _showMessage(slang.t.settings.appLockSetupFailed);
     }
   }
@@ -219,4 +198,211 @@ class _AppLockSettingsSectionState extends State<AppLockSettingsSection> {
       ),
     );
   }
+}
+
+class _NewPinValues {
+  const _NewPinValues(this.pin, this.confirmation);
+
+  final String pin;
+  final String confirmation;
+}
+
+class _ChangePinValues {
+  const _ChangePinValues(this.currentPin, this.newPin, this.confirmation);
+
+  final String currentPin;
+  final String newPin;
+  final String confirmation;
+}
+
+class _PinEntryDialog extends StatefulWidget {
+  const _PinEntryDialog({required this.title});
+
+  final String title;
+
+  @override
+  State<_PinEntryDialog> createState() => _PinEntryDialogState();
+}
+
+class _PinEntryDialogState extends State<_PinEntryDialog> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() => Navigator.of(context).pop(_controller.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.title),
+      content: _PinTextField(
+        controller: _controller,
+        label: slang.t.settings.appLockEnterPin,
+        autofocus: true,
+        onSubmitted: _submit,
+      ),
+      actions: _dialogActions(context, _submit),
+    );
+  }
+}
+
+class _NewPinDialog extends StatefulWidget {
+  const _NewPinDialog({required this.title});
+
+  final String title;
+
+  @override
+  State<_NewPinDialog> createState() => _NewPinDialogState();
+}
+
+class _NewPinDialogState extends State<_NewPinDialog> {
+  final _pinController = TextEditingController();
+  final _confirmationController = TextEditingController();
+
+  @override
+  void dispose() {
+    _pinController.dispose();
+    _confirmationController.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    Navigator.of(
+      context,
+    ).pop(_NewPinValues(_pinController.text, _confirmationController.text));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.title),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _PinTextField(
+            controller: _pinController,
+            label: slang.t.settings.appLockNewPin,
+            autofocus: true,
+          ),
+          const SizedBox(height: 8),
+          _PinTextField(
+            controller: _confirmationController,
+            label: slang.t.settings.appLockConfirmPin,
+            onSubmitted: _submit,
+          ),
+        ],
+      ),
+      actions: _dialogActions(context, _submit),
+    );
+  }
+}
+
+class _ChangePinDialog extends StatefulWidget {
+  const _ChangePinDialog();
+
+  @override
+  State<_ChangePinDialog> createState() => _ChangePinDialogState();
+}
+
+class _ChangePinDialogState extends State<_ChangePinDialog> {
+  final _currentController = TextEditingController();
+  final _newController = TextEditingController();
+  final _confirmationController = TextEditingController();
+
+  @override
+  void dispose() {
+    _currentController.dispose();
+    _newController.dispose();
+    _confirmationController.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    Navigator.of(context).pop(
+      _ChangePinValues(
+        _currentController.text,
+        _newController.text,
+        _confirmationController.text,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(slang.t.settings.appLockChangePin),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _PinTextField(
+              controller: _currentController,
+              label: slang.t.settings.appLockCurrentPin,
+              autofocus: true,
+            ),
+            const SizedBox(height: 8),
+            _PinTextField(
+              controller: _newController,
+              label: slang.t.settings.appLockNewPin,
+            ),
+            const SizedBox(height: 8),
+            _PinTextField(
+              controller: _confirmationController,
+              label: slang.t.settings.appLockConfirmPin,
+              onSubmitted: _submit,
+            ),
+          ],
+        ),
+      ),
+      actions: _dialogActions(context, _submit),
+    );
+  }
+}
+
+class _PinTextField extends StatelessWidget {
+  const _PinTextField({
+    required this.controller,
+    required this.label,
+    this.autofocus = false,
+    this.onSubmitted,
+  });
+
+  final TextEditingController controller;
+  final String label;
+  final bool autofocus;
+  final VoidCallback? onSubmitted;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      autofocus: autofocus,
+      obscureText: true,
+      maxLength: 8,
+      keyboardType: TextInputType.number,
+      textInputAction: onSubmitted == null
+          ? TextInputAction.next
+          : TextInputAction.done,
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      decoration: InputDecoration(
+        labelText: label,
+        helperText: slang.t.settings.appLockPinRequirements,
+      ),
+      onSubmitted: onSubmitted == null ? null : (_) => onSubmitted!(),
+    );
+  }
+}
+
+List<Widget> _dialogActions(BuildContext context, VoidCallback submit) {
+  return [
+    TextButton(
+      onPressed: () => Navigator.of(context).pop(),
+      child: Text(slang.t.common.cancel),
+    ),
+    FilledButton(onPressed: submit, child: Text(slang.t.common.confirm)),
+  ];
 }
