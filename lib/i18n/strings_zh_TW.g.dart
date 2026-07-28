@@ -741,6 +741,41 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get activeBackgroundPrivacyMode => '隱私模式';
 	@override String get activeBackgroundPrivacyModeDesc => '禁止截圖、後台執行時隱藏畫面...';
 	@override String get privacy => '隱私';
+	@override String get appLock => '應用程式鎖';
+	@override String get appLockEnabled => '啟用應用程式鎖';
+	@override String get appLockEnabledDesc => '開啟應用程式時需要使用 PIN 或生物辨識';
+	@override String get appLockEnabledSummary => '已開啟 · PIN 保護';
+	@override String get appLockDisabledSummary => '未開啟';
+	@override String get appLockTimeout => '離開應用程式後鎖定';
+	@override String get appLockTimeoutDesc => '應用程式進入背景多久後需要重新驗證';
+	@override String get appLockAfterScreenOff => '鎖定螢幕後鎖定';
+	@override String get appLockAfterScreenOffDesc => '系統鎖定螢幕後，再次進入應用程式時需要重新驗證';
+	@override String get appLockTimeoutDisabled => '停用';
+	@override String get appLockImmediately => '立即';
+	@override String appLockSeconds({required Object seconds}) => '${seconds} 秒';
+	@override String appLockMinutes({required Object minutes}) => '${minutes} 分鐘';
+	@override String get appLockUseBiometrics => '使用生物辨識';
+	@override String get appLockUseBiometricsDesc => '使用指紋或臉部辨識解鎖';
+	@override String get appLockBiometricsUnavailable => '此裝置沒有可用的生物辨識';
+	@override String get appLockSetPin => '設定 PIN';
+	@override String get appLockEnterPin => '輸入 PIN';
+	@override String get appLockConfirmPin => '確認 PIN';
+	@override String get appLockCurrentPin => '輸入目前 PIN';
+	@override String get appLockNewPin => '輸入新 PIN';
+	@override String get appLockPinRequirements => 'PIN 必須為 4–8 位數字';
+	@override String get appLockPinsDoNotMatch => '兩次輸入的 PIN 不一致';
+	@override String get appLockInvalidPin => 'PIN 錯誤';
+	@override String get appLockSetupFailed => '無法安全儲存 PIN';
+	@override String get appLockDisable => '輸入 PIN 以關閉應用程式鎖';
+	@override String get appLockChangePin => '修改 PIN';
+	@override String get appLockNow => '立即鎖定';
+	@override String get appLockUnlock => '解鎖';
+	@override String get appLockLockedTitle => '已鎖定';
+	@override String get appLockLockedDesc => '請驗證身分以繼續使用';
+	@override String get appLockAuthenticateReason => '驗證身分以解鎖';
+	@override String get appLockEnableBiometricsReason => '驗證身分以啟用生物解鎖';
+	@override String get appLockBiometricFailed => '未能完成生物驗證';
+	@override String appLockTooManyAttempts({required Object seconds}) => '嘗試次數過多，請在 ${seconds} 秒後重試';
 	@override String get forum => '論壇';
 	@override String get news => '新聞';
 	@override String get disableForumReplyQuote => '停用論壇回覆引用';
@@ -3921,6 +3956,41 @@ extension on TranslationsZhTw {
 			'settings.activeBackgroundPrivacyMode' => '隱私模式',
 			'settings.activeBackgroundPrivacyModeDesc' => '禁止截圖、後台執行時隱藏畫面...',
 			'settings.privacy' => '隱私',
+			'settings.appLock' => '應用程式鎖',
+			'settings.appLockEnabled' => '啟用應用程式鎖',
+			'settings.appLockEnabledDesc' => '開啟應用程式時需要使用 PIN 或生物辨識',
+			'settings.appLockEnabledSummary' => '已開啟 · PIN 保護',
+			'settings.appLockDisabledSummary' => '未開啟',
+			'settings.appLockTimeout' => '離開應用程式後鎖定',
+			'settings.appLockTimeoutDesc' => '應用程式進入背景多久後需要重新驗證',
+			'settings.appLockAfterScreenOff' => '鎖定螢幕後鎖定',
+			'settings.appLockAfterScreenOffDesc' => '系統鎖定螢幕後，再次進入應用程式時需要重新驗證',
+			'settings.appLockTimeoutDisabled' => '停用',
+			'settings.appLockImmediately' => '立即',
+			'settings.appLockSeconds' => ({required Object seconds}) => '${seconds} 秒',
+			'settings.appLockMinutes' => ({required Object minutes}) => '${minutes} 分鐘',
+			'settings.appLockUseBiometrics' => '使用生物辨識',
+			'settings.appLockUseBiometricsDesc' => '使用指紋或臉部辨識解鎖',
+			'settings.appLockBiometricsUnavailable' => '此裝置沒有可用的生物辨識',
+			'settings.appLockSetPin' => '設定 PIN',
+			'settings.appLockEnterPin' => '輸入 PIN',
+			'settings.appLockConfirmPin' => '確認 PIN',
+			'settings.appLockCurrentPin' => '輸入目前 PIN',
+			'settings.appLockNewPin' => '輸入新 PIN',
+			'settings.appLockPinRequirements' => 'PIN 必須為 4–8 位數字',
+			'settings.appLockPinsDoNotMatch' => '兩次輸入的 PIN 不一致',
+			'settings.appLockInvalidPin' => 'PIN 錯誤',
+			'settings.appLockSetupFailed' => '無法安全儲存 PIN',
+			'settings.appLockDisable' => '輸入 PIN 以關閉應用程式鎖',
+			'settings.appLockChangePin' => '修改 PIN',
+			'settings.appLockNow' => '立即鎖定',
+			'settings.appLockUnlock' => '解鎖',
+			'settings.appLockLockedTitle' => '已鎖定',
+			'settings.appLockLockedDesc' => '請驗證身分以繼續使用',
+			'settings.appLockAuthenticateReason' => '驗證身分以解鎖',
+			'settings.appLockEnableBiometricsReason' => '驗證身分以啟用生物解鎖',
+			'settings.appLockBiometricFailed' => '未能完成生物驗證',
+			'settings.appLockTooManyAttempts' => ({required Object seconds}) => '嘗試次數過多，請在 ${seconds} 秒後重試',
 			'settings.forum' => '論壇',
 			'settings.news' => '新聞',
 			'settings.disableForumReplyQuote' => '停用論壇回覆引用',
@@ -4344,6 +4414,8 @@ extension on TranslationsZhTw {
 			'oreno3d.sortTypes.latest' => '最新',
 			'oreno3d.sortTypes.popularity' => '人氣',
 			'oreno3d.errors.requestFailed' => '請求失敗，狀態碼',
+			_ => null,
+		} ?? switch (path) {
 			'oreno3d.errors.connectionTimeout' => '連接超時，請檢查網路連接',
 			'oreno3d.errors.sendTimeout' => '發送請求超時',
 			'oreno3d.errors.receiveTimeout' => '接收響應超時',
@@ -4379,8 +4451,6 @@ extension on TranslationsZhTw {
 			'firstTimeSetup.theme.subtitle' => '選擇您喜歡的介面主題',
 			'firstTimeSetup.theme.description' => '個人化您的視覺體驗',
 			'firstTimeSetup.player.title' => '播放器設定',
-			_ => null,
-		} ?? switch (path) {
 			'firstTimeSetup.player.subtitle' => '配置播放控制偏好',
 			'firstTimeSetup.player.description' => '您可以在此快速設定常用的播放體驗',
 			'firstTimeSetup.completion.title' => '完成設定',
@@ -4858,6 +4928,8 @@ extension on TranslationsZhTw {
 			'download.downloading' => '下載中',
 			'download.failed' => '失敗',
 			'download.completed' => '已完成',
+			_ => null,
+		} ?? switch (path) {
 			'download.downloadDetail' => '下載詳情',
 			'download.copy' => '複製',
 			'download.copySuccess' => '已複製',
@@ -4893,8 +4965,6 @@ extension on TranslationsZhTw {
 			'download.deleteByDate.invalidRange' => '開始日期不能晚於結束日期',
 			'download.deleteByDate.confirmTitle' => '確認刪除',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '確定刪除這 ${count} 個下載任務及其檔案嗎？此操作無法復原。',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '正在刪除 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '已刪除 ${count} 個任務',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '已刪除 ${deleted} 個任務，略過 ${skipped} 個（被佔用）',
@@ -5372,6 +5442,8 @@ extension on TranslationsZhTw {
 			'emoji.small' => '小',
 			'emoji.medium' => '中',
 			'emoji.large' => '大',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.extraLarge' => '超大',
 			'emoji.copyEmojiLinkSuccess' => '表情包連結已複製',
 			'emoji.preview' => '表情包預覽',
@@ -5407,8 +5479,6 @@ extension on TranslationsZhTw {
 			'emoji.groupName' => '分組名稱',
 			'emoji.enterGroupName' => '請輸入分組名稱',
 			'emoji.create' => '建立',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.editGroupName' => '編輯分組名稱',
 			'emoji.save' => '儲存',
 			'emoji.deleteGroup' => '刪除分組',

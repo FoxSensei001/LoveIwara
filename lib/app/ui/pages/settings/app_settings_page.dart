@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/app_lock_settings_section.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -94,7 +95,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   }
 
   final Map<String, String> _languageChangedMessages = {
-    'en': 'Language changed successfully, some features require restarting the app to take effect.',
+    'en':
+        'Language changed successfully, some features require restarting the app to take effect.',
     'ja': '言語が正常に変更されました。一部の機能はアプリを再起動して有効にする必要があります。',
     'zh-CN': '语言切换成功，部分功能需重启应用生效',
     'zh-TW': '語言切換成功，部分功能需重啟應用生效',
@@ -115,7 +117,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   if (value != null) {
                     // 更新配置
                     configService.updateApplicationLocale(value);
-                    
+
                     // 立即切换语言
                     if (value == 'system') {
                       slang.LocaleSettings.useDeviceLocale();
@@ -123,7 +125,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       // 根据语言代码找到对应的 AppLocale
                       slang.AppLocale? targetLocale;
                       for (final locale in slang.AppLocale.values) {
-                        if (locale.languageTag.toLowerCase() == value.toLowerCase()) {
+                        if (locale.languageTag.toLowerCase() ==
+                            value.toLowerCase()) {
                           targetLocale = locale;
                           break;
                         }
@@ -132,10 +135,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         slang.LocaleSettings.setLocale(targetLocale);
                       }
                     }
-                    
+
                     // 强制刷新整个应用界面
                     Get.forceAppUpdate();
-                    
+
                     Navigator.of(context).pop();
 
                     String message;
@@ -240,8 +243,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     );
     if (confirmed != true) return;
     try {
-      await Get.find<ConfigBackupService>()
-          .exportConfig(includeSensitive: includeSensitive);
+      await Get.find<ConfigBackupService>().exportConfig(
+        includeSensitive: includeSensitive,
+      );
     } catch (e) {
       showToastWidget(
         MDToastWidget(
@@ -359,10 +363,11 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       ),
                       const Divider(height: 1),
                       Obx(() {
-                        final bool enabled = configService[ConfigKey
-                            .AUTO_DELETE_HISTORY_ENABLED];
-                        final int days = configService[ConfigKey
-                            .AUTO_DELETE_HISTORY_DAYS];
+                        final bool enabled =
+                            configService[ConfigKey
+                                .AUTO_DELETE_HISTORY_ENABLED];
+                        final int days =
+                            configService[ConfigKey.AUTO_DELETE_HISTORY_DAYS];
                         return Column(
                           children: [
                             SwitchListTile(
@@ -458,6 +463,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     ],
                   ),
                 ),
+                const AppLockSettingsSection(),
                 if (VibrateUtils.hasVibrator())
                   Card(
                     elevation: 2,
@@ -668,7 +674,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     ],
                   ),
                 ),
-
 
                 SizedBox(
                   height: computeBottomSafeInset(MediaQuery.of(context)),

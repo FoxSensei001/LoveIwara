@@ -1819,6 +1819,111 @@ class TranslationsSettingsEn {
 	/// en: 'Privacy'
 	String get privacy => 'Privacy';
 
+	/// en: 'App Lock'
+	String get appLock => 'App Lock';
+
+	/// en: 'Enable app lock'
+	String get appLockEnabled => 'Enable app lock';
+
+	/// en: 'Require a PIN or biometrics to open the app'
+	String get appLockEnabledDesc => 'Require a PIN or biometrics to open the app';
+
+	/// en: 'On · PIN protected'
+	String get appLockEnabledSummary => 'On · PIN protected';
+
+	/// en: 'Off'
+	String get appLockDisabledSummary => 'Off';
+
+	/// en: 'Lock after leaving app'
+	String get appLockTimeout => 'Lock after leaving app';
+
+	/// en: 'Time allowed in the background before authentication is required'
+	String get appLockTimeoutDesc => 'Time allowed in the background before authentication is required';
+
+	/// en: 'Lock after screen lock'
+	String get appLockAfterScreenOff => 'Lock after screen lock';
+
+	/// en: 'Require authentication after the device screen is locked'
+	String get appLockAfterScreenOffDesc => 'Require authentication after the device screen is locked';
+
+	/// en: 'Disabled'
+	String get appLockTimeoutDisabled => 'Disabled';
+
+	/// en: 'Immediately'
+	String get appLockImmediately => 'Immediately';
+
+	/// en: '${seconds} seconds'
+	String appLockSeconds({required Object seconds}) => '${seconds} seconds';
+
+	/// en: '${minutes} minutes'
+	String appLockMinutes({required Object minutes}) => '${minutes} minutes';
+
+	/// en: 'Use biometrics'
+	String get appLockUseBiometrics => 'Use biometrics';
+
+	/// en: 'Unlock with fingerprint or face recognition'
+	String get appLockUseBiometricsDesc => 'Unlock with fingerprint or face recognition';
+
+	/// en: 'No enrolled biometrics are available on this device'
+	String get appLockBiometricsUnavailable => 'No enrolled biometrics are available on this device';
+
+	/// en: 'Set PIN'
+	String get appLockSetPin => 'Set PIN';
+
+	/// en: 'Enter PIN'
+	String get appLockEnterPin => 'Enter PIN';
+
+	/// en: 'Confirm PIN'
+	String get appLockConfirmPin => 'Confirm PIN';
+
+	/// en: 'Enter current PIN'
+	String get appLockCurrentPin => 'Enter current PIN';
+
+	/// en: 'Enter new PIN'
+	String get appLockNewPin => 'Enter new PIN';
+
+	/// en: 'PIN must contain 4–8 digits'
+	String get appLockPinRequirements => 'PIN must contain 4–8 digits';
+
+	/// en: 'PINs do not match'
+	String get appLockPinsDoNotMatch => 'PINs do not match';
+
+	/// en: 'Incorrect PIN'
+	String get appLockInvalidPin => 'Incorrect PIN';
+
+	/// en: 'Could not securely save the PIN'
+	String get appLockSetupFailed => 'Could not securely save the PIN';
+
+	/// en: 'Enter PIN to disable app lock'
+	String get appLockDisable => 'Enter PIN to disable app lock';
+
+	/// en: 'Change PIN'
+	String get appLockChangePin => 'Change PIN';
+
+	/// en: 'Lock now'
+	String get appLockNow => 'Lock now';
+
+	/// en: 'Unlock'
+	String get appLockUnlock => 'Unlock';
+
+	/// en: 'Locked'
+	String get appLockLockedTitle => 'Locked';
+
+	/// en: 'Authenticate to continue'
+	String get appLockLockedDesc => 'Authenticate to continue';
+
+	/// en: 'Authenticate to unlock'
+	String get appLockAuthenticateReason => 'Authenticate to unlock';
+
+	/// en: 'Authenticate to enable biometric unlock'
+	String get appLockEnableBiometricsReason => 'Authenticate to enable biometric unlock';
+
+	/// en: 'Biometric authentication was not completed'
+	String get appLockBiometricFailed => 'Biometric authentication was not completed';
+
+	/// en: 'Too many attempts. Try again in ${seconds}s'
+	String appLockTooManyAttempts({required Object seconds}) => 'Too many attempts. Try again in ${seconds}s';
+
 	/// en: 'Forum'
 	String get forum => 'Forum';
 
@@ -8626,6 +8731,41 @@ extension on Translations {
 			'settings.activeBackgroundPrivacyMode' => 'Privacy Mode',
 			'settings.activeBackgroundPrivacyModeDesc' => 'Prevent screenshots, hide screen when running in the background...',
 			'settings.privacy' => 'Privacy',
+			'settings.appLock' => 'App Lock',
+			'settings.appLockEnabled' => 'Enable app lock',
+			'settings.appLockEnabledDesc' => 'Require a PIN or biometrics to open the app',
+			'settings.appLockEnabledSummary' => 'On · PIN protected',
+			'settings.appLockDisabledSummary' => 'Off',
+			'settings.appLockTimeout' => 'Lock after leaving app',
+			'settings.appLockTimeoutDesc' => 'Time allowed in the background before authentication is required',
+			'settings.appLockAfterScreenOff' => 'Lock after screen lock',
+			'settings.appLockAfterScreenOffDesc' => 'Require authentication after the device screen is locked',
+			'settings.appLockTimeoutDisabled' => 'Disabled',
+			'settings.appLockImmediately' => 'Immediately',
+			'settings.appLockSeconds' => ({required Object seconds}) => '${seconds} seconds',
+			'settings.appLockMinutes' => ({required Object minutes}) => '${minutes} minutes',
+			'settings.appLockUseBiometrics' => 'Use biometrics',
+			'settings.appLockUseBiometricsDesc' => 'Unlock with fingerprint or face recognition',
+			'settings.appLockBiometricsUnavailable' => 'No enrolled biometrics are available on this device',
+			'settings.appLockSetPin' => 'Set PIN',
+			'settings.appLockEnterPin' => 'Enter PIN',
+			'settings.appLockConfirmPin' => 'Confirm PIN',
+			'settings.appLockCurrentPin' => 'Enter current PIN',
+			'settings.appLockNewPin' => 'Enter new PIN',
+			'settings.appLockPinRequirements' => 'PIN must contain 4–8 digits',
+			'settings.appLockPinsDoNotMatch' => 'PINs do not match',
+			'settings.appLockInvalidPin' => 'Incorrect PIN',
+			'settings.appLockSetupFailed' => 'Could not securely save the PIN',
+			'settings.appLockDisable' => 'Enter PIN to disable app lock',
+			'settings.appLockChangePin' => 'Change PIN',
+			'settings.appLockNow' => 'Lock now',
+			'settings.appLockUnlock' => 'Unlock',
+			'settings.appLockLockedTitle' => 'Locked',
+			'settings.appLockLockedDesc' => 'Authenticate to continue',
+			'settings.appLockAuthenticateReason' => 'Authenticate to unlock',
+			'settings.appLockEnableBiometricsReason' => 'Authenticate to enable biometric unlock',
+			'settings.appLockBiometricFailed' => 'Biometric authentication was not completed',
+			'settings.appLockTooManyAttempts' => ({required Object seconds}) => 'Too many attempts. Try again in ${seconds}s',
 			'settings.forum' => 'Forum',
 			'settings.news' => 'News',
 			'settings.disableForumReplyQuote' => 'Disable Forum Reply Quote',
@@ -9049,6 +9189,8 @@ extension on Translations {
 			'oreno3d.sortTypes.latest' => 'Latest',
 			'oreno3d.sortTypes.popularity' => 'Popular',
 			'oreno3d.errors.requestFailed' => 'Request failed, status code',
+			_ => null,
+		} ?? switch (path) {
 			'oreno3d.errors.connectionTimeout' => 'Connection timeout, please check network connection',
 			'oreno3d.errors.sendTimeout' => 'Send request timeout',
 			'oreno3d.errors.receiveTimeout' => 'Receive response timeout',
@@ -9084,8 +9226,6 @@ extension on Translations {
 			'signIn.invalidDateRange' => 'Invalid Date Range',
 			'signIn.errorFormatText' => 'Date Format Error',
 			'signIn.errorInvalidText' => 'Invalid Date Range',
-			_ => null,
-		} ?? switch (path) {
 			'signIn.errorInvalidRangeText' => 'Invalid Date Range',
 			'signIn.dateRangeCantBeMoreThanOneYear' => 'Date range cannot be more than one year',
 			'signIn.signIn' => 'Sign In',
@@ -9563,6 +9703,8 @@ extension on Translations {
 			'download.deleteByDate.notSet' => 'Not set',
 			'download.deleteByDate.daysUnit' => 'days',
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => 'Delete tasks created more than ${days} day(s) ago',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.noMatch' => 'No tasks match the selected condition',
 			'download.deleteByDate.invalidRange' => 'Start date must be on or before end date',
 			'download.deleteByDate.confirmTitle' => 'Confirm deletion',
@@ -9598,8 +9740,6 @@ extension on Translations {
 			'download.saveToAppDirectory' => 'Save to app directory',
 			'download.alreadyDownloadedWithQuality' => 'Already downloaded with the same quality, continue downloading?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Already downloaded with qualities: ${qualities}, continue downloading?',
-			_ => null,
-		} ?? switch (path) {
 			'download.otherQualities' => 'Other qualities',
 			'download.batchDownload.title' => 'Batch Download',
 			'download.batchDownload.downloadTaskAlreadyRunning' => 'A task is already running, please wait.',
@@ -10077,6 +10217,8 @@ extension on Translations {
 			'log.exportCurrentLogs' => 'Export Current Logs',
 			'log.exportCurrentLogsDesc' => 'Export the current application logs to help developers diagnose problems',
 			'log.exportHistoryLogs' => 'Export History Logs',
+			_ => null,
+		} ?? switch (path) {
 			'log.exportHistoryLogsDesc' => 'Export logs within a specified date range',
 			'log.exportMergedLogs' => 'Export Merged Logs',
 			'log.exportMergedLogsDesc' => 'Export merged logs within a specified date range',
@@ -10112,8 +10254,6 @@ extension on Translations {
 			'log.today' => 'Today',
 			'log.selectMergeRange' => 'Select Merge Range',
 			'log.selectMergeRangeHint' => 'Please select the log time range to merge',
-			_ => null,
-		} ?? switch (path) {
 			'log.selectMergeRangeDays' => ({required Object days}) => 'Recent ${days} days',
 			'log.logStats' => 'Log Stats',
 			'log.todayLogs' => ({required Object count}) => 'Today Logs: ${count} logs',
