@@ -4,12 +4,14 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/app_lock_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/version_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/keybinding_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_action.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
 import 'package:i_iwara/app/ui/widgets/global_drawer_content_widget.dart';
+import 'package:i_iwara/app/ui/widgets/app_lock_screen.dart';
 import 'package:i_iwara/app/ui/widgets/privacy_over_lay_widget.dart';
 import 'package:i_iwara/app/ui/widgets/window_layout_widget.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -272,6 +274,7 @@ class MyAppLayout extends StatefulWidget {
 class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
   bool _showPrivacyOverlay = false;
   late ConfigService _configService;
+  late AppLockService _appLockService;
   DateTime? _lastPausedTime;
 
   // 文件拖放状态
@@ -295,6 +298,7 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     _configService = Get.find<ConfigService>();
+    _appLockService = Get.find<AppLockService>();
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) {
@@ -315,9 +319,11 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     bool activeBackgroundPrivacyMode =
-        _configService[ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE];
+        _configService[ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE] ||
+        _appLockService.enabled;
     switch (state) {
       case AppLifecycleState.resumed:
+        _appLockService.onResumed();
         if (_showPrivacyOverlay) {
           setState(() {
             _showPrivacyOverlay = false;
@@ -327,6 +333,7 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
         _onAppResumed();
         break;
       case AppLifecycleState.inactive:
+        _appLockService.onBackgrounded();
         if (activeBackgroundPrivacyMode && !_showPrivacyOverlay) {
           setState(() {
             _showPrivacyOverlay = true;
@@ -334,10 +341,12 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
         }
         break;
       case AppLifecycleState.paused:
+        _appLockService.onBackgrounded();
         // 记录进入后台的时间
         _lastPausedTime = DateTime.now();
         break;
       case AppLifecycleState.hidden:
+        _appLockService.onBackgrounded();
         if (activeBackgroundPrivacyMode && !_showPrivacyOverlay) {
           setState(() {
             _showPrivacyOverlay = true;
@@ -383,6 +392,11 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
         if (_showPrivacyOverlay) const PrivacyOverlay(),
         // 拖拽悬浮提示
         if (_isDragging && isDesktop) _buildDragOverlay(context),
+        Obx(
+          () => _appLockService.isLocked.value
+              ? const Positioned.fill(child: AppLockScreen())
+              : const SizedBox.shrink(),
+        ),
       ],
     );
 

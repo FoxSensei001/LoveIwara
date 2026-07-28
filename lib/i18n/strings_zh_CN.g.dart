@@ -746,6 +746,38 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get activeBackgroundPrivacyMode => '隐私模式';
 	@override String get activeBackgroundPrivacyModeDesc => '禁止截图、后台运行时隐藏画面...';
 	@override String get privacy => '隐私';
+	@override String get appLock => '应用锁';
+	@override String get appLockEnabled => '启用应用锁';
+	@override String get appLockEnabledDesc => '打开应用时需要使用 PIN 或生物验证';
+	@override String get appLockEnabledSummary => '已开启 · PIN 保护';
+	@override String get appLockDisabledSummary => '未开启';
+	@override String get appLockTimeout => '离开应用后锁定';
+	@override String get appLockTimeoutDesc => '应用进入后台多久后需要重新验证';
+	@override String get appLockImmediately => '立即';
+	@override String appLockSeconds({required Object seconds}) => '${seconds} 秒';
+	@override String appLockMinutes({required Object minutes}) => '${minutes} 分钟';
+	@override String get appLockUseBiometrics => '使用生物验证';
+	@override String get appLockUseBiometricsDesc => '使用指纹或面容识别解锁';
+	@override String get appLockBiometricsUnavailable => '此设备没有可用的生物验证';
+	@override String get appLockSetPin => '设置 PIN';
+	@override String get appLockEnterPin => '输入 PIN';
+	@override String get appLockConfirmPin => '确认 PIN';
+	@override String get appLockCurrentPin => '输入当前 PIN';
+	@override String get appLockNewPin => '输入新 PIN';
+	@override String get appLockPinRequirements => 'PIN 必须为 4–8 位数字';
+	@override String get appLockPinsDoNotMatch => '两次输入的 PIN 不一致';
+	@override String get appLockInvalidPin => 'PIN 错误';
+	@override String get appLockSetupFailed => '无法安全保存 PIN';
+	@override String get appLockDisable => '输入 PIN 以关闭应用锁';
+	@override String get appLockChangePin => '修改 PIN';
+	@override String get appLockNow => '立即锁定';
+	@override String get appLockUnlock => '解锁';
+	@override String get appLockLockedTitle => '已锁定';
+	@override String get appLockLockedDesc => '请验证身份以继续使用';
+	@override String get appLockAuthenticateReason => '验证身份以解锁';
+	@override String get appLockEnableBiometricsReason => '验证身份以启用生物解锁';
+	@override String get appLockBiometricFailed => '未能完成生物验证';
+	@override String appLockTooManyAttempts({required Object seconds}) => '尝试次数过多，请在 ${seconds} 秒后重试';
 	@override String get forum => '论坛';
 	@override String get news => '新闻';
 	@override String get disableForumReplyQuote => '禁用论坛回复引用';
@@ -3928,6 +3960,38 @@ extension on TranslationsZhCn {
 			'settings.activeBackgroundPrivacyMode' => '隐私模式',
 			'settings.activeBackgroundPrivacyModeDesc' => '禁止截图、后台运行时隐藏画面...',
 			'settings.privacy' => '隐私',
+			'settings.appLock' => '应用锁',
+			'settings.appLockEnabled' => '启用应用锁',
+			'settings.appLockEnabledDesc' => '打开应用时需要使用 PIN 或生物验证',
+			'settings.appLockEnabledSummary' => '已开启 · PIN 保护',
+			'settings.appLockDisabledSummary' => '未开启',
+			'settings.appLockTimeout' => '离开应用后锁定',
+			'settings.appLockTimeoutDesc' => '应用进入后台多久后需要重新验证',
+			'settings.appLockImmediately' => '立即',
+			'settings.appLockSeconds' => ({required Object seconds}) => '${seconds} 秒',
+			'settings.appLockMinutes' => ({required Object minutes}) => '${minutes} 分钟',
+			'settings.appLockUseBiometrics' => '使用生物验证',
+			'settings.appLockUseBiometricsDesc' => '使用指纹或面容识别解锁',
+			'settings.appLockBiometricsUnavailable' => '此设备没有可用的生物验证',
+			'settings.appLockSetPin' => '设置 PIN',
+			'settings.appLockEnterPin' => '输入 PIN',
+			'settings.appLockConfirmPin' => '确认 PIN',
+			'settings.appLockCurrentPin' => '输入当前 PIN',
+			'settings.appLockNewPin' => '输入新 PIN',
+			'settings.appLockPinRequirements' => 'PIN 必须为 4–8 位数字',
+			'settings.appLockPinsDoNotMatch' => '两次输入的 PIN 不一致',
+			'settings.appLockInvalidPin' => 'PIN 错误',
+			'settings.appLockSetupFailed' => '无法安全保存 PIN',
+			'settings.appLockDisable' => '输入 PIN 以关闭应用锁',
+			'settings.appLockChangePin' => '修改 PIN',
+			'settings.appLockNow' => '立即锁定',
+			'settings.appLockUnlock' => '解锁',
+			'settings.appLockLockedTitle' => '已锁定',
+			'settings.appLockLockedDesc' => '请验证身份以继续使用',
+			'settings.appLockAuthenticateReason' => '验证身份以解锁',
+			'settings.appLockEnableBiometricsReason' => '验证身份以启用生物解锁',
+			'settings.appLockBiometricFailed' => '未能完成生物验证',
+			'settings.appLockTooManyAttempts' => ({required Object seconds}) => '尝试次数过多，请在 ${seconds} 秒后重试',
 			'settings.forum' => '论坛',
 			'settings.news' => '新闻',
 			'settings.disableForumReplyQuote' => '禁用论坛回复引用',
@@ -4349,6 +4413,8 @@ extension on TranslationsZhCn {
 			'oreno3d.sortTypes.hot' => '热门',
 			'oreno3d.sortTypes.favorites' => '高评价',
 			'oreno3d.sortTypes.latest' => '最新',
+			_ => null,
+		} ?? switch (path) {
 			'oreno3d.sortTypes.popularity' => '人气',
 			'oreno3d.errors.requestFailed' => '请求失败，状态码',
 			'oreno3d.errors.connectionTimeout' => '连接超时，请检查网络连接',
@@ -4381,8 +4447,6 @@ extension on TranslationsZhCn {
 			'signIn.failureReason' => '未能坚持签到的原因',
 			'signIn.selectDateRange' => '选择日期范围',
 			'signIn.startDate' => '开始日期',
-			_ => null,
-		} ?? switch (path) {
 			'signIn.endDate' => '结束日期',
 			'signIn.invalidDate' => '日期格式错误',
 			'signIn.invalidDateRange' => '日期范围无效',
@@ -4863,6 +4927,8 @@ extension on TranslationsZhCn {
 			'download.deleteByDate.endDate' => '结束日期',
 			'download.deleteByDate.notSet' => '未设置',
 			'download.deleteByDate.daysUnit' => '天',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => '删除 ${days} 天以前创建的任务',
 			'download.deleteByDate.noMatch' => '没有符合条件的任务',
 			'download.deleteByDate.invalidRange' => '开始日期不能晚于结束日期',
@@ -4895,8 +4961,6 @@ extension on TranslationsZhCn {
 			'download.category.deleteFailed' => '删除分类失败',
 			'download.maxConcurrentDownloads' => '最大同时下载数',
 			'download.maxConcurrentDownloadsDesc' => '同时进行下载的任务数量（1-5）',
-			_ => null,
-		} ?? switch (path) {
 			'download.downloadCompletedWithName' => ({required Object fileName}) => '下载完成: ${fileName}',
 			'download.stillInDevelopment' => '开发中',
 			'download.saveToAppDirectory' => '保存到应用目录',
@@ -5377,6 +5441,8 @@ extension on TranslationsZhCn {
 			'emoji.formatExample' => '格式示例:\n["url1", "url2", "url3"]',
 			'emoji.pasteJsonUrlArray' => '请粘贴JSON格式的URL数组',
 			'emoji.import' => '导入',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.importSuccess' => ({required Object count}) => '成功导入${count}张图片',
 			'emoji.jsonFormatError' => 'JSON格式错误，请检查输入',
 			'emoji.createGroup' => '创建表情包分组',
@@ -5409,8 +5475,6 @@ extension on TranslationsZhCn {
 			'displaySettings.customNavigationOrder' => '自定义导航顺序',
 			'displaySettings.customNavigationOrderDesc' => '调整底部导航栏和侧边栏中页面的显示顺序',
 			'layoutSettings.title' => '布局设置',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.descriptionTitle' => '布局配置说明',
 			'layoutSettings.descriptionContent' => '这里的配置将决定视频、图库列表页面中显示的列数。您可以选择自动模式让系统根据屏幕宽度自动调整，或选择手动模式固定列数。',
 			'layoutSettings.layoutMode' => '布局模式',

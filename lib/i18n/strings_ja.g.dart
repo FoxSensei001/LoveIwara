@@ -741,6 +741,38 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get activeBackgroundPrivacyMode => 'プライバシーモード';
 	@override String get activeBackgroundPrivacyModeDesc => 'スクリーンショットを禁止し、バックグラウンド実行時に画面を隠す...';
 	@override String get privacy => 'プライバシー';
+	@override String get appLock => 'アプリロック';
+	@override String get appLockEnabled => 'アプリロックを有効にする';
+	@override String get appLockEnabledDesc => 'アプリを開くときに PIN または生体認証を要求します';
+	@override String get appLockEnabledSummary => 'オン · PIN で保護';
+	@override String get appLockDisabledSummary => 'オフ';
+	@override String get appLockTimeout => 'アプリを離れた後にロック';
+	@override String get appLockTimeoutDesc => 'バックグラウンド移行後、再認証を要求するまでの時間';
+	@override String get appLockImmediately => 'すぐに';
+	@override String appLockSeconds({required Object seconds}) => '${seconds} 秒';
+	@override String appLockMinutes({required Object minutes}) => '${minutes} 分';
+	@override String get appLockUseBiometrics => '生体認証を使用';
+	@override String get appLockUseBiometricsDesc => '指紋認証または顔認証でロックを解除します';
+	@override String get appLockBiometricsUnavailable => 'この端末で利用できる生体認証がありません';
+	@override String get appLockSetPin => 'PIN を設定';
+	@override String get appLockEnterPin => 'PIN を入力';
+	@override String get appLockConfirmPin => 'PIN を確認';
+	@override String get appLockCurrentPin => '現在の PIN を入力';
+	@override String get appLockNewPin => '新しい PIN を入力';
+	@override String get appLockPinRequirements => 'PIN は 4～8 桁の数字にしてください';
+	@override String get appLockPinsDoNotMatch => 'PIN が一致しません';
+	@override String get appLockInvalidPin => 'PIN が正しくありません';
+	@override String get appLockSetupFailed => 'PIN を安全に保存できませんでした';
+	@override String get appLockDisable => 'アプリロックを無効にするには PIN を入力してください';
+	@override String get appLockChangePin => 'PIN を変更';
+	@override String get appLockNow => '今すぐロック';
+	@override String get appLockUnlock => 'ロック解除';
+	@override String get appLockLockedTitle => 'ロックされています';
+	@override String get appLockLockedDesc => '続行するには認証してください';
+	@override String get appLockAuthenticateReason => 'ロックを解除するために認証してください';
+	@override String get appLockEnableBiometricsReason => '生体認証によるロック解除を有効にするために認証してください';
+	@override String get appLockBiometricFailed => '生体認証を完了できませんでした';
+	@override String appLockTooManyAttempts({required Object seconds}) => '試行回数が多すぎます。${seconds} 秒後に再試行してください';
 	@override String get forum => 'フォーラム';
 	@override String get news => 'ニュース';
 	@override String get disableForumReplyQuote => 'フォーラム返信引用を無効にする';
@@ -3918,6 +3950,38 @@ extension on TranslationsJa {
 			'settings.activeBackgroundPrivacyMode' => 'プライバシーモード',
 			'settings.activeBackgroundPrivacyModeDesc' => 'スクリーンショットを禁止し、バックグラウンド実行時に画面を隠す...',
 			'settings.privacy' => 'プライバシー',
+			'settings.appLock' => 'アプリロック',
+			'settings.appLockEnabled' => 'アプリロックを有効にする',
+			'settings.appLockEnabledDesc' => 'アプリを開くときに PIN または生体認証を要求します',
+			'settings.appLockEnabledSummary' => 'オン · PIN で保護',
+			'settings.appLockDisabledSummary' => 'オフ',
+			'settings.appLockTimeout' => 'アプリを離れた後にロック',
+			'settings.appLockTimeoutDesc' => 'バックグラウンド移行後、再認証を要求するまでの時間',
+			'settings.appLockImmediately' => 'すぐに',
+			'settings.appLockSeconds' => ({required Object seconds}) => '${seconds} 秒',
+			'settings.appLockMinutes' => ({required Object minutes}) => '${minutes} 分',
+			'settings.appLockUseBiometrics' => '生体認証を使用',
+			'settings.appLockUseBiometricsDesc' => '指紋認証または顔認証でロックを解除します',
+			'settings.appLockBiometricsUnavailable' => 'この端末で利用できる生体認証がありません',
+			'settings.appLockSetPin' => 'PIN を設定',
+			'settings.appLockEnterPin' => 'PIN を入力',
+			'settings.appLockConfirmPin' => 'PIN を確認',
+			'settings.appLockCurrentPin' => '現在の PIN を入力',
+			'settings.appLockNewPin' => '新しい PIN を入力',
+			'settings.appLockPinRequirements' => 'PIN は 4～8 桁の数字にしてください',
+			'settings.appLockPinsDoNotMatch' => 'PIN が一致しません',
+			'settings.appLockInvalidPin' => 'PIN が正しくありません',
+			'settings.appLockSetupFailed' => 'PIN を安全に保存できませんでした',
+			'settings.appLockDisable' => 'アプリロックを無効にするには PIN を入力してください',
+			'settings.appLockChangePin' => 'PIN を変更',
+			'settings.appLockNow' => '今すぐロック',
+			'settings.appLockUnlock' => 'ロック解除',
+			'settings.appLockLockedTitle' => 'ロックされています',
+			'settings.appLockLockedDesc' => '続行するには認証してください',
+			'settings.appLockAuthenticateReason' => 'ロックを解除するために認証してください',
+			'settings.appLockEnableBiometricsReason' => '生体認証によるロック解除を有効にするために認証してください',
+			'settings.appLockBiometricFailed' => '生体認証を完了できませんでした',
+			'settings.appLockTooManyAttempts' => ({required Object seconds}) => '試行回数が多すぎます。${seconds} 秒後に再試行してください',
 			'settings.forum' => 'フォーラム',
 			'settings.news' => 'ニュース',
 			'settings.disableForumReplyQuote' => 'フォーラム返信引用を無効にする',
@@ -4344,6 +4408,8 @@ extension on TranslationsJa {
 			'oreno3d.errors.connectionTimeout' => '接続がタイムアウトしました、ネットワーク接続を確認してください',
 			'oreno3d.errors.sendTimeout' => 'リクエスト送信がタイムアウトしました',
 			'oreno3d.errors.receiveTimeout' => 'レスポンス受信がタイムアウトしました',
+			_ => null,
+		} ?? switch (path) {
 			'oreno3d.errors.badCertificate' => '証明書の検証に失敗しました',
 			'oreno3d.errors.resourceNotFound' => '要求されたリソースが見つかりません',
 			'oreno3d.errors.accessDenied' => 'アクセスが拒否されました、認証または権限が必要な可能性があります',
@@ -4376,8 +4442,6 @@ extension on TranslationsJa {
 			'signIn.invalidDateRange' => '日付範囲が無効です',
 			'signIn.errorFormatText' => '日付形式が正しくありません',
 			'signIn.errorInvalidText' => '日付範囲が無効です',
-			_ => null,
-		} ?? switch (path) {
 			'signIn.errorInvalidRangeText' => '日付範囲が無効です',
 			'signIn.dateRangeCantBeMoreThanOneYear' => '日付範囲は1年を超えることはできません',
 			'signIn.signIn' => 'サインイン',
@@ -4858,6 +4922,8 @@ extension on TranslationsJa {
 			'download.deleteByDate.noMatch' => '条件に一致するタスクがありません',
 			'download.deleteByDate.invalidRange' => '開始日は終了日以前にしてください',
 			'download.deleteByDate.confirmTitle' => '削除の確認',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '${count}件のダウンロードタスクとそのファイルを削除しますか？この操作は取り消せません。',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '削除中 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count}件のタスクを削除しました',
@@ -4890,8 +4956,6 @@ extension on TranslationsJa {
 			'download.saveToAppDirectory' => 'アプリケーションディレクトリに保存',
 			'download.alreadyDownloadedWithQuality' => 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'すでに品質が${qualities}のタスクがあります。続けてダウンロードしますか？',
-			_ => null,
-		} ?? switch (path) {
 			'download.otherQualities' => 'その他の品質',
 			'download.batchDownload.title' => '一括ダウンロード',
 			'download.batchDownload.downloadTaskAlreadyRunning' => 'タスクが実行中です。しばらくお待ちください',
@@ -5372,6 +5436,8 @@ extension on TranslationsJa {
 			'emoji.createGroup' => '絵文字グループを作成',
 			'emoji.groupName' => 'グループ名',
 			'emoji.enterGroupName' => 'グループ名を入力してください',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.create' => '作成',
 			'emoji.editGroupName' => 'グループ名を編集',
 			'emoji.save' => '保存',
@@ -5404,8 +5470,6 @@ extension on TranslationsJa {
 			'layoutSettings.layoutMode' => 'レイアウトモード',
 			'layoutSettings.reset' => 'リセット',
 			'layoutSettings.autoMode' => '自動モード',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.autoModeDesc' => '画面幅に基づいて自動調整',
 			'layoutSettings.manualMode' => '手動モード',
 			'layoutSettings.manualModeDesc' => '固定カラム数を使用',

@@ -461,9 +461,12 @@ class StorageService {
     await _removeFallbackCopy(key);
   }
 
-  Future<void> writeSecureObject(String key, Map<String, dynamic> value) async {
+  Future<SecureWriteResult> writeSecureObject(
+    String key,
+    Map<String, dynamic> value,
+  ) async {
     final string = json.encode(value);
-    await writeSecureData(key, string);
+    return writeSecureData(key, string);
   }
 
   Future<Map<String, dynamic>?> readSecureObject(String key) async {

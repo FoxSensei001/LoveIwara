@@ -2,8 +2,10 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/app_lock_service.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/app_lock_settings_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -115,7 +117,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   if (value != null) {
                     // 更新配置
                     configService.updateApplicationLocale(value);
-                    
+
                     // 立即切换语言
                     if (value == 'system') {
                       slang.LocaleSettings.useDeviceLocale();
@@ -132,10 +134,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         slang.LocaleSettings.setLocale(targetLocale);
                       }
                     }
-                    
+
                     // 强制刷新整个应用界面
                     Get.forceAppUpdate();
-                    
+
                     Navigator.of(context).pop();
 
                     String message;
@@ -313,6 +315,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   @override
   Widget build(BuildContext context) {
     final configService = Get.find<ConfigService>();
+    final appLockService = Get.find<AppLockService>();
 
     return Scaffold(
       body: CustomScrollView(
@@ -447,6 +450,26 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                     .ACTIVE_BACKGROUND_PRIVACY_MODE] =
                                 value;
                           },
+                        ),
+                      ),
+                      const Divider(height: 1),
+                      Obx(
+                        () => ListTile(
+                          leading: const Icon(Icons.lock_outline),
+                          title: Text(slang.t.settings.appLock),
+                          subtitle: Text(
+                            appLockService.enabled
+                                ? slang.t.settings.appLockEnabledSummary
+                                : slang.t.settings.appLockDisabledSummary,
+                          ),
+                          trailing: const Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                          ),
+                          onTap: () => showDialog<void>(
+                            context: context,
+                            builder: (_) => const AppLockSettingsDialog(),
+                          ),
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.only(
                               bottomLeft: Radius.circular(16),

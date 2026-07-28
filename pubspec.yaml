@@ -89,6 +89,7 @@ dependencies:
   dartantic_ai: ^3.4.1
   flutter_local_notifications: ^22.0.1
   local_notifier: ^0.1.6
+  local_auth: ^3.0.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
