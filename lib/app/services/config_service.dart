@@ -708,7 +708,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.APP_LOCK_ENABLED:
         return false;
       case ConfigKey.APP_LOCK_TIMEOUT_SECONDS:
-        return 60;
+        return -1;
       case ConfigKey.APP_LOCK_BIOMETRICS_ENABLED:
         return false;
       case ConfigKey.DEFAULT_LANGUAGE_KEY:

@@ -334,7 +334,9 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
         break;
       case AppLifecycleState.inactive:
         _appLockService.onBackgrounded();
-        if (activeBackgroundPrivacyMode && !_showPrivacyOverlay) {
+        if (activeBackgroundPrivacyMode &&
+            !_appLockService.isAuthenticating.value &&
+            !_showPrivacyOverlay) {
           setState(() {
             _showPrivacyOverlay = true;
           });
@@ -347,7 +349,9 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
         break;
       case AppLifecycleState.hidden:
         _appLockService.onBackgrounded();
-        if (activeBackgroundPrivacyMode && !_showPrivacyOverlay) {
+        if (activeBackgroundPrivacyMode &&
+            !_appLockService.isAuthenticating.value &&
+            !_showPrivacyOverlay) {
           setState(() {
             _showPrivacyOverlay = true;
           });

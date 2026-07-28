@@ -4,19 +4,20 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_lock_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
-class AppLockSettingsDialog extends StatefulWidget {
-  const AppLockSettingsDialog({super.key});
+class AppLockSettingsSection extends StatefulWidget {
+  const AppLockSettingsSection({super.key});
 
   @override
-  State<AppLockSettingsDialog> createState() => _AppLockSettingsDialogState();
+  State<AppLockSettingsSection> createState() => _AppLockSettingsSectionState();
 }
 
-class _AppLockSettingsDialogState extends State<AppLockSettingsDialog> {
+class _AppLockSettingsSectionState extends State<AppLockSettingsSection> {
   late final AppLockService _service = Get.find<AppLockService>();
 
-  static const _timeouts = <int>[0, 30, 60, 300, 600, 900, 1800];
+  static const _timeouts = <int>[-1, 0, 30, 60, 300, 600, 900, 1800];
 
   String _timeoutLabel(int seconds) {
+    if (seconds < 0) return slang.t.settings.appLockTimeoutDisabled;
     if (seconds == 0) return slang.t.settings.appLockImmediately;
     if (seconds < 60) {
       return slang.t.settings.appLockSeconds(seconds: seconds);
@@ -105,8 +106,6 @@ class _AppLockSettingsDialogState extends State<AppLockSettingsDialog> {
       _showMessage(slang.t.settings.appLockPinsDoNotMatch);
       return;
     }
-    // Current PIN was verified above; enableWithPin atomically replaces the
-    // stored digest without needlessly counting the same attempt twice.
     if (!await _service.enableWithPin(next) && mounted) {
       _showMessage(slang.t.settings.appLockSetupFailed);
     }
@@ -135,27 +134,38 @@ class _AppLockSettingsDialogState extends State<AppLockSettingsDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(slang.t.settings.appLock),
-      content: SizedBox(
-        width: 440,
-        child: Obx(() {
-          final enabled = _service.enabled;
-          return SingleChildScrollView(
-            child: Column(
+    return Card(
+      elevation: 2,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              slang.t.settings.appLock,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+          ),
+          const Divider(height: 1),
+          Obx(() {
+            final enabled = _service.enabled;
+            return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
                   title: Text(slang.t.settings.appLockEnabled),
                   subtitle: Text(slang.t.settings.appLockEnabledDesc),
                   value: enabled,
                   onChanged: (_) => enabled ? _disable() : _enable(),
                 ),
                 if (enabled) ...[
-                  const Divider(),
+                  const Divider(height: 1),
                   ListTile(
-                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.timer_outlined),
                     title: Text(slang.t.settings.appLockTimeout),
                     subtitle: Text(slang.t.settings.appLockTimeoutDesc),
                     trailing: DropdownButton<int>(
@@ -173,8 +183,8 @@ class _AppLockSettingsDialogState extends State<AppLockSettingsDialog> {
                       },
                     ),
                   ),
+                  const Divider(height: 1),
                   SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
                     secondary: const Icon(Icons.fingerprint),
                     title: Text(slang.t.settings.appLockUseBiometrics),
                     subtitle: Text(
@@ -189,35 +199,24 @@ class _AppLockSettingsDialogState extends State<AppLockSettingsDialog> {
                         ? _toggleBiometrics
                         : null,
                   ),
+                  const Divider(height: 1),
                   ListTile(
-                    contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.password),
                     title: Text(slang.t.settings.appLockChangePin),
                     onTap: _changePin,
                   ),
+                  const Divider(height: 1),
                   ListTile(
-                    contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.lock),
                     title: Text(slang.t.settings.appLockNow),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      WidgetsBinding.instance.addPostFrameCallback(
-                        (_) => _service.lockNow(),
-                      );
-                    },
+                    onTap: _service.lockNow,
                   ),
                 ],
               ],
-            ),
-          );
-        }),
+            );
+          }),
+        ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(slang.t.common.close),
-        ),
-      ],
     );
   }
 }

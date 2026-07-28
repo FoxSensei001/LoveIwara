@@ -601,6 +601,7 @@ settings:
   appLockDisabledSummary: 未開啟
   appLockTimeout: 離開應用程式後鎖定
   appLockTimeoutDesc: 應用程式進入背景多久後需要重新驗證
+  appLockTimeoutDisabled: 停用
   appLockImmediately: 立即
   appLockSeconds: '${seconds} 秒'
   appLockMinutes: '${minutes} 分鐘'

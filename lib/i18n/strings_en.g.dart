@@ -1840,6 +1840,9 @@ class TranslationsSettingsEn {
 	/// en: 'Time allowed in the background before authentication is required'
 	String get appLockTimeoutDesc => 'Time allowed in the background before authentication is required';
 
+	/// en: 'Disabled'
+	String get appLockTimeoutDisabled => 'Disabled';
+
 	/// en: 'Immediately'
 	String get appLockImmediately => 'Immediately';
 
@@ -8729,6 +8732,7 @@ extension on Translations {
 			'settings.appLockDisabledSummary' => 'Off',
 			'settings.appLockTimeout' => 'Lock after leaving app',
 			'settings.appLockTimeoutDesc' => 'Time allowed in the background before authentication is required',
+			'settings.appLockTimeoutDisabled' => 'Disabled',
 			'settings.appLockImmediately' => 'Immediately',
 			'settings.appLockSeconds' => ({required Object seconds}) => '${seconds} seconds',
 			'settings.appLockMinutes' => ({required Object minutes}) => '${minutes} minutes',
@@ -9179,9 +9183,9 @@ extension on Translations {
 			'oreno3d.errors.requestFailed' => 'Request failed, status code',
 			'oreno3d.errors.connectionTimeout' => 'Connection timeout, please check network connection',
 			'oreno3d.errors.sendTimeout' => 'Send request timeout',
-			'oreno3d.errors.receiveTimeout' => 'Receive response timeout',
 			_ => null,
 		} ?? switch (path) {
+			'oreno3d.errors.receiveTimeout' => 'Receive response timeout',
 			'oreno3d.errors.badCertificate' => 'Certificate verification failed',
 			'oreno3d.errors.resourceNotFound' => 'Requested resource not found',
 			'oreno3d.errors.accessDenied' => 'Access denied, may require authentication or permission',
@@ -9693,9 +9697,9 @@ extension on Translations {
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => 'Delete tasks created more than ${days} day(s) ago',
 			'download.deleteByDate.noMatch' => 'No tasks match the selected condition',
 			'download.deleteByDate.invalidRange' => 'Start date must be on or before end date',
-			'download.deleteByDate.confirmTitle' => 'Confirm deletion',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.confirmTitle' => 'Confirm deletion',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Delete ${count} download task(s) and their files? This cannot be undone.',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Deleting ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Deleted ${count} task(s)',
@@ -10207,9 +10211,9 @@ extension on Translations {
 			'log.exportHistoryLogs' => 'Export History Logs',
 			'log.exportHistoryLogsDesc' => 'Export logs within a specified date range',
 			'log.exportMergedLogs' => 'Export Merged Logs',
-			'log.exportMergedLogsDesc' => 'Export merged logs within a specified date range',
 			_ => null,
 		} ?? switch (path) {
+			'log.exportMergedLogsDesc' => 'Export merged logs within a specified date range',
 			'log.showLogStats' => 'Show Log Stats',
 			'log.logExportSuccess' => 'Log export success',
 			'log.logExportFailed' => ({required Object error}) => 'Log export failed: ${error}',

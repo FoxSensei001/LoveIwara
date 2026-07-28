@@ -600,6 +600,7 @@ settings:
   appLockDisabledSummary: Off
   appLockTimeout: Lock after leaving app
   appLockTimeoutDesc: Time allowed in the background before authentication is required
+  appLockTimeoutDisabled: Disabled
   appLockImmediately: Immediately
   appLockSeconds: '${seconds} seconds'
   appLockMinutes: '${minutes} minutes'

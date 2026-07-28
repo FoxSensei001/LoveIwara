@@ -607,6 +607,7 @@ settings:
   appLockDisabledSummary: 未开启
   appLockTimeout: 离开应用后锁定
   appLockTimeoutDesc: 应用进入后台多久后需要重新验证
+  appLockTimeoutDisabled: 禁用
   appLockImmediately: 立即
   appLockSeconds: '${seconds} 秒'
   appLockMinutes: '${minutes} 分钟'

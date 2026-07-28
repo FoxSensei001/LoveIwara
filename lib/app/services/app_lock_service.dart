@@ -175,7 +175,9 @@ class AppLockService extends GetxService {
     final backgroundedAt = _backgroundedAt;
     _backgroundedAt = null;
     if (backgroundedAt == null) return;
-    if (DateTime.now().difference(backgroundedAt).inSeconds >= timeoutSeconds) {
+    final timeout = timeoutSeconds;
+    if (timeout < 0) return;
+    if (DateTime.now().difference(backgroundedAt).inSeconds >= timeout) {
       isLocked.value = true;
     }
   }

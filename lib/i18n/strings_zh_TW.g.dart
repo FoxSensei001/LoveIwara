@@ -748,6 +748,7 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get appLockDisabledSummary => '未開啟';
 	@override String get appLockTimeout => '離開應用程式後鎖定';
 	@override String get appLockTimeoutDesc => '應用程式進入背景多久後需要重新驗證';
+	@override String get appLockTimeoutDisabled => '停用';
 	@override String get appLockImmediately => '立即';
 	@override String appLockSeconds({required Object seconds}) => '${seconds} 秒';
 	@override String appLockMinutes({required Object minutes}) => '${minutes} 分鐘';
@@ -3960,6 +3961,7 @@ extension on TranslationsZhTw {
 			'settings.appLockDisabledSummary' => '未開啟',
 			'settings.appLockTimeout' => '離開應用程式後鎖定',
 			'settings.appLockTimeoutDesc' => '應用程式進入背景多久後需要重新驗證',
+			'settings.appLockTimeoutDisabled' => '停用',
 			'settings.appLockImmediately' => '立即',
 			'settings.appLockSeconds' => ({required Object seconds}) => '${seconds} 秒',
 			'settings.appLockMinutes' => ({required Object minutes}) => '${minutes} 分鐘',
@@ -4410,9 +4412,9 @@ extension on TranslationsZhTw {
 			'oreno3d.errors.requestFailed' => '請求失敗，狀態碼',
 			'oreno3d.errors.connectionTimeout' => '連接超時，請檢查網路連接',
 			'oreno3d.errors.sendTimeout' => '發送請求超時',
-			'oreno3d.errors.receiveTimeout' => '接收響應超時',
 			_ => null,
 		} ?? switch (path) {
+			'oreno3d.errors.receiveTimeout' => '接收響應超時',
 			'oreno3d.errors.badCertificate' => '證書驗證失敗',
 			'oreno3d.errors.resourceNotFound' => '請求的資源不存在',
 			'oreno3d.errors.accessDenied' => '訪問被拒絕，可能需要驗證或權限',
@@ -4924,9 +4926,9 @@ extension on TranslationsZhTw {
 			'download.completed' => '已完成',
 			'download.downloadDetail' => '下載詳情',
 			'download.copy' => '複製',
-			'download.copySuccess' => '已複製',
 			_ => null,
 		} ?? switch (path) {
+			'download.copySuccess' => '已複製',
 			'download.waiting' => '等待中',
 			'download.paused' => '暫停中',
 			'download.downloadingOnlyDownloaded' => ({required Object downloaded}) => '下載中 ${downloaded}',
@@ -5438,9 +5440,9 @@ extension on TranslationsZhTw {
 			'emoji.large' => '大',
 			'emoji.extraLarge' => '超大',
 			'emoji.copyEmojiLinkSuccess' => '表情包連結已複製',
-			'emoji.preview' => '表情包預覽',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.preview' => '表情包預覽',
 			'emoji.library' => '表情包庫',
 			'emoji.noEmojis' => '暫無表情包',
 			'emoji.clickToAddEmojis' => '點擊右上角按鈕添加表情包',

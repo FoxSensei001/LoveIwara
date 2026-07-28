@@ -601,6 +601,7 @@ settings:
   appLockDisabledSummary: オフ
   appLockTimeout: アプリを離れた後にロック
   appLockTimeoutDesc: バックグラウンド移行後、再認証を要求するまでの時間
+  appLockTimeoutDisabled: 無効
   appLockImmediately: すぐに
   appLockSeconds: '${seconds} 秒'
   appLockMinutes: '${minutes} 分'
