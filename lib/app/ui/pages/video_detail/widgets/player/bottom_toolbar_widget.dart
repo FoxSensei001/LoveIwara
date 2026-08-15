@@ -1,3 +1,6 @@
+import 'dart:math' as math;
+
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -19,6 +22,51 @@ import '../../controllers/my_video_state_controller.dart';
 import 'custom_slider_bar_shape_widget.dart';
 import 'toolbar_fade_visibility.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
+
+/// 底部工具栏的预估高度。放在这里而不是调用方，是为了让它跟着本文件的布局一起改，
+/// 两边不会各自漂移 —— 之前 64/108 两个魔数就是这么和真实高度对不上的。
+///
+/// 只给「需要给播放条让位」的图层用（例如错误浮层的底部预留）。预估值宁可略大，
+/// 但调用方必须再按可用高度夹一次：Flex 的 clipBehavior 是 Clip.none，
+/// 预留过头会让子组件溢出画到播放条上，按钮反而把点击吃掉（issue #110 的同类问题）。
+double bottomToolbarEstimatedHeight({
+  required bool isFullScreen,
+  required bool isSmallScreen, // MediaQuery.size.width < 600，看的是窗口不是播放器
+  required bool showResumeTip, // controller.showResumePositionTip.value
+  required bool showQuickActions, // isFullScreen && userService.hasLoadedProfile
+  required double bottomInset, // applyBottomSafeAreaPadding 时的 computeBottomSafeInset
+  required TextScaler textScaler,
+}) {
+  const double vPad = 8.0; // Container 上下各 4
+  const double progressBar = 20.0; // _thumbOverlayRadius(10) * 2
+  final double controlRow = isFullScreen
+      ? (isSmallScreen ? 36.0 : 40.0)
+      : (isSmallScreen ? 32.0 : 36.0);
+
+  // 续播提示：Padding(bottom 8) + Container(vertical 6 x2) + Row 高度
+  // = max(文字行盒, 关闭图标 16)。
+  // 1.45 是中日韩字体的行高比（Noto Sans CJK / PingFang）；主题没设 textTheme
+  // 的 height，行高由字体决定，这里按最坏情况预留。
+  final double tipLine = textScaler.scale(isFullScreen ? 14.0 : 12.0) * 1.45;
+  final double resumeTip = showResumeTip
+      ? 8.0 + 12.0 + math.max(tipLine, 16.0)
+      : 0.0;
+
+  // 全屏顶部互动层：Container(vertical 4 x2) + Row(TextButton.icon / 头像 30 / 28)。
+  // TextButton 的 M3 最小高度是 40，但移动端 materialTapTargetSize 仍是 padded，
+  // _InputPadding 会把它抬到 kMinInteractiveDimension = 48；桌面端是 compact -> 32。
+  final double buttonBox = switch (defaultTargetPlatform) {
+    TargetPlatform.android ||
+    TargetPlatform.iOS ||
+    TargetPlatform.fuchsia => kMinInteractiveDimension,
+    _ => 32.0,
+  };
+  final double quickActions = showQuickActions
+      ? 8.0 + math.max(buttonBox, 30.0)
+      : 0.0;
+
+  return quickActions + vPad + progressBar + controlRow + resumeTip + bottomInset;
+}
 
 class BottomToolbar extends StatelessWidget {
   final MyVideoStateController myVideoStateController;

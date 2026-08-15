@@ -2051,6 +2051,21 @@ mediaPlayer:
   videoLoadErrorWithDetail: "Video load error: ${event}"
   playbackFailureDiagnosticsHint: "Repeated playback failures detected. Go to Settings > Diagnostics & Feedback to export logs."
   openSettingsAction: "View"
+
+  # Player notice chip & playback issue sheet
+  notice:
+    semanticsPrefix: "Playback notice: ${message}"
+    networkUnstable: "Check your network; playback may stutter"
+    audioTrackUnavailable: "No sound available; the video keeps playing"
+    hardwareDecodeFellBack: "Switched to software decoding; may use more power"
+    videoDecodeProblem: "Try another quality; the picture may glitch"
+    repeatedPlaybackProblems: "Export logs to report repeated playback issues"
+    issuesSheetTitle: "Playback issues"
+    issueOccurrences: "Occurred ${count} times"
+    issueAtPosition: "At ${position}"
+    noIssuesRecorded: "No issues recorded"
+    exportLogsAction: "Export logs"
+
   # Image Widget
   imageLoadFailed: "Image Load Failed"
   unsupportedImageFormat: "Unsupported Image Format"

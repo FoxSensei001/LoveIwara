@@ -4360,6 +4360,8 @@ class TranslationsMediaPlayerEn {
 	/// en: 'View'
 	String get openSettingsAction => 'View';
 
+	late final TranslationsMediaPlayerNoticeEn notice = TranslationsMediaPlayerNoticeEn._(_root);
+
 	/// en: 'Image Load Failed'
 	String get imageLoadFailed => 'Image Load Failed';
 
@@ -7591,6 +7593,48 @@ class TranslationsTranslationPresetNamesEn {
 	String get zhipu => 'Zhipu GLM';
 }
 
+// Path: mediaPlayer.notice
+class TranslationsMediaPlayerNoticeEn {
+	TranslationsMediaPlayerNoticeEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Playback notice: ${message}'
+	String semanticsPrefix({required Object message}) => 'Playback notice: ${message}';
+
+	/// en: 'Check your network; playback may stutter'
+	String get networkUnstable => 'Check your network; playback may stutter';
+
+	/// en: 'No sound available; the video keeps playing'
+	String get audioTrackUnavailable => 'No sound available; the video keeps playing';
+
+	/// en: 'Switched to software decoding; may use more power'
+	String get hardwareDecodeFellBack => 'Switched to software decoding; may use more power';
+
+	/// en: 'Try another quality; the picture may glitch'
+	String get videoDecodeProblem => 'Try another quality; the picture may glitch';
+
+	/// en: 'Export logs to report repeated playback issues'
+	String get repeatedPlaybackProblems => 'Export logs to report repeated playback issues';
+
+	/// en: 'Playback issues'
+	String get issuesSheetTitle => 'Playback issues';
+
+	/// en: 'Occurred ${count} times'
+	String issueOccurrences({required Object count}) => 'Occurred ${count} times';
+
+	/// en: 'At ${position}'
+	String issueAtPosition({required Object position}) => 'At ${position}';
+
+	/// en: 'No issues recorded'
+	String get noIssuesRecorded => 'No issues recorded';
+
+	/// en: 'Export logs'
+	String get exportLogsAction => 'Export logs';
+}
+
 // Path: diagnostics.healthAlert
 class TranslationsDiagnosticsHealthAlertEn {
 	TranslationsDiagnosticsHealthAlertEn._(this._root);
@@ -9986,6 +10030,17 @@ extension on Translations {
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => 'Video load error: ${event}',
 			'mediaPlayer.playbackFailureDiagnosticsHint' => 'Repeated playback failures detected. Go to Settings > Diagnostics & Feedback to export logs.',
 			'mediaPlayer.openSettingsAction' => 'View',
+			'mediaPlayer.notice.semanticsPrefix' => ({required Object message}) => 'Playback notice: ${message}',
+			'mediaPlayer.notice.networkUnstable' => 'Check your network; playback may stutter',
+			'mediaPlayer.notice.audioTrackUnavailable' => 'No sound available; the video keeps playing',
+			'mediaPlayer.notice.hardwareDecodeFellBack' => 'Switched to software decoding; may use more power',
+			'mediaPlayer.notice.videoDecodeProblem' => 'Try another quality; the picture may glitch',
+			'mediaPlayer.notice.repeatedPlaybackProblems' => 'Export logs to report repeated playback issues',
+			'mediaPlayer.notice.issuesSheetTitle' => 'Playback issues',
+			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => 'Occurred ${count} times',
+			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'At ${position}',
+			'mediaPlayer.notice.noIssuesRecorded' => 'No issues recorded',
+			'mediaPlayer.notice.exportLogsAction' => 'Export logs',
 			'mediaPlayer.imageLoadFailed' => 'Image Load Failed',
 			'mediaPlayer.unsupportedImageFormat' => 'Unsupported Image Format',
 			'mediaPlayer.tryOtherViewer' => 'Please try using other viewers',
@@ -10110,6 +10165,8 @@ extension on Translations {
 			'log.exceedLimit' => 'Exceed Limit',
 			'log.remaining' => 'Remaining',
 			'log.currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit' => 'Current log size exceeded, please clean old logs or increase log size limit',
+			_ => null,
+		} ?? switch (path) {
 			'log.currentLogSizeAlmostExceededPleaseCleanOldLogs' => 'Current log size almost exceeded, please clean old logs',
 			'log.cleaningOldLogs' => 'Cleaning old logs...',
 			'log.logCleaningCompleted' => 'Log cleaning completed',
@@ -10121,8 +10178,6 @@ extension on Translations {
 			'log.selectLogDate' => 'Select Log Date',
 			'log.today' => 'Today',
 			'log.selectMergeRange' => 'Select Merge Range',
-			_ => null,
-		} ?? switch (path) {
 			'log.selectMergeRangeHint' => 'Please select the log time range to merge',
 			'log.selectMergeRangeDays' => ({required Object days}) => 'Recent ${days} days',
 			'log.logStats' => 'Log Stats',

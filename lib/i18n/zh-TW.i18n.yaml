@@ -2008,6 +2008,20 @@ mediaPlayer:
   playbackFailureDiagnosticsHint: "多次播放失敗，建議前往 設定 > 診斷與回饋 匯出日誌回報"
   openSettingsAction: "查看"
 
+  # 播放器提示列與問題清單
+  notice:
+    semanticsPrefix: "播放提示：${message}"
+    networkUnstable: "請檢查網路，播放可能卡頓"
+    audioTrackUnavailable: "無法播放聲音，畫面繼續播放"
+    hardwareDecodeFellBack: "已切換為軟體解碼，可能更耗電"
+    videoDecodeProblem: "可嘗試切換畫質，畫面可能破圖"
+    repeatedPlaybackProblems: "匯出日誌回報：播放多次出錯"
+    issuesSheetTitle: "播放問題"
+    issueOccurrences: "出現 ${count} 次"
+    issueAtPosition: "位於 ${position}"
+    noIssuesRecorded: "暫無問題記錄"
+    exportLogsAction: "匯出日誌"
+
 diagnostics:
   infoSectionTitle: "診斷資訊"
   appVersionLabel: "應用版本"

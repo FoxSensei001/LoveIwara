@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,10 +15,12 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/keybinding_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_action.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
+import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/blurred_thumbnail_background.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/rapple_painter.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -32,6 +37,8 @@ import 'video_zoom_view.dart';
 import 'widgets/playback_speed_animation_widget.dart';
 import 'widgets/loading_state_widget.dart';
 import 'widgets/error_state_widget.dart';
+import 'widgets/playback_issue_sheet.dart';
+import 'widgets/player_notice_chip.dart';
 import '../../controllers/my_video_state_controller.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
 
@@ -962,6 +969,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                             enabled: zoomEnabled,
                             child: _buildPlayerStack(
                               screenSize,
+                              paddingTop,
                               playPauseIconSize,
                               bufferingSize,
                               maxRadius,
@@ -986,6 +994,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
   Widget _buildPlayerStack(
     Size screenSize,
+    double paddingTop,
     double playPauseIconSize,
     double bufferingSize,
     double maxRadius,
@@ -1001,6 +1010,10 @@ class _MyVideoScreenState extends State<MyVideoScreen>
           // 视频播放区域
           _buildVideoPlayer(),
           if (showInitialPlaybackCover) _buildInitialPlaybackCover(),
+          // 播放提示胶囊：刻意排在手势层之前。后面的兄弟节点天然画在它上面，
+          // 双击快进胶囊、音量/亮度 HUD、错误浮层因此都会盖住它，不用额外处理。
+          if (controller.shouldShowOverlayHud)
+            _buildPlayerNotice(screenSize, paddingTop),
           // 手势监听区域（抽取后减少整体重绘）
           if (showPlaybackChrome) ..._buildGestureAreas(screenSize),
           // 工具栏部分
@@ -1008,7 +1021,12 @@ class _MyVideoScreenState extends State<MyVideoScreen>
           // 双击波纹动画等效果
           if (showPlaybackChrome) _buildRippleEffects(screenSize, maxRadius),
           // 中央控制面板，比如播放/暂停按钮
-          _buildVideoControlOverlay(playPauseIconSize, bufferingSize),
+          _buildVideoControlOverlay(
+            screenSize,
+            paddingTop,
+            playPauseIconSize,
+            bufferingSize,
+          ),
           if (controller.shouldShowLoadingBackButton) _buildLoadingBackButton(),
           // InfoMessage 提示区域
           if (controller.shouldShowOverlayHud) _buildInfoMessage(),
@@ -1025,6 +1043,77 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         ],
       );
     });
+  }
+
+  /// 播放提示胶囊的锚点。几何全部在这里算好，胶囊只管渲染，
+  /// 这样图库那两个小播放器可以复用同一个组件配另一套几何。
+  Widget _buildPlayerNotice(Size screenSize, double paddingTop) {
+    final MediaQueryData mq = MediaQuery.of(context);
+
+    // 顶部工具栏是 Positioned(top: -paddingTop) 配 height: toolbarHeight + 状态栏，
+    // 所以不论状态栏内边距是多少，它的下边缘在 Stack 坐标系里恰好等于 toolbarHeight。
+    final double toolbarHeight = playerTopToolbarHeight(widget.isFullScreen);
+    const double gap = 8.0; // 纯设计留白，这里唯一的自由数字
+
+    // 要的是 Stack 的高度而不是窗口高度：外层 Container 带 padding.top = paddingTop。
+    final double stackH = screenSize.height - paddingTop;
+    final double stackW = screenSize.width;
+
+    // 中央播放/暂停按钮的上边缘。它的尺寸只由宽度推导，宽而扁的画面里会异常大。
+    final double centreSize = (stackW * 0.15).clamp(40.0, 100.0);
+    final double centreTop = (stackH - centreSize) / 2;
+
+    // 工具栏与中央按钮之间这一条才是提示条的地盘，别处都已经有主人了。
+    final double band = centreTop - (toolbarHeight + gap);
+
+    // 胶囊高度 = 上下各 6 的内边距 + max(图标 16, 行数 × 行盒)。
+    // 字号看播放器实际宽度而不是 widget.isFullScreen：桌面端「应用内全屏」传的是
+    // isFullScreen: false，但它其实占满整个窗口。
+    final double fontSize = stackW >= 900 ? 13.0 : 12.0;
+    final double line = mq.textScaler.scale(fontSize) * 1.45; // 中日韩最坏行高比
+    final double oneLine = 12.0 + math.max(16.0, line);
+    final double twoLine = 12.0 + math.max(16.0, line * 2);
+
+    // 暂停后下滑看评论时播放器会折叠到 56px，此时 band 为负。Stack 默认
+    // Clip.hardEdge，硬画只会被整条裁掉，提示的停留时间在看不见的地方白烧完，
+    // 之后也没有补发，所以宁可不渲染并让中枢先挂起这条提示。
+    if (band < oneLine) {
+      widget.myVideoStateController.noticeCenter.setSurfaceAvailable(false);
+      return const SizedBox.shrink();
+    }
+    widget.myVideoStateController.noticeCenter.setSurfaceAvailable(true);
+
+    // 水平内边距按本仓库惯例是「安全区 + 外边距」而不是取 max。沉浸式下 padding
+    // 会漏报，所以和 computeBottomSafeInset 一样再兜一层 viewPadding；并且只有
+    // 播放器真的贴到屏幕边缘时才让位 —— 宽屏分栏里右侧是 350px 的信息栏。
+    final bool spansDisplayEdge =
+        widget.isFullScreen || stackW >= mq.size.width - 1.0;
+    final double safeRight = spansDisplayEdge
+        ? math.max(mq.padding.right, mq.viewPadding.right)
+        : 0.0;
+    const double margin = 12.0; // 与全屏播放列表抽屉的右边距保持一致
+
+    // 让开全屏「接着看」把手：它宽 64、右移 14，占的正是同一条横带，
+    // 而且是 Stack 的最后一个孩子，不让位就会被它的不透明缩略图盖住。
+    final double hintReserve = _canShowInnerPlaylistOverlay()
+        ? (64.0 - 14.0) + 8.0
+        : 0.0;
+
+    final double right = safeRight + margin + hintReserve;
+
+    return Positioned(
+      top: toolbarHeight + gap,
+      right: right,
+      child: PlayerNoticeChip(
+        center: widget.myVideoStateController.noticeCenter,
+        fontSize: fontSize,
+        maxLines: band >= twoLine ? 2 : 1,
+        // 只给 top/right 的 Positioned 子节点拿到的是无界约束，这个夹取是它唯一的
+        // 宽度上限；超宽会被从「左」边裁掉（x = 宽 - right - 子宽），图标先没。
+        // 320 是可读性上限：一行更长只会更难读。
+        maxWidth: math.max(0.0, math.min(320.0, stackW - right - margin)),
+      ),
+    );
   }
 
   Widget _buildVideoPlayer() {
@@ -1561,29 +1650,37 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   }
 
   Widget _buildVideoControlOverlay(
+    Size screenSize,
+    double paddingTop,
     double playPauseIconSize,
     double bufferingSize,
   ) {
     return Obx(
       () => Positioned.fill(
-        child: _buildLoadingOrControlContent(playPauseIconSize, bufferingSize),
+        child: _buildLoadingOrControlContent(
+          screenSize,
+          paddingTop,
+          playPauseIconSize,
+          bufferingSize,
+        ),
       ),
     );
   }
 
   // 构建加载或控制内容
   Widget _buildLoadingOrControlContent(
+    Size screenSize,
+    double paddingTop,
     double playPauseIconSize,
     double bufferingSize,
   ) {
     final controller = widget.myVideoStateController;
     switch (controller.centerOverlayState) {
       case VideoCenterOverlayState.sourceError:
-        return Center(
-          child: ErrorStateWidget(
-            controller: controller,
-            size: playPauseIconSize,
-          ),
+        return _buildSourceErrorOverlay(
+          screenSize,
+          paddingTop,
+          playPauseIconSize,
         );
       case VideoCenterOverlayState.loadingVideoInfo:
         return Center(child: _buildCenterOnlySpinner(playPauseIconSize));
@@ -1610,6 +1707,117 @@ class _MyVideoScreenState extends State<MyVideoScreen>
           child: _buildPlayPauseIcon(controller, playPauseIconSize),
         );
     }
+  }
+
+  /// 视频源致命错误的浮层。这一层比工具栏更早被命中测试，所以它的每一处几何
+  /// 都要按「宁可少显示，也不能溢出到播放条上」来算。
+  Widget _buildSourceErrorOverlay(
+    Size screenSize,
+    double paddingTop,
+    double playPauseIconSize,
+  ) {
+    final MediaQueryData mq = MediaQuery.of(context);
+    final double stackH = screenSize.height - paddingTop;
+
+    final double band = bottomToolbarEstimatedHeight(
+      isFullScreen: widget.isFullScreen,
+      isSmallScreen: mq.size.width < 600,
+      showResumeTip: widget.myVideoStateController.showResumePositionTip.value,
+      showQuickActions:
+          widget.isFullScreen && Get.find<UserService>().hasLoadedProfile,
+      bottomInset: (!widget.isFullScreen && widget.enableBottomSafeArea)
+          ? computeBottomSafeInset(mq)
+          : 0.0,
+      textScaler: mq.textScaler,
+    );
+
+    // 预留绝不能超过播放器给得起的量：BoxConstraints.deflate 会把负数夹到 0，
+    // 超额预留于是安静地变成 RenderFlex 溢出，而 Flex 的 clipBehavior 是 Clip.none，
+    // 子组件照样画到播放条上，ElevatedButton 把那一片点击全吃掉 —— 正是 issue #110
+    // 的翻版，而且发生在为了修它才加的这一层上。0.25 是取舍：250px 的竖屏播放器
+    // 至少要留 3/4 给内容。
+    final double reserved = math.min(band, stackH * 0.25);
+    final double available = math.max(0.0, stackH - reserved);
+
+    // ErrorStateWidget = 图标 + 16 + 标题行 + 12 + 按钮行。按钮行在移动端是 48
+    // （M3 最小 40，再被点击热区撑到 kMinInteractiveDimension），桌面端 32。
+    final double buttonRow = switch (defaultTargetPlatform) {
+      TargetPlatform.android ||
+      TargetPlatform.iOS ||
+      TargetPlatform.fuchsia => kMinInteractiveDimension,
+      _ => 32.0,
+    };
+    final double headline = mq.textScaler.scale(16.0) * 1.45 * 2; // 按两行预留
+    final double chromeH = 16.0 + headline + 12.0 + buttonRow;
+
+    // 先缩图标：playPauseIconSize 只由宽度推导，852x200 这种多窗口比例会要求
+    // 在 92px 的空间里画一个 100px 的圆。
+    final double iconSize = math.max(
+      0.0,
+      math.min(playPauseIconSize, available - chromeH - 8.0),
+    );
+
+    return Padding(
+      // Padding 放在 DecoratedBox 外面：遮罩不盖住播放条，用户想拖回进度时
+      // 不必隔着一层 55% 的黑。
+      padding: EdgeInsets.only(bottom: reserved),
+      child: DecoratedBox(
+        // 只能用 DecoratedBox，不能用 ColoredBox / Container(color:)：
+        // _RenderColoredBox 是以 HitTestBehavior.opaque 构造的，而这一层比工具栏
+        // 更早被命中测试，会直接重演 issue #110。RenderDecoratedBox 只是普通的
+        // RenderProxyBox，hitTestSelf 为 false；Padding/Center 同理，
+        // 真正会吃掉点击的只有里面那两个按钮。
+        decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.55)),
+        child: Center(
+          child: MediaQuery.withClampedTextScaling(
+            maxScaleFactor: 1.3,
+            child: available < chromeH + 8.0
+                // 图标缩到 0 都放不下完整形态：退到一行结论、不给按钮。
+                // 被裁掉一半的按钮比没有按钮更糟，详情与重试仍可从顶部工具栏进。
+                ? _buildCompactSourceError()
+                : ErrorStateWidget(
+                    controller: widget.myVideoStateController,
+                    size: iconSize,
+                    onShowErrorDetail: () => showPlaybackIssueSheet(
+                      widget.myVideoStateController.noticeCenter,
+                    ),
+                    // 本地视频模式下默认的 onRetry 是 fetchVideoSource()，
+                    // 它在 fileUrl == null 时直接返回，等于一个死按钮。
+                    onRetry: widget.myVideoStateController.isLocalVideoMode
+                        ? () => widget.myVideoStateController.refreshPlayer(
+                            seekTo:
+                                widget.myVideoStateController.currentPosition,
+                          )
+                        : null,
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 极窄播放器（多窗口、折叠屏外屏、暂停后折叠到 56px）下的降级形态。
+  Widget _buildCompactSourceError() {
+    final String message =
+        widget.myVideoStateController.videoSourceErrorMessage.value ?? '';
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.error_outline, color: Colors.red, size: 16),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              message,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: Colors.white, fontSize: 13),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildCenterOnlySpinner(double size) {

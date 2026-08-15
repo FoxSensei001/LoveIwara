@@ -18,6 +18,18 @@ import 'package:network_info_plus/network_info_plus.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import '../../../../../../common/anime4k_presets.dart';
 
+/// 顶部工具栏高度（窗口态）。设计常量，不是测量值，但必须只存在这一份 ——
+/// 任何要相对工具栏定位的图层都从这里取，否则改一处漏一处。
+const double kPlayerTopToolbarHeight = 48.0;
+
+/// 顶部工具栏高度（全屏态）。
+const double kPlayerTopToolbarHeightFullscreen = 60.0;
+
+/// 工具栏本体是 `Positioned(top: -statusBarHeight)` + `height: 本值 + statusBarHeight`，
+/// 因此不论状态栏内边距多少，它的下边缘在 Stack 坐标系里恰好等于本值。
+double playerTopToolbarHeight(bool isFullScreen) =>
+    isFullScreen ? kPlayerTopToolbarHeightFullscreen : kPlayerTopToolbarHeight;
+
 class TopToolbar extends StatefulWidget {
   final MyVideoStateController myVideoStateController;
   final bool currentScreenIsFullScreen;
@@ -400,7 +412,7 @@ class _TopToolbarState extends State<TopToolbar> {
     final t = slang.Translations.of(context);
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     final bool isFullScreen = widget.currentScreenIsFullScreen;
-    final double toolbarHeight = isFullScreen ? 60.0 : 48.0;
+    final double toolbarHeight = playerTopToolbarHeight(isFullScreen);
     final double iconSize = isFullScreen ? 24.0 : 20.0;
     final double fontSize = isFullScreen ? 18.0 : 14.0;
 

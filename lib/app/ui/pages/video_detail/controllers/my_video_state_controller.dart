@@ -19,6 +19,7 @@ import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/utils/oreno3d_match_util.dart';
 import 'package:i_iwara/app/models/oreno3d_video.model.dart';
 import 'package:i_iwara/app/services/playback_history_service.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/controllers/player_notice.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/related_media_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/dlna_cast_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/error_widget.dart';
@@ -28,6 +29,7 @@ import 'package:i_iwara/common/anime4k_presets.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/utils/mpv_tuning.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:screen_brightness/screen_brightness.dart';
@@ -358,8 +360,12 @@ class MyVideoStateController extends GetxController
   // 添加随机ID用于节流key，避免与其他视频实例冲突
   late final String randomId;
 
-  // 播放错误计数，用于引导用户反馈
-  int _playbackErrorCount = 0;
+  /// 播放提示中枢。mpv 日志、投屏与无源等提示统一收敛到这里，由播放器右上角的
+  /// 胶囊呈现；不再走 SnackBar —— 那条路会盖住播放条并吞掉它的点击（issue #110）。
+  late final PlayerNoticeCenter noticeCenter;
+
+  /// 上一次判定「播放确实往前走了」时的位置基准，用于给 noticeCenter 报进展。
+  Duration _lastPlaybackAdvanceMark = Duration.zero;
 
   // 添加倍速播放防抖定时器
   Timer? _speedChangeDebouncer;
@@ -590,6 +596,13 @@ class MyVideoStateController extends GetxController
     // 生成随机ID用于节流key
     randomId =
         '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(1000000)}';
+    noticeCenter = PlayerNoticeCenter(
+      tag: 'MyVideoStateController',
+      // 必须直接读播放器的位置：本类的 currentPosition 在 seek / 拖动期间是刻意冻住的，
+      // 拿它记「问题出现在第几秒」会全部落在同一个时间点上。
+      currentPosition: () => player.state.position,
+      isSuppressed: () => _isDisposed || isPiPMode.value,
+    );
     LogUtils.i(
       '初始化 MyVideoStateController，videoId: $videoId',
       'MyVideoStateController',
@@ -1636,6 +1649,11 @@ class MyVideoStateController extends GetxController
 
     final platform = player.platform as NativePlayer;
 
+    // mpv 网络调优（issue #110）：media_kit 把 network-timeout 硬编码成 5 秒，
+    // 过短的超时会让 mpv 频繁自我重连，而重连时的 TLS close_notify 正是那条
+    // `tcp: ffurl_write returned 0xffffd8ba`。详见 MpvTuning 的注释。
+    await MpvTuning.apply(player);
+
     try {
       // 设置视频同步模式
       String videoSync = _configService[ConfigKey.VIDEO_SYNC];
@@ -1708,6 +1726,9 @@ class MyVideoStateController extends GetxController
     _previewAutoDisposeTimer?.cancel();
     _videoSourceExpirationTimer?.cancel();
     _healthSnapshotTimer?.cancel();
+    // 提示中枢自带停留计时器与 Rx，放在这里一并释放，
+    // 避免销毁后计时器回调再去改已经没人看的状态。
+    noticeCenter.dispose();
     LogUtils.d('所有定时器已取消', 'MyVideoStateController');
 
     // 取消网络请求
@@ -2331,15 +2352,7 @@ class MyVideoStateController extends GetxController
       resolutionTag,
     );
     if (url == null || url.isEmpty) {
-      if (rootNavigatorKey.currentContext != null) {
-        ScaffoldMessenger.of(rootNavigatorKey.currentContext!).showSnackBar(
-          SnackBar(
-            content: Text(slang.t.videoDetail.noVideoSourceFound),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
+      noticeCenter.reportApp(PlayerNoticeKind.noVideoSource);
       return;
     }
 
@@ -2546,6 +2559,11 @@ class MyVideoStateController extends GetxController
   void _setupListenersAfterOpen() {
     if (_isDisposed) return;
 
+    // 每条 player.open 路径都汇到这里，是重置提示状态唯一可靠的收口点：
+    // 上一个视频（或上一档清晰度）的问题不能算到下一个头上。
+    noticeCenter.reset();
+    _lastPlaybackAdvanceMark = Duration.zero;
+
     _setupPositionListener();
     unawaited(_observePlayerLoadingSpeed());
 
@@ -2601,19 +2619,27 @@ class MyVideoStateController extends GetxController
       _addBufferRange(bufferDuration);
     });
 
-    // GPU 渲染异常（Anime4K 着色器兜底）
+    // 播放日志：Anime4K 兜底与提示中枢共用这一条流。必须读 log 而不是 error，
+    // 因为 media_kit 到 stream.error 时已经把 prefix/level 丢了，而「音频解码失败」
+    // 和「视频解码失败」只能靠 prefix 区分 —— 分错了就会去劝用户改视频解码器。
     mpvLogSubscription?.cancel();
     mpvLogSubscription = player.stream.log.listen((log) {
       if (_isDisposed) return;
-      if (activeAnime4KPresetId.isEmpty) return;
-      if (!MpvShaderFailureDetector.isRenderFailure(
+      // GPU 渲染异常（Anime4K 着色器兜底）。早退只能作用在这个分支内，
+      // 否则没开 Anime4K 时整条日志流都到不了 noticeCenter。
+      if (activeAnime4KPresetId.isNotEmpty &&
+          MpvShaderFailureDetector.isRenderFailure(
+            prefix: log.prefix,
+            level: log.level,
+            text: log.text,
+          )) {
+        unawaited(_autoDisableAnime4KOnRenderFailure(log));
+      }
+      noticeCenter.reportLog(
         prefix: log.prefix,
         level: log.level,
         text: log.text,
-      )) {
-        return;
-      }
-      unawaited(_autoDisableAnime4KOnRenderFailure(log));
+      );
     });
 
     // 异常
@@ -2623,10 +2649,13 @@ class MyVideoStateController extends GetxController
       final String event = error;
       LogUtils.w('播放器错误事件: $event', 'MyVideoStateController');
 
-      // 针对常见网络/打开失败错误进行节流重试
+      // 针对常见网络/打开失败错误进行节流重试。
+      // ffurl_write 与 ffurl_read 是同一件事的两个方向（mpv 主动断连时也会报），
+      // 只匹配读会漏掉一半的重连时机。
       if (event.startsWith('Failed to open https://') ||
           event.startsWith('Can not open external file https://') ||
           event.startsWith('tcp: ffurl_read returned ') ||
+          event.startsWith('tcp: ffurl_write returned ') ||
           event.contains('Connection timed out') ||
           event.startsWith('tcp: Connection to ')) {
         // 记录出错时的播放位置
@@ -2645,16 +2674,6 @@ class MyVideoStateController extends GetxController
                 '开始重试刷新播放器，当前缓冲状态: buffering=${videoBuffering.value}, buffers=${buffers.length}',
                 'MyVideoStateController',
               );
-              if (rootNavigatorKey.currentContext != null) {
-                ScaffoldMessenger.of(
-                  rootNavigatorKey.currentContext!,
-                ).showSnackBar(
-                  SnackBar(
-                    content: Text(slang.t.mediaPlayer.retryingOpenVideoLink),
-                    duration: const Duration(seconds: 3),
-                  ),
-                );
-              }
               await fetchVideoSource(forceRefresh: true);
               final bool ok = await refreshPlayer(seekTo: savedErrorPosition);
               if (!ok) {
@@ -2666,21 +2685,11 @@ class MyVideoStateController extends GetxController
         return;
       }
 
-      // 解码器错误提示
+      // 解码器错误：不再弹 SnackBar。stream.error 丢了 prefix，无法区分是音频还是
+      // 视频解码器出的问题，照着它劝用户改「视频解码器」经常是南辕北辙；
+      // 面向用户的结论由 noticeCenter 从 stream.log 里按 prefix 分类后给出。
       if (event.startsWith('Could not open codec')) {
         LogUtils.w('检测到解码器错误: $event', 'MyVideoStateController');
-        if (rootNavigatorKey.currentContext != null) {
-          ScaffoldMessenger.of(rootNavigatorKey.currentContext!).showSnackBar(
-            SnackBar(
-              content: Text(
-                slang.t.mediaPlayer.decoderOpenFailedWithSuggestion(
-                  event: event,
-                ),
-              ),
-              duration: const Duration(seconds: 5),
-            ),
-          );
-        }
         return;
       }
 
@@ -2692,29 +2701,8 @@ class MyVideoStateController extends GetxController
         return;
       }
 
-      // 其他错误，给出提示与日志
-      LogUtils.w('检测到其他类型的播放器错误，将显示用户提示: $event', 'MyVideoStateController');
-      _playbackErrorCount++;
-      if (rootNavigatorKey.currentContext != null) {
-        ScaffoldMessenger.of(rootNavigatorKey.currentContext!).showSnackBar(
-          SnackBar(
-            content: Text(
-              _playbackErrorCount >= 3
-                  ? '${slang.t.mediaPlayer.videoLoadErrorWithDetail(event: event)}\n${slang.t.mediaPlayer.playbackFailureDiagnosticsHint}'
-                  : slang.t.mediaPlayer.videoLoadErrorWithDetail(event: event),
-            ),
-            duration: Duration(seconds: _playbackErrorCount >= 3 ? 8 : 5),
-            action: _playbackErrorCount >= 3
-                ? SnackBarAction(
-                    label: slang.t.mediaPlayer.openSettingsAction,
-                    onPressed: () {
-                      NaviService.navigateToSettingsPage();
-                    },
-                  )
-                : null,
-          ),
-        );
-      }
+      // 其他错误只落日志。SnackBar 会盖住播放条并连它的点击一起吃掉（issue #110），
+      // 而这些原文（端口、错误码）对用户也没有可操作性。
       LogUtils.e('视频加载错误: $event', tag: 'MyVideoStateController');
     });
   }
@@ -3838,6 +3826,16 @@ class MyVideoStateController extends GetxController
         // 同时更新显示位置，确保进度条UI能正确显示
         toShowCurrentPosition.value = position;
 
+        // 进度确实往前走了 5 秒以上，说明刚才那串报错并没有真的打断播放，
+        // 把提示收起来。往回跳（seek）只挪基准，不算推进。
+        if (position < _lastPlaybackAdvanceMark) {
+          _lastPlaybackAdvanceMark = position;
+        } else if (position - _lastPlaybackAdvanceMark >=
+            const Duration(seconds: 5)) {
+          _lastPlaybackAdvanceMark = position;
+          noticeCenter.onPlaybackAdvanced();
+        }
+
         _positionUpdateThrottleTimer = Timer(throttleInterval, () {
           // 定时器触发时，如果最新位置与当前显示位置不同，则更新
           if (_isDisposed) return;
@@ -3938,7 +3936,7 @@ class MyVideoStateController extends GetxController
       LogUtils.d(
         'Health: pos=${pos}s/${total}s res=$res ${w}x$h '
             'playing=$playing buffering=$buffering bufSegs=$bufCount '
-            'state=$state local=$isLocal errors=$_playbackErrorCount',
+            'state=$state local=$isLocal',
         'PlayerHealth',
       );
     });
@@ -4151,6 +4149,10 @@ class MyVideoStateController extends GetxController
         ),
       );
 
+      // 预览播放器是对同一个 CDN 的第二条并发连接，同样吃 media_kit 那个
+      // 5 秒的 network-timeout，拖动进度条时它的重连会连累主播放器。
+      await MpvTuning.apply(previewPlayer!, tag: 'MpvTuning.preview');
+
       // 设置静音
       previewPlayer!.setVolume(0);
 
@@ -4290,14 +4292,7 @@ class MyVideoStateController extends GetxController
   void showDlnaCastDialog() {
     // 检查平台支持
     if (GetPlatform.isWeb || GetPlatform.isLinux) {
-      if (rootNavigatorKey.currentContext != null) {
-        ScaffoldMessenger.of(rootNavigatorKey.currentContext!).showSnackBar(
-          SnackBar(
-            content: Text(slang.t.videoDetail.cast.currentPlatformNotSupported),
-            duration: const Duration(seconds: 5),
-          ),
-        );
-      }
+      noticeCenter.reportApp(PlayerNoticeKind.castNotSupported);
       return;
     }
 
@@ -4306,14 +4301,7 @@ class MyVideoStateController extends GetxController
 
     final videoUrl = getCurrentVideoUrl();
     if (videoUrl == null || videoUrl.isEmpty) {
-      if (rootNavigatorKey.currentContext != null) {
-        ScaffoldMessenger.of(rootNavigatorKey.currentContext!).showSnackBar(
-          SnackBar(
-            content: Text(slang.t.videoDetail.cast.unableToGetVideoUrl),
-            duration: const Duration(seconds: 5),
-          ),
-        );
-      }
+      noticeCenter.reportApp(PlayerNoticeKind.castUrlUnavailable);
       return;
     }
 

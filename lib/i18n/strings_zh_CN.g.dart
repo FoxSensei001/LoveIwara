@@ -1614,6 +1614,7 @@ class _TranslationsMediaPlayerZhCn implements TranslationsMediaPlayerEn {
 	@override String videoLoadErrorWithDetail({required Object event}) => '视频加载错误: ${event}';
 	@override String get playbackFailureDiagnosticsHint => '多次播放失败，建议前往 设置 > 诊断与反馈 导出日志反馈';
 	@override String get openSettingsAction => '查看';
+	@override late final _TranslationsMediaPlayerNoticeZhCn notice = _TranslationsMediaPlayerNoticeZhCn._(_root);
 }
 
 // Path: diagnostics
@@ -3102,6 +3103,26 @@ class _TranslationsTranslationPresetNamesZhCn implements TranslationsTranslation
 	@override String get deepseekReasoner => 'DeepSeek 推理 (deepseek-reasoner / R1)';
 	@override String get siliconflow => 'SiliconFlow 硅基流动';
 	@override String get zhipu => '智谱 GLM';
+}
+
+// Path: mediaPlayer.notice
+class _TranslationsMediaPlayerNoticeZhCn implements TranslationsMediaPlayerNoticeEn {
+	_TranslationsMediaPlayerNoticeZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String semanticsPrefix({required Object message}) => '播放提示：${message}';
+	@override String get networkUnstable => '请检查网络，播放可能卡顿';
+	@override String get audioTrackUnavailable => '无法播放声音，画面继续播放';
+	@override String get hardwareDecodeFellBack => '已切换为软件解码，可能更耗电';
+	@override String get videoDecodeProblem => '可尝试切换清晰度，画面可能花屏';
+	@override String get repeatedPlaybackProblems => '导出日志反馈：播放多次出错';
+	@override String get issuesSheetTitle => '播放问题';
+	@override String issueOccurrences({required Object count}) => '出现 ${count} 次';
+	@override String issueAtPosition({required Object position}) => '位于 ${position}';
+	@override String get noIssuesRecorded => '暂无问题记录';
+	@override String get exportLogsAction => '导出日志';
 }
 
 // Path: diagnostics.healthAlert
@@ -5203,6 +5224,17 @@ extension on TranslationsZhCn {
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '视频加载错误: ${event}',
 			'mediaPlayer.playbackFailureDiagnosticsHint' => '多次播放失败，建议前往 设置 > 诊断与反馈 导出日志反馈',
 			'mediaPlayer.openSettingsAction' => '查看',
+			'mediaPlayer.notice.semanticsPrefix' => ({required Object message}) => '播放提示：${message}',
+			'mediaPlayer.notice.networkUnstable' => '请检查网络，播放可能卡顿',
+			'mediaPlayer.notice.audioTrackUnavailable' => '无法播放声音，画面继续播放',
+			'mediaPlayer.notice.hardwareDecodeFellBack' => '已切换为软件解码，可能更耗电',
+			'mediaPlayer.notice.videoDecodeProblem' => '可尝试切换清晰度，画面可能花屏',
+			'mediaPlayer.notice.repeatedPlaybackProblems' => '导出日志反馈：播放多次出错',
+			'mediaPlayer.notice.issuesSheetTitle' => '播放问题',
+			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => '出现 ${count} 次',
+			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => '位于 ${position}',
+			'mediaPlayer.notice.noIssuesRecorded' => '暂无问题记录',
+			'mediaPlayer.notice.exportLogsAction' => '导出日志',
 			'diagnostics.infoSectionTitle' => '诊断信息',
 			'diagnostics.appVersionLabel' => '应用版本',
 			'diagnostics.memoryUsage' => ({required Object memMB}) => '内存使用: ${memMB}MB',
@@ -5401,6 +5433,8 @@ extension on TranslationsZhCn {
 			'emoji.uploadingImages' => '正在上传图片',
 			'emoji.uploadingImagesProgress' => ({required Object count}) => '正在上传 ${count} 张图片，请稍候...',
 			'emoji.doNotCloseDialog' => '请不要关闭此对话框',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.uploadSuccess' => ({required Object count}) => '成功上传 ${count} 张图片',
 			'emoji.uploadFailed' => ({required Object count}) => '失败 ${count} 张',
 			'emoji.uploadFailedMessage' => '图片上传失败，请检查网络连接或文件格式',
@@ -5412,8 +5446,6 @@ extension on TranslationsZhCn {
 			'displaySettings.navigationOrderSettings' => '导航排序设置',
 			'displaySettings.customNavigationOrder' => '自定义导航顺序',
 			'displaySettings.customNavigationOrderDesc' => '调整底部导航栏和侧边栏中页面的显示顺序',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.title' => '布局设置',
 			'layoutSettings.descriptionTitle' => '布局配置说明',
 			'layoutSettings.descriptionContent' => '这里的配置将决定视频、图库列表页面中显示的列数。您可以选择自动模式让系统根据屏幕宽度自动调整，或选择手动模式固定列数。',
