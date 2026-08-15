@@ -7,6 +7,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_con
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as path;
+import 'package:i_iwara/utils/common_utils.dart';
 
 /// 本地视频信息展示组件
 /// 显示视频元数据（来自下载任务）或文件信息（纯本地文件）
@@ -107,7 +108,10 @@ class LocalVideoInfoWidget extends StatelessWidget {
 
             // 当前清晰度
             Obx(() {
-              final quality = controller.currentResolutionTag.value ?? '未知';
+              final quality = CommonUtils.getQualityDisplayLabel(
+                t,
+                controller.currentResolutionTag.value,
+              );
               return _buildInfoRow(
                 context,
                 t.videoDetail.localInfo.currentQuality,

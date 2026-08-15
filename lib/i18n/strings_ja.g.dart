@@ -352,6 +352,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String lastSeenAt({required Object str}) => '最終オンライン ${str}';
 	@override String get download => 'ダウンロード';
 	@override String get selectQuality => '画質を選択';
+	@override String get videoQualitySource => 'オリジナル';
 	@override String get selectImageQuality => '画質を選択';
 	@override String get imageQualityStandard => '標準';
 	@override String get imageQualityOriginal => 'オリジナル';
@@ -3589,6 +3590,7 @@ extension on TranslationsJa {
 			'common.lastSeenAt' => ({required Object str}) => '最終オンライン ${str}',
 			'common.download' => 'ダウンロード',
 			'common.selectQuality' => '画質を選択',
+			'common.videoQualitySource' => 'オリジナル',
 			'common.selectImageQuality' => '画質を選択',
 			'common.imageQualityStandard' => '標準',
 			'common.imageQualityOriginal' => 'オリジナル',
@@ -3861,9 +3863,9 @@ extension on TranslationsJa {
 			'settings.thisIsHttpProxyAddress' => 'ここにHTTPプロキシアドレスを入力してください',
 			'settings.checkProxy' => 'プロキシを確認',
 			'settings.proxyAddress' => 'プロキシアドレス',
-			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => 'プロキシサーバーのURLを入力してください（例: 127.0.0.1:8080）',
 			_ => null,
 		} ?? switch (path) {
+			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => 'プロキシサーバーのURLを入力してください（例: 127.0.0.1:8080）',
 			'settings.enableProxy' => 'プロキシを有効にする',
 			'settings.left' => '左',
 			'settings.middle' => '中央',
@@ -4375,9 +4377,9 @@ extension on TranslationsJa {
 			'signIn.invalidDate' => '日付形式が正しくありません',
 			'signIn.invalidDateRange' => '日付範囲が無効です',
 			'signIn.errorFormatText' => '日付形式が正しくありません',
-			'signIn.errorInvalidText' => '日付範囲が無効です',
 			_ => null,
 		} ?? switch (path) {
+			'signIn.errorInvalidText' => '日付範囲が無効です',
 			'signIn.errorInvalidRangeText' => '日付範囲が無効です',
 			'signIn.dateRangeCantBeMoreThanOneYear' => '日付範囲は1年を超えることはできません',
 			'signIn.signIn' => 'サインイン',
@@ -4889,9 +4891,9 @@ extension on TranslationsJa {
 			'download.stillInDevelopment' => '開発中',
 			'download.saveToAppDirectory' => 'アプリケーションディレクトリに保存',
 			'download.alreadyDownloadedWithQuality' => 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？',
-			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'すでに品質が${qualities}のタスクがあります。続けてダウンロードしますか？',
 			_ => null,
 		} ?? switch (path) {
+			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'すでに品質が${qualities}のタスクがあります。続けてダウンロードしますか？',
 			'download.otherQualities' => 'その他の品質',
 			'download.batchDownload.title' => '一括ダウンロード',
 			'download.batchDownload.downloadTaskAlreadyRunning' => 'タスクが実行中です。しばらくお待ちください',
@@ -5403,9 +5405,9 @@ extension on TranslationsJa {
 			'layoutSettings.descriptionContent' => 'ここでの設定は、動画とギャラリーリストページで表示されるカラム数を決定します。自動モードを選択して画面幅に基づいて自動調整するか、手動モードを選択してカラム数を固定できます。',
 			'layoutSettings.layoutMode' => 'レイアウトモード',
 			'layoutSettings.reset' => 'リセット',
-			'layoutSettings.autoMode' => '自動モード',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.autoMode' => '自動モード',
 			'layoutSettings.autoModeDesc' => '画面幅に基づいて自動調整',
 			'layoutSettings.manualMode' => '手動モード',
 			'layoutSettings.manualModeDesc' => '固定カラム数を使用',

@@ -247,6 +247,7 @@ common:
   lastSeenAt: '最終オンライン ${str}'
   download: ダウンロード
   selectQuality: 画質を選択
+  videoQualitySource: オリジナル
   selectImageQuality: 画質を選択
   imageQualityStandard: 標準
   imageQualityOriginal: オリジナル

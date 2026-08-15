@@ -349,6 +349,7 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String lastSeenAt({required Object str}) => '上次在线 ${str}';
 	@override String get download => '下载';
 	@override String get selectQuality => '选择画质';
+	@override String get videoQualitySource => '原画';
 	@override String get selectImageQuality => '选择清晰度';
 	@override String get imageQualityStandard => '标清';
 	@override String get imageQualityOriginal => '原画';
@@ -3591,6 +3592,7 @@ extension on TranslationsZhCn {
 			'common.lastSeenAt' => ({required Object str}) => '上次在线 ${str}',
 			'common.download' => '下载',
 			'common.selectQuality' => '选择画质',
+			'common.videoQualitySource' => '原画',
 			'common.selectImageQuality' => '选择清晰度',
 			'common.imageQualityStandard' => '标清',
 			'common.imageQualityOriginal' => '原画',
@@ -3866,9 +3868,9 @@ extension on TranslationsZhCn {
 			'settings.invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort' => '无效的代理地址格式。请使用 IP:端口 或 域名:端口 格式。',
 			'settings.proxyNormalWork' => '代理正常工作。',
 			'settings.testProxyFailedWithStatusCode' => ({required Object code}) => '代理请求失败，状态码: ${code}',
-			'settings.testProxyFailedWithException' => ({required Object exception}) => '代理请求出错: ${exception}',
 			_ => null,
 		} ?? switch (path) {
+			'settings.testProxyFailedWithException' => ({required Object exception}) => '代理请求出错: ${exception}',
 			'settings.proxyConfig' => '代理配置',
 			'settings.thisIsHttpProxyAddress' => '此处为http代理地址',
 			'settings.checkProxy' => '检查代理',
@@ -4380,9 +4382,9 @@ extension on TranslationsZhCn {
 			'signIn.consecutiveSignIns' => '连续签到天数',
 			'signIn.failureReason' => '未能坚持签到的原因',
 			'signIn.selectDateRange' => '选择日期范围',
-			'signIn.startDate' => '开始日期',
 			_ => null,
 		} ?? switch (path) {
+			'signIn.startDate' => '开始日期',
 			'signIn.endDate' => '结束日期',
 			'signIn.invalidDate' => '日期格式错误',
 			'signIn.invalidDateRange' => '日期范围无效',
@@ -4894,9 +4896,9 @@ extension on TranslationsZhCn {
 			'download.category.deleteSuccess' => '分类已删除',
 			'download.category.deleteFailed' => '删除分类失败',
 			'download.maxConcurrentDownloads' => '最大同时下载数',
-			'download.maxConcurrentDownloadsDesc' => '同时进行下载的任务数量（1-5）',
 			_ => null,
 		} ?? switch (path) {
+			'download.maxConcurrentDownloadsDesc' => '同时进行下载的任务数量（1-5）',
 			'download.downloadCompletedWithName' => ({required Object fileName}) => '下载完成: ${fileName}',
 			'download.stillInDevelopment' => '开发中',
 			'download.saveToAppDirectory' => '保存到应用目录',
@@ -5408,9 +5410,9 @@ extension on TranslationsZhCn {
 			'displaySettings.navigationOrderSettings' => '导航排序设置',
 			'displaySettings.customNavigationOrder' => '自定义导航顺序',
 			'displaySettings.customNavigationOrderDesc' => '调整底部导航栏和侧边栏中页面的显示顺序',
-			'layoutSettings.title' => '布局设置',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.title' => '布局设置',
 			'layoutSettings.descriptionTitle' => '布局配置说明',
 			'layoutSettings.descriptionContent' => '这里的配置将决定视频、图库列表页面中显示的列数。您可以选择自动模式让系统根据屏幕宽度自动调整，或选择手动模式固定列数。',
 			'layoutSettings.layoutMode' => '布局模式',

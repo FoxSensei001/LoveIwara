@@ -317,6 +317,7 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get publishedAt => '發布時間';
 	@override String get download => '下載';
 	@override String get selectQuality => '選擇畫質';
+	@override String get videoQualitySource => '原畫';
 	@override String get selectImageQuality => '選擇清晰度';
 	@override String get imageQualityStandard => '標清';
 	@override String get imageQualityOriginal => '原畫';
@@ -3557,6 +3558,7 @@ extension on TranslationsZhTw {
 			'common.publishedAt' => '發布時間',
 			'common.download' => '下載',
 			'common.selectQuality' => '選擇畫質',
+			'common.videoQualitySource' => '原畫',
 			'common.selectImageQuality' => '選擇清晰度',
 			'common.imageQualityStandard' => '標清',
 			'common.imageQualityOriginal' => '原畫',
@@ -3864,9 +3866,9 @@ extension on TranslationsZhTw {
 			'settings.thisIsHttpProxyAddress' => '此為 HTTP 代理伺服器地址',
 			'settings.checkProxy' => '檢查代理',
 			'settings.proxyAddress' => '代理地址',
-			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => '請輸入代理伺服器的 URL，例如 127.0.0.1:8080',
 			_ => null,
 		} ?? switch (path) {
+			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => '請輸入代理伺服器的 URL，例如 127.0.0.1:8080',
 			'settings.enableProxy' => '啟用代理',
 			'settings.left' => '左側',
 			'settings.middle' => '中間',
@@ -4378,9 +4380,9 @@ extension on TranslationsZhTw {
 			'firstTimeSetup.theme.title' => '主題設定',
 			'firstTimeSetup.theme.subtitle' => '選擇您喜歡的介面主題',
 			'firstTimeSetup.theme.description' => '個人化您的視覺體驗',
-			'firstTimeSetup.player.title' => '播放器設定',
 			_ => null,
 		} ?? switch (path) {
+			'firstTimeSetup.player.title' => '播放器設定',
 			'firstTimeSetup.player.subtitle' => '配置播放控制偏好',
 			'firstTimeSetup.player.description' => '您可以在此快速設定常用的播放體驗',
 			'firstTimeSetup.completion.title' => '完成設定',
@@ -4892,9 +4894,9 @@ extension on TranslationsZhTw {
 			'download.deleteByDate.noMatch' => '沒有符合條件的任務',
 			'download.deleteByDate.invalidRange' => '開始日期不能晚於結束日期',
 			'download.deleteByDate.confirmTitle' => '確認刪除',
-			'download.deleteByDate.confirmContent' => ({required Object count}) => '確定刪除這 ${count} 個下載任務及其檔案嗎？此操作無法復原。',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.confirmContent' => ({required Object count}) => '確定刪除這 ${count} 個下載任務及其檔案嗎？此操作無法復原。',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '正在刪除 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '已刪除 ${count} 個任務',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '已刪除 ${deleted} 個任務，略過 ${skipped} 個（被佔用）',
@@ -5406,9 +5408,9 @@ extension on TranslationsZhTw {
 			'emoji.createGroup' => '建立表情包分組',
 			'emoji.groupName' => '分組名稱',
 			'emoji.enterGroupName' => '請輸入分組名稱',
-			'emoji.create' => '建立',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.create' => '建立',
 			'emoji.editGroupName' => '編輯分組名稱',
 			'emoji.save' => '儲存',
 			'emoji.deleteGroup' => '刪除分組',

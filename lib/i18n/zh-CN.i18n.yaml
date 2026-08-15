@@ -245,6 +245,7 @@ common:
   lastSeenAt: '上次在线 ${str}'
   download: 下载
   selectQuality: 选择画质
+  videoQualitySource: 原画
   selectImageQuality: 选择清晰度
   imageQualityStandard: 标清
   imageQualityOriginal: 原画

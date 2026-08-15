@@ -241,6 +241,7 @@ common:
   lastSeenAt: 'Last seen ${str}'
   download: Download
   selectQuality: Select Quality
+  videoQualitySource: Source
   selectImageQuality: Select image quality
   imageQualityStandard: Standard
   imageQualityOriginal: Original

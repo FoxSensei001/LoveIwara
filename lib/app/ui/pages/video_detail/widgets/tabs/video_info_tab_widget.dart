@@ -1029,7 +1029,9 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
     const downloadIcon = Icons.download;
 
     return Obx(() {
-      final sources = widget.controller.currentVideoSourceList;
+      final sources = CommonUtils.sortVideoSourcesByQuality(
+        widget.controller.currentVideoSourceList,
+      );
       final videoInfo = widget.controller.videoInfo.value;
       final isLoading =
           widget.controller.pageLoadingState.value ==
@@ -1041,7 +1043,10 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
       final isDisabled = videoInfo == null || sources.isEmpty || isLoading;
 
       final currentQuality = _getCurrentQuality(sources);
-      final qualityLabel = currentQuality ?? t.download.errors.unknown;
+      final qualityLabel = CommonUtils.getQualityDisplayLabel(
+        t,
+        currentQuality,
+      );
 
       // 检查是否已有下载任务
       final hasDownloadTask = widget.controller.hasAnyDownloadTask.value;
@@ -1084,7 +1089,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
           ...sources.map((source) {
             return PopupMenuItem<String>(
               value: source.name ?? t.download.errors.unknown,
-              child: Text(source.name ?? t.download.errors.unknown),
+              child: Text(CommonUtils.getQualityDisplayLabel(t, source.name)),
             );
           }),
         ],
@@ -1373,7 +1378,9 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
     final t = slang.Translations.of(context);
     // 捕获页面 context：弹窗内的 context 在 pop 后会失效，重复确认框需改用它。
     final BuildContext pageContext = context;
-    final sources = widget.controller.currentVideoSourceList;
+    final sources = CommonUtils.sortVideoSourcesByQuality(
+      widget.controller.currentVideoSourceList,
+    );
 
     if (sources.isEmpty) {
       LogUtils.w('没有可用的下载源', 'VideoInfoTabWidget');
@@ -1428,7 +1435,9 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                     ),
                     ...sources.map((source) {
                       return ListTile(
-                        title: Text(source.name ?? t.download.errors.unknown),
+                        title: Text(
+                          CommonUtils.getQualityDisplayLabel(t, source.name),
+                        ),
                         onTap: () async {
                           LogUtils.d(
                             '选择下载质量: ${source.name}',

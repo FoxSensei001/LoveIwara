@@ -11,6 +11,7 @@ import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 
 /// 批量下载对话框
 /// 包含三个阶段：清晰度选择、下载进度、下载结果
@@ -189,7 +190,7 @@ class _BatchDownloadDialogState<T> extends State<BatchDownloadDialog<T>> {
               children: List.generate(_qualityOptions.length, (index) {
                 final quality = _qualityOptions[index];
                 return RadioListTile<String>(
-                  title: Text(quality),
+                  title: Text(CommonUtils.getQualityDisplayLabel(t, quality)),
                   value: quality,
                   dense: true,
                   contentPadding: EdgeInsets.zero,

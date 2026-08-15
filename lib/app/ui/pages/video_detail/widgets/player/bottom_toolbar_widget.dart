@@ -503,7 +503,7 @@ class BottomToolbar extends StatelessWidget {
                     height: 24,
                   ),
                   const SizedBox(width: 8),
-                  Text(resolution.label),
+                  Text(CommonUtils.getQualityDisplayLabel(t, resolution.label)),
                   if (isSelected) ...[
                     const Spacer(),
                     const Icon(Icons.check, color: Colors.blue),

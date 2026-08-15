@@ -819,6 +819,9 @@ class TranslationsCommonEn {
 	/// en: 'Select Quality'
 	String get selectQuality => 'Select Quality';
 
+	/// en: 'Source'
+	String get videoQualitySource => 'Source';
+
 	/// en: 'Select image quality'
 	String get selectImageQuality => 'Select image quality';
 
@@ -8292,6 +8295,7 @@ extension on Translations {
 			'common.lastSeenAt' => ({required Object str}) => 'Last seen ${str}',
 			'common.download' => 'Download',
 			'common.selectQuality' => 'Select Quality',
+			'common.videoQualitySource' => 'Source',
 			'common.selectImageQuality' => 'Select image quality',
 			'common.imageQualityStandard' => 'Standard',
 			'common.imageQualityOriginal' => 'Original',
@@ -8569,9 +8573,9 @@ extension on Translations {
 			'settings.thisIsHttpProxyAddress' => 'This is http proxy address',
 			'settings.checkProxy' => 'Check Proxy',
 			'settings.proxyAddress' => 'Proxy Address',
-			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => 'Please enter the URL of the proxy server, for example 127.0.0.1:8080',
 			_ => null,
 		} ?? switch (path) {
+			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => 'Please enter the URL of the proxy server, for example 127.0.0.1:8080',
 			'settings.enableProxy' => 'Enable Proxy',
 			'settings.left' => 'Left',
 			'settings.middle' => 'Middle',
@@ -9083,9 +9087,9 @@ extension on Translations {
 			'signIn.invalidDate' => 'Invalid Date',
 			'signIn.invalidDateRange' => 'Invalid Date Range',
 			'signIn.errorFormatText' => 'Date Format Error',
-			'signIn.errorInvalidText' => 'Invalid Date Range',
 			_ => null,
 		} ?? switch (path) {
+			'signIn.errorInvalidText' => 'Invalid Date Range',
 			'signIn.errorInvalidRangeText' => 'Invalid Date Range',
 			'signIn.dateRangeCantBeMoreThanOneYear' => 'Date range cannot be more than one year',
 			'signIn.signIn' => 'Sign In',
@@ -9597,9 +9601,9 @@ extension on Translations {
 			'download.stillInDevelopment' => 'Still in development',
 			'download.saveToAppDirectory' => 'Save to app directory',
 			'download.alreadyDownloadedWithQuality' => 'Already downloaded with the same quality, continue downloading?',
-			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Already downloaded with qualities: ${qualities}, continue downloading?',
 			_ => null,
 		} ?? switch (path) {
+			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Already downloaded with qualities: ${qualities}, continue downloading?',
 			'download.otherQualities' => 'Other qualities',
 			'download.batchDownload.title' => 'Batch Download',
 			'download.batchDownload.downloadTaskAlreadyRunning' => 'A task is already running, please wait.',
@@ -10111,9 +10115,9 @@ extension on Translations {
 			'log.selectLogDate' => 'Select Log Date',
 			'log.today' => 'Today',
 			'log.selectMergeRange' => 'Select Merge Range',
-			'log.selectMergeRangeHint' => 'Please select the log time range to merge',
 			_ => null,
 		} ?? switch (path) {
+			'log.selectMergeRangeHint' => 'Please select the log time range to merge',
 			'log.selectMergeRangeDays' => ({required Object days}) => 'Recent ${days} days',
 			'log.logStats' => 'Log Stats',
 			'log.todayLogs' => ({required Object count}) => 'Today Logs: ${count} logs',

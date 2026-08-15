@@ -255,7 +255,70 @@ class CommonUtils {
     }
   }
 
+  /// 清晰度统一排序优先级（从高到低）。source 固定最前，preview 固定最后，
+  /// 其余按分辨率数值从高到低排列。列表之外的未知清晰度排在最后，
+  /// 并保持彼此间的原始相对顺序（稳定排序）。
+  static const List<String> _qualityOrder = [
+    'source',
+    '1080',
+    '720',
+    '540',
+    '360',
+    'preview',
+  ];
+
+  /// 获取清晰度名称对应的排序权重，权重越小越靠前。
+  static int _qualitySortWeight(String? name) {
+    if (name == null) return _qualityOrder.length;
+    final index = _qualityOrder.indexOf(name.toLowerCase());
+    return index == -1 ? _qualityOrder.length : index;
+  }
+
+  /// 按统一的清晰度优先级对 [VideoSource] 列表排序，用于下载清晰度选择等场景。
+  /// 使用稳定排序（保留原始相对顺序），避免同权重项之间顺序抖动。
+  static List<VideoSource> sortVideoSourcesByQuality(
+    List<VideoSource> sources,
+  ) {
+    final indexed = sources.indexed.toList()
+      ..sort((a, b) {
+        final weightCompare = _qualitySortWeight(
+          a.$2.name,
+        ).compareTo(_qualitySortWeight(b.$2.name));
+        return weightCompare != 0 ? weightCompare : a.$1.compareTo(b.$1);
+      });
+    return indexed.map((e) => e.$2).toList();
+  }
+
+  /// 按统一的清晰度优先级对 [VideoResolution] 列表排序，用于播放器清晰度切换等场景。
+  static List<VideoResolution> sortVideoResolutionsByQuality(
+    List<VideoResolution> resolutions,
+  ) {
+    final indexed = resolutions.indexed.toList()
+      ..sort((a, b) {
+        final weightCompare = _qualitySortWeight(
+          a.$2.label,
+        ).compareTo(_qualitySortWeight(b.$2.label));
+        return weightCompare != 0 ? weightCompare : a.$1.compareTo(b.$1);
+      });
+    return indexed.map((e) => e.$2).toList();
+  }
+
+  /// 获取清晰度的本地化展示文案，如 "Source" -> "原画"、"Preview" -> "预览"。
+  /// 数字类分辨率（如 "540"、"1080"）保持原样展示，未知/空值回退为“未知”文案。
+  static String getQualityDisplayLabel(slang.Translations t, String? name) {
+    if (name == null || name.isEmpty) return t.download.errors.unknown;
+    switch (name.toLowerCase()) {
+      case 'source':
+        return t.common.videoQualitySource;
+      case 'preview':
+        return t.common.preview;
+      default:
+        return name;
+    }
+  }
+
   /// 将videoSources转换成videoResolutions
+  /// 转换结果按统一的清晰度优先级排序（source 固定最前，preview 固定最后）。
   static List<VideoResolution> convertVideoSourcesToResolutions(
     List<VideoSource>? videoSources, {
     filterPreview = false,
@@ -282,7 +345,7 @@ class CommonUtils {
       }
     }
 
-    return videoResolutions;
+    return sortVideoResolutionsByQuality(videoResolutions);
   }
 
   /// 根据清晰度标签查找对应的视频源

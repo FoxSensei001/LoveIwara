@@ -19,6 +19,7 @@ import 'package:super_clipboard/super_clipboard.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:path/path.dart' as path;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 
 class VideoDownloadTaskItem extends StatelessWidget {
   final DownloadTask task;
@@ -315,6 +316,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
     bool isSmallScreen,
     String? quality,
   ) {
+    final t = slang.Translations.of(context);
     final scale = DownloadUiScale.of(context);
     if (videoData.thumbnail == null) {
       return Container(
@@ -367,7 +369,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    quality,
+                    CommonUtils.getQualityDisplayLabel(t, quality),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
