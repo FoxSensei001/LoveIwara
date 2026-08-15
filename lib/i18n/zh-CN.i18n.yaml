@@ -1969,6 +1969,20 @@ mediaPlayer:
   playbackFailureDiagnosticsHint: "多次播放失败，建议前往 设置 > 诊断与反馈 导出日志反馈"
   openSettingsAction: "查看"
 
+  # 播放器提示条与问题清单
+  notice:
+    semanticsPrefix: "播放提示：${message}"
+    networkUnstable: "请检查网络，播放可能卡顿"
+    audioTrackUnavailable: "无法播放声音，画面继续播放"
+    hardwareDecodeFellBack: "已切换为软件解码，可能更耗电"
+    videoDecodeProblem: "可尝试切换清晰度，画面可能花屏"
+    repeatedPlaybackProblems: "导出日志反馈：播放多次出错"
+    issuesSheetTitle: "播放问题"
+    issueOccurrences: "出现 ${count} 次"
+    issueAtPosition: "位于 ${position}"
+    noIssuesRecorded: "暂无问题记录"
+    exportLogsAction: "导出日志"
+
 diagnostics:
   infoSectionTitle: "诊断信息"
   appVersionLabel: "应用版本"

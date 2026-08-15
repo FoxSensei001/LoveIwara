@@ -731,6 +731,16 @@ class NaviService {
     );
   }
 
+  // 跳转到诊断与反馈设置页（导出日志入口）
+  static void navigateToDiagnosticsSettingsPage() {
+    appRouter.push(
+      '/settings_page',
+      extra: SettingsPageExtra(
+        initialPage: ProxyUtil.isSupportedPlatform() ? 11 : 10,
+      ),
+    );
+  }
+
   // 跳转到布局设置页
   static void navigateToLayoutSettingsPage() {
     appRouter.push('/layout_settings_page');

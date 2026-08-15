@@ -1966,6 +1966,20 @@ mediaPlayer:
   playbackFailureDiagnosticsHint: "再生失敗が続いています。設定 > 診断とフィードバック からログをエクスポートして報告してください"
   openSettingsAction: "表示"
 
+  # プレーヤー通知チップと問題一覧
+  notice:
+    semanticsPrefix: "再生の通知: ${message}"
+    networkUnstable: "通信をご確認ください。再生が途切れる場合があります"
+    audioTrackUnavailable: "音声を再生できません。映像はこのまま続きます"
+    hardwareDecodeFellBack: "ソフトウェアデコードに切り替え。電池消費が増えます"
+    videoDecodeProblem: "画質の切り替えをお試しください。映像が乱れます"
+    repeatedPlaybackProblems: "ログを書き出して報告してください。エラーが続いています"
+    issuesSheetTitle: "再生の問題"
+    issueOccurrences: "${count} 回発生"
+    issueAtPosition: "位置 ${position}"
+    noIssuesRecorded: "記録された問題はありません"
+    exportLogsAction: "ログを書き出す"
+
 diagnostics:
   infoSectionTitle: "診断情報"
   appVersionLabel: "アプリバージョン"

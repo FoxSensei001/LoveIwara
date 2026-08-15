@@ -1640,6 +1640,7 @@ class _TranslationsMediaPlayerZhTw implements TranslationsMediaPlayerEn {
 	@override String videoLoadErrorWithDetail({required Object event}) => '影片載入錯誤: ${event}';
 	@override String get playbackFailureDiagnosticsHint => '多次播放失敗，建議前往 設定 > 診斷與回饋 匯出日誌回報';
 	@override String get openSettingsAction => '查看';
+	@override late final _TranslationsMediaPlayerNoticeZhTw notice = _TranslationsMediaPlayerNoticeZhTw._(_root);
 }
 
 // Path: diagnostics
@@ -3188,6 +3189,26 @@ class _TranslationsTranslationPresetNamesZhTw implements TranslationsTranslation
 	@override String get deepseekReasoner => 'DeepSeek 推理 (deepseek-reasoner / R1)';
 	@override String get siliconflow => 'SiliconFlow 矽基流動';
 	@override String get zhipu => '智譜 GLM';
+}
+
+// Path: mediaPlayer.notice
+class _TranslationsMediaPlayerNoticeZhTw implements TranslationsMediaPlayerNoticeEn {
+	_TranslationsMediaPlayerNoticeZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String semanticsPrefix({required Object message}) => '播放提示：${message}';
+	@override String get networkUnstable => '請檢查網路，播放可能卡頓';
+	@override String get audioTrackUnavailable => '無法播放聲音，畫面繼續播放';
+	@override String get hardwareDecodeFellBack => '已切換為軟體解碼，可能更耗電';
+	@override String get videoDecodeProblem => '可嘗試切換畫質，畫面可能破圖';
+	@override String get repeatedPlaybackProblems => '匯出日誌回報：播放多次出錯';
+	@override String get issuesSheetTitle => '播放問題';
+	@override String issueOccurrences({required Object count}) => '出現 ${count} 次';
+	@override String issueAtPosition({required Object position}) => '位於 ${position}';
+	@override String get noIssuesRecorded => '暫無問題記錄';
+	@override String get exportLogsAction => '匯出日誌';
 }
 
 // Path: diagnostics.healthAlert
@@ -5227,6 +5248,17 @@ extension on TranslationsZhTw {
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '影片載入錯誤: ${event}',
 			'mediaPlayer.playbackFailureDiagnosticsHint' => '多次播放失敗，建議前往 設定 > 診斷與回饋 匯出日誌回報',
 			'mediaPlayer.openSettingsAction' => '查看',
+			'mediaPlayer.notice.semanticsPrefix' => ({required Object message}) => '播放提示：${message}',
+			'mediaPlayer.notice.networkUnstable' => '請檢查網路，播放可能卡頓',
+			'mediaPlayer.notice.audioTrackUnavailable' => '無法播放聲音，畫面繼續播放',
+			'mediaPlayer.notice.hardwareDecodeFellBack' => '已切換為軟體解碼，可能更耗電',
+			'mediaPlayer.notice.videoDecodeProblem' => '可嘗試切換畫質，畫面可能破圖',
+			'mediaPlayer.notice.repeatedPlaybackProblems' => '匯出日誌回報：播放多次出錯',
+			'mediaPlayer.notice.issuesSheetTitle' => '播放問題',
+			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => '出現 ${count} 次',
+			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => '位於 ${position}',
+			'mediaPlayer.notice.noIssuesRecorded' => '暫無問題記錄',
+			'mediaPlayer.notice.exportLogsAction' => '匯出日誌',
 			'diagnostics.infoSectionTitle' => '診斷資訊',
 			'diagnostics.appVersionLabel' => '應用版本',
 			'diagnostics.memoryUsage' => ({required Object memMB}) => '記憶體使用量: ${memMB}MB',
@@ -5399,6 +5431,8 @@ extension on TranslationsZhTw {
 			'emoji.addImageUrl' => '添加圖片URL',
 			'emoji.imageUrl' => '圖片URL',
 			'emoji.enterImageUrl' => '請輸入圖片URL',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.add' => '添加',
 			'emoji.batchImport' => '批次匯入',
 			'emoji.enterJsonUrlArray' => '請輸入JSON格式的URL陣列:',
@@ -5410,8 +5444,6 @@ extension on TranslationsZhTw {
 			'emoji.createGroup' => '建立表情包分組',
 			'emoji.groupName' => '分組名稱',
 			'emoji.enterGroupName' => '請輸入分組名稱',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.create' => '建立',
 			'emoji.editGroupName' => '編輯分組名稱',
 			'emoji.save' => '儲存',

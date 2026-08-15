@@ -1609,6 +1609,7 @@ class _TranslationsMediaPlayerJa implements TranslationsMediaPlayerEn {
 	@override String videoLoadErrorWithDetail({required Object event}) => '動画読み込みエラー: ${event}';
 	@override String get playbackFailureDiagnosticsHint => '再生失敗が続いています。設定 > 診断とフィードバック からログをエクスポートして報告してください';
 	@override String get openSettingsAction => '表示';
+	@override late final _TranslationsMediaPlayerNoticeJa notice = _TranslationsMediaPlayerNoticeJa._(_root);
 }
 
 // Path: diagnostics
@@ -3097,6 +3098,26 @@ class _TranslationsTranslationPresetNamesJa implements TranslationsTranslationPr
 	@override String get deepseekReasoner => 'DeepSeek 推論 (deepseek-reasoner / R1)';
 	@override String get siliconflow => 'SiliconFlow';
 	@override String get zhipu => 'Zhipu GLM';
+}
+
+// Path: mediaPlayer.notice
+class _TranslationsMediaPlayerNoticeJa implements TranslationsMediaPlayerNoticeEn {
+	_TranslationsMediaPlayerNoticeJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String semanticsPrefix({required Object message}) => '再生の通知: ${message}';
+	@override String get networkUnstable => '通信をご確認ください。再生が途切れる場合があります';
+	@override String get audioTrackUnavailable => '音声を再生できません。映像はこのまま続きます';
+	@override String get hardwareDecodeFellBack => 'ソフトウェアデコードに切り替え。電池消費が増えます';
+	@override String get videoDecodeProblem => '画質の切り替えをお試しください。映像が乱れます';
+	@override String get repeatedPlaybackProblems => 'ログを書き出して報告してください。エラーが続いています';
+	@override String get issuesSheetTitle => '再生の問題';
+	@override String issueOccurrences({required Object count}) => '${count} 回発生';
+	@override String issueAtPosition({required Object position}) => '位置 ${position}';
+	@override String get noIssuesRecorded => '記録された問題はありません';
+	@override String get exportLogsAction => 'ログを書き出す';
 }
 
 // Path: diagnostics.healthAlert
@@ -5193,6 +5214,17 @@ extension on TranslationsJa {
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '動画読み込みエラー: ${event}',
 			'mediaPlayer.playbackFailureDiagnosticsHint' => '再生失敗が続いています。設定 > 診断とフィードバック からログをエクスポートして報告してください',
 			'mediaPlayer.openSettingsAction' => '表示',
+			'mediaPlayer.notice.semanticsPrefix' => ({required Object message}) => '再生の通知: ${message}',
+			'mediaPlayer.notice.networkUnstable' => '通信をご確認ください。再生が途切れる場合があります',
+			'mediaPlayer.notice.audioTrackUnavailable' => '音声を再生できません。映像はこのまま続きます',
+			'mediaPlayer.notice.hardwareDecodeFellBack' => 'ソフトウェアデコードに切り替え。電池消費が増えます',
+			'mediaPlayer.notice.videoDecodeProblem' => '画質の切り替えをお試しください。映像が乱れます',
+			'mediaPlayer.notice.repeatedPlaybackProblems' => 'ログを書き出して報告してください。エラーが続いています',
+			'mediaPlayer.notice.issuesSheetTitle' => '再生の問題',
+			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => '${count} 回発生',
+			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => '位置 ${position}',
+			'mediaPlayer.notice.noIssuesRecorded' => '記録された問題はありません',
+			'mediaPlayer.notice.exportLogsAction' => 'ログを書き出す',
 			'diagnostics.infoSectionTitle' => '診断情報',
 			'diagnostics.appVersionLabel' => 'アプリバージョン',
 			'diagnostics.memoryUsage' => ({required Object memMB}) => 'メモリ使用量: ${memMB}MB',
@@ -5396,6 +5428,8 @@ extension on TranslationsJa {
 			'emoji.uploadFailedMessage' => '画像のアップロードに失敗しました。ネットワーク接続またはファイル形式を確認してください',
 			'emoji.uploadErrorMessage' => ({required Object error}) => 'アップロード中にエラーが発生しました: ${error}',
 			'displaySettings.title' => '表示設定',
+			_ => null,
+		} ?? switch (path) {
 			'displaySettings.layoutSettings' => 'レイアウト設定',
 			'displaySettings.layoutSettingsDesc' => 'カラム数とブレークポイント設定をカスタマイズ',
 			'displaySettings.gridLayout' => 'グリッドレイアウト',
@@ -5407,8 +5441,6 @@ extension on TranslationsJa {
 			'layoutSettings.descriptionContent' => 'ここでの設定は、動画とギャラリーリストページで表示されるカラム数を決定します。自動モードを選択して画面幅に基づいて自動調整するか、手動モードを選択してカラム数を固定できます。',
 			'layoutSettings.layoutMode' => 'レイアウトモード',
 			'layoutSettings.reset' => 'リセット',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.autoMode' => '自動モード',
 			'layoutSettings.autoModeDesc' => '画面幅に基づいて自動調整',
 			'layoutSettings.manualMode' => '手動モード',
