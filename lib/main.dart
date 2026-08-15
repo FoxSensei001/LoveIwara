@@ -231,7 +231,26 @@ class DesktopWindowListener extends WindowListener {
       const Duration(milliseconds: 1500),
       onTimeout: () {},
     );
-    exit(0);
+    // 4. 通过 window_manager.destroy() 让原生窗口有序销毁并退出，而不是用
+    //    dart:io 的 exit(0) 强杀进程。setPreventClose(true) 拦截的是 WM_CLOSE，
+    //    destroy() 走 WM_DESTROY，不会被拦截，也不会二次触发本回调。
+    //
+    //    为什么不能用 exit(0)：exit(0) 会立即触发 C 运行时退出与 DLL 卸载，
+    //    而此时 media_kit(libmpv) 的播放线程、Flutter 引擎的 GPU/ANGLE 渲染
+    //    线程可能仍存活（关窗时 GetX 控制器并不会被销毁，播放器 mpv 实例仍在
+    //    运行）。这些原生线程在 DLL 被卸载后访问失效内存，会让 Windows 弹出
+    //    内核级的 "Unknown Hard Error" 对话框（见 issue #107）。
+    //    destroy() → WM_DESTROY → PostQuitMessage(0) → 原生消息循环退出 →
+    //    FlutterWindow::OnDestroy 释放引擎 → CoUninitialize → 进程正常结束，
+    //    是一条让原生侧有序收尾的干净退出路径。
+    try {
+      await windowManager.destroy();
+    } catch (e) {
+      // 兜底：极端情况下 destroy 失败，仍退出避免窗口卡死。此时崩溃标记已删，
+      // 不会误报为崩溃。
+      LogUtils.w('windowManager.destroy() 失败，回退到 exit(0): $e', '桌面监听器');
+      exit(0);
+    }
   }
 
   @override
