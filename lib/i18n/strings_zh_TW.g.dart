@@ -2125,6 +2125,8 @@ class _TranslationsAnime4kZhTw implements TranslationsAnime4kEn {
 	@override late final _TranslationsAnime4kPresetDescriptionsZhTw presetDescriptions = _TranslationsAnime4kPresetDescriptionsZhTw._(_root);
 	@override late final _TranslationsAnime4kPresetNamesZhTw presetNames = _TranslationsAnime4kPresetNamesZhTw._(_root);
 	@override String get performanceTip => '💡 提示：根據裝置性能選擇合適的預設，低端裝置建議選擇輕量級預設。';
+	@override String get compatibilityTip => '⚠️ 部分行動裝置 GPU（如麒麟 980 / Mali-G76）無法渲染任何自訂著色器。若開啟後出現「有聲音但畫面全黑」，請在此關閉 Anime4K。';
+	@override String get autoDisabledOnRenderFailure => '目前裝置 GPU 無法渲染 Anime4K 著色器，已自動關閉。';
 }
 
 // Path: siteMode
@@ -5652,6 +5654,8 @@ extension on TranslationsZhTw {
 			'anime4k.presetNames.mode_a_fast_darken' => 'Mode A (Fast) + 線條加深',
 			'anime4k.presetNames.mode_a_hq_thin' => 'Mode A (HQ) + 線條細化',
 			'anime4k.performanceTip' => '💡 提示：根據裝置性能選擇合適的預設，低端裝置建議選擇輕量級預設。',
+			'anime4k.compatibilityTip' => '⚠️ 部分行動裝置 GPU（如麒麟 980 / Mali-G76）無法渲染任何自訂著色器。若開啟後出現「有聲音但畫面全黑」，請在此關閉 Anime4K。',
+			'anime4k.autoDisabledOnRenderFailure' => '目前裝置 GPU 無法渲染 Anime4K 著色器，已自動關閉。',
 			'siteMode.title' => '站點模式',
 			'siteMode.mainSite' => '主站',
 			'siteMode.aiSite' => 'AI站',

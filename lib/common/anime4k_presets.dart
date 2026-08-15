@@ -352,7 +352,11 @@ class Anime4KPreset {
     required this.group,
   });
 
-  /// 获取完整的shader路径列表
+  /// 获取完整的 assets 路径列表（仅用于展示/调试）
+  ///
+  /// 注意：这是 Flutter 的 asset key，不是文件系统路径，mpv 无法读取。
+  /// 要下发给 mpv 请用 [GlslShaderService.resolveShaderPaths] 解析出的真实路径，
+  /// 否则 mpv 会加载失败并渲染黑屏（仍有声音）。
   List<String> get shaderPaths {
     return shaders.map((shader) => '${Anime4KPresets.shaderBasePath}$shader').toList();
   }

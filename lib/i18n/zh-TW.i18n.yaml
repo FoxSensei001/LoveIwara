@@ -2490,6 +2490,8 @@ anime4k:
     mode_a_fast_darken: "Mode A (Fast) + 線條加深"
     mode_a_hq_thin: "Mode A (HQ) + 線條細化"
   performanceTip: "💡 提示：根據裝置性能選擇合適的預設，低端裝置建議選擇輕量級預設。"
+  compatibilityTip: "⚠️ 部分行動裝置 GPU（如麒麟 980 / Mali-G76）無法渲染任何自訂著色器。若開啟後出現「有聲音但畫面全黑」，請在此關閉 Anime4K。"
+  autoDisabledOnRenderFailure: "目前裝置 GPU 無法渲染 Anime4K 著色器，已自動關閉。"
 
 siteMode:
   title: 站點模式

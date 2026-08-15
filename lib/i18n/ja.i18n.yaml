@@ -2485,6 +2485,8 @@ anime4k:
     mode_a_fast_darken: "Mode A (Fast) + ライン暗化"
     mode_a_hq_thin: "Mode A (HQ) + ライン細化"
   performanceTip: "💡 ヒント：デバイスのパフォーマンスに基づいて適切なプリセットを選択してください。ローエンドデバイスでは軽量プリセットをお勧めします。"
+  compatibilityTip: "⚠️ 一部のモバイル GPU（Kirin 980 / Mali-G76 など）はカスタムシェーダーを一切描画できません。音声だけで画面が真っ暗になる場合は、ここで Anime4K をオフにしてください。"
+  autoDisabledOnRenderFailure: "お使いのデバイスの GPU が Anime4K シェーダーを描画できなかったため、自動的に無効化しました。"
 
 siteMode:
   title: サイトモード

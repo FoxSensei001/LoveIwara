@@ -202,6 +202,38 @@ class Anime4KSettingsWidget extends StatelessWidget {
                       ],
                     ),
                   ),
+                  // GPU 兼容性提醒：部分移动端 GPU 加载任何着色器都会黑屏（仅有声音），
+                  // 此时用户看不到画面，只能靠这里的说明找回关闭入口
+                  if (GetPlatform.isAndroid || GetPlatform.isIOS)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.orange.shade200),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.warning_amber_rounded,
+                            color: Colors.orange.shade700,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              slang.t.anime4k.compatibilityTip,
+                              style: TextStyle(
+                                color: Colors.orange.shade800,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   _buildDisableOption(context, currentPresetId),
                   // 按预设类型分组显示
                   _buildPresetGroup(

@@ -22,6 +22,8 @@ import 'package:i_iwara/app/services/playback_history_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/related_media_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/dlna_cast_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/error_widget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/services/message_service.dart';
 import 'package:i_iwara/common/anime4k_presets.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
@@ -272,6 +274,11 @@ class MyVideoStateController extends GetxController
   StreamSubscription<Duration>? bufferSubscription;
   StreamSubscription<String>? errorSubscription; // 添加错误监听订阅
   StreamSubscription<dynamic>? repeatSettingSubscription; // 监听循环播放设置变更
+  StreamSubscription<PlayerLog>? mpvLogSubscription; // 监听 mpv 日志，用于捕获着色器渲染失败
+
+  /// 当前真正下发给 mpv 的 Anime4K 预设 ID（空串表示未启用）
+  String activeAnime4KPresetId = '';
+  bool _isAutoDisablingAnime4K = false;
 
   Timer? _autoHideTimer;
   final _autoHideDelay = const Duration(seconds: 3); // 3秒后自动隐藏
@@ -1713,6 +1720,7 @@ class MyVideoStateController extends GetxController
       volumeController?.removeListener();
       _pipStatusSubscription?.cancel();
       errorSubscription?.cancel(); // 取消错误监听订阅
+      mpvLogSubscription?.cancel();
       _unobservePlayerLoadingSpeed();
       LogUtils.d('所有订阅已取消', 'MyVideoStateController');
 
@@ -1809,6 +1817,7 @@ class MyVideoStateController extends GetxController
       playingSubscription?.cancel() ?? Future.value(),
       bufferSubscription?.cancel() ?? Future.value(),
       errorSubscription?.cancel() ?? Future.value(), // 取消错误监听订阅
+      mpvLogSubscription?.cancel() ?? Future.value(),
       repeatSettingSubscription?.cancel() ?? Future.value(),
     ]);
   }
@@ -2589,6 +2598,15 @@ class MyVideoStateController extends GetxController
     bufferSubscription = player.stream.buffer.listen((bufferDuration) {
       if (_isDisposed) return;
       _addBufferRange(bufferDuration);
+    });
+
+    // GPU 渲染异常（Anime4K 着色器兜底）
+    mpvLogSubscription?.cancel();
+    mpvLogSubscription = player.stream.log.listen((log) {
+      if (_isDisposed) return;
+      if (activeAnime4KPresetId.isEmpty) return;
+      if (!_isShaderRenderFailureLog(log)) return;
+      unawaited(_autoDisableAnime4KOnRenderFailure(log));
     });
 
     // 异常
@@ -3605,6 +3623,7 @@ class MyVideoStateController extends GetxController
 
     // 如果预设ID为空字符串，表示禁用 Anime4K，清空 shader
     if (targetPresetId.isEmpty) {
+      activeAnime4KPresetId = '';
       await pp.command(['change-list', 'glsl-shaders', 'clr', '']);
       LogUtils.d('已清除 Anime4K shaders', 'MyVideoStateController');
       return;
@@ -3619,9 +3638,21 @@ class MyVideoStateController extends GetxController
       }
 
       // 构建 shader 路径
-      final shaderPaths = _buildShaderPaths(preset);
+      final shaderPaths = await _buildShaderPaths(preset);
+      if (shaderPaths == null) {
+        // 着色器文件不可用时保持关闭状态：把 mpv 读不到的路径塞进 glsl-shaders
+        // 只会让它静默渲染失败（黑屏且仍有声音），比不开启更糟
+        activeAnime4KPresetId = '';
+        await pp.command(['change-list', 'glsl-shaders', 'clr', '']);
+        LogUtils.w(
+          'Anime4K 着色器文件不可用，已跳过应用: ${preset.id}',
+          'MyVideoStateController',
+        );
+        return;
+      }
 
       // 设置 shader
+      activeAnime4KPresetId = targetPresetId;
       await pp.command(['change-list', 'glsl-shaders', 'set', shaderPaths]);
 
       LogUtils.d(
@@ -3635,52 +3666,110 @@ class MyVideoStateController extends GetxController
         error: e,
       );
       // 失败时清空 shader
+      activeAnime4KPresetId = '';
       await pp.command(['change-list', 'glsl-shaders', 'clr', '']);
     }
   }
 
-  /// 构建 shader 路径列表
-  String _buildShaderPaths(Anime4KPreset preset) {
-    try {
-      // 获取 GLSL 着色器服务
-      final glslShaderService = Get.find<GlslShaderService>();
+  /// mpv 渲染器报出的、可判定为「着色器 / GPU 管线失败」的关键字
+  ///
+  /// 部分移动端 GPU（已知如麒麟 980 的 Mali-G76）在加载任意用户着色器后，
+  /// mpv 会离开 gpu-dumb-mode 进入 FBO 渲染路径，而这些驱动在该路径上直接失败，
+  /// 表现为「有声音但画面全黑」。这类失败发生在渲染阶段，
+  /// `change-list glsl-shaders` 命令本身是成功返回的，只能从 mpv 日志里发现。
+  static const List<String> _shaderFailureKeywords = [
+    'shader',
+    'compil',
+    'fbo',
+    'framebuffer',
+    'out of memory',
+    'gl_out_of_memory',
+    'gl_invalid',
+  ];
 
-      if (!glslShaderService.isInitialized) {
-        LogUtils.w('GLSL 着色器服务未初始化，使用 assets 路径作为后备', 'MyVideoStateController');
-        return _buildShaderPathsFromAssets(preset);
+  bool _isShaderRenderFailureLog(PlayerLog log) {
+    final level = log.level.toLowerCase();
+    if (level != 'error' && level != 'fatal') return false;
+
+    // 只认渲染器发出的日志，避免解码/网络错误误伤 Anime4K
+    final prefix = log.prefix.toLowerCase();
+    if (!prefix.startsWith('vo/gpu') && !prefix.startsWith('vo/libmpv')) {
+      return false;
+    }
+
+    final text = log.text.toLowerCase();
+    return _shaderFailureKeywords.any(text.contains);
+  }
+
+  /// 检测到 GPU 渲染失败时自动关闭 Anime4K
+  ///
+  /// 黑屏状态下用户无法从画面上判断问题来源，这里直接恢复到无着色器的渲染路径，
+  /// 并把配置一并置空，避免下一个视频、下一次启动继续黑屏。
+  Future<void> _autoDisableAnime4KOnRenderFailure(PlayerLog log) async {
+    if (_isAutoDisablingAnime4K) return;
+    _isAutoDisablingAnime4K = true;
+
+    final String failedPresetId = activeAnime4KPresetId;
+    activeAnime4KPresetId = '';
+
+    LogUtils.e(
+      '检测到 GPU 渲染错误，自动关闭 Anime4K 预设 $failedPresetId: [${log.prefix}] ${log.text}',
+      tag: 'MyVideoStateController',
+    );
+
+    try {
+      _configService[ConfigKey.ANIME4K_PRESET_ID] = '';
+
+      if (!_isDisposed && player.platform is NativePlayer) {
+        await (player.platform as NativePlayer).command([
+          'change-list',
+          'glsl-shaders',
+          'clr',
+          '',
+        ]);
       }
 
-      // 将相对路径转换为临时文件路径
-      final tempShaderPaths = preset.shaders.map((shaderFile) {
-        return glslShaderService.getTempShaderPath(shaderFile);
-      }).toList();
-
-      // 根据平台拼接路径分隔符
-      if (GetPlatform.isWindows) {
-        return tempShaderPaths.join(';');
-      } else {
-        return tempShaderPaths.join(':');
+      if (Get.isRegistered<MessageService>()) {
+        Get.find<MessageService>().showMessage(
+          slang.t.anime4k.autoDisabledOnRenderFailure,
+          MDToastType.warning,
+        );
       }
     } catch (e) {
       LogUtils.e(
-        '构建 shader 路径失败，使用 assets 路径作为后备',
+        '自动关闭 Anime4K 失败',
         tag: 'MyVideoStateController',
         error: e,
       );
-      return _buildShaderPathsFromAssets(preset);
+    } finally {
+      _isAutoDisablingAnime4K = false;
     }
   }
 
-  /// 构建基于 assets 的 shader 路径列表（后备方案）
-  String _buildShaderPathsFromAssets(Anime4KPreset preset) {
-    // 获取 assets 目录下的 shader 文件路径
-    final shaderPaths = preset.shaderPaths;
+  /// 构建 shader 路径列表；任一文件不可用时返回 null（调用方应放弃应用 shader）
+  Future<String?> _buildShaderPaths(Anime4KPreset preset) async {
+    try {
+      // 获取 GLSL 着色器服务
+      if (!Get.isRegistered<GlslShaderService>()) {
+        LogUtils.w('GLSL 着色器服务未注册', 'MyVideoStateController');
+        return null;
+      }
+      final glslShaderService = Get.find<GlslShaderService>();
 
-    // 根据平台拼接路径分隔符
-    if (GetPlatform.isWindows) {
-      return shaderPaths.join(';');
-    } else {
-      return shaderPaths.join(':');
+      final tempShaderPaths = await glslShaderService.resolveShaderPaths(
+        preset.shaders,
+      );
+      if (tempShaderPaths == null) return null;
+
+      // 根据平台拼接路径分隔符
+      return tempShaderPaths.join(GetPlatform.isWindows ? ';' : ':');
+    } catch (e) {
+      LogUtils.e(
+        '构建 shader 路径失败',
+        tag: 'MyVideoStateController',
+        error: e,
+      );
+      return null;
     }
   }
 

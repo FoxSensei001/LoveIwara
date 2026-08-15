@@ -2481,6 +2481,8 @@ anime4k:
     mode_a_fast_darken: "Mode A (Fast) + Line Darkening"
     mode_a_hq_thin: "Mode A (HQ) + Line Thinning"
   performanceTip: "💡 Tip: Choose appropriate presets based on device performance. Low-end devices are recommended to use lightweight presets."
+  compatibilityTip: "⚠️ Some mobile GPUs (e.g. Kirin 980 / Mali-G76) cannot render any custom shader. If the picture turns black while audio keeps playing, turn Anime4K off here."
+  autoDisabledOnRenderFailure: "Your device's GPU failed to render the Anime4K shader, so it has been turned off automatically."
 
 siteMode:
   title: Site Mode

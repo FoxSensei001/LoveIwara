@@ -5332,6 +5332,12 @@ class TranslationsAnime4kEn {
 
 	/// en: '💡 Tip: Choose appropriate presets based on device performance. Low-end devices are recommended to use lightweight presets.'
 	String get performanceTip => '💡 Tip: Choose appropriate presets based on device performance. Low-end devices are recommended to use lightweight presets.';
+
+	/// en: '⚠️ Some mobile GPUs (e.g. Kirin 980 / Mali-G76) cannot render any custom shader. If the picture turns black while audio keeps playing, turn Anime4K off here.'
+	String get compatibilityTip => '⚠️ Some mobile GPUs (e.g. Kirin 980 / Mali-G76) cannot render any custom shader. If the picture turns black while audio keeps playing, turn Anime4K off here.';
+
+	/// en: 'Your device's GPU failed to render the Anime4K shader, so it has been turned off automatically.'
+	String get autoDisabledOnRenderFailure => 'Your device\'s GPU failed to render the Anime4K shader, so it has been turned off automatically.';
 }
 
 // Path: siteMode
@@ -10356,6 +10362,8 @@ extension on Translations {
 			'anime4k.presetNames.mode_a_fast_darken' => 'Mode A (Fast) + Line Darkening',
 			'anime4k.presetNames.mode_a_hq_thin' => 'Mode A (HQ) + Line Thinning',
 			'anime4k.performanceTip' => '💡 Tip: Choose appropriate presets based on device performance. Low-end devices are recommended to use lightweight presets.',
+			'anime4k.compatibilityTip' => '⚠️ Some mobile GPUs (e.g. Kirin 980 / Mali-G76) cannot render any custom shader. If the picture turns black while audio keeps playing, turn Anime4K off here.',
+			'anime4k.autoDisabledOnRenderFailure' => 'Your device\'s GPU failed to render the Anime4K shader, so it has been turned off automatically.',
 			'siteMode.title' => 'Site Mode',
 			'siteMode.mainSite' => 'Main',
 			'siteMode.aiSite' => 'AI',

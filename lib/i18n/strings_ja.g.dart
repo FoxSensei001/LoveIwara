@@ -2122,6 +2122,8 @@ class _TranslationsAnime4kJa implements TranslationsAnime4kEn {
 	@override late final _TranslationsAnime4kPresetDescriptionsJa presetDescriptions = _TranslationsAnime4kPresetDescriptionsJa._(_root);
 	@override late final _TranslationsAnime4kPresetNamesJa presetNames = _TranslationsAnime4kPresetNamesJa._(_root);
 	@override String get performanceTip => '💡 ヒント：デバイスのパフォーマンスに基づいて適切なプリセットを選択してください。ローエンドデバイスでは軽量プリセットをお勧めします。';
+	@override String get compatibilityTip => '⚠️ 一部のモバイル GPU（Kirin 980 / Mali-G76 など）はカスタムシェーダーを一切描画できません。音声だけで画面が真っ暗になる場合は、ここで Anime4K をオフにしてください。';
+	@override String get autoDisabledOnRenderFailure => 'お使いのデバイスの GPU が Anime4K シェーダーを描画できなかったため、自動的に無効化しました。';
 }
 
 // Path: siteMode
@@ -5646,6 +5648,8 @@ extension on TranslationsJa {
 			'anime4k.presetNames.mode_a_fast_darken' => 'Mode A (Fast) + ライン暗化',
 			'anime4k.presetNames.mode_a_hq_thin' => 'Mode A (HQ) + ライン細化',
 			'anime4k.performanceTip' => '💡 ヒント：デバイスのパフォーマンスに基づいて適切なプリセットを選択してください。ローエンドデバイスでは軽量プリセットをお勧めします。',
+			'anime4k.compatibilityTip' => '⚠️ 一部のモバイル GPU（Kirin 980 / Mali-G76 など）はカスタムシェーダーを一切描画できません。音声だけで画面が真っ暗になる場合は、ここで Anime4K をオフにしてください。',
+			'anime4k.autoDisabledOnRenderFailure' => 'お使いのデバイスの GPU が Anime4K シェーダーを描画できなかったため、自動的に無効化しました。',
 			'siteMode.title' => 'サイトモード',
 			'siteMode.mainSite' => 'メイン',
 			'siteMode.aiSite' => 'AI',

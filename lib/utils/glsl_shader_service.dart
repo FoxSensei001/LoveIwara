@@ -73,25 +73,31 @@ class GlslShaderService extends GetxService {
   }
 
   /// 复制单个 GLSL 文件
+  ///
+  /// 临时目录属于系统缓存，可能被清理、被上一次写入中断而留下半截文件；
+  /// 而 mpv 只要读到一个内容不完整的 shader 就会解析失败并渲染黑屏。
+  /// 因此这里以「字节数一致」作为跳过条件，并先写 .tmp 再 rename，
+  /// 保证目录里出现的文件一定是完整的。
   Future<void> _copyShaderFile(String assetPath) async {
     try {
       // 获取文件名
       final fileName = path.basename(assetPath);
       final tempFilePath = path.join(_tempShaderDirectory!, fileName);
 
-      // 检查文件是否已存在且是最新的
+      // 读取 assets 文件
+      final assetData = await rootBundle.load(assetPath);
+      final bytes = assetData.buffer.asUint8List();
+
+      // 已存在且大小一致，视为有效缓存，跳过复制
       final tempFile = File(tempFilePath);
-      if (await tempFile.exists()) {
-        // 如果文件已存在，跳过复制
-        // LogUtils.d('GLSL 文件已存在，跳过: $fileName', 'GlslShaderService');
+      if (await tempFile.exists() && await tempFile.length() == bytes.length) {
         return;
       }
 
-      // 读取 assets 文件
-      final assetData = await rootBundle.load(assetPath);
-
-      // 写入临时文件
-      await tempFile.writeAsBytes(assetData.buffer.asUint8List());
+      // 先写入临时文件再原子重命名，避免中断留下残缺的 shader
+      final stagingFile = File('$tempFilePath.tmp');
+      await stagingFile.writeAsBytes(bytes, flush: true);
+      await stagingFile.rename(tempFilePath);
 
       LogUtils.d('复制 GLSL 文件: $fileName -> $tempFilePath', 'GlslShaderService');
     } catch (e) {
@@ -106,6 +112,45 @@ class GlslShaderService extends GetxService {
       throw StateError('GlslShaderService 未初始化');
     }
     return path.join(_tempShaderDirectory!, fileName);
+  }
+
+  /// 确保服务可用；若首次初始化失败（或缓存目录被系统清理）则重试一次
+  Future<bool> ensureInitialized() async {
+    if (_isInitialized && _tempShaderDirectory != null) {
+      final shaderDir = Directory(_tempShaderDirectory!);
+      if (await shaderDir.exists()) {
+        return true;
+      }
+      LogUtils.w('临时着色器目录已丢失，重新初始化', 'GlslShaderService');
+      _isInitialized = false;
+    }
+
+    await init();
+    return _isInitialized;
+  }
+
+  /// 解析一组 shader 文件在磁盘上的绝对路径
+  ///
+  /// 只有当每个文件都真实存在且非空时才返回路径列表，否则返回 null。
+  /// mpv 无法读取 Flutter 的 assets 路径，把不可读的路径交给它只会静默渲染失败，
+  /// 所以调用方应当在拿到 null 时直接放弃应用 shader。
+  Future<List<String>?> resolveShaderPaths(List<String> fileNames) async {
+    if (!await ensureInitialized()) {
+      LogUtils.w('GLSL 着色器服务不可用，无法解析 shader 路径', 'GlslShaderService');
+      return null;
+    }
+
+    final resolved = <String>[];
+    for (final fileName in fileNames) {
+      final filePath = path.join(_tempShaderDirectory!, fileName);
+      final file = File(filePath);
+      if (!await file.exists() || await file.length() == 0) {
+        LogUtils.w('着色器文件缺失或为空: $fileName', 'GlslShaderService');
+        return null;
+      }
+      resolved.add(filePath);
+    }
+    return resolved;
   }
 
   /// 清理临时文件
