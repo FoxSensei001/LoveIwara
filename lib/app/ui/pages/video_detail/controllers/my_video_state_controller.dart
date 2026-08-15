@@ -38,6 +38,7 @@ import '../../../../../utils/common_utils.dart';
 import '../../../../../utils/device_form_factor_utils.dart';
 import '../../../../../utils/easy_throttle.dart';
 import '../../../../../utils/glsl_shader_service.dart';
+import '../../../../../utils/mpv_shader_failure_detector.dart';
 import '../../../../../utils/x_version_calculator_utils.dart';
 import '../../../../models/user.model.dart';
 import '../../../../models/video_source.model.dart';
@@ -2605,7 +2606,13 @@ class MyVideoStateController extends GetxController
     mpvLogSubscription = player.stream.log.listen((log) {
       if (_isDisposed) return;
       if (activeAnime4KPresetId.isEmpty) return;
-      if (!_isShaderRenderFailureLog(log)) return;
+      if (!MpvShaderFailureDetector.isRenderFailure(
+        prefix: log.prefix,
+        level: log.level,
+        text: log.text,
+      )) {
+        return;
+      }
       unawaited(_autoDisableAnime4KOnRenderFailure(log));
     });
 
@@ -3669,36 +3676,6 @@ class MyVideoStateController extends GetxController
       activeAnime4KPresetId = '';
       await pp.command(['change-list', 'glsl-shaders', 'clr', '']);
     }
-  }
-
-  /// mpv 渲染器报出的、可判定为「着色器 / GPU 管线失败」的关键字
-  ///
-  /// 部分移动端 GPU（已知如麒麟 980 的 Mali-G76）在加载任意用户着色器后，
-  /// mpv 会离开 gpu-dumb-mode 进入 FBO 渲染路径，而这些驱动在该路径上直接失败，
-  /// 表现为「有声音但画面全黑」。这类失败发生在渲染阶段，
-  /// `change-list glsl-shaders` 命令本身是成功返回的，只能从 mpv 日志里发现。
-  static const List<String> _shaderFailureKeywords = [
-    'shader',
-    'compil',
-    'fbo',
-    'framebuffer',
-    'out of memory',
-    'gl_out_of_memory',
-    'gl_invalid',
-  ];
-
-  bool _isShaderRenderFailureLog(PlayerLog log) {
-    final level = log.level.toLowerCase();
-    if (level != 'error' && level != 'fatal') return false;
-
-    // 只认渲染器发出的日志，避免解码/网络错误误伤 Anime4K
-    final prefix = log.prefix.toLowerCase();
-    if (!prefix.startsWith('vo/gpu') && !prefix.startsWith('vo/libmpv')) {
-      return false;
-    }
-
-    final text = log.text.toLowerCase();
-    return _shaderFailureKeywords.any(text.contains);
   }
 
   /// 检测到 GPU 渲染失败时自动关闭 Anime4K

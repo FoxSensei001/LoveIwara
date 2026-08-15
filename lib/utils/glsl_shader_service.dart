@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 /// GLSL 着色器文件管理服务
@@ -10,6 +12,9 @@ import 'package:i_iwara/utils/logger_utils.dart';
 class GlslShaderService extends GetxService {
   static const String shaderAssetPath = 'assets/anime4k_shaders';
   static const String shaderBasePath = 'assets/anime4k_shaders/';
+
+  /// 缓存指纹文件名，用于跳过已完成的复制流程
+  static const String _cacheStampFileName = '.cache-stamp';
 
   String? _tempShaderDirectory;
   bool _isInitialized = false;
@@ -55,9 +60,32 @@ class GlslShaderService extends GetxService {
     try {
       // 获取 assets 目录下的所有 GLSL 文件
       final assetManifest = await AssetManifest.loadFromAssetBundle(rootBundle);
-      final glslAssets = assetManifest.listAssets()
-          .where((asset) => asset.startsWith(shaderAssetPath) && asset.endsWith('.glsl'))
-          .toList();
+      final glslAssets =
+          assetManifest.listAssets()
+              .where(
+                (asset) =>
+                    asset.startsWith(shaderAssetPath) && asset.endsWith('.glsl'),
+              )
+              .toList()
+            ..sort();
+
+      // 缓存指纹命中则整轮跳过。
+      // 逐个文件比对字节数需要先把 assets 全部读出来（39 个文件约 2.4MB，
+      // 且 rootBundle.load 不走 CachingAssetBundle 的缓存，每次都是平台通道往返），
+      // 而本服务在 app_startup 中是 await 初始化的，会直接拖慢每一次冷启动 ——
+      // 哪怕用户从未开启 Anime4K。指纹带上版本号与文件清单，
+      // 应用升级或着色器增删时自动失效；debug 构建不吃缓存，方便本地改 shader。
+      final String stamp =
+          '${CommonConstants.VERSION}|${glslAssets.length}|${glslAssets.join(',')}';
+      final File stampFile = File(
+        path.join(_tempShaderDirectory!, _cacheStampFileName),
+      );
+      if (!kDebugMode &&
+          await stampFile.exists() &&
+          await stampFile.readAsString() == stamp) {
+        LogUtils.d('GLSL 缓存指纹命中，跳过复制', 'GlslShaderService');
+        return;
+      }
 
       LogUtils.d('发现 ${glslAssets.length} 个 GLSL 文件需要复制', 'GlslShaderService');
 
@@ -65,10 +93,28 @@ class GlslShaderService extends GetxService {
         await _copyShaderFile(assetPath);
       }
 
+      // 指纹最后才写，中途失败下次会重新完整复制
+      await stampFile.writeAsString(stamp, flush: true);
+
       LogUtils.d('所有 GLSL 文件复制完成', 'GlslShaderService');
     } catch (e) {
       LogUtils.e('复制 GLSL 文件时出错', tag: 'GlslShaderService', error: e);
       rethrow;
+    }
+  }
+
+  /// 作废缓存指纹，使下一次 [_copyAllShaders] 重新完整复制
+  Future<void> _invalidateCacheStamp() async {
+    if (_tempShaderDirectory == null) return;
+    try {
+      final stampFile = File(
+        path.join(_tempShaderDirectory!, _cacheStampFileName),
+      );
+      if (await stampFile.exists()) {
+        await stampFile.delete();
+      }
+    } catch (e) {
+      LogUtils.w('删除 GLSL 缓存指纹失败: $e', 'GlslShaderService');
     }
   }
 
@@ -134,7 +180,13 @@ class GlslShaderService extends GetxService {
   /// 只有当每个文件都真实存在且非空时才返回路径列表，否则返回 null。
   /// mpv 无法读取 Flutter 的 assets 路径，把不可读的路径交给它只会静默渲染失败，
   /// 所以调用方应当在拿到 null 时直接放弃应用 shader。
-  Future<List<String>?> resolveShaderPaths(List<String> fileNames) async {
+  ///
+  /// 临时目录随时可能被系统清理掉其中一部分文件，此时 [allowRepair] 会作废缓存指纹
+  /// 并重新复制一次，避免 Anime4K 在剩余进程生命周期里静默失效。
+  Future<List<String>?> resolveShaderPaths(
+    List<String> fileNames, {
+    bool allowRepair = true,
+  }) async {
     if (!await ensureInitialized()) {
       LogUtils.w('GLSL 着色器服务不可用，无法解析 shader 路径', 'GlslShaderService');
       return null;
@@ -146,7 +198,16 @@ class GlslShaderService extends GetxService {
       final file = File(filePath);
       if (!await file.exists() || await file.length() == 0) {
         LogUtils.w('着色器文件缺失或为空: $fileName', 'GlslShaderService');
-        return null;
+        if (!allowRepair) return null;
+
+        try {
+          await _invalidateCacheStamp();
+          await _copyAllShaders();
+        } catch (e) {
+          LogUtils.e('重新复制 GLSL 文件失败', tag: 'GlslShaderService', error: e);
+          return null;
+        }
+        return resolveShaderPaths(fileNames, allowRepair: false);
       }
       resolved.add(filePath);
     }
