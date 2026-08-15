@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 
@@ -9,7 +10,8 @@ import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 ///   （可选文本）收尾；
 /// - 展开态：显示完整标题；
 /// - 是否显示折叠箭头由实际测量决定：仅当文本在预留出翻译按钮宽度后仍超过
-///   [collapsedMaxLines] 行时才出现。
+///   [collapsedMaxLines] 行时才出现；此时点击标题文本本身（不止箭头）同样可以
+///   展开 / 折叠。
 class TranslatableTitle extends StatefulWidget {
   final String text;
   final TextStyle? style;
@@ -38,6 +40,20 @@ class TranslatableTitle extends StatefulWidget {
 
 class _TranslatableTitleState extends State<TranslatableTitle> {
   bool _expanded = false;
+  late final TapGestureRecognizer _titleTapRecognizer;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleTapRecognizer = TapGestureRecognizer()
+      ..onTap = () => setState(() => _expanded = !_expanded);
+  }
+
+  @override
+  void dispose() {
+    _titleTapRecognizer.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -124,35 +140,44 @@ class _TranslatableTitleState extends State<TranslatableTitle> {
                 onPressed: () => setState(() => _expanded = !_expanded),
               ),
             ),
-          TextSpan(text: displayText),
+          TextSpan(
+            text: displayText,
+            // 仅在存在折叠/展开的意义（即文本确实溢出）时才让标题文本本身可点
+            // 击触发展开/折叠，避免未溢出时误吞正常的文本点击（如选中）手势。
+            recognizer: isOverflowing ? _titleTapRecognizer : null,
+          ),
         ];
 
         final TextSpan rootSpan = TextSpan(
           style: effectiveStyle,
           children: spans,
         );
-        final int? maxLines = _expanded ? null : widget.collapsedMaxLines;
 
         // 折叠态需要用「…」提示被截断，但 SelectableText.rich 不支持
-        // overflow 省略号（maxLines 只会硬裁切）。因此仅在「展开且需可选中」
-        // 时才用 SelectableText.rich（此时是完整文本，保留可选中体验）；
-        // 其余情况（含所有折叠态）一律用支持 ellipsis 的 Text.rich。
-        final Widget textWidget = (widget.selectable && _expanded)
-            ? SelectableText.rich(rootSpan, maxLines: maxLines)
-            : Text.rich(
-                rootSpan,
-                maxLines: maxLines,
-                overflow: _expanded
-                    ? TextOverflow.clip
-                    : TextOverflow.ellipsis,
-              );
+        // overflow 省略号（maxLines 只会硬裁切），所以折叠态一律用 Text.rich；
+        // 展开态若需可选中（视频标题）则用 SelectableText.rich。
+        // 两态各自预构建成独立 child，交给 AnimatedCrossFade 统一做「尺寸 + 淡入
+        // 淡出」过渡，而不是让文本内容瞬间被替换（原先 AnimatedSize 只animate了
+        // 外层盒子大小，文字本身在折叠瞬间就已直接跳变成省略号版本）。
+        final Widget collapsedChild = Text.rich(
+          rootSpan,
+          maxLines: widget.collapsedMaxLines,
+          overflow: TextOverflow.ellipsis,
+        );
+        final Widget expandedChild = widget.selectable
+            ? SelectableText.rich(rootSpan)
+            : Text.rich(rootSpan, overflow: TextOverflow.clip);
 
-        // 展开/折叠时标题高度做形变动画（与箭头旋转同步），逐行展开而非瞬变。
-        return AnimatedSize(
+        return AnimatedCrossFade(
           duration: animDuration,
-          curve: animCurve,
+          sizeCurve: animCurve,
+          firstCurve: animCurve,
+          secondCurve: animCurve,
           alignment: Alignment.topLeft,
-          child: textWidget,
+          crossFadeState:
+              _expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+          firstChild: collapsedChild,
+          secondChild: expandedChild,
         );
       },
     );
