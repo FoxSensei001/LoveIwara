@@ -334,22 +334,6 @@ class LocalVideoInfoWidget extends StatelessWidget {
     return 0;
   }
 
-  IconData _getQualityIcon(String quality) {
-    switch (quality.toLowerCase()) {
-      case 'source':
-        return Icons.video_label;
-      case '1080':
-        return Icons.high_quality;
-      case '720':
-        return Icons.hd;
-      case '540':
-      case '360':
-        return Icons.sd;
-      default:
-        return Icons.video_settings;
-    }
-  }
-
   String _formatFileSize(int bytes) {
     if (bytes <= 0) return '0 B';
     const suffixes = ['B', 'KB', 'MB', 'GB', 'TB'];

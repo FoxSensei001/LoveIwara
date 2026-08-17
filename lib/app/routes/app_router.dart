@@ -220,12 +220,19 @@ final GoRouter appRouter = GoRouter(
     ShellRoute(
       navigatorKey: shellNavigatorKey,
       observers: [OverlayTracker.shell, routeObserver, navigationShellObserver],
+      // go_router 17 起该值默认 true：会把 GoRouter 的根观察者（OverlayTracker.root、
+      // navigationRootObserver）额外挂到本 Shell 的 Navigator 上。而 OverlayTracker
+      // 的 root/shell 两个实例共享同一个静态计数器，shell 内弹层会被重复计数。
+      // 保持 false 以维持「根与 shell 观察者各管一个 Navigator」的既有分工。
+      notifyRootObserver: false,
       builder: (context, state, child) {
         return HomeShellScaffold(currentPath: state.uri.path, child: child);
       },
       routes: [
         // 内层 StatefulShellRoute：4 个 Tab，支持状态保留的切换
         StatefulShellRoute.indexedStack(
+          // 同上：避免根观察者被重复挂载到各分支 Navigator。
+          notifyRootObserver: false,
           builder: (context, state, navigationShell) {
             // 存储 shell 引用，供 HomeShellScaffold 使用 goBranch()
             // 从 NavigationRail/BottomNav 进行 Tab 切换。

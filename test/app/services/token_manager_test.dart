@@ -17,7 +17,7 @@ String _jwt(String type, {required int expEpochSec, String? id}) {
   final payload = seg({
     'type': type,
     'exp': expEpochSec,
-    if (id != null) 'id': id,
+    'id': ?id,
   });
   return '$header.$payload.sig';
 }

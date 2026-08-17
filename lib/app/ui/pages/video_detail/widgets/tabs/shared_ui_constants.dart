@@ -49,7 +49,7 @@ class SectionHeader extends StatelessWidget {
         Expanded(
           child: Text(title, style: UIConstants.sectionHeaderStyle),
         ),
-        if (action != null) action!,
+        ?action,
       ],
     );
   }

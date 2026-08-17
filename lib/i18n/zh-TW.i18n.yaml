@@ -1442,7 +1442,6 @@ notifications:
   notifications: 通知
   profile: 個人首頁
   postedNewComment: 發表了評論
-  notifiedOn: 在您的個人首頁上發表了評論
   inYour: 在您的
   video: 影片
   repliedYourVideoComment: 回覆了您的影片評論
@@ -1452,11 +1451,9 @@ notifications:
   markAllAsRead: 全部標記已讀
   markAllAsReadSuccess: 所有通知已標記為已讀
   markAllAsReadFailed: 全部標記已讀失敗
-  markAllAsReadFailedWithException: '全部標記已讀失敗: ${exception}'
   markSelectedAsRead: 標記已讀
   markSelectedAsReadSuccess: 已標記為已讀
   markSelectedAsReadFailed: 標記已讀失敗
-  markSelectedAsReadFailedWithException: '標記已讀失敗: ${exception}'
   markAsRead: 標記已讀
   markAsReadSuccess: 已標記為已讀
   markAsReadFailed: 標記已讀失敗

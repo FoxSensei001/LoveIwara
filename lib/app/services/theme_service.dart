@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/my_app.dart' show buildThemeData, appLightTheme, appDarkTheme, appThemeMode;
+import 'package:i_iwara/app/my_app.dart' show buildThemeData, appLightTheme, appThemeMode;
 import 'package:i_iwara/common/constants.dart';
 import '../models/theme_mode.model.dart';
 

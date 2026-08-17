@@ -72,11 +72,8 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
             child: ReorderableListView.builder(
               itemCount: _groups.length,
               buildDefaultDragHandles: false,
-              onReorder: (oldIndex, newIndex) {
+              onReorderItem: (oldIndex, newIndex) {
                 setState(() {
-                  if (oldIndex < newIndex) {
-                    newIndex -= 1;
-                  }
                   final item = _groups.removeAt(oldIndex);
                   _groups.insert(newIndex, item);
 

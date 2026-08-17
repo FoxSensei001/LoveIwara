@@ -1,3 +1,6 @@
+// 独立命令行诊断脚本，输出即为其用途。
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
 import 'dart:io';
 

@@ -16,6 +16,24 @@ rootProject.buildDir = "../build"
 
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
+
+    // 部分插件仍写死较低的 compileSdk（如 irondash_engine_context 0.5.5 写死 31），
+    // 但其 AndroidX 传递依赖要求 34+，AGP 8.13 的 AAR 元数据校验会直接判失败。
+    // 这里把过低的插件抬到与 app 一致；compileSdk 只影响编译期可用 API，
+    // 不改变 minSdk/targetSdk 的运行时行为。
+    // 只抬升、不降级：permission_handler_android 14 自己要求 compileSdk 37，
+    // 若固定成统一值会把它降下来导致找不到 Android 17 的新符号。
+    // 注意：必须在 evaluationDependsOn(":app") 之前注册，否则 :app 已被求值会抛
+    // "Cannot run Project.afterEvaluate(Closure) when the project is already evaluated"。
+    if (project.name != "app") {
+        afterEvaluate {
+            if (project.hasProperty("android") && project.android.compileSdk != null
+                    && project.android.compileSdk < 36) {
+                project.android.compileSdk = 36
+            }
+        }
+    }
+
     project.evaluationDependsOn(":app")
 }
 

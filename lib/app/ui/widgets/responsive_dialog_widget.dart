@@ -75,7 +75,7 @@ class ResponsiveDialogWidget extends StatelessWidget {
       appBar: AppBar(
         title: Text(title),
         actions: [
-          if (headerActions != null) ...headerActions!,
+          ...?headerActions,
           IconButton(
             icon: const Icon(Icons.close),
             onPressed: onClose ?? () => AppService.tryPop(),

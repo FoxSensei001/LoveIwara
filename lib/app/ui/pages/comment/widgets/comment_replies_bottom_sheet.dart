@@ -211,13 +211,17 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
                   type: MDToastType.success,
                 ),
               );
-              if (mounted) {
+              // context 来自 showModalBottomSheet 的 builder，与 State 的 mounted 无关，
+              // 需用该 context 自身的 mounted 判断。
+              if (context.mounted) {
                 Navigator.pop(context); // Close input sheet
               }
-              setState(() {
-                _replyCount++;
-              });
-              _loadReplies(refresh: true); // Refresh replies
+              if (mounted) {
+                setState(() {
+                  _replyCount++;
+                });
+                _loadReplies(refresh: true); // Refresh replies
+              }
             } else {
               showToastWidget(
                 MDToastWidget(
@@ -435,7 +439,7 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
                   decoration: BoxDecoration(
                     color: Theme.of(
                       context,
-                    ).colorScheme.onSurfaceVariant.withOpacity(0.4),
+                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),

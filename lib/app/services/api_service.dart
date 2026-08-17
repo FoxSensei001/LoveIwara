@@ -210,7 +210,7 @@ class ApiService extends GetxService {
     requestOptions.extra = {
       ...?requestOptions.extra,
       _requestAccessKey: requestAccess.name,
-      if (maxNetworkRetries != null) _maxRetriesKey: maxNetworkRetries,
+      _maxRetriesKey: ?maxNetworkRetries,
     };
     if (headers != null) {
       requestOptions.headers = {...?requestOptions.headers, ...headers};

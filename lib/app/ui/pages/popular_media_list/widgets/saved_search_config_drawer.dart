@@ -129,7 +129,7 @@ class SavedSearchConfigDrawer extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   itemCount: list.length,
                   buildDefaultDragHandles: false,
-                  onReorder: (oldIndex, newIndex) =>
+                  onReorderItem: (oldIndex, newIndex) =>
                       _service.reorder(segment, oldIndex, newIndex),
                   proxyDecorator: (child, index, animation) {
                     return Material(

@@ -1184,7 +1184,6 @@ class _TranslationsNotificationsZhTw implements TranslationsNotificationsEn {
 	@override String get notifications => '通知';
 	@override String get profile => '個人首頁';
 	@override String get postedNewComment => '發表了評論';
-	@override String get notifiedOn => '在您的個人首頁上發表了評論';
 	@override String get inYour => '在您的';
 	@override String get video => '影片';
 	@override String get repliedYourVideoComment => '回覆了您的影片評論';
@@ -1194,11 +1193,9 @@ class _TranslationsNotificationsZhTw implements TranslationsNotificationsEn {
 	@override String get markAllAsRead => '全部標記已讀';
 	@override String get markAllAsReadSuccess => '所有通知已標記為已讀';
 	@override String get markAllAsReadFailed => '全部標記已讀失敗';
-	@override String markAllAsReadFailedWithException({required Object exception}) => '全部標記已讀失敗: ${exception}';
 	@override String get markSelectedAsRead => '標記已讀';
 	@override String get markSelectedAsReadSuccess => '已標記為已讀';
 	@override String get markSelectedAsReadFailed => '標記已讀失敗';
-	@override String markSelectedAsReadFailedWithException({required Object exception}) => '標記已讀失敗: ${exception}';
 	@override String get markAsRead => '標記已讀';
 	@override String get markAsReadSuccess => '已標記為已讀';
 	@override String get markAsReadFailed => '標記已讀失敗';
@@ -4718,7 +4715,6 @@ extension on TranslationsZhTw {
 			'notifications.notifications' => '通知',
 			'notifications.profile' => '個人首頁',
 			'notifications.postedNewComment' => '發表了評論',
-			'notifications.notifiedOn' => '在您的個人首頁上發表了評論',
 			'notifications.inYour' => '在您的',
 			'notifications.video' => '影片',
 			'notifications.repliedYourVideoComment' => '回覆了您的影片評論',
@@ -4728,11 +4724,9 @@ extension on TranslationsZhTw {
 			'notifications.markAllAsRead' => '全部標記已讀',
 			'notifications.markAllAsReadSuccess' => '所有通知已標記為已讀',
 			'notifications.markAllAsReadFailed' => '全部標記已讀失敗',
-			'notifications.markAllAsReadFailedWithException' => ({required Object exception}) => '全部標記已讀失敗: ${exception}',
 			'notifications.markSelectedAsRead' => '標記已讀',
 			'notifications.markSelectedAsReadSuccess' => '已標記為已讀',
 			'notifications.markSelectedAsReadFailed' => '標記已讀失敗',
-			'notifications.markSelectedAsReadFailedWithException' => ({required Object exception}) => '標記已讀失敗: ${exception}',
 			'notifications.markAsRead' => '標記已讀',
 			'notifications.markAsReadSuccess' => '已標記為已讀',
 			'notifications.markAsReadFailed' => '標記已讀失敗',
@@ -4917,11 +4911,11 @@ extension on TranslationsZhTw {
 			'download.deleteByDate.noMatch' => '沒有符合條件的任務',
 			'download.deleteByDate.invalidRange' => '開始日期不能晚於結束日期',
 			'download.deleteByDate.confirmTitle' => '確認刪除',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '確定刪除這 ${count} 個下載任務及其檔案嗎？此操作無法復原。',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '正在刪除 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '已刪除 ${count} 個任務',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '已刪除 ${deleted} 個任務，略過 ${skipped} 個（被佔用）',
 			'download.category.manageTitle' => '管理分類',
 			'download.category.label' => '分類',
@@ -5431,11 +5425,11 @@ extension on TranslationsZhTw {
 			'emoji.addImageUrl' => '添加圖片URL',
 			'emoji.imageUrl' => '圖片URL',
 			'emoji.enterImageUrl' => '請輸入圖片URL',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.add' => '添加',
 			'emoji.batchImport' => '批次匯入',
 			'emoji.enterJsonUrlArray' => '請輸入JSON格式的URL陣列:',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.formatExample' => '格式範例:\n["url1", "url2", "url3"]',
 			'emoji.pasteJsonUrlArray' => '請貼上JSON格式的URL陣列',
 			'emoji.import' => '匯入',

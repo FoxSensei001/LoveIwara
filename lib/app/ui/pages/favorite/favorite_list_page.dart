@@ -543,11 +543,8 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                 padding: const EdgeInsets.all(16),
                 itemCount: _folders.length,
                 buildDefaultDragHandles: false,
-                onReorder: (oldIndex, newIndex) {
+                onReorderItem: (oldIndex, newIndex) {
                   setState(() {
-                    if (oldIndex < newIndex) {
-                      newIndex -= 1;
-                    }
                     final folder = _folders.removeAt(oldIndex);
                     _folders.insert(newIndex, folder);
                   });

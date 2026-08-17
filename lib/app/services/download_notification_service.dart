@@ -112,7 +112,8 @@ class DownloadNotificationService extends GetxService {
     try {
       if (GetPlatform.isAndroid) {
         if (Get.isRegistered<PermissionService>()) {
-          return Get.find<PermissionService>().requestNotificationPermission();
+          return await Get.find<PermissionService>()
+              .requestNotificationPermission();
         }
         return true;
       }

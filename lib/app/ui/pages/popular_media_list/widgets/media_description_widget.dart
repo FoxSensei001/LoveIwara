@@ -213,7 +213,7 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                   opacity: animation,
                   child: SizeTransition(
                     sizeFactor: animation,
-                    axisAlignment: -1.0,
+                    alignment: Alignment.topLeft,
                     child: child,
                   ),
                 );

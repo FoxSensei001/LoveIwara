@@ -39,10 +39,7 @@ class SpecialFollowsList extends StatelessWidget {
           Expanded(
             child: ReorderableListView.builder(
               itemCount: likedUsers.length,
-              onReorder: (oldIndex, newIndex) {
-                if (oldIndex < newIndex) {
-                  newIndex -= 1;
-                }
+              onReorderItem: (oldIndex, newIndex) {
                 // 更新列表顺序
                 final UserDTO item = likedUsers.removeAt(oldIndex);
                 likedUsers.insert(newIndex, item);

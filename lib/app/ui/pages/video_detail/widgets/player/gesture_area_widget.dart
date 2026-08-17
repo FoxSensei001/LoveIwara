@@ -555,7 +555,7 @@ class GestureAreaState extends State<GestureArea>
         /// 离谱奥
         color: Colors.transparent,
         child: Stack(
-          children: [if (infoMessageWidget != null) infoMessageWidget],
+          children: [?infoMessageWidget],
         ),
       ),
     );

@@ -26,7 +26,6 @@ import '../routes/app_router.dart';
 import '../routes/home_shell_navigation.dart';
 import 'config_service.dart';
 import '../ui/widgets/restart_app_widget.dart';
-import 'auth_service.dart';
 import 'message_service.dart';
 import 'pop_coordinator.dart';
 

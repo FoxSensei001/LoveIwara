@@ -31,7 +31,7 @@ class CommentService extends GetxService {
         queryParameters: {
           'page': page,
           'limit': limit,
-          if (parentId != null) 'parent': parentId,
+          'parent': ?parentId,
         },
       );
 
@@ -85,7 +85,7 @@ class CommentService extends GetxService {
         data: {
           'body': body,
           'rulesAgreement': true,
-          if (parentId != null) 'parentId': parentId,
+          'parentId': ?parentId,
         },
       );
 
