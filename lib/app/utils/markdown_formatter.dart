@@ -128,11 +128,11 @@ class MarkdownFormatter {
     try {
       switch (type) {
         case IwaraUrlType.video:
-          return lightService.fetchLightVideoTitle(id);
+          return await lightService.fetchLightVideoTitle(id);
         case IwaraUrlType.forum:
-          return lightService.fetchLightForumTitle(id);
+          return await lightService.fetchLightForumTitle(id);
         case IwaraUrlType.image:
-          return lightService.fetchLightImageTitle(id);
+          return await lightService.fetchLightImageTitle(id);
         case IwaraUrlType.profile:
           final result = await lightService.fetchLightProfile(id);
           if (result.isSuccess && result.data != null) {
@@ -146,7 +146,7 @@ class MarkdownFormatter {
           }
           return ApiResult.fail(result.message);
         case IwaraUrlType.rule:
-          return lightService.fetchRule(id);
+          return await lightService.fetchRule(id);
         default:
           return ApiResult.fail(t.errors.unknownType);
       }

@@ -347,11 +347,8 @@ class _NavigationOrderSettingsPageState
               physics: const NeverScrollableScrollPhysics(),
               itemCount: _navigationOrder.length,
               buildDefaultDragHandles: false,
-              onReorder: (oldIndex, newIndex) {
+              onReorderItem: (oldIndex, newIndex) {
                 setState(() {
-                  if (oldIndex < newIndex) {
-                    newIndex -= 1;
-                  }
                   final item = _navigationOrder.removeAt(oldIndex);
                   _navigationOrder.insert(newIndex, item);
                 });

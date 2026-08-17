@@ -32,6 +32,30 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<!-- UIScene 生命周期（Flutter 3.47 / Xcode 27 起强制）。UISceneDelegateClassName
+	     指向 Runner/SceneDelegate.swift；Swift 类名需带模块前缀。
+	     如需临时回退到旧生命周期，把本键改名为 _UIApplicationSceneManifest 即可。 -->
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneClassName</key>
+					<string>UIWindowScene</string>
+					<key>UISceneDelegateClassName</key>
+					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+					<key>UISceneConfigurationName</key>
+					<string>flutter</string>
+					<key>UISceneStoryboardFile</key>
+					<string>Main</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
 	<!-- iPhone 必须声明允许横屏，否则 setPreferredOrientations 的横屏指令完全无效
 	     （真实旋转全屏依赖它）。全局竖屏基线由启动时的 setPreferredOrientations 锁定，
 	     这里只是「允许」，不会让非播放器页面跟随重力旋转。 -->

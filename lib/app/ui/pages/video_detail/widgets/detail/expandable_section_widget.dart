@@ -143,7 +143,7 @@ class _ExpandableSectionWidgetState extends State<ExpandableSectionWidget>
                       end: 1.0,
                     ).animate(curvedAnimation),
                     axis: Axis.vertical,
-                    axisAlignment: -1.0,
+                    alignment: Alignment.topLeft,
                     child: child,
                   ),
                 ),

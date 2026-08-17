@@ -8,7 +8,7 @@ version: 0.5.0+3
 
 environment:
   sdk: ^3.8.0
-  flutter: 3.41.2
+  flutter: 3.47.0
 
 dependencies:
   flutter:
@@ -17,7 +17,7 @@ dependencies:
     sdk: flutter
 
   get: ^5.0.0-release-candidate-9.2.1
-  go_router: ^14.8.1
+  go_router: ^17.5.0
   window_manager: ^0.5.0
   crypto: ^3.0.6
   cryptography: ^2.7.0
@@ -51,6 +51,9 @@ dependencies:
   app_links: ^7.0.0
   floating: ^6.0.0
   flutter_file_dialog: ^3.0.2
+  # 13.x 的 permission_handler_android 14 要求 compileSdk 37（Android 17 的
+  # ACCESS_LOCAL_NETWORK / CINNAMON_BUN 符号），本机与 CI 目前均停在 36。
+  # 待 Android SDK 37 就位后可解锁。
   permission_handler: ^12.0.1
   visibility_detector: ^0.4.0+2
   yaml: ^3.1.3
@@ -58,14 +61,16 @@ dependencies:
   android_intent_plus: ^6.0.0
   flutter_displaymode: ^0.7.0
   qr_flutter: ^4.1.0
-  open_file: ^3.5.11
+  open_file: ^4.0.0
   flutter_colorpicker: ^1.1.0
   archive: ^4.0.9
   ffi: ^2.2.0
   volume_controller: ^3.4.1
   battery_plus: ^7.0.0
   uuid: ^4.5.3
-  extended_text_field: ^16.0.2
+  # 17.0.0 起适配 Flutter 3.44+：16.x 内嵌的 editable_text 副本引用了已移除的
+  # ExtendSelectionByPageIntent，在 3.47 上无法编译。
+  extended_text_field: ^17.0.0
   dlna_dart: ^0.1.0
   tutorial_coach_mark: ^1.3.1
   connectivity_plus: 7.0.0

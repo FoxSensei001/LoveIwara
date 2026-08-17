@@ -118,8 +118,9 @@ class _PostInputDialogState extends State<PostInputDialog> {
 
   void _handleSubmit() async {
     final t = slang.t;
-    if (_currentTitleLength > maxTitleLength || _currentTitleLength == 0)
+    if (_currentTitleLength > maxTitleLength || _currentTitleLength == 0) {
       return;
+    }
     if (_currentBodyLength > maxBodyLength || _currentBodyLength == 0) return;
 
     // 检查标题是否为空

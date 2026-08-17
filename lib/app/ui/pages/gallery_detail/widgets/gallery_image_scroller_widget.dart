@@ -131,7 +131,7 @@ class GalleryImageScrollerWidget extends StatelessWidget {
       }
 
       final List<ImageItem> imageItems = [
-        if (coverItem != null) coverItem,
+        ?coverItem,
         ...restItems,
       ];
 

@@ -412,9 +412,8 @@ class _DownloadCategoryManagePageState
                 padding: const EdgeInsets.all(16),
                 itemCount: _categories.length,
                 buildDefaultDragHandles: false,
-                onReorder: (oldIndex, newIndex) {
+                onReorderItem: (oldIndex, newIndex) {
                   setState(() {
-                    if (oldIndex < newIndex) newIndex -= 1;
                     final c = _categories.removeAt(oldIndex);
                     _categories.insert(newIndex, c);
                   });

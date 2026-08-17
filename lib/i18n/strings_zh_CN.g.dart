@@ -309,7 +309,6 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get clearAllHistoryConfirm => '确定要清空所有历史记录吗？';
 	@override String get followingList => '关注列表';
 	@override String get followersList => '粉丝列表';
-	@override String get followers => '粉丝';
 	@override String get follows => '关注';
 	@override String get fans => '粉丝';
 	@override String get followsAndFans => '关注与粉丝';
@@ -321,7 +320,6 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get showOriginalText => '显示原始文本';
 	@override String get showProcessedText => '显示处理后文本';
 	@override String get preview => '预览';
-	@override String get markdownSyntax => 'Markdown 语法';
 	@override String get rules => '规则';
 	@override String get agree => '同意';
 	@override String get disagree => '不同意';
@@ -400,7 +398,6 @@ class _TranslationsAuthZhCn implements TranslationsAuthEn {
 	final TranslationsZhCn _root; // ignore: unused_field
 
 	// Translations
-	@override String get tagLimit => '标签上限';
 	@override String get login => '登录';
 	@override String get logout => '退出登录';
 	@override String get email => '邮箱';
@@ -424,8 +421,6 @@ class _TranslationsAuthZhCn implements TranslationsAuthEn {
 	@override String get logoutFailed => '退出登录失败';
 	@override String get usernameOrEmail => '用户名或邮箱';
 	@override String get pleaseEnterUsernameOrEmail => '请输入用户名或邮箱';
-	@override String get username => '用户名或邮箱';
-	@override String get pleaseEnterUsername => '请输入用户名或邮箱';
 	@override String get rememberMe => '记住用户名';
 	@override String get registerNoticeTitle => '前往官网注册账号';
 	@override String get registerNoticeDescription => '应用内已不再提供注册功能。请前往 Iwara 官网创建账号，完成后回到这里登录即可。';
@@ -3575,7 +3570,6 @@ extension on TranslationsZhCn {
 			'common.clearAllHistoryConfirm' => '确定要清空所有历史记录吗？',
 			'common.followingList' => '关注列表',
 			'common.followersList' => '粉丝列表',
-			'common.followers' => '粉丝',
 			'common.follows' => '关注',
 			'common.fans' => '粉丝',
 			'common.followsAndFans' => '关注与粉丝',
@@ -3587,7 +3581,6 @@ extension on TranslationsZhCn {
 			'common.showOriginalText' => '显示原始文本',
 			'common.showProcessedText' => '显示处理后文本',
 			'common.preview' => '预览',
-			'common.markdownSyntax' => 'Markdown 语法',
 			'common.rules' => '规则',
 			'common.agree' => '同意',
 			'common.disagree' => '不同意',
@@ -3665,7 +3658,6 @@ extension on TranslationsZhCn {
 			'common.externalLinkWarningMessage' => '您即将打开一个非 iwara.tv 的外部链接。请注意安全，确认链接可信后再继续访问。',
 			'common.continueToExternalLink' => '继续访问',
 			'common.cancelExternalLink' => '取消',
-			'auth.tagLimit' => '标签上限',
 			'auth.login' => '登录',
 			'auth.logout' => '退出登录',
 			'auth.email' => '邮箱',
@@ -3689,8 +3681,6 @@ extension on TranslationsZhCn {
 			'auth.logoutFailed' => '退出登录失败',
 			'auth.usernameOrEmail' => '用户名或邮箱',
 			'auth.pleaseEnterUsernameOrEmail' => '请输入用户名或邮箱',
-			'auth.username' => '用户名或邮箱',
-			'auth.pleaseEnterUsername' => '请输入用户名或邮箱',
 			'auth.rememberMe' => '记住用户名',
 			'auth.registerNoticeTitle' => '前往官网注册账号',
 			'auth.registerNoticeDescription' => '应用内已不再提供注册功能。请前往 Iwara 官网创建账号，完成后回到这里登录即可。',
@@ -3891,13 +3881,13 @@ extension on TranslationsZhCn {
 			'settings.invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort' => '无效的代理地址格式。请使用 IP:端口 或 域名:端口 格式。',
 			'settings.proxyNormalWork' => '代理正常工作。',
 			'settings.testProxyFailedWithStatusCode' => ({required Object code}) => '代理请求失败，状态码: ${code}',
-			_ => null,
-		} ?? switch (path) {
 			'settings.testProxyFailedWithException' => ({required Object exception}) => '代理请求出错: ${exception}',
 			'settings.proxyConfig' => '代理配置',
 			'settings.thisIsHttpProxyAddress' => '此处为http代理地址',
 			'settings.checkProxy' => '检查代理',
 			'settings.proxyAddress' => '代理地址',
+			_ => null,
+		} ?? switch (path) {
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => '请输入代理服务器的URL，例如 127.0.0.1:8080',
 			'settings.enableProxy' => '启用代理',
 			'settings.left' => '左侧',
@@ -4405,13 +4395,13 @@ extension on TranslationsZhCn {
 			'signIn.consecutiveSignIns' => '连续签到天数',
 			'signIn.failureReason' => '未能坚持签到的原因',
 			'signIn.selectDateRange' => '选择日期范围',
-			_ => null,
-		} ?? switch (path) {
 			'signIn.startDate' => '开始日期',
 			'signIn.endDate' => '结束日期',
 			'signIn.invalidDate' => '日期格式错误',
 			'signIn.invalidDateRange' => '日期范围无效',
 			'signIn.errorFormatText' => '日期格式错误',
+			_ => null,
+		} ?? switch (path) {
 			'signIn.errorInvalidText' => '日期范围无效',
 			'signIn.errorInvalidRangeText' => '日期范围无效',
 			'signIn.dateRangeCantBeMoreThanOneYear' => '日期范围不能超过1年',
@@ -4919,13 +4909,13 @@ extension on TranslationsZhCn {
 			'download.category.deleteSuccess' => '分类已删除',
 			'download.category.deleteFailed' => '删除分类失败',
 			'download.maxConcurrentDownloads' => '最大同时下载数',
-			_ => null,
-		} ?? switch (path) {
 			'download.maxConcurrentDownloadsDesc' => '同时进行下载的任务数量（1-5）',
 			'download.downloadCompletedWithName' => ({required Object fileName}) => '下载完成: ${fileName}',
 			'download.stillInDevelopment' => '开发中',
 			'download.saveToAppDirectory' => '保存到应用目录',
 			'download.alreadyDownloadedWithQuality' => '已有相同清晰度的任务，是否继续下载？',
+			_ => null,
+		} ?? switch (path) {
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => '已有清晰度为${qualities}的任务，是否继续下载？',
 			'download.otherQualities' => '其他清晰度',
 			'download.batchDownload.title' => '批量下载',
@@ -5433,13 +5423,13 @@ extension on TranslationsZhCn {
 			'emoji.uploadingImages' => '正在上传图片',
 			'emoji.uploadingImagesProgress' => ({required Object count}) => '正在上传 ${count} 张图片，请稍候...',
 			'emoji.doNotCloseDialog' => '请不要关闭此对话框',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.uploadSuccess' => ({required Object count}) => '成功上传 ${count} 张图片',
 			'emoji.uploadFailed' => ({required Object count}) => '失败 ${count} 张',
 			'emoji.uploadFailedMessage' => '图片上传失败，请检查网络连接或文件格式',
 			'emoji.uploadErrorMessage' => ({required Object error}) => '上传过程中发生错误: ${error}',
 			'displaySettings.title' => '显示设置',
+			_ => null,
+		} ?? switch (path) {
 			'displaySettings.layoutSettings' => '布局设置',
 			'displaySettings.layoutSettingsDesc' => '自定义列数和断点配置',
 			'displaySettings.gridLayout' => '网格布局',

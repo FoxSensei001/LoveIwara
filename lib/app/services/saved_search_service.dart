@@ -63,8 +63,9 @@ class SavedSearchService extends GetxService {
     }
   }
 
+  /// newIndex 已由 ReorderableList 的 onReorderItem 回调按「移除 oldIndex 后」修正，
+  /// 此处不再手工 -1。
   Future<void> reorder(int oldIndex, int newIndex) async {
-    if (newIndex > oldIndex) newIndex -= 1;
     if (oldIndex < 0 ||
         oldIndex >= list.length ||
         newIndex < 0 ||

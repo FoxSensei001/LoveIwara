@@ -227,7 +227,7 @@ class _ImageWidgetState extends State<ImageWidget> {
       },
       progressIndicatorBuilder: (context, url, downloadProgress) {
         final double? progress = downloadProgress.progress;
-        final int downloaded = downloadProgress.downloaded ?? 0;
+        final int downloaded = downloadProgress.downloaded;
         final int? total = downloadProgress.totalSize;
 
         // 格式化字节大小为易读格式

@@ -14,4 +14,4 @@ PRODUCT_BUNDLE_IDENTIFIER = com.example.iIwara
 PRODUCT_COPYRIGHT = Copyright © 2024 com.example. All rights reserved.
 
 // macOS deployment target
-MACOSX_DEPLOYMENT_TARGET = 10.15
+MACOSX_DEPLOYMENT_TARGET = 12.0

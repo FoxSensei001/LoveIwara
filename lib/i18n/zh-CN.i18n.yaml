@@ -204,8 +204,7 @@ common:
   clearAllHistoryConfirm: 确定要清空所有历史记录吗？
   followingList: 关注列表
   followersList: 粉丝列表
-  followers: 粉丝
-  follows: 关注 
+  follows: 关注
   fans: 粉丝
   followsAndFans: 关注与粉丝
   numViews: 观看次数
@@ -216,7 +215,6 @@ common:
   showOriginalText: 显示原始文本
   showProcessedText: 显示处理后文本
   preview: 预览
-  markdownSyntax: Markdown 语法
   rules: 规则
   agree: 同意
   disagree: 不同意
@@ -298,7 +296,6 @@ common:
   continueToExternalLink: 继续访问
   cancelExternalLink: 取消
 auth:
-  tagLimit: 标签上限
   login: 登录
   logout: 退出登录
   email: 邮箱
@@ -322,8 +319,6 @@ auth:
   logoutFailed: 退出登录失败
   usernameOrEmail: 用户名或邮箱
   pleaseEnterUsernameOrEmail: 请输入用户名或邮箱
-  username: 用户名或邮箱
-  pleaseEnterUsername: 请输入用户名或邮箱
   rememberMe: "记住用户名"
   registerNoticeTitle: 前往官网注册账号
   registerNoticeDescription: "应用内已不再提供注册功能。请前往 Iwara 官网创建账号，完成后回到这里登录即可。"

@@ -129,7 +129,7 @@ class _VolumeControlState extends State<VolumeControl>
             SizeTransition(
               sizeFactor: _fadeAnimation,
               axis: Axis.horizontal,
-              axisAlignment: -1.0,
+              alignment: Alignment.topLeft,
               child: SizedBox(
                 width: 150,
                 child: SliderTheme(
