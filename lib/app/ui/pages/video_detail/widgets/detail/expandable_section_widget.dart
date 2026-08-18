@@ -26,7 +26,8 @@ class ExpandableSectionWidget extends StatefulWidget {
   });
 
   @override
-  State<ExpandableSectionWidget> createState() => _ExpandableSectionWidgetState();
+  State<ExpandableSectionWidget> createState() =>
+      _ExpandableSectionWidgetState();
 }
 
 class _ExpandableSectionWidgetState extends State<ExpandableSectionWidget>
@@ -66,101 +67,108 @@ class _ExpandableSectionWidgetState extends State<ExpandableSectionWidget>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(UIConstants.cardPadding),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+    return Material(
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
         borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+        onTap: widget.showToggleButton ? _handleToggle : null,
+        child: Padding(
+          padding: const EdgeInsets.all(UIConstants.cardPadding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(widget.icon, size: 16, color: Colors.grey[600]),
-              const SizedBox(width: UIConstants.iconTextSpacing),
-              Expanded(
-                child: Text(
-                  widget.title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey[700],
-                  ),
-                ),
-              ),
-              if (widget.headerAction != null) widget.headerAction!,
-              if (widget.showHelpButton)
-                Material(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(16),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(16),
-                    onTap: widget.onHelpTap,
-                    child: Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: Icon(
-                        Icons.help_outline,
-                        size: 14,
-                        color: Colors.grey[500],
+              Row(
+                children: [
+                  Icon(widget.icon, size: 16, color: Colors.grey[600]),
+                  const SizedBox(width: UIConstants.iconTextSpacing),
+                  Expanded(
+                    child: Text(
+                      widget.title,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey[700],
                       ),
                     ),
                   ),
-                ),
-              if (widget.showToggleButton)
-                IconButton(
-                  icon: AnimatedRotation(
-                    turns: _isExpanded ? 0.5 : 0.0,
-                    duration: const Duration(milliseconds: 400),
+                  if (widget.headerAction != null) widget.headerAction!,
+                  if (widget.showHelpButton)
+                    Material(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(16),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: widget.onHelpTap,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Icon(
+                            Icons.help_outline,
+                            size: 14,
+                            color: Colors.grey[500],
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (widget.showToggleButton)
+                    IconButton(
+                      icon: AnimatedRotation(
+                        turns: _isExpanded ? 0.5 : 0.0,
+                        duration: const Duration(milliseconds: 400),
+                        curve: Curves.easeOutCubic,
+                        child: const Icon(Icons.keyboard_arrow_down, size: 20),
+                      ),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: _handleToggle,
+                    ),
+                ],
+              ),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 400),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) {
+                  final curvedAnimation = CurvedAnimation(
+                    parent: animation,
                     curve: Curves.easeOutCubic,
-                    child: const Icon(Icons.keyboard_arrow_down, size: 20),
-                  ),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  onPressed: _handleToggle,
-                ),
+                  );
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, -0.1),
+                        end: Offset.zero,
+                      ).animate(curvedAnimation),
+                      child: SizeTransition(
+                        sizeFactor: Tween<double>(
+                          begin: 0.0,
+                          end: 1.0,
+                        ).animate(curvedAnimation),
+                        axis: Axis.vertical,
+                        alignment: Alignment.topLeft,
+                        child: child,
+                      ),
+                    ),
+                  );
+                },
+                child: _isExpanded
+                    ? Column(
+                        key: ValueKey('expanded_${widget.title}'),
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: UIConstants.listSpacing),
+                          widget.child,
+                        ],
+                      )
+                    : SizedBox.shrink(
+                        key: ValueKey('collapsed_${widget.title}'),
+                      ),
+              ),
             ],
           ),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 400),
-            switchInCurve: Curves.easeOutCubic,
-            switchOutCurve: Curves.easeInCubic,
-            transitionBuilder: (child, animation) {
-              final curvedAnimation = CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutCubic,
-              );
-              return FadeTransition(
-                opacity: animation,
-                child: SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(0, -0.1),
-                    end: Offset.zero,
-                  ).animate(curvedAnimation),
-                  child: SizeTransition(
-                    sizeFactor: Tween<double>(
-                      begin: 0.0,
-                      end: 1.0,
-                    ).animate(curvedAnimation),
-                    axis: Axis.vertical,
-                    alignment: Alignment.topLeft,
-                    child: child,
-                  ),
-                ),
-              );
-            },
-            child: _isExpanded
-                ? Column(
-                    key: ValueKey('expanded_${widget.title}'),
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: UIConstants.listSpacing),
-                      widget.child,
-                    ],
-                  )
-                : SizedBox.shrink(key: ValueKey('collapsed_${widget.title}')),
-          ),
-        ],
+        ),
       ),
     );
   }
