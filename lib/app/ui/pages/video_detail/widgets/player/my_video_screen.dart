@@ -93,6 +93,8 @@ class MyVideoScreen extends StatefulWidget {
 class _MyVideoScreenState extends State<MyVideoScreen>
     with TickerProviderStateMixin, WindowListener, WidgetsBindingObserver {
   final FocusNode _focusNode = FocusNode();
+  // 帧末焦点回收是否已排队，避免同一帧多次 didChangeDependencies 排重复回调。
+  bool _focusReclaimScheduled = false;
   final ConfigService _configService = Get.find();
   final AppService _appService = Get.find();
   final KeybindingService _keybindingService = Get.find();
@@ -189,8 +191,59 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // 在依赖变化时重新请求焦点
+    // 依赖变化（主题、尺寸、安全区…）后把键盘焦点拿回播放器，保证快捷键继续可用。
+    //
+    // 但**只能在焦点本来就在播放器所在的 FocusScope 里时**才抢：本 State 通过
+    // MediaQuery.of(context) 依赖了 MediaQuery 的全部字段，输入法弹出会改变
+    // viewInsets / padding / size，同样会走到这里。此时焦点正落在弹层的输入框上
+    // （登录弹窗、评论回复框…），无条件 requestFocus 会把它顶掉 —— 表现为输入法
+    // 刚弹出就被立刻关闭、输入框失焦，并在「弹出→失焦→收起→再次布局」之间反复。
+    // 弹层挂在 root navigator 上、播放器在 shell 路由里，两边的 ModalRoute 各自
+    // 都是 current，所以路由层面拦不住这次抢焦点，只能按 FocusScope 判断。
+    _scheduleFocusReclaim();
+  }
+
+  /// 把焦点回收推迟到本帧末尾再做。
+  ///
+  /// didChangeDependencies 完全可能发生在「旧播放器子树刚被 deactivate、新子树
+  /// 正在 mount」的同一帧里（布局宽窄切换、全屏叠加层进出、Obx 换掉整棵
+  /// MyVideoScreen 都会这样）。此刻 FocusManager.primaryFocus 仍指向那个**已
+  /// deactivate 但还没 unmount** 的 Focus 元素，对它做祖先查找会直接抛
+  /// “Looking up a deactivated widget's ancestor is unsafe”——`Element.mounted`
+  /// 只有 unmount 之后才变 false，拦不住 inactive 态，所以查不出来也躲不掉。
+  ///
+  /// 帧末（buildOwner.finalizeTree() 之后）再判断即可安全：inactive 的元素这时
+  /// 要么已被 GlobalKey 复用回活跃态，要么已 unmount（mounted == false）。
+  void _scheduleFocusReclaim() {
+    if (_focusReclaimScheduled) return;
+    _focusReclaimScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _focusReclaimScheduled = false;
+      if (!mounted) return;
+      _reclaimFocusIfStillOwned();
+    });
+  }
+
+  /// 仅当焦点仍属于播放器所在的 FocusScope 时才重新请求焦点。
+  void _reclaimFocusIfStillOwned() {
+    if (_focusNode.hasFocus) return;
+    // 任何文本输入正在编辑（不论它在弹层还是在本路由内）都不抢，
+    // 否则等于替用户关掉输入法。
+    if (_isTextInputFocused()) return;
+    // createDependency: false —— 只读当前 scope，不给这棵重子树再加一条
+    // 会随焦点变化重建的依赖。
+    if (!FocusScope.of(context, createDependency: false).hasFocus) return;
     _focusNode.requestFocus();
+  }
+
+  /// 当前主焦点是否落在某个 [EditableText] 上（TextField / TextFormField 等）。
+  bool _isTextInputFocused() {
+    final BuildContext? focusedContext =
+        FocusManager.instance.primaryFocus?.context;
+    // 只在帧末调用（见 [_scheduleFocusReclaim]），此时 mounted 才足以区分
+    // “已随子树销毁”的元素，祖先查找是安全的。
+    if (focusedContext == null || !focusedContext.mounted) return false;
+    return focusedContext.findAncestorWidgetOfExactType<EditableText>() != null;
   }
 
   void _initializeAnimationControllers() {
