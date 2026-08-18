@@ -8,6 +8,7 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/services/pop_coordinator.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/services/video_cache_manager.dart';
+import 'package:i_iwara/app/ui/widgets/animated_navigation_rail_slot.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:i_iwara/utils/easy_throttle.dart';
@@ -39,6 +40,9 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
   final AppService appService = Get.find<AppService>();
   final UserService userService = Get.find<UserService>();
   final ConfigService configService = Get.find<ConfigService>();
+  final FocusNode _contentFocusNode = FocusNode(
+    debugLabel: 'Home shell content',
+  );
   bool _hasSyncedInitialBranch = false;
 
   @override
@@ -55,7 +59,7 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
   void dispose() {
     userService.stopNotificationTimer();
     EasyThrottle.cancel('refresh_page');
-    EasyThrottle.cancel('switch_page');
+    _contentFocusNode.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -188,26 +192,17 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
       return;
     }
 
-    // Switch tab
-    if (EasyThrottle.throttle(
-      'switch_page',
-      const Duration(milliseconds: 300),
-      () {
-        VibrateUtils.vibrate();
-        if (shell != null) {
-          shell.goBranch(
-            branchIndex,
-            initialLocation: branchIndex == currentBranch,
-          );
-        } else {
-          appRouter.go(_branchIndexToPath(branchIndex));
-        }
-        // Sync appService.currentIndex for Obx consumers
-        appService.currentIndex = branchIndex;
-      },
-    )) {
-      return;
+    VibrateUtils.vibrate();
+    if (shell != null) {
+      shell.goBranch(
+        branchIndex,
+        initialLocation: branchIndex == currentBranch,
+      );
+    } else {
+      appRouter.go(_branchIndexToPath(branchIndex));
     }
+    // Sync appService.currentIndex for Obx consumers.
+    appService.currentIndex = branchIndex;
   }
 
   /// Refresh the current branch page via HomeWidgetInterface.
@@ -285,10 +280,7 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
 
             // At home root → 二次确认退出（5s 内再次返回才真正退出）
             if (isAtRoot) {
-              ExitConfirmUtil.handleExit(
-                context,
-                () => SystemNavigator.pop(),
-              );
+              ExitConfirmUtil.handleExit(context, () => SystemNavigator.pop());
               return;
             }
 
@@ -303,13 +295,13 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isWide = constraints.maxWidth > 600;
+          final mediaQuery = MediaQuery.of(context);
+          final reduceMotion =
+              mediaQuery.disableAnimations || mediaQuery.accessibleNavigation;
           return Row(
             children: [
               // Side navigation rail
               Obx(() {
-                if (!appService.showRailNavi) return const SizedBox.shrink();
-                if (!isWide) return const SizedBox.shrink();
-
                 final displayOrder = _visibleOrder;
                 final currentDisplayIndex = _currentDisplayIndexForOrder(
                   displayOrder,
@@ -322,8 +314,14 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
                 // the rail stays compact in short locales and can grow when
                 // labels are longer.
                 final railWidth = _computeRailWidth(context, displayOrder);
-                return SizedBox(
+                return AnimatedNavigationRailSlot(
+                  visible: shouldShowWideNavigationRail(
+                    constraints.maxWidth,
+                    enabled: appService.showRailNavi,
+                  ),
+                  reduceMotion: reduceMotion,
                   width: railWidth,
+                  onFocusExitRequested: _contentFocusNode.requestFocus,
                   child: _buildNavigationRail(
                     context,
                     t,
@@ -335,38 +333,43 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
               }),
               // Main content
               Expanded(
-                child: Obx(() {
-                  // 底栏隐藏时必须让 bottomNavigationBar 真正为 null。
-                  //
-                  // Scaffold 是按 `bottomNavigationBar != null` 来决定要不要给
-                  // body 套 MediaQuery.removePadding(removeBottom: true) 的。
-                  // 原先这里恒挂着一个 Obx（即使内部返回 SizedBox.shrink() 也
-                  // 不为 null），于是**整个 shell 内所有页面**的
-                  // MediaQuery.padding.bottom 恒为 0：SafeArea(bottom: true)
-                  // 全部退化成空操作，直接读 padding.bottom 的地方也全读到 0。
-                  // 详情页（非 tab 根路由）与平板/桌面的侧边栏布局下本来没有
-                  // 底栏遮挡，却同样拿不到底部安全区，是整套安全区失效的总根因。
-                  // ⚠️ 注意 showBottomNavi 现在门控的是一个「结构性的 null」。
-                  //
-                  // 它当前是死标志：全仓只有声明与 setter，**没有任何赋值点**
-                  // （见 app_service.dart:104），所以恒为 true，这个 Obx 实际上
-                  // 是装饰性的。但一旦将来真的接上（例如「滚动时隐藏底栏」），
-                  // 每次切换都会让 bottomNavigationBar 在 null / 非 null 之间跳，
-                  // 而 Scaffold 是按它是否为 null 决定要不要给 body 套
-                  // removeBottomPadding —— 也就是**整个 shell 子树重新布局**，
-                  // 每个页面列表的底部内边距都会在滚动中途跳变。
-                  // 那种场景下应当改为「底栏始终占位、只做位移/淡出动画」，
-                  // 而不是让它真的消失。
-                  final bool showBottomNav =
-                      appService.showBottomNavi && !isWide && _isTabRootRoute;
+                child: Focus(
+                  focusNode: _contentFocusNode,
+                  skipTraversal: true,
+                  includeSemantics: false,
+                  child: Obx(() {
+                    // 底栏隐藏时必须让 bottomNavigationBar 真正为 null。
+                    //
+                    // Scaffold 是按 `bottomNavigationBar != null` 来决定要不要给
+                    // body 套 MediaQuery.removePadding(removeBottom: true) 的。
+                    // 原先这里恒挂着一个 Obx（即使内部返回 SizedBox.shrink() 也
+                    // 不为 null），于是**整个 shell 内所有页面**的
+                    // MediaQuery.padding.bottom 恒为 0：SafeArea(bottom: true)
+                    // 全部退化成空操作，直接读 padding.bottom 的地方也全读到 0。
+                    // 详情页（非 tab 根路由）与平板/桌面的侧边栏布局下本来没有
+                    // 底栏遮挡，却同样拿不到底部安全区，是整套安全区失效的总根因。
+                    // ⚠️ 注意 showBottomNavi 现在门控的是一个「结构性的 null」。
+                    //
+                    // 它当前是死标志：全仓只有声明与 setter，**没有任何赋值点**
+                    // （见 app_service.dart:104），所以恒为 true，这个 Obx 实际上
+                    // 是装饰性的。但一旦将来真的接上（例如「滚动时隐藏底栏」），
+                    // 每次切换都会让 bottomNavigationBar 在 null / 非 null 之间跳，
+                    // 而 Scaffold 是按它是否为 null 决定要不要给 body 套
+                    // removeBottomPadding —— 也就是**整个 shell 子树重新布局**，
+                    // 每个页面列表的底部内边距都会在滚动中途跳变。
+                    // 那种场景下应当改为「底栏始终占位、只做位移/淡出动画」，
+                    // 而不是让它真的消失。
+                    final bool showBottomNav =
+                        appService.showBottomNavi && !isWide && _isTabRootRoute;
 
-                  return Scaffold(
-                    body: body,
-                    bottomNavigationBar: showBottomNav
-                        ? _buildBottomNavigationBar(context)
-                        : null,
-                  );
-                }),
+                    return Scaffold(
+                      body: body,
+                      bottomNavigationBar: showBottomNav
+                          ? _buildBottomNavigationBar(context)
+                          : null,
+                    );
+                  }),
+                ),
               ),
             ],
           );
