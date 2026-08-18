@@ -33,6 +33,15 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
   final ConfigService _configService = Get.find();
   bool _hasOverflow = false;
   static const double _defaultMaxHeight = 200.0;
+  // 折叠态底部预留的空白带：正文视口比遮罩矮这么多，遮罩最后一行像素下面不放任何内容。
+  // ShaderMask 的 dstIn 只作用在遮罩矩形内，矩形底边落在物理像素中间时最后一行可能没被
+  // 完全覆盖，之前正文正好被裁在这条边上，于是漏出一道「没被渐隐」的清晰文字缝隙。
+  static const double _fadeTailHeight = 24.0;
+  // 渐隐从这里开始、到正文视口底部（也就是空白带顶部）刚好全透明，
+  // 之后一直保持透明到遮罩底边。
+  static const double _fadeStartStop = 0.55;
+  static const double _fadeEndStop =
+      (_defaultMaxHeight - _fadeTailHeight) / _defaultMaxHeight;
 
   @override
   void initState() {
@@ -228,20 +237,30 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                                 Colors.white,
                                 Colors.white,
                                 Colors.transparent,
-                                Colors.transparent,
                               ],
-                              stops: [0.0, 0.58, 0.94, 1.0],
+                              stops: [0.0, _fadeStartStop, _fadeEndStop],
+                              // clamp（默认）保证 _fadeEndStop 之后一直是全透明
                             ).createShader(bounds),
-                            child: SingleChildScrollView(
-                              physics: const NeverScrollableScrollPhysics(),
-                              key: _contentKey,
-                              child: CustomMarkdownBody(
-                                data: widget.description ?? '',
-                                originalData: widget.description,
-                                showTranslationButton: false,
-                                translationController: _translationController,
-                                onTimestampSeek: widget.onTimestampSeek,
-                              ),
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    key: _contentKey,
+                                    child: CustomMarkdownBody(
+                                      data: widget.description ?? '',
+                                      originalData: widget.description,
+                                      showTranslationButton: false,
+                                      translationController:
+                                          _translationController,
+                                      onTimestampSeek: widget.onTimestampSeek,
+                                    ),
+                                  ),
+                                ),
+                                // 空白尾巴：正文永远不会画到遮罩底边上
+                                const SizedBox(height: _fadeTailHeight),
+                              ],
                             ),
                           ),
                           Positioned(
