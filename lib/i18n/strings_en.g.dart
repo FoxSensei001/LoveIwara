@@ -852,6 +852,9 @@ class TranslationsCommonEn {
 	/// en: 'Followed successfully, click again to special follow'
 	String get followSuccessClickAgainToSpecialFollow => 'Followed successfully, click again to special follow';
 
+	/// en: 'Added to special follows — pick them from the selector at the top-left of the Subscriptions page for quick access'
+	String get specialFollowTip => 'Added to special follows — pick them from the selector at the top-left of the Subscriptions page for quick access';
+
 	/// en: 'Are you sure you want to exit?'
 	String get exitConfirmTip => 'Are you sure you want to exit?';
 
@@ -8362,6 +8365,7 @@ extension on Translations {
 			'common.deleteRecordsInDateRangeConfirm' => ({required Object num}) => 'Are you sure you want to delete ${num} history records in this date range? This cannot be undone.',
 			'common.noHistoryRecordsInRange' => 'No history records in this date range',
 			'common.followSuccessClickAgainToSpecialFollow' => 'Followed successfully, click again to special follow',
+			'common.specialFollowTip' => 'Added to special follows — pick them from the selector at the top-left of the Subscriptions page for quick access',
 			'common.exitConfirmTip' => 'Are you sure you want to exit?',
 			'common.error' => 'Error',
 			'common.taskRunning' => 'A task is already running, please wait.',

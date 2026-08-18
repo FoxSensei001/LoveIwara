@@ -252,6 +252,7 @@ common:
   deleteRecordsInDateRangeConfirm: 'Are you sure you want to delete ${num} history records in this date range? This cannot be undone.'
   noHistoryRecordsInRange: No history records in this date range
   followSuccessClickAgainToSpecialFollow: Followed successfully, click again to special follow
+  specialFollowTip: Added to special follows — pick them from the selector at the top-left of the Subscriptions page for quick access
   exitConfirmTip: Are you sure you want to exit?
   error: Error
   taskRunning: "A task is already running, please wait."

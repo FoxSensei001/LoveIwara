@@ -254,6 +254,7 @@ common:
   deleteRecordsInDateRangeConfirm: '确定要删除该时间范围内的 ${num} 条历史记录吗？此操作不可恢复。'
   noHistoryRecordsInRange: 该时间范围内没有历史记录
   followSuccessClickAgainToSpecialFollow: 已成功关注，再次点击以特别关注
+  specialFollowTip: 已加入特别关注，可在订阅页左上角的选择框中切换到TA，快速查看更新
   exitConfirmTip: 确定要退出吗？
   error: 错误
   taskRunning: "任务正在进行中，请稍后再试。"

@@ -363,6 +363,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String deleteRecordsInDateRangeConfirm({required Object num}) => 'この期間の ${num} 件の履歴を削除してもよろしいですか？この操作は取り消せません。';
 	@override String get noHistoryRecordsInRange => 'この期間の履歴はありません';
 	@override String get followSuccessClickAgainToSpecialFollow => 'フォローに成功しました。再度クリックして特別フォロー';
+	@override String get specialFollowTip => '特別フォローに追加しました。購読ページ左上のセレクターで切り替えると、すぐに確認できます';
 	@override String get exitConfirmTip => '本当に退出しますか？';
 	@override String get error => 'エラー';
 	@override String get taskRunning => '既にタスクが実行中です。しばらくお待ちください。';
@@ -3626,6 +3627,7 @@ extension on TranslationsJa {
 			'common.deleteRecordsInDateRangeConfirm' => ({required Object num}) => 'この期間の ${num} 件の履歴を削除してもよろしいですか？この操作は取り消せません。',
 			'common.noHistoryRecordsInRange' => 'この期間の履歴はありません',
 			'common.followSuccessClickAgainToSpecialFollow' => 'フォローに成功しました。再度クリックして特別フォロー',
+			'common.specialFollowTip' => '特別フォローに追加しました。購読ページ左上のセレクターで切り替えると、すぐに確認できます',
 			'common.exitConfirmTip' => '本当に退出しますか？',
 			'common.error' => 'エラー',
 			'common.taskRunning' => '既にタスクが実行中です。しばらくお待ちください。',

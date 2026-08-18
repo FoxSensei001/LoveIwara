@@ -358,6 +358,7 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String deleteRecordsInDateRangeConfirm({required Object num}) => '確定要刪除該時間範圍內的 ${num} 條歷史紀錄嗎？此操作無法復原。';
 	@override String get noHistoryRecordsInRange => '該時間範圍內沒有歷史紀錄';
 	@override String get followSuccessClickAgainToSpecialFollow => '已成功關注，再次點擊以特別關注';
+	@override String get specialFollowTip => '已加入特別關注，可在訂閱頁左上角的選擇框中切換到TA，快速查看更新';
 	@override String get exitConfirmTip => '確定要退出嗎？';
 	@override String get error => '錯誤';
 	@override String get taskRunning => '任務正在進行中，請稍後再試。';
@@ -3621,6 +3622,7 @@ extension on TranslationsZhTw {
 			'common.deleteRecordsInDateRangeConfirm' => ({required Object num}) => '確定要刪除該時間範圍內的 ${num} 條歷史紀錄嗎？此操作無法復原。',
 			'common.noHistoryRecordsInRange' => '該時間範圍內沒有歷史紀錄',
 			'common.followSuccessClickAgainToSpecialFollow' => '已成功關注，再次點擊以特別關注',
+			'common.specialFollowTip' => '已加入特別關注，可在訂閱頁左上角的選擇框中切換到TA，快速查看更新',
 			'common.exitConfirmTip' => '確定要退出嗎？',
 			'common.error' => '錯誤',
 			'common.taskRunning' => '任務正在進行中，請稍後再試。',

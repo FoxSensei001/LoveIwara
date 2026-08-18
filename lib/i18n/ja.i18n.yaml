@@ -258,6 +258,7 @@ common:
   deleteRecordsInDateRangeConfirm: 'この期間の ${num} 件の履歴を削除してもよろしいですか？この操作は取り消せません。'
   noHistoryRecordsInRange: この期間の履歴はありません
   followSuccessClickAgainToSpecialFollow: フォローに成功しました。再度クリックして特別フォロー
+  specialFollowTip: 特別フォローに追加しました。購読ページ左上のセレクターで切り替えると、すぐに確認できます
   exitConfirmTip: 本当に退出しますか？
   error: エラー
   taskRunning: "既にタスクが実行中です。しばらくお待ちください。"

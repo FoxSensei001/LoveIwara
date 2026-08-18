@@ -165,6 +165,15 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                         likedTime: DateTime.now(),
                       ),
                     );
+                    // 每次特别关注成功都提示一次去哪能快速用上它——不做持久化计数，
+                    // 不像普通关注的 tip 那样怕打扰：这是用户刚主动点出来的操作。
+                    showToastWidget(
+                      MDToastWidget(
+                        message: t.common.specialFollowTip,
+                        type: MDToastType.success,
+                      ),
+                      position: ToastPosition.bottom,
+                    );
                   }
                   final rootNavigator = Navigator.of(
                     context,
