@@ -27,6 +27,8 @@ import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/ui/widgets/top_padding_height_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
+import 'package:i_iwara/app/routes/app_router.dart' show routeObserver;
+import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/utils/image_utils.dart';
 import 'package:oktoast/oktoast.dart';
 
@@ -67,7 +69,7 @@ class AuthorProfilePage extends StatefulWidget {
 }
 
 class _AuthorProfilePageState extends State<AuthorProfilePage>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, RouteAware {
   late final AuthorProfileController profileController;
   final UserService userService = Get.find<UserService>();
   final UserPreferenceService userPreferenceService =
@@ -86,6 +88,19 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
   late String uniqueTag;
   late ScrollController _tabBarScrollController;
   final GlobalKey<State<StatefulWidget>> _postListKey = GlobalKey();
+
+  // 各 tab 列表用 GlobalKey：宽窄布局切换时子树是被搬走而不是销毁重建，
+  // 列表 State 与其数据仓库得以保留（局部 Key 会导致整棵子树重建 + 重新拉数据）。
+  final GlobalKey _videoTabKey = GlobalKey();
+  final GlobalKey _imageTabKey = GlobalKey();
+  final GlobalKey _playlistTabKey = GlobalKey();
+
+  /// 本页是否被上层「页面级」路由（视频详情页等）盖住。弹层不计入，见 [didPushNext]。
+  bool _isCovered = false;
+
+  /// 最后一次「可见时」判定的宽窄布局。被盖住期间不跟随尺寸变化，
+  /// 避免在不可见时因转屏跨过 800dp 而重建整棵 tab 子树。
+  bool? _lastVisibleIsWide;
 
   @override
   void initState() {
@@ -124,7 +139,39 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route != null) {
+      routeObserver.subscribe(this, route);
+    }
+  }
+
+  // ===== RouteAware：被盖住 / 重新露出 =====
+
+  @override
+  void didPushNext() {
+    // 只有「页面级」路由压上来才算被盖住。对话框 / bottom sheet 同样会触发
+    // didPushNext，但本页大半仍然露着，必须继续跟随尺寸——否则横屏开着弹层再转
+    // 竖屏，会把宽屏布局(固定 400 宽的左栏)塞进 360dp，Tab 区宽度归零并溢出。
+    // observers 顺序是 [OverlayTracker.shell, routeObserver, ...]，进到这里时
+    // 弹层计数已经加过了。
+    if (OverlayTracker.instance.hasOverlay) return;
+    _isCovered = true;
+  }
+
+  @override
+  void didPopNext() {
+    // 重新露出：解冻，按当前尺寸重新判定布局。
+    // 不需要 setState：_buildMainContent 里对 ModalRoute 的 isCurrent 建立了依赖，
+    // 本页重新变成栈顶时框架会自动重建（也避开了声明式移除路由时
+    // didPopNext 落在 build 阶段、setState 抛异常的问题）。
+    _isCovered = false;
+  }
+
+  @override
   void dispose() {
+    routeObserver.unsubscribe(this);
     profileController.dispose();
     primaryTC.dispose();
     videoSecondaryTC.dispose();
@@ -337,8 +384,23 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
   }
 
   Widget _buildMainContent() {
-    // 判断是否为宽屏 (>= 800px)
-    bool isWideScreen = MediaQuery.of(context).size.width >= 800;
+    // 判断是否为宽屏 (>= 800px)。
+    // 被上层页面盖住时沿用最后一次可见时的判定：视频详情页转横屏会把本页尺寸
+    // 带过 800dp，若跟着切布局，整棵 tab 子树会在不可见时被销毁重建（数据重拉、
+    // 滚动归零），返回后用户就看到列表被刷掉且回到顶部。
+    // `!isCurrent` 只作兜底：RouteObserver 不会把 removeRoute / pushReplacement
+    // 转成 didPopNext，只认 _isCovered 有可能永久冻结。本页确实回到栈顶时，
+    // 无论 _isCovered 是什么都按实时尺寸走。
+    final bool isCurrent = ModalRoute.isCurrentOf(context) ?? true;
+    final bool covered = _isCovered && !isCurrent;
+
+    final bool liveIsWide = MediaQuery.sizeOf(context).width >= 800;
+    final bool isWideScreen = covered
+        ? (_lastVisibleIsWide ?? liveIsWide)
+        : liveIsWide;
+    if (!covered) {
+      _lastVisibleIsWide = liveIsWide;
+    }
 
     if (!isWideScreen) {
       return Stack(
@@ -1204,7 +1266,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                   Obx(
                     () => profileController.author.value?.id != null
                         ? ProfileVideoTabListWidget(
-                            key: const Key('video'),
+                            key: _videoTabKey,
                             userId: profileController.author.value!.id,
                             tabKey: t.common.video,
                             tc: videoSecondaryTC,
@@ -1226,7 +1288,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                   Obx(
                     () => profileController.author.value?.id != null
                         ? ProfileImageModelTabListWidget(
-                            key: const Key('image'),
+                            key: _imageTabKey,
                             userId: profileController.author.value!.id,
                             tabKey: t.common.gallery,
                             tc: imageSecondaryTC,
@@ -1247,7 +1309,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                   Obx(
                     () => profileController.author.value?.id != null
                         ? ProfilePlaylistTabListWidget(
-                            key: const Key('playlist'),
+                            key: _playlistTabKey,
                             userId: profileController.author.value!.id,
                             tabKey: t.common.playlist,
                             tc: playlistSecondaryTC,
