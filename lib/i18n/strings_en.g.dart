@@ -3086,6 +3086,21 @@ class TranslationsDownloadEn {
 	/// en: 'Download'
 	String get download => 'Download';
 
+	/// en: 'Select Download'
+	String get selectDownloadTitle => 'Select Download';
+
+	/// en: 'Quality'
+	String get qualitySectionLabel => 'Quality';
+
+	/// en: 'Save to'
+	String get saveToSectionLabel => 'Save to';
+
+	/// en: 'Last used'
+	String get lastUsedBadge => 'Last used';
+
+	/// en: 'Selected'
+	String get pickedBadge => 'Selected';
+
 	/// en: 'Start Downloading'
 	String get startDownloading => 'Start Downloading';
 
@@ -7394,6 +7409,9 @@ class TranslationsDownloadCategoryEn {
 	/// en: 'Manage'
 	String get manage => 'Manage';
 
+	/// en: 'New'
+	String get createShortcut => 'New';
+
 	/// en: 'New category name'
 	String get newCategoryHint => 'New category name';
 
@@ -8632,9 +8650,9 @@ extension on Translations {
 			'settings.proxyConfig' => 'Proxy Config',
 			'settings.thisIsHttpProxyAddress' => 'This is http proxy address',
 			'settings.checkProxy' => 'Check Proxy',
-			'settings.proxyAddress' => 'Proxy Address',
 			_ => null,
 		} ?? switch (path) {
+			'settings.proxyAddress' => 'Proxy Address',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => 'Please enter the URL of the proxy server, for example 127.0.0.1:8080',
 			'settings.enableProxy' => 'Enable Proxy',
 			'settings.left' => 'Left',
@@ -9146,9 +9164,9 @@ extension on Translations {
 			'signIn.selectDateRange' => 'Select Date Range',
 			'signIn.startDate' => 'Start Date',
 			'signIn.endDate' => 'End Date',
-			'signIn.invalidDate' => 'Invalid Date',
 			_ => null,
 		} ?? switch (path) {
+			'signIn.invalidDate' => 'Invalid Date',
 			'signIn.invalidDateRange' => 'Invalid Date Range',
 			'signIn.errorFormatText' => 'Date Format Error',
 			'signIn.errorInvalidText' => 'Invalid Date Range',
@@ -9558,6 +9576,11 @@ extension on Translations {
 			'download.downloadList' => 'Download List',
 			'download.viewDownloadList' => 'View Download List',
 			'download.download' => 'Download',
+			'download.selectDownloadTitle' => 'Select Download',
+			'download.qualitySectionLabel' => 'Quality',
+			'download.saveToSectionLabel' => 'Save to',
+			'download.lastUsedBadge' => 'Last used',
+			'download.pickedBadge' => 'Selected',
 			'download.startDownloading' => 'Start Downloading',
 			'download.clearAllFailedTasks' => 'Clear All Failed Tasks',
 			'download.clearAllFailedTasksConfirmation' => 'Are you sure you want to clear all failed download tasks? The files of these tasks will also be deleted.',
@@ -9640,6 +9663,7 @@ extension on Translations {
 			'download.category.label' => 'Categories',
 			'download.category.uncategorized' => 'Uncategorized',
 			'download.category.manage' => 'Manage',
+			'download.category.createShortcut' => 'New',
 			'download.category.newCategoryHint' => 'New category name',
 			'download.category.createSuccess' => 'Category created',
 			'download.category.createFailed' => 'Failed to create category',
@@ -9654,6 +9678,8 @@ extension on Translations {
 			'download.category.renameHint' => 'Enter category name',
 			'download.category.renameSuccess' => 'Category renamed',
 			'download.category.renameFailed' => 'Failed to rename category',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.deleteTitle' => 'Delete category',
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'Delete category "${title}"? Its ${count} download(s) will be moved to Uncategorized; the files will not be deleted.',
 			'download.category.deleteSuccess' => 'Category deleted',
@@ -9661,8 +9687,6 @@ extension on Translations {
 			'download.maxConcurrentDownloads' => 'Max concurrent downloads',
 			'download.maxConcurrentDownloadsDesc' => 'Number of tasks downloading at the same time (1-5)',
 			'download.stillInDevelopment' => 'Still in development',
-			_ => null,
-		} ?? switch (path) {
 			'download.saveToAppDirectory' => 'Save to app directory',
 			'download.alreadyDownloadedWithQuality' => 'Already downloaded with the same quality, continue downloading?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Already downloaded with qualities: ${qualities}, continue downloading?',
@@ -10168,6 +10192,8 @@ extension on Translations {
 			'log.confirmClearAllLogsDesc' => 'Are you sure you want to clear all log data? This operation cannot be undone.',
 			'log.clearAllLogsSuccess' => 'Log cleared successfully',
 			'log.clearAllLogsFailed' => ({required Object error}) => 'Failed to clear logs: ${error}',
+			_ => null,
+		} ?? switch (path) {
 			'log.unableToGetLogSizeInfo' => 'Unable to get log size information',
 			'log.currentLogSize' => 'Current Log Size:',
 			'log.logCount' => 'Log Count:',
@@ -10175,8 +10201,6 @@ extension on Translations {
 			'log.logSizeLimit' => 'Log Size Limit:',
 			'log.usageRate' => 'Usage Rate:',
 			'log.exceedLimit' => 'Exceed Limit',
-			_ => null,
-		} ?? switch (path) {
 			'log.remaining' => 'Remaining',
 			'log.currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit' => 'Current log size exceeded, please clean old logs or increase log size limit',
 			'log.currentLogSizeAlmostExceededPleaseCleanOldLogs' => 'Current log size almost exceeded, please clean old logs',

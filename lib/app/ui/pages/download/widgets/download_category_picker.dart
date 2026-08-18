@@ -7,6 +7,14 @@ import 'package:i_iwara/app/ui/pages/download/download_category_manage_page.dart
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 
+/// 跳转到「管理分类」页面。下载分类选择器、下载清晰度弹窗、"更多"菜单里的
+/// 快捷入口都跳到同一个页面，统一在这里维护导航方式，避免各处各写一份。
+void openDownloadCategoryManagePage(BuildContext context) {
+  Navigator.of(
+    context,
+  ).push(MaterialPageRoute(builder: (_) => const DownloadCategoryManagePage()));
+}
+
 /// 下载分类选择器（下载时选择目标分类，紧凑型用于对话框）。
 ///
 /// - 已有分类：下拉（第一项「未分类」value=null，其余每个分类一项）+ 旁边齿轮管理入口。
@@ -63,9 +71,7 @@ class _DownloadCategoryPickerState extends State<DownloadCategoryPicker> {
   }
 
   void _openManage() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const DownloadCategoryManagePage()),
-    );
+    openDownloadCategoryManagePage(context);
     // 返回后由 categoriesChangedNotifier 触发 _loadCategories 刷新。
   }
 

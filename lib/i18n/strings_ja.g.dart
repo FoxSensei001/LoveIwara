@@ -1249,6 +1249,11 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String get downloadList => 'ダウンロードリスト';
 	@override String get viewDownloadList => 'ダウンロードリストを表示';
 	@override String get download => 'ダウンロード';
+	@override String get selectDownloadTitle => 'ダウンロードを選択';
+	@override String get qualitySectionLabel => '画質';
+	@override String get saveToSectionLabel => '保存先';
+	@override String get lastUsedBadge => '前回選択';
+	@override String get pickedBadge => '選択中';
 	@override String get forceDeleteTask => '強制削除タスク';
 	@override String get startDownloading => 'ダウンロードを開始';
 	@override String get clearAllFailedTasks => 'すべての失敗タスクをクリア';
@@ -3014,6 +3019,7 @@ class _TranslationsDownloadCategoryJa implements TranslationsDownloadCategoryEn 
 	@override String get label => 'カテゴリー';
 	@override String get uncategorized => '未分類';
 	@override String get manage => '管理';
+	@override String get createShortcut => '新規作成';
 	@override String get newCategoryHint => '新しいカテゴリー名';
 	@override String get createSuccess => 'カテゴリーを作成しました';
 	@override String get createFailed => 'カテゴリーの作成に失敗しました';
@@ -3889,9 +3895,9 @@ extension on TranslationsJa {
 			'settings.proxyConfig' => 'プロキシ設定',
 			'settings.thisIsHttpProxyAddress' => 'ここにHTTPプロキシアドレスを入力してください',
 			'settings.checkProxy' => 'プロキシを確認',
-			'settings.proxyAddress' => 'プロキシアドレス',
 			_ => null,
 		} ?? switch (path) {
+			'settings.proxyAddress' => 'プロキシアドレス',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => 'プロキシサーバーのURLを入力してください（例: 127.0.0.1:8080）',
 			'settings.enableProxy' => 'プロキシを有効にする',
 			'settings.left' => '左',
@@ -4403,9 +4409,9 @@ extension on TranslationsJa {
 			'signIn.selectDateRange' => '日付範囲を選択',
 			'signIn.startDate' => '開始日',
 			'signIn.endDate' => '終了日',
-			'signIn.invalidDate' => '日付形式が正しくありません',
 			_ => null,
 		} ?? switch (path) {
+			'signIn.invalidDate' => '日付形式が正しくありません',
 			'signIn.invalidDateRange' => '日付範囲が無効です',
 			'signIn.errorFormatText' => '日付形式が正しくありません',
 			'signIn.errorInvalidText' => '日付範囲が無効です',
@@ -4815,6 +4821,11 @@ extension on TranslationsJa {
 			'download.downloadList' => 'ダウンロードリスト',
 			'download.viewDownloadList' => 'ダウンロードリストを表示',
 			'download.download' => 'ダウンロード',
+			'download.selectDownloadTitle' => 'ダウンロードを選択',
+			'download.qualitySectionLabel' => '画質',
+			'download.saveToSectionLabel' => '保存先',
+			'download.lastUsedBadge' => '前回選択',
+			'download.pickedBadge' => '選択中',
 			'download.forceDeleteTask' => '強制削除タスク',
 			'download.startDownloading' => 'ダウンロードを開始',
 			'download.clearAllFailedTasks' => 'すべての失敗タスクをクリア',
@@ -4897,6 +4908,7 @@ extension on TranslationsJa {
 			'download.category.label' => 'カテゴリー',
 			'download.category.uncategorized' => '未分類',
 			'download.category.manage' => '管理',
+			'download.category.createShortcut' => '新規作成',
 			'download.category.newCategoryHint' => '新しいカテゴリー名',
 			'download.category.createSuccess' => 'カテゴリーを作成しました',
 			'download.category.createFailed' => 'カテゴリーの作成に失敗しました',
@@ -4911,6 +4923,8 @@ extension on TranslationsJa {
 			'download.category.renameHint' => 'カテゴリー名を入力',
 			'download.category.renameSuccess' => '名前を変更しました',
 			'download.category.renameFailed' => '名前の変更に失敗しました',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.deleteTitle' => 'カテゴリーの削除',
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'カテゴリー「${title}」を削除しますか？このカテゴリーの${count}件のダウンロードは「未分類」へ移動され、ファイルは削除されません。',
 			'download.category.deleteSuccess' => 'カテゴリーを削除しました',
@@ -4918,8 +4932,6 @@ extension on TranslationsJa {
 			'download.maxConcurrentDownloads' => '最大同時ダウンロード数',
 			'download.maxConcurrentDownloadsDesc' => '同時にダウンロードするタスク数（1-5）',
 			'download.stillInDevelopment' => '開発中',
-			_ => null,
-		} ?? switch (path) {
 			'download.saveToAppDirectory' => 'アプリケーションディレクトリに保存',
 			'download.alreadyDownloadedWithQuality' => 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'すでに品質が${qualities}のタスクがあります。続けてダウンロードしますか？',
@@ -5425,6 +5437,8 @@ extension on TranslationsJa {
 			'emoji.goToSettingsToAddEmojis' => '設定で絵文字を追加してください',
 			'emoji.emojiManagement' => '絵文字管理',
 			'emoji.manageEmojiGroupsAndImages' => '絵文字グループと画像を管理',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.uploadLocalImages' => 'ローカル画像をアップロード',
 			'emoji.uploadingImages' => '画像をアップロード中',
 			'emoji.uploadingImagesProgress' => ({required Object count}) => '${count} 枚の画像をアップロード中、お待ちください...',
@@ -5432,8 +5446,6 @@ extension on TranslationsJa {
 			'emoji.uploadSuccess' => ({required Object count}) => '${count} 枚の画像をアップロードしました',
 			'emoji.uploadFailed' => ({required Object count}) => '${count} 枚失敗',
 			'emoji.uploadFailedMessage' => '画像のアップロードに失敗しました。ネットワーク接続またはファイル形式を確認してください',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.uploadErrorMessage' => ({required Object error}) => 'アップロード中にエラーが発生しました: ${error}',
 			'displaySettings.title' => '表示設定',
 			'displaySettings.layoutSettings' => 'レイアウト設定',

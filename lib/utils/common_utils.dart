@@ -317,6 +317,26 @@ class CommonUtils {
     }
   }
 
+  /// 获取清晰度对应的 SVG 图标资源路径，播放器清晰度切换与下载清晰度选择共用。
+  /// 大小写不敏感；"preview" 目前暂无专属图标，与未知清晰度一样回退为 res_unknown。
+  static String getQualityIconAsset(String? name) {
+    if (name == null) return 'assets/svg/res_unknown.svg';
+    switch (name.toLowerCase()) {
+      case '360':
+        return 'assets/svg/res_360p.svg';
+      case '540':
+        return 'assets/svg/res_540p.svg';
+      case '720':
+        return 'assets/svg/res_720p.svg';
+      case '1080':
+        return 'assets/svg/res_1080p.svg';
+      case 'source':
+        return 'assets/svg/res_source.svg';
+      default:
+        return 'assets/svg/res_unknown.svg';
+    }
+  }
+
   /// 将videoSources转换成videoResolutions
   /// 转换结果按统一的清晰度优先级排序（source 固定最前，preview 固定最后）。
   static List<VideoResolution> convertVideoSourcesToResolutions(

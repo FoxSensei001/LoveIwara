@@ -1536,6 +1536,11 @@ download:
   downloadList: ダウンロードリスト
   viewDownloadList: ダウンロードリストを表示
   download: ダウンロード
+  selectDownloadTitle: ダウンロードを選択
+  qualitySectionLabel: 画質
+  saveToSectionLabel: 保存先
+  lastUsedBadge: 前回選択
+  pickedBadge: 選択中
   forceDeleteTask: 強制削除タスク
   startDownloading: ダウンロードを開始
   clearAllFailedTasks: すべての失敗タスクをクリア
@@ -1620,6 +1625,7 @@ download:
     label: カテゴリー
     uncategorized: 未分類
     manage: 管理
+    createShortcut: 新規作成
     newCategoryHint: 新しいカテゴリー名
     createSuccess: カテゴリーを作成しました
     createFailed: カテゴリーの作成に失敗しました

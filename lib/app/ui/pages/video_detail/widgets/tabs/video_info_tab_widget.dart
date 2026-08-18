@@ -29,8 +29,11 @@ import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/add_video_to_playlist_dialog.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/share_video_bottom_sheet.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:i_iwara/app/services/download_service.dart';
-import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart'
+    show openDownloadCategoryManagePage;
+import 'package:i_iwara/app/ui/pages/download/widgets/download_picker_sheet.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
@@ -975,11 +978,6 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
     });
   }
 
-  /// 处理下载操作
-  void _handleDownloadAction(BuildContext context) {
-    _showDownloadDialog(context);
-  }
-
   /// 获取当前应该显示的清晰度
   /// 优先使用配置的清晰度，如果视频源中没有该清晰度，则按优先级选择
   String? _getCurrentQuality(List<VideoSource> sources) {
@@ -1023,7 +1021,6 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
     bool isPrimary = false,
   }) {
     final t = slang.Translations.of(context);
-    final configService = Get.find<ConfigService>();
 
     // 声明下载图标
     const downloadIcon = Icons.download;
@@ -1050,34 +1047,57 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
 
       // 检查是否已有下载任务
       final hasDownloadTask = widget.controller.hasAnyDownloadTask.value;
-      final accentColor = hasDownloadTask
-          ? Theme.of(context).primaryColor
-          : null;
+      // 用 colorScheme.primary，不用 Theme.of(context).primaryColor——
+      // primaryColor 是 M2 遗留字段，用 ColorScheme 建的 M3 深色主题下它不跟随
+      // colorScheme 变化，会显示成偏黑色，跟深色背景糊在一起看不清。
+      final primaryColor = Theme.of(context).colorScheme.primary;
+      final accentColor = hasDownloadTask ? primaryColor : null;
 
       return SplitFilledButton(
         label: '${t.common.download} $qualityLabel',
         icon: downloadIcon,
         isPrimary: isPrimary,
-        // 主按钮：打开下载对话框（可选清晰度 + 分类）。
-        // 下拉菜单仍保留按清晰度的「秒下」（沿用记住的默认分类）。
-        onPressed: isDisabled ? null : () => _showDownloadDialog(context),
+        // 主按钮：打开「选择下载」弹窗，预选“上次下载用的清晰度”（就是按钮上写的那个）。
+        // 「更多」菜单里的每个清晰度也打开同一张弹窗，只是预选那个被点的清晰度——
+        // 两个入口共用一张弹窗、一条下载流程，不再各走各的。
+        onPressed: isDisabled
+            ? null
+            : () => _openDownloadPicker(
+                context,
+                sources,
+                initialQuality: currentQuality,
+                preselectSource: DownloadPickerPreselectSource.lastUsed,
+              ),
         menuItems: [
           // 置顶菜单项：查看下载列表
           PopupMenuItem<String>(
             value: '__download_list__',
             child: Row(
               children: [
-                Icon(
-                  Icons.download_outlined,
-                  size: 18,
-                  color: Theme.of(context).primaryColor,
-                ),
+                Icon(Icons.download_outlined, size: 18, color: primaryColor),
                 const SizedBox(width: UIConstants.iconTextSpacing),
                 Text(
                   t.download.viewDownloadList,
                   style: TextStyle(
                     fontWeight: FontWeight.w500,
-                    color: Theme.of(context).primaryColor,
+                    color: primaryColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // 管理分类快捷入口：不用先弹出选清晰度的弹窗，直达管理页
+          PopupMenuItem<String>(
+            value: '__manage_categories__',
+            child: Row(
+              children: [
+                Icon(Icons.folder_outlined, size: 18, color: primaryColor),
+                const SizedBox(width: UIConstants.iconTextSpacing),
+                Text(
+                  t.download.category.manageTitle,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: primaryColor,
                   ),
                 ),
               ],
@@ -1085,24 +1105,48 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
           ),
           // 分割线
           const PopupMenuDivider(),
-          // 清晰度选项
+          // 清晰度选项：配上与播放器一致的分辨率图标，不再是赤裸文字
+          //
+          // value 用空字符串兜底而不是本地化的"未知"文案——它要传给
+          // _openDownloadPicker 做清晰度匹配，得和 sheet 内 `s.name?.toLowerCase() ?? ''`
+          // 的兜底值对上，否则名字为空的源会被错误匹配成排序后的第一个（画质最高）源。
           ...sources.map((source) {
             return PopupMenuItem<String>(
-              value: source.name ?? t.download.errors.unknown,
-              child: Text(CommonUtils.getQualityDisplayLabel(t, source.name)),
+              value: source.name ?? '',
+              child: Row(
+                children: [
+                  SvgPicture.asset(
+                    CommonUtils.getQualityIconAsset(source.name),
+                    width: 18,
+                    height: 18,
+                    colorFilter: ColorFilter.mode(
+                      Theme.of(context).colorScheme.onSurfaceVariant,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                  const SizedBox(width: UIConstants.iconTextSpacing),
+                  Text(CommonUtils.getQualityDisplayLabel(t, source.name)),
+                ],
+              ),
             );
           }),
         ],
-        onMenuItemSelected: (quality) {
-          // 如果是跳转到下载列表
-          if (quality == '__download_list__') {
+        onMenuItemSelected: (value) {
+          if (value == '__download_list__') {
             NaviService.navigateToDownloadTaskListPage();
             return;
           }
-          // 保存选择的清晰度到配置
-          configService.setSetting(ConfigKey.LAST_DOWNLOAD_QUALITY, quality);
-          // 使用选择的清晰度下载
-          _handleDownloadWithQuality(context, quality);
+          if (value == '__manage_categories__') {
+            openDownloadCategoryManagePage(context);
+            return;
+          }
+          // 其余菜单项的 value 就是被点的清晰度名称
+          _openDownloadPicker(
+            context,
+            sources,
+            initialQuality: value,
+            preselectSource: DownloadPickerPreselectSource.picked,
+          );
         },
         isDisabled: isDisabled,
         accentColor: accentColor,
@@ -1110,41 +1154,75 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
     });
   }
 
-  /// 使用指定清晰度下载（split button 下拉菜单的「秒下」入口）
-  ///
-  /// 跳过的只是清晰度选择对话框；分类选择步骤仍需保留，
-  /// 与主按钮弹出的完整下载对话框保持一致，避免用户误以为该任务已按上次分类归档。
-  Future<void> _handleDownloadWithQuality(
+  /// 打开「选择下载」弹窗（清晰度网格 + 分类胶囊），确认后走统一的下载流程。
+  /// [initialQuality] 决定弹窗打开时预选中哪一档清晰度；分类的预选值弹窗内部
+  /// 自己读取“上次选择”，与是从哪个入口打开的无关。
+  Future<void> _openDownloadPicker(
     BuildContext context,
-    String? quality,
-  ) async {
-    if (quality == null) {
-      _handleDownloadAction(context);
+    List<VideoSource> sources, {
+    String? initialQuality,
+    DownloadPickerPreselectSource preselectSource =
+        DownloadPickerPreselectSource.lastUsed,
+  }) async {
+    final t = slang.Translations.of(context);
+
+    if (sources.isEmpty) {
+      LogUtils.w('没有可用的下载源', 'VideoInfoTabWidget');
+      showToastWidget(
+        MDToastWidget(
+          message: t.download.errors.noDownloadSourceNowPleaseWaitInfoLoaded,
+          type: MDToastType.error,
+        ),
+      );
+      return;
+    }
+    final UserService userService = Get.find();
+    if (!userService.isAuthenticated) {
+      LogUtils.w('用户未登录，无法下载', 'VideoInfoTabWidget');
+      showToastWidget(
+        MDToastWidget(
+          message: t.errors.pleaseLoginFirst,
+          type: MDToastType.error,
+        ),
+      );
+      LoginService.showLogin();
       return;
     }
 
-    final sources = widget.controller.currentVideoSourceList;
-    // 使用 toLowerCase() 进行不区分大小写的比较
-    final source = sources.firstWhereOrNull(
-      (s) => (s.name?.toLowerCase() ?? '') == quality.toLowerCase(),
+    // 捕获页面 context：弹窗内的 context 在 pop 后会失效，重复确认框需改用它。
+    final BuildContext pageContext = context;
+
+    final result = await showDownloadPickerSheet(
+      context,
+      sources: sources,
+      initialQuality: initialQuality,
+      preselectSource: preselectSource,
     );
-
-    if (source == null) {
-      _handleDownloadAction(context);
+    if (result == null) {
+      LogUtils.d('用户取消了下载选择', 'VideoInfoTabWidget');
       return;
     }
 
-    // 补上被跳过的分类选择步骤
-    final categoryChoice = await showDownloadCategoryDialog(context);
-    if (!categoryChoice.confirmed) {
-      LogUtils.d('用户取消了下载分类选择', 'VideoInfoTabWidget');
-      return;
-    }
+    if (!pageContext.mounted) return;
 
-    if (!context.mounted) return;
+    // 重新从 controller 获取最新的视频源列表，避免弹窗停留期间源列表被刷新，
+    // 导致仍然拿着 sources 快照里已经过期的下载链接。
+    final latestSources = widget.controller.currentVideoSourceList;
+    final latestSource =
+        latestSources.firstWhereOrNull(
+          (s) =>
+              (s.name?.toLowerCase() ?? '') ==
+              (result.source.name?.toLowerCase() ?? ''),
+        ) ??
+        result.source;
 
-    // 使用该清晰度下载，跳过清晰度选择对话框
-    _downloadWithSource(context, source, categoryId: categoryChoice.categoryId);
+    // “记住上次选择”的写入放在 _downloadWithSource 里、任务真正创建成功之后，
+    // 避免用户在重复任务确认/保存路径这些后续步骤中途取消，却已经把默认值改掉。
+    await _downloadWithSource(
+      pageContext,
+      latestSource,
+      categoryId: result.categoryId,
+    );
   }
 
   /// 使用指定的视频源下载
@@ -1260,6 +1338,19 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
       // 标记视频有下载任务
       widget.controller.markVideoHasDownloadTask();
 
+      // 记住这次成功下载用的清晰度 + 分类，作为下次默认值。
+      // 放在 addTask 成功之后才写，避免半途取消（重复任务确认/保存路径）
+      // 却已经把「上次选择」改掉，导致按钮下次显示一个从未真正下载过的清晰度。
+      final configService = Get.find<ConfigService>();
+      configService.setSetting(
+        ConfigKey.LAST_DOWNLOAD_QUALITY,
+        source.name ?? 'unknown',
+      );
+      configService.setSetting(
+        ConfigKey.LAST_DOWNLOAD_CATEGORY_ID,
+        categoryId ?? '',
+      );
+
       if (!mounted) return;
       _showDownloadStartedSnackBar();
     } catch (e) {
@@ -1371,265 +1462,6 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
       quality: quality,
       downloadUrl: downloadUrl,
     );
-  }
-
-  void _showDownloadDialog(BuildContext context) {
-    LogUtils.d('尝试显示下载对话框', 'VideoInfoTabWidget'); // Changed tag for clarity
-    final t = slang.Translations.of(context);
-    // 捕获页面 context：弹窗内的 context 在 pop 后会失效，重复确认框需改用它。
-    final BuildContext pageContext = context;
-    final sources = CommonUtils.sortVideoSourcesByQuality(
-      widget.controller.currentVideoSourceList,
-    );
-
-    if (sources.isEmpty) {
-      LogUtils.w('没有可用的下载源', 'VideoInfoTabWidget');
-      showToastWidget(
-        MDToastWidget(
-          message: t.download.errors.noDownloadSourceNowPleaseWaitInfoLoaded,
-          type: MDToastType.error,
-        ),
-      );
-      return;
-    }
-    final UserService userService = Get.find();
-    if (!userService.isAuthenticated) {
-      LogUtils.w('用户未登录，无法下载', 'VideoInfoTabWidget');
-      showToastWidget(
-        MDToastWidget(
-          message: t.errors.pleaseLoginFirst,
-          type: MDToastType.error,
-        ),
-      );
-      LoginService.showLogin();
-      return;
-    }
-
-    // 初始化下载分类：从配置读取上次选择（空字符串视为未分类/null）
-    final lastCategoryRaw =
-        Get.find<ConfigService>()[ConfigKey.LAST_DOWNLOAD_CATEGORY_ID]
-            as String?;
-    String? selectedCategoryId =
-        (lastCategoryRaw == null || lastCategoryRaw.isEmpty)
-        ? null
-        : lastCategoryRaw;
-
-    try {
-      showAppDialog(
-        StatefulBuilder(
-          builder: (context, setDialogState) => AlertDialog(
-            title: Text(t.common.selectQuality),
-            content: SizedBox(
-              width: double.maxFinite,
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    DownloadCategoryPicker(
-                      value: selectedCategoryId,
-                      onChanged: (value) {
-                        setDialogState(() {
-                          selectedCategoryId = value;
-                        });
-                      },
-                    ),
-                    ...sources.map((source) {
-                      return ListTile(
-                        title: Text(
-                          CommonUtils.getQualityDisplayLabel(t, source.name),
-                        ),
-                        onTap: () async {
-                          LogUtils.d(
-                            '选择下载质量: ${source.name}',
-                            'VideoInfoTabWidget',
-                          );
-                          AppService.tryPop();
-
-                          // 重新从 controller 获取最新的视频源列表，避免使用过期的源
-                          final latestSources =
-                              widget.controller.currentVideoSourceList;
-                          final latestSource = latestSources.firstWhereOrNull(
-                            (s) =>
-                                (s.name?.toLowerCase() ?? '') ==
-                                (source.name?.toLowerCase() ?? ''),
-                          );
-
-                          if (latestSource == null ||
-                              latestSource.download == null) {
-                            LogUtils.w('所选质量没有下载链接或源已失效', 'VideoInfoTabWidget');
-                            showToastWidget(
-                              MDToastWidget(
-                                message: t.videoDetail.noDownloadUrl,
-                                type: MDToastType.error,
-                              ),
-                              position: ToastPosition.top,
-                            );
-                            return;
-                          }
-
-                          try {
-                            final videoInfo = widget.controller.videoInfo.value;
-                            if (videoInfo == null) {
-                              LogUtils.e(
-                                '下载失败：视频信息为空',
-                                tag: 'VideoInfoTabWidget',
-                              );
-                              throw Exception(
-                                t.download.errors.videoInfoNotFound,
-                              );
-                            }
-
-                            // 创建视频下载的额外信息，使用最新获取的视频源
-                            final videoExtData = VideoDownloadExtData(
-                              id: videoInfo.id,
-                              title: videoInfo.title,
-                              thumbnail: videoInfo.thumbnailUrl,
-                              authorName: videoInfo.user?.name,
-                              authorUsername: videoInfo.user?.username,
-                              authorAvatar: videoInfo.user?.avatar?.avatarUrl,
-                              duration: videoInfo.file?.duration,
-                              quality: latestSource.name,
-                            );
-                            LogUtils.d(
-                              '创建下载任务元数据，使用最新视频源',
-                              'VideoInfoTabWidget',
-                            );
-
-                            // 检查是否存在重复任务
-                            final duplicateCheck = await DownloadService.to
-                                .checkVideoTaskDuplicate(
-                                  videoInfo.id,
-                                  latestSource.name ?? 'unknown',
-                                );
-
-                            // 如果存在重复任务，显示确认对话框
-                            if (duplicateCheck.hasSameVideoSameQuality ||
-                                duplicateCheck.hasSameVideoDifferentQuality) {
-                              // 弹窗已 pop，改用页面 context 判断有效性并弹重复确认框
-                              if (!pageContext.mounted) {
-                                LogUtils.d(
-                                  'Context 已失效，取消下载操作',
-                                  'VideoInfoTabWidget',
-                                );
-                                return;
-                              }
-
-                              final shouldContinue =
-                                  await _showDuplicateTaskDialog(
-                                    pageContext,
-                                    duplicateCheck.hasSameVideoSameQuality,
-                                    duplicateCheck.existingQualities,
-                                  );
-
-                              if (!shouldContinue) {
-                                LogUtils.d('用户取消了重复任务下载', 'VideoInfoTabWidget');
-                                return;
-                              }
-                            }
-
-                            // 在创建下载任务之前获取保存路径
-                            final savePath = await _getSavePath(
-                              videoInfo.title ?? 'video',
-                              latestSource.name ?? 'unknown',
-                              latestSource.download ?? 'unknown',
-                            );
-
-                            if (savePath == null) {
-                              LogUtils.d('用户取消了下载操作', 'VideoInfoTabWidget');
-                              showToastWidget(
-                                MDToastWidget(
-                                  message: t.common.operationCancelled,
-                                  type: MDToastType.info,
-                                ),
-                              );
-                              return;
-                            }
-
-                            final task = DownloadTask(
-                              url: latestSource.download!,
-                              savePath: savePath,
-                              fileName:
-                                  '${videoInfo.title ?? 'video'}_${latestSource.name}.mp4',
-                              supportsRange: true,
-                              extData: DownloadTaskExtData(
-                                type: DownloadTaskExtDataType.video,
-                                data: videoExtData.toJson(),
-                              ),
-                              mediaType: 'video',
-                              mediaId: videoInfo.id,
-                              quality: latestSource.name,
-                            );
-                            // 应用所选下载分类（空字符串/未选择视为未分类）
-                            task.categoryId =
-                                (selectedCategoryId?.isEmpty ?? true)
-                                ? null
-                                : selectedCategoryId;
-                            LogUtils.d(
-                              '添加下载任务: ${task.id}',
-                              'VideoInfoTabWidget',
-                            );
-
-                            await DownloadService.to.addTask(task);
-
-                            // 标记视频有下载任务
-                            widget.controller.markVideoHasDownloadTask();
-
-                            // 保存选择的清晰度到配置
-                            final configService = Get.find<ConfigService>();
-                            configService.setSetting(
-                              ConfigKey.LAST_DOWNLOAD_QUALITY,
-                              latestSource.name ?? 'unknown',
-                            );
-                            // 记住所选下载分类作为下次默认值
-                            configService.setSetting(
-                              ConfigKey.LAST_DOWNLOAD_CATEGORY_ID,
-                              selectedCategoryId ?? '',
-                            );
-
-                            if (!mounted) return;
-                            _showDownloadStartedSnackBar();
-                          } catch (e) {
-                            LogUtils.e(
-                              '添加下载任务失败: $e',
-                              tag: 'VideoInfoTabWidget',
-                              error: e,
-                            );
-                            String message;
-                            if (e.toString().contains(
-                              t.download.errors.downloadTaskAlreadyExists,
-                            )) {
-                              message =
-                                  t.download.errors.downloadTaskAlreadyExists;
-                            } else if (e.toString().contains(
-                              t.download.errors.videoAlreadyDownloaded,
-                            )) {
-                              message =
-                                  t.download.errors.videoAlreadyDownloaded;
-                            } else {
-                              message = t.download.errors.downloadFailed;
-                            }
-
-                            showToastWidget(
-                              MDToastWidget(
-                                message: message,
-                                type: MDToastType.error,
-                              ),
-                              position: ToastPosition.top,
-                            );
-                          }
-                        },
-                      );
-                    }),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    } catch (e) {
-      LogUtils.e('显示下载对话框失败', error: e, tag: 'VideoInfoTabWidget');
-    }
   }
 
   /// 显示重复任务确认对话框

@@ -1576,6 +1576,11 @@ download:
   downloadList: 下載列表
   viewDownloadList: 查看下載列表
   download: 下載
+  selectDownloadTitle: 選擇下載
+  qualitySectionLabel: 清晰度
+  saveToSectionLabel: 儲存到
+  lastUsedBadge: 上次選擇
+  pickedBadge: 已選擇
   forceDeleteTask: 強制刪除任務
   startDownloading: 開始下載...
   clearAllFailedTasks: 清除全部失敗任務
@@ -1660,6 +1665,7 @@ download:
     label: 分類
     uncategorized: 未分類
     manage: 管理
+    createShortcut: 新建
     newCategoryHint: 新分類名稱
     createSuccess: 分類已建立
     createFailed: 建立分類失敗

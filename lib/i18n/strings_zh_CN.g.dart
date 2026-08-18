@@ -1249,6 +1249,11 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	@override String get downloadList => '下载列表';
 	@override String get viewDownloadList => '查看下载列表';
 	@override String get download => '下载';
+	@override String get selectDownloadTitle => '选择下载';
+	@override String get qualitySectionLabel => '清晰度';
+	@override String get saveToSectionLabel => '保存到';
+	@override String get lastUsedBadge => '上次选择';
+	@override String get pickedBadge => '已选中';
 	@override String get forceDeleteTask => '强制删除任务';
 	@override String get startDownloading => '开始下载...';
 	@override String get clearAllFailedTasks => '清除全部失败任务';
@@ -3014,6 +3019,7 @@ class _TranslationsDownloadCategoryZhCn implements TranslationsDownloadCategoryE
 	@override String get label => '分类';
 	@override String get uncategorized => '未分类';
 	@override String get manage => '管理';
+	@override String get createShortcut => '新建';
 	@override String get newCategoryHint => '新分类名称';
 	@override String get createSuccess => '分类已创建';
 	@override String get createFailed => '创建分类失败';
@@ -3889,9 +3895,9 @@ extension on TranslationsZhCn {
 			'settings.proxyConfig' => '代理配置',
 			'settings.thisIsHttpProxyAddress' => '此处为http代理地址',
 			'settings.checkProxy' => '检查代理',
-			'settings.proxyAddress' => '代理地址',
 			_ => null,
 		} ?? switch (path) {
+			'settings.proxyAddress' => '代理地址',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => '请输入代理服务器的URL，例如 127.0.0.1:8080',
 			'settings.enableProxy' => '启用代理',
 			'settings.left' => '左侧',
@@ -4403,9 +4409,9 @@ extension on TranslationsZhCn {
 			'signIn.selectDateRange' => '选择日期范围',
 			'signIn.startDate' => '开始日期',
 			'signIn.endDate' => '结束日期',
-			'signIn.invalidDate' => '日期格式错误',
 			_ => null,
 		} ?? switch (path) {
+			'signIn.invalidDate' => '日期格式错误',
 			'signIn.invalidDateRange' => '日期范围无效',
 			'signIn.errorFormatText' => '日期格式错误',
 			'signIn.errorInvalidText' => '日期范围无效',
@@ -4815,6 +4821,11 @@ extension on TranslationsZhCn {
 			'download.downloadList' => '下载列表',
 			'download.viewDownloadList' => '查看下载列表',
 			'download.download' => '下载',
+			'download.selectDownloadTitle' => '选择下载',
+			'download.qualitySectionLabel' => '清晰度',
+			'download.saveToSectionLabel' => '保存到',
+			'download.lastUsedBadge' => '上次选择',
+			'download.pickedBadge' => '已选中',
 			'download.forceDeleteTask' => '强制删除任务',
 			'download.startDownloading' => '开始下载...',
 			'download.clearAllFailedTasks' => '清除全部失败任务',
@@ -4896,6 +4907,7 @@ extension on TranslationsZhCn {
 			'download.category.label' => '分类',
 			'download.category.uncategorized' => '未分类',
 			'download.category.manage' => '管理',
+			'download.category.createShortcut' => '新建',
 			'download.category.newCategoryHint' => '新分类名称',
 			'download.category.createSuccess' => '分类已创建',
 			'download.category.createFailed' => '创建分类失败',
@@ -4911,6 +4923,8 @@ extension on TranslationsZhCn {
 			'download.category.renameSuccess' => '已重命名',
 			'download.category.renameFailed' => '重命名失败',
 			'download.category.deleteTitle' => '删除分类',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => '删除分类「${title}」？该分类下的 ${count} 个下载将移到「未分类」，文件不会被删除。',
 			'download.category.deleteSuccess' => '分类已删除',
 			'download.category.deleteFailed' => '删除分类失败',
@@ -4918,8 +4932,6 @@ extension on TranslationsZhCn {
 			'download.maxConcurrentDownloadsDesc' => '同时进行下载的任务数量（1-5）',
 			'download.downloadCompletedWithName' => ({required Object fileName}) => '下载完成: ${fileName}',
 			'download.stillInDevelopment' => '开发中',
-			_ => null,
-		} ?? switch (path) {
 			'download.saveToAppDirectory' => '保存到应用目录',
 			'download.alreadyDownloadedWithQuality' => '已有相同清晰度的任务，是否继续下载？',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => '已有清晰度为${qualities}的任务，是否继续下载？',
@@ -5425,6 +5437,8 @@ extension on TranslationsZhCn {
 			'emoji.goToSettingsToAddEmojis' => '前往设置添加表情包',
 			'emoji.emojiManagement' => '表情包管理',
 			'emoji.manageEmojiGroupsAndImages' => '管理表情包分组和图片',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.uploadLocalImages' => '上传本地图片',
 			'emoji.uploadingImages' => '正在上传图片',
 			'emoji.uploadingImagesProgress' => ({required Object count}) => '正在上传 ${count} 张图片，请稍候...',
@@ -5432,8 +5446,6 @@ extension on TranslationsZhCn {
 			'emoji.uploadSuccess' => ({required Object count}) => '成功上传 ${count} 张图片',
 			'emoji.uploadFailed' => ({required Object count}) => '失败 ${count} 张',
 			'emoji.uploadFailedMessage' => '图片上传失败，请检查网络连接或文件格式',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.uploadErrorMessage' => ({required Object error}) => '上传过程中发生错误: ${error}',
 			'displaySettings.title' => '显示设置',
 			'displaySettings.layoutSettings' => '布局设置',

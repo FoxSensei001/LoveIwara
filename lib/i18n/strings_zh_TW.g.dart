@@ -1277,6 +1277,11 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	@override String get downloadList => '下載列表';
 	@override String get viewDownloadList => '查看下載列表';
 	@override String get download => '下載';
+	@override String get selectDownloadTitle => '選擇下載';
+	@override String get qualitySectionLabel => '清晰度';
+	@override String get saveToSectionLabel => '儲存到';
+	@override String get lastUsedBadge => '上次選擇';
+	@override String get pickedBadge => '已選擇';
 	@override String get forceDeleteTask => '強制刪除任務';
 	@override String get startDownloading => '開始下載...';
 	@override String get clearAllFailedTasks => '清除全部失敗任務';
@@ -3102,6 +3107,7 @@ class _TranslationsDownloadCategoryZhTw implements TranslationsDownloadCategoryE
 	@override String get label => '分類';
 	@override String get uncategorized => '未分類';
 	@override String get manage => '管理';
+	@override String get createShortcut => '新建';
 	@override String get newCategoryHint => '新分類名稱';
 	@override String get createSuccess => '分類已建立';
 	@override String get createFailed => '建立分類失敗';
@@ -3889,9 +3895,9 @@ extension on TranslationsZhTw {
 			'settings.proxyConfig' => '代理設定',
 			'settings.thisIsHttpProxyAddress' => '此為 HTTP 代理伺服器地址',
 			'settings.checkProxy' => '檢查代理',
-			'settings.proxyAddress' => '代理地址',
 			_ => null,
 		} ?? switch (path) {
+			'settings.proxyAddress' => '代理地址',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => '請輸入代理伺服器的 URL，例如 127.0.0.1:8080',
 			'settings.enableProxy' => '啟用代理',
 			'settings.left' => '左側',
@@ -4403,9 +4409,9 @@ extension on TranslationsZhTw {
 			'firstTimeSetup.network.subtitle' => '配置網路連線選項',
 			'firstTimeSetup.network.description' => '根據您的網路環境進行相應配置',
 			'firstTimeSetup.network.tip' => '設定成功後需重啟應用才會生效',
-			'firstTimeSetup.theme.title' => '主題設定',
 			_ => null,
 		} ?? switch (path) {
+			'firstTimeSetup.theme.title' => '主題設定',
 			'firstTimeSetup.theme.subtitle' => '選擇您喜歡的介面主題',
 			'firstTimeSetup.theme.description' => '個人化您的視覺體驗',
 			'firstTimeSetup.player.title' => '播放器設定',
@@ -4843,6 +4849,11 @@ extension on TranslationsZhTw {
 			'download.downloadList' => '下載列表',
 			'download.viewDownloadList' => '查看下載列表',
 			'download.download' => '下載',
+			'download.selectDownloadTitle' => '選擇下載',
+			'download.qualitySectionLabel' => '清晰度',
+			'download.saveToSectionLabel' => '儲存到',
+			'download.lastUsedBadge' => '上次選擇',
+			'download.pickedBadge' => '已選擇',
 			'download.forceDeleteTask' => '強制刪除任務',
 			'download.startDownloading' => '開始下載...',
 			'download.clearAllFailedTasks' => '清除全部失敗任務',
@@ -4912,14 +4923,14 @@ extension on TranslationsZhTw {
 			'download.deleteByDate.startDate' => '開始日期',
 			'download.deleteByDate.endDate' => '結束日期',
 			'download.deleteByDate.notSet' => '未設定',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.daysUnit' => '天',
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => '刪除 ${days} 天以前建立的任務',
 			'download.deleteByDate.noMatch' => '沒有符合條件的任務',
 			'download.deleteByDate.invalidRange' => '開始日期不能晚於結束日期',
 			'download.deleteByDate.confirmTitle' => '確認刪除',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '確定刪除這 ${count} 個下載任務及其檔案嗎？此操作無法復原。',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '正在刪除 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '已刪除 ${count} 個任務',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '已刪除 ${deleted} 個任務，略過 ${skipped} 個（被佔用）',
@@ -4927,6 +4938,7 @@ extension on TranslationsZhTw {
 			'download.category.label' => '分類',
 			'download.category.uncategorized' => '未分類',
 			'download.category.manage' => '管理',
+			'download.category.createShortcut' => '新建',
 			'download.category.newCategoryHint' => '新分類名稱',
 			'download.category.createSuccess' => '分類已建立',
 			'download.category.createFailed' => '建立分類失敗',
@@ -5425,6 +5437,8 @@ extension on TranslationsZhTw {
 			'emoji.cancel' => '取消',
 			'emoji.batchDelete' => '批次刪除',
 			'emoji.confirmBatchDelete' => ({required Object count}) => '確定要刪除選中的${count}張圖片嗎？此操作不可復原。',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.deleteSuccess' => '成功刪除',
 			'emoji.addImage' => '添加圖片',
 			'emoji.addImageByUrl' => '透過URL添加',
@@ -5432,8 +5446,6 @@ extension on TranslationsZhTw {
 			'emoji.imageUrl' => '圖片URL',
 			'emoji.enterImageUrl' => '請輸入圖片URL',
 			'emoji.add' => '添加',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.batchImport' => '批次匯入',
 			'emoji.enterJsonUrlArray' => '請輸入JSON格式的URL陣列:',
 			'emoji.formatExample' => '格式範例:\n["url1", "url2", "url3"]',

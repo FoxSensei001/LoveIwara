@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -33,8 +34,10 @@ double bottomToolbarEstimatedHeight({
   required bool isFullScreen,
   required bool isSmallScreen, // MediaQuery.size.width < 600，看的是窗口不是播放器
   required bool showResumeTip, // controller.showResumePositionTip.value
-  required bool showQuickActions, // isFullScreen && userService.hasLoadedProfile
-  required double bottomInset, // applyBottomSafeAreaPadding 时的 computeBottomSafeInset
+  required bool
+  showQuickActions, // isFullScreen && userService.hasLoadedProfile
+  required double
+  bottomInset, // applyBottomSafeAreaPadding 时的 computeBottomSafeInset
   required TextScaler textScaler,
 }) {
   const double vPad = 8.0; // Container 上下各 4
@@ -65,7 +68,12 @@ double bottomToolbarEstimatedHeight({
       ? 8.0 + math.max(buttonBox, 30.0)
       : 0.0;
 
-  return quickActions + vPad + progressBar + controlRow + resumeTip + bottomInset;
+  return quickActions +
+      vPad +
+      progressBar +
+      controlRow +
+      resumeTip +
+      bottomInset;
 }
 
 class BottomToolbar extends StatelessWidget {
@@ -478,24 +486,9 @@ class BottomToolbar extends StatelessWidget {
     );
   }
 
-  /// 获取分辨率对应的 SVG 资源路径
-  String _getResolutionIconAsset(String? label) {
-    if (label == null) return 'assets/svg/res_unknown.svg';
-    switch (label) {
-      case '360':
-        return 'assets/svg/res_360p.svg';
-      case '540':
-        return 'assets/svg/res_540p.svg';
-      case '720':
-        return 'assets/svg/res_720p.svg';
-      case '1080':
-        return 'assets/svg/res_1080p.svg';
-      case 'Source':
-        return 'assets/svg/res_source.svg';
-      default:
-        return 'assets/svg/res_unknown.svg';
-    }
-  }
+  /// 获取分辨率对应的 SVG 资源路径（与下载清晰度选择共用同一套映射）
+  String _getResolutionIconAsset(String? label) =>
+      CommonUtils.getQualityIconAsset(label);
 
   /// 分辨率切换器
   Widget _buildResolutionSwitcher(BuildContext context, double iconSize) {

@@ -1533,6 +1533,11 @@ download:
   downloadList: Download List
   viewDownloadList: View Download List
   download: Download
+  selectDownloadTitle: Select Download
+  qualitySectionLabel: Quality
+  saveToSectionLabel: Save to
+  lastUsedBadge: Last used
+  pickedBadge: Selected
   startDownloading: Start Downloading
   clearAllFailedTasks: Clear All Failed Tasks
   clearAllFailedTasksConfirmation: 'Are you sure you want to clear all failed download tasks? The files of these tasks will also be deleted.'
@@ -1617,6 +1622,7 @@ download:
     label: Categories
     uncategorized: Uncategorized
     manage: Manage
+    createShortcut: New
     newCategoryHint: New category name
     createSuccess: Category created
     createFailed: Failed to create category
