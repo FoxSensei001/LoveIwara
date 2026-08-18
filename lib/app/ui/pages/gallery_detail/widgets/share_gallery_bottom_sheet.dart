@@ -12,6 +12,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class ShareGalleryBottomSheet extends StatefulWidget {
   final String galleryId;
@@ -118,6 +119,10 @@ class _ShareGalleryBottomSheetState extends State<ShareGalleryBottomSheet> {
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      // 底部弹窗自己让出系统手势条/导航条
+      padding: EdgeInsets.only(
+        bottom: computeSheetBottomInset(context),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

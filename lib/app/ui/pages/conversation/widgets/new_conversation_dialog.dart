@@ -14,6 +14,7 @@ import 'package:i_iwara/app/ui/widgets/enhanced_emoji_text_field.dart';
 import 'package:i_iwara/app/ui/widgets/emoji_picker_sheet.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class NewConversationDialog extends StatefulWidget {
   const NewConversationDialog({
@@ -142,7 +143,12 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
             Expanded(
               child: SingleChildScrollView(
                 controller: scrollController,
-                padding: const EdgeInsets.all(16.0),
+                padding: EdgeInsets.fromLTRB(
+                  16.0,
+                  16.0,
+                  16.0,
+                  16.0 + computeSheetBottomInset(context),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -546,6 +552,9 @@ class _UserSearchSheetState extends State<_UserSearchSheet> {
         else
           Expanded(
             child: ListView.builder(
+              padding: EdgeInsets.only(
+                bottom: computeSheetBottomInset(context),
+              ),
               itemCount: _searchResults.length,
               itemBuilder: (context, index) {
                 final user = _searchResults[index];

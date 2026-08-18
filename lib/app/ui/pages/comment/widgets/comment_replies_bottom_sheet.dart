@@ -10,6 +10,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'comment_input_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class CommentRepliesBottomSheet extends StatefulWidget {
   final Comment parentComment;
@@ -427,6 +428,8 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
               top: Radius.circular(16.0),
             ),
           ),
+          // 底部弹窗自己让出系统手势条/导航条
+          padding: EdgeInsets.only(bottom: computeSheetBottomInset(context)),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

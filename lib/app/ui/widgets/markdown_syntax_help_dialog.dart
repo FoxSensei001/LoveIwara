@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class MarkdownSyntaxHelp extends StatelessWidget {
   const MarkdownSyntaxHelp({super.key});
@@ -49,7 +50,12 @@ class MarkdownSyntaxHelp extends StatelessWidget {
             Expanded(
               child: ListView(
                 controller: scrollController,
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.fromLTRB(
+                  16,
+                  16,
+                  16,
+                  16 + computeSheetBottomInset(context),
+                ),
                 children: [
                   _buildSection(
                     title: t.markdown.iwaraSpecialMarkdownSyntax,

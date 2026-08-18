@@ -6,6 +6,7 @@ import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'dart:convert';
 import 'package:shimmer/shimmer.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 enum _ImportMenuAction { addByUrl, batchImport }
 
@@ -88,6 +89,8 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
           topRight: Radius.circular(20),
         ),
       ),
+      // 底部弹窗自己让出系统手势条/导航条
+      padding: EdgeInsets.only(bottom: computeSheetBottomInset(context)),
       child: Column(
         children: [
           // 顶部拖拽指示器

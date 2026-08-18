@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:oktoast/oktoast.dart';
 
 enum MDToastType { success, error, info, warning }
@@ -100,8 +101,17 @@ class MDToastWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // oktoast 的 Overlay 挂在 MaterialApp 外面，`ToastPosition.bottom` 只是从屏幕
+    // 底边固定偏移 30，完全不知道系统手势条/导航栏的高度——这里补上，让底部 toast
+    // 不会被系统导航栏挡住。用 computeBottomSafeInset 而不是裸 SafeArea，边到边模式
+    // 下 padding.bottom 可能是 0（同 [[bottom-sheet-safe-area]] 的坑），它会兜底
+    // viewPadding/systemGestureInsets。顶部 toast 加这段只是多出一截不可见的
+    // margin，不影响视觉位置，不需要按 position 区分。
+    final bottomSafeInset = computeBottomSafeInset(MediaQuery.of(context));
     Widget toastContent = Container(
-      margin: margin ?? const EdgeInsets.symmetric(horizontal: 16),
+      margin: (margin ?? const EdgeInsets.symmetric(horizontal: 16)).add(
+        EdgeInsets.only(bottom: bottomSafeInset),
+      ),
       padding:
           padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(

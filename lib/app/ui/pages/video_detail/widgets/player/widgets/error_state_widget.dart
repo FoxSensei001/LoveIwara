@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class ErrorStateWidget extends StatelessWidget {
   final MyVideoStateController controller;
@@ -157,18 +158,17 @@ class ErrorStateWidget extends StatelessWidget {
 
   // 显示错误详情底部弹窗
   void _showErrorDetailSheet(BuildContext context) {
-    final bottomPadding = MediaQuery.paddingOf(context).bottom;
-
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.black87,
       isScrollControlled: true,
+      // 边到边模式下 padding.bottom 可能为 0，统一走 computeSheetBottomInset。
       builder: (context) => Container(
         padding: EdgeInsets.only(
           left: 16,
           right: 16,
           top: 20,
-          bottom: bottomPadding + 20,
+          bottom: computeSheetBottomInset(context) + 20,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

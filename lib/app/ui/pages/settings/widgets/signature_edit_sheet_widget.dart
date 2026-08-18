@@ -19,22 +19,20 @@ class _SignatureEditSheetState extends State<SignatureEditSheet> {
   @override
   Widget build(BuildContext context) {
     final t = slang.t;
-    return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: BaseBottomSheetInput(
-        title: t.settings.editSignature,
-        hintText: t.settings.enterSignature,
-        maxLength: 1000,
-        maxLines: 5,
-        showEmojiPicker: true, // 启用表情包功能
-        showTranslation: true,
-        showMarkdownHelp: true,
-        showPreview: true,
-        showRulesAgreement: false,
-        onSubmit: _handleSubmit,
-        initialContent: widget.initialContent,
-        submitText: t.common.confirm,
-      ),
+    // 键盘与底部安全区由 BaseBottomSheetInput 内部统一处理，这里不要再叠一层。
+    return BaseBottomSheetInput(
+      title: t.settings.editSignature,
+      hintText: t.settings.enterSignature,
+      maxLength: 1000,
+      maxLines: 5,
+      showEmojiPicker: true, // 启用表情包功能
+      showTranslation: true,
+      showMarkdownHelp: true,
+      showPreview: true,
+      showRulesAgreement: false,
+      onSubmit: _handleSubmit,
+      initialContent: widget.initialContent,
+      submitText: t.common.confirm,
     );
   }
 }

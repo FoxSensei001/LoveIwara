@@ -7,6 +7,7 @@ import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/tag_controller.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 /// 通用标签选择器组件
 class TagSelectorWidget extends StatefulWidget {
@@ -150,6 +151,8 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
+      // 底部弹窗自己让出系统手势条/导航条
+      padding: EdgeInsets.only(bottom: computeSheetBottomInset(context)),
       child: Column(
         children: [
           // 头部
@@ -518,6 +521,8 @@ class _RemoveTagDialogState extends State<RemoveTagDialog> {
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
+      // 底部弹窗自己让出系统手势条/导航条
+      padding: EdgeInsets.only(bottom: computeSheetBottomInset(context)),
       child: Column(
         children: [
           Container(

@@ -22,6 +22,7 @@ import '../comment/widgets/comment_section_widget.dart';
 import 'controllers/post_detail_controller.dart';
 import 'widgets/post_detail_shimmer.dart';
 import '../../widgets/iwara_site_badge.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class PostDetailPage extends StatefulWidget {
   final String postId;
@@ -90,6 +91,10 @@ class _PostDetailPageState extends State<PostDetailPage> {
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(20),
                 ),
+              ),
+              // 底部弹窗自己让出系统手势条/导航条
+              padding: EdgeInsets.only(
+                bottom: computeSheetBottomInset(context),
               ),
               child: Column(
                 children: [

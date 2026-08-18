@@ -17,6 +17,7 @@ import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/enhanced_emoji_text_field.dart';
 import 'package:i_iwara/app/ui/widgets/emoji_picker_sheet.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class ForumPostDialog extends StatefulWidget {
   const ForumPostDialog({super.key, this.onSubmit, this.initCategoryId});
@@ -452,6 +453,9 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
                             Expanded(
                               child: ListView.builder(
                                 controller: scrollController,
+                                padding: EdgeInsets.only(
+                                  bottom: computeSheetBottomInset(context),
+                                ),
                                 itemCount: _categories?.length ?? 0,
                                 itemBuilder: (context, index) {
                                   final category = _categories![index];

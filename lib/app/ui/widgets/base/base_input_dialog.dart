@@ -5,6 +5,7 @@ import 'package:i_iwara/app/ui/pages/comment/widgets/rules_agreement_dialog_widg
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_syntax_help_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 abstract class BaseInputDialog extends StatefulWidget {
   final String dialogTitle;
@@ -305,7 +306,12 @@ class PreviewPanel extends StatelessWidget {
         Expanded(
           child: SingleChildScrollView(
             controller: scrollController,
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.fromLTRB(
+              16.0,
+              16.0,
+              16.0,
+              16.0 + computeSheetBottomInset(context),
+            ),
             child: CustomMarkdownBody(
               data: content,
               originalData: content,

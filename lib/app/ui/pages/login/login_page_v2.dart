@@ -17,6 +17,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart' show LogUtils;
 import 'package:oktoast/oktoast.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 const double _kBodyHeightMin = 420;
 const double _kBodyHeightMax = 640;
@@ -57,8 +58,9 @@ class LoginDialog extends StatefulWidget {
             child: SingleChildScrollView(
               controller: scrollController,
               child: Padding(
+                // 键盘 + 系统手势条/导航条
                 padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                  bottom: computeSheetBottomInset(context),
                 ),
                 child: const LoginDialog(),
               ),

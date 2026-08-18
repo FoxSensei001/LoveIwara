@@ -13,6 +13,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class ShareUserBottomSheet extends StatefulWidget {
   final String username;
@@ -76,6 +77,8 @@ class _ShareUserBottomSheetState extends State<ShareUserBottomSheet> {
         color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
+      // 底部弹窗自己让出系统手势条/导航条
+      padding: EdgeInsets.only(bottom: computeSheetBottomInset(context)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class MarkdownPreviewDialog extends StatelessWidget {
   const MarkdownPreviewDialog({
@@ -46,7 +47,12 @@ class MarkdownPreviewDialog extends StatelessWidget {
           Expanded(
             child: SingleChildScrollView(
               controller: scrollController,
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.fromLTRB(
+                16.0,
+                16.0,
+                16.0,
+                16.0 + computeSheetBottomInset(context),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,

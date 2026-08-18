@@ -6,6 +6,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/emoji_library_service.dart';
 import 'package:get/get.dart' hide Translations;
 import 'package:shimmer/shimmer.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class EmojiPickerSheet extends StatefulWidget {
   final Function(String imageUrl, EmojiSize size) onEmojiSelected;
@@ -207,6 +208,8 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
             color: Theme.of(context).colorScheme.surface,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
           ),
+          // 让内容避开系统手势条/导航条，背景仍然铺到屏幕底部
+          padding: EdgeInsets.only(bottom: computeSheetBottomInset(context)),
           child: Column(
             children: [
           // 标题栏（左上角下拉框选择尺寸，右侧为操作按钮）

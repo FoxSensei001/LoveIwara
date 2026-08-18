@@ -925,13 +925,8 @@ class _RuleEditorSheetState extends State<_RuleEditorSheet> {
     final theme = Theme.of(context);
     final isRegex = _type == BlockRuleType.regex;
     final isUser = _type == BlockRuleType.userId;
-    final mq = MediaQuery.of(context);
-    // 同时兼顾键盘与底部安全区（手势条/导航条）：取两者较大值，
-    // 键盘弹起时让出 viewInsets，键盘收起后保留安全区留白。
-    final bottomPad = math.max(
-      mq.viewInsets.bottom,
-      computeBottomSafeInset(mq),
-    );
+    // 同时兼顾键盘与底部安全区（手势条/导航条），见 computeSheetBottomInset。
+    final bottomPad = computeSheetBottomInset(context);
 
     return Container(
       decoration: BoxDecoration(
@@ -1301,6 +1296,9 @@ class _UserSearchSheetState extends State<_UserSearchSheet> {
             Expanded(
               child: ListView.builder(
                 controller: widget.scrollController,
+                padding: EdgeInsets.only(
+                  bottom: computeSheetBottomInset(context),
+                ),
                 itemCount: _searchResults.length,
                 itemBuilder: (context, index) {
                   final user = _searchResults[index];

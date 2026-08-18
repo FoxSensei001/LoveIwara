@@ -17,6 +17,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import '../../../../../../common/anime4k_presets.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 /// 顶部工具栏高度（窗口态）。设计常量，不是测量值，但必须只存在这一份 ——
 /// 任何要相对工具栏定位的图层都从这里取，否则改一处漏一处。
@@ -672,6 +673,9 @@ class _TopToolbarState extends State<TopToolbar> {
           builder: (context, scrollController) {
             return SingleChildScrollView(
               controller: scrollController,
+              padding: EdgeInsets.only(
+                bottom: computeSheetBottomInset(context),
+              ),
               child: SettingsContent(
                 myVideoStateController: widget.myVideoStateController,
               ),

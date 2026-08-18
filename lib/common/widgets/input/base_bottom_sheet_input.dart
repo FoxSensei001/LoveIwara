@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/common/widgets/input/base_input_widget.dart';
 import 'package:i_iwara/app/ui/widgets/enhanced_emoji_text_field.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 /// 基础底部弹窗输入组件
 class BaseBottomSheetInput extends StatefulWidget {
@@ -117,8 +118,14 @@ class _BaseBottomSheetInputState extends State<BaseBottomSheetInput> {
             ),
           ),
           // 内容区域
+          // 底部弹窗自己负责让出键盘与系统安全区（导航条/手势条）。
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.fromLTRB(
+              16.0,
+              16.0,
+              16.0,
+              16.0 + computeSheetBottomInset(context),
+            ),
             child: BaseInputWidget(
               controller: _controller,
               title: widget.title,

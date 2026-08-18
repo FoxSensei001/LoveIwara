@@ -263,97 +263,100 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
           maxChildSize: 0.8,
           expand: false,
           builder: (context, scrollController) {
-            return Column(
-              children: [
-                // 拖拽条
-                Center(
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 12, bottom: 4),
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                      borderRadius: BorderRadius.circular(2),
+            // 底部弹窗自己让出系统手势条/导航条
+            return SheetBottomSafeArea(
+              child: Column(
+                children: [
+                  // 拖拽条
+                  Center(
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 12, bottom: 4),
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                   ),
-                ),
-                // 顶部标题栏
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Text(
-                        t.common.commentList,
-                        style: TextStyle(
-                          fontSize: Theme.of(
-                            context,
-                          ).textTheme.titleLarge?.fontSize,
-                          fontWeight: FontWeight.bold,
+                  // 顶部标题栏
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Text(
+                          t.common.commentList,
+                          style: TextStyle(
+                            fontSize: Theme.of(
+                              context,
+                            ).textTheme.titleLarge?.fontSize,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      const Spacer(),
-                      // 添加评论按钮
-                      IconButton(
-                        onPressed: () {
-                          showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            backgroundColor: Colors.transparent,
-                            builder: (context) => CommentInputBottomSheet(
-                              title: t.common.sendComment,
-                              submitText: t.common.send,
-                              onSubmit: (text) async {
-                                if (text.trim().isEmpty) {
-                                  showToastWidget(
-                                    MDToastWidget(
-                                      message: t.errors.commentCanNotBeEmpty,
-                                      type: MDToastType.error,
-                                    ),
-                                    position: ToastPosition.bottom,
-                                  );
-                                  return;
-                                }
-                                final UserService userService = Get.find();
-                                if (!userService.isAuthenticated) {
-                                  showToastWidget(
-                                    MDToastWidget(
-                                      message: t.errors.pleaseLoginFirst,
-                                      type: MDToastType.error,
-                                    ),
-                                    position: ToastPosition.bottom,
-                                  );
-                                  LoginService.showLogin();
-                                  return;
-                                }
-                                await profileController.commentController
-                                    .postComment(text);
-                              },
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.add_comment),
-                      ),
-                      // 关闭按钮
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                ),
-                // 评论列表
-                Expanded(
-                  child: Obx(
-                    () => CommentSection(
-                      controller: profileController.commentController,
-                      authorUserId: profileController.author.value?.id,
-                      scrollController: scrollController,
+                        const Spacer(),
+                        // 添加评论按钮
+                        IconButton(
+                          onPressed: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (context) => CommentInputBottomSheet(
+                                title: t.common.sendComment,
+                                submitText: t.common.send,
+                                onSubmit: (text) async {
+                                  if (text.trim().isEmpty) {
+                                    showToastWidget(
+                                      MDToastWidget(
+                                        message: t.errors.commentCanNotBeEmpty,
+                                        type: MDToastType.error,
+                                      ),
+                                      position: ToastPosition.bottom,
+                                    );
+                                    return;
+                                  }
+                                  final UserService userService = Get.find();
+                                  if (!userService.isAuthenticated) {
+                                    showToastWidget(
+                                      MDToastWidget(
+                                        message: t.errors.pleaseLoginFirst,
+                                        type: MDToastType.error,
+                                      ),
+                                      position: ToastPosition.bottom,
+                                    );
+                                    LoginService.showLogin();
+                                    return;
+                                  }
+                                  await profileController.commentController
+                                      .postComment(text);
+                                },
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.add_comment),
+                        ),
+                        // 关闭按钮
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                  // 评论列表
+                  Expanded(
+                    child: Obx(
+                      () => CommentSection(
+                        controller: profileController.commentController,
+                        authorUserId: profileController.author.value?.id,
+                        scrollController: scrollController,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         );
