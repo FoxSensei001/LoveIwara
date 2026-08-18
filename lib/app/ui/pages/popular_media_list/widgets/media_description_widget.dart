@@ -125,6 +125,24 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
     });
   }
 
+  Widget _buildExpandButton(BuildContext context, String label) {
+    return FilledButton.icon(
+      onPressed: _expandDescription,
+      icon: const Icon(Icons.keyboard_arrow_down),
+      label: Text(label),
+      style: FilledButton.styleFrom(
+        visualDensity: VisualDensity.compact,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        shape: const StadiumBorder(),
+      ),
+    );
+  }
+
+  void _expandDescription() {
+    widget.isDescriptionExpanded.value = true;
+    _checkOverflow();
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
@@ -181,106 +199,103 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
               alignment: Alignment.topCenter,
-              child: Container(
-                width: double.infinity,
-                constraints: BoxConstraints(
-                  maxHeight: expanded || !_hasOverflow
-                      ? double.infinity
-                      : _defaultMaxHeight,
-                ),
-                child: SingleChildScrollView(
-                  physics: const NeverScrollableScrollPhysics(),
-                  key: _contentKey,
-                  child: CustomMarkdownBody(
-                    data: widget.description ?? '',
-                    originalData: widget.description,
-                    showTranslationButton: false,
-                    translationController: _translationController,
-                    onTimestampSeek: widget.onTimestampSeek,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          if (_hasOverflow) const SizedBox(height: 8),
-          if (_hasOverflow)
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 280),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
-              transitionBuilder: (child, animation) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: SizeTransition(
-                    sizeFactor: animation,
-                    alignment: Alignment.topLeft,
-                    child: child,
-                  ),
-                );
-              },
-              child: expanded
-                  ? Material(
-                      key: const ValueKey('collapse_text_button'),
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          widget.isDescriptionExpanded.value = false;
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Center(
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  t.common.collapse,
-                                  style: TextStyle(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Icon(
-                                  Icons.keyboard_arrow_up,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                              ],
-                            ),
-                          ),
+              child: expanded || !_hasOverflow
+                  ? SizedBox(
+                      width: double.infinity,
+                      child: SingleChildScrollView(
+                        physics: const NeverScrollableScrollPhysics(),
+                        key: _contentKey,
+                        child: CustomMarkdownBody(
+                          data: widget.description ?? '',
+                          originalData: widget.description,
+                          showTranslationButton: false,
+                          translationController: _translationController,
+                          onTimestampSeek: widget.onTimestampSeek,
                         ),
                       ),
                     )
                   : SizedBox(
-                      key: const ValueKey('expand_material_button'),
-                      width: double.infinity,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () {
-                          widget.isDescriptionExpanded.value = true;
-                          _checkOverflow();
-                        },
-                        child: Center(
-                          child: FilledButton.icon(
-                            onPressed: () {
-                              widget.isDescriptionExpanded.value = true;
-                              _checkOverflow();
-                            },
-                            icon: const Icon(Icons.keyboard_arrow_down),
-                            label: Text(t.common.expand),
-                            style: FilledButton.styleFrom(
-                              visualDensity: VisualDensity.compact,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 10,
+                      height: _defaultMaxHeight,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          ShaderMask(
+                            blendMode: BlendMode.dstIn,
+                            shaderCallback: (bounds) => const LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.white,
+                                Colors.white,
+                                Colors.transparent,
+                                Colors.transparent,
+                              ],
+                              stops: [0.0, 0.58, 0.94, 1.0],
+                            ).createShader(bounds),
+                            child: SingleChildScrollView(
+                              physics: const NeverScrollableScrollPhysics(),
+                              key: _contentKey,
+                              child: CustomMarkdownBody(
+                                data: widget.description ?? '',
+                                originalData: widget.description,
+                                showTranslationButton: false,
+                                translationController: _translationController,
+                                onTimestampSeek: widget.onTimestampSeek,
                               ),
-                              shape: const StadiumBorder(),
                             ),
                           ),
-                        ),
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            height: 52,
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: _expandDescription,
+                              child: Center(
+                                child: _buildExpandButton(
+                                  context,
+                                  t.common.expand,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+            ),
+          ),
+          if (_hasOverflow && expanded) const SizedBox(height: 8),
+          if (_hasOverflow && expanded)
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  widget.isDescriptionExpanded.value = false;
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          t.common.collapse,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Icon(
+                          Icons.keyboard_arrow_up,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
         ],
       );
