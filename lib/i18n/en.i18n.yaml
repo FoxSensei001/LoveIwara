@@ -653,7 +653,9 @@ settings:
   fullscreenOrientationLeftLandscape: Left Landscape
   fullscreenOrientationRightLandscape: Right Landscape
   screenFit: Screen Size
-  screenFitDesc: Only applies to the current player and won't be saved as the default.
+  screenFitDesc: Choose how the video fills the player area.
+  rememberScreenFit: Remember Screen Size
+  rememberScreenFitDesc: Apply the selected size to videos opened later.
   screenFitFit: Fit
   screenFitFitDesc: Show the entire frame while keeping the aspect ratio
   screenFitStretch: Stretch

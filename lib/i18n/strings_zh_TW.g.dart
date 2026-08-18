@@ -801,7 +801,9 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get fullscreenOrientationLeftLandscape => '左側橫螢幕';
 	@override String get fullscreenOrientationRightLandscape => '右側橫螢幕';
 	@override String get screenFit => '畫面尺寸';
-	@override String get screenFitDesc => '僅對當前播放器生效，不會儲存為預設設定。';
+	@override String get screenFitDesc => '選擇視頻畫面在播放區域內的顯示方式。';
+	@override String get rememberScreenFit => '記住畫面尺寸';
+	@override String get rememberScreenFitDesc => '開啟後，之後開啟的視頻會沿用目前選擇。';
 	@override String get screenFitFit => '適應';
 	@override String get screenFitFitDesc => '保持比例完整顯示畫面';
 	@override String get screenFitStretch => '拉伸';
@@ -4002,7 +4004,9 @@ extension on TranslationsZhTw {
 			'settings.fullscreenOrientationLeftLandscape' => '左側橫螢幕',
 			'settings.fullscreenOrientationRightLandscape' => '右側橫螢幕',
 			'settings.screenFit' => '畫面尺寸',
-			'settings.screenFitDesc' => '僅對當前播放器生效，不會儲存為預設設定。',
+			'settings.screenFitDesc' => '選擇視頻畫面在播放區域內的顯示方式。',
+			'settings.rememberScreenFit' => '記住畫面尺寸',
+			'settings.rememberScreenFitDesc' => '開啟後，之後開啟的視頻會沿用目前選擇。',
 			'settings.screenFitFit' => '適應',
 			'settings.screenFitFitDesc' => '保持比例完整顯示畫面',
 			'settings.screenFitStretch' => '拉伸',
@@ -4398,10 +4402,10 @@ extension on TranslationsZhTw {
 			'firstTimeSetup.network.description' => '根據您的網路環境進行相應配置',
 			'firstTimeSetup.network.tip' => '設定成功後需重啟應用才會生效',
 			'firstTimeSetup.theme.title' => '主題設定',
-			'firstTimeSetup.theme.subtitle' => '選擇您喜歡的介面主題',
-			'firstTimeSetup.theme.description' => '個人化您的視覺體驗',
 			_ => null,
 		} ?? switch (path) {
+			'firstTimeSetup.theme.subtitle' => '選擇您喜歡的介面主題',
+			'firstTimeSetup.theme.description' => '個人化您的視覺體驗',
 			'firstTimeSetup.player.title' => '播放器設定',
 			'firstTimeSetup.player.subtitle' => '配置播放控制偏好',
 			'firstTimeSetup.player.description' => '您可以在此快速設定常用的播放體驗',
@@ -4912,10 +4916,10 @@ extension on TranslationsZhTw {
 			'download.deleteByDate.invalidRange' => '開始日期不能晚於結束日期',
 			'download.deleteByDate.confirmTitle' => '確認刪除',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '確定刪除這 ${count} 個下載任務及其檔案嗎？此操作無法復原。',
-			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '正在刪除 ${done}/${total}…',
-			'download.deleteByDate.resultSuccess' => ({required Object count}) => '已刪除 ${count} 個任務',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '正在刪除 ${done}/${total}…',
+			'download.deleteByDate.resultSuccess' => ({required Object count}) => '已刪除 ${count} 個任務',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '已刪除 ${deleted} 個任務，略過 ${skipped} 個（被佔用）',
 			'download.category.manageTitle' => '管理分類',
 			'download.category.label' => '分類',
@@ -5426,10 +5430,10 @@ extension on TranslationsZhTw {
 			'emoji.imageUrl' => '圖片URL',
 			'emoji.enterImageUrl' => '請輸入圖片URL',
 			'emoji.add' => '添加',
-			'emoji.batchImport' => '批次匯入',
-			'emoji.enterJsonUrlArray' => '請輸入JSON格式的URL陣列:',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.batchImport' => '批次匯入',
+			'emoji.enterJsonUrlArray' => '請輸入JSON格式的URL陣列:',
 			'emoji.formatExample' => '格式範例:\n["url1", "url2", "url3"]',
 			'emoji.pasteJsonUrlArray' => '請貼上JSON格式的URL陣列',
 			'emoji.import' => '匯入',

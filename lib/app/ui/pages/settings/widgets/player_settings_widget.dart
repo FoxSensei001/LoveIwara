@@ -308,7 +308,7 @@ class PlayerSettingsWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // -------- 画面尺寸（仅从播放器呼出时显示，只作用于当前播放器） --------
+        // -------- 画面尺寸（仅从播放器呼出时显示） --------
         if (playerController != null) ...[
           _sectionLabel(context, t.settings.screenFit),
           _groupCard(context, [
@@ -324,8 +324,7 @@ class PlayerSettingsWidget extends StatelessWidget {
                     .toList(),
                 optionLabels: {
                   PlayerScreenFitMode.fit.name: t.settings.screenFitFit,
-                  PlayerScreenFitMode.stretch.name:
-                      t.settings.screenFitStretch,
+                  PlayerScreenFitMode.stretch.name: t.settings.screenFitStretch,
                   PlayerScreenFitMode.cover.name: t.settings.screenFitCover,
                   PlayerScreenFitMode.ratio16x9.name: '16:9',
                   PlayerScreenFitMode.ratio4x3.name: '4:3',
@@ -334,8 +333,7 @@ class PlayerSettingsWidget extends StatelessWidget {
                   PlayerScreenFitMode.fit.name: t.settings.screenFitFitDesc,
                   PlayerScreenFitMode.stretch.name:
                       t.settings.screenFitStretchDesc,
-                  PlayerScreenFitMode.cover.name:
-                      t.settings.screenFitCoverDesc,
+                  PlayerScreenFitMode.cover.name: t.settings.screenFitCoverDesc,
                   PlayerScreenFitMode.ratio16x9.name:
                       t.settings.screenFitRatioDesc,
                   PlayerScreenFitMode.ratio4x3.name:
@@ -344,9 +342,26 @@ class PlayerSettingsWidget extends StatelessWidget {
                 onChanged: (value) {
                   playerController!.setScreenFitMode(
                     PlayerScreenFitMode.values.byName(value),
+                    persistAsDefault: true,
                   );
                 },
               ),
+            ),
+            _switchTile(
+              context: context,
+              iconData: Icons.bookmark_outline,
+              label: t.settings.rememberScreenFit,
+              description: t.settings.rememberScreenFitDesc,
+              rxValue: _configService
+                  .settings[ConfigKey.REMEMBER_SCREEN_FIT_MODE_KEY]!,
+              onChanged: (value) {
+                if (value) {
+                  // 先提交当前模式，避免开关已开启但默认值仍是旧值。
+                  _configService[ConfigKey.DEFAULT_SCREEN_FIT_MODE_KEY] =
+                      playerController!.screenFitMode.value.name;
+                }
+                _configService[ConfigKey.REMEMBER_SCREEN_FIT_MODE_KEY] = value;
+              },
             ),
           ]),
           const SizedBox(height: _kGroupGap),

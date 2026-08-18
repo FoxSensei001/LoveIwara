@@ -801,7 +801,9 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get fullscreenOrientationLeftLandscape => '左侧横屏';
 	@override String get fullscreenOrientationRightLandscape => '右侧横屏';
 	@override String get screenFit => '画面尺寸';
-	@override String get screenFitDesc => '仅对当前播放器生效，不会保存为默认设置。';
+	@override String get screenFitDesc => '选择视频画面在播放区域内的显示方式。';
+	@override String get rememberScreenFit => '记住画面尺寸';
+	@override String get rememberScreenFitDesc => '开启后，之后打开的视频会沿用当前选择。';
 	@override String get screenFitFit => '适应';
 	@override String get screenFitFitDesc => '保持比例完整显示画面';
 	@override String get screenFitStretch => '拉伸';
@@ -4002,7 +4004,9 @@ extension on TranslationsZhCn {
 			'settings.fullscreenOrientationLeftLandscape' => '左侧横屏',
 			'settings.fullscreenOrientationRightLandscape' => '右侧横屏',
 			'settings.screenFit' => '画面尺寸',
-			'settings.screenFitDesc' => '仅对当前播放器生效，不会保存为默认设置。',
+			'settings.screenFitDesc' => '选择视频画面在播放区域内的显示方式。',
+			'settings.rememberScreenFit' => '记住画面尺寸',
+			'settings.rememberScreenFitDesc' => '开启后，之后打开的视频会沿用当前选择。',
 			'settings.screenFitFit' => '适应',
 			'settings.screenFitFitDesc' => '保持比例完整显示画面',
 			'settings.screenFitStretch' => '拉伸',
@@ -4398,10 +4402,10 @@ extension on TranslationsZhCn {
 			'signIn.startDate' => '开始日期',
 			'signIn.endDate' => '结束日期',
 			'signIn.invalidDate' => '日期格式错误',
-			'signIn.invalidDateRange' => '日期范围无效',
-			'signIn.errorFormatText' => '日期格式错误',
 			_ => null,
 		} ?? switch (path) {
+			'signIn.invalidDateRange' => '日期范围无效',
+			'signIn.errorFormatText' => '日期格式错误',
 			'signIn.errorInvalidText' => '日期范围无效',
 			'signIn.errorInvalidRangeText' => '日期范围无效',
 			'signIn.dateRangeCantBeMoreThanOneYear' => '日期范围不能超过1年',
@@ -4912,10 +4916,10 @@ extension on TranslationsZhCn {
 			'download.maxConcurrentDownloadsDesc' => '同时进行下载的任务数量（1-5）',
 			'download.downloadCompletedWithName' => ({required Object fileName}) => '下载完成: ${fileName}',
 			'download.stillInDevelopment' => '开发中',
-			'download.saveToAppDirectory' => '保存到应用目录',
-			'download.alreadyDownloadedWithQuality' => '已有相同清晰度的任务，是否继续下载？',
 			_ => null,
 		} ?? switch (path) {
+			'download.saveToAppDirectory' => '保存到应用目录',
+			'download.alreadyDownloadedWithQuality' => '已有相同清晰度的任务，是否继续下载？',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => '已有清晰度为${qualities}的任务，是否继续下载？',
 			'download.otherQualities' => '其他清晰度',
 			'download.batchDownload.title' => '批量下载',
@@ -5426,10 +5430,10 @@ extension on TranslationsZhCn {
 			'emoji.uploadSuccess' => ({required Object count}) => '成功上传 ${count} 张图片',
 			'emoji.uploadFailed' => ({required Object count}) => '失败 ${count} 张',
 			'emoji.uploadFailedMessage' => '图片上传失败，请检查网络连接或文件格式',
-			'emoji.uploadErrorMessage' => ({required Object error}) => '上传过程中发生错误: ${error}',
-			'displaySettings.title' => '显示设置',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.uploadErrorMessage' => ({required Object error}) => '上传过程中发生错误: ${error}',
+			'displaySettings.title' => '显示设置',
 			'displaySettings.layoutSettings' => '布局设置',
 			'displaySettings.layoutSettingsDesc' => '自定义列数和断点配置',
 			'displaySettings.gridLayout' => '网格布局',

@@ -74,13 +74,27 @@ enum VideoDetailPageLoadingState {
 }
 
 /// 画面尺寸：视频画面在播放区域内的适配方式。
-/// 仅作用于当前播放器实例（随控制器销毁重置），不持久化为默认配置。
 enum PlayerScreenFitMode {
   fit, // 适应：保持比例完整显示
   stretch, // 拉伸：铺满播放区域，可能变形
   cover, // 填充：保持比例铺满并裁剪超出部分
   ratio16x9, // 强制 16:9
   ratio4x3, // 强制 4:3
+}
+
+PlayerScreenFitMode playerScreenFitModeFromConfig(dynamic value) {
+  return PlayerScreenFitMode.values.firstWhere(
+    (mode) => mode.name == value,
+    orElse: () => PlayerScreenFitMode.fit,
+  );
+}
+
+PlayerScreenFitMode initialPlayerScreenFitMode({
+  required bool rememberScreenFitMode,
+  required dynamic storedMode,
+}) {
+  if (!rememberScreenFitMode) return PlayerScreenFitMode.fit;
+  return playerScreenFitModeFromConfig(storedMode);
 }
 
 enum VideoCenterOverlayState {
@@ -188,17 +202,25 @@ class MyVideoStateController extends GetxController
   final RxInt sourceVideoHeight = 1080.obs; // 视频高度
   final RxDouble aspectRatio = (16 / 9).obs; // 视频宽高比
 
-  /// 画面尺寸（仅当前播放器生效，见 [PlayerScreenFitMode]）。
+  /// 画面尺寸（见 [PlayerScreenFitMode]）。
   /// 只影响画面在播放区域内的渲染方式，不改变 [aspectRatio] 参与的布局计算。
   /// 修改请走 [setScreenFitMode]，以便同步复位缩放状态。
   final Rx<PlayerScreenFitMode> screenFitMode = PlayerScreenFitMode.fit.obs;
 
   /// 切换画面尺寸。缩放层的平移钳制按 [aspectRatio] 推算画面矩形，与强制
   /// 比例/拉伸后的实际画面不一致，因此切换时立即复位缩放/平移/旋转。
-  void setScreenFitMode(PlayerScreenFitMode mode) {
-    if (screenFitMode.value == mode) return;
-    resetVideoZoomImmediately();
-    screenFitMode.value = mode;
+  void setScreenFitMode(
+    PlayerScreenFitMode mode, {
+    bool persistAsDefault = false,
+  }) {
+    if (screenFitMode.value != mode) {
+      resetVideoZoomImmediately();
+      screenFitMode.value = mode;
+    }
+    if (persistAsDefault &&
+        _configService[ConfigKey.REMEMBER_SCREEN_FIT_MODE_KEY] == true) {
+      _configService[ConfigKey.DEFAULT_SCREEN_FIT_MODE_KEY] = mode.name;
+    }
   }
 
   final RxList<VideoResolution> videoResolutions = <VideoResolution>[].obs;
@@ -588,6 +610,24 @@ class MyVideoStateController extends GetxController
   void onInit() async {
     super.onInit();
     _isDisposed = false; // 初始化时确保标志位为 false
+    final rememberScreenFitMode =
+        _configService[ConfigKey.REMEMBER_SCREEN_FIT_MODE_KEY] == true;
+    if (rememberScreenFitMode) {
+      final storedMode =
+          _configService[ConfigKey.DEFAULT_SCREEN_FIT_MODE_KEY] as String;
+      final parsedMode = initialPlayerScreenFitMode(
+        rememberScreenFitMode: rememberScreenFitMode,
+        storedMode: storedMode,
+      );
+      screenFitMode.value = parsedMode;
+      if (storedMode != parsedMode.name) {
+        LogUtils.w(
+          '无效的默认画面尺寸配置: $storedMode，已恢复为 ${parsedMode.name}',
+          'MyVideoStateController',
+        );
+        _configService[ConfigKey.DEFAULT_SCREEN_FIT_MODE_KEY] = parsedMode.name;
+      }
+    }
     // 应用默认播放倍速：新视频按用户配置的默认倍速起播（1.0 表示正常速度）
     playerPlaybackSpeed.value =
         (_configService[ConfigKey.DEFAULT_PLAYBACK_SPEED_KEY] as double)
@@ -3701,11 +3741,7 @@ class MyVideoStateController extends GetxController
         );
       }
     } catch (e) {
-      LogUtils.e(
-        '自动关闭 Anime4K 失败',
-        tag: 'MyVideoStateController',
-        error: e,
-      );
+      LogUtils.e('自动关闭 Anime4K 失败', tag: 'MyVideoStateController', error: e);
     } finally {
       _isAutoDisablingAnime4K = false;
     }
@@ -3729,11 +3765,7 @@ class MyVideoStateController extends GetxController
       // 根据平台拼接路径分隔符
       return tempShaderPaths.join(GetPlatform.isWindows ? ';' : ':');
     } catch (e) {
-      LogUtils.e(
-        '构建 shader 路径失败',
-        tag: 'MyVideoStateController',
-        error: e,
-      );
+      LogUtils.e('构建 shader 路径失败', tag: 'MyVideoStateController', error: e);
       return null;
     }
   }

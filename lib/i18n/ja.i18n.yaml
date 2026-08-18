@@ -654,7 +654,9 @@ settings:
   fullscreenOrientationLeftLandscape: 左横画面
   fullscreenOrientationRightLandscape: 右横画面
   screenFit: 画面サイズ
-  screenFitDesc: 現在のプレイヤーにのみ適用され、デフォルト設定としては保存されません。
+  screenFitDesc: プレイヤー内での映像の表示方法を選択します。
+  rememberScreenFit: 画面サイズを記憶
+  rememberScreenFitDesc: 有効にすると、以降開く動画に現在の選択が適用されます。
   screenFitFit: フィット
   screenFitFitDesc: アスペクト比を保ったまま全体を表示します
   screenFitStretch: ストレッチ

@@ -654,7 +654,9 @@ settings:
   fullscreenOrientationLeftLandscape: 左側橫螢幕
   fullscreenOrientationRightLandscape: 右側橫螢幕
   screenFit: 畫面尺寸
-  screenFitDesc: 僅對當前播放器生效，不會儲存為預設設定。
+  screenFitDesc: 選擇視頻畫面在播放區域內的顯示方式。
+  rememberScreenFit: 記住畫面尺寸
+  rememberScreenFitDesc: 開啟後，之後開啟的視頻會沿用目前選擇。
   screenFitFit: 適應
   screenFitFitDesc: 保持比例完整顯示畫面
   screenFitStretch: 拉伸

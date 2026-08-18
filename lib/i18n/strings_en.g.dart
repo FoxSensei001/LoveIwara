@@ -1999,8 +1999,14 @@ class TranslationsSettingsEn {
 	/// en: 'Screen Size'
 	String get screenFit => 'Screen Size';
 
-	/// en: 'Only applies to the current player and won't be saved as the default.'
-	String get screenFitDesc => 'Only applies to the current player and won\'t be saved as the default.';
+	/// en: 'Choose how the video fills the player area.'
+	String get screenFitDesc => 'Choose how the video fills the player area.';
+
+	/// en: 'Remember Screen Size'
+	String get rememberScreenFit => 'Remember Screen Size';
+
+	/// en: 'Apply the selected size to videos opened later.'
+	String get rememberScreenFitDesc => 'Apply the selected size to videos opened later.';
 
 	/// en: 'Fit'
 	String get screenFitFit => 'Fit';
@@ -8739,7 +8745,9 @@ extension on Translations {
 			'settings.fullscreenOrientationLeftLandscape' => 'Left Landscape',
 			'settings.fullscreenOrientationRightLandscape' => 'Right Landscape',
 			'settings.screenFit' => 'Screen Size',
-			'settings.screenFitDesc' => 'Only applies to the current player and won\'t be saved as the default.',
+			'settings.screenFitDesc' => 'Choose how the video fills the player area.',
+			'settings.rememberScreenFit' => 'Remember Screen Size',
+			'settings.rememberScreenFitDesc' => 'Apply the selected size to videos opened later.',
 			'settings.screenFitFit' => 'Fit',
 			'settings.screenFitFitDesc' => 'Show the entire frame while keeping the aspect ratio',
 			'settings.screenFitStretch' => 'Stretch',
@@ -9135,10 +9143,10 @@ extension on Translations {
 			'signIn.startDate' => 'Start Date',
 			'signIn.endDate' => 'End Date',
 			'signIn.invalidDate' => 'Invalid Date',
-			'signIn.invalidDateRange' => 'Invalid Date Range',
-			'signIn.errorFormatText' => 'Date Format Error',
 			_ => null,
 		} ?? switch (path) {
+			'signIn.invalidDateRange' => 'Invalid Date Range',
+			'signIn.errorFormatText' => 'Date Format Error',
 			'signIn.errorInvalidText' => 'Invalid Date Range',
 			'signIn.errorInvalidRangeText' => 'Invalid Date Range',
 			'signIn.dateRangeCantBeMoreThanOneYear' => 'Date range cannot be more than one year',
@@ -9649,10 +9657,10 @@ extension on Translations {
 			'download.maxConcurrentDownloads' => 'Max concurrent downloads',
 			'download.maxConcurrentDownloadsDesc' => 'Number of tasks downloading at the same time (1-5)',
 			'download.stillInDevelopment' => 'Still in development',
-			'download.saveToAppDirectory' => 'Save to app directory',
-			'download.alreadyDownloadedWithQuality' => 'Already downloaded with the same quality, continue downloading?',
 			_ => null,
 		} ?? switch (path) {
+			'download.saveToAppDirectory' => 'Save to app directory',
+			'download.alreadyDownloadedWithQuality' => 'Already downloaded with the same quality, continue downloading?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Already downloaded with qualities: ${qualities}, continue downloading?',
 			'download.otherQualities' => 'Other qualities',
 			'download.batchDownload.title' => 'Batch Download',
@@ -10163,10 +10171,10 @@ extension on Translations {
 			'log.logSizeLimit' => 'Log Size Limit:',
 			'log.usageRate' => 'Usage Rate:',
 			'log.exceedLimit' => 'Exceed Limit',
-			'log.remaining' => 'Remaining',
-			'log.currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit' => 'Current log size exceeded, please clean old logs or increase log size limit',
 			_ => null,
 		} ?? switch (path) {
+			'log.remaining' => 'Remaining',
+			'log.currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit' => 'Current log size exceeded, please clean old logs or increase log size limit',
 			'log.currentLogSizeAlmostExceededPleaseCleanOldLogs' => 'Current log size almost exceeded, please clean old logs',
 			'log.cleaningOldLogs' => 'Cleaning old logs...',
 			'log.logCleaningCompleted' => 'Log cleaning completed',

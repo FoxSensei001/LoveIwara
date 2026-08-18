@@ -801,7 +801,9 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get fullscreenOrientationLeftLandscape => '左横画面';
 	@override String get fullscreenOrientationRightLandscape => '右横画面';
 	@override String get screenFit => '画面サイズ';
-	@override String get screenFitDesc => '現在のプレイヤーにのみ適用され、デフォルト設定としては保存されません。';
+	@override String get screenFitDesc => 'プレイヤー内での映像の表示方法を選択します。';
+	@override String get rememberScreenFit => '画面サイズを記憶';
+	@override String get rememberScreenFitDesc => '有効にすると、以降開く動画に現在の選択が適用されます。';
 	@override String get screenFitFit => 'フィット';
 	@override String get screenFitFitDesc => 'アスペクト比を保ったまま全体を表示します';
 	@override String get screenFitStretch => 'ストレッチ';
@@ -4002,7 +4004,9 @@ extension on TranslationsJa {
 			'settings.fullscreenOrientationLeftLandscape' => '左横画面',
 			'settings.fullscreenOrientationRightLandscape' => '右横画面',
 			'settings.screenFit' => '画面サイズ',
-			'settings.screenFitDesc' => '現在のプレイヤーにのみ適用され、デフォルト設定としては保存されません。',
+			'settings.screenFitDesc' => 'プレイヤー内での映像の表示方法を選択します。',
+			'settings.rememberScreenFit' => '画面サイズを記憶',
+			'settings.rememberScreenFitDesc' => '有効にすると、以降開く動画に現在の選択が適用されます。',
 			'settings.screenFitFit' => 'フィット',
 			'settings.screenFitFitDesc' => 'アスペクト比を保ったまま全体を表示します',
 			'settings.screenFitStretch' => 'ストレッチ',
@@ -4398,10 +4402,10 @@ extension on TranslationsJa {
 			'signIn.startDate' => '開始日',
 			'signIn.endDate' => '終了日',
 			'signIn.invalidDate' => '日付形式が正しくありません',
-			'signIn.invalidDateRange' => '日付範囲が無効です',
-			'signIn.errorFormatText' => '日付形式が正しくありません',
 			_ => null,
 		} ?? switch (path) {
+			'signIn.invalidDateRange' => '日付範囲が無効です',
+			'signIn.errorFormatText' => '日付形式が正しくありません',
 			'signIn.errorInvalidText' => '日付範囲が無効です',
 			'signIn.errorInvalidRangeText' => '日付範囲が無効です',
 			'signIn.dateRangeCantBeMoreThanOneYear' => '日付範囲は1年を超えることはできません',
@@ -4912,10 +4916,10 @@ extension on TranslationsJa {
 			'download.maxConcurrentDownloads' => '最大同時ダウンロード数',
 			'download.maxConcurrentDownloadsDesc' => '同時にダウンロードするタスク数（1-5）',
 			'download.stillInDevelopment' => '開発中',
-			'download.saveToAppDirectory' => 'アプリケーションディレクトリに保存',
-			'download.alreadyDownloadedWithQuality' => 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？',
 			_ => null,
 		} ?? switch (path) {
+			'download.saveToAppDirectory' => 'アプリケーションディレクトリに保存',
+			'download.alreadyDownloadedWithQuality' => 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'すでに品質が${qualities}のタスクがあります。続けてダウンロードしますか？',
 			'download.otherQualities' => 'その他の品質',
 			'download.batchDownload.title' => '一括ダウンロード',
@@ -5426,10 +5430,10 @@ extension on TranslationsJa {
 			'emoji.uploadSuccess' => ({required Object count}) => '${count} 枚の画像をアップロードしました',
 			'emoji.uploadFailed' => ({required Object count}) => '${count} 枚失敗',
 			'emoji.uploadFailedMessage' => '画像のアップロードに失敗しました。ネットワーク接続またはファイル形式を確認してください',
-			'emoji.uploadErrorMessage' => ({required Object error}) => 'アップロード中にエラーが発生しました: ${error}',
-			'displaySettings.title' => '表示設定',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.uploadErrorMessage' => ({required Object error}) => 'アップロード中にエラーが発生しました: ${error}',
+			'displaySettings.title' => '表示設定',
 			'displaySettings.layoutSettings' => 'レイアウト設定',
 			'displaySettings.layoutSettingsDesc' => 'カラム数とブレークポイント設定をカスタマイズ',
 			'displaySettings.gridLayout' => 'グリッドレイアウト',
