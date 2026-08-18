@@ -485,6 +485,10 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
 
   Widget _buildVideoStatsCard(BuildContext context) {
     final t = slang.Translations.of(context);
+    // 用 colorScheme.primary，不用 Theme.of(context).primaryColor——
+    // primaryColor 是 M2 遗留字段，M3 深色主题下不跟随 colorScheme 变化，
+    // 时长标签会显示成偏黑色，糊在深色背景里看不清。
+    final primaryColor = Theme.of(context).colorScheme.primary;
     return Obx(() {
       final videoInfo = widget.controller.videoInfo.value;
       if (videoInfo == null) return const SizedBox.shrink();
@@ -528,7 +532,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                   vertical: UIConstants.tagPaddingVertical,
                 ),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                  color: primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
@@ -537,7 +541,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                     Icon(
                       Icons.play_circle_outline,
                       size: 14,
-                      color: Theme.of(context).primaryColor,
+                      color: primaryColor,
                     ),
                     const SizedBox(width: UIConstants.tinySpacing),
                     Text(
@@ -546,7 +550,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                       ),
                       style: TextStyle(
                         fontSize: 12,
-                        color: Theme.of(context).primaryColor,
+                        color: primaryColor,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
