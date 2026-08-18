@@ -3,12 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart'; // 新增
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
-import '../../../../../../utils/proxy/proxy_util.dart';
 import '../../../../../routes/app_router.dart';
 import '../../../settings/widgets/player_settings_widget.dart';
 import 'video_gesture_guide.dart';
 import 'toolbar_fade_visibility.dart';
-import '../../../settings/widgets/proxy_setting_widget.dart';
 import '../../controllers/my_video_state_controller.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
 import 'package:floating/floating.dart';
@@ -1136,9 +1134,6 @@ class SettingsContent extends StatelessWidget {
             openKeybindingAsSheet: true,
             playerController: myVideoStateController,
           ),
-          const SizedBox(height: 16),
-          if (ProxyUtil.isSupportedPlatform())
-            ProxySettingsWidget(embedded: true),
         ],
       ),
     );
