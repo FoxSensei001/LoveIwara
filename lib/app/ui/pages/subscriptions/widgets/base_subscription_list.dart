@@ -212,6 +212,9 @@ abstract class BaseSubscriptionListState<
       showBottomPadding: widget.showBottomPadding,
       enablePullToRefresh: true, // 启用下拉刷新
       onPageChanged: _mediaListController?.onPageChanged,
+      // 订阅页是 MediaListController 的持有方，这里显式把协调器交给列表。
+      // 其它复用 MediaListView 的页面不传，各自独立、互不牵连。
+      listCoordinator: _mediaListController,
       itemBuilder: buildListItem,
     );
 

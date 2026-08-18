@@ -161,7 +161,12 @@ class InfiniteScrollWaterfallTab<T> extends StatelessWidget {
                 ),
               ),
             ),
-          const SliverToBoxAdapter(child: SafeArea(child: SizedBox.shrink())),
+          // 列表末尾的底部安全区占位。必须显式 top: false —— SafeArea 默认
+          // top: true，挂在列表末尾会把状态栏高度也算进来，导致底部多出一段
+          // 与安全区无关的空白，而真正要留的底部间距反而不对。
+          const SliverToBoxAdapter(
+            child: SafeArea(top: false, child: SizedBox.shrink()),
+          ),
         ],
       ),
     );

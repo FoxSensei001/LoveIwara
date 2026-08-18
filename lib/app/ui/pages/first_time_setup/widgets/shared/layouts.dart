@@ -39,7 +39,7 @@ class StepResponsiveScaffold extends StatelessWidget {
       child: Column(
         children: [
           content,
-          const SafeArea(child: SizedBox.shrink()),
+          const SafeArea(top: false, child: SizedBox.shrink()),
         ],
       ),
     );

@@ -202,6 +202,8 @@ class _PlayerNoticeChipState extends State<PlayerNoticeChip>
         return t.mediaPlayer.notice.hardwareDecodeFellBack;
       case PlayerNoticeKind.videoDecodeProblem:
         return t.mediaPlayer.notice.videoDecodeProblem;
+      case PlayerNoticeKind.videoLoadFailed:
+        return t.mediaPlayer.videoLoadFailed;
       case PlayerNoticeKind.repeatedProblems:
         return t.mediaPlayer.notice.repeatedPlaybackProblems;
       case PlayerNoticeKind.noVideoSource:
@@ -223,6 +225,8 @@ class _PlayerNoticeChipState extends State<PlayerNoticeChip>
         return Icons.memory_rounded;
       case PlayerNoticeKind.videoDecodeProblem:
         return Icons.broken_image_outlined;
+      case PlayerNoticeKind.videoLoadFailed:
+        return Icons.videocam_off_outlined;
       case PlayerNoticeKind.repeatedProblems:
         return Icons.warning_amber_rounded;
       case PlayerNoticeKind.noVideoSource:

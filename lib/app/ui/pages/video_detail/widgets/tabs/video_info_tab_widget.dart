@@ -114,7 +114,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
             _buildAuthorInfo(context),
             const SizedBox(height: UIConstants.sectionSpacing),
             _buildVideoDetailsSection(context),
-            const SafeArea(child: SizedBox.shrink()),
+            const SafeArea(top: false, child: SizedBox.shrink()),
           ],
         ),
       );
@@ -349,7 +349,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                     ),
                   ),
                 ),
-                const SafeArea(child: SizedBox.shrink()),
+                const SafeArea(top: false, child: SizedBox.shrink()),
               ],
             ),
           ),
@@ -475,7 +475,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
         const SizedBox(height: UIConstants.sectionSpacing),
         // 点赞头像区域
         _buildLikeAvatarsSection(context),
-        const SafeArea(child: SizedBox.shrink()),
+        const SafeArea(top: false, child: SizedBox.shrink()),
       ],
     );
   }

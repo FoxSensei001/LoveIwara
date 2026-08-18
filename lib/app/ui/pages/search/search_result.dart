@@ -757,7 +757,14 @@ class _SearchResultState extends State<SearchResult> {
         title: Text(t.search.searchResult),
         actions: _buildAppBarActions(),
       ),
+      // bottom: false —— 底部安全区由列表自己通过 computeBottomSafeInset 负责
+      // （base_search_list 传 showBottomPadding: true）。这里再用 SafeArea 兜
+      // 一层就会双倍：SafeArea 的 removePadding 只清 padding / viewPadding，
+      // **不动 systemGestureInsets**，所以 computeBottomSafeInset 在 SafeArea
+      // 内部依然会返回手势条高度，两者叠加成一条很宽的空白。
+      // 与订阅页 / 热门页保持一致（它们都不包 SafeArea）。
       body: SafeArea(
+        bottom: false,
         child: Stack(
           children: [
             Column(

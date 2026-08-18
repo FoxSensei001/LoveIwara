@@ -254,7 +254,7 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
                 ? 10
                 : 12,
           ),
-          const SafeArea(child: SizedBox.shrink()),
+          const SafeArea(top: false, child: SizedBox.shrink()),
         ],
       ),
     );
@@ -336,7 +336,7 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
             horizontalPadding: isSmallScreen ? 10 : 12,
             overviewHeroTag: heroTag,
           ),
-          const SafeArea(child: SizedBox.shrink()),
+          const SafeArea(top: false, child: SizedBox.shrink()),
         ],
       ),
     );

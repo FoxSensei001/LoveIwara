@@ -7,13 +7,13 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/controllers/userz_post_list_repository.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/post_tile_list_item_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/post_input_dialog.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class ProfilePostTabListWidget extends StatefulWidget {
   final String userId;
@@ -47,7 +47,19 @@ class ProfilePostTabListWidget extends StatefulWidget {
 class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
     with AutomaticKeepAliveClientMixin {
   late UserzPostListRepository listSourceRepository;
-  final ScrollController _scrollController = ScrollController();
+
+  /// 仅在「没有 PrimaryScrollController 可用」时才启用的后备 controller。
+  ///
+  /// 窄屏走 ExtendedNestedScrollView(onlyOneScrollInBody: true)，它会通过
+  /// PrimaryScrollController 向 body 下发内层 controller。列表必须挂到那个
+  /// controller 上，滚动才会被外层协调器看见、头部才能跟着折叠——包作者在
+  /// 文档里明确写了 body 内的可滚动组件「不应该被指定显式 controller」。
+  /// 本 tab 原先传了自建 controller，于是脱离协调，滑列表带不动头部折叠
+  /// （其余三个 tab 都没传，一直是正常的）。
+  ///
+  /// 宽屏布局没有 NestedScrollView，也就没有 PrimaryScrollController，
+  /// 这时才回退到本 controller，否则「回到顶部」按钮会失效。
+  final ScrollController _fallbackController = ScrollController();
   final RxBool _showBackToTop = false.obs;
   final UserService _userService = Get.find<UserService>();
   final PostService _postService = Get.find<PostService>();
@@ -56,19 +68,11 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
   void initState() {
     super.initState();
     listSourceRepository = UserzPostListRepository(userId: widget.userId);
-
-    _scrollController.addListener(() {
-      if (_scrollController.offset >= 300) {
-        _showBackToTop.value = true;
-      } else {
-        _showBackToTop.value = false;
-      }
-    });
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _fallbackController.dispose();
     listSourceRepository.dispose();
     super.dispose();
   }
@@ -122,10 +126,7 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
             }
           } else {
             showToastWidget(
-              MDToastWidget(
-                message: result.message,
-                type: MDToastType.error,
-              ),
+              MDToastWidget(message: result.message, type: MDToastType.error),
             );
           }
         },
@@ -138,34 +139,69 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
   Widget build(BuildContext context) {
     super.build(context);
 
+    // 有 PrimaryScrollController（窄屏的 ExtendedNestedScrollView 下发的）时
+    // 一定要让给它，列表才会参与外层头部折叠的协调。
+    final bool inheritPrimary = PrimaryScrollController.shouldInherit(
+      context,
+      Axis.vertical,
+    );
+    final ScrollController? primaryController = inheritPrimary
+        ? PrimaryScrollController.maybeOf(context)
+        : null;
+    final ScrollController scrollTarget =
+        primaryController ?? _fallbackController;
+
     return Stack(
       children: [
         RefreshIndicator(
           onRefresh: () async {
             await listSourceRepository.refresh(true);
           },
-          child: LoadingMoreCustomScrollView(
-            controller: _scrollController,
-            slivers: <Widget>[
-              LoadingMoreSliverList<PostModel>(
-                SliverListConfig<PostModel>(
-                  itemBuilder: buildItem,
-                  sourceList: listSourceRepository,
-                  padding: const EdgeInsets.all(8.0),
-                  indicatorBuilder: (context, status) => myLoadingMoreIndicator(
-                    context,
-                    status,
-                    isSliver: true,
-                    loadingMoreBase: listSourceRepository,
+          child: NotificationListener<ScrollNotification>(
+            // 改用滚动通知驱动「回到顶部」按钮的显隐：不再依赖自建 controller，
+            // 无论列表最终挂在 PrimaryScrollController 还是后备 controller 上都成立。
+            onNotification: (notification) {
+              if (notification.metrics.axis == Axis.vertical) {
+                _showBackToTop.value = notification.metrics.pixels >= 300;
+              }
+              return false;
+            },
+            child: LoadingMoreCustomScrollView(
+              controller: primaryController == null
+                  ? _fallbackController
+                  : null,
+              slivers: <Widget>[
+                LoadingMoreSliverList<PostModel>(
+                  SliverListConfig<PostModel>(
+                    itemBuilder: buildItem,
+                    sourceList: listSourceRepository,
+                    // 底部安全区放进 sliver padding，内容因此可以滚到
+                    // 手势条下方——与 playlist tab 的做法一致。
+                    // 原先是给整个 Stack 加 paddingOnly，那会把整个
+                    // 视口缩短，底部留出一条谁也用不到的死带。
+                    padding: EdgeInsets.fromLTRB(
+                      8.0,
+                      8.0,
+                      8.0,
+                      8.0 + computeBottomSafeInset(MediaQuery.of(context)),
+                    ),
+                    indicatorBuilder: (context, status) =>
+                        myLoadingMoreIndicator(
+                          context,
+                          status,
+                          isSliver: true,
+                          loadingMoreBase: listSourceRepository,
+                        ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         Positioned(
           right: 16,
-          bottom: 16,
+          // 视口不再被整体上移，所以 FAB 要自己避开手势条。
+          bottom: 16 + computeBottomSafeInset(MediaQuery.of(context)),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -184,24 +220,27 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
                 return const SizedBox.shrink();
               }),
               // 返回顶部按钮
-              Obx(() => _showBackToTop.value
-                  ? FloatingActionButton(
-                      heroTag: 'backToTop',
-                      onPressed: () {
-                        _scrollController.animateTo(
-                          0,
-                          duration: const Duration(milliseconds: 500),
-                          curve: Curves.easeInOut,
-                        );
-                      },
-                      child: const Icon(Icons.arrow_upward),
-                    ).paddingBottom(MediaQuery.of(context).padding.bottom)
-                  : const SizedBox()),
+              Obx(
+                () => _showBackToTop.value
+                    ? FloatingActionButton(
+                        heroTag: 'backToTop',
+                        onPressed: () {
+                          if (!scrollTarget.hasClients) return;
+                          scrollTarget.animateTo(
+                            0,
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.easeInOut,
+                          );
+                        },
+                        child: const Icon(Icons.arrow_upward),
+                      )
+                    : const SizedBox(),
+              ),
             ],
           ),
         ),
       ],
-    ).paddingOnly(bottom: MediaQuery.of(context).padding.bottom);
+    );
   }
 
   Widget buildItem(BuildContext context, PostModel post, int index) {

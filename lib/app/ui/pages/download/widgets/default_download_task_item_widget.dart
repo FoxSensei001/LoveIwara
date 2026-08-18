@@ -707,7 +707,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
               ),
             ],
           ),
-          const SafeArea(child: SizedBox.shrink()),
+          const SafeArea(top: false, child: SizedBox.shrink()),
         ],
       ),
     );

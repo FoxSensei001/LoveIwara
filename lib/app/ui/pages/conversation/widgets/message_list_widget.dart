@@ -14,6 +14,7 @@ import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
+import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
 import 'package:shimmer/shimmer.dart';
 
 class MessageListWidget extends StatefulWidget {
@@ -547,13 +548,13 @@ class _MessageListWidgetState extends State<MessageListWidget> {
 
   Widget _buildBottomBar() {
     return SafeArea(
+      // 底部安全区交给 SafeArea 就够了。原先这里又手动加了一次
+      // MediaQuery.padding.bottom，而这个 context 是 State.context、
+      // 取自 SafeArea「之上」，拿到的是尚未被消费的原始值 —— 等于算了两遍。
+      // 之前看不出来，是因为 Shell 的 Scaffold 把 padding.bottom 抹成了 0；
+      // 现在底栏隐藏时 bottomNavigationBar 真的为 null，这里就会露出双倍间距。
       child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          8.0,
-          4.0,
-          8.0,
-          4.0 + MediaQuery.of(context).padding.bottom,
-        ),
+        padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
         child: Row(
           children: [
             Expanded(
@@ -595,7 +596,8 @@ class _MessageListWidgetState extends State<MessageListWidget> {
   }
 }
 
-class MessageListRepository extends LoadingMoreBase<MessageModel> {
+class MessageListRepository extends LoadingMoreBase<MessageModel>
+    with LoadingMoreRefreshGuard<MessageModel> {
   final String conversationId;
   final ConversationService _conversationService =
       Get.find<ConversationService>();
@@ -609,6 +611,10 @@ class MessageListRepository extends LoadingMoreBase<MessageModel> {
 
   @override
   Future<bool> loadData([bool isLoadMoreAction = false]) async {
+    // 代际 + 游标快照必须在 await 之前取：本仓库用 before 时间游标而非页码，
+    // await 期间若发生 refresh()（把游标打回 null），回来的这一段旧消息会被
+    // 追加进已经重新开始的列表里，游标也跟着错位。
+    final int generation = currentGeneration;
     try {
       // 第一次加载使用当前时间,之后使用上一次结果的last时间
       final before = isLoadMoreAction
@@ -620,6 +626,12 @@ class MessageListRepository extends LoadingMoreBase<MessageModel> {
         before: before,
         limit: 100,
       );
+
+      // await 期间已被 refresh() 作废 → 丢弃本次结果。必须返回 true：
+      // 返回 false 会被 loading_more_list 映射成一个假的错误页。
+      if (isStaleGeneration(generation)) {
+        return true;
+      }
 
       if (result.isSuccess && result.data != null) {
         final data = result.data!;
@@ -651,16 +663,24 @@ class MessageListRepository extends LoadingMoreBase<MessageModel> {
       }
       return false;
     } catch (e) {
+      if (isStaleGeneration(generation)) {
+        return true;
+      }
       LogUtils.e('加载消息失败', tag: 'MessageListRepository', error: e);
       return false;
     }
   }
 
   @override
-  Future<bool> refresh([bool notifyStateChanged = false]) async {
+  void resetPagingState() {
+    super.resetPagingState(); // 代际自增，作废在途回写
     _lastMessageTime = null;
     _hasMoreMessages = true;
-    return super.refresh(notifyStateChanged);
+  }
+
+  @override
+  Future<bool> refresh([bool notifyStateChanged = false]) async {
+    return runGuardedRefresh(() => super.refresh(notifyStateChanged));
   }
 
   @override

@@ -782,7 +782,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
                             children: [
                               overviewCard,
                               // 4. Safe Area Bottom Padding
-                              const SafeArea(child: SizedBox.shrink()),
+                              const SafeArea(top: false, child: SizedBox.shrink()),
                             ],
                           ),
                         ),

@@ -23,6 +23,8 @@ import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
 import 'package:loading_more_list/loading_more_list.dart';
+import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
@@ -1598,7 +1600,8 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
 }
 
 /// 历史任务数据源（paused/completed，不含failed），用于无限滚动加载
-class _HistoryDownloadTasksSource extends LoadingMoreBase<DownloadTask> {
+class _HistoryDownloadTasksSource extends LoadingMoreBase<DownloadTask>
+    with LoadingMoreRefreshGuard<DownloadTask> {
   final DownloadTaskRepository _repository;
 
   bool _hasMore = true;
@@ -1633,18 +1636,32 @@ class _HistoryDownloadTasksSource extends LoadingMoreBase<DownloadTask> {
   }
 
   @override
-  Future<bool> refresh([bool notifyStateChanged = false]) async {
+  void resetPagingState() {
+    super.resetPagingState(); // 代际自增，作废在途回写
     _hasMore = true;
-    _forceRefresh = !notifyStateChanged;
+    // 本源用 length 当 offset，清空列表即把分页游标打回 0。
     clear();
-    final bool result = await super.refresh(notifyStateChanged);
-    _forceRefresh = false;
-    return result;
+  }
+
+  @override
+  Future<bool> refresh([bool notifyStateChanged = false]) async {
+    return runGuardedRefresh(() async {
+      _forceRefresh = !notifyStateChanged;
+      try {
+        return await super.refresh(notifyStateChanged);
+      } finally {
+        _forceRefresh = false;
+      }
+    });
   }
 
   @override
   Future<bool> loadData([bool isLoadMoreAction = false]) async {
     bool isSuccess = false;
+    // 代际 + 游标快照必须在 await 之前取：await 期间可能发生 refresh()（它会
+    // clear() 把 length 打回 0），否则回来的这一页会被追加到已清空的列表里。
+    final int generation = currentGeneration;
+    final int offset = length;
     try {
       // Use searchTasks when filters are active, otherwise use getHistoryTasks
       final bool hasFilters =
@@ -1662,7 +1679,7 @@ class _HistoryDownloadTasksSource extends LoadingMoreBase<DownloadTask> {
             ? 'history'
             : _statusFilter;
         tasks = await _repository.searchTasks(
-          offset: length,
+          offset: offset,
           limit: pageSize,
           searchQuery: _searchQuery.isNotEmpty ? _searchQuery : null,
           statusFilter: historyStatusFilter,
@@ -1671,17 +1688,32 @@ class _HistoryDownloadTasksSource extends LoadingMoreBase<DownloadTask> {
         );
       } else {
         tasks = await _repository.getHistoryTasks(
-          offset: length,
+          offset: offset,
           limit: pageSize,
         );
+      }
+
+      // await 期间已被 refresh() 作废 → 丢弃本次结果。必须返回 true：
+      // 返回 false 会被 loading_more_list 映射成一个假的错误页。
+      if (isStaleGeneration(generation)) {
+        return true;
       }
 
       addAll(tasks);
 
       _hasMore = tasks.length >= pageSize;
       isSuccess = true;
-    } catch (e) {
+    } catch (e, stack) {
+      if (isStaleGeneration(generation)) {
+        return true;
+      }
       isSuccess = false;
+      LogUtils.e(
+        '加载下载历史任务失败',
+        tag: '_HistoryDownloadTasksSource',
+        error: e,
+        stack: stack,
+      );
     }
     return isSuccess;
   }

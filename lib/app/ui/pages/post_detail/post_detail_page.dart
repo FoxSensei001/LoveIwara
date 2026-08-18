@@ -522,7 +522,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                               horizontalPadding: isSmallScreen ? 10 : 12,
                               bottomPadding: isSmallScreen ? 8 : 12,
                             ),
-                            const SafeArea(child: SizedBox.shrink()),
+                            const SafeArea(top: false, child: SizedBox.shrink()),
                           ],
                         ),
                       ),

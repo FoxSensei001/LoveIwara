@@ -16,6 +16,7 @@ enum PlayerNoticeKind {
   audioUnavailable,
   hardwareDecodeFellBack,
   videoDecodeProblem,
+  videoLoadFailed,
   repeatedProblems,
   noVideoSource,
   castNotSupported,
@@ -156,6 +157,21 @@ class PlayerNoticeCenter {
       return;
     }
 
+    // 未归因的问题不弹提示，只进台账。
+    //
+    // 分类器有四条路径会产出 unknown（vd 未匹配、file 前缀、cplayer 未匹配，
+    // 以及「任何未识别模块」的全局兜底），而这里原本会把它一路兜到
+    // videoDecodeProblem，也就是对用户断言「画面可能花屏」——一个我们并没有
+    // 确认过的症状。mpv 的 ao/vo/demux/af/vf/cache 等模块只要吐一条 error 级
+    // 日志就会命中，于是几乎每个视频都会弹一次这句吓人的提示。
+    //
+    // 真正能归因的问题（找不到解码器、没有音频设备、网络不通等）不受影响，
+    // 照常提示；未归因的原文仍可在「播放问题」详情面板里查到。
+    if (signal.kind == PlaybackErrorKind.unknown) {
+      _logSilent(signal, now);
+      return;
+    }
+
     final lastNoticed = _noticedAt[signal.signature];
     if (lastNoticed != null &&
         now.difference(lastNoticed) < _signatureCooldown) {
@@ -270,7 +286,9 @@ class PlayerNoticeCenter {
 
   /// 维护 60s 滑动窗口，返回窗口内不同签名数是否已达升级阈值。
   bool _touchWindow(String signature, DateTime now) {
-    _window.removeWhere((_, seenAt) => now.difference(seenAt) > _escalationWindow);
+    _window.removeWhere(
+      (_, seenAt) => now.difference(seenAt) > _escalationWindow,
+    );
     _window[signature] = now;
     return _window.length >= _escalationThreshold;
   }
@@ -325,10 +343,12 @@ class PlayerNoticeCenter {
     PlaybackErrorKind.audioUnavailable => PlayerNoticeKind.audioUnavailable,
     PlaybackErrorKind.hardwareDecodeFallback =>
       PlayerNoticeKind.hardwareDecodeFellBack,
-    PlaybackErrorKind.networkUnreachable ||
-    PlaybackErrorKind.openFailed => PlayerNoticeKind.networkUnstable,
-    // videoDecodeProblem 与 unknown 都归到「视频解码有问题」，
-    // 静默级不会走到这里。
+    PlaybackErrorKind.networkUnreachable => PlayerNoticeKind.networkUnstable,
+    // cplayer open failures include malformed/unsupported local files; they
+    // are load failures, not evidence of a network or decode problem.
+    PlaybackErrorKind.openFailed => PlayerNoticeKind.videoLoadFailed,
+    // 只有真正归因到「视频解码」的才说解码有问题。
+    // unknown 不会走到这里（reportLog 已提前拦掉），静默级同理。
     _ => PlayerNoticeKind.videoDecodeProblem,
   };
 

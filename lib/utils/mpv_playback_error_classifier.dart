@@ -155,7 +155,16 @@ class MpvPlaybackErrorClassifier {
           PlaybackErrorKind.videoDecodeProblem,
         );
       }
-      return (PlaybackErrorTier.degraded, PlaybackErrorKind.unknown);
+      // vd 前缀本身已经说明是「视频解码器」，即使正文没匹配上已知规则，
+      // 归因到视频解码也是成立的——不该退化成 unknown 而被静音。
+      return (PlaybackErrorTier.degraded, PlaybackErrorKind.videoDecodeProblem);
+    }
+
+    // ao = audio output（音频输出设备），与 ad(audio decoder) 不同。
+    // 例如 "Failed to initialize audio driver"：结果就是没声音。
+    // 原先没有这条分支，它会掉进最后的全局兜底。
+    if (_hasPrefix(prefix, 'ao')) {
+      return (PlaybackErrorTier.degraded, PlaybackErrorKind.audioUnavailable);
     }
 
     if (_hasPrefix(prefix, 'ad')) {
@@ -166,6 +175,11 @@ class MpvPlaybackErrorClassifier {
       return (PlaybackErrorTier.degraded, PlaybackErrorKind.audioUnavailable);
     }
 
+    // file 前缀保持 unknown（由 mpv_playback_error_classifier_test.dart 锁定）。
+    // 它的语义有歧义：既可能是「本地文件根本打不开」，也可能是播放途中的
+    // 一次性读失败（"Read error."）。前者值得提示、后者不值得，仅凭前缀分不开，
+    // 因此不归因，交给上层静音只记台账。若将来发现「已下载视频打不开」确实
+    // 会走这里且无其它反馈，再单独按正文细分。
     if (_hasPrefix(prefix, 'file')) {
       return (PlaybackErrorTier.degraded, PlaybackErrorKind.unknown);
     }
@@ -194,9 +208,17 @@ class MpvPlaybackErrorClassifier {
       if (text.contains('failed to open')) {
         return (PlaybackErrorTier.transient, PlaybackErrorKind.openFailed);
       }
-      return (PlaybackErrorTier.degraded, PlaybackErrorKind.unknown);
+      // cplayer 是 mpv 的核心播放器层，走到这里的 error 级日志基本都意味着
+      // 这个文件根本放不了，例如 "Failed to recognize file format."、
+      // "No video or audio streams selected."——注意它们都不含 "failed to open"，
+      // 所以命不中上面那条。原先退化成 unknown，被静音后用户会「点了没反应、
+      // 也没有任何提示」，这是最严重的一档，必须提示。
+      return (PlaybackErrorTier.degraded, PlaybackErrorKind.openFailed);
     }
 
+    // 真正的全局兜底：走到这里说明连模块都不认识（vo / demux / af / vf /
+    // cache 等）。此时无法归因，保持 unknown —— 上层会静音只记台账，
+    // 绝不对用户断言某个具体症状。
     return (PlaybackErrorTier.degraded, PlaybackErrorKind.unknown);
   }
 

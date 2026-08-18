@@ -24,15 +24,14 @@ abstract class BaseMediaRepository<T> extends ExtendedLoadingMoreBase<T> {
   @override
   bool get hasMore => _hasMore || forceRefresh;
 
+  /// 分页状态的重置统一交给基类在「等待在途请求落地之后」调用，
+  /// 不再在 refresh() 里提前重置（否则会被在途请求的回写覆盖）。
   @override
-  Future<bool> refresh([bool notifyStateChanged = false]) async {
+  void resetPagingState() {
+    super.resetPagingState();
     _hasMore = true;
     _pageIndex = 0;
     requestTotalCount = 0;
-    forceRefresh = !notifyStateChanged;
-    final bool result = await super.refresh(notifyStateChanged);
-    forceRefresh = false;
-    return result;
   }
 
   Future<ApiResult<PageData<T>>> fetchData(
@@ -51,29 +50,60 @@ abstract class BaseMediaRepository<T> extends ExtendedLoadingMoreBase<T> {
       'rating': searchRating,
     };
 
-    final result = await fetchData(params, _pageIndex, 20);
+    // 代际 + 页码快照必须在 await 之前取：await 期间可能发生 refresh()，
+    // 那样回来的第 N 页会被当成第 0 页写进列表，页码也跟着错位。
+    final int generation = currentGeneration;
+    final int page = _pageIndex;
 
-    if (_pageIndex == 0) {
-      clear();
-    }
+    // 整个函数体必须包在 try 里：框架的 _innerloadData 是
+    //     isLoading = true;
+    //     final isSuccess = await loadData(...);   // ← 没有 try/finally
+    //     isLoading = false;
+    // 一旦异常逃出 loadData，isLoading 会**永久**停在 true，这个数据源就废了
+    // ——之后每次 refresh 都得先在等待循环里空烧满时限，再放弃。
+    try {
+      final result = await fetchData(params, page, 20);
 
-    if (result.isFail) {
-      lastErrorMessage = CommonUtils.parseExceptionMessage(result.exception);
-      isSuccess = false;
-      return false;
-    }
-
-    if (result.isSuccess && result.data != null) {
-      requestTotalCount = result.data!.count;
-      final items = result.data!.results;
-      for (final item in items) {
-        add(item);
+      // await 期间已被 refresh() 作废 → 丢弃本次结果。
+      // 必须返回 true：返回 false 会被 loading_more_list 映射成假的错误页。
+      if (isStaleGeneration(generation)) {
+        return true;
       }
-      _hasMore = items.isNotEmpty;
-      _pageIndex++;
-      isSuccess = true;
-    } else {
-      throw result.message;
+
+      if (result.isFail) {
+        lastErrorMessage = CommonUtils.parseExceptionMessage(result.exception);
+        return false;
+      }
+
+      if (result.isSuccess && result.data != null) {
+        // clear() 必须放在失败判断「之后」。原先放在前面，导致一次失败的下拉
+        // 刷新会先把已有内容清空，用户看到的是空列表 + 错误页。
+        if (page == 0) {
+          clear();
+        }
+        requestTotalCount = result.data!.count;
+        final items = result.data!.results;
+        for (final item in items) {
+          add(item);
+        }
+        _hasMore = items.isNotEmpty;
+        _pageIndex = page + 1;
+        // 成功即清除历史错误，否则「真的没有数据」会被渲染成过期的错误页。
+        lastErrorMessage = null;
+        isSuccess = true;
+      } else {
+        // 原先这里是 `throw result.message;`——把一个 String 直接抛出
+        // loadData，正好命中上面说的「异常逃逸」。改为按失败返回。
+        lastErrorMessage = result.message;
+        return false;
+      }
+    } catch (e, stack) {
+      if (isStaleGeneration(generation)) {
+        return true;
+      }
+      lastErrorMessage = CommonUtils.parseExceptionMessage(e);
+      logError('加载数据列表失败', e, stack);
+      return false;
     }
 
     return isSuccess;
@@ -102,8 +132,6 @@ abstract class BaseMediaRepository<T> extends ExtendedLoadingMoreBase<T> {
       return {'success': true, 'data': result.data!};
     }
 
-    // 存储错误消息
-    lastErrorMessage = CommonUtils.parseExceptionMessage(result.exception);
     return {'success': false, 'error': result.message};
   }
 
@@ -137,14 +165,18 @@ abstract class BaseMediaRepository<T> extends ExtendedLoadingMoreBase<T> {
   // 用于分页的loadPageData实现
   @override
   Future<List<T>> loadPageData(int pageKey, int pageSize) async {
+    final generation = currentGeneration;
     try {
       final params = buildQueryParams(pageKey, pageSize);
       final response = await fetchDataFromSource(params, pageKey, pageSize);
 
+      if (isStaleGeneration(generation)) {
+        throw const StalePageLoadException();
+      }
       requestTotalCount = extractTotalCount(response);
       return extractDataList(response);
     } catch (e, stack) {
-      // 存储错误消息
+      if (isStaleGeneration(generation)) rethrow;
       lastErrorMessage = CommonUtils.parseExceptionMessage(e);
       logError('加载分页数据失败', e, stack);
       rethrow;
@@ -176,9 +208,13 @@ abstract class BaseMediaRepository<T> extends ExtendedLoadingMoreBase<T> {
       searchRating: searchRating,
       refreshImmediately: false,
     );
-    _pageIndex = 0;
-    _hasMore = true;
-    requestTotalCount = 0;
+    // 必须走 resetPagingState()（内部会 _generation++ 作废在途回写），
+    // 不能直接摸字段：这条路径由「内容源切换」触发
+    // （base_media_controller.resetState → popular_media_list_base_page
+    // ._resetForContentChange），若不作废代际，第 N 页在途请求落地时
+    // 代际没变 → 守卫放行 → 旧筛选条件的结果被追加进刚清空的列表，
+    // 页码还会跳到 N+1。这正是 refresh() 路径已经修掉的那个竞态。
+    resetPagingState();
     forceRefresh = false;
     clear();
   }

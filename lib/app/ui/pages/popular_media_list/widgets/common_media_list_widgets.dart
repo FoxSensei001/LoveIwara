@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/shimmer_card.dart';
@@ -439,6 +441,8 @@ class _PaginationBarState extends State<PaginationBar>
     with SingleTickerProviderStateMixin {
   final TextEditingController _pageController = TextEditingController();
   late AnimationController _loadingAnimController;
+  Timer? _fadeTimer;
+  Timer? _hideTimer;
   late Animation<double> _progressAnimation;
 
   // 控制进度条可见性
@@ -495,6 +499,8 @@ class _PaginationBarState extends State<PaginationBar>
     // 当加载状态改变时，控制动画
     if (widget.isLoading != oldWidget.isLoading) {
       if (widget.isLoading) {
+        // 新一轮加载开始，先撤掉上一轮尚未触发的淡出/隐藏定时器
+        _cancelFadeTimers();
         // 开始加载时，显示进度条并开始动画
         setState(() {
           _showProgressBar = true;
@@ -520,7 +526,7 @@ class _PaginationBarState extends State<PaginationBar>
     });
 
     // 延迟一小段时间后开始淡出动画
-    Future.delayed(const Duration(milliseconds: 300), () {
+    _fadeTimer = Timer(const Duration(milliseconds: 300), () {
       if (!mounted) return;
 
       // 使用AnimatedOpacity需要在setState中更新状态
@@ -529,7 +535,7 @@ class _PaginationBarState extends State<PaginationBar>
       });
 
       // 淡出完成后隐藏进度条
-      Future.delayed(const Duration(milliseconds: 400), () {
+      _hideTimer = Timer(const Duration(milliseconds: 400), () {
         if (!mounted) return;
         setState(() {
           _showProgressBar = false;
@@ -539,8 +545,22 @@ class _PaginationBarState extends State<PaginationBar>
     });
   }
 
+  /// 取消尚未触发的淡出定时器。
+  ///
+  /// 原先用的是无句柄的 Future.delayed，只在回调里判 mounted。上一轮加载结束
+  /// 后的 0~700ms 内如果又开始新一轮加载，上一轮的回调仍会如期触发，把
+  /// _fadeOpacity 打回 0、把 _showProgressBar 置 false，并 reset() 掉正在为
+  /// 新一轮 repeat 的控制器——新一轮的进度条就这样被上一轮抹掉了。
+  void _cancelFadeTimers() {
+    _fadeTimer?.cancel();
+    _fadeTimer = null;
+    _hideTimer?.cancel();
+    _hideTimer = null;
+  }
+
   @override
   void dispose() {
+    _cancelFadeTimers();
     _pageController.dispose();
     _loadingAnimController.dispose();
     super.dispose();

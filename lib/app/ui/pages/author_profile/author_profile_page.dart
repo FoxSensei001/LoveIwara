@@ -1362,8 +1362,6 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
   void _showCreatePostDialog() async {
     final t = slang.Translations.of(context);
     final PostService postService = Get.find<PostService>();
-    final profilePostTabListWidget = context
-        .findAncestorWidgetOfExactType<ProfilePostTabListWidget>();
 
     showAppDialog(
       PostInputDialog(
@@ -1381,7 +1379,14 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
               ),
             );
             AppService.tryPop();
-            profilePostTabListWidget?.refresh();
+            // 帖子列表是本页的「后代」而非「祖先」，原先用
+            // context.findAncestorWidgetOfExactType() 取它恒为 null，
+            // 发帖成功后的刷新一直是空操作。本页已持有它的 GlobalKey，
+            // 这里在真正要用时再取（提前取会拿到过期或未挂载的实例）。
+            final postTab = _postListKey.currentWidget;
+            if (postTab is ProfilePostTabListWidget) {
+              postTab.refresh();
+            }
           } else if (result.message == t.errors.tooManyRequests) {
             // 如果是请求过于频繁，则获取冷却时间
             ApiResult<PostCooldownModel> cooldownResult = await postService

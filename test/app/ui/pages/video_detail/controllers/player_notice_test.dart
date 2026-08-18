@@ -100,7 +100,10 @@ void main() {
       reportDecode('aa');
       // notableIssues 排除静默级，所以只看得到解码那条。
       expect(center.notableIssues, hasLength(1));
-      expect(center.notableIssues.single.kind, PlaybackErrorKind.videoDecodeProblem);
+      expect(
+        center.notableIssues.single.kind,
+        PlaybackErrorKind.videoDecodeProblem,
+      );
     });
   });
 
@@ -137,18 +140,26 @@ void main() {
 
       // 最早的签名已被 LRU 淘汰
       expect(
-        center.notableIssues.any((e) => e.signature.endsWith('codec ${token(0)}')),
+        center.notableIssues.any(
+          (e) => e.signature.endsWith('codec ${token(0)}'),
+        ),
         isFalse,
       );
       // 最新的排在最前
-      expect(center.notableIssues.first.signature.endsWith('codec ${token(59)}'), isTrue);
+      expect(
+        center.notableIssues.first.signature.endsWith('codec ${token(59)}'),
+        isTrue,
+      );
 
       for (var i = 0; i < 4; i++) {
         reportDecode(token(59));
       }
       expect(center.notableIssues, hasLength(50));
       expect(center.notableIssues.first.occurrences, 5);
-      expect(center.notableIssues.first.positionAtFirst, const Duration(seconds: 12));
+      expect(
+        center.notableIssues.first.positionAtFirst,
+        const Duration(seconds: 12),
+      );
     });
   });
 
@@ -223,6 +234,60 @@ void main() {
       center.setSurfaceAvailable(false);
       center.setSurfaceAvailable(true);
       expect(center.notice.value, isNull);
+    });
+  });
+
+  group('归因与静音的边界（2026-08-18 修）', () {
+    test('未识别模块的 error 只进台账，不弹提示', () {
+      // 真机实证：mpv 每次开播都会吐 cache 模块的
+      // "Failed to create file cache."，它跟解码/花屏毫无关系。
+      // 原先它掉进全局兜底 -> unknown -> 被兜成 videoDecodeProblem，
+      // 于是「每个视频都提示画面可能花屏」。
+      center.reportLog(
+        prefix: 'cache',
+        level: 'error',
+        text: 'Failed to create file cache.',
+      );
+
+      expect(center.notice.value, isNull, reason: '未归因不得对用户断言具体症状');
+      expect(center.notableIssues, hasLength(1), reason: '但仍要进台账供排查');
+    });
+
+    test('vd 前缀即使正文不匹配已知规则，仍归因为视频解码问题', () {
+      // 前缀本身已说明是视频解码器，不该退化成 unknown 被静音。
+      center.reportLog(
+        prefix: 'vd',
+        level: 'error',
+        text: 'Failed setting up video chain.',
+      );
+
+      expect(center.notice.value?.kind, PlayerNoticeKind.videoDecodeProblem);
+    });
+
+    test('cplayer 兜底归因为打不开，而不是静音', () {
+      // "Failed to recognize file format." 不含 "failed to open"，
+      // 命不中已有规则；但它意味着这个文件根本放不了，绝不能没有反馈。
+      center.reportLog(
+        prefix: 'cplayer',
+        level: 'error',
+        text: 'Failed to recognize file format.',
+      );
+
+      expect(
+        center.notice.value?.kind,
+        PlayerNoticeKind.videoLoadFailed,
+        reason: '文件格式无法识别应提示加载失败，不能归咎于网络或解码',
+      );
+    });
+
+    test('ao（音频输出）归因为没有声音，而不是解码问题', () {
+      center.reportLog(
+        prefix: 'ao',
+        level: 'error',
+        text: 'Failed to initialize audio driver',
+      );
+
+      expect(center.notice.value?.kind, PlayerNoticeKind.audioUnavailable);
     });
   });
 }

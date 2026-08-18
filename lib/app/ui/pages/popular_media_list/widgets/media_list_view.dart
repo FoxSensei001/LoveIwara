@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/utils/logger_utils.dart' show LogUtils;
 import 'package:loading_more_list/loading_more_list.dart';
+import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
 import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'package:i_iwara/utils/common_utils.dart' show CommonUtils;
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
@@ -71,8 +72,17 @@ class ScrollThrottler {
   }
 }
 
+/// A paginated response that was invalidated while its request was in flight.
+///
+/// Direct pagination callers must ignore this result instead of treating an
+/// empty or outdated list as the current page.
+class StalePageLoadException implements Exception {
+  const StalePageLoadException();
+}
+
 // 扩展LoadingMoreBase，确保所有子类都有requestTotalCount属性和分页方法
-abstract class ExtendedLoadingMoreBase<T> extends LoadingMoreBase<T> {
+abstract class ExtendedLoadingMoreBase<T> extends LoadingMoreBase<T>
+    with LoadingMoreRefreshGuard<T> {
   int requestTotalCount = 0;
   int _pageIndex = 0;
   bool _hasMore = true;
@@ -83,10 +93,17 @@ abstract class ExtendedLoadingMoreBase<T> extends LoadingMoreBase<T> {
   /// dispose（列表被替换/页面销毁）时统一取消，确保在途请求不会回写已废弃的
   /// 实例，也避免快速切换查询/筛选时旧请求乱序覆盖新结果。
   final CancelToken cancelToken = CancelToken();
-  bool _disposed = false;
 
   @override
   bool get hasMore => _hasMore || forceRefresh;
+
+  @override
+  void resetPagingState() {
+    super.resetPagingState(); // 代际自增
+    _hasMore = true;
+    _pageIndex = 0;
+    lastErrorMessage = null;
+  }
 
   // 定义通用的数据获取方法，子类必须实现
   Future<Map<String, dynamic>> fetchDataFromSource(
@@ -114,15 +131,30 @@ abstract class ExtendedLoadingMoreBase<T> extends LoadingMoreBase<T> {
 
   // 统一实现的分页数据加载方法
   Future<List<T>> loadPageData(int pageKey, int pageSize) async {
+    // 这里也要做代际快照：本方法内部有 await，而 requestTotalCount 与
+    // lastErrorMessage 都是在 await 之后写的。若不校验，一个已被 refresh()
+    // 作废的请求回来时仍会把过期的 count / 错误消息写进实例——前者会驱动
+    // totalItems/totalPages 算出错误页数，后者会让之后的「真的没数据」
+    // 被渲染成过期错误页。
+    final int generation = currentGeneration;
     try {
       final params = buildQueryParams(pageKey, pageSize);
       final response = await fetchDataFromSource(params, pageKey, pageSize);
 
+      if (isStaleGeneration(generation)) {
+        throw const StalePageLoadException();
+      }
+
       requestTotalCount = extractTotalCount(response);
       return extractDataList(response);
+    } on StalePageLoadException {
+      rethrow;
     } catch (e) {
-      // 存储错误消息
-      lastErrorMessage = CommonUtils.parseExceptionMessage(e);
+      // 过期请求的失败不该污染当前状态。
+      if (!isStaleGeneration(generation)) {
+        // 存储错误消息
+        lastErrorMessage = CommonUtils.parseExceptionMessage(e);
+      }
       // 子类可通过覆盖logError方法来自定义错误日志
       logError('加载分页数据失败', e);
       rethrow;
@@ -133,10 +165,23 @@ abstract class ExtendedLoadingMoreBase<T> extends LoadingMoreBase<T> {
   @override
   Future<bool> loadData([bool isLoadMoreAction = false]) async {
     bool isSuccess = false;
+    // 在 await 之前把「本次请求的代际 + 页码」快照下来。原实现是在 await
+    // 之后才去读 _pageIndex，期间若发生 refresh()（把 _pageIndex 打回 0），
+    // 回来的第 N 页数据就会被当成第 0 页写进列表，出现「刷新后列表里是中间页」
+    // 且页码错位的现象。
+    final int generation = currentGeneration;
+    final int page = _pageIndex;
     try {
-      List<T> dataList = await loadPageData(_pageIndex, 20);
+      List<T> dataList = await loadPageData(page, 20);
 
-      if (_pageIndex == 0) {
+      // 代际校验：await 期间发生过 refresh()，本次结果已作废，直接丢弃。
+      // 注意必须返回 true —— loading_more_list 的 _innerloadData 会把 false
+      // 映射成 error / fullScreenError，用户会看到一个假的错误页。
+      if (isStaleGeneration(generation)) {
+        return true;
+      }
+
+      if (page == 0) {
         clear();
       }
 
@@ -145,9 +190,17 @@ abstract class ExtendedLoadingMoreBase<T> extends LoadingMoreBase<T> {
       }
 
       _hasMore = dataList.isNotEmpty;
-      _pageIndex++;
+      _pageIndex = page + 1;
+      // 一次成功即清除历史错误。否则 lastErrorMessage 会永久残留，导致之后
+      // 任何「真的没有数据」都被渲染成过期的错误页（见本文件 indicatorBuilder）。
+      lastErrorMessage = null;
       isSuccess = true;
+    } on StalePageLoadException {
+      return true;
     } catch (e) {
+      if (isStaleGeneration(generation)) {
+        return true;
+      }
       isSuccess = false;
       // 存储错误消息
       lastErrorMessage = CommonUtils.parseExceptionMessage(e);
@@ -159,12 +212,14 @@ abstract class ExtendedLoadingMoreBase<T> extends LoadingMoreBase<T> {
   // 统一的刷新方法
   @override
   Future<bool> refresh([bool notifyStateChanged = false]) async {
-    _hasMore = true;
-    _pageIndex = 0;
-    forceRefresh = !notifyStateChanged;
-    final bool result = await super.refresh(notifyStateChanged);
-    forceRefresh = false;
-    return result;
+    return runGuardedRefresh(() async {
+      forceRefresh = !notifyStateChanged;
+      try {
+        return await super.refresh(notifyStateChanged);
+      } finally {
+        forceRefresh = false;
+      }
+    });
   }
 
   // 统一的错误日志方法，子类可覆盖
@@ -175,11 +230,9 @@ abstract class ExtendedLoadingMoreBase<T> extends LoadingMoreBase<T> {
 
   @override
   void dispose() {
-    if (!_disposed) {
-      _disposed = true;
-      if (!cancelToken.isCancelled) {
-        cancelToken.cancel('list source disposed');
-      }
+    // _disposed 由 LoadingMoreRefreshGuard.dispose() 负责置位。
+    if (!isDisposed && !cancelToken.isCancelled) {
+      cancelToken.cancel('list source disposed');
     }
     super.dispose();
   }
@@ -210,6 +263,15 @@ class MediaListView<T> extends StatefulWidget {
   /// 分页切换时的回调（用于多选模式下重置选择）
   final VoidCallback? onPageChanged;
 
+  /// 可选的列表协调器（顶栏随滚动收起 / rebuildKey 触发刷新 / 回到顶部）。
+  ///
+  /// 必须由调用方显式传入。原先这里是在 initState 里无条件
+  /// `Get.find<MediaListController>()`，而那是**订阅页**注册的无 tag 单例，
+  /// 于是热门页、搜索页、论坛、作者页这些同样复用 MediaListView 的页面
+  /// 全都连上了订阅页的控制器：订阅页一改分页模式就会广播 rebuildKey，
+  /// 把这些无关页面已加载的多页数据清空重拉、滚动位置一并丢失。
+  final MediaListController? listCoordinator;
+
   const MediaListView({
     super.key,
     required this.sourceList,
@@ -226,6 +288,7 @@ class MediaListView<T> extends StatefulWidget {
     this.forceTotalCountUnknown = false,
     this.onPageChanged,
     this.onScrollMetricsChanged,
+    this.listCoordinator,
   });
 
   @override
@@ -288,25 +351,23 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   void initState() {
     super.initState();
 
-    // 尝试获取 MediaListController 实例（如果可用）
-    try {
-      _mediaListController = Get.find<MediaListController>();
+    // 只使用调用方显式传入的协调器。绝不要在这里 Get.find —— 那会连上
+    // 订阅页的无 tag 单例，导致本组件的其它复用方（热门 / 搜索 / 论坛 /
+    // 作者页）被订阅页的状态变化牵连着刷新。
+    _mediaListController = widget.listCoordinator;
+
+    if (_mediaListController != null) {
       // 如果控制器和滚动控制器可用，注册滚动到顶部回调
-      if (_mediaListController != null && widget.scrollController != null) {
+      if (widget.scrollController != null) {
         _mediaListController!.registerScrollToTopCallback(_scrollToTop);
       }
 
       // 监听 rebuildKey 的变化，当它变化时触发数据刷新
-      if (_mediaListController != null) {
-        _rebuildKeyListener = ever(_mediaListController!.rebuildKey, (int key) {
-          if (mounted) {
-            refresh();
-          }
-        }).call;
-      }
-    } catch (e) {
-      // 未找到 MediaListController，继续执行
-      _mediaListController = null;
+      _rebuildKeyListener = ever(_mediaListController!.rebuildKey, (int key) {
+        if (mounted) {
+          refresh();
+        }
+      }).call;
     }
 
     // 初始化性能监控
@@ -334,6 +395,23 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   @override
   void didUpdateWidget(MediaListView<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.listCoordinator != widget.listCoordinator) {
+      _rebuildKeyListener?.call();
+      _rebuildKeyListener = null;
+      if (_mediaListController != null && oldWidget.scrollController != null) {
+        _mediaListController!.unregisterScrollToTopCallback(_scrollToTop);
+      }
+      _mediaListController = widget.listCoordinator;
+      if (_mediaListController != null) {
+        if (widget.scrollController != null) {
+          _mediaListController!.registerScrollToTopCallback(_scrollToTop);
+        }
+        _rebuildKeyListener = ever(_mediaListController!.rebuildKey, (int key) {
+          if (mounted) refresh();
+        }).call;
+      }
+    }
 
     // 处理滚动控制器变化
     if (oldWidget.scrollController != widget.scrollController &&
@@ -465,6 +543,16 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
           isLoading = false;
           _isFirstLoad = false;
           _modeSwitched = false;
+          // 分页路径直接调 loadPageData()，绕开了 loadData()，所以那边的
+          // 「成功即清错误」不会执行。这里必须自己清：否则分页第 3 页失败、
+          // 重试成功后 lastErrorMessage 仍在，用户切回瀑布流时
+          // indicatorBuilder 会把一个合法的 empty 提升成 fullScreenError，
+          // 显示一条早已过期的错误消息。
+          _errorMessage = null;
+          final source = widget.sourceList;
+          if (source is ExtendedLoadingMoreBase<T>) {
+            source.lastErrorMessage = null;
+          }
 
           // 根据结果设置适当的状态
           if (items.isEmpty && page == 0) {
@@ -508,6 +596,12 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
           _indicatorStatus = IndicatorStatus.fullScreenError;
         });
       }
+    } on StalePageLoadException {
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+        _indicatorStatus = IndicatorStatus.none;
+      });
     } catch (e) {
       if (!mounted) return;
 
@@ -874,25 +968,18 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
             bottom: reservedBottom,
           ),
           sliver: SliverWaterfallFlow(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final withVisibleItems = widget.itemBuilderWithVisibleItems;
-                if (withVisibleItems != null) {
-                  return withVisibleItems(
-                    context,
-                    paginatedItems[index],
-                    index,
-                    List<T>.of(paginatedItems),
-                  );
-                }
-                return widget.itemBuilder(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final withVisibleItems = widget.itemBuilderWithVisibleItems;
+              if (withVisibleItems != null) {
+                return withVisibleItems(
                   context,
                   paginatedItems[index],
                   index,
+                  List<T>.of(paginatedItems),
                 );
-              },
-              childCount: paginatedItems.length,
-            ),
+              }
+              return widget.itemBuilder(context, paginatedItems[index], index);
+            }, childCount: paginatedItems.length),
             gridDelegate:
                 widget.extendedListDelegate
                     is SliverWaterfallFlowDelegateWithMaxCrossAxisExtent

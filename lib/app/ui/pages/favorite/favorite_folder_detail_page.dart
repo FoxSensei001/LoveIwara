@@ -12,6 +12,8 @@ import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
+import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:shimmer/shimmer.dart';
@@ -28,7 +30,8 @@ class FavoriteFolderDetailPage extends StatefulWidget {
   });
 
   @override
-  State<FavoriteFolderDetailPage> createState() => _FavoriteFolderDetailPageState();
+  State<FavoriteFolderDetailPage> createState() =>
+      _FavoriteFolderDetailPageState();
 }
 
 class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
@@ -84,9 +87,7 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.folderTitle ?? ''),
-      ),
+      appBar: AppBar(title: Text(widget.folderTitle ?? '')),
       body: Column(
         children: [
           // 搜索和时间筛选区域
@@ -113,20 +114,27 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
                     onTap: () => _showTagSearchBottomSheet(context),
                     borderRadius: BorderRadius.circular(8),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       child: Row(
                         children: [
                           Icon(
                             Icons.tag,
                             size: 24,
-                            color: Theme.of(context).colorScheme.onSecondaryContainer,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSecondaryContainer,
                           ),
                           if (_repository.tagSearch?.isNotEmpty == true) ...[
                             const SizedBox(width: 4),
                             Icon(
                               Icons.clear,
                               size: 16,
-                              color: Theme.of(context).colorScheme.onSecondaryContainer,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSecondaryContainer,
                             ),
                           ],
                         ],
@@ -143,20 +151,27 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
                     onTap: _selectDateRange,
                     borderRadius: BorderRadius.circular(8),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       child: Row(
                         children: [
                           Icon(
                             Icons.date_range,
                             size: 24,
-                            color: Theme.of(context).colorScheme.onSecondaryContainer,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSecondaryContainer,
                           ),
                           if (_selectedDateRange != null) ...[
                             const SizedBox(width: 4),
                             Icon(
                               Icons.clear,
                               size: 16,
-                              color: Theme.of(context).colorScheme.onSecondaryContainer,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSecondaryContainer,
                             ),
                           ],
                         ],
@@ -177,7 +192,8 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
                 if (_selectedDateRange != null)
                   _buildFilterChip(
                     icon: Icons.date_range,
-                    text: '${CommonUtils.formatDate(_selectedDateRange!.start)} - ${CommonUtils.formatDate(_selectedDateRange!.end)}',
+                    text:
+                        '${CommonUtils.formatDate(_selectedDateRange!.start)} - ${CommonUtils.formatDate(_selectedDateRange!.end)}',
                     color: Theme.of(context).colorScheme.secondaryContainer,
                     onTap: () {
                       setState(() {
@@ -221,23 +237,38 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
                   SliverListConfig<FavoriteItem>(
                     extendedListDelegate:
                         SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? MediaQuery.of(context).size.width / 2 : 200,
-                      crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-                      mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-                    ),
-                    itemBuilder: (BuildContext context, FavoriteItem item, int index) {
-                      return Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
-                          vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
+                          maxCrossAxisExtent:
+                              MediaQuery.of(context).size.width <= 600
+                              ? MediaQuery.of(context).size.width / 2
+                              : 200,
+                          crossAxisSpacing:
+                              MediaQuery.of(context).size.width <= 600 ? 4 : 5,
+                          mainAxisSpacing:
+                              MediaQuery.of(context).size.width <= 600 ? 4 : 5,
                         ),
-                        child: _buildFavoriteItem(item),
-                      );
-                    },
+                    itemBuilder:
+                        (BuildContext context, FavoriteItem item, int index) {
+                          return Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal:
+                                  MediaQuery.of(context).size.width <= 600
+                                  ? 2
+                                  : 0,
+                              vertical: MediaQuery.of(context).size.width <= 600
+                                  ? 2
+                                  : 3,
+                            ),
+                            child: _buildFavoriteItem(item),
+                          );
+                        },
                     sourceList: _repository,
                     padding: EdgeInsets.only(
-                      left: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-                      right: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
+                      left: MediaQuery.of(context).size.width <= 600
+                          ? 2.0
+                          : 5.0,
+                      right: MediaQuery.of(context).size.width <= 600
+                          ? 2.0
+                          : 5.0,
                       top: MediaQuery.of(context).size.width <= 600 ? 2.0 : 3.0,
                       bottom: computeBottomSafeInset(MediaQuery.of(context)),
                     ),
@@ -254,8 +285,8 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
   }
 
   Widget _buildFavoriteItem(FavoriteItem item) {
-    final width = MediaQuery.of(context).size.width <= 600 
-        ? MediaQuery.of(context).size.width / 2 - 8 
+    final width = MediaQuery.of(context).size.width <= 600
+        ? MediaQuery.of(context).size.width / 2 - 8
         : 200.0;
 
     switch (item.itemType) {
@@ -268,15 +299,14 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
               margin: EdgeInsets.zero,
               clipBehavior: Clip.antiAlias,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width < 600 ? 6 : 8)
+                borderRadius: BorderRadius.circular(
+                  MediaQuery.of(context).size.width < 600 ? 6 : 8,
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  VideoCardListItemWidget(
-                    video: video,
-                    width: width,
-                  ),
+                  VideoCardListItemWidget(video: video, width: width),
                   _buildItemFooter(item),
                 ],
               ),
@@ -293,15 +323,14 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
               margin: EdgeInsets.zero,
               clipBehavior: Clip.antiAlias,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width < 600 ? 6 : 8)
+                borderRadius: BorderRadius.circular(
+                  MediaQuery.of(context).size.width < 600 ? 6 : 8,
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ImageModelCardListItemWidget(
-                    imageModel: image,
-                    width: width,
-                  ),
+                  ImageModelCardListItemWidget(imageModel: image, width: width),
                   _buildItemFooter(item),
                 ],
               ),
@@ -317,11 +346,13 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
   Widget _buildItemFooter(FavoriteItem item) {
     // 获取类型对应的颜色和图标
     final (color, icon) = _getItemTypeStyle(item.itemType);
-    
+
     return Container(
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -359,11 +390,7 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      icon,
-                      size: 12,
-                      color: color,
-                    ),
+                    Icon(icon, size: 12, color: color),
                     const SizedBox(width: 4),
                     Text(
                       _getItemTypeText(item.itemType),
@@ -429,7 +456,9 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
         margin: EdgeInsets.zero,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width < 600 ? 6 : 8)
+          borderRadius: BorderRadius.circular(
+            MediaQuery.of(context).size.width < 600 ? 6 : 8,
+          ),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -449,10 +478,7 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 slang.t.errors.failedToFetchData,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                ),
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
               ),
             ),
           ],
@@ -463,14 +489,16 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
 
   Widget _buildUserItem(FavoriteItem item, double width) {
     final user = item.extData != null ? User.fromJson(item.extData!) : null;
-    
+
     return SizedBox(
       width: width,
       child: Card(
         margin: EdgeInsets.zero,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width < 600 ? 6 : 8)
+          borderRadius: BorderRadius.circular(
+            MediaQuery.of(context).size.width < 600 ? 6 : 8,
+          ),
         ),
         child: InkWell(
           onTap: () {
@@ -482,10 +510,7 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
             padding: const EdgeInsets.all(12.0),
             child: Row(
               children: [
-                AvatarWidget(
-                  user: user,
-                  size: 24
-                ),
+                AvatarWidget(user: user, size: 24),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -524,10 +549,7 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
                       const SizedBox(height: 4),
                       Text(
                         '@${user?.username ?? ''}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -548,7 +570,7 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
 
   Widget? _buildIndicator(BuildContext context, IndicatorStatus status) {
     Widget? widget;
-    
+
     switch (status) {
       case IndicatorStatus.none:
         return null;
@@ -561,7 +583,9 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
           child: Shimmer.fromColors(
             baseColor: Colors.grey[300]!,
             highlightColor: Colors.grey[100]!,
-            child: _buildShimmerItem(MediaQuery.of(context).size.width <= 600 ? 180 : 200),
+            child: _buildShimmerItem(
+              MediaQuery.of(context).size.width <= 600 ? 180 : 200,
+            ),
           ),
         );
       case IndicatorStatus.fullScreenBusying:
@@ -572,8 +596,12 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? 180 : 200,
-              crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
+              maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600
+                  ? 180
+                  : 200,
+              crossAxisSpacing: MediaQuery.of(context).size.width <= 600
+                  ? 4
+                  : 5,
               mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
               childAspectRatio: 1,
             ),
@@ -583,7 +611,9 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
               top: MediaQuery.of(context).size.width <= 600 ? 2.0 : 3.0,
             ),
             itemCount: 6,
-            itemBuilder: (context, index) => _buildShimmerItem(MediaQuery.of(context).size.width <= 600 ? 180 : 200),
+            itemBuilder: (context, index) => _buildShimmerItem(
+              MediaQuery.of(context).size.width <= 600 ? 180 : 200,
+            ),
           ),
         );
         return SliverFillRemaining(child: widget);
@@ -597,7 +627,10 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
               onTap: () => _repository.errorRefresh(),
               borderRadius: BorderRadius.circular(12),
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 16,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
@@ -663,10 +696,7 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
         return SliverFillRemaining(
           hasScrollBody: false,
           child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: widget,
-            ),
+            child: Padding(padding: const EdgeInsets.all(16.0), child: widget),
           ),
         );
       case IndicatorStatus.noMoreLoad:
@@ -777,7 +807,9 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 8),
-                    Text(t.favorite.removeItemConfirmWithTitle(title: item.title)),
+                    Text(
+                      t.favorite.removeItemConfirmWithTitle(title: item.title),
+                    ),
                   ],
                 ),
               ),
@@ -853,9 +885,7 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: color.withValues(alpha: 0.3),
-            ),
+            border: Border.all(color: color.withValues(alpha: 0.3)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -878,7 +908,9 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
               Container(
                 padding: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -907,73 +939,73 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
         return Padding(
           padding: EdgeInsets.only(bottom: bottomInset + bottomSafeInset),
           child: Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      t.favorite.searchTags,
-                      style: Theme.of(context).textTheme.titleLarge,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        t.favorite.searchTags,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
                     ),
+                    if (_repository.tagSearch?.isNotEmpty == true)
+                      TextButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _tagSearchController.clear();
+                            _repository.tagSearch = null;
+                            _repository.refresh();
+                          });
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(Icons.clear),
+                        label: Text(t.common.clear),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _tagSearchController,
+                  decoration: InputDecoration(
+                    hintText: t.favorite.searchTags,
+                    prefixIcon: const Icon(Icons.tag),
                   ),
-                  if (_repository.tagSearch?.isNotEmpty == true)
-                    TextButton.icon(
+                  autofocus: true,
+                  onSubmitted: (value) {
+                    setState(() {
+                      _repository.tagSearch = value;
+                      _repository.refresh();
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(t.common.cancel),
+                    ),
+                    const SizedBox(width: 16),
+                    TextButton(
                       onPressed: () {
                         setState(() {
-                          _tagSearchController.clear();
-                          _repository.tagSearch = null;
+                          _repository.tagSearch = _tagSearchController.text;
                           _repository.refresh();
                         });
                         Navigator.pop(context);
                       },
-                      icon: const Icon(Icons.clear),
-                      label: Text(t.common.clear),
+                      child: Text(t.common.confirm),
                     ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _tagSearchController,
-                decoration: InputDecoration(
-                  hintText: t.favorite.searchTags,
-                  prefixIcon: const Icon(Icons.tag),
+                  ],
                 ),
-                autofocus: true,
-                onSubmitted: (value) {
-                  setState(() {
-                    _repository.tagSearch = value;
-                    _repository.refresh();
-                  });
-                  Navigator.pop(context);
-                },
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(t.common.cancel),
-                  ),
-                  const SizedBox(width: 16),
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _repository.tagSearch = _tagSearchController.text;
-                        _repository.refresh();
-                      });
-                      Navigator.pop(context);
-                    },
-                    child: Text(t.common.confirm),
-                  ),
-                ],
-              ),
-            ],
-          ),
+              ],
+            ),
           ),
         );
       },
@@ -981,41 +1013,55 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
   }
 }
 
-class FavoriteItemRepository extends LoadingMoreBase<FavoriteItem> {
+class FavoriteItemRepository extends LoadingMoreBase<FavoriteItem>
+    with LoadingMoreRefreshGuard<FavoriteItem> {
   final String folderId;
   int _pageIndex = 0;
   bool _hasMore = true;
   bool forceRefresh = false;
-  
+
   String? searchText;
   String? tagSearch;
   DateTime? startDate;
   DateTime? endDate;
-  
+
   static const int pageSize = 20;
-  
+
   FavoriteItemRepository(this.folderId);
-  
+
   @override
   bool get hasMore => _hasMore || forceRefresh;
 
   @override
-  Future<bool> refresh([bool notifyStateChanged = false]) async {
+  void resetPagingState() {
+    super.resetPagingState(); // 代际自增，作废在途回写
     _hasMore = true;
     _pageIndex = 0;
-    forceRefresh = !notifyStateChanged;
-    final bool result = await super.refresh(notifyStateChanged);
-    forceRefresh = false;
-    return result;
+  }
+
+  @override
+  Future<bool> refresh([bool notifyStateChanged = false]) async {
+    return runGuardedRefresh(() async {
+      forceRefresh = !notifyStateChanged;
+      try {
+        return await super.refresh(notifyStateChanged);
+      } finally {
+        forceRefresh = false;
+      }
+    });
   }
 
   @override
   Future<bool> loadData([bool isLoadMoreAction = false]) async {
     bool isSuccess = false;
+    // 代际 + 页码快照必须在 await 之前取：await 期间可能发生 refresh()，
+    // 那样回来的第 N 页会被当成第 0 页写进列表，页码也跟着错位。
+    final int generation = currentGeneration;
+    final int page = _pageIndex;
     try {
       final items = await FavoriteService.to.getFolderItems(
         folderId,
-        offset: _pageIndex * pageSize,
+        offset: page * pageSize,
         limit: pageSize,
         searchText: searchText,
         tagSearch: tagSearch,
@@ -1023,18 +1069,28 @@ class FavoriteItemRepository extends LoadingMoreBase<FavoriteItem> {
         endDate: endDate,
       );
 
-      if (_pageIndex == 0) {
+      // await 期间已被 refresh() 作废 → 丢弃本次结果。必须返回 true：
+      // 返回 false 会被 loading_more_list 映射成一个假的错误页。
+      if (isStaleGeneration(generation)) {
+        return true;
+      }
+
+      if (page == 0) {
         clear();
       }
 
       addAll(items);
 
       _hasMore = items.length >= pageSize;
-      _pageIndex++;
+      _pageIndex = page + 1;
       isSuccess = true;
-    } catch (e) {
+    } catch (e, stack) {
+      if (isStaleGeneration(generation)) {
+        return true;
+      }
       isSuccess = false;
+      LogUtils.e('加载收藏夹内容失败', error: e, stack: stack);
     }
     return isSuccess;
   }
-} 
+}

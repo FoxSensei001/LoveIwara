@@ -617,7 +617,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final bool isWideLayout = constraints.maxWidth > 600;
           return Stack(
             children: [
               // 内容区域 - 填充整个Stack，列表通过paddingTop留出头部空间
@@ -632,8 +631,15 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                     .reloadVersionForTab(1);
                 final postReloadVersion = mediaListController
                     .reloadVersionForTab(2);
+                // 这里必须用「整窗宽度」而不是 isWideLayout。isWideLayout 来自
+                // LayoutBuilder 的 constraints.maxWidth，而本页位于 Shell 内部，
+                // 该宽度已经被侧边栏吃掉了一截；Shell 判断底栏是否显示用的却是
+                // 整窗宽度。两个阈值都是 600，作用在不同宽度上，于是存在一段
+                // 「底栏已隐藏、本页却仍按窄屏不留底部安全区」的区间。
+                // 与 popular_media_list_base_page.dart 的写法保持一致。
                 final bool shouldApplyBottomSafeAreaPadding =
-                    !Get.find<AppService>().showBottomNavi || isWideLayout;
+                    !Get.find<AppService>().showBottomNavi ||
+                    MediaQuery.sizeOf(context).width > 600;
 
                 // 同步分页模式状态到批量选择控制器
                 _videoBatchController.setPaginatedMode(isPaginated);

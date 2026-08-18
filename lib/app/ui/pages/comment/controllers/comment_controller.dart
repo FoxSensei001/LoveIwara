@@ -10,6 +10,7 @@ import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:loading_more_list/loading_more_list.dart';
+import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
 
 import '../../../../../common/constants.dart';
 import '../../../../models/comment.model.dart';
@@ -311,7 +312,8 @@ class CommentController<T extends CommentType> extends GetxController {
 }
 
 /// LoadingMoreList 数据源类，用于管理评论列表的分页加载
-class CommentListSource extends LoadingMoreBase<Comment> {
+class CommentListSource extends LoadingMoreBase<Comment>
+    with LoadingMoreRefreshGuard<Comment> {
   final CommentController controller;
 
   // 持有订阅以便在 dispose 时取消，避免泄漏（每个详情页都会创建评论数据源）
@@ -338,22 +340,53 @@ class CommentListSource extends LoadingMoreBase<Comment> {
   bool get hasMore => controller.hasMore.value;
 
   @override
+  void resetPagingState() {
+    super.resetPagingState(); // 代际自增，作废在途回写
+    // 本数据源自己不持有分页字段：currentPage / loadedTopLevelComments /
+    // comments 都在 controller 里，由 fetchComments(refresh: true) 重置。
+    // 这里只需提前把 hasMore 打回 true —— 否则列表已加载到底时，
+    // super.refresh() 会被框架的 `if (isLoading || !hasMore)` 闸门
+    // 在发出请求之前拦掉（还会谎报成功）。
+    controller.hasMore.value = true;
+  }
+
+  @override
   Future<bool> refresh([bool notifyStateChanged = false]) async {
-    super.refresh(notifyStateChanged);
-    await controller.refreshComments();
-    return controller.errorMessage.value.isEmpty;
+    return runGuardedRefresh(() async {
+      final int generation = currentGeneration;
+      // 只走 super.refresh()：它会经 loadData 调到
+      // controller.fetchComments(refresh: true)，不会重复发起刷新。
+      final bool result = await super.refresh(notifyStateChanged);
+      return isStaleGeneration(generation) ? true : result;
+    });
   }
 
   @override
   Future<bool> loadData([bool isloadMoreAction = false]) async {
+    // 代际快照必须在 await 之前取：await 期间可能发生 refresh()。
+    final int generation = currentGeneration;
     try {
       if (isloadMoreAction) {
         await controller.loadMoreComments();
       } else {
         await controller.fetchComments(refresh: true);
       }
+      // await 期间已被 refresh() 作废 → 丢弃本次结果。必须返回 true：
+      // 返回 false 会被 loading_more_list 映射成一个假的错误页。
+      if (isStaleGeneration(generation)) {
+        return true;
+      }
       return controller.errorMessage.value.isEmpty;
-    } catch (e) {
+    } catch (e, stack) {
+      if (isStaleGeneration(generation)) {
+        return true;
+      }
+      LogUtils.e(
+        '加载评论列表失败',
+        tag: 'CommentListSource<${controller.type.toString()}>',
+        error: e,
+        stack: stack,
+      );
       return false;
     }
   }

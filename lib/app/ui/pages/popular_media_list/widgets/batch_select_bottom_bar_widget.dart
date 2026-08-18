@@ -38,14 +38,11 @@ class BatchSelectBottomBarWidget extends StatelessWidget {
       onClosing: () {},
       builder: (context) => SafeArea(
         child: Container(
-          padding: EdgeInsets.only(
-            left: 16.0,
-            right: 16.0,
-            top: 16.0,
-            bottom:
-                16.0 +
-                MediaQuery.of(context).padding.bottom,
-          ),
+          // 底部安全区交给外层 SafeArea 处理即可。原先这里又手动加了一次
+          // MediaQuery.padding.bottom，而这个 context 取自 SafeArea 之上、
+          // 拿到的是未被消费的原始值，等于把安全区算了两遍。
+          // （之前看不出来，是因为 Shell 的 Scaffold 把 padding.bottom 抹成了 0。）
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,

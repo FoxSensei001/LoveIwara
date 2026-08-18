@@ -219,53 +219,41 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
           ],
         ),
         Expanded(
-          child: RefreshIndicator(
-            onRefresh: () async {
-              await videoListRepository.refresh(true);
+          child: MediaListView<Video>(
+            sourceList: videoListRepository,
+            emptyIcon: Icons.video_library_outlined,
+            onPageChanged: widget.onPageChanged,
+            itemBuilder: (context, video, index) {
+              return Obx(() {
+                return Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.width <= 600
+                        ? 2
+                        : 0,
+                    vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
+                  ),
+                  child: VideoCardListItemWidget(
+                    video: video,
+                    width: MediaQuery.of(context).size.width <= 600
+                        ? MediaQuery.of(context).size.width / 2 - 8
+                        : 200,
+                    disableBlock: true,
+                    isMultiSelectMode: widget.isMultiSelectMode,
+                    isSelected: widget.selectedItemIds.contains(video.id),
+                    onSelect: () => widget.onItemSelect?.call(video),
+                    onOpenVideo: widget.onOpenVideo == null
+                        ? null
+                        : ({required videoId, Map<String, dynamic>? extData}) {
+                            return widget.onOpenVideo!(
+                              videoId: videoId,
+                              loadedVideos: List<Video>.of(videoListRepository),
+                              extData: extData,
+                            );
+                          },
+                  ),
+                );
+              });
             },
-            child: MediaListView<Video>(
-              sourceList: videoListRepository,
-              emptyIcon: Icons.video_library_outlined,
-              onPageChanged: widget.onPageChanged,
-              itemBuilder: (context, video, index) {
-                return Obx(() {
-                  return Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: MediaQuery.of(context).size.width <= 600
-                          ? 2
-                          : 0,
-                      vertical: MediaQuery.of(context).size.width <= 600
-                          ? 2
-                          : 3,
-                    ),
-                    child: VideoCardListItemWidget(
-                      video: video,
-                      width: MediaQuery.of(context).size.width <= 600
-                          ? MediaQuery.of(context).size.width / 2 - 8
-                          : 200,
-                      disableBlock: true,
-                      isMultiSelectMode: widget.isMultiSelectMode,
-                      isSelected: widget.selectedItemIds.contains(video.id),
-                      onSelect: () => widget.onItemSelect?.call(video),
-                      onOpenVideo: widget.onOpenVideo == null
-                          ? null
-                          : ({
-                              required videoId,
-                              Map<String, dynamic>? extData,
-                            }) {
-                              return widget.onOpenVideo!(
-                                videoId: videoId,
-                                loadedVideos: List<Video>.of(
-                                  videoListRepository,
-                                ),
-                                extData: extData,
-                              );
-                            },
-                    ),
-                  );
-                });
-              },
-            ),
           ),
         ),
       ],

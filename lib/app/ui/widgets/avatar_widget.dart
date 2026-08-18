@@ -128,11 +128,19 @@ class AvatarWidget extends StatelessWidget {
   }
   
   Widget _buildPlaceholder() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: Container(
-        color: Colors.white,
+    // 必须套 RepaintBoundary：Shimmer 内部每帧调 markNeedsPaint，而本组件自身
+    // 没有重绘边界，脏标记会一路上抛到卡片级的 RepaintBoundary
+    // （video_card_list_item_widget.dart:196），导致「整张卡片」每帧重新栅格化。
+    // 头像是按列表项逐个实例化的，一屏 6~8 张卡即 6~8 个 60fps ticker 同时
+    // 脏化整层——列表静止不动时也在持续重绘，直接表现为耗电发热。
+    // 加上边界后重绘范围被限制在头像自身的几十个像素内。
+    return RepaintBoundary(
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Container(
+          color: Colors.white,
+        ),
       ),
     );
   }
