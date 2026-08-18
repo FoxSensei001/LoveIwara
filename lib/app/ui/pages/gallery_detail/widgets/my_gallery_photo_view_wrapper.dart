@@ -74,6 +74,10 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
 
   bool _isUiVisible = true;
   Timer? _uiHideTimer;
+
+  // 跟随路由过渡切换系统 UI（侧边栏）用，见 _attachRouteAnimation
+  ModalRoute<dynamic>? _observedRoute;
+  Animation<double>? _routeAnimation;
   bool _suppressNextTapToggle = false;
   final FocusNode _keyboardFocusNode = FocusNode(debugLabel: 'GalleryViewer');
 
@@ -244,12 +248,57 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _attachRouteAnimation();
+  }
+
+  /// 侧边栏（NavigationRail）的展开/收起是靠 AppService.showRailNavi 驱动的一段
+  /// 240/200ms 动画（见 AnimatedNavigationRailSlot）。进入时在 initState 里收起没问题，
+  /// 但退出如果只写在 dispose 里，路由退场动画（300ms）跑完、本页都已经被移除之后
+  /// 侧边栏才开始展开 —— 看上去就是「先关页面，侧边栏再自己弹出来」，完全对不上，
+  /// 和播放器全屏（点按钮当场切 showRailNavi，动画与画面同步）差了一个身位。
+  ///
+  /// 这里改成跟着路由自身的动画走：一开始 pop（status 变 reverse）就交还系统 UI，
+  /// 让侧边栏展开与本页淡出同帧进行；iOS 侧滑取消（reverse -> forward）会再次收起。
+  void _attachRouteAnimation() {
+    final route = ModalRoute.of(context);
+    if (identical(route, _observedRoute)) return;
+    _detachRouteAnimation();
+    _observedRoute = route;
+    final animation = route?.animation;
+    if (animation == null) return;
+    _routeAnimation = animation..addStatusListener(_handleRouteAnimationStatus);
+  }
+
+  void _detachRouteAnimation() {
+    _routeAnimation?.removeStatusListener(_handleRouteAnimationStatus);
+    _routeAnimation = null;
+    _observedRoute = null;
+  }
+
+  void _handleRouteAnimationStatus(AnimationStatus status) {
+    if (!mounted) return;
+    switch (status) {
+      case AnimationStatus.reverse:
+      case AnimationStatus.dismissed:
+        _appService?.showSystemUI();
+      case AnimationStatus.forward:
+      case AnimationStatus.completed:
+        _appService?.hideSystemUI(hideTitleBar: false);
+    }
+  }
+
+  @override
   void dispose() {
     // 释放所有视频播放器资源
     _releaseAllVideoPlayers();
 
     // 移除音量键监听
     _galleryControls.disableVolumeKeyListener();
+    _detachRouteAnimation();
+    // 兜底：无过渡动画的 pop（或路由没有 animation）时仍要恢复系统 UI。
+    // 与上面的 reverse 分支重复调用是幂等的（Rx 同值不通知）。
     _appService?.showSystemUI();
     _uiHideTimer?.cancel();
     _dismissResetController.dispose();
