@@ -74,3 +74,4 @@ android/build/
 # Local AI / tooling caches (not committed)
 /.codegraph/
 /.playwright-mcp/
+/plans/
