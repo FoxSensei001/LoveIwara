@@ -6,7 +6,6 @@ import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/link_input_dialog_widget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
-import 'package:i_iwara/app/ui/widgets/iwara_site_badge.dart';
 import 'package:i_iwara/app/ui/widgets/iwara_site_switcher.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 
@@ -17,6 +16,12 @@ import '../../services/user_service.dart';
 import '../../services/login_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+
+/// 底部悬浮圆按钮尺寸与留白（渐变高度、列表底部留白都由此派生）
+const double _kActionButtonSize = 44;
+const double _kActionIconSize = 24;
+const double _kActionBottomMargin = 16;
+const double _kActionFadeExtent = 48;
 
 class GlobalDrawerColumns extends StatelessWidget {
   GlobalDrawerColumns({super.key});
@@ -32,205 +37,307 @@ class GlobalDrawerColumns extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final bottomInset = MediaQuery.paddingOf(context).bottom;
         return SizedBox(
           height: constraints.maxHeight,
           child: Column(
             children: [
               Obx(() => _buildHeader(context)),
               Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Stack(
                   children: [
-                    Obx(() => _buildSiteModePanel(context)),
-                    const SizedBox(height: 8),
-                    _buildSectionHeader(context, slang.t.settings.interaction),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.notifications_outlined,
-                      title: slang.t.notifications.notifications,
-                      onTap: () => _handleLoginRequiredNavi(
-                        NaviService.navigateToNotificationListPage,
-                        context,
+                    ListView(
+                      // 底部留白让最后一项能完整滚到悬浮按钮上方
+                      padding: EdgeInsets.only(
+                        top: 8,
+                        bottom:
+                            _kActionBottomMargin +
+                            _kActionButtonSize +
+                            bottomInset,
                       ),
-                      trailing: _buildNotificationBadge(),
-                    ),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.chat_outlined,
-                      title: slang.t.conversation.conversation,
-                      onTap: () => _handleLoginRequiredNavi(
-                        NaviService.navigateToConversationPage,
-                        context,
-                      ),
-                      trailing: _buildMessageBadge(),
-                    ),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.people_outline,
-                      title: slang.t.common.friends,
-                      onTap: () => _handleLoginRequiredNavi(
-                        NaviService.navigateToFriendsPage,
-                        context,
-                      ),
-                      trailing: _buildFriendRequestBadge(),
-                    ),
-
-                    const Divider(indent: 16, endIndent: 16, height: 24),
-
-                    // --- Content Section ---
-                    _buildSectionHeader(context, slang.t.common.history),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.history_outlined,
-                      title: slang.t.common.history,
-                      onTap: () {
-                        NaviService.navigateToHistoryListPage();
-                        AppService.switchGlobalDrawer();
-                      },
-                    ),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.download_outlined,
-                      title: slang.t.download.downloadList,
-                      onTap: () {
-                        NaviService.navigateToDownloadTaskListPage();
-                        AppService.switchGlobalDrawer();
-                      },
-                    ),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.favorite_outline,
-                      title: slang.t.common.favorites,
-                      onTap: () => _handleLoginRequiredNavi(
-                        NaviService.navigateToFavoritePage,
-                        context,
-                      ),
-                    ),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.bookmark_outline,
-                      title: slang.t.favorite.localizeFavorite,
-                      onTap: () {
-                        NaviService.navigateToLocalFavoritePage();
-                        AppService.switchGlobalDrawer();
-                      },
-                    ),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.playlist_play_outlined,
-                      title: slang.t.common.playList,
-                      onTap: () => _handleLoginRequiredNavi(
-                        () => NaviService.navigateToPlayListPage(
-                          userService.currentUser.value!.id,
-                          isMine: true,
+                      children: [
+                        _buildSectionHeader(
+                          context,
+                          slang.t.settings.interaction,
                         ),
-                        context,
-                      ),
-                    ),
-
-                    const Divider(indent: 16, endIndent: 16, height: 24),
-
-                    // --- Social Section ---
-                    _buildSectionHeader(context, slang.t.common.followsAndFans),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.stars_outlined,
-                      title: slang.t.common.specialFollow,
-                      onTap: () => _handleLoginRequiredNavi(
-                        () => NaviService.navigateToSpecialFollowsListPage(
-                          userService.currentUser.value!.id,
-                          userService.currentUser.value!.name,
-                          userService.currentUser.value!.username,
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.notifications_outlined,
+                          title: slang.t.notifications.notifications,
+                          onTap: () => _handleLoginRequiredNavi(
+                            NaviService.navigateToNotificationListPage,
+                            context,
+                          ),
+                          trailing: _buildNotificationBadge(),
                         ),
-                        context,
-                      ),
-                    ),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.person_add_alt_1_outlined,
-                      title: slang.t.common.followingList,
-                      onTap: () => _handleLoginRequiredNavi(
-                        () => NaviService.navigateToFollowingListPage(
-                          userService.currentUser.value!.id,
-                          userService.currentUser.value!.name,
-                          userService.currentUser.value!.username,
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.chat_outlined,
+                          title: slang.t.conversation.conversation,
+                          onTap: () => _handleLoginRequiredNavi(
+                            NaviService.navigateToConversationPage,
+                            context,
+                          ),
+                          trailing: _buildMessageBadge(),
                         ),
-                        context,
-                      ),
-                    ),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.group_outlined,
-                      title: slang.t.common.followersList,
-                      onTap: () => _handleLoginRequiredNavi(
-                        () => NaviService.navigateToFollowersListPage(
-                          userService.currentUser.value!.id,
-                          userService.currentUser.value!.name,
-                          userService.currentUser.value!.username,
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.people_outline,
+                          title: slang.t.common.friends,
+                          onTap: () => _handleLoginRequiredNavi(
+                            NaviService.navigateToFriendsPage,
+                            context,
+                          ),
+                          trailing: _buildFriendRequestBadge(),
                         ),
-                        context,
+
+                        const Divider(indent: 16, endIndent: 16, height: 24),
+
+                        // --- Content Section ---
+                        _buildSectionHeader(context, slang.t.common.history),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.history_outlined,
+                          title: slang.t.common.history,
+                          onTap: () {
+                            NaviService.navigateToHistoryListPage();
+                            AppService.switchGlobalDrawer();
+                          },
+                        ),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.download_outlined,
+                          title: slang.t.download.downloadList,
+                          onTap: () {
+                            NaviService.navigateToDownloadTaskListPage();
+                            AppService.switchGlobalDrawer();
+                          },
+                        ),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.favorite_outline,
+                          title: slang.t.common.favorites,
+                          onTap: () => _handleLoginRequiredNavi(
+                            NaviService.navigateToFavoritePage,
+                            context,
+                          ),
+                        ),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.bookmark_outline,
+                          title: slang.t.favorite.localizeFavorite,
+                          onTap: () {
+                            NaviService.navigateToLocalFavoritePage();
+                            AppService.switchGlobalDrawer();
+                          },
+                        ),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.playlist_play_outlined,
+                          title: slang.t.common.playList,
+                          onTap: () => _handleLoginRequiredNavi(
+                            () => NaviService.navigateToPlayListPage(
+                              userService.currentUser.value!.id,
+                              isMine: true,
+                            ),
+                            context,
+                          ),
+                        ),
+
+                        const Divider(indent: 16, endIndent: 16, height: 24),
+
+                        // --- Social Section ---
+                        _buildSectionHeader(
+                          context,
+                          slang.t.common.followsAndFans,
+                        ),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.stars_outlined,
+                          title: slang.t.common.specialFollow,
+                          onTap: () => _handleLoginRequiredNavi(
+                            () => NaviService.navigateToSpecialFollowsListPage(
+                              userService.currentUser.value!.id,
+                              userService.currentUser.value!.name,
+                              userService.currentUser.value!.username,
+                            ),
+                            context,
+                          ),
+                        ),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.person_add_alt_1_outlined,
+                          title: slang.t.common.followingList,
+                          onTap: () => _handleLoginRequiredNavi(
+                            () => NaviService.navigateToFollowingListPage(
+                              userService.currentUser.value!.id,
+                              userService.currentUser.value!.name,
+                              userService.currentUser.value!.username,
+                            ),
+                            context,
+                          ),
+                        ),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.group_outlined,
+                          title: slang.t.common.followersList,
+                          onTap: () => _handleLoginRequiredNavi(
+                            () => NaviService.navigateToFollowersListPage(
+                              userService.currentUser.value!.id,
+                              userService.currentUser.value!.name,
+                              userService.currentUser.value!.username,
+                            ),
+                            context,
+                          ),
+                        ),
+
+                        const Divider(indent: 16, endIndent: 16, height: 24),
+
+                        // --- Tools Section ---
+                        _buildSectionHeader(context, slang.t.common.more),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.person_outline,
+                          title: slang.t.personalProfile.personalProfile,
+                          onTap: () => _handleLoginRequiredNavi(
+                            NaviService.navigateToPersonalProfilePage,
+                            context,
+                          ),
+                        ),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.block_flipped,
+                          title: slang.t.common.tagBlacklist,
+                          onTap: () => _handleLoginRequiredNavi(
+                            NaviService.navigateToTagBlacklistPage,
+                            context,
+                          ),
+                        ),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.favorite_outline,
+                          title: slang.t.favoriteTags.iwaraTitle,
+                          onTap: () {
+                            NaviService.navigateToFavoriteIwaraTagsPage();
+                            AppService.switchGlobalDrawer();
+                          },
+                        ),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.view_in_ar_outlined,
+                          title: slang.t.favoriteTags.oreno3dTitle,
+                          onTap: () {
+                            NaviService.navigateToFavoriteOreno3dTagsPage();
+                            AppService.switchGlobalDrawer();
+                          },
+                        ),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.block,
+                          title: slang.t.settings.blockSettings.title,
+                          onTap: () {
+                            NaviService.navigateToBlockSettingsPage();
+                            AppService.switchGlobalDrawer();
+                          },
+                        ),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.link_outlined,
+                          title: slang.t.settings.jumpLink,
+                          onTap: () => LinkInputDialogWidget.show(),
+                        ),
+
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                    // 渐变承托：列表全程透出，仅在按钮背后逐渐压暗（不随滚动变化）
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      height:
+                          _kActionBottomMargin +
+                          _kActionButtonSize +
+                          _kActionFadeExtent +
+                          bottomInset,
+                      child: IgnorePointer(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: _bottomFadeGradient(context),
+                          ),
+                        ),
                       ),
                     ),
-
-                    const Divider(indent: 16, endIndent: 16, height: 24),
-
-                    // --- Tools Section ---
-                    _buildSectionHeader(context, slang.t.common.more),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.person_outline,
-                      title: slang.t.personalProfile.personalProfile,
-                      onTap: () => _handleLoginRequiredNavi(
-                        NaviService.navigateToPersonalProfilePage,
-                        context,
-                      ),
+                    Positioned(
+                      left: 16,
+                      right: 16,
+                      bottom: _kActionBottomMargin + bottomInset,
+                      height: _kActionButtonSize,
+                      child: _buildFloatingActions(context),
                     ),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.block_flipped,
-                      title: slang.t.common.tagBlacklist,
-                      onTap: () => _handleLoginRequiredNavi(
-                        NaviService.navigateToTagBlacklistPage,
-                        context,
-                      ),
-                    ),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.favorite_outline,
-                      title: slang.t.favoriteTags.iwaraTitle,
-                      onTap: () {
-                        NaviService.navigateToFavoriteIwaraTagsPage();
-                        AppService.switchGlobalDrawer();
-                      },
-                    ),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.view_in_ar_outlined,
-                      title: slang.t.favoriteTags.oreno3dTitle,
-                      onTap: () {
-                        NaviService.navigateToFavoriteOreno3dTagsPage();
-                        AppService.switchGlobalDrawer();
-                      },
-                    ),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.block,
-                      title: slang.t.settings.blockSettings.title,
-                      onTap: () {
-                        NaviService.navigateToBlockSettingsPage();
-                        AppService.switchGlobalDrawer();
-                      },
-                    ),
-
-                    const SizedBox(height: 16),
                   ],
                 ),
               ),
-              Obx(() => _buildBottomActions(context)),
             ],
           ),
         );
       },
+    );
+  }
+
+  LinearGradient _bottomFadeGradient(BuildContext context) {
+    final base = Theme.of(context).colorScheme.surfaceContainerLow;
+    return LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        base.withValues(alpha: 0),
+        base.withValues(alpha: 0.35),
+        base.withValues(alpha: 0.70),
+        base.withValues(alpha: 0.92),
+      ],
+      stops: const [0, 0.3, 0.6, 1],
+    );
+  }
+
+  Widget _buildFloatingActions(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _DrawerCircleButton(
+              icon: Icons.settings_outlined,
+              onTap: () {
+                AppService.switchGlobalDrawer();
+                NaviService.navigateToSettingsPage();
+              },
+            ),
+            const SizedBox(width: 8),
+            Obx(() {
+              final site = appService.currentSiteMode;
+              return _DrawerCircleButton(
+                icon: site.isAi ? Icons.auto_awesome : Icons.public,
+                onTap: () => _showSiteModeDialog(
+                  context,
+                  initialSite: _alternateSite(site),
+                ),
+              );
+            }),
+          ],
+        ),
+        // 未登录时右侧留空，左侧位置不变
+        Obx(
+          () => userService.hasLoadedProfile
+              ? _DrawerCircleButton(
+                  icon: Icons.logout_outlined,
+                  onTap: () => _showLogoutDialog(context),
+                )
+              : const SizedBox.shrink(),
+        ),
+      ],
     );
   }
 
@@ -265,68 +372,6 @@ class GlobalDrawerColumns extends StatelessWidget {
         type: MDToastType.error,
       ),
       position: ToastPosition.top,
-    );
-  }
-
-  Widget _buildSiteModePanel(BuildContext context) {
-    final site = appService.currentSiteMode;
-    final nextSite = _alternateSite(site);
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final leadingIconColor = theme.brightness == Brightness.dark
-        ? Colors.white70
-        : Colors.black87;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
-      child: InkWell(
-        onTap: () => _showSiteModeDialog(context, initialSite: nextSite),
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          child: Row(
-            children: [
-              Icon(
-                site.isAi ? Icons.auto_awesome : Icons.public,
-                size: 22,
-                color: leadingIconColor,
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            slang.Translations.of(context).siteMode.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        IwaraSiteBadge(site: site, showForMain: true),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Icon(
-                Icons.swap_horiz_rounded,
-                size: 20,
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
@@ -540,53 +585,6 @@ class GlobalDrawerColumns extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomActions(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        border: Border(
-          top: BorderSide(
-            color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
-          ),
-        ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: Padding(
-          padding: EdgeInsets.only(
-            top: 4,
-            bottom: 4 + MediaQuery.paddingOf(context).bottom,
-            left: 12,
-            right: 12,
-          ),
-          child: Row(
-            children: [
-              _BottomActionItem(
-                icon: Icons.settings_outlined,
-                label: slang.t.common.settings,
-                onTap: () {
-                  AppService.switchGlobalDrawer();
-                  NaviService.navigateToSettingsPage();
-                },
-              ),
-              _BottomActionItem(
-                icon: Icons.link_outlined,
-                label: slang.t.settings.jumpLink,
-                onTap: () => LinkInputDialogWidget.show(),
-              ),
-              if (userService.hasLoadedProfile)
-                _BottomActionItem(
-                  icon: Icons.logout_outlined,
-                  label: slang.t.common.logout,
-                  onTap: () => _showLogoutDialog(context),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   void _showSiteModeDialog(BuildContext context, {IwaraSite? initialSite}) {
     AppService.switchGlobalDrawer();
     showAppDialog(
@@ -610,46 +608,32 @@ class GlobalDrawerColumns extends StatelessWidget {
   }
 }
 
-class _BottomActionItem extends StatelessWidget {
+class _DrawerCircleButton extends StatelessWidget {
   final IconData icon;
-  final String label;
   final VoidCallback onTap;
 
-  const _BottomActionItem({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
+  const _DrawerCircleButton({required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        hoverColor: theme.colorScheme.primary.withValues(alpha: 0.08),
-        highlightColor: theme.colorScheme.primary.withValues(alpha: 0.12),
-        splashColor: theme.colorScheme.primary.withValues(alpha: 0.12),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 22, color: theme.colorScheme.onSurfaceVariant),
-              const SizedBox(height: 6),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: theme.colorScheme.onSurfaceVariant,
-                  letterSpacing: 0.3,
-                ),
-              ),
-            ],
-          ),
+    final colorScheme = Theme.of(context).colorScheme;
+    return SizedBox.square(
+      dimension: _kActionButtonSize,
+      child: IconButton.filledTonal(
+        onPressed: onTap,
+        iconSize: _kActionIconSize,
+        icon: Icon(icon),
+        style: IconButton.styleFrom(
+          backgroundColor: colorScheme.surfaceContainerHighest,
+          foregroundColor: colorScheme.onSurfaceVariant,
+          hoverColor: colorScheme.primary.withValues(alpha: 0.08),
+          focusColor: colorScheme.primary.withValues(alpha: 0.08),
+          highlightColor: colorScheme.primary.withValues(alpha: 0.12),
+          padding: EdgeInsets.zero,
+          fixedSize: const Size.square(_kActionButtonSize),
+          minimumSize: const Size.square(_kActionButtonSize),
+          maximumSize: const Size.square(_kActionButtonSize),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
       ),
     );
