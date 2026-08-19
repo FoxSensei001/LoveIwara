@@ -65,75 +65,67 @@ class _CommentSectionState extends State<CommentSection> {
     });
   }
 
-  // 构建Shimmer骨架屏列表
+  /// 列表内边距：扁平线程流，条目间用细分隔线分组。
+  EdgeInsets get _listPadding =>
+      EdgeInsets.fromLTRB(16.0, widget.topPadding + 4.0, 16.0, 8.0);
+
+  /// 评论间的细分隔线。
+  Widget _buildItemDivider(BuildContext context) {
+    return Divider(
+      height: 1,
+      thickness: 0.5,
+      color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.4),
+    );
+  }
+
+  // 构建Shimmer骨架屏列表（与正式列表同一套扁平布局）
   Widget _buildShimmerList() {
     return ListView.separated(
-      padding: EdgeInsets.only(top: widget.topPadding + 4.0, bottom: 4.0),
+      padding: _listPadding,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: 5,
-      itemBuilder: (context, index) => Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4.0),
-        child: const CommentSkeletonItem(),
-      ),
-      separatorBuilder: (context, index) => Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: Divider(
-          height: 1,
-          thickness: 0.5,
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-        ),
-      ),
+      itemBuilder: (context, index) => const CommentSkeletonItem(),
+      separatorBuilder: (context, index) => _buildItemDivider(context),
     );
   }
 
   // 构建错误状态视图
   Widget _buildErrorState(BuildContext context) {
     final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: EdgeInsets.only(top: widget.topPadding),
       child: Center(
         child: Container(
           margin: const EdgeInsets.all(24.0),
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(28.0),
           decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).colorScheme.errorContainer.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12.0),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.2),
-              width: 1.0,
-            ),
+            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(16.0),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 Icons.error_outline_rounded,
-                color: Theme.of(context).colorScheme.error,
-                size: 48.0,
+                color: colorScheme.error,
+                size: 44.0,
               ),
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 12.0),
               Text(
                 widget.controller.errorMessage.value,
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.onErrorContainer,
-                  fontSize: 16,
+                  color: colorScheme.onSurfaceVariant,
+                  fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 20.0),
-              FilledButton.icon(
+              const SizedBox(height: 16.0),
+              FilledButton.tonalIcon(
                 onPressed: widget.controller.refreshComments,
-                icon: const Icon(Icons.refresh_rounded),
+                icon: const Icon(Icons.refresh_rounded, size: 18),
                 label: Text(t.common.retry),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24.0,
-                    vertical: 12.0,
-                  ),
-                ),
               ),
             ],
           ),
@@ -145,6 +137,7 @@ class _CommentSectionState extends State<CommentSection> {
   // 构建空状态视图
   Widget _buildEmptyState(BuildContext context) {
     final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: EdgeInsets.only(top: widget.topPadding),
       child: Center(
@@ -152,9 +145,7 @@ class _CommentSectionState extends State<CommentSection> {
           margin: const EdgeInsets.all(24.0),
           padding: const EdgeInsets.all(32.0),
           decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(16.0),
           ),
           child: Column(
@@ -162,15 +153,15 @@ class _CommentSectionState extends State<CommentSection> {
             children: [
               Icon(
                 Icons.chat_bubble_outline_rounded,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                size: 64.0,
+                color: colorScheme.onSurfaceVariant,
+                size: 56.0,
               ),
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 14.0),
               Text(
                 t.common.tmpNoComments,
                 style: TextStyle(
-                  fontSize: 16,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 15,
+                  color: colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w500,
                 ),
                 textAlign: TextAlign.center,
@@ -187,32 +178,19 @@ class _CommentSectionState extends State<CommentSection> {
     return LoadingMoreList<Comment>(
       ListConfig<Comment>(
         controller: widget.scrollController,
-        padding: EdgeInsets.only(top: widget.topPadding + 4.0, bottom: 4.0),
+        padding: _listPadding,
         physics: const AlwaysScrollableScrollPhysics(),
         itemBuilder: (context, comment, index) {
           return Column(
             children: [
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                child: CommentItem(
-                  key: ValueKey(comment.id),
-                  comment: comment,
-                  authorUserId: widget.authorUserId,
-                  controller: widget.controller,
-                  onTimestampSeek: widget.onTimestampSeek,
-                ),
+              CommentItem(
+                key: ValueKey(comment.id),
+                comment: comment,
+                authorUserId: widget.authorUserId,
+                controller: widget.controller,
+                onTimestampSeek: widget.onTimestampSeek,
               ),
-              if (index < _listSource.length - 1)
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Divider(
-                    height: 1,
-                    thickness: 0.5,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.outline.withValues(alpha: 0.2),
-                  ),
-                ),
+              if (index < _listSource.length - 1) _buildItemDivider(context),
             ],
           );
         },

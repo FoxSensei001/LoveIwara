@@ -1192,36 +1192,70 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     );
   }
 
+  /// 翻译结果区的出现 / 消失过渡：淡入淡出 + 高度自顶部展开收起。
+  /// [content] 为 null 表示隐藏；消失时旧内容会完整走一遍反向动画。
+  Widget _animatedTranslationReveal(Widget? content) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 250),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: SizeTransition(
+          sizeFactor: animation,
+          alignment: Alignment.topCenter,
+          child: child,
+        ),
+      ),
+      // 默认 layoutBuilder 会把新旧子项居中叠放，翻译块是顶部对齐的流式内容，
+      // 过渡期间需按左上角锚定，否则收起时会从中间往两头缩
+      layoutBuilder: (currentChild, previousChildren) => Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.topLeft,
+        children: [...previousChildren, ?currentChild],
+      ),
+      child: content == null
+          ? const SizedBox.shrink(key: ValueKey('translation-hidden'))
+          : KeyedSubtree(
+              key: const ValueKey('translation-visible'),
+              child: content,
+            ),
+    );
+  }
+
   Widget _buildTranslationSection(BuildContext context) {
     if (widget.translationController != null) {
       return Obx(() {
         final controller = widget.translationController!;
-        if (!controller.hasTranslation) {
-          return const SizedBox.shrink();
-        }
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 8),
-            _buildTranslatedContent(
-              context,
-              customText: controller.translatedText.value,
-              isTranslating: controller.isTranslating.value,
-              isTranslationComplete: controller.isTranslationComplete.value,
-            ),
-          ],
-        );
+        final Widget? content = !controller.hasTranslation
+            ? null
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+                  _buildTranslatedContent(
+                    context,
+                    customText: controller.translatedText.value,
+                    isTranslating: controller.isTranslating.value,
+                    isTranslationComplete:
+                        controller.isTranslationComplete.value,
+                  ),
+                ],
+              );
+        return _animatedTranslationReveal(content);
       });
     }
 
-    if (widget.showTranslationButton && _translatedText != null) {
-      return Column(
-        children: [const SizedBox(height: 8), _buildTranslatedContent(context)],
-      );
-    }
-
-    return const SizedBox.shrink();
+    final Widget? content =
+        widget.showTranslationButton && _translatedText != null
+        ? Column(
+            children: [
+              const SizedBox(height: 8),
+              _buildTranslatedContent(context),
+            ],
+          )
+        : null;
+    return _animatedTranslationReveal(content);
   }
 
   Widget _buildTranslationControls(BuildContext context) {

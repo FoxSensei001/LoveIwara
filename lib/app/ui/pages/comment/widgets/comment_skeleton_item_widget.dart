@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
+/// 评论骨架屏：镜像 CommentItem 的扁平线程布局
+/// （头像列 + 名字行 / 元信息行 / 正文两行 / 幽灵动作行）。
 class CommentSkeletonItem extends StatelessWidget {
   final bool isReply;
 
@@ -28,9 +30,7 @@ class CommentSkeletonItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: baseColor,
           shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
-          borderRadius: isCircle
-              ? null
-              : BorderRadius.circular(radius.toDouble()),
+          borderRadius: isCircle ? null : BorderRadius.circular(radius),
         ),
       );
     }
@@ -47,75 +47,53 @@ class CommentSkeletonItem extends StatelessWidget {
       return box(height: height, width: width, radius: 999);
     }
 
+    final double avatarSize = isReply ? 30 : 36;
+
     return Shimmer.fromColors(
       baseColor: baseColor,
       highlightColor: highlightColor,
       child: Padding(
-        padding: EdgeInsets.only(
-          left: isReply ? 0.0 : 8.0,
-          right: 8.0,
-          top: 6.0,
-          bottom: 6.0,
-        ),
-        child: Column(
+        padding: const EdgeInsets.symmetric(vertical: 10.0),
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                box(height: 32, width: 32, isCircle: true),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          box(height: 14, width: 120),
-                          const SizedBox(width: 8),
-                          if (!isReply) pill(height: 14, width: 44),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          pill(height: 14, width: 44),
-                          const SizedBox(width: 6),
-                          pill(height: 14, width: 54),
-                          const SizedBox(width: 6),
-                          pill(height: 14, width: 40),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      box(height: 12, width: 92),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Padding(
-              padding: const EdgeInsets.only(left: 36.0),
+            // 头像列
+            box(height: avatarSize, width: avatarSize, isCircle: true),
+            const SizedBox(width: 10),
+            // 内容列
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  line(height: 12, widthFactor: 0.92),
-                  const SizedBox(height: 6),
-                  line(height: 12, widthFactor: 0.7),
-                  const SizedBox(height: 8),
+                  // 名字行：名字 + 楼号
                   Row(
                     children: [
-                      pill(height: 24, width: 116),
+                      box(height: 13, width: 110),
                       const Spacer(),
-                      if (!isReply) ...[
-                        box(height: 20, width: 20, isCircle: true),
-                        const SizedBox(width: 8),
-                      ],
-                      box(height: 16, width: 16, isCircle: true),
+                      if (!isReply) box(height: 11, width: 26),
                     ],
                   ),
+                  const SizedBox(height: 6),
+                  // 元信息行
+                  box(height: 11, width: 150),
                   const SizedBox(height: 10),
-                  line(height: 12, widthFactor: isReply ? 0.5 : 0.58),
+                  // 正文两行
+                  line(height: 12, widthFactor: 0.95),
+                  const SizedBox(height: 6),
+                  line(height: 12, widthFactor: 0.6),
+                  const SizedBox(height: 10),
+                  // 动作行
+                  Row(
+                    children: [
+                      if (!isReply) ...[
+                        pill(height: 22, width: 56),
+                        const SizedBox(width: 8),
+                        pill(height: 22, width: 44),
+                      ],
+                      const Spacer(),
+                      pill(height: 22, width: 52),
+                    ],
+                  ),
                 ],
               ),
             ),
