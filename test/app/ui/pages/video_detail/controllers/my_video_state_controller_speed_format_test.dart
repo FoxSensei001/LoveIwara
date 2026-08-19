@@ -12,15 +12,33 @@ void main() {
 
     test('formats kilobytes per second', () {
       expect(
-        MyVideoStateController.formatTransferRateForDisplay(1536),
+        MyVideoStateController.formatTransferRateForDisplay(1500),
         '1.5 KB/s',
       );
     });
 
     test('formats megabytes per second', () {
       expect(
-        MyVideoStateController.formatTransferRateForDisplay(2 * 1024 * 1024),
+        MyVideoStateController.formatTransferRateForDisplay(2000000),
         '2.0 MB/s',
+      );
+    });
+
+    test('uses decimal units for network transfer rates', () {
+      expect(
+        MyVideoStateController.formatTransferRateForDisplay(1000),
+        '1.0 KB/s',
+      );
+    });
+  });
+
+  group('MyVideoStateController player loading speed parsing', () {
+    test('reads mpv raw-input-rate from demuxer cache state', () {
+      expect(
+        MyVideoStateController.parseDemuxerCacheStateLoadingSpeed(
+          '{"raw-input-rate": 2097152, "fw-bytes": 1048576}',
+        ),
+        2097152,
       );
     });
   });

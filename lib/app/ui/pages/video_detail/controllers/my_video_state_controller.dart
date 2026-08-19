@@ -426,10 +426,13 @@ class MyVideoStateController extends GetxController
   // 播放器健康快照定时器（用于崩溃诊断）
   Timer? _healthSnapshotTimer;
 
-  static const String _cacheSpeedProperty = 'cache-speed';
   static const String _demuxerCacheStateProperty = 'demuxer-cache-state';
-  bool _isCacheSpeedObserved = false;
   bool _isDemuxerCacheStateObserved = false;
+  bool _isLoadingSpeedObservationPending = false;
+  bool _isCurrentMediaNetworkSource = false;
+  bool _isCurrentMediaSourceOpening = false;
+  int _mediaSourceGeneration = 0;
+  int? _activeLoadingSpeedGeneration;
 
   String get videoLoadingSpeedText {
     final int? bytesPerSecond = videoLoadingSpeedBytesPerSecond.value;
@@ -444,8 +447,8 @@ class MyVideoStateController extends GetxController
     double size = bytesPerSecond.toDouble();
     int unitIndex = 0;
 
-    while (size >= 1024 && unitIndex < units.length - 1) {
-      size /= 1024;
+    while (size >= 1000 && unitIndex < units.length - 1) {
+      size /= 1000;
       unitIndex++;
     }
 
@@ -455,7 +458,8 @@ class MyVideoStateController extends GetxController
     return '$sizeText ${units[unitIndex]}';
   }
 
-  int? _parseBytesPerSecond(dynamic rawValue) {
+  @visibleForTesting
+  static int? parseBytesPerSecond(dynamic rawValue) {
     if (rawValue == null) {
       return null;
     }
@@ -476,8 +480,25 @@ class MyVideoStateController extends GetxController
     return null;
   }
 
+  @visibleForTesting
+  static int? parseDemuxerCacheStateLoadingSpeed(String value) {
+    if (value.trim().isEmpty) {
+      return null;
+    }
+    final dynamic decoded = json.decode(value);
+    if (decoded is! Map<String, dynamic>) {
+      return null;
+    }
+    return parseBytesPerSecond(decoded['raw-input-rate']);
+  }
+
   void _updateVideoLoadingSpeed(int? bytesPerSecond) {
-    if (_isDisposed || isLocalVideoMode) {
+    if (_isDisposed ||
+        isLocalVideoMode ||
+        !_isCurrentMediaNetworkSource ||
+        _isCurrentMediaSourceOpening ||
+        _activeLoadingSpeedGeneration != _mediaSourceGeneration) {
+      videoLoadingSpeedBytesPerSecond.value = null;
       return;
     }
     if (bytesPerSecond == null || bytesPerSecond <= 0) {
@@ -487,80 +508,91 @@ class MyVideoStateController extends GetxController
     videoLoadingSpeedBytesPerSecond.value = bytesPerSecond;
   }
 
-  void _handleCacheSpeedProperty(String value) {
-    _updateVideoLoadingSpeed(_parseBytesPerSecond(value));
-  }
-
   void _handleDemuxerCacheStateProperty(String value) {
-    if (value.trim().isEmpty) {
-      return;
-    }
     try {
-      final dynamic decoded = json.decode(value);
-      if (decoded is! Map<String, dynamic>) {
-        return;
-      }
-      final int? parsedSpeed = _parseBytesPerSecond(decoded['cache-speed']);
-      if (parsedSpeed != null && parsedSpeed > 0) {
-        _updateVideoLoadingSpeed(parsedSpeed);
-      }
+      _updateVideoLoadingSpeed(parseDemuxerCacheStateLoadingSpeed(value));
     } catch (e) {
+      _updateVideoLoadingSpeed(null);
       LogUtils.d('解析 demuxer-cache-state 失败: $e', 'MyVideoStateController');
     }
   }
 
   Future<void> _observePlayerLoadingSpeed() async {
-    if (_isDisposed || isLocalVideoMode || player.platform is! NativePlayer) {
+    if (_isDisposed ||
+        isLocalVideoMode ||
+        !_isCurrentMediaNetworkSource ||
+        player.platform is! NativePlayer ||
+        _isDemuxerCacheStateObserved ||
+        _isLoadingSpeedObservationPending) {
       return;
     }
 
     final NativePlayer nativePlayer = player.platform as NativePlayer;
+    _isLoadingSpeedObservationPending = true;
     try {
-      if (!_isCacheSpeedObserved) {
-        await nativePlayer.observeProperty(_cacheSpeedProperty, (
-          String value,
-        ) async {
-          _handleCacheSpeedProperty(value);
-        });
-        _isCacheSpeedObserved = true;
-      }
-
-      if (!_isDemuxerCacheStateObserved) {
-        await nativePlayer.observeProperty(_demuxerCacheStateProperty, (
-          String value,
-        ) async {
-          _handleDemuxerCacheStateProperty(value);
-        });
-        _isDemuxerCacheStateObserved = true;
-      }
+      await nativePlayer.observeProperty(_demuxerCacheStateProperty, (
+        String value,
+      ) async {
+        _handleDemuxerCacheStateProperty(value);
+      });
+      _isDemuxerCacheStateObserved = true;
     } catch (e) {
       LogUtils.w('注册播放器加载速率监听失败: $e', 'MyVideoStateController');
+    } finally {
+      _isLoadingSpeedObservationPending = false;
     }
   }
 
   Future<void> _unobservePlayerLoadingSpeed() async {
     if (player.platform is! NativePlayer) {
-      _isCacheSpeedObserved = false;
       _isDemuxerCacheStateObserved = false;
+      _isLoadingSpeedObservationPending = false;
+      _activeLoadingSpeedGeneration = null;
       videoLoadingSpeedBytesPerSecond.value = null;
       return;
     }
 
     final NativePlayer nativePlayer = player.platform as NativePlayer;
     try {
-      if (_isCacheSpeedObserved) {
-        await nativePlayer.unobserveProperty(_cacheSpeedProperty);
-      }
       if (_isDemuxerCacheStateObserved) {
-        await nativePlayer.unobserveProperty(_demuxerCacheStateProperty);
+        await nativePlayer.unobserveProperty(
+          _demuxerCacheStateProperty,
+          waitForInitialization: false,
+        );
       }
     } catch (e) {
       LogUtils.w('取消播放器加载速率监听失败: $e', 'MyVideoStateController');
     } finally {
-      _isCacheSpeedObserved = false;
       _isDemuxerCacheStateObserved = false;
+      _isLoadingSpeedObservationPending = false;
+      _activeLoadingSpeedGeneration = null;
       videoLoadingSpeedBytesPerSecond.value = null;
     }
+  }
+
+  int _beginCurrentMediaSourceOpen(String source) {
+    final String? scheme = Uri.tryParse(source)?.scheme.toLowerCase();
+    _isCurrentMediaNetworkSource = scheme == 'http' || scheme == 'https';
+    _isCurrentMediaSourceOpening = true;
+    videoLoadingSpeedBytesPerSecond.value = null;
+    return ++_mediaSourceGeneration;
+  }
+
+  void _finishCurrentMediaSourceOpen(
+    int? generation, {
+    required bool succeeded,
+  }) {
+    if (generation == null || generation != _mediaSourceGeneration) {
+      return;
+    }
+    _isCurrentMediaSourceOpening = false;
+    if (succeeded) {
+      _activeLoadingSpeedGeneration = generation;
+    } else {
+      _isCurrentMediaNetworkSource = false;
+      _activeLoadingSpeedGeneration = null;
+    }
+    videoLoadingSpeedBytesPerSecond.value = null;
   }
 
   void refreshScrollView() {
@@ -1199,6 +1231,7 @@ class MyVideoStateController extends GetxController
 
     LogUtils.i('初始化本地视频播放模式: $localVideoPath', 'MyVideoStateController');
 
+    int? mediaSourceGeneration;
     try {
       pageLoadingState.value = VideoDetailPageLoadingState.loadingVideoSource;
 
@@ -1319,7 +1352,9 @@ class MyVideoStateController extends GetxController
       LogUtils.i('准备打开视频文件: $mediaPath', 'MyVideoStateController');
       final shouldAutoPlay = _resolvePlayStateForInitialEntry();
       videoPlaying.value = shouldAutoPlay;
+      mediaSourceGeneration = _beginCurrentMediaSourceOpen(mediaPath);
       await player.open(Media(mediaPath), play: shouldAutoPlay);
+      _finishCurrentMediaSourceOpen(mediaSourceGeneration, succeeded: true);
       LogUtils.i('视频文件已打开', 'MyVideoStateController');
 
       // 设置监听器（必须在 player.open 之后调用）
@@ -1334,6 +1369,7 @@ class MyVideoStateController extends GetxController
 
       LogUtils.i('本地视频播放初始化成功', 'MyVideoStateController');
     } catch (e) {
+      _finishCurrentMediaSourceOpen(mediaSourceGeneration, succeeded: false);
       LogUtils.e('本地视频播放初始化失败: $e', tag: 'MyVideoStateController', error: e);
       if (!_isDisposed) {
         String errorMessage = CommonUtils.parseExceptionMessage(e);
@@ -2423,6 +2459,7 @@ class MyVideoStateController extends GetxController
     bool playOnOpen = true,
   }) async {
     if (_isDisposed) return;
+    int? mediaSourceGeneration;
 
     // 尝试从本地下载获取文件
     String finalUrl = url;
@@ -2469,10 +2506,12 @@ class MyVideoStateController extends GetxController
         '播放器即将播放视频源 [无缝切换] - 分辨率: $resolutionTag, URL: $finalUrl, 起始位置: ${startPosition?.inSeconds ?? currentPosition.inSeconds}秒, 是否本地文件: ${finalUrl.startsWith("file://")}',
         'MyVideoStateController',
       );
+      mediaSourceGeneration = _beginCurrentMediaSourceOpen(finalUrl);
       await player.open(
         Media(finalUrl, start: startPosition ?? currentPosition),
         play: playOnOpen,
       );
+      _finishCurrentMediaSourceOpen(mediaSourceGeneration, succeeded: true);
       await _applyRepeatMode();
 
       if (_isDisposed) return;
@@ -2482,6 +2521,7 @@ class MyVideoStateController extends GetxController
       // 切换清晰度后恢复当前播放倍速（open 会把倍速重置为 1.0）
       _applyPlaybackSpeedAfterOpen();
     } catch (e) {
+      _finishCurrentMediaSourceOpen(mediaSourceGeneration, succeeded: false);
       if (_isDisposed) return;
       LogUtils.e('无缝切换分辨率失败: $e', tag: 'MyVideoStateController', error: e);
 
@@ -2564,17 +2604,21 @@ class MyVideoStateController extends GetxController
     }
 
     if (_isDisposed) return;
+    int? mediaSourceGeneration;
     try {
       LogUtils.i(
         '播放器即将播放视频源 [重置模式] - 分辨率: $resolutionTag, URL: $finalUrl, 起始位置: ${currentPosition.inSeconds}秒, 是否本地文件: ${finalUrl.startsWith("file://")}',
         'MyVideoStateController',
       );
+      mediaSourceGeneration = _beginCurrentMediaSourceOpen(finalUrl);
       await player.open(
         Media(finalUrl, start: currentPosition),
         play: playOnOpen,
       );
+      _finishCurrentMediaSourceOpen(mediaSourceGeneration, succeeded: true);
       pageLoadingState.value = VideoDetailPageLoadingState.addingListeners;
     } catch (e) {
+      _finishCurrentMediaSourceOpen(mediaSourceGeneration, succeeded: false);
       if (_isDisposed) return;
       LogUtils.e('Player open 出错: $e', tag: 'MyVideoStateController', error: e);
       videoErrorMessage.value =
@@ -2610,10 +2654,10 @@ class MyVideoStateController extends GetxController
     // 缓冲
     bufferingSubscription = player.stream.buffering.listen((buffering) async {
       if (_isDisposed) return;
-      videoBuffering.value = buffering;
-      if (!buffering) {
+      if (videoBuffering.value != buffering) {
         videoLoadingSpeedBytesPerSecond.value = null;
       }
+      videoBuffering.value = buffering;
     });
 
     // 总时长
@@ -2924,19 +2968,23 @@ class MyVideoStateController extends GetxController
     if (_isDisposed) return;
     LogUtils.d('切换到刷新后的视频URL: $newUrl', 'MyVideoStateController');
 
+    int? mediaSourceGeneration;
     try {
       // 保存当前播放位置和播放状态
       final savedPosition = currentPosition;
       final isPlaying = videoPlaying.value;
 
       // 打开新URL，保持播放状态
+      mediaSourceGeneration = _beginCurrentMediaSourceOpen(newUrl);
       await player.open(Media(newUrl, start: savedPosition), play: isPlaying);
+      _finishCurrentMediaSourceOpen(mediaSourceGeneration, succeeded: true);
       await _applyRepeatMode();
       // 源刷新后恢复当前播放倍速（open 会把倍速重置为 1.0）
       _applyPlaybackSpeedAfterOpen();
 
       LogUtils.i('成功切换到新的视频URL', 'MyVideoStateController');
     } catch (e) {
+      _finishCurrentMediaSourceOpen(mediaSourceGeneration, succeeded: false);
       LogUtils.e('切换视频URL失败: $e', tag: 'MyVideoStateController', error: e);
     }
   }
