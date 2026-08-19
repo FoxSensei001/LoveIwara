@@ -7,7 +7,6 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/services/pop_coordinator.dart';
-import 'package:i_iwara/app/ui/pages/video_detail/services/video_cache_manager.dart';
 import 'package:i_iwara/app/ui/widgets/animated_navigation_rail_slot.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/vibrate_utils.dart';
@@ -64,15 +63,13 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     super.dispose();
   }
 
+  /// 来自 Android onTrimMemory(level >= TRIM_MEMORY_RUNNING_LOW)，绝大多数是
+  /// UI_HIDDEN / BACKGROUND，即用户切后台而非真的内存告急。缓存释放已由框架
+  /// 完成（PaintingBinding 清 imageCache、ServicesBinding 清 rootBundle、引擎通知 VM GC），
+  /// 这里再清一遍无收益，仅保留日志作为闪退排查的时间锚点。
   @override
   void didHaveMemoryPressure() {
-    LogUtils.w('检测到内存压力，开始主动清理缓存', 'HomeShellScaffold');
-
-    final imageCache = PaintingBinding.instance.imageCache;
-    imageCache.clear();
-    imageCache.clearLiveImages();
-
-    VideoCacheManager().clearAll();
+    LogUtils.d('收到系统 trim memory 信号（多为切后台）', 'HomeShellScaffold');
     super.didHaveMemoryPressure();
   }
 
