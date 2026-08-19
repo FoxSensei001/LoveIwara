@@ -88,20 +88,39 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
     );
     // 排序区不允许「一个都没选中」：调用方没给初值时兜底到时间排序（没有时间
     // 排序的话退到第一项），否则确认时回调只能返回 null，调用方无从判断。
-    final sortOptions = widget.sortOptions;
-    if (sortOptions == null || sortOptions.isEmpty) {
-      _selectedSortId = widget.selectedSortId;
-    } else {
-      _selectedSortId =
-          widget.selectedSortId ??
-          (sortOptions.any((sort) => sort.id == SortId.date)
-              ? SortId.date
-              : sortOptions.first.id);
-    }
+    _selectedSortId = widget.selectedSortId ?? _defaultSortId;
     LogUtils.d(
       'tags: $tags, year: $year, month: $month, rating: $rating',
       'PopularVideoSearchConfig',
     );
+  }
+
+  /// 排序区的默认项：优先时间排序，没有则退到第一项；没有排序区时为 null。
+  SortId? get _defaultSortId {
+    final sortOptions = widget.sortOptions;
+    if (sortOptions == null || sortOptions.isEmpty) return null;
+    return sortOptions.any((sort) => sort.id == SortId.date)
+        ? SortId.date
+        : sortOptions.first.id;
+  }
+
+  /// 是否有可重置的内容（决定重置按钮是否可点）。
+  bool get _hasAnyConfig =>
+      tags.isNotEmpty ||
+      year.isNotEmpty ||
+      month.isNotEmpty ||
+      (widget.showRating && _selectedRating != MediaRating.ALL) ||
+      (widget.sortOptions != null && _selectedSortId != _defaultSortId);
+
+  /// 重置为「无筛选」。只改弹窗内的选择，仍需点确认才会应用到列表。
+  void _resetConfig() {
+    setState(() {
+      tags = [];
+      year = '';
+      month = '';
+      _selectedRating = MediaRating.ALL;
+      _selectedSortId = _defaultSortId;
+    });
   }
 
   /// 把已选的年份与月份组合成最终的日期字符串（'' / 'YYYY' / 'YYYY-MM'）。
@@ -157,6 +176,11 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
+                        icon: const Icon(Icons.restart_alt),
+                        tooltip: t.searchFilter.clearAll,
+                        onPressed: _hasAnyConfig ? _resetConfig : null,
+                      ),
+                      IconButton(
                         icon: const Icon(Icons.check),
                         onPressed: () {
                           widget.onConfirm(
@@ -182,6 +206,11 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
         appBar: AppBar(
           title: Text(t.settings.searchConfig),
           actions: [
+            IconButton(
+              icon: const Icon(Icons.restart_alt),
+              tooltip: t.searchFilter.clearAll,
+              onPressed: _hasAnyConfig ? _resetConfig : null,
+            ),
             IconButton(
               icon: const Icon(Icons.check),
               onPressed: () {
