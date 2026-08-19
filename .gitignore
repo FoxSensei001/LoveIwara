@@ -75,3 +75,6 @@ android/build/
 /.codegraph/
 /.playwright-mcp/
 /plans/
+
+# 本地设计稿（含个人信息，不入库）
+/docs/mockups/
