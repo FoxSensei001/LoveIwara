@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/search_list_widgets.dart';
 import 'package:i_iwara/app/ui/widgets/glow_notification_widget.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -10,11 +11,14 @@ import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
-import 'package:i_iwara/app/ui/pages/search/widgets/search_common_widgets.dart';
-import 'package:i_iwara/app/ui/pages/search/widgets/filter_button_widget.dart';
+import 'package:i_iwara/app/ui/pages/search/widgets/filter_builder_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/responsive_dialog_widget.dart';
 
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/models/video.model.dart';
@@ -268,6 +272,7 @@ class _SearchResultState extends State<SearchResult> {
     String sort,
     String searchType,
     Map<String, dynamic>? extData,
+    double paddingTop,
   ) {
     switch (segment) {
       case SearchSegment.video:
@@ -276,6 +281,7 @@ class _SearchResultState extends State<SearchResult> {
             key: ValueKey('video_$rebuildKey'),
             query: query,
             isPaginated: isPaginated,
+            paddingTop: paddingTop,
             sort: sort,
             isMultiSelectMode:
                 searchController.videoBatchController.isMultiSelect.value,
@@ -291,6 +297,7 @@ class _SearchResultState extends State<SearchResult> {
             key: ValueKey('image_$rebuildKey'),
             query: query,
             isPaginated: isPaginated,
+            paddingTop: paddingTop,
             sort: sort,
             isMultiSelectMode:
                 searchController.imageBatchController.isMultiSelect.value,
@@ -305,6 +312,7 @@ class _SearchResultState extends State<SearchResult> {
           key: ValueKey('user_$rebuildKey'),
           query: query,
           isPaginated: isPaginated,
+          paddingTop: paddingTop,
           sort: sort,
         );
       case SearchSegment.post:
@@ -312,6 +320,7 @@ class _SearchResultState extends State<SearchResult> {
           key: ValueKey('post_$rebuildKey'),
           query: query,
           isPaginated: isPaginated,
+          paddingTop: paddingTop,
           sort: sort,
         );
       case SearchSegment.forum:
@@ -319,6 +328,7 @@ class _SearchResultState extends State<SearchResult> {
           key: ValueKey('forum_$rebuildKey'),
           query: query,
           isPaginated: isPaginated,
+          paddingTop: paddingTop,
           sort: sort,
         );
       case SearchSegment.forum_posts:
@@ -326,6 +336,7 @@ class _SearchResultState extends State<SearchResult> {
           key: ValueKey('forum_posts_$rebuildKey'),
           query: query,
           isPaginated: isPaginated,
+          paddingTop: paddingTop,
           sort: sort,
         );
       case SearchSegment.playlist:
@@ -333,6 +344,7 @@ class _SearchResultState extends State<SearchResult> {
           key: ValueKey('playlist_$rebuildKey'),
           query: query,
           isPaginated: isPaginated,
+          paddingTop: paddingTop,
           sort: sort,
         );
       case SearchSegment.oreno3d:
@@ -340,6 +352,7 @@ class _SearchResultState extends State<SearchResult> {
           key: ValueKey('oreno3d_$rebuildKey'),
           query: query,
           isPaginated: isPaginated,
+          paddingTop: paddingTop,
           sortType: sort,
           searchType: searchType.isNotEmpty ? searchType : null,
           extData: extData,
@@ -347,7 +360,7 @@ class _SearchResultState extends State<SearchResult> {
     }
   }
 
-  Widget _buildCurrentSearchList() {
+  Widget _buildCurrentSearchList(double paddingTop) {
     return Obx(() {
       String query = searchController.currentSearch.value;
       final segment = searchController.selectedSegment.value;
@@ -392,6 +405,7 @@ class _SearchResultState extends State<SearchResult> {
         sort,
         searchType,
         extData,
+        paddingTop,
       );
       return GlowNotificationWidget(child: child);
     });
@@ -412,47 +426,39 @@ class _SearchResultState extends State<SearchResult> {
     return false;
   }
 
-  // 构建 oreno3d 单实体浏览栏：标签名 + 翻译 + 更换标签 / 改用文本搜索
-  Widget _buildOreno3dBrowseBar() {
+  // 构建 oreno3d 单实体浏览胶囊：#标签名（点按复制）+ 搜索入口；
+  // 标签详情 / 翻译入口收进右侧「更多」菜单
+  Widget _buildOreno3dBrowsePill(BuildContext context) {
     final t = slang.Translations.of(context);
-    return Expanded(
+    final colorScheme = Theme.of(context).colorScheme;
+    return GlassSurface(
+      padding: const EdgeInsets.only(left: 14, right: 2),
       child: Row(
         children: [
           Expanded(
             child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTap: _copyTagToClipboard,
-              child: Container(
-                height: 44,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Align(
                 alignment: Alignment.centerLeft,
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Text(
                     '#${searchController.currentSingleTagNameBehindSearchInput.value}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
                     maxLines: 1,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onSurface,
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-          // 详情按钮：与 Iwara 标签同款——译文 + 原文 + 复制 + 翻译纠错反馈
-          IconButton(
-            icon: const Icon(Icons.help_outline, size: 20),
-            tooltip: t.common.tagInfo,
-            onPressed: _showOreno3dTagDetailDialog,
-          ),
-          IconButton(
-            icon: const Icon(Icons.translate, size: 20),
-            tooltip: t.common.translate,
-            onPressed: _showTranslationDialog,
-          ),
           // 搜索按钮：直接打开搜索弹窗（弹窗内可换原作/角色/标签或改文本搜索）
-          IconButton(
-            icon: const Icon(Icons.search, size: 20),
+          GlassIconButton(
+            icon: const Icon(Icons.search),
             tooltip: t.common.search,
             onPressed: _showSearchDialog,
           ),
@@ -494,25 +500,52 @@ class _SearchResultState extends State<SearchResult> {
     );
   }
 
-  // 构建搜索输入框
-  Widget _buildSearchInputField() {
-    return Expanded(
-      child: SearchInputField(
-        controller: _searchController,
-        hintText: searchController.currentSearch.value.isEmpty
-            ? slang.t.search.pleaseEnterSearchContent
-            : searchController.currentSearch.value,
-        readOnly: true,
-        onTap: _showSearchDialog,
+  // 构建搜索胶囊：显示当前关键词，点按打开搜索弹窗。
+  // 关键词读的是页面本地的 _searchController（与旧版输入框一致）：
+  // SearchResultController 是固定 tag 的共享实例，栈上叠两个搜索页时会互相
+  // 覆写，读它会导致返回上一个搜索页后关键词丢失。
+  Widget _buildSearchPill(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+    return GlassSurface(
+      onTap: _showSearchDialog,
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      child: Row(
+        children: [
+          Icon(Icons.search, size: 20, color: colorScheme.onSurfaceVariant),
+          const SizedBox(width: 8),
+          Expanded(
+            child: ValueListenableBuilder<TextEditingValue>(
+              valueListenable: _searchController,
+              builder: (context, value, _) {
+                final query = value.text;
+                return Text(
+                  query.isEmpty ? t.search.pleaseEnterSearchContent : query,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: query.isEmpty
+                        ? FontWeight.w400
+                        : FontWeight.w600,
+                    color: query.isEmpty
+                        ? colorScheme.onSurfaceVariant
+                        : colorScheme.onSurface,
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  // 显示搜索对话框
+  // 显示搜索对话框（关键词取页面本地文本，见 _buildSearchPill 的注释）
   void _showSearchDialog() {
     showAppDialog(
       SearchDialog(
-        userInputKeywords: searchController.currentSearch.value,
+        userInputKeywords: _searchController.text,
         initialSegment: searchController.selectedSegment.value,
         initialSort: searchController.selectedSort.value,
         initialFilters: searchController.filters.toList(),
@@ -644,154 +677,376 @@ class _SearchResultState extends State<SearchResult> {
     _scaffoldKey.currentState?.closeEndDrawer();
   }
 
-  // 构建分段选择器
-  Widget _buildSegmentSelector() {
-    return Obx(
-      () => SearchSegmentSelector(
-        selectedSegment: searchController.selectedSegment.value,
-        onSegmentChanged: searchController.updateSegment,
+  IconData _segmentIcon(SearchSegment segment) {
+    return switch (segment) {
+      SearchSegment.video => Icons.video_library,
+      SearchSegment.image => Icons.image,
+      SearchSegment.user => Icons.person,
+      SearchSegment.playlist => Icons.playlist_play,
+      SearchSegment.post => Icons.article,
+      SearchSegment.forum => Icons.forum,
+      SearchSegment.forum_posts => Icons.comment,
+      SearchSegment.oreno3d => Icons.view_in_ar,
+    };
+  }
+
+  String _segmentLabel(slang.Translations t, SearchSegment segment) {
+    return switch (segment) {
+      SearchSegment.video => t.common.video,
+      SearchSegment.image => t.common.gallery,
+      SearchSegment.user => t.common.user,
+      SearchSegment.playlist => t.common.playlist,
+      SearchSegment.post => t.common.post,
+      SearchSegment.forum => t.forum.forum,
+      SearchSegment.forum_posts => t.forum.posts,
+      SearchSegment.oreno3d => 'Oreno3D',
+    };
+  }
+
+  IconData _sortIconFor(SearchSegment segment, String value) {
+    if (segment == SearchSegment.oreno3d) {
+      return switch (value) {
+        'hot' => Icons.trending_up,
+        'favorites' => Icons.favorite,
+        'latest' => Icons.schedule,
+        'popularity' => Icons.star,
+        _ => Icons.sort,
+      };
+    }
+    return switch (value) {
+      'relevance' => Icons.recommend,
+      'date' => Icons.schedule,
+      'views' => Icons.visibility,
+      'likes' => Icons.favorite,
+      _ => Icons.sort,
+    };
+  }
+
+  // 打开筛选设置弹窗（确认后应用并刷新搜索）
+  void _showFilterDialog() {
+    final t = slang.Translations.of(context);
+    List<Filter> tempFilters = searchController.filters
+        .map((f) => f.copyWith())
+        .toList();
+
+    ResponsiveDialog.show(
+      context: context,
+      title: t.searchFilter.filterSettings,
+      maxWidth: 800,
+      headerActions: [
+        FilledButton(
+          onPressed: () {
+            searchController.updateFilters(
+              tempFilters.map((f) => f.copyWith()).toList(),
+            );
+            AppService.tryPop();
+          },
+          style: FilledButton.styleFrom(visualDensity: VisualDensity.compact),
+          child: Text(t.common.confirm),
+        ),
+      ],
+      content: FilterBuilderWidget(
+        initialSegment: searchController.selectedSegment.value,
+        initialFilters: searchController.filters.toList(),
+        onFiltersChanged: (newFilters) {
+          tempFilters = newFilters;
+        },
+        destroyOnClose: true,
       ),
     );
   }
 
-  // 构建排序选择器
-  Widget _buildSortSelector() {
-    return Obx(() {
-      final segment = searchController.selectedSegment.value;
-      if (segment == SearchSegment.oreno3d) {
-        return SortSelector(
-          selectedSort: searchController.selectedSort.value,
-          onSortChanged: searchController.updateSort,
-        );
-      }
-      final options = FilterConfig.getSortOptionsForSegment(segment);
-      if (options.isEmpty) return const SizedBox.shrink();
-      return CommonSortSelector(
-        selectedSort: searchController.selectedSort.value,
-        options: options,
-        onSortChanged: searchController.updateSort,
-      );
-    });
-  }
-
-  // 构建应用栏操作按钮
-  List<Widget> _buildAppBarActions() {
-    final t = slang.Translations.of(context);
-    return [
-      // 多选模式切换按钮
-      Obx(() {
-        final segment = searchController.selectedSegment.value;
-        if (segment != SearchSegment.video && segment != SearchSegment.image) {
-          return const SizedBox.shrink();
-        }
-
-        final controller = segment == SearchSegment.video
-            ? searchController.videoBatchController
-            : searchController.imageBatchController;
-
-        return IconButton(
-          icon: Icon(
-            controller.isMultiSelect.value ? Icons.close : Icons.checklist,
-          ),
-          onPressed: () => controller.toggleMultiSelect(),
-          tooltip: controller.isMultiSelect.value
-              ? t.common.exitEditMode
-              : t.common.editMode,
-        );
-      }),
-      // 刷新按钮
-      IconButton(
-        onPressed: () {
-          searchController.refreshSearch();
-        },
-        icon: const Icon(Icons.refresh),
-        tooltip: t.common.refresh,
-      ),
-      // 已保存搜索入口（始终显示）
-      IconButton(
-        onPressed: _openSavedSearchDrawer,
-        icon: const Icon(Icons.bookmarks_outlined),
-        tooltip: t.savedSearch.title,
-      ),
-    ];
-  }
-
-  // 构建搜索控件区域
-  Widget _buildSearchControlsArea() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-      child: Row(
-        children: [
-          // 根据条件决定是否显示搜索输入框
-          Obx(
-            () => _shouldHideSearchInput()
-                ? _buildOreno3dBrowseBar()
-                : _buildSearchInputField(),
-          ),
-          _buildSegmentSelector(),
-          _buildSortSelector(),
-          Obx(
-            () => FilterButtonWidget(
-              currentSegment: searchController.selectedSegment.value,
-              filters: searchController.filters.toList(),
-              onFiltersChanged: searchController.updateFilters,
+  /// 分段入口：玻璃胶囊组里的 40×40 图标位 + 下拉菜单。
+  Widget _buildSegmentMenuButton(slang.Translations t, SearchSegment segment) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return SizedBox(
+      width: GlassTokens.groupIconButtonSize,
+      height: GlassTokens.groupIconButtonSize,
+      child: PopupMenuButton<SearchSegment>(
+        padding: EdgeInsets.zero,
+        tooltip: _segmentLabel(t, segment),
+        icon: Icon(_segmentIcon(segment), size: GlassTokens.iconSize),
+        position: PopupMenuPosition.under,
+        // 往下挪一点，别压住玻璃胶囊本身
+        offset: const Offset(0, 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        initialValue: segment,
+        onSelected: searchController.updateSegment,
+        itemBuilder: (context) => [
+          for (final seg in SearchSegment.values)
+            PopupMenuItem<SearchSegment>(
+              value: seg,
+              child: Row(
+                children: [
+                  Icon(_segmentIcon(seg), size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(_segmentLabel(t, seg))),
+                  if (seg == segment)
+                    Icon(Icons.check, size: 18, color: colorScheme.primary),
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );
+  }
+
+  /// 排序入口：图标随当前排序变化。
+  Widget _buildSortMenuButton(
+    slang.Translations t,
+    SearchSegment segment,
+    String sort,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final List<(String, String)> entries;
+    if (segment == SearchSegment.oreno3d) {
+      entries = [
+        ('hot', t.oreno3d.sortTypes.hot),
+        ('favorites', t.oreno3d.sortTypes.favorites),
+        ('latest', t.oreno3d.sortTypes.latest),
+        ('popularity', t.oreno3d.sortTypes.popularity),
+      ];
+    } else {
+      entries = [
+        for (final opt in FilterConfig.getSortOptionsForSegment(segment))
+          (opt.value, opt.label),
+      ];
+    }
+
+    return SizedBox(
+      width: GlassTokens.groupIconButtonSize,
+      height: GlassTokens.groupIconButtonSize,
+      child: PopupMenuButton<String>(
+        padding: EdgeInsets.zero,
+        tooltip: t.common.sort,
+        icon: Icon(_sortIconFor(segment, sort), size: GlassTokens.iconSize),
+        position: PopupMenuPosition.under,
+        // 往下挪一点，别压住玻璃胶囊本身
+        offset: const Offset(0, 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        initialValue: sort,
+        onSelected: searchController.updateSort,
+        itemBuilder: (context) => [
+          for (final (value, label) in entries)
+            PopupMenuItem<String>(
+              value: value,
+              child: Row(
+                children: [
+                  Icon(_sortIconFor(segment, value), size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(label)),
+                  if (value == sort)
+                    Icon(Icons.check, size: 18, color: colorScheme.primary),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  static const String _menuActionToggleMultiSelect = 'toggle_multi_select';
+  static const String _menuActionRefresh = 'refresh';
+  static const String _menuActionSavedSearch = 'saved_search';
+  static const String _menuActionTagInfo = 'tag_info';
+  static const String _menuActionTranslate = 'translate';
+
+  /// 「更多」菜单：多选（视频/图库）、刷新、已保存搜索；
+  /// oreno3d 单实体浏览时再加标签详情 / 翻译。
+  Widget _buildMoreMenuButton(
+    slang.Translations t,
+    SearchSegment segment,
+    bool isBrowseMode,
+  ) {
+    VoidCallback? toggleMultiSelect;
+    bool isMultiSelect = false;
+    if (segment == SearchSegment.video) {
+      toggleMultiSelect = searchController.videoBatchController.toggleMultiSelect;
+      isMultiSelect =
+          searchController.videoBatchController.isMultiSelect.value;
+    } else if (segment == SearchSegment.image) {
+      toggleMultiSelect = searchController.imageBatchController.toggleMultiSelect;
+      isMultiSelect =
+          searchController.imageBatchController.isMultiSelect.value;
+    }
+
+    PopupMenuItem<String> menuItem(String value, IconData icon, String label) {
+      return PopupMenuItem<String>(
+        value: value,
+        child: Row(
+          children: [Icon(icon), const SizedBox(width: 12), Text(label)],
+        ),
+      );
+    }
+
+    return SizedBox(
+      width: GlassTokens.groupIconButtonSize,
+      height: GlassTokens.groupIconButtonSize,
+      child: PopupMenuButton<String>(
+        padding: EdgeInsets.zero,
+        icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
+        position: PopupMenuPosition.under,
+        // 往下挪一点，别压住玻璃胶囊本身
+        offset: const Offset(0, 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        onSelected: (value) {
+          switch (value) {
+            case _menuActionToggleMultiSelect:
+              toggleMultiSelect?.call();
+              break;
+            case _menuActionRefresh:
+              searchController.refreshSearch();
+              break;
+            case _menuActionSavedSearch:
+              _openSavedSearchDrawer();
+              break;
+            case _menuActionTagInfo:
+              _showOreno3dTagDetailDialog();
+              break;
+            case _menuActionTranslate:
+              _showTranslationDialog();
+              break;
+          }
+        },
+        itemBuilder: (context) => [
+          if (toggleMultiSelect != null)
+            menuItem(
+              _menuActionToggleMultiSelect,
+              isMultiSelect ? Icons.close : Icons.checklist,
+              isMultiSelect ? t.common.exitEditMode : t.common.editMode,
+            ),
+          menuItem(_menuActionRefresh, Icons.refresh, t.common.refresh),
+          menuItem(
+            _menuActionSavedSearch,
+            Icons.bookmarks_outlined,
+            t.savedSearch.title,
+          ),
+          if (isBrowseMode) ...[
+            const PopupMenuDivider(),
+            menuItem(_menuActionTagInfo, Icons.help_outline, t.common.tagInfo),
+            menuItem(
+              _menuActionTranslate,
+              Icons.translate,
+              t.common.translate,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// 右侧动作胶囊：分段 · 排序 · 筛选 · 更多。
+  Widget _buildActionGroup(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Obx(() {
+      final segment = searchController.selectedSegment.value;
+      final sort = searchController.selectedSort.value;
+      final filterCount = searchController.filters.length;
+      final showSort = segment == SearchSegment.oreno3d ||
+          FilterConfig.getSortOptionsForSegment(segment).isNotEmpty;
+      final isBrowseMode = _shouldHideSearchInput();
+
+      return GlassButtonGroup(
+        children: [
+          _buildSegmentMenuButton(t, segment),
+          if (showSort) _buildSortMenuButton(t, segment, sort),
+          if (segment != SearchSegment.oreno3d)
+            GlassIconButton(
+              icon: const Icon(Icons.filter_list),
+              tooltip: t.searchFilter.filterSettings,
+              showBadge: filterCount > 0,
+              badgeLabel: filterCount > 0 ? Text('$filterCount') : null,
+              onPressed: _showFilterDialog,
+            ),
+          _buildMoreMenuButton(t, segment, isBrowseMode),
+        ],
+      );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     final String uniqueTag = 'search_result_${identityHashCode(this)}';
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    const double headerRowHeight = GlassTokens.headerRowHeight;
+    final double headerExtent = statusBarHeight + headerRowHeight;
 
+    // 底部安全区由列表自己通过 computeBottomSafeInset 负责
+    // （base_search_list 传 showBottomPadding: true），这里不再包 SafeArea；
+    // 顶部让位交给列表的 paddingTop，内容滚动时从玻璃 header 背后经过。
     return Scaffold(
       key: _scaffoldKey,
       endDrawer: SavedSearchDrawer(
         onApply: _applySavedSearch,
         onAddCurrent: _promptSaveCurrentSearch,
       ),
-      appBar: AppBar(
-        title: Text(t.search.searchResult),
-        actions: _buildAppBarActions(),
-      ),
-      // bottom: false —— 底部安全区由列表自己通过 computeBottomSafeInset 负责
-      // （base_search_list 传 showBottomPadding: true）。这里再用 SafeArea 兜
-      // 一层就会双倍：SafeArea 的 removePadding 只清 padding / viewPadding，
-      // **不动 systemGestureInsets**，所以 computeBottomSafeInset 在 SafeArea
-      // 内部依然会返回手势条高度，两者叠加成一条很宽的空白。
-      // 与订阅页 / 热门页保持一致（它们都不包 SafeArea）。
-      body: SafeArea(
-        bottom: false,
-        child: Stack(
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                _buildSearchControlsArea(),
-                // 搜索结果区域
-                Expanded(child: _buildCurrentSearchList()),
-              ],
+      body: Stack(
+        // Scaffold body 是松约束：本 Stack 的非 Positioned 子项只有隐藏态的
+        // BatchActionFabColumn（SizedBox.shrink），不撑满会被它压成 0 高 → 整页白屏
+        fit: StackFit.expand,
+        children: [
+          // 搜索结果区域：铺满整页
+          Positioned.fill(child: _buildCurrentSearchList(headerExtent)),
+
+          // 顶部渐变蒙层
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: EdgeFadeScrim.top(
+              height: headerExtent + GlassTokens.headerFadeExtent,
+              solidExtent: statusBarHeight,
             ),
-            // 批量下载悬浮按钮
-            BatchActionFabColumn<Video>(
-              controller: searchController.videoBatchController,
-              heroTagPrefix: 'search_video_$uniqueTag',
-              isPaginated: searchController.isPaginated.value,
-              visible: () =>
-                  searchController.selectedSegment.value == SearchSegment.video,
+          ),
+
+          // header 行：左 返回圆钮 / 中 搜索胶囊 / 右 动作胶囊
+          Positioned(
+            top: statusBarHeight,
+            left: 0,
+            right: 0,
+            height: headerRowHeight,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  GlassIconButton(
+                    standalone: true,
+                    icon: const Icon(Icons.arrow_back),
+                    tooltip: t.common.back,
+                    onPressed: () => AppService.tryPop(),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Obx(
+                      () => _shouldHideSearchInput()
+                          ? _buildOreno3dBrowsePill(context)
+                          : _buildSearchPill(context),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  _buildActionGroup(context),
+                ],
+              ),
             ),
-            BatchActionFabColumn<ImageModel>(
-              controller: searchController.imageBatchController,
-              heroTagPrefix: 'search_image_$uniqueTag',
-              isPaginated: searchController.isPaginated.value,
-              visible: () =>
-                  searchController.selectedSegment.value == SearchSegment.image,
-            ),
-          ],
-        ),
+          ),
+
+          // 批量下载悬浮按钮
+          BatchActionFabColumn<Video>(
+            controller: searchController.videoBatchController,
+            heroTagPrefix: 'search_video_$uniqueTag',
+            isPaginated: searchController.isPaginated.value,
+            visible: () =>
+                searchController.selectedSegment.value == SearchSegment.video,
+          ),
+          BatchActionFabColumn<ImageModel>(
+            controller: searchController.imageBatchController,
+            heroTagPrefix: 'search_image_$uniqueTag',
+            isPaginated: searchController.isPaginated.value,
+            visible: () =>
+                searchController.selectedSegment.value == SearchSegment.image,
+          ),
+        ],
       ),
     );
   }

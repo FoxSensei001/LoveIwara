@@ -75,10 +75,15 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
       context: context,
       title: t.searchFilter.selectField,
       content: ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         itemCount: availableFields.length,
         itemBuilder: (context, index) {
           final field = availableFields[index];
           return ListTile(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             leading: _getFieldIcon(field),
             title: Text(field.displayName),
             subtitle: Text(field.name),
@@ -280,84 +285,69 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
   @override
   Widget build(BuildContext context) {
     final contentType = FilterConfig.getContentType(_currentSegment);
+    final colorScheme = Theme.of(context).colorScheme;
+    final t = slang.Translations.of(context);
 
     return Form(
       key: _formKey,
       child: Column(
         children: [
           // 固定在顶部的筛选项数量显示和操作按钮
-          Container(
+          Padding(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // 筛选项数量显示
+                // 筛选项数量胶囊（与分区标签同级的轻量样式）
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
+                    horizontal: 10,
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.3),
-                      width: 1,
-                    ),
+                    color: colorScheme.surfaceContainerHigh,
+                    borderRadius: BorderRadius.circular(999),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         Icons.filter_list,
-                        size: 16,
-                        color: Theme.of(context).colorScheme.primary,
+                        size: 15,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        slang.t.searchFilter.filterCount(count: _filters.length),
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
-                          fontSize: 16,
+                        t.searchFilter.filterCount(count: _filters.length),
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
                   ),
                 ),
-
-                // 操作按钮 - 居右显示
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (_filters.isNotEmpty) ...[
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.error,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: IconButton(
-                          onPressed: _clearAllFilters,
-                          icon: const Icon(Icons.clear_all, color: Colors.white),
-                          tooltip: slang.t.searchFilter.clearAll,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                    ],
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: IconButton(
-                        onPressed: _addFilter,
-                        icon: const Icon(Icons.add, color: Colors.white),
-                        tooltip: slang.t.searchFilter.add,
-                      ),
+                const Spacer(),
+                if (_filters.isNotEmpty) ...[
+                  TextButton.icon(
+                    onPressed: _clearAllFilters,
+                    icon: const Icon(Icons.clear_all, size: 18),
+                    label: Text(t.searchFilter.clearAll),
+                    style: TextButton.styleFrom(
+                      foregroundColor: colorScheme.error,
                     ),
-                  ],
+                  ),
+                  const SizedBox(width: 4),
+                ],
+                // 添加是本弹窗的主动作，用主色胶囊
+                FilledButton.icon(
+                  onPressed: _addFilter,
+                  style: FilledButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    shape: const StadiumBorder(),
+                  ),
+                  icon: const Icon(Icons.add, size: 18),
+                  label: Text(t.searchFilter.add),
                 ),
               ],
             ),
@@ -366,11 +356,48 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
           // 可滚动的内容区域
           Expanded(
             child: SingleChildScrollView(
-              child: Container(
+              child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // 空态：点击直接进入添加流程
+                    if (_filters.isEmpty)
+                      InkWell(
+                        onTap: _addFilter,
+                        borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 32),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: colorScheme.outlineVariant.withValues(
+                                alpha: 0.5,
+                              ),
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.filter_alt_outlined,
+                                size: 40,
+                                color: colorScheme.outline,
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                '${t.common.noData} · ${t.searchFilter.add}',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
                     // 筛选项列表
                     if (_filters.isNotEmpty) ...[
                       ...(_filters
@@ -385,67 +412,72 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
                           )
                           .toList()),
                       const SizedBox(height: 16),
-                    ],
 
-                    // 生成的查询
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.outline.withValues(alpha: 0.3),
+                      // 生成的查询（无筛选项时没有意义，不再显示空框）
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.fromLTRB(12, 8, 8, 12),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: colorScheme.outlineVariant.withValues(
+                              alpha: 0.5,
+                            ),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  t.searchFilter.generatedQuery,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.3,
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed:
+                                      _validateForm() ? _copyToClipboard : null,
+                                  icon: Icon(
+                                    _copied ? Icons.check : Icons.copy,
+                                    size: 18,
+                                  ),
+                                  visualDensity: VisualDensity.compact,
+                                  tooltip: t.searchFilter.copyToClipboard,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colorScheme.surfaceContainer,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: SelectableText(
+                                _generateQuery(),
+                                style: TextStyle(
+                                  fontFamily: 'monospace',
+                                  fontSize: 12,
+                                  color: colorScheme.onSurface,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                slang.t.searchFilter.generatedQuery,
-                                style: Theme.of(context).textTheme.titleSmall
-                                    ?.copyWith(fontWeight: FontWeight.w600),
-                              ),
-                              IconButton(
-                                onPressed: _validateForm() ? _copyToClipboard : null,
-                                icon: Icon(_copied ? Icons.check : Icons.copy),
-                                tooltip: slang.t.searchFilter.copyToClipboard,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.surfaceContainer,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: SelectableText(
-                              _generateQuery(),
-                              style: TextStyle(
-                                fontFamily: 'monospace',
-                                fontSize: 12,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    ],
                   ],
                 ),
               ),

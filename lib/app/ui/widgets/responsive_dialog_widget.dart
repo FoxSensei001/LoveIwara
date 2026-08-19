@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class ResponsiveDialogWidget extends StatelessWidget {
@@ -40,8 +41,9 @@ class ResponsiveDialogWidget extends StatelessWidget {
   Widget _buildWideScreenDialog(BuildContext context, double screenHeight) {
     return Dialog(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(28),
       ),
+      clipBehavior: Clip.antiAlias,
       child: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: maxWidth ?? 600,
@@ -70,31 +72,54 @@ class ResponsiveDialogWidget extends StatelessWidget {
     );
   }
 
+  // 窄屏：整页展示，但头部不再用 AppBar，改为「标题 + 玻璃关闭圆钮」的
+  // 新样式头行，与全局玻璃风格一致
   Widget _buildNarrowScreenDialog(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        actions: [
-          ...?headerActions,
-          IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: onClose ?? () => AppService.tryPop(),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          if (actions != null) ...[
+      body: SafeArea(
+        // 底部让内容自己处理（与原 AppBar 版行为一致）
+        bottom: false,
+        child: Column(
+          children: [
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: actions!,
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  if (headerActions != null) ...[
+                    ...headerActions!,
+                    const SizedBox(width: 8),
+                  ],
+                  GlassIconButton(
+                    standalone: true,
+                    icon: const Icon(Icons.close),
+                    onPressed: onClose ?? () => AppService.tryPop(),
+                  ),
+                ],
               ),
             ),
+            if (actions != null) ...[
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: actions!,
+                ),
+              ),
+            ],
+            Expanded(child: content),
           ],
-          Expanded(child: content),
-        ],
+        ),
       ),
     );
   }
@@ -106,7 +131,9 @@ class ResponsiveDialogWidget extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         if (headerActions != null) ...[

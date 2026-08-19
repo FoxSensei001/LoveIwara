@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/tag_selector_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -110,17 +111,15 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 600;
 
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.only(bottom: 12),
+      // 与玻璃控件同一套底色/描边，卡片圆角与弹窗外壳呼应
       decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-        ),
+        color: GlassTokens.fill(colorScheme),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: GlassTokens.stroke(colorScheme), width: 0.6),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,7 +195,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
       initialValue: widget.filter.field,
       decoration: InputDecoration(
         labelText: t.searchFilter.field,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
       items: availableFields.map((field) {
@@ -249,7 +248,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
       initialValue: widget.filter.locale ?? 'en',
       decoration: InputDecoration(
         labelText: t.searchFilter.language,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
       items: const [
@@ -278,7 +277,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
       initialValue: selectedOperator,
       decoration: InputDecoration(
         labelText: t.searchFilter.operator,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
       items: availableOperators.map((operator) {
@@ -453,7 +452,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
       decoration: InputDecoration(
         labelText: fieldKey == 'from' ? t.searchFilter.from : t.searchFilter.to,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 12,
@@ -530,7 +529,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
               : _dateToController,
           decoration: InputDecoration(
             labelText: fieldKey == 'from' ? t.searchFilter.from : t.searchFilter.to,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 8,
@@ -568,7 +567,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
         DropdownButtonFormField<String>(
           initialValue: filter.value?.toString() ?? 'true',
           decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 8,
@@ -629,7 +628,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
               controller: _dateController,
               decoration: InputDecoration(
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -670,7 +669,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
         TextFormField(
           initialValue: filter.value?.toString() ?? '',
           decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 8,
@@ -725,7 +724,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
         TextFormField(
           initialValue: filter.value?.toString() ?? '',
           decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 8,
@@ -758,7 +757,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
         DropdownButtonFormField<String>(
           initialValue: filter.value?.toString() ?? '',
           decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 8,

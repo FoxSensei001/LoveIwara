@@ -4,6 +4,9 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/tag_localization_service.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
+import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/tag_detail_dialog.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/widget_extensions.dart';
@@ -135,99 +138,161 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
     return finalDate;
   }
 
+  /// 应用当前选择并关闭弹窗。
+  void _confirm() {
+    widget.onConfirm(tags, _buildFinalDate(), _effectiveRating, _selectedSortId);
+    AppService.tryPop();
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
     final t = slang.Translations.of(context);
+    final theme = Theme.of(context);
 
     if (screenWidth > 600) {
       // 屏幕宽度大于600，使用Dialog形式展示
       return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16), // 设置圆角
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        clipBehavior: Clip.antiAlias,
         child: ConstrainedBox(
           constraints: BoxConstraints(
             maxWidth: 1200,
             minWidth: 400,
             maxHeight: screenHeight * 0.8, // 限制最大高度为屏幕高度的80%
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Stack(
-              children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 20, 20, 0),
+                child: Row(
                   children: [
-                    Text(
-                      t.settings.searchConfig,
-                      style: const TextStyle(fontSize: 20),
+                    Expanded(
+                      child: Text(
+                        t.settings.searchConfig,
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 16),
-                    Expanded(child: _buildPageContent(context)),
+                    GlassIconButton(
+                      standalone: true,
+                      icon: const Icon(Icons.restart_alt),
+                      tooltip: t.searchFilter.clearAll,
+                      onPressed: _hasAnyConfig ? _resetConfig : null,
+                    ),
+                    const SizedBox(width: 8),
+                    FilledButton.icon(
+                      onPressed: _confirm,
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size(0, GlassTokens.pillHeight),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        shape: const StadiumBorder(),
+                      ),
+                      icon: const Icon(Icons.check, size: 20),
+                      label: Text(t.common.confirm),
+                    ),
                   ],
                 ),
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.restart_alt),
-                        tooltip: t.searchFilter.clearAll,
-                        onPressed: _hasAnyConfig ? _resetConfig : null,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.check),
-                        onPressed: () {
-                          widget.onConfirm(
-                            tags,
-                            _buildFinalDate(),
-                            _effectiveRating,
-                            _selectedSortId,
-                          );
-                          AppService.tryPop();
-                        },
-                      ),
-                    ],
-                  ),
+              ),
+              const SizedBox(height: 12),
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                  child: _buildConfigSections(context),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       );
     } else {
-      // 屏幕宽度小于等于600，使用普通页面展示
+      // 屏幕宽度小于等于600：整页展示，玻璃 header 悬浮在内容之上
+      final double statusBarHeight = MediaQuery.of(context).padding.top;
+      final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
+
       return Scaffold(
-        appBar: AppBar(
-          title: Text(t.settings.searchConfig),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.restart_alt),
-              tooltip: t.searchFilter.clearAll,
-              onPressed: _hasAnyConfig ? _resetConfig : null,
+        body: Stack(
+          // 松约束下也要撑满：全 Positioned 子项时没问题，但一旦混进非
+          // Positioned 的占位（如隐藏态 FAB）就会被压成 0 高，见搜索页白屏教训
+          fit: StackFit.expand,
+          children: [
+            Positioned.fill(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                  16,
+                  headerExtent + 8,
+                  16,
+                  MediaQuery.of(context).padding.bottom + 24,
+                ),
+                child: _buildConfigSections(context),
+              ),
             ),
-            IconButton(
-              icon: const Icon(Icons.check),
-              onPressed: () {
-                widget.onConfirm(
-                  tags,
-                  _buildFinalDate(),
-                  _effectiveRating,
-                  _selectedSortId,
-                );
-                AppService.tryPop();
-              },
+
+            // 顶部渐变蒙层
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: EdgeFadeScrim.top(
+                height: headerExtent + GlassTokens.headerFadeExtent,
+                solidExtent: statusBarHeight,
+              ),
+            ),
+
+            // header 行：左 返回圆钮 + 标题 / 右 重置 · 确认
+            Positioned(
+              top: statusBarHeight,
+              left: 0,
+              right: 0,
+              height: GlassTokens.headerRowHeight,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    GlassIconButton(
+                      standalone: true,
+                      icon: const Icon(Icons.arrow_back),
+                      tooltip: t.common.back,
+                      onPressed: () => AppService.tryPop(),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        t.settings.searchConfig,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    GlassIconButton(
+                      standalone: true,
+                      icon: const Icon(Icons.restart_alt),
+                      tooltip: t.searchFilter.clearAll,
+                      onPressed: _hasAnyConfig ? _resetConfig : null,
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton.filled(
+                      onPressed: _confirm,
+                      icon: const Icon(Icons.check),
+                      tooltip: t.common.confirm,
+                      constraints: const BoxConstraints.tightFor(
+                        width: GlassTokens.pillHeight,
+                        height: GlassTokens.pillHeight,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: _buildPageContent(context),
         ),
       );
     }
@@ -237,19 +302,34 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
   String get _effectiveRating =>
       widget.showRating ? _selectedRating.value : widget.searchRating;
 
-  // 构建页面内容
-  Widget _buildPageContent(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (widget.sortOptions != null) _buildSortSection(context),
-          if (widget.showRating) _buildContentRatingSection(context),
-          _buildYearSelectionSection(context),
-          _buildMonthSelectionSection(context),
-          _buildTagSelectionSection(context),
-        ],
-      ),
+  /// 分区小标题（与搜索弹窗的分区标签风格一致）。
+  Widget _sectionTitle(BuildContext context, String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(title, style: _sectionTitleStyle(context)),
+    );
+  }
+
+  TextStyle _sectionTitleStyle(BuildContext context) {
+    return TextStyle(
+      fontSize: 13,
+      fontWeight: FontWeight.w600,
+      letterSpacing: 0.3,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
+    );
+  }
+
+  // 构建配置分区内容
+  Widget _buildConfigSections(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (widget.sortOptions != null) _buildSortSection(context),
+        if (widget.showRating) _buildContentRatingSection(context),
+        _buildYearSelectionSection(context),
+        _buildMonthSelectionSection(context),
+        _buildTagSelectionSection(context),
+      ],
     );
   }
 
@@ -260,10 +340,7 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '${t.common.sort}: ',
-          style: const TextStyle(fontSize: 16),
-        ).paddingBottom(8),
+        _sectionTitle(context, t.common.sort),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -293,10 +370,7 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '${t.search.contentRating}: ',
-          style: const TextStyle(fontSize: 16),
-        ).paddingBottom(8),
+        _sectionTitle(context, t.search.contentRating),
         SegmentedButton<MediaRating>(
           segments: MediaRating.values.map((MediaRating rating) {
             return ButtonSegment<MediaRating>(
@@ -325,10 +399,7 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '${t.common.year}: ',
-          style: const TextStyle(fontSize: 16),
-        ).paddingBottom(8),
+        _sectionTitle(context, t.common.year),
         MouseRegion(
           cursor: SystemMouseCursors.click,
           child: Listener(
@@ -408,10 +479,7 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '${t.common.month}: ',
-          style: const TextStyle(fontSize: 16),
-        ).paddingBottom(8),
+        _sectionTitle(context, t.common.month),
         MouseRegion(
           cursor: SystemMouseCursors.click,
           child: Listener(
@@ -503,7 +571,7 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('${t.common.tag}: ', style: const TextStyle(fontSize: 16)),
+            Text(t.common.tag, style: _sectionTitleStyle(context)),
             Row(
               children: [
                 // 标签本地化引导

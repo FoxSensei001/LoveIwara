@@ -11,7 +11,6 @@ import 'package:i_iwara/app/ui/widgets/google_search_panel_widget.dart';
 import 'dart:math';
 import 'package:i_iwara/app/models/search_record.model.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
-import 'package:i_iwara/app/ui/pages/search/widgets/search_common_widgets.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/app/ui/widgets/responsive_dialog_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
@@ -19,6 +18,8 @@ import 'package:i_iwara/app/ui/pages/search/widgets/filter_builder_widget.dart';
 import 'package:i_iwara/app/models/saved_search.model.dart';
 import 'package:i_iwara/app/services/saved_search_service.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/saved_search_drawer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:oktoast/oktoast.dart';
 
@@ -489,25 +490,56 @@ class _SearchInputSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
+    // 玻璃胶囊输入框：半透明底色 + 细描边，与首页玻璃控件一致
+    return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
       child: Obx(
-        () => SearchInputField(
-          controller: controller,
-          focusNode: focusNode,
-          hintText: searchPlaceholder.value.isEmpty
-              ? t.search.pleaseEnterSearchContent
-              : '${t.search.searchSuggestion}: ${searchPlaceholder.value}',
-          errorText: searchErrorText.value.isEmpty
-              ? null
-              : searchErrorText.value,
-          onChanged: onChanged,
-          onSubmitted: onSubmitted,
-          onClear: onClear,
-          autofocus: true,
-          backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-          elevation: 1,
+        () => Container(
+          decoration: BoxDecoration(
+            color: GlassTokens.fill(colorScheme),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: GlassTokens.stroke(colorScheme),
+              width: 0.6,
+            ),
+          ),
+          child: TextField(
+            controller: controller,
+            focusNode: focusNode,
+            autofocus: true,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: colorScheme.onSurface,
+            ),
+            decoration: InputDecoration(
+              hintText: searchPlaceholder.value.isEmpty
+                  ? t.search.pleaseEnterSearchContent
+                  : '${t.search.searchSuggestion}: ${searchPlaceholder.value}',
+              hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+              errorText: searchErrorText.value.isEmpty
+                  ? null
+                  : searchErrorText.value,
+              border: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              prefixIcon: Icon(
+                Icons.search,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: onClear,
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+            ),
+            onChanged: onChanged,
+            onSubmitted: onSubmitted,
+          ),
         ),
       ),
     );
@@ -541,34 +573,63 @@ class _SearchControlsSection extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final radius = BorderRadius.circular(12);
-    const controlHeight = 44.0;
+    const controlHeight = GlassTokens.pillHeight;
     final iconButtonConstraints = BoxConstraints.tightFor(
       width: controlHeight,
       height: controlHeight,
     );
 
-    ButtonStyle tonalButtonStyle() {
-      return FilledButton.styleFrom(
-        backgroundColor: colorScheme.surfaceContainer,
-        foregroundColor: colorScheme.onSurfaceVariant,
-        minimumSize: const Size(0, controlHeight),
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        visualDensity: VisualDensity.compact,
-        shape: RoundedRectangleBorder(borderRadius: radius),
-        elevation: 0,
+    // 玻璃胶囊：图标 + 文字（宽屏）
+    Widget glassLabelPill({
+      required IconData icon,
+      required String label,
+      bool showDropdownArrow = false,
+      VoidCallback? onTap,
+    }) {
+      return GlassSurface(
+        onTap: onTap,
+        padding: EdgeInsets.only(left: 14, right: showDropdownArrow ? 8 : 14),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 18, color: colorScheme.onSurface),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface,
+              ),
+            ),
+            if (showDropdownArrow)
+              Icon(
+                Icons.arrow_drop_down,
+                size: 20,
+                color: colorScheme.onSurface,
+              ),
+          ],
+        ),
       );
     }
 
-    ButtonStyle iconButtonStyle({
-      required Color backgroundColor,
-      required Color foregroundColor,
+    // 玻璃方钮：仅图标（窄屏）
+    Widget glassIconPill({
+      required IconData icon,
+      String? tooltip,
+      VoidCallback? onTap,
     }) {
-      return IconButton.styleFrom(
-        backgroundColor: backgroundColor,
-        foregroundColor: foregroundColor,
-        padding: const EdgeInsets.all(10),
-        visualDensity: VisualDensity.compact,
-        shape: RoundedRectangleBorder(borderRadius: radius),
+      return GlassSurface(
+        width: controlHeight,
+        onTap: onTap,
+        tooltip: tooltip,
+        child: Center(
+          child: Icon(
+            icon,
+            size: GlassTokens.iconSize,
+            color: colorScheme.onSurface,
+          ),
+        ),
       );
     }
 
@@ -789,33 +850,16 @@ class _SearchControlsSection extends StatelessWidget {
                     'Oreno3D',
                   ),
                 ],
-                child: AbsorbPointer(
-                  child: compact
-                      ? IconButton(
-                          onPressed: () {},
-                          icon: Icon(segmentIcon(seg)),
-                          tooltip: segmentLabel(seg),
-                          constraints: iconButtonConstraints,
-                          style: iconButtonStyle(
-                            backgroundColor: colorScheme.surfaceContainer,
-                            foregroundColor: colorScheme.onSurfaceVariant,
-                          ),
-                        )
-                      : FilledButton.tonal(
-                          onPressed: () {},
-                          style: tonalButtonStyle(),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(segmentIcon(seg), size: 20),
-                              const SizedBox(width: 6),
-                              Text(segmentLabel(seg)),
-                              const SizedBox(width: 4),
-                              const Icon(Icons.arrow_drop_down, size: 20),
-                            ],
-                          ),
-                        ),
-                ),
+                child: compact
+                    ? glassIconPill(
+                        icon: segmentIcon(seg),
+                        tooltip: segmentLabel(seg),
+                      )
+                    : glassLabelPill(
+                        icon: segmentIcon(seg),
+                        label: segmentLabel(seg),
+                        showDropdownArrow: true,
+                      ),
               );
             }
 
@@ -825,33 +869,16 @@ class _SearchControlsSection extends StatelessWidget {
                 initialValue: sort,
                 onSelected: (v) => selectedSort.value = v,
                 itemBuilder: (context) => buildSortMenuItems(),
-                child: AbsorbPointer(
-                  child: compact
-                      ? IconButton(
-                          onPressed: () {},
-                          icon: Icon(sortIconFor(sort)),
-                          tooltip: '${t.common.sort}: $currentSortLabel',
-                          constraints: iconButtonConstraints,
-                          style: iconButtonStyle(
-                            backgroundColor: colorScheme.surfaceContainer,
-                            foregroundColor: colorScheme.onSurfaceVariant,
-                          ),
-                        )
-                      : FilledButton.tonal(
-                          onPressed: () {},
-                          style: tonalButtonStyle(),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(sortIconFor(sort), size: 20),
-                              const SizedBox(width: 6),
-                              Text(currentSortLabel),
-                              const SizedBox(width: 4),
-                              const Icon(Icons.arrow_drop_down, size: 20),
-                            ],
-                          ),
-                        ),
-                ),
+                child: compact
+                    ? glassIconPill(
+                        icon: sortIconFor(sort),
+                        tooltip: '${t.common.sort}: $currentSortLabel',
+                      )
+                    : glassLabelPill(
+                        icon: sortIconFor(sort),
+                        label: currentSortLabel,
+                        showDropdownArrow: true,
+                      ),
               );
             }
 
@@ -861,15 +888,10 @@ class _SearchControlsSection extends StatelessWidget {
                   : '${t.searchFilter.filterSettings}: $filterCount';
 
               if (compact) {
-                final icon = IconButton(
-                  onPressed: () => _showFilterDialog(context, seg, t),
-                  icon: const Icon(Icons.filter_list),
+                final icon = glassIconPill(
+                  icon: Icons.filter_list,
                   tooltip: tooltip,
-                  constraints: iconButtonConstraints,
-                  style: iconButtonStyle(
-                    backgroundColor: colorScheme.surfaceContainer,
-                    foregroundColor: colorScheme.onSurfaceVariant,
-                  ),
+                  onTap: () => _showFilterDialog(context, seg, t),
                 );
 
                 if (filterCount <= 0) return icon;
@@ -881,83 +903,53 @@ class _SearchControlsSection extends StatelessWidget {
                 );
               }
 
-              return FilledButton.tonal(
-                onPressed: () => _showFilterDialog(context, seg, t),
-                style: tonalButtonStyle(),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.filter_list, size: 20),
-                    const SizedBox(width: 6),
-                    Text(
-                      filterCount == 0
-                          ? t.searchFilter.filterSettings
-                          : '${t.searchFilter.filterSettings} ($filterCount)',
-                    ),
-                  ],
-                ),
+              return glassLabelPill(
+                icon: Icons.filter_list,
+                label: filterCount == 0
+                    ? t.searchFilter.filterSettings
+                    : '${t.searchFilter.filterSettings} ($filterCount)',
+                onTap: () => _showFilterDialog(context, seg, t),
               );
             }
 
+            // 搜索是唯一的主色按钮，与玻璃胶囊区分开
             Widget searchButton() {
               if (compact) {
-                return IconButton(
+                return IconButton.filled(
                   onPressed: onSearch,
                   icon: const Icon(Icons.search),
                   tooltip: t.common.search,
                   constraints: iconButtonConstraints,
-                  style: iconButtonStyle(
-                    backgroundColor: colorScheme.primary,
-                    foregroundColor: colorScheme.onPrimary,
-                  ),
                 );
               }
 
-              return FilledButton(
+              return FilledButton.icon(
                 onPressed: onSearch,
                 style: FilledButton.styleFrom(
-                  backgroundColor: colorScheme.primary,
-                  foregroundColor: colorScheme.onPrimary,
                   minimumSize: const Size(0, controlHeight),
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  visualDensity: VisualDensity.compact,
-                  shape: RoundedRectangleBorder(borderRadius: radius),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  shape: const StadiumBorder(),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.search, size: 20),
-                    const SizedBox(width: 6),
-                    Text(t.common.search),
-                  ],
-                ),
+                icon: const Icon(Icons.search, size: 20),
+                label: Text(t.common.search),
               );
             }
 
             Widget savedSearchButton() {
-              return IconButton(
-                onPressed: onOpenSavedSearch,
+              return GlassIconButton(
+                standalone: true,
                 icon: const Icon(Icons.bookmarks_outlined),
                 tooltip: t.savedSearch.title,
-                constraints: iconButtonConstraints,
-                style: iconButtonStyle(
-                  backgroundColor: colorScheme.surfaceContainer,
-                  foregroundColor: colorScheme.onSurfaceVariant,
-                ),
+                onPressed: onOpenSavedSearch,
               );
             }
 
             // Oreno3D 浏览原作/角色/标签入口，作为单独图标放进控制栏
             Widget oreno3dBrowseButton() {
-              return IconButton(
-                onPressed: onBrowseOreno3d,
-                icon: const Icon(Icons.travel_explore),
+              return glassIconPill(
+                icon: Icons.travel_explore,
                 tooltip: t.favoriteTags.browseEntry,
-                constraints: iconButtonConstraints,
-                style: iconButtonStyle(
-                  backgroundColor: colorScheme.surfaceContainer,
-                  foregroundColor: colorScheme.onSurfaceVariant,
-                ),
+                onTap: onBrowseOreno3d,
               );
             }
 

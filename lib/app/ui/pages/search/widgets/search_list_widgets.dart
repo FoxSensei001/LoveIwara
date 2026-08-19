@@ -32,6 +32,7 @@ class VideoSearchList extends BaseSearchList<Video, VideoSearchRepository> {
     super.key,
     required super.query,
     super.isPaginated = false,
+    super.paddingTop,
     this.sort,
     this.isMultiSelectMode = false,
     this.selectedItemIds = const {},
@@ -114,6 +115,7 @@ class ImageSearchList
     super.key,
     required super.query,
     super.isPaginated = false,
+    super.paddingTop,
     this.sort,
     this.isMultiSelectMode = false,
     this.selectedItemIds = const {},
@@ -171,6 +173,7 @@ class UserSearchList extends BaseSearchList<User, UserSearchRepository> {
     super.key,
     required super.query,
     super.isPaginated = false,
+    super.paddingTop,
     this.sort,
   });
 
@@ -207,6 +210,7 @@ class PostSearchList extends BaseSearchList<PostModel, PostSearchRepository> {
     super.key,
     required super.query,
     super.isPaginated = false,
+    super.paddingTop,
     this.sort,
   });
 
@@ -245,6 +249,7 @@ class ForumSearchList
     super.key,
     required super.query,
     super.isPaginated = false,
+    super.paddingTop,
     this.sort,
   });
 
@@ -291,6 +296,7 @@ class ForumPostsSearchList
     super.key,
     required super.query,
     super.isPaginated = false,
+    super.paddingTop,
     this.sort,
   });
 
@@ -340,6 +346,7 @@ class Oreno3dSearchList
     super.key,
     required super.query,
     super.isPaginated = false,
+    super.paddingTop,
     this.sortType,
     this.searchType,
     this.extData,
@@ -394,6 +401,7 @@ class PlaylistSearchList
     super.key,
     required super.query,
     super.isPaginated = false,
+    super.paddingTop,
     this.sort,
   });
 

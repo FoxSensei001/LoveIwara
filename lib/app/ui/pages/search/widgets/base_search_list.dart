@@ -10,10 +10,14 @@ abstract class BaseSearchList<T, R extends SearchRepository<T>>
   final String query;
   final bool isPaginated;
 
+  /// 顶部让出的高度（搜索页玻璃 header 悬浮在列表之上）。
+  final double paddingTop;
+
   const BaseSearchList({
     super.key,
     required this.query,
     this.isPaginated = false,
+    this.paddingTop = 0,
   });
 }
 
@@ -105,6 +109,7 @@ abstract class BaseSearchListState<
       emptyIcon: emptyIcon,
       isPaginated: widget.isPaginated,
       scrollController: _scrollController,
+      paddingTop: widget.paddingTop,
       showBottomPadding: true, // 搜索页面使用默认值 true
       itemBuilder: buildListItem,
       itemBuilderWithVisibleItems: buildListItemWithVisibleItems,
