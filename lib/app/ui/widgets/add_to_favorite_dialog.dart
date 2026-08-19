@@ -4,6 +4,8 @@ import 'package:i_iwara/app/models/favorite/favorite_folder.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -167,14 +169,43 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
     }
   }
 
+  /// 玻璃胶囊输入框容器：半透明底色 + 细描边，与全局玻璃控件一致。
+  Widget _buildGlassField(BuildContext context, {required Widget child}) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      decoration: BoxDecoration(
+        color: GlassTokens.fill(colorScheme),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: GlassTokens.stroke(colorScheme), width: 0.6),
+      ),
+      child: child,
+    );
+  }
+
+  InputDecoration _fieldDecoration(
+    BuildContext context, {
+    required String hint,
+    required IconData icon,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+      border: InputBorder.none,
+      focusedBorder: InputBorder.none,
+      prefixIcon: Icon(icon, color: colorScheme.onSurfaceVariant),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      clipBehavior: Clip.antiAlias,
       child: ConstrainedBox(
         constraints: const BoxConstraints(
           maxWidth: 600,
@@ -182,21 +213,21 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
         ),
         child: Column(
           children: [
+            // 标题行：标题 + 我的收藏入口 + 玻璃关闭圆钮
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(20, 16, 16, 4),
               child: Row(
                 children: [
                   Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: t.favorite.searchFolders,
-                        prefixIcon: const Icon(Icons.search),
+                    child: Text(
+                      t.favorite.localizeFavorite,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
                       ),
-                      onChanged: _filterFolders,
                     ),
                   ),
-                  IconButton(
+                  GlassIconButton(
+                    standalone: true,
                     icon: const Icon(Icons.folder_open),
                     tooltip: t.favorite.myFavorites,
                     onPressed: () {
@@ -204,54 +235,107 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
                       NaviService.navigateToLocalFavoritePage();
                     },
                   ),
-                  IconButton(
+                  const SizedBox(width: 8),
+                  GlassIconButton(
+                    standalone: true,
                     icon: const Icon(Icons.close),
-                    onPressed: () => AppService.tryPop()
+                    onPressed: () => AppService.tryPop(),
                   ),
                 ],
               ),
             ),
+            // 搜索
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: _buildGlassField(
+                context,
+                child: TextField(
+                  controller: _searchController,
+                  decoration: _fieldDecoration(
+                    context,
+                    hint: t.favorite.searchFolders,
+                    icon: Icons.search,
+                  ),
+                  onChanged: _filterFolders,
+                ),
+              ),
+            ),
+            // 新建：玻璃输入 + 主色圆钮
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
               child: Row(
                 children: [
                   Expanded(
-                    child: TextField(
-                      controller: _newFolderController,
-                      enabled: !_isCreating,
-                      decoration: InputDecoration(
-                        hintText: t.favorite.newFolderName,
+                    child: _buildGlassField(
+                      context,
+                      child: TextField(
+                        controller: _newFolderController,
+                        enabled: !_isCreating,
+                        decoration: _fieldDecoration(
+                          context,
+                          hint: t.favorite.newFolderName,
+                          icon: Icons.create_new_folder_outlined,
+                        ),
+                        onSubmitted: (_) => _createNewFolder(),
                       ),
                     ),
                   ),
-                  SizedBox(
-                    width: 48,
-                    height: 48,
-                    child: _isCreating
-                        ? const Center(
+                  const SizedBox(width: 10),
+                  _isCreating
+                      ? const SizedBox(
+                          width: 44,
+                          height: 44,
+                          child: Center(
                             child: SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             ),
-                          )
-                        : IconButton(
-                            icon: const Icon(Icons.add),
-                            onPressed: _createNewFolder,
                           ),
-                  ),
+                        )
+                      : IconButton.filled(
+                          onPressed: _createNewFolder,
+                          icon: const Icon(Icons.add),
+                          constraints: const BoxConstraints.tightFor(
+                            width: 44,
+                            height: 44,
+                          ),
+                        ),
                 ],
               ),
             ),
             const SizedBox(height: 8),
             if (_error != null)
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  _error!,
-                  style: const TextStyle(color: Colors.red),
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 40,
+                        color: colorScheme.error,
+                      ),
+                      const SizedBox(height: 10),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Text(
+                          _error!,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      FilledButton.tonalIcon(
+                        onPressed: _fetchData,
+                        icon: const Icon(Icons.refresh, size: 18),
+                        label: Text(slang.t.common.retry),
+                      ),
+                    ],
+                  ),
                 ),
               )
             else if (_isLoading && _folders.isEmpty)
@@ -259,7 +343,7 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
                 child: Center(child: CircularProgressIndicator()),
               )
             else if (_filteredFolders.isEmpty)
-              const Expanded(child: MyEmptyWidget())
+              const Expanded(child: Center(child: MyEmptyWidget()))
             else
               Expanded(
                 child: WaterfallFlow.builder(
@@ -273,24 +357,32 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
                   itemBuilder: (context, index) {
                     final folder = _filteredFolders[index];
                     final bool isOperating = _operatingFolderId == folder.id;
-                    final bool isInFolder = _itemFolders.any((f) => f.id == folder.id);
+                    final bool selected =
+                        _itemFolders.any((f) => f.id == folder.id);
 
-                    return Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(
-                          color: isInFolder
-                              ? const Color(0xFF2196F3)
-                              : Colors.transparent,
-                          width: 2,
-                        ),
-                      ),
+                    return Material(
+                      color: selected
+                          ? colorScheme.primaryContainer.withValues(alpha: 0.5)
+                          : colorScheme.surfaceContainerHighest.withValues(
+                              alpha: 0.45,
+                            ),
+                      borderRadius: BorderRadius.circular(16),
                       child: InkWell(
                         onTap: isOperating ? null : () => _toggleFolder(folder),
-                        borderRadius: BorderRadius.circular(12),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8),
+                        borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: selected
+                                  ? colorScheme.primary
+                                  : colorScheme.outlineVariant.withValues(
+                                      alpha: 0.4,
+                                    ),
+                              width: selected ? 1.4 : 0.8,
+                            ),
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
@@ -304,9 +396,11 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
                                       folder.title,
                                       maxLines: 4,
                                       overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontWeight: FontWeight.w600,
                                         fontSize: 14,
+                                        height: 1.25,
+                                        color: colorScheme.onSurface,
                                       ),
                                     ),
                                   ),
@@ -319,32 +413,30 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
                                         strokeWidth: 2,
                                       ),
                                     )
-                                  else if (isInFolder)
-                                    const Icon(
+                                  else if (selected)
+                                    Icon(
                                       Icons.check_circle,
-                                      color: Color(0xFF2196F3),
+                                      color: colorScheme.primary,
                                       size: 20,
                                     )
                                   else
-                                    const Icon(
+                                    Icon(
                                       Icons.add_circle_outline,
-                                      color: Colors.grey,
+                                      color: colorScheme.outline,
                                       size: 20,
                                     ),
                                 ],
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 8),
                               // 项目数量标签
                               Container(
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF2196F3)
-                                      .withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: const Color(0xFF2196F3)
-                                        .withValues(alpha: 0.3),
-                                    width: 1,
-                                  ),
+                                  color: selected
+                                      ? colorScheme.primary.withValues(
+                                          alpha: 0.12,
+                                        )
+                                      : colorScheme.surfaceContainerHigh,
+                                  borderRadius: BorderRadius.circular(999),
                                 ),
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8,
@@ -352,10 +444,12 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
                                 ),
                                 child: Text(
                                   '${t.favorite.items}: ${folder.itemCount ?? 0}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
-                                    color: Color(0xFF2196F3),
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w600,
+                                    color: selected
+                                        ? colorScheme.primary
+                                        : colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                               ),

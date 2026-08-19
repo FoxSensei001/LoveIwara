@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/light_play_list.model.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:oktoast/oktoast.dart';
@@ -149,14 +151,43 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
     }
   }
 
+  /// 玻璃胶囊输入框容器：半透明底色 + 细描边，与全局玻璃控件一致。
+  Widget _buildGlassField(BuildContext context, {required Widget child}) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      decoration: BoxDecoration(
+        color: GlassTokens.fill(colorScheme),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: GlassTokens.stroke(colorScheme), width: 0.6),
+      ),
+      child: child,
+    );
+  }
+
+  InputDecoration _fieldDecoration(
+    BuildContext context, {
+    required String hint,
+    required IconData icon,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+      border: InputBorder.none,
+      focusedBorder: InputBorder.none,
+      prefixIcon: Icon(icon, color: colorScheme.onSurfaceVariant),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      clipBehavior: Clip.antiAlias,
       child: ConstrainedBox(
         constraints: const BoxConstraints(
           maxWidth: 600,
@@ -164,82 +195,119 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
         ),
         child: Column(
           children: [
+            // 标题行：标题 + 玻璃关闭圆钮
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(20, 16, 16, 4),
               child: Row(
                 children: [
                   Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: t.playList.searchPlaylists,
-                        prefixIcon: const Icon(Icons.search),
+                    child: Text(
+                      t.common.playList,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
                       ),
-                      onChanged: _filterPlaylists,
                     ),
                   ),
-                  IconButton(
+                  GlassIconButton(
+                    standalone: true,
                     icon: const Icon(Icons.close),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
               ),
             ),
+            // 搜索
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: _buildGlassField(
+                context,
+                child: TextField(
+                  controller: _searchController,
+                  decoration: _fieldDecoration(
+                    context,
+                    hint: t.playList.searchPlaylists,
+                    icon: Icons.search,
+                  ),
+                  onChanged: _filterPlaylists,
+                ),
+              ),
+            ),
+            // 新建：玻璃输入 + 主色圆钮
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
               child: Row(
                 children: [
                   Expanded(
-                    child: TextField(
-                      controller: _newPlaylistController,
-                      enabled: !_isCreating,
-                      decoration: InputDecoration(
-                        hintText: t.playList.newPlaylistName,
+                    child: _buildGlassField(
+                      context,
+                      child: TextField(
+                        controller: _newPlaylistController,
+                        enabled: !_isCreating,
+                        decoration: _fieldDecoration(
+                          context,
+                          hint: t.playList.newPlaylistName,
+                          icon: Icons.playlist_add,
+                        ),
+                        onSubmitted: (_) => _createNewPlaylist(),
                       ),
                     ),
                   ),
-                  SizedBox(
-                    width: 48,
-                    height: 48,
-                    child: _isCreating
-                        ? const Center(
+                  const SizedBox(width: 10),
+                  _isCreating
+                      ? const SizedBox(
+                          width: 44,
+                          height: 44,
+                          child: Center(
                             child: SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             ),
-                          )
-                        : IconButton(
-                            icon: const Icon(Icons.add),
-                            onPressed: _createNewPlaylist,
                           ),
-                  ),
+                        )
+                      : IconButton.filled(
+                          onPressed: _createNewPlaylist,
+                          icon: const Icon(Icons.add),
+                          constraints: const BoxConstraints.tightFor(
+                            width: 44,
+                            height: 44,
+                          ),
+                        ),
                 ],
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             if (_error != null)
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    Text(
-                      _error!,
-                      style: const TextStyle(color: Colors.red),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    ElevatedButton.icon(
-                      onPressed: _fetchPlaylists,
-                      icon: const Icon(Icons.refresh, size: 16),
-                      label: Text(t.common.retry),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 40,
+                        color: colorScheme.error,
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 10),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Text(
+                          _error!,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      FilledButton.tonalIcon(
+                        onPressed: _fetchPlaylists,
+                        icon: const Icon(Icons.refresh, size: 18),
+                        label: Text(t.common.retry),
+                      ),
+                    ],
+                  ),
                 ),
               )
             else if (_isLoading && _playlists.isEmpty)
@@ -247,24 +315,7 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
                 child: Center(child: CircularProgressIndicator()),
               )
             else if (_filteredPlaylists.isEmpty)
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const MyEmptyWidget(),
-                    const SizedBox(height: 8),
-                    if (_playlists.isEmpty)
-                      Text(
-                        'No playlists available',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                  ],
-                ),
-              )
+              const Expanded(child: Center(child: MyEmptyWidget()))
             else
               Expanded(
                 child: WaterfallFlow.builder(
@@ -278,23 +329,33 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
                   itemBuilder: (context, index) {
                     final playlist = _filteredPlaylists[index];
                     final bool isOperating = _operatingPlaylistId == playlist.id;
+                    final bool selected = playlist.added;
 
-                    return Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(
-                          color: playlist.added
-                              ? const Color(0xFF2196F3)
-                              : Colors.transparent,
-                          width: 2,
-                        ),
-                      ),
+                    return Material(
+                      color: selected
+                          ? colorScheme.primaryContainer.withValues(alpha: 0.5)
+                          : colorScheme.surfaceContainerHighest.withValues(
+                              alpha: 0.45,
+                            ),
+                      borderRadius: BorderRadius.circular(16),
                       child: InkWell(
-                        onTap: isOperating ? null : () => _togglePlaylist(playlist),
-                        borderRadius: BorderRadius.circular(12),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8),
+                        onTap: isOperating
+                            ? null
+                            : () => _togglePlaylist(playlist),
+                        borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: selected
+                                  ? colorScheme.primary
+                                  : colorScheme.outlineVariant.withValues(
+                                      alpha: 0.4,
+                                    ),
+                              width: selected ? 1.4 : 0.8,
+                            ),
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
@@ -308,9 +369,11 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
                                       playlist.title,
                                       maxLines: 4,
                                       overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontWeight: FontWeight.w600,
                                         fontSize: 14,
+                                        height: 1.25,
+                                        color: colorScheme.onSurface,
                                       ),
                                     ),
                                   ),
@@ -320,35 +383,33 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
                                       width: 18,
                                       height: 18,
                                       child: CircularProgressIndicator(
-                                strokeWidth: 2,
+                                        strokeWidth: 2,
                                       ),
                                     )
-                                  else if (playlist.added)
-                                    const Icon(
+                                  else if (selected)
+                                    Icon(
                                       Icons.check_circle,
-                                      color: Color(0xFF2196F3),
+                                      color: colorScheme.primary,
                                       size: 20,
                                     )
                                   else
-                                    const Icon(
+                                    Icon(
                                       Icons.add_circle_outline,
-                                      color: Colors.grey,
+                                      color: colorScheme.outline,
                                       size: 20,
-                              ),
+                                    ),
                                 ],
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 8),
                               // 视频数量标签
                               Container(
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF2196F3)
-                                      .withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: const Color(0xFF2196F3)
-                                        .withValues(alpha: 0.3),
-                                    width: 1,
-                                  ),
+                                  color: selected
+                                      ? colorScheme.primary.withValues(
+                                          alpha: 0.12,
+                                        )
+                                      : colorScheme.surfaceContainerHigh,
+                                  borderRadius: BorderRadius.circular(999),
                                 ),
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8,
@@ -356,10 +417,12 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
                                 ),
                                 child: Text(
                                   '${t.playList.videos}: ${playlist.numVideos}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
-                                    color: Color(0xFF2196F3),
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w600,
+                                    color: selected
+                                        ? colorScheme.primary
+                                        : colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                               ),
