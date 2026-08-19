@@ -10,11 +10,20 @@ class UserzVideoListRepository extends LoadingMoreBase<Video>
   final VideoService _videoService = Get.find<VideoService>();
   final String userId;
   final String sortType;
+
+  /// 标签筛选（与 `tags=a,b` 对应，服务端按「同时含有」处理）。
+  final List<String> searchTagIds;
+
+  /// 日期筛选，'' / 'YYYY' / 'YYYY-MM'。
+  final String searchDate;
+
   final Function({int? count})? onFetchFinished;
 
   UserzVideoListRepository({
     required this.userId,
     required this.sortType,
+    this.searchTagIds = const [],
+    this.searchDate = '',
     this.onFetchFinished,
   });
 
@@ -56,11 +65,21 @@ class UserzVideoListRepository extends LoadingMoreBase<Video>
       final response = await _videoService.fetchVideosByParams(
         page: page,
         limit: 20,
-        params: {'sort': sortType, 'rating': 'all', 'user': userId},
+        // rating 在带 user= 的查询里会被服务端忽略（实测混合评级作者
+        // rating=general / rating=ecchi 返回完全相同的混合结果），所以这里固定
+        // 'all'，作者页也不提供评级筛选。
+        params: {
+          'sort': sortType,
+          'rating': 'all',
+          'user': userId,
+          if (searchTagIds.isNotEmpty) 'tags': searchTagIds.join(','),
+          if (searchDate.isNotEmpty) 'date': searchDate,
+        },
       );
 
       LogUtils.d(
-        '[视频列表Repository] 查询参数: userId: $userId, sort: $sortType, page: $page',
+        '[视频列表Repository] 查询参数: userId: $userId, sort: $sortType, '
+        'tags: ${searchTagIds.join(',')}, date: $searchDate, page: $page',
       );
 
       if (!response.isSuccess) {

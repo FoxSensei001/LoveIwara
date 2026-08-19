@@ -18,7 +18,11 @@ import 'package:i_iwara/app/ui/widgets/top_padding_height_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glow_notification_widget.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
+import 'package:i_iwara/app/models/sort.model.dart';
+import 'package:i_iwara/app/models/tag.model.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 
 import 'package:i_iwara/app/services/tutorial_service.dart';
@@ -65,6 +69,38 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   late TabController _tabController;
   String selectedId = '';
 
+  /// 视频 / 图库列表的筛选条件（帖子 tab 的接口不吃这些参数，不参与）。
+  /// 排序默认 date —— 实测服务端默认排序就是 date，保持与接入前一致。
+  List<Tag> _filterTags = [];
+  String _filterDate = '';
+  String _filterRating = '';
+  SortId _filterSortId = SortId.date;
+
+  /// 评级只在订阅流（未指定具体用户）下有效：带 `user=` 时服务端会忽略 rating。
+  bool get _isRatingFilterAvailable => selectedId.isEmpty;
+
+  /// 当前 tab 是否支持筛选（0=视频，1=图库）
+  bool get _isFilterSupportedTab => _tabController.index <= 1;
+
+  bool get _hasActiveFilter =>
+      _filterTags.isNotEmpty ||
+      _filterDate.isNotEmpty ||
+      _filterSortId != SortId.date ||
+      (_isRatingFilterAvailable && _filterRating.isNotEmpty);
+
+  List<String> get _filterTagIds => _filterTags.map((tag) => tag.id).toList();
+
+  /// 弹窗里的排序顺序：默认项「最新」排第一，其余保持 [CommonConstants.mediaSorts]
+  /// 的原顺序。不能直接改那个常量——热门页的排序 TabBar 用的是同一份，改了会
+  /// 连带把它的默认 tab 也换掉。
+  List<Sort> get _filterSortOptions {
+    final sorts = CommonConstants.mediaSorts;
+    return [
+      ...sorts.where((sort) => sort.id == SortId.date),
+      ...sorts.where((sort) => sort.id != SortId.date),
+    ];
+  }
+
   // 定义常量（现在使用本地常量，这里保留注释作为参考）
   // static const double _userSelectorRowHeight = 56.0; // 用户选择器/图标行的实际高度
   // static const double _tabBarActualHeight = 48.0; // TabBar 本身的高度
@@ -110,6 +146,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   static const String _menuActionScrollTop = 'scroll_top';
   static const String _menuActionTogglePagination = 'toggle_pagination';
   static const String _menuActionToggleBatch = 'toggle_batch';
+  static const String _menuActionOpenFilter = 'open_filter';
 
   bool get _isBatchSupportedTab => _tabController.index <= 1;
 
@@ -134,6 +171,9 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
         mediaListController.setPaginatedMode(
           !mediaListController.isPaginated.value,
         );
+        break;
+      case _menuActionOpenFilter:
+        _openFilterDialog();
         break;
       case _menuActionToggleBatch:
         if (_isBatchSupportedTab) {
@@ -187,6 +227,13 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
         icon: Icons.refresh,
         label: t.common.refresh,
       );
+      if (_isFilterSupportedTab) {
+        addItem(
+          value: _menuActionOpenFilter,
+          icon: Icons.filter_list,
+          label: t.searchFilter.filterSettings,
+        );
+      }
       addItem(
         value: _menuActionOpenDrawer,
         icon: Icons.settings,
@@ -282,6 +329,31 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
             filters: filters,
             sort: sort,
           );
+        },
+      ),
+    );
+  }
+
+  /// 打开筛选弹窗（标签 / 年月 / 排序，订阅流下额外含评级）。
+  ///
+  /// 确认后只改 State，列表会在 didUpdateWidget 里按新参数重建数据源。
+  void _openFilterDialog() {
+    showAppDialog(
+      PopularMediaSearchConfig(
+        searchTags: _filterTags,
+        searchYear: _filterDate,
+        searchRating: _filterRating,
+        showRating: _isRatingFilterAvailable,
+        sortOptions: _filterSortOptions,
+        selectedSortId: _filterSortId,
+        onConfirm: (tags, year, rating, sortId) {
+          if (!mounted) return;
+          setState(() {
+            _filterTags = tags;
+            _filterDate = year;
+            _filterRating = rating;
+            _filterSortId = sortId ?? _filterSortId;
+          });
         },
       ),
     );
@@ -468,6 +540,10 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
 
   void _resetForContentChange() {
     selectedId = '';
+    _filterTags = [];
+    _filterDate = '';
+    _filterRating = '';
+    _filterSortId = SortId.date;
     _videoBatchController.exitMultiSelect();
     _imageBatchController.exitMultiSelect();
     mediaListController.resetHeaderState();
@@ -668,6 +744,10 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                             tabIndex: 0,
                             isPaginated: isPaginated,
                             paddingTop: 0,
+                            sortId: _filterSortId.name,
+                            searchTagIds: _filterTagIds,
+                            searchDate: _filterDate,
+                            searchRating: _filterRating,
                             showBottomPadding: shouldApplyBottomSafeAreaPadding,
                             isMultiSelectMode:
                                 _videoBatchController.isMultiSelect.value,
@@ -689,6 +769,10 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                             tabIndex: 1,
                             isPaginated: isPaginated,
                             paddingTop: 0,
+                            sortId: _filterSortId.name,
+                            searchTagIds: _filterTagIds,
+                            searchDate: _filterDate,
+                            searchRating: _filterRating,
                             showBottomPadding: shouldApplyBottomSafeAreaPadding,
                             isMultiSelectMode:
                                 _imageBatchController.isMultiSelect.value,
@@ -790,6 +874,20 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                                             onPressed: refreshCurrentList,
                                             tooltip: t.common.refresh,
                                           ),
+                                          if (_isFilterSupportedTab)
+                                            IconButton(
+                                              icon: Badge(
+                                                isLabelVisible:
+                                                    _hasActiveFilter,
+                                                child: const Icon(
+                                                  Icons.filter_list,
+                                                ),
+                                              ),
+                                              onPressed: _openFilterDialog,
+                                              tooltip: t
+                                                  .searchFilter
+                                                  .filterSettings,
+                                            ),
                                           IconButton(
                                             icon: const Icon(Icons.settings),
                                             onPressed:

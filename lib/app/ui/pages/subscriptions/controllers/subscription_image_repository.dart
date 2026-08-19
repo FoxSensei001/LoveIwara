@@ -4,18 +4,33 @@ import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
+import 'subscription_query_params.dart';
+
 class SubscriptionImageRepository extends ExtendedLoadingMoreBase<ImageModel> {
   final GalleryService _galleryService = Get.find<GalleryService>();
   final String userId;
+  final String sortId;
+  final List<String> searchTagIds;
+  final String searchDate;
+  final String searchRating;
 
-  SubscriptionImageRepository({required this.userId});
+  SubscriptionImageRepository({
+    required this.userId,
+    this.sortId = '',
+    this.searchTagIds = const [],
+    this.searchDate = '',
+    this.searchRating = '',
+  });
 
   @override
   Map<String, dynamic> buildQueryParams(int page, int limit) {
-    return <String, dynamic>{
-      if (userId.isNotEmpty) 'user': userId,
-      if (userId.isEmpty) 'subscribed': true,
-    };
+    return buildSubscriptionQueryParams(
+      userId: userId,
+      sortId: sortId,
+      searchTagIds: searchTagIds,
+      searchDate: searchDate,
+      searchRating: searchRating,
+    );
   }
 
   @override

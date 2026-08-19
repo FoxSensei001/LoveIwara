@@ -392,7 +392,8 @@ class PopularMediaListPageBaseState<
         searchTags: tags,
         searchYear: year,
         searchRating: rating,
-        onConfirm: (tags, year, rating) {
+        // 本页的排序是 TabBar，这里不需要弹窗里的排序区，回调的 sortId 恒为 null
+        onConfirm: (tags, year, rating, _) {
           setParams(tags: tags, year: year, rating: rating);
         },
       ),

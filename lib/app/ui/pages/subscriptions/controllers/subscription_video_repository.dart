@@ -4,18 +4,33 @@ import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
+import 'subscription_query_params.dart';
+
 class SubscriptionVideoRepository extends ExtendedLoadingMoreBase<Video> {
   final VideoService _videoService = Get.find<VideoService>();
   final String userId;
+  final String sortId;
+  final List<String> searchTagIds;
+  final String searchDate;
+  final String searchRating;
 
-  SubscriptionVideoRepository({required this.userId});
+  SubscriptionVideoRepository({
+    required this.userId,
+    this.sortId = '',
+    this.searchTagIds = const [],
+    this.searchDate = '',
+    this.searchRating = '',
+  });
 
   @override
   Map<String, dynamic> buildQueryParams(int page, int limit) {
-    return <String, dynamic>{
-      if (userId.isNotEmpty) 'user': userId,
-      if (userId.isEmpty) 'subscribed': true,
-    };
+    return buildSubscriptionQueryParams(
+      userId: userId,
+      sortId: sortId,
+      searchTagIds: searchTagIds,
+      searchDate: searchDate,
+      searchRating: searchRating,
+    );
   }
 
   @override

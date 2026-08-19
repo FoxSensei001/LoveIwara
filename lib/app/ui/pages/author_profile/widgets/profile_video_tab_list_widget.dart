@@ -1,8 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/video.model.dart';
+import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import '../controllers/userz_video_list_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -49,6 +52,13 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
   late UserzVideoListRepository videoListRepository;
   late ScrollController _tabBarScrollController;
 
+  /// 标签 / 日期筛选。作者页不提供评级筛选——服务端在带 `user=` 的查询里会忽略
+  /// `rating`（实测混合评级作者两种取值返回完全相同的混合结果）。
+  List<Tag> _filterTags = [];
+  String _filterDate = '';
+
+  bool get _hasFilter => _filterTags.isNotEmpty || _filterDate.isNotEmpty;
+
   String getSort() {
     switch (widget.tc.index) {
       case 0:
@@ -78,9 +88,35 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
     videoListRepository = UserzVideoListRepository(
       userId: widget.userId,
       sortType: getSort(),
+      searchTagIds: _filterTags.map((tag) => tag.id).toList(),
+      searchDate: _filterDate,
       onFetchFinished: widget.onFetchFinished,
     );
-    LogUtils.d('[详情视频列表] 初始化，当前的用户ID是：${widget.userId}, 排序是：${getSort()}');
+    LogUtils.d(
+      '[详情视频列表] 初始化，当前的用户ID是：${widget.userId}, 排序是：${getSort()}, '
+      '标签：${_filterTags.map((e) => e.id).join(',')}, 日期：$_filterDate',
+    );
+  }
+
+  /// 打开筛选弹窗；确认后按「切换排序」同样的方式重建数据源。
+  void _openFilterDialog() {
+    showAppDialog(
+      PopularMediaSearchConfig(
+        searchTags: _filterTags,
+        searchYear: _filterDate,
+        searchRating: '',
+        showRating: false,
+        onConfirm: (tags, year, rating, _) {
+          if (!mounted) return;
+          setState(() {
+            _filterTags = tags;
+            _filterDate = year;
+            videoListRepository.dispose();
+            _initRepository();
+          });
+        },
+      ),
+    );
   }
 
   @override
@@ -202,6 +238,14 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
                   ),
                 ),
               ),
+            ),
+            IconButton(
+              icon: Badge(
+                isLabelVisible: _hasFilter,
+                child: const Icon(Icons.filter_list),
+              ),
+              onPressed: _openFilterDialog,
+              tooltip: t.searchFilter.filterSettings,
             ),
             IconButton(
               icon: Icon(
