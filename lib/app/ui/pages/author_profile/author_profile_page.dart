@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -24,7 +23,10 @@ import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_o
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
-import 'package:i_iwara/app/ui/widgets/top_padding_height_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/app/routes/app_router.dart' show routeObserver;
@@ -86,7 +88,11 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
   final GlobalKey<ExtendedNestedScrollViewState> _key =
       GlobalKey<ExtendedNestedScrollViewState>();
   late String uniqueTag;
-  late ScrollController _tabBarScrollController;
+
+  /// 窄屏：外层 / 内层滚动位置（控制右下角「回到顶部」浮钮）。
+  final ValueNotifier<bool> _showBackToTop = ValueNotifier<bool>(false);
+  double _outerScrollPixels = 0;
+  double _innerScrollPixels = 0;
   final GlobalKey<State<StatefulWidget>> _postListKey = GlobalKey();
 
   // 各 tab 列表用 GlobalKey：宽窄布局切换时子树是被搬走而不是销毁重建，
@@ -134,8 +140,6 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
       BatchSelectController<ImageModel>(),
       tag: 'author_profile_image_batch_$uniqueTag',
     );
-
-    _tabBarScrollController = ScrollController();
   }
 
   @override
@@ -178,7 +182,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     imageSecondaryTC.dispose();
     playlistSecondaryTC.dispose();
     postSecondaryTC.dispose();
-    _tabBarScrollController.dispose();
+    _showBackToTop.dispose();
     Get.delete<AuthorProfileController>(tag: uniqueTag);
     Get.delete<BatchSelectController<Video>>(
       tag: 'author_profile_video_batch_$uniqueTag',
@@ -195,19 +199,72 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     }
   }
 
-  void _handleScroll(double delta) {
-    if (_tabBarScrollController.hasClients) {
-      final double newOffset = _tabBarScrollController.offset + delta;
-      if (newOffset < 0) {
-        _tabBarScrollController.jumpTo(0);
-      } else if (newOffset > _tabBarScrollController.position.maxScrollExtent) {
-        _tabBarScrollController.jumpTo(
-          _tabBarScrollController.position.maxScrollExtent,
-        );
-      } else {
-        _tabBarScrollController.jumpTo(newOffset);
-      }
+  bool _handleNestedScrollNotification(ScrollNotification notification) {
+    if (notification is! ScrollUpdateNotification &&
+        notification is! ScrollEndNotification &&
+        notification is! OverscrollNotification) {
+      return false;
     }
+    // depth 0 = ExtendedNestedScrollView 外层（头图 + 资料区），depth 1 = 内层列表
+    if (notification.depth == 0) {
+      _outerScrollPixels = notification.metrics.pixels;
+    } else if (notification.depth == 1) {
+      _innerScrollPixels = notification.metrics.pixels;
+    }
+    final show = _outerScrollPixels > 240 || _innerScrollPixels > 600;
+    if (_showBackToTop.value != show) _showBackToTop.value = show;
+    return false;
+  }
+
+  void _scrollToTop() {
+    final state = _key.currentState;
+    if (state == null) return;
+    final inner = state.innerController;
+    if (inner.hasClients) {
+      inner.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+      );
+    }
+    final outer = state.outerController;
+    if (outer.hasClients) {
+      outer.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+      );
+    }
+  }
+
+  /// 滚过一段后出现在右下角的「回到顶部」浮钮（窄屏）。
+  Widget _buildScrollToTopFab(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Positioned(
+      right: 16,
+      bottom: MediaQuery.paddingOf(context).bottom + 16,
+      child: ValueListenableBuilder<bool>(
+        valueListenable: _showBackToTop,
+        builder: (context, visible, _) => IgnorePointer(
+          ignoring: !visible,
+          child: AnimatedSlide(
+            duration: GlassTokens.motionDuration,
+            curve: GlassTokens.motionCurve,
+            offset: visible ? Offset.zero : const Offset(0, 0.4),
+            child: AnimatedOpacity(
+              duration: GlassTokens.motionDuration,
+              opacity: visible ? 1 : 0,
+              child: GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.vertical_align_top),
+                tooltip: t.common.scrollToTop,
+                onPressed: _scrollToTop,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _copyAuthorName(String authorName) async {
@@ -409,17 +466,21 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
       return Stack(
         children: [
           Scaffold(
-            body: ExtendedNestedScrollView(
-              key: _key,
-              headerSliverBuilder:
-                  (BuildContext context, bool innerBoxIsScrolled) =>
-                      _buildHeaderSliver(context, innerBoxIsScrolled),
-              onlyOneScrollInBody: true,
-              pinnedHeaderSliverHeightBuilder: () =>
-                  _calculatePinnedHeaderHeight(),
-              body: _buildTabBarView(context, isWideScreen: false),
+            body: NotificationListener<ScrollNotification>(
+              onNotification: _handleNestedScrollNotification,
+              child: ExtendedNestedScrollView(
+                key: _key,
+                headerSliverBuilder:
+                    (BuildContext context, bool innerBoxIsScrolled) =>
+                        _buildHeaderSliver(context, innerBoxIsScrolled),
+                onlyOneScrollInBody: true,
+                pinnedHeaderSliverHeightBuilder: () =>
+                    _calculatePinnedHeaderHeight(),
+                body: _buildTabBarView(context, isWideScreen: false),
+              ),
             ),
           ),
+          _buildScrollToTopFab(context),
         ],
       );
     }
@@ -482,6 +543,31 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
             ? 300
             : context.width * 43 / 150,
         pinned: true,
+        // 顶栏本身透明：展开时按钮悬浮在头图上，收起后由 flexibleSpace 里的
+        // 渐变蒙层托底，内容从按钮背后经过（与首页玻璃 header 一致）
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
+        // 透明底色会被 AppBar 估成「深色背景」而把状态栏图标设成白色，
+        // 这里按主题明暗显式指定
+        systemOverlayStyle: Theme.of(context).brightness == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        automaticallyImplyLeading: false,
+        leadingWidth: 16 + GlassTokens.pillHeight + 8,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16),
+          child: Center(
+            child: GlassIconButton(
+              standalone: true,
+              icon: const Icon(Icons.arrow_back),
+              tooltip: t.common.back,
+              onPressed: AppService.tryPop,
+            ),
+          ),
+        ),
         actions: [
           // 添加more按钮
           Obx(() {
@@ -537,210 +623,274 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
               return const SizedBox.shrink();
             }
 
-            return PopupMenuButton(
-              icon: const Icon(Icons.more_vert),
-              onSelected: (value) {
-                if (value == 'create') {
-                  _showCreatePostDialog();
-                } else if (value == 'message') {
-                  showAppDialog(
-                    NewConversationDialog(
-                      initUserId: profileController.author.value?.id,
-                      onSubmit: () {
-                        NaviService.navigateToConversationPage();
-                      },
-                    ),
-                    barrierDismissible: true,
-                  );
-                } else if (value == 'share') {
-                  // 分享用户主页
-                  final username = profileController.author.value?.username;
-                  if (username != null) {
-                    showModalBottomSheet(
-                      backgroundColor: Colors.transparent,
-                      isScrollControlled: true,
-                      builder: (context) => ShareUserBottomSheet(
-                        username: username,
-                        authorName: profileController.author.value?.name ?? '',
-                        previewUrl:
-                            profileController.headerBackgroundUrl.value ??
-                            CommonConstants.defaultProfileHeaderUrl,
-                        avatarUrl:
-                            profileController.author.value?.avatar?.avatarUrl,
-                        followerCount: profileController.followerCounts.value,
-                        followingCount: profileController.followingCounts.value,
-                        commentCount: profileController
-                            .commentController
-                            .comments
-                            .value
-                            .length,
+            return Center(
+              child: GlassButtonGroup(
+                children: [
+                  SizedBox(
+                    width: GlassTokens.groupIconButtonSize,
+                    height: GlassTokens.groupIconButtonSize,
+                    child: PopupMenuButton(
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(
+                        Icons.more_vert,
+                        size: GlassTokens.iconSize,
                       ),
-                      context: context,
-                    );
-                  }
-                }
-              },
-              itemBuilder: (context) => popupMenuItems,
+                      position: PopupMenuPosition.under,
+                      // 往下挪一点，别压住玻璃胶囊本身
+                      offset: const Offset(0, 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      onSelected: (value) {
+                        if (value == 'create') {
+                          _showCreatePostDialog();
+                        } else if (value == 'message') {
+                          showAppDialog(
+                            NewConversationDialog(
+                              initUserId: profileController.author.value?.id,
+                              onSubmit: () {
+                                NaviService.navigateToConversationPage();
+                              },
+                            ),
+                            barrierDismissible: true,
+                          );
+                        } else if (value == 'share') {
+                          // 分享用户主页
+                          final username =
+                              profileController.author.value?.username;
+                          if (username != null) {
+                            showModalBottomSheet(
+                              backgroundColor: Colors.transparent,
+                              isScrollControlled: true,
+                              builder: (context) => ShareUserBottomSheet(
+                                username: username,
+                                authorName:
+                                    profileController.author.value?.name ?? '',
+                                previewUrl:
+                                    profileController
+                                        .headerBackgroundUrl
+                                        .value ??
+                                    CommonConstants.defaultProfileHeaderUrl,
+                                avatarUrl: profileController
+                                    .author
+                                    .value
+                                    ?.avatar
+                                    ?.avatarUrl,
+                                followerCount:
+                                    profileController.followerCounts.value,
+                                followingCount:
+                                    profileController.followingCounts.value,
+                                commentCount: profileController
+                                    .commentController
+                                    .comments
+                                    .value
+                                    .length,
+                              ),
+                              context: context,
+                            );
+                          }
+                        }
+                      },
+                      itemBuilder: (context) => popupMenuItems,
+                    ),
+                  ),
+                ],
+              ),
             );
           }),
+          const SizedBox(width: 16),
           // 多选按钮
           // Removed the Obx multi-select button from actions as per instruction.
         ],
-        flexibleSpace: FlexibleSpaceBar(
-          background: Stack(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  // 进入图片详情页
-                  final headerUrl =
-                      profileController.headerBackgroundUrl.value ??
-                      CommonConstants.defaultProfileHeaderUrl;
-                  final headerHeroTag =
-                      'author_header:${profileController.author.value?.id ?? headerUrl}';
-                  ImageItem item = ImageItem(
-                    url: headerUrl,
-                    data: ImageItemData(
-                      id: profileController.author.value?.id ?? '',
-                      url: headerUrl,
-                      originalUrl: headerUrl,
-                    ),
-                  );
-                  final t = slang.Translations.of(context);
-                  final menuItems = [
-                    MenuItem(
-                      title: t.galleryDetail.copyLink,
-                      icon: Icons.copy,
-                      onTap: () => ImageUtils.copyLink(item),
-                    ),
-                    MenuItem(
-                      title: t.galleryDetail.copyImage,
-                      icon: Icons.copy,
-                      onTap: () => ImageUtils.copyImage(item),
-                    ),
-                    if (GetPlatform.isDesktop)
-                      MenuItem(
-                        title: t.galleryDetail.saveAs,
-                        icon: Icons.download,
-                        onTap: () => ImageUtils.downloadImageForDesktop(item),
-                      ),
-                    MenuItem(
-                      title: t.download.saveToAppDirectory,
-                      icon: Icons.save,
-                      onTap: () => ImageUtils.downloadImageToAppDirectory(item),
-                    ),
-                  ];
-                  pushPhotoViewWrapperOverlay(
-                    context: context,
-                    imageItems: [item],
-                    initialIndex: 0,
-                    menuItemsBuilder: (context, item) => menuItems,
-                    heroTagBuilder: (_) => headerHeroTag,
-                  );
-                },
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: Hero(
-                    tag:
-                        'author_header:${profileController.author.value?.id ?? (profileController.headerBackgroundUrl.value ?? CommonConstants.defaultProfileHeaderUrl)}',
-                    child: CachedNetworkImage(
-                      imageUrl:
-                          profileController.headerBackgroundUrl.value ??
-                          CommonConstants.defaultProfileHeaderUrl,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                    ),
-                  ),
-                ),
-              ),
-              // 上次在线时间标签
-              Positioned(
-                right: 8,
-                bottom: 40,
-                child: Obx(() {
-                  final user = profileController.author.value;
-                  if (user == null || user.seenAt == null) {
-                    return const SizedBox.shrink();
-                  }
-                  final t = slang.Translations.of(context);
-                  return Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.access_time,
-                          size: 14,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          t.common.lastSeenAt(
-                            str: CommonUtils.formatFriendlyTimestamp(
-                              user.seenAt,
+        flexibleSpace: LayoutBuilder(
+          builder: (context, constraints) {
+            final double statusBar = MediaQuery.of(context).padding.top;
+            final double minExtent = statusBar + kToolbarHeight;
+            // 只在最后 ~48px 的收起过程中把蒙层淡入，展开时头图上不压蒙层
+            final double scrimOpacity =
+                ((minExtent + 48 - constraints.maxHeight) / 48).clamp(0.0, 1.0);
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                FlexibleSpaceBar(
+                  background: Stack(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          // 进入图片详情页
+                          final headerUrl =
+                              profileController.headerBackgroundUrl.value ??
+                              CommonConstants.defaultProfileHeaderUrl;
+                          final headerHeroTag =
+                              'author_header:${profileController.author.value?.id ?? headerUrl}';
+                          ImageItem item = ImageItem(
+                            url: headerUrl,
+                            data: ImageItemData(
+                              id: profileController.author.value?.id ?? '',
+                              url: headerUrl,
+                              originalUrl: headerUrl,
+                            ),
+                          );
+                          final t = slang.Translations.of(context);
+                          final menuItems = [
+                            MenuItem(
+                              title: t.galleryDetail.copyLink,
+                              icon: Icons.copy,
+                              onTap: () => ImageUtils.copyLink(item),
+                            ),
+                            MenuItem(
+                              title: t.galleryDetail.copyImage,
+                              icon: Icons.copy,
+                              onTap: () => ImageUtils.copyImage(item),
+                            ),
+                            if (GetPlatform.isDesktop)
+                              MenuItem(
+                                title: t.galleryDetail.saveAs,
+                                icon: Icons.download,
+                                onTap: () =>
+                                    ImageUtils.downloadImageForDesktop(item),
+                              ),
+                            MenuItem(
+                              title: t.download.saveToAppDirectory,
+                              icon: Icons.save,
+                              onTap: () =>
+                                  ImageUtils.downloadImageToAppDirectory(item),
+                            ),
+                          ];
+                          pushPhotoViewWrapperOverlay(
+                            context: context,
+                            imageItems: [item],
+                            initialIndex: 0,
+                            menuItemsBuilder: (context, item) => menuItems,
+                            heroTagBuilder: (_) => headerHeroTag,
+                          );
+                        },
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: Hero(
+                            tag:
+                                'author_header:${profileController.author.value?.id ?? (profileController.headerBackgroundUrl.value ?? CommonConstants.defaultProfileHeaderUrl)}',
+                            child: CachedNetworkImage(
+                              imageUrl:
+                                  profileController.headerBackgroundUrl.value ??
+                                  CommonConstants.defaultProfileHeaderUrl,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: double.infinity,
                             ),
                           ),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                          ),
                         ),
-                      ],
+                      ),
+                      // 上次在线时间标签
+                      Positioned(
+                        right: 8,
+                        bottom: 40,
+                        child: Obx(() {
+                          final user = profileController.author.value;
+                          if (user == null || user.seenAt == null) {
+                            return const SizedBox.shrink();
+                          }
+                          final t = slang.Translations.of(context);
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.6),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.access_time,
+                                  size: 14,
+                                  color: Colors.white,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  t.common.lastSeenAt(
+                                    str: CommonUtils.formatFriendlyTimestamp(
+                                      user.seenAt,
+                                    ),
+                                  ),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                      ),
+                      // 加入时间标签
+                      Positioned(
+                        right: 8,
+                        bottom: 8,
+                        child: Obx(() {
+                          if (profileController.author.value?.createdAt ==
+                              null) {
+                            return const SizedBox.shrink();
+                          }
+                          final joinDate =
+                              profileController.author.value!.createdAt;
+                          final t = slang.Translations.of(context);
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.6),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.calendar_today,
+                                  size: 14,
+                                  color: Colors.white,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  t.common.joined(
+                                    str: CommonUtils.formatFriendlyTimestamp(
+                                      joinDate,
+                                    ),
+                                  ),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
+                ),
+                if (scrimOpacity > 0)
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: Opacity(
+                      opacity: scrimOpacity,
+                      child: EdgeFadeScrim.top(
+                        // smoothstep 在 height 处刚好衰减到 0，不会出现硬边
+                        height: minExtent,
+                        solidExtent: statusBar,
+                      ),
                     ),
-                  );
-                }),
-              ),
-              // 加入时间标签
-              Positioned(
-                right: 8,
-                bottom: 8,
-                child: Obx(() {
-                  if (profileController.author.value?.createdAt == null) {
-                    return const SizedBox.shrink();
-                  }
-                  final joinDate = profileController.author.value!.createdAt;
-                  final t = slang.Translations.of(context);
-                  return Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.calendar_today,
-                          size: 14,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          t.common.joined(
-                            str: CommonUtils.formatFriendlyTimestamp(joinDate),
-                          ),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              ),
-            ],
-          ),
+                  ),
+              ],
+            );
+          },
         ),
       ),
       // 用户信息
@@ -1190,151 +1340,132 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
 
   Widget _buildTabBarView(BuildContext context, {bool isWideScreen = true}) {
     final t = slang.Translations.of(context);
+    // 主 Tab 行悬浮在各 tab 列表之上（宽屏时它上方还有状态栏）；
+    // 各 tab 自己再把排序行叠在它下面，并用 paddingTop 让出这两行。
+    final double headerTop = isWideScreen
+        ? MediaQuery.of(context).padding.top
+        : 0.0;
+    const double primaryRowHeight = GlassTokens.pillHeight + 16;
+    final double overlayTopInset = headerTop + primaryRowHeight;
+    final double scrimSolidExtent = headerTop;
+    // 宽屏时本 Stack 在 Row/Expanded 下拿到的是「高度松约束」；而 BatchActionFabColumn
+    // 不可见时返回的是非 Positioned 的 SizedBox.shrink()，会把 Stack 压成 0 高。
+    // 用 StackFit.expand 让 Stack 始终撑满可用空间。
     return Stack(
+      fit: StackFit.expand,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            isWideScreen ? TopPaddingHeightWidget() : const SizedBox.shrink(),
-            MouseRegion(
-              child: Listener(
-                onPointerSignal: (pointerSignal) {
-                  if (pointerSignal is PointerScrollEvent) {
-                    _handleScroll(pointerSignal.scrollDelta.dy);
-                  }
-                },
-                child: SingleChildScrollView(
-                  controller: _tabBarScrollController,
-                  scrollDirection: Axis.horizontal,
-                  physics: const ClampingScrollPhysics(),
-                  child: Row(
-                    children: [
-                      TabBar(
-                        isScrollable: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        overlayColor: WidgetStateProperty.all(
-                          Colors.transparent,
-                        ),
-                        tabAlignment: TabAlignment.start,
-                        dividerColor: Colors.transparent,
-                        controller: primaryTC,
-                        tabs: [
-                          Tab(
-                            child: Row(
-                              children: [
-                                const Icon(Icons.video_collection),
-                                const SizedBox(width: 8),
-                                Text(t.common.video),
-                              ],
-                            ),
-                          ),
-                          Tab(
-                            child: Row(
-                              children: [
-                                const Icon(Icons.image),
-                                const SizedBox(width: 8),
-                                Text(t.common.gallery),
-                              ],
-                            ),
-                          ),
-                          Tab(
-                            child: Row(
-                              children: [
-                                const Icon(Icons.playlist_play),
-                                const SizedBox(width: 8),
-                                Text(t.common.playlist),
-                              ],
-                            ),
-                          ),
-                          Tab(
-                            child: Row(
-                              children: [
-                                const Icon(Icons.article),
-                                const SizedBox(width: 8),
-                                Text(t.common.post),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+        Positioned.fill(
+          child: TabBarView(
+            controller: primaryTC,
+            children: <Widget>[
+              Obx(
+                () => profileController.author.value?.id != null
+                    ? ProfileVideoTabListWidget(
+                        key: _videoTabKey,
+                        userId: profileController.author.value!.id,
+                        tabKey: t.common.video,
+                        tc: videoSecondaryTC,
+                        overlayTopInset: overlayTopInset,
+                        scrimSolidExtent: scrimSolidExtent,
+                        onFetchFinished: ({int? count}) {},
+                        isMultiSelectMode:
+                            _videoBatchController.isMultiSelect.value,
+                        selectedItemIds: _videoBatchController.selectedMediaIds,
+                        onItemSelect: (video) =>
+                            _videoBatchController.toggleSelection(video),
+                        onPageChanged: () =>
+                            _videoBatchController.onPageChanged(),
+                        onMultiSelectToggle: () =>
+                            _videoBatchController.toggleMultiSelect(),
+                        onOpenVideo: _openVideoFromAuthorProfile,
+                      )
+                    : const SizedBox.shrink(),
               ),
-            ),
-            Expanded(
-              child: TabBarView(
-                controller: primaryTC,
-                children: <Widget>[
-                  Obx(
-                    () => profileController.author.value?.id != null
-                        ? ProfileVideoTabListWidget(
-                            key: _videoTabKey,
-                            userId: profileController.author.value!.id,
-                            tabKey: t.common.video,
-                            tc: videoSecondaryTC,
-                            onFetchFinished: ({int? count}) {},
-                            isMultiSelectMode:
-                                _videoBatchController.isMultiSelect.value,
-                            selectedItemIds:
-                                _videoBatchController.selectedMediaIds,
-                            onItemSelect: (video) =>
-                                _videoBatchController.toggleSelection(video),
-                            onPageChanged: () =>
-                                _videoBatchController.onPageChanged(),
-                            onMultiSelectToggle: () =>
-                                _videoBatchController.toggleMultiSelect(),
-                            onOpenVideo: _openVideoFromAuthorProfile,
-                          )
-                        : const SizedBox.shrink(),
+              Obx(
+                () => profileController.author.value?.id != null
+                    ? ProfileImageModelTabListWidget(
+                        key: _imageTabKey,
+                        userId: profileController.author.value!.id,
+                        tabKey: t.common.gallery,
+                        tc: imageSecondaryTC,
+                        overlayTopInset: overlayTopInset,
+                        scrimSolidExtent: scrimSolidExtent,
+                        onFetchFinished: ({int? count}) {},
+                        isMultiSelectMode:
+                            _imageBatchController.isMultiSelect.value,
+                        selectedItemIds: _imageBatchController.selectedMediaIds,
+                        onItemSelect: (image) =>
+                            _imageBatchController.toggleSelection(image),
+                        onPageChanged: () =>
+                            _imageBatchController.onPageChanged(),
+                        onMultiSelectToggle: () =>
+                            _imageBatchController.toggleMultiSelect(),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+              Obx(
+                () => profileController.author.value?.id != null
+                    ? ProfilePlaylistTabListWidget(
+                        overlayTopInset: overlayTopInset,
+                        scrimSolidExtent: scrimSolidExtent,
+                        key: _playlistTabKey,
+                        userId: profileController.author.value!.id,
+                        tabKey: t.common.playlist,
+                        tc: playlistSecondaryTC,
+                        onFetchFinished: ({int? count}) {},
+                      )
+                    : const SizedBox.shrink(),
+              ),
+              Obx(
+                () => profileController.author.value?.id != null
+                    ? ProfilePostTabListWidget(
+                        overlayTopInset: overlayTopInset,
+                        scrimSolidExtent: scrimSolidExtent,
+                        key: _postListKey,
+                        widgetKey: _postListKey,
+                        userId: profileController.author.value!.id,
+                        tabKey: t.common.post,
+                        tc: postSecondaryTC,
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ],
+          ),
+        ),
+        Positioned(
+          top: headerTop,
+          left: 0,
+          right: 0,
+          height: primaryRowHeight,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: GlassSegmentedControl(
+                selectedIndex: primaryTC.index,
+                progress: primaryTC.animation,
+                onChanged: primaryTC.animateTo,
+                items: [
+                  GlassSegmentItem(
+                    label: t.common.video,
+                    icon: const Icon(Icons.video_collection),
                   ),
-                  Obx(
-                    () => profileController.author.value?.id != null
-                        ? ProfileImageModelTabListWidget(
-                            key: _imageTabKey,
-                            userId: profileController.author.value!.id,
-                            tabKey: t.common.gallery,
-                            tc: imageSecondaryTC,
-                            onFetchFinished: ({int? count}) {},
-                            isMultiSelectMode:
-                                _imageBatchController.isMultiSelect.value,
-                            selectedItemIds:
-                                _imageBatchController.selectedMediaIds,
-                            onItemSelect: (image) =>
-                                _imageBatchController.toggleSelection(image),
-                            onPageChanged: () =>
-                                _imageBatchController.onPageChanged(),
-                            onMultiSelectToggle: () =>
-                                _imageBatchController.toggleMultiSelect(),
-                          )
-                        : const SizedBox.shrink(),
+                  GlassSegmentItem(
+                    label: t.common.gallery,
+                    icon: const Icon(Icons.image),
                   ),
-                  Obx(
-                    () => profileController.author.value?.id != null
-                        ? ProfilePlaylistTabListWidget(
-                            key: _playlistTabKey,
-                            userId: profileController.author.value!.id,
-                            tabKey: t.common.playlist,
-                            tc: playlistSecondaryTC,
-                            onFetchFinished: ({int? count}) {},
-                          )
-                        : const SizedBox.shrink(),
+                  GlassSegmentItem(
+                    label: t.common.playlist,
+                    icon: const Icon(Icons.playlist_play),
                   ),
-                  Obx(
-                    () => profileController.author.value?.id != null
-                        ? ProfilePostTabListWidget(
-                            key: _postListKey,
-                            widgetKey: _postListKey,
-                            userId: profileController.author.value!.id,
-                            tabKey: t.common.post,
-                            tc: postSecondaryTC,
-                          )
-                        : const SizedBox.shrink(),
+                  GlassSegmentItem(
+                    label: t.common.post,
+                    icon: const Icon(Icons.article),
                   ),
                 ],
               ),
             ),
-          ],
+          ),
         ),
         // 批量下载悬浮按钮
         BatchActionFabColumn<Video>(

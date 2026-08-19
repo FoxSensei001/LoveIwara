@@ -8,6 +8,13 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/services/pop_coordinator.dart';
 import 'package:i_iwara/app/ui/widgets/animated_navigation_rail_slot.dart';
+import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_floating_tab_bar.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:i_iwara/utils/easy_throttle.dart';
@@ -335,35 +342,61 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
                   skipTraversal: true,
                   includeSemantics: false,
                   child: Obx(() {
-                    // 底栏隐藏时必须让 bottomNavigationBar 真正为 null。
+                    // 浮动底栏永远不放进 Scaffold.bottomNavigationBar。
                     //
                     // Scaffold 是按 `bottomNavigationBar != null` 来决定要不要给
-                    // body 套 MediaQuery.removePadding(removeBottom: true) 的。
-                    // 原先这里恒挂着一个 Obx（即使内部返回 SizedBox.shrink() 也
-                    // 不为 null），于是**整个 shell 内所有页面**的
-                    // MediaQuery.padding.bottom 恒为 0：SafeArea(bottom: true)
-                    // 全部退化成空操作，直接读 padding.bottom 的地方也全读到 0。
-                    // 详情页（非 tab 根路由）与平板/桌面的侧边栏布局下本来没有
-                    // 底栏遮挡，却同样拿不到底部安全区，是整套安全区失效的总根因。
-                    // ⚠️ 注意 showBottomNavi 现在门控的是一个「结构性的 null」。
+                    // body 套 MediaQuery.removePadding(removeBottom: true) 的；
+                    // 一旦挂上（哪怕是 SizedBox.shrink()），整个 shell 内所有页面的
+                    // MediaQuery.padding.bottom 都会变成 0，SafeArea(bottom: true)
+                    // 全部失效（历史上整套安全区失效的总根因）。
                     //
-                    // 它当前是死标志：全仓只有声明与 setter，**没有任何赋值点**
-                    // （见 app_service.dart:104），所以恒为 true，这个 Obx 实际上
-                    // 是装饰性的。但一旦将来真的接上（例如「滚动时隐藏底栏」），
-                    // 每次切换都会让 bottomNavigationBar 在 null / 非 null 之间跳，
-                    // 而 Scaffold 是按它是否为 null 决定要不要给 body 套
-                    // removeBottomPadding —— 也就是**整个 shell 子树重新布局**，
-                    // 每个页面列表的底部内边距都会在滚动中途跳变。
-                    // 那种场景下应当改为「底栏始终占位、只做位移/淡出动画」，
-                    // 而不是让它真的消失。
+                    // 现在底栏是 Stack 覆盖层：列表内容从它下面透过去；同时把
+                    // 底栏占用的高度**加进** MediaQuery.padding.bottom，这样页面里
+                    // 所有按安全区让位的逻辑（SafeArea / computeBottomSafeInset /
+                    // padding.bottom）都自动把底栏算进去，不需要每页单独处理。
                     final bool showBottomNav =
                         appService.showBottomNavi && !isWide && _isTabRootRoute;
 
-                    return Scaffold(
-                      body: body,
-                      bottomNavigationBar: showBottomNav
-                          ? _buildBottomNavigationBar(context)
-                          : null,
+                    final Widget content = Scaffold(body: body);
+                    if (!showBottomNav) return content;
+
+                    final mq = MediaQuery.of(context);
+                    final double safeBottom = mq.padding.bottom;
+                    final double reserved =
+                        GlassTokens.floatingBarReservedExtent;
+
+                    return Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        MediaQuery(
+                          data: mq.copyWith(
+                            padding: mq.padding.copyWith(
+                              bottom: safeBottom + reserved,
+                            ),
+                          ),
+                          child: content,
+                        ),
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          child: EdgeFadeScrim.bottom(
+                            height:
+                                safeBottom +
+                                reserved +
+                                GlassTokens.bottomFadeExtent,
+                            solidExtent: safeBottom,
+                          ),
+                        ),
+                        Positioned(
+                          left: GlassTokens.floatingTabBarSideMargin,
+                          right: GlassTokens.floatingTabBarSideMargin,
+                          bottom:
+                              safeBottom +
+                              GlassTokens.floatingTabBarBottomMargin,
+                          child: _buildFloatingTabBar(context),
+                        ),
+                      ],
                     );
                   }),
                 ),
@@ -375,18 +408,58 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     );
   }
 
-  BottomNavigationBar _buildBottomNavigationBar(BuildContext context) {
+  Widget _buildFloatingTabBar(BuildContext context) {
     final displayOrder = _visibleOrder;
     final currentDisplayIndex = _currentDisplayIndexForOrder(displayOrder);
 
-    return BottomNavigationBar(
+    return GlassFloatingTabBar(
       currentIndex: currentDisplayIndex,
-      type: BottomNavigationBarType.fixed,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      selectedItemColor: Theme.of(context).colorScheme.primary,
-      unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
       onTap: (index) => _handleNavigationTap(index, displayOrder),
-      items: _buildBottomNavigationBarItems(displayOrder),
+      items: displayOrder.map((key) {
+        final item = AppService.navigationItems[key]!;
+        return GlassTabItem(icon: item.icon, label: item.title);
+      }).toList(),
+      trailing: GlassIconButton(
+        standalone: true,
+        size: GlassTokens.floatingActionSize,
+        iconSize: 26,
+        icon: const Icon(Icons.search),
+        tooltip: slang.t.common.search,
+        onPressed: _openSearchForCurrentBranch,
+      ),
+    );
+  }
+
+  /// 底部独立搜索钮：按当前栏目选择默认搜索分段，统一走全局搜索对话框 → 搜索结果页。
+  void _openSearchForCurrentBranch() {
+    final shell = appService.navigationShell;
+    final branchIndex = shell?.currentIndex ?? appService.currentIndex;
+    String? key;
+    for (final entry in HomeShellNavigation.branchIndexByKey.entries) {
+      if (entry.value == branchIndex) {
+        key = entry.key;
+        break;
+      }
+    }
+    final SearchSegment segment = switch (key) {
+      'gallery' => SearchSegment.image,
+      'forum' => SearchSegment.forum,
+      // subscription / news / video 及未知栏目统一默认视频分段
+      _ => SearchSegment.video,
+    };
+    showAppDialog(
+      SearchDialog(
+        userInputKeywords: '',
+        initialSegment: segment,
+        onSearch: (searchInfo, segment, filters, sort) {
+          NaviService.toSearchPage(
+            searchInfo: searchInfo,
+            segment: segment,
+            filters: filters,
+            sort: sort,
+          );
+        },
+      ),
     );
   }
 
@@ -510,15 +583,6 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
         icon: Icon(item.icon),
         label: Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis),
       );
-    }).toList();
-  }
-
-  List<BottomNavigationBarItem> _buildBottomNavigationBarItems(
-    List<String> displayOrder,
-  ) {
-    return displayOrder.map((key) {
-      final item = AppService.navigationItems[key]!;
-      return BottomNavigationBarItem(icon: Icon(item.icon), label: item.title);
     }).toList();
   }
 }

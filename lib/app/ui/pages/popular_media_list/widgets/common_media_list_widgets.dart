@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/shimmer_card.dart';
@@ -8,7 +10,6 @@ import 'package:loading_more_list/loading_more_list.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:dio/dio.dart';
-import 'dart:ui';
 import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -406,6 +407,10 @@ class TagStyle {
 
 // 分页控制栏组件
 class PaginationBar extends StatefulWidget {
+  /// `useBlurEffect` 模式下，分页栏内容上方额外的透明渐入区高度。
+  /// 调用方给列表预留底部空间时要把它一并算进去，否则最后一行会被压在渐变里。
+  static const double fadeAboveExtent = 28.0;
+
   final int currentPage;
   final int totalPages;
   final int totalItems;
@@ -728,19 +733,28 @@ class _PaginationBarState extends State<PaginationBar>
       ],
     );
 
-    // 根据是否使用毛玻璃效果返回不同的Widget
+    // 「悬浮」模式：不用 BackdropFilter，改为从上方透明→底部半透明的渐变蒙层，
+    // 控件本身是自带底色的玻璃胶囊，列表内容能从分页栏背后透出来。
     if (widget.useBlurEffect) {
-      // 使用ClipRect和BackdropFilter实现毛玻璃效果
-      return ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-          child: Container(
-            color: Theme.of(
-              context,
-            ).colorScheme.surface.withValues(alpha: 0.85),
+      const double fadeAbove = PaginationBar.fadeAboveExtent;
+      return Stack(
+        children: [
+          Positioned.fill(
+            child: LayoutBuilder(
+              builder: (context, constraints) => EdgeFadeScrim.bottom(
+                height: constraints.maxHeight,
+                solidExtent: widget.showBottomPadding
+                    ? widget.paddingBottom
+                    : 0,
+                peakAlpha: 0.6,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: fadeAbove),
             child: barContent,
           ),
-        ),
+        ],
       );
     } else {
       // 直接返回常规内容
@@ -779,30 +793,19 @@ class _PaginationBarState extends State<PaginationBar>
                 onPressed: () => widget.onPageChanged(widget.currentPage - 1),
               ),
               const SizedBox(width: 8),
-              Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(18),
+              ConstrainedBox(
+                constraints: const BoxConstraints(minWidth: 68),
+                child: GlassSurface(
+                  height: 36,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   onTap: widget.isLoading ? null : _showJumpPageDialog,
-                  child: Container(
-                    constraints: const BoxConstraints(minWidth: 68),
-                    height: 36,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest
-                          .withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${widget.currentPage + 1}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
+                  child: Center(
+                    child: Text(
+                      '${widget.currentPage + 1}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -834,27 +837,17 @@ class _PaginationBarState extends State<PaginationBar>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // 左侧：页码信息（不可点击跳转）
-          Material(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(16),
-            child: InkWell(
-              onTap: widget.isLoading ? null : _showJumpPageDialog,
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  '${slang.t.common.pagination.pageNumber}: ${widget.currentPage + 1}',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
+          GlassSurface(
+            height: 32,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            onTap: widget.isLoading ? null : _showJumpPageDialog,
+            child: Center(
+              child: Text(
+                '${slang.t.common.pagination.pageNumber}: ${widget.currentPage + 1}',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
@@ -1033,30 +1026,19 @@ class _PaginationBarState extends State<PaginationBar>
                 onPressed: () => widget.onPageChanged(widget.currentPage - 1),
               ),
               const SizedBox(width: 8),
-              Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(18),
+              ConstrainedBox(
+                constraints: const BoxConstraints(minWidth: 68),
+                child: GlassSurface(
+                  height: 36,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   onTap: widget.isLoading ? null : _showJumpPageDialog,
-                  child: Container(
-                    constraints: const BoxConstraints(minWidth: 68),
-                    height: 36,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest
-                          .withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${widget.currentPage + 1} / ${widget.totalPages}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
+                  child: Center(
+                    child: Text(
+                      '${widget.currentPage + 1} / ${widget.totalPages}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -1164,28 +1146,17 @@ class _PaginationBarState extends State<PaginationBar>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // 左侧：当前页/总页数 - 点击可跳转
-          Material(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(16),
-            child: InkWell(
-              onTap: widget.isLoading ? null : _showJumpPageDialog,
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                margin: EdgeInsets.zero,
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  '${widget.currentPage + 1} / ${widget.totalPages}  (${slang.t.common.pagination.totalItems(num: widget.totalItems)})',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
+          GlassSurface(
+            height: 32,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            onTap: widget.isLoading ? null : _showJumpPageDialog,
+            child: Center(
+              child: Text(
+                '${widget.currentPage + 1} / ${widget.totalPages}  (${slang.t.common.pagination.totalItems(num: widget.totalItems)})',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
@@ -1221,43 +1192,23 @@ class _PaginationBarState extends State<PaginationBar>
     required bool enabled,
     required VoidCallback onPressed,
   }) {
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(18),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18),
-        onTap: enabled
+    return Opacity(
+      opacity: enabled ? 1.0 : 0.45,
+      child: GlassIconButton(
+        standalone: true,
+        size: 36,
+        iconSize: 18,
+        icon: Icon(icon),
+        color: enabled
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.onSurface,
+        onPressed: enabled
             ? () {
                 // 添加触感反馈
                 HapticFeedback.lightImpact();
                 onPressed();
               }
             : null,
-        child: Opacity(
-          opacity: enabled ? 1.0 : 0.4,
-          child: Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              color: enabled
-                  ? Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)
-                  : Theme.of(context).colorScheme.surfaceContainerHighest
-                        .withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Center(
-              child: Icon(
-                icon,
-                size: 18,
-                color: enabled
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,6 +13,10 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:shimmer/shimmer.dart';
@@ -43,7 +46,6 @@ class NewsPage extends StatefulWidget implements HomeWidgetInterface {
 
 class _NewsPageState extends State<NewsPage>
     with SingleTickerProviderStateMixin {
-  static const double _categoryTabsBreakpoint = 600;
   static const double _backToTopOffset = 320;
 
   final IwaraNewsService _newsService = Get.find<IwaraNewsService>();
@@ -61,12 +63,12 @@ class _NewsPageState extends State<NewsPage>
   };
 
   late final PageController _pageController;
-  late final ScrollController _tabBarScrollController;
   late final TabController _tabController;
   late IwaraNewsCategoryType _selectedCategory;
   IwaraNewsLanguage? _selectedLanguage;
-  bool _tabBarAtStart = true;
-  bool _tabBarAtEnd = true;
+
+  /// PageView 的小数页码，喂给分段胶囊做跟手高亮。
+  late final ValueNotifier<double> _pageProgress;
 
   _NewsFeedState get _currentFeed => _feeds[_selectedCategory]!;
   bool get _showBackToTop =>
@@ -83,18 +85,19 @@ class _NewsPageState extends State<NewsPage>
         type: ScrollController()..addListener(() => _handleFeedScroll(type)),
     };
     _pageController = PageController(initialPage: _selectedCategory.index);
-    _tabBarScrollController = ScrollController();
-    _tabBarScrollController.addListener(_updateTabBarScrollIndicators);
+    _pageProgress = ValueNotifier<double>(_selectedCategory.index.toDouble());
+    _pageController.addListener(_syncPageProgress);
     _tabController = TabController(
       length: IwaraNewsCategoryType.values.length,
       vsync: this,
       initialIndex: _selectedCategory.index,
     );
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _updateTabBarScrollIndicators();
-      }
-    });
+  }
+
+  void _syncPageProgress() {
+    if (!_pageController.hasClients) return;
+    final page = _pageController.page;
+    if (page != null) _pageProgress.value = page;
   }
 
   @override
@@ -144,10 +147,10 @@ class _NewsPageState extends State<NewsPage>
     for (final controller in _feedScrollControllers.values) {
       controller.dispose();
     }
-    _tabBarScrollController.removeListener(_updateTabBarScrollIndicators);
-    _tabBarScrollController.dispose();
     _tabController.dispose();
+    _pageController.removeListener(_syncPageProgress);
     _pageController.dispose();
+    _pageProgress.dispose();
     super.dispose();
   }
 
@@ -167,33 +170,6 @@ class _NewsPageState extends State<NewsPage>
       _invalidateAllFeeds();
     });
     await _refreshCategory(_selectedCategory);
-  }
-
-  void _updateTabBarScrollIndicators() {
-    if (!_tabBarScrollController.hasClients) return;
-    final position = _tabBarScrollController.position;
-    final atStart = position.pixels <= position.minScrollExtent + 1;
-    final atEnd = position.pixels >= position.maxScrollExtent - 1;
-    if (atStart != _tabBarAtStart || atEnd != _tabBarAtEnd) {
-      setState(() {
-        _tabBarAtStart = atStart;
-        _tabBarAtEnd = atEnd;
-      });
-    }
-  }
-
-  void _handleTabBarScroll(double delta) {
-    if (!_tabBarScrollController.hasClients) return;
-    final newOffset = _tabBarScrollController.offset + delta;
-    if (newOffset < 0) {
-      _tabBarScrollController.jumpTo(0);
-    } else if (newOffset > _tabBarScrollController.position.maxScrollExtent) {
-      _tabBarScrollController.jumpTo(
-        _tabBarScrollController.position.maxScrollExtent,
-      );
-    } else {
-      _tabBarScrollController.jumpTo(newOffset);
-    }
   }
 
   void _handleFeedScroll(IwaraNewsCategoryType type) {
@@ -403,227 +379,308 @@ class _NewsPageState extends State<NewsPage>
     await _ensureCategoryLoaded(category);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+  /// 左上角「我」圆钮：已登录显示头像（铺满圆钮，带未读红点），未登录显示占位图标。
+  Widget _buildAvatarButton(BuildContext context) {
     final t = slang.Translations.of(context);
-    final isWideLayout =
-        MediaQuery.sizeOf(context).width >= _categoryTabsBreakpoint;
-
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 62,
-        titleSpacing: 12,
-        title: _NewsTopBarTitle(title: t.news.title),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                if (!isWideLayout) {
-                  return Align(
-                    alignment: Alignment.centerLeft,
-                    child: _NewsSelectButton<IwaraNewsCategoryType>(
-                      icon: _categoryIcon(_selectedCategory),
-                      label: _categoryLabel(t, _selectedCategory),
-                      values: IwaraNewsCategoryType.values,
-                      selectedValue: _selectedCategory,
-                      itemIconBuilder: _categoryIcon,
-                      itemLabelBuilder: (category) =>
-                          _categoryLabel(t, category),
-                      onSelected: _switchCategory,
-                    ),
-                  );
-                }
-
-                return _NewsCategoryTabs(
-                  controller: _tabController,
-                  scrollController: _tabBarScrollController,
-                  categories: IwaraNewsCategoryType.values,
-                  labelBuilder: (category) => _categoryLabel(t, category),
-                  iconBuilder: _categoryIcon,
-                  onTap: _switchCategory,
-                  atStart: _tabBarAtStart,
-                  atEnd: _tabBarAtEnd,
-                  onPointerScroll: _handleTabBarScroll,
-                );
-              },
-            ),
-          ),
-        ),
-        actions: [
-          if (_showBackToTop)
-            IconButton(
-              onPressed: _scrollCurrentCategoryToTop,
-              icon: const Icon(Icons.arrow_upward_rounded),
-              tooltip: t.common.scrollToTop,
-            ),
-          _NewsSelectButton<IwaraNewsLanguage>(
-            icon: Icons.translate_rounded,
-            label: _languageLabel(_selectedLanguage ?? IwaraNewsLanguage.en),
-            showLabel: false,
-            values: IwaraNewsLanguage.values,
-            selectedValue: _selectedLanguage ?? IwaraNewsLanguage.en,
-            itemIconBuilder: (_) => Icons.translate_rounded,
-            itemLabelBuilder: _languageLabel,
-            onSelected: _handleLanguageChange,
-          ),
-          IconButton(
-            onPressed: _currentFeed.isLoading
-                ? null
-                : () => _refreshCategory(_selectedCategory),
-            icon: const Icon(Icons.refresh_rounded),
-            tooltip: t.common.refresh,
-          ),
-        ],
-      ),
-      body: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              theme.colorScheme.surfaceContainerLowest,
-              theme.colorScheme.surface,
-            ],
-          ),
-        ),
-        child: PageView.builder(
-          controller: _pageController,
-          itemCount: IwaraNewsCategoryType.values.length,
-          onPageChanged: (index) {
-            final category = IwaraNewsCategoryType.values[index];
-            if (_tabController.index != index) {
-              _tabController.animateTo(index);
-            }
-            if (_selectedCategory != category) {
-              setState(() {
-                _selectedCategory = category;
-              });
-            }
-            _ensureCategoryLoaded(category);
-          },
-          itemBuilder: (context, index) {
-            final category = IwaraNewsCategoryType.values[index];
-            return _NewsCategoryList(
-              feed: _feeds[category]!,
-              scrollController: _feedScrollControllers[category]!,
-              onRefresh: () => _refreshCategory(category),
-              onLoadMore: () => _loadMoreCategory(category),
-              onTapItem: (item) => context.push(
-                '/news/${item.id}',
-                extra: NewsDetailExtra(
-                  postId: item.id,
-                  postUrl: item.link,
-                  title: item.title,
-                  excerpt: item.excerpt,
-                  publishedAt: item.publishedAt,
-                  updatedAt: item.updatedAt,
-                  language: item.language,
-                  featuredImageUrl: item.featuredImageUrl,
-                  heroTag:
-                      'news-card-'
-                      '${item.language.name}-'
-                      '${item.categoryType.name}-'
-                      '${item.id}',
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _NewsTopBarTitle extends StatelessWidget {
-  const _NewsTopBarTitle({required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
     final userService = Get.find<UserService>();
-
-    return Row(
-      children: [
-        Obx(() {
-          final user = userService.currentUser.value;
-          final count =
-              userService.notificationCount.value +
-              userService.messagesCount.value;
-
-          if (user != null && userService.hasLoadedProfile) {
-            return SizedBox(
-              width: 36,
-              height: 36,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  AvatarWidget(
-                    user: user,
-                    size: 36,
-                    onTap: AppService.switchGlobalDrawer,
-                  ),
-                  if (count > 0)
-                    Positioned(
-                      right: -1,
-                      top: -1,
-                      child: Container(
-                        width: 9,
-                        height: 9,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.error,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.surface,
-                            width: 1.5,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
+    final colorScheme = Theme.of(context).colorScheme;
+    return Obx(() {
+      final user = userService.hasLoadedProfile
+          ? userService.currentUser.value
+          : null;
+      final count =
+          userService.notificationCount.value + userService.messagesCount.value;
+      return GlassSurface(
+        circle: true,
+        tooltip: t.common.me,
+        onTap: AppService.switchGlobalDrawer,
+        child: Stack(
+          alignment: Alignment.center,
+          clipBehavior: Clip.none,
+          children: [
+            if (user != null)
+              IgnorePointer(
+                child: AvatarWidget(
+                  user: user,
+                  size: GlassTokens.pillHeight - 2,
+                ),
+              )
+            else
+              Icon(
+                Icons.account_circle,
+                size: 26,
+                color: colorScheme.onSurface,
               ),
-            );
-          }
-
-          return Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(18),
-              onTap: AppService.switchGlobalDrawer,
-              child: SizedBox(
-                width: 36,
-                height: 36,
-                child: Icon(
-                  Icons.account_circle,
-                  size: 24,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+            if (count > 0)
+              Positioned(
+                right: 2,
+                top: 2,
+                child: Container(
+                  width: 9,
+                  height: 9,
+                  decoration: BoxDecoration(
+                    color: colorScheme.error,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: colorScheme.surface, width: 1.5),
+                  ),
                 ),
               ),
+          ],
+        ),
+      );
+    });
+  }
+
+  static const String _menuActionRefresh = 'refresh';
+  static const String _menuActionScrollTop = 'scroll_top';
+
+  /// 右侧动作胶囊：语言 · 更多（刷新 / 回到顶部）。
+  Widget _buildActionGroup(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return GlassButtonGroup(
+      children: [
+        _NewsSelectButton<IwaraNewsLanguage>(
+          icon: Icons.translate_rounded,
+          label: _languageLabel(_selectedLanguage ?? IwaraNewsLanguage.en),
+          showLabel: false,
+          values: IwaraNewsLanguage.values,
+          selectedValue: _selectedLanguage ?? IwaraNewsLanguage.en,
+          itemIconBuilder: (_) => Icons.translate_rounded,
+          itemLabelBuilder: _languageLabel,
+          onSelected: _handleLanguageChange,
+        ),
+        SizedBox(
+          width: GlassTokens.groupIconButtonSize,
+          height: GlassTokens.groupIconButtonSize,
+          child: PopupMenuButton<String>(
+            padding: EdgeInsets.zero,
+            icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
+            position: PopupMenuPosition.under,
+            // 往下挪一点，别压住玻璃胶囊本身
+            offset: const Offset(0, 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-          );
-        }),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+            onSelected: (value) {
+              switch (value) {
+                case _menuActionRefresh:
+                  if (!_currentFeed.isLoading) {
+                    _refreshCategory(_selectedCategory);
+                  }
+                  break;
+                case _menuActionScrollTop:
+                  _scrollCurrentCategoryToTop();
+                  break;
+              }
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem<String>(
+                value: _menuActionRefresh,
+                enabled: !_currentFeed.isLoading,
+                child: Row(
+                  children: [
+                    const Icon(Icons.refresh_rounded),
+                    const SizedBox(width: 12),
+                    Text(t.common.refresh),
+                  ],
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: _menuActionScrollTop,
+                child: Row(
+                  children: [
+                    const Icon(Icons.vertical_align_top),
+                    const SizedBox(width: 12),
+                    Text(t.common.scrollToTop),
+                  ],
                 ),
               ),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  /// 滚过一段后出现在右下角的「回到顶部」浮钮。
+  Widget _buildScrollToTopFab(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final visible = _showBackToTop;
+    return Positioned(
+      right: 16,
+      bottom: MediaQuery.paddingOf(context).bottom + 16,
+      child: IgnorePointer(
+        ignoring: !visible,
+        child: AnimatedSlide(
+          duration: GlassTokens.motionDuration,
+          curve: GlassTokens.motionCurve,
+          offset: visible ? Offset.zero : const Offset(0, 0.4),
+          child: AnimatedOpacity(
+            duration: GlassTokens.motionDuration,
+            opacity: visible ? 1 : 0,
+            child: GlassIconButton(
+              standalone: true,
+              icon: const Icon(Icons.vertical_align_top),
+              tooltip: t.common.scrollToTop,
+              onPressed: _scrollCurrentCategoryToTop,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final t = slang.Translations.of(context);
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    const double headerRowHeight = GlassTokens.headerRowHeight;
+    final double headerExtent = statusBarHeight + headerRowHeight;
+
+    final categoryItems = [
+      for (final category in IwaraNewsCategoryType.values)
+        GlassSegmentItem(
+          label: _categoryLabel(t, category),
+          icon: Icon(_categoryIcon(category)),
+        ),
+    ];
+
+    return Scaffold(
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          // 中间分类区可用宽度不足时退化为下拉
+          const double actionGroupWidth =
+              GlassTokens.groupIconButtonSize * 2 + 8;
+          final double centerWidth =
+              constraints.maxWidth -
+              16 * 2 -
+              8 * 2 -
+              GlassTokens.pillHeight -
+              actionGroupWidth;
+          final bool useSegmented = centerWidth >= 220;
+
+          return Stack(
+            children: [
+              // 内容铺满整页；各分类列表用 paddingTop 让出 header（滚动时从 header 背后经过）
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        theme.colorScheme.surfaceContainerLowest,
+                        theme.colorScheme.surface,
+                      ],
+                    ),
+                  ),
+                  child: PageView.builder(
+                    controller: _pageController,
+                    itemCount: IwaraNewsCategoryType.values.length,
+                    onPageChanged: (index) {
+                      final category = IwaraNewsCategoryType.values[index];
+                      if (_tabController.index != index) {
+                        _tabController.animateTo(index);
+                      }
+                      if (_selectedCategory != category) {
+                        setState(() {
+                          _selectedCategory = category;
+                        });
+                      }
+                      _ensureCategoryLoaded(category);
+                    },
+                    itemBuilder: (context, index) {
+                      final category = IwaraNewsCategoryType.values[index];
+                      return _NewsCategoryList(
+                        feed: _feeds[category]!,
+                        scrollController: _feedScrollControllers[category]!,
+                        paddingTop: headerExtent,
+                        onRefresh: () => _refreshCategory(category),
+                        onLoadMore: () => _loadMoreCategory(category),
+                        onTapItem: (item) => context.push(
+                          '/news/${item.id}',
+                          extra: NewsDetailExtra(
+                            postId: item.id,
+                            postUrl: item.link,
+                            title: item.title,
+                            excerpt: item.excerpt,
+                            publishedAt: item.publishedAt,
+                            updatedAt: item.updatedAt,
+                            language: item.language,
+                            featuredImageUrl: item.featuredImageUrl,
+                            heroTag:
+                                'news-card-'
+                                '${item.language.name}-'
+                                '${item.categoryType.name}-'
+                                '${item.id}',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+
+              // 顶部渐变蒙层
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: EdgeFadeScrim.top(
+                  height: headerExtent + GlassTokens.headerFadeExtent,
+                  solidExtent: statusBarHeight,
+                ),
+              ),
+
+              // header 行：左 头像圆钮 / 中 分类分段胶囊 / 右 语言 + 更多
+              Positioned(
+                top: statusBarHeight,
+                left: 0,
+                right: 0,
+                height: headerRowHeight,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      _buildAvatarButton(context),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: useSegmented
+                              ? GlassSegmentedControl(
+                                  selectedIndex: _selectedCategory.index,
+                                  progress: _pageProgress,
+                                  onChanged: (i) => _switchCategory(
+                                    IwaraNewsCategoryType.values[i],
+                                  ),
+                                  items: categoryItems,
+                                )
+                              : _NewsSelectButton<IwaraNewsCategoryType>(
+                                  icon: _categoryIcon(_selectedCategory),
+                                  label: _categoryLabel(t, _selectedCategory),
+                                  values: IwaraNewsCategoryType.values,
+                                  selectedValue: _selectedCategory,
+                                  itemIconBuilder: _categoryIcon,
+                                  itemLabelBuilder: (category) =>
+                                      _categoryLabel(t, category),
+                                  onSelected: _switchCategory,
+                                ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildActionGroup(context),
+                    ],
+                  ),
+                ),
+              ),
+
+              _buildScrollToTopFab(context),
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -660,11 +717,13 @@ class _NewsSelectButton<T> extends StatelessWidget {
       ),
       child: PopupMenuButton<T>(
         initialValue: selectedValue,
-        tooltip: showLabel ? label : null,
+        tooltip: label,
         onSelected: (value) {
           onSelected(value);
         },
         position: PopupMenuPosition.under,
+        // 往下挪一点，别压住玻璃胶囊本身
+        offset: const Offset(0, 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         itemBuilder: (context) => [
           for (final item in values)
@@ -683,134 +742,42 @@ class _NewsSelectButton<T> extends StatelessWidget {
               ),
             ),
         ],
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 36),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: colorScheme.secondaryContainer,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 16, color: colorScheme.onSecondaryContainer),
-              if (showLabel) ...[
-                const SizedBox(width: 6),
-                Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: colorScheme.onSecondaryContainer,
-                  ),
+        // 无标签：作为玻璃胶囊组里的一个 40×40 图标位；有标签：独立玻璃胶囊
+        child: showLabel
+            ? GlassSurface(
+                padding: const EdgeInsets.only(left: 14, right: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icon, size: 16, color: colorScheme.onSurface),
+                    const SizedBox(width: 6),
+                    Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_drop_down_rounded,
+                      color: colorScheme.onSurface,
+                    ),
+                  ],
                 ),
-              ],
-              const SizedBox(width: 2),
-              Icon(
-                Icons.arrow_drop_down_rounded,
-                color: colorScheme.onSecondaryContainer,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _NewsCategoryTabs extends StatelessWidget {
-  const _NewsCategoryTabs({
-    required this.controller,
-    required this.scrollController,
-    required this.categories,
-    required this.labelBuilder,
-    required this.iconBuilder,
-    required this.onTap,
-    required this.atStart,
-    required this.atEnd,
-    required this.onPointerScroll,
-  });
-
-  final TabController controller;
-  final ScrollController scrollController;
-  final List<IwaraNewsCategoryType> categories;
-  final String Function(IwaraNewsCategoryType category) labelBuilder;
-  final IconData Function(IwaraNewsCategoryType category) iconBuilder;
-  final Future<void> Function(IwaraNewsCategoryType category) onTap;
-  final bool atStart;
-  final bool atEnd;
-  final void Function(double delta) onPointerScroll;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    Widget tabContent = MouseRegion(
-      child: Listener(
-        onPointerSignal: (pointerSignal) {
-          if (pointerSignal is PointerScrollEvent) {
-            onPointerScroll(pointerSignal.scrollDelta.dy);
-          }
-        },
-        child: SingleChildScrollView(
-          controller: scrollController,
-          scrollDirection: Axis.horizontal,
-          physics: const ClampingScrollPhysics(),
-          child: TabBar(
-            controller: controller,
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            dividerColor: Colors.transparent,
-            overlayColor: WidgetStateProperty.all(Colors.transparent),
-            padding: EdgeInsets.zero,
-            labelColor: theme.colorScheme.onSurface,
-            unselectedLabelColor: theme.colorScheme.onSurfaceVariant,
-            indicatorSize: TabBarIndicatorSize.label,
-            indicator: UnderlineTabIndicator(
-              borderRadius: BorderRadius.circular(999),
-              borderSide: BorderSide(
-                width: 3,
-                color: theme.colorScheme.primary,
-              ),
-              insets: const EdgeInsets.only(bottom: 2),
-            ),
-            onTap: (index) => onTap(categories[index]),
-            tabs: [
-              for (final category in categories)
-                Tab(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(iconBuilder(category), size: 16),
-                      const SizedBox(width: 6),
-                      Text(labelBuilder(category)),
-                    ],
-                  ),
+              )
+            : SizedBox(
+                width: GlassTokens.groupIconButtonSize,
+                height: GlassTokens.groupIconButtonSize,
+                child: Icon(
+                  icon,
+                  size: GlassTokens.iconSize,
+                  color: colorScheme.onSurface,
                 ),
-            ],
-          ),
-        ),
+              ),
       ),
-    );
-
-    if (atStart && atEnd) {
-      return Align(alignment: Alignment.centerLeft, child: tabContent);
-    }
-
-    return ShaderMask(
-      shaderCallback: (rect) {
-        return LinearGradient(
-          colors: [
-            atStart ? Colors.white : Colors.transparent,
-            Colors.white,
-            Colors.white,
-            atEnd ? Colors.white : Colors.transparent,
-          ],
-          stops: const [0.0, 0.05, 0.85, 1.0],
-        ).createShader(rect);
-      },
-      blendMode: BlendMode.dstIn,
-      child: tabContent,
     );
   }
 }
@@ -819,6 +786,7 @@ class _NewsCategoryList extends StatelessWidget {
   const _NewsCategoryList({
     required this.feed,
     required this.scrollController,
+    required this.paddingTop,
     required this.onRefresh,
     required this.onLoadMore,
     required this.onTapItem,
@@ -826,6 +794,7 @@ class _NewsCategoryList extends StatelessWidget {
 
   final _NewsFeedState feed;
   final ScrollController scrollController;
+  final double paddingTop;
   final Future<void> Function() onRefresh;
   final Future<void> Function() onLoadMore;
   final void Function(IwaraNewsListItem item) onTapItem;
@@ -835,20 +804,27 @@ class _NewsCategoryList extends StatelessWidget {
     final t = slang.Translations.of(context);
 
     if (feed.isLoading && feed.items.isEmpty) {
-      return const _NewsFeedSkeleton();
+      return _NewsFeedSkeleton(paddingTop: paddingTop);
     }
 
     if (feed.error != null && feed.items.isEmpty) {
-      return MyEmptyWidget(message: feed.error!, onRefresh: onRefresh);
+      return Padding(
+        padding: EdgeInsets.only(top: paddingTop),
+        child: MyEmptyWidget(message: feed.error!, onRefresh: onRefresh),
+      );
     }
 
     if (feed.items.isEmpty) {
-      return MyEmptyWidget(message: t.common.noData, onRefresh: onRefresh);
+      return Padding(
+        padding: EdgeInsets.only(top: paddingTop),
+        child: MyEmptyWidget(message: t.common.noData, onRefresh: onRefresh),
+      );
     }
 
     final showFooter = feed.isLoadingMore || feed.loadMoreError != null;
 
     return RefreshIndicator(
+      edgeOffset: paddingTop,
       onRefresh: onRefresh,
       child: NotificationListener<ScrollNotification>(
         onNotification: (notification) {
@@ -860,7 +836,13 @@ class _NewsCategoryList extends StatelessWidget {
         child: ListView.separated(
           controller: scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
+          // 底部额外让出安全区（窄屏时 Shell 已把浮动底栏高度加进 padding.bottom）
+          padding: EdgeInsets.fromLTRB(
+            16,
+            paddingTop + 4,
+            16,
+            28 + MediaQuery.of(context).padding.bottom,
+          ),
           itemCount: feed.items.length + (showFooter ? 1 : 0),
           separatorBuilder: (context, index) =>
               SizedBox(height: index == 0 ? 16 : 12),
@@ -1344,13 +1326,20 @@ class _NewsMetaPill extends StatelessWidget {
 }
 
 class _NewsFeedSkeleton extends StatelessWidget {
-  const _NewsFeedSkeleton();
+  const _NewsFeedSkeleton({required this.paddingTop});
+
+  final double paddingTop;
 
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        paddingTop + 4,
+        16,
+        28 + MediaQuery.of(context).padding.bottom,
+      ),
       itemCount: 5,
       separatorBuilder: (context, index) =>
           SizedBox(height: index == 0 ? 16 : 12),

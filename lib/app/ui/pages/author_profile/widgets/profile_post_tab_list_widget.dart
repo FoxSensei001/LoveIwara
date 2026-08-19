@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -19,6 +20,12 @@ class ProfilePostTabListWidget extends StatefulWidget {
   final String userId;
   final String tabKey;
   final TabController tc;
+
+  /// 上方被页面级 header 占掉的高度（列表用它让出首屏，滚动时从背后经过）。
+  final double overlayTopInset;
+
+  /// 顶部蒙层平台段（状态栏）高度。
+  final double scrimSolidExtent;
   final Function({int? count})? onFetchFinished;
   final GlobalKey<State<StatefulWidget>>? widgetKey;
 
@@ -29,6 +36,8 @@ class ProfilePostTabListWidget extends StatefulWidget {
     required this.tc,
     this.onFetchFinished,
     this.widgetKey,
+    this.overlayTopInset = 0,
+    this.scrimSolidExtent = 0,
   });
 
   void refresh() {
@@ -151,53 +160,54 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
     final ScrollController scrollTarget =
         primaryController ?? _fallbackController;
 
-    return Stack(
-      children: [
-        RefreshIndicator(
-          onRefresh: () async {
-            await listSourceRepository.refresh(true);
+    final double headerExtent = widget.overlayTopInset;
+    return GlassHeaderOverlay(
+      headerExtent: headerExtent,
+      solidExtent: widget.scrimSolidExtent,
+      body: RefreshIndicator(
+        edgeOffset: headerExtent,
+        onRefresh: () async {
+          await listSourceRepository.refresh(true);
+        },
+        child: NotificationListener<ScrollNotification>(
+          // 改用滚动通知驱动「回到顶部」按钮的显隐：不再依赖自建 controller，
+          // 无论列表最终挂在 PrimaryScrollController 还是后备 controller 上都成立。
+          onNotification: (notification) {
+            if (notification.metrics.axis == Axis.vertical) {
+              _showBackToTop.value = notification.metrics.pixels >= 300;
+            }
+            return false;
           },
-          child: NotificationListener<ScrollNotification>(
-            // 改用滚动通知驱动「回到顶部」按钮的显隐：不再依赖自建 controller，
-            // 无论列表最终挂在 PrimaryScrollController 还是后备 controller 上都成立。
-            onNotification: (notification) {
-              if (notification.metrics.axis == Axis.vertical) {
-                _showBackToTop.value = notification.metrics.pixels >= 300;
-              }
-              return false;
-            },
-            child: LoadingMoreCustomScrollView(
-              controller: primaryController == null
-                  ? _fallbackController
-                  : null,
-              slivers: <Widget>[
-                LoadingMoreSliverList<PostModel>(
-                  SliverListConfig<PostModel>(
-                    itemBuilder: buildItem,
-                    sourceList: listSourceRepository,
-                    // 底部安全区放进 sliver padding，内容因此可以滚到
-                    // 手势条下方——与 playlist tab 的做法一致。
-                    // 原先是给整个 Stack 加 paddingOnly，那会把整个
-                    // 视口缩短，底部留出一条谁也用不到的死带。
-                    padding: EdgeInsets.fromLTRB(
-                      8.0,
-                      8.0,
-                      8.0,
-                      8.0 + computeBottomSafeInset(MediaQuery.of(context)),
-                    ),
-                    indicatorBuilder: (context, status) =>
-                        myLoadingMoreIndicator(
-                          context,
-                          status,
-                          isSliver: true,
-                          loadingMoreBase: listSourceRepository,
-                        ),
+          child: LoadingMoreCustomScrollView(
+            controller: primaryController == null ? _fallbackController : null,
+            slivers: <Widget>[
+              LoadingMoreSliverList<PostModel>(
+                SliverListConfig<PostModel>(
+                  itemBuilder: buildItem,
+                  sourceList: listSourceRepository,
+                  // 底部安全区放进 sliver padding，内容因此可以滚到
+                  // 手势条下方——与 playlist tab 的做法一致。
+                  // 原先是给整个 Stack 加 paddingOnly，那会把整个
+                  // 视口缩短，底部留出一条谁也用不到的死带。
+                  padding: EdgeInsets.fromLTRB(
+                    8.0,
+                    8.0 + headerExtent,
+                    8.0,
+                    8.0 + computeBottomSafeInset(MediaQuery.of(context)),
+                  ),
+                  indicatorBuilder: (context, status) => myLoadingMoreIndicator(
+                    context,
+                    status,
+                    isSliver: true,
+                    loadingMoreBase: listSourceRepository,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
+      ),
+      extra: [
         Positioned(
           right: 16,
           // 视口不再被整体上移，所以 FAB 要自己避开手势条。

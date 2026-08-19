@@ -8,7 +8,7 @@ import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
-import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
+import 'package:i_iwara/app/ui/widgets/translatable_title.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -130,32 +130,10 @@ class ImageModelDetailContent extends StatelessWidget {
           color: Theme.of(context).textTheme.bodyLarge?.color,
         );
 
-        return RichText(
-          text: TextSpan(
-            style: textStyle,
-            children: [
-              TextSpan(text: title),
-              WidgetSpan(
-                alignment: PlaceholderAlignment.middle,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: IconButton(
-                    onPressed: () {
-                      showTranslationDialog(context, text: title);
-                    },
-                    icon: Icon(
-                      Icons.translate,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
+        // 复用视频详情页的标题组件：内联翻译按钮改用裸 Icon + GestureDetector
+        // 实现的可点击区域，而不是这里原先的 IconButton（padding/constraints
+        // 即便置零也仍带内部留白，跟文字内联时按钮明显偏大，两页大小对不齐）。
+        return TranslatableTitle(text: title, style: textStyle);
       },
     );
   }

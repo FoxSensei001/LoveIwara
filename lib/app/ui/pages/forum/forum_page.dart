@@ -17,6 +17,9 @@ import 'package:i_iwara/app/utils/url_utils.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
@@ -26,7 +29,6 @@ import 'package:i_iwara/app/ui/pages/forum/controllers/recent_thread_repository.
 import 'package:i_iwara/app/ui/pages/forum/forum_skeleton_page.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:shimmer/shimmer.dart';
-import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
@@ -34,10 +36,7 @@ class ForumPage extends StatefulWidget implements HomeWidgetInterface {
   static final globalKey = GlobalKey<_ForumPageState>();
   final int contentResetVersion;
 
-  const ForumPage({
-    super.key,
-    this.contentResetVersion = 0,
-  });
+  const ForumPage({super.key, this.contentResetVersion = 0});
 
   @override
   State<ForumPage> createState() => _ForumPageState();
@@ -65,9 +64,13 @@ class _ForumPageState extends State<ForumPage> {
   final ScrollController _recentThreadsScrollController = ScrollController();
   // 分类内容（rail 布局下同一时刻仅显示一个分类）的滚动控制器，用于回到顶部
   final ScrollController _categoryScrollController = ScrollController();
+
+  /// 当前可见列表是否已滚过一段距离（控制右下角「回到顶部」浮钮）。
+  final ValueNotifier<bool> _showBackToTop = ValueNotifier<bool>(false);
+  static const double _backToTopOffset = 600;
   static const double _cardRadius = 14.0;
   static const double _pageSidePadding = 8.0;
-  final appBarHeight = 56.0;
+  final double appBarHeight = GlassTokens.headerRowHeight;
 
   Map<String, String> get _iwaraImageHeaders => {
     'referer': _appService.currentSiteMode.baseUrl,
@@ -163,9 +166,8 @@ class _ForumPageState extends State<ForumPage> {
     );
   }
 
-  void tryRefreshCurrentList() {
-    if (!mounted) return;
-    // 当前可见列表回到顶部（“最近”或某个分类，二者同一时刻只挂载其一）
+  /// 当前可见列表回到顶部（“最近”或某个分类，二者同一时刻只挂载其一）。
+  void _scrollCurrentListToTop() {
     for (final controller in [
       _recentThreadsScrollController,
       _categoryScrollController,
@@ -178,6 +180,25 @@ class _ForumPageState extends State<ForumPage> {
         );
       }
     }
+  }
+
+  void _updateBackToTop() {
+    bool show = false;
+    for (final controller in [
+      _recentThreadsScrollController,
+      _categoryScrollController,
+    ]) {
+      if (controller.hasClients && controller.offset > _backToTopOffset) {
+        show = true;
+        break;
+      }
+    }
+    if (_showBackToTop.value != show) _showBackToTop.value = show;
+  }
+
+  void tryRefreshCurrentList() {
+    if (!mounted) return;
+    _scrollCurrentListToTop();
     // 整体重载：分类树、最近帖子、置顶/全站公告
     _refreshAll();
   }
@@ -185,6 +206,8 @@ class _ForumPageState extends State<ForumPage> {
   @override
   void initState() {
     super.initState();
+    _recentThreadsScrollController.addListener(_updateBackToTop);
+    _categoryScrollController.addListener(_updateBackToTop);
     _loadCategories();
     _recentThreadRepository = RecentThreadListRepository();
     _loadStickyAnnouncements();
@@ -196,8 +219,11 @@ class _ForumPageState extends State<ForumPage> {
   @override
   void dispose() {
     _recentThreadRepository.dispose();
+    _recentThreadsScrollController.removeListener(_updateBackToTop);
+    _categoryScrollController.removeListener(_updateBackToTop);
     _recentThreadsScrollController.dispose();
     _categoryScrollController.dispose();
+    _showBackToTop.dispose();
     super.dispose();
   }
 
@@ -274,9 +300,7 @@ class _ForumPageState extends State<ForumPage> {
       });
     }
 
-    final result = await _forumService.fetchStickyAnnouncements(
-      limit: 5,
-    );
+    final result = await _forumService.fetchStickyAnnouncements(limit: 5);
 
     if (mounted) {
       setState(() {
@@ -337,142 +361,257 @@ class _ForumPageState extends State<ForumPage> {
     );
   }
 
+  void _openSearchDialog() {
+    showAppDialog(
+      SearchDialog(
+        userInputKeywords: '',
+        initialSegment: SearchSegment.forum,
+        onSearch: (searchInfo, segment, filters, sort) {
+          NaviService.toSearchPage(
+            searchInfo: searchInfo,
+            segment: segment,
+            filters: filters,
+            sort: sort,
+          );
+        },
+      ),
+    );
+  }
+
+  /// 左上角「我」圆钮：登录中显示闪烁占位，已登录显示头像（带未读红点）。
+  Widget _buildAvatarButton(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+    return Obx(() {
+      final Widget inner;
+      if (userService.isLogining.value) {
+        inner = Shimmer.fromColors(
+          baseColor: colorScheme.surfaceContainerHighest,
+          highlightColor: colorScheme.surface,
+          child: Container(
+            width: 26,
+            height: 26,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+          ),
+        );
+      } else if (userService.hasLoadedProfile &&
+          userService.currentUser.value != null) {
+        inner = IgnorePointer(
+          // 头像铺满圆钮（只留 1px 玻璃描边），不要一圈内边距
+          child: AvatarWidget(
+            user: userService.currentUser.value,
+            size: GlassTokens.pillHeight - 2,
+          ),
+        );
+      } else {
+        inner = Icon(
+          Icons.account_circle,
+          size: 26,
+          color: colorScheme.onSurface,
+        );
+      }
+      final count =
+          userService.notificationCount.value + userService.messagesCount.value;
+      return GlassSurface(
+        circle: true,
+        tooltip: t.common.me,
+        onTap: AppService.switchGlobalDrawer,
+        child: Stack(
+          alignment: Alignment.center,
+          clipBehavior: Clip.none,
+          children: [
+            inner,
+            if (count > 0)
+              Positioned(
+                right: 2,
+                top: 2,
+                child: Container(
+                  width: 9,
+                  height: 9,
+                  decoration: BoxDecoration(
+                    color: colorScheme.error,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: colorScheme.surface, width: 1.5),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      );
+    });
+  }
+
+  static const String _menuActionOpenSearch = 'open_search';
+  static const String _menuActionRefresh = 'refresh';
+
+  /// 右侧动作胶囊：[搜索(仅宽屏)] 发帖 · 更多。
+  Widget _buildActionGroup(BuildContext context, {required bool isWide}) {
+    final t = slang.Translations.of(context);
+    return GlassButtonGroup(
+      children: [
+        if (isWide)
+          GlassIconButton(
+            icon: const Icon(Icons.search),
+            tooltip: t.common.search,
+            onPressed: _openSearchDialog,
+          ),
+        GlassIconButton(
+          icon: const Icon(Icons.add),
+          tooltip: t.forum.createThread,
+          onPressed: _showPostDialog,
+        ),
+        SizedBox(
+          width: GlassTokens.groupIconButtonSize,
+          height: GlassTokens.groupIconButtonSize,
+          child: PopupMenuButton<String>(
+            padding: EdgeInsets.zero,
+            icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
+            position: PopupMenuPosition.under,
+            // 往下挪一点，别压住玻璃胶囊本身
+            offset: const Offset(0, 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            onSelected: (value) {
+              switch (value) {
+                case _menuActionOpenSearch:
+                  _openSearchDialog();
+                  break;
+                case _menuActionRefresh:
+                  _refreshAll();
+                  break;
+              }
+            },
+            itemBuilder: (context) => [
+              if (!isWide)
+                PopupMenuItem<String>(
+                  value: _menuActionOpenSearch,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.search),
+                      const SizedBox(width: 12),
+                      Text(t.common.search),
+                    ],
+                  ),
+                ),
+              PopupMenuItem<String>(
+                value: _menuActionRefresh,
+                child: Row(
+                  children: [
+                    const Icon(Icons.refresh),
+                    const SizedBox(width: 12),
+                    Text(t.common.refresh),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 滚过一段后出现在右下角的「回到顶部」浮钮。
+  Widget _buildScrollToTopFab(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Positioned(
+      right: 16,
+      bottom: MediaQuery.paddingOf(context).bottom + 16,
+      child: ValueListenableBuilder<bool>(
+        valueListenable: _showBackToTop,
+        builder: (context, visible, _) => IgnorePointer(
+          ignoring: !visible,
+          child: AnimatedSlide(
+            duration: GlassTokens.motionDuration,
+            curve: GlassTokens.motionCurve,
+            offset: visible ? Offset.zero : const Offset(0, 0.4),
+            child: AnimatedOpacity(
+              duration: GlassTokens.motionDuration,
+              opacity: visible ? 1 : 0,
+              child: GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.vertical_align_top),
+                tooltip: t.common.scrollToTop,
+                onPressed: _scrollCurrentListToTop,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    // 计算 AppBar 和状态栏的总高度
-    final double effectivePaddingTop =
-        MediaQuery.of(context).padding.top + appBarHeight;
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    // header 行（状态栏 + 玻璃 header）占用的总高度，列表用它做 paddingTop
+    final double effectivePaddingTop = statusBarHeight + appBarHeight;
+    final bool isWide = MediaQuery.sizeOf(context).width > 600;
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      extendBodyBehindAppBar: true, // 让内容延伸到AppBar下面，以便显示毛玻璃效果
-      appBar: AppBar(
-        elevation: 0,
-        toolbarHeight: appBarHeight,
-        backgroundColor: Theme.of(
-          context,
-        ).colorScheme.surface.withValues(alpha: 0.7), // 设置半透明背景
-        flexibleSpace: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10), // 毛玻璃效果参数
-            child: Container(color: Colors.transparent),
+      body: Stack(
+        children: [
+          // 内容铺满整页，自己用 effectivePaddingTop 让出 header
+          Positioned.fill(child: _buildBody(context, effectivePaddingTop)),
+
+          // 顶部渐变蒙层（列表滚到下面时淡出）
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: EdgeFadeScrim.top(
+              height: effectivePaddingTop + GlassTokens.headerFadeExtent,
+              solidExtent: statusBarHeight,
+            ),
           ),
-        ),
-        title: Row(
-          children: [
-            IconButton(
-              icon: Obx(() {
-                if (userService.isLogining.value) {
-                  return Material(
-                    color: Colors.transparent,
-                    child: SizedBox(
-                      width: 40,
-                      height: 40,
-                      child: Center(
-                        child: Shimmer.fromColors(
-                          baseColor: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerHighest,
-                          highlightColor: Theme.of(context).colorScheme.surface,
-                          child: Container(
-                            width: 24,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
+
+          // header 行：左 头像圆钮 / 中 标题 / 右 动作胶囊
+          Positioned(
+            top: statusBarHeight,
+            left: 0,
+            right: 0,
+            height: appBarHeight,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  _buildAvatarButton(context),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: GlassSurface(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        // 用 Row(min) 而不是 Center：Center 在有界约束下会撑满整个中间区
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              t.forum.forum,
+                              style: textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                       ),
                     ),
-                  );
-                } else if (userService.hasLoadedProfile) {
-                  return Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      AvatarWidget(
-                        user: userService.currentUser.value,
-                        size: 40,
-                      ),
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Obx(() {
-                          final count =
-                              userService.notificationCount.value +
-                              userService.messagesCount.value;
-                          if (count > 0) {
-                            return Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.error,
-                                shape: BoxShape.circle,
-                              ),
-                            );
-                          }
-                          return const SizedBox.shrink();
-                        }),
-                      ),
-                    ],
-                  );
-                } else {
-                  return const Icon(Icons.account_circle);
-                }
-              }),
-              onPressed: () {
-                AppService.switchGlobalDrawer();
-              },
-            ),
-            Text(t.forum.forum),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              showAppDialog(
-                SearchDialog(
-                  userInputKeywords: '',
-                  initialSegment: SearchSegment.forum,
-                  onSearch: (searchInfo, segment, filters, sort) {
-                    NaviService.toSearchPage(
-                      searchInfo: searchInfo,
-                      segment: segment,
-                      filters: filters,
-                      sort: sort,
-                    );
-                  },
-                ),
-              );
-            },
-            tooltip: t.common.search,
-            style: IconButton.styleFrom(
-              padding: const EdgeInsets.all(8),
-              visualDensity: VisualDensity.compact,
+                  ),
+                  const SizedBox(width: 8),
+                  _buildActionGroup(context, isWide: isWide),
+                ],
+              ),
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _refreshAll,
-            tooltip: t.common.refresh,
-            style: IconButton.styleFrom(
-              padding: const EdgeInsets.all(8),
-              visualDensity: VisualDensity.compact,
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _showPostDialog,
-            tooltip: t.forum.createThread,
-            style: IconButton.styleFrom(
-              padding: const EdgeInsets.all(8),
-              visualDensity: VisualDensity.compact,
-            ),
-          ),
+
+          _buildScrollToTopFab(context),
         ],
       ),
-      body: _buildBody(context, effectivePaddingTop), // 传递 effectivePaddingTop
     );
   }
 
@@ -574,6 +713,11 @@ class _ForumPageState extends State<ForumPage> {
           SizedBox(
             width: 60,
             child: SingleChildScrollView(
+              // 分类栏也从玻璃 header 下方开始、底部给浮动底栏让位（内容可滚到背后）
+              padding: EdgeInsets.only(
+                top: effectivePaddingTop,
+                bottom: MediaQuery.of(context).padding.bottom,
+              ),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   minHeight: MediaQuery.of(context).size.height,

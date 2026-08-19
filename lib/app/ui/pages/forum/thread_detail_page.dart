@@ -518,7 +518,8 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
   /// 构建分页模式的 body
   Widget _buildPaginatedBody(BuildContext context, double effectivePaddingTop) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
-    const paginationBarHeight = 46;
+    // 46 = 分页栏内容高度；再加悬浮模式上方的透明渐入区
+    final paginationBarHeight = 46 + PaginationBar.fadeAboveExtent.toInt();
 
     return LayoutBuilder(
       builder: (context, constraints) {

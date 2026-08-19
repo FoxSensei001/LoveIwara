@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/pages/play_list/widgets/playlist_item_widget.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/app/models/play_list.model.dart';
@@ -10,6 +11,12 @@ class ProfilePlaylistTabListWidget extends StatefulWidget {
   final String userId;
   final String tabKey;
   final TabController tc;
+
+  /// 上方被页面级 header 占掉的高度（列表用它让出首屏，滚动时从背后经过）。
+  final double overlayTopInset;
+
+  /// 顶部蒙层平台段（状态栏）高度。
+  final double scrimSolidExtent;
   final Function({int? count})? onFetchFinished;
 
   const ProfilePlaylistTabListWidget({
@@ -18,13 +25,17 @@ class ProfilePlaylistTabListWidget extends StatefulWidget {
     required this.tabKey,
     required this.tc,
     this.onFetchFinished,
+    this.overlayTopInset = 0,
+    this.scrimSolidExtent = 0,
   });
 
   @override
-  State<ProfilePlaylistTabListWidget> createState() => _ProfilePlaylistTabListWidgetState();
+  State<ProfilePlaylistTabListWidget> createState() =>
+      _ProfilePlaylistTabListWidgetState();
 }
 
-class _ProfilePlaylistTabListWidgetState extends State<ProfilePlaylistTabListWidget>
+class _ProfilePlaylistTabListWidgetState
+    extends State<ProfilePlaylistTabListWidget>
     with AutomaticKeepAliveClientMixin {
   late PlayListRepository listSourceRepository;
 
@@ -41,7 +52,7 @@ class _ProfilePlaylistTabListWidgetState extends State<ProfilePlaylistTabListWid
     listSourceRepository = PlayListRepository(userId: widget.userId);
   }
 
-  @override 
+  @override
   void dispose() {
     listSourceRepository.dispose();
     super.dispose();
@@ -50,42 +61,50 @@ class _ProfilePlaylistTabListWidgetState extends State<ProfilePlaylistTabListWid
   @override
   Widget build(BuildContext context) {
     super.build(context); // AutomaticKeepAliveClientMixin 要求
-    return RefreshIndicator(
-      onRefresh: () async {
-        await listSourceRepository.refresh(true);
-      },
-      child: LoadingMoreCustomScrollView(
-        slivers: <Widget>[
-          LoadingMoreSliverList<PlaylistModel>(
-            SliverListConfig<PlaylistModel>(
-              extendedListDelegate: const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 300,
-                crossAxisSpacing: 5,
-                mainAxisSpacing: 5,
-              ),
-              itemBuilder: (context, item, index) => PlaylistItemWidget(playlist: item),
-              sourceList: listSourceRepository,
-              // 四个 tab 里只有这里没有底部安全区：video / image 走 MediaListView
-              // （showBottomPadding 默认 true），post 由外层 Stack 补，
-              // 唯独播放列表是裸的 LoadingMoreCustomScrollView，最后一行会被
-              // 手势条 / 底栏压住。
-              padding: EdgeInsets.fromLTRB(
-                5.0,
-                5.0,
-                5.0,
-                5.0 + computeBottomSafeInset(MediaQuery.of(context)),
-              ),
-              lastChildLayoutType: LastChildLayoutType.foot,
-              indicatorBuilder: (context, status) => myLoadingMoreIndicator(
-                context, 
-                status,
-                isSliver: true, 
-                loadingMoreBase: listSourceRepository
+    final double headerExtent = widget.overlayTopInset;
+    return GlassHeaderOverlay(
+      headerExtent: headerExtent,
+      solidExtent: widget.scrimSolidExtent,
+      body: RefreshIndicator(
+        edgeOffset: headerExtent,
+        onRefresh: () async {
+          await listSourceRepository.refresh(true);
+        },
+        child: LoadingMoreCustomScrollView(
+          slivers: <Widget>[
+            LoadingMoreSliverList<PlaylistModel>(
+              SliverListConfig<PlaylistModel>(
+                extendedListDelegate:
+                    const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 300,
+                      crossAxisSpacing: 5,
+                      mainAxisSpacing: 5,
+                    ),
+                itemBuilder: (context, item, index) =>
+                    PlaylistItemWidget(playlist: item),
+                sourceList: listSourceRepository,
+                // 四个 tab 里只有这里没有底部安全区：video / image 走 MediaListView
+                // （showBottomPadding 默认 true），post 由外层 Stack 补，
+                // 唯独播放列表是裸的 LoadingMoreCustomScrollView，最后一行会被
+                // 手势条 / 底栏压住。
+                padding: EdgeInsets.fromLTRB(
+                  5.0,
+                  5.0 + headerExtent,
+                  5.0,
+                  5.0 + computeBottomSafeInset(MediaQuery.of(context)),
+                ),
+                lastChildLayoutType: LastChildLayoutType.foot,
+                indicatorBuilder: (context, status) => myLoadingMoreIndicator(
+                  context,
+                  status,
+                  isSliver: true,
+                  loadingMoreBase: listSourceRepository,
+                ),
               ),
             ),
-          )
-        ],
+          ],
+        ),
       ),
     );
   }
-} 
+}

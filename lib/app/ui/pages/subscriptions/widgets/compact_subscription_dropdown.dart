@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:shimmer/shimmer.dart';
@@ -26,19 +28,29 @@ class CompactSubscriptionDropdown extends StatefulWidget {
   final Function(String) onUserSelected;
   final double height;
 
+  /// 紧凑模式：胶囊里只放头像 + 箭头（不显示名字），用于窄屏 header 单行布局。
+  final bool compact;
+
+  /// 非紧凑模式下胶囊的最大宽度。
+  final double maxWidth;
+
   const CompactSubscriptionDropdown({
     super.key,
     required this.userList,
     required this.selectedUserId,
     required this.onUserSelected,
-    this.height = 48.0,
+    this.height = GlassTokens.pillHeight,
+    this.compact = false,
+    this.maxWidth = 220,
   });
 
   @override
-  State<CompactSubscriptionDropdown> createState() => _CompactSubscriptionDropdownState();
+  State<CompactSubscriptionDropdown> createState() =>
+      _CompactSubscriptionDropdownState();
 }
 
-class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdown> {
+class _CompactSubscriptionDropdownState
+    extends State<CompactSubscriptionDropdown> {
   final SubscriptionDropdownItem _allItem = SubscriptionDropdownItem(
     id: '',
     label: slang.t.common.all,
@@ -64,7 +76,7 @@ class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdow
       _openDropdown();
     }
   }
-  
+
   // 关闭下拉菜单
   void _closeDropdown() {
     if (_isDropdownOpen) {
@@ -74,7 +86,7 @@ class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdow
       });
     }
   }
-  
+
   // 打开下拉菜单
   void _openDropdown() {
     _overlayEntry = _createOverlayEntry();
@@ -107,16 +119,18 @@ class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdow
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: _closeDropdown,
-              child: Container(
-                color: Colors.transparent,
-              ),
+              child: Container(color: Colors.transparent),
             ),
           ),
           // 下拉菜单内容
           Positioned(
             left: offset.dx,
             top: offset.dy + size.height,
-            width: min(size.width * 1.5, screenWidth - offset.dx * 2), // 设置一个合理的宽度
+            // 紧凑模式下触发器本身很窄，下拉面板按固定宽度展开
+            width: min(
+              widget.compact ? 260.0 : min(size.width * 1.5, 320.0),
+              screenWidth - offset.dx - 8,
+            ),
             child: CompositedTransformFollower(
               link: _layerLink,
               showWhenUnlinked: false,
@@ -126,15 +140,15 @@ class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdow
                 borderRadius: BorderRadius.circular(8.0),
                 color: Theme.of(context).scaffoldBackgroundColor,
                 child: Container(
-                  constraints: BoxConstraints(
-                    maxHeight: calculatedHeight,
-                  ),
+                  constraints: BoxConstraints(maxHeight: calculatedHeight),
                   child: ListView(
                     padding: EdgeInsets.zero,
                     shrinkWrap: true,
                     children: [
                       _buildDropdownItem(_allItem),
-                      ...widget.userList.map((item) => _buildDropdownItem(item)),
+                      ...widget.userList.map(
+                        (item) => _buildDropdownItem(item),
+                      ),
                     ],
                   ),
                 ),
@@ -149,7 +163,7 @@ class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdow
   Widget _buildDropdownItem(SubscriptionDropdownItem item) {
     final theme = Theme.of(context);
     final bool isSelected = widget.selectedUserId == item.id;
-    
+
     return InkWell(
       onTap: () {
         if (widget.selectedUserId != item.id) {
@@ -199,14 +213,14 @@ class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdow
                     ),
                     errorWidget: (context, url, error) => CircleAvatar(
                       radius: 14,
-                      backgroundImage: const NetworkImage(CommonConstants.defaultAvatarUrl),
-                      onBackgroundImageError: (exception, stackTrace) => const Icon(
-                        Icons.person,
-                        size: 14,
+                      backgroundImage: const NetworkImage(
+                        CommonConstants.defaultAvatarUrl,
                       ),
+                      onBackgroundImageError: (exception, stackTrace) =>
+                          const Icon(Icons.person, size: 14),
                     ),
                     httpHeaders: const {
-                      'referer': CommonConstants.iwaraBaseUrl
+                      'referer': CommonConstants.iwaraBaseUrl,
                     },
                     fit: BoxFit.cover,
                   ),
@@ -227,11 +241,7 @@ class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdow
               ),
             ),
             if (isSelected)
-              Icon(
-                Icons.check,
-                color: theme.colorScheme.primary,
-                size: 16,
-              ),
+              Icon(Icons.check, color: theme.colorScheme.primary, size: 16),
           ],
         ),
       ),
@@ -251,91 +261,95 @@ class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdow
       );
     }
 
-    return CompositedTransformTarget(
-      link: _layerLink,
-      child: InkWell(
-        onTap: _toggleDropdown,
-        borderRadius: BorderRadius.circular(8.0),
-        child: Container(
-          height: widget.height,
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8.0),
-            border: Border.all(
-              color: Colors.transparent,
-              width: 1.0,
+    final Widget avatar = selectedItem.avatarUrl.isEmpty
+        ? CircleAvatar(
+            radius: 14,
+            backgroundColor: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest,
+            child: Icon(
+              Icons.cloud,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              size: 14,
             ),
-          ),
-          child: Row(
-            children: [
-              if (selectedItem.avatarUrl.isEmpty)
-                CircleAvatar(
-                  radius: 14,
-                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  child: Icon(
-                    Icons.cloud,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    size: 14,
-                  ),
-                )
-              else
-                CircleAvatar(
-                  radius: 14,
-                  backgroundColor: Colors.transparent,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(14),
-                    child: CachedNetworkImage(
-                      imageUrl: selectedItem.avatarUrl,
-                      placeholder: (context, url) => Shimmer.fromColors(
-                        baseColor: Colors.grey[300]!,
-                        highlightColor: Colors.grey[100]!,
-                        child: CircleAvatar(
-                          radius: 14,
-                          backgroundColor: Colors.white,
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => CircleAvatar(
-                        radius: 14,
-                        backgroundImage: const NetworkImage(CommonConstants.defaultAvatarUrl),
-                        onBackgroundImageError: (exception, stackTrace) => const Icon(
-                          Icons.person,
-                          size: 14,
-                        ),
-                      ),
-                      httpHeaders: const {
-                        'referer': CommonConstants.iwaraBaseUrl
-                      },
-                      fit: BoxFit.cover,
-                    ),
+          )
+        : CircleAvatar(
+            radius: 14,
+            backgroundColor: Colors.transparent,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: CachedNetworkImage(
+                imageUrl: selectedItem.avatarUrl,
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: CircleAvatar(
+                    radius: 14,
+                    backgroundColor: Colors.white,
                   ),
                 ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  selectedItem.label,
-                  maxLines: 1,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).textTheme.titleLarge?.color,
+                errorWidget: (context, url, error) => CircleAvatar(
+                  radius: 14,
+                  backgroundImage: const NetworkImage(
+                    CommonConstants.defaultAvatarUrl,
                   ),
-                  overflow: TextOverflow.ellipsis,
+                  onBackgroundImageError: (exception, stackTrace) =>
+                      const Icon(Icons.person, size: 14),
                 ),
+                httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
+                fit: BoxFit.cover,
               ),
-              const SizedBox(width: 4),
-              Icon(
-                _isDropdownOpen ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-                size: 20,
-                color: Theme.of(context).colorScheme.onSurface,
+            ),
+          );
+
+    final Widget caret = Icon(
+      _isDropdownOpen ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+      size: 20,
+      color: Theme.of(context).colorScheme.onSurface,
+    );
+
+    final Widget pill = GlassSurface(
+      height: widget.height,
+      tooltip: widget.compact ? selectedItem.label : null,
+      padding: EdgeInsets.only(left: widget.compact ? 8 : 10, right: 4),
+      onTap: _toggleDropdown,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          avatar,
+          if (!widget.compact) ...[
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                selectedItem.label,
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
-            ],
-          ),
-        ),
+            ),
+            const SizedBox(width: 2),
+          ],
+          caret,
+        ],
       ),
     );
+
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: widget.compact
+          ? pill
+          : ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: widget.maxWidth),
+              child: pill,
+            ),
+    );
   }
-  
+
   double min(double a, double b) {
     return a < b ? a : b;
   }
-} 
+}
