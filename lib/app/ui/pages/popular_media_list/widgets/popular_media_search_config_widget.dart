@@ -7,7 +7,9 @@ import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/app/ui/widgets/tag_detail_dialog.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/widget_extensions.dart';
+import '../../../../../common/constants.dart' show SortId;
 import '../../../../../common/enums/media_enums.dart';
+import '../../../../models/sort.model.dart';
 import '../../../../models/tag.model.dart';
 import '../../../widgets/empty_widget.dart';
 import 'add_search_tag_dialog.dart';
@@ -16,11 +18,27 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 /// 热门视频的搜索配置
+///
+/// 也复用于作者详情页与订阅页：
+/// - [showRating] 为 false 时隐藏内容评级（实测服务端在带 `user=` 的查询里会
+///   忽略 `rating`，见作者页；此时回调原样返回传入的 [searchRating]）。
+/// - [sortOptions] 非空时额外显示排序区（订阅页没有排序 tab，只能放这里）。
 class PopularMediaSearchConfig extends StatefulWidget {
   final List<Tag> searchTags; // 此时用作搜索的标签
   final String searchYear;
   final String searchRating;
-  final Function(List<Tag> tags, String year, String rating) onConfirm;
+
+  /// 是否显示内容评级选择区。
+  final bool showRating;
+
+  /// 可选排序项；为 null 时不显示排序区。
+  final List<Sort>? sortOptions;
+
+  /// 当前选中的排序 id（[sortOptions] 非空时有效）。
+  final SortId? selectedSortId;
+
+  final Function(List<Tag> tags, String year, String rating, SortId? sortId)
+  onConfirm;
 
   const PopularMediaSearchConfig({
     super.key,
@@ -28,6 +46,9 @@ class PopularMediaSearchConfig extends StatefulWidget {
     required this.searchYear,
     required this.searchRating,
     required this.onConfirm,
+    this.showRating = true,
+    this.sortOptions,
+    this.selectedSortId,
   });
 
   @override
@@ -41,6 +62,7 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
   late String month; // 选中的月份
   late String rating;
   late MediaRating _selectedRating;
+  SortId? _selectedSortId;
   late UserPreferenceService _userPreferenceService;
   final ScrollController _scrollController = ScrollController();
   final ScrollController _monthScrollController = ScrollController();
@@ -62,11 +84,43 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
 
     _selectedRating = MediaRating.values.firstWhere(
       (MediaRating rating) => rating.value == widget.searchRating,
+      orElse: () => MediaRating.ALL,
     );
+    // 排序区不允许「一个都没选中」：调用方没给初值时兜底到时间排序（没有时间
+    // 排序的话退到第一项），否则确认时回调只能返回 null，调用方无从判断。
+    _selectedSortId = widget.selectedSortId ?? _defaultSortId;
     LogUtils.d(
       'tags: $tags, year: $year, month: $month, rating: $rating',
       'PopularVideoSearchConfig',
     );
+  }
+
+  /// 排序区的默认项：优先时间排序，没有则退到第一项；没有排序区时为 null。
+  SortId? get _defaultSortId {
+    final sortOptions = widget.sortOptions;
+    if (sortOptions == null || sortOptions.isEmpty) return null;
+    return sortOptions.any((sort) => sort.id == SortId.date)
+        ? SortId.date
+        : sortOptions.first.id;
+  }
+
+  /// 是否有可重置的内容（决定重置按钮是否可点）。
+  bool get _hasAnyConfig =>
+      tags.isNotEmpty ||
+      year.isNotEmpty ||
+      month.isNotEmpty ||
+      (widget.showRating && _selectedRating != MediaRating.ALL) ||
+      (widget.sortOptions != null && _selectedSortId != _defaultSortId);
+
+  /// 重置为「无筛选」。只改弹窗内的选择，仍需点确认才会应用到列表。
+  void _resetConfig() {
+    setState(() {
+      tags = [];
+      year = '';
+      month = '';
+      _selectedRating = MediaRating.ALL;
+      _selectedSortId = _defaultSortId;
+    });
   }
 
   /// 把已选的年份与月份组合成最终的日期字符串（'' / 'YYYY' / 'YYYY-MM'）。
@@ -122,12 +176,18 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
+                        icon: const Icon(Icons.restart_alt),
+                        tooltip: t.searchFilter.clearAll,
+                        onPressed: _hasAnyConfig ? _resetConfig : null,
+                      ),
+                      IconButton(
                         icon: const Icon(Icons.check),
                         onPressed: () {
                           widget.onConfirm(
                             tags,
                             _buildFinalDate(),
-                            _selectedRating.value,
+                            _effectiveRating,
+                            _selectedSortId,
                           );
                           AppService.tryPop();
                         },
@@ -147,12 +207,18 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
           title: Text(t.settings.searchConfig),
           actions: [
             IconButton(
+              icon: const Icon(Icons.restart_alt),
+              tooltip: t.searchFilter.clearAll,
+              onPressed: _hasAnyConfig ? _resetConfig : null,
+            ),
+            IconButton(
               icon: const Icon(Icons.check),
               onPressed: () {
                 widget.onConfirm(
                   tags,
                   _buildFinalDate(),
-                  _selectedRating.value,
+                  _effectiveRating,
+                  _selectedSortId,
                 );
                 AppService.tryPop();
               },
@@ -167,18 +233,57 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
     }
   }
 
+  /// 隐藏评级区时不改动原有取值，避免把调用方传进来的 rating 洗成 ALL。
+  String get _effectiveRating =>
+      widget.showRating ? _selectedRating.value : widget.searchRating;
+
   // 构建页面内容
   Widget _buildPageContent(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildContentRatingSection(context),
+          if (widget.sortOptions != null) _buildSortSection(context),
+          if (widget.showRating) _buildContentRatingSection(context),
           _buildYearSelectionSection(context),
           _buildMonthSelectionSection(context),
           _buildTagSelectionSection(context),
         ],
       ),
+    );
+  }
+
+  // 构建排序部分（仅在调用方传入 sortOptions 时显示）
+  Widget _buildSortSection(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final sorts = widget.sortOptions!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '${t.common.sort}: ',
+          style: const TextStyle(fontSize: 16),
+        ).paddingBottom(8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: sorts.map((sort) {
+            final bool isSelected = _selectedSortId == sort.id;
+            return ChoiceChip(
+              label: Text(sort.label),
+              // 选中时让对号顶掉图标（两者都给会并排显示，看着像重叠）
+              avatar: isSelected ? null : sort.icon,
+              selected: isSelected,
+              onSelected: (bool selected) {
+                if (!selected) return;
+                setState(() {
+                  _selectedSortId = sort.id;
+                });
+              },
+            );
+          }).toList(),
+        ).paddingBottom(8),
+      ],
     );
   }
 

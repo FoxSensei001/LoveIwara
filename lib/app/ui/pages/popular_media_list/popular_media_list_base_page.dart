@@ -331,7 +331,16 @@ class PopularMediaListPageBaseState<
       }
     }
     _mediaListController.refreshPageUI();
+    // 顶栏的筛选小红点读的是本 State 的字段，refreshPageUI 只动 controller 的
+    // Rx，这里必须自己触发一次重建，否则红点要等下一次无关重建才亮/灭。
+    if (mounted) {
+      setState(() {});
+    }
   }
+
+  /// 当前是否有生效中的筛选（决定筛选入口是否显示小红点）。
+  bool get _hasActiveFilter =>
+      tags.isNotEmpty || year.isNotEmpty || rating.isNotEmpty;
 
   void _onTabChange() {
     _currentTabIndex.value = _tabController.index;
@@ -392,7 +401,8 @@ class PopularMediaListPageBaseState<
         searchTags: tags,
         searchYear: year,
         searchRating: rating,
-        onConfirm: (tags, year, rating) {
+        // 本页的排序是 TabBar，这里不需要弹窗里的排序区，回调的 sortId 恒为 null
+        onConfirm: (tags, year, rating, _) {
           setParams(tags: tags, year: year, rating: rating);
         },
       ),
@@ -749,12 +759,17 @@ class PopularMediaListPageBaseState<
       required String value,
       required IconData icon,
       required String label,
+      bool showBadge = false,
     }) {
       items.add(
         PopupMenuItem<String>(
           value: value,
           child: Row(
-            children: [Icon(icon), const SizedBox(width: 12), Text(label)],
+            children: [
+              Badge(isLabelVisible: showBadge, child: Icon(icon)),
+              const SizedBox(width: 12),
+              Text(label),
+            ],
           ),
         ),
       );
@@ -803,6 +818,7 @@ class PopularMediaListPageBaseState<
       value: _menuActionFilter,
       icon: Icons.filter_list,
       label: t.searchFilter.filterSettings,
+      showBadge: _hasActiveFilter,
     );
     addMenuItem(
       value: _menuActionToggleBatch,
@@ -1271,7 +1287,10 @@ class PopularMediaListPageBaseState<
                                   height: 40,
                                   child: IconButton(
                                     padding: EdgeInsets.zero,
-                                    icon: const Icon(Icons.filter_list),
+                                    icon: Badge(
+                                      isLabelVisible: _hasActiveFilter,
+                                      child: const Icon(Icons.filter_list),
+                                    ),
                                     tooltip: t.searchFilter.filterSettings,
                                     onPressed: _openParamsModal,
                                   ),

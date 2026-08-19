@@ -16,8 +16,11 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 /// 该组件只会出现在较窄的容器中（播放器内的底部弹窗、设置页的限宽列）。
 /// 因此采用 Material 3 的「分组卡片 + 扁平列表项」布局：
 /// - 每个分区由一个小标题 + 一张分组卡片组成；
-/// - 卡片内部使用扁平的 [SwitchListTile] / [ListTile]，不再为每个条目单独叠加阴影容器；
-/// - 描述信息下沉为副标题，避免大块的提示卡片挤占纵向空间；
+/// - 所有卡片统一由 [_card] 产出（同一圆角/阴影/裁剪），不再各处手写 [Card]；
+/// - 卡片内部只使用四种条目：开关 [_switchTile]、选择 [_selectionTile]、
+///   跳转 [_navigationTile]、数字输入 [_NumberSettingTile]，四者共用
+///   `ListTile` 的图标位与文字层级，保证行高与左右留白一致；
+/// - 描述信息一律下沉为副标题，避免大块的提示卡片挤占纵向空间；
 /// - 颜色全部取自主题 [ColorScheme]，自动适配深浅色。
 class PlayerSettingsWidget extends StatelessWidget {
   final ConfigService _configService = Get.find();
@@ -39,9 +42,10 @@ class PlayerSettingsWidget extends StatelessWidget {
   /// 分区之间（大标题+分组卡片 之间）的统一间距。
   static const double _kGroupGap = 20;
 
-  /// 同一分区内、多个独立卡片/横幅之间的统一间距（例如「增强设置」下的
-  /// 警告横幅、剧院模式卡片、Anime4K 卡片、色觉辅助卡片）。
-  static const double _kItemGap = 12;
+  /// 所有卡片统一的圆角。
+  static const BorderRadius _kCardRadius = BorderRadius.all(
+    Radius.circular(16),
+  );
 
   void _onThreeSectionSliderChangeFinished(
     double leftRatio,
@@ -86,8 +90,19 @@ class PlayerSettingsWidget extends StatelessWidget {
     );
   }
 
+  /// 统一的卡片外壳，页面内所有卡片都从这里产出。
+  Widget _card({required Widget child}) {
+    return Card(
+      elevation: 1,
+      margin: EdgeInsets.zero,
+      shape: const RoundedRectangleBorder(borderRadius: _kCardRadius),
+      clipBehavior: Clip.antiAlias,
+      child: child,
+    );
+  }
+
   /// 将若干条目组合进一张分组卡片，并在条目之间插入细分隔线。
-  Widget _groupCard(BuildContext context, List<Widget> tiles) {
+  Widget _groupCard(List<Widget> tiles) {
     final children = <Widget>[];
     for (var i = 0; i < tiles.length; i++) {
       children.add(tiles[i]);
@@ -97,11 +112,7 @@ class PlayerSettingsWidget extends StatelessWidget {
         );
       }
     }
-    return Card(
-      elevation: 1,
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      clipBehavior: Clip.antiAlias,
+    return _card(
       child: Column(mainAxisSize: MainAxisSize.min, children: children),
     );
   }
@@ -135,6 +146,48 @@ class PlayerSettingsWidget extends StatelessWidget {
     );
   }
 
+  /// 点击型条目的统一样式：左图标 + 标题 + 右箭头。
+  ///
+  /// [valueLabel] 用于展示当前值（主色强调），[description] 用于展示说明
+  /// （次要色）；两者都为空时只显示标题。选择类条目 [_selectionTile] 与
+  /// 跳转类入口都走这里，保证箭头颜色、文字层级一致。
+  Widget _navigationTile({
+    required BuildContext context,
+    required IconData iconData,
+    required String label,
+    required VoidCallback onTap,
+    String? valueLabel,
+    String? description,
+  }) {
+    final theme = Theme.of(context);
+    Widget? subtitle;
+    if (valueLabel != null) {
+      subtitle = Text(
+        valueLabel,
+        style: theme.textTheme.bodyMedium?.copyWith(
+          color: theme.colorScheme.primary,
+        ),
+      );
+    } else if (description != null) {
+      subtitle = Text(
+        description,
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
+      );
+    }
+    return ListTile(
+      leading: Icon(iconData, color: theme.colorScheme.onSurfaceVariant),
+      title: Text(label, style: theme.textTheme.bodyLarge),
+      subtitle: subtitle,
+      trailing: Icon(
+        Icons.chevron_right,
+        color: theme.colorScheme.onSurfaceVariant,
+      ),
+      onTap: onTap,
+    );
+  }
+
   /// 可选项条目：点击后弹出选择对话框。当前值显示为副标题。
   Widget _selectionTile({
     required BuildContext context,
@@ -147,21 +200,11 @@ class PlayerSettingsWidget extends StatelessWidget {
     Map<String, String>? optionLabels,
     Map<String, String>? optionDescriptions,
   }) {
-    final theme = Theme.of(context);
-    final valueLabel = optionLabels?[currentValue] ?? currentValue;
-    return ListTile(
-      leading: Icon(iconData, color: theme.colorScheme.onSurfaceVariant),
-      title: Text(label, style: theme.textTheme.bodyLarge),
-      subtitle: Text(
-        valueLabel,
-        style: theme.textTheme.bodyMedium?.copyWith(
-          color: theme.colorScheme.primary,
-        ),
-      ),
-      trailing: Icon(
-        Icons.chevron_right,
-        color: theme.colorScheme.onSurfaceVariant,
-      ),
+    return _navigationTile(
+      context: context,
+      iconData: iconData,
+      label: label,
+      valueLabel: optionLabels?[currentValue] ?? currentValue,
       onTap: () => _showSelectionDialog(
         context: context,
         title: label,
@@ -175,46 +218,36 @@ class PlayerSettingsWidget extends StatelessWidget {
     );
   }
 
-  /// 默认播放倍速：尾部下拉选择。
+  /// 默认播放倍速：与其它可选项条目共用同一套「当前值 + 选择对话框」交互。
   Widget _defaultSpeedTile(BuildContext context, String label) {
-    final theme = Theme.of(context);
-    return ListTile(
-      leading: Icon(
-        Icons.slow_motion_video,
-        color: theme.colorScheme.onSurfaceVariant,
-      ),
-      title: Text(label, style: theme.textTheme.bodyLarge),
-      trailing: Obx(() {
-        final double current =
-            (_configService[ConfigKey.DEFAULT_PLAYBACK_SPEED_KEY] as double)
-                .clamp(0.1, 4.0)
-                .toDouble();
-        // 保证当前值始终出现在下拉项中，避免历史遗留的非标准值导致断言失败
-        final List<double> options = [..._playbackSpeedOptions];
-        if (!options.contains(current)) {
-          options.add(current);
-          options.sort();
-        }
-        return DropdownButton<double>(
-          value: current,
-          underline: const SizedBox.shrink(),
-          borderRadius: BorderRadius.circular(12),
-          items: options
-              .map(
-                (speed) => DropdownMenuItem<double>(
-                  value: speed,
-                  child: Text('${speed}x'),
-                ),
-              )
-              .toList(),
-          onChanged: (value) {
-            if (value != null) {
-              _configService[ConfigKey.DEFAULT_PLAYBACK_SPEED_KEY] = value;
-            }
-          },
-        );
-      }),
-    );
+    return Obx(() {
+      final double current =
+          (_configService[ConfigKey.DEFAULT_PLAYBACK_SPEED_KEY] as double)
+              .clamp(0.1, 4.0)
+              .toDouble();
+      // 保证当前值始终出现在选项中，避免历史遗留的非标准值无法回显
+      final List<double> options = [..._playbackSpeedOptions];
+      if (!options.contains(current)) {
+        options.add(current);
+        options.sort();
+      }
+      return _selectionTile(
+        context: context,
+        iconData: Icons.slow_motion_video,
+        label: label,
+        currentValue: current.toString(),
+        options: options.map((speed) => speed.toString()).toList(),
+        optionLabels: {
+          for (final speed in options) speed.toString(): '${speed}x',
+        },
+        onChanged: (value) {
+          final parsed = double.tryParse(value);
+          if (parsed != null) {
+            _configService[ConfigKey.DEFAULT_PLAYBACK_SPEED_KEY] = parsed;
+          }
+        },
+      );
+    });
   }
 
   // 显示选择对话框
@@ -303,6 +336,7 @@ class PlayerSettingsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
+    final theme = Theme.of(context);
     final isMobile = GetPlatform.isAndroid || GetPlatform.isIOS;
 
     return Column(
@@ -311,7 +345,7 @@ class PlayerSettingsWidget extends StatelessWidget {
         // -------- 画面尺寸（仅从播放器呼出时显示） --------
         if (playerController != null) ...[
           _sectionLabel(context, t.settings.screenFit),
-          _groupCard(context, [
+          _groupCard([
             Obx(
               () => _selectionTile(
                 context: context,
@@ -369,7 +403,7 @@ class PlayerSettingsWidget extends StatelessWidget {
 
         // -------- 播放控制：倍速相关 --------
         _sectionLabel(context, t.settings.playbackSpeedSettings),
-        _groupCard(context, [
+        _groupCard([
           // 快进时间
           Obx(
             () => _NumberSettingTile(
@@ -448,7 +482,7 @@ class PlayerSettingsWidget extends StatelessWidget {
           // 记住播放倍速
           _switchTile(
             context: context,
-            iconData: Icons.speed,
+            iconData: Icons.bookmark_outline,
             label: t.settings.rememberPlaybackSpeed,
             description: t.settings.rememberPlaybackSpeedDesc,
             rxValue:
@@ -462,7 +496,7 @@ class PlayerSettingsWidget extends StatelessWidget {
 
         // -------- 播放控制：行为相关 --------
         _sectionLabel(context, t.settings.playbackBehaviorSettings),
-        _groupCard(context, [
+        _groupCard([
           // 循环播放
           _switchTile(
             context: context,
@@ -505,7 +539,7 @@ class PlayerSettingsWidget extends StatelessWidget {
           // 记录并恢复播放进度
           _switchTile(
             context: context,
-            iconData: Icons.play_circle_outline,
+            iconData: Icons.restore,
             label: t.settings.recordAndRestorePlaybackProgress,
             rxValue: _configService
                 .settings[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]!,
@@ -635,42 +669,34 @@ class PlayerSettingsWidget extends StatelessWidget {
         const SizedBox(height: _kGroupGap),
 
         // -------- 控制区域宽度 --------
+        // 滑杆需要整行宽度，因此不放进 ListTile 的 trailing，而是以
+        // 「标题条目 + 下方滑杆」的形式放进同一张分组卡片，保持左右留白一致。
         _sectionLabel(context, t.settings.playControlArea),
-        Card(
-          elevation: 1,
-          margin: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        t.settings.leftAndRightControlAreaWidth,
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                    ),
-                    Tooltip(
-                      triggerMode: TooltipTriggerMode.tap,
-                      preferBelow: false,
-                      message: t
-                          .settings
-                          .thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer,
-                      child: Icon(
-                        Icons.help_outline,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  ],
+        _card(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(
+                  Icons.view_column,
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
-                const SizedBox(height: 16),
-                ThreeSectionSlider(
+                title: Text(
+                  t.settings.leftAndRightControlAreaWidth,
+                  style: theme.textTheme.bodyLarge,
+                ),
+                subtitle: Text(
+                  t
+                      .settings
+                      .thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: ThreeSectionSlider(
                   onSlideChangeCallback: _onThreeSectionSliderChangeFinished,
                   initialLeftRatio:
                       _configService[ConfigKey
@@ -685,15 +711,15 @@ class PlayerSettingsWidget extends StatelessWidget {
                       _configService[ConfigKey
                           .VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: _kGroupGap),
 
         // -------- 手势控制 --------
         _sectionLabel(context, t.settings.gestureControl),
-        _groupCard(context, [
+        _groupCard([
           _switchTile(
             context: context,
             iconData: Icons.fast_rewind,
@@ -752,7 +778,7 @@ class PlayerSettingsWidget extends StatelessWidget {
           ),
           _switchTile(
             context: context,
-            iconData: Icons.fast_forward,
+            iconData: Icons.touch_app,
             label: t.settings.longPressFastForward,
             rxValue: _configService
                 .settings[ConfigKey.ENABLE_LONG_PRESS_FAST_FORWARD]!,
@@ -781,31 +807,19 @@ class PlayerSettingsWidget extends StatelessWidget {
               _configService[ConfigKey.ENABLE_VIDEO_GESTURE_ZOOM] = value;
             },
           ),
-          ListTile(
-            leading: Icon(
-              Icons.help_outline,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            title: Text(
-              t.videoDetail.gestureGuide.viewGuide,
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            trailing: const Icon(Icons.chevron_right),
+          _navigationTile(
+            context: context,
+            iconData: Icons.help_outline,
+            label: t.videoDetail.gestureGuide.viewGuide,
             onTap: () => VideoGestureGuideDialog.show(context),
           ),
           // 快捷键设置入口：播放器内以底部抽屉弹出（默认视频作用域），
           // 在整体设置页内则整页打开（全部作用域）。改动经 KeybindingService 的
           // 响应式 bindings 即时生效，作用于当前已打开的播放器/图库。
-          ListTile(
-            leading: Icon(
-              Icons.keyboard,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            title: Text(
-              t.settings.keybinding.title,
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            trailing: const Icon(Icons.chevron_right),
+          _navigationTile(
+            context: context,
+            iconData: Icons.keyboard,
+            label: t.settings.keybinding.title,
             onTap: () => openKeybindingAsSheet
                 ? KeybindingSettingsPage.openSheet(context)
                 : KeybindingSettingsPage.open(context),
@@ -814,34 +828,29 @@ class PlayerSettingsWidget extends StatelessWidget {
         const SizedBox(height: _kGroupGap),
 
         // -------- 剧院模式 & 画质增强 --------
+        // Anime4K / 色觉辅助以嵌入模式渲染，去掉各自的独立卡片与提示横幅，
+        // 与剧院模式开关同处一张分组卡片。
         _sectionLabel(context, t.settings.enhancementSettings),
-        _groupCard(context, [
+        _groupCard([
           _switchTile(
             context: context,
             iconData: Icons.theater_comedy,
             label: t.settings.theaterMode,
+            description: t.settings.theaterModeDesc,
             rxValue: _configService.settings[ConfigKey.THEATER_MODE_KEY]!,
             onChanged: (value) {
               _configService[ConfigKey.THEATER_MODE_KEY] = value;
             },
           ),
+          const Anime4KSettingsWidget(embedded: true),
+          // 色觉辅助滤镜（作用于所有播放器画面，与 Anime4K 可同时开启）
+          const ColorVisionSettingsWidget(embedded: true),
         ]),
-        const SizedBox(height: _kItemGap),
-        Anime4KSettingsWidget(
-          showInfoCard: true,
-          infoMessage: t.anime4k.realTimeVideoUpscalingAndDenoising,
-        ),
-        const SizedBox(height: _kItemGap),
-        // 色觉辅助滤镜（作用于所有播放器画面，与 Anime4K 可同时开启）
-        ColorVisionSettingsWidget(
-          showInfoCard: true,
-          infoMessage: t.colorVisionAssist.description,
-        ),
         const SizedBox(height: _kGroupGap),
 
         // -------- 音视频配置 --------
         _sectionLabel(context, t.settings.audioVideoConfig),
-        _groupCard(context, [
+        _groupCard([
           // 扩大缓冲区
           _switchTile(
             context: context,
@@ -914,7 +923,7 @@ class PlayerSettingsWidget extends StatelessWidget {
           // 启用硬件加速
           _switchTile(
             context: context,
-            iconData: Icons.speed,
+            iconData: Icons.bolt,
             label: t.settings.enableHardwareAcceleration,
             description: t.settings.enableHardwareAccelerationInfo,
             rxValue: _configService
@@ -945,7 +954,8 @@ class PlayerSettingsWidget extends StatelessWidget {
 
 /// 数字输入条目：左侧图标 + 标题，右侧紧凑输入框，带即时校验。
 ///
-/// 行为对齐原 `SettingItem`：校验通过即写回配置，校验失败在下方显示错误信息。
+/// 结构与其它条目一致（同为 `ListTile`），因此行高、图标位、左右留白都对齐；
+/// 校验失败时错误信息占用副标题位置。
 class _NumberSettingTile extends StatefulWidget {
   final IconData iconData;
   final String label;
@@ -998,61 +1008,43 @@ class _NumberSettingTileState extends State<_NumberSettingTile> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final hasError = _errorText != null;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(widget.iconData, color: cs.onSurfaceVariant),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(widget.label, style: theme.textTheme.bodyLarge),
-              ),
-              const SizedBox(width: 12),
-              SizedBox(
-                width: 104,
-                child: TextField(
-                  controller: _controller,
-                  keyboardType: widget.keyboardType,
-                  textAlign: TextAlign.end,
-                  onChanged: _handleChanged,
-                  style: theme.textTheme.bodyLarge,
-                  decoration: InputDecoration(
-                    isDense: true,
-                    suffixText: widget.suffixText,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 10,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
-                        color: hasError ? cs.error : cs.outline,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
-                        color: hasError ? cs.error : cs.primary,
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          if (hasError)
-            Padding(
-              padding: const EdgeInsets.only(top: 6, left: 40),
-              child: Text(
-                _errorText!,
-                style: theme.textTheme.bodySmall?.copyWith(color: cs.error),
+    return ListTile(
+      leading: Icon(widget.iconData, color: cs.onSurfaceVariant),
+      title: Text(widget.label, style: theme.textTheme.bodyLarge),
+      subtitle: hasError
+          ? Text(
+              _errorText!,
+              style: theme.textTheme.bodySmall?.copyWith(color: cs.error),
+            )
+          : null,
+      trailing: SizedBox(
+        width: 104,
+        child: TextField(
+          controller: _controller,
+          keyboardType: widget.keyboardType,
+          textAlign: TextAlign.end,
+          onChanged: _handleChanged,
+          style: theme.textTheme.bodyLarge,
+          decoration: InputDecoration(
+            isDense: true,
+            suffixText: widget.suffixText,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 10,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: hasError ? cs.error : cs.outline),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(
+                color: hasError ? cs.error : cs.primary,
+                width: 2,
               ),
             ),
-        ],
+          ),
+        ),
       ),
     );
   }

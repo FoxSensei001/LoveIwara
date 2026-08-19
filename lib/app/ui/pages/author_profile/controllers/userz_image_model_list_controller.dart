@@ -90,11 +90,20 @@ class UserzImageModelListRepository extends LoadingMoreBase<ImageModel>
   final GalleryService _imageModelService = Get.find<GalleryService>();
   final String userId;
   final String sortType; // 使用 sortType 避免命名冲突
+
+  /// 标签筛选（`tags=a,b`，服务端按「同时含有」处理）。
+  final List<String> searchTagIds;
+
+  /// 日期筛选，'' / 'YYYY' / 'YYYY-MM'。
+  final String searchDate;
+
   final Function({int? count})? onFetchFinished;
 
   UserzImageModelListRepository({
     required this.userId,
     required this.sortType,
+    this.searchTagIds = const [],
+    this.searchDate = '',
     this.onFetchFinished,
   });
 
@@ -136,11 +145,19 @@ class UserzImageModelListRepository extends LoadingMoreBase<ImageModel>
       final response = await _imageModelService.fetchImageModelsByParams(
         page: page,
         limit: 20,
-        params: {'sort': sortType, 'rating': 'all', 'user': userId},
+        // rating 在带 user= 的查询里会被服务端忽略，固定 'all'。
+        params: {
+          'sort': sortType,
+          'rating': 'all',
+          'user': userId,
+          if (searchTagIds.isNotEmpty) 'tags': searchTagIds.join(','),
+          if (searchDate.isNotEmpty) 'date': searchDate,
+        },
       );
 
       LogUtils.d(
-        '[图片列表Repository] 查询参数: userId: $userId, sort: $sortType, page: $page',
+        '[图片列表Repository] 查询参数: userId: $userId, sort: $sortType, '
+        'tags: ${searchTagIds.join(',')}, date: $searchDate, page: $page',
       );
 
       if (!response.isSuccess) {

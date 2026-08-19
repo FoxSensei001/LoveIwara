@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 import '../../../../models/image.model.dart';
+import '../../../../models/tag.model.dart';
+import '../../../../utils/show_app_dialog.dart';
+import '../../popular_media_list/widgets/popular_media_search_config_widget.dart';
 import '../controllers/userz_image_model_list_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:get/get.dart';
@@ -44,6 +47,13 @@ class _ProfileImageModelTabListWidgetState
   late UserzImageModelListRepository imageListRepository;
   late ScrollController _tabBarScrollController;
 
+  /// 标签 / 日期筛选。与视频 tab 一致，作者页不提供评级筛选——服务端在带
+  /// `user=` 的查询里会忽略 `rating`。
+  List<Tag> _filterTags = [];
+  String _filterDate = '';
+
+  bool get _hasFilter => _filterTags.isNotEmpty || _filterDate.isNotEmpty;
+
   String getSort() {
     switch (widget.tc.index) {
       case 0:
@@ -73,9 +83,35 @@ class _ProfileImageModelTabListWidgetState
     imageListRepository = UserzImageModelListRepository(
       userId: widget.userId,
       sortType: getSort(),
+      searchTagIds: _filterTags.map((tag) => tag.id).toList(),
+      searchDate: _filterDate,
       onFetchFinished: widget.onFetchFinished,
     );
-    LogUtils.d('[详情图片列表] 初始化，当前的用户ID是：${widget.userId}, 排序是：${getSort()}');
+    LogUtils.d(
+      '[详情图片列表] 初始化，当前的用户ID是：${widget.userId}, 排序是：${getSort()}, '
+      '标签：${_filterTags.map((e) => e.id).join(',')}, 日期：$_filterDate',
+    );
+  }
+
+  /// 打开筛选弹窗；确认后按「切换排序」同样的方式重建数据源。
+  void _openFilterDialog() {
+    showAppDialog(
+      PopularMediaSearchConfig(
+        searchTags: _filterTags,
+        searchYear: _filterDate,
+        searchRating: '',
+        showRating: false,
+        onConfirm: (tags, year, rating, _) {
+          if (!mounted) return;
+          setState(() {
+            _filterTags = tags;
+            _filterDate = year;
+            imageListRepository.dispose();
+            _initRepository();
+          });
+        },
+      ),
+    );
   }
 
   @override
@@ -198,6 +234,14 @@ class _ProfileImageModelTabListWidgetState
                   ),
                 ),
               ),
+            ),
+            IconButton(
+              icon: Badge(
+                isLabelVisible: _hasFilter,
+                child: const Icon(Icons.filter_list),
+              ),
+              onPressed: _openFilterDialog,
+              tooltip: t.searchFilter.filterSettings,
             ),
             IconButton(
               icon: Icon(

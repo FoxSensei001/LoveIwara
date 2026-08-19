@@ -13,16 +13,29 @@ class Anime4KSettingsWidget extends StatelessWidget {
   final String? infoMessage;
   final bool isNarrow;
 
+  /// 嵌入模式：不再渲染自己的卡片外壳与提示横幅，只输出一个扁平的
+  /// [ListTile]，供外部的分组卡片（如播放器设置页）直接内联，
+  /// 与同卡片内的其它条目共用行高与留白。
+  final bool embedded;
+
   const Anime4KSettingsWidget({
     super.key,
     this.showInfoCard = true,
     this.infoMessage,
     this.isNarrow = false,
+    this.embedded = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final configService = Get.find<ConfigService>();
+
+    if (embedded) {
+      return _buildPresetSelection(
+        context: context,
+        configService: configService,
+      );
+    }
 
     return Column(
       children: [
@@ -85,6 +98,27 @@ class Anime4KSettingsWidget extends StatelessWidget {
       final currentPresetId =
           configService[ConfigKey.ANIME4K_PRESET_ID] as String;
       final currentPreset = Anime4KPresets.getPresetById(currentPresetId);
+
+      if (embedded) {
+        final theme = Theme.of(context);
+        return ListTile(
+          leading: Icon(Icons.tune, color: theme.colorScheme.onSurfaceVariant),
+          title: Text(slang.t.anime4k.preset, style: theme.textTheme.bodyLarge),
+          subtitle: Text(
+            currentPreset?.name ?? slang.t.anime4k.disable,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: currentPresetId.isEmpty
+                  ? theme.colorScheme.onSurfaceVariant
+                  : theme.colorScheme.primary,
+            ),
+          ),
+          trailing: Icon(
+            Icons.chevron_right,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+          onTap: () => _showPresetSelectionDialog(context, configService),
+        );
+      }
 
       return Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),

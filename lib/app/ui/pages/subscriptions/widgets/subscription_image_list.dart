@@ -17,6 +17,10 @@ class SubscriptionImageList
     super.isMultiSelectMode,
     super.selectedItemIds,
     super.onItemSelect,
+    super.sortId,
+    super.searchTagIds,
+    super.searchDate,
+    super.searchRating,
   });
 
   @override
@@ -34,6 +38,10 @@ class _SubscriptionImageListState
   SubscriptionImageRepository createRepository() {
     return SubscriptionImageRepository(
       userId: widget.userId,
+      sortId: widget.sortId,
+      searchTagIds: widget.searchTagIds,
+      searchDate: widget.searchDate,
+      searchRating: widget.searchRating,
     );
   }
 

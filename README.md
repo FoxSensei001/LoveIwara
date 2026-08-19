@@ -24,7 +24,7 @@ One codebase → Android · Windows · macOS · Linux · iOS
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
 ![iOS](https://img.shields.io/badge/iOS-000000?style=flat&logo=apple&logoColor=white)
 
-**English** · [中文](README_ZH.md)
+**English** · [简体中文](README_ZH.md) · [繁體中文](README_ZH_TW.md) · [日本語](README_JA.md)
 
 </div>
 

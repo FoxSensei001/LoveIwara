@@ -17,6 +17,18 @@ abstract class BaseSubscriptionList<T, R extends ExtendedLoadingMoreBase<T>>
   final double paddingTop;
   final bool showBottomPadding;
 
+  /// 排序 id（'' 表示用服务端默认排序）
+  final String sortId;
+
+  /// 标签筛选（`tags=a,b`，服务端按「同时含有」处理）
+  final List<String> searchTagIds;
+
+  /// 日期筛选，'' / 'YYYY' / 'YYYY-MM'
+  final String searchDate;
+
+  /// 内容评级筛选；仅在订阅流（userId 为空）下有效
+  final String searchRating;
+
   const BaseSubscriptionList({
     super.key,
     required this.userId,
@@ -27,6 +39,10 @@ abstract class BaseSubscriptionList<T, R extends ExtendedLoadingMoreBase<T>>
     this.isMultiSelectMode = false,
     this.selectedItemIds = const {},
     this.onItemSelect,
+    this.sortId = '',
+    this.searchTagIds = const [],
+    this.searchDate = '',
+    this.searchRating = '',
   });
 
   /// 是否开启多选模式
@@ -100,8 +116,13 @@ abstract class BaseSubscriptionListState<
   void didUpdateWidget(W oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // 用户ID变化时重新创建数据源
-    if (oldWidget.userId != widget.userId) {
+    // 用户ID或筛选条件变化时重新创建数据源
+    // （查询参数在 Repository 构造时固化，只能重建；旧实例 dispose 会取消在途请求）
+    if (oldWidget.userId != widget.userId ||
+        oldWidget.sortId != widget.sortId ||
+        oldWidget.searchDate != widget.searchDate ||
+        oldWidget.searchRating != widget.searchRating ||
+        !listEquals(oldWidget.searchTagIds, widget.searchTagIds)) {
       repository.dispose();
       repository = createRepository();
       if (mounted) {

@@ -19,6 +19,10 @@ class SubscriptionVideoList
     super.isMultiSelectMode,
     super.selectedItemIds,
     super.onItemSelect,
+    super.sortId,
+    super.searchTagIds,
+    super.searchDate,
+    super.searchRating,
   });
 
   @override
@@ -36,6 +40,10 @@ class _SubscriptionVideoListState
   SubscriptionVideoRepository createRepository() {
     return SubscriptionVideoRepository(
       userId: widget.userId,
+      sortId: widget.sortId,
+      searchTagIds: widget.searchTagIds,
+      searchDate: widget.searchDate,
+      searchRating: widget.searchRating,
     );
   }
 

@@ -24,7 +24,7 @@
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
 ![iOS](https://img.shields.io/badge/iOS-000000?style=flat&logo=apple&logoColor=white)
 
-[English](README.md) · **中文**
+[English](README.md) · **简体中文** · [繁體中文](README_ZH_TW.md) · [日本語](README_JA.md)
 
 </div>
 
