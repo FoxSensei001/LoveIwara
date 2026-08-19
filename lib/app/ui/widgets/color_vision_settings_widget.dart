@@ -23,17 +23,27 @@ class ColorVisionSettingsWidget extends StatelessWidget {
   final ConfigKey configKey;
   final String? descriptionOverride;
 
+  /// 嵌入模式：不再渲染自己的卡片外壳与提示横幅，只输出一个扁平的
+  /// [ListTile]，供外部的分组卡片（如播放器设置页）直接内联，
+  /// 与同卡片内的其它条目共用行高与留白。
+  final bool embedded;
+
   const ColorVisionSettingsWidget({
     super.key,
     this.showInfoCard = true,
     this.infoMessage,
     this.configKey = ConfigKey.COLOR_VISION_FILTER_ID,
     this.descriptionOverride,
+    this.embedded = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final configService = Get.find<ConfigService>();
+
+    if (embedded) {
+      return _buildSelector(context, configService);
+    }
 
     return Column(
       children: [
@@ -103,6 +113,37 @@ class ColorVisionSettingsWidget extends StatelessWidget {
       final currentId = configService[configKey] as String;
       final currentType = ColorVisionFilterType.fromId(currentId);
       final isDark = Theme.of(context).brightness == Brightness.dark;
+
+      if (embedded) {
+        final theme = Theme.of(context);
+        return ListTile(
+          leading: Icon(
+            Icons.invert_colors,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+          title: Text(
+            t.colorVisionAssist.title,
+            style: theme.textTheme.bodyLarge,
+          ),
+          subtitle: Text(
+            optionLabels[currentId] ?? currentId,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: currentType == ColorVisionFilterType.none
+                  ? theme.colorScheme.onSurfaceVariant
+                  : theme.colorScheme.primary,
+            ),
+          ),
+          trailing: Icon(
+            Icons.chevron_right,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+          onTap: () => showSelectionDialog(
+            context,
+            configKey: configKey,
+            description: description,
+          ),
+        );
+      }
 
       return Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
