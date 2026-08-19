@@ -20,7 +20,6 @@ import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/blurred_thumbnail_background.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/rapple_painter.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -105,7 +104,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   bool _isSwitchingInnerPlaylistVideo = false;
   InnerPlaylistItemSnapshot? _loadingInnerPlaylistItem;
 
-  Timer? _autoHideTimer;
   Timer? _volumeInfoTimer; // 添加音量提示计时器
   Timer? _playbackSpeedInfoTimer; // 倍速调整的临时提示计时器
 
@@ -151,11 +149,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   Duration? _horizontalDragStartPosition;
   static const int maxSeekSeconds = 90;
 
-  // 底部预览 tooltip 状态：用于淡出时保持最后位置
-  double? _bottomTooltipX;
-  Duration? _bottomTooltipTime;
-  bool _bottomTooltipVisible = false;
-
   @override
   void initState() {
     LogUtils.d("[${widget.isFullScreen ? '全屏' : '内嵌'} 初始化]", 'MyVideoScreen');
@@ -179,9 +172,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _focusNode.requestFocus();
       });
-
-      // 在全屏状态下监听重力感应变化
-      _startGravityOrientationListener();
     }
 
     _initializeAnimationControllers();
@@ -193,9 +183,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     super.didChangeDependencies();
     // 依赖变化（主题、尺寸、安全区…）后把键盘焦点拿回播放器，保证快捷键继续可用。
     //
-    // 但**只能在焦点本来就在播放器所在的 FocusScope 里时**才抢：本 State 通过
-    // MediaQuery.of(context) 依赖了 MediaQuery 的全部字段，输入法弹出会改变
-    // viewInsets / padding / size，同样会走到这里。此时焦点正落在弹层的输入框上
+    // 但**只能在焦点本来就在播放器所在的 FocusScope 里时**才抢：尺寸、安全区或
+    // 主题变化仍会走到这里，而此时焦点可能正落在弹层的输入框上
     // （登录弹窗、评论回复框…），无条件 requestFocus 会把它顶掉 —— 表现为输入法
     // 刚弹出就被立刻关闭、输入框失焦，并在「弹出→失焦→收起→再次布局」之间反复。
     // 弹层挂在 root navigator 上、播放器在 shell 路由里，两边的 ModalRoute 各自
@@ -283,51 +272,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     );
   }
 
-  // 重力感应监听相关变量
-  Timer? _orientationCheckTimer;
-  Orientation? _lastOrientation;
-
-  /// 开始监听重力感应变化
-  void _startGravityOrientationListener() {
-    // 仅在移动端启用
-    if (!GetPlatform.isAndroid && !GetPlatform.isIOS) {
-      return;
-    }
-
-    // 使用定时器定期检查方向变化
-    _orientationCheckTimer = Timer.periodic(
-      const Duration(milliseconds: 1000),
-      (timer) {
-        if (!mounted || !widget.isFullScreen) {
-          timer.cancel();
-          return;
-        }
-        _checkOrientationChange();
-      },
-    );
-  }
-
-  /// 检查方向变化
-  void _checkOrientationChange() {
-    if (!mounted || !widget.isFullScreen) {
-      return;
-    }
-
-    // 获取当前方向
-    final currentOrientation = MediaQuery.of(context).orientation;
-
-    // 检查方向是否发生变化
-    if (_lastOrientation != currentOrientation) {
-      _lastOrientation = currentOrientation;
-
-      // 只在横屏状态下处理
-      if (currentOrientation == Orientation.landscape) {
-        LogUtils.d('进入横屏模式 jui', 'MyVideoScreen');
-        // 可以在这里添加横屏状态下的处理逻辑
-      }
-    }
-  }
-
   @override
   void dispose() {
     if (widget.isFullScreen) {
@@ -360,10 +304,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     _rightRippleController1.dispose();
     _rightRippleController2.dispose();
     _infoMessageFadeController.dispose();
-    _autoHideTimer?.cancel();
     _volumeInfoTimer?.cancel(); // 取消音量提示计时器
     _playbackSpeedInfoTimer?.cancel(); // 取消倍速提示计时器
-    _orientationCheckTimer?.cancel(); // 取消重力感应监听
     widget.myVideoStateController.setMouseHoverToolbarRevealSuppressed(false);
     super.dispose();
   }
@@ -681,7 +623,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       currentPosition = Duration.zero;
     }
 
-    widget.myVideoStateController.handleSeek(currentPosition);
+    unawaited(widget.myVideoStateController.handleSeek(currentPosition));
   }
 
   void _triggerRightRipple() {
@@ -709,7 +651,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     } else {
       currentPosition = totalDuration;
     }
-    widget.myVideoStateController.handleSeek(currentPosition);
+    unawaited(widget.myVideoStateController.handleSeek(currentPosition));
   }
 
   // 单击事件
@@ -906,27 +848,18 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         widget.myVideoStateController.relinquishFullscreenForRouteHandoff();
       }
 
-      unawaited(
-        navigationFuture.whenComplete(() {
-          if (!mounted) {
-            return;
-          }
-          setState(() {
-            _isSwitchingInnerPlaylistVideo = false;
-            _loadingInnerPlaylistItem = null;
-          });
-        }),
-      );
+      await navigationFuture;
     } catch (e) {
-      if (!mounted) {
-        return;
+      if (mounted) {
+        _showInnerPlaylistErrorToast(CommonUtils.parseExceptionMessage(e));
       }
-
-      _showInnerPlaylistErrorToast(CommonUtils.parseExceptionMessage(e));
-      setState(() {
-        _isSwitchingInnerPlaylistVideo = false;
-        _loadingInnerPlaylistItem = null;
-      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSwitchingInnerPlaylistVideo = false;
+          _loadingInnerPlaylistItem = null;
+        });
+      }
     }
   }
 
@@ -1091,8 +1024,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
           if (showPlaybackChrome) _buildMaskLayer(),
           // 添加锁定按钮
           if (showPlaybackChrome) _buildLockButton(),
-          if (controller.shouldShowOverlayHud)
-            _buildInnerPlaylistOverlay(screenSize),
+          if (controller.shouldShowOverlayHud) _buildInnerPlaylistOverlay(),
         ],
       );
     });
@@ -1101,7 +1033,10 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   /// 播放提示胶囊的锚点。几何全部在这里算好，胶囊只管渲染，
   /// 这样图库那两个小播放器可以复用同一个组件配另一套几何。
   Widget _buildPlayerNotice(Size screenSize, double paddingTop) {
-    final MediaQueryData mq = MediaQuery.of(context);
+    final Size displaySize = MediaQuery.sizeOf(context);
+    final EdgeInsets padding = MediaQuery.paddingOf(context);
+    final EdgeInsets viewPadding = MediaQuery.viewPaddingOf(context);
+    final TextScaler textScaler = MediaQuery.textScalerOf(context);
 
     // 顶部工具栏是 Positioned(top: -paddingTop) 配 height: toolbarHeight + 状态栏，
     // 所以不论状态栏内边距是多少，它的下边缘在 Stack 坐标系里恰好等于 toolbarHeight。
@@ -1123,7 +1058,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     // 字号看播放器实际宽度而不是 widget.isFullScreen：桌面端「应用内全屏」传的是
     // isFullScreen: false，但它其实占满整个窗口。
     final double fontSize = stackW >= 900 ? 13.0 : 12.0;
-    final double line = mq.textScaler.scale(fontSize) * 1.45; // 中日韩最坏行高比
+    final double line = textScaler.scale(fontSize) * 1.45; // 中日韩最坏行高比
     final double oneLine = 12.0 + math.max(16.0, line);
     final double twoLine = 12.0 + math.max(16.0, line * 2);
 
@@ -1140,9 +1075,9 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     // 会漏报，所以和 computeBottomSafeInset 一样再兜一层 viewPadding；并且只有
     // 播放器真的贴到屏幕边缘时才让位 —— 宽屏分栏里右侧是 350px 的信息栏。
     final bool spansDisplayEdge =
-        widget.isFullScreen || stackW >= mq.size.width - 1.0;
+        widget.isFullScreen || stackW >= displaySize.width - 1.0;
     final double safeRight = spansDisplayEdge
-        ? math.max(mq.padding.right, mq.viewPadding.right)
+        ? math.max(padding.right, viewPadding.right)
         : 0.0;
     const double margin = 12.0; // 与全屏播放列表抽屉的右边距保持一致
 
@@ -1255,11 +1190,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             type: MaterialType.transparency,
             child: IconButton(
               tooltip: t.common.back,
-              icon: Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-                size: iconSize,
-              ),
+              icon: Icon(Icons.arrow_back, color: Colors.white, size: iconSize),
               onPressed: () {
                 if (widget.isFullScreen) {
                   unawaited(widget.myVideoStateController.exitFullscreen());
@@ -1272,6 +1203,59 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         ),
       ),
     );
+  }
+
+  bool get _horizontalDragSeekEnabled =>
+      _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true;
+
+  void _handleHorizontalDragStart(DragStartDetails details) {
+    VibrateUtils.vibrate();
+    final controller = widget.myVideoStateController;
+    _horizontalDragStartX = details.localPosition.dx;
+    _horizontalDragStartPosition = controller.currentPosition;
+    controller.setInteracting(true);
+    controller.showSeekPreview(true);
+    controller.updateSeekPreview(_horizontalDragStartPosition!);
+    controller.isHorizontalDragging.value = true;
+  }
+
+  void _handleHorizontalDragUpdate(
+    DragUpdateDetails details,
+    double screenWidth,
+  ) {
+    final startX = _horizontalDragStartX;
+    final startPosition = _horizontalDragStartPosition;
+    if (startX == null || startPosition == null) return;
+
+    final dragDistance = details.localPosition.dx - startX;
+    const edgeThreshold = CommonConstants.videoPlayerEdgeGestureThreshold;
+    final startedAtEdge =
+        (startX < edgeThreshold && dragDistance > 0) ||
+        (startX > screenWidth - edgeThreshold && dragDistance < 0);
+    if (startedAtEdge && widget.myVideoStateController.isFullscreen.value) {
+      return;
+    }
+
+    widget.myVideoStateController.updateSeekPreview(
+      VideoDetailHorizontalDragSeekLogic.calculatePreviewPosition(
+        dragStartPosition: startPosition,
+        dragDistance: dragDistance,
+        screenWidth: screenWidth,
+        totalDuration: widget.myVideoStateController.totalDuration.value,
+        maxSeekSeconds: maxSeekSeconds,
+      ),
+    );
+  }
+
+  void _handleHorizontalDragEnd(DragEndDetails details) {
+    final controller = widget.myVideoStateController;
+    if (_horizontalDragStartPosition != null) {
+      unawaited(controller.handleSeek(controller.previewPosition.value));
+    }
+    _horizontalDragStartX = null;
+    _horizontalDragStartPosition = null;
+    controller.setInteracting(false);
+    controller.showSeekPreview(false);
   }
 
   List<Widget> _buildGestureAreas(Size screenSize) {
@@ -1291,85 +1275,15 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             myVideoStateController: widget.myVideoStateController,
             onDoubleTapLeft: _triggerLeftRipple,
             screenSize: screenSize,
-            onHorizontalDragStart:
-                _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
-                ? (details) {
-                    // 开始横向拖动 seek 时给一次触觉反馈（与进度条拖动开始保持一致）。
-                    VibrateUtils.vibrate();
-                    _horizontalDragStartX = details.localPosition.dx;
-                    _horizontalDragStartPosition =
-                        widget.myVideoStateController.currentPosition;
-                    widget.myVideoStateController.setInteracting(true);
-                    widget.myVideoStateController.showSeekPreview(true);
-                    widget.myVideoStateController.updateSeekPreview(
-                      VideoDetailHorizontalDragSeekLogic.seedPreviewPosition(
-                        _horizontalDragStartPosition!,
-                      ),
-                    );
-                    widget.myVideoStateController.isHorizontalDragging.value =
-                        true;
-                  }
+            onHorizontalDragStart: _horizontalDragSeekEnabled
+                ? _handleHorizontalDragStart
                 : null,
-            onHorizontalDragUpdate:
-                _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
-                ? (details) {
-                    if (_horizontalDragStartX == null ||
-                        _horizontalDragStartPosition == null) {
-                      return;
-                    }
-
-                    // 检查是否从边缘区域开始滑动
-                    const edgeThreshold =
-                        CommonConstants.videoPlayerEdgeGestureThreshold;
-                    final screenWidth = screenSize.width;
-
-                    // 从左侧边缘向右滑动,忽略
-                    if (_horizontalDragStartX! < edgeThreshold &&
-                        details.localPosition.dx - _horizontalDragStartX! > 0) {
-                      if (widget.myVideoStateController.isFullscreen.value) {
-                        return;
-                      }
-                    }
-
-                    // 从右侧边缘向左滑动,忽略
-                    if (_horizontalDragStartX! > screenWidth - edgeThreshold &&
-                        details.localPosition.dx - _horizontalDragStartX! < 0) {
-                      if (widget.myVideoStateController.isFullscreen.value) {
-                        return;
-                      }
-                    }
-
-                    double dragDistance =
-                        details.localPosition.dx - _horizontalDragStartX!;
-                    final Duration targetPosition =
-                        VideoDetailHorizontalDragSeekLogic.calculatePreviewPosition(
-                          dragStartPosition: _horizontalDragStartPosition!,
-                          dragDistance: dragDistance,
-                          screenWidth: screenSize.width,
-                          totalDuration:
-                              widget.myVideoStateController.totalDuration.value,
-                          maxSeekSeconds: maxSeekSeconds,
-                        );
-
-                    widget.myVideoStateController.updateSeekPreview(
-                      targetPosition,
-                    );
-                  }
+            onHorizontalDragUpdate: _horizontalDragSeekEnabled
+                ? (details) =>
+                      _handleHorizontalDragUpdate(details, screenSize.width)
                 : null,
-            onHorizontalDragEnd:
-                _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
-                ? (details) {
-                    if (_horizontalDragStartPosition != null) {
-                      Duration targetPosition =
-                          widget.myVideoStateController.previewPosition.value;
-                      widget.myVideoStateController.handleSeek(targetPosition);
-                    }
-
-                    _horizontalDragStartX = null;
-                    _horizontalDragStartPosition = null;
-                    widget.myVideoStateController.setInteracting(false);
-                    widget.myVideoStateController.showSeekPreview(false);
-                  }
+            onHorizontalDragEnd: _horizontalDragSeekEnabled
+                ? _handleHorizontalDragEnd
                 : null,
           ),
         ),
@@ -1391,85 +1305,15 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             screenSize: screenSize,
             onVolumeChange: (volume) =>
                 widget.myVideoStateController.setVolume(volume, save: false),
-            onHorizontalDragStart:
-                _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
-                ? (details) {
-                    // 开始横向拖动 seek 时给一次触觉反馈（与进度条拖动开始保持一致）。
-                    VibrateUtils.vibrate();
-                    _horizontalDragStartX = details.localPosition.dx;
-                    _horizontalDragStartPosition =
-                        widget.myVideoStateController.currentPosition;
-                    widget.myVideoStateController.setInteracting(true);
-                    widget.myVideoStateController.showSeekPreview(true);
-                    widget.myVideoStateController.updateSeekPreview(
-                      VideoDetailHorizontalDragSeekLogic.seedPreviewPosition(
-                        _horizontalDragStartPosition!,
-                      ),
-                    );
-                    widget.myVideoStateController.isHorizontalDragging.value =
-                        true;
-                  }
+            onHorizontalDragStart: _horizontalDragSeekEnabled
+                ? _handleHorizontalDragStart
                 : null,
-            onHorizontalDragUpdate:
-                _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
-                ? (details) {
-                    if (_horizontalDragStartX == null ||
-                        _horizontalDragStartPosition == null) {
-                      return;
-                    }
-
-                    // 检查是否从边缘区域开始滑动
-                    const edgeThreshold =
-                        CommonConstants.videoPlayerEdgeGestureThreshold;
-                    final screenWidth = screenSize.width;
-
-                    // 从左侧边缘向右滑动,忽略
-                    if (_horizontalDragStartX! < edgeThreshold &&
-                        details.localPosition.dx - _horizontalDragStartX! > 0) {
-                      if (widget.myVideoStateController.isFullscreen.value) {
-                        return;
-                      }
-                    }
-
-                    // 从右侧边缘向左滑动,忽略
-                    if (_horizontalDragStartX! > screenWidth - edgeThreshold &&
-                        details.localPosition.dx - _horizontalDragStartX! < 0) {
-                      if (widget.myVideoStateController.isFullscreen.value) {
-                        return;
-                      }
-                    }
-
-                    double dragDistance =
-                        details.localPosition.dx - _horizontalDragStartX!;
-                    final Duration targetPosition =
-                        VideoDetailHorizontalDragSeekLogic.calculatePreviewPosition(
-                          dragStartPosition: _horizontalDragStartPosition!,
-                          dragDistance: dragDistance,
-                          screenWidth: screenSize.width,
-                          totalDuration:
-                              widget.myVideoStateController.totalDuration.value,
-                          maxSeekSeconds: maxSeekSeconds,
-                        );
-
-                    widget.myVideoStateController.updateSeekPreview(
-                      targetPosition,
-                    );
-                  }
+            onHorizontalDragUpdate: _horizontalDragSeekEnabled
+                ? (details) =>
+                      _handleHorizontalDragUpdate(details, screenSize.width)
                 : null,
-            onHorizontalDragEnd:
-                _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
-                ? (details) {
-                    if (_horizontalDragStartPosition != null) {
-                      Duration targetPosition =
-                          widget.myVideoStateController.previewPosition.value;
-                      widget.myVideoStateController.handleSeek(targetPosition);
-                    }
-
-                    _horizontalDragStartX = null;
-                    _horizontalDragStartPosition = null;
-                    widget.myVideoStateController.setInteracting(false);
-                    widget.myVideoStateController.showSeekPreview(false);
-                  }
+            onHorizontalDragEnd: _horizontalDragSeekEnabled
+                ? _handleHorizontalDragEnd
                 : null,
           ),
         ),
@@ -1497,85 +1341,15 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             region: GestureRegion.center,
             myVideoStateController: widget.myVideoStateController,
             screenSize: screenSize,
-            onHorizontalDragStart:
-                _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
-                ? (details) {
-                    // 开始横向拖动 seek 时给一次触觉反馈（与进度条拖动开始保持一致）。
-                    VibrateUtils.vibrate();
-                    _horizontalDragStartX = details.localPosition.dx;
-                    _horizontalDragStartPosition =
-                        widget.myVideoStateController.currentPosition;
-                    widget.myVideoStateController.setInteracting(true);
-                    widget.myVideoStateController.showSeekPreview(true);
-                    widget.myVideoStateController.updateSeekPreview(
-                      VideoDetailHorizontalDragSeekLogic.seedPreviewPosition(
-                        _horizontalDragStartPosition!,
-                      ),
-                    );
-                    widget.myVideoStateController.isHorizontalDragging.value =
-                        true;
-                  }
+            onHorizontalDragStart: _horizontalDragSeekEnabled
+                ? _handleHorizontalDragStart
                 : null,
-            onHorizontalDragUpdate:
-                _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
-                ? (details) {
-                    if (_horizontalDragStartX == null ||
-                        _horizontalDragStartPosition == null) {
-                      return;
-                    }
-
-                    // 检查是否从边缘区域开始滑动
-                    const edgeThreshold =
-                        CommonConstants.videoPlayerEdgeGestureThreshold;
-                    final screenWidth = screenSize.width;
-
-                    // 从左侧边缘向右滑动,忽略
-                    if (_horizontalDragStartX! < edgeThreshold &&
-                        details.localPosition.dx - _horizontalDragStartX! > 0) {
-                      if (widget.myVideoStateController.isFullscreen.value) {
-                        return;
-                      }
-                    }
-
-                    // 从右侧边缘向左滑动,忽略
-                    if (_horizontalDragStartX! > screenWidth - edgeThreshold &&
-                        details.localPosition.dx - _horizontalDragStartX! < 0) {
-                      if (widget.myVideoStateController.isFullscreen.value) {
-                        return;
-                      }
-                    }
-
-                    double dragDistance =
-                        details.localPosition.dx - _horizontalDragStartX!;
-                    final Duration targetPosition =
-                        VideoDetailHorizontalDragSeekLogic.calculatePreviewPosition(
-                          dragStartPosition: _horizontalDragStartPosition!,
-                          dragDistance: dragDistance,
-                          screenWidth: screenSize.width,
-                          totalDuration:
-                              widget.myVideoStateController.totalDuration.value,
-                          maxSeekSeconds: maxSeekSeconds,
-                        );
-
-                    widget.myVideoStateController.updateSeekPreview(
-                      targetPosition,
-                    );
-                  }
+            onHorizontalDragUpdate: _horizontalDragSeekEnabled
+                ? (details) =>
+                      _handleHorizontalDragUpdate(details, screenSize.width)
                 : null,
-            onHorizontalDragEnd:
-                _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
-                ? (details) {
-                    if (_horizontalDragStartPosition != null) {
-                      Duration targetPosition =
-                          widget.myVideoStateController.previewPosition.value;
-                      widget.myVideoStateController.handleSeek(targetPosition);
-                    }
-
-                    _horizontalDragStartX = null;
-                    _horizontalDragStartPosition = null;
-                    widget.myVideoStateController.setInteracting(false);
-                    widget.myVideoStateController.showSeekPreview(false);
-                  }
+            onHorizontalDragEnd: _horizontalDragSeekEnabled
+                ? _handleHorizontalDragEnd
                 : null,
           ),
         );
@@ -1605,12 +1379,16 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     ];
   }
 
-  Widget _buildInnerPlaylistOverlay(Size screenSize) {
-    if (!_canShowInnerPlaylistOverlay()) {
-      return const SizedBox.shrink();
-    }
-
+  Widget _buildInnerPlaylistOverlay() {
     return Obx(() {
+      final items = _orderedInnerPlaylistItems;
+      final hintEnabled =
+          _configService[ConfigKey.SHOW_FULLSCREEN_UP_NEXT_HINT] as bool;
+      if (!widget.isFullScreen ||
+          items.isEmpty ||
+          (!_innerPlaylistExpanded && !hintEnabled)) {
+        return const SizedBox.shrink();
+      }
       final showResumePositionTip =
           widget.myVideoStateController.showResumePositionTip.value;
 
@@ -1624,11 +1402,10 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               .clamp(0.0, 1.0);
 
           return FullscreenInnerPlaylistDrawer(
-            items: _orderedInnerPlaylistItems,
+            items: items,
             isExpanded: _innerPlaylistExpanded,
             showHint:
-                (_configService[ConfigKey.SHOW_FULLSCREEN_UP_NEXT_HINT]
-                    as bool) &&
+                hintEnabled &&
                 !_innerPlaylistExpanded &&
                 !_isSwitchingInnerPlaylistVideo,
             isBusy: _isSwitchingInnerPlaylistVideo,
@@ -1769,19 +1546,27 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     double paddingTop,
     double playPauseIconSize,
   ) {
-    final MediaQueryData mq = MediaQuery.of(context);
+    final EdgeInsets padding = MediaQuery.paddingOf(context);
+    final EdgeInsets viewPadding = MediaQuery.viewPaddingOf(context);
+    final EdgeInsets systemGestureInsets = MediaQuery.systemGestureInsetsOf(
+      context,
+    );
+    final TextScaler textScaler = MediaQuery.textScalerOf(context);
     final double stackH = screenSize.height - paddingTop;
 
     final double band = bottomToolbarEstimatedHeight(
       isFullScreen: widget.isFullScreen,
-      isSmallScreen: mq.size.width < 600,
+      isSmallScreen: screenSize.width < 600,
       showResumeTip: widget.myVideoStateController.showResumePositionTip.value,
       showQuickActions:
           widget.isFullScreen && Get.find<UserService>().hasLoadedProfile,
       bottomInset: (!widget.isFullScreen && widget.enableBottomSafeArea)
-          ? computeBottomSafeInset(mq)
+          ? math.max(
+              padding.bottom,
+              math.max(viewPadding.bottom, systemGestureInsets.bottom),
+            )
           : 0.0,
-      textScaler: mq.textScaler,
+      textScaler: textScaler,
     );
 
     // 预留绝不能超过播放器给得起的量：BoxConstraints.deflate 会把负数夹到 0，
@@ -1800,7 +1585,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       TargetPlatform.fuchsia => kMinInteractiveDimension,
       _ => 32.0,
     };
-    final double headline = mq.textScaler.scale(16.0) * 1.45 * 2; // 按两行预留
+    final double headline = textScaler.scale(16.0) * 1.45 * 2; // 按两行预留
     final double chromeH = 16.0 + headline + 12.0 + buttonRow;
 
     // 先缩图标：playPauseIconSize 只由宽度推导，852x200 这种多窗口比例会要求
@@ -2073,7 +1858,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   // 音量和亮度信息提示（屏幕中心偏上）
   Widget _buildInfoMessage() {
     return Positioned(
-      top: MediaQuery.of(context).padding.top + 100,
+      top: MediaQuery.paddingOf(context).top + 100,
       left: 0,
       right: 0,
       child: Center(child: _buildInfoContent()),
@@ -2325,25 +2110,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                           // toolbar 隐藏时（opacity > 0.5 表示进度条可见）
                           tooltipX = progressWidth;
                           tooltipTime = previewPosition;
-
-                          // 更新预览播放器位置（限流）
-                          if (isPreviewReady) {
-                            widget.myVideoStateController.updatePreviewSeek(
-                              previewPosition,
-                            );
-                          }
-                        }
-
-                        // 底部 tooltip 也保持最后位置，消失时原地淡出
-                        if (tooltipX != null && tooltipTime != null) {
-                          _bottomTooltipX = tooltipX;
-                          _bottomTooltipTime = tooltipTime;
-                          _bottomTooltipVisible = true;
-                        } else if (_bottomTooltipX != null &&
-                            _bottomTooltipTime != null) {
-                          tooltipX = _bottomTooltipX;
-                          tooltipTime = _bottomTooltipTime;
-                          _bottomTooltipVisible = false;
                         }
 
                         return Stack(
@@ -2391,7 +2157,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                                 child: _buildPreviewTooltip(
                                   tooltipTime,
                                   isPreviewReady,
-                                  visible: _bottomTooltipVisible,
                                   tooltipX: tooltipX,
                                   totalWidth: totalWidth,
                                 ),
@@ -2417,7 +2182,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   Widget _buildPreviewTooltip(
     Duration time,
     bool isPreviewReady, {
-    bool visible = true,
     required double tooltipX,
     required double totalWidth,
   }) {
@@ -2445,66 +2209,56 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     return FractionalTranslation(
       // 根据位置动态调整水平偏移，确保 tooltip 不超出边界
       translation: Offset(horizontalOffset, 0),
-      child: AnimatedOpacity(
-        duration: const Duration(milliseconds: 150),
-        opacity: visible ? 1.0 : 0.0,
-        child: IgnorePointer(
-          ignoring: !visible,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(4),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.8),
+          borderRadius: BorderRadius.circular(4),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // 优先使用预览视频画面；如果暂不可用，则仅展示时间信息
-                if (isPreviewReady && controller.previewVideoController != null)
-                  Container(
-                    width: 160,
-                    height: 90,
-                    decoration: const BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(4),
-                        topRight: Radius.circular(4),
-                      ),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: ColorVisionFilterWrapper(
-                      child: Video(
-                        controller: controller.previewVideoController!,
-                        controls: null,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                // 时间文本（无论是否有预览视频都展示）
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  child: Text(
-                    CommonUtils.formatDuration(time),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.none,
-                    ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 优先使用预览视频画面；如果暂不可用，则仅展示时间信息
+            if (isPreviewReady && controller.previewVideoController != null)
+              Container(
+                width: 160,
+                height: 90,
+                decoration: const BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(4),
+                    topRight: Radius.circular(4),
                   ),
                 ),
-              ],
+                clipBehavior: Clip.antiAlias,
+                child: ColorVisionFilterWrapper(
+                  child: Video(
+                    controller: controller.previewVideoController!,
+                    controls: null,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            // 时间文本（无论是否有预览视频都展示）
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Text(
+                CommonUtils.formatDuration(time),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.none,
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -2582,7 +2336,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       ),
     );
   }
-
 }
 
 /// 长按类型 [滑动也属于长按]

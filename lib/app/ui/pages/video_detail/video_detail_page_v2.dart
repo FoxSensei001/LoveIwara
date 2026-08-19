@@ -75,10 +75,12 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   RelatedMediasController? relatedVideoController;
   Worker? _forceEnterFullscreenWorker;
   bool _hasTriggeredForcedFullscreen = false;
+  bool _initializationFailed = false;
+  bool get _hasUsableController =>
+      !_initializationFailed && (isLocalMode || videoId.isNotEmpty);
 
   // Tab控制器
   late TabController tabController;
-  final RxInt currentTabIndex = 0.obs;
 
   @override
   void initState() {
@@ -88,9 +90,6 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
 
     // 初始化Tab控制器（本地模式只有1个tab，在线模式有3个tab）
     tabController = TabController(length: isLocalMode ? 1 : 3, vsync: this);
-    tabController.addListener(() {
-      currentTabIndex.value = tabController.index;
-    });
 
     if (videoId.isEmpty && !isLocalMode) {
       return;
@@ -139,6 +138,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
 
       // RouteAware 订阅在 didChangeDependencies 中完成
     } catch (e) {
+      _initializationFailed = true;
       LogUtils.e('初始化控制器失败', tag: 'video_detail_page_v2', error: e);
     }
   }
@@ -218,6 +218,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   /// 另一个页面被推入覆盖当前页面时调用（等同于原来的"离开"）
   @override
   void didPushNext() {
+    if (!_hasUsableController) return;
     LogUtils.d('didPushNext', 'MyVideoDetailPage');
     // 弹窗/菜单（PopupRoute）覆盖时不自动暂停，避免工具栏弹层打断播放。
     if (OverlayTracker.instance.hasOverlay) {
@@ -228,6 +229,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       return;
     }
     // 暂停播放（即便视频源尚未加载完成也能正确抑制后续自动播放）
+    controller.suspendForCoveredRoute();
     controller.pausePlayback();
     // 重置屏幕亮度
     controller.setDefaultBrightness();
@@ -240,12 +242,14 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   /// 从上层页面返回到当前页面时调用（等同于原来的"进入"）
   @override
   void didPopNext() {
+    if (!_hasUsableController) return;
     LogUtils.d(
       'didPopNext: keep current playback state on route return',
       'MyVideoDetailPage',
     );
     // 返回到视频详情页，重置屏幕亮度
     ScreenBrightness().resetApplicationScreenBrightness();
+    controller.resumeFromCoveredRoute();
     if (controller.isFullscreen.value) {
       appService.hideSystemUI();
     }
@@ -305,7 +309,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     return videoHeight > screenHeight * 0.7;
   }
 
-  Widget _buildVideoArea(BuildContext context, {required Widget player}) {
+  Widget _buildVideoArea({required Widget player}) {
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -318,12 +322,14 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    if (videoId.isEmpty) {
+    if (!_hasUsableController) {
       return CommonErrorWidget(
-        text: t.videoDetail.videoIdIsEmpty,
+        text: _initializationFailed
+            ? t.videoDetail.videoLoadError
+            : t.videoDetail.videoIdIsEmpty,
         children: [
           ElevatedButton(
-            onPressed: () => AppService.tryPop,
+            onPressed: AppService.tryPop,
             child: Text(t.common.back),
           ),
         ],
@@ -411,7 +417,6 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                   if (controller.isDesktopAppFullScreen.value) {
                     return _buildPureVideoPlayer(
                       screenHeight,
-                      paddingTop,
                       innerPlaylistContext: effectiveInnerPlaylistContext,
                     );
                   }
@@ -482,14 +487,12 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         Expanded(
           child: SizedBox.expand(
             child: _buildVideoArea(
-              context,
               player: Obx(() {
                 // 站外、站内视频都显示播放器
                 if (controller.videoInfo.value?.isExternalVideo == true ||
                     controller.videoPlayerReady.value) {
                   return _buildPureVideoPlayer(
                     screenSize.height,
-                    paddingTop,
                     applyBottomSafeArea: true,
                     innerPlaylistContext: innerPlaylistContext,
                   );
@@ -554,7 +557,10 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
             if (controller.videoPlaying.value &&
                 !controller.shouldShowInitialPlaybackCover &&
                 controller.isVerticalVideo) {
-              return controller.minVideoHeight;
+              return controller.getMinimumVideoHeight(
+                screenSize.width,
+                screenSize.height,
+              );
             }
             return controller.getCurrentVideoHeight(
               screenSize.width,
@@ -604,7 +610,6 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                           width: screenSize.width,
                           height: videoHeight,
                           child: _buildVideoArea(
-                            context,
                             player: _buildVideoPlayerContent(
                               innerPlaylistContext,
                             ),
@@ -617,7 +622,6 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                           width: screenSize.width,
                           height: videoHeight,
                           child: _buildVideoArea(
-                            context,
                             player: MyVideoScreen(
                               myVideoStateController: controller,
                               isFullScreen: false,
@@ -642,8 +646,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
 
   // 构建纯播放器（宽屏时使用，占满整个容器）
   Widget _buildPureVideoPlayer(
-    double screenHeight,
-    double paddingTop, {
+    double screenHeight, {
     bool applyBottomSafeArea = false,
     InnerPlaylistContext? innerPlaylistContext,
   }) {
