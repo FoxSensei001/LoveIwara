@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/notifications/widgets/notification_content_items.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
@@ -141,59 +142,83 @@ class NotificationListItemWidget extends StatelessWidget {
   /// 通知卡片
   Widget _buildCard(
       BuildContext context, String type, DateTime createdAt, bool read) {
-    return Card(
-      clipBehavior: Clip.hardEdge,
-      child: InkWell(
-        // 卡片点击事件
-        onTap: () => _handleNotificationTap(type),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 通知内容
-                  _buildNotificationContent(type, context, constraints),
-                  const SizedBox(height: 12),
-                  // 通知时间 & 通知操作按钮
-                  constraints.maxWidth < 300
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              CommonUtils.formatFriendlyTimestamp(createdAt),
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
-                                fontSize: 12,
-                              ),
+    final colorScheme = Theme.of(context).colorScheme;
+    final radius = BorderRadius.circular(14);
+    // 未读通知铺一层极淡的主题色，扫一眼就能分出「哪些还没读」
+    final Color background = read
+        ? colorScheme.surface
+        : Color.alphaBlend(
+            colorScheme.primary.withValues(alpha: 0.06),
+            colorScheme.surface,
+          );
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: radius,
+        child: Ink(
+          decoration: BoxDecoration(
+            color: background,
+            borderRadius: radius,
+            border: Border.all(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+            ),
+          ),
+          child: InkWell(
+            borderRadius: radius,
+            // 卡片点击事件
+            onTap: () => _handleNotificationTap(type),
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 通知内容
+                      _buildNotificationContent(type, context, constraints),
+                      const SizedBox(height: 12),
+                      // 通知时间 & 通知操作按钮
+                      constraints.maxWidth < 300
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  CommonUtils.formatFriendlyTimestamp(createdAt),
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                _buildActionButtons(read, type, context),
+                              ],
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                // 通知时间
+                                Text(
+                                  CommonUtils.formatFriendlyTimestamp(createdAt),
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                // 通知操作按钮
+                                _buildActionButtons(read, type, context),
+                              ],
                             ),
-                            const SizedBox(height: 8),
-                            _buildActionButtons(read, type, context),
-                          ],
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            // 通知时间
-                            Text(
-                              CommonUtils.formatFriendlyTimestamp(createdAt),
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
-                                fontSize: 12,
-                              ),
-                            ),
-                            // 通知操作按钮
-                            _buildActionButtons(read, type, context),
-                          ],
-                        ),
-                ],
-              );
-            },
+                    ],
+                  );
+                },
+              ),
+            ),
           ),
         ),
       ),
@@ -205,8 +230,10 @@ class NotificationListItemWidget extends StatelessWidget {
     return Wrap(
       spacing: 8,
       children: [
-        if (!read)
-          OutlinedButton.icon(
+        // 标记已读完成后整颗按钮被平滑挤出，而不是瞬间消失
+        GlassGroupSlot(
+          visible: !read,
+          child: OutlinedButton.icon(
             icon: const Icon(Icons.mark_email_read, size: 16),
             label: Text(t.notifications.markAsRead,
                 style: const TextStyle(fontSize: 12)),
@@ -217,6 +244,7 @@ class NotificationListItemWidget extends StatelessWidget {
             ),
             onPressed: _markAsRead,
           ),
+        ),
         OutlinedButton.icon(
           icon: const Icon(Icons.copy, size: 16),
           label: Text(t.notifications.copy,

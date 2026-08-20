@@ -5,13 +5,15 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/notifications/controllers/notification_list_repository.dart';
 import 'package:i_iwara/app/ui/pages/notifications/widgets/notification_list_item_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
-import 'package:i_iwara/utils/widget_extensions.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:oktoast/oktoast.dart';
-import 'package:shimmer/shimmer.dart';
-import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
@@ -25,59 +27,77 @@ class NotificationListPage extends StatefulWidget {
 class _NotificationListPageState extends State<NotificationListPage> {
   late NotificationListRepository listSourceRepository;
   final ScrollController _scrollController = ScrollController();
-  final RxBool _showBackToTop = false.obs;
+
+  /// 列表滚过一段距离后显示右下角「回到顶部」浮钮。
+  final ValueNotifier<bool> _showBackToTop = ValueNotifier<bool>(false);
+
+  /// 是否启用「回到顶部」浮钮（更多菜单里可开关）。
   final RxBool _enableFloatingButton = true.obs;
   final UserService _userService = Get.find<UserService>();
   final RxBool _isMarkingAllAsRead = false.obs;
   final RxBool _isRefreshing = false.obs;
 
+  /// 未读总数：通知 + 好友申请 + 私信（与旧版标题里的计数口径一致）。
+  int get _unreadCount =>
+      _userService.notificationCount.value +
+      _userService.friendRequestsCount.value +
+      _userService.messagesCount.value;
+
   @override
   void initState() {
     super.initState();
     listSourceRepository = NotificationListRepository();
-
-    // 添加滚动监听
-    _scrollController.addListener(() {
-      if (_scrollController.offset >= 300) {
-        _showBackToTop.value = true;
-      } else {
-        _showBackToTop.value = false;
-      }
-    });
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
     listSourceRepository.dispose();
+    _showBackToTop.dispose();
     super.dispose();
+  }
+
+  // 滚动到顶部方法
+  void _scrollToTop() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   // 标记所有通知为已读
   Future<void> _markAllAsRead() async {
-    final translations = slang.Translations.of(context);
     try {
       _isMarkingAllAsRead.value = true;
       final result = await _userService.markAllNotificationAsRead();
       if (result.isSuccess) {
         _userService.refreshNotificationCount();
-        showToastWidget(MDToastWidget(
-          message: translations.notifications.markAllAsReadSuccess,
-          type: MDToastType.success,
-        ));
+        showToastWidget(
+          MDToastWidget(
+            message: slang.t.notifications.markAllAsReadSuccess,
+            type: MDToastType.success,
+          ),
+        );
         // 刷新列表和计数
         await listSourceRepository.refresh();
       } else {
-        showToastWidget(MDToastWidget(
-          message: result.message,
-          type: MDToastType.error,
-        ));
+        showToastWidget(
+          MDToastWidget(
+            message: result.message,
+            type: MDToastType.error,
+          ),
+        );
       }
     } catch (e) {
-      showToastWidget(MDToastWidget(
-        message: '${translations.errors.failedToOperate}: $e',
-        type: MDToastType.error,
-      ));
+      showToastWidget(
+        MDToastWidget(
+          message: '${slang.t.errors.failedToOperate}: $e',
+          type: MDToastType.error,
+        ),
+      );
     } finally {
       _isMarkingAllAsRead.value = false;
     }
@@ -93,174 +113,328 @@ class _NotificationListPageState extends State<NotificationListPage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final translations = slang.Translations.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        title: Row(
-          children: [
-            Text(translations.notifications.notifications),
-            Obx(() {
-              final count = _userService.notificationCount.value + _userService.friendRequestsCount.value + _userService.messagesCount.value;
-              if (count > 0) {
-                return Text('($count)');
-              }
-              return const SizedBox.shrink();
-            }),
-          ],
-        ),
-        actions: [
-          Row(
-            children: [
-              // 全部标记已读按钮
-              Obx(() {
-                if (_isMarkingAllAsRead.value) {
-                  return Shimmer.fromColors(
-                    baseColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
-                    highlightColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-                    child: const IconButton(
-                      icon: Icon(Icons.mark_email_read),
-                      onPressed: null,
-                    ),
-                  );
-                }
-                return IconButton(
-                  icon: const Icon(Icons.mark_email_read),
-                  onPressed: _markAllAsRead,
-                  tooltip: translations.notifications.markAllAsRead,
-                );
-              }),
-              // 浮动按钮开关
-              Obx(() => IconButton(
-                icon: Icon(_enableFloatingButton.value
-                    ? Icons.vertical_align_top
-                    : Icons.vertical_align_top_outlined),
-                onPressed: () {
-                  _enableFloatingButton.value = !_enableFloatingButton.value;
-                  showToastWidget(MDToastWidget(
-                      message: _enableFloatingButton.value
-                          ? translations.common.disabledFloatingButtons
-                          : translations.common.enabledFloatingButtons,
-                      type: MDToastType.success), position: ToastPosition.top);
-                },
-                tooltip: _enableFloatingButton.value
-                    ? translations.common.disableFloatingButtons
-                    : translations.common.enableFloatingButtons,
-                style: IconButton.styleFrom(
-                  backgroundColor: !_enableFloatingButton.value
-                      ? Theme.of(context)
-                          .colorScheme
-                          .primaryContainer
-                          .withValues(alpha: 0.5)
-                      : null,
-                  foregroundColor: !_enableFloatingButton.value
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              )),
-              // 刷新按钮
-              Obx(() {
-                if (_isRefreshing.value) {
-                  return Shimmer.fromColors(
-                    baseColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
-                    highlightColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-                    child: const IconButton(
-                      icon: Icon(Icons.refresh),
-                      onPressed: null,
-                    ),
-                  );
-                }
-                return IconButton(
-                  icon: const Icon(Icons.refresh),
-                  onPressed: _refreshList,
-                );
-              }),
-              // 帮助按钮
-              IconButton(
-                icon: const Icon(Icons.help_outline),
-                onPressed: () {
-                  final ConfigService configService = Get.find<ConfigService>();
-                  showAppDialog(
-                    AlertDialog(
-                      title: Text('ℹ️ ${slang.t.notifications.notificationTypeHelp}'),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('🔔 ${slang.t.notifications.dueToLackOfNotificationTypeDetails}'),
-                          Text('🔔 ${slang.t.notifications.helpUsImproveNotificationTypeSupport}'),
-                          const SizedBox(height: 8),
-                          Text(slang.t.notifications.helpUsImproveNotificationTypeSupportLongText),
-                        ],
+  // 切换「回到顶部」浮钮开关
+  void _toggleFloatingButton() {
+    _enableFloatingButton.value = !_enableFloatingButton.value;
+    showToastWidget(
+      MDToastWidget(
+        message: _enableFloatingButton.value
+            ? slang.t.common.enabledFloatingButtons
+            : slang.t.common.disabledFloatingButtons,
+        type: MDToastType.success,
+      ),
+      position: ToastPosition.top,
+    );
+  }
+
+  // 通知类型帮助弹窗
+  void _showHelpDialog() {
+    final configService = Get.find<ConfigService>();
+    final colorScheme = Theme.of(context).colorScheme;
+    showAppDialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        clipBehavior: Clip.antiAlias,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 标题行：图标 + 标题 + 关闭玻璃圆钮
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 12, 0),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.help_outline,
+                        size: 22,
+                        color: colorScheme.onSurfaceVariant,
                       ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            launchUrl(Uri.parse(configService[ConfigKey.REMOTE_REPO_URL]));
-                          },
-                          child: Text('🔗 ${slang.t.notifications.goToRepository}'),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          slang.t.notifications.notificationTypeHelp,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
-                        TextButton(
-                          onPressed: () => AppService.tryPop(),
-                          child: Text(slang.t.common.close),
+                      ),
+                      GlassIconButton(
+                        standalone: true,
+                        icon: const Icon(Icons.close),
+                        tooltip: slang.t.common.close,
+                        onPressed: () => AppService.tryPop(),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        slang.t.notifications.dueToLackOfNotificationTypeDetails,
+                        style: TextStyle(
+                          color: colorScheme.onSurfaceVariant,
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        slang
+                            .t.notifications.helpUsImproveNotificationTypeSupport,
+                        style: TextStyle(
+                          color: colorScheme.onSurfaceVariant,
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        slang.t.notifications
+                            .helpUsImproveNotificationTypeSupportLongText,
+                        style: TextStyle(
+                          color: colorScheme.onSurfaceVariant,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.tonalIcon(
+                      onPressed: () => launchUrl(
+                        Uri.parse(configService[ConfigKey.REMOTE_REPO_URL]),
+                      ),
+                      icon: const Icon(Icons.open_in_new),
+                      label: Text(slang.t.notifications.goToRepository),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static const String _menuActionToggleFloating = 'toggle_floating';
+  static const String _menuActionHelp = 'help';
+
+  /// 右侧动作胶囊：全部已读（带未读小红点）· 刷新 · 更多。
+  Widget _buildActionGroup(BuildContext context) {
+    return Obx(
+      () {
+        final bool marking = _isMarkingAllAsRead.value;
+        final bool refreshing = _isRefreshing.value;
+        final int unread = _unreadCount;
+        return GlassButtonGroup(
+          children: [
+            GlassIconButton(
+              // 忙碌时图标经 GlassAnimatedIcon 交叉过渡成沙漏，而不是整钮换 Shimmer
+              icon: Icon(
+                marking ? Icons.hourglass_top : Icons.mark_email_read,
+              ),
+              tooltip: slang.t.notifications.markAllAsRead,
+              // 未读小红点：有未读时弹跳出现，全部已读后收缩消失
+              showBadge: unread > 0 && !marking,
+              onPressed: marking ? null : _markAllAsRead,
+            ),
+            GlassIconButton(
+              icon: Icon(refreshing ? Icons.hourglass_top : Icons.refresh),
+              tooltip: slang.t.common.refresh,
+              onPressed: refreshing ? null : _refreshList,
+            ),
+            SizedBox(
+              width: GlassTokens.groupIconButtonSize,
+              height: GlassTokens.groupIconButtonSize,
+              child: PopupMenuButton<String>(
+                padding: EdgeInsets.zero,
+                icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
+                position: PopupMenuPosition.under,
+                // 往下挪一点，别压住玻璃胶囊本身
+                offset: const Offset(0, 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                onSelected: (value) {
+                  switch (value) {
+                    case _menuActionToggleFloating:
+                      _toggleFloatingButton();
+                      break;
+                    case _menuActionHelp:
+                      _showHelpDialog();
+                      break;
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem<String>(
+                    value: _menuActionToggleFloating,
+                    child: Row(
+                      children: [
+                        Icon(
+                          _enableFloatingButton.value
+                              ? Icons.vertical_align_top
+                              : Icons.vertical_align_top_outlined,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          _enableFloatingButton.value
+                              ? slang.t.common.disableFloatingButtons
+                              : slang.t.common.enableFloatingButtons,
                         ),
                       ],
                     ),
-                  );
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
-      body: LoadingMoreCustomScrollView(
-        controller: _scrollController,
-        slivers: <Widget>[
-          LoadingMoreSliverList<Map<String, dynamic>>(
-            SliverListConfig<Map<String, dynamic>>(
-              itemBuilder: (context, notification, index) {
-                return NotificationListItemWidget(
-                  notification: notification,
-                );
-              },
-              sourceList: listSourceRepository,
-              padding: EdgeInsets.only(
-                left: 5.0,
-                right: 5.0,
-                top: 5.0,
-                bottom: MediaQuery.of(context).padding.bottom,
-              ),
-              indicatorBuilder: (context, status) => myLoadingMoreIndicator(
-                context,
-                status,
-                isSliver: true,
-                loadingMoreBase: listSourceRepository,
+                  ),
+                  PopupMenuItem<String>(
+                    value: _menuActionHelp,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.help_outline),
+                        const SizedBox(width: 12),
+                        Text(slang.t.notifications.notificationTypeHelp),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
-      ),
-      floatingActionButton: Obx(() =>
-          (_showBackToTop.value && _enableFloatingButton.value)
-              ? FloatingActionButton(
-                  onPressed: () {
-                    _scrollController.animateTo(
-                      0,
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.easeInOut,
-                    );
-                  },
-                  backgroundColor: !_enableFloatingButton.value
-                      ? Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.5)
-                      : null,
-                  foregroundColor: !_enableFloatingButton.value
-                      ? Theme.of(context).colorScheme.primary
-                      : null,
-                  child: const Icon(Icons.arrow_upward),
-                ).paddingBottom(MediaQuery.of(context).padding.bottom)
-              : const SizedBox()),
+          ],
+        );
+      },
     );
   }
-} 
+
+  /// 滚过一段后出现在右下角的「回到顶部」浮钮。
+  Widget _buildScrollToTopFab(BuildContext context) {
+    return Obx(
+      () {
+        final bool enabled = _enableFloatingButton.value;
+        return Positioned(
+          right: 16,
+          bottom: MediaQuery.paddingOf(context).bottom + 16,
+          child: ValueListenableBuilder<bool>(
+            valueListenable: _showBackToTop,
+            builder: (context, visible, _) {
+              final bool show = visible && enabled;
+              return IgnorePointer(
+                ignoring: !show,
+                child: AnimatedSlide(
+                  duration: GlassTokens.motionDuration,
+                  curve: GlassTokens.motionCurve,
+                  offset: show ? Offset.zero : const Offset(0, 0.4),
+                  child: AnimatedOpacity(
+                    duration: GlassTokens.motionDuration,
+                    opacity: show ? 1 : 0,
+                    child: GlassIconButton(
+                      standalone: true,
+                      icon: const Icon(Icons.vertical_align_top),
+                      tooltip: slang.t.common.scrollToTop,
+                      onPressed: _scrollToTop,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
+    final double listTopPadding = headerExtent + 8;
+
+    return Scaffold(
+      body: GlassHeaderOverlay(
+        headerExtent: headerExtent,
+        headerTop: statusBarHeight,
+        solidExtent: statusBarHeight,
+        body: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            if (notification.metrics.axis == Axis.vertical &&
+                notification.depth == 0) {
+              _showBackToTop.value = notification.metrics.pixels >= 300;
+            }
+            return false;
+          },
+          child: RefreshIndicator(
+            // 指示器从 header 下方弹出
+            displacement: headerExtent,
+            onRefresh: _refreshList,
+            child: LoadingMoreCustomScrollView(
+              controller: _scrollController,
+              physics: const ClampingScrollPhysics(),
+              slivers: <Widget>[
+                LoadingMoreSliverList<Map<String, dynamic>>(
+                  SliverListConfig<Map<String, dynamic>>(
+                    itemBuilder: (context, notification, index) {
+                      return NotificationListItemWidget(
+                        notification: notification,
+                      );
+                    },
+                    sourceList: listSourceRepository,
+                    padding: EdgeInsets.only(
+                      left: 8.0,
+                      right: 8.0,
+                      top: listTopPadding,
+                      bottom: MediaQuery.of(context).padding.bottom,
+                    ),
+                    indicatorBuilder: (context, status) =>
+                        myLoadingMoreIndicator(
+                      context,
+                      status,
+                      isSliver: true,
+                      loadingMoreBase: listSourceRepository,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        // header 行：左 返回圆钮 / 中 标题胶囊 / 右 动作胶囊
+        header: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.arrow_back),
+                tooltip: slang.t.common.back,
+                onPressed: () => AppService.tryPop(),
+              ),
+              const SizedBox(width: 8),
+              // 标题胶囊：未读数并入标题，点按/长按可弹完整标题
+              Expanded(
+                child: Obx(
+                  () {
+                    final int count = _unreadCount;
+                    return GlassTitlePill(
+                      title: count > 0
+                          ? '${slang.t.notifications.notifications} ($count)'
+                          : slang.t.notifications.notifications,
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              _buildActionGroup(context),
+            ],
+          ),
+        ),
+        extra: [_buildScrollToTopFab(context)],
+      ),
+    );
+  }
+}
