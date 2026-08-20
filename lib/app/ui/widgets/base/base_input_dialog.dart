@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/rules_agreement_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_syntax_help_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
@@ -265,7 +267,7 @@ class TextInputFieldConfig {
   });
 }
 
-class PreviewPanel extends StatelessWidget {
+class PreviewPanel extends StatefulWidget {
   final String content;
   final ScrollController scrollController;
 
@@ -276,25 +278,50 @@ class PreviewPanel extends StatelessWidget {
   });
 
   @override
+  State<PreviewPanel> createState() => _PreviewPanelState();
+}
+
+class _PreviewPanelState extends State<PreviewPanel> {
+  /// 「显示原始文本」由标题行那枚玻璃圆钮受控（正文内置行内开关已关闭）。
+  late bool _showOriginal;
+  bool _hasProcessedContent = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _showOriginal = Get.find<ConfigService>()[ConfigKey
+        .SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Container(
           padding: const EdgeInsets.all(16.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                slang.t.common.preview,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  slang.t.common.preview,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-              IconButton(
-                onPressed: () => Navigator.pop(context),
+              MarkdownOriginalTextToggle(
+                style: MarkdownToggleStyle.glass,
+                visible: _hasProcessedContent,
+                showOriginal: _showOriginal,
+                padding: const EdgeInsets.only(right: 4),
+                onChanged: (v) => setState(() => _showOriginal = v),
+              ),
+              GlassIconButton(
+                standalone: true,
                 icon: const Icon(Icons.close),
+                tooltip: slang.t.common.close,
+                onPressed: () => Navigator.pop(context),
               ),
             ],
           ),
@@ -302,7 +329,7 @@ class PreviewPanel extends StatelessWidget {
         const Divider(height: 1),
         Expanded(
           child: SingleChildScrollView(
-            controller: scrollController,
+            controller: widget.scrollController,
             padding: EdgeInsets.fromLTRB(
               16.0,
               16.0,
@@ -310,9 +337,14 @@ class PreviewPanel extends StatelessWidget {
               16.0 + computeSheetBottomInset(context),
             ),
             child: CustomMarkdownBody(
-              data: content,
-              originalData: content,
+              data: widget.content,
+              originalData: widget.content,
               clickInternalLinkByUrlLaunch: true,
+              initialShowUnprocessedText: _showOriginal,
+              onProcessedContentChanged: (v) {
+                if (_hasProcessedContent == v) return;
+                setState(() => _hasProcessedContent = v);
+              },
             ),
           ),
         ),

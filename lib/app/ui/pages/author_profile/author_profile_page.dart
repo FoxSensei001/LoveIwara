@@ -320,18 +320,26 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
         return DraggableScrollableSheet(
-          initialChildSize: 0.8,
+          initialChildSize: 0.75,
           minChildSize: 0.2,
-          maxChildSize: 0.8,
+          maxChildSize: 0.92,
           expand: false,
+          snap: true,
           builder: (context, scrollController) {
-            // 底部弹窗自己让出系统手势条/导航条
-            return SheetBottomSafeArea(
+            return Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(20),
+                ),
+              ),
+              // 底部弹窗自己让出系统手势条/导航条
+              padding: EdgeInsets.only(
+                bottom: computeSheetBottomInset(context),
+              ),
               child: Column(
                 children: [
                   // 拖拽条
@@ -350,59 +358,93 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                   ),
                   // 顶部标题栏
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     child: Row(
                       children: [
                         Text(
                           t.common.commentList,
-                          style: TextStyle(
-                            fontSize: Theme.of(
-                              context,
-                            ).textTheme.titleLarge?.fontSize,
+                          style: const TextStyle(
+                            fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const Spacer(),
-                        // 添加评论按钮
-                        IconButton(
-                          onPressed: () {
-                            showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true,
-                              backgroundColor: Colors.transparent,
-                              builder: (context) => CommentInputBottomSheet(
-                                title: t.common.sendComment,
-                                submitText: t.common.send,
-                                onSubmit: (text) async {
-                                  if (text.trim().isEmpty) {
-                                    showGlassToast(
-                                      t.errors.commentCanNotBeEmpty,
-                                      type: GlassToastType.error,
-                                      position: GlassToastPosition.bottom,
-                                    );
-                                    return;
-                                  }
-                                  final UserService userService = Get.find();
-                                  if (!userService.isAuthenticated) {
-                                    showGlassToast(
-                                      t.errors.pleaseLoginFirst,
-                                      type: GlassToastType.error,
-                                      position: GlassToastPosition.bottom,
-                                    );
-                                    LoginService.showLogin();
-                                    return;
-                                  }
-                                  await profileController.commentController
-                                      .postComment(text);
-                                },
+                        // 排序 / 发评论合成一只玻璃胶囊
+                        GlassButtonGroup(
+                          children: [
+                            Obx(
+                              () => GlassIconButton(
+                                icon: Icon(
+                                  profileController
+                                          .commentController
+                                          .sortOrder
+                                          .value
+                                      ? Icons
+                                            .arrow_downward_rounded // 倒序图标
+                                      : Icons.arrow_upward_rounded, // 正序图标
+                                ),
+                                tooltip:
+                                    profileController
+                                        .commentController
+                                        .sortOrder
+                                        .value
+                                    ? t.common.createTimeDesc
+                                    : t.common.createTimeAsc,
+                                onPressed: profileController
+                                    .commentController
+                                    .toggleSortOrder,
                               ),
-                            );
-                          },
-                          icon: const Icon(Icons.add_comment),
+                            ),
+                            // 添加评论按钮
+                            GlassIconButton(
+                              icon: const Icon(Icons.add_comment),
+                              tooltip: t.common.sendComment,
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (context) => CommentInputBottomSheet(
+                                    title: t.common.sendComment,
+                                    submitText: t.common.send,
+                                    onSubmit: (text) async {
+                                      if (text.trim().isEmpty) {
+                                        showGlassToast(
+                                          t.errors.commentCanNotBeEmpty,
+                                          type: GlassToastType.error,
+                                          position: GlassToastPosition.bottom,
+                                        );
+                                        return;
+                                      }
+                                      final UserService userService =
+                                          Get.find();
+                                      if (!userService.isAuthenticated) {
+                                        showGlassToast(
+                                          t.errors.pleaseLoginFirst,
+                                          type: GlassToastType.error,
+                                          position: GlassToastPosition.bottom,
+                                        );
+                                        LoginService.showLogin();
+                                        return;
+                                      }
+                                      await profileController.commentController
+                                          .postComment(text);
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
-                        // 关闭按钮
-                        IconButton(
+                        const SizedBox(width: 8),
+                        // 关闭按钮：弹层关闭键一律玻璃圆钮
+                        GlassIconButton(
+                          standalone: true,
                           icon: const Icon(Icons.close),
+                          tooltip: t.common.close,
                           onPressed: () => Navigator.pop(context),
                         ),
                       ],

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/iwara_news.model.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/iwara_news_service.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
@@ -15,6 +16,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
@@ -769,69 +771,12 @@ class _NewsDetailContent extends StatelessWidget {
   }
 
   Widget _buildContentCard(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.45),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.article_outlined,
-                  size: 18,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  slang.t.common.content,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            if (detail != null && errorMessage != null) ...[
-              _NewsDetailInlineError(message: errorMessage!, onRetry: onRetry),
-              const SizedBox(height: 12),
-            ],
-            if (detail != null)
-              Stack(
-                children: [
-                  CustomMarkdownBody(
-                    data: detail!.contentMarkdown,
-                    padding: EdgeInsets.zero,
-                    maxImageHeight: 420,
-                    showHorizontalRules: false,
-                    urlPreprocessor: urlPreprocessor,
-                  ),
-                  if (isLoading)
-                    const Positioned(
-                      left: 0,
-                      right: 0,
-                      top: 0,
-                      child: LinearProgressIndicator(minHeight: 2),
-                    ),
-                ],
-              )
-            else if (errorMessage != null)
-              MyEmptyWidget(message: errorMessage!, onRefresh: onRetry)
-            else
-              const _NewsDetailSkeletonBody(),
-          ],
-        ),
-      ),
+    return _NewsDetailContentCard(
+      detail: detail,
+      isLoading: isLoading,
+      errorMessage: errorMessage,
+      onRetry: onRetry,
+      urlPreprocessor: urlPreprocessor,
     );
   }
 
@@ -856,6 +801,127 @@ class _NewsDetailContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: children,
+      ),
+    );
+  }
+}
+
+/// 公告正文卡片。
+///
+/// 单独拆成有状态组件，只为托住「显示原始文本」的开关状态：
+/// CustomMarkdownBody 的行内开关已关闭，那枚 only-icon 钮收进了卡片标题行
+/// （「内容」那一行）的右端。
+class _NewsDetailContentCard extends StatefulWidget {
+  const _NewsDetailContentCard({
+    required this.detail,
+    required this.isLoading,
+    required this.errorMessage,
+    required this.onRetry,
+    required this.urlPreprocessor,
+  });
+
+  final IwaraNewsDetail? detail;
+  final bool isLoading;
+  final String? errorMessage;
+  final Future<void> Function() onRetry;
+  final String Function(String url) urlPreprocessor;
+
+  @override
+  State<_NewsDetailContentCard> createState() => _NewsDetailContentCardState();
+}
+
+class _NewsDetailContentCardState extends State<_NewsDetailContentCard> {
+  late bool _showOriginal;
+  bool _hasProcessedContent = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _showOriginal = Get.find<ConfigService>()[ConfigKey
+        .SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final detail = widget.detail;
+    final errorMessage = widget.errorMessage;
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.45),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.article_outlined,
+                  size: 18,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    slang.t.common.content,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                MarkdownOriginalTextToggle(
+                  visible: detail != null && _hasProcessedContent,
+                  showOriginal: _showOriginal,
+                  onChanged: (v) => setState(() => _showOriginal = v),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            if (detail != null && errorMessage != null) ...[
+              _NewsDetailInlineError(
+                message: errorMessage,
+                onRetry: widget.onRetry,
+              ),
+              const SizedBox(height: 12),
+            ],
+            if (detail != null)
+              Stack(
+                children: [
+                  CustomMarkdownBody(
+                    data: detail.contentMarkdown,
+                    padding: EdgeInsets.zero,
+                    maxImageHeight: 420,
+                    showHorizontalRules: false,
+                    urlPreprocessor: widget.urlPreprocessor,
+                    initialShowUnprocessedText: _showOriginal,
+                    onProcessedContentChanged: (hasProcessed) {
+                      if (_hasProcessedContent == hasProcessed) return;
+                      setState(() => _hasProcessedContent = hasProcessed);
+                    },
+                  ),
+                  if (widget.isLoading)
+                    const Positioned(
+                      left: 0,
+                      right: 0,
+                      top: 0,
+                      child: LinearProgressIndicator(minHeight: 2),
+                    ),
+                ],
+              )
+            else if (errorMessage != null)
+              MyEmptyWidget(message: errorMessage, onRefresh: widget.onRetry)
+            else
+              const _NewsDetailSkeletonBody(),
+          ],
+        ),
       ),
     );
   }

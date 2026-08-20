@@ -5,7 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -36,9 +38,16 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
   bool _isUploadingAvatar = false;
   bool _isUploadingHeader = false;
 
+  /// 个人简介的「显示原始文本」：由简介卡片底部动作行那枚 only-icon 钮受控
+  /// （正文内置行内开关已关闭），初值沿用全局设置项。
+  late bool _showOriginalDescription;
+  bool _descriptionHasProcessedContent = false;
+
   @override
   void initState() {
     super.initState();
+    _showOriginalDescription = Get.find<ConfigService>()[ConfigKey
+        .SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
     _fetchData();
   }
 
@@ -290,7 +299,21 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                       children: [
                         if (user.description != null &&
                             user.description!.isNotEmpty)
-                          CustomMarkdownBody(data: user.description!)
+                          CustomMarkdownBody(
+                            data: user.description!,
+                            initialShowUnprocessedText:
+                                _showOriginalDescription,
+                            onProcessedContentChanged: (hasProcessed) {
+                              if (_descriptionHasProcessedContent ==
+                                  hasProcessed) {
+                                return;
+                              }
+                              setState(
+                                () => _descriptionHasProcessedContent =
+                                    hasProcessed,
+                              );
+                            },
+                          )
                         else
                           Text(
                             slang.t.personalProfile.noPersonalIntroduction,
@@ -303,6 +326,14 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
+                            MarkdownOriginalTextToggle(
+                              visible: _descriptionHasProcessedContent,
+                              showOriginal: _showOriginalDescription,
+                              padding: const EdgeInsets.only(right: 8),
+                              onChanged: (v) => setState(
+                                () => _showOriginalDescription = v,
+                              ),
+                            ),
                             Text(
                               slang.t.personalProfile.clickToEdit,
                               style: TextStyle(

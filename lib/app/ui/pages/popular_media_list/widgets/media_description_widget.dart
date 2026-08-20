@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_translation_controller.dart';
 import 'package:i_iwara/app/ui/widgets/translation_language_selector.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -32,6 +33,14 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
   late final MarkdownTranslationController _translationController;
   final ConfigService _configService = Get.find();
   bool _hasOverflow = false;
+
+  /// 「显示原始文本」由标题行那枚 only-icon 钮受控（正文内置开关已关闭），
+  /// 初值仍沿用全局设置项。三处正文（测量副本 / 展开态 / 折叠态）共用同一份状态。
+  late bool _showOriginal;
+
+  /// 正文加工前后确实有差异时才让那枚钮长出来。
+  /// 由**离屏测量副本**上报——它常驻树上，不像可见正文那样在展开/折叠之间重建。
+  bool _hasProcessedContent = false;
   static const double _defaultMaxHeight = 200.0;
   // 折叠态底部预留的空白带：正文视口比遮罩矮这么多，遮罩最后一行像素下面不放任何内容。
   // ShaderMask 的 dstIn 只作用在遮罩矩形内，矩形底边落在物理像素中间时最后一行可能没被
@@ -49,6 +58,7 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
     _contentKey = GlobalKey();
     _measureKey = GlobalKey();
     _translationController = MarkdownTranslationController();
+    _showOriginal = _configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkOverflow();
     });
@@ -210,7 +220,25 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                   ),
                 ],
               ),
-              _buildTranslationButton(context),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  MarkdownOriginalTextToggle(
+                    visible: _hasProcessedContent,
+                    showOriginal: _showOriginal,
+                    pillSize: _translationPillHeight,
+                    padding: const EdgeInsets.only(right: 8),
+                    onChanged: (v) {
+                      setState(() => _showOriginal = v);
+                      // 原文/处理后文本高度不同，折叠阈值要跟着重算
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) _checkOverflow();
+                      });
+                    },
+                  ),
+                  _buildTranslationButton(context),
+                ],
+              ),
             ],
           ),
           const SizedBox(height: 8),
@@ -229,6 +257,12 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                     showTranslationButton: false,
                     translationController: _translationController,
                     onTimestampSeek: widget.onTimestampSeek,
+                    initialShowUnprocessedText: _showOriginal,
+                    // 只由这份常驻的测量副本上报，避免展开/折叠切换时重复通知
+                    onProcessedContentChanged: (hasProcessed) {
+                      if (_hasProcessedContent == hasProcessed) return;
+                      setState(() => _hasProcessedContent = hasProcessed);
+                    },
                   ),
                 ],
               ),
@@ -251,6 +285,7 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                           showTranslationButton: false,
                           translationController: _translationController,
                           onTimestampSeek: widget.onTimestampSeek,
+                          initialShowUnprocessedText: _showOriginal,
                         ),
                       ),
                     )
@@ -286,6 +321,7 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                                       translationController:
                                           _translationController,
                                       onTimestampSeek: widget.onTimestampSeek,
+                                      initialShowUnprocessedText: _showOriginal,
                                     ),
                                   ),
                                 ),

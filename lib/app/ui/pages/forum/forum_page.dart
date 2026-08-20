@@ -20,6 +20,7 @@ import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
@@ -1232,7 +1233,7 @@ class _ForumPageState extends State<ForumPage> {
 
   /// 全站公告卡片：宽窄屏统一布局——头部行（图标 + 标题 + 刷新圆钮）、
   /// chips（敏感 / 更新时间）、正文 Markdown、底部单行动作
-  /// [显示原始文本] [查看全文]（原生 toggle 已关闭，由本卡片受控）。
+  /// [🖌 only-icon 原文切换] [查看全文]（原生行内 toggle 已关闭，由本卡片受控）。
   Widget _buildSitewideAnnouncementCard() {
     final t = slang.Translations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
@@ -1317,8 +1318,6 @@ class _ForumPageState extends State<ForumPage> {
               data: body,
               padding: EdgeInsets.zero,
               maxImageHeight: 220,
-              // 原生开关关闭，改由下方动作行受控（和「查看全文」放同一行）
-              showProcessedTextToggle: false,
               initialShowUnprocessedText: _sitewideShowOriginal,
               onProcessedContentChanged: (hasProcessed) {
                 if (_sitewideHasProcessed == hasProcessed) return;
@@ -1330,20 +1329,13 @@ class _ForumPageState extends State<ForumPage> {
             Row(
               children: [
                 const Spacer(),
-                if (_sitewideHasProcessed) ...[
-                  _buildGhostAction(
-                    icon: _sitewideShowOriginal
-                        ? Icons.format_paint
-                        : Icons.format_paint_outlined,
-                    label: _sitewideShowOriginal
-                        ? t.common.showProcessedText
-                        : t.common.showOriginalText,
-                    onTap: () => setState(
-                      () => _sitewideShowOriginal = !_sitewideShowOriginal,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
+                MarkdownOriginalTextToggle(
+                  visible: _sitewideHasProcessed,
+                  showOriginal: _sitewideShowOriginal,
+                  padding: const EdgeInsets.only(right: 8),
+                  onChanged: (v) =>
+                      setState(() => _sitewideShowOriginal = v),
+                ),
                 _buildGhostAction(
                   icon: Icons.open_in_full,
                   label: t.forum.sitewide.readMore,
@@ -1361,55 +1353,75 @@ class _ForumPageState extends State<ForumPage> {
   void _showSitewideAnnouncementDialog({required String body}) {
     final t = slang.Translations.of(context);
     final title = t.forum.sitewide.title;
+    // 全文弹窗有自己的一份「显示原始文本」状态（不跟卡片联动）：
+    // 弹窗与卡片同时在屏上，跟着一起翻反而看不出是哪一处被切换了。
+    bool showOriginal =
+        Get.find<ConfigService>()[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
+    bool hasProcessed = false;
     showDialog<void>(
       context: context,
       useRootNavigator: false,
-      builder: (dialogContext) => Dialog(
-        insetPadding: const EdgeInsets.all(20),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 760, maxHeight: 720),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 8, 8),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.campaign,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => Dialog(
+          insetPadding: const EdgeInsets.all(20),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 760, maxHeight: 720),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 8, 8),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.campaign,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
-                    ),
-                    GlassIconButton(
-                      standalone: true,
-                      icon: const Icon(Icons.close),
-                      tooltip: slang.t.common.close,
-                      onPressed: () => Navigator.of(dialogContext).pop(),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: CustomMarkdownBody(
-                    data: body,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    maxImageHeight: 420,
+                      MarkdownOriginalTextToggle(
+                        style: MarkdownToggleStyle.glass,
+                        visible: hasProcessed,
+                        showOriginal: showOriginal,
+                        padding: const EdgeInsets.only(right: 4),
+                        onChanged: (v) =>
+                            setDialogState(() => showOriginal = v),
+                      ),
+                      GlassIconButton(
+                        standalone: true,
+                        icon: const Icon(Icons.close),
+                        tooltip: slang.t.common.close,
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+                const Divider(height: 1),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: CustomMarkdownBody(
+                      data: body,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      maxImageHeight: 420,
+                      initialShowUnprocessedText: showOriginal,
+                      onProcessedContentChanged: (v) {
+                        if (hasProcessed == v) return;
+                        setDialogState(() => hasProcessed = v);
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

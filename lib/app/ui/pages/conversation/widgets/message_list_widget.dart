@@ -14,6 +14,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
@@ -42,6 +43,15 @@ class _MessageListWidgetState extends State<MessageListWidget> {
   late MessageListRepository _messageListRepository;
   final ScrollController _scrollController = ScrollController();
   final UserService _userService = Get.find<UserService>();
+
+  /// 「显示原始文本」是**整页**的显示偏好：一枚 only-icon 钮放顶栏动作胶囊里，
+  /// 所有消息气泡跟着一起翻（每条正文的内置行内开关已关闭）。
+  /// 初值保持 false——私信正文短，默认给加工后的可点链接版本。
+  bool _showOriginal = false;
+
+  /// 哪些消息确实有加工差异；只要有一条有，顶栏那枚钮就长出来。
+  /// 列表是虚拟化的、气泡会被回收，所以这里只增不减，避免滚动时按钮忽隐忽现。
+  final Set<String> _processedMessageIds = <String>{};
 
   @override
   void initState() {
@@ -87,7 +97,8 @@ class _MessageListWidgetState extends State<MessageListWidget> {
     );
   }
 
-  /// 右侧动作胶囊：仅刷新（忙碌时图标交叉过渡成沙漏）。
+  /// 右侧动作胶囊：原文切换（有加工差异的消息出现后才长出来）+ 刷新
+  /// （忙碌时图标交叉过渡成沙漏）。
   Widget _buildActionGroup(BuildContext context) {
     return StreamBuilder<Iterable<MessageModel>>(
       stream: _messageListRepository.rebuild,
@@ -96,6 +107,12 @@ class _MessageListWidgetState extends State<MessageListWidget> {
             _messageListRepository.isLoading && _messageListRepository.isEmpty;
         return GlassButtonGroup(
           children: [
+            MarkdownOriginalTextToggle(
+              style: MarkdownToggleStyle.group,
+              visible: _processedMessageIds.isNotEmpty,
+              showOriginal: _showOriginal,
+              onChanged: (v) => setState(() => _showOriginal = v),
+            ),
             GlassIconButton(
               icon: const Icon(Icons.refresh),
               loading: isLoading,
@@ -291,7 +308,16 @@ class _MessageListWidgetState extends State<MessageListWidget> {
                           child: CustomMarkdownBody(
                             data: message.body,
                             originalData: message.body,
-                            initialShowUnprocessedText: false,
+                            initialShowUnprocessedText: _showOriginal,
+                            onProcessedContentChanged: (hasProcessed) {
+                              if (!hasProcessed ||
+                                  _processedMessageIds.contains(message.id)) {
+                                return;
+                              }
+                              setState(
+                                () => _processedMessageIds.add(message.id),
+                              );
+                            },
                             clickInternalLinkByUrlLaunch: false,
                             onLongPress: showActionsSheet,
                           ),

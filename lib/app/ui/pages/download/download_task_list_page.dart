@@ -1,5 +1,5 @@
+import 'dart:async';
 import 'dart:convert';
-import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +11,8 @@ import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
-import 'package:i_iwara/app/ui/pages/download/download_category_manage_page.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart'
+    show openDownloadCategoryManagePage;
 import 'package:i_iwara/app/ui/pages/download/widgets/move_to_category_sheet.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/default_download_task_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_scale.dart';
@@ -20,7 +21,13 @@ import 'package:i_iwara/app/ui/pages/download/widgets/gallery_download_task_item
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:super_clipboard/super_clipboard.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
@@ -33,6 +40,10 @@ enum DownloadStatusFilter { all, failed, downloaded }
 /// Type filter options for download tasks
 enum DownloadTypeFilter { all, video, gallery, other }
 
+/// 下载任务列表页（玻璃化）。
+///
+/// header 两行：第一行「返回 / 中间胶囊（搜索框 ↔ 已选计数）/ 动作胶囊」，
+/// 第二行分类标签条。状态 / 类型筛选收进筛选弹窗，生效时动作胶囊上挂红点。
 class DownloadTaskListPage extends StatefulWidget {
   const DownloadTaskListPage({super.key});
 
@@ -41,12 +52,40 @@ class DownloadTaskListPage extends StatefulWidget {
 }
 
 class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
+  /// 标题行与分类条之间的间距。
+  static const double _headerRowGap = 6;
+
+  /// 分类条与列表首屏之间的呼吸。
+  ///
+  /// 单行 header 的 56 里天然留了余量（胶囊只有 44 高），两行 header 的第二行
+  /// 高度就是胶囊高度、一点余量都没有——不补这一段，第一张卡片会紧贴分类条下沿。
+  static const double _headerBottomGap = 8;
+
+  /// 分类条所占行高（与玻璃胶囊同高，标签本体略矮居中）。
+  static const double _categoryStripHeight = GlassTokens.pillHeight;
+
+  /// 分类标签本体高度。
+  static const double _categoryChipHeight = 36;
+
+  static const String _menuActionManageCategory = 'manageCategory';
+  static const String _menuActionDeleteByDate = 'deleteByDate';
+  static const String _menuActionResumeAll = 'resumeAll';
+  static const String _menuActionPauseAll = 'pauseAll';
+
   final DownloadTaskRepository _downloadTaskRepository =
       DownloadTaskRepository();
   final ScrollController _scrollController = ScrollController();
   // 分类标签条的横向滚动控制器（用于鼠标滚轮转横向滑动）
   final ScrollController _categoryStripController = ScrollController();
   late _HistoryDownloadTasksSource _historySource;
+
+  /// 列表滚过一段距离后显示右下角「回到顶部」浮钮。
+  final ValueNotifier<bool> _showBackToTop = ValueNotifier<bool>(false);
+
+  /// 搜索输入防抖：每敲一个字都要走三条本地 DB 查询 + 历史区串行刷新，
+  /// 不防抖既浪费查询，也让筛选钮的沙漏态一路抽搐。
+  Timer? _searchDebounce;
+  static const Duration _searchDebounceDelay = Duration(milliseconds: 300);
 
   // 等待中任务列表
   List<DownloadTask> _pendingTasks = [];
@@ -135,7 +174,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t.common.confirmDelete),
+        title: _dialogTitleRow(context, t.common.confirmDelete),
         content: Text(
           t.common.areYouSureYouWantToDeleteSelectedItems(
             num: _selectedTaskIds.length,
@@ -206,7 +245,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t.download.deleteByDate.confirmTitle),
+        title: _dialogTitleRow(context, t.download.deleteByDate.confirmTitle),
         content: Text(
           t.download.deleteByDate.confirmContent(count: tasks.length),
         ),
@@ -323,11 +362,13 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _statusChangedWorker?.dispose();
     _categoriesChangedWorker?.dispose();
     _removedTaskIdsWorker?.dispose();
     _scrollController.dispose();
     _categoryStripController.dispose();
+    _showBackToTop.dispose();
     _historySource.dispose();
     _searchController.dispose();
     super.dispose();
@@ -335,478 +376,427 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final t = slang.Translations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final double statusBarHeight = MediaQuery.paddingOf(context).top;
+    final double headerHeight =
+        GlassTokens.headerRowHeight + _headerRowGap + _categoryStripHeight;
+    final double headerExtent = statusBarHeight + headerHeight;
+    final bool isWide = MediaQuery.sizeOf(context).width > 600;
 
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      // 没有 AppBar 就没人管状态栏图标明暗，不显式声明会沿用上一页
+      //（如视频详情页的白色图标），在浅色背景下看不见。
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+      ),
+      child: Scaffold(
+        body: DownloadScaleScope(
+          child: GlassHeaderOverlay(
+            headerExtent: headerExtent,
+            headerTop: statusBarHeight,
+            headerHeight: headerHeight,
+            solidExtent: statusBarHeight,
+            body: NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                if (notification.depth == 0 &&
+                    notification.metrics.axis == Axis.vertical) {
+                  _showBackToTop.value = notification.metrics.pixels >= 300;
+                }
+                return false;
+              },
+              child: RefreshIndicator(
+                // 指示器从玻璃 header 下方弹出，而不是被 header 压住
+                displacement: headerExtent,
+                onRefresh: _refreshAll,
+                child: Obx(() {
+                  // 仅订阅任务状态变更以触发重建；实际的刷新副作用在
+                  // initState 注册的 worker 中处理（见 _statusChangedWorker）。
+                  DownloadService.to.taskStatusChangedNotifier.value;
+                  return _buildSingleList(headerExtent + _headerBottomGap);
+                }),
+              ),
+            ),
+            // header：第一行「返回 / 搜索或已选计数 / 动作胶囊」，第二行分类条
+            header: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: GlassTokens.headerRowHeight,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        GlassIconButton(
+                          standalone: true,
+                          icon: const Icon(Icons.arrow_back),
+                          tooltip: slang.Translations.of(context).common.back,
+                          onPressed: () => AppService.tryPop(),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildCenterCapsule(context)),
+                        const SizedBox(width: 8),
+                        _buildActionGroup(context, isWide: isWide),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: _headerRowGap),
+                // 分类标签条：始终显示，便于发现并进入分类系统
+                // （无分类时显示「全部 + 管理分类」入口）。
+                _buildCategoryStrip(),
+              ],
+            ),
+            extra: [_buildScrollToTopFab(context), _buildBatchActionFab(context)],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 下拉刷新：顶部三个分区 + 历史区 + 分类计数一起重拉。
+  Future<void> _refreshAll() async {
+    await Future.wait([
+      _reloadPendingTasks(),
+      _reloadFailedTasks(),
+      _refreshHistory(),
+      _reloadCategories(),
+    ]);
+  }
+
+  /// header 中间的胶囊：普通模式是搜索框，多选模式换成「已选 N 条」。
+  ///
+  /// 两侧都是玻璃胶囊，走 [GlassCapsuleMorph] 单壳常驻、内容交接，
+  /// 而不是两只胶囊硬切。
+  Widget _buildCenterCapsule(BuildContext context) {
+    return GlassCapsuleMorph(
+      child: _isSelectionMode
+          ? KeyedSubtree(
+              key: const ValueKey('selection'),
+              child: _buildSelectionSummary(context),
+            )
+          : KeyedSubtree(
+              key: const ValueKey('search'),
+              child: _buildSearchContent(context),
+            ),
+    );
+  }
+
+  /// 搜索胶囊的内容（无壳，玻璃壳由 [GlassCapsuleMorph] 提供）。
+  Widget _buildSearchContent(BuildContext context) {
+    final t = slang.Translations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        // 普通模式下不再显示页面标题（按需求移除），仅在多选模式下显示已选数量。
-        title: _isSelectionMode
-            ? Text(t.common.selectedRecords(num: _selectedTaskIds.length))
-            : null,
-        leading: _isSelectionMode
-            ? null // 多选模式下隐藏返回按钮，退出按钮在左下角
-            : null,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        // AppBar 透明，需按主题显式设置状态栏图标明暗，否则会沿用上一页
-        // （如视频详情页的白色图标），在浅色背景下看不见。
-        systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness:
-              Theme.of(context).brightness == Brightness.dark
-              ? Brightness.light
-              : Brightness.dark,
-          statusBarBrightness: Theme.of(context).brightness == Brightness.dark
-              ? Brightness.dark
-              : Brightness.light,
-        ),
-        flexibleSpace: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              decoration: BoxDecoration(
-                color: colorScheme.surface.withValues(alpha: 0.8),
+    return Row(
+      children: [
+        const SizedBox(width: 14),
+        Icon(Icons.search, size: 20, color: colorScheme.onSurfaceVariant),
+        const SizedBox(width: 8),
+        Expanded(
+          child: TextField(
+            controller: _searchController,
+            onChanged: _onSearchChanged,
+            textAlignVertical: TextAlignVertical.center,
+            style: const TextStyle(fontSize: 14),
+            decoration: InputDecoration(
+              isDense: true,
+              hintText: t.download.searchTasks,
+              hintStyle: TextStyle(
+                fontSize: 14,
+                color: colorScheme.onSurfaceVariant,
               ),
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(vertical: 12),
             ),
           ),
         ),
-        actions: [
-          if (!_isSelectionMode) ...[
-            IconButton(
-              icon: const Icon(Icons.play_arrow_outlined),
-              tooltip: t.download.resumeAll,
-              onPressed: () => DownloadService.to.resumeAll(),
+        // 有输入时右侧长出清空钮（跟输入框实时走，不等防抖）
+        ValueListenableBuilder<TextEditingValue>(
+          valueListenable: _searchController,
+          builder: (context, value, _) => GlassGroupSlot(
+            visible: value.text.isNotEmpty,
+            child: IconButton(
+              icon: const Icon(Icons.close, size: 18),
+              tooltip: t.common.clear,
+              onPressed: () {
+                _searchController.clear();
+                _onSearchChanged('');
+              },
             ),
-            IconButton(
-              icon: const Icon(Icons.pause_outlined),
-              tooltip: t.download.pauseAll,
-              onPressed: () => DownloadService.to.pauseAll(),
-            ),
-            // “其他”菜单：批量删除 / 按日期删除，后续可扩展更多批量操作。
-            PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert),
+          ),
+        ),
+        const SizedBox(width: 4),
+      ],
+    );
+  }
+
+  /// 多选模式下中间胶囊的内容：已选数量。
+  Widget _buildSelectionSummary(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Row(
+      children: [
+        const SizedBox(width: 14),
+        Icon(Icons.checklist, size: 20, color: colorScheme.onSurfaceVariant),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            t.common.selectedRecords(num: _selectedTaskIds.length),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+        ),
+        const SizedBox(width: 14),
+      ],
+    );
+  }
+
+  /// 右侧动作胶囊：[全部开始 · 全部暂停(宽屏)] 筛选(生效挂红点) · 多选
+  /// [更多(管理分类 / 按日期删除，窄屏再收下全部开始 · 全部暂停)]。
+  Widget _buildActionGroup(BuildContext context, {required bool isWide}) {
+    final t = slang.Translations.of(context);
+    // 多选时「全部开始 / 全部暂停 / 更多」与当前语境无关，一并挤出胶囊
+    final bool showBulkPlayback = isWide && !_isSelectionMode;
+
+    return GlassButtonGroup(
+      children: [
+        GlassGroupSlot(
+          visible: showBulkPlayback,
+          child: GlassIconButton(
+            icon: const Icon(Icons.play_arrow_outlined),
+            tooltip: t.download.resumeAll,
+            onPressed: () => DownloadService.to.resumeAll(),
+          ),
+        ),
+        GlassGroupSlot(
+          visible: showBulkPlayback,
+          child: GlassIconButton(
+            icon: const Icon(Icons.pause_outlined),
+            tooltip: t.download.pauseAll,
+            onPressed: () => DownloadService.to.pauseAll(),
+          ),
+        ),
+        GlassIconButton(
+          icon: const Icon(Icons.filter_list),
+          tooltip: t.searchFilter.filterSettings,
+          // 状态 / 类型是收在弹窗里的条件，生效时用红点告诉用户「有东西在筛」。
+          // 不挂 loading：这枚键自己的动作是「弹出筛选面板」，一瞬间的事；
+          // 真正耗时的重查发生在列表里，由列表自己的加载指示器交代。
+          showBadge: _hasSheetFilter,
+          onPressed: _openFilterSheet,
+        ),
+        GlassIconButton(
+          // 多选↔退出在同一按钮位上交叉过渡
+          icon: Icon(_isSelectionMode ? Icons.close : Icons.checklist),
+          tooltip: _isSelectionMode
+              ? t.common.exitEditMode
+              : t.common.editMode,
+          onPressed: _isSelectionMode ? _exitSelectionMode : _enterSelectionMode,
+        ),
+        GlassGroupSlot(
+          visible: !_isSelectionMode,
+          child: SizedBox(
+            width: GlassTokens.groupIconButtonSize,
+            height: GlassTokens.groupIconButtonSize,
+            child: PopupMenuButton<String>(
+              padding: EdgeInsets.zero,
+              icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
               tooltip: t.download.moreOptions,
+              position: PopupMenuPosition.under,
+              // 往下挪一点，别压住玻璃胶囊本身
+              offset: const Offset(0, 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               onSelected: (value) {
                 switch (value) {
-                  case 'manageCategory':
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const DownloadCategoryManagePage(),
-                      ),
-                    );
-                    break;
-                  case 'batchDelete':
-                    _enterSelectionMode();
-                    break;
-                  case 'deleteByDate':
+                  case _menuActionManageCategory:
+                    _openCategoryManagePage();
+                  case _menuActionDeleteByDate:
                     _showDeleteByDateDialog();
-                    break;
+                  case _menuActionResumeAll:
+                    DownloadService.to.resumeAll();
+                  case _menuActionPauseAll:
+                    DownloadService.to.pauseAll();
                 }
               },
               itemBuilder: (context) => [
-                PopupMenuItem<String>(
-                  value: 'manageCategory',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.folder_outlined,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(t.download.category.manageTitle),
-                    ],
+                // 窄屏胶囊塞不下批量播放控制，收进这里
+                if (!isWide) ...[
+                  _buildMenuItem(
+                    value: _menuActionResumeAll,
+                    icon: Icons.play_arrow_outlined,
+                    label: t.download.resumeAll,
                   ),
+                  _buildMenuItem(
+                    value: _menuActionPauseAll,
+                    icon: Icons.pause_outlined,
+                    label: t.download.pauseAll,
+                  ),
+                  const PopupMenuDivider(),
+                ],
+                _buildMenuItem(
+                  value: _menuActionManageCategory,
+                  icon: Icons.folder_outlined,
+                  label: t.download.category.manageTitle,
                 ),
-                PopupMenuItem<String>(
-                  value: 'batchDelete',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.delete_sweep_outlined,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(t.common.batchDelete),
-                    ],
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'deleteByDate',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.auto_delete_outlined,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(t.download.deleteByDate.menuTitle),
-                    ],
-                  ),
+                _buildMenuItem(
+                  value: _menuActionDeleteByDate,
+                  icon: Icons.auto_delete_outlined,
+                  label: t.download.deleteByDate.menuTitle,
+                  isDestructive: true,
                 ),
               ],
             ),
-          ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  PopupMenuItem<String> _buildMenuItem({
+    required String value,
+    required IconData icon,
+    required String label,
+    bool isDestructive = false,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final color = isDestructive
+        ? colorScheme.error
+        : colorScheme.onSurfaceVariant;
+    return PopupMenuItem<String>(
+      value: value,
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: color),
+          const SizedBox(width: 12),
+          Text(label),
         ],
       ),
-      body: DownloadScaleScope(
-        child: Stack(
-          children: [
-            // Main content (列表在底层)
-            Obx(() {
-              // 仅订阅任务状态变更以触发重建；实际的刷新副作用在
-              // initState 注册的 worker 中处理（见 _statusChangedWorker）。
-              DownloadService.to.taskStatusChangedNotifier.value;
-              return _buildSingleList();
-            }),
-            // 顶部悬浮的搜索栏（透明背景，紧贴 AppBar 下方）
-            Positioned(
-              top: kToolbarHeight + MediaQuery.of(context).padding.top,
-              left: 0,
-              right: 0,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildFilterBar(),
-                  // 分类标签条：始终显示，便于发现并进入分类系统
-                  // （无分类时显示「全部 + 管理分类」入口）。
-                  _buildCategoryStrip(),
-                  // Loading indicator for filter
-                  if (_isFilterLoading) const LinearProgressIndicator(),
-                ],
+    );
+  }
+
+  void _openCategoryManagePage() => openDownloadCategoryManagePage(context);
+
+  /// 滚过一段后出现在右下角的「回到顶部」浮钮。
+  Widget _buildScrollToTopFab(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Positioned(
+      right: 16,
+      bottom: computeBottomSafeInset(MediaQuery.of(context)) + 16,
+      child: ValueListenableBuilder<bool>(
+        valueListenable: _showBackToTop,
+        builder: (context, visible, _) => IgnorePointer(
+          ignoring: !visible,
+          child: AnimatedSlide(
+            duration: GlassTokens.motionDuration,
+            curve: GlassTokens.motionCurve,
+            offset: visible ? Offset.zero : const Offset(0, 0.4),
+            child: AnimatedOpacity(
+              duration: GlassTokens.motionDuration,
+              opacity: visible ? 1 : 0,
+              child: GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.vertical_align_top),
+                tooltip: t.common.scrollToTop,
+                onPressed: _scrollToTop,
               ),
             ),
-            // 左下角操作按钮组
-            BatchActionFab(
-              isMultiSelect: _isSelectionMode,
-              selectedCount: _selectedTaskIds.length,
-              heroTagPrefix: 'downloadList',
-              onExit: _exitSelectionMode,
-              onClear: () {
-                setState(() {
-                  _selectedTaskIds.clear();
-                });
-              },
-              customActionBuilder: (context) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // 移至分类
-                    FloatingActionButton.small(
-                      heroTag: 'batchMoveCategoryFAB_downloadList',
-                      onPressed: _moveSelectedToCategory,
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.primaryContainer,
-                      foregroundColor: Theme.of(
-                        context,
-                      ).colorScheme.onPrimaryContainer,
-                      tooltip: t.download.category.moveTo,
-                      child: const Icon(Icons.drive_file_move_outline),
-                    ),
-                    const SizedBox(height: 8),
-                    // 删除
-                    FloatingActionButton.small(
-                      heroTag: 'batchDeleteFAB_downloadList',
-                      onPressed: _deleteSelectedTasks,
-                      backgroundColor: Theme.of(context).colorScheme.error,
-                      foregroundColor: Theme.of(context).colorScheme.onError,
-                      tooltip: t.common.delete,
-                      child: const Icon(Icons.delete),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  /// Build the filter bar with search and dropdown filter icons
-  Widget _buildFilterBar() {
+  void _scrollToTop() {
+    if (!_scrollController.hasClients) return;
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
+
+  /// 左下角多选操作按钮组：退出 / 清空所选 / 移至分类 / 删除。
+  Widget _buildBatchActionFab(BuildContext context) {
     final t = slang.Translations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-    final hasActiveFilter =
-        _statusFilter != DownloadStatusFilter.all ||
-        _typeFilter != DownloadTypeFilter.all ||
-        _categoryFilter != 'all';
-
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
-      color: Colors.transparent,
-      child: Row(
-        children: [
-          // Search bar (用 Flexible 配合 AnimatedContainer 实现宽度动画)
-          Expanded(
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: t.download.searchTasks,
-                prefixIcon: const Icon(Icons.search, size: 20),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear, size: 20),
-                        onPressed: () {
-                          _searchController.clear();
-                          _onSearchChanged('');
-                        },
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: colorScheme.surfaceContainerHighest.withValues(
-                  alpha: 0.7,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                isDense: true,
-              ),
-              style: Theme.of(context).textTheme.bodyMedium,
-              onChanged: _onSearchChanged,
+    return BatchActionFab(
+      isMultiSelect: _isSelectionMode,
+      selectedCount: _selectedTaskIds.length,
+      heroTagPrefix: 'downloadList',
+      onExit: _exitSelectionMode,
+      onClear: () {
+        setState(() {
+          _selectedTaskIds.clear();
+        });
+      },
+      customActionBuilder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 移至分类
+            FloatingActionButton.small(
+              heroTag: 'batchMoveCategoryFAB_downloadList',
+              onPressed: _moveSelectedToCategory,
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+              tooltip: t.download.category.moveTo,
+              child: const Icon(Icons.drive_file_move_outline),
             ),
-          ),
-          const SizedBox(width: 4),
-          // Clear filters button with animation
-          AnimatedSize(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeInOut,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              transitionBuilder: (child, animation) => FadeTransition(
-                opacity: animation,
-                child: ScaleTransition(scale: animation, child: child),
-              ),
-              child: hasActiveFilter
-                  ? IconButton(
-                      key: const ValueKey('clear_filter'),
-                      iconSize: 24,
-                      visualDensity: VisualDensity.compact,
-                      constraints: const BoxConstraints(
-                        minWidth: 44,
-                        minHeight: 44,
-                      ),
-                      padding: EdgeInsets.zero,
-                      icon: Icon(
-                        Icons.filter_alt_off,
-                        color: colorScheme.error,
-                      ),
-                      tooltip: t.download.clearFilters,
-                      onPressed: _clearFilters,
-                    )
-                  : const SizedBox.shrink(key: ValueKey('no_filter')),
+            const SizedBox(height: 8),
+            // 删除
+            FloatingActionButton.small(
+              heroTag: 'batchDeleteFAB_downloadList',
+              onPressed: _deleteSelectedTasks,
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+              tooltip: t.common.delete,
+              child: const Icon(Icons.delete),
             ),
-          ),
-          // Status filter dropdown - 根据状态显示不同图标
-          PopupMenuButton<DownloadStatusFilter>(
-            padding: const EdgeInsets.all(10),
-            tooltip: t.download.statusLabel(
-              label: _getStatusLabel(_statusFilter, t),
-            ),
-            onSelected: (value) {
-              setState(() {
-                _statusFilter = value;
-              });
-              _applyFilters();
-            },
-            itemBuilder: (context) => [
-              _buildFilterMenuItem(
-                value: DownloadStatusFilter.all,
-                label: t.download.allStatus,
-                icon: Icons.filter_list,
-                isSelected: _statusFilter == DownloadStatusFilter.all,
-              ),
-              _buildFilterMenuItem(
-                value: DownloadStatusFilter.failed,
-                label: t.download.failed,
-                icon: Icons.error_outline,
-                isSelected: _statusFilter == DownloadStatusFilter.failed,
-              ),
-              _buildFilterMenuItem(
-                value: DownloadStatusFilter.downloaded,
-                label: t.download.downloaded,
-                icon: Icons.check_circle_outline,
-                isSelected: _statusFilter == DownloadStatusFilter.downloaded,
-              ),
-            ],
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              transitionBuilder: (child, animation) =>
-                  ScaleTransition(scale: animation, child: child),
-              child: Icon(
-                _getStatusIcon(_statusFilter),
-                key: ValueKey(_statusFilter),
-                size: 26,
-                color: _statusFilter != DownloadStatusFilter.all
-                    ? colorScheme.primary
-                    : null,
-              ),
-            ),
-          ),
-          // Type filter dropdown - 根据类型显示不同图标
-          PopupMenuButton<DownloadTypeFilter>(
-            padding: const EdgeInsets.all(10),
-            tooltip: t.download.typeLabel(label: _getTypeLabel(_typeFilter, t)),
-            onSelected: (value) {
-              setState(() {
-                _typeFilter = value;
-              });
-              _applyFilters();
-            },
-            itemBuilder: (context) => [
-              _buildTypeFilterMenuItem(
-                value: DownloadTypeFilter.all,
-                label: t.download.allTypes,
-                icon: Icons.category_outlined,
-                isSelected: _typeFilter == DownloadTypeFilter.all,
-              ),
-              _buildTypeFilterMenuItem(
-                value: DownloadTypeFilter.video,
-                label: t.download.video,
-                icon: Icons.videocam_outlined,
-                isSelected: _typeFilter == DownloadTypeFilter.video,
-              ),
-              _buildTypeFilterMenuItem(
-                value: DownloadTypeFilter.gallery,
-                label: t.download.gallery,
-                icon: Icons.photo_library_outlined,
-                isSelected: _typeFilter == DownloadTypeFilter.gallery,
-              ),
-              _buildTypeFilterMenuItem(
-                value: DownloadTypeFilter.other,
-                label: t.download.other,
-                icon: Icons.more_horiz,
-                isSelected: _typeFilter == DownloadTypeFilter.other,
-              ),
-            ],
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              transitionBuilder: (child, animation) =>
-                  ScaleTransition(scale: animation, child: child),
-              child: Icon(
-                _getTypeIcon(_typeFilter),
-                key: ValueKey(_typeFilter),
-                size: 26,
-                color: _typeFilter != DownloadTypeFilter.all
-                    ? colorScheme.primary
-                    : null,
-              ),
-            ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 
-  /// 获取状态筛选的图标
-  IconData _getStatusIcon(DownloadStatusFilter filter) {
-    return switch (filter) {
-      DownloadStatusFilter.all => Icons.filter_list,
-      DownloadStatusFilter.failed => Icons.error_outline,
-      DownloadStatusFilter.downloaded => Icons.check_circle_outline,
-    };
-  }
+  /// 状态 / 类型筛选是否生效（分类筛选有分类条直观呈现，不算在内）。
+  bool get _hasSheetFilter =>
+      _statusFilter != DownloadStatusFilter.all ||
+      _typeFilter != DownloadTypeFilter.all;
 
-  /// 获取类型筛选的图标
-  IconData _getTypeIcon(DownloadTypeFilter filter) {
-    return switch (filter) {
-      DownloadTypeFilter.all => Icons.category_outlined,
-      DownloadTypeFilter.video => Icons.videocam_outlined,
-      DownloadTypeFilter.gallery => Icons.photo_library_outlined,
-      DownloadTypeFilter.other => Icons.more_horiz,
-    };
-  }
+  /// 是否存在任意筛选条件（用于区分「暂无任务」与「无匹配结果」）。
+  bool get _hasAnyFilter =>
+      _hasSheetFilter || _categoryFilter != 'all' || _searchQuery.isNotEmpty;
 
-  PopupMenuItem<DownloadStatusFilter> _buildFilterMenuItem({
-    required DownloadStatusFilter value,
-    required String label,
-    required IconData icon,
-    required bool isSelected,
-  }) {
-    return PopupMenuItem(
-      value: value,
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            size: 20,
-            color: isSelected
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(width: 12),
-          Expanded(child: Text(label)),
-          if (isSelected)
-            Icon(
-              Icons.check,
-              size: 18,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-        ],
+  /// 打开筛选弹窗：一次改完状态 + 类型再应用，不像原来两个下拉各触发一次重查。
+  Future<void> _openFilterSheet() async {
+    final result = await showModalBottomSheet<_DownloadFilterSelection>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => _DownloadFilterSheet(
+        initial: _DownloadFilterSelection(
+          status: _statusFilter,
+          type: _typeFilter,
+        ),
       ),
     );
-  }
-
-  PopupMenuItem<DownloadTypeFilter> _buildTypeFilterMenuItem({
-    required DownloadTypeFilter value,
-    required String label,
-    required IconData icon,
-    required bool isSelected,
-  }) {
-    return PopupMenuItem(
-      value: value,
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            size: 20,
-            color: isSelected
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(width: 12),
-          Expanded(child: Text(label)),
-          if (isSelected)
-            Icon(
-              Icons.check,
-              size: 18,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-        ],
-      ),
-    );
-  }
-
-  String _getStatusLabel(DownloadStatusFilter filter, slang.Translations t) {
-    return switch (filter) {
-      DownloadStatusFilter.all => t.common.all,
-      DownloadStatusFilter.failed => t.download.failed,
-      DownloadStatusFilter.downloaded => t.download.downloaded,
-    };
-  }
-
-  String _getTypeLabel(DownloadTypeFilter filter, slang.Translations t) {
-    return switch (filter) {
-      DownloadTypeFilter.all => t.common.all,
-      DownloadTypeFilter.video => t.download.video,
-      DownloadTypeFilter.gallery => t.download.gallery,
-      DownloadTypeFilter.other => t.download.other,
-    };
+    if (result == null || !mounted) return;
+    if (result.status == _statusFilter && result.type == _typeFilter) return;
+    setState(() {
+      _statusFilter = result.status;
+      _typeFilter = result.type;
+    });
+    _applyFilters();
   }
 
   void _clearFilters() {
+    // 防抖里可能还压着一次「旧关键字」的重查，先作废，否则清完又被写回来
+    _searchDebounce?.cancel();
     setState(() {
       _searchQuery = '';
       _searchController.clear();
@@ -835,8 +825,8 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
           nextFilter != 'all' &&
           nextFilter != 'uncategorized' &&
           !cats.any((c) => c.id == nextFilter);
-      // 选中「未分类」后又把所有分类删光时，标签条会整条隐藏（仅在有分类时显示），
-      // 若不重置会留下一个看不见、无法点掉的筛选，这里一并回到「全部」。
+      // 选中「未分类」后又把所有分类删光时，「未分类」标签本身会从标签条上消失
+      //（它只在有分类时才有意义），若不重置会留下一个点不掉的筛选，一并回到「全部」。
       final uncategorizedStrandedWhenStripHidden =
           nextFilter == 'uncategorized' && cats.isEmpty;
       if (selectedCategoryGone || uncategorizedStrandedWhenStripHidden) {
@@ -923,31 +913,15 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     }
   }
 
-  /// 顶部分类标签条：全部 / 未分类 / 各分类（带计数）/ 管理入口。
+  /// 顶部分类标签条：管理入口 / 全部 / 未分类 / 各分类（带计数）。
+  ///
+  /// 标签本体是玻璃胶囊（选中态换成高亮底色），与 header 上的胶囊同族，
+  /// 不再用 Material 的 ChoiceChip / ActionChip。
   Widget _buildCategoryStrip() {
     final t = slang.Translations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-
-    Widget buildChip({
-      required String label,
-      int? count,
-      required bool selected,
-      required VoidCallback onTap,
-    }) {
-      return Padding(
-        padding: const EdgeInsets.only(right: 8),
-        child: ChoiceChip(
-          label: Text(count != null ? '$label · $count' : label),
-          selected: selected,
-          onSelected: (_) => onTap(),
-          visualDensity: VisualDensity.compact,
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
-      );
-    }
 
     return SizedBox(
-      height: 40,
+      height: _categoryStripHeight,
       child: Listener(
         // 鼠标悬浮在分类条上滚动滚轮时，把纵向滚轮增量转成横向滑动。
         // 仅当分类条确有横向可滚动空间时才接管事件，否则交还底层纵向列表。
@@ -969,69 +943,126 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
             });
           }
         },
-        child: ListView(
-          controller: _categoryStripController,
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
-          children: [
-            // 管理 / 新建入口放在最前：无分类时用更醒目的「管理分类」标签。
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: ActionChip(
-                avatar: Icon(
-                  _categories.isEmpty
-                      ? Icons.create_new_folder_outlined
-                      : Icons.settings_outlined,
-                  size: 16,
-                  color: colorScheme.onSurfaceVariant,
+        child: ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+          child: ListView(
+            controller: _categoryStripController,
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            children: [
+              // 管理 / 新建入口放在最前：无分类时用更醒目的「管理分类」标签。
+              _buildCategoryChip(
+                label: _categories.isEmpty
+                    ? t.download.category.manageTitle
+                    : t.download.category.manage,
+                icon: _categories.isEmpty
+                    ? Icons.create_new_folder_outlined
+                    : Icons.settings_outlined,
+                selected: false,
+                onTap: _openCategoryManagePage,
+              ),
+              _buildCategoryChip(
+                label: t.common.all,
+                selected: _categoryFilter == 'all',
+                onTap: () => _onCategorySelected('all'),
+              ),
+              // 「未分类」仅在已有分类时才有意义（无分类时等同「全部」）。
+              if (_categories.isNotEmpty)
+                _buildCategoryChip(
+                  label: t.download.category.uncategorized,
+                  count: _uncategorizedCount,
+                  selected: _categoryFilter == 'uncategorized',
+                  onTap: () => _onCategorySelected('uncategorized'),
                 ),
-                label: Text(
-                  _categories.isEmpty
-                      ? t.download.category.manageTitle
-                      : t.download.category.manage,
+              for (final c in _categories)
+                _buildCategoryChip(
+                  label: c.title,
+                  count: c.itemCount ?? 0,
+                  selected: _categoryFilter == c.id,
+                  onTap: () => _onCategorySelected(c.id),
                 ),
-                visualDensity: VisualDensity.compact,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const DownloadCategoryManagePage(),
-                    ),
-                  );
-                },
-              ),
-            ),
-            buildChip(
-              label: t.common.all,
-              selected: _categoryFilter == 'all',
-              onTap: () => _onCategorySelected('all'),
-            ),
-            // 「未分类」仅在已有分类时才有意义（无分类时等同「全部」）。
-            if (_categories.isNotEmpty)
-              buildChip(
-                label: t.download.category.uncategorized,
-                count: _uncategorizedCount,
-                selected: _categoryFilter == 'uncategorized',
-                onTap: () => _onCategorySelected('uncategorized'),
-              ),
-            for (final c in _categories)
-              buildChip(
-                label: c.title,
-                count: c.itemCount ?? 0,
-                selected: _categoryFilter == c.id,
-                onTap: () => _onCategorySelected(c.id),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
+  /// 单枚分类标签：玻璃胶囊，选中态换高亮底色（底色 / 文字色都带过渡，
+  /// 切分类时是「同一枚标签亮起来」，不是瞬间换一块颜色）。
+  Widget _buildCategoryChip({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+    int? count,
+    IconData? icon,
+  }) {
+    final cs = Theme.of(context).colorScheme;
+    final Color foreground = selected
+        ? cs.onSecondaryContainer
+        : cs.onSurfaceVariant;
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: Center(
+        child: GlassPressable(
+          onTap: onTap,
+          scale: 0.95,
+          builder: (context, pressed) => AnimatedContainer(
+            duration: GlassTokens.motionDuration,
+            curve: GlassTokens.motionCurve,
+            height: _categoryChipHeight,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              color: selected
+                  ? GlassTokens.selectedHighlight(cs)
+                  : (pressed ? GlassTokens.pressedFill(cs) : GlassTokens.fill(cs)),
+              borderRadius: BorderRadius.circular(_categoryChipHeight / 2),
+              border: Border.all(
+                color: GlassTokens.stroke(cs),
+                width: GlassTokens.strokeWidth,
+              ),
+              boxShadow: GlassTokens.shadow(cs),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null) ...[
+                  Icon(icon, size: 16, color: foreground),
+                  const SizedBox(width: 6),
+                ],
+                AnimatedDefaultTextStyle(
+                  duration: GlassTokens.motionDuration,
+                  curve: GlassTokens.motionCurve,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: foreground,
+                  ),
+                  child: Text(count != null ? '$label · $count' : label),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 搜索输入：防抖后再落到筛选上。
+  ///
+  /// 每次 [_applyFilters] 都是三条本地 DB 查询 + 一轮串行历史刷新，逐字符触发
+  /// 既浪费查询，也让筛选钮的沙漏态一路抽搐。
   void _onSearchChanged(String value) {
-    setState(() {
-      _searchQuery = value;
+    _searchDebounce?.cancel();
+    if (value == _searchQuery) return;
+    _searchDebounce = Timer(_searchDebounceDelay, () {
+      if (!mounted || value == _searchQuery) return;
+      setState(() {
+        _searchQuery = value;
+      });
+      _applyFilters();
     });
-    _applyFilters();
   }
 
   void _applyFilters() async {
@@ -1183,7 +1214,11 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     );
   }
 
-  Widget _buildSingleList() {
+  /// 单列列表：顶部「下载中 / 失败 / 等待」活跃区 + 底部无限滚动的历史区。
+  ///
+  /// [topPadding] 是玻璃 header 需要让出的高度——留白必须由列表自身的
+  /// SliverPadding 提供，不能在外面套 Padding，否则内容滚不到 header 背后。
+  Widget _buildSingleList(double topPadding) {
     // 跨分区去重：在状态切换的过渡窗口，同一任务可能同时存在于
     // _activeTasks（下载中）与 _pendingTasks/_failedTasks 的旧快照里。
     // 这里按“下载中 > 失败 > 等待中”的优先级保证每个任务最多只出现一次，
@@ -1263,31 +1298,18 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       );
     }
 
-    // 搜索栏高度 (padding + content + border)
-    const filterBarHeight = 54.0;
-    // 分类标签条高度
-    const categoryStripHeight = 40.0;
-    final double topInsetHeight = filterBarHeight + categoryStripHeight;
-    // AppBar 高度 + 状态栏高度
-    final appBarTotalHeight =
-        kToolbarHeight + MediaQuery.of(context).padding.top;
-
     // 是否存在搜索 / 筛选条件（用于区分“暂无任务”与“无匹配结果”）
-    final bool hasActiveFilter =
-        _searchQuery.isNotEmpty ||
-        _statusFilter != DownloadStatusFilter.all ||
-        _typeFilter != DownloadTypeFilter.all ||
-        _categoryFilter != 'all';
+    final bool hasActiveFilter = _hasAnyFilter;
     // 顶部活跃区域是否有内容（决定 history 为空时是否接管为整页空状态）
     final bool hasActiveWidgets = activeWidgets.isNotEmpty;
 
     return LoadingMoreCustomScrollView(
       controller: _scrollController,
+      // 空列表也要能下拉（否则筛不到结果时刷不了）
+      physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
-        // 顶部留白，为悬浮的 AppBar 和搜索栏留出空间
-        SliverPadding(
-          padding: EdgeInsets.only(top: appBarTotalHeight + topInsetHeight),
-        ),
+        // 顶部留白，为悬浮的玻璃 header（标题行 + 分类条）让出位置
+        SliverPadding(padding: EdgeInsets.only(top: topPadding)),
         // 顶部活跃区域
         if (hasActiveWidgets)
           SliverList(delegate: SliverChildListDelegate(activeWidgets)),
@@ -1302,7 +1324,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
               0,
               0,
               0,
-              MediaQuery.of(context).padding.bottom +
+              computeBottomSafeInset(MediaQuery.of(context)) +
                   (_isSelectionMode ? 80 : 0), // 多选模式下增加底部padding防止遮挡
             ),
             indicatorBuilder: (context, status) {
@@ -1710,6 +1732,194 @@ class _HistoryDownloadTasksSource extends LoadingMoreBase<DownloadTask>
   }
 }
 
+/// 状态 + 类型的筛选结果。
+class _DownloadFilterSelection {
+  const _DownloadFilterSelection({required this.status, required this.type});
+
+  final DownloadStatusFilter status;
+  final DownloadTypeFilter type;
+}
+
+/// 筛选弹窗：状态与类型一次改完再应用。
+///
+/// 原来这两项是 header 上并排的两个下拉菜单，各自触发一次全量重查；收进弹窗后
+/// header 只留一枚带红点的筛选钮，条件是否生效一眼可见。
+class _DownloadFilterSheet extends StatefulWidget {
+  const _DownloadFilterSheet({required this.initial});
+
+  final _DownloadFilterSelection initial;
+
+  @override
+  State<_DownloadFilterSheet> createState() => _DownloadFilterSheetState();
+}
+
+class _DownloadFilterSheetState extends State<_DownloadFilterSheet> {
+  late DownloadStatusFilter _status = widget.initial.status;
+  late DownloadTypeFilter _type = widget.initial.type;
+
+  static const List<DownloadStatusFilter> _statuses = DownloadStatusFilter.values;
+  static const List<DownloadTypeFilter> _types = DownloadTypeFilter.values;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: computeSheetBottomInset(context)),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 标题行：标题 + 玻璃关闭圆钮
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 16, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    t.searchFilter.filterSettings,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                GlassIconButton(
+                  standalone: true,
+                  icon: const Icon(Icons.close),
+                  tooltip: t.common.close,
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
+          ),
+          // 状态：所有状态 / 失败 / 已下载
+          _buildSegmentRow(
+            selectedIndex: _statuses.indexOf(_status),
+            onChanged: (index) => setState(() => _status = _statuses[index]),
+            items: [
+              for (final s in _statuses)
+                GlassSegmentItem(
+                  label: _statusFilterLabel(s, t),
+                  icon: Icon(_statusFilterIcon(s)),
+                ),
+            ],
+          ),
+          // 类型：所有类型 / 视频 / 图库 / 其他
+          _buildSegmentRow(
+            selectedIndex: _types.indexOf(_type),
+            onChanged: (index) => setState(() => _type = _types[index]),
+            items: [
+              for (final type in _types)
+                GlassSegmentItem(
+                  label: _typeFilterLabel(type, t),
+                  icon: Icon(_typeFilterIcon(type)),
+                ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton.icon(
+                  onPressed: () => setState(() {
+                    _status = DownloadStatusFilter.all;
+                    _type = DownloadTypeFilter.all;
+                  }),
+                  icon: const Icon(Icons.filter_alt_off),
+                  label: Text(t.searchFilter.clearAll),
+                ),
+                const SizedBox(width: 12),
+                FilledButton(
+                  onPressed: () => Navigator.of(context).pop(
+                    _DownloadFilterSelection(status: _status, type: _type),
+                  ),
+                  child: Text(t.common.confirm),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 分段胶囊横向铺一行：段数固定但文案可长可短，胶囊自己能横向滚。
+  Widget _buildSegmentRow({
+    required List<GlassSegmentItem> items,
+    required int selectedIndex,
+    required ValueChanged<int> onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: GlassSegmentedControl(
+          items: items,
+          selectedIndex: selectedIndex,
+          onChanged: onChanged,
+        ),
+      ),
+    );
+  }
+}
+
+/// 弹窗标题行：标题 + 玻璃关闭圆钮（全局统一约定，见 dialog-close-button-glass）。
+///
+/// [context] 传弹窗自己的 context，默认关闭动作就是把它 pop 掉（确认类弹窗因此
+/// 拿到 null，等同「取消」）；需要别的关闭语义时传 [onClose]。
+Widget _dialogTitleRow(
+  BuildContext context,
+  String title, {
+  VoidCallback? onClose,
+}) {
+  return Row(
+    children: [
+      Expanded(child: Text(title)),
+      GlassIconButton(
+        standalone: true,
+        icon: const Icon(Icons.close),
+        tooltip: slang.Translations.of(context).common.close,
+        onPressed: onClose ?? () => Navigator.of(context).pop(),
+      ),
+    ],
+  );
+}
+
+IconData _statusFilterIcon(DownloadStatusFilter filter) {
+  return switch (filter) {
+    DownloadStatusFilter.all => Icons.filter_list,
+    DownloadStatusFilter.failed => Icons.error_outline,
+    DownloadStatusFilter.downloaded => Icons.check_circle_outline,
+  };
+}
+
+IconData _typeFilterIcon(DownloadTypeFilter filter) {
+  return switch (filter) {
+    DownloadTypeFilter.all => Icons.category_outlined,
+    DownloadTypeFilter.video => Icons.videocam_outlined,
+    DownloadTypeFilter.gallery => Icons.photo_library_outlined,
+    DownloadTypeFilter.other => Icons.more_horiz,
+  };
+}
+
+String _statusFilterLabel(DownloadStatusFilter filter, slang.Translations t) {
+  return switch (filter) {
+    DownloadStatusFilter.all => t.download.allStatus,
+    DownloadStatusFilter.failed => t.download.failed,
+    DownloadStatusFilter.downloaded => t.download.downloaded,
+  };
+}
+
+String _typeFilterLabel(DownloadTypeFilter filter, slang.Translations t) {
+  return switch (filter) {
+    DownloadTypeFilter.all => t.download.allTypes,
+    DownloadTypeFilter.video => t.download.video,
+    DownloadTypeFilter.gallery => t.download.gallery,
+    DownloadTypeFilter.other => t.download.other,
+  };
+}
+
 void showDownloadDetailDialog(BuildContext context, DownloadTask task) async {
   final t = slang.Translations.of(context);
   final theme = Theme.of(context);
@@ -1752,10 +1962,16 @@ void showDownloadDetailDialog(BuildContext context, DownloadTask task) async {
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                t.download.downloadDetail,
-                style: theme.textTheme.titleLarge,
+              padding: const EdgeInsets.fromLTRB(20, 16, 16, 8),
+              child: Builder(
+                builder: (dialogContext) => DefaultTextStyle.merge(
+                  style: theme.textTheme.titleLarge,
+                  child: _dialogTitleRow(
+                    dialogContext,
+                    t.download.downloadDetail,
+                    onClose: () => AppService.tryPop(),
+                  ),
+                ),
               ),
             ),
             Expanded(
@@ -1799,11 +2015,6 @@ void showDownloadDetailDialog(BuildContext context, DownloadTask task) async {
                       }
                     },
                     child: Text(t.download.copy),
-                  ),
-                  const SizedBox(width: 8),
-                  TextButton(
-                    onPressed: () => AppService.tryPop(),
-                    child: Text(t.common.close),
                   ),
                 ],
               ),
@@ -1943,9 +2154,12 @@ class _DeleteByDateDialogState extends State<_DeleteByDateDialog> {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16),
-                  child: Text(
-                    t.download.deleteByDate.dialogTitle,
+                  child: DefaultTextStyle.merge(
                     style: Theme.of(context).textTheme.titleLarge,
+                    child: _dialogTitleRow(
+                      context,
+                      t.download.deleteByDate.dialogTitle,
+                    ),
                   ),
                 ),
                 DropdownButtonFormField<_DeleteByDateMode>(

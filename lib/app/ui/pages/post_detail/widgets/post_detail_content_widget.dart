@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
@@ -262,47 +265,7 @@ class PostDetailContent extends StatelessWidget {
   }
 
   Widget _buildContentCard(BuildContext context, PostModel post) {
-    final theme = Theme.of(context);
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.45),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.article_outlined,
-                  size: 18,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  slang.t.common.content,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            CustomMarkdownBody(
-              data: post.body,
-              originalData: post.body,
-              showTranslationButton: true,
-              translationButtonAtTop: true,
-            ),
-          ],
-        ),
-      ),
-    );
+    return _PostBodyCard(body: post.body);
   }
 
   @override
@@ -337,6 +300,89 @@ class PostDetailContent extends StatelessWidget {
         ),
         const SizedBox(height: 6),
       ],
+    );
+  }
+}
+
+/// 帖子正文卡片。
+///
+/// 单独拆成有状态组件，只为托住「显示原始文本」的开关状态：
+/// CustomMarkdownBody 的行内开关已关闭，那枚 only-icon 钮收进了卡片标题行
+/// （「内容」那一行）的右端，与翻译入口同侧。
+class _PostBodyCard extends StatefulWidget {
+  const _PostBodyCard({required this.body});
+
+  final String body;
+
+  @override
+  State<_PostBodyCard> createState() => _PostBodyCardState();
+}
+
+class _PostBodyCardState extends State<_PostBodyCard> {
+  late bool _showOriginal;
+  bool _hasProcessedContent = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _showOriginal = Get.find<ConfigService>()[ConfigKey
+        .SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.45),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.article_outlined,
+                  size: 18,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    slang.t.common.content,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                MarkdownOriginalTextToggle(
+                  visible: _hasProcessedContent,
+                  showOriginal: _showOriginal,
+                  onChanged: (v) => setState(() => _showOriginal = v),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            CustomMarkdownBody(
+              data: widget.body,
+              originalData: widget.body,
+              showTranslationButton: true,
+              translationButtonAtTop: true,
+              initialShowUnprocessedText: _showOriginal,
+              onProcessedContentChanged: (hasProcessed) {
+                if (_hasProcessedContent == hasProcessed) return;
+                setState(() => _hasProcessedContent = hasProcessed);
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

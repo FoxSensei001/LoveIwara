@@ -48,12 +48,13 @@ class CustomMarkdownBody extends StatefulWidget {
   // 长按正文的回调（如评论区长按弹操作菜单）。同样挂在 SelectionArea 内侧，
   // 会取代其长按选中文本的默认行为——调用方应在菜单里提供「选择复制」入口。
   final VoidCallback? onLongPress;
-  // 是否显示内置的「显示原始文本/处理后文本」切换按钮。调用方想把该开关
-  // 放进自己的动作行时传 false，并配合 [initialShowUnprocessedText]（受控）
-  // 与 [onProcessedContentChanged]（得知是否有可切换的处理差异）使用。
-  final bool showProcessedTextToggle;
   // 内容处理状态变化回调：本文与格式化结果有差异时为 true。post-frame 触发，
   // 调用方可安全 setState。
+  //
+  // 「显示原始文本」的开关不再由本组件自己画在正文下方——它一律由外层放进
+  // 已有的动作栏 / 标题行，用 only-icon 的 `MarkdownOriginalTextToggle`
+  // 呈现：本回调告诉外层「有没有可切换的差异」（决定那枚钮出不出现），
+  // [initialShowUnprocessedText] 回来受控当前状态。
   final ValueChanged<bool>? onProcessedContentChanged;
 
   const CustomMarkdownBody({
@@ -73,7 +74,6 @@ class CustomMarkdownBody extends StatefulWidget {
     this.onTimestampSeek,
     this.onTap,
     this.onLongPress,
-    this.showProcessedTextToggle = true,
     this.onProcessedContentChanged,
   });
 
@@ -1203,33 +1203,6 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     return SelectionArea(child: content);
   }
 
-  Widget _buildProcessedTextToggle() {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: TextButton.icon(
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        ),
-        icon: Icon(
-          _showOriginal ? Icons.format_paint : Icons.format_paint_outlined,
-          size: 14,
-        ),
-        iconAlignment: IconAlignment.end,
-        label: Text(
-          _showOriginal
-              ? t.common.showProcessedText
-              : t.common.showOriginalText,
-          style: const TextStyle(fontSize: 12),
-        ),
-        onPressed: () {
-          setState(() {
-            _showOriginal = !_showOriginal;
-          });
-        },
-      ),
-    );
-  }
-
   /// 翻译结果区的出现 / 消失过渡：淡入淡出 + 高度自顶部展开收起。
   /// [content] 为 null 表示隐藏；消失时旧内容会完整走一遍反向动画。
   Widget _animatedTranslationReveal(Widget? content) {
@@ -1356,10 +1329,6 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
         children: [
           if (widget.translationButtonAtTop) _buildTranslationControls(context),
           markdownContent,
-          if (_hasProcessedContent && widget.showProcessedTextToggle) ...[
-            const SizedBox(height: 8),
-            _buildProcessedTextToggle(),
-          ],
           if (!widget.translationButtonAtTop)
             _buildTranslationControls(context),
           _buildTranslationSection(context),

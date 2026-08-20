@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/app/services/download_service.dart';
-import 'package:i_iwara/app/ui/pages/download/download_category_manage_page.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart'
+    show openDownloadCategoryManagePage;
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -137,13 +138,7 @@ class _MoveToCategorySheetState extends State<_MoveToCategorySheet> {
                       ),
                     ),
                     TextButton.icon(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const DownloadCategoryManagePage(),
-                          ),
-                        );
-                      },
+                      onPressed: () => openDownloadCategoryManagePage(context),
                       icon: const Icon(Icons.settings_outlined, size: 18),
                       label: Text(t.download.category.manage),
                     ),

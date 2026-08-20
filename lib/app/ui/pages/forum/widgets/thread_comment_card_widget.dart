@@ -12,6 +12,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_translation_controller.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -59,10 +60,18 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
   // 使用翻译控制器
   late final MarkdownTranslationController _translationController;
 
+  /// 「显示原始文本」由动作行那枚 only-icon 钮受控（正文内置开关已关闭），
+  /// 初值仍沿用全局设置项。
+  late bool _showOriginal;
+
+  /// 正文加工前后确实有差异时才让那枚钮长出来。
+  bool _hasProcessedContent = false;
+
   @override
   void initState() {
     super.initState();
     _translationController = MarkdownTranslationController();
+    _showOriginal = _configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
   }
 
   @override
@@ -486,6 +495,11 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                         padding: EdgeInsets.zero,
                         onTap: canReply ? _handleReply : null,
                         onLongPress: _showActionsSheet,
+                        initialShowUnprocessedText: _showOriginal,
+                        onProcessedContentChanged: (hasProcessed) {
+                          if (_hasProcessedContent == hasProcessed) return;
+                          setState(() => _hasProcessedContent = hasProcessed);
+                        },
                       ),
                       const SizedBox(height: 4),
                       // 动作行：回复 …… 翻译 / 更多
@@ -499,6 +513,13 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                               onTap: _handleReply,
                             ),
                           const Spacer(),
+                          MarkdownOriginalTextToggle(
+                            visible: _hasProcessedContent,
+                            showOriginal: _showOriginal,
+                            pillSize: _actionPillHeight,
+                            padding: const EdgeInsets.only(right: 8),
+                            onChanged: (v) => setState(() => _showOriginal = v),
+                          ),
                           _buildTranslationControls(context),
                           _buildActionMenu(context),
                         ],

@@ -8,6 +8,7 @@ import 'comment_item_widget.dart';
 import 'comment_skeleton_item_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'comment_input_bottom_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
@@ -471,6 +472,8 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
                     top: Radius.circular(16.0),
                   ),
                 ),
+                // 标题行：图标 + 回复数 …… 回复圆钮 / 关闭圆钮
+                // 弹窗标题行的动作键一律玻璃圆钮，与全站其它弹窗同族
                 child: Row(
                   children: [
                     Icon(
@@ -479,25 +482,30 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
                       size: 20.0,
                     ),
                     const SizedBox(width: 8.0),
-                    Text(
-                      '$_replyCount ${t.common.replies}',
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.onSurface,
+                    Expanded(
+                      child: Text(
+                        '$_replyCount ${t.common.replies}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                       ),
                     ),
-                    const Spacer(),
-                    IconButton(
-                      onPressed: _showReplyDialog,
+                    GlassIconButton(
+                      standalone: true,
                       icon: const Icon(Icons.reply),
-                      visualDensity: VisualDensity.compact,
                       tooltip: t.common.reply,
+                      onPressed: _showReplyDialog,
                     ),
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                    const SizedBox(width: 8.0),
+                    GlassIconButton(
+                      standalone: true,
                       icon: const Icon(Icons.close_rounded),
-                      visualDensity: VisualDensity.compact,
+                      tooltip: t.common.close,
+                      onPressed: () => Navigator.of(context).pop(),
                     ),
                   ],
                 ),

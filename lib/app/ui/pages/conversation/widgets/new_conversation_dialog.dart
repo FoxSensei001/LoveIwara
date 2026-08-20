@@ -8,6 +8,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_syntax_help_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
@@ -127,6 +128,11 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
   }
 
   void _showPreview() {
+    // 预览弹层自己托一份「显示原始文本」状态：那枚 only-icon 钮挂在
+    // GlassComposerHeader 的 trailing 位（关闭钮左侧），正文行内开关已关闭。
+    bool showOriginal =
+        Get.find<ConfigService>()[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
+    bool hasProcessed = false;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -138,40 +144,53 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
         minChildSize: 0.5,
         maxChildSize: 0.95,
         expand: false,
-        builder: (context, scrollController) => Column(
-          children: [
-            _buildSheetDragHandle(context),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 12.0),
-              child: GlassComposerHeader(
-                title: t.common.preview,
-                icon: Icons.preview,
-                onClose: () => Navigator.of(context).pop(),
-              ),
-            ),
-            const Divider(height: 1),
-            Expanded(
-              child: SingleChildScrollView(
-                controller: scrollController,
-                padding: EdgeInsets.fromLTRB(
-                  16.0,
-                  16.0,
-                  16.0,
-                  16.0 + computeSheetBottomInset(context),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CustomMarkdownBody(
-                      data: _bodyController.text,
-                      originalData: _bodyController.text,
-                      clickInternalLinkByUrlLaunch: true,
-                    ),
-                  ],
+        builder: (context, scrollController) => StatefulBuilder(
+          builder: (context, setSheetState) => Column(
+            children: [
+              _buildSheetDragHandle(context),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 12.0),
+                child: GlassComposerHeader(
+                  title: t.common.preview,
+                  icon: Icons.preview,
+                  onClose: () => Navigator.of(context).pop(),
+                  trailing: MarkdownOriginalTextToggle(
+                    style: MarkdownToggleStyle.glass,
+                    visible: hasProcessed,
+                    showOriginal: showOriginal,
+                    onChanged: (v) => setSheetState(() => showOriginal = v),
+                  ),
                 ),
               ),
-            ),
-          ],
+              const Divider(height: 1),
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  padding: EdgeInsets.fromLTRB(
+                    16.0,
+                    16.0,
+                    16.0,
+                    16.0 + computeSheetBottomInset(context),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CustomMarkdownBody(
+                        data: _bodyController.text,
+                        originalData: _bodyController.text,
+                        clickInternalLinkByUrlLaunch: true,
+                        initialShowUnprocessedText: showOriginal,
+                        onProcessedContentChanged: (v) {
+                          if (hasProcessed == v) return;
+                          setSheetState(() => hasProcessed = v);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -88,6 +88,23 @@ abstract final class GlassTokens {
   /// 时序——前半程旧内容收掉、后半程新内容长出来，各占一半才不显得仓促。
   static const Duration capsuleMorphDuration = Duration(milliseconds: 300);
 
+  /// 弹窗入场时长。Material 默认的 150ms 纯淡入在整页弹窗（搜索 / 筛选配置）
+  /// 上读起来就是一次硬切，这里放慢到能看清「长出来」的程度。
+  static const Duration dialogEnterDuration = Duration(milliseconds: 260);
+
+  /// 弹窗出场时长：比入场干脆，退场不该让人等。
+  static const Duration dialogExitDuration = Duration(milliseconds: 190);
+
+  /// 弹窗入场曲线：末段减速，收得住。
+  static const Curve dialogEnterCurve = Curves.easeOutCubic;
+
+  /// 弹窗出场曲线：起步慢一拍再加速离场，避免「啪」地消失。
+  static const Curve dialogExitCurve = Curves.easeInCubic;
+
+  /// 弹窗「宽屏居中卡片 / 窄屏整页」的分界宽度。
+  /// 与 `ResponsiveDialogWidget` 内部的判断保持同一口径。
+  static const double dialogWideBreakpoint = 600;
+
   static const double pressedScale = 0.96;
 
   // ---- 颜色 ----

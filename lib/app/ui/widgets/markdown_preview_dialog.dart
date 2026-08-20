@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
-class MarkdownPreviewDialog extends StatelessWidget {
+class MarkdownPreviewDialog extends StatefulWidget {
   const MarkdownPreviewDialog({
     super.key,
     required this.content,
@@ -14,6 +18,22 @@ class MarkdownPreviewDialog extends StatelessWidget {
   final String content;
   final String? title;
   final bool showTitle;
+
+  @override
+  State<MarkdownPreviewDialog> createState() => _MarkdownPreviewDialogState();
+}
+
+class _MarkdownPreviewDialogState extends State<MarkdownPreviewDialog> {
+  /// 「显示原始文本」由标题行那枚玻璃圆钮受控（正文内置行内开关已关闭）。
+  late bool _showOriginal;
+  bool _hasProcessedContent = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _showOriginal = Get.find<ConfigService>()[ConfigKey
+        .SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,18 +47,28 @@ class MarkdownPreviewDialog extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  t.common.preview,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    t.common.preview,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
+                MarkdownOriginalTextToggle(
+                  style: MarkdownToggleStyle.glass,
+                  visible: _hasProcessedContent,
+                  showOriginal: _showOriginal,
+                  padding: const EdgeInsets.only(right: 4),
+                  onChanged: (v) => setState(() => _showOriginal = v),
+                ),
+                GlassIconButton(
+                  standalone: true,
                   icon: const Icon(Icons.close),
+                  tooltip: t.common.close,
+                  onPressed: () => Navigator.pop(context),
                 ),
               ],
             ),
@@ -57,9 +87,11 @@ class MarkdownPreviewDialog extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  if (showTitle && title != null && title!.isNotEmpty) ...[
+                  if (widget.showTitle &&
+                      widget.title != null &&
+                      widget.title!.isNotEmpty) ...[
                     Text(
-                      title!,
+                      widget.title!,
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -68,8 +100,13 @@ class MarkdownPreviewDialog extends StatelessWidget {
                     const SizedBox(height: 16),
                   ],
                   CustomMarkdownBody(
-                    data: content,
+                    data: widget.content,
                     clickInternalLinkByUrlLaunch: true,
+                    initialShowUnprocessedText: _showOriginal,
+                    onProcessedContentChanged: (v) {
+                      if (_hasProcessedContent == v) return;
+                      setState(() => _hasProcessedContent = v);
+                    },
                   ),
                 ],
               ),

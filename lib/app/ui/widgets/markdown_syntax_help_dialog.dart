@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class MarkdownSyntaxHelp extends StatelessWidget {
@@ -221,6 +222,30 @@ class MarkdownSyntaxHelp extends StatelessWidget {
   }
 
   Widget _buildPreviewBox(_SyntaxItem item) {
+    return _SyntaxPreviewBox(item: item);
+  }
+}
+
+/// 语法示例的渲染结果框。
+///
+/// 单独拆成有状态组件，只为托住「显示原始文本」的开关状态：
+/// CustomMarkdownBody 的行内开关已关闭，那枚 only-icon 钮收进了框头
+/// 「预览」标签那一行的右端。
+class _SyntaxPreviewBox extends StatefulWidget {
+  const _SyntaxPreviewBox({required this.item});
+
+  final _SyntaxItem item;
+
+  @override
+  State<_SyntaxPreviewBox> createState() => _SyntaxPreviewBoxState();
+}
+
+class _SyntaxPreviewBoxState extends State<_SyntaxPreviewBox> {
+  bool _showOriginal = false;
+  bool _hasProcessedContent = false;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -230,18 +255,35 @@ class MarkdownSyntaxHelp extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            slang.t.common.preview,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  slang.t.common.preview,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              MarkdownOriginalTextToggle(
+                visible: _hasProcessedContent,
+                showOriginal: _showOriginal,
+                pillSize: 24,
+                onChanged: (v) => setState(() => _showOriginal = v),
+              ),
+            ],
           ),
           const SizedBox(height: 4),
           CustomMarkdownBody(
-            data: item.syntax,
+            data: widget.item.syntax,
             clickInternalLinkByUrlLaunch: true,
+            initialShowUnprocessedText: _showOriginal,
+            onProcessedContentChanged: (v) {
+              if (_hasProcessedContent == v) return;
+              setState(() => _hasProcessedContent = v);
+            },
           ),
         ],
       ),
