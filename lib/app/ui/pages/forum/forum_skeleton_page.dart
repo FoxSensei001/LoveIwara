@@ -13,33 +13,50 @@ class ForumSkeletonPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isWideScreen = MediaQuery.of(context).size.width > 900;
     final bool isNarrowScreen = MediaQuery.of(context).size.width < 260;
+    final double bottomPadding = MediaQuery.of(context).padding.bottom;
 
-    // 骨架内容
-    Widget skeletonContent = ListView.builder(
-      itemCount: 5,
-      padding: EdgeInsets.zero,
-      itemBuilder: (context, index) => _buildSkeletonCategory(context, isWideScreen, isNarrowScreen),
-    );
-
-    // 根据屏幕宽度决定布局
+    final Widget skeletonContent;
     if (isNarrowScreen) {
-      // 窄屏 Tab 布局
-      skeletonContent = Column(
-        children: [
-          _buildSkeletonTabBar(context),
-          Expanded(child: skeletonContent),
-        ],
+      // 窄屏 Tab 布局：tab 行跟着玻璃 header 走，列表在它下面滚
+      skeletonContent = Padding(
+        padding: EdgeInsets.only(top: paddingTop),
+        child: Column(
+          children: [
+            _buildSkeletonTabBar(context),
+            Expanded(
+              child: _buildSkeletonList(
+                context,
+                isWideScreen: isWideScreen,
+                isNarrowScreen: isNarrowScreen,
+                topPadding: 0,
+                bottomPadding: bottomPadding,
+              ),
+            ),
+          ],
+        ),
       );
     } else {
-      // 宽屏 NavigationRail 布局
+      // 宽屏 NavigationRail 布局。让位一律写进各自可滚区域的 padding 里，
+      // 而不是在外面套一层 Padding —— 套在外面骨架就被裁在 header 下方，
+      // 滚不到玻璃行背后，和加载完成后的真列表（穿透）对不上，会看到跳变。
       skeletonContent = Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildSkeletonNavigationRail(context),
+          _buildSkeletonNavigationRail(
+            context,
+            topPadding: paddingTop,
+            bottomPadding: bottomPadding,
+          ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(right: 8.0),
-              child: skeletonContent,
+              child: _buildSkeletonList(
+                context,
+                isWideScreen: isWideScreen,
+                isNarrowScreen: isNarrowScreen,
+                topPadding: paddingTop,
+                bottomPadding: bottomPadding,
+              ),
             ),
           ),
         ],
@@ -50,14 +67,26 @@ class ForumSkeletonPage extends StatelessWidget {
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
-      child: Padding(
-        padding: EdgeInsets.only(top: paddingTop),
-        child: skeletonContent,
-      ),
+      child: skeletonContent,
     );
   }
 
   // --- 构建骨架元素的辅助方法 ---
+
+  Widget _buildSkeletonList(
+    BuildContext context, {
+    required bool isWideScreen,
+    required bool isNarrowScreen,
+    required double topPadding,
+    required double bottomPadding,
+  }) {
+    return ListView.builder(
+      itemCount: 5,
+      padding: EdgeInsets.only(top: topPadding, bottom: bottomPadding),
+      itemBuilder: (context, index) =>
+          _buildSkeletonCategory(context, isWideScreen, isNarrowScreen),
+    );
+  }
 
   Widget _buildSkeletonTabBar(BuildContext context) {
     return Container(
@@ -81,32 +110,41 @@ class ForumSkeletonPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSkeletonNavigationRail(BuildContext context) {
-    return Container(
+  Widget _buildSkeletonNavigationRail(
+    BuildContext context, {
+    required double topPadding,
+    required double bottomPadding,
+  }) {
+    // 与真实分类栏一致：自身可滚，让位写在 padding 里（内容能滚到 header 背后）
+    return SizedBox(
       width: 60,
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        children: List.generate(5, (index) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12.0),
-          child: Column(
-            children: [
-              Container(
-                width: 24,
-                height: 24,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.only(
+          top: topPadding + 8.0,
+          bottom: bottomPadding + 8.0,
+        ),
+        child: Column(
+          children: List.generate(
+            5,
+            (index) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12.0),
+              child: Column(
+                children: [
+                  Container(
+                    width: 24,
+                    height: 24,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Container(width: 40, height: 8, color: Colors.white),
+                ],
               ),
-              const SizedBox(height: 4),
-              Container(
-                width: 40,
-                height: 8,
-                color: Colors.white,
-              ),
-            ],
+            ),
           ),
-        )),
+        ),
       ),
     );
   }
