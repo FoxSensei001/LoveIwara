@@ -239,6 +239,11 @@ abstract class ExtendedLoadingMoreBase<T> extends LoadingMoreBase<T>
 }
 
 class MediaListView<T> extends StatefulWidget {
+  /// 分页栏的完整垂直占用：控制条本体及其上方渐隐区。
+  /// 所有悬浮控件在分页模式下都必须避开该范围。
+  static const double paginationBarReservedExtent =
+      46 + PaginationBar.fadeAboveExtent;
+
   final LoadingMoreBase<T> sourceList;
   final Widget Function(BuildContext context, T item, int index) itemBuilder;
   final Widget Function(
@@ -838,7 +843,8 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
     // 计算分页栏所需的底部边距（PaginationBar内部已处理paddingBottom，这里只需要基础高度
     // + 悬浮模式下上方的透明渐入区，保证最后一行能完整滚出渐变）
-    final paginationBarHeight = 46 + PaginationBar.fadeAboveExtent.toInt();
+    final paginationBarHeight = MediaListView.paginationBarReservedExtent
+        .toInt();
 
     // 使用实际可用宽度（来自 LayoutBuilder），而非屏幕宽度
     final screenWidth = availableWidth;

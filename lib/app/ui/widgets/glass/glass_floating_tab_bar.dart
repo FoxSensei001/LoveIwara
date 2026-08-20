@@ -170,8 +170,6 @@ class _GlassFloatingTabBarState extends State<GlassFloatingTabBar>
     final decoration = BoxDecoration(
       color: GlassTokens.selectedHighlight(cs),
       borderRadius: BorderRadius.circular(innerHeight / 2),
-      // 拖拽中给高亮块「拾起」的投影
-      boxShadow: _dragging ? GlassTokens.shadow(cs) : null,
     );
     // 拖拽中微放大，松手还原
     final Widget thumb = AnimatedScale(
@@ -228,6 +226,7 @@ class _GlassFloatingTabBarState extends State<GlassFloatingTabBar>
                   onLongPressEnd: (_) => _finishDrag(commit: true),
                   onLongPressCancel: () => _finishDrag(commit: false),
                   child: Stack(
+                    alignment: Alignment.center,
                     children: [
                       _buildThumb(cs, slotWidth, innerHeight),
                       Row(

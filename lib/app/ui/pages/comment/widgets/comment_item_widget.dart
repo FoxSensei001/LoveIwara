@@ -107,6 +107,7 @@ class _CommentItemState extends State<CommentItem> {
           alignment: Alignment.center,
           child: Row(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Icon(icon, size: 16, color: fg),
               const SizedBox(width: 4),
@@ -116,7 +117,7 @@ class _CommentItemState extends State<CommentItem> {
                   fontSize: 12.5,
                   fontWeight: FontWeight.w600,
                   color: fg,
-                  height: 1.2,
+                  height: 1,
                 ),
               ),
             ],
@@ -165,16 +166,26 @@ class _CommentItemState extends State<CommentItem> {
               () => SizedBox(
                 width: 34,
                 height: _actionPillHeight,
-                child: TranslationLanguageSelector(
-                  compact: true,
-                  extrimCompact: true,
-                  selectedLanguage: _configService.currentTranslationSort,
-                  onLanguageSelected: (sort) {
-                    _configService.updateTranslationLanguage(sort);
-                    if (_translationController.hasTranslation) {
-                      _handleTranslation();
-                    }
-                  },
+                child: IconButtonTheme(
+                  data: IconButtonThemeData(
+                    style: IconButton.styleFrom(
+                      fixedSize: const Size(34, _actionPillHeight),
+                      padding: EdgeInsets.zero,
+                      alignment: Alignment.center,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ),
+                  child: TranslationLanguageSelector(
+                    compact: true,
+                    extrimCompact: true,
+                    selectedLanguage: _configService.currentTranslationSort,
+                    onLanguageSelected: (sort) {
+                      _configService.updateTranslationLanguage(sort);
+                      if (_translationController.hasTranslation) {
+                        _handleTranslation();
+                      }
+                    },
+                  ),
                 ),
               ),
             ),

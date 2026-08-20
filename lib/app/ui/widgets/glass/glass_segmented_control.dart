@@ -181,8 +181,7 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
   void _finishDrag({required bool commit}) {
     if (!_dragging) return;
     // 从当前视觉位置（可能还在拾起追赶途中）出发落位
-    final double from =
-        _overrideT ?? _dragT ?? widget.selectedIndex.toDouble();
+    final double from = _overrideT ?? _dragT ?? widget.selectedIndex.toDouble();
     final int target = commit
         ? (_dragT ?? from).round().clamp(0, widget.items.length - 1)
         : widget.selectedIndex;
@@ -365,7 +364,7 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
             controller: _scrollController,
             scrollDirection: Axis.horizontal,
             physics: const ClampingScrollPhysics(),
-            // 长按拾起高亮块跟手滑动；轻点仍由子项的 GlassPressable 处理
+            // 长按拾起高亮块跟手滑动；轻点和横向滚动仍由原手势处理。
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
               onLongPressStart: _handleLongPressStart,
@@ -390,8 +389,6 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
     final decoration = BoxDecoration(
       color: GlassTokens.selectedHighlight(cs),
       borderRadius: BorderRadius.circular(innerHeight / 2),
-      // 拖拽中给高亮块「拾起」的投影
-      boxShadow: _dragging ? GlassTokens.shadow(cs) : null,
     );
     // 拖拽中微放大，松手还原
     final Widget thumb = AnimatedScale(

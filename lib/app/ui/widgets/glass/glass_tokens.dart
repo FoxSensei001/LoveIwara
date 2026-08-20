@@ -25,7 +25,7 @@ abstract final class GlassTokens {
   static const double floatingTabBarHeight = 64;
 
   /// 浮动 Tab 栏距屏幕底部安全区的间距。
-  static const double floatingTabBarBottomMargin = 12;
+  static const double floatingTabBarBottomMargin = 4;
 
   /// 浮动 Tab 栏左右边距。
   static const double floatingTabBarSideMargin = 16;
@@ -56,8 +56,9 @@ abstract final class GlassTokens {
       Color.alphaBlend(cs.onSurface.withValues(alpha: 0.08), fill(cs));
 
   /// 玻璃体内侧细描边。
-  static Color stroke(ColorScheme cs) =>
-      cs.outlineVariant.withValues(alpha: cs.brightness == Brightness.dark ? 0.45 : 0.35);
+  static Color stroke(ColorScheme cs) => cs.outlineVariant.withValues(
+    alpha: cs.brightness == Brightness.dark ? 0.45 : 0.35,
+  );
 
   /// 玻璃体外投影。
   static List<BoxShadow> shadow(ColorScheme cs) => [
