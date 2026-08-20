@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/batch_download_dialog.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 批量操作悬浮按钮列组件
@@ -130,7 +131,10 @@ class BatchActionFab extends StatelessWidget {
 
           // 计算底部总间距
           final double finalBottomPadding =
-              (isPaginated ? 46 : 0) + bottomSafeNow + 20 + extraBottomPadding;
+              (isPaginated ? PaginationBar.barHeight : 0) +
+              bottomSafeNow +
+              20 +
+              extraBottomPadding;
 
           return Padding(
             padding: EdgeInsets.only(bottom: finalBottomPadding),

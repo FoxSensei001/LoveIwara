@@ -14,6 +14,7 @@ import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -390,6 +391,24 @@ class _NewsPageState extends State<NewsPage>
           : null;
       final count =
           userService.notificationCount.value + userService.messagesCount.value;
+      final Widget inner = user != null
+          ? KeyedSubtree(
+              key: ValueKey('avatar-${user.id}'),
+              child: IgnorePointer(
+                child: AvatarWidget(
+                  user: user,
+                  size: GlassTokens.pillHeight - 2,
+                ),
+              ),
+            )
+          : KeyedSubtree(
+              key: const ValueKey('avatar-placeholder'),
+              child: Icon(
+                Icons.account_circle,
+                size: 26,
+                color: colorScheme.onSurface,
+              ),
+            );
       return GlassSurface(
         circle: true,
         tooltip: t.common.me,
@@ -398,33 +417,12 @@ class _NewsPageState extends State<NewsPage>
           alignment: Alignment.center,
           clipBehavior: Clip.none,
           children: [
-            if (user != null)
-              IgnorePointer(
-                child: AvatarWidget(
-                  user: user,
-                  size: GlassTokens.pillHeight - 2,
-                ),
-              )
-            else
-              Icon(
-                Icons.account_circle,
-                size: 26,
-                color: colorScheme.onSurface,
-              ),
-            if (count > 0)
-              Positioned(
-                right: 2,
-                top: 2,
-                child: Container(
-                  width: 9,
-                  height: 9,
-                  decoration: BoxDecoration(
-                    color: colorScheme.error,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: colorScheme.surface, width: 1.5),
-                  ),
-                ),
-              ),
+            GlassShapeSwitcher(child: inner),
+            Positioned(
+              right: 2,
+              top: 2,
+              child: GlassAnimatedDot(visible: count > 0),
+            ),
           ],
         ),
       );
@@ -629,25 +627,38 @@ class _NewsPageState extends State<NewsPage>
                   Expanded(
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: useSegmented
-                          ? GlassSegmentedControl(
-                              selectedIndex: _selectedCategory.index,
-                              progress: _pageProgress,
-                              onChanged: (i) => _switchCategory(
-                                IwaraNewsCategoryType.values[i],
+                      // 玻璃壳由 GlassCapsuleMorph 常驻提供，两侧只换
+                      // 无壳内容——胶囊平滑伸缩，阴影/圆角全程完整。
+                      child: GlassCapsuleMorph(
+                        child: useSegmented
+                            ? GlassSegmentedControl(
+                                key: const ValueKey('segmented'),
+                                flat: true,
+                                selectedIndex: _selectedCategory.index,
+                                progress: _pageProgress,
+                                onChanged: (i) => _switchCategory(
+                                  IwaraNewsCategoryType.values[i],
+                                ),
+                                items: categoryItems,
+                              )
+                            : KeyedSubtree(
+                                key: const ValueKey('dropdown'),
+                                child:
+                                    _NewsSelectButton<IwaraNewsCategoryType>(
+                                      icon: _categoryIcon(_selectedCategory),
+                                      label: _categoryLabel(
+                                        t,
+                                        _selectedCategory,
+                                      ),
+                                      values: IwaraNewsCategoryType.values,
+                                      selectedValue: _selectedCategory,
+                                      itemIconBuilder: _categoryIcon,
+                                      itemLabelBuilder: (category) =>
+                                          _categoryLabel(t, category),
+                                      onSelected: _switchCategory,
+                                    ),
                               ),
-                              items: categoryItems,
-                            )
-                          : _NewsSelectButton<IwaraNewsCategoryType>(
-                              icon: _categoryIcon(_selectedCategory),
-                              label: _categoryLabel(t, _selectedCategory),
-                              values: IwaraNewsCategoryType.values,
-                              selectedValue: _selectedCategory,
-                              itemIconBuilder: _categoryIcon,
-                              itemLabelBuilder: (category) =>
-                                  _categoryLabel(t, category),
-                              onSelected: _switchCategory,
-                            ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -720,30 +731,34 @@ class _NewsSelectButton<T> extends StatelessWidget {
               ),
             ),
         ],
-        // 无标签：作为玻璃胶囊组里的一个 40×40 图标位；有标签：独立玻璃胶囊
+        // 无标签：作为玻璃胶囊组里的一个 40×40 图标位；有标签：无壳内容行
+        //（玻璃壳由外层 GlassCapsuleMorph 提供）
         child: showLabel
-            ? GlassSurface(
-                padding: const EdgeInsets.only(left: 14, right: 8),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(icon, size: 16, color: colorScheme.onSurface),
-                    const SizedBox(width: 6),
-                    Text(
-                      label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+            ? SizedBox(
+                height: GlassTokens.pillHeight,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 14, right: 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(icon, size: 16, color: colorScheme.onSurface),
+                      const SizedBox(width: 6),
+                      Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      Icon(
+                        Icons.arrow_drop_down_rounded,
                         color: colorScheme.onSurface,
                       ),
-                    ),
-                    Icon(
-                      Icons.arrow_drop_down_rounded,
-                      color: colorScheme.onSurface,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               )
             : SizedBox(

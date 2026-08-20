@@ -15,6 +15,7 @@ import 'package:oktoast/oktoast.dart';
 import 'dart:async';
 
 import '../../../../models/comment.model.dart';
+import '../../../widgets/comment_actions_sheet.dart';
 import '../../../widgets/custom_markdown_body_widget.dart';
 import '../widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -60,6 +61,17 @@ class _CommentItemState extends State<CommentItem> {
   void dispose() {
     _translationController.dispose();
     super.dispose();
+  }
+
+  bool get _canReply => !widget.isReply && widget.comment.parent == null;
+
+  /// 长按（整条评论或正文文本上）弹出操作菜单：复制 / 选择复制 / 回复。
+  void _showActionsSheet() {
+    showCommentActionsSheet(
+      context: context,
+      text: widget.comment.body,
+      onReply: _canReply ? _showReplyDialog : null,
+    );
   }
 
   void _handleViewReplies() {
@@ -485,19 +497,21 @@ class _CommentItemState extends State<CommentItem> {
         widget.authorUserId != null &&
         commentUserId == widget.authorUserId;
 
-    final bool canReply = !widget.isReply && comment.parent == null;
+    final bool canReply = _canReply;
     final metaLine = _buildMetaLine(comment, t);
 
     void openProfile() =>
         NaviService.navigateToAuthorProfilePage(comment.user?.username ?? '');
 
     return RepaintBoundary(
-      // 整条评论区域可点：顶级评论点按任意空白处直接回复
+      // 整条评论区域可点：顶级评论点按任意空白处直接回复，
+      // 长按弹出 复制/选择复制/回复 操作菜单
       //（头像 / 名字 / 幽灵钮 / 菜单等内层手势优先，不受影响）
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: canReply ? _showReplyDialog : null,
+          onLongPress: _showActionsSheet,
           borderRadius: BorderRadius.circular(12),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -589,13 +603,16 @@ class _CommentItemState extends State<CommentItem> {
                         ),
                       ],
                       const SizedBox(height: 8),
-                      // 正文（点按回复由整条评论的 InkWell 统一处理）
+                      // 正文；SelectionArea 会吞掉 tap 传不到整条评论的
+                      // InkWell，点按回复需经 onTap 显式透传进去
                       CustomMarkdownBody(
                         data: comment.body,
                         originalData: comment.body,
                         showTranslationButton: false,
                         translationController: _translationController,
                         onTimestampSeek: widget.onTimestampSeek,
+                        onTap: canReply ? _showReplyDialog : null,
+                        onLongPress: _showActionsSheet,
                       ),
                       const SizedBox(height: 4),
                       // 动作行：回复 / 查看回复 …… 翻译 / 更多

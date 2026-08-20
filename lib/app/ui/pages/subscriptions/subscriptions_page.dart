@@ -19,6 +19,7 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/models/sort.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 
@@ -31,6 +32,7 @@ import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -210,28 +212,34 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
       final isMultiSelect = batchController?.isMultiSelect.value ?? false;
       return GlassButtonGroup(
         children: [
-          if (isWide)
-            GlassIconButton(
+          GlassGroupSlot(
+            visible: isWide,
+            child: GlassIconButton(
               key: _searchButtonKey,
               icon: const Icon(Icons.search),
               tooltip: t.common.search,
               onPressed: _openSearchDialog,
             ),
-          if (_isFilterSupportedTab)
-            GlassIconButton(
+          ),
+          GlassGroupSlot(
+            visible: _isFilterSupportedTab,
+            child: GlassIconButton(
               icon: const Icon(Icons.filter_list),
               tooltip: t.searchFilter.filterSettings,
               showBadge: _hasActiveFilter,
               onPressed: _openFilterDialog,
             ),
-          if (batchController != null)
-            GlassIconButton(
+          ),
+          GlassGroupSlot(
+            visible: batchController != null,
+            child: GlassIconButton(
               icon: Icon(isMultiSelect ? Icons.close : Icons.checklist),
               tooltip: isMultiSelect
                   ? t.common.exitEditMode
                   : t.common.editMode,
-              onPressed: batchController.toggleMultiSelect,
+              onPressed: () => batchController?.toggleMultiSelect(),
             ),
+          ),
           SizedBox(
             width: GlassTokens.groupIconButtonSize,
             height: GlassTokens.groupIconButtonSize,
@@ -282,16 +290,22 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   /// 滚过约一屏后出现在右下角的「回到顶部」浮钮。
   Widget _buildScrollToTopFab(BuildContext context) {
     final t = slang.Translations.of(context);
-    return Positioned(
-      right: 16,
-      bottom: MediaQuery.paddingOf(context).bottom + 16,
-      child: Obx(() {
-        final batchActive =
-            _videoBatchController.isMultiSelect.value ||
-            _imageBatchController.isMultiSelect.value;
-        final visible =
-            mediaListController.currentScrollOffset.value > 800 && !batchActive;
-        return IgnorePointer(
+    return Obx(() {
+      final batchActive =
+          _videoBatchController.isMultiSelect.value ||
+          _imageBatchController.isMultiSelect.value;
+      final visible =
+          mediaListController.currentScrollOffset.value > 800 && !batchActive;
+      return Positioned(
+        right: 16,
+        // 分页模式下底部固定着分页栏，浮钮要在安全区之上再避开栏体
+        bottom:
+            MediaQuery.paddingOf(context).bottom +
+            16 +
+            (mediaListController.isPaginated.value
+                ? PaginationBar.barHeight
+                : 0),
+        child: IgnorePointer(
           ignoring: !visible,
           child: AnimatedSlide(
             duration: GlassTokens.motionDuration,
@@ -308,9 +322,9 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
               ),
             ),
           ),
-        );
-      }),
-    );
+        ),
+      );
+    });
   }
 
   // 打开搜索对话框
@@ -636,14 +650,23 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                   Expanded(
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: useSegmented
-                          ? GlassSegmentedControl(
-                              selectedIndex: _tabController.index,
-                              progress: _tabController.animation,
-                              onChanged: (i) => _tabController.animateTo(i),
-                              items: tabItems,
-                            )
-                          : _buildTabDropdown(context, tabItems),
+                      // 玻璃壳由 GlassCapsuleMorph 常驻提供，两侧只换
+                      // 无壳内容——胶囊平滑伸缩，阴影/圆角全程完整。
+                      child: GlassCapsuleMorph(
+                        child: useSegmented
+                            ? GlassSegmentedControl(
+                                key: const ValueKey('segmented'),
+                                flat: true,
+                                selectedIndex: _tabController.index,
+                                progress: _tabController.animation,
+                                onChanged: (i) => _tabController.animateTo(i),
+                                items: tabItems,
+                              )
+                            : KeyedSubtree(
+                                key: const ValueKey('dropdown'),
+                                child: _buildTabDropdown(context, tabItems),
+                              ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -674,7 +697,8 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     );
   }
 
-  /// 过窄时的子栏目入口：玻璃胶囊 + 下拉菜单（代替分段胶囊）。
+  /// 过窄时的子栏目入口：下拉菜单（代替分段胶囊）。
+  /// 只渲染「文字 + 箭头」的无壳内容，玻璃壳由外层 GlassCapsuleMorph 提供。
   Widget _buildTabDropdown(BuildContext context, List<GlassSegmentItem> items) {
     final colorScheme = Theme.of(context).colorScheme;
     final index = _tabController.index;
@@ -685,20 +709,27 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
       // 往下挪一点，别压住玻璃胶囊本身
       offset: const Offset(0, 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: GlassSurface(
-        padding: const EdgeInsets.only(left: 14, right: 8),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              items[index].label,
-              style: TextStyle(
-                color: colorScheme.onSurface,
-                fontWeight: FontWeight.w600,
+      child: SizedBox(
+        height: GlassTokens.pillHeight,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 14, right: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                items[index].label,
+                style: TextStyle(
+                  color: colorScheme.onSurface,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-            Icon(Icons.arrow_drop_down, size: 22, color: colorScheme.onSurface),
-          ],
+              Icon(
+                Icons.arrow_drop_down,
+                size: 22,
+                color: colorScheme.onSurface,
+              ),
+            ],
+          ),
         ),
       ),
       itemBuilder: (context) => [

@@ -25,11 +25,16 @@ class GlassSegmentedControl extends StatefulWidget {
     required this.onChanged,
     this.progress,
     this.height = GlassTokens.pillHeight,
+    this.flat = false,
   });
 
   final List<GlassSegmentItem> items;
   final int selectedIndex;
   final ValueChanged<int> onChanged;
+
+  /// `true`：去掉自带的玻璃壳（底色/描边/阴影），只渲染分段内容。
+  /// 放进 `GlassCapsuleMorph` 这类自带玻璃壳的外层容器时用，避免双层壳。
+  final bool flat;
 
   /// 可选：连续的「当前位置」（典型地传 `TabController.animation`，或由
   /// `PageController.page` 喂出来的 `ValueNotifier<double>`，值为小数下标）。
@@ -352,36 +357,44 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
       ],
     );
 
-    return GlassSurface(
-      height: widget.height,
-      padding: const EdgeInsets.symmetric(horizontal: inset, vertical: inset),
-      clipContent: true,
-      child: Listener(
-        onPointerSignal: _onPointerSignal,
-        child: ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-          child: SingleChildScrollView(
-            controller: _scrollController,
-            scrollDirection: Axis.horizontal,
-            physics: const ClampingScrollPhysics(),
-            // 长按拾起高亮块跟手滑动；轻点和横向滚动仍由原手势处理。
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onLongPressStart: _handleLongPressStart,
-              onLongPressMoveUpdate: _handleLongPressMove,
-              onLongPressEnd: (_) => _finishDrag(commit: true),
-              onLongPressCancel: () => _finishDrag(commit: false),
-              child: Stack(
-                children: [
-                  if (_highlightLeft != null && _highlightWidth != null)
-                    _buildHighlight(cs, innerHeight),
-                  row,
-                ],
-              ),
+    final Widget core = Listener(
+      onPointerSignal: _onPointerSignal,
+      child: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          scrollDirection: Axis.horizontal,
+          physics: const ClampingScrollPhysics(),
+          // 长按拾起高亮块跟手滑动；轻点和横向滚动仍由原手势处理。
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onLongPressStart: _handleLongPressStart,
+            onLongPressMoveUpdate: _handleLongPressMove,
+            onLongPressEnd: (_) => _finishDrag(commit: true),
+            onLongPressCancel: () => _finishDrag(commit: false),
+            child: Stack(
+              children: [
+                if (_highlightLeft != null && _highlightWidth != null)
+                  _buildHighlight(cs, innerHeight),
+                row,
+              ],
             ),
           ),
         ),
       ),
+    );
+
+    if (widget.flat) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: inset, vertical: inset),
+        child: core,
+      );
+    }
+    return GlassSurface(
+      height: widget.height,
+      padding: const EdgeInsets.symmetric(horizontal: inset, vertical: inset),
+      clipContent: true,
+      child: core,
     );
   }
 

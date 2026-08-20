@@ -377,6 +377,7 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get tagOriginalKey => '原始标签';
 	@override String get tagTranslation => '译文';
 	@override String get copy => '复制';
+	@override String get selectCopy => '选择复制';
 	@override String get copiedToClipboard => '已复制到剪贴板';
 	@override String get showOriginalTag => '显示原始标签';
 	@override String get showTranslatedTag => '显示译文';
@@ -3655,6 +3656,7 @@ extension on TranslationsZhCn {
 			'common.tagOriginalKey' => '原始标签',
 			'common.tagTranslation' => '译文',
 			'common.copy' => '复制',
+			'common.selectCopy' => '选择复制',
 			'common.copiedToClipboard' => '已复制到剪贴板',
 			'common.showOriginalTag' => '显示原始标签',
 			'common.showTranslatedTag' => '显示译文',
@@ -3894,9 +3896,9 @@ extension on TranslationsZhCn {
 			'settings.testProxyFailedWithException' => ({required Object exception}) => '代理请求出错: ${exception}',
 			'settings.proxyConfig' => '代理配置',
 			'settings.thisIsHttpProxyAddress' => '此处为http代理地址',
-			'settings.checkProxy' => '检查代理',
 			_ => null,
 		} ?? switch (path) {
+			'settings.checkProxy' => '检查代理',
 			'settings.proxyAddress' => '代理地址',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => '请输入代理服务器的URL，例如 127.0.0.1:8080',
 			'settings.enableProxy' => '启用代理',
@@ -4408,9 +4410,9 @@ extension on TranslationsZhCn {
 			'signIn.failureReason' => '未能坚持签到的原因',
 			'signIn.selectDateRange' => '选择日期范围',
 			'signIn.startDate' => '开始日期',
-			'signIn.endDate' => '结束日期',
 			_ => null,
 		} ?? switch (path) {
+			'signIn.endDate' => '结束日期',
 			'signIn.invalidDate' => '日期格式错误',
 			'signIn.invalidDateRange' => '日期范围无效',
 			'signIn.errorFormatText' => '日期格式错误',
@@ -4922,9 +4924,9 @@ extension on TranslationsZhCn {
 			'download.category.renameHint' => '输入分类名称',
 			'download.category.renameSuccess' => '已重命名',
 			'download.category.renameFailed' => '重命名失败',
-			'download.category.deleteTitle' => '删除分类',
 			_ => null,
 		} ?? switch (path) {
+			'download.category.deleteTitle' => '删除分类',
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => '删除分类「${title}」？该分类下的 ${count} 个下载将移到「未分类」，文件不会被删除。',
 			'download.category.deleteSuccess' => '分类已删除',
 			'download.category.deleteFailed' => '删除分类失败',
@@ -5436,9 +5438,9 @@ extension on TranslationsZhCn {
 			'emoji.noEmojisInGroup' => '该分组暂无表情包',
 			'emoji.goToSettingsToAddEmojis' => '前往设置添加表情包',
 			'emoji.emojiManagement' => '表情包管理',
-			'emoji.manageEmojiGroupsAndImages' => '管理表情包分组和图片',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.manageEmojiGroupsAndImages' => '管理表情包分组和图片',
 			'emoji.uploadLocalImages' => '上传本地图片',
 			'emoji.uploadingImages' => '正在上传图片',
 			'emoji.uploadingImagesProgress' => ({required Object count}) => '正在上传 ${count} 张图片，请稍候...',

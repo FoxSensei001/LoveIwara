@@ -41,6 +41,21 @@ class CustomMarkdownBody extends StatefulWidget {
   final String Function(String url)? urlPreprocessor; // 页面级 markdown url 预处理
   // 点击文本中的时间节点（如 1:01）时的跳转回调；为 null 时不解析时间节点
   final void Function(Duration position)? onTimestampSeek;
+  // 点击正文纯文本 / 段落空白处的回调（如评论区「点按任意处回复」）。
+  // SelectionArea 自带 tap 识别器且在手势竞技场里赢过外层 InkWell（更深者
+  // 胜），外面包点击层接不到；必须由这里在 SelectionArea 内侧接住再透传。
+  // 链接 / 图片 / 时间节点等 span 级手势比这层更深，依旧优先。
+  final VoidCallback? onTap;
+  // 长按正文的回调（如评论区长按弹操作菜单）。同样挂在 SelectionArea 内侧，
+  // 会取代其长按选中文本的默认行为——调用方应在菜单里提供「选择复制」入口。
+  final VoidCallback? onLongPress;
+  // 是否显示内置的「显示原始文本/处理后文本」切换按钮。调用方想把该开关
+  // 放进自己的动作行时传 false，并配合 [initialShowUnprocessedText]（受控）
+  // 与 [onProcessedContentChanged]（得知是否有可切换的处理差异）使用。
+  final bool showProcessedTextToggle;
+  // 内容处理状态变化回调：本文与格式化结果有差异时为 true。post-frame 触发，
+  // 调用方可安全 setState。
+  final ValueChanged<bool>? onProcessedContentChanged;
 
   const CustomMarkdownBody({
     super.key,
@@ -57,6 +72,10 @@ class CustomMarkdownBody extends StatefulWidget {
     this.showHorizontalRules = true,
     this.urlPreprocessor,
     this.onTimestampSeek,
+    this.onTap,
+    this.onLongPress,
+    this.showProcessedTextToggle = true,
+    this.onProcessedContentChanged,
   });
 
   @override
@@ -128,6 +147,16 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     super.didUpdateWidget(oldWidget);
     if (!oldWidget.showTranslationButton && widget.showTranslationButton) {
       _resolvedTranslationService;
+    }
+
+    // 外部受控的「显示原始文本」开关（如全站公告卡片自己的动作行）
+    if (oldWidget.initialShowUnprocessedText !=
+            widget.initialShowUnprocessedText &&
+        widget.initialShowUnprocessedText != null &&
+        widget.initialShowUnprocessedText != _showOriginal) {
+      setState(() {
+        _showOriginal = widget.initialShowUnprocessedText!;
+      });
     }
 
     if (oldWidget.data != widget.data ||
@@ -807,6 +836,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
           if (translatedText == t.common.translateFailedPleaseTryAgainLater)
             SelectableText(
               translatedText,
+              onTap: widget.onTap,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.error,
                 fontSize: 14,
@@ -829,6 +859,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                 const SizedBox(height: 8),
                 SelectableText(
                   translatedText,
+                  onTap: widget.onTap,
                   style: TextStyle(
                     fontSize: 14,
                     color: Theme.of(context).colorScheme.onSurface,
@@ -844,6 +875,8 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
               skipMarkdownProcessing: true,
               clickInternalLinkByUrlLaunch: widget.clickInternalLinkByUrlLaunch,
               maxImageHeight: widget.maxImageHeight,
+              onTap: widget.onTap,
+              onLongPress: widget.onLongPress,
             ),
         ],
       ),
@@ -1153,16 +1186,24 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   }
 
   Widget _buildMarkdownContent(MarkdownConfig config) {
-    return SelectionArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: _markdownGenerator.buildWidgets(
-          _showOriginal ? widget.data : _displayData,
-          config: config,
-        ),
+    Widget content = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: _markdownGenerator.buildWidgets(
+        _showOriginal ? widget.data : _displayData,
+        config: config,
       ),
     );
+    if (widget.onTap != null || widget.onLongPress != null) {
+      // 必须挂在 SelectionArea 内侧（见 onTap / onLongPress 字段注释）
+      content = GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: widget.onTap,
+        onLongPress: widget.onLongPress,
+        child: content,
+      );
+    }
+    return SelectionArea(child: content);
   }
 
   Widget _buildProcessedTextToggle() {
@@ -1274,8 +1315,23 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     );
   }
 
+  /// 上次通知给外部的处理状态；build 里比对，变化才 post-frame 通知。
+  bool? _lastNotifiedProcessed;
+
+  void _notifyProcessedContent() {
+    final cb = widget.onProcessedContentChanged;
+    if (cb == null) return;
+    final v = _hasProcessedContent;
+    if (_lastNotifiedProcessed == v) return;
+    _lastNotifiedProcessed = v;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) cb(v);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    _notifyProcessedContent();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final maxImageHeight = widget.maxImageHeight;
     final normalImagePlaceholderHeight = maxImageHeight != null
@@ -1303,7 +1359,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
         children: [
           if (widget.translationButtonAtTop) _buildTranslationControls(context),
           markdownContent,
-          if (_hasProcessedContent) ...[
+          if (_hasProcessedContent && widget.showProcessedTextToggle) ...[
             const SizedBox(height: 8),
             _buildProcessedTextToggle(),
           ],

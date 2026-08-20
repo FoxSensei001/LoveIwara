@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/utils/logger_utils.dart' show LogUtils;
 import 'package:i_iwara/utils/vibrate_utils.dart';
@@ -10,6 +12,10 @@ import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:oktoast/oktoast.dart';
+
+/// 操作栏按钮的胶囊高度：比 GlassTokens.pillHeight（44，独立浮动控件用）矮一档，
+/// 适配一排并列的密集操作按钮，避免整行显得过大。
+const double _kActionPillHeight = 32.0;
 
 /// 统一的填充按钮组件，基于 SplitFilledButton 的设计
 /// 确保所有按钮具有相同的高度和样式
@@ -68,73 +74,47 @@ class _FilledActionButtonState extends State<FilledActionButton> {
     final isEnabled = widget.onTap != null && !isLoading;
     final hasAccentColor = widget.accentColor != null;
 
-    // 颜色定义
-    final borderColor = hasAccentColor
-        ? widget.accentColor!.withValues(alpha: 0.3)
-        : colorScheme.outline.withValues(alpha: 0.4);
-    final backgroundColor = hasAccentColor
-        ? widget.accentColor!.withValues(alpha: 0.1)
-        : colorScheme.surfaceContainerHighest;
+    // 液态玻璃胶囊：容器统一走 GlassSurface（半透明底色 + 细描边 + 投影 + 按下缩放），
+    // 仅在有 accentColor 时（如已点赞）给图标/文字上色，容器底色保持一致。
     final contentColor = isEnabled
-        ? (hasAccentColor ? widget.accentColor : colorScheme.onSurface)
+        ? (hasAccentColor ? widget.accentColor! : colorScheme.onSurface)
         : colorScheme.onSurface.withValues(alpha: 0.38);
 
-    // 圆角定义
-    const radiusValue = 20.0;
-
-    // 边框定义
-    final border = Border.all(color: borderColor, width: 1);
-
-    // 内部 Padding
-    const internalPadding = EdgeInsets.symmetric(
-      horizontal: UIConstants.buttonInternalPadding,
-      vertical: UIConstants.smallSpacing,
-    );
-
-    return IntrinsicWidth(
-      child: Material(
-        color: Colors.transparent,
-        child: Ink(
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.circular(radiusValue),
-            border: border,
-          ),
-          child: InkWell(
-            onTap: isEnabled ? _handleTap : null,
-            borderRadius: BorderRadius.circular(radiusValue),
-            child: Container(
-              padding: internalPadding,
-              alignment: Alignment.center,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (isLoading)
-                    Shimmer.fromColors(
-                      baseColor: hasAccentColor
-                          ? widget.accentColor!.withValues(alpha: 0.3)
-                          : colorScheme.onSurface.withValues(alpha: 0.3),
-                      highlightColor: hasAccentColor
-                          ? widget.accentColor!.withValues(alpha: 0.1)
-                          : colorScheme.onSurface.withValues(alpha: 0.1),
-                      child: Icon(widget.icon, size: 20),
-                    )
-                  else
-                    Icon(widget.icon, size: 20, color: contentColor),
-                  const SizedBox(width: UIConstants.iconTextSpacing),
-                  Text(
-                    widget.label,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: contentColor,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
+    return GlassSurface(
+      height: _kActionPillHeight,
+      elevated: false,
+      onTap: isEnabled ? _handleTap : null,
+      // Material 图标的字形在其量框内自带留白，跟文字比"视觉上"更靠内，
+      // 左右用同样的 padding 会显得图标离左边更远——左侧少留 2dp 做光学补偿。
+      padding: const EdgeInsets.only(
+        left: UIConstants.buttonInternalPadding - 2,
+        right: UIConstants.buttonInternalPadding + 2,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isLoading)
+            Shimmer.fromColors(
+              baseColor: hasAccentColor
+                  ? widget.accentColor!.withValues(alpha: 0.3)
+                  : colorScheme.onSurface.withValues(alpha: 0.3),
+              highlightColor: hasAccentColor
+                  ? widget.accentColor!.withValues(alpha: 0.1)
+                  : colorScheme.onSurface.withValues(alpha: 0.1),
+              child: Icon(widget.icon, size: 16),
+            )
+          else
+            Icon(widget.icon, size: 16, color: contentColor),
+          const SizedBox(width: UIConstants.iconTextSpacing),
+          Text(
+            widget.label,
+            style: TextStyle(
+              fontSize: 13,
+              color: contentColor,
+              fontWeight: FontWeight.w500,
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -286,101 +266,61 @@ class SplitFilledButton extends StatelessWidget {
     final isEnabled = onPressed != null && !isDisabled;
     final hasAccentColor = accentColor != null;
 
-    // 1. 颜色定义：确保边框颜色清晰
-    // 使用 outline 并提高不透明度确保可见，或者使用 accentColor
-    final defaultBorderColor = isPrimary
-        ? colorScheme.primary.withValues(alpha: 0.35)
-        : colorScheme.outline.withValues(alpha: 0.4);
-    final defaultBackgroundColor = isPrimary
-        ? colorScheme.primary.withValues(alpha: 0.14)
-        : colorScheme.surfaceContainerHighest;
-    final defaultContentColor = isPrimary
-        ? colorScheme.primary
-        : colorScheme.onSurface;
-    final borderColor = hasAccentColor
-        ? accentColor!.withValues(alpha: 0.3)
-        : defaultBorderColor;
-    final backgroundColor = hasAccentColor
-        ? accentColor!.withValues(alpha: 0.1)
-        : defaultBackgroundColor;
+    // 液态玻璃：外层单个 GlassSurface（不挂 onTap）承载底色/描边/投影，
+    // 左右两段各自用 GlassPressable 处理点击反馈——与 GlassSegmentedControl
+    // 的分段结构同一套写法。
+    final defaultContentColor = isPrimary ? colorScheme.primary : colorScheme.onSurface;
     final contentColor = isEnabled
-        ? (hasAccentColor ? accentColor : defaultContentColor)
+        ? (hasAccentColor ? accentColor! : defaultContentColor)
         : colorScheme.onSurface.withValues(alpha: 0.38);
-
-    // 2. 圆角定义
-    const radiusValue = 20.0; // 与 FilledActionButton 保持一致
-    const radius = Radius.circular(radiusValue);
-
-    // 3. 边框定义 (分离左侧和右侧的边框逻辑)
-    // 左侧按钮：左、上、下 有边框
-    final leftBorder = Border(
-      top: BorderSide(color: borderColor, width: 1),
-      bottom: BorderSide(color: borderColor, width: 1),
-      left: BorderSide(color: borderColor, width: 1),
-      right: BorderSide.none, // 关键：右侧无边框
-    );
-
-    // 右侧按钮：右、上、下 有边框
-    final rightBorder = Border(
-      top: BorderSide(color: borderColor, width: 1),
-      bottom: BorderSide(color: borderColor, width: 1),
-      right: BorderSide(color: borderColor, width: 1),
-      left: BorderSide.none, // 关键：左侧无边框
-    );
+    final dividerColor = GlassTokens.stroke(colorScheme);
+    final pressedOverlay = colorScheme.onSurface.withValues(alpha: 0.06);
 
     // 内部 Padding
-    const internalPadding = EdgeInsets.symmetric(
-      horizontal: UIConstants.buttonInternalPadding,
-      vertical: UIConstants.smallSpacing,
+    // 左侧图标+文字段用左右不对称 padding：Material 图标字形自带留白，
+    // 跟文字比"视觉上"更靠内，同样的 padding 会显得图标离左边更远。
+    const internalPadding = EdgeInsets.only(
+      left: UIConstants.buttonInternalPadding - 2,
+      right: UIConstants.buttonInternalPadding + 2,
+      top: UIConstants.smallSpacing,
+      bottom: UIConstants.smallSpacing,
     );
 
-    return IntrinsicHeight(
+    return GlassSurface(
+      height: _kActionPillHeight,
+      elevated: false,
+      clipContent: true,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           // =======================
           // 1. 左侧：主操作按钮
           // =======================
-          // 使用 Material 确保 InkWell 正确渲染
-          Material(
-            color: Colors.transparent, // 背景由内部 Container 负责
-            child: Ink(
-              decoration: BoxDecoration(
-                color: backgroundColor,
-                borderRadius: const BorderRadius.only(
-                  topLeft: radius,
-                  bottomLeft: radius,
-                ),
-                border: leftBorder, // 显式绘制边框
-              ),
-              child: InkWell(
-                onTap: isEnabled ? onPressed : null,
-                // 修复 Hover 溢出：告诉 InkWell 它的形状
-                borderRadius: const BorderRadius.only(
-                  topLeft: radius,
-                  bottomLeft: radius,
-                ),
-                child: Container(
-                  padding: internalPadding,
-                  alignment: Alignment.center,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (icon != null) ...[
-                        Icon(icon, size: 20, color: contentColor),
-                        const SizedBox(width: UIConstants.iconTextSpacing),
-                      ],
-                      Text(
-                        label,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: contentColor,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
+          GlassPressable(
+            scale: 0.97,
+            onTap: isEnabled ? onPressed : null,
+            builder: (context, pressed) => AnimatedContainer(
+              duration: GlassTokens.pressDuration,
+              curve: Curves.easeOut,
+              color: pressed ? pressedOverlay : Colors.transparent,
+              padding: internalPadding,
+              alignment: Alignment.center,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (icon != null) ...[
+                    Icon(icon, size: 16, color: contentColor),
+                    const SizedBox(width: UIConstants.iconTextSpacing),
+                  ],
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: contentColor,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ),
@@ -388,52 +328,34 @@ class SplitFilledButton extends StatelessWidget {
           // =======================
           // 2. 中间：分割线
           // =======================
-          Container(width: 1, color: borderColor),
+          Container(width: 0.6, height: _kActionPillHeight * 0.5, color: dividerColor),
 
           // =======================
           // 3. 右侧：下拉菜单按钮
           // =======================
-          // 修复 Hover 溢出：将 ClipRRect 放在最外层，包裹整个右侧区域
-          // 这样 PopupMenuButton 内部的方形水波纹就会被切成圆角
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topRight: radius,
-              bottomRight: radius,
-            ),
-            clipBehavior: Clip.antiAlias, // 确保裁剪生效
-            child: Material(
-              color: Colors.transparent,
-              clipBehavior: Clip.antiAlias, // Material 也启用裁剪
-              child: Ink(
-                decoration: BoxDecoration(
-                  color: backgroundColor,
-                  borderRadius: const BorderRadius.only(
-                    topRight: radius,
-                    bottomRight: radius,
-                  ),
-                  border: rightBorder, // 显式绘制边框
-                ),
-                child: PopupMenuButton<String>(
-                  tooltip: '',
-                  enabled: isEnabled,
-                  offset: const Offset(0, 48),
-                  padding: EdgeInsets.zero,
-                  itemBuilder: (context) => menuItems,
-                  onSelected: onMenuItemSelected,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  // 使用 child 自定义触发区域
-                  child: Container(
-                    // 水平 Padding 稍微调小一点，视觉更紧凑
-                    padding: internalPadding.copyWith(left: 10, right: 14),
-                    alignment: Alignment.center,
-                    child: Icon(
-                      Icons.more_horiz,
-                      size: 20,
-                      color: contentColor,
-                    ),
-                  ),
+          // 保留一层透明 Material：PopupMenuButton 的水波纹需要 Material 祖先，
+          // 外层 GlassSurface 已 clipContent，水波纹会被正确裁到胶囊边界内。
+          Material(
+            color: Colors.transparent,
+            child: PopupMenuButton<String>(
+              tooltip: '',
+              enabled: isEnabled,
+              offset: const Offset(0, 48),
+              padding: EdgeInsets.zero,
+              itemBuilder: (context) => menuItems,
+              onSelected: onMenuItemSelected,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              // 使用 child 自定义触发区域
+              child: Container(
+                // 水平 Padding 稍微调小一点，视觉更紧凑
+                padding: internalPadding.copyWith(left: 8, right: 12),
+                alignment: Alignment.center,
+                child: Icon(
+                  Icons.more_horiz,
+                  size: 16,
+                  color: contentColor,
                 ),
               ),
             ),

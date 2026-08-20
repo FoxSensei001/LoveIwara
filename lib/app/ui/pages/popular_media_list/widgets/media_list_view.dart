@@ -243,7 +243,7 @@ class MediaListView<T> extends StatefulWidget {
   /// 分页栏的完整垂直占用：控制条本体及其上方渐隐区。
   /// 所有悬浮控件在分页模式下都必须避开该范围。
   static const double paginationBarReservedExtent =
-      46 + PaginationBar.fadeAboveExtent;
+      PaginationBar.barHeight + PaginationBar.fadeAboveExtent;
 
   final LoadingMoreBase<T> sourceList;
   final Widget Function(BuildContext context, T item, int index) itemBuilder;

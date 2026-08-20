@@ -281,6 +281,7 @@ common:
   tagOriginalKey: 原始標籤
   tagTranslation: 譯文
   copy: 複製
+  selectCopy: 選擇複製
   copiedToClipboard: 已複製到剪貼簿
   showOriginalTag: 顯示原始標籤
   showTranslatedTag: 顯示譯文

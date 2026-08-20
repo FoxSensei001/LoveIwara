@@ -9,6 +9,11 @@ import 'package:i_iwara/app/ui/pages/forum/widgets/forum_post_dialog.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/thread_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
@@ -16,7 +21,6 @@ import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
-import 'dart:ui';
 
 class ThreadListPage extends StatefulWidget {
   final String categoryId;
@@ -34,13 +38,15 @@ class ThreadListPage extends StatefulWidget {
 
 class _ThreadListPageState extends State<ThreadListPage>
     with SingleTickerProviderStateMixin {
-  final double appBarHeight = 56.0;
   late ThreadListRepository listSourceRepository;
   late ForumListController _forumListController;
 
   final ScrollController _scrollController = ScrollController();
   final RxString _categoryName = ''.obs;
   final RxString _categoryDescription = ''.obs;
+
+  /// 列表滚过一段距离后显示右下角「回到顶部」浮钮。
+  final ValueNotifier<bool> _showBackToTop = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -81,187 +87,300 @@ class _ThreadListPageState extends State<ThreadListPage>
     _forumListController.unregisterScrollToTopCallback(_scrollToTop);
     _scrollController.dispose();
     listSourceRepository.dispose();
+    _showBackToTop.dispose();
     Get.delete<ForumListController>(tag: widget.categoryId);
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final double effectivePaddingTop =
-        MediaQuery.of(context).padding.top + appBarHeight;
-    final double listTopPadding = effectivePaddingTop + 8;
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        elevation: 0,
-        toolbarHeight: appBarHeight,
-        backgroundColor: Theme.of(
-          context,
-        ).colorScheme.surface.withValues(alpha: 0.7),
-        flexibleSpace: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(color: Colors.transparent),
-          ),
-        ),
-        title: Obx(
-          () => Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      _categoryName.value,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              if (_categoryDescription.value.isNotEmpty)
-                Text(
-                  _categoryDescription.value,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-            ],
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              showAppDialog(
-                SearchDialog(
-                  userInputKeywords: '',
-                  initialSegment: SearchSegment.forum,
-                  onSearch: (searchInfo, segment, filters, sort) {
-                    NaviService.toSearchPage(
-                      searchInfo: searchInfo,
-                      segment: segment,
-                      filters: filters,
-                      sort: sort,
-                    );
-                  },
-                ),
-              );
-            },
-            tooltip: t.common.search,
-            style: IconButton.styleFrom(
-              padding: const EdgeInsets.all(8),
-              visualDensity: VisualDensity.compact,
+  void _togglePaginationMode() {
+    _forumListController.setPaginatedMode(
+      !_forumListController.isPaginated.value,
+    );
+  }
+
+  void _refreshList() {
+    if (_forumListController.isPaginated.value) {
+      _forumListController.refreshPageUI();
+    } else {
+      listSourceRepository.refresh();
+      // 滚动到顶部
+      _scrollToTop();
+    }
+  }
+
+  void _openSearchDialog() {
+    showAppDialog(
+      SearchDialog(
+        userInputKeywords: '',
+        initialSegment: SearchSegment.forum,
+        onSearch: (searchInfo, segment, filters, sort) {
+          NaviService.toSearchPage(
+            searchInfo: searchInfo,
+            segment: segment,
+            filters: filters,
+            sort: sort,
+          );
+        },
+      ),
+    );
+  }
+
+  static const String _menuActionOpenSearch = 'open_search';
+  static const String _menuActionRefresh = 'refresh';
+
+  /// 右侧动作胶囊：[搜索(仅宽屏)] 瀑布/分页切换 · 发帖 · 更多。
+  Widget _buildActionGroup(BuildContext context, {required bool isWide}) {
+    return Obx(
+      () => GlassButtonGroup(
+        children: [
+          GlassGroupSlot(
+            visible: isWide,
+            child: GlassIconButton(
+              icon: const Icon(Icons.search),
+              tooltip: t.common.search,
+              onPressed: _openSearchDialog,
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              if (_forumListController.isPaginated.value) {
-                _forumListController.refreshPageUI();
-              } else {
-                listSourceRepository.refresh();
-                // 滚动到顶部
-                _scrollToTop();
-              }
-            },
-            style: IconButton.styleFrom(visualDensity: VisualDensity.compact),
+          GlassIconButton(
+            icon: Icon(
+              _forumListController.isPaginated.value
+                  ? Icons.view_stream
+                  : Icons.view_module,
+            ),
+            tooltip: _forumListController.isPaginated.value
+                ? t.common.pagination.waterfall
+                : t.common.pagination.pagination,
+            onPressed: _togglePaginationMode,
           ),
-          IconButton(
+          GlassIconButton(
             icon: const Icon(Icons.add),
-            onPressed: () =>
-                _showCreateThreadDialog(context, widget.categoryId),
-            style: IconButton.styleFrom(visualDensity: VisualDensity.compact),
+            tooltip: t.forum.createThread,
+            onPressed: () => _showCreateThreadDialog(context, widget.categoryId),
+          ),
+          SizedBox(
+            width: GlassTokens.groupIconButtonSize,
+            height: GlassTokens.groupIconButtonSize,
+            child: PopupMenuButton<String>(
+              padding: EdgeInsets.zero,
+              icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
+              position: PopupMenuPosition.under,
+              // 往下挪一点，别压住玻璃胶囊本身
+              offset: const Offset(0, 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              onSelected: (value) {
+                switch (value) {
+                  case _menuActionOpenSearch:
+                    _openSearchDialog();
+                    break;
+                  case _menuActionRefresh:
+                    _refreshList();
+                    break;
+                }
+              },
+              itemBuilder: (context) => [
+                if (!isWide)
+                  PopupMenuItem<String>(
+                    value: _menuActionOpenSearch,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.search),
+                        const SizedBox(width: 12),
+                        Text(t.common.search),
+                      ],
+                    ),
+                  ),
+                PopupMenuItem<String>(
+                  value: _menuActionRefresh,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.refresh),
+                      const SizedBox(width: 12),
+                      Text(t.common.refresh),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
-      body: Obx(() {
-        final isPaginated = _forumListController.isPaginated.value;
-        final rebuildKey = _forumListController.rebuildKey.value;
+    );
+  }
 
-        if (isPaginated) {
-          // 分页模式
-          return MediaListView<ForumThreadModel>(
-            key: ValueKey('thread_paginated_$rebuildKey'),
-            sourceList: listSourceRepository,
-            isPaginated: true,
-            scrollController: _scrollController,
-            emptyIcon: Icons.forum_outlined,
-            paddingTop: listTopPadding,
-            itemBuilder: (context, thread, index) => ThreadListItemWidget(
-              thread: thread,
-              categoryId: widget.categoryId,
-              onTap: () => _navigateToThreadDetail(thread),
-            ),
-          );
-        } else {
-          // 瀑布流模式
-          const waterfallDelegate =
-              SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 300,
-                crossAxisSpacing: 5,
-                mainAxisSpacing: 5,
-              );
-          return LoadingMoreCustomScrollView(
-            key: ValueKey('thread_waterfall_$rebuildKey'),
-            controller: _scrollController,
-            slivers: <Widget>[
-              LoadingMoreSliverList<ForumThreadModel>(
-                SliverListConfig<ForumThreadModel>(
-                  extendedListDelegate: waterfallDelegate,
-                  itemBuilder: (context, thread, index) => ThreadListItemWidget(
-                    thread: thread,
-                    categoryId: widget.categoryId,
-                    onTap: () => _navigateToThreadDetail(thread),
-                  ),
-                  sourceList: listSourceRepository,
-                  padding: EdgeInsets.only(
-                    left: 8,
-                    right: 8,
-                    top: listTopPadding,
-                    bottom: MediaQuery.of(context).padding.bottom,
-                  ),
-                  indicatorBuilder: (context, status) {
-                    final errorMessage = listSourceRepository.lastErrorMessage;
-
-                    IndicatorStatus actualStatus = status;
-                    if (errorMessage != null &&
-                        errorMessage.isNotEmpty &&
-                        status == IndicatorStatus.empty &&
-                        listSourceRepository.isEmpty) {
-                      actualStatus = IndicatorStatus.fullScreenError;
-                    }
-
-                    final bool isFullScreenIndicator =
-                        actualStatus == IndicatorStatus.fullScreenBusying ||
-                        actualStatus == IndicatorStatus.fullScreenError ||
-                        actualStatus == IndicatorStatus.empty;
-
-                    return buildIndicator(
-                      context,
-                      actualStatus,
-                      () => listSourceRepository.errorRefresh(),
-                      emptyIcon: Icons.forum_outlined,
-                      paddingTop: isFullScreenIndicator ? listTopPadding : 0,
-                      errorMessage: errorMessage,
-                      skeletonLayoutConfig: SkeletonLayoutConfig.fromDelegate(
-                        waterfallDelegate,
-                      ),
-                    );
-                  },
+  /// 滚过一段后出现在右下角的「回到顶部」浮钮；分页模式下抬到分页栏之上。
+  Widget _buildScrollToTopFab(BuildContext context) {
+    return Obx(
+      () => Positioned(
+        right: 16,
+        bottom:
+            MediaQuery.paddingOf(context).bottom +
+            16 +
+            (_forumListController.isPaginated.value ? 46 : 0),
+        child: ValueListenableBuilder<bool>(
+          valueListenable: _showBackToTop,
+          builder: (context, visible, _) => IgnorePointer(
+            ignoring: !visible,
+            child: AnimatedSlide(
+              duration: GlassTokens.motionDuration,
+              curve: GlassTokens.motionCurve,
+              offset: visible ? Offset.zero : const Offset(0, 0.4),
+              child: AnimatedOpacity(
+                duration: GlassTokens.motionDuration,
+                opacity: visible ? 1 : 0,
+                child: GlassIconButton(
+                  standalone: true,
+                  icon: const Icon(Icons.vertical_align_top),
+                  tooltip: t.common.scrollToTop,
+                  onPressed: _scrollToTop,
                 ),
               ),
-            ],
-          );
-        }
-      }),
+            ),
+          ),
+        ),
+      ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
+    final double listTopPadding = headerExtent + 8;
+    final bool isWide = MediaQuery.sizeOf(context).width > 600;
+
+    return Scaffold(
+      body: GlassHeaderOverlay(
+        headerExtent: headerExtent,
+        headerTop: statusBarHeight,
+        solidExtent: statusBarHeight,
+        body: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            if (notification.metrics.axis == Axis.vertical &&
+                notification.depth == 0) {
+              _showBackToTop.value = notification.metrics.pixels >= 300;
+            }
+            return false;
+          },
+          child: _buildBody(context, listTopPadding),
+        ),
+        // header 行：左 返回圆钮 / 中 分类标题胶囊 / 右 动作胶囊
+        header: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.arrow_back),
+                tooltip: t.common.back,
+                onPressed: () => AppService.tryPop(),
+              ),
+              const SizedBox(width: 8),
+              // 分类标题胶囊：点按/长按弹出完整标题 + 分类描述
+              Expanded(
+                child: Obx(
+                  () => GlassTitlePill(
+                    title: _categoryName.value.isEmpty
+                        ? null
+                        : _categoryName.value,
+                    subtitle: _categoryDescription.value.isEmpty
+                        ? null
+                        : _categoryDescription.value,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              _buildActionGroup(context, isWide: isWide),
+            ],
+          ),
+        ),
+        extra: [_buildScrollToTopFab(context)],
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context, double listTopPadding) {
+    return Obx(() {
+      final isPaginated = _forumListController.isPaginated.value;
+      final rebuildKey = _forumListController.rebuildKey.value;
+
+      if (isPaginated) {
+        // 分页模式
+        return MediaListView<ForumThreadModel>(
+          key: ValueKey('thread_paginated_$rebuildKey'),
+          sourceList: listSourceRepository,
+          isPaginated: true,
+          scrollController: _scrollController,
+          emptyIcon: Icons.forum_outlined,
+          paddingTop: listTopPadding,
+          itemBuilder: (context, thread, index) => ThreadListItemWidget(
+            thread: thread,
+            categoryId: widget.categoryId,
+            onTap: () => _navigateToThreadDetail(thread),
+          ),
+        );
+      } else {
+        // 瀑布流模式
+        const waterfallDelegate =
+            SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 300,
+              crossAxisSpacing: 5,
+              mainAxisSpacing: 5,
+            );
+        return LoadingMoreCustomScrollView(
+          key: ValueKey('thread_waterfall_$rebuildKey'),
+          controller: _scrollController,
+          slivers: <Widget>[
+            LoadingMoreSliverList<ForumThreadModel>(
+              SliverListConfig<ForumThreadModel>(
+                extendedListDelegate: waterfallDelegate,
+                itemBuilder: (context, thread, index) => ThreadListItemWidget(
+                  thread: thread,
+                  categoryId: widget.categoryId,
+                  onTap: () => _navigateToThreadDetail(thread),
+                ),
+                sourceList: listSourceRepository,
+                padding: EdgeInsets.only(
+                  left: 8,
+                  right: 8,
+                  top: listTopPadding,
+                  bottom: MediaQuery.of(context).padding.bottom,
+                ),
+                indicatorBuilder: (context, status) {
+                  final errorMessage = listSourceRepository.lastErrorMessage;
+
+                  IndicatorStatus actualStatus = status;
+                  if (errorMessage != null &&
+                      errorMessage.isNotEmpty &&
+                      status == IndicatorStatus.empty &&
+                      listSourceRepository.isEmpty) {
+                    actualStatus = IndicatorStatus.fullScreenError;
+                  }
+
+                  final bool isFullScreenIndicator =
+                      actualStatus == IndicatorStatus.fullScreenBusying ||
+                      actualStatus == IndicatorStatus.fullScreenError ||
+                      actualStatus == IndicatorStatus.empty;
+
+                  return buildIndicator(
+                    context,
+                    actualStatus,
+                    () => listSourceRepository.errorRefresh(),
+                    emptyIcon: Icons.forum_outlined,
+                    paddingTop: isFullScreenIndicator ? listTopPadding : 0,
+                    errorMessage: errorMessage,
+                    skeletonLayoutConfig: SkeletonLayoutConfig.fromDelegate(
+                      waterfallDelegate,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      }
+    });
   }
 
   void _showCreateThreadDialog(BuildContext context, String categoryId) {

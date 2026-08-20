@@ -908,6 +908,9 @@ class TranslationsCommonEn {
 	/// en: 'Copy'
 	String get copy => 'Copy';
 
+	/// en: 'Select & Copy'
+	String get selectCopy => 'Select & Copy';
+
 	/// en: 'Copied to clipboard'
 	String get copiedToClipboard => 'Copied to clipboard';
 
@@ -8410,6 +8413,7 @@ extension on Translations {
 			'common.tagOriginalKey' => 'Original Tag',
 			'common.tagTranslation' => 'Translation',
 			'common.copy' => 'Copy',
+			'common.selectCopy' => 'Select & Copy',
 			'common.copiedToClipboard' => 'Copied to clipboard',
 			'common.showOriginalTag' => 'Show Original Tag',
 			'common.showTranslatedTag' => 'Show Translation',
@@ -8649,9 +8653,9 @@ extension on Translations {
 			'settings.testProxyFailedWithException' => ({required Object exception}) => 'Test proxy failed, exception: ${exception}',
 			'settings.proxyConfig' => 'Proxy Config',
 			'settings.thisIsHttpProxyAddress' => 'This is http proxy address',
-			'settings.checkProxy' => 'Check Proxy',
 			_ => null,
 		} ?? switch (path) {
+			'settings.checkProxy' => 'Check Proxy',
 			'settings.proxyAddress' => 'Proxy Address',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => 'Please enter the URL of the proxy server, for example 127.0.0.1:8080',
 			'settings.enableProxy' => 'Enable Proxy',
@@ -9163,9 +9167,9 @@ extension on Translations {
 			'signIn.failureReason' => 'Failure Reason',
 			'signIn.selectDateRange' => 'Select Date Range',
 			'signIn.startDate' => 'Start Date',
-			'signIn.endDate' => 'End Date',
 			_ => null,
 		} ?? switch (path) {
+			'signIn.endDate' => 'End Date',
 			'signIn.invalidDate' => 'Invalid Date',
 			'signIn.invalidDateRange' => 'Invalid Date Range',
 			'signIn.errorFormatText' => 'Date Format Error',
@@ -9677,9 +9681,9 @@ extension on Translations {
 			'download.category.renameTitle' => 'Rename category',
 			'download.category.renameHint' => 'Enter category name',
 			'download.category.renameSuccess' => 'Category renamed',
-			'download.category.renameFailed' => 'Failed to rename category',
 			_ => null,
 		} ?? switch (path) {
+			'download.category.renameFailed' => 'Failed to rename category',
 			'download.category.deleteTitle' => 'Delete category',
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'Delete category "${title}"? Its ${count} download(s) will be moved to Uncategorized; the files will not be deleted.',
 			'download.category.deleteSuccess' => 'Category deleted',
@@ -10191,9 +10195,9 @@ extension on Translations {
 			'log.confirmClearAllLogs' => 'Confirm Clear',
 			'log.confirmClearAllLogsDesc' => 'Are you sure you want to clear all log data? This operation cannot be undone.',
 			'log.clearAllLogsSuccess' => 'Log cleared successfully',
-			'log.clearAllLogsFailed' => ({required Object error}) => 'Failed to clear logs: ${error}',
 			_ => null,
 		} ?? switch (path) {
+			'log.clearAllLogsFailed' => ({required Object error}) => 'Failed to clear logs: ${error}',
 			'log.unableToGetLogSizeInfo' => 'Unable to get log size information',
 			'log.currentLogSize' => 'Current Log Size:',
 			'log.logCount' => 'Log Count:',

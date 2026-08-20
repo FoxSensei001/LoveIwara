@@ -377,6 +377,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get tagOriginalKey => '元のタグ';
 	@override String get tagTranslation => '翻訳';
 	@override String get copy => 'コピー';
+	@override String get selectCopy => '選択してコピー';
 	@override String get copiedToClipboard => 'クリップボードにコピーしました';
 	@override String get showOriginalTag => '元のタグを表示';
 	@override String get showTranslatedTag => '翻訳を表示';
@@ -3655,6 +3656,7 @@ extension on TranslationsJa {
 			'common.tagOriginalKey' => '元のタグ',
 			'common.tagTranslation' => '翻訳',
 			'common.copy' => 'コピー',
+			'common.selectCopy' => '選択してコピー',
 			'common.copiedToClipboard' => 'クリップボードにコピーしました',
 			'common.showOriginalTag' => '元のタグを表示',
 			'common.showTranslatedTag' => '翻訳を表示',
@@ -3894,9 +3896,9 @@ extension on TranslationsJa {
 			'settings.testProxyFailedWithException' => ({required Object exception}) => 'プロキシリクエスト中にエラーが発生しました: ${exception}',
 			'settings.proxyConfig' => 'プロキシ設定',
 			'settings.thisIsHttpProxyAddress' => 'ここにHTTPプロキシアドレスを入力してください',
-			'settings.checkProxy' => 'プロキシを確認',
 			_ => null,
 		} ?? switch (path) {
+			'settings.checkProxy' => 'プロキシを確認',
 			'settings.proxyAddress' => 'プロキシアドレス',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => 'プロキシサーバーのURLを入力してください（例: 127.0.0.1:8080）',
 			'settings.enableProxy' => 'プロキシを有効にする',
@@ -4408,9 +4410,9 @@ extension on TranslationsJa {
 			'signIn.failureReason' => 'サインインに失敗した理由',
 			'signIn.selectDateRange' => '日付範囲を選択',
 			'signIn.startDate' => '開始日',
-			'signIn.endDate' => '終了日',
 			_ => null,
 		} ?? switch (path) {
+			'signIn.endDate' => '終了日',
 			'signIn.invalidDate' => '日付形式が正しくありません',
 			'signIn.invalidDateRange' => '日付範囲が無効です',
 			'signIn.errorFormatText' => '日付形式が正しくありません',
@@ -4922,9 +4924,9 @@ extension on TranslationsJa {
 			'download.category.renameTitle' => 'カテゴリー名の変更',
 			'download.category.renameHint' => 'カテゴリー名を入力',
 			'download.category.renameSuccess' => '名前を変更しました',
-			'download.category.renameFailed' => '名前の変更に失敗しました',
 			_ => null,
 		} ?? switch (path) {
+			'download.category.renameFailed' => '名前の変更に失敗しました',
 			'download.category.deleteTitle' => 'カテゴリーの削除',
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'カテゴリー「${title}」を削除しますか？このカテゴリーの${count}件のダウンロードは「未分類」へ移動され、ファイルは削除されません。',
 			'download.category.deleteSuccess' => 'カテゴリーを削除しました',
@@ -5436,9 +5438,9 @@ extension on TranslationsJa {
 			'emoji.noEmojisInGroup' => 'このグループには絵文字がありません',
 			'emoji.goToSettingsToAddEmojis' => '設定で絵文字を追加してください',
 			'emoji.emojiManagement' => '絵文字管理',
-			'emoji.manageEmojiGroupsAndImages' => '絵文字グループと画像を管理',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.manageEmojiGroupsAndImages' => '絵文字グループと画像を管理',
 			'emoji.uploadLocalImages' => 'ローカル画像をアップロード',
 			'emoji.uploadingImages' => '画像をアップロード中',
 			'emoji.uploadingImagesProgress' => ({required Object count}) => '${count} 枚の画像をアップロード中、お待ちください...',

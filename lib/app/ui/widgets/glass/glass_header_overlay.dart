@@ -9,6 +9,32 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 /// - 顶部渐变蒙层从 0 覆盖到 [headerExtent] + [GlassTokens.headerFadeExtent]，
 ///   平台段为 [solidExtent]（一般是状态栏高度，没有状态栏传 0）。
 /// - [header]：放在 [headerTop] 处的一行玻璃控件（可为 null，只要蒙层 + 留白）。
+///
+/// # 详情 / 二级列表页标准配方
+///
+/// 带返回键的页面统一长这样（参考 thread_detail_page / thread_list_page /
+/// search_result）：
+///
+/// - `headerExtent = statusBar + GlassTokens.headerRowHeight`，
+///   `headerTop = solidExtent = statusBar`。
+/// - header 行：横向 padding 16，三段式
+///   「返回圆钮（`GlassIconButton(standalone: true)` + `AppService.tryPop`）
+///   / 中间 `GlassTitlePill`（可点按弹全文，别手写死标题）
+///   / 右侧 `GlassButtonGroup`」。胶囊里：仅宽屏直出的键和等数据就绪的键都
+///   用 `GlassGroupSlot` 包；尾部固定一个 40×40 的 PopupMenuButton
+///   （`offset: Offset(0, 8)`、圆角 12），窄屏功能收进这里。
+/// - [body] 外包一层 `NotificationListener<ScrollNotification>`
+///   （`depth == 0` 且纵向、`pixels >= 300`）驱动回到顶部浮钮的显隐；
+///   浮钮放进 [extra]，`bottom = padding.bottom + 16 + (分页模式 ? 46 : 0)`
+///   给底部分页栏让位。
+/// - 下拉刷新 `RefreshIndicator.displacement = headerExtent`，指示器从
+///   header 下方弹出。
+/// - 分页模式两条路线：纯列表用 `MediaListView(isPaginated: true)`（数据源
+///   须是 `ExtendedLoadingMoreBase`）；列表上方还有头部区块（主楼卡、公告）
+///   时 MediaListView 塞不进 header sliver，手写
+///   `Stack[RefreshIndicator(CustomScrollView(头部 sliver + 内容 sliver)),
+///   Positioned(PaginationBar)]`，参考 thread_detail_page 的
+///   `_buildPaginatedBody` / forum_page 的 `_buildRecentPaginated`。
 class GlassHeaderOverlay extends StatelessWidget {
   const GlassHeaderOverlay({
     super.key,

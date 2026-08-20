@@ -281,6 +281,7 @@ common:
   tagOriginalKey: Original Tag
   tagTranslation: Translation
   copy: Copy
+  selectCopy: "Select & Copy"
   copiedToClipboard: Copied to clipboard
   showOriginalTag: Show Original Tag
   showTranslatedTag: Show Translation

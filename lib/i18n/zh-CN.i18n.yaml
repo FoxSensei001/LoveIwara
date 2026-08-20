@@ -283,6 +283,7 @@ common:
   tagOriginalKey: 原始标签
   tagTranslation: 译文
   copy: 复制
+  selectCopy: 选择复制
   copiedToClipboard: 已复制到剪贴板
   showOriginalTag: 显示原始标签
   showTranslatedTag: 显示译文

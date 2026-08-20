@@ -4,12 +4,35 @@ import 'package:i_iwara/app/models/favorite/favorite_folder.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:waterfall_flow/waterfall_flow.dart';
+
+// 头部各行的显式尺寸——列表要用 paddingTop 让出这些高度,让内容可以从
+// header 背后滚过去。padding + 44 圆钮/输入框 = 每行实际占位。
+const double _kPickerTitleRowHeight = 16 + 44 + 4;
+const double _kPickerSearchRowHeight = 8 + 44;
+const double _kPickerCreateRowHeight = 10 + 44;
+const double _kPickerHeaderTailSpacing = 8;
+const double _kPickerHeaderExtent = _kPickerTitleRowHeight +
+    _kPickerSearchRowHeight +
+    _kPickerCreateRowHeight +
+    _kPickerHeaderTailSpacing;
+
+/// header 蒙层「淡出段」的高度:比 `GlassTokens.headerFadeExtent`(56)短很多,
+/// 因为弹窗四周有 clip,过长的半透明淡出会把第一排卡片糊上一层白;20 只作为
+/// 「卡片钻进 header 背后」的过渡带,列表首屏起始位置放在这段之后,视觉上就
+/// 不会看到蒙层压在卡片上。
+const double _kPickerHeaderFadeExtent = 20;
+
+/// 加载指示器与状态图标共用的固定占位尺寸——只要行内右侧图标槽位不改高度,
+/// WaterfallFlow 就不会因为「点击某项时它高度变了 2px」把后面的卡片重新排到
+/// 另一列,进而导致整片列表看起来错位。20 与状态图标 `size: 20` 对齐。
+const double _kStatusSlotSize = 20;
 
 class AddToFavoriteDialog extends StatefulWidget {
   final String itemId;
@@ -211,259 +234,298 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
           maxWidth: 600,
           maxHeight: 800,
         ),
-        child: Column(
+        child: Stack(
           children: [
-            // 标题行：标题 + 我的收藏入口 + 玻璃关闭圆钮
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 16, 4),
-              child: Row(
+            // 主体:列表铺满整个区域,用 paddingTop 让出 header 高度,让内容
+            // 可以从上方玻璃 header 背后滚过去(液态玻璃改造:与首页/作者页/搜索页
+            // 统一使用 GlassHeaderOverlay 同款 Stack + EdgeFadeScrim.top 模式)。
+            Positioned.fill(child: _buildBody(context, t, colorScheme)),
+            // 顶部渐变蒙层:header 高度区间恒定不透明,再向下平滑淡出,让底层列表
+            // 滚到 header 附近时自然「溶」进边缘。
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: EdgeFadeScrim.top(
+                height: _kPickerHeaderExtent + _kPickerHeaderFadeExtent,
+                solidExtent: _kPickerHeaderExtent,
+              ),
+            ),
+            // 顶部玻璃控件行:标题 / 我的收藏入口 / 关闭钮 / 搜索 / 新建。
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Column(
                 children: [
-                  Expanded(
-                    child: Text(
-                      t.favorite.localizeFavorite,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                  // 标题行:标题 + 我的收藏入口 + 玻璃关闭圆钮
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 16, 4),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            t.favorite.localizeFavorite,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                        GlassIconButton(
+                          standalone: true,
+                          icon: const Icon(Icons.folder_open),
+                          tooltip: t.favorite.myFavorites,
+                          onPressed: () {
+                            AppService.tryPop();
+                            NaviService.navigateToLocalFavoritePage();
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        GlassIconButton(
+                          standalone: true,
+                          icon: const Icon(Icons.close),
+                          onPressed: () => AppService.tryPop(),
+                        ),
+                      ],
                     ),
                   ),
-                  GlassIconButton(
-                    standalone: true,
-                    icon: const Icon(Icons.folder_open),
-                    tooltip: t.favorite.myFavorites,
-                    onPressed: () {
-                      AppService.tryPop();
-                      NaviService.navigateToLocalFavoritePage();
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  GlassIconButton(
-                    standalone: true,
-                    icon: const Icon(Icons.close),
-                    onPressed: () => AppService.tryPop(),
-                  ),
-                ],
-              ),
-            ),
-            // 搜索
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: _buildGlassField(
-                context,
-                child: TextField(
-                  controller: _searchController,
-                  decoration: _fieldDecoration(
-                    context,
-                    hint: t.favorite.searchFolders,
-                    icon: Icons.search,
-                  ),
-                  onChanged: _filterFolders,
-                ),
-              ),
-            ),
-            // 新建：玻璃输入 + 主色圆钮
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-              child: Row(
-                children: [
-                  Expanded(
+                  // 搜索
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                     child: _buildGlassField(
                       context,
                       child: TextField(
-                        controller: _newFolderController,
-                        enabled: !_isCreating,
+                        controller: _searchController,
                         decoration: _fieldDecoration(
                           context,
-                          hint: t.favorite.newFolderName,
-                          icon: Icons.create_new_folder_outlined,
+                          hint: t.favorite.searchFolders,
+                          icon: Icons.search,
                         ),
-                        onSubmitted: (_) => _createNewFolder(),
+                        onChanged: _filterFolders,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  _isCreating
-                      ? const SizedBox(
-                          width: 44,
-                          height: 44,
-                          child: Center(
-                            child: SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                  // 新建：玻璃输入 + 主色圆钮
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: _buildGlassField(
+                            context,
+                            child: TextField(
+                              controller: _newFolderController,
+                              enabled: !_isCreating,
+                              decoration: _fieldDecoration(
+                                context,
+                                hint: t.favorite.newFolderName,
+                                icon: Icons.create_new_folder_outlined,
+                              ),
+                              onSubmitted: (_) => _createNewFolder(),
                             ),
                           ),
-                        )
-                      : IconButton.filled(
-                          onPressed: _createNewFolder,
-                          icon: const Icon(Icons.add),
-                          constraints: const BoxConstraints.tightFor(
-                            width: 44,
-                            height: 44,
-                          ),
                         ),
+                        const SizedBox(width: 10),
+                        _isCreating
+                            ? const SizedBox(
+                                width: 44,
+                                height: 44,
+                                child: Center(
+                                  child: SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : IconButton.filled(
+                                onPressed: _createNewFolder,
+                                icon: const Icon(Icons.add),
+                                constraints: const BoxConstraints.tightFor(
+                                  width: 44,
+                                  height: 44,
+                                ),
+                              ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 8),
-            if (_error != null)
-              Expanded(
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.error_outline,
-                        size: 40,
-                        color: colorScheme.error,
-                      ),
-                      const SizedBox(height: 10),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Text(
-                          _error!,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      FilledButton.tonalIcon(
-                        onPressed: _fetchData,
-                        icon: const Icon(Icons.refresh, size: 18),
-                        label: Text(slang.t.common.retry),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            else if (_isLoading && _folders.isEmpty)
-              const Expanded(
-                child: Center(child: CircularProgressIndicator()),
-              )
-            else if (_filteredFolders.isEmpty)
-              const Expanded(child: Center(child: MyEmptyWidget()))
-            else
-              Expanded(
-                child: WaterfallFlow.builder(
-                  padding: const EdgeInsets.all(12),
-                  gridDelegate: const SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 8,
-                    crossAxisSpacing: 8,
-                  ),
-                  itemCount: _filteredFolders.length,
-                  itemBuilder: (context, index) {
-                    final folder = _filteredFolders[index];
-                    final bool isOperating = _operatingFolderId == folder.id;
-                    final bool selected =
-                        _itemFolders.any((f) => f.id == folder.id);
-
-                    return Material(
-                      color: selected
-                          ? colorScheme.primaryContainer.withValues(alpha: 0.5)
-                          : colorScheme.surfaceContainerHighest.withValues(
-                              alpha: 0.45,
-                            ),
-                      borderRadius: BorderRadius.circular(16),
-                      child: InkWell(
-                        onTap: isOperating ? null : () => _toggleFolder(folder),
-                        borderRadius: BorderRadius.circular(16),
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: selected
-                                  ? colorScheme.primary
-                                  : colorScheme.outlineVariant.withValues(
-                                      alpha: 0.4,
-                                    ),
-                              width: selected ? 1.4 : 0.8,
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // 标题和状态图标
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      folder.title,
-                                      maxLines: 4,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14,
-                                        height: 1.25,
-                                        color: colorScheme.onSurface,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  if (isOperating)
-                                    const SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    )
-                                  else if (selected)
-                                    Icon(
-                                      Icons.check_circle,
-                                      color: colorScheme.primary,
-                                      size: 20,
-                                    )
-                                  else
-                                    Icon(
-                                      Icons.add_circle_outline,
-                                      color: colorScheme.outline,
-                                      size: 20,
-                                    ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              // 项目数量标签
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: selected
-                                      ? colorScheme.primary.withValues(
-                                          alpha: 0.12,
-                                        )
-                                      : colorScheme.surfaceContainerHigh,
-                                  borderRadius: BorderRadius.circular(999),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                child: Text(
-                                  '${t.favorite.items}: ${folder.itemCount ?? 0}',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: selected
-                                        ? colorScheme.primary
-                                        : colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildBody(
+    BuildContext context,
+    slang.Translations t,
+    ColorScheme colorScheme,
+  ) {
+    if (_error != null) {
+      return Padding(
+        padding: const EdgeInsets.only(top: _kPickerHeaderExtent),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.error_outline, size: 40, color: colorScheme.error),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  _error!,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              FilledButton.tonalIcon(
+                onPressed: _fetchData,
+                icon: const Icon(Icons.refresh, size: 18),
+                label: Text(slang.t.common.retry),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    if (_isLoading && _folders.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.only(top: _kPickerHeaderExtent),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+    if (_filteredFolders.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.only(top: _kPickerHeaderExtent),
+        child: Center(child: MyEmptyWidget()),
+      );
+    }
+    return WaterfallFlow.builder(
+      // paddingTop 落在渐变蒙层完全淡出之后,让第一排卡片不会被 header 的
+      // 半透明淡出段糊住(向上滚动时卡片会经过淡出段自然溶进 header)。
+      padding: const EdgeInsets.fromLTRB(
+        12,
+        _kPickerHeaderExtent + _kPickerHeaderFadeExtent,
+        12,
+        12,
+      ),
+      gridDelegate: const SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 8,
+        crossAxisSpacing: 8,
+      ),
+      itemCount: _filteredFolders.length,
+      itemBuilder: (context, index) {
+        final folder = _filteredFolders[index];
+        final bool isOperating = _operatingFolderId == folder.id;
+        final bool selected = _itemFolders.any((f) => f.id == folder.id);
+
+        return Material(
+          // 用 id 做 key,防止列表重建后 Flutter 按位置错配 Element。
+          key: ValueKey('favorite_folder_${folder.id}'),
+          color: selected
+              ? colorScheme.primaryContainer.withValues(alpha: 0.5)
+              : colorScheme.surfaceContainerHighest.withValues(alpha: 0.45),
+          borderRadius: BorderRadius.circular(16),
+          child: InkWell(
+            onTap: isOperating ? null : () => _toggleFolder(folder),
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: selected
+                      ? colorScheme.primary
+                      : colorScheme.outlineVariant.withValues(alpha: 0.4),
+                  width: selected ? 1.4 : 0.8,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 标题和状态图标
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          folder.title,
+                          maxLines: 4,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            height: 1.25,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // 固定 20x20 槽位:loading / 未选 / 已选三态同尺寸,
+                      // 才不会因高度抖动让 WaterfallFlow 重新排列后面的卡片。
+                      SizedBox(
+                        width: _kStatusSlotSize,
+                        height: _kStatusSlotSize,
+                        child: isOperating
+                            ? const Padding(
+                                padding: EdgeInsets.all(1),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Icon(
+                                selected
+                                    ? Icons.check_circle
+                                    : Icons.add_circle_outline,
+                                color: selected
+                                    ? colorScheme.primary
+                                    : colorScheme.outline,
+                                size: _kStatusSlotSize,
+                              ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  // 项目数量标签
+                  Container(
+                    decoration: BoxDecoration(
+                      color: selected
+                          ? colorScheme.primary.withValues(alpha: 0.12)
+                          : colorScheme.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    child: Text(
+                      '${t.favorite.items}: ${folder.itemCount ?? 0}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: selected
+                            ? colorScheme.primary
+                            : colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 

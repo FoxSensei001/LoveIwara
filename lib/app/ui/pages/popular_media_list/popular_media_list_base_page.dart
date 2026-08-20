@@ -12,11 +12,13 @@ import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/popular_media_list_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/batch_select_controller.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_tab_view.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/saved_search_config_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -433,7 +435,8 @@ class PopularMediaListPageBaseState<
     _scaffoldKey.currentState?.closeEndDrawer();
   }
 
-  /// 过窄时的排序入口：玻璃胶囊 + 下拉菜单（代替分段胶囊）。
+  /// 过窄时的排序入口：下拉菜单（代替分段胶囊）。
+  /// 只渲染「图标 + 文字 + 箭头」的无壳内容，玻璃壳由外层 GlassCapsuleMorph 提供。
   Widget _buildTabDropdown(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final index = _currentTabIndex.value;
@@ -446,41 +449,48 @@ class PopularMediaListPageBaseState<
       // 往下挪一点，别压住玻璃胶囊本身
       offset: const Offset(0, 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: GlassSurface(
-        padding: const EdgeInsets.only(left: 14, right: 8),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedSwitcher(
-              duration: GlassTokens.motionDuration,
-              switchInCurve: Curves.easeInOut,
-              switchOutCurve: Curves.easeInOut,
-              child: Row(
-                key: ValueKey(index),
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (currentSort.icon != null) ...[
-                    IconTheme(
-                      data: IconThemeData(
-                        size: 16,
-                        color: colorScheme.onSurface,
+      child: SizedBox(
+        height: GlassTokens.pillHeight,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 14, right: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedSwitcher(
+                duration: GlassTokens.motionDuration,
+                switchInCurve: Curves.easeInOut,
+                switchOutCurve: Curves.easeInOut,
+                child: Row(
+                  key: ValueKey(index),
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (currentSort.icon != null) ...[
+                      IconTheme(
+                        data: IconThemeData(
+                          size: 16,
+                          color: colorScheme.onSurface,
+                        ),
+                        child: currentSort.icon!,
                       ),
-                      child: currentSort.icon!,
+                      const SizedBox(width: 5),
+                    ],
+                    Text(
+                      currentSort.label,
+                      style: TextStyle(
+                        color: colorScheme.onSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                    const SizedBox(width: 5),
                   ],
-                  Text(
-                    currentSort.label,
-                    style: TextStyle(
-                      color: colorScheme.onSurface,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-            Icon(Icons.arrow_drop_down, size: 22, color: colorScheme.onSurface),
-          ],
+              Icon(
+                Icons.arrow_drop_down,
+                size: 22,
+                color: colorScheme.onSurface,
+              ),
+            ],
+          ),
         ),
       ),
       itemBuilder: (context) => sorts.asMap().entries.map((entry) {
@@ -644,12 +654,14 @@ class PopularMediaListPageBaseState<
       final isMultiSelect = _batchSelectController.isMultiSelect.value;
       return GlassButtonGroup(
         children: [
-          if (isWide)
-            GlassIconButton(
+          GlassGroupSlot(
+            visible: isWide,
+            child: GlassIconButton(
               icon: const Icon(Icons.search),
               tooltip: t.common.search,
               onPressed: _openSearchDialog,
             ),
+          ),
           GlassIconButton(
             icon: const Icon(Icons.filter_list),
             tooltip: t.searchFilter.filterSettings,
@@ -684,14 +696,20 @@ class PopularMediaListPageBaseState<
 
   /// 滚过约一屏后出现在右下角的「回到顶部」浮钮。
   Widget _buildScrollToTopFab(BuildContext context) {
-    return Positioned(
-      right: 16,
-      bottom: MediaQuery.paddingOf(context).bottom + 16,
-      child: Obx(() {
-        final visible =
-            _mediaListController.currentScrollOffset.value > 800 &&
-            !_batchSelectController.isMultiSelect.value;
-        return IgnorePointer(
+    return Obx(() {
+      final visible =
+          _mediaListController.currentScrollOffset.value > 800 &&
+          !_batchSelectController.isMultiSelect.value;
+      return Positioned(
+        right: 16,
+        // 分页模式下底部固定着分页栏，浮钮要在安全区之上再避开栏体
+        bottom:
+            MediaQuery.paddingOf(context).bottom +
+            16 +
+            (_mediaListController.isPaginated.value
+                ? PaginationBar.barHeight
+                : 0),
+        child: IgnorePointer(
           ignoring: !visible,
           child: AnimatedSlide(
             duration: GlassTokens.motionDuration,
@@ -708,9 +726,9 @@ class PopularMediaListPageBaseState<
               ),
             ),
           ),
-        );
-      }),
-    );
+        ),
+      );
+    });
   }
 
   @override
@@ -816,23 +834,33 @@ class PopularMediaListPageBaseState<
                   Expanded(
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: useSegmented
-                          ? Obx(
-                              () => GlassSegmentedControl(
-                                selectedIndex: _currentTabIndex.value,
-                                progress: _tabController.animation,
-                                onChanged: (i) => _tabController.animateTo(i),
-                                items: sorts
-                                    .map(
-                                      (sort) => GlassSegmentItem(
-                                        label: sort.label,
-                                        icon: sort.icon,
-                                      ),
-                                    )
-                                    .toList(),
+                      // 玻璃壳由 GlassCapsuleMorph 常驻提供，两侧只换
+                      // 无壳内容——胶囊平滑伸缩，阴影/圆角全程完整。
+                      child: GlassCapsuleMorph(
+                        child: useSegmented
+                            ? Obx(
+                                key: const ValueKey('segmented'),
+                                () => GlassSegmentedControl(
+                                  flat: true,
+                                  selectedIndex: _currentTabIndex.value,
+                                  progress: _tabController.animation,
+                                  onChanged: (i) =>
+                                      _tabController.animateTo(i),
+                                  items: sorts
+                                      .map(
+                                        (sort) => GlassSegmentItem(
+                                          label: sort.label,
+                                          icon: sort.icon,
+                                        ),
+                                      )
+                                      .toList(),
+                                ),
+                              )
+                            : Obx(
+                                key: const ValueKey('dropdown'),
+                                () => _buildTabDropdown(context),
                               ),
-                            )
-                          : Obx(() => _buildTabDropdown(context)),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),

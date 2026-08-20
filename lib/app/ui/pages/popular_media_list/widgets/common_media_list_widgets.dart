@@ -407,6 +407,11 @@ class TagStyle {
 
 // 分页控制栏组件
 class PaginationBar extends StatefulWidget {
+  /// 分页控制条本体高度（不含底部安全区占位与上方渐隐区）。
+  /// 右下角「回到顶部」、左下角批量操作这些悬浮控件在分页模式下
+  /// 都要在安全区之上再抬这一段，否则会压在分页按钮上。
+  static const double barHeight = 46.0;
+
   /// `useBlurEffect` 模式下，分页栏内容上方额外的透明渐入区高度。
   /// 调用方给列表预留底部空间时要把它一并算进去，否则最后一行会被压在渐变里。
   static const double fadeAboveExtent = 28.0;

@@ -24,6 +24,7 @@ import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -31,6 +32,7 @@ import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/app/routes/app_router.dart' show routeObserver;
 import 'package:i_iwara/app/services/overlay_tracker.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/utils/image_utils.dart';
 import 'package:oktoast/oktoast.dart';
 
@@ -205,7 +207,6 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     _isPaginated.value = isPaginated;
     _videoBatchController.setPaginatedMode(isPaginated);
     _imageBatchController.setPaginatedMode(isPaginated);
-    _scrollToTop();
   }
 
   bool _handleNestedScrollNotification(ScrollNotification notification) {
@@ -255,7 +256,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
         bottom:
             MediaQuery.paddingOf(context).bottom +
             16 +
-            (_isPaginated.value ? 46 : 0),
+            (_isPaginated.value ? PaginationBar.barHeight : 0),
         child: ValueListenableBuilder<bool>(
           valueListenable: _showBackToTop,
           builder: (context, visible, _) => IgnorePointer(
@@ -632,13 +633,17 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
               );
             }
 
-            // 如果没有可选项，则不显示
-            if (popupMenuItems.isEmpty) {
-              return const SizedBox.shrink();
-            }
-
-            return Center(
-              child: GlassButtonGroup(
+            // 有可选项时显示胶囊，没有时收成 0 宽——用 GlassShapeSwitcher
+            // 让整块 action group 淡入淡出+宽度过渡（未登录访客切换到已登录、
+            // 或作者信息延迟加载时都会命中这次形变）。
+            final Widget content = popupMenuItems.isEmpty
+                ? const KeyedSubtree(
+                    key: ValueKey('actions-empty'),
+                    child: SizedBox.shrink(),
+                  )
+                : Center(
+                    key: const ValueKey('actions-menu'),
+                    child: GlassButtonGroup(
                 children: [
                   SizedBox(
                     width: GlassTokens.groupIconButtonSize,
@@ -711,6 +716,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                 ],
               ),
             );
+            return GlassShapeSwitcher(child: content);
           }),
           const SizedBox(width: 16),
           // 多选按钮

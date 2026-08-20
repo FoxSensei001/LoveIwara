@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 
 /// 「液态玻璃」风格的尺寸 / 颜色 token。
 ///
-/// 设计来源：docs/mockups/telegram_chat_list_design.md。
+/// 设计来源：docs/mockups/telegram_chat_list_design.md（本地设计稿，已 gitignore）。
 /// 全平台统一使用「半透明纯色渐变」而不是 BackdropFilter（性能 / 多端一致性）。
+///
+/// 「液态」的神在于**没有硬切**：任何 header 上的按钮组、分段胶囊、头像、
+/// 徽标发生形变都要有过渡而不是被瞬间替换。形变过渡的原语和取值参见
+/// `glass_morph.dart` 顶部的形变词汇表；[motionDuration] / [motionCurve]
+/// 是所有形变共用的时值与曲线。
 abstract final class GlassTokens {
   // ---- 尺寸 ----
   /// 玻璃胶囊 / 圆钮的标准高度。

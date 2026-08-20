@@ -378,8 +378,11 @@ class ImageModelDetailContent extends StatelessWidget {
             icon: Icons.download,
             label: t.download.download,
             onTap: () => _downloadGallery(context),
+            // 用 colorScheme.primary，不用 Theme.of(context).primaryColor——
+            // primaryColor 是 M2 遗留字段，M3 深色主题下它不跟随 colorScheme
+            // 翻转，选中态的图标/文字会退化成近黑色，糊在深色卡片上看不清。
             accentColor: controller.hasAnyDownloadTask.value
-                ? Theme.of(context).primaryColor
+                ? Theme.of(context).colorScheme.primary
                 : null,
           ),
         ),
@@ -426,8 +429,9 @@ class ImageModelDetailContent extends StatelessWidget {
                     : Icons.bookmark_border,
                 label: t.favorite.localizeFavorite,
                 onTap: () => _addToFavorite(context),
+                // 同上：M3 深色主题下必须走 colorScheme.primary。
                 accentColor: controller.isInAnyFavorite.value
-                    ? Theme.of(context).primaryColor
+                    ? Theme.of(context).colorScheme.primary
                     : null,
               ),
             ),

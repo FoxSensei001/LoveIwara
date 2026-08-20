@@ -377,6 +377,7 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get tagOriginalKey => '原始標籤';
 	@override String get tagTranslation => '譯文';
 	@override String get copy => '複製';
+	@override String get selectCopy => '選擇複製';
 	@override String get copiedToClipboard => '已複製到剪貼簿';
 	@override String get showOriginalTag => '顯示原始標籤';
 	@override String get showTranslatedTag => '顯示譯文';
@@ -3655,6 +3656,7 @@ extension on TranslationsZhTw {
 			'common.tagOriginalKey' => '原始標籤',
 			'common.tagTranslation' => '譯文',
 			'common.copy' => '複製',
+			'common.selectCopy' => '選擇複製',
 			'common.copiedToClipboard' => '已複製到剪貼簿',
 			'common.showOriginalTag' => '顯示原始標籤',
 			'common.showTranslatedTag' => '顯示譯文',
@@ -3894,9 +3896,9 @@ extension on TranslationsZhTw {
 			'settings.testProxyFailedWithException' => ({required Object exception}) => '代理請求出錯: ${exception}',
 			'settings.proxyConfig' => '代理設定',
 			'settings.thisIsHttpProxyAddress' => '此為 HTTP 代理伺服器地址',
-			'settings.checkProxy' => '檢查代理',
 			_ => null,
 		} ?? switch (path) {
+			'settings.checkProxy' => '檢查代理',
 			'settings.proxyAddress' => '代理地址',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => '請輸入代理伺服器的 URL，例如 127.0.0.1:8080',
 			'settings.enableProxy' => '啟用代理',
@@ -4408,9 +4410,9 @@ extension on TranslationsZhTw {
 			'firstTimeSetup.network.title' => '網路設定',
 			'firstTimeSetup.network.subtitle' => '配置網路連線選項',
 			'firstTimeSetup.network.description' => '根據您的網路環境進行相應配置',
-			'firstTimeSetup.network.tip' => '設定成功後需重啟應用才會生效',
 			_ => null,
 		} ?? switch (path) {
+			'firstTimeSetup.network.tip' => '設定成功後需重啟應用才會生效',
 			'firstTimeSetup.theme.title' => '主題設定',
 			'firstTimeSetup.theme.subtitle' => '選擇您喜歡的介面主題',
 			'firstTimeSetup.theme.description' => '個人化您的視覺體驗',
@@ -4922,9 +4924,9 @@ extension on TranslationsZhTw {
 			'download.deleteByDate.modeDays' => '多少天以前',
 			'download.deleteByDate.startDate' => '開始日期',
 			'download.deleteByDate.endDate' => '結束日期',
-			'download.deleteByDate.notSet' => '未設定',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.notSet' => '未設定',
 			'download.deleteByDate.daysUnit' => '天',
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => '刪除 ${days} 天以前建立的任務',
 			'download.deleteByDate.noMatch' => '沒有符合條件的任務',
@@ -5436,9 +5438,9 @@ extension on TranslationsZhTw {
 			'emoji.confirmDeleteImage' => '確定要刪除這張圖片嗎？',
 			'emoji.cancel' => '取消',
 			'emoji.batchDelete' => '批次刪除',
-			'emoji.confirmBatchDelete' => ({required Object count}) => '確定要刪除選中的${count}張圖片嗎？此操作不可復原。',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.confirmBatchDelete' => ({required Object count}) => '確定要刪除選中的${count}張圖片嗎？此操作不可復原。',
 			'emoji.deleteSuccess' => '成功刪除',
 			'emoji.addImage' => '添加圖片',
 			'emoji.addImageByUrl' => '透過URL添加',

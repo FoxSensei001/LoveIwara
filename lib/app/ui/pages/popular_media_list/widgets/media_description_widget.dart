@@ -80,45 +80,76 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
     }
   }
 
+  /// 与评论区（comment_item_widget.dart）保持一致的胶囊高度
+  static const double _translationPillHeight = 30.0;
+
+  /// 翻译入口：翻译图标（翻译中转菊花）+ 紧凑语言选择器，合装进一个胶囊。
+  /// 样式与 CommentItem._buildTranslationControls 保持一致。
   Widget _buildTranslationButton(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Obx(
-          () => IconButton(
-            onPressed: _translationController.isTranslating.value
-                ? null
-                : () => _handleTranslation(),
-            icon: _translationController.isTranslating.value
-                ? SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Theme.of(context).colorScheme.primary,
-                      ),
+    final colorScheme = Theme.of(context).colorScheme;
+    return Material(
+      color: colorScheme.surfaceContainerHigh,
+      borderRadius: BorderRadius.circular(999),
+      child: SizedBox(
+        height: _translationPillHeight,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Obx(() {
+              final busy = _translationController.isTranslating.value;
+              return InkWell(
+                borderRadius: BorderRadius.circular(999),
+                onTap: busy ? null : _handleTranslation,
+                child: Container(
+                  height: _translationPillHeight,
+                  padding: const EdgeInsets.only(left: 10, right: 4),
+                  alignment: Alignment.center,
+                  child: busy
+                      ? const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Icon(
+                          Icons.translate,
+                          size: 16,
+                          color: colorScheme.primary,
+                        ),
+                ),
+              );
+            }),
+            // 收紧语言选择器（内部是默认 48 触摸目标的 IconButton）到胶囊高度
+            Obx(
+              () => SizedBox(
+                width: 34,
+                height: _translationPillHeight,
+                child: IconButtonTheme(
+                  data: IconButtonThemeData(
+                    style: IconButton.styleFrom(
+                      fixedSize: const Size(34, _translationPillHeight),
+                      padding: EdgeInsets.zero,
+                      alignment: Alignment.center,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                  )
-                : Icon(
-                    Icons.translate,
-                    size: 24,
-                    color: Theme.of(context).colorScheme.primary,
                   ),
-          ),
+                  child: TranslationLanguageSelector(
+                    compact: true,
+                    extrimCompact: true,
+                    selectedLanguage: _configService.currentTranslationSort,
+                    onLanguageSelected: (sort) {
+                      _configService.updateTranslationLanguage(sort);
+                      if (_translationController.hasTranslation) {
+                        _handleTranslation();
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 2),
+          ],
         ),
-        TranslationLanguageSelector(
-          compact: true,
-          selectedLanguage: _configService.currentTranslationSort,
-          onLanguageSelected: (sort) {
-            _configService.updateTranslationLanguage(sort);
-            if (_translationController.hasTranslation) {
-              _handleTranslation();
-            }
-          },
-        ),
-      ],
+      ),
     );
   }
 

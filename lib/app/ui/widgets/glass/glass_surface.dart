@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 
 /// 按下反馈：缩放 + 对外暴露 pressed 状态。
@@ -172,13 +173,29 @@ class GlassIconButton extends StatelessWidget {
         size: iconSize,
         color: color ?? (onPressed == null ? cs.onSurface.withValues(alpha: 0.38) : cs.onSurface),
       ),
-      child: icon,
+      // 图标本身在同一按钮位上换 codePoint 时做缩放交叉过渡
+      // （如多选↔退出、瀑布↔分页）。
+      child: GlassAnimatedIcon(icon: icon),
     );
-    if (showBadge) {
+    // 徽标始终挂载，通过弹跳缩放来实现显隐，避免小红点瞬间跳出/消失。
+    // 有 label 的场景交给 Flutter 原生 Badge（数字变化本身就带过渡）。
+    if (badgeLabel != null) {
       iconWidget = Badge(
         label: badgeLabel,
-        isLabelVisible: true,
+        isLabelVisible: showBadge,
         child: iconWidget,
+      );
+    } else {
+      iconWidget = Stack(
+        clipBehavior: Clip.none,
+        children: [
+          iconWidget,
+          Positioned(
+            top: -1,
+            right: -1,
+            child: GlassAnimatedDot(visible: showBadge),
+          ),
+        ],
       );
     }
 
@@ -216,6 +233,11 @@ class GlassIconButton extends StatelessWidget {
 }
 
 /// 把多个 [GlassIconButton]（或任意 40×40 控件）聚合进一个玻璃胶囊。
+///
+/// 胶囊自身宽度带 [AnimatedSize]：内部子项显隐 / 尺寸变化时，胶囊会平滑
+/// 收放而不是瞬跳。条件出现的子项建议用 [GlassGroupSlot] 包一层，让子项
+/// 在被移除前有一段收窄+淡出的落幕动效——两层动画在时间上叠合，看起来
+/// 是「胶囊连着按钮一起被挤进/挤出」，而不是先塌陷后按钮再消失。
 class GlassButtonGroup extends StatelessWidget {
   const GlassButtonGroup({
     super.key,
@@ -239,7 +261,13 @@ class GlassButtonGroup extends StatelessWidget {
     return GlassSurface(
       height: height,
       padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: Row(mainAxisSize: MainAxisSize.min, children: row),
+      child: AnimatedSize(
+        duration: GlassTokens.motionDuration,
+        curve: GlassTokens.motionCurve,
+        alignment: Alignment.centerRight,
+        clipBehavior: Clip.hardEdge,
+        child: Row(mainAxisSize: MainAxisSize.min, children: row),
+      ),
     );
   }
 }

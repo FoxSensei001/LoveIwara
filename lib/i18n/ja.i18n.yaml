@@ -282,6 +282,7 @@ common:
   tagOriginalKey: 元のタグ
   tagTranslation: 翻訳
   copy: コピー
+  selectCopy: 選択してコピー
   copiedToClipboard: クリップボードにコピーしました
   showOriginalTag: 元のタグを表示
   showTranslatedTag: 翻訳を表示
