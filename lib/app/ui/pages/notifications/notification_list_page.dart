@@ -31,8 +31,6 @@ class _NotificationListPageState extends State<NotificationListPage> {
   /// 列表滚过一段距离后显示右下角「回到顶部」浮钮。
   final ValueNotifier<bool> _showBackToTop = ValueNotifier<bool>(false);
 
-  /// 是否启用「回到顶部」浮钮（更多菜单里可开关）。
-  final RxBool _enableFloatingButton = true.obs;
   final UserService _userService = Get.find<UserService>();
   final RxBool _isMarkingAllAsRead = false.obs;
   final RxBool _isRefreshing = false.obs;
@@ -111,20 +109,6 @@ class _NotificationListPageState extends State<NotificationListPage> {
     } finally {
       _isRefreshing.value = false;
     }
-  }
-
-  // 切换「回到顶部」浮钮开关
-  void _toggleFloatingButton() {
-    _enableFloatingButton.value = !_enableFloatingButton.value;
-    showToastWidget(
-      MDToastWidget(
-        message: _enableFloatingButton.value
-            ? slang.t.common.enabledFloatingButtons
-            : slang.t.common.disabledFloatingButtons,
-        type: MDToastType.success,
-      ),
-      position: ToastPosition.top,
-    );
   }
 
   // 通知类型帮助弹窗
@@ -225,10 +209,7 @@ class _NotificationListPageState extends State<NotificationListPage> {
     );
   }
 
-  static const String _menuActionToggleFloating = 'toggle_floating';
-  static const String _menuActionHelp = 'help';
-
-  /// 右侧动作胶囊：全部已读（带未读小红点）· 刷新 · 更多。
+  /// 右侧动作胶囊：全部已读（带未读小红点）· 刷新 · 帮助。
   Widget _buildActionGroup(BuildContext context) {
     return Obx(
       () {
@@ -252,59 +233,10 @@ class _NotificationListPageState extends State<NotificationListPage> {
               tooltip: slang.t.common.refresh,
               onPressed: refreshing ? null : _refreshList,
             ),
-            SizedBox(
-              width: GlassTokens.groupIconButtonSize,
-              height: GlassTokens.groupIconButtonSize,
-              child: PopupMenuButton<String>(
-                padding: EdgeInsets.zero,
-                icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
-                position: PopupMenuPosition.under,
-                // 往下挪一点，别压住玻璃胶囊本身
-                offset: const Offset(0, 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                onSelected: (value) {
-                  switch (value) {
-                    case _menuActionToggleFloating:
-                      _toggleFloatingButton();
-                      break;
-                    case _menuActionHelp:
-                      _showHelpDialog();
-                      break;
-                  }
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem<String>(
-                    value: _menuActionToggleFloating,
-                    child: Row(
-                      children: [
-                        Icon(
-                          _enableFloatingButton.value
-                              ? Icons.vertical_align_top
-                              : Icons.vertical_align_top_outlined,
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          _enableFloatingButton.value
-                              ? slang.t.common.disableFloatingButtons
-                              : slang.t.common.enableFloatingButtons,
-                        ),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem<String>(
-                    value: _menuActionHelp,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.help_outline),
-                        const SizedBox(width: 12),
-                        Text(slang.t.notifications.notificationTypeHelp),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            GlassIconButton(
+              icon: const Icon(Icons.help_outline),
+              tooltip: slang.t.notifications.notificationTypeHelp,
+              onPressed: _showHelpDialog,
             ),
           ],
         );
@@ -314,38 +246,30 @@ class _NotificationListPageState extends State<NotificationListPage> {
 
   /// 滚过一段后出现在右下角的「回到顶部」浮钮。
   Widget _buildScrollToTopFab(BuildContext context) {
-    return Obx(
-      () {
-        final bool enabled = _enableFloatingButton.value;
-        return Positioned(
-          right: 16,
-          bottom: MediaQuery.paddingOf(context).bottom + 16,
-          child: ValueListenableBuilder<bool>(
-            valueListenable: _showBackToTop,
-            builder: (context, visible, _) {
-              final bool show = visible && enabled;
-              return IgnorePointer(
-                ignoring: !show,
-                child: AnimatedSlide(
-                  duration: GlassTokens.motionDuration,
-                  curve: GlassTokens.motionCurve,
-                  offset: show ? Offset.zero : const Offset(0, 0.4),
-                  child: AnimatedOpacity(
-                    duration: GlassTokens.motionDuration,
-                    opacity: show ? 1 : 0,
-                    child: GlassIconButton(
-                      standalone: true,
-                      icon: const Icon(Icons.vertical_align_top),
-                      tooltip: slang.t.common.scrollToTop,
-                      onPressed: _scrollToTop,
-                    ),
-                  ),
-                ),
-              );
-            },
+    return Positioned(
+      right: 16,
+      bottom: MediaQuery.paddingOf(context).bottom + 16,
+      child: ValueListenableBuilder<bool>(
+        valueListenable: _showBackToTop,
+        builder: (context, visible, _) => IgnorePointer(
+          ignoring: !visible,
+          child: AnimatedSlide(
+            duration: GlassTokens.motionDuration,
+            curve: GlassTokens.motionCurve,
+            offset: visible ? Offset.zero : const Offset(0, 0.4),
+            child: AnimatedOpacity(
+              duration: GlassTokens.motionDuration,
+              opacity: visible ? 1 : 0,
+              child: GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.vertical_align_top),
+                tooltip: slang.t.common.scrollToTop,
+                onPressed: _scrollToTop,
+              ),
+            ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
