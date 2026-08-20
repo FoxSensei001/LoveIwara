@@ -851,15 +851,36 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
 
   /// 宽屏右列：相关图库（分段胶囊 + 瀑布流）。
   ///
-  /// 左列的状态栏留白是 SliverAppBar 自己吃掉的，右列没有 AppBar，必须自己让出
-  /// `padding.top`，否则分段胶囊会顶到状态栏底下（和 video_detail_page_v2 里
-  /// 右侧 Tab 区起手那句 `Container(height: paddingTop)` 是同一件事）。
-  /// 让位之后分段行按 headerRowHeight 居中，与左列 header 上的胶囊同一水平线。
+  /// 和窄屏的 [_buildNarrowRelatedArea] 同一套路：列表铺满整列、用 topInset 让位，
+  /// 分段行浮在它之上，卡片上滑时从胶囊背后穿过去。
+  ///
+  /// 与窄屏的差别在顶部那段状态栏：左列的状态栏留白是 SliverAppBar 自己吃掉的，
+  /// 右列没有 AppBar，得自己让出 `padding.top` 并补一条 EdgeFadeScrim 托底
+  /// （对应左列 header 的 flexibleSpace），否则卡片会滑进状态栏底下糊成一团。
+  /// 分段行按 headerRowHeight 居中，与左列 header 上的胶囊同一水平线。
   Widget _buildWideSideColumn(BuildContext context) {
-    return Column(
+    final double statusBarHeight = MediaQuery.paddingOf(context).top;
+    final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
+
+    return Stack(
+      fit: StackFit.expand,
       children: [
-        SizedBox(height: MediaQuery.paddingOf(context).top),
-        SizedBox(
+        Positioned.fill(
+          child: _buildRelatedTabBarView(context, topInset: headerExtent),
+        ),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: EdgeFadeScrim.top(
+            height: headerExtent,
+            solidExtent: statusBarHeight,
+          ),
+        ),
+        Positioned(
+          top: statusBarHeight,
+          left: 0,
+          right: 0,
           height: GlassTokens.headerRowHeight,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -869,7 +890,6 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
             ),
           ),
         ),
-        Expanded(child: _buildRelatedTabBarView(context)),
       ],
     );
   }
