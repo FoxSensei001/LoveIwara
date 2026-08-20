@@ -12,6 +12,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_overflow_menu_button.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -296,9 +297,6 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
     }
   }
 
-  static const String _menuActionRefresh = 'refresh';
-  static const String _menuActionShare = 'share';
-
   /// 右侧动作胶囊：[分享(仅宽屏)] 瀑布/分页切换 · 回复 · 更多。
   ///
   /// 分享 / 回复要等帖子数据就绪才可用，用 [GlassGroupSlot] 让它们
@@ -336,52 +334,23 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
               onPressed: _showReplySheet,
             ),
           ),
-          SizedBox(
-            width: GlassTokens.groupIconButtonSize,
-            height: GlassTokens.groupIconButtonSize,
-            child: PopupMenuButton<String>(
-              padding: EdgeInsets.zero,
-              icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
-              position: PopupMenuPosition.under,
-              // 往下挪一点，别压住玻璃胶囊本身
-              offset: const Offset(0, 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          // 「更多」只剩一条时（宽屏 / 数据未就绪：分享不在菜单里，只剩刷新）
+          // 自动变成那枚动作本身，不为一个选项多弹一次层
+          GlassGroupOverflowMenuButton(
+            actions: [
+              GlassMenuAction(
+                icon: Icons.refresh,
+                label: t.common.refresh,
+                onSelected: _refresh,
+                showsLoading: true,
               ),
-              onSelected: (value) {
-                switch (value) {
-                  case _menuActionRefresh:
-                    _refresh();
-                    break;
-                  case _menuActionShare:
-                    _showShareSheet();
-                    break;
-                }
-              },
-              itemBuilder: (context) => [
-                PopupMenuItem<String>(
-                  value: _menuActionRefresh,
-                  child: Row(
-                    children: [
-                      const Icon(Icons.refresh),
-                      const SizedBox(width: 12),
-                      Text(t.common.refresh),
-                    ],
-                  ),
+              if (!isWide && loaded)
+                GlassMenuAction(
+                  icon: Icons.share,
+                  label: t.common.share,
+                  onSelected: _showShareSheet,
                 ),
-                if (!isWide && loaded)
-                  PopupMenuItem<String>(
-                    value: _menuActionShare,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.share),
-                        const SizedBox(width: 12),
-                        Text(t.common.share),
-                      ],
-                    ),
-                  ),
-              ],
-            ),
+            ],
           ),
         ],
       );

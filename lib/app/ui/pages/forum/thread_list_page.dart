@@ -11,6 +11,7 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_lis
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_overflow_menu_button.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -126,90 +127,57 @@ class _ThreadListPageState extends State<ThreadListPage>
     );
   }
 
-  static const String _menuActionTogglePagination = 'toggle_pagination';
-  static const String _menuActionOpenSearch = 'open_search';
-
-  /// 右侧动作胶囊：[搜索(仅宽屏)] 刷新 · 发帖 · 更多（瀑布/分页切换收在菜单里）。
+  /// 右侧动作胶囊：[搜索(仅宽屏)] 刷新 · 发帖 · 更多。
+  ///
+  /// 「更多」走 [GlassGroupOverflowMenuButton]：宽屏下搜索已经被提到胶囊上，
+  /// 菜单里就只剩「瀑布/分页」一条，这时它会自动**变成那枚切换钮本身**，不再
+  /// 让用户为一个选项多点一次弹层。
+  ///
+  /// 这里的 Obx 只圈住 isPaginated 那一处：图标/文案随模式变，而外层胶囊没有
+  /// 别的可观察量——整只套 Obx 会因为「作用域里一个观察量都没有」抛 ObxError。
   Widget _buildActionGroup(BuildContext context, {required bool isWide}) {
-    return Obx(
-      () => GlassButtonGroup(
-        children: [
-          GlassGroupSlot(
-            visible: isWide,
-            child: GlassIconButton(
-              icon: const Icon(Icons.search),
-              tooltip: t.common.search,
-              onPressed: _openSearchDialog,
-            ),
+    return GlassButtonGroup(
+      children: [
+        GlassGroupSlot(
+          visible: isWide,
+          child: GlassIconButton(
+            icon: const Icon(Icons.search),
+            tooltip: t.common.search,
+            onPressed: _openSearchDialog,
           ),
-          GlassAsyncIconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: t.common.refresh,
-            onPressed: _refreshList,
-          ),
-          GlassIconButton(
-            icon: const Icon(Icons.add),
-            tooltip: t.forum.createThread,
-            onPressed: () => _showCreateThreadDialog(context, widget.categoryId),
-          ),
-          SizedBox(
-            width: GlassTokens.groupIconButtonSize,
-            height: GlassTokens.groupIconButtonSize,
-            child: PopupMenuButton<String>(
-              padding: EdgeInsets.zero,
-              icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
-              position: PopupMenuPosition.under,
-              // 往下挪一点，别压住玻璃胶囊本身
-              offset: const Offset(0, 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+        ),
+        GlassAsyncIconButton(
+          icon: const Icon(Icons.refresh),
+          tooltip: t.common.refresh,
+          onPressed: _refreshList,
+        ),
+        GlassIconButton(
+          icon: const Icon(Icons.add),
+          tooltip: t.forum.createThread,
+          onPressed: () => _showCreateThreadDialog(context, widget.categoryId),
+        ),
+        Obx(() {
+          final isPaginated = _forumListController.isPaginated.value;
+          return GlassGroupOverflowMenuButton(
+            actions: [
+              GlassMenuAction(
+                // 图标与文案一致：都表示「将要切换到的模式」
+                icon: isPaginated ? Icons.view_stream : Icons.view_module,
+                label: isPaginated
+                    ? t.common.pagination.waterfall
+                    : t.common.pagination.pagination,
+                onSelected: _togglePaginationMode,
               ),
-              onSelected: (value) {
-                switch (value) {
-                  case _menuActionTogglePagination:
-                    _togglePaginationMode();
-                    break;
-                  case _menuActionOpenSearch:
-                    _openSearchDialog();
-                    break;
-                }
-              },
-              itemBuilder: (context) => [
-                PopupMenuItem<String>(
-                  value: _menuActionTogglePagination,
-                  child: Row(
-                    children: [
-                      Icon(
-                        _forumListController.isPaginated.value
-                            ? Icons.view_stream
-                            : Icons.view_module,
-                      ),
-                      const SizedBox(width: 12),
-                      // 文案与图标一致：显示将要切换到的模式
-                      Text(
-                        _forumListController.isPaginated.value
-                            ? t.common.pagination.waterfall
-                            : t.common.pagination.pagination,
-                      ),
-                    ],
-                  ),
+              if (!isWide)
+                GlassMenuAction(
+                  icon: Icons.search,
+                  label: t.common.search,
+                  onSelected: _openSearchDialog,
                 ),
-                if (!isWide)
-                  PopupMenuItem<String>(
-                    value: _menuActionOpenSearch,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.search),
-                        const SizedBox(width: 12),
-                        Text(t.common.search),
-                      ],
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
+            ],
+          );
+        }),
+      ],
     );
   }
 

@@ -18,6 +18,7 @@ import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_overflow_menu_button.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
@@ -545,9 +546,6 @@ class _ForumPageState extends State<ForumPage> {
     });
   }
 
-  static const String _menuActionOpenSearch = 'open_search';
-  static const String _menuActionRefresh = 'refresh';
-
   /// 右侧动作胶囊：[搜索(仅宽屏)] 发帖 · 更多。
   Widget _buildActionGroup(BuildContext context, {required bool isWide}) {
     final t = slang.Translations.of(context);
@@ -581,52 +579,23 @@ class _ForumPageState extends State<ForumPage> {
           tooltip: t.forum.createThread,
           onPressed: _showPostDialog,
         ),
-        SizedBox(
-          width: GlassTokens.groupIconButtonSize,
-          height: GlassTokens.groupIconButtonSize,
-          child: PopupMenuButton<String>(
-            padding: EdgeInsets.zero,
-            icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
-            position: PopupMenuPosition.under,
-            // 往下挪一点，别压住玻璃胶囊本身
-            offset: const Offset(0, 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            onSelected: (value) {
-              switch (value) {
-                case _menuActionOpenSearch:
-                  _openSearchDialog();
-                  break;
-                case _menuActionRefresh:
-                  _refreshAll();
-                  break;
-              }
-            },
-            itemBuilder: (context) => [
-              if (!isWide)
-                PopupMenuItem<String>(
-                  value: _menuActionOpenSearch,
-                  child: Row(
-                    children: [
-                      const Icon(Icons.search),
-                      const SizedBox(width: 12),
-                      Text(t.common.search),
-                    ],
-                  ),
-                ),
-              PopupMenuItem<String>(
-                value: _menuActionRefresh,
-                child: Row(
-                  children: [
-                    const Icon(Icons.refresh),
-                    const SizedBox(width: 12),
-                    Text(t.common.refresh),
-                  ],
-                ),
+        // 「更多」只剩一条时（宽屏：搜索已提到胶囊上，菜单里只剩刷新）
+        // 自动变成那枚动作本身，不为一个选项多弹一次层
+        GlassGroupOverflowMenuButton(
+          actions: [
+            if (!isWide)
+              GlassMenuAction(
+                icon: Icons.search,
+                label: t.common.search,
+                onSelected: _openSearchDialog,
               ),
-            ],
-          ),
+            GlassMenuAction(
+              icon: Icons.refresh,
+              label: t.common.refresh,
+              onSelected: _refreshAll,
+              showsLoading: true,
+            ),
+          ],
         ),
       ],
     );
