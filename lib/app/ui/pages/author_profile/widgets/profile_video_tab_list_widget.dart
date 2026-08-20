@@ -29,6 +29,8 @@ class ProfileVideoTabListWidget extends StatefulWidget {
   final Set<String> selectedItemIds;
   final Function(Video video)? onItemSelect;
   final VoidCallback? onPageChanged;
+  final bool isPaginated;
+  final VoidCallback? onPaginationToggle;
   final VoidCallback? onMultiSelectToggle;
   final Future<void> Function({
     required String videoId,
@@ -49,6 +51,8 @@ class ProfileVideoTabListWidget extends StatefulWidget {
     this.selectedItemIds = const {},
     this.onItemSelect,
     this.onPageChanged,
+    this.isPaginated = false,
+    this.onPaginationToggle,
     this.onMultiSelectToggle,
     this.onOpenVideo,
   });
@@ -61,6 +65,7 @@ class ProfileVideoTabListWidget extends StatefulWidget {
 class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
     with AutomaticKeepAliveClientMixin {
   late UserzVideoListRepository videoListRepository;
+  final ValueNotifier<int> _refreshSignal = ValueNotifier(0);
 
   /// 标签 / 日期筛选。作者页不提供评级筛选——服务端在带 `user=` 的查询里会忽略
   /// `rating`（实测混合评级作者两种取值返回完全相同的混合结果）。
@@ -131,6 +136,7 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
   @override
   void dispose() {
     widget.tc.removeListener(_handleTabSelection);
+    _refreshSignal.dispose();
     videoListRepository.dispose();
     super.dispose();
   }
@@ -179,6 +185,8 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
       body: MediaListView<Video>(
         paddingTop: headerExtent,
         sourceList: videoListRepository,
+        isPaginated: widget.isPaginated,
+        refreshSignal: _refreshSignal,
         emptyIcon: Icons.video_library_outlined,
         onPageChanged: widget.onPageChanged,
         itemBuilder: (context, video, index) {
@@ -245,9 +253,18 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
                   onPressed: widget.onMultiSelectToggle,
                 ),
                 GlassIconButton(
+                  icon: Icon(
+                    widget.isPaginated ? Icons.grid_view : Icons.view_stream,
+                  ),
+                  tooltip: widget.isPaginated
+                      ? t.common.pagination.waterfall
+                      : t.common.pagination.pagination,
+                  onPressed: widget.onPaginationToggle,
+                ),
+                GlassIconButton(
                   icon: const Icon(Icons.refresh),
                   tooltip: t.common.refresh,
-                  onPressed: () => videoListRepository.refresh(true),
+                  onPressed: () => _refreshSignal.value++,
                 ),
               ],
             ),

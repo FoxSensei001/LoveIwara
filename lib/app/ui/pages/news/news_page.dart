@@ -13,7 +13,7 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
-import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -560,124 +560,102 @@ class _NewsPageState extends State<NewsPage>
               actionGroupWidth;
           final bool useSegmented = centerWidth >= 220;
 
-          return Stack(
-            children: [
-              // 内容铺满整页；各分类列表用 paddingTop 让出 header（滚动时从 header 背后经过）
-              Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        theme.colorScheme.surfaceContainerLowest,
-                        theme.colorScheme.surface,
-                      ],
+          return GlassHeaderOverlay(
+            headerExtent: headerExtent,
+            headerTop: statusBarHeight,
+            solidExtent: statusBarHeight,
+            body: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    theme.colorScheme.surfaceContainerLowest,
+                    theme.colorScheme.surface,
+                  ],
+                ),
+              ),
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: IwaraNewsCategoryType.values.length,
+                onPageChanged: (index) {
+                  final category = IwaraNewsCategoryType.values[index];
+                  if (_tabController.index != index) {
+                    _tabController.animateTo(index);
+                  }
+                  if (_selectedCategory != category) {
+                    setState(() {
+                      _selectedCategory = category;
+                    });
+                  }
+                  _ensureCategoryLoaded(category);
+                },
+                itemBuilder: (context, index) {
+                  final category = IwaraNewsCategoryType.values[index];
+                  return _NewsCategoryList(
+                    feed: _feeds[category]!,
+                    scrollController: _feedScrollControllers[category]!,
+                    paddingTop: headerExtent,
+                    onRefresh: () => _refreshCategory(category),
+                    onLoadMore: () => _loadMoreCategory(category),
+                    onTapItem: (item) => context.push(
+                      '/news/${item.id}',
+                      extra: NewsDetailExtra(
+                        postId: item.id,
+                        postUrl: item.link,
+                        title: item.title,
+                        excerpt: item.excerpt,
+                        publishedAt: item.publishedAt,
+                        updatedAt: item.updatedAt,
+                        language: item.language,
+                        featuredImageUrl: item.featuredImageUrl,
+                        heroTag:
+                            'news-card-'
+                            '${item.language.name}-'
+                            '${item.categoryType.name}-'
+                            '${item.id}',
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            header: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  _buildAvatarButton(context),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: useSegmented
+                          ? GlassSegmentedControl(
+                              selectedIndex: _selectedCategory.index,
+                              progress: _pageProgress,
+                              onChanged: (i) => _switchCategory(
+                                IwaraNewsCategoryType.values[i],
+                              ),
+                              items: categoryItems,
+                            )
+                          : _NewsSelectButton<IwaraNewsCategoryType>(
+                              icon: _categoryIcon(_selectedCategory),
+                              label: _categoryLabel(t, _selectedCategory),
+                              values: IwaraNewsCategoryType.values,
+                              selectedValue: _selectedCategory,
+                              itemIconBuilder: _categoryIcon,
+                              itemLabelBuilder: (category) =>
+                                  _categoryLabel(t, category),
+                              onSelected: _switchCategory,
+                            ),
                     ),
                   ),
-                  child: PageView.builder(
-                    controller: _pageController,
-                    itemCount: IwaraNewsCategoryType.values.length,
-                    onPageChanged: (index) {
-                      final category = IwaraNewsCategoryType.values[index];
-                      if (_tabController.index != index) {
-                        _tabController.animateTo(index);
-                      }
-                      if (_selectedCategory != category) {
-                        setState(() {
-                          _selectedCategory = category;
-                        });
-                      }
-                      _ensureCategoryLoaded(category);
-                    },
-                    itemBuilder: (context, index) {
-                      final category = IwaraNewsCategoryType.values[index];
-                      return _NewsCategoryList(
-                        feed: _feeds[category]!,
-                        scrollController: _feedScrollControllers[category]!,
-                        paddingTop: headerExtent,
-                        onRefresh: () => _refreshCategory(category),
-                        onLoadMore: () => _loadMoreCategory(category),
-                        onTapItem: (item) => context.push(
-                          '/news/${item.id}',
-                          extra: NewsDetailExtra(
-                            postId: item.id,
-                            postUrl: item.link,
-                            title: item.title,
-                            excerpt: item.excerpt,
-                            publishedAt: item.publishedAt,
-                            updatedAt: item.updatedAt,
-                            language: item.language,
-                            featuredImageUrl: item.featuredImageUrl,
-                            heroTag:
-                                'news-card-'
-                                '${item.language.name}-'
-                                '${item.categoryType.name}-'
-                                '${item.id}',
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                  const SizedBox(width: 8),
+                  _buildActionGroup(context),
+                ],
               ),
-
-              // 顶部渐变蒙层
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: EdgeFadeScrim.top(
-                  height: headerExtent + GlassTokens.headerFadeExtent,
-                  solidExtent: statusBarHeight,
-                ),
-              ),
-
-              // header 行：左 头像圆钮 / 中 分类分段胶囊 / 右 语言 + 更多
-              Positioned(
-                top: statusBarHeight,
-                left: 0,
-                right: 0,
-                height: headerRowHeight,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      _buildAvatarButton(context),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: useSegmented
-                              ? GlassSegmentedControl(
-                                  selectedIndex: _selectedCategory.index,
-                                  progress: _pageProgress,
-                                  onChanged: (i) => _switchCategory(
-                                    IwaraNewsCategoryType.values[i],
-                                  ),
-                                  items: categoryItems,
-                                )
-                              : _NewsSelectButton<IwaraNewsCategoryType>(
-                                  icon: _categoryIcon(_selectedCategory),
-                                  label: _categoryLabel(t, _selectedCategory),
-                                  values: IwaraNewsCategoryType.values,
-                                  selectedValue: _selectedCategory,
-                                  itemIconBuilder: _categoryIcon,
-                                  itemLabelBuilder: (category) =>
-                                      _categoryLabel(t, category),
-                                  onSelected: _switchCategory,
-                                ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      _buildActionGroup(context),
-                    ],
-                  ),
-                ),
-              ),
-
-              _buildScrollToTopFab(context),
-            ],
+            ),
+            extra: [_buildScrollToTopFab(context)],
           );
         },
       ),

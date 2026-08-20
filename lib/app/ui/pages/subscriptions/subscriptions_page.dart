@@ -30,7 +30,7 @@ import '../popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
-import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -534,142 +534,124 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
               actionGroupWidth;
           final bool useSegmented = centerWidth >= 176;
 
-          return Stack(
-            children: [
+          return GlassHeaderOverlay(
+            headerExtent: headerExtent,
+            headerTop: statusBarHeight,
+            solidExtent: statusBarHeight,
+            body: Obx(() {
               // 内容区域：列表铺满整页，通过 paddingTop 让出 header。
               // 视口不能在外面套 Padding（否则内容到 header 下边缘就被裁掉、
               // 永远滚不到 header 背后），留白交给列表自身的 paddingTop。
-              Obx(() {
-                final isPaginated = mediaListController.isPaginated.value;
-                final rebuildKey = mediaListController.rebuildKey.value
-                    .toString();
-                final videoReloadVersion = mediaListController
-                    .reloadVersionForTab(0);
-                final imageReloadVersion = mediaListController
-                    .reloadVersionForTab(1);
-                final postReloadVersion = mediaListController
-                    .reloadVersionForTab(2);
-                // 底部安全区由 MediaQuery.padding.bottom 统一提供
-                //（窄屏时 Shell 已把浮动底栏的高度加进去）
-                const bool shouldApplyBottomSafeAreaPadding = true;
+              final isPaginated = mediaListController.isPaginated.value;
+              final rebuildKey = mediaListController.rebuildKey.value
+                  .toString();
+              final videoReloadVersion = mediaListController
+                  .reloadVersionForTab(0);
+              final imageReloadVersion = mediaListController
+                  .reloadVersionForTab(1);
+              final postReloadVersion = mediaListController.reloadVersionForTab(
+                2,
+              );
+              // 底部安全区由 MediaQuery.padding.bottom 统一提供
+              //（窄屏时 Shell 已把浮动底栏的高度加进去）
+              const bool shouldApplyBottomSafeAreaPadding = true;
 
-                // 同步分页模式状态到批量选择控制器
-                _videoBatchController.setPaginatedMode(isPaginated);
-                _imageBatchController.setPaginatedMode(isPaginated);
+              // 同步分页模式状态到批量选择控制器
+              _videoBatchController.setPaginatedMode(isPaginated);
+              _imageBatchController.setPaginatedMode(isPaginated);
 
-                return TabBarView(
-                  controller: _tabController,
-                  physics: const ClampingScrollPhysics(),
-                  children: [
-                    GlowNotificationWidget(
-                      key: ValueKey(
-                        'video_${selectedId}_${isPaginated}_${videoReloadVersion}_$rebuildKey',
-                      ),
-                      child: Obx(
-                        () => SubscriptionVideoList(
-                          userId: selectedId,
-                          tabIndex: 0,
-                          isPaginated: isPaginated,
-                          paddingTop: headerExtent,
-                          sortId: _filterSortId.name,
-                          searchTagIds: _filterTagIds,
-                          searchDate: _filterDate,
-                          searchRating: _filterRating,
-                          showBottomPadding: shouldApplyBottomSafeAreaPadding,
-                          isMultiSelectMode:
-                              _videoBatchController.isMultiSelect.value,
-                          selectedItemIds: _videoBatchController
-                              .selectedMediaIds
-                              .toSet(),
-                          onItemSelect: (video) =>
-                              _videoBatchController.toggleSelection(video),
-                        ),
-                      ),
+              return TabBarView(
+                controller: _tabController,
+                physics: const ClampingScrollPhysics(),
+                children: [
+                  GlowNotificationWidget(
+                    key: ValueKey(
+                      'video_${selectedId}_${isPaginated}_${videoReloadVersion}_$rebuildKey',
                     ),
-                    GlowNotificationWidget(
-                      key: ValueKey(
-                        'image_${selectedId}_${isPaginated}_${imageReloadVersion}_$rebuildKey',
-                      ),
-                      child: Obx(
-                        () => SubscriptionImageList(
-                          userId: selectedId,
-                          tabIndex: 1,
-                          isPaginated: isPaginated,
-                          paddingTop: headerExtent,
-                          sortId: _filterSortId.name,
-                          searchTagIds: _filterTagIds,
-                          searchDate: _filterDate,
-                          searchRating: _filterRating,
-                          showBottomPadding: shouldApplyBottomSafeAreaPadding,
-                          isMultiSelectMode:
-                              _imageBatchController.isMultiSelect.value,
-                          selectedItemIds: _imageBatchController
-                              .selectedMediaIds
-                              .toSet(),
-                          onItemSelect: (image) =>
-                              _imageBatchController.toggleSelection(image),
-                        ),
-                      ),
-                    ),
-                    GlowNotificationWidget(
-                      key: ValueKey(
-                        'post_${selectedId}_${isPaginated}_${postReloadVersion}_$rebuildKey',
-                      ),
-                      child: SubscriptionPostList(
+                    child: Obx(
+                      () => SubscriptionVideoList(
                         userId: selectedId,
-                        tabIndex: 2,
+                        tabIndex: 0,
                         isPaginated: isPaginated,
                         paddingTop: headerExtent,
+                        sortId: _filterSortId.name,
+                        searchTagIds: _filterTagIds,
+                        searchDate: _filterDate,
+                        searchRating: _filterRating,
                         showBottomPadding: shouldApplyBottomSafeAreaPadding,
+                        isMultiSelectMode:
+                            _videoBatchController.isMultiSelect.value,
+                        selectedItemIds: _videoBatchController.selectedMediaIds
+                            .toSet(),
+                        onItemSelect: (video) =>
+                            _videoBatchController.toggleSelection(video),
                       ),
                     ),
-                  ],
-                );
-              }),
-
-              // 顶部渐变蒙层（列表滚到下面时淡出）
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: EdgeFadeScrim.top(
-                  height: headerExtent + GlassTokens.headerFadeExtent,
-                  solidExtent: statusBarHeight,
-                ),
-              ),
-
-              // header 行：左 特别关注选择器 / 中 视频·图库·帖子 分段 / 右 动作胶囊
-              Positioned(
-                top: statusBarHeight,
-                left: 0,
-                right: 0,
-                height: headerRowHeight,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      _buildUserSelector(compact: compactSelector),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: useSegmented
-                              ? GlassSegmentedControl(
-                                  selectedIndex: _tabController.index,
-                                  progress: _tabController.animation,
-                                  onChanged: (i) => _tabController.animateTo(i),
-                                  items: tabItems,
-                                )
-                              : _buildTabDropdown(context, tabItems),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      _buildActionGroup(context, isWide: isWide),
-                    ],
                   ),
-                ),
+                  GlowNotificationWidget(
+                    key: ValueKey(
+                      'image_${selectedId}_${isPaginated}_${imageReloadVersion}_$rebuildKey',
+                    ),
+                    child: Obx(
+                      () => SubscriptionImageList(
+                        userId: selectedId,
+                        tabIndex: 1,
+                        isPaginated: isPaginated,
+                        paddingTop: headerExtent,
+                        sortId: _filterSortId.name,
+                        searchTagIds: _filterTagIds,
+                        searchDate: _filterDate,
+                        searchRating: _filterRating,
+                        showBottomPadding: shouldApplyBottomSafeAreaPadding,
+                        isMultiSelectMode:
+                            _imageBatchController.isMultiSelect.value,
+                        selectedItemIds: _imageBatchController.selectedMediaIds
+                            .toSet(),
+                        onItemSelect: (image) =>
+                            _imageBatchController.toggleSelection(image),
+                      ),
+                    ),
+                  ),
+                  GlowNotificationWidget(
+                    key: ValueKey(
+                      'post_${selectedId}_${isPaginated}_${postReloadVersion}_$rebuildKey',
+                    ),
+                    child: SubscriptionPostList(
+                      userId: selectedId,
+                      tabIndex: 2,
+                      isPaginated: isPaginated,
+                      paddingTop: headerExtent,
+                      showBottomPadding: shouldApplyBottomSafeAreaPadding,
+                    ),
+                  ),
+                ],
+              );
+            }),
+            header: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  _buildUserSelector(compact: compactSelector),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: useSegmented
+                          ? GlassSegmentedControl(
+                              selectedIndex: _tabController.index,
+                              progress: _tabController.animation,
+                              onChanged: (i) => _tabController.animateTo(i),
+                              items: tabItems,
+                            )
+                          : _buildTabDropdown(context, tabItems),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  _buildActionGroup(context, isWide: isWide),
+                ],
               ),
-
+            ),
+            extra: [
               _buildScrollToTopFab(context),
 
               // 多选操作按钮

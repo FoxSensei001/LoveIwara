@@ -30,6 +30,8 @@ class ProfileImageModelTabListWidget extends StatefulWidget {
   final Set<String> selectedItemIds;
   final Function(ImageModel image)? onItemSelect;
   final VoidCallback? onPageChanged;
+  final bool isPaginated;
+  final VoidCallback? onPaginationToggle;
   final VoidCallback? onMultiSelectToggle;
 
   const ProfileImageModelTabListWidget({
@@ -44,6 +46,8 @@ class ProfileImageModelTabListWidget extends StatefulWidget {
     this.selectedItemIds = const {},
     this.onItemSelect,
     this.onPageChanged,
+    this.isPaginated = false,
+    this.onPaginationToggle,
     this.onMultiSelectToggle,
   });
 
@@ -56,6 +60,7 @@ class _ProfileImageModelTabListWidgetState
     extends State<ProfileImageModelTabListWidget>
     with AutomaticKeepAliveClientMixin {
   late UserzImageModelListRepository imageListRepository;
+  final ValueNotifier<int> _refreshSignal = ValueNotifier(0);
 
   /// 标签 / 日期筛选。与视频 tab 一致，作者页不提供评级筛选——服务端在带
   /// `user=` 的查询里会忽略 `rating`。
@@ -126,6 +131,7 @@ class _ProfileImageModelTabListWidgetState
   @override
   void dispose() {
     widget.tc.removeListener(_handleTabSelection);
+    _refreshSignal.dispose();
     imageListRepository.dispose();
     super.dispose();
   }
@@ -174,6 +180,8 @@ class _ProfileImageModelTabListWidgetState
       body: MediaListView<ImageModel>(
         paddingTop: headerExtent,
         sourceList: imageListRepository,
+        isPaginated: widget.isPaginated,
+        refreshSignal: _refreshSignal,
         emptyIcon: Icons.image_outlined,
         onPageChanged: widget.onPageChanged,
         itemBuilder: (context, image, index) {
@@ -231,9 +239,18 @@ class _ProfileImageModelTabListWidgetState
                   onPressed: widget.onMultiSelectToggle,
                 ),
                 GlassIconButton(
+                  icon: Icon(
+                    widget.isPaginated ? Icons.grid_view : Icons.view_stream,
+                  ),
+                  tooltip: widget.isPaginated
+                      ? t.common.pagination.waterfall
+                      : t.common.pagination.pagination,
+                  onPressed: widget.onPaginationToggle,
+                ),
+                GlassIconButton(
                   icon: const Icon(Icons.refresh),
                   tooltip: t.common.refresh,
-                  onPressed: () => imageListRepository.refresh(true),
+                  onPressed: () => _refreshSignal.value++,
                 ),
               ],
             ),

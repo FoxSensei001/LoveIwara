@@ -4,8 +4,7 @@ import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
-import 'package:loading_more_list/loading_more_list.dart';
-import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 
 import '../../../../models/api_result.model.dart';
 import '../../../../models/image.model.dart';
@@ -85,8 +84,8 @@ class UserzImageModelListController extends GetxController {
   }
 }
 
-class UserzImageModelListRepository extends LoadingMoreBase<ImageModel>
-    with LoadingMoreRefreshGuard<ImageModel> {
+class UserzImageModelListRepository
+    extends ExtendedLoadingMoreBase<ImageModel> {
   final GalleryService _imageModelService = Get.find<GalleryService>();
   final String userId;
   final String sortType; // 使用 sortType 避免命名冲突
@@ -107,90 +106,53 @@ class UserzImageModelListRepository extends LoadingMoreBase<ImageModel>
     this.onFetchFinished,
   });
 
-  int _pageIndex = 0;
-
-  bool _hasMore = true;
-  bool forceRefresh = false;
+  @override
+  Map<String, dynamic> buildQueryParams(int page, int limit) => {
+    'sort': sortType,
+    'rating': 'all',
+    'user': userId,
+    if (searchTagIds.isNotEmpty) 'tags': searchTagIds.join(','),
+    if (searchDate.isNotEmpty) 'date': searchDate,
+  };
 
   @override
-  bool get hasMore => _hasMore || forceRefresh;
-
-  @override
-  void resetPagingState() {
-    super.resetPagingState(); // 代际自增，作废在途回写
-    _hasMore = true;
-    _pageIndex = 0;
-  }
-
-  @override
-  Future<bool> refresh([bool notifyStateChanged = false]) async {
-    return runGuardedRefresh(() async {
-      forceRefresh = !notifyStateChanged;
-      try {
-        return await super.refresh(notifyStateChanged);
-      } finally {
-        forceRefresh = false;
-      }
-    });
-  }
-
-  @override
-  Future<bool> loadData([bool isLoadMoreAction = false]) async {
-    bool isSuccess = false;
-    // 代际 + 页码快照必须在 await 之前取：await 期间可能发生 refresh()，
-    // 那样回来的第 N 页会被当成第 0 页写进列表，页码也跟着错位。
-    final int generation = currentGeneration;
-    final int page = _pageIndex;
-    try {
-      final response = await _imageModelService.fetchImageModelsByParams(
-        page: page,
-        limit: 20,
-        // rating 在带 user= 的查询里会被服务端忽略，固定 'all'。
-        params: {
-          'sort': sortType,
-          'rating': 'all',
-          'user': userId,
-          if (searchTagIds.isNotEmpty) 'tags': searchTagIds.join(','),
-          if (searchDate.isNotEmpty) 'date': searchDate,
-        },
-      );
-
-      LogUtils.d(
-        '[图片列表Repository] 查询参数: userId: $userId, sort: $sortType, '
-        'tags: ${searchTagIds.join(',')}, date: $searchDate, page: $page',
-      );
-
-      if (!response.isSuccess) {
-        throw Exception(response.message);
-      }
-
-      final images = response.data!.results;
-
-      // await 期间已被 refresh() 作废 → 丢弃本次结果。必须返回 true：
-      // 返回 false 会被 loading_more_list 映射成一个假的错误页。
-      if (isStaleGeneration(generation)) {
-        return true;
-      }
-
-      if (page == 0) {
-        clear();
-        onFetchFinished?.call(count: response.data!.count);
-      }
-
-      for (final image in images) {
-        add(image);
-      }
-
-      _hasMore = images.isNotEmpty;
-      _pageIndex = page + 1;
-      isSuccess = true;
-    } catch (exception, stack) {
-      if (isStaleGeneration(generation)) {
-        return true;
-      }
-      isSuccess = false;
-      LogUtils.e('加载图片列表失败', error: exception, stack: stack);
+  Future<Map<String, dynamic>> fetchDataFromSource(
+    Map<String, dynamic> params,
+    int page,
+    int limit,
+  ) async {
+    final response = await _imageModelService.fetchImageModelsByParams(
+      page: page,
+      limit: limit,
+      params: params,
+    );
+    LogUtils.d(
+      '[图片列表Repository] 查询参数: userId: $userId, sort: $sortType, '
+      'tags: ${searchTagIds.join(',')}, date: $searchDate, page: $page',
+    );
+    if (!response.isSuccess || response.data == null) {
+      throw Exception(response.message);
     }
-    return isSuccess;
+    return {'data': response.data!};
+  }
+
+  @override
+  Future<List<ImageModel>> loadPageData(int pageKey, int pageSize) async {
+    final images = await super.loadPageData(pageKey, pageSize);
+    if (pageKey == 0) onFetchFinished?.call(count: requestTotalCount);
+    return images;
+  }
+
+  @override
+  List<ImageModel> extractDataList(Map<String, dynamic> response) =>
+      (response['data'] as PageData<ImageModel>).results;
+
+  @override
+  int extractTotalCount(Map<String, dynamic> response) =>
+      (response['data'] as PageData<ImageModel>).count;
+
+  @override
+  void logError(String message, dynamic error, [StackTrace? stackTrace]) {
+    LogUtils.e('加载图片列表失败: $message', error: error, stack: stackTrace);
   }
 }

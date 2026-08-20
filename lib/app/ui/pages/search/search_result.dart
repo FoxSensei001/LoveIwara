@@ -15,7 +15,7 @@ import 'package:i_iwara/app/ui/pages/search/widgets/filter_builder_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
-import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/responsive_dialog_widget.dart';
@@ -185,6 +185,7 @@ class SearchResult extends StatefulWidget {
 class _SearchResultState extends State<SearchResult> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final ValueNotifier<bool> _showBackToTop = ValueNotifier(false);
   late SearchResultController searchController;
 
   /// 用于打开右侧「已保存搜索」抽屉。
@@ -207,6 +208,7 @@ class _SearchResultState extends State<SearchResult> {
   void dispose() {
     _searchController.dispose();
     _scrollController.dispose();
+    _showBackToTop.dispose();
     Get.delete<SearchResultController>(tag: 'search_controller');
     super.dispose();
   }
@@ -585,8 +587,8 @@ class _SearchResultState extends State<SearchResult> {
   // 根据当前搜索条件生成一个默认名称
   String _buildDefaultSearchName() {
     final keyword = searchController.currentSearch.value.trim();
-    final tagName =
-        searchController.currentSingleTagNameBehindSearchInput.value.trim();
+    final tagName = searchController.currentSingleTagNameBehindSearchInput.value
+        .trim();
     final segment = searchController.selectedSegment.value;
     final segmentLabel = SavedSearchDrawer.segmentLabel(segment);
 
@@ -665,7 +667,9 @@ class _SearchResultState extends State<SearchResult> {
 
     // 还原 Oreno3D 单实体浏览态（普通搜索时这些值为空）
     searchController.updateExtData(
-      search.extData == null ? null : Map<String, dynamic>.from(search.extData!),
+      search.extData == null
+          ? null
+          : Map<String, dynamic>.from(search.extData!),
     );
     searchController.updateSearchType(search.searchType);
     searchController.updateCurrentSingleTagNameBehindSearchInput(
@@ -847,6 +851,7 @@ class _SearchResultState extends State<SearchResult> {
 
   static const String _menuActionToggleMultiSelect = 'toggle_multi_select';
   static const String _menuActionRefresh = 'refresh';
+  static const String _menuActionTogglePagination = 'toggle_pagination';
   static const String _menuActionSavedSearch = 'saved_search';
   static const String _menuActionTagInfo = 'tag_info';
   static const String _menuActionTranslate = 'translate';
@@ -861,13 +866,13 @@ class _SearchResultState extends State<SearchResult> {
     VoidCallback? toggleMultiSelect;
     bool isMultiSelect = false;
     if (segment == SearchSegment.video) {
-      toggleMultiSelect = searchController.videoBatchController.toggleMultiSelect;
-      isMultiSelect =
-          searchController.videoBatchController.isMultiSelect.value;
+      toggleMultiSelect =
+          searchController.videoBatchController.toggleMultiSelect;
+      isMultiSelect = searchController.videoBatchController.isMultiSelect.value;
     } else if (segment == SearchSegment.image) {
-      toggleMultiSelect = searchController.imageBatchController.toggleMultiSelect;
-      isMultiSelect =
-          searchController.imageBatchController.isMultiSelect.value;
+      toggleMultiSelect =
+          searchController.imageBatchController.toggleMultiSelect;
+      isMultiSelect = searchController.imageBatchController.isMultiSelect.value;
     }
 
     PopupMenuItem<String> menuItem(String value, IconData icon, String label) {
@@ -897,6 +902,10 @@ class _SearchResultState extends State<SearchResult> {
             case _menuActionRefresh:
               searchController.refreshSearch();
               break;
+            case _menuActionTogglePagination:
+              searchController.isPaginated.toggle();
+              searchController.scrollToTop();
+              break;
             case _menuActionSavedSearch:
               _openSavedSearchDrawer();
               break;
@@ -917,6 +926,15 @@ class _SearchResultState extends State<SearchResult> {
             ),
           menuItem(_menuActionRefresh, Icons.refresh, t.common.refresh),
           menuItem(
+            _menuActionTogglePagination,
+            searchController.isPaginated.value
+                ? Icons.grid_view
+                : Icons.view_stream,
+            searchController.isPaginated.value
+                ? t.common.pagination.waterfall
+                : t.common.pagination.pagination,
+          ),
+          menuItem(
             _menuActionSavedSearch,
             Icons.bookmarks_outlined,
             t.savedSearch.title,
@@ -924,11 +942,7 @@ class _SearchResultState extends State<SearchResult> {
           if (isBrowseMode) ...[
             const PopupMenuDivider(),
             menuItem(_menuActionTagInfo, Icons.help_outline, t.common.tagInfo),
-            menuItem(
-              _menuActionTranslate,
-              Icons.translate,
-              t.common.translate,
-            ),
+            menuItem(_menuActionTranslate, Icons.translate, t.common.translate),
           ],
         ],
       ),
@@ -942,7 +956,8 @@ class _SearchResultState extends State<SearchResult> {
       final segment = searchController.selectedSegment.value;
       final sort = searchController.selectedSort.value;
       final filterCount = searchController.filters.length;
-      final showSort = segment == SearchSegment.oreno3d ||
+      final showSort =
+          segment == SearchSegment.oreno3d ||
           FilterConfig.getSortOptionsForSegment(segment).isNotEmpty;
       final isBrowseMode = _shouldHideSearchInput();
 
@@ -981,70 +996,87 @@ class _SearchResultState extends State<SearchResult> {
         onApply: _applySavedSearch,
         onAddCurrent: _promptSaveCurrentSearch,
       ),
-      body: Stack(
-        // Scaffold body 是松约束：本 Stack 的非 Positioned 子项只有隐藏态的
-        // BatchActionFabColumn（SizedBox.shrink），不撑满会被它压成 0 高 → 整页白屏
-        fit: StackFit.expand,
-        children: [
-          // 搜索结果区域：铺满整页
-          Positioned.fill(child: _buildCurrentSearchList(headerExtent)),
-
-          // 顶部渐变蒙层
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: EdgeFadeScrim.top(
-              height: headerExtent + GlassTokens.headerFadeExtent,
-              solidExtent: statusBarHeight,
-            ),
+      body: GlassHeaderOverlay(
+        headerExtent: headerExtent,
+        headerTop: statusBarHeight,
+        solidExtent: statusBarHeight,
+        body: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            if (notification.metrics.axis == Axis.vertical &&
+                notification.depth == 0) {
+              _showBackToTop.value = notification.metrics.pixels >= 300;
+            }
+            return false;
+          },
+          child: _buildCurrentSearchList(headerExtent),
+        ),
+        header: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.arrow_back),
+                tooltip: t.common.back,
+                onPressed: () => AppService.tryPop(),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Obx(
+                  () => _shouldHideSearchInput()
+                      ? _buildOreno3dBrowsePill(context)
+                      : _buildSearchPill(context),
+                ),
+              ),
+              const SizedBox(width: 8),
+              _buildActionGroup(context),
+            ],
           ),
-
-          // header 行：左 返回圆钮 / 中 搜索胶囊 / 右 动作胶囊
-          Positioned(
-            top: statusBarHeight,
-            left: 0,
-            right: 0,
-            height: headerRowHeight,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  GlassIconButton(
-                    standalone: true,
-                    icon: const Icon(Icons.arrow_back),
-                    tooltip: t.common.back,
-                    onPressed: () => AppService.tryPop(),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Obx(
-                      () => _shouldHideSearchInput()
-                          ? _buildOreno3dBrowsePill(context)
-                          : _buildSearchPill(context),
+        ),
+        extra: [
+          Obx(
+            () => Positioned(
+              right: 16,
+              bottom:
+                  MediaQuery.paddingOf(context).bottom +
+                  16 +
+                  (searchController.isPaginated.value ? 46 : 0),
+              child: ValueListenableBuilder<bool>(
+                valueListenable: _showBackToTop,
+                builder: (context, visible, _) => IgnorePointer(
+                  ignoring: !visible,
+                  child: AnimatedOpacity(
+                    duration: GlassTokens.motionDuration,
+                    opacity: visible ? 1 : 0,
+                    child: GlassIconButton(
+                      standalone: true,
+                      icon: const Icon(Icons.vertical_align_top),
+                      tooltip: t.common.scrollToTop,
+                      onPressed: searchController.scrollToTop,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  _buildActionGroup(context),
-                ],
+                ),
               ),
             ),
           ),
-
           // 批量下载悬浮按钮
-          BatchActionFabColumn<Video>(
-            controller: searchController.videoBatchController,
-            heroTagPrefix: 'search_video_$uniqueTag',
-            isPaginated: searchController.isPaginated.value,
-            visible: () =>
-                searchController.selectedSegment.value == SearchSegment.video,
+          Obx(
+            () => BatchActionFabColumn<Video>(
+              controller: searchController.videoBatchController,
+              heroTagPrefix: 'search_video_$uniqueTag',
+              isPaginated: searchController.isPaginated.value,
+              visible: () =>
+                  searchController.selectedSegment.value == SearchSegment.video,
+            ),
           ),
-          BatchActionFabColumn<ImageModel>(
-            controller: searchController.imageBatchController,
-            heroTagPrefix: 'search_image_$uniqueTag',
-            isPaginated: searchController.isPaginated.value,
-            visible: () =>
-                searchController.selectedSegment.value == SearchSegment.image,
+          Obx(
+            () => BatchActionFabColumn<ImageModel>(
+              controller: searchController.imageBatchController,
+              heroTagPrefix: 'search_image_$uniqueTag',
+              isPaginated: searchController.isPaginated.value,
+              visible: () =>
+                  searchController.selectedSegment.value == SearchSegment.image,
+            ),
           ),
         ],
       ),

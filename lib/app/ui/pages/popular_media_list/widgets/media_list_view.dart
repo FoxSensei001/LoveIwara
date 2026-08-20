@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart' show CancelToken;
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/utils/logger_utils.dart' show LogUtils;
@@ -265,6 +266,10 @@ class MediaListView<T> extends StatefulWidget {
   final void Function(double offset, double delta, ScrollDirection direction)?
   onScrollMetricsChanged;
 
+  /// 外部刷新信号。分页模式必须由本组件调用 [refresh]，否则只更新数据源而不会
+  /// 更新当前显示的 [paginatedItems]。
+  final ValueListenable<int>? refreshSignal;
+
   /// 分页切换时的回调（用于多选模式下重置选择）
   final VoidCallback? onPageChanged;
 
@@ -293,6 +298,7 @@ class MediaListView<T> extends StatefulWidget {
     this.forceTotalCountUnknown = false,
     this.onPageChanged,
     this.onScrollMetricsChanged,
+    this.refreshSignal,
     this.listCoordinator,
   });
 
@@ -328,6 +334,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   MediaListController? _mediaListController;
   // 添加 rebuildKey 监听器引用，用于清理
   VoidCallback? _rebuildKeyListener;
+  VoidCallback? _refreshSignalListener;
 
   int get totalItems {
     if (widget.sourceList is ExtendedLoadingMoreBase<T>) {
@@ -360,6 +367,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     // 订阅页的无 tag 单例，导致本组件的其它复用方（热门 / 搜索 / 论坛 /
     // 作者页）被订阅页的状态变化牵连着刷新。
     _mediaListController = widget.listCoordinator;
+    _listenToRefreshSignal();
 
     if (_mediaListController != null) {
       // 如果控制器和滚动控制器可用，注册滚动到顶部回调
@@ -385,6 +393,15 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     }
   }
 
+  void _listenToRefreshSignal() {
+    final signal = widget.refreshSignal;
+    if (signal == null) return;
+    _refreshSignalListener = () {
+      if (mounted) refresh();
+    };
+    signal.addListener(_refreshSignalListener!);
+  }
+
   // 添加滚动到顶部方法
   void _scrollToTop() {
     if (widget.scrollController != null &&
@@ -400,6 +417,14 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   @override
   void didUpdateWidget(MediaListView<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.refreshSignal != widget.refreshSignal) {
+      if (oldWidget.refreshSignal != null && _refreshSignalListener != null) {
+        oldWidget.refreshSignal!.removeListener(_refreshSignalListener!);
+      }
+      _refreshSignalListener = null;
+      _listenToRefreshSignal();
+    }
 
     if (oldWidget.listCoordinator != widget.listCoordinator) {
       _rebuildKeyListener?.call();
@@ -647,6 +672,9 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     }
     // 清理 rebuildKey 监听器
     _rebuildKeyListener?.call();
+    if (widget.refreshSignal != null && _refreshSignalListener != null) {
+      widget.refreshSignal!.removeListener(_refreshSignalListener!);
+    }
     _pageController.dispose();
     super.dispose();
   }

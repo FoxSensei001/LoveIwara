@@ -16,7 +16,7 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_tab_view.d
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/saved_search_config_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
-import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -747,120 +747,100 @@ class PopularMediaListPageBaseState<
               actionGroupWidth;
           final bool useSegmented = centerWidth >= 200;
 
-          return Stack(
-            children: [
+          return GlassHeaderOverlay(
+            headerExtent: headerExtent,
+            headerTop: statusBarHeight,
+            solidExtent: statusBarHeight,
+            body: Obx(() {
               // 内容区域：列表铺满整页，通过 paddingTop 让出 header
-              Obx(() {
-                final isPaginated = _mediaListController.isPaginated.value;
-                final rebuildKey = _mediaListController.rebuildKey.value
-                    .toString();
-                final isMultiSelectMode =
-                    _batchSelectController.isMultiSelect.value;
-                final selectedMediaIds = _batchSelectController.selectedMediaIds
-                    .toSet();
+              final isPaginated = _mediaListController.isPaginated.value;
+              final rebuildKey = _mediaListController.rebuildKey.value
+                  .toString();
+              final isMultiSelectMode =
+                  _batchSelectController.isMultiSelect.value;
+              final selectedMediaIds = _batchSelectController.selectedMediaIds
+                  .toSet();
 
-                _batchSelectController.setPaginatedMode(isPaginated);
+              _batchSelectController.setPaginatedMode(isPaginated);
 
-                // 视口必须铺满整页（不能在外面套 Padding，否则内容会在 header
-                // 下边缘被视口裁掉、永远滚不到 header 背后）；留白交给列表自身的
-                // paddingTop，这样首屏从 header 下方开始、滚动时从 header 背后经过。
-                return TabBarView(
-                  controller: _tabController,
-                  children: sorts.map((sort) {
-                    final sortReloadVersion = _mediaListController
-                        .reloadVersionFor(sort.id);
-                    return MediaTabView<T>(
-                      key: ValueKey(
-                        '${sort.id}_${sortReloadVersion}_$isPaginated$rebuildKey',
-                      ),
-                      sortId: sort.id,
-                      repository: _repositories[sort.id]!,
-                      emptyIcon: widget.emptyIcon,
-                      isPaginated: isPaginated,
-                      // 底部安全区由 MediaQuery.padding.bottom 统一提供
-                      //（窄屏时 Shell 已把浮动底栏的高度加进去）
-                      showBottomPadding: true,
-                      rebuildKey: rebuildKey,
-                      paddingTop: headerExtent,
-                      mediaListController: _mediaListController,
-                      isMultiSelectMode: isMultiSelectMode,
-                      selectedItemIds: selectedMediaIds,
-                      onItemSelect: (media) =>
-                          _batchSelectController.toggleSelection(media),
-                      onPageChanged: () =>
-                          _batchSelectController.onPageChanged(),
-                      onOpenVideo:
-                          T == Video &&
-                              widget.searchSegment == SearchSegment.video
-                          ? ({
-                              required videoId,
-                              required loadedVideos,
-                              Map<String, dynamic>? extData,
-                            }) => _openVideoFromPopularList(
-                              videoId: videoId,
-                              loadedVideos: loadedVideos,
-                              extData: extData,
+              // 视口必须铺满整页（不能在外面套 Padding，否则内容会在 header
+              // 下边缘被视口裁掉、永远滚不到 header 背后）；留白交给列表自身的
+              // paddingTop，这样首屏从 header 下方开始、滚动时从 header 背后经过。
+              return TabBarView(
+                controller: _tabController,
+                children: sorts.map((sort) {
+                  final sortReloadVersion = _mediaListController
+                      .reloadVersionFor(sort.id);
+                  return MediaTabView<T>(
+                    key: ValueKey(
+                      '${sort.id}_${sortReloadVersion}_$isPaginated$rebuildKey',
+                    ),
+                    sortId: sort.id,
+                    repository: _repositories[sort.id]!,
+                    emptyIcon: widget.emptyIcon,
+                    isPaginated: isPaginated,
+                    // 底部安全区由 MediaQuery.padding.bottom 统一提供
+                    //（窄屏时 Shell 已把浮动底栏的高度加进去）
+                    showBottomPadding: true,
+                    rebuildKey: rebuildKey,
+                    paddingTop: headerExtent,
+                    mediaListController: _mediaListController,
+                    isMultiSelectMode: isMultiSelectMode,
+                    selectedItemIds: selectedMediaIds,
+                    onItemSelect: (media) =>
+                        _batchSelectController.toggleSelection(media),
+                    onPageChanged: () => _batchSelectController.onPageChanged(),
+                    onOpenVideo:
+                        T == Video &&
+                            widget.searchSegment == SearchSegment.video
+                        ? ({
+                            required videoId,
+                            required loadedVideos,
+                            Map<String, dynamic>? extData,
+                          }) => _openVideoFromPopularList(
+                            videoId: videoId,
+                            loadedVideos: loadedVideos,
+                            extData: extData,
+                          )
+                        : null,
+                  );
+                }).toList(),
+              );
+            }),
+            header: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  _buildAvatarButton(context),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: useSegmented
+                          ? Obx(
+                              () => GlassSegmentedControl(
+                                selectedIndex: _currentTabIndex.value,
+                                progress: _tabController.animation,
+                                onChanged: (i) => _tabController.animateTo(i),
+                                items: sorts
+                                    .map(
+                                      (sort) => GlassSegmentItem(
+                                        label: sort.label,
+                                        icon: sort.icon,
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
                             )
-                          : null,
-                    );
-                  }).toList(),
-                );
-              }),
-
-              // 顶部渐变蒙层（列表滚到下面时淡出）
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: EdgeFadeScrim.top(
-                  height: headerExtent + GlassTokens.headerFadeExtent,
-                  // 平台段只盖状态栏；header 行本身已经在 S 曲线的衰减段里
-                  solidExtent: statusBarHeight,
-                ),
-              ),
-
-              // header 行：左 头像圆钮 / 中 排序分段胶囊 / 右 动作胶囊
-              Positioned(
-                top: statusBarHeight,
-                left: 0,
-                right: 0,
-                height: headerRowHeight,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      _buildAvatarButton(context),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: useSegmented
-                              ? Obx(
-                                  () => GlassSegmentedControl(
-                                    selectedIndex: _currentTabIndex.value,
-                                    progress: _tabController.animation,
-                                    onChanged: (i) =>
-                                        _tabController.animateTo(i),
-                                    items: sorts
-                                        .map(
-                                          (sort) => GlassSegmentItem(
-                                            label: sort.label,
-                                            icon: sort.icon,
-                                          ),
-                                        )
-                                        .toList(),
-                                  ),
-                                )
-                              : Obx(() => _buildTabDropdown(context)),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      _buildActionGroup(context, isWide: isWide),
-                    ],
+                          : Obx(() => _buildTabDropdown(context)),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  _buildActionGroup(context, isWide: isWide),
+                ],
               ),
-
+            ),
+            extra: [
               _buildScrollToTopFab(context),
 
               // 多选操作按钮

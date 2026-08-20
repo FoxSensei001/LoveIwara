@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/post_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/controllers/userz_post_list_repository.dart';
-import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/post_tile_list_item_widget.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/post_input_dialog.dart';
@@ -28,6 +29,9 @@ class ProfilePostTabListWidget extends StatefulWidget {
   final double scrimSolidExtent;
   final Function({int? count})? onFetchFinished;
   final GlobalKey<State<StatefulWidget>>? widgetKey;
+  final bool isPaginated;
+  final VoidCallback? onPaginationToggle;
+  final VoidCallback? onPageChanged;
 
   const ProfilePostTabListWidget({
     super.key,
@@ -36,6 +40,9 @@ class ProfilePostTabListWidget extends StatefulWidget {
     required this.tc,
     this.onFetchFinished,
     this.widgetKey,
+    this.isPaginated = false,
+    this.onPaginationToggle,
+    this.onPageChanged,
     this.overlayTopInset = 0,
     this.scrimSolidExtent = 0,
   });
@@ -43,8 +50,7 @@ class ProfilePostTabListWidget extends StatefulWidget {
   void refresh() {
     if (widgetKey?.currentState != null) {
       (widgetKey!.currentState as _ProfilePostTabListWidgetState)
-          .listSourceRepository
-          .refresh();
+          ._requestRefresh();
     }
   }
 
@@ -70,6 +76,7 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
   /// 这时才回退到本 controller，否则「回到顶部」按钮会失效。
   final ScrollController _fallbackController = ScrollController();
   final RxBool _showBackToTop = false.obs;
+  final ValueNotifier<int> _refreshSignal = ValueNotifier(0);
   final UserService _userService = Get.find<UserService>();
   final PostService _postService = Get.find<PostService>();
 
@@ -82,6 +89,7 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
   @override
   void dispose() {
     _fallbackController.dispose();
+    _refreshSignal.dispose();
     listSourceRepository.dispose();
     super.dispose();
   }
@@ -100,7 +108,7 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
               ),
             );
             AppService.tryPop();
-            listSourceRepository.refresh();
+            _requestRefresh();
           } else if (result.message == t.errors.tooManyRequests) {
             // 如果是请求过于频繁，则获取冷却时间
             final cooldownResult = await _postService.fetchPostCollingInfo();
@@ -144,6 +152,8 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
     );
   }
 
+  void _requestRefresh() => _refreshSignal.value++;
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -160,48 +170,55 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
     final ScrollController scrollTarget =
         primaryController ?? _fallbackController;
 
-    final double headerExtent = widget.overlayTopInset;
+    final t = slang.Translations.of(context);
+    const headerHeight = GlassTokens.pillHeight + 12;
+    final double headerExtent = widget.overlayTopInset + headerHeight;
     return GlassHeaderOverlay(
       headerExtent: headerExtent,
+      headerTop: widget.overlayTopInset,
+      headerHeight: headerHeight,
       solidExtent: widget.scrimSolidExtent,
-      body: RefreshIndicator(
-        edgeOffset: headerExtent,
-        onRefresh: () async {
-          await listSourceRepository.refresh(true);
+      body: NotificationListener<ScrollNotification>(
+        // 改用滚动通知驱动「回到顶部」按钮的显隐：不再依赖自建 controller，
+        // 无论列表最终挂在 PrimaryScrollController 还是后备 controller 上都成立。
+        onNotification: (notification) {
+          if (notification.metrics.axis == Axis.vertical) {
+            _showBackToTop.value = notification.metrics.pixels >= 300;
+          }
+          return false;
         },
-        child: NotificationListener<ScrollNotification>(
-          // 改用滚动通知驱动「回到顶部」按钮的显隐：不再依赖自建 controller，
-          // 无论列表最终挂在 PrimaryScrollController 还是后备 controller 上都成立。
-          onNotification: (notification) {
-            if (notification.metrics.axis == Axis.vertical) {
-              _showBackToTop.value = notification.metrics.pixels >= 300;
-            }
-            return false;
-          },
-          child: LoadingMoreCustomScrollView(
-            controller: primaryController == null ? _fallbackController : null,
-            slivers: <Widget>[
-              LoadingMoreSliverList<PostModel>(
-                SliverListConfig<PostModel>(
-                  itemBuilder: buildItem,
-                  sourceList: listSourceRepository,
-                  // 底部安全区放进 sliver padding，内容因此可以滚到
-                  // 手势条下方——与 playlist tab 的做法一致。
-                  // 原先是给整个 Stack 加 paddingOnly，那会把整个
-                  // 视口缩短，底部留出一条谁也用不到的死带。
-                  padding: EdgeInsets.fromLTRB(
-                    8.0,
-                    8.0 + headerExtent,
-                    8.0,
-                    8.0 + computeBottomSafeInset(MediaQuery.of(context)),
-                  ),
-                  indicatorBuilder: (context, status) => myLoadingMoreIndicator(
-                    context,
-                    status,
-                    isSliver: true,
-                    loadingMoreBase: listSourceRepository,
-                  ),
+        child: MediaListView<PostModel>(
+          sourceList: listSourceRepository,
+          isPaginated: widget.isPaginated,
+          refreshSignal: _refreshSignal,
+          onPageChanged: widget.onPageChanged,
+          scrollController: primaryController == null
+              ? _fallbackController
+              : null,
+          paddingTop: headerExtent,
+          emptyIcon: Icons.article_outlined,
+          itemBuilder: buildItem,
+        ),
+      ),
+      header: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: GlassButtonGroup(
+            children: [
+              GlassIconButton(
+                icon: Icon(
+                  widget.isPaginated ? Icons.grid_view : Icons.view_stream,
                 ),
+                tooltip: widget.isPaginated
+                    ? t.common.pagination.waterfall
+                    : t.common.pagination.pagination,
+                onPressed: widget.onPaginationToggle,
+              ),
+              GlassIconButton(
+                icon: const Icon(Icons.refresh),
+                tooltip: t.common.refresh,
+                onPressed: _requestRefresh,
               ),
             ],
           ),
@@ -211,7 +228,10 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
         Positioned(
           right: 16,
           // 视口不再被整体上移，所以 FAB 要自己避开手势条。
-          bottom: 16 + computeBottomSafeInset(MediaQuery.of(context)),
+          bottom:
+              16 +
+              computeBottomSafeInset(MediaQuery.of(context)) +
+              (widget.isPaginated ? 46 : 0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

@@ -83,6 +83,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
   late TabController postSecondaryTC;
   late final BatchSelectController<Video> _videoBatchController;
   late final BatchSelectController<ImageModel> _imageBatchController;
+  final RxBool _isPaginated = false.obs;
   late String username;
 
   final GlobalKey<ExtendedNestedScrollViewState> _key =
@@ -199,6 +200,14 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     }
   }
 
+  void _togglePaginationMode() {
+    final isPaginated = !_isPaginated.value;
+    _isPaginated.value = isPaginated;
+    _videoBatchController.setPaginatedMode(isPaginated);
+    _imageBatchController.setPaginatedMode(isPaginated);
+    _scrollToTop();
+  }
+
   bool _handleNestedScrollNotification(ScrollNotification notification) {
     if (notification is! ScrollUpdateNotification &&
         notification is! ScrollEndNotification &&
@@ -240,25 +249,30 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
   /// 滚过一段后出现在右下角的「回到顶部」浮钮（窄屏）。
   Widget _buildScrollToTopFab(BuildContext context) {
     final t = slang.Translations.of(context);
-    return Positioned(
-      right: 16,
-      bottom: MediaQuery.paddingOf(context).bottom + 16,
-      child: ValueListenableBuilder<bool>(
-        valueListenable: _showBackToTop,
-        builder: (context, visible, _) => IgnorePointer(
-          ignoring: !visible,
-          child: AnimatedSlide(
-            duration: GlassTokens.motionDuration,
-            curve: GlassTokens.motionCurve,
-            offset: visible ? Offset.zero : const Offset(0, 0.4),
-            child: AnimatedOpacity(
+    return Obx(
+      () => Positioned(
+        right: 16,
+        bottom:
+            MediaQuery.paddingOf(context).bottom +
+            16 +
+            (_isPaginated.value ? 46 : 0),
+        child: ValueListenableBuilder<bool>(
+          valueListenable: _showBackToTop,
+          builder: (context, visible, _) => IgnorePointer(
+            ignoring: !visible,
+            child: AnimatedSlide(
               duration: GlassTokens.motionDuration,
-              opacity: visible ? 1 : 0,
-              child: GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.vertical_align_top),
-                tooltip: t.common.scrollToTop,
-                onPressed: _scrollToTop,
+              curve: GlassTokens.motionCurve,
+              offset: visible ? Offset.zero : const Offset(0, 0.4),
+              child: AnimatedOpacity(
+                duration: GlassTokens.motionDuration,
+                opacity: visible ? 1 : 0,
+                child: GlassIconButton(
+                  standalone: true,
+                  icon: const Icon(Icons.vertical_align_top),
+                  tooltip: t.common.scrollToTop,
+                  onPressed: _scrollToTop,
+                ),
               ),
             ),
           ),
@@ -1373,8 +1387,12 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                         selectedItemIds: _videoBatchController.selectedMediaIds,
                         onItemSelect: (video) =>
                             _videoBatchController.toggleSelection(video),
-                        onPageChanged: () =>
-                            _videoBatchController.onPageChanged(),
+                        onPageChanged: () {
+                          _videoBatchController.onPageChanged();
+                          _scrollToTop();
+                        },
+                        isPaginated: _isPaginated.value,
+                        onPaginationToggle: _togglePaginationMode,
                         onMultiSelectToggle: () =>
                             _videoBatchController.toggleMultiSelect(),
                         onOpenVideo: _openVideoFromAuthorProfile,
@@ -1396,8 +1414,12 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                         selectedItemIds: _imageBatchController.selectedMediaIds,
                         onItemSelect: (image) =>
                             _imageBatchController.toggleSelection(image),
-                        onPageChanged: () =>
-                            _imageBatchController.onPageChanged(),
+                        onPageChanged: () {
+                          _imageBatchController.onPageChanged();
+                          _scrollToTop();
+                        },
+                        isPaginated: _isPaginated.value,
+                        onPaginationToggle: _togglePaginationMode,
                         onMultiSelectToggle: () =>
                             _imageBatchController.toggleMultiSelect(),
                       )
@@ -1413,6 +1435,9 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                         tabKey: t.common.playlist,
                         tc: playlistSecondaryTC,
                         onFetchFinished: ({int? count}) {},
+                        isPaginated: _isPaginated.value,
+                        onPaginationToggle: _togglePaginationMode,
+                        onPageChanged: _scrollToTop,
                       )
                     : const SizedBox.shrink(),
               ),
@@ -1426,6 +1451,9 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                         userId: profileController.author.value!.id,
                         tabKey: t.common.post,
                         tc: postSecondaryTC,
+                        isPaginated: _isPaginated.value,
+                        onPaginationToggle: _togglePaginationMode,
+                        onPageChanged: _scrollToTop,
                       )
                     : const SizedBox.shrink(),
               ),
@@ -1468,15 +1496,21 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
           ),
         ),
         // 批量下载悬浮按钮
-        BatchActionFabColumn<Video>(
-          controller: _videoBatchController,
-          heroTagPrefix: 'author_profile_video_$uniqueTag',
-          visible: () => primaryTC.index == 0,
+        Obx(
+          () => BatchActionFabColumn<Video>(
+            controller: _videoBatchController,
+            heroTagPrefix: 'author_profile_video_$uniqueTag',
+            isPaginated: _isPaginated.value,
+            visible: () => primaryTC.index == 0,
+          ),
         ),
-        BatchActionFabColumn<ImageModel>(
-          controller: _imageBatchController,
-          heroTagPrefix: 'author_profile_image_$uniqueTag',
-          visible: () => primaryTC.index == 1,
+        Obx(
+          () => BatchActionFabColumn<ImageModel>(
+            controller: _imageBatchController,
+            heroTagPrefix: 'author_profile_image_$uniqueTag',
+            isPaginated: _isPaginated.value,
+            visible: () => primaryTC.index == 1,
+          ),
         ),
       ],
     );

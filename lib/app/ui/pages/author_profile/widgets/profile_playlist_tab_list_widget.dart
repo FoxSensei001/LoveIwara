@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/pages/play_list/widgets/playlist_item_widget.dart';
-import 'package:loading_more_list/loading_more_list.dart';
-import 'package:i_iwara/app/models/play_list.model.dart';
-import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_repository.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class ProfilePlaylistTabListWidget extends StatefulWidget {
   final String userId;
@@ -18,6 +19,9 @@ class ProfilePlaylistTabListWidget extends StatefulWidget {
   /// 顶部蒙层平台段（状态栏）高度。
   final double scrimSolidExtent;
   final Function({int? count})? onFetchFinished;
+  final bool isPaginated;
+  final VoidCallback? onPaginationToggle;
+  final VoidCallback? onPageChanged;
 
   const ProfilePlaylistTabListWidget({
     super.key,
@@ -25,6 +29,9 @@ class ProfilePlaylistTabListWidget extends StatefulWidget {
     required this.tabKey,
     required this.tc,
     this.onFetchFinished,
+    this.isPaginated = false,
+    this.onPaginationToggle,
+    this.onPageChanged,
     this.overlayTopInset = 0,
     this.scrimSolidExtent = 0,
   });
@@ -38,6 +45,9 @@ class _ProfilePlaylistTabListWidgetState
     extends State<ProfilePlaylistTabListWidget>
     with AutomaticKeepAliveClientMixin {
   late PlayListRepository listSourceRepository;
+  final ScrollController _fallbackController = ScrollController();
+  final ValueNotifier<bool> _showBackToTop = ValueNotifier(false);
+  final ValueNotifier<int> _refreshSignal = ValueNotifier(0);
 
   // 四个 tab 里原本只有播放列表这一个没有保活：TabBarView 未开
   // allowImplicitScrolling，非当前页在切换动画结束后即被 unmount，
@@ -54,6 +64,9 @@ class _ProfilePlaylistTabListWidgetState
 
   @override
   void dispose() {
+    _fallbackController.dispose();
+    _showBackToTop.dispose();
+    _refreshSignal.dispose();
     listSourceRepository.dispose();
     super.dispose();
   }
@@ -61,50 +74,100 @@ class _ProfilePlaylistTabListWidgetState
   @override
   Widget build(BuildContext context) {
     super.build(context); // AutomaticKeepAliveClientMixin 要求
-    final double headerExtent = widget.overlayTopInset;
+    final t = slang.Translations.of(context);
+    final inheritPrimary = PrimaryScrollController.shouldInherit(
+      context,
+      Axis.vertical,
+    );
+    final primaryController = inheritPrimary
+        ? PrimaryScrollController.maybeOf(context)
+        : null;
+    final scrollTarget = primaryController ?? _fallbackController;
+    const headerHeight = GlassTokens.pillHeight + 12;
+    final headerExtent = widget.overlayTopInset + headerHeight;
+
     return GlassHeaderOverlay(
       headerExtent: headerExtent,
+      headerTop: widget.overlayTopInset,
+      headerHeight: headerHeight,
       solidExtent: widget.scrimSolidExtent,
-      body: RefreshIndicator(
-        edgeOffset: headerExtent,
-        onRefresh: () async {
-          await listSourceRepository.refresh(true);
+      body: NotificationListener<ScrollNotification>(
+        onNotification: (notification) {
+          if (notification.metrics.axis == Axis.vertical) {
+            _showBackToTop.value = notification.metrics.pixels >= 300;
+          }
+          return false;
         },
-        child: LoadingMoreCustomScrollView(
-          slivers: <Widget>[
-            LoadingMoreSliverList<PlaylistModel>(
-              SliverListConfig<PlaylistModel>(
-                extendedListDelegate:
-                    const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 300,
-                      crossAxisSpacing: 5,
-                      mainAxisSpacing: 5,
-                    ),
-                itemBuilder: (context, item, index) =>
-                    PlaylistItemWidget(playlist: item),
-                sourceList: listSourceRepository,
-                // 四个 tab 里只有这里没有底部安全区：video / image 走 MediaListView
-                // （showBottomPadding 默认 true），post 由外层 Stack 补，
-                // 唯独播放列表是裸的 LoadingMoreCustomScrollView，最后一行会被
-                // 手势条 / 底栏压住。
-                padding: EdgeInsets.fromLTRB(
-                  5.0,
-                  5.0 + headerExtent,
-                  5.0,
-                  5.0 + computeBottomSafeInset(MediaQuery.of(context)),
+        child: MediaListView(
+          sourceList: listSourceRepository,
+          isPaginated: widget.isPaginated,
+          refreshSignal: _refreshSignal,
+          onPageChanged: widget.onPageChanged,
+          scrollController: primaryController == null
+              ? _fallbackController
+              : null,
+          paddingTop: headerExtent,
+          emptyIcon: Icons.playlist_play,
+          itemBuilder: (context, item, index) =>
+              PlaylistItemWidget(playlist: item),
+        ),
+      ),
+      header: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: GlassButtonGroup(
+            children: [
+              GlassIconButton(
+                icon: Icon(
+                  widget.isPaginated ? Icons.grid_view : Icons.view_stream,
                 ),
-                lastChildLayoutType: LastChildLayoutType.foot,
-                indicatorBuilder: (context, status) => myLoadingMoreIndicator(
-                  context,
-                  status,
-                  isSliver: true,
-                  loadingMoreBase: listSourceRepository,
+                tooltip: widget.isPaginated
+                    ? t.common.pagination.waterfall
+                    : t.common.pagination.pagination,
+                onPressed: widget.onPaginationToggle,
+              ),
+              GlassIconButton(
+                icon: const Icon(Icons.refresh),
+                tooltip: t.common.refresh,
+                onPressed: () => _refreshSignal.value++,
+              ),
+            ],
+          ),
+        ),
+      ),
+      extra: [
+        Positioned(
+          right: 16,
+          bottom:
+              16 +
+              computeBottomSafeInset(MediaQuery.of(context)) +
+              (widget.isPaginated ? 46 : 0),
+          child: ValueListenableBuilder<bool>(
+            valueListenable: _showBackToTop,
+            builder: (context, visible, _) => IgnorePointer(
+              ignoring: !visible,
+              child: AnimatedOpacity(
+                duration: GlassTokens.motionDuration,
+                opacity: visible ? 1 : 0,
+                child: GlassIconButton(
+                  standalone: true,
+                  icon: const Icon(Icons.vertical_align_top),
+                  tooltip: t.common.scrollToTop,
+                  onPressed: () {
+                    if (!scrollTarget.hasClients) return;
+                    scrollTarget.animateTo(
+                      0,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOutCubic,
+                    );
+                  },
                 ),
               ),
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }
