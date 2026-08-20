@@ -287,6 +287,8 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get paused => '已暫停';
 	@override String get clear => '清除';
 	@override String get clearSelection => '清空選擇';
+	@override String get selectItemsToContinue => '選擇項目以繼續';
+	@override String andMoreItems({required Object num}) => '還有 ${num} 項';
 	@override String get batchDelete => '批量刪除';
 	@override String get user => '使用者';
 	@override String get post => '投稿';
@@ -3571,6 +3573,8 @@ extension on TranslationsZhTw {
 			'common.paused' => '已暫停',
 			'common.clear' => '清除',
 			'common.clearSelection' => '清空選擇',
+			'common.selectItemsToContinue' => '選擇項目以繼續',
+			'common.andMoreItems' => ({required Object num}) => '還有 ${num} 項',
 			'common.batchDelete' => '批量刪除',
 			'common.user' => '使用者',
 			'common.post' => '投稿',
@@ -3907,10 +3911,10 @@ extension on TranslationsZhTw {
 			'settings.rememberBrightness' => '記住亮度',
 			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => '此設定將決定當您之後播放影片時，是否會保留先前的亮度設定。',
 			'settings.playControlArea' => '播放控制區域',
-			'settings.leftAndRightControlAreaWidth' => '左右控制區域寬度',
-			'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer' => '此設定將決定播放器左右兩側控制區域的寬度。',
 			_ => null,
 		} ?? switch (path) {
+			'settings.leftAndRightControlAreaWidth' => '左右控制區域寬度',
+			'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer' => '此設定將決定播放器左右兩側控制區域的寬度。',
 			'settings.proxyAddressCannotBeEmpty' => '代理伺服器地址不能為空。',
 			'settings.invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort' => '無效的代理伺服器地址格式，請使用 IP:埠 或 域名:埠 格式。',
 			'settings.proxyNormalWork' => '代理伺服器正常工作。',
@@ -4421,10 +4425,10 @@ extension on TranslationsZhTw {
 			'oreno3d.messages.videoNotFoundOrDeleted' => '影片不存在或已被刪除',
 			'oreno3d.messages.unableToGetVideoPlayLink' => '無法獲取影片播放連結',
 			'oreno3d.messages.getVideoDetailFailed' => '獲取影片詳情失敗',
-			'firstTimeSetup.welcome.title' => '歡迎使用',
-			'firstTimeSetup.welcome.subtitle' => '讓我們開始您的個人化設定之旅',
 			_ => null,
 		} ?? switch (path) {
+			'firstTimeSetup.welcome.title' => '歡迎使用',
+			'firstTimeSetup.welcome.subtitle' => '讓我們開始您的個人化設定之旅',
 			'firstTimeSetup.welcome.description' => '只需幾步，即可為您量身打造最佳使用體驗',
 			'firstTimeSetup.basic.title' => '基礎設定',
 			'firstTimeSetup.basic.subtitle' => '個人化您的使用體驗',
@@ -4935,10 +4939,10 @@ extension on TranslationsZhTw {
 			'download.other' => '其他',
 			'download.clearFilters' => '清除篩選',
 			'download.pauseAll' => '全部暫停',
-			'download.resumeAll' => '全部開始',
-			'download.emptyTaskList' => '暫無下載任務',
 			_ => null,
 		} ?? switch (path) {
+			'download.resumeAll' => '全部開始',
+			'download.emptyTaskList' => '暫無下載任務',
 			'download.noMatchingTasks' => '沒有符合的任務',
 			'download.deleteByDate.menuTitle' => '依日期刪除',
 			'download.deleteByDate.dialogTitle' => '依日期刪除',
@@ -5449,10 +5453,10 @@ extension on TranslationsZhTw {
 			'emoji.medium' => '中',
 			'emoji.large' => '大',
 			'emoji.extraLarge' => '超大',
-			'emoji.copyEmojiLinkSuccess' => '表情包連結已複製',
-			'emoji.preview' => '表情包預覽',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.copyEmojiLinkSuccess' => '表情包連結已複製',
+			'emoji.preview' => '表情包預覽',
 			'emoji.library' => '表情包庫',
 			'emoji.noEmojis' => '暫無表情包',
 			'emoji.clickToAddEmojis' => '點擊右上角按鈕添加表情包',

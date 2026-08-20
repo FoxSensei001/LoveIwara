@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/content_block_service.dart';
@@ -180,22 +181,6 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
     final bool enableHover = !widget.isMultiSelectMode && _isDesktopPlatform();
     final bool showHoverState = enableHover && _isHovering;
 
-    // 多选模式下的遮罩
-    final Widget? overlay = widget.isMultiSelectMode
-        ? Container(
-            color: widget.isSelected
-                ? Colors.black.withValues(alpha: 0.45)
-                : Colors.black.withValues(alpha: 0.2),
-            child: Center(
-              child: Icon(
-                widget.isSelected ? Icons.check_circle : Icons.circle_outlined,
-                color: widget.isSelected ? Colors.white : Colors.white70,
-                size: 40,
-              ),
-            ),
-          )
-        : null;
-
     return RepaintBoundary(
       child: SizedBox(
         width: widget.width,
@@ -265,7 +250,6 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
                           video: widget.video,
                           width: widget.width,
                           isHovering: showHoverState,
-                          overlay: overlay,
                           reblockVisible: showReblock,
                           onReblock: () => setState(() => _revealed = false),
                         ),
@@ -306,6 +290,16 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                  // 多选态：勾选片 + 描边包住**整张卡片**（含标题与作者行），
+                  // 而不是只框住缩略图——框到一半读起来像被裁断了。常驻挂载，
+                  // 进出选择态两个方向都有淡入淡出。
+                  Positioned.fill(
+                    child: GlassSelectableOverlay(
+                      selectionMode: widget.isMultiSelectMode,
+                      selected: widget.isSelected,
+                      borderRadius: radius,
                     ),
                   ),
                 ],
@@ -367,7 +361,6 @@ class _Thumbnail extends StatelessWidget {
   final double width;
 
   final bool isHovering;
-  final Widget? overlay;
   final bool reblockVisible;
   final VoidCallback onReblock;
 
@@ -375,7 +368,6 @@ class _Thumbnail extends StatelessWidget {
     required this.video,
     required this.width,
     required this.isHovering,
-    this.overlay,
     required this.reblockVisible,
     required this.onReblock,
   });
@@ -394,7 +386,6 @@ class _Thumbnail extends StatelessWidget {
           children: [
             _buildImage(),
             ...buildTags(context, t),
-            if (overlay != null) Positioned.fill(child: overlay!),
             ReblockChip(visible: reblockVisible, onTap: onReblock),
           ],
         ),

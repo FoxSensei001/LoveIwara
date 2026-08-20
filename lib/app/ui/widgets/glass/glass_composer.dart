@@ -301,61 +301,68 @@ class GlassSubmitButton extends StatelessWidget {
         ? cs.onPrimary
         : cs.onSurface.withValues(alpha: 0.38);
 
-    return GlassPressable(
-      onTap: enabled ? onPressed : (tappable ? onBlockedTap : null),
-      enabled: tappable,
-      builder: (context, pressed) => AnimatedContainer(
-        duration: GlassTokens.pressDuration,
-        curve: Curves.easeOut,
-        height: GlassTokens.pillHeight,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        decoration: BoxDecoration(
-          color: pressed
-              ? Color.alphaBlend(
-                  Colors.black.withValues(alpha: 0.10),
-                  background,
-                )
-              : background,
-          borderRadius: BorderRadius.circular(GlassTokens.pillHeight / 2),
-          boxShadow: enabled ? GlassTokens.shadow(cs) : null,
-        ),
-        child: Center(
-          // 标签 ↔ 转圈原位交叉过渡，胶囊宽度平滑伸缩
-          child: AnimatedSize(
-            duration: GlassTokens.motionDuration,
-            curve: GlassTokens.motionCurve,
-            child: AnimatedSwitcher(
+    // 底色与前景色一起插值（见 GlassAnimatedColors）：只动底色的话，
+    // 「不可提交 → 可提交」时底色在推移、文字却已经跳完色，读成「闪了一下」。
+    return GlassAnimatedColors(
+      colors: [background, foreground],
+      builder: (context, animatedColors) => GlassPressable(
+        onTap: enabled ? onPressed : (tappable ? onBlockedTap : null),
+        enabled: tappable,
+        builder: (context, pressed) => AnimatedContainer(
+          duration: GlassTokens.pressDuration,
+          curve: Curves.easeOut,
+          height: GlassTokens.pillHeight,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          decoration: BoxDecoration(
+            color: pressed
+                ? Color.alphaBlend(
+                    Colors.black.withValues(alpha: 0.10),
+                    animatedColors[0],
+                  )
+                : animatedColors[0],
+            borderRadius: BorderRadius.circular(GlassTokens.pillHeight / 2),
+            boxShadow: enabled ? GlassTokens.shadow(cs) : null,
+          ),
+          child: Center(
+            // 标签 ↔ 转圈原位交叉过渡，胶囊宽度平滑伸缩
+            child: AnimatedSize(
               duration: GlassTokens.motionDuration,
-              switchInCurve: GlassTokens.motionCurve,
-              switchOutCurve: GlassTokens.motionCurve.flipped,
-              child: isLoading
-                  ? SizedBox(
-                      key: const ValueKey('submit-loading'),
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.4,
-                        valueColor: AlwaysStoppedAnimation<Color>(foreground),
-                      ),
-                    )
-                  : Row(
-                      key: const ValueKey('submit-label'),
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (icon != null) ...[
-                          Icon(icon, size: 18, color: foreground),
-                          const SizedBox(width: 6),
-                        ],
-                        Text(
-                          label,
-                          style: TextStyle(
-                            color: foreground,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
+              curve: GlassTokens.motionCurve,
+              child: AnimatedSwitcher(
+                duration: GlassTokens.motionDuration,
+                switchInCurve: GlassTokens.motionCurve,
+                switchOutCurve: GlassTokens.motionCurve.flipped,
+                child: isLoading
+                    ? SizedBox(
+                        key: const ValueKey('submit-loading'),
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.4,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            animatedColors[1],
                           ),
                         ),
-                      ],
-                    ),
+                      )
+                    : Row(
+                        key: const ValueKey('submit-label'),
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (icon != null) ...[
+                            Icon(icon, size: 18, color: animatedColors[1]),
+                            const SizedBox(width: 6),
+                          ],
+                          Text(
+                            label,
+                            style: TextStyle(
+                              color: animatedColors[1],
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
             ),
           ),
         ),

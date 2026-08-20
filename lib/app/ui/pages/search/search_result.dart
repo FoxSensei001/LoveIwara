@@ -13,7 +13,9 @@ import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_builder_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
-import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/batch_download_selection.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -974,10 +976,21 @@ class _SearchResultState extends State<SearchResult> {
     });
   }
 
+  /// 当前 segment 对应的批量选择控制器（视频 / 图库之外的段不支持批量）。
+  BatchSelectController<dynamic>? _activeSearchBatchController() {
+    switch (searchController.selectedSegment.value) {
+      case SearchSegment.video:
+        return searchController.videoBatchController;
+      case SearchSegment.image:
+        return searchController.imageBatchController;
+      default:
+        return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    final String uniqueTag = 'search_result_${identityHashCode(this)}';
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     const double headerRowHeight = GlassTokens.headerRowHeight;
     final double headerExtent = statusBarHeight + headerRowHeight;
@@ -991,89 +1004,106 @@ class _SearchResultState extends State<SearchResult> {
         onApply: _applySavedSearch,
         onAddCurrent: _promptSaveCurrentSearch,
       ),
-      body: GlassHeaderOverlay(
-        headerExtent: headerExtent,
-        headerTop: statusBarHeight,
-        solidExtent: statusBarHeight,
-        body: NotificationListener<ScrollNotification>(
-          onNotification: (notification) {
-            if (notification.metrics.axis == Axis.vertical &&
-                notification.depth == 0) {
-              _showBackToTop.value = notification.metrics.pixels >= 300;
-            }
-            return false;
-          },
-          child: _buildCurrentSearchList(headerExtent),
-        ),
-        header: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.arrow_back),
-                tooltip: t.common.back,
-                onPressed: () => AppService.tryPop(),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Obx(
-                  () => _shouldHideSearchInput()
-                      ? _buildOreno3dBrowsePill(context)
-                      : _buildSearchPill(context),
-                ),
-              ),
-              const SizedBox(width: 8),
-              _buildActionGroup(context),
-            ],
+      body: BatchDownloadSelectionScope(
+        // 视频 / 图库两个控制器只广播当前 segment 那一个
+        controllers: [
+          searchController.videoBatchController,
+          searchController.imageBatchController,
+        ],
+        activeIndex: () => switch (searchController.selectedSegment.value) {
+          SearchSegment.video => 0,
+          SearchSegment.image => 1,
+          _ => -1,
+        },
+        child: GlassHeaderOverlay(
+          headerExtent: headerExtent,
+          headerTop: statusBarHeight,
+          solidExtent: statusBarHeight,
+          body: NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              if (notification.metrics.axis == Axis.vertical &&
+                  notification.depth == 0) {
+                _showBackToTop.value = notification.metrics.pixels >= 300;
+              }
+              return false;
+            },
+            child: _buildCurrentSearchList(headerExtent),
           ),
-        ),
-        extra: [
-          Obx(
-            () => Positioned(
-              right: 16,
-              bottom:
-                  MediaQuery.paddingOf(context).bottom +
-                  16 +
-                  (searchController.isPaginated.value ? 46 : 0),
-              child: ValueListenableBuilder<bool>(
-                valueListenable: _showBackToTop,
-                builder: (context, visible, _) => IgnorePointer(
-                  ignoring: !visible,
-                  child: AnimatedOpacity(
-                    duration: GlassTokens.motionDuration,
-                    opacity: visible ? 1 : 0,
-                    child: GlassIconButton(
-                      standalone: true,
-                      icon: const Icon(Icons.vertical_align_top),
-                      tooltip: t.common.scrollToTop,
-                      onPressed: searchController.scrollToTop,
+          header: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                GlassIconButton(
+                  standalone: true,
+                  icon: const Icon(Icons.arrow_back),
+                  tooltip: t.common.back,
+                  onPressed: () => AppService.tryPop(),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Obx(() {
+                    // 选择态下这只胶囊改报「已选 N 项」：进选择态是一次页面级
+                    // 的模式切换，header 不该毫无反应
+                    final batch = _activeSearchBatchController();
+                    if (batch != null && batch.isMultiSelect.value) {
+                      return GlassCapsuleMorph(
+                        child: SizedBox(
+                          key: const ValueKey('selection'),
+                          width: 168,
+                          child: GlassSelectionSummary(
+                            selectedCount: batch.selectedCount,
+                            allSelected: false,
+                            // 懒加载列表够不到未加载的部分，不给全选
+                            onToggleAll: null,
+                          ),
+                        ),
+                      );
+                    }
+                    return _shouldHideSearchInput()
+                        ? _buildOreno3dBrowsePill(context)
+                        : _buildSearchPill(context);
+                  }),
+                ),
+                const SizedBox(width: 8),
+                _buildActionGroup(context),
+              ],
+            ),
+          ),
+          extra: [
+            Obx(
+              () => Positioned(
+                right: 16,
+                bottom:
+                    MediaQuery.paddingOf(context).bottom +
+                    16 +
+                    (searchController.isPaginated.value ? 46 : 0),
+                child: ValueListenableBuilder<bool>(
+                  valueListenable: _showBackToTop,
+                  builder: (context, visible, _) => IgnorePointer(
+                    ignoring: !visible,
+                    child: AnimatedOpacity(
+                      duration: GlassTokens.motionDuration,
+                      opacity: visible ? 1 : 0,
+                      child: GlassIconButton(
+                        standalone: true,
+                        icon: const Icon(Icons.vertical_align_top),
+                        tooltip: t.common.scrollToTop,
+                        onPressed: searchController.scrollToTop,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-          // 批量下载悬浮按钮
-          Obx(
-            () => BatchActionFabColumn<Video>(
-              controller: searchController.videoBatchController,
-              heroTagPrefix: 'search_video_$uniqueTag',
-              isPaginated: searchController.isPaginated.value,
-              visible: () =>
-                  searchController.selectedSegment.value == SearchSegment.video,
+            // 批量动作：瀑布流模式下的底部玻璃坞；分页模式下动作行由分页栏
+            // 自己承载（见 BatchSelectionScope），底部不会出现第二条玻璃。
+            Obx(
+              () => GlassSelectionDock(
+                paginated: searchController.isPaginated.value,
+              ),
             ),
-          ),
-          Obx(
-            () => BatchActionFabColumn<ImageModel>(
-              controller: searchController.imageBatchController,
-              heroTagPrefix: 'search_image_$uniqueTag',
-              isPaginated: searchController.isPaginated.value,
-              visible: () =>
-                  searchController.selectedSegment.value == SearchSegment.image,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

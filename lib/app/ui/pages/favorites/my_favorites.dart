@@ -11,14 +11,15 @@ import 'package:i_iwara/app/ui/pages/favorites/widgets/favorite_image_list.dart'
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
-import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/batch_confirm_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
-import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -187,10 +188,15 @@ class _MyFavoritesState extends State<MyFavorites>
         : _imageBatchController.selectedMediaIds.toList();
     if (ids.isEmpty) return;
 
-    final confirmed = await showAppDialog<bool>(
-      _BatchCancelFavoriteDialog(count: ids.length),
+    final batch = isVideo ? _videoBatchController : _imageBatchController;
+    final confirmed = await showBatchConfirmDialog(
+      title: t.favorites.batchCancelFavorite,
+      message: t.favorites.batchCancelFavoriteConfirm(count: ids.length),
+      confirmLabel: t.favorites.batchCancelFavorite,
+      previewTitles: _selectedTitles(batch),
+      totalCount: ids.length,
     );
-    if (confirmed != true || !mounted) return;
+    if (!confirmed || !mounted) return;
 
     _isBatchProcessing.value = true;
     try {
@@ -252,39 +258,21 @@ class _MyFavoritesState extends State<MyFavorites>
     });
   }
 
-  /// 批量操作浮钮：退出多选 / 清空已选 / 批量取消最爱。
-  Widget _buildBatchActionFab(BuildContext context, {required bool isVideo}) {
-    final t = slang.Translations.of(context);
-    return Obx(() {
-      final batch = isVideo ? _videoBatchController : _imageBatchController;
-      final bool visible = batch.isMultiSelect.value && _isVideoTab == isVideo;
-      final bool processing = _isBatchProcessing.value;
-      return BatchActionFab(
-        isMultiSelect: visible,
-        selectedCount: batch.selectedCount,
-        heroTagPrefix: isVideo ? 'my_favorites_video' : 'my_favorites_image',
-        isPaginated: _isPaginated,
-        onExit: batch.exitMultiSelect,
-        onClear: batch.clearSelection,
-        customActionBuilder: (context) => FloatingActionButton.small(
-          heroTag: isVideo
-              ? 'batchCancelFavoriteFAB_video'
-              : 'batchCancelFavoriteFAB_image',
-          onPressed: processing
-              ? null
-              : () => _batchCancelFavorites(isVideo: isVideo),
-          backgroundColor: Theme.of(context).colorScheme.errorContainer,
-          foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
-          tooltip: t.favorites.batchCancelFavorite,
-          child: processing
-              ? const SizedBox.square(
-                  dimension: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.heart_broken),
-        ),
-      );
-    });
+  /// 当前 tab 对应的批量选择控制器。
+  BatchSelectController<dynamic> get _activeBatch =>
+      _isVideoTab ? _videoBatchController : _imageBatchController;
+
+  /// 取所选项的标题，供统一确认弹窗列出「到底要取消哪几个」。
+  List<String> _selectedTitles(BatchSelectController<dynamic> batch) {
+    return [
+      for (final item in batch.selectedMediaList)
+        if (item is Video)
+          (item.title?.trim().isNotEmpty ?? false)
+              ? item.title!
+              : slang.t.common.noTitle
+        else if (item is ImageModel)
+          item.title.trim().isNotEmpty ? item.title : slang.t.common.noTitle,
+    ];
   }
 
   /// 滚过一段后出现在右下角的「回到顶部」浮钮；分页模式下抬到分页栏之上。
@@ -339,117 +327,154 @@ class _MyFavoritesState extends State<MyFavorites>
     ];
 
     return Scaffold(
-      body: GlassHeaderOverlay(
-        headerExtent: headerExtent,
-        headerTop: statusBarHeight,
-        solidExtent: statusBarHeight,
-        body: TabBarView(
-          controller: _tabController,
-          physics: const ClampingScrollPhysics(),
-          children: [
-            Obx(
-              () => FavoriteVideoList(
-                scrollController: _videoScrollController,
-                paddingTop: headerExtent,
-                isPaginated: _isPaginated,
-                refreshSignal: _videoRefreshSignal,
-                isMultiSelectMode: _videoBatchController.isMultiSelect.value,
-                selectedItemIds: _videoBatchController.selectedMediaIds,
-                onItemSelect: _videoBatchController.toggleSelection,
-                onPageChanged: () {
-                  _videoBatchController.onPageChanged();
-                  _scrollToTop();
-                },
-                onOpenVideo: _openFavoriteVideo,
-              ),
-            ),
-            Obx(
-              () => FavoriteImageList(
-                scrollController: _imageScrollController,
-                paddingTop: headerExtent,
-                isPaginated: _isPaginated,
-                refreshSignal: _imageRefreshSignal,
-                isMultiSelectMode: _imageBatchController.isMultiSelect.value,
-                selectedItemIds: _imageBatchController.selectedMediaIds,
-                onItemSelect: _imageBatchController.toggleSelection,
-                onPageChanged: () {
-                  _imageBatchController.onPageChanged();
-                  _scrollToTop();
-                },
-              ),
+      body: Obx(() {
+        final batch = _activeBatch;
+        final bool active = batch.isMultiSelect.value;
+        final int count = batch.selectedCount;
+        return BatchSelectionScope(
+          active: active,
+          selectedCount: count,
+          actions: [
+            GlassSelectionAction(
+              icon: Icons.heart_broken,
+              label: t.favorites.batchCancelFavorite,
+              destructive: true,
+              loading: _isBatchProcessing.value,
+              onPressed: count == 0
+                  ? null
+                  : () => _batchCancelFavorites(isVideo: _isVideoTab),
             ),
           ],
-        ),
-        // header 行：左 返回圆钮 / 中 分段胶囊（视频/图库 + AI 站点徽标）/
-        // 右 动作胶囊（多选 · 瀑布分页 · 刷新）
-        header: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.arrow_back),
-                tooltip: t.common.back,
-                onPressed: () => AppService.tryPop(),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      GlassSegmentedControl(
-                        selectedIndex: _tabController.index,
-                        progress: _tabController.animation,
-                        onChanged: _tabController.animateTo,
-                        items: tabItems,
-                      ),
-                      // AI 站点模式下标明当前看的是哪个站的最爱
-                      if (currentSite.isAi) ...[
-                        const SizedBox(width: 8),
-                        IwaraSiteBadge(site: currentSite),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              _buildActionGroup(context),
-            ],
+          onClear: batch.clearSelection,
+          // 系统返回 / iOS 侧滑 / Esc 先退选择态，而不是把整页弹掉
+          child: SelectionPopScope(
+            active: active,
+            onExit: batch.exitMultiSelect,
+            child: _buildBody(
+              context,
+              headerExtent,
+              statusBarHeight,
+              tabItems,
+              currentSite,
+            ),
           ),
-        ),
-        extra: [
-          _buildScrollToTopFab(context),
-          _buildBatchActionFab(context, isVideo: true),
-          _buildBatchActionFab(context, isVideo: false),
-        ],
-      ),
+        );
+      }),
     );
   }
-}
 
-/// 批量取消最爱的二次确认弹窗。
-class _BatchCancelFavoriteDialog extends StatelessWidget {
-  final int count;
-
-  const _BatchCancelFavoriteDialog({required this.count});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildBody(
+    BuildContext context,
+    double headerExtent,
+    double statusBarHeight,
+    List<GlassSegmentItem> tabItems,
+    IwaraSite currentSite,
+  ) {
     final t = slang.Translations.of(context);
-    return AlertDialog(
-      title: Text(t.favorites.batchCancelFavorite),
-      content: Text(t.favorites.batchCancelFavoriteConfirm(count: count)),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(false),
-          child: Text(t.common.cancel),
+    return GlassHeaderOverlay(
+      headerExtent: headerExtent,
+      headerTop: statusBarHeight,
+      solidExtent: statusBarHeight,
+      body: TabBarView(
+        controller: _tabController,
+        physics: const ClampingScrollPhysics(),
+        children: [
+          Obx(
+            () => FavoriteVideoList(
+              scrollController: _videoScrollController,
+              paddingTop: headerExtent,
+              isPaginated: _isPaginated,
+              refreshSignal: _videoRefreshSignal,
+              isMultiSelectMode: _videoBatchController.isMultiSelect.value,
+              selectedItemIds: _videoBatchController.selectedMediaIds,
+              onItemSelect: _videoBatchController.toggleSelection,
+              onPageChanged: () {
+                _videoBatchController.onPageChanged();
+                _scrollToTop();
+              },
+              onOpenVideo: _openFavoriteVideo,
+            ),
+          ),
+          Obx(
+            () => FavoriteImageList(
+              scrollController: _imageScrollController,
+              paddingTop: headerExtent,
+              isPaginated: _isPaginated,
+              refreshSignal: _imageRefreshSignal,
+              isMultiSelectMode: _imageBatchController.isMultiSelect.value,
+              selectedItemIds: _imageBatchController.selectedMediaIds,
+              onItemSelect: _imageBatchController.toggleSelection,
+              onPageChanged: () {
+                _imageBatchController.onPageChanged();
+                _scrollToTop();
+              },
+            ),
+          ),
+        ],
+      ),
+      // header 行：左 返回圆钮 / 中 分段胶囊（视频/图库 + AI 站点徽标）/
+      // 右 动作胶囊（多选 · 瀑布分页 · 刷新）
+      header: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            GlassIconButton(
+              standalone: true,
+              icon: const Icon(Icons.arrow_back),
+              tooltip: t.common.back,
+              onPressed: () => AppService.tryPop(),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 选择态下这只胶囊改报「已选 N 项」：进选择态是一次页面级
+                    // 的模式切换，header 不该毫无反应
+                    Obx(
+                      () => GlassCapsuleMorph(
+                        child: _activeBatch.isMultiSelect.value
+                            ? SizedBox(
+                                key: const ValueKey('selection'),
+                                width: 168,
+                                child: GlassSelectionSummary(
+                                  selectedCount: _activeBatch.selectedCount,
+                                  allSelected: false,
+                                  // 懒加载列表够不到未加载的部分，不给全选
+                                  onToggleAll: null,
+                                ),
+                              )
+                            : GlassSegmentedControl(
+                                key: const ValueKey('segmented'),
+                                flat: true,
+                                selectedIndex: _tabController.index,
+                                progress: _tabController.animation,
+                                onChanged: _tabController.animateTo,
+                                items: tabItems,
+                              ),
+                      ),
+                    ),
+                    // AI 站点模式下标明当前看的是哪个站的最爱
+                    if (currentSite.isAi) ...[
+                      const SizedBox(width: 8),
+                      IwaraSiteBadge(site: currentSite),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            _buildActionGroup(context),
+          ],
         ),
-        FilledButton(
-          onPressed: () => Navigator.of(context).pop(true),
-          child: Text(t.common.confirm),
-        ),
+      ),
+      extra: [
+        _buildScrollToTopFab(context),
+        // 批量动作：瀑布流模式下的底部玻璃坞；分页模式下动作行由分页栏
+        // 自己承载（见 BatchSelectionScope），底部不会出现第二条玻璃。
+        GlassSelectionDock(paginated: _isPaginated),
       ],
     );
   }

@@ -180,6 +180,8 @@ common:
   paused: 已暫停
   clear: 清除
   clearSelection: 清空選擇
+  selectItemsToContinue: 選擇項目以繼續
+  andMoreItems(num): '還有 ${num} 項'
   batchDelete: 批量刪除
   user: 使用者
   post: 投稿

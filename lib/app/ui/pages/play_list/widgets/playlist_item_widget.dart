@@ -3,7 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/models/play_list.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class PlaylistItemWidget extends StatelessWidget {
@@ -90,39 +90,40 @@ class PlaylistItemWidget extends StatelessWidget {
                 ),
               ],
             ),
-            // 多选蒙版：进出编辑态时淡入淡出，别硬切
-            if (isMultiSelect)
+            // 选择态：角标勾选片 + 选中描边，不盖死封面（全站统一，
+            // 见 GlassSelectableOverlay）。常驻挂载以获得进出两个方向的过渡。
+            Positioned.fill(
+              child: GlassSelectableOverlay(
+                selectionMode: isMultiSelect,
+                selected: isSelected,
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            // 删除进行中：压一层暗底 + 转圈，并吃掉点击
+            if (isDeleting)
               Positioned.fill(
-                child: TweenAnimationBuilder<double>(
-                  key: const ValueKey('playlist-select-overlay'),
-                  tween: Tween<double>(begin: 0, end: 1),
-                  duration: GlassTokens.motionDuration,
-                  curve: GlassTokens.motionCurve,
-                  builder: (context, value, child) =>
-                      Opacity(opacity: value, child: child),
-                  child: Material(
-                    color: Colors.black26,
-                    child: InkWell(
-                      onTap: isDeleting ? null : onToggleSelect,
-                      child: Center(
-                        child: isDeleting
-                            ? const SizedBox(
-                                width: 28,
-                                height: 28,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.6,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : Icon(
-                                isSelected
-                                    ? Icons.check_circle
-                                    : Icons.circle_outlined,
-                                color: Colors.white,
-                                size: 40,
-                              ),
+                child: ColoredBox(
+                  color: Colors.black.withValues(alpha: 0.45),
+                  child: const Center(
+                    child: SizedBox(
+                      width: 28,
+                      height: 28,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.6,
+                        color: Colors.white,
                       ),
                     ),
+                  ),
+                ),
+              ),
+            // 选择态下点按 = 勾选/取消，而不是进详情
+            if (isMultiSelect)
+              Positioned.fill(
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: isDeleting ? null : onToggleSelect,
+                    child: const SizedBox.expand(),
                   ),
                 ),
               ),

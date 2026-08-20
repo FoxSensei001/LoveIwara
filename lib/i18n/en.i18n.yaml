@@ -180,6 +180,8 @@ common:
   paused: Paused
   clear: Clear
   clearSelection: Clear Selection
+  selectItemsToContinue: Select items to continue
+  andMoreItems(num): 'and ${num} more'
   batchDelete: Batch Delete
   user: User
   post: Post

@@ -38,6 +38,7 @@ import 'package:i_iwara/app/ui/pages/gallery_detail/gallery_detail_page.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/author_profile_page.dart';
 import 'package:i_iwara/app/ui/pages/search/search_result.dart';
 import 'package:i_iwara/app/ui/pages/play_list/play_list_detail.dart';
+import 'package:i_iwara/app/ui/widgets/fade_branch_container.dart';
 import 'package:i_iwara/app/ui/pages/play_list/play_list.dart';
 import 'package:i_iwara/app/ui/pages/favorites/my_favorites.dart';
 import 'package:i_iwara/app/ui/pages/friends/friends_page.dart';
@@ -229,8 +230,10 @@ final GoRouter appRouter = GoRouter(
         return HomeShellScaffold(currentPath: state.uri.path, child: child);
       },
       routes: [
-        // 内层 StatefulShellRoute：4 个 Tab，支持状态保留的切换
-        StatefulShellRoute.indexedStack(
+        // 内层 StatefulShellRoute：各 Tab 状态保留的切换。
+        // 容器不用默认 indexedStack（硬切），换成 FadeBranchContainer：
+        // 切分支时新页在旧页上方轻淡入（Telegram 式）。
+        StatefulShellRoute(
           // 同上：避免根观察者被重复挂载到各分支 Navigator。
           notifyRootObserver: false,
           builder: (context, state, navigationShell) {
@@ -239,6 +242,11 @@ final GoRouter appRouter = GoRouter(
             Get.find<AppService>().navigationShell = navigationShell;
             return navigationShell;
           },
+          navigatorContainerBuilder: (context, navigationShell, children) =>
+              FadeBranchContainer(
+                currentIndex: navigationShell.currentIndex,
+                children: children,
+              ),
           branches: [
             // 分支 0：视频（热门视频）
             StatefulShellBranch(

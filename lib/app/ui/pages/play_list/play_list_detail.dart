@@ -9,7 +9,8 @@ import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_detail_cont
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
-import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/batch_confirm_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -89,83 +90,115 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final t = slang.Translations.of(context);
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
 
     return Scaffold(
-      body: GlassHeaderOverlay(
-        headerExtent: headerExtent,
-        headerTop: statusBarHeight,
-        solidExtent: statusBarHeight,
-        body: NotificationListener<ScrollNotification>(
-          onNotification: (notification) {
-            if (notification.depth == 0 &&
-                notification.metrics.axis == Axis.vertical) {
-              _showBackToTop.value = notification.metrics.pixels >= 300;
-            }
-            return false;
-          },
-          child: MediaListView<Video>(
-            sourceList: controller.repository,
-            isPaginated: _isPaginated,
-            refreshSignal: _refreshSignal,
-            scrollController: _scrollController,
-            paddingTop: headerExtent,
-            emptyIcon: Icons.video_library_outlined,
-            // 换页后原来的选择已经不在屏幕上了，留着只会误删
-            onPageChanged: () => controller.selectedVideos.clear(),
-            itemBuilder: buildVideoItem,
+      body: Obx(() {
+        final bool active = controller.isMultiSelect.value;
+        final int count = controller.selectedVideos.length;
+        return BatchSelectionScope(
+          active: active,
+          selectedCount: count,
+          actions: [
+            GlassSelectionAction(
+              icon: Icons.delete,
+              label: slang.t.common.delete,
+              destructive: true,
+              onPressed: count == 0 ? null : _showDeleteConfirmDialog,
+            ),
+          ],
+          onClear: controller.selectedVideos.clear,
+          // 系统返回 / iOS 侧滑 / Esc 先退选择态，而不是把整页弹掉
+          child: SelectionPopScope(
+            active: active,
+            onExit: controller.toggleMultiSelect,
+            child: _buildBody(context, headerExtent, statusBarHeight),
           ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildBody(
+    BuildContext context,
+    double headerExtent,
+    double statusBarHeight,
+  ) {
+    final t = slang.Translations.of(context);
+    return GlassHeaderOverlay(
+      headerExtent: headerExtent,
+      headerTop: statusBarHeight,
+      solidExtent: statusBarHeight,
+      body: NotificationListener<ScrollNotification>(
+        onNotification: (notification) {
+          if (notification.depth == 0 &&
+              notification.metrics.axis == Axis.vertical) {
+            _showBackToTop.value = notification.metrics.pixels >= 300;
+          }
+          return false;
+        },
+        child: MediaListView<Video>(
+          sourceList: controller.repository,
+          isPaginated: _isPaginated,
+          refreshSignal: _refreshSignal,
+          scrollController: _scrollController,
+          paddingTop: headerExtent,
+          emptyIcon: Icons.video_library_outlined,
+          // 换页后原来的选择已经不在屏幕上了，留着只会误删
+          onPageChanged: () => controller.selectedVideos.clear(),
+          itemBuilder: buildVideoItem,
         ),
-        // header 行：左 返回圆钮 / 中 播放列表标题胶囊 / 右 动作胶囊
-        header: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.arrow_back),
-                tooltip: t.common.back,
-                onPressed: () => AppService.tryPop(),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Obx(
-                  () => GlassTitlePill(
-                    title: controller.playlistTitle.value.isEmpty
-                        ? null
-                        : controller.playlistTitle.value,
-                  ),
+      ),
+      // header 行：左 返回圆钮 / 中 播放列表标题胶囊 / 右 动作胶囊
+      header: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            GlassIconButton(
+              standalone: true,
+              icon: const Icon(Icons.arrow_back),
+              tooltip: t.common.back,
+              onPressed: () => AppService.tryPop(),
+            ),
+            const SizedBox(width: 8),
+            // 选择态下标题胶囊改报「已选 N 项」：单壳常驻、只换内容
+            Expanded(
+              child: Obx(
+                () => GlassCapsuleMorph(
+                  child: controller.isMultiSelect.value
+                      ? SizedBox(
+                          key: const ValueKey('selection'),
+                          width: 168,
+                          child: GlassSelectionSummary(
+                            selectedCount: controller.selectedVideos.length,
+                            allSelected: false,
+                            onToggleAll: null,
+                          ),
+                        )
+                      : KeyedSubtree(
+                          key: const ValueKey('title'),
+                          child: GlassTitlePill(
+                            flat: true,
+                            title: controller.playlistTitle.value.isEmpty
+                                ? null
+                                : controller.playlistTitle.value,
+                          ),
+                        ),
                 ),
               ),
-              const SizedBox(width: 8),
-              _buildActionGroup(context),
-            ],
-          ),
-        ),
-        extra: [
-          _buildScrollToTopFab(context),
-          // 多选悬浮按钮列：退出 / 清空 / 删除所选
-          Obx(
-            () => BatchActionFab(
-              isMultiSelect: controller.isMultiSelect.value,
-              selectedCount: controller.selectedVideos.length,
-              heroTagPrefix: 'playlist_detail_${widget.playlistId}',
-              isPaginated: _isPaginated,
-              onExit: () => controller.toggleMultiSelect(),
-              onClear: () => controller.selectedVideos.clear(),
-              customActionBuilder: (context) => FloatingActionButton.small(
-                heroTag: 'playlistDeleteFAB_${widget.playlistId}',
-                onPressed: _showDeleteConfirmDialog,
-                backgroundColor: Theme.of(context).colorScheme.error,
-                foregroundColor: Theme.of(context).colorScheme.onError,
-                child: const Icon(Icons.delete),
-              ),
             ),
-          ),
-        ],
+            const SizedBox(width: 8),
+            _buildActionGroup(context),
+          ],
+        ),
       ),
+      extra: [
+        _buildScrollToTopFab(context),
+        // 批量动作：瀑布流模式下的底部玻璃坞；分页模式下动作行由分页栏
+        // 自己承载（见 BatchSelectionScope），底部不会出现第二条玻璃。
+        GlassSelectionDock(paginated: _isPaginated),
+      ],
     );
   }
 
@@ -343,21 +376,22 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
                         );
                       },
                 ),
+                // 选择态：角标勾选片 + 选中描边（全站统一，
+                // 见 GlassSelectableOverlay）。常驻挂载以获得进出过渡。
+                Positioned.fill(
+                  child: GlassSelectableOverlay(
+                    selectionMode: isMultiSelect,
+                    selected: isSelected,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
                 if (isMultiSelect)
                   Positioned.fill(
                     child: Material(
-                      color: Colors.black26,
+                      color: Colors.transparent,
                       child: InkWell(
                         onTap: () => controller.toggleSelection(video.id),
-                        child: Center(
-                          child: Icon(
-                            isSelected
-                                ? Icons.check_circle
-                                : Icons.circle_outlined,
-                            color: Colors.white,
-                            size: 40,
-                          ),
-                        ),
+                        child: const SizedBox.expand(),
                       ),
                     ),
                   ),
@@ -499,39 +533,41 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
     );
   }
 
-  void _showDeleteConfirmDialog() {
-    showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(context, slang.t.common.confirmDelete),
-        content: Text(
-          slang.t.common.areYouSureYouWantToDeleteSelectedItems(
-            num: controller.selectedVideos.length,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.common.cancel),
-          ),
-          TextButton(
-            onPressed: () async {
-              AppService.tryPop();
-              await controller.deleteSelected();
-              // 删除接口回来后由本页驱动刷新：分页模式下数据源自己 refresh
-              // 是刷不到当前显示的那一页的
-              _refreshList();
-              // 删除完成后关闭多选模式
-              if (controller.selectedVideos.isEmpty &&
-                  controller.isMultiSelect.value) {
-                controller.toggleMultiSelect();
-              }
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(slang.t.common.delete),
-          ),
-        ],
+  /// 批量移出确认：走全站统一的玻璃确认弹窗（含所选预览）。
+  Future<void> _showDeleteConfirmDialog() async {
+    final count = controller.selectedVideos.length;
+    if (count == 0) return;
+    final confirmed = await showBatchConfirmDialog(
+      title: slang.t.common.confirmDelete,
+      message: slang.t.common.areYouSureYouWantToDeleteSelectedItems(
+        num: count,
       ),
+      confirmLabel: slang.t.common.delete,
+      previewTitles: _selectedVideoTitles(),
+      totalCount: count,
     );
+    if (!confirmed || !mounted) return;
+    await controller.deleteSelected();
+    // 删除接口回来后由本页驱动刷新：分页模式下数据源自己 refresh
+    // 是刷不到当前显示的那一页的
+    _refreshList();
+    // 删除完成后关闭多选模式
+    if (controller.selectedVideos.isEmpty && controller.isMultiSelect.value) {
+      controller.toggleMultiSelect();
+    }
+  }
+
+  /// 取所选视频的标题，供确认弹窗列出「到底要移出哪几个」。
+  List<String> _selectedVideoTitles() {
+    final selected = controller.selectedVideos;
+    final titles = <String>[];
+    for (final video in controller.repository) {
+      if (!selected.contains(video.id)) continue;
+      final title = video.title?.trim() ?? '';
+      titles.add(title.isEmpty ? slang.t.common.noTitle : title);
+      if (titles.length >= 3) break;
+    }
+    return titles;
   }
 
   void _showDeleteCurPlaylistConfirmDialog() {

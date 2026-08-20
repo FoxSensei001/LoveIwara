@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/shimmer_card.dart';
@@ -633,6 +635,11 @@ class _PaginationBarState extends State<PaginationBar>
 
   @override
   Widget build(BuildContext context) {
+    // 页面的批量选择态（没有页面广播时为 null，例如论坛 / 帖子详情，
+    // 那里的分页栏行为完全不变）。
+    final selection = BatchSelectionScope.maybeOf(context);
+    final bool selectionActive = selection?.active ?? false;
+
     // 加载态不再跨栏铺一条横向进度条，而是把光环落在页码卡片自己身上
     // （见 _buildPageNumberPill），这里只负责常规的分页栏内容。
     final barContent = Container(
@@ -653,19 +660,41 @@ class _PaginationBarState extends State<PaginationBar>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 主要内容区域
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final isNarrow = constraints.maxWidth < 600;
-              if (widget.isTotalCountUnknown) {
-                return isNarrow
-                    ? _buildUnknownTotalCompactPaginationBar(context)
-                    : _buildUnknownTotalFullPaginationBar(context);
-              }
-              return isNarrow
-                  ? _buildCompactPaginationBar(context)
-                  : _buildFullPaginationBar(context);
-            },
+          // 主要内容区域。
+          //
+          // 页面处于批量选择态时（由 [BatchSelectionScope] 广播），这条栏
+          // **不是被另一条动作坞盖住，而是自己换了内容**：翻页键收窄留下，
+          // 右侧长出动作行。底部因此永远只有一条栏——原先的做法是把浮钮列
+          // 抬到分页栏之上，手机上分页栏 46 + 浮钮列 + 安全区能吃掉近七分之
+          // 一屏。
+          //
+          // 交接是两段时序（借 Interval 让旧内容先退场、新内容后入场），与
+          // header 中间胶囊的 GlassCapsuleMorph 读起来是同一种形变。
+          AnimatedSwitcher(
+            duration: GlassTokens.capsuleMorphDuration,
+            switchInCurve: const Interval(0.5, 1.0, curve: Curves.easeOut),
+            switchOutCurve: const Interval(0.5, 1.0, curve: Curves.easeOut),
+            child: selectionActive
+                ? KeyedSubtree(
+                    key: const ValueKey('pagination_selection'),
+                    child: _buildSelectionBar(context, selection!),
+                  )
+                : KeyedSubtree(
+                    key: const ValueKey('pagination_nav'),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final isNarrow = constraints.maxWidth < 600;
+                        if (widget.isTotalCountUnknown) {
+                          return isNarrow
+                              ? _buildUnknownTotalCompactPaginationBar(context)
+                              : _buildUnknownTotalFullPaginationBar(context);
+                        }
+                        return isNarrow
+                            ? _buildCompactPaginationBar(context)
+                            : _buildFullPaginationBar(context);
+                      },
+                    ),
+                  ),
           ),
           // 底部安全区域占位
           if (widget.showBottomPadding && widget.paddingBottom > 0)
@@ -701,6 +730,71 @@ class _PaginationBarState extends State<PaginationBar>
       // 直接返回常规内容
       return barContent;
     }
+  }
+
+  /// 选择态下的分页栏内容：`‹ 页码 ›` + 动作行。
+  ///
+  /// 翻页键必须留着——否则用户没法翻到下一页继续选。页码卡片收窄成只显示
+  /// 当前页（总页数在选择态里帮不上忙，右边的动作才是主角）。
+  ///
+  /// 动作行放在可横向滚动的容器里：窄屏 + 三枚动作时按钮组可能比剩余宽度还
+  /// 宽，硬塞会 overflow。
+  Widget _buildSelectionBar(
+    BuildContext context,
+    BatchSelectionScope selection,
+  ) {
+    final bool canPrev = widget.currentPage > 0 && !widget.isLoading;
+    final bool canNext = widget.isTotalCountUnknown
+        ? (widget.canGoNext && !widget.isLoading)
+        : (widget.currentPage < widget.totalPages - 1 && !widget.isLoading);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      child: Row(
+        children: [
+          _buildNavButton(
+            icon: Icons.chevron_left,
+            enabled: canPrev,
+            onPressed: () => widget.onPageChanged(widget.currentPage - 1),
+          ),
+          const SizedBox(width: 6),
+          _buildPageNumberPill(
+            context,
+            text: '${widget.currentPage + 1}',
+            height: 36,
+            minWidth: 44,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(width: 6),
+          _buildNavButton(
+            icon: Icons.chevron_right,
+            enabled: canNext,
+            onPressed: () => widget.onPageChanged(widget.currentPage + 1),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              reverse: true,
+              padding: const EdgeInsets.only(left: 8),
+              child: GlassSelectionBarContent(
+                selectedCount: selection.selectedCount,
+                actions: selection.actions,
+                onClear: selection.onClear,
+                // 行首已经被页码占住，再加提示文案会挤；0 选中由主操作的
+                // 置灰态表达
+                showEmptyHint: false,
+                // 这条栏本身没有玻璃壳，图标钮得自带壳才跟旁边的翻页圆钮同族
+                standaloneButtons: true,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildUnknownTotalFullPaginationBar(BuildContext context) {
@@ -1050,7 +1144,11 @@ class _PaginationBarState extends State<PaginationBar>
     required bool enabled,
     required VoidCallback onPressed,
   }) {
-    return Opacity(
+    // 可用↔置灰要过渡：翻到第一页/最后一页时按钮直接掉一半透明度会「闪」，
+    // 与按钮自身的图标色过渡（GlassIconButton → GlassAnimatedColors）同步。
+    return AnimatedOpacity(
+      duration: GlassTokens.motionDuration,
+      curve: GlassTokens.motionCurve,
       opacity: enabled ? 1.0 : 0.45,
       child: GlassIconButton(
         standalone: true,

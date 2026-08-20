@@ -9,7 +9,7 @@ import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_repository.
 import 'package:i_iwara/app/ui/pages/play_list/widgets/playlist_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
-import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -250,93 +250,133 @@ class _PlayListPageState extends State<PlayListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final t = slang.Translations.of(context);
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
     final bool isWide = MediaQuery.sizeOf(context).width > 600;
 
     return Scaffold(
-      body: GlassHeaderOverlay(
-        headerExtent: headerExtent,
-        headerTop: statusBarHeight,
-        solidExtent: statusBarHeight,
-        body: NotificationListener<ScrollNotification>(
-          onNotification: (notification) {
-            if (notification.depth == 0 &&
-                notification.metrics.axis == Axis.vertical) {
-              _showBackToTop.value = notification.metrics.pixels >= 300;
-            }
-            return false;
-          },
-          child: MediaListView<PlaylistModel>(
-            sourceList: listSourceRepository,
-            isPaginated: _isPaginated,
-            refreshSignal: _refreshSignal,
-            scrollController: _scrollController,
-            paddingTop: headerExtent,
-            emptyIcon: Icons.playlist_play,
-            extendedListDelegate:
-                const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 300,
-                  crossAxisSpacing: 5,
-                  mainAxisSpacing: 5,
-                ),
-            // 换页后原来勾的已经不在屏幕上了，留着只会误删
-            onPageChanged: controller.clearSelection,
-            itemBuilder: (context, playlist, index) => Obx(
-              () => PlaylistItemWidget(
-                playlist: playlist,
-                onTap: () => _openPlaylistDetail(context, playlist),
-                isMultiSelect: _isEditMode,
-                isSelected: controller.selectedPlaylistIds.contains(
-                  playlist.id,
-                ),
-                onToggleSelect: () => controller.toggleSelection(playlist.id),
-                isDeleting: controller.isDeletingPlaylist(playlist.id),
-              ),
+      body: Obx(() {
+        final int count = controller.selectedPlaylistIds.length;
+        return BatchSelectionScope(
+          active: _isEditMode,
+          selectedCount: count,
+          actions: [
+            GlassSelectionAction(
+              icon: Icons.delete,
+              label: slang.t.common.delete,
+              destructive: true,
+              loading: controller.isBatchDeleting.value,
+              onPressed: count == 0 ? null : _showDeleteSelectedDialog,
             ),
+          ],
+          onClear: controller.clearSelection,
+          // 系统返回 / iOS 侧滑 / Esc 先退编辑态，而不是把整页弹掉
+          child: SelectionPopScope(
+            active: _isEditMode,
+            onExit: _toggleEditMode,
+            child: _buildBody(context, headerExtent, statusBarHeight, isWide),
           ),
-        ),
-        // header 行：左 返回圆钮 / 中 标题胶囊 / 右 动作胶囊
-        header: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.arrow_back),
-                tooltip: t.common.back,
-                onPressed: () => AppService.tryPop(),
+        );
+      }),
+    );
+  }
+
+  Widget _buildBody(
+    BuildContext context,
+    double headerExtent,
+    double statusBarHeight,
+    bool isWide,
+  ) {
+    final t = slang.Translations.of(context);
+    return GlassHeaderOverlay(
+      headerExtent: headerExtent,
+      headerTop: statusBarHeight,
+      solidExtent: statusBarHeight,
+      body: NotificationListener<ScrollNotification>(
+        onNotification: (notification) {
+          if (notification.depth == 0 &&
+              notification.metrics.axis == Axis.vertical) {
+            _showBackToTop.value = notification.metrics.pixels >= 300;
+          }
+          return false;
+        },
+        child: MediaListView<PlaylistModel>(
+          sourceList: listSourceRepository,
+          isPaginated: _isPaginated,
+          refreshSignal: _refreshSignal,
+          scrollController: _scrollController,
+          paddingTop: headerExtent,
+          emptyIcon: Icons.playlist_play,
+          extendedListDelegate:
+              const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 300,
+                crossAxisSpacing: 5,
+                mainAxisSpacing: 5,
               ),
-              const SizedBox(width: 8),
-              Expanded(child: GlassTitlePill(title: t.playList.myPlayList)),
-              const SizedBox(width: 8),
-              _buildActionGroup(context, isWide: isWide),
-            ],
-          ),
-        ),
-        extra: [
-          _buildScrollToTopFab(context),
-          // 多选悬浮按钮列：退出 / 清空 / 删除所选
-          Obx(
-            () => BatchActionFab(
+          // 换页后原来勾的已经不在屏幕上了，留着只会误删
+          onPageChanged: controller.clearSelection,
+          itemBuilder: (context, playlist, index) => Obx(
+            () => PlaylistItemWidget(
+              playlist: playlist,
+              onTap: () => _openPlaylistDetail(context, playlist),
               isMultiSelect: _isEditMode,
-              selectedCount: controller.selectedPlaylistIds.length,
-              heroTagPrefix: 'playlist_${widget.userId}',
-              isPaginated: _isPaginated,
-              onExit: _toggleEditMode,
-              onClear: controller.clearSelection,
-              customActionBuilder: (context) => FloatingActionButton.small(
-                heroTag: 'playlistBatchDeleteFAB_${widget.userId}',
-                onPressed: _showDeleteSelectedDialog,
-                backgroundColor: Theme.of(context).colorScheme.error,
-                foregroundColor: Theme.of(context).colorScheme.onError,
-                child: const Icon(Icons.delete),
-              ),
+              isSelected: controller.selectedPlaylistIds.contains(playlist.id),
+              onToggleSelect: () => controller.toggleSelection(playlist.id),
+              isDeleting: controller.isDeletingPlaylist(playlist.id),
             ),
           ),
-        ],
+        ),
       ),
+      // header 行：左 返回圆钮 / 中 标题胶囊 / 右 动作胶囊
+      header: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            GlassIconButton(
+              standalone: true,
+              icon: const Icon(Icons.arrow_back),
+              tooltip: t.common.back,
+              onPressed: () => AppService.tryPop(),
+            ),
+            const SizedBox(width: 8),
+            // 选择态下标题胶囊改报「已选 N 项」：单壳常驻、只换内容
+            Expanded(
+              child: Obx(() {
+                // Rx 必须在分支之外读一次：非选择态那一支不碰任何可观察量，
+                // Obx 会因为「没有订阅到任何东西」直接抛 ObxError
+                final int selectedCount = controller.selectedPlaylistIds.length;
+                return GlassCapsuleMorph(
+                  child: _isEditMode
+                      ? SizedBox(
+                          key: const ValueKey('selection'),
+                          width: 168,
+                          child: GlassSelectionSummary(
+                            selectedCount: selectedCount,
+                            allSelected: false,
+                            onToggleAll: null,
+                          ),
+                        )
+                      : KeyedSubtree(
+                          key: const ValueKey('title'),
+                          child: GlassTitlePill(
+                            flat: true,
+                            title: t.playList.myPlayList,
+                          ),
+                        ),
+                );
+              }),
+            ),
+            const SizedBox(width: 8),
+            _buildActionGroup(context, isWide: isWide),
+          ],
+        ),
+      ),
+      extra: [
+        _buildScrollToTopFab(context),
+        // 批量动作：瀑布流模式下的底部玻璃坞；分页模式下动作行由分页栏
+        // 自己承载（见 BatchSelectionScope），底部不会出现第二条玻璃。
+        GlassSelectionDock(paginated: _isPaginated),
+      ],
     );
   }
 

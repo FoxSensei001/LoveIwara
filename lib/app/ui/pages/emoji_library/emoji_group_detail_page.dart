@@ -7,6 +7,10 @@ import 'package:i_iwara/common/constants.dart';
 import 'dart:convert';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/ui/widgets/glass/batch_confirm_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 
 enum _ImportMenuAction { addByUrl, batchImport }
 
@@ -80,6 +84,31 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context);
+    // 选择态：动作行由底部玻璃坞承载，与全站其它九处批量能力同一套语言。
+    // 系统返回 / iOS 侧滑 / Esc 先退选择态，而不是把整只弹窗关掉。
+    return BatchSelectionScope(
+      active: _isSelectionMode,
+      selectedCount: _selectedImages.length,
+      actions: [
+        GlassSelectionAction(
+          icon: Icons.delete,
+          label: t.emoji.delete,
+          destructive: true,
+          onPressed: _selectedImages.isEmpty ? null : _showBatchDeleteDialog,
+        ),
+      ],
+      onClear: _clearSelection,
+      child: SelectionPopScope(
+        active: _isSelectionMode,
+        onExit: _toggleSelectionMode,
+        child: _buildSheet(context),
+      ),
+    );
+  }
+
+  Widget _buildSheet(BuildContext context) {
+    final t = Translations.of(context);
     return Container(
       height: MediaQuery.of(context).size.height * 0.9,
       decoration: const BoxDecoration(
@@ -123,8 +152,11 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
             child: Row(
               children: [
                 Expanded(
+                  // 选择态下标题让位给计数：进选择态是一次页面级的模式切换
                   child: Text(
-                    widget.group.name,
+                    _isSelectionMode
+                        ? t.common.selectedRecords(num: _selectedImages.length)
+                        : widget.group.name,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -173,65 +205,62 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                     },
                   ),
                   const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.select_all),
-                    onPressed: () => _toggleSelectionMode(),
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.orange.shade50,
-                      shape: const CircleBorder(),
-                    ),
+                  GlassIconButton(
+                    standalone: true,
+                    icon: const Icon(Icons.checklist),
+                    tooltip: t.common.editMode,
+                    onPressed: _images.isEmpty ? null : _toggleSelectionMode,
                   ),
                 ] else ...[
-                  IconButton(
-                    icon: const Icon(Icons.select_all),
+                  // 全选 ↔ 取消全选：图标在原位交叉过渡（本页列表是有限的
+                  // 一整组表情，全选够得着，所以这里给了全选键）
+                  GlassIconButton(
+                    standalone: true,
+                    icon: Icon(
+                      _selectedImages.length == _images.length
+                          ? Icons.remove_done
+                          : Icons.done_all,
+                    ),
+                    tooltip: _selectedImages.length == _images.length
+                        ? t.common.cancelSelectAll
+                        : t.common.selectAll,
                     onPressed: _selectedImages.length == _images.length
                         ? _clearSelection
                         : _selectAllImages,
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.blue.shade50,
-                      shape: const CircleBorder(),
-                    ),
                   ),
-                  if (_selectedImages.isNotEmpty) ...[
-                    const SizedBox(width: 8),
-                    IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () => _showBatchDeleteDialog(),
-                      style: IconButton.styleFrom(
-                        backgroundColor: Colors.red.shade50,
-                        shape: const CircleBorder(),
-                      ),
-                    ),
-                  ],
                   const SizedBox(width: 8),
-                  IconButton(
+                  GlassIconButton(
+                    standalone: true,
                     icon: const Icon(Icons.close),
+                    tooltip: t.common.exitEditMode,
                     onPressed: _toggleSelectionMode,
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.grey.shade100,
-                      shape: const CircleBorder(),
-                    ),
                   ),
                 ],
                 const SizedBox(width: 8),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
+                GlassIconButton(
+                  standalone: true,
                   icon: const Icon(Icons.close),
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.grey.shade100,
-                    shape: const CircleBorder(),
-                  ),
+                  tooltip: t.common.close,
+                  onPressed: () => Navigator.pop(context),
                 ),
               ],
             ),
           ),
-          // 内容区域
+          // 内容区域。选择态的动作坞浮在网格之上（本页没有分页栏，
+          // 所以永远走独立浮条这一支）。
           Expanded(
-            child: _isLoading
-                ? _buildGridShimmer()
-                : _images.isEmpty
-                ? _buildEmptyState()
-                : _buildImageGrid(),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: _isLoading
+                      ? _buildGridShimmer()
+                      : _images.isEmpty
+                      ? _buildEmptyState()
+                      : _buildImageGrid(),
+                ),
+                const GlassSelectionDock(),
+              ],
+            ),
           ),
         ],
       ),
@@ -361,40 +390,15 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                       );
                     },
                   ),
-                  // 选择指示器
-                  if (_isSelectionMode)
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? Colors.blue
-                              : Colors.white.withValues(alpha: 0.9),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: isSelected ? Colors.blue : Colors.grey,
-                            width: 2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.2),
-                              blurRadius: 2,
-                              offset: const Offset(0, 1),
-                            ),
-                          ],
-                        ),
-                        child: isSelected
-                            ? const Icon(
-                                Icons.check,
-                                size: 16,
-                                color: Colors.white,
-                              )
-                            : null,
-                      ),
+                  // 选择态：角标勾选片 + 选中描边（全站统一，
+                  // 见 GlassSelectableOverlay）。常驻挂载以获得进出过渡。
+                  Positioned.fill(
+                    child: GlassSelectableOverlay(
+                      selectionMode: _isSelectionMode,
+                      selected: isSelected,
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                  ),
                 ],
               ),
             ),
@@ -586,38 +590,23 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
     );
   }
 
-  void _showBatchDeleteDialog() {
+  /// 批量删除确认：走全站统一的玻璃确认弹窗。
+  Future<void> _showBatchDeleteDialog() async {
+    if (_selectedImages.isEmpty) return;
     final t = Translations.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.emoji.batchDelete),
-        content: Text(
-          t.emoji.confirmBatchDelete(count: _selectedImages.length),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(t.emoji.cancel),
-          ),
-          TextButton(
-            onPressed: () {
-              for (final imageId in _selectedImages) {
-                _emojiService.deleteEmojiImage(imageId);
-              }
-              Navigator.pop(context);
-              _toggleSelectionMode();
-              _loadImages();
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(t.emoji.deleteSuccess)));
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t.emoji.delete),
-          ),
-        ],
-      ),
+    final confirmed = await showBatchConfirmDialog(
+      title: t.emoji.batchDelete,
+      message: t.emoji.confirmBatchDelete(count: _selectedImages.length),
+      confirmLabel: t.emoji.delete,
+      totalCount: _selectedImages.length,
     );
+    if (!confirmed || !mounted) return;
+    for (final imageId in _selectedImages) {
+      _emojiService.deleteEmojiImage(imageId);
+    }
+    _toggleSelectionMode();
+    _loadImages();
+    showGlassToast(t.emoji.deleteSuccess, type: GlassToastType.success);
   }
 
   void _showAddImagesDialog() {

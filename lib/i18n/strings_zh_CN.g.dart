@@ -287,6 +287,8 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get paused => '已暂停';
 	@override String get clear => '清除';
 	@override String get clearSelection => '清空选择';
+	@override String get selectItemsToContinue => '选择项目以继续';
+	@override String andMoreItems({required Object num}) => '还有 ${num} 项';
 	@override String get batchDelete => '批量删除';
 	@override String get user => '用户';
 	@override String get post => '投稿';
@@ -3571,6 +3573,8 @@ extension on TranslationsZhCn {
 			'common.paused' => '已暂停',
 			'common.clear' => '清除',
 			'common.clearSelection' => '清空选择',
+			'common.selectItemsToContinue' => '选择项目以继续',
+			'common.andMoreItems' => ({required Object num}) => '还有 ${num} 项',
 			'common.batchDelete' => '批量删除',
 			'common.user' => '用户',
 			'common.post' => '投稿',
@@ -3907,10 +3911,10 @@ extension on TranslationsZhCn {
 			'settings.rememberBrightness' => '记住亮度',
 			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => '此配置决定当你之后播放视频时是否会沿用之前的亮度设置。',
 			'settings.playControlArea' => '播放控制区域',
-			'settings.leftAndRightControlAreaWidth' => '左右控制区域宽度',
-			'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer' => '此配置决定播放器左右两侧的控制区域宽度。',
 			_ => null,
 		} ?? switch (path) {
+			'settings.leftAndRightControlAreaWidth' => '左右控制区域宽度',
+			'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer' => '此配置决定播放器左右两侧的控制区域宽度。',
 			'settings.proxyAddressCannotBeEmpty' => '代理地址不能为空。',
 			'settings.invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort' => '无效的代理地址格式。请使用 IP:端口 或 域名:端口 格式。',
 			'settings.proxyNormalWork' => '代理正常工作。',
@@ -4421,10 +4425,10 @@ extension on TranslationsZhCn {
 			'oreno3d.messages.videoNotFoundOrDeleted' => '视频不存在或已被删除',
 			'oreno3d.messages.unableToGetVideoPlayLink' => '无法获取视频播放链接',
 			'oreno3d.messages.getVideoDetailFailed' => '获取视频详情失败',
-			'signIn.pleaseLoginFirst' => '请先登录',
-			'signIn.alreadySignedInToday' => '您今天已经签到过了！',
 			_ => null,
 		} ?? switch (path) {
+			'signIn.pleaseLoginFirst' => '请先登录',
+			'signIn.alreadySignedInToday' => '您今天已经签到过了！',
 			'signIn.youDidNotStickToTheSignIn' => '您未能坚持签到。',
 			'signIn.signInSuccess' => '签到成功！',
 			'signIn.signInFailed' => '签到失败，请稍后再试',
@@ -4935,10 +4939,10 @@ extension on TranslationsZhCn {
 			'download.category.createSuccess' => '分类已创建',
 			'download.category.createFailed' => '创建分类失败',
 			'download.category.nameEmpty' => '分类名称不能为空',
-			'download.category.emptyHint' => '还没有分类，新建一个来整理你的下载。',
-			'download.category.moveTo' => '移至分类',
 			_ => null,
 		} ?? switch (path) {
+			'download.category.emptyHint' => '还没有分类，新建一个来整理你的下载。',
+			'download.category.moveTo' => '移至分类',
 			'download.category.moveToWithCount' => ({required Object count}) => '移动 ${count} 项到…',
 			'download.category.moveSuccess' => ({required Object title}) => '已移至「${title}」',
 			'download.category.moveToUncategorizedSuccess' => '已移至「未分类」',
@@ -5449,10 +5453,10 @@ extension on TranslationsZhCn {
 			'emoji.formatExample' => '格式示例:\n["url1", "url2", "url3"]',
 			'emoji.pasteJsonUrlArray' => '请粘贴JSON格式的URL数组',
 			'emoji.import' => '导入',
-			'emoji.importSuccess' => ({required Object count}) => '成功导入${count}张图片',
-			'emoji.jsonFormatError' => 'JSON格式错误，请检查输入',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.importSuccess' => ({required Object count}) => '成功导入${count}张图片',
+			'emoji.jsonFormatError' => 'JSON格式错误，请检查输入',
 			'emoji.createGroup' => '创建表情包分组',
 			'emoji.groupName' => '分组名称',
 			'emoji.enterGroupName' => '请输入分组名称',

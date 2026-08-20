@@ -16,7 +16,8 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_lis
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_tab_view.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/saved_search_config_drawer.dart';
-import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/batch_download_selection.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
@@ -692,7 +693,9 @@ class PopularMediaListPageBaseState<
         builder: (context, constraints) {
           final bool isWide = MediaQuery.sizeOf(context).width > 600;
 
-          return GlassHeaderOverlay(
+          return BatchDownloadSelectionScope(
+            controllers: [_batchSelectController],
+            child: GlassHeaderOverlay(
             headerExtent: headerExtent,
             headerTop: statusBarHeight,
             solidExtent: statusBarHeight,
@@ -782,24 +785,45 @@ class PopularMediaListPageBaseState<
                           alignment: Alignment.centerLeft,
                           // 玻璃壳由 GlassCapsuleMorph 常驻提供，两侧只换
                           // 无壳内容——胶囊平滑伸缩，阴影/圆角全程完整。
-                          child: GlassCapsuleMorph(
-                            child: useSegmented
-                                ? Obx(
-                                    key: const ValueKey('segmented'),
-                                    () => GlassSegmentedControl(
-                                      flat: true,
-                                      selectedIndex: _currentTabIndex.value,
-                                      progress: _tabController.animation,
-                                      onChanged: (i) =>
-                                          _tabController.animateTo(i),
-                                      items: segmentItems,
-                                    ),
-                                  )
-                                : Obx(
-                                    key: const ValueKey('dropdown'),
-                                    () => _buildTabDropdown(context),
+                          child: Obx(() {
+                            // 选择态下这只胶囊改报「已选 N 项」：进选择态是一次
+                            // 页面级的模式切换，header 不该毫无反应
+                            if (_batchSelectController.isMultiSelect.value) {
+                              return GlassCapsuleMorph(
+                                child: SizedBox(
+                                  key: const ValueKey('selection'),
+                                  width: 168,
+                                  child: GlassSelectionSummary(
+                                    selectedCount:
+                                        _batchSelectController.selectedCount,
+                                    allSelected: false,
+                                    // 全选留空：这是一条懒加载的无限列表，
+                                    // 「全选」够不到还没加载的部分，给了反而
+                                    // 是个误导（见 glass_selection.dart）
+                                    onToggleAll: null,
                                   ),
-                          ),
+                                ),
+                              );
+                            }
+                            return GlassCapsuleMorph(
+                              child: useSegmented
+                                  ? Obx(
+                                      key: const ValueKey('segmented'),
+                                      () => GlassSegmentedControl(
+                                        flat: true,
+                                        selectedIndex: _currentTabIndex.value,
+                                        progress: _tabController.animation,
+                                        onChanged: (i) =>
+                                            _tabController.animateTo(i),
+                                        items: segmentItems,
+                                      ),
+                                    )
+                                  : Obx(
+                                      key: const ValueKey('dropdown'),
+                                      () => _buildTabDropdown(context),
+                                    ),
+                            );
+                          }),
                         );
                       },
                     ),
@@ -812,15 +836,16 @@ class PopularMediaListPageBaseState<
             extra: [
               _buildScrollToTopFab(context),
 
-              // 多选操作按钮
+              // 批量动作：瀑布流模式下的底部玻璃坞。分页模式下动作行由分页栏
+              // 自己承载（见 BatchSelectionScope），这里自动隐身，底部不会
+              // 出现第二条玻璃。
               Obx(
-                () => BatchActionFabColumn<T>(
-                  controller: _batchSelectController,
-                  heroTagPrefix: 'popular_media_list',
-                  isPaginated: _mediaListController.isPaginated.value,
+                () => GlassSelectionDock(
+                  paginated: _mediaListController.isPaginated.value,
                 ),
               ),
-            ],
+              ],
+            ),
           );
         },
       ),

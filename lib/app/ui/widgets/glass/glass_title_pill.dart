@@ -22,6 +22,7 @@ class GlassTitlePill extends StatelessWidget {
     this.title,
     this.subtitle,
     this.placeholderWidth = 140,
+    this.flat = false,
   });
 
   /// 标题文本；null 表示仍在加载（显示 shimmer 占位条）。
@@ -32,6 +33,10 @@ class GlassTitlePill extends StatelessWidget {
 
   /// shimmer 占位条宽度。
   final double placeholderWidth;
+
+  /// 不自带玻璃壳：外层已经有一只常驻的壳（[GlassCapsuleMorph]）时用，
+  /// 否则会套出壳中壳。与 `GlassSegmentedControl.flat` 同一口径。
+  final bool flat;
 
   @override
   Widget build(BuildContext context) {
@@ -61,13 +66,43 @@ class GlassTitlePill extends StatelessWidget {
               resolvedTitle,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              style: textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             ),
           );
 
     void openFullTitle() {
       if (resolvedTitle == null) return;
       showGlassFullTitleDialog(context, resolvedTitle, subtitle: subtitle);
+    }
+
+    // 用 Row(min) + Flexible 而不是 Center：既能收缩包住短标题，
+    // 又能在长标题时吃满可用宽度并按省略号截断
+    final Widget content = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(
+          child: GlassShapeSwitcher(
+            layoutAlignment: Alignment.centerLeft,
+            sizeAlignment: Alignment.centerLeft,
+            child: inner,
+          ),
+        ),
+      ],
+    );
+
+    if (flat) {
+      // 壳由外层提供，这里只出内容；点按/长按仍要能开全文弹窗
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: GlassPressable(
+          onTap: resolvedTitle == null ? null : openFullTitle,
+          onLongPress: resolvedTitle == null ? null : openFullTitle,
+          scale: 1,
+          builder: (context, _) => content,
+        ),
+      );
     }
 
     return Align(
@@ -78,20 +113,7 @@ class GlassTitlePill extends StatelessWidget {
         tooltip: resolvedTitle,
         onTap: resolvedTitle == null ? null : openFullTitle,
         onLongPress: resolvedTitle == null ? null : openFullTitle,
-        // 用 Row(min) + Flexible 而不是 Center：既能收缩包住短标题，
-        // 又能在长标题时吃满可用宽度并按省略号截断
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(
-              child: GlassShapeSwitcher(
-                layoutAlignment: Alignment.centerLeft,
-                sizeAlignment: Alignment.centerLeft,
-                child: inner,
-              ),
-            ),
-          ],
-        ),
+        child: content,
       ),
     );
   }

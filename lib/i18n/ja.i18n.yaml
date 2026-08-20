@@ -189,6 +189,8 @@ common:
   paused: 一時停止
   clear: クリア
   clearSelection: 選択を解除
+  selectItemsToContinue: 項目を選択してください
+  andMoreItems(num): '他 ${num} 件'
   batchDelete: 一括削除
   user: ユーザー
   post: 投稿

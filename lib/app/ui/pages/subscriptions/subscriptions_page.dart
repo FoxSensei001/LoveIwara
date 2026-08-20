@@ -34,7 +34,8 @@ import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import '../popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
-import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/batch_download_selection.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
@@ -672,128 +673,129 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
         builder: (context, constraints) {
           final bool isWide = MediaQuery.sizeOf(context).width > 600;
 
-          return GlassHeaderOverlay(
-            headerExtent: headerExtent,
-            headerTop: statusBarHeight,
-            solidExtent: statusBarHeight,
-            body: Obx(() {
-              // 内容区域：列表铺满整页，通过 paddingTop 让出 header。
-              // 视口不能在外面套 Padding（否则内容到 header 下边缘就被裁掉、
-              // 永远滚不到 header 背后），留白交给列表自身的 paddingTop。
-              final isPaginated = mediaListController.isPaginated.value;
-              final rebuildKey = mediaListController.rebuildKey.value
-                  .toString();
-              final videoReloadVersion = mediaListController
-                  .reloadVersionForTab(0);
-              final imageReloadVersion = mediaListController
-                  .reloadVersionForTab(1);
-              final postReloadVersion = mediaListController.reloadVersionForTab(
-                2,
-              );
-              // 底部安全区由 MediaQuery.padding.bottom 统一提供
-              //（窄屏时 Shell 已把浮动底栏的高度加进去）
-              const bool shouldApplyBottomSafeAreaPadding = true;
+          return BatchDownloadSelectionScope(
+            // 视频 / 图库两个控制器只广播当前 tab 那一个：InheritedWidget
+            // 取最近的一层，套两层的话分页栏会永远读到内层那个
+            controllers: [_videoBatchController, _imageBatchController],
+            activeIndex: () => _tabController.index,
+            child: GlassHeaderOverlay(
+              headerExtent: headerExtent,
+              headerTop: statusBarHeight,
+              solidExtent: statusBarHeight,
+              body: Obx(() {
+                // 内容区域：列表铺满整页，通过 paddingTop 让出 header。
+                // 视口不能在外面套 Padding（否则内容到 header 下边缘就被裁掉、
+                // 永远滚不到 header 背后），留白交给列表自身的 paddingTop。
+                final isPaginated = mediaListController.isPaginated.value;
+                final rebuildKey = mediaListController.rebuildKey.value
+                    .toString();
+                final videoReloadVersion = mediaListController
+                    .reloadVersionForTab(0);
+                final imageReloadVersion = mediaListController
+                    .reloadVersionForTab(1);
+                final postReloadVersion = mediaListController
+                    .reloadVersionForTab(2);
+                // 底部安全区由 MediaQuery.padding.bottom 统一提供
+                //（窄屏时 Shell 已把浮动底栏的高度加进去）
+                const bool shouldApplyBottomSafeAreaPadding = true;
 
-              // 同步分页模式状态到批量选择控制器
-              _videoBatchController.setPaginatedMode(isPaginated);
-              _imageBatchController.setPaginatedMode(isPaginated);
+                // 同步分页模式状态到批量选择控制器
+                _videoBatchController.setPaginatedMode(isPaginated);
+                _imageBatchController.setPaginatedMode(isPaginated);
 
-              return TabBarView(
-                controller: _tabController,
-                physics: const ClampingScrollPhysics(),
-                children: [
-                  GlowNotificationWidget(
-                    key: ValueKey(
-                      'video_${selectedId}_${isPaginated}_${videoReloadVersion}_$rebuildKey',
-                    ),
-                    child: Obx(
-                      () => SubscriptionVideoList(
-                        userId: selectedId,
-                        tabIndex: 0,
-                        isPaginated: isPaginated,
-                        paddingTop: headerExtent,
-                        sortId: _filterSortId.name,
-                        searchTagIds: _filterTagIds,
-                        searchDate: _filterDate,
-                        searchRating: _filterRating,
-                        showBottomPadding: shouldApplyBottomSafeAreaPadding,
-                        isMultiSelectMode:
-                            _videoBatchController.isMultiSelect.value,
-                        selectedItemIds: _videoBatchController.selectedMediaIds
-                            .toSet(),
-                        onItemSelect: (video) =>
-                            _videoBatchController.toggleSelection(video),
+                return TabBarView(
+                  controller: _tabController,
+                  physics: const ClampingScrollPhysics(),
+                  children: [
+                    GlowNotificationWidget(
+                      key: ValueKey(
+                        'video_${selectedId}_${isPaginated}_${videoReloadVersion}_$rebuildKey',
+                      ),
+                      child: Obx(
+                        () => SubscriptionVideoList(
+                          userId: selectedId,
+                          tabIndex: 0,
+                          isPaginated: isPaginated,
+                          paddingTop: headerExtent,
+                          sortId: _filterSortId.name,
+                          searchTagIds: _filterTagIds,
+                          searchDate: _filterDate,
+                          searchRating: _filterRating,
+                          showBottomPadding: shouldApplyBottomSafeAreaPadding,
+                          isMultiSelectMode:
+                              _videoBatchController.isMultiSelect.value,
+                          selectedItemIds: _videoBatchController
+                              .selectedMediaIds
+                              .toSet(),
+                          onItemSelect: (video) =>
+                              _videoBatchController.toggleSelection(video),
+                        ),
                       ),
                     ),
-                  ),
-                  GlowNotificationWidget(
-                    key: ValueKey(
-                      'image_${selectedId}_${isPaginated}_${imageReloadVersion}_$rebuildKey',
-                    ),
-                    child: Obx(
-                      () => SubscriptionImageList(
-                        userId: selectedId,
-                        tabIndex: 1,
-                        isPaginated: isPaginated,
-                        paddingTop: headerExtent,
-                        sortId: _filterSortId.name,
-                        searchTagIds: _filterTagIds,
-                        searchDate: _filterDate,
-                        searchRating: _filterRating,
-                        showBottomPadding: shouldApplyBottomSafeAreaPadding,
-                        isMultiSelectMode:
-                            _imageBatchController.isMultiSelect.value,
-                        selectedItemIds: _imageBatchController.selectedMediaIds
-                            .toSet(),
-                        onItemSelect: (image) =>
-                            _imageBatchController.toggleSelection(image),
+                    GlowNotificationWidget(
+                      key: ValueKey(
+                        'image_${selectedId}_${isPaginated}_${imageReloadVersion}_$rebuildKey',
+                      ),
+                      child: Obx(
+                        () => SubscriptionImageList(
+                          userId: selectedId,
+                          tabIndex: 1,
+                          isPaginated: isPaginated,
+                          paddingTop: headerExtent,
+                          sortId: _filterSortId.name,
+                          searchTagIds: _filterTagIds,
+                          searchDate: _filterDate,
+                          searchRating: _filterRating,
+                          showBottomPadding: shouldApplyBottomSafeAreaPadding,
+                          isMultiSelectMode:
+                              _imageBatchController.isMultiSelect.value,
+                          selectedItemIds: _imageBatchController
+                              .selectedMediaIds
+                              .toSet(),
+                          onItemSelect: (image) =>
+                              _imageBatchController.toggleSelection(image),
+                        ),
                       ),
                     ),
-                  ),
-                  GlowNotificationWidget(
-                    key: ValueKey(
-                      'post_${selectedId}_${isPaginated}_${postReloadVersion}_$rebuildKey',
+                    GlowNotificationWidget(
+                      key: ValueKey(
+                        'post_${selectedId}_${isPaginated}_${postReloadVersion}_$rebuildKey',
+                      ),
+                      child: SubscriptionPostList(
+                        userId: selectedId,
+                        tabIndex: 2,
+                        isPaginated: isPaginated,
+                        paddingTop: headerExtent,
+                        showBottomPadding: shouldApplyBottomSafeAreaPadding,
+                      ),
                     ),
-                    child: SubscriptionPostList(
-                      userId: selectedId,
-                      tabIndex: 2,
-                      isPaginated: isPaginated,
-                      paddingTop: headerExtent,
-                      showBottomPadding: shouldApplyBottomSafeAreaPadding,
-                    ),
-                  ),
-                ],
-              );
-            }),
-            header: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  _buildAvatarButton(context),
-                  const SizedBox(width: 8),
-                  _buildCenterCapsule(context, tabItems),
-                  const SizedBox(width: 8),
-                  _buildActionGroup(context, isWide: isWide),
-                ],
+                  ],
+                );
+              }),
+              header: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    _buildAvatarButton(context),
+                    const SizedBox(width: 8),
+                    _buildCenterCapsule(context, tabItems),
+                    const SizedBox(width: 8),
+                    _buildActionGroup(context, isWide: isWide),
+                  ],
+                ),
               ),
+              extra: [
+                _buildScrollToTopFab(context),
+
+                // 批量动作：瀑布流模式下的底部玻璃坞；分页模式下动作行由分页栏
+                // 自己承载（见 BatchSelectionScope），底部不会出现第二条玻璃。
+                Obx(
+                  () => GlassSelectionDock(
+                    paginated: mediaListController.isPaginated.value,
+                  ),
+                ),
+              ],
             ),
-            extra: [
-              _buildScrollToTopFab(context),
-
-              // 多选操作按钮
-              BatchActionFabColumn<Video>(
-                controller: _videoBatchController,
-                heroTagPrefix: 'subscriptions_video',
-                isPaginated: mediaListController.isPaginated.value,
-                visible: () => _tabController.index == 0,
-              ),
-              BatchActionFabColumn<ImageModel>(
-                controller: _imageBatchController,
-                heroTagPrefix: 'subscriptions_image',
-                isPaginated: mediaListController.isPaginated.value,
-                visible: () => _tabController.index == 1,
-              ),
-            ],
           );
         },
       ),
@@ -823,21 +825,51 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
             alignment: Alignment.centerLeft,
             // 玻璃壳由 GlassCapsuleMorph 常驻提供，两侧只换
             // 无壳内容——胶囊平滑伸缩，阴影/圆角全程完整。
-            child: GlassCapsuleMorph(
-              child: useSegmented
-                  ? GlassSegmentedControl(
-                      key: const ValueKey('segmented'),
-                      flat: true,
-                      selectedIndex: _tabController.index,
-                      progress: _tabController.animation,
-                      onChanged: (i) => _tabController.animateTo(i),
-                      items: tabItems,
-                    )
-                  : KeyedSubtree(
-                      key: const ValueKey('dropdown'),
-                      child: _buildTabDropdown(context, tabItems),
+            child: Obx(() {
+              // 选择态下这只胶囊改报「已选 N 项」：进选择态是一次页面级的
+              // 模式切换，header 不该毫无反应。
+              // 两个控制器的 Rx 都要在分支之外读一次：帖子 tab 上 batch 为
+              // null，那一支不碰任何可观察量的话 Obx 会直接抛 ObxError。
+              final bool videoSelecting =
+                  _videoBatchController.isMultiSelect.value;
+              final bool imageSelecting =
+                  _imageBatchController.isMultiSelect.value;
+              final batch = _activeBatchController;
+              final bool selecting = batch == null
+                  ? false
+                  : (batch == _videoBatchController
+                        ? videoSelecting
+                        : imageSelecting);
+              if (batch != null && selecting) {
+                return GlassCapsuleMorph(
+                  child: SizedBox(
+                    key: const ValueKey('selection'),
+                    width: 168,
+                    child: GlassSelectionSummary(
+                      selectedCount: batch.selectedCount,
+                      allSelected: false,
+                      // 懒加载列表够不到未加载的部分，不给全选
+                      onToggleAll: null,
                     ),
-            ),
+                  ),
+                );
+              }
+              return GlassCapsuleMorph(
+                child: useSegmented
+                    ? GlassSegmentedControl(
+                        key: const ValueKey('segmented'),
+                        flat: true,
+                        selectedIndex: _tabController.index,
+                        progress: _tabController.animation,
+                        onChanged: (i) => _tabController.animateTo(i),
+                        items: tabItems,
+                      )
+                    : KeyedSubtree(
+                        key: const ValueKey('dropdown'),
+                        child: _buildTabDropdown(context, tabItems),
+                      ),
+              );
+            }),
           );
         },
       ),

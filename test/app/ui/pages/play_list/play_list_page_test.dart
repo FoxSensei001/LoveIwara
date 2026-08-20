@@ -16,6 +16,8 @@ import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_controller.
 import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_detail_controller.dart';
 import 'package:i_iwara/app/ui/pages/play_list/play_list.dart';
 import 'package:i_iwara/app/ui/pages/play_list/play_list_detail.dart';
+import 'package:i_iwara/app/ui/pages/play_list/widgets/playlist_item_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
@@ -61,23 +63,25 @@ void main() {
 
       // 默认态：卡片干干净净，没有勾选蒙版也没有批量删除浮钮
       expect(find.byIcon(Icons.checklist), findsOneWidget);
-      expect(find.byIcon(Icons.circle_outlined), findsNothing);
+      expect(_selectionTicks(), findsNothing);
       expect(find.byIcon(Icons.delete), findsNothing);
 
-      // 进编辑态：卡片长出勾选圈，勾一个才出现批量删除浮钮
+      // 进编辑态：卡片长出勾选片，勾一个才在底部坞里点亮批量删除
       await _enterEditMode(tester);
-      expect(find.byIcon(Icons.circle_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.delete), findsNothing);
+      expect(_selectionTicks(selected: false), findsOneWidget);
 
-      await tester.tap(find.byIcon(Icons.circle_outlined));
+      await tester.tap(find.byType(PlaylistItemWidget).first);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));
 
-      expect(find.byIcon(Icons.check_circle), findsOneWidget);
+      expect(_selectionTicks(selected: true), findsOneWidget);
       expect(find.byIcon(Icons.delete), findsOneWidget);
 
-      // 别人的播放列表：没有编辑键，也进不了多选
+      // 别人的播放列表：没有编辑键，也进不了多选。
+      // 先卸载再挂载，否则 State（含 _isEditMode）会被复用，上一段留下的
+      // 编辑态会漏到这一段来。
+      await tester.pumpWidget(const SizedBox.shrink());
       await tester.pumpWidget(
         _buildTestApp(
           child: const PlayListPage(userId: 'user-1', isMine: false),
@@ -86,7 +90,7 @@ void main() {
       await _pumpPlaylistPage(tester);
 
       expect(find.byIcon(Icons.checklist), findsNothing);
-      expect(find.byIcon(Icons.circle_outlined), findsNothing);
+      expect(_selectionTicks(), findsNothing);
     });
 
     testWidgets(
@@ -217,12 +221,12 @@ void main() {
       await _pumpPlaylistPage(tester);
 
       await _enterEditMode(tester);
-      expect(find.byIcon(Icons.circle_outlined), findsNWidgets(3));
+      expect(_selectionTicks(selected: false), findsNWidgets(3));
 
-      // 勾前两张：勾完第一张后它变成 check_circle，未勾的又顶到 at(0)
+      // 勾前两张：勾完第一张后它变成已选，未勾的又顶到 at(0)
       await _tapFirstUnselectedCard(tester);
       await _tapFirstUnselectedCard(tester);
-      expect(find.byIcon(Icons.check_circle), findsNWidgets(2));
+      expect(_selectionTicks(selected: true), findsNWidgets(2));
 
       await tester.tap(find.byIcon(Icons.delete));
       await tester.pump();
@@ -242,7 +246,7 @@ void main() {
       expect(find.text('First Playlist'), findsNothing);
       expect(find.text('Second Playlist'), findsNothing);
       expect(find.text('Third Playlist'), findsOneWidget);
-      expect(find.byIcon(Icons.circle_outlined), findsNothing);
+      expect(_selectionTicks(), findsNothing);
       expect(find.byIcon(Icons.checklist), findsOneWidget);
     });
   });
@@ -585,6 +589,17 @@ Future<void> _pumpPlaylistPage(WidgetTester tester) async {
 }
 
 /// 列表页的删除入口：先进编辑态，卡片右上角才长出玻璃删除圆钮。
+/// 选择态下卡片长出的勾选片（[GlassSelectableOverlay]）。
+///
+/// 收口后不再是居中的 `Icons.circle_outlined` / `Icons.check_circle` 大图标，
+/// 而是右上角的角标 + 选中描边，所以这里按 widget 属性找而不是按图标找。
+Finder _selectionTicks({bool? selected}) => find.byWidgetPredicate(
+  (w) =>
+      w is GlassSelectableOverlay &&
+      w.selectionMode &&
+      (selected == null || w.selected == selected),
+);
+
 Future<void> _enterEditMode(WidgetTester tester) async {
   await tester.tap(find.byIcon(Icons.checklist));
   await tester.pump();
@@ -595,7 +610,11 @@ Future<void> _enterEditMode(WidgetTester tester) async {
 /// 进编辑态 → 勾选第一张卡片 → 点批量删除浮钮 → 弹确认框。
 /// 勾选当前第一张还没被勾上的卡片。
 Future<void> _tapFirstUnselectedCard(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.circle_outlined).first);
+  // 勾选片挂在卡片上，点卡片本身即可切换（选择态下卡片顶层是勾选 InkWell）
+  final unselected = find.byWidgetPredicate(
+    (w) => w is PlaylistItemWidget && w.isMultiSelect && !w.isSelected,
+  );
+  await tester.tap(unselected.first);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
   await tester.pump(const Duration(milliseconds: 300));
@@ -604,7 +623,7 @@ Future<void> _tapFirstUnselectedCard(WidgetTester tester) async {
 Future<void> _openDeleteDialog(WidgetTester tester) async {
   await _enterEditMode(tester);
 
-  await tester.tap(find.byIcon(Icons.circle_outlined).first);
+  await tester.tap(find.byType(PlaylistItemWidget).first);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
   await tester.pump(const Duration(milliseconds: 300));

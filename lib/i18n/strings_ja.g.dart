@@ -295,6 +295,8 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get paused => '一時停止';
 	@override String get clear => 'クリア';
 	@override String get clearSelection => '選択を解除';
+	@override String get selectItemsToContinue => '項目を選択してください';
+	@override String andMoreItems({required Object num}) => '他 ${num} 件';
 	@override String get batchDelete => '一括削除';
 	@override String get user => 'ユーザー';
 	@override String get post => '投稿';
@@ -3579,6 +3581,8 @@ extension on TranslationsJa {
 			'common.paused' => '一時停止',
 			'common.clear' => 'クリア',
 			'common.clearSelection' => '選択を解除',
+			'common.selectItemsToContinue' => '項目を選択してください',
+			'common.andMoreItems' => ({required Object num}) => '他 ${num} 件',
 			'common.batchDelete' => '一括削除',
 			'common.user' => 'ユーザー',
 			'common.post' => '投稿',
@@ -3907,10 +3911,10 @@ extension on TranslationsJa {
 			'settings.rememberBrightness' => '明るさを記憶',
 			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => 'この設定は、今後動画を再生する際に以前の明るさ設定を使用するかどうかを決定します。',
 			'settings.playControlArea' => '再生コントロールエリア',
-			'settings.leftAndRightControlAreaWidth' => '左右コントロールエリアの幅',
-			'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer' => 'この設定は、プレイヤーの左右にあるコントロールエリアの幅を決定します。',
 			_ => null,
 		} ?? switch (path) {
+			'settings.leftAndRightControlAreaWidth' => '左右コントロールエリアの幅',
+			'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer' => 'この設定は、プレイヤーの左右にあるコントロールエリアの幅を決定します。',
 			'settings.proxyAddressCannotBeEmpty' => 'プロキシアドレスは空にできません。',
 			'settings.invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort' => '無効なプロキシアドレス形式です。IP:ポート または ドメイン名:ポート の形式を使用してください。',
 			'settings.proxyNormalWork' => 'プロキシが正常に動作しています。',
@@ -4421,10 +4425,10 @@ extension on TranslationsJa {
 			'oreno3d.messages.videoNotFoundOrDeleted' => '動画が見つからないか削除されました',
 			'oreno3d.messages.unableToGetVideoPlayLink' => '動画再生リンクを取得できません',
 			'oreno3d.messages.getVideoDetailFailed' => '動画詳細の取得に失敗しました',
-			'signIn.pleaseLoginFirst' => 'サインインする前にログインしてください',
-			'signIn.alreadySignedInToday' => '今日は既にサインインしています！',
 			_ => null,
 		} ?? switch (path) {
+			'signIn.pleaseLoginFirst' => 'サインインする前にログインしてください',
+			'signIn.alreadySignedInToday' => '今日は既にサインインしています！',
 			'signIn.youDidNotStickToTheSignIn' => 'サインインを続けることができませんでした。',
 			'signIn.signInSuccess' => 'サインインに成功しました！',
 			'signIn.signInFailed' => 'サインインに失敗しました。後でもう一度お試しください',
@@ -4935,10 +4939,10 @@ extension on TranslationsJa {
 			'download.category.newCategoryHint' => '新しいカテゴリー名',
 			'download.category.createSuccess' => 'カテゴリーを作成しました',
 			'download.category.createFailed' => 'カテゴリーの作成に失敗しました',
-			'download.category.nameEmpty' => 'カテゴリー名を入力してください',
-			'download.category.emptyHint' => 'カテゴリーがまだありません。作成してダウンロードを整理しましょう。',
 			_ => null,
 		} ?? switch (path) {
+			'download.category.nameEmpty' => 'カテゴリー名を入力してください',
+			'download.category.emptyHint' => 'カテゴリーがまだありません。作成してダウンロードを整理しましょう。',
 			'download.category.moveTo' => 'カテゴリーへ移動',
 			'download.category.moveToWithCount' => ({required Object count}) => '${count}件をカテゴリーへ移動…',
 			'download.category.moveSuccess' => ({required Object title}) => '「${title}」へ移動しました',
@@ -5449,10 +5453,10 @@ extension on TranslationsJa {
 			'emoji.formatExample' => '形式例:\n["url1", "url2", "url3"]',
 			'emoji.pasteJsonUrlArray' => 'JSON形式のURL配列を貼り付けてください',
 			'emoji.import' => 'インポート',
-			'emoji.importSuccess' => ({required Object count}) => '${count}枚の画像をインポートしました',
-			'emoji.jsonFormatError' => 'JSON形式エラー、入力を確認してください',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.importSuccess' => ({required Object count}) => '${count}枚の画像をインポートしました',
+			'emoji.jsonFormatError' => 'JSON形式エラー、入力を確認してください',
 			'emoji.createGroup' => '絵文字グループを作成',
 			'emoji.groupName' => 'グループ名',
 			'emoji.enterGroupName' => 'グループ名を入力してください',

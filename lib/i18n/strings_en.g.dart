@@ -639,6 +639,12 @@ class TranslationsCommonEn {
 	/// en: 'Clear Selection'
 	String get clearSelection => 'Clear Selection';
 
+	/// en: 'Select items to continue'
+	String get selectItemsToContinue => 'Select items to continue';
+
+	/// en: 'and ${num} more'
+	String andMoreItems({required Object num}) => 'and ${num} more';
+
 	/// en: 'Batch Delete'
 	String get batchDelete => 'Batch Delete';
 
@@ -8354,6 +8360,8 @@ extension on Translations {
 			'common.paused' => 'Paused',
 			'common.clear' => 'Clear',
 			'common.clearSelection' => 'Clear Selection',
+			'common.selectItemsToContinue' => 'Select items to continue',
+			'common.andMoreItems' => ({required Object num}) => 'and ${num} more',
 			'common.batchDelete' => 'Batch Delete',
 			'common.user' => 'User',
 			'common.post' => 'Post',
@@ -8690,10 +8698,10 @@ extension on Translations {
 			'settings.rememberBrightness' => 'Remember Brightness',
 			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => 'This configuration determines whether the brightness will be kept when playing videos again.',
 			'settings.playControlArea' => 'Play Control Area',
-			'settings.leftAndRightControlAreaWidth' => 'Left and Right Control Area Width',
-			'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer' => 'This configuration determines the width of the control areas on the left and right sides of the player.',
 			_ => null,
 		} ?? switch (path) {
+			'settings.leftAndRightControlAreaWidth' => 'Left and Right Control Area Width',
+			'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer' => 'This configuration determines the width of the control areas on the left and right sides of the player.',
 			'settings.proxyAddressCannotBeEmpty' => 'Proxy address cannot be empty.',
 			'settings.invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort' => 'Invalid proxy address format. Please use the format of IP:port or domain name:port.',
 			'settings.proxyNormalWork' => 'Proxy normal work.',
@@ -9204,10 +9212,10 @@ extension on Translations {
 			'oreno3d.messages.videoNotFoundOrDeleted' => 'Video not found or has been deleted',
 			'oreno3d.messages.unableToGetVideoPlayLink' => 'Unable to get video playback link',
 			'oreno3d.messages.getVideoDetailFailed' => 'Failed to get video details',
-			'signIn.pleaseLoginFirst' => 'Please login first',
-			'signIn.alreadySignedInToday' => 'You have already signed in today!',
 			_ => null,
 		} ?? switch (path) {
+			'signIn.pleaseLoginFirst' => 'Please login first',
+			'signIn.alreadySignedInToday' => 'You have already signed in today!',
 			'signIn.youDidNotStickToTheSignIn' => 'You did not stick to the sign in.',
 			'signIn.signInSuccess' => 'Sign in successfully!',
 			'signIn.signInFailed' => 'Sign in failed, please try again later',
@@ -9718,10 +9726,10 @@ extension on Translations {
 			'download.category.newCategoryHint' => 'New category name',
 			'download.category.createSuccess' => 'Category created',
 			'download.category.createFailed' => 'Failed to create category',
-			'download.category.nameEmpty' => 'Category name cannot be empty',
-			'download.category.emptyHint' => 'No categories yet. Create one to organize your downloads.',
 			_ => null,
 		} ?? switch (path) {
+			'download.category.nameEmpty' => 'Category name cannot be empty',
+			'download.category.emptyHint' => 'No categories yet. Create one to organize your downloads.',
 			'download.category.moveTo' => 'Move to category',
 			'download.category.moveToWithCount' => ({required Object count}) => 'Move ${count} item(s) to…',
 			'download.category.moveSuccess' => ({required Object title}) => 'Moved to ${title}',
@@ -10232,10 +10240,10 @@ extension on Translations {
 			'log.logDatabaseSizeLimit' => 'Log Database Size Limit',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => 'Current: ${size}',
 			'log.exportCurrentLogs' => 'Export Current Logs',
-			'log.exportCurrentLogsDesc' => 'Export the current application logs to help developers diagnose problems',
-			'log.exportHistoryLogs' => 'Export History Logs',
 			_ => null,
 		} ?? switch (path) {
+			'log.exportCurrentLogsDesc' => 'Export the current application logs to help developers diagnose problems',
+			'log.exportHistoryLogs' => 'Export History Logs',
 			'log.exportHistoryLogsDesc' => 'Export logs within a specified date range',
 			'log.exportMergedLogs' => 'Export Merged Logs',
 			'log.exportMergedLogsDesc' => 'Export merged logs within a specified date range',

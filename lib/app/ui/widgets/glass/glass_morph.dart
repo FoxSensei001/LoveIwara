@@ -24,6 +24,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 /// | 玻璃胶囊之间的形态互换（分段胶囊↔下拉按钮）      | 两侧都自带底色/描边/阴影              | [GlassCapsuleMorph]   |
 /// | 下拉钮标题跟随横滑进度翻页               | 滑完才换字，中途一直是旧文案            | [GlassFlipLabel]      |
 /// | 按钮触发耗时动作（刷新/保存/全部已读）      | 点完毫无变化，或各页自造转圈          | `GlassIconButton.loading` / `GlassAsyncIconButton` |
+/// | 可用↔不可用 / 常态↔危险态的**语义色**变化 | 底色平滑推移、图标文字却瞬间跳色      | [GlassAnimatedColors] |
 ///
 /// 「耗时动作」那一行同样是形变而不是替换：图标**原位**交叉过渡成沙漏、按钮
 /// 顺带置灰，做完再换回来。不要塞 `CircularProgressIndicator`——转圈在 40×40
@@ -41,6 +42,81 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 /// - 凡是**手指还按在屏幕上**就能看出进度的形变（横滑切 tab），一律接
 ///   `progress`（小数下标）逐帧插值，不要等手势结束再放一段固定时长的动画：
 ///   见 [GlassSegmentedControl.progress] 与 [GlassFlipLabel]。
+/// - **颜色也是形变**。一个控件的底色、图标色、文字色必须一起过渡、用同一段
+///   时值；只给底色套 `AnimatedContainer` 而让 `Icon` / `Text` 直接换颜色，
+///   会读成「按钮闪了一下」——底色还在推移，前景已经跳完了。统一用
+///   [GlassAnimatedColors]。
+///   注意与**按下反馈**分层：按下是 [GlassTokens.pressDuration]（120ms，要跟手），
+///   可用性/语义色是 [GlassTokens.motionDuration]（200ms）。两者叠在一起时，
+///   先让状态色插值出当前帧的基色，再把按下的暗化混到基色上。
+
+/// 把一组颜色一起插值，交给 [builder] 拿到当前帧的值。
+///
+/// 用于**语义色 / 可用性**变化：按钮从置灰变可用、常态变危险态、选中变未选中。
+/// 这类变化最容易只做一半——底色套了 `AnimatedContainer` 平滑推移，而
+/// `Icon(color:)` 和 `Text(style: TextStyle(color:))` 仍然瞬间换色，两者不同步，
+/// 读起来就是「按钮闪了一下」。把底色与前景色一并交给这个原语，它们才会同步。
+///
+/// ```dart
+/// GlassAnimatedColors(
+///   colors: [enabled ? cs.primary : cs.surfaceContainerHighest,
+///            enabled ? cs.onPrimary : cs.onSurface.withValues(alpha: 0.38)],
+///   builder: (context, c) => ColoredBox(
+///     color: c[0],
+///     child: Icon(Icons.download, color: c[1]),
+///   ),
+/// )
+/// ```
+///
+/// [colors] 的长度在同一个位置上必须保持稳定（长度变化会重建补间、丢掉进行中
+/// 的过渡）。首帧不做动画，直接就是目标色。
+class GlassAnimatedColors extends ImplicitlyAnimatedWidget {
+  const GlassAnimatedColors({
+    super.key,
+    required this.colors,
+    required this.builder,
+    super.duration = GlassTokens.motionDuration,
+    super.curve = GlassTokens.motionCurve,
+  });
+
+  final List<Color> colors;
+
+  /// 收到的列表与 [colors] 一一对应，元素是当前帧插值后的颜色。
+  final Widget Function(BuildContext context, List<Color> colors) builder;
+
+  @override
+  AnimatedWidgetBaseState<GlassAnimatedColors> createState() =>
+      _GlassAnimatedColorsState();
+}
+
+class _GlassAnimatedColorsState
+    extends AnimatedWidgetBaseState<GlassAnimatedColors> {
+  List<ColorTween?> _tweens = const <ColorTween?>[];
+
+  @override
+  void forEachTween(TweenVisitor<dynamic> visitor) {
+    if (_tweens.length != widget.colors.length) {
+      _tweens = List<ColorTween?>.filled(widget.colors.length, null);
+    }
+    for (var i = 0; i < widget.colors.length; i++) {
+      _tweens[i] =
+          visitor(
+                _tweens[i],
+                widget.colors[i],
+                (dynamic value) => ColorTween(begin: value as Color?),
+              )
+              as ColorTween?;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.builder(context, [
+      for (var i = 0; i < widget.colors.length; i++)
+        _tweens[i]?.evaluate(animation) ?? widget.colors[i],
+    ]);
+  }
+}
 
 /// 一个可动画显隐的「槽位」：`visible=false` 时宽度收到 0 + 淡出，
 /// `visible=true` 时反向恢复。用于按钮组里那些**条件出现**的按钮，让胶囊

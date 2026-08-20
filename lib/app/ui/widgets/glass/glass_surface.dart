@@ -191,19 +191,23 @@ class GlassIconButton extends StatelessWidget {
     // 而「灰掉」正是用户能读到的「已经在做了」。
     final VoidCallback? effectiveOnPressed = loading ? null : onPressed;
 
-    Widget iconWidget = IconTheme.merge(
-      data: IconThemeData(
-        size: iconSize,
-        color:
-            color ??
+    // 可用↔置灰的颜色变化也要过渡：直接换 IconThemeData.color 会让图标瞬间
+    // 跳成灰色，而同一个按钮的底色（GlassSurface 的 AnimatedContainer）却在
+    // 平滑推移，两者不同步就读成「闪了一下」。见 GlassAnimatedColors 的说明。
+    Widget iconWidget = GlassAnimatedColors(
+      colors: [
+        color ??
             (effectiveOnPressed == null
                 ? cs.onSurface.withValues(alpha: 0.38)
                 : cs.onSurface),
-      ),
-      // 图标本身在同一按钮位上换 codePoint 时做缩放交叉过渡
-      // （如多选↔退出、瀑布↔分页、动作↔沙漏）。
-      child: GlassAnimatedIcon(
-        icon: loading ? const Icon(Icons.hourglass_top) : icon,
+      ],
+      builder: (context, c) => IconTheme.merge(
+        data: IconThemeData(size: iconSize, color: c.first),
+        // 图标本身在同一按钮位上换 codePoint 时做缩放交叉过渡
+        // （如多选↔退出、瀑布↔分页、动作↔沙漏）。
+        child: GlassAnimatedIcon(
+          icon: loading ? const Icon(Icons.hourglass_top) : icon,
+        ),
       ),
     );
     // 徽标始终挂载，通过弹跳缩放来实现显隐，避免小红点瞬间跳出/消失。

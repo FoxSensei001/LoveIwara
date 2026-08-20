@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 
 class GlassSegmentItem {
@@ -553,12 +554,15 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
         },
       );
     } else {
-      content = AnimatedDefaultTextStyle(
-        duration: GlassTokens.motionDuration,
-        style: baseStyle.copyWith(
-          color: selected ? selectedColor : unselectedColor,
+      // 文字走 AnimatedDefaultTextStyle，图标也得跟着一起过渡——只动文字的话
+      // 段内图标会瞬间跳色，两者不同步（见 GlassAnimatedColors 的说明）。
+      content = GlassAnimatedColors(
+        colors: [selected ? selectedColor : unselectedColor],
+        builder: (context, c) => AnimatedDefaultTextStyle(
+          duration: GlassTokens.motionDuration,
+          style: baseStyle.copyWith(color: c.first),
+          child: buildContent(c.first),
         ),
-        child: buildContent(selected ? selectedColor : unselectedColor),
       );
     }
 

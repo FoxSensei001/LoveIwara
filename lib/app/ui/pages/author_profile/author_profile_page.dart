@@ -51,7 +51,8 @@ import 'package:i_iwara/app/ui/widgets/friend_button_widget.dart';
 import '../popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
-import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/batch_download_selection.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class AuthorProfilePage extends StatefulWidget {
@@ -1409,157 +1410,179 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     const double primaryRowHeight = GlassTokens.pillHeight + 16;
     final double overlayTopInset = headerTop + primaryRowHeight;
     final double scrimSolidExtent = headerTop;
-    // 宽屏时本 Stack 在 Row/Expanded 下拿到的是「高度松约束」；而 BatchActionFabColumn
-    // 不可见时返回的是非 Positioned 的 SizedBox.shrink()，会把 Stack 压成 0 高。
-    // 用 StackFit.expand 让 Stack 始终撑满可用空间。
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Positioned.fill(
-          child: TabBarView(
-            controller: primaryTC,
-            children: <Widget>[
-              Obx(
-                () => profileController.author.value?.id != null
-                    ? ProfileVideoTabListWidget(
-                        key: _videoTabKey,
-                        userId: profileController.author.value!.id,
-                        tabKey: t.common.video,
-                        tc: videoSecondaryTC,
-                        overlayTopInset: overlayTopInset,
-                        scrimSolidExtent: scrimSolidExtent,
-                        onFetchFinished: ({int? count}) {},
-                        isMultiSelectMode:
-                            _videoBatchController.isMultiSelect.value,
-                        selectedItemIds: _videoBatchController.selectedMediaIds,
-                        onItemSelect: (video) =>
-                            _videoBatchController.toggleSelection(video),
-                        onPageChanged: () {
-                          _videoBatchController.onPageChanged();
-                          _scrollToTop();
-                        },
-                        isPaginated: _isPaginated.value,
-                        onPaginationToggle: _togglePaginationMode,
-                        onMultiSelectToggle: () =>
-                            _videoBatchController.toggleMultiSelect(),
-                        onOpenVideo: _openVideoFromAuthorProfile,
-                      )
-                    : const SizedBox.shrink(),
-              ),
-              Obx(
-                () => profileController.author.value?.id != null
-                    ? ProfileImageModelTabListWidget(
-                        key: _imageTabKey,
-                        userId: profileController.author.value!.id,
-                        tabKey: t.common.gallery,
-                        tc: imageSecondaryTC,
-                        overlayTopInset: overlayTopInset,
-                        scrimSolidExtent: scrimSolidExtent,
-                        onFetchFinished: ({int? count}) {},
-                        isMultiSelectMode:
-                            _imageBatchController.isMultiSelect.value,
-                        selectedItemIds: _imageBatchController.selectedMediaIds,
-                        onItemSelect: (image) =>
-                            _imageBatchController.toggleSelection(image),
-                        onPageChanged: () {
-                          _imageBatchController.onPageChanged();
-                          _scrollToTop();
-                        },
-                        isPaginated: _isPaginated.value,
-                        onPaginationToggle: _togglePaginationMode,
-                        onMultiSelectToggle: () =>
-                            _imageBatchController.toggleMultiSelect(),
-                      )
-                    : const SizedBox.shrink(),
-              ),
-              Obx(
-                () => profileController.author.value?.id != null
-                    ? ProfilePlaylistTabListWidget(
-                        overlayTopInset: overlayTopInset,
-                        scrimSolidExtent: scrimSolidExtent,
-                        key: _playlistTabKey,
-                        userId: profileController.author.value!.id,
-                        tabKey: t.common.playlist,
-                        tc: playlistSecondaryTC,
-                        onFetchFinished: ({int? count}) {},
-                        isPaginated: _isPaginated.value,
-                        onPaginationToggle: _togglePaginationMode,
-                        onPageChanged: _scrollToTop,
-                      )
-                    : const SizedBox.shrink(),
-              ),
-              Obx(
-                () => profileController.author.value?.id != null
-                    ? ProfilePostTabListWidget(
-                        overlayTopInset: overlayTopInset,
-                        scrimSolidExtent: scrimSolidExtent,
-                        key: _postListKey,
-                        widgetKey: _postListKey,
-                        userId: profileController.author.value!.id,
-                        tabKey: t.common.post,
-                        tc: postSecondaryTC,
-                        isPaginated: _isPaginated.value,
-                        onPaginationToggle: _togglePaginationMode,
-                        onPageChanged: _scrollToTop,
-                      )
-                    : const SizedBox.shrink(),
-              ),
-            ],
+    // 宽屏时本 Stack 在 Row/Expanded 下拿到的是「高度松约束」，需要
+    // StackFit.expand 才能撑满可用空间。
+    return BatchDownloadSelectionScope(
+      // 视频 / 图库两个控制器只广播当前 tab 那一个
+      controllers: [_videoBatchController, _imageBatchController],
+      activeIndex: () => primaryTC.index,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned.fill(
+            child: TabBarView(
+              controller: primaryTC,
+              children: <Widget>[
+                Obx(
+                  () => profileController.author.value?.id != null
+                      ? ProfileVideoTabListWidget(
+                          key: _videoTabKey,
+                          userId: profileController.author.value!.id,
+                          tabKey: t.common.video,
+                          tc: videoSecondaryTC,
+                          overlayTopInset: overlayTopInset,
+                          scrimSolidExtent: scrimSolidExtent,
+                          onFetchFinished: ({int? count}) {},
+                          isMultiSelectMode:
+                              _videoBatchController.isMultiSelect.value,
+                          selectedItemIds:
+                              _videoBatchController.selectedMediaIds,
+                          onItemSelect: (video) =>
+                              _videoBatchController.toggleSelection(video),
+                          onPageChanged: () {
+                            _videoBatchController.onPageChanged();
+                            _scrollToTop();
+                          },
+                          isPaginated: _isPaginated.value,
+                          onPaginationToggle: _togglePaginationMode,
+                          onMultiSelectToggle: () =>
+                              _videoBatchController.toggleMultiSelect(),
+                          onOpenVideo: _openVideoFromAuthorProfile,
+                        )
+                      : const SizedBox.shrink(),
+                ),
+                Obx(
+                  () => profileController.author.value?.id != null
+                      ? ProfileImageModelTabListWidget(
+                          key: _imageTabKey,
+                          userId: profileController.author.value!.id,
+                          tabKey: t.common.gallery,
+                          tc: imageSecondaryTC,
+                          overlayTopInset: overlayTopInset,
+                          scrimSolidExtent: scrimSolidExtent,
+                          onFetchFinished: ({int? count}) {},
+                          isMultiSelectMode:
+                              _imageBatchController.isMultiSelect.value,
+                          selectedItemIds:
+                              _imageBatchController.selectedMediaIds,
+                          onItemSelect: (image) =>
+                              _imageBatchController.toggleSelection(image),
+                          onPageChanged: () {
+                            _imageBatchController.onPageChanged();
+                            _scrollToTop();
+                          },
+                          isPaginated: _isPaginated.value,
+                          onPaginationToggle: _togglePaginationMode,
+                          onMultiSelectToggle: () =>
+                              _imageBatchController.toggleMultiSelect(),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+                Obx(
+                  () => profileController.author.value?.id != null
+                      ? ProfilePlaylistTabListWidget(
+                          overlayTopInset: overlayTopInset,
+                          scrimSolidExtent: scrimSolidExtent,
+                          key: _playlistTabKey,
+                          userId: profileController.author.value!.id,
+                          tabKey: t.common.playlist,
+                          tc: playlistSecondaryTC,
+                          onFetchFinished: ({int? count}) {},
+                          isPaginated: _isPaginated.value,
+                          onPaginationToggle: _togglePaginationMode,
+                          onPageChanged: _scrollToTop,
+                        )
+                      : const SizedBox.shrink(),
+                ),
+                Obx(
+                  () => profileController.author.value?.id != null
+                      ? ProfilePostTabListWidget(
+                          overlayTopInset: overlayTopInset,
+                          scrimSolidExtent: scrimSolidExtent,
+                          key: _postListKey,
+                          widgetKey: _postListKey,
+                          userId: profileController.author.value!.id,
+                          tabKey: t.common.post,
+                          tc: postSecondaryTC,
+                          isPaginated: _isPaginated.value,
+                          onPaginationToggle: _togglePaginationMode,
+                          onPageChanged: _scrollToTop,
+                        )
+                      : const SizedBox.shrink(),
+                ),
+              ],
+            ),
           ),
-        ),
-        Positioned(
-          top: headerTop,
-          left: 0,
-          right: 0,
-          height: primaryRowHeight,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: GlassSegmentedControl(
-                selectedIndex: primaryTC.index,
-                progress: primaryTC.animation,
-                onChanged: primaryTC.animateTo,
-                items: [
-                  GlassSegmentItem(
-                    label: t.common.video,
-                    icon: const Icon(Icons.video_collection),
-                  ),
-                  GlassSegmentItem(
-                    label: t.common.gallery,
-                    icon: const Icon(Icons.image),
-                  ),
-                  GlassSegmentItem(
-                    label: t.common.playlist,
-                    icon: const Icon(Icons.playlist_play),
-                  ),
-                  GlassSegmentItem(
-                    label: t.common.post,
-                    icon: const Icon(Icons.article),
-                  ),
-                ],
+          Positioned(
+            top: headerTop,
+            left: 0,
+            right: 0,
+            height: primaryRowHeight,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Obx(() {
+                  // 选择态下这只胶囊改报「已选 N 项」：进选择态是一次页面级
+                  // 的模式切换，header 不该毫无反应。
+                  // 两个控制器的 Rx 都要在分支之外读一次：播放列表 / 帖子 tab
+                  // 上 batch 为 null，那一支不碰可观察量会让 Obx 抛 ObxError。
+                  final bool videoSelecting =
+                      _videoBatchController.isMultiSelect.value;
+                  final bool imageSelecting =
+                      _imageBatchController.isMultiSelect.value;
+                  final batch = primaryTC.index == 0
+                      ? _videoBatchController
+                      : (primaryTC.index == 1 ? _imageBatchController : null);
+                  final bool selecting = primaryTC.index == 0
+                      ? videoSelecting
+                      : (primaryTC.index == 1 ? imageSelecting : false);
+                  if (batch != null && selecting) {
+                    return GlassCapsuleMorph(
+                      child: SizedBox(
+                        key: const ValueKey('selection'),
+                        width: 168,
+                        child: GlassSelectionSummary(
+                          selectedCount: batch.selectedCount,
+                          allSelected: false,
+                          // 懒加载列表够不到未加载的部分，不给全选
+                          onToggleAll: null,
+                        ),
+                      ),
+                    );
+                  }
+                  return GlassSegmentedControl(
+                    selectedIndex: primaryTC.index,
+                    progress: primaryTC.animation,
+                    onChanged: primaryTC.animateTo,
+                    items: [
+                      GlassSegmentItem(
+                        label: t.common.video,
+                        icon: const Icon(Icons.video_collection),
+                      ),
+                      GlassSegmentItem(
+                        label: t.common.gallery,
+                        icon: const Icon(Icons.image),
+                      ),
+                      GlassSegmentItem(
+                        label: t.common.playlist,
+                        icon: const Icon(Icons.playlist_play),
+                      ),
+                      GlassSegmentItem(
+                        label: t.common.post,
+                        icon: const Icon(Icons.article),
+                      ),
+                    ],
+                  );
+                }),
               ),
             ),
           ),
-        ),
-        // 批量下载悬浮按钮
-        Obx(
-          () => BatchActionFabColumn<Video>(
-            controller: _videoBatchController,
-            heroTagPrefix: 'author_profile_video_$uniqueTag',
-            isPaginated: _isPaginated.value,
-            visible: () => primaryTC.index == 0,
-          ),
-        ),
-        Obx(
-          () => BatchActionFabColumn<ImageModel>(
-            controller: _imageBatchController,
-            heroTagPrefix: 'author_profile_image_$uniqueTag',
-            isPaginated: _isPaginated.value,
-            visible: () => primaryTC.index == 1,
-          ),
-        ),
-      ],
+          // 批量动作：瀑布流模式下的底部玻璃坞；分页模式下动作行由分页栏
+          // 自己承载（见 BatchSelectionScope），底部不会出现第二条玻璃。
+          Obx(() => GlassSelectionDock(paginated: _isPaginated.value)),
+        ],
+      ),
     );
   }
 

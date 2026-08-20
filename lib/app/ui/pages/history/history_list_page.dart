@@ -8,7 +8,8 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_lis
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
-import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/batch_confirm_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
@@ -186,112 +187,165 @@ class _HistoryListPageState extends State<HistoryListPage>
     ];
 
     return Scaffold(
-      body: GlassHeaderOverlay(
-        headerExtent: headerExtent,
-        headerTop: statusBarHeight,
-        headerHeight: headerHeight,
-        solidExtent: statusBarHeight,
-        body: NotificationListener<ScrollNotification>(
-          onNotification: (notification) {
-            if (notification.depth == 0 &&
-                notification.metrics.axis == Axis.vertical) {
-              _showBackToTop.value = notification.metrics.pixels >= 300;
-            }
-            return false;
-          },
-          child: TabBarView(
-            controller: _tabController,
-            physics: const ClampingScrollPhysics(),
-            children: [
-              for (var i = 0; i < _tags.length; i++)
-                _buildHistoryList(i, headerExtent),
-            ],
-          ),
-        ),
-        // header：第一行「返回 / 搜索 / 动作胶囊」，第二行五段类型胶囊
-        header: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              height: GlassTokens.headerRowHeight,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    GlassIconButton(
-                      standalone: true,
-                      icon: const Icon(Icons.arrow_back),
-                      tooltip: t.common.back,
-                      onPressed: () => AppService.tryPop(),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(child: _buildSearchField(context)),
-                    const SizedBox(width: 8),
-                    _buildActionGroup(context, isWide: isWide),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: _headerRowGap),
-            SizedBox(
-              height: GlassTokens.pillHeight,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: GlassSegmentedControl(
-                    selectedIndex: _tabController.index,
-                    progress: _tabController.animation,
-                    onChanged: _tabController.animateTo,
-                    items: tabItems,
-                  ),
-                ),
-              ),
+      body: Obx(() {
+        final controller = _currentController;
+        final bool active = controller.isMultiSelect.value;
+        final int count = controller.selectedRecords.length;
+        return BatchSelectionScope(
+          active: active,
+          selectedCount: count,
+          actions: [
+            GlassSelectionAction(
+              icon: Icons.delete,
+              label: slang.t.common.delete,
+              destructive: true,
+              onPressed: count == 0
+                  ? null
+                  : () => _showDeleteConfirmDialog(controller),
             ),
           ],
+          onClear: controller.clearSelection,
+          // 系统返回 / iOS 侧滑 / Esc 先退选择态，而不是把整页弹掉
+          child: SelectionPopScope(
+            active: active,
+            onExit: controller.toggleMultiSelect,
+            child: _buildScaffoldBody(
+              context,
+              headerExtent: headerExtent,
+              headerHeight: headerHeight,
+              statusBarHeight: statusBarHeight,
+              isWide: isWide,
+              tabItems: tabItems,
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildScaffoldBody(
+    BuildContext context, {
+    required double headerExtent,
+    required double headerHeight,
+    required double statusBarHeight,
+    required bool isWide,
+    required List<GlassSegmentItem> tabItems,
+  }) {
+    final t = slang.Translations.of(context);
+    return GlassHeaderOverlay(
+      headerExtent: headerExtent,
+      headerTop: statusBarHeight,
+      headerHeight: headerHeight,
+      solidExtent: statusBarHeight,
+      body: NotificationListener<ScrollNotification>(
+        onNotification: (notification) {
+          if (notification.depth == 0 &&
+              notification.metrics.axis == Axis.vertical) {
+            _showBackToTop.value = notification.metrics.pixels >= 300;
+          }
+          return false;
+        },
+        child: TabBarView(
+          controller: _tabController,
+          physics: const ClampingScrollPhysics(),
+          children: [
+            for (var i = 0; i < _tags.length; i++)
+              _buildHistoryList(i, headerExtent),
+          ],
         ),
-        extra: [
-          _buildScrollToTopFab(context),
-          // 多选悬浮按钮列：退出 / 清空 / 删除所选
-          Obx(() {
-            final controller = _currentController;
-            return BatchActionFab(
-              isMultiSelect: controller.isMultiSelect.value,
-              selectedCount: controller.selectedRecords.length,
-              heroTagPrefix: 'history',
-              isPaginated: _isPaginated,
-              onExit: controller.toggleMultiSelect,
-              onClear: controller.clearSelection,
-              customActionBuilder: (context) => FloatingActionButton.small(
-                heroTag: 'historyBatchDeleteFAB',
-                onPressed: () => _showDeleteConfirmDialog(controller),
-                backgroundColor: Theme.of(context).colorScheme.error,
-                foregroundColor: Theme.of(context).colorScheme.onError,
-                child: const Icon(Icons.delete),
+      ),
+      // header：第一行「返回 / 搜索 / 动作胶囊」，第二行五段类型胶囊
+      header: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            height: GlassTokens.headerRowHeight,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  GlassIconButton(
+                    standalone: true,
+                    icon: const Icon(Icons.arrow_back),
+                    tooltip: t.common.back,
+                    onPressed: () => AppService.tryPop(),
+                  ),
+                  const SizedBox(width: 8),
+                  // 选择态下搜索框换成「已选 N 项」：单壳常驻、只换内容，
+                  // 与下载列表页同一配方
+                  Expanded(
+                    child: Obx(
+                      () => GlassCapsuleMorph(
+                        child: _currentController.isMultiSelect.value
+                            ? KeyedSubtree(
+                                key: const ValueKey('selection'),
+                                child: GlassSelectionSummary(
+                                  selectedCount:
+                                      _currentController.selectedRecords.length,
+                                  allSelected: false,
+                                  onToggleAll: null,
+                                ),
+                              )
+                            : KeyedSubtree(
+                                key: const ValueKey('search'),
+                                child: _buildSearchField(context, flat: true),
+                              ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  _buildActionGroup(context, isWide: isWide),
+                ],
               ),
-            );
-          }),
+            ),
+          ),
+          const SizedBox(height: _headerRowGap),
+          SizedBox(
+            height: GlassTokens.pillHeight,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: GlassSegmentedControl(
+                  selectedIndex: _tabController.index,
+                  progress: _tabController.animation,
+                  onChanged: _tabController.animateTo,
+                  items: tabItems,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
+      extra: [
+        _buildScrollToTopFab(context),
+        // 批量动作：瀑布流模式下的底部玻璃坞；分页模式下动作行由分页栏
+        // 自己承载（见 BatchSelectionScope），底部不会出现第二条玻璃。
+        GlassSelectionDock(paginated: _isPaginated),
+      ],
     );
   }
 
   /// 玻璃搜索框：胶囊底 + 细描边，有输入时右侧长出清空钮。
-  Widget _buildSearchField(BuildContext context) {
+  /// [flat] = true 时不自带玻璃壳：壳由外层的 [GlassCapsuleMorph] 常驻提供，
+  /// 搜索框与「已选 N 项」之间才是同一只胶囊在换内容，而不是两只胶囊硬切。
+  Widget _buildSearchField(BuildContext context, {bool flat = false}) {
     final t = slang.Translations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       height: GlassTokens.pillHeight,
-      decoration: BoxDecoration(
-        color: GlassTokens.fill(colorScheme),
-        borderRadius: BorderRadius.circular(GlassTokens.pillHeight / 2),
-        border: Border.all(
-          color: GlassTokens.stroke(colorScheme),
-          width: GlassTokens.strokeWidth,
-        ),
-        boxShadow: GlassTokens.shadow(colorScheme),
-      ),
+      decoration: flat
+          ? null
+          : BoxDecoration(
+              color: GlassTokens.fill(colorScheme),
+              borderRadius: BorderRadius.circular(GlassTokens.pillHeight / 2),
+              border: Border.all(
+                color: GlassTokens.stroke(colorScheme),
+                width: GlassTokens.strokeWidth,
+              ),
+              boxShadow: GlassTokens.shadow(colorScheme),
+            ),
       child: TextField(
         controller: _searchController,
         onChanged: _onSearchChanged,
@@ -544,21 +598,24 @@ class _HistoryListPageState extends State<HistoryListPage>
                       _buildHistoryItemFooter(record, controller),
                     ],
                   ),
+                  // 选择态：角标勾选片 + 选中描边（全站统一，
+                  // 见 GlassSelectableOverlay）。常驻挂载以获得进出过渡。
+                  Positioned.fill(
+                    child: GlassSelectableOverlay(
+                      selectionMode: isMultiSelect,
+                      selected: isSelected,
+                      borderRadius: BorderRadius.circular(
+                        itemWidth < 220 ? 6 : 8,
+                      ),
+                    ),
+                  ),
                   if (isMultiSelect)
                     Positioned.fill(
                       child: Material(
-                        color: Colors.black26,
+                        color: Colors.transparent,
                         child: InkWell(
                           onTap: () => controller.toggleSelection(record.id),
-                          child: Center(
-                            child: Icon(
-                              isSelected
-                                  ? Icons.check_circle
-                                  : Icons.circle_outlined,
-                              color: Colors.white,
-                              size: 40,
-                            ),
-                          ),
+                          child: const SizedBox.expand(),
                         ),
                       ),
                     ),
@@ -819,32 +876,37 @@ class _HistoryListPageState extends State<HistoryListPage>
     );
   }
 
-  void _showDeleteConfirmDialog(HistoryListController controller) {
-    showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(context, slang.t.common.confirmDelete),
-        content: Text(
-          slang.t.common.areYouSureYouWantToDeleteSelectedItems(
-            num: controller.selectedRecords.length,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.common.cancel),
-          ),
-          TextButton(
-            onPressed: () async {
-              AppService.tryPop();
-              await controller.deleteSelected();
-              _notifyFilterChanged();
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(slang.t.common.delete),
-          ),
-        ],
+  /// 批量删除确认：走全站统一的玻璃确认弹窗（含所选预览）。
+  Future<void> _showDeleteConfirmDialog(
+    HistoryListController controller,
+  ) async {
+    final count = controller.selectedRecords.length;
+    if (count == 0) return;
+    final confirmed = await showBatchConfirmDialog(
+      title: slang.t.common.confirmDelete,
+      message: slang.t.common.areYouSureYouWantToDeleteSelectedItems(
+        num: count,
       ),
+      confirmLabel: slang.t.common.delete,
+      previewTitles: _selectedHistoryTitles(controller),
+      totalCount: count,
     );
+    if (!confirmed || !mounted) return;
+    await controller.deleteSelected();
+    _notifyFilterChanged();
+  }
+
+  /// 取所选历史项的标题，供确认弹窗列出「到底要删哪几条」。
+  List<String> _selectedHistoryTitles(HistoryListController controller) {
+    final selected = controller.selectedRecords;
+    final titles = <String>[];
+    for (final record in controller.repository) {
+      if (!selected.contains(record.id)) continue;
+      final title = record.title.trim();
+      titles.add(title.isEmpty ? slang.t.common.noTitle : title);
+      if (titles.length >= 3) break;
+    }
+    return titles;
   }
 
   void _showClearHistoryDialog() {

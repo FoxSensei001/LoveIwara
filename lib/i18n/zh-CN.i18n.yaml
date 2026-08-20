@@ -182,6 +182,8 @@ common:
   paused: 已暂停
   clear: 清除
   clearSelection: 清空选择
+  selectItemsToContinue: 选择项目以继续
+  andMoreItems(num): '还有 ${num} 项'
   batchDelete: 批量删除
   user: 用户
   post: 投稿

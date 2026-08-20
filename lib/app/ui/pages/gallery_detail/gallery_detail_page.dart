@@ -849,15 +849,24 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
     );
   }
 
+  /// 宽屏右列：相关图库（分段胶囊 + 瀑布流）。
+  ///
+  /// 左列的状态栏留白是 SliverAppBar 自己吃掉的，右列没有 AppBar，必须自己让出
+  /// `padding.top`，否则分段胶囊会顶到状态栏底下（和 video_detail_page_v2 里
+  /// 右侧 Tab 区起手那句 `Container(height: paddingTop)` 是同一件事）。
+  /// 让位之后分段行按 headerRowHeight 居中，与左列 header 上的胶囊同一水平线。
   Widget _buildWideSideColumn(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(height: UIConstants.pagePadding),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: _buildRelatedSegmentedControl(context),
+        SizedBox(height: MediaQuery.paddingOf(context).top),
+        SizedBox(
+          height: GlassTokens.headerRowHeight,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: _buildRelatedSegmentedControl(context),
+            ),
           ),
         ),
         Expanded(child: _buildRelatedTabBarView(context)),
