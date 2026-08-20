@@ -446,9 +446,18 @@ class PopularMediaListPageBaseState<
       initialValue: index,
       onSelected: (newIndex) => _tabController.animateTo(newIndex),
       position: PopupMenuPosition.under,
+      // 不设置 tooltip 时 PopupMenuButton 会用系统默认文案包一层 Tooltip，
+      // 默认长按触发且渲染在 Overlay 里，不受玻璃胶囊的裁剪/阴影约束，
+      // 长按会看到气泡探出卡片外——传空字符串让 Tooltip 直接不生成。
+      tooltip: '',
       // 往下挪一点，别压住玻璃胶囊本身
       offset: const Offset(0, 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      // 按下时 InkWell 的水波/高亮默认是直角矩形，不受外层 GlassSurface
+      // 的 ClipRRect 约束（水波画在最近的祖先 Material 上，会穿透中间的
+      // ClipRRect），直角会在圆角胶囊的四角处露出来；这里让它直接按胶囊
+      // 的圆角整形，形状本身就贴合，不再需要额外裁剪。
+      borderRadius: BorderRadius.circular(GlassTokens.pillHeight / 2),
       child: SizedBox(
         height: GlassTokens.pillHeight,
         child: Padding(
@@ -680,6 +689,8 @@ class PopularMediaListPageBaseState<
               padding: EdgeInsets.zero,
               icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
               position: PopupMenuPosition.under,
+              // 同上：去掉默认长按 Tooltip，避免探出玻璃胶囊阴影之外
+              tooltip: '',
               // 往下挪一点，别压住玻璃胶囊本身
               offset: const Offset(0, 8),
               shape: RoundedRectangleBorder(

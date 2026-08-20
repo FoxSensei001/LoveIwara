@@ -448,131 +448,88 @@ class PaginationBar extends StatefulWidget {
 }
 
 class _PaginationBarState extends State<PaginationBar>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final TextEditingController _pageController = TextEditingController();
-  late AnimationController _loadingAnimController;
-  Timer? _fadeTimer;
-  Timer? _hideTimer;
-  late Animation<double> _progressAnimation;
+  // 光弧沿页码卡片描边匀速循环游走
+  late AnimationController _rotationController;
+  // 光环整体的淡入淡出，用 AnimationController 驱动而非手动改 opacity，
+  // 这样中途被打断（比如翻页又刚好加载完）时能从当前值平滑转向，不会跳变。
+  late AnimationController _visibilityController;
+  late final Animation<double> _ringOpacity;
+  Timer? _showDelayTimer;
+  // 光环是否已经挂载到树上（不等于是否可见——淡出过程中仍然挂载）
+  bool _ringMounted = false;
 
-  // 控制进度条可见性
-  bool _showProgressBar = false;
-  // 控制进度条是否已满
-  bool _isProgressComplete = false;
-  // 控制进度条淡出效果
-  double _fadeOpacity = 1.0;
+  // 加载在这个时间内就结束的话，光环压根不出现，避免快请求下卡片一闪而过
+  static const Duration _showDelay = Duration(milliseconds: 150);
+  static const Duration _fadeDuration = Duration(milliseconds: 260);
 
   @override
   void initState() {
     super.initState();
-    // 初始化动画控制器
-    _loadingAnimController = AnimationController(
+    _rotationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1100),
+    );
+    _visibilityController = AnimationController(
+      vsync: this,
+      duration: _fadeDuration,
+    );
+    _ringOpacity = CurvedAnimation(
+      parent: _visibilityController,
+      curve: Curves.easeOut,
+      reverseCurve: Curves.easeIn,
     );
 
-    // 创建一个非线性的进度动画
-    _progressAnimation = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween<double>(
-          begin: 0.0,
-          end: 0.6,
-        ).chain(CurveTween(curve: Curves.easeOut)),
-        weight: 60.0,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(
-          begin: 0.6,
-          end: 0.9,
-        ).chain(CurveTween(curve: Curves.easeIn)),
-        weight: 30.0,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(
-          begin: 0.9,
-          end: 0.95,
-        ).chain(CurveTween(curve: Curves.easeInOut)),
-        weight: 10.0,
-      ),
-    ]).animate(_loadingAnimController);
-
-    // 设置初始状态
-    _showProgressBar = widget.isLoading;
-    if (_showProgressBar) {
-      _loadingAnimController.repeat(reverse: true);
+    if (widget.isLoading) {
+      // 首帧就在加载中（例如带着 isLoading=true 进场），没有「上一帧」可淡入，
+      // 直接以可见状态挂载即可。
+      _ringMounted = true;
+      _rotationController.repeat();
+      _visibilityController.value = 1.0;
     }
   }
 
   @override
   void didUpdateWidget(PaginationBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // 当加载状态改变时，控制动画
     if (widget.isLoading != oldWidget.isLoading) {
       if (widget.isLoading) {
-        // 新一轮加载开始，先撤掉上一轮尚未触发的淡出/隐藏定时器
-        _cancelFadeTimers();
-        // 开始加载时，显示进度条并开始动画
-        setState(() {
-          _showProgressBar = true;
-          _isProgressComplete = false;
-          _fadeOpacity = 1.0;
-        });
-        _loadingAnimController.repeat(reverse: true);
+        _scheduleShow();
       } else {
-        // 加载结束时，先将进度推进到100%
-        _completeProgressAndFadeOut();
+        _scheduleHide();
       }
     }
   }
 
-  // 完成进度并淡出
-  void _completeProgressAndFadeOut() {
-    // 停止重复动画
-    _loadingAnimController.stop();
-
-    // 设置为完成状态
-    setState(() {
-      _isProgressComplete = true;
-    });
-
-    // 延迟一小段时间后开始淡出动画
-    _fadeTimer = Timer(const Duration(milliseconds: 300), () {
-      if (!mounted) return;
-
-      // 使用AnimatedOpacity需要在setState中更新状态
-      setState(() {
-        _fadeOpacity = 0.0;
-      });
-
-      // 淡出完成后隐藏进度条
-      _hideTimer = Timer(const Duration(milliseconds: 400), () {
-        if (!mounted) return;
-        setState(() {
-          _showProgressBar = false;
-        });
-        _loadingAnimController.reset();
-      });
+  void _scheduleShow() {
+    _showDelayTimer?.cancel();
+    _showDelayTimer = Timer(_showDelay, () {
+      if (!mounted || !widget.isLoading) return;
+      setState(() => _ringMounted = true);
+      _rotationController.repeat();
+      _visibilityController.forward();
     });
   }
 
-  /// 取消尚未触发的淡出定时器。
-  ///
-  /// 原先用的是无句柄的 Future.delayed，只在回调里判 mounted。上一轮加载结束
-  /// 后的 0~700ms 内如果又开始新一轮加载，上一轮的回调仍会如期触发，把
-  /// _fadeOpacity 打回 0、把 _showProgressBar 置 false，并 reset() 掉正在为
-  /// 新一轮 repeat 的控制器——新一轮的进度条就这样被上一轮抹掉了。
-  void _cancelFadeTimers() {
-    _fadeTimer?.cancel();
-    _fadeTimer = null;
-    _hideTimer?.cancel();
-    _hideTimer = null;
+  void _scheduleHide() {
+    _showDelayTimer?.cancel();
+    _showDelayTimer = null;
+    if (!_ringMounted) return; // 还没来得及显示就结束了，直接作罢
+    // 光环继续转动的同时淡出，转完再落幕，而不是瞬间消失
+    _visibilityController.reverse().whenCompleteOrCancel(() {
+      if (!mounted || widget.isLoading) return;
+      setState(() => _ringMounted = false);
+      _rotationController.stop();
+    });
   }
 
   @override
   void dispose() {
-    _cancelFadeTimers();
+    _showDelayTimer?.cancel();
     _pageController.dispose();
-    _loadingAnimController.dispose();
+    _rotationController.dispose();
+    _visibilityController.dispose();
     super.dispose();
   }
 
@@ -672,70 +629,45 @@ class _PaginationBarState extends State<PaginationBar>
 
   @override
   Widget build(BuildContext context) {
-    final barContent = Stack(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: widget.useBlurEffect
-                ? Colors.transparent
-                : Theme.of(context).colorScheme.surface,
-            boxShadow: widget.useBlurEffect
-                ? []
-                : [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 8,
-                      offset: const Offset(0, -2),
-                    ),
-                  ],
+    // 加载态不再跨栏铺一条横向进度条，而是把光环落在页码卡片自己身上
+    // （见 _buildPageNumberPill），这里只负责常规的分页栏内容。
+    final barContent = Container(
+      decoration: BoxDecoration(
+        color: widget.useBlurEffect
+            ? Colors.transparent
+            : Theme.of(context).colorScheme.surface,
+        boxShadow: widget.useBlurEffect
+            ? []
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, -2),
+                ),
+              ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 主要内容区域
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isNarrow = constraints.maxWidth < 600;
+              if (widget.isTotalCountUnknown) {
+                return isNarrow
+                    ? _buildUnknownTotalCompactPaginationBar(context)
+                    : _buildUnknownTotalFullPaginationBar(context);
+              }
+              return isNarrow
+                  ? _buildCompactPaginationBar(context)
+                  : _buildFullPaginationBar(context);
+            },
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 主要内容区域
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final isNarrow = constraints.maxWidth < 600;
-                  if (widget.isTotalCountUnknown) {
-                    return isNarrow
-                        ? _buildUnknownTotalCompactPaginationBar(context)
-                        : _buildUnknownTotalFullPaginationBar(context);
-                  }
-                  return isNarrow
-                      ? _buildCompactPaginationBar(context)
-                      : _buildFullPaginationBar(context);
-                },
-              ),
-              // 底部安全区域占位
-              if (widget.showBottomPadding && widget.paddingBottom > 0)
-                SizedBox(height: widget.paddingBottom),
-            ],
-          ),
-        ),
-        // 动画进度指示器
-        if (_showProgressBar)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: AnimatedOpacity(
-              opacity: _fadeOpacity,
-              duration: const Duration(milliseconds: 400),
-              curve: Curves.easeOut,
-              child: _isProgressComplete
-                  ? _buildCompleteProgressIndicator(context)
-                  : AnimatedBuilder(
-                      animation: _progressAnimation,
-                      builder: (context, child) {
-                        return _buildProgressIndicator(
-                          context,
-                          _progressAnimation.value,
-                        );
-                      },
-                    ),
-            ),
-          ),
-      ],
+          // 底部安全区域占位
+          if (widget.showBottomPadding && widget.paddingBottom > 0)
+            SizedBox(height: widget.paddingBottom),
+        ],
+      ),
     );
 
     // 「悬浮」模式：不用 BackdropFilter，改为从上方透明→底部半透明的渐变蒙层，
@@ -798,22 +730,15 @@ class _PaginationBarState extends State<PaginationBar>
                 onPressed: () => widget.onPageChanged(widget.currentPage - 1),
               ),
               const SizedBox(width: 8),
-              ConstrainedBox(
-                constraints: const BoxConstraints(minWidth: 68),
-                child: GlassSurface(
-                  height: 36,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  onTap: widget.isLoading ? null : _showJumpPageDialog,
-                  child: Center(
-                    child: Text(
-                      '${widget.currentPage + 1}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                  ),
+              _buildPageNumberPill(
+                context,
+                text: '${widget.currentPage + 1}',
+                height: 36,
+                minWidth: 68,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(width: 8),
@@ -842,19 +767,15 @@ class _PaginationBarState extends State<PaginationBar>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // 左侧：页码信息（不可点击跳转）
-          GlassSurface(
-            height: 32,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            onTap: widget.isLoading ? null : _showJumpPageDialog,
-            child: Center(
-              child: Text(
+          _buildPageNumberPill(
+            context,
+            text:
                 '${slang.t.common.pagination.pageNumber}: ${widget.currentPage + 1}',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
+            height: 32,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
 
@@ -888,111 +809,50 @@ class _PaginationBarState extends State<PaginationBar>
     return Tooltip(message: slang.t.common.noMoreDatas, child: child);
   }
 
-  // 构建已完成的进度指示器 (100%)
-  Widget _buildCompleteProgressIndicator(BuildContext context) {
-    final primaryColor = Theme.of(context).colorScheme.primary;
-    final secondaryColor = Theme.of(context).colorScheme.secondary;
-
-    return SizedBox(
-      height: 3,
-      child: Stack(
-        children: [
-          // 背景光晕效果
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  primaryColor.withValues(alpha: 0.7),
-                  secondaryColor.withValues(alpha: 0.7),
-                  primaryColor.withValues(alpha: 0.7),
-                ],
-                stops: const [0.0, 0.5, 1.0],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: primaryColor.withValues(alpha: 0.5),
-                  blurRadius: 4,
-                  spreadRadius: 0,
-                ),
-              ],
-            ),
-          ),
-          // 前景进度条
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [primaryColor, secondaryColor, primaryColor],
-                stops: const [0.0, 0.5, 1.0],
-              ),
-            ),
-          ),
-        ],
+  /// 页码卡片：加载时在卡片自身的胶囊描边上跑一段液态玻璃光弧，
+  /// 取代原先跨越整条分页栏的横向进度条——加载态只发生在页码卡片上。
+  Widget _buildPageNumberPill(
+    BuildContext context, {
+    required String text,
+    required double height,
+    required TextStyle style,
+    double minWidth = 0,
+  }) {
+    final pill = ConstrainedBox(
+      constraints: BoxConstraints(minWidth: minWidth),
+      child: GlassSurface(
+        height: height,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        onTap: widget.isLoading ? null : _showJumpPageDialog,
+        child: Center(child: Text(text, style: style)),
       ),
     );
-  }
 
-  // 构建优雅的进度指示器
-  Widget _buildProgressIndicator(BuildContext context, double value) {
-    final primaryColor = Theme.of(context).colorScheme.primary;
-    final secondaryColor = Theme.of(context).colorScheme.secondary;
-    final progressWidth = value * 100;
+    if (!_ringMounted) return pill;
 
-    return SizedBox(
-      height: 3,
-      child: Stack(
-        children: [
-          // 背景光晕效果
-          Container(
-            width: progressWidth,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  primaryColor.withValues(alpha: 0.7),
-                  secondaryColor.withValues(alpha: 0.7),
-                  primaryColor.withValues(alpha: 0.7),
-                ],
-                stops: const [0.0, 0.5, 1.0],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: primaryColor.withValues(alpha: 0.5),
-                  blurRadius: 4,
-                  spreadRadius: 0,
-                ),
-              ],
-            ),
-          ),
-          // 前景进度条
-          Container(
-            width: progressWidth,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [primaryColor, secondaryColor, primaryColor],
-                stops: const [0.0, 0.5, 1.0],
-              ),
-            ),
-          ),
-          // 进度条前端光点效果 - 只在进度条有实际宽度时才显示
-          if (progressWidth > 6) // 确保进度条有足够宽度才显示光点
-            Positioned(
-              left: progressWidth - 6, // 从右侧改为左侧定位，基于实际进度宽度
-              top: 0,
-              bottom: 0,
-              child: Container(
-                width: 6,
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    colors: [Colors.white, secondaryColor],
-                    radius: 0.7,
+    final cs = Theme.of(context).colorScheme;
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        pill,
+        Positioned.fill(
+          child: IgnorePointer(
+            child: FadeTransition(
+              opacity: _ringOpacity,
+              child: AnimatedBuilder(
+                animation: _rotationController,
+                builder: (context, _) => CustomPaint(
+                  painter: _PillLoadingRingPainter(
+                    phase: _rotationController.value,
+                    primaryColor: cs.primary,
+                    secondaryColor: cs.secondary,
                   ),
-                  borderRadius: BorderRadius.circular(3),
                 ),
               ),
             ),
-        ],
-      ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -1031,22 +891,15 @@ class _PaginationBarState extends State<PaginationBar>
                 onPressed: () => widget.onPageChanged(widget.currentPage - 1),
               ),
               const SizedBox(width: 8),
-              ConstrainedBox(
-                constraints: const BoxConstraints(minWidth: 68),
-                child: GlassSurface(
-                  height: 36,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  onTap: widget.isLoading ? null : _showJumpPageDialog,
-                  child: Center(
-                    child: Text(
-                      '${widget.currentPage + 1} / ${widget.totalPages}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                  ),
+              _buildPageNumberPill(
+                context,
+                text: '${widget.currentPage + 1} / ${widget.totalPages}',
+                height: 36,
+                minWidth: 68,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(width: 8),
@@ -1151,19 +1004,15 @@ class _PaginationBarState extends State<PaginationBar>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // 左侧：当前页/总页数 - 点击可跳转
-          GlassSurface(
-            height: 32,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            onTap: widget.isLoading ? null : _showJumpPageDialog,
-            child: Center(
-              child: Text(
+          _buildPageNumberPill(
+            context,
+            text:
                 '${widget.currentPage + 1} / ${widget.totalPages}  (${slang.t.common.pagination.totalItems(num: widget.totalItems)})',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
+            height: 32,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
 
@@ -1216,5 +1065,89 @@ class _PaginationBarState extends State<PaginationBar>
             : null,
       ),
     );
+  }
+}
+
+/// 页码卡片加载光环：一段带头部亮点的渐变光弧，沿卡片胶囊描边匀速
+/// 循环游走，替代原先跨越整条分页栏的横向进度条。
+class _PillLoadingRingPainter extends CustomPainter {
+  _PillLoadingRingPainter({
+    required this.phase,
+    required this.primaryColor,
+    required this.secondaryColor,
+  });
+
+  final double phase;
+  final Color primaryColor;
+  final Color secondaryColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.width <= 0 || size.height <= 0) return;
+
+    final rrect = RRect.fromRectAndRadius(
+      Offset.zero & size,
+      Radius.circular(size.height / 2),
+    );
+    final metrics = (Path()..addRRect(rrect)).computeMetrics().toList();
+    if (metrics.isEmpty) return;
+    final metric = metrics.first;
+    final total = metric.length;
+    if (total <= 0) return;
+
+    final cometLength = total * 0.32;
+    final start = phase * total;
+
+    Path extractWrapped(double from, double length) {
+      final end = from + length;
+      if (end <= total) return metric.extractPath(from, end);
+      return Path()
+        ..addPath(metric.extractPath(from, total), Offset.zero)
+        ..addPath(metric.extractPath(0, end - total), Offset.zero);
+    }
+
+    final comet = extractWrapped(start, cometLength);
+    final bounds = comet.getBounds();
+    if (bounds.isEmpty) return;
+
+    // 光晕层：宽、模糊、低透明度
+    canvas.drawPath(
+      comet,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 4
+        ..strokeCap = StrokeCap.round
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3)
+        ..shader = LinearGradient(
+          colors: [
+            primaryColor.withValues(alpha: 0.0),
+            primaryColor.withValues(alpha: 0.55),
+            secondaryColor.withValues(alpha: 0.55),
+          ],
+        ).createShader(bounds),
+    );
+
+    // 核心层：细、锐利、高透明度
+    canvas.drawPath(
+      comet,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.6
+        ..strokeCap = StrokeCap.round
+        ..shader = LinearGradient(
+          colors: [
+            primaryColor.withValues(alpha: 0.0),
+            primaryColor,
+            secondaryColor,
+          ],
+        ).createShader(bounds),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _PillLoadingRingPainter oldDelegate) {
+    return oldDelegate.phase != phase ||
+        oldDelegate.primaryColor != primaryColor ||
+        oldDelegate.secondaryColor != secondaryColor;
   }
 }
