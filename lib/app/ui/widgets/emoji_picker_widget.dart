@@ -44,7 +44,7 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
   void initState() {
     super.initState();
     _emojiService = Get.find<EmojiLibraryService>();
-    
+
     // 如果外部传入了 TabController，使用外部的
     if (widget.tabController != null) {
       _tabController = widget.tabController!;
@@ -71,16 +71,18 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
             });
           }
         });
-        
+
         for (final group in _groups) {
-          _groupImages[group.groupId] = _emojiService.getEmojiImages(group.groupId);
+          _groupImages[group.groupId] = _emojiService.getEmojiImages(
+            group.groupId,
+          );
         }
       } else {
         if (!_isExternalController) {
           _tabController = TabController(length: 1, vsync: this);
         }
       }
-      
+
       setState(() {
         _isLoading = false;
       });
@@ -106,7 +108,7 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context);
-    
+
     if (_isLoading) {
       // 使用 Shimmer 骨架屏
       if (widget.showOnlyTabs) {
@@ -208,7 +210,7 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
       if (widget.showOnlyTabs) {
         return const SizedBox.shrink();
       }
-      
+
       // 否则，显示“暂无表情”的提示
       return SizedBox(
         height: 300,
@@ -224,18 +226,12 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
               const SizedBox(height: 16),
               Text(
                 t.emoji.noEmojis,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 16,
-                ),
+                style: TextStyle(color: Colors.grey[600], fontSize: 16),
               ),
               const SizedBox(height: 8),
               Text(
                 t.emoji.goToSettingsToAddEmojis,
-                style: TextStyle(
-                  color: Colors.grey[500],
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Colors.grey[500], fontSize: 14),
               ),
             ],
           ),
@@ -253,7 +249,7 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
           itemBuilder: (context, index) {
             final group = _groups[index];
             final isSelected = _tabController.index == index;
-            
+
             return GestureDetector(
               onTap: () {
                 _tabController.animateTo(index);
@@ -262,7 +258,7 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                 margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: isSelected 
+                  color: isSelected
                       ? Theme.of(context).colorScheme.primaryContainer
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(12),
@@ -295,13 +291,18 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Center(
                               child: Text(
                                 group.name.isNotEmpty ? group.name[0] : '?',
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
@@ -312,13 +313,18 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Center(
                           child: Text(
                             group.name.isNotEmpty ? group.name[0] : '?',
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
@@ -337,7 +343,9 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
             isScrollable: true,
             indicatorSize: TabBarIndicatorSize.tab,
             labelColor: Theme.of(context).colorScheme.primary,
-            unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+            unselectedLabelColor: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
             tabs: _groups.map((group) {
               return Tab(
                 child: Row(
@@ -351,7 +359,9 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                           width: 20,
                           height: 20,
                           fit: BoxFit.cover,
-                          httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
+                          httpHeaders: const {
+                            'referer': CommonConstants.iwaraBaseUrl,
+                          },
                           placeholder: (context, url) => Shimmer.fromColors(
                             baseColor: Colors.grey[300]!,
                             highlightColor: Colors.grey[100]!,
@@ -368,7 +378,9 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                             width: 20,
                             height: 20,
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Center(
@@ -385,7 +397,9 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                         width: 20,
                         height: 20,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
@@ -398,7 +412,10 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                     const SizedBox(width: 6),
                     Text(
                       group.name,
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),
@@ -418,28 +435,32 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
           final group = entry.value;
           final images = _groupImages[group.groupId] ?? [];
           if (images.isEmpty) {
-                      return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.emoji_emotions_outlined,
-                  size: 48,
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  t.emoji.noEmojisInGroup,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-                    fontSize: 16,
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.emoji_emotions_outlined,
+                    size: 48,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.3),
                   ),
-                ),
-              ],
-            ),
-          );
+                  const SizedBox(height: 16),
+                  Text(
+                    t.emoji.noEmojisInGroup,
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            );
           }
-          
+
           return GridView.builder(
             padding: const EdgeInsets.all(8),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -447,7 +468,8 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
               crossAxisSpacing: 8,
               mainAxisSpacing: 8,
             ),
-            controller: widget.scrollController != null && pageIndex == _currentTabIndex
+            controller:
+                widget.scrollController != null && pageIndex == _currentTabIndex
                 ? widget.scrollController
                 : null,
             itemCount: images.length,
@@ -458,34 +480,35 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                 child: Container(
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.outline.withValues(alpha: 0.2),
                       width: 1,
                     ),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                    child: ClipRRect(
+                  child: ClipRRect(
                     borderRadius: BorderRadius.circular(7),
-                      child: CachedNetworkImage(
-                        imageUrl: image.thumbnailUrl ?? image.url,
-                        fit: BoxFit.cover,
-                        httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
-                        placeholder: (context, url) => Shimmer.fromColors(
-                          baseColor: Colors.grey[300]!,
-                          highlightColor: Colors.grey[100]!,
-                          child: Container(
-                            color: Colors.white,
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => Container(
-                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                          child: const Center(
-                            child: Icon(
-                              Icons.broken_image,
-                              color: Colors.grey,
-                            ),
-                          ),
+                    child: CachedNetworkImage(
+                      imageUrl: image.thumbnailUrl ?? image.url,
+                      fit: BoxFit.cover,
+                      httpHeaders: const {
+                        'referer': CommonConstants.iwaraBaseUrl,
+                      },
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(color: Colors.white),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
+                        child: const Center(
+                          child: Icon(Icons.broken_image, color: Colors.grey),
                         ),
                       ),
+                    ),
                   ),
                 ),
               );
@@ -518,7 +541,9 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                             width: 20,
                             height: 20,
                             fit: BoxFit.cover,
-                            httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
+                            httpHeaders: const {
+                              'referer': CommonConstants.iwaraBaseUrl,
+                            },
                             errorWidget: (context, url, error) => Text(
                               group.name.isNotEmpty ? group.name[0] : '?',
                               style: const TextStyle(fontSize: 12),
@@ -547,14 +572,14 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
               final group = entry.value;
               final images = _groupImages[group.groupId] ?? [];
               if (images.isEmpty) {
-                              return Center(
-                child: Text(
-                  t.emoji.noEmojisInGroup,
-                  style: const TextStyle(color: Colors.grey),
-                ),
-              );
+                return Center(
+                  child: Text(
+                    t.emoji.noEmojisInGroup,
+                    style: const TextStyle(color: Colors.grey),
+                  ),
+                );
               }
-              
+
               return GridView.builder(
                 padding: const EdgeInsets.all(8),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -562,7 +587,9 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                   crossAxisSpacing: 8,
                   mainAxisSpacing: 8,
                 ),
-                controller: widget.scrollController != null && pageIndex == _currentTabIndex
+                controller:
+                    widget.scrollController != null &&
+                        pageIndex == _currentTabIndex
                     ? widget.scrollController
                     : null,
                 itemCount: images.length,
@@ -578,24 +605,21 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                       child: ClipRRect(
+                      child: ClipRRect(
                         borderRadius: BorderRadius.circular(7),
-                         child: CachedNetworkImage(
+                        child: CachedNetworkImage(
                           imageUrl: image.thumbnailUrl ?? image.url,
                           fit: BoxFit.cover,
-                          httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
+                          httpHeaders: const {
+                            'referer': CommonConstants.iwaraBaseUrl,
+                          },
                           placeholder: (context, url) => Shimmer.fromColors(
                             baseColor: Colors.grey[300]!,
                             highlightColor: Colors.grey[100]!,
-                            child: Container(
-                              color: Colors.white,
-                            ),
+                            child: Container(color: Colors.white),
                           ),
                           errorWidget: (context, url, error) => const Center(
-                            child: Icon(
-                              Icons.broken_image,
-                              color: Colors.grey,
-                            ),
+                            child: Icon(Icons.broken_image, color: Colors.grey),
                           ),
                         ),
                       ),

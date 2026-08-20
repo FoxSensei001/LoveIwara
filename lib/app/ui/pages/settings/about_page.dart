@@ -363,27 +363,23 @@ class _AboutPageState extends State<AboutPage> {
     final t = slang.Translations.of(context);
     final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
 
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          BlurredSliverAppBar(
-            title: t.settings.about,
-            isWideScreen: widget.isWideScreen,
+    return GlassSettingsScaffold(
+      title: t.settings.about,
+      isWideScreen: widget.isWideScreen,
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.all(16),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              _buildAppInfoSection(),
+              _buildUpdateSection(),
+              _buildHistoryUpdatesSection(),
+              _buildLinksSection(),
+              SizedBox(height: bottomInset),
+            ]),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _buildAppInfoSection(),
-                _buildUpdateSection(),
-                _buildHistoryUpdatesSection(),
-                _buildLinksSection(),
-                SizedBox(height: bottomInset),
-              ]),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

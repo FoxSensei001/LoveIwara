@@ -138,7 +138,12 @@ class Anime4KSettingsWidget extends StatelessWidget {
           onTap: () => _showPresetSelectionDialog(context, configService),
           child: Row(
             children: [
-              Icon(Icons.tune, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null),
+              Icon(
+                Icons.tune,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white
+                    : null,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -171,7 +176,9 @@ class Anime4KSettingsWidget extends StatelessWidget {
               const SizedBox(width: 8),
               Icon(
                 Icons.chevron_right,
-                color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white
+                    : null,
               ),
             ],
           ),

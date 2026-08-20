@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/common/widgets/input/input_components.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
-import 'package:oktoast/oktoast.dart';
 
 class ForumReplyBottomSheet extends StatefulWidget {
   const ForumReplyBottomSheet({
@@ -49,9 +48,7 @@ class _ForumReplyBottomSheetState extends State<ForumReplyBottomSheet> {
         Navigator.of(context).pop();
       }
     } else {
-      showToastWidget(
-        MDToastWidget(message: result.message, type: MDToastType.error),
-      );
+      showGlassToast(result.message, type: GlassToastType.error);
     }
   }
 

@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
@@ -7,15 +6,22 @@ import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_controller.dart';
 import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_repository.dart';
+import 'package:i_iwara/app/ui/pages/play_list/widgets/playlist_item_widget.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
+import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
-import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
-import 'package:i_iwara/utils/widget_extensions.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
-enum _PlaylistMenuAction { delete }
-
+/// 播放列表列表页（玻璃化 + 瀑布/分页双模式）。
 class PlayListPage extends StatefulWidget {
   final String userId;
   final bool isMine;
@@ -30,256 +36,376 @@ class _PlayListPageState extends State<PlayListPage> {
   late PlayListsController controller;
   late PlayListRepository listSourceRepository;
   final ScrollController _scrollController = ScrollController();
-  final RxBool _showBackToTop = false.obs;
+
+  /// 外部刷新信号：分页模式必须由 MediaListView 自己刷新，
+  /// 直接 `repository.refresh()` 只会动数据源、不会换掉当前显示的那一页。
+  /// 带回执，header 上的刷新钮据此在刷完前显示沙漏。
+  final ListRefreshSignal _refreshSignal = ListRefreshSignal();
+
+  /// 列表滚过一段距离后显示右下角「回到顶部」浮钮。
+  final ValueNotifier<bool> _showBackToTop = ValueNotifier<bool>(false);
+
+  late bool _isPaginated = CommonConstants.isPaginated;
+
+  /// 编辑态：卡片右上角才出现删除钮（仅自己的播放列表可进）。
+  bool _isEditMode = false;
 
   @override
   void initState() {
     super.initState();
     controller = Get.put(PlayListsController());
     listSourceRepository = PlayListRepository(userId: widget.userId);
-
-    // 添加滚动监听
-    _scrollController.addListener(() {
-      if (_scrollController.offset >= 300) {
-        _showBackToTop.value = true;
-      } else {
-        _showBackToTop.value = false;
-      }
-    });
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _refreshSignal.dispose();
+    _showBackToTop.dispose();
     Get.delete<PlayListsController>();
     listSourceRepository.dispose();
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(slang.t.playList.myPlayList),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => listSourceRepository.refresh(),
-          ),
-          IconButton(
-            icon: const Icon(Icons.help_outline),
-            onPressed: () => _showHelpDialog(),
-          ),
-          if (widget.isMine)
-            IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: () => _showCreateDialog(context),
-            ),
-          // 分享
-          // IconButton(
-          //   icon: const Icon(Icons.share),
-          //   onPressed: () => ShareService.sharePlayList(widget.userId),
-          // ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: () => listSourceRepository.refresh(true),
-        child: LoadingMoreCustomScrollView(
-          controller: _scrollController,
-          slivers: <Widget>[
-            LoadingMoreSliverList<PlaylistModel>(
-              SliverListConfig<PlaylistModel>(
-                extendedListDelegate:
-                    const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 300,
-                      crossAxisSpacing: 5,
-                      mainAxisSpacing: 5,
-                    ),
-                itemBuilder: buildItem,
-                sourceList: listSourceRepository,
-                padding: EdgeInsets.only(
-                  left: 5.0,
-                  right: 5.0,
-                  top: 5.0,
-                  bottom: computeBottomSafeInset(MediaQuery.of(context)),
-                ),
-                lastChildLayoutType: LastChildLayoutType.foot,
-                indicatorBuilder: (context, status) => myLoadingMoreIndicator(
-                  context,
-                  status,
-                  isSliver: true,
-                  loadingMoreBase: listSourceRepository,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: Obx(
-        () => _showBackToTop.value
-            ? FloatingActionButton(
-                onPressed: () {
-                  _scrollController.animateTo(
-                    0,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut,
-                  );
-                },
-                child: const Icon(Icons.arrow_upward),
-              ).paddingBottom(computeBottomSafeInset(MediaQuery.of(context)))
-            : const SizedBox(),
-      ),
+  static const String _menuActionTogglePagination = 'toggle_pagination';
+  static const String _menuActionHelp = 'help';
+
+  Future<void> _refreshList() => _refreshSignal.request();
+
+  void _toggleEditMode() {
+    setState(() => _isEditMode = !_isEditMode);
+    // 进出编辑态都从空选开始，免得上次留下的勾选在下次删错东西
+    controller.clearSelection();
+  }
+
+  void _togglePaginationMode() {
+    setState(() => _isPaginated = !_isPaginated);
+    persistPaginationMode(_isPaginated);
+    // 分页与瀑布的下标口径不同，模式一换就把选择清掉
+    controller.clearSelection();
+  }
+
+  void _scrollToTop() {
+    if (!_scrollController.hasClients) return;
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
     );
   }
 
-  Widget buildItem(BuildContext c, PlaylistModel playlist, int index) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () async {
-          final result = await GoRouter.of(c).push(
-            '/playlist_detail/${playlist.id}',
-            extra: PlayListDetailExtra(isMine: widget.isMine),
-          );
-          if (!c.mounted) {
-            return;
-          }
-          if (result == true && widget.isMine) {
-            await listSourceRepository.refresh(true);
-          }
-        },
-        child: Stack(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: CachedNetworkImage(
-                    imageUrl: playlist.thumbnailUrl,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    placeholder: (context, url) => Container(
-                      color: Colors.grey[300],
-                      child: const Center(child: CircularProgressIndicator()),
-                    ),
-                    errorWidget: (context, url, error) =>
-                        const Center(child: Icon(Icons.error)),
+  Future<void> _openPlaylistDetail(
+    BuildContext context,
+    PlaylistModel playlist,
+  ) async {
+    final result = await GoRouter.of(context).push(
+      '/playlist_detail/${playlist.id}',
+      extra: PlayListDetailExtra(isMine: widget.isMine),
+    );
+    if (!mounted) return;
+    // 详情页里删掉了这个播放列表 / 改了标题，回来得重拉
+    if (result == true && widget.isMine) {
+      _refreshList();
+    }
+  }
+
+  /// 右侧动作胶囊：[编辑 · 新建（均仅自己的列表）] [瀑布/分页(宽屏)] 刷新
+  /// [帮助(宽屏)] [更多(窄屏，收分页切换 + 帮助)]。
+  Widget _buildActionGroup(BuildContext context, {required bool isWide}) {
+    final t = slang.Translations.of(context);
+    return GlassButtonGroup(
+      children: [
+        // 编辑态开关：只有进了编辑态，卡片右上角的删除钮才长出来，
+        // 平时列表保持干净（删播放列表是低频且不可逆的操作）
+        GlassGroupSlot(
+          visible: widget.isMine,
+          child: GlassIconButton(
+            icon: Icon(_isEditMode ? Icons.close : Icons.checklist),
+            tooltip: _isEditMode ? t.common.exitEditMode : t.common.editMode,
+            onPressed: _toggleEditMode,
+          ),
+        ),
+        GlassGroupSlot(
+          visible: widget.isMine,
+          child: GlassIconButton(
+            icon: const Icon(Icons.add),
+            tooltip: t.playList.createNewPlaylist,
+            onPressed: () => _showCreateDialog(context),
+          ),
+        ),
+        GlassGroupSlot(
+          visible: isWide,
+          child: GlassIconButton(
+            icon: Icon(_isPaginated ? Icons.grid_view : Icons.view_stream),
+            tooltip: _isPaginated
+                ? t.common.pagination.waterfall
+                : t.common.pagination.pagination,
+            onPressed: _togglePaginationMode,
+          ),
+        ),
+        GlassAsyncIconButton(
+          icon: const Icon(Icons.refresh),
+          tooltip: t.common.refresh,
+          onPressed: _refreshList,
+        ),
+        GlassGroupSlot(
+          visible: isWide,
+          child: GlassIconButton(
+            icon: const Icon(Icons.help_outline),
+            tooltip: t.playList.friendlyTips,
+            onPressed: _showHelpDialog,
+          ),
+        ),
+        // 窄屏胶囊塞不下五个键，分页切换与帮助收进这里
+        GlassGroupSlot(
+          visible: !isWide,
+          child: SizedBox(
+            width: GlassTokens.groupIconButtonSize,
+            height: GlassTokens.groupIconButtonSize,
+            child: PopupMenuButton<String>(
+              padding: EdgeInsets.zero,
+              icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
+              position: PopupMenuPosition.under,
+              // 往下挪一点，别压住玻璃胶囊本身
+              offset: const Offset(0, 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              onSelected: (value) {
+                switch (value) {
+                  case _menuActionTogglePagination:
+                    _togglePaginationMode();
+                    break;
+                  case _menuActionHelp:
+                    _showHelpDialog();
+                    break;
+                }
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem<String>(
+                  value: _menuActionTogglePagination,
+                  child: Row(
+                    children: [
+                      Icon(_isPaginated ? Icons.grid_view : Icons.view_stream),
+                      const SizedBox(width: 12),
+                      // 文案与图标一致：显示将要切换到的模式
+                      Text(
+                        _isPaginated
+                            ? t.common.pagination.waterfall
+                            : t.common.pagination.pagination,
+                      ),
+                    ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                PopupMenuItem<String>(
+                  value: _menuActionHelp,
+                  child: Row(
                     children: [
-                      Text(
-                        playlist.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        slang.t.common.videoCount(num: playlist.numVideos),
-                        style: TextStyle(
-                          color: Theme.of(c).textTheme.bodySmall?.color,
-                          fontSize: 12,
-                        ),
-                      ),
+                      const Icon(Icons.help_outline),
+                      const SizedBox(width: 12),
+                      Text(t.playList.friendlyTips),
                     ],
                   ),
                 ),
               ],
             ),
-            if (widget.isMine)
-              Positioned(
-                top: 4,
-                right: 4,
-                child: Obx(
-                  () => PopupMenuButton<_PlaylistMenuAction>(
-                    tooltip: MaterialLocalizations.of(c).showMenuTooltip,
-                    enabled: !controller.isDeletingPlaylist(playlist.id),
-                    onSelected: (action) {
-                      if (action == _PlaylistMenuAction.delete) {
-                        _showDeletePlaylistDialog(playlist);
-                      }
-                    },
-                    itemBuilder: (context) => [
-                      PopupMenuItem<_PlaylistMenuAction>(
-                        value: _PlaylistMenuAction.delete,
-                        child: Row(
-                          children: [
-                            const Icon(Icons.delete, color: Colors.red),
-                            const SizedBox(width: 8),
-                            Text(
-                              slang.t.common.delete,
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(
-                          c,
-                        ).colorScheme.surface.withValues(alpha: 0.92),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      padding: const EdgeInsets.all(4),
-                      child: controller.isDeletingPlaylist(playlist.id)
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.more_vert, size: 20),
-                    ),
-                  ),
-                ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 滚过一段后出现在右下角的「回到顶部」浮钮；分页模式下抬到分页栏之上。
+  Widget _buildScrollToTopFab(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Positioned(
+      right: 16,
+      bottom:
+          computeBottomSafeInset(MediaQuery.of(context)) +
+          16 +
+          (_isPaginated ? PaginationBar.barHeight : 0),
+      child: ValueListenableBuilder<bool>(
+        valueListenable: _showBackToTop,
+        builder: (context, visible, _) => IgnorePointer(
+          ignoring: !visible,
+          child: AnimatedSlide(
+            duration: GlassTokens.motionDuration,
+            curve: GlassTokens.motionCurve,
+            offset: visible ? Offset.zero : const Offset(0, 0.4),
+            child: AnimatedOpacity(
+              duration: GlassTokens.motionDuration,
+              opacity: visible ? 1 : 0,
+              child: GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.vertical_align_top),
+                tooltip: t.common.scrollToTop,
+                onPressed: _scrollToTop,
               ),
-          ],
+            ),
+          ),
         ),
       ),
     );
   }
 
-  void _showDeletePlaylistDialog(PlaylistModel playlist) {
-    final RxBool isLoading = false.obs;
+  @override
+  Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
+    final bool isWide = MediaQuery.sizeOf(context).width > 600;
+
+    return Scaffold(
+      body: GlassHeaderOverlay(
+        headerExtent: headerExtent,
+        headerTop: statusBarHeight,
+        solidExtent: statusBarHeight,
+        body: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            if (notification.depth == 0 &&
+                notification.metrics.axis == Axis.vertical) {
+              _showBackToTop.value = notification.metrics.pixels >= 300;
+            }
+            return false;
+          },
+          child: MediaListView<PlaylistModel>(
+            sourceList: listSourceRepository,
+            isPaginated: _isPaginated,
+            refreshSignal: _refreshSignal,
+            scrollController: _scrollController,
+            paddingTop: headerExtent,
+            emptyIcon: Icons.playlist_play,
+            extendedListDelegate:
+                const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 300,
+                  crossAxisSpacing: 5,
+                  mainAxisSpacing: 5,
+                ),
+            // 换页后原来勾的已经不在屏幕上了，留着只会误删
+            onPageChanged: controller.clearSelection,
+            itemBuilder: (context, playlist, index) => Obx(
+              () => PlaylistItemWidget(
+                playlist: playlist,
+                onTap: () => _openPlaylistDetail(context, playlist),
+                isMultiSelect: _isEditMode,
+                isSelected: controller.selectedPlaylistIds.contains(
+                  playlist.id,
+                ),
+                onToggleSelect: () => controller.toggleSelection(playlist.id),
+                isDeleting: controller.isDeletingPlaylist(playlist.id),
+              ),
+            ),
+          ),
+        ),
+        // header 行：左 返回圆钮 / 中 标题胶囊 / 右 动作胶囊
+        header: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.arrow_back),
+                tooltip: t.common.back,
+                onPressed: () => AppService.tryPop(),
+              ),
+              const SizedBox(width: 8),
+              Expanded(child: GlassTitlePill(title: t.playList.myPlayList)),
+              const SizedBox(width: 8),
+              _buildActionGroup(context, isWide: isWide),
+            ],
+          ),
+        ),
+        extra: [
+          _buildScrollToTopFab(context),
+          // 多选悬浮按钮列：退出 / 清空 / 删除所选
+          Obx(
+            () => BatchActionFab(
+              isMultiSelect: _isEditMode,
+              selectedCount: controller.selectedPlaylistIds.length,
+              heroTagPrefix: 'playlist_${widget.userId}',
+              isPaginated: _isPaginated,
+              onExit: _toggleEditMode,
+              onClear: controller.clearSelection,
+              customActionBuilder: (context) => FloatingActionButton.small(
+                heroTag: 'playlistBatchDeleteFAB_${widget.userId}',
+                onPressed: _showDeleteSelectedDialog,
+                backgroundColor: Theme.of(context).colorScheme.error,
+                foregroundColor: Theme.of(context).colorScheme.onError,
+                child: const Icon(Icons.delete),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 弹窗标题行：标题 + 玻璃关闭圆钮（全局统一约定）。
+  Widget _dialogTitleRow(
+    BuildContext context,
+    String title, {
+    bool enabled = true,
+  }) {
+    final t = slang.Translations.of(context);
+    return Row(
+      children: [
+        Expanded(child: Text(title)),
+        GlassIconButton(
+          standalone: true,
+          icon: const Icon(Icons.close),
+          tooltip: t.common.close,
+          onPressed: enabled ? () => AppService.tryPop() : null,
+        ),
+      ],
+    );
+  }
+
+  /// 批量删除确认：删除期间不许关弹窗、不许重复提交（逐条串行调接口，
+  /// 中途关掉会让用户不知道删到哪儿了）。
+  void _showDeleteSelectedDialog() {
+    if (controller.selectedPlaylistIds.isEmpty) return;
 
     showAppDialog(
       Obx(
         () => PopScope(
-          canPop: !isLoading.value,
+          canPop: !controller.isBatchDeleting.value,
           child: AlertDialog(
-            title: Text(slang.t.common.confirmDelete),
+            title: _dialogTitleRow(
+              context,
+              slang.t.common.confirmDelete,
+              enabled: !controller.isBatchDeleting.value,
+            ),
             content: Text(
-              slang.t.favorite.removeItemConfirmWithTitle(
-                title: playlist.title,
+              slang.t.common.areYouSureYouWantToDeleteSelectedItems(
+                num: controller.selectedPlaylistIds.length,
               ),
             ),
             actions: [
               TextButton(
-                onPressed: isLoading.value ? null : () => AppService.tryPop(),
+                onPressed: controller.isBatchDeleting.value
+                    ? null
+                    : () => AppService.tryPop(),
                 child: Text(slang.t.common.cancel),
               ),
               TextButton(
-                onPressed: isLoading.value
+                onPressed: controller.isBatchDeleting.value
                     ? null
                     : () async {
-                        isLoading.value = true;
-                        final deleted = await controller.deletePlaylist(
-                          playlist.id,
-                        );
-                        if (deleted) {
+                        final deleted = await controller
+                            .deleteSelectedPlaylists();
+                        if (deleted > 0) {
                           AppService.tryPop();
-                          await listSourceRepository.refresh(true);
+                          _refreshList();
+                          // 全删干净了就顺手退出编辑态
+                          if (controller.selectedPlaylistIds.isEmpty &&
+                              _isEditMode &&
+                              mounted) {
+                            setState(() => _isEditMode = false);
+                          }
                         }
-                        isLoading.value = false;
                       },
                 style: TextButton.styleFrom(foregroundColor: Colors.red),
-                child: isLoading.value
+                child: controller.isBatchDeleting.value
                     ? const SizedBox(
                         width: 24,
                         height: 24,
@@ -301,7 +427,7 @@ class _PlayListPageState extends State<PlayListPage> {
 
     showAppDialog(
       AlertDialog(
-        title: Text(slang.t.common.createPlayList),
+        title: _dialogTitleRow(context, slang.t.common.createPlayList),
         content: TextField(
           controller: textController,
           decoration: InputDecoration(
@@ -326,7 +452,7 @@ class _PlayListPageState extends State<PlayListPage> {
                           textController.text.trim(),
                         );
                         if (res) {
-                          listSourceRepository.refresh();
+                          _refreshList();
                           AppService.tryPop();
                         }
                       }
@@ -349,10 +475,7 @@ class _PlayListPageState extends State<PlayListPage> {
   void _showHelpDialog() {
     showAppDialog(
       AlertDialog(
-        title: Text(
-          '💡 ${slang.t.playList.friendlyTips}',
-          style: const TextStyle(fontSize: 18),
-        ),
+        title: _dialogTitleRow(context, '💡 ${slang.t.playList.friendlyTips}'),
         content: Text(
           '${slang.t.playList.dearUser}:\n\n'
           '⚠️ ${slang.t.playList.iwaraPlayListSystemIsNotPerfectYet}\n'

@@ -117,8 +117,9 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
     const double fontSize = 14;
     const double lineHeight = 1.3;
     // 固定占两行高度（随文字缩放），标题不足两行时也保持卡片对齐。
-    final double scaledFontSize =
-        MediaQuery.textScalerOf(context).scale(fontSize);
+    final double scaledFontSize = MediaQuery.textScalerOf(
+      context,
+    ).scale(fontSize);
     return SizedBox(
       height: scaledFontSize * lineHeight * 2,
       child: Text(
@@ -421,9 +422,10 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
       }
 
       // 跳转到视频详情页
-      NaviService.navigateToVideoDetailPage(iwaraId, extData: {
-        'oreno3dVideoDetailInfo': detail.toJson(),
-      });
+      NaviService.navigateToVideoDetailPage(
+        iwaraId,
+        extData: {'oreno3dVideoDetailInfo': detail.toJson()},
+      );
     } catch (e) {
       // 如果是取消请求，不显示错误信息
       if (e is DioException && e.type == DioExceptionType.cancel) {

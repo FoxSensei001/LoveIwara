@@ -8,8 +8,7 @@ import 'comment_item_widget.dart';
 import 'comment_skeleton_item_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'comment_input_bottom_sheet.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class CommentRepliesBottomSheet extends StatefulWidget {
@@ -131,6 +130,30 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
     }
   }
 
+  /// 子回复编辑成功：原地替换列表项（父评论 numReplies 不变）
+  void _onReplyEdited(Comment updated) {
+    if (!mounted) return;
+    setState(() {
+      final index = _replies.indexWhere((r) => r.id == updated.id);
+      if (index != -1) {
+        _replies[index] = updated;
+      }
+    });
+  }
+
+  /// 子回复删除成功：移除列表项 + 回复数减一，
+  /// 并让主列表同步父评论的 numReplies
+  void _onReplyDeleted(String commentId) {
+    if (!mounted) return;
+    setState(() {
+      _replies.removeWhere((r) => r.id == commentId);
+      if (_replyCount > 0) {
+        _replyCount--;
+      }
+    });
+    widget.controller?.onReplyDeleted(widget.parentComment.id);
+  }
+
   void _showReplyDialog() {
     showModalBottomSheet(
       context: context,
@@ -141,12 +164,10 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
         submitText: slang.t.common.reply,
         onSubmit: (text) async {
           if (text.trim().isEmpty) {
-            showToastWidget(
-              MDToastWidget(
-                message: slang.t.errors.commentCanNotBeEmpty,
-                type: MDToastType.error,
-              ),
-              position: ToastPosition.bottom,
+            showGlassToast(
+              slang.t.errors.commentCanNotBeEmpty,
+              type: GlassToastType.error,
+              position: GlassToastPosition.bottom,
             );
             return;
           }
@@ -181,12 +202,10 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
                 type = CommentType.post.name;
                 id = widget.parentComment.postId!;
               } else {
-                showToastWidget(
-                  MDToastWidget(
-                    message: 'Unknown comment type',
-                    type: MDToastType.error,
-                  ),
-                  position: ToastPosition.bottom,
+                showGlassToast(
+                  'Unknown comment type',
+                  type: GlassToastType.error,
+                  position: GlassToastPosition.bottom,
                 );
                 return;
               }
@@ -206,11 +225,9 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
             }
 
             if (success) {
-              showToastWidget(
-                MDToastWidget(
-                  message: slang.t.common.commentPostedSuccessfully,
-                  type: MDToastType.success,
-                ),
+              showGlassToast(
+                slang.t.common.commentPostedSuccessfully,
+                type: GlassToastType.success,
               );
               // context 来自 showModalBottomSheet 的 builder，与 State 的 mounted 无关，
               // 需用该 context 自身的 mounted 判断。
@@ -224,21 +241,17 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
                 _loadReplies(refresh: true); // Refresh replies
               }
             } else {
-              showToastWidget(
-                MDToastWidget(
-                  message: errorMessage ?? slang.t.common.commentPostedFailed,
-                  type: MDToastType.error,
-                ),
-                position: ToastPosition.bottom,
+              showGlassToast(
+                errorMessage ?? slang.t.common.commentPostedFailed,
+                type: GlassToastType.error,
+                position: GlassToastPosition.bottom,
               );
             }
           } catch (e) {
-            showToastWidget(
-              MDToastWidget(
-                message: slang.t.common.commentPostedFailed,
-                type: MDToastType.error,
-              ),
-              position: ToastPosition.bottom,
+            showGlassToast(
+              slang.t.common.commentPostedFailed,
+              type: GlassToastType.error,
+              position: GlassToastPosition.bottom,
             );
           }
         },
@@ -555,6 +568,8 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
             controller: null,
             isReply: true,
             onTimestampSeek: widget.onTimestampSeek,
+            onCommentEdited: _onReplyEdited,
+            onCommentDeleted: _onReplyDeleted,
           );
         } else {
           return _buildLoadMoreIndicator();

@@ -47,7 +47,9 @@ class _ProfilePlaylistTabListWidgetState
   late PlayListRepository listSourceRepository;
   final ScrollController _fallbackController = ScrollController();
   final ValueNotifier<bool> _showBackToTop = ValueNotifier(false);
-  final ValueNotifier<int> _refreshSignal = ValueNotifier(0);
+
+  /// 带回执的刷新信号：header 上的刷新钮据此在刷完前显示沙漏。
+  final ListRefreshSignal _refreshSignal = ListRefreshSignal();
 
   // 四个 tab 里原本只有播放列表这一个没有保活：TabBarView 未开
   // allowImplicitScrolling，非当前页在切换动画结束后即被 unmount，
@@ -127,10 +129,10 @@ class _ProfilePlaylistTabListWidgetState
                     : t.common.pagination.pagination,
                 onPressed: widget.onPaginationToggle,
               ),
-              GlassIconButton(
+              GlassAsyncIconButton(
                 icon: const Icon(Icons.refresh),
                 tooltip: t.common.refresh,
-                onPressed: () => _refreshSignal.value++,
+                onPressed: _refreshSignal.request,
               ),
             ],
           ),

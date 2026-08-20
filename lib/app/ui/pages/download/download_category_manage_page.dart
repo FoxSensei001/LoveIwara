@@ -4,8 +4,7 @@ import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 下载分类管理页：新建 / 重命名 / 删除 / 拖拽排序。
@@ -68,11 +67,9 @@ class _DownloadCategoryManagePageState
         _newController.clear();
         await _fetch();
         if (mounted) {
-          showToastWidget(
-            MDToastWidget(
-              message: t.download.category.createSuccess,
-              type: MDToastType.success,
-            ),
+          showGlassToast(
+            t.download.category.createSuccess,
+            type: GlassToastType.success,
           );
         }
       } else {
@@ -80,11 +77,9 @@ class _DownloadCategoryManagePageState
       }
     } catch (e) {
       if (mounted) {
-        showToastWidget(
-          MDToastWidget(
-            message: t.download.category.createFailed,
-            type: MDToastType.error,
-          ),
+        showGlassToast(
+          t.download.category.createFailed,
+          type: GlassToastType.error,
         );
       }
     }
@@ -134,11 +129,9 @@ class _DownloadCategoryManagePageState
                     TextButton(
                       onPressed: () {
                         if (controller.text.trim().isEmpty) {
-                          showToastWidget(
-                            MDToastWidget(
-                              message: t.download.category.nameEmpty,
-                              type: MDToastType.error,
-                            ),
+                          showGlassToast(
+                            t.download.category.nameEmpty,
+                            type: GlassToastType.error,
                           );
                           return;
                         }
@@ -160,19 +153,15 @@ class _DownloadCategoryManagePageState
       if (ok) {
         await _fetch();
         if (mounted) {
-          showToastWidget(
-            MDToastWidget(
-              message: t.download.category.renameSuccess,
-              type: MDToastType.success,
-            ),
+          showGlassToast(
+            t.download.category.renameSuccess,
+            type: GlassToastType.success,
           );
         }
       } else if (mounted) {
-        showToastWidget(
-          MDToastWidget(
-            message: t.download.category.renameFailed,
-            type: MDToastType.error,
-          ),
+        showGlassToast(
+          t.download.category.renameFailed,
+          type: GlassToastType.error,
         );
       }
     }
@@ -209,19 +198,15 @@ class _DownloadCategoryManagePageState
       if (ok) {
         await _fetch();
         if (mounted) {
-          showToastWidget(
-            MDToastWidget(
-              message: t.download.category.deleteSuccess,
-              type: MDToastType.success,
-            ),
+          showGlassToast(
+            t.download.category.deleteSuccess,
+            type: GlassToastType.success,
           );
         }
       } else if (mounted) {
-        showToastWidget(
-          MDToastWidget(
-            message: t.download.category.deleteFailed,
-            type: MDToastType.error,
-          ),
+        showGlassToast(
+          t.download.category.deleteFailed,
+          type: GlassToastType.error,
         );
       }
     }

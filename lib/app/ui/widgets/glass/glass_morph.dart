@@ -1,3 +1,6 @@
+import 'dart:math' as math;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -17,18 +20,38 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 /// | `GlassIconButton` 图标切换              | 多选↔退出、瀑布↔分页                | 见 GlassIconButton 内实现 |
 /// | 筛选/未读小红点出现或消失                    | `showBadge` 由 false→true    | [GlassAnimatedDot]    |
 /// | 无壳内容形态互换（头像↔shimmer 占位）          | 宽度突变的整体替换                  | [GlassShapeSwitcher]  |
-/// | 整块 action group 从有到无（作者页无操作时）  | 整个胶囊瞬间消失                    | [GlassShapeSwitcher]  |
+/// | 整只玻璃胶囊从有到无（某个 tab 没有任何动作）   | 胶囊瞬间消失 / 被矩形裁成一条细色块   | [GlassCapsuleReveal]  |
 /// | 玻璃胶囊之间的形态互换（分段胶囊↔下拉按钮）      | 两侧都自带底色/描边/阴影              | [GlassCapsuleMorph]   |
+/// | 下拉钮标题跟随横滑进度翻页               | 滑完才换字，中途一直是旧文案            | [GlassFlipLabel]      |
+/// | 按钮触发耗时动作（刷新/保存/全部已读）      | 点完毫无变化，或各页自造转圈          | `GlassIconButton.loading` / `GlassAsyncIconButton` |
+///
+/// 「耗时动作」那一行同样是形变而不是替换：图标**原位**交叉过渡成沙漏、按钮
+/// 顺带置灰，做完再换回来。不要塞 `CircularProgressIndicator`——转圈在 40×40
+/// 的按钮位上比图标小一圈、粗细不同族，换进换出还会跳一下尺寸。页面已有
+/// `isLoading` 之类可观察状态就传 `loading`，没有就用 `GlassAsyncIconButton`
+/// 让按钮自己跟着 Future 走（含最短停留时长，避免命中缓存时只闪一下）。
 ///
 /// 统一遵守：
 /// - 时值 = [GlassTokens.motionDuration]（200ms），必要时略缩短到 160ms。
+///   例外：[GlassGroupSlot] 的进出场是两套节奏（入场 300ms / 出场 200ms，
+///   见 [GlassTokens.groupSlotEnterDuration]），宽度走缓入缓出——
+///   easeOutCubic 开头猛冲，叠上外层胶囊的 AnimatedSize 后宽度像瞬跳。
 /// - 曲线 = [GlassTokens.motionCurve]（`easeOutCubic`）——入场重、出场轻。
 /// - 出场元素从可视位置向内收（宽度→0 + 淡出），而不是先淡出再抽空间。
+/// - 凡是**手指还按在屏幕上**就能看出进度的形变（横滑切 tab），一律接
+///   `progress`（小数下标）逐帧插值，不要等手势结束再放一段固定时长的动画：
+///   见 [GlassSegmentedControl.progress] 与 [GlassFlipLabel]。
 
 /// 一个可动画显隐的「槽位」：`visible=false` 时宽度收到 0 + 淡出，
 /// `visible=true` 时反向恢复。用于按钮组里那些**条件出现**的按钮，让胶囊
 /// 整体宽度也跟着平滑收放（外层再套一层 `AnimatedSize` 由 [GlassButtonGroup]
 /// 提供，两层在时序上互相配合）。
+///
+/// 进出场是两套节奏：入场慢而完整（[GlassTokens.groupSlotEnterDuration]，
+/// 宽度走缓入缓出，先酝酿再展开），出场快而干脆（[GlassTokens
+/// .groupSlotExitDuration]）。图标自身的淡入/缩放仍走常规 motion 曲线，
+/// 在宽度还在生长时就基本显形--读起来是「按钮冒出来」，而不是
+/// 「一块矩形被拉宽」。
 class GlassGroupSlot extends StatefulWidget {
   const GlassGroupSlot({
     super.key,
@@ -56,12 +79,17 @@ class _GlassGroupSlotState extends State<GlassGroupSlot>
   /// 缓存最后一次可见时的 child，用于出场动画期间继续渲染。
   Widget? _cached;
 
+  Duration get _enterDuration =>
+      widget.duration ?? GlassTokens.groupSlotEnterDuration;
+  Duration get _exitDuration =>
+      widget.duration ?? GlassTokens.groupSlotExitDuration;
+
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: widget.duration ?? GlassTokens.motionDuration,
+      duration: widget.visible ? _enterDuration : _exitDuration,
       value: widget.visible ? 1.0 : 0.0,
     );
     if (widget.visible) _cached = widget.child;
@@ -70,16 +98,15 @@ class _GlassGroupSlotState extends State<GlassGroupSlot>
   @override
   void didUpdateWidget(covariant GlassGroupSlot oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.duration != oldWidget.duration) {
-      _controller.duration = widget.duration ?? GlassTokens.motionDuration;
-    }
     if (widget.visible) {
       _cached = widget.child;
       if (_controller.status != AnimationStatus.forward &&
           _controller.value != 1.0) {
+        _controller.duration = _enterDuration;
         _controller.forward();
       }
     } else if (oldWidget.visible) {
+      _controller.duration = _exitDuration;
       _controller.reverse().whenCompleteOrCancel(() {
         if (!mounted) return;
         if (!widget.visible && _controller.value == 0.0) {
@@ -97,21 +124,31 @@ class _GlassGroupSlotState extends State<GlassGroupSlot>
 
   @override
   Widget build(BuildContext context) {
-    final curve = CurvedAnimation(
+    // 宽度：缓入缓出。easeOutCubic 开头猛冲，叠上外层胶囊的 AnimatedSize
+    // 后宽度像瞬跳；缓入缓出让展开有起势、收拢有余韵。
+    final size = CurvedAnimation(
       parent: _controller,
-      curve: widget.curve ?? GlassTokens.motionCurve,
-      reverseCurve: (widget.curve ?? GlassTokens.motionCurve).flipped,
+      curve: widget.curve ?? GlassTokens.groupSlotCurve,
+      reverseCurve: (widget.curve ?? GlassTokens.groupSlotCurve).flipped,
+    );
+    // 图标显形：快曲线，让按钮在宽度还在生长时就先「冒头」。
+    final appear = CurvedAnimation(
+      parent: _controller,
+      curve: GlassTokens.motionCurve,
     );
     return ClipRect(
       child: SizeTransition(
         axis: widget.axis,
-        sizeFactor: curve,
+        sizeFactor: size,
         alignment: widget.axis == Axis.horizontal
             ? Alignment.centerLeft
             : Alignment.topCenter,
-        child: FadeTransition(
-          opacity: curve,
-          child: _cached ?? const SizedBox.shrink(),
+        child: ScaleTransition(
+          scale: Tween<double>(begin: 0.85, end: 1.0).animate(appear),
+          child: FadeTransition(
+            opacity: appear,
+            child: _cached ?? const SizedBox.shrink(),
+          ),
         ),
       ),
     );
@@ -164,6 +201,125 @@ class GlassAnimatedDot extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// 整只玻璃胶囊的「有 ↔ 无」：胶囊**先原地缩小淡出、再把占位宽度收掉**，
+/// 出现时反向（先撑开位置、再放大淡入）。
+///
+/// 为什么不是 [GlassShapeSwitcher] / [GlassGroupSlot]：
+/// - [GlassGroupSlot] 只收内部按钮的宽度——[GlassButtonGroup] 的玻璃壳自己还有
+///   左右内边距与描边，收到最后会在 header 上留下一条竖着的细色块；
+/// - [GlassShapeSwitcher] 会一边淡出一边用**矩形**裁剪收宽度，胶囊的圆角端被
+///   切平、阴影被硬裁在容器里，读起来就是「啪」一下被切掉，而不是被收走。
+///
+/// 这里两段时序不重叠：内容还看得见时宽度一动不动，宽度开始收时内容已经透明，
+/// 所以全程不需要任何裁剪（用 `Align.widthFactor` 让位，超出部分照常绘制但此时
+/// 已经不可见），圆角与阴影自始至终完整。
+class GlassCapsuleReveal extends StatefulWidget {
+  const GlassCapsuleReveal({
+    super.key,
+    required this.visible,
+    required this.child,
+    this.alignment = Alignment.centerRight,
+  });
+
+  final bool visible;
+  final Widget child;
+
+  /// 缩放锚点与让位方向：贴在 header 右缘的胶囊用 [Alignment.centerRight]，
+  /// 收放时固定的那一端不动。
+  final Alignment alignment;
+
+  @override
+  State<GlassCapsuleReveal> createState() => _GlassCapsuleRevealState();
+}
+
+class _GlassCapsuleRevealState extends State<GlassCapsuleReveal>
+    with SingleTickerProviderStateMixin {
+  /// 出场比入场干脆一点，但都要慢到看得清「收走」的过程。
+  static const Duration _enterDuration = Duration(milliseconds: 320);
+  static const Duration _exitDuration = Duration(milliseconds: 260);
+
+  /// 时序切分点：进度低于它只动宽度，高于它只动内容（两段不重叠）。
+  static const double _handoff = 0.5;
+
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: widget.visible ? _enterDuration : _exitDuration,
+    value: widget.visible ? 1.0 : 0.0,
+  );
+
+  /// 缓存最后一次可见的 child，出场动画期间继续渲染。
+  Widget? _cached;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.visible) _cached = widget.child;
+  }
+
+  @override
+  void didUpdateWidget(covariant GlassCapsuleReveal oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.visible) {
+      _cached = widget.child;
+      if (_controller.status != AnimationStatus.forward &&
+          _controller.value != 1.0) {
+        _controller.duration = _enterDuration;
+        _controller.forward();
+      }
+    } else if (oldWidget.visible) {
+      _controller.duration = _exitDuration;
+      _controller.reverse().whenCompleteOrCancel(() {
+        if (!mounted) return;
+        if (!widget.visible && _controller.value == 0.0) {
+          setState(() => _cached = null);
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final child = _cached;
+    if (child == null) return const SizedBox.shrink();
+
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        final double v = _controller.value;
+        // 前半程让位（宽度），后半程显形（缩放 + 透明度）——反向自动倒放。
+        final double widthT = Curves.easeInOutCubic.transform(
+          (v / _handoff).clamp(0.0, 1.0),
+        );
+        final double contentT = Curves.easeOutCubic.transform(
+          ((v - _handoff) / (1 - _handoff)).clamp(0.0, 1.0),
+        );
+        return Align(
+          alignment: widget.alignment,
+          widthFactor: widthT,
+          child: IgnorePointer(
+            // 还没显形到一半时不该接手势（此时它几乎看不见）
+            ignoring: contentT < 0.5,
+            child: Opacity(
+              opacity: contentT,
+              child: Transform.scale(
+                scale: 0.88 + 0.12 * contentT,
+                alignment: widget.alignment,
+                child: child,
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -221,17 +377,15 @@ class GlassShapeSwitcher extends StatelessWidget {
         layoutBuilder: (currentChild, previousChildren) => Stack(
           alignment: layoutAlignment,
           clipBehavior: Clip.none,
-          children: [
-            ...previousChildren,
-            ?currentChild,
-          ],
+          children: [...previousChildren, ?currentChild],
         ),
         transitionBuilder: (child, animation) => FadeTransition(
           opacity: animation,
           child: ScaleTransition(
-            scale: Tween<double>(begin: 0.94, end: 1.0).animate(
-              CurvedAnimation(parent: animation, curve: c),
-            ),
+            scale: Tween<double>(
+              begin: 0.94,
+              end: 1.0,
+            ).animate(CurvedAnimation(parent: animation, curve: c)),
             child: child,
           ),
         ),
@@ -251,6 +405,13 @@ class GlassShapeSwitcher extends StatelessWidget {
 /// 「文字 + 箭头」的内容行，玻璃壳统一由这里提供。
 ///
 /// 与 [GlassShapeSwitcher] 一样，用 child 的 Key 变化来触发切换。
+///
+/// ⚠️ 新旧内容是**交接**（baton pass）而不是叠化：旧内容在前半程收掉，新
+/// 内容在后半程才开始长出来，两者永远不会同时可读。这里的两侧是「一行字 +
+/// 箭头」与「三个平铺的分段」——对称叠化会让两行文字互相穿透成一团糊字
+/// （2026-08-20 用户在订阅页横滑到「投稿」时反馈）。同时这段延迟也让胶囊
+/// 自身的 [AnimatedSize] 有时间把宽度撑到位，新内容不会在还没长够的胶囊里
+/// 被圆角硬裁一截。
 class GlassCapsuleMorph extends StatelessWidget {
   const GlassCapsuleMorph({
     super.key,
@@ -271,8 +432,17 @@ class GlassCapsuleMorph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final d = duration ?? GlassTokens.motionDuration;
+    final d = duration ?? GlassTokens.capsuleMorphDuration;
     final c = curve ?? GlassTokens.motionCurve;
+    // 交接时序：旧内容在四成处收干净，新内容从四成半起显形——两条 Interval
+    // 首尾几乎相接，中间只留一帧的空窗。重叠会让两侧文字互相穿透糊成一团
+    // （叠化的老毛病），空窗留长了又会看见一只空胶囊愣在那儿。
+    //
+    // 新内容故意压后一点，是为了等胶囊自身的 [AnimatedSize] 把宽度撑到位：
+    // 它开始显形时宽度已经走了八成，等它到看得清的不透明度时宽度基本到底，
+    // 全程不会被圆角裁掉一截。
+    final Curve outCurve = Interval(0.6, 1.0, curve: c.flipped);
+    final Curve inCurve = Interval(0.45, 1.0, curve: c);
     return GlassSurface(
       height: height,
       // 内容按目标宽度整体布局；伸缩途中超出的部分交给胶囊的圆角裁剪
@@ -285,18 +455,23 @@ class GlassCapsuleMorph extends StatelessWidget {
         clipBehavior: Clip.none,
         child: AnimatedSwitcher(
           duration: d,
-          switchInCurve: c,
-          switchOutCurve: c.flipped,
+          switchInCurve: inCurve,
+          switchOutCurve: outCurve,
           layoutBuilder: (currentChild, previousChildren) => Stack(
             alignment: alignment,
             clipBehavior: Clip.none,
-            children: [
-              ...previousChildren,
-              ?currentChild,
-            ],
+            children: [...previousChildren, ?currentChild],
           ),
-          transitionBuilder: (child, animation) =>
-              FadeTransition(opacity: animation, child: child),
+          // 淡入淡出之外再带一点缩放：旧内容像被收走、新内容像长出来，
+          // 而不是原地闪一下。锚在 [alignment]，胶囊固定的那一端不动。
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: ScaleTransition(
+              scale: Tween<double>(begin: 0.94, end: 1.0).animate(animation),
+              alignment: alignment,
+              child: child,
+            ),
+          ),
           child: child,
         ),
       ),
@@ -345,4 +520,227 @@ Key _iconKey(Widget icon) {
     return ValueKey<int>(icon.icon!.codePoint);
   }
   return ValueKey<Type>(icon.runtimeType);
+}
+
+/// 「跟手翻牌」标题：一行文字随横向滑动进度**连续翻页**，像日历 / 翻页钟
+/// 翻过一格，而不是等手势落定后才整块换字。
+///
+/// 窄屏下分段胶囊会塌缩成一枚下拉触发钮（见 [GlassCapsuleMorph]），但页面
+/// 本身仍支持横滑切换 tab。手指拖到一半时，钮里的文案理应也翻到一半——
+/// 半途松手回弹，它就跟着退回去；这才是「跟手」。
+///
+/// 用法：传 [progress]（`TabController.animation`，或由 `PageController.page`
+/// 喂出来的 `ValueNotifier<double>`，值为小数下标）与各档的 [labels]。
+///
+/// 翻牌时序按真实翻页板来（同一时刻只有一张牌可见，不做 crossfade，
+/// 文字不会糊成两层重影）：
+///   - 前半程：旧文案绕**自身下边缘**向上翻走（0° → -90°）；
+///   - 交接点：两张牌都正好侧对着观察者，厚度为 0，天然无跳变；
+///   - 后半程：新文案绕**自身上边缘**从下方翻上来（90° → 0°）。
+/// 反向滑动时整段时序自动倒放。
+///
+/// 宽度也按小数位在相邻两档之间插值（文案长短不一时），外层胶囊跟着连续
+/// 伸缩，而不是等落定后跳一下。为此需要预先量出每档的宽度，所以这里收
+/// [labels] / [icons] 两个列表而不是一个 `IndexedWidgetBuilder`。
+class GlassFlipLabel extends StatefulWidget {
+  const GlassFlipLabel({
+    super.key,
+    required this.progress,
+    required this.labels,
+    this.icons,
+    this.style,
+    this.iconSize = 16,
+    this.iconGap = 5,
+    this.alignment = Alignment.centerLeft,
+  });
+
+  /// 连续的小数下标。整数位＝当前档，小数位＝翻牌进度。
+  final ValueListenable<double> progress;
+
+  final List<String> labels;
+
+  /// 可选：每档文字前的小图标，跟文字一起翻（长度须与 [labels] 一致）。
+  final List<Widget?>? icons;
+
+  /// 文字样式；只给部分字段时会与外层 `DefaultTextStyle` 合并后再量宽。
+  final TextStyle? style;
+
+  final double iconSize;
+  final double iconGap;
+
+  /// 翻牌过程中窄于最宽档时，牌面往哪边贴。默认左对齐——左边缘钉住不动，
+  /// 只有右边的箭头跟着宽度滑，读起来最稳。
+  final Alignment alignment;
+
+  @override
+  State<GlassFlipLabel> createState() => _GlassFlipLabelState();
+}
+
+class _GlassFlipLabelState extends State<GlassFlipLabel> {
+  /// 每档牌面的宽度（图标 + 间距 + 文字），逐帧插值用。
+  List<double> _widths = const [];
+  double _height = 0;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _measure();
+  }
+
+  @override
+  void didUpdateWidget(GlassFlipLabel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!listEquals(oldWidget.labels, widget.labels) ||
+        oldWidget.style != widget.style ||
+        oldWidget.iconSize != widget.iconSize ||
+        oldWidget.iconGap != widget.iconGap ||
+        (oldWidget.icons?.length ?? 0) != (widget.icons?.length ?? 0)) {
+      _measure();
+    }
+  }
+
+  /// 量宽只在 labels / 样式 / 文字缩放变化时做一次，不进逐帧的 builder。
+  void _measure() {
+    final TextStyle style = DefaultTextStyle.of(
+      context,
+    ).style.merge(widget.style);
+    final TextScaler scaler = MediaQuery.textScalerOf(context);
+    final TextDirection direction = Directionality.of(context);
+
+    final widths = <double>[];
+    double height = 0;
+    for (var i = 0; i < widget.labels.length; i++) {
+      final painter = TextPainter(
+        text: TextSpan(text: widget.labels[i], style: style),
+        textDirection: direction,
+        textScaler: scaler,
+        maxLines: 1,
+      )..layout();
+      double width = painter.width;
+      if (_iconAt(i) != null) width += widget.iconSize + widget.iconGap;
+      widths.add(width);
+      if (painter.height > height) height = painter.height;
+      painter.dispose();
+    }
+
+    _widths = widths;
+    _height = height > widget.iconSize ? height : widget.iconSize;
+  }
+
+  Widget? _iconAt(int index) {
+    final icons = widget.icons;
+    if (icons == null || index >= icons.length) return null;
+    return icons[index];
+  }
+
+  /// 单张牌面：图标 + 文字，宽度取自然宽（外层用 OverflowBox 放开约束）。
+  Widget _buildFace(BuildContext context, int index) {
+    final icon = _iconAt(index);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (icon != null) ...[
+          IconTheme.merge(
+            data: IconThemeData(size: widget.iconSize),
+            child: icon,
+          ),
+          SizedBox(width: widget.iconGap),
+        ],
+        Text(
+          widget.labels[index],
+          maxLines: 1,
+          softWrap: false,
+          overflow: TextOverflow.visible,
+          style: widget.style,
+        ),
+      ],
+    );
+  }
+
+  /// 翻转中的牌面：绕 [hinge] 边缘转 [angle]，带一点透视。
+  Widget _buildFlipping(
+    BuildContext context,
+    int index, {
+    required double angle,
+    required Alignment hinge,
+  }) {
+    // 快转到侧面时（>0.7 即约 63°）淡出，免得正好 90° 时留下一条硬边
+    final double edgeT = (angle.abs() / (math.pi / 2)).clamp(0.0, 1.0);
+    final double opacity = edgeT <= 0.7
+        ? 1.0
+        : (1.0 - (edgeT - 0.7) / 0.3).clamp(0.0, 1.0);
+
+    Widget face = Transform(
+      alignment: hinge,
+      transform: Matrix4.identity()
+        ..setEntry(3, 2, 0.0016)
+        ..rotateX(angle),
+      child: _buildFace(context, index),
+    );
+    if (opacity < 1.0) face = Opacity(opacity: opacity, child: face);
+
+    return OverflowBox(
+      alignment: widget.alignment,
+      minWidth: 0,
+      maxWidth: double.infinity,
+      child: face,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.labels.isEmpty) return const SizedBox.shrink();
+    if (_widths.length != widget.labels.length) _measure();
+
+    return AnimatedBuilder(
+      animation: widget.progress,
+      builder: (context, _) {
+        final int maxIndex = widget.labels.length - 1;
+        final double value = widget.progress.value.clamp(
+          0.0,
+          maxIndex.toDouble(),
+        );
+        final int lower = value.floor().clamp(0, maxIndex);
+        final int upper = (lower + 1).clamp(0, maxIndex);
+        final double t = value - lower;
+
+        // 停在某一档上：直出静态牌面，不套 Transform / SizedBox，
+        // 文字保持像素级清晰（绝大多数时间走的都是这条）。
+        if (lower == upper || t <= 0.001) {
+          return _buildFace(context, lower);
+        }
+
+        final double width =
+            _widths[lower] + (_widths[upper] - _widths[lower]) * t;
+        // 前半程翻走旧的（绕下边缘向上），后半程翻进新的（绕上边缘从下方）
+        final bool showingOld = t < 0.5;
+        return SizedBox(
+          width: width,
+          height: _height,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned.fill(
+                child: showingOld
+                    // 旧牌绕上边缘往上收（0° → 90°，牌身向后倒）
+                    ? _buildFlipping(
+                        context,
+                        lower,
+                        angle: t * math.pi,
+                        hinge: Alignment.topCenter,
+                      )
+                    // 新牌绕下边缘从下方长上来（-90° → 0°）
+                    : _buildFlipping(
+                        context,
+                        upper,
+                        angle: -(1 - t) * math.pi,
+                        hinge: Alignment.bottomCenter,
+                      ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }

@@ -8,7 +8,7 @@ import 'package:i_iwara/app/services/deep_link_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_translation_controller.dart';
 import 'package:i_iwara/app/ui/widgets/translation_language_selector.dart';
 import 'package:i_iwara/app/ui/widgets/translation_powered_by_widget.dart';
@@ -17,7 +17,6 @@ import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/image_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:markdown_widget/markdown_widget.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
@@ -550,12 +549,10 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
 
   void _showLinkOpenFailedToast(String href) {
     LogUtils.e('无法打开链接: $href', tag: 'CustomMarkdownBody');
-    showToastWidget(
-      MDToastWidget(
-        message: t.errors.errorWhileOpeningLink(link: href),
-        type: MDToastType.error,
-      ),
-      position: ToastPosition.top,
+    showGlassToast(
+      t.errors.errorWhileOpeningLink(link: href),
+      type: GlassToastType.error,
+      position: GlassToastPosition.top,
     );
   }
 

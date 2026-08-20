@@ -7,11 +7,10 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/db/database_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:flutter/foundation.dart'; // 用于 compute()
@@ -60,7 +59,7 @@ class ConfigBackupService extends GetxService {
   /// 默认 false。
   Future<void> exportConfig({bool includeSensitive = false}) async {
     if (_isTaskRunning) {
-      showToastWidget(MDToastWidget(message: slang.t.common.taskRunning, type: MDToastType.error));
+      showGlassToast(slang.t.common.taskRunning, type: GlassToastType.error);
       return;
     }
     _isTaskRunning = true;
@@ -122,19 +121,24 @@ class ConfigBackupService extends GetxService {
       if (Platform.isAndroid || Platform.isIOS) {
         // 移动平台：使用 try-finally 确保临时文件被删除
         final tempDir = await getTemporaryDirectory();
-        final tempFilePath = '${tempDir.path}/${CommonConstants.applicationName}_backup.json';
+        final tempFilePath =
+            '${tempDir.path}/${CommonConstants.applicationName}_backup.json';
         final tempFile = File(tempFilePath);
         try {
           await tempFile.writeAsString(jsonString);
-          final params = SaveFileDialogParams(
-            sourceFilePath: tempFilePath,
-          );
+          final params = SaveFileDialogParams(sourceFilePath: tempFilePath);
           final savedPath = await FlutterFileDialog.saveFile(params: params);
           if (savedPath == null) {
             // 用户取消保存
-            showToastWidget(MDToastWidget(message: slang.t.common.operationCancelled, type: MDToastType.info));
+            showGlassToast(
+              slang.t.common.operationCancelled,
+              type: GlassToastType.info,
+            );
           } else {
-            showToastWidget(MDToastWidget(message: slang.t.settings.exportConfigSuccess, type: MDToastType.success));
+            showGlassToast(
+              slang.t.settings.exportConfigSuccess,
+              type: GlassToastType.success,
+            );
           }
         } finally {
           // 确保临时文件无论如何都被删除
@@ -145,19 +149,31 @@ class ConfigBackupService extends GetxService {
       } else {
         // 桌面平台：弹出保存文件对话框
         final fileSaveLocation = await fs.getSaveLocation(
-          acceptedTypeGroups: [const fs.XTypeGroup(label: 'JSON', extensions: ['json'])],
+          acceptedTypeGroups: [
+            const fs.XTypeGroup(label: 'JSON', extensions: ['json']),
+          ],
           suggestedName: '${CommonConstants.applicationName}_backup.json',
         );
         if (fileSaveLocation == null) {
-          showToastWidget(MDToastWidget(message: slang.t.common.operationCancelled, type: MDToastType.info));
+          showGlassToast(
+            slang.t.common.operationCancelled,
+            type: GlassToastType.info,
+          );
           return;
         }
         final file = File(fileSaveLocation.path);
         await file.writeAsString(jsonString);
-        showToastWidget(MDToastWidget(message: slang.t.settings.exportConfigSuccess, type: MDToastType.success));
+        showGlassToast(
+          slang.t.settings.exportConfigSuccess,
+          type: GlassToastType.success,
+        );
       }
     } catch (e) {
-      LogUtils.e("配置导出失败: ${e.toString()}", error: e, tag: "ConfigBackupService");
+      LogUtils.e(
+        "配置导出失败: ${e.toString()}",
+        error: e,
+        tag: "ConfigBackupService",
+      );
       throw Exception("配置导出失败: ${e.toString()}");
     } finally {
       _hideLoading();
@@ -173,7 +189,7 @@ class ConfigBackupService extends GetxService {
   /// 导入失败会抛出异常，由调用方处理。
   Future<bool> importConfig() async {
     if (_isTaskRunning) {
-      showToastWidget(MDToastWidget(message: slang.t.common.taskRunning, type: MDToastType.error));
+      showGlassToast(slang.t.common.taskRunning, type: GlassToastType.error);
       return false;
     }
     _isTaskRunning = true;
@@ -185,7 +201,10 @@ class ConfigBackupService extends GetxService {
         const params = OpenFileDialogParams();
         final filePath = await FlutterFileDialog.pickFile(params: params);
         if (filePath == null) {
-          showToastWidget(MDToastWidget(message: slang.t.common.operationCancelled, type: MDToastType.info));
+          showGlassToast(
+            slang.t.common.operationCancelled,
+            type: GlassToastType.info,
+          );
           return false; // 用户取消选择
         }
         final file = File(filePath);
@@ -193,16 +212,24 @@ class ConfigBackupService extends GetxService {
       } else {
         // 桌面平台：使用 file_selector 弹出打开文件对话框
         const typeGroup = fs.XTypeGroup(label: 'JSON', extensions: ['json']);
-        final fs.XFile? file = await fs.openFile(acceptedTypeGroups: [typeGroup]);
+        final fs.XFile? file = await fs.openFile(
+          acceptedTypeGroups: [typeGroup],
+        );
         if (file == null) {
-          showToastWidget(MDToastWidget(message: slang.t.common.operationCancelled, type: MDToastType.info));
+          showGlassToast(
+            slang.t.common.operationCancelled,
+            type: GlassToastType.info,
+          );
           return false; // 用户取消选择
         }
         content = await file.readAsString();
       }
 
       // 在后台 isolate 中解析 JSON
-      final Map<String, dynamic> importData = await compute(_decodeData, content);
+      final Map<String, dynamic> importData = await compute(
+        _decodeData,
+        content,
+      );
 
       // 兼容 format_version 1 及以上（新版本只新增元信息字段，结构向后兼容）
       final formatVersion = importData["format_version"];
@@ -213,7 +240,9 @@ class ConfigBackupService extends GetxService {
         throw Exception("配置文件缺少有效的数据表内容");
       }
 
-      final Map<String, dynamic> tablesData = Map<String, dynamic>.from(importData["tables"]);
+      final Map<String, dynamic> tablesData = Map<String, dynamic>.from(
+        importData["tables"],
+      );
       final db = DatabaseService().database;
 
       // 当前数据库中实际存在的表，避免导入旧 / 新备份中已不存在的表
@@ -260,8 +289,13 @@ class ConfigBackupService extends GetxService {
             continue;
           }
           final String columnsJoined = columns.join(', ');
-          final String placeholders = List.filled(columns.length, '?').join(', ');
-          final stmt = db.prepare("INSERT INTO $tableName ($columnsJoined) VALUES ($placeholders);");
+          final String placeholders = List.filled(
+            columns.length,
+            '?',
+          ).join(', ');
+          final stmt = db.prepare(
+            "INSERT INTO $tableName ($columnsJoined) VALUES ($placeholders);",
+          );
           for (final row in rowsList) {
             final Map<String, dynamic> rowMap = Map<String, dynamic>.from(row);
             final values = columns.map((c) => rowMap[c]).toList();
@@ -278,7 +312,11 @@ class ConfigBackupService extends GetxService {
       }
       return true;
     } catch (e) {
-      LogUtils.e("配置导入失败: ${e.toString()}", error: e, tag: "ConfigBackupService");
+      LogUtils.e(
+        "配置导入失败: ${e.toString()}",
+        error: e,
+        tag: "ConfigBackupService",
+      );
       throw Exception("配置导入失败: ${e.toString()}");
     } finally {
       _hideLoading();

@@ -7,10 +7,9 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/notifications/widgets/notification_content_items.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:shimmer/shimmer.dart';
 
 class NotificationListItemWidget extends StatelessWidget {
@@ -18,10 +17,7 @@ class NotificationListItemWidget extends StatelessWidget {
   final UserService _userService = Get.find<UserService>();
   final RxBool _isMarkingAsRead = false.obs;
 
-  NotificationListItemWidget({
-    super.key,
-    required this.notification,
-  });
+  NotificationListItemWidget({super.key, required this.notification});
 
   @override
   Widget build(BuildContext context) {
@@ -29,19 +25,19 @@ class NotificationListItemWidget extends StatelessWidget {
     final createdAt = DateTime.parse(notification['createdAt'] as String);
     final read = notification['read'] as bool? ?? false;
 
-    return Obx(() => _isMarkingAsRead.value
-        ? Shimmer.fromColors(
-            baseColor: Theme.of(context)
-                .colorScheme
-                .surfaceContainerHighest
-                .withAlpha(77),
-            highlightColor: Theme.of(context)
-                .colorScheme
-                .surfaceContainerHighest
-                .withAlpha(153),
-            child: _buildCard(context, type, createdAt, read),
-          )
-        : _buildCard(context, type, createdAt, read));
+    return Obx(
+      () => _isMarkingAsRead.value
+          ? Shimmer.fromColors(
+              baseColor: Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest.withAlpha(77),
+              highlightColor: Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest.withAlpha(153),
+              child: _buildCard(context, type, createdAt, read),
+            )
+          : _buildCard(context, type, createdAt, read),
+    );
   }
 
   /// 通知点击事件
@@ -131,17 +127,16 @@ class NotificationListItemWidget extends StatelessWidget {
   void _copyNotificationData() {
     final jsonStr = const JsonEncoder.withIndent('  ').convert(notification);
     Clipboard.setData(ClipboardData(text: jsonStr));
-    showToastWidget(
-      MDToastWidget(
-        message: t.notifications.copySuccess,
-        type: MDToastType.success,
-      ),
-    );
+    showGlassToast(t.notifications.copySuccess, type: GlassToastType.success);
   }
 
   /// 通知卡片
   Widget _buildCard(
-      BuildContext context, String type, DateTime createdAt, bool read) {
+    BuildContext context,
+    String type,
+    DateTime createdAt,
+    bool read,
+  ) {
     final colorScheme = Theme.of(context).colorScheme;
     final radius = BorderRadius.circular(14);
     // 未读通知铺一层极淡的主题色，扫一眼就能分出「哪些还没读」
@@ -169,8 +164,10 @@ class NotificationListItemWidget extends StatelessWidget {
             // 卡片点击事件
             onTap: () => _handleNotificationTap(type),
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 12.0,
+              ),
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   return Column(
@@ -185,11 +182,13 @@ class NotificationListItemWidget extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  CommonUtils.formatFriendlyTimestamp(createdAt),
+                                  CommonUtils.formatFriendlyTimestamp(
+                                    createdAt,
+                                  ),
                                   style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                                     fontSize: 12,
                                   ),
                                 ),
@@ -202,11 +201,13 @@ class NotificationListItemWidget extends StatelessWidget {
                               children: [
                                 // 通知时间
                                 Text(
-                                  CommonUtils.formatFriendlyTimestamp(createdAt),
+                                  CommonUtils.formatFriendlyTimestamp(
+                                    createdAt,
+                                  ),
                                   style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                                     fontSize: 12,
                                   ),
                                 ),
@@ -235,8 +236,10 @@ class NotificationListItemWidget extends StatelessWidget {
           visible: !read,
           child: OutlinedButton.icon(
             icon: const Icon(Icons.mark_email_read, size: 16),
-            label: Text(t.notifications.markAsRead,
-                style: const TextStyle(fontSize: 12)),
+            label: Text(
+              t.notifications.markAsRead,
+              style: const TextStyle(fontSize: 12),
+            ),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               minimumSize: Size.zero,
@@ -247,8 +250,10 @@ class NotificationListItemWidget extends StatelessWidget {
         ),
         OutlinedButton.icon(
           icon: const Icon(Icons.copy, size: 16),
-          label: Text(t.notifications.copy,
-              style: const TextStyle(fontSize: 12)),
+          label: Text(
+            t.notifications.copy,
+            style: const TextStyle(fontSize: 12),
+          ),
           style: OutlinedButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             minimumSize: Size.zero,
@@ -264,24 +269,18 @@ class NotificationListItemWidget extends StatelessWidget {
   Future<void> _markAsRead() async {
     try {
       _isMarkingAsRead.value = true;
-      final result =
-          await _userService.markNotificationAsRead(notification['id']);
+      final result = await _userService.markNotificationAsRead(
+        notification['id'],
+      );
       if (result.isSuccess) {
         notification['read'] = true;
         await _userService.refreshNotificationCount();
-        showToastWidget(
-          MDToastWidget(
-            message: t.notifications.markAsReadSuccess,
-            type: MDToastType.success,
-          ),
+        showGlassToast(
+          t.notifications.markAsReadSuccess,
+          type: GlassToastType.success,
         );
       } else {
-        showToastWidget(
-          MDToastWidget(
-            message: result.message,
-            type: MDToastType.error,
-          ),
-        );
+        showGlassToast(result.message, type: GlassToastType.error);
       }
     } finally {
       _isMarkingAsRead.value = false;
@@ -296,23 +295,38 @@ class NotificationListItemWidget extends StatelessWidget {
   /// video -> {@link Video}
   /// comment -> {@link Comment}
   Widget _buildNotificationContent(
-      String type, BuildContext context, BoxConstraints constraints) {
+    String type,
+    BuildContext context,
+    BoxConstraints constraints,
+  ) {
     try {
       switch (type) {
         case 'newReply':
           if (notification['comment'] != null) {
-            return NotificationContentItems.buildReplyNotification(context, notification);
+            return NotificationContentItems.buildReplyNotification(
+              context,
+              notification,
+            );
           }
           break;
         case 'newComment':
           if (notification['comment'] != null) {
-            return NotificationContentItems.buildCommentNotification(context, notification);
+            return NotificationContentItems.buildCommentNotification(
+              context,
+              notification,
+            );
           }
           break;
         case 'reviewApproved':
-          return NotificationContentItems.buildReviewApprovedNotification(context, notification);
+          return NotificationContentItems.buildReviewApprovedNotification(
+            context,
+            notification,
+          );
         case 'reviewRejected':
-          return NotificationContentItems.buildReviewRejectedNotification(context, notification);
+          return NotificationContentItems.buildReviewRejectedNotification(
+            context,
+            notification,
+          );
       }
     } catch (e) {
       // 如果解析失败，返回不支持的通知类型
@@ -323,7 +337,10 @@ class NotificationListItemWidget extends StatelessWidget {
 
   /// 不支持的通知类型, 如果渲染时遇到空指针啊, 则也需要渲染这个
   Widget _buildUnsupportedNotification(
-      String type, BuildContext context, BoxConstraints constraints) {
+    String type,
+    BuildContext context,
+    BoxConstraints constraints,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -358,13 +375,13 @@ class NotificationListItemWidget extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            t.notifications.errors
-                .unsupportedNotificationTypeWithType(type: type),
+            t.notifications.errors.unsupportedNotificationTypeWithType(
+              type: type,
+            ),
             style: TextStyle(
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurfaceVariant
-                  .withAlpha(204),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurfaceVariant.withAlpha(204),
               height: 1.4,
             ),
           ),

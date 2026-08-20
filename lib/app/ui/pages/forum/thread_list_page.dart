@@ -16,10 +16,9 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:loading_more_list/loading_more_list.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class ThreadListPage extends StatefulWidget {
@@ -98,14 +97,16 @@ class _ThreadListPageState extends State<ThreadListPage>
     );
   }
 
-  void _refreshList() {
+  Future<void> _refreshList() async {
     if (_forumListController.isPaginated.value) {
+      // 分页模式是靠 rebuildKey 换掉整个 MediaListView 来重载的，拿不到刷完的
+      // 回执；刷新钮的沙漏在这里只由 GlassAsyncIconButton 的最短时长兜底。
       _forumListController.refreshPageUI();
-    } else {
-      listSourceRepository.refresh();
-      // 滚动到顶部
-      _scrollToTop();
+      return;
     }
+    await listSourceRepository.refresh();
+    // 滚动到顶部
+    _scrollToTop();
   }
 
   void _openSearchDialog() {
@@ -125,10 +126,10 @@ class _ThreadListPageState extends State<ThreadListPage>
     );
   }
 
+  static const String _menuActionTogglePagination = 'toggle_pagination';
   static const String _menuActionOpenSearch = 'open_search';
-  static const String _menuActionRefresh = 'refresh';
 
-  /// 右侧动作胶囊：[搜索(仅宽屏)] 瀑布/分页切换 · 发帖 · 更多。
+  /// 右侧动作胶囊：[搜索(仅宽屏)] 刷新 · 发帖 · 更多（瀑布/分页切换收在菜单里）。
   Widget _buildActionGroup(BuildContext context, {required bool isWide}) {
     return Obx(
       () => GlassButtonGroup(
@@ -141,16 +142,10 @@ class _ThreadListPageState extends State<ThreadListPage>
               onPressed: _openSearchDialog,
             ),
           ),
-          GlassIconButton(
-            icon: Icon(
-              _forumListController.isPaginated.value
-                  ? Icons.view_stream
-                  : Icons.view_module,
-            ),
-            tooltip: _forumListController.isPaginated.value
-                ? t.common.pagination.waterfall
-                : t.common.pagination.pagination,
-            onPressed: _togglePaginationMode,
+          GlassAsyncIconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: t.common.refresh,
+            onPressed: _refreshList,
           ),
           GlassIconButton(
             icon: const Icon(Icons.add),
@@ -171,15 +166,34 @@ class _ThreadListPageState extends State<ThreadListPage>
               ),
               onSelected: (value) {
                 switch (value) {
+                  case _menuActionTogglePagination:
+                    _togglePaginationMode();
+                    break;
                   case _menuActionOpenSearch:
                     _openSearchDialog();
-                    break;
-                  case _menuActionRefresh:
-                    _refreshList();
                     break;
                 }
               },
               itemBuilder: (context) => [
+                PopupMenuItem<String>(
+                  value: _menuActionTogglePagination,
+                  child: Row(
+                    children: [
+                      Icon(
+                        _forumListController.isPaginated.value
+                            ? Icons.view_stream
+                            : Icons.view_module,
+                      ),
+                      const SizedBox(width: 12),
+                      // 文案与图标一致：显示将要切换到的模式
+                      Text(
+                        _forumListController.isPaginated.value
+                            ? t.common.pagination.waterfall
+                            : t.common.pagination.pagination,
+                      ),
+                    ],
+                  ),
+                ),
                 if (!isWide)
                   PopupMenuItem<String>(
                     value: _menuActionOpenSearch,
@@ -191,16 +205,6 @@ class _ThreadListPageState extends State<ThreadListPage>
                       ],
                     ),
                   ),
-                PopupMenuItem<String>(
-                  value: _menuActionRefresh,
-                  child: Row(
-                    children: [
-                      const Icon(Icons.refresh),
-                      const SizedBox(width: 12),
-                      Text(t.common.refresh),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),
@@ -387,12 +391,7 @@ class _ThreadListPageState extends State<ThreadListPage>
     UserService userService = Get.find<UserService>();
     if (!userService.isAuthenticated) {
       AppService.switchGlobalDrawer();
-      showToastWidget(
-        MDToastWidget(
-          message: t.errors.pleaseLoginFirst,
-          type: MDToastType.warning,
-        ),
-      );
+      showGlassToast(t.errors.pleaseLoginFirst, type: GlassToastType.warning);
       return;
     }
     showAppDialog(

@@ -274,7 +274,6 @@ extension GlobalKeyExtension on GlobalKey {
       return null;
     }
   }
-
 }
 
 class BackgroundOverlay extends AnimatedWidget {
@@ -836,47 +835,48 @@ class _ChildrensOverlay extends StatelessWidget {
 
     for (var i = 0; i < totalChildren; i++) {
       final child = flatChildren[i];
-      result.add(AnimatedChild(
-        animation: Tween(begin: 0.0, end: 1.0).animate(
-          CurvedAnimation(
-            parent: controller,
-            curve: Interval(
-              i / totalChildren,
-              1.0,
-              curve: widget.animationCurve ?? Curves.ease,
+      result.add(
+        AnimatedChild(
+          animation: Tween(begin: 0.0, end: 1.0).animate(
+            CurvedAnimation(
+              parent: controller,
+              curve: Interval(
+                i / totalChildren,
+                1.0,
+                curve: widget.animationCurve ?? Curves.ease,
+              ),
             ),
           ),
+          index: i,
+          margin: (widget.spaceBetweenChildren != null
+              ? EdgeInsets.fromLTRB(
+                  widget.direction.isRight ? widget.spaceBetweenChildren! : 0,
+                  widget.direction.isDown ? widget.spaceBetweenChildren! : 0,
+                  widget.direction.isLeft ? widget.spaceBetweenChildren! : 0,
+                  widget.direction.isUp ? widget.spaceBetweenChildren! : 0,
+                )
+              : null),
+          btnKey: child.key,
+          useColumn: widget.direction.isLeft || widget.direction.isRight,
+          visible: child.visible,
+          switchLabelPosition: widget.switchLabelPosition,
+          backgroundColor: child.backgroundColor,
+          foregroundColor: child.foregroundColor,
+          elevation: child.elevation,
+          buttonSize: widget.childrenButtonSize,
+          labelWidget: child.labelWidget,
+          onTap: child.onTap,
+          onLongPress: child.onLongPress,
+          toggleChildren: () {
+            if (!widget.closeManually) toggleChildren();
+          },
+          shape: child.shape,
+          heroTag: widget.heroTag != null ? '${widget.heroTag}-child-$i' : null,
+          childMargin: widget.childMargin,
+          childPadding: widget.childPadding,
+          child: child.child,
         ),
-        index: i,
-        margin: (widget.spaceBetweenChildren != null
-            ? EdgeInsets.fromLTRB(
-                widget.direction.isRight ? widget.spaceBetweenChildren! : 0,
-                widget.direction.isDown ? widget.spaceBetweenChildren! : 0,
-                widget.direction.isLeft ? widget.spaceBetweenChildren! : 0,
-                widget.direction.isUp ? widget.spaceBetweenChildren! : 0,
-              )
-            : null),
-        btnKey: child.key,
-        useColumn: widget.direction.isLeft || widget.direction.isRight,
-        visible: child.visible,
-        switchLabelPosition: widget.switchLabelPosition,
-        backgroundColor: child.backgroundColor,
-        foregroundColor: child.foregroundColor,
-        elevation: child.elevation,
-        buttonSize: widget.childrenButtonSize,
-        labelWidget: child.labelWidget,
-        onTap: child.onTap,
-        onLongPress: child.onLongPress,
-        toggleChildren: () {
-          if (!widget.closeManually) toggleChildren();
-        },
-        shape: child.shape,
-        heroTag:
-            widget.heroTag != null ? '${widget.heroTag}-child-$i' : null,
-        childMargin: widget.childMargin,
-        childPadding: widget.childPadding,
-        child: child.child,
-      ));
+      );
     }
     return result.reversed.toList();
   }
@@ -935,8 +935,7 @@ class _ChildrensOverlay extends StatelessWidget {
         }).toList();
 
         return Container(
-          margin:
-              EdgeInsets.symmetric(horizontal: (widget.spacing ?? 4.0) / 2),
+          margin: EdgeInsets.symmetric(horizontal: (widget.spacing ?? 4.0) / 2),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.end,
@@ -1018,16 +1017,17 @@ class _ChildrensOverlay extends StatelessWidget {
                       )
                     : null,
                 // ==================== MODIFIED LOGIC HERE ====================
-                child: (widget.childrens.isNotEmpty &&
+                child:
+                    (widget.childrens.isNotEmpty &&
                         (widget.direction.isUp || widget.direction.isDown))
                     ? Align(
                         alignment: widget.direction.isUp
                             ? (widget.switchLabelPosition
-                                ? Alignment.bottomLeft
-                                : Alignment.bottomRight)
+                                  ? Alignment.bottomLeft
+                                  : Alignment.bottomRight)
                             : (widget.switchLabelPosition
-                                ? Alignment.topLeft
-                                : Alignment.topRight),
+                                  ? Alignment.topLeft
+                                  : Alignment.topRight),
                         child: _buildGrid(),
                       )
                     : _buildColumnOrRow(
@@ -1038,8 +1038,8 @@ class _ChildrensOverlay extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children:
                             widget.direction.isDown || widget.direction.isRight
-                                ? _getChildrenList().reversed.toList()
-                                : _getChildrenList(),
+                            ? _getChildrenList().reversed.toList()
+                            : _getChildrenList(),
                       ),
                 // =============================================================
               ),

@@ -21,30 +21,21 @@ class DisplaySettingsPage extends StatelessWidget {
     final configService = Get.find<ConfigService>();
     final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
 
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          BlurredSliverAppBar(
-            title: slang.t.displaySettings.title,
-            isWideScreen: isWideScreen,
+    return GlassSettingsScaffold(
+      title: slang.t.displaySettings.title,
+      isWideScreen: isWideScreen,
+      slivers: [
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              _buildNavigationOrderCard(context),
+              _buildLayoutSettingsCard(context),
+              _buildPaginationModeCard(context, configService),
+            ]),
           ),
-          SliverPadding(
-            padding: EdgeInsets.fromLTRB(
-              16,
-              16,
-              16,
-              16 + bottomInset,
-            ),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _buildNavigationOrderCard(context),
-                _buildLayoutSettingsCard(context),
-                _buildPaginationModeCard(context, configService),
-              ]),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -213,7 +204,9 @@ class DisplaySettingsPage extends StatelessWidget {
                 height: 12,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.6),
                 ),
               ),
               const SizedBox(width: 8),
@@ -308,7 +301,9 @@ class DisplaySettingsPage extends StatelessWidget {
         size: 16,
         color: enabled
             ? Theme.of(context).colorScheme.onPrimaryContainer
-            : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+            : Theme.of(
+                context,
+              ).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
       ),
     );
   }

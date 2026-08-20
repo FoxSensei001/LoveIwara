@@ -10,9 +10,8 @@ import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 import 'package:path/path.dart' as path;
 
@@ -21,57 +20,64 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class ImageUtils {
   // 复制链接到剪贴板
   static void copyLink(ImageItem item) {
-    String url =
-    item.data.originalUrl.isEmpty ? item.data.url : item.data.originalUrl;
+    String url = item.data.originalUrl.isEmpty
+        ? item.data.url
+        : item.data.originalUrl;
     if (url.isEmpty) {
-      showToastWidget(MDToastWidget(
-          message: slang.t.common.linkIsEmpty, type: MDToastType.error));
+      showGlassToast(slang.t.common.linkIsEmpty, type: GlassToastType.error);
       return;
     }
     final data = DataWriterItem();
     data.add(Formats.plainText(url));
     SystemClipboard.instance?.write([data]);
-    showToastWidget(MDToastWidget(
-        message: slang.t.common.linkCopiedToClipboard,
-        type: MDToastType.success));
+    showGlassToast(
+      slang.t.common.linkCopiedToClipboard,
+      type: GlassToastType.success,
+    );
   }
 
   // 复制图片到剪贴板
   static void copyImage(ImageItem item) async {
-    String url =
-    item.data.originalUrl.isEmpty ? item.data.url : item.data.originalUrl;
+    String url = item.data.originalUrl.isEmpty
+        ? item.data.url
+        : item.data.originalUrl;
     if (url.isEmpty) {
-      showToastWidget(MDToastWidget(
-          message: slang.t.common.linkIsEmpty, type: MDToastType.error));
+      showGlassToast(slang.t.common.linkIsEmpty, type: GlassToastType.error);
       return;
     }
 
     try {
       var apiService = await ApiService.getInstance();
-      Uint8List bytes = (await apiService.dio
-          .get(url, options: Options(responseType: ResponseType.bytes)))
-          .data;
-      final dataWriterItem =
-      DataWriterItem(suggestedName: '${item.data.id}.png');
+      Uint8List bytes = (await apiService.dio.get(
+        url,
+        options: Options(responseType: ResponseType.bytes),
+      )).data;
+      final dataWriterItem = DataWriterItem(
+        suggestedName: '${item.data.id}.png',
+      );
       dataWriterItem.add(Formats.png(bytes));
       SystemClipboard.instance?.write([dataWriterItem]);
-      showToastWidget(MDToastWidget(
-          message: slang.t.common.imageCopiedToClipboard,
-          type: MDToastType.success));
+      showGlassToast(
+        slang.t.common.imageCopiedToClipboard,
+        type: GlassToastType.success,
+      );
     } catch (e) {
-      showToastWidget(MDToastWidget(
-          message: slang.t.common.copyImageFailed, type: MDToastType.error));
+      showGlassToast(
+        slang.t.common.copyImageFailed,
+        type: GlassToastType.error,
+      );
     }
   }
 
   // 下载图片
   static void downloadImageToAppDirectory(ImageItem item) async {
     try {
-      String url = item.data.originalUrl.isEmpty ? item.data.url : item.data.originalUrl;
+      String url = item.data.originalUrl.isEmpty
+          ? item.data.url
+          : item.data.originalUrl;
       // https://i.iwara.tv/image/original/5d80d601-6689-4728-80bd-b585d83eac9e/5d80d601-6689-4728-80bd-b585d83eac9e.webm
       if (url.isEmpty) {
-        showToastWidget(MDToastWidget(
-            message: slang.t.common.linkIsEmpty, type: MDToastType.error));
+        showGlassToast(slang.t.common.linkIsEmpty, type: GlassToastType.error);
         return;
       }
 
@@ -97,17 +103,16 @@ class ImageUtils {
 
       await DownloadService.to.addTask(task);
 
-      showToastWidget(MDToastWidget(
-          message: slang.t.download.downloading,
-          type: MDToastType.success));
+      showGlassToast(
+        slang.t.download.downloading,
+        type: GlassToastType.success,
+      );
 
       // 打开下载管理页面
       NaviService.navigateToDownloadTaskListPage();
     } catch (e) {
       LogUtils.e('添加下载任务失败', tag: 'ImageUtils', error: e);
-      showToastWidget(MDToastWidget(
-          message: slang.t.download.failed,
-          type: MDToastType.error));
+      showGlassToast(slang.t.download.failed, type: GlassToastType.error);
     }
   }
 
@@ -134,11 +139,11 @@ class ImageUtils {
         return;
       }
 
-      String url =
-      item.data.originalUrl.isEmpty ? item.data.url : item.data.originalUrl;
+      String url = item.data.originalUrl.isEmpty
+          ? item.data.url
+          : item.data.originalUrl;
       if (url.isEmpty) {
-        showToastWidget(MDToastWidget(
-            message: slang.t.common.linkIsEmpty, type: MDToastType.error));
+        showGlassToast(slang.t.common.linkIsEmpty, type: GlassToastType.error);
         return;
       }
 
@@ -147,18 +152,22 @@ class ImageUtils {
       final String filePath = path.join(directoryPath, sanitizedFileName);
 
       var apiService = await ApiService.getInstance();
-      Uint8List bytes = (await apiService.dio
-          .get(url, options: Options(responseType: ResponseType.bytes)))
-          .data;
+      Uint8List bytes = (await apiService.dio.get(
+        url,
+        options: Options(responseType: ResponseType.bytes),
+      )).data;
 
       await File(filePath).writeAsBytes(bytes);
-      showToastWidget(MDToastWidget(
-          message: '${slang.t.common.imageSavedTo}: $filePath',
-          type: MDToastType.success));
+      showGlassToast(
+        '${slang.t.common.imageSavedTo}: $filePath',
+        type: GlassToastType.success,
+      );
     } catch (e) {
       LogUtils.e('下载图片失败', error: e, tag: 'ImageModelDetailContent');
-      showToastWidget(MDToastWidget(
-          message: slang.t.common.saveImageFailed, type: MDToastType.error));
+      showGlassToast(
+        slang.t.common.saveImageFailed,
+        type: GlassToastType.error,
+      );
     }
   }
 

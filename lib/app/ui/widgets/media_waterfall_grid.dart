@@ -3,11 +3,8 @@ import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
 /// Builder that receives the calculated item width for each child.
-typedef WaterfallItemBuilder = Widget Function(
-  BuildContext context,
-  int index,
-  double itemWidth,
-);
+typedef WaterfallItemBuilder =
+    Widget Function(BuildContext context, int index, double itemWidth);
 
 /// A sliver-based waterfall flow for use inside [CustomScrollView].
 class MediaWaterfallSliver extends StatelessWidget {
@@ -39,8 +36,7 @@ class MediaWaterfallSliver extends StatelessWidget {
             (context, index) => itemBuilder(context, index, itemWidth),
             childCount: itemCount,
           ),
-          gridDelegate:
-              SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+          gridDelegate: SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
             crossAxisSpacing: crossAxisSpacing,
             mainAxisSpacing: mainAxisSpacing,

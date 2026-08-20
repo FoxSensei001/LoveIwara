@@ -16,7 +16,7 @@ import 'package:i_iwara/app/services/player_keybinding/keybinding_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_action.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
 import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/blurred_thumbnail_background.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/rapple_painter.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
@@ -25,7 +25,6 @@ import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:media_kit_video/media_kit_video.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'bottom_toolbar_widget.dart';
@@ -796,9 +795,10 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     if (message.trim().isEmpty) {
       return;
     }
-    showToastWidget(
-      MDToastWidget(message: message, type: MDToastType.error),
-      position: ToastPosition.top,
+    showGlassToast(
+      message,
+      type: GlassToastType.error,
+      position: GlassToastPosition.top,
     );
   }
 

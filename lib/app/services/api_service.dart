@@ -52,6 +52,8 @@ class ApiService extends GetxService {
   static const String _authRetryKey = 'auth_retry';
   static const String _forceAnonymousKey = 'forceAnonymous';
   static const String _authRefreshFailedKey = 'auth_refresh_failed';
+  static const String _redirectCountKey = 'redirectCount';
+  static const int _maxManualRedirects = 5;
 
   static ApiService? _instance;
   late d_dio.Dio _dio;
@@ -89,6 +91,13 @@ class ApiService extends GetxService {
     // - 401 can be handled in onResponse (single authority)
     // - Cloudflare challenges can be intercepted before bubbling to callers
     _dio.options.validateStatus = (status) => (status ?? 0) < 500;
+
+    // iwara 会用「3xx + JSON body 且不带 Location」来表达业务错误，例如用主站模式
+    // 请求 AI 站资源时返回 301 {"message":"errors.differentSite","siteId":"iwara_ai"}。
+    // dart:io 的自动重定向遇到这种响应会直接抛 RedirectException 并丢掉 body，
+    // 上层只能看到一个无从解释的网络错误（跨站因此永远无法被识别、无法自动切站）。
+    // 这里关闭自动跟随，改由 _onResponse 手动跟随「带 Location 的真重定向」。
+    _dio.options.followRedirects = false;
 
     // 配置 HTTP 客户端适配器（使用共享 HttpClient 实现连接复用）
     _dio.httpClientAdapter = IOHttpClientAdapter(
@@ -265,6 +274,11 @@ class ApiService extends GetxService {
     d_dio.Response response,
     d_dio.ResponseInterceptorHandler handler,
   ) async {
+    final redirected = await _followRedirectIfNeeded(response);
+    if (redirected != null) {
+      return handler.resolve(redirected);
+    }
+
     if (_isAnonymousFallbackCandidate(response)) {
       final requestId = _ensureRequestId(response.requestOptions);
       LogUtils.d(
@@ -298,6 +312,86 @@ class ApiService extends GetxService {
     }
 
     handler.next(response);
+  }
+
+  /// 手动跟随重定向（[_dio] 已关闭自动跟随，见 [init]）。
+  ///
+  /// 复刻 dart:io 的跟随语义：GET/HEAD 跟随 301/302/303/307/308，其他方法只跟随
+  /// 303/307/308（303 降级为 GET）。**没有 Location 的 3xx 不视为重定向**——iwara
+  /// 用它承载 `errors.differentSite` 这类业务错误，必须把 body 原样交给上层。
+  ///
+  /// 返回 null 表示「不是需要跟随的重定向」，调用方继续原有响应处理。
+  Future<d_dio.Response<dynamic>?> _followRedirectIfNeeded(
+    d_dio.Response response,
+  ) async {
+    final statusCode = response.statusCode ?? 0;
+    if (statusCode < 300 || statusCode >= 400) {
+      return null;
+    }
+
+    final options = response.requestOptions;
+    final method = options.method.toUpperCase();
+    if (!_shouldFollowRedirect(method, statusCode)) {
+      return null;
+    }
+
+    final location = response.headers.value('location')?.trim();
+    if (location == null || location.isEmpty) {
+      return null;
+    }
+
+    final requestId = _ensureRequestId(options);
+    final redirectCount = options.extra[_redirectCountKey] as int? ?? 0;
+    if (redirectCount >= _maxManualRedirects) {
+      LogUtils.w(
+        '$_tag[$requestId] 重定向次数超过 $_maxManualRedirects，停止跟随: ${options.path}',
+      );
+      return null;
+    }
+
+    final Uri target;
+    try {
+      target = options.uri.resolve(location);
+    } catch (e) {
+      LogUtils.w('$_tag[$requestId] 无法解析重定向目标: $location ($e)');
+      return null;
+    }
+
+    // 303 语义：非 GET/HEAD 请求跟随时降级为 GET。
+    final nextMethod =
+        (statusCode == 303 && method != 'GET' && method != 'HEAD')
+        ? 'GET'
+        : method;
+
+    LogUtils.d(
+      '$_tag[$requestId] 跟随重定向 $statusCode: ${options.uri} -> $target',
+    );
+
+    try {
+      return await _dio.fetch<dynamic>(
+        options.copyWith(
+          method: nextMethod,
+          path: target.toString(),
+          // Location 已经是完整目标，原 queryParameters 不能再拼一次。
+          queryParameters: <String, dynamic>{},
+          extra: {...options.extra, _redirectCountKey: redirectCount + 1},
+        ),
+      );
+    } catch (e) {
+      LogUtils.w('$_tag[$requestId] 跟随重定向失败: $target ($e)');
+      return null;
+    }
+  }
+
+  bool _shouldFollowRedirect(String method, int statusCode) {
+    if (method == 'GET' || method == 'HEAD') {
+      return statusCode == 301 ||
+          statusCode == 302 ||
+          statusCode == 303 ||
+          statusCode == 307 ||
+          statusCode == 308;
+    }
+    return statusCode == 303 || statusCode == 307 || statusCode == 308;
   }
 
   /// 等待 token 刷新完成后发送请求

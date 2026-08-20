@@ -3,20 +3,30 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/favorite/favorite_folder.model.dart';
 import 'package:i_iwara/app/models/favorite/favorite_item.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
+import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/db/database_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 
+/// 收藏夹内某个标签的出现次数（标签筛选候选项）。
+class FolderTagStat {
+  const FolderTagStat({required this.tag, required this.count});
+
+  final Tag tag;
+  final int count;
+}
+
 class FavoriteService extends GetxService {
   static FavoriteService get to => Get.find();
-  
+
   late final CommonDatabase _db;
   final RxInt favoriteChangedNotifier = 0.obs;
 
-  FavoriteService() {
-    _db = DatabaseService().database;
+  /// [database] 仅供测试注入内存库；生产走 [DatabaseService] 的单例连接。
+  FavoriteService({CommonDatabase? database}) {
+    _db = database ?? DatabaseService().database;
   }
 
   // 获取所有收藏夹
@@ -45,21 +55,21 @@ class FavoriteService extends GetxService {
     String? description,
   }) async {
     try {
-      final folder = FavoriteFolder(
-        title: title,
-        description: description,
-      );
+      final folder = FavoriteFolder(title: title, description: description);
 
-      _db.execute('''
+      _db.execute(
+        '''
         INSERT INTO favorite_folders (id, title, description, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?)
-      ''', [
-        folder.id,
-        folder.title,
-        folder.description,
-        folder.createdAt.millisecondsSinceEpoch ~/ 1000,
-        folder.updatedAt.millisecondsSinceEpoch ~/ 1000,
-      ]);
+      ''',
+        [
+          folder.id,
+          folder.title,
+          folder.description,
+          folder.createdAt.millisecondsSinceEpoch ~/ 1000,
+          folder.updatedAt.millisecondsSinceEpoch ~/ 1000,
+        ],
+      );
 
       favoriteChangedNotifier.value++;
       return folder;
@@ -72,21 +82,23 @@ class FavoriteService extends GetxService {
   // 删除收藏夹
   Future<bool> deleteFolder(String folderId) async {
     if (folderId == 'default') return false;
-    
+
     try {
       // 开始事务
       _db.execute('BEGIN TRANSACTION');
-      
+
       try {
         // 先删除文件夹中的所有收藏项
-        _db.execute('DELETE FROM favorite_items WHERE folder_id = ?', [folderId]);
+        _db.execute('DELETE FROM favorite_items WHERE folder_id = ?', [
+          folderId,
+        ]);
 
         // 再删除文件夹本身
         _db.execute('DELETE FROM favorite_folders WHERE id = ?', [folderId]);
-        
+
         // 提交事务
         _db.execute('COMMIT');
-        
+
         favoriteChangedNotifier.value++;
         return true;
       } catch (e) {
@@ -100,58 +112,147 @@ class FavoriteService extends GetxService {
     }
   }
 
+  /// 把用户输入里的 LIKE 通配符转义掉，配合 `ESCAPE '\'` 使用。
+  /// 标签 id 里 `_` 很常见（如 `hair_pulling`），不转义会退化成「任意单字符」。
+  static String _escapeLike(String value) => value
+      .replaceAll('\\', '\\\\')
+      .replaceAll('%', '\\%')
+      .replaceAll('_', '\\_');
+
+  /// 收藏夹内容查询的 WHERE 片段 + 参数；分页查询与总数统计必须共用它，
+  /// 否则「第几页」与「共几页」会算在两套筛选条件上。
+  (String, List<dynamic>) _buildFolderItemsFilter(
+    String folderId, {
+    String? searchText,
+    DateTime? startDate,
+    DateTime? endDate,
+    List<String>? tagIds,
+  }) {
+    final List<dynamic> params = [folderId];
+    final List<String> conditions = ['folder_id = ?'];
+
+    if (searchText != null && searchText.isNotEmpty) {
+      conditions.add('title LIKE ?');
+      params.add('%$searchText%');
+    }
+
+    if (startDate != null) {
+      conditions.add('created_at >= ?');
+      params.add(startDate.millisecondsSinceEpoch ~/ 1000);
+    }
+
+    if (endDate != null) {
+      final endOfDay = DateTime(
+        endDate.year,
+        endDate.month,
+        endDate.day,
+        23,
+        59,
+        59,
+      );
+      conditions.add('created_at <= ?');
+      params.add(endOfDay.millisecondsSinceEpoch ~/ 1000);
+    }
+
+    // 标签为 AND 语义：每个标签一条 LIKE，全部命中才留下。
+    // 匹配完整的 `"id":"<tagId>"` 片段，不再像旧实现 `%"id":"%kw%"%` 那样允许
+    // 跨字段/跨标签乱命中（那个模式下 kw 甚至能落在 type、sensitive 上）。
+    if (tagIds != null) {
+      for (final tagId in tagIds) {
+        if (tagId.isEmpty) continue;
+        conditions.add("tags LIKE ? ESCAPE '\\'");
+        params.add('%"id":"${_escapeLike(tagId)}"%');
+      }
+    }
+
+    return (conditions.join(' AND '), params);
+  }
+
+  /// 收藏夹内出现过的标签及其条目数，按出现次数降序。
+  ///
+  /// 标签筛选的候选来源：本地收藏是离线数据，只有「夹内真实存在的标签」才保证
+  /// 选中后必有结果，所以不复用热门页那套从 Iwara 接口搜来的标签收藏历史。
+  Future<List<FolderTagStat>> getFolderTagStats(String folderId) async {
+    try {
+      final results = _db.select(
+        "SELECT tags FROM favorite_items "
+        "WHERE folder_id = ? AND tags IS NOT NULL AND tags != ''",
+        [folderId],
+      );
+
+      final Map<String, Tag> tagById = {};
+      final Map<String, int> countById = {};
+
+      for (final row in results) {
+        final raw = row['tags'] as String?;
+        if (raw == null || raw.isEmpty) continue;
+        try {
+          final decoded = jsonDecode(raw);
+          if (decoded is! List) continue;
+          // 同一条目里重复出现的标签只计一次，否则计数会虚高
+          final seen = <String>{};
+          for (final entry in decoded) {
+            if (entry is! Map<String, dynamic>) continue;
+            final id = entry['id'];
+            if (id is! String || id.isEmpty || !seen.add(id)) continue;
+            tagById.putIfAbsent(
+              id,
+              () => Tag(
+                id: id,
+                type: entry['type'] is String ? entry['type'] as String : '',
+                sensitive: entry['sensitive'] == true,
+              ),
+            );
+            countById[id] = (countById[id] ?? 0) + 1;
+          }
+        } catch (e) {
+          // 单条脏数据不该拖垮整个候选列表
+          continue;
+        }
+      }
+
+      final stats = tagById.values
+          .map((tag) => FolderTagStat(tag: tag, count: countById[tag.id] ?? 0))
+          .toList();
+      stats.sort((a, b) {
+        final byCount = b.count.compareTo(a.count);
+        return byCount != 0 ? byCount : a.tag.id.compareTo(b.tag.id);
+      });
+      return stats;
+    } catch (e) {
+      LogUtils.e('统计收藏夹标签失败', tag: 'FavoriteService', error: e);
+      return [];
+    }
+  }
+
   // 获取收藏夹中的所有项目
-  Future<List<FavoriteItem>> getFolderItems(String folderId, {
+  Future<List<FavoriteItem>> getFolderItems(
+    String folderId, {
     int offset = 0,
     int limit = 20,
     String? searchText,
     DateTime? startDate,
     DateTime? endDate,
-    String? tagSearch,
+    List<String>? tagIds,
   }) async {
     try {
-      final List<dynamic> params = [folderId];
-      final List<String> conditions = ['folder_id = ?'];
+      final (where, params) = _buildFolderItemsFilter(
+        folderId,
+        searchText: searchText,
+        startDate: startDate,
+        endDate: endDate,
+        tagIds: tagIds,
+      );
 
-      if (searchText != null && searchText.isNotEmpty) {
-        conditions.add('title LIKE ?');
-        params.add('%$searchText%');
-      }
-
-      if (startDate != null) {
-        conditions.add('created_at >= ?');
-        params.add(startDate.millisecondsSinceEpoch ~/ 1000);
-      }
-
-      if (endDate != null) {
-        final endOfDay = DateTime(
-          endDate.year,
-          endDate.month,
-          endDate.day,
-          23,
-          59,
-          59,
-        );
-        conditions.add('created_at <= ?');
-        params.add(endOfDay.millisecondsSinceEpoch ~/ 1000);
-      }
-
-      if (tagSearch != null && tagSearch.isNotEmpty) {
-        conditions.add('''
-          tags LIKE ?
-        ''');
-        params.add('%"id":"%$tagSearch%"%');
-      }
-
-      final sql = '''
-        SELECT * FROM favorite_items 
-        WHERE ${conditions.join(' AND ')}
-        ORDER BY created_at DESC 
+      final sql =
+          '''
+        SELECT * FROM favorite_items
+        WHERE $where
+        ORDER BY created_at DESC
         LIMIT ? OFFSET ?
       ''';
-      params.addAll([limit, offset]);
 
-      final results = _db.select(sql, params);
+      final results = _db.select(sql, [...params, limit, offset]);
       return results.map((row) => FavoriteItem.fromJson(row)).toList();
     } catch (e) {
       LogUtils.e('获取收藏夹内容失败', tag: 'FavoriteService', error: e);
@@ -159,14 +260,46 @@ class FavoriteService extends GetxService {
     }
   }
 
+  /// 当前筛选条件下收藏夹内容的总条数（分页模式用它算总页数）。
+  Future<int> countFolderItems(
+    String folderId, {
+    String? searchText,
+    DateTime? startDate,
+    DateTime? endDate,
+    List<String>? tagIds,
+  }) async {
+    try {
+      final (where, params) = _buildFolderItemsFilter(
+        folderId,
+        searchText: searchText,
+        startDate: startDate,
+        endDate: endDate,
+        tagIds: tagIds,
+      );
+
+      final results = _db.select(
+        'SELECT COUNT(*) as count FROM favorite_items WHERE $where',
+        params,
+      );
+      if (results.isEmpty) return 0;
+      return (results.first['count'] as int?) ?? 0;
+    } catch (e) {
+      LogUtils.e('统计收藏夹内容数量失败', tag: 'FavoriteService', error: e);
+      return 0;
+    }
+  }
+
   // 检查项目是否在指定文件夹中
   Future<bool> isItemInFolder(String itemId, String folderId) async {
     try {
-      final result = _db.select('''
+      final result = _db.select(
+        '''
         SELECT COUNT(*) as count
         FROM favorite_items
         WHERE item_id = ? AND folder_id = ?
-      ''', [itemId, folderId]);
+      ''',
+        [itemId, folderId],
+      );
       return result.first['count'] > 0;
     } catch (e) {
       LogUtils.e('检查项目是否在收藏夹中失败', tag: 'FavoriteService', error: e);
@@ -216,28 +349,33 @@ class FavoriteService extends GetxService {
         tags: video.tags ?? [],
       );
 
-      _db.execute('''
+      _db.execute(
+        '''
         INSERT INTO favorite_items (
           id, folder_id, item_type, item_id, title, preview_url,
           author_name, author_username, author_avatar_url, ext_data, tags,
           created_at, updated_at
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      ''', [
-        item.id,
-        item.folderId,
-        item.itemType.name,
-        item.itemId,
-        item.title,
-        item.previewUrl,
-        item.authorName,
-        item.authorUsername,
-        item.authorAvatarUrl,
-        item.extData != null ? jsonEncode(item.extData) : null,
-        item.tags.isNotEmpty ? jsonEncode(item.tags.map((tag) => tag.toJson()).toList()) : null,
-        item.createdAt.millisecondsSinceEpoch ~/ 1000,
-        item.updatedAt.millisecondsSinceEpoch ~/ 1000,
-      ]);
+      ''',
+        [
+          item.id,
+          item.folderId,
+          item.itemType.name,
+          item.itemId,
+          item.title,
+          item.previewUrl,
+          item.authorName,
+          item.authorUsername,
+          item.authorAvatarUrl,
+          item.extData != null ? jsonEncode(item.extData) : null,
+          item.tags.isNotEmpty
+              ? jsonEncode(item.tags.map((tag) => tag.toJson()).toList())
+              : null,
+          item.createdAt.millisecondsSinceEpoch ~/ 1000,
+          item.updatedAt.millisecondsSinceEpoch ~/ 1000,
+        ],
+      );
 
       favoriteChangedNotifier.value++;
       return true;
@@ -276,28 +414,33 @@ class FavoriteService extends GetxService {
         tags: image.tags,
       );
 
-      _db.execute('''
+      _db.execute(
+        '''
         INSERT INTO favorite_items (
           id, folder_id, item_type, item_id, title, preview_url,
           author_name, author_username, author_avatar_url, ext_data, tags,
           created_at, updated_at
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      ''', [
-        item.id,
-        item.folderId,
-        item.itemType.name,
-        item.itemId,
-        item.title,
-        item.previewUrl,
-        item.authorName,
-        item.authorUsername,
-        item.authorAvatarUrl,
-        item.extData != null ? jsonEncode(item.extData) : null,
-        item.tags.isNotEmpty ? jsonEncode(item.tags.map((tag) => tag.toJson()).toList()) : null,
-        item.createdAt.millisecondsSinceEpoch ~/ 1000,
-        item.updatedAt.millisecondsSinceEpoch ~/ 1000,
-      ]);
+      ''',
+        [
+          item.id,
+          item.folderId,
+          item.itemType.name,
+          item.itemId,
+          item.title,
+          item.previewUrl,
+          item.authorName,
+          item.authorUsername,
+          item.authorAvatarUrl,
+          item.extData != null ? jsonEncode(item.extData) : null,
+          item.tags.isNotEmpty
+              ? jsonEncode(item.tags.map((tag) => tag.toJson()).toList())
+              : null,
+          item.createdAt.millisecondsSinceEpoch ~/ 1000,
+          item.updatedAt.millisecondsSinceEpoch ~/ 1000,
+        ],
+      );
 
       favoriteChangedNotifier.value++;
       return true;
@@ -329,27 +472,30 @@ class FavoriteService extends GetxService {
         extData: user.toJson(),
       );
 
-      _db.execute('''
+      _db.execute(
+        '''
         INSERT INTO favorite_items (
           id, folder_id, item_type, item_id, title, preview_url,
           author_name, author_username, author_avatar_url, ext_data,
           created_at, updated_at
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      ''', [
-        item.id,
-        item.folderId,
-        item.itemType.name,
-        item.itemId,
-        item.title,
-        item.previewUrl,
-        item.authorName,
-        item.authorUsername,
-        item.authorAvatarUrl,
-        item.extData != null ? jsonEncode(item.extData) : null,
-        item.createdAt.millisecondsSinceEpoch ~/ 1000,
-        item.updatedAt.millisecondsSinceEpoch ~/ 1000,
-      ]);
+      ''',
+        [
+          item.id,
+          item.folderId,
+          item.itemType.name,
+          item.itemId,
+          item.title,
+          item.previewUrl,
+          item.authorName,
+          item.authorUsername,
+          item.authorAvatarUrl,
+          item.extData != null ? jsonEncode(item.extData) : null,
+          item.createdAt.millisecondsSinceEpoch ~/ 1000,
+          item.updatedAt.millisecondsSinceEpoch ~/ 1000,
+        ],
+      );
 
       favoriteChangedNotifier.value++;
       return true;
@@ -375,7 +521,8 @@ class FavoriteService extends GetxService {
   // 检查项目是否已在收藏夹中
   Future<List<FavoriteFolder>> getItemFolders(String itemId) async {
     try {
-      final results = _db.select('''
+      final results = _db.select(
+        '''
         SELECT
           f.*,
           (SELECT COUNT(*) FROM favorite_items WHERE folder_id = f.id) as item_count
@@ -384,7 +531,9 @@ class FavoriteService extends GetxService {
           SELECT 1 FROM favorite_items
           WHERE folder_id = f.id AND item_id = ?
         )
-      ''', [itemId]);
+      ''',
+        [itemId],
+      );
       return results.map((row) => FavoriteFolder.fromJson(row)).toList();
     } catch (e) {
       LogUtils.e('获取项目所在收藏夹失败', tag: 'FavoriteService', error: e);
@@ -393,23 +542,27 @@ class FavoriteService extends GetxService {
   }
 
   // 更新收藏夹
-  Future<bool> updateFolder(String folderId, {
+  Future<bool> updateFolder(
+    String folderId, {
     required String title,
     String? description,
   }) async {
     if (folderId == 'default') return false;
 
     try {
-      _db.execute('''
+      _db.execute(
+        '''
         UPDATE favorite_folders
         SET title = ?, description = ?, updated_at = ?
         WHERE id = ?
-      ''', [
-        title,
-        description,
-        DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        folderId,
-      ]);
+      ''',
+        [
+          title,
+          description,
+          DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          folderId,
+        ],
+      );
 
       favoriteChangedNotifier.value++;
       return true;
@@ -426,15 +579,14 @@ class FavoriteService extends GetxService {
 
       try {
         for (var i = 0; i < folderIds.length; i++) {
-          _db.execute('''
+          _db.execute(
+            '''
             UPDATE favorite_folders
             SET display_order = ?, updated_at = ?
             WHERE id = ?
-          ''', [
-            i,
-            DateTime.now().millisecondsSinceEpoch ~/ 1000,
-            folderIds[i],
-          ]);
+          ''',
+            [i, DateTime.now().millisecondsSinceEpoch ~/ 1000, folderIds[i]],
+          );
         }
 
         _db.execute('COMMIT');
@@ -449,4 +601,4 @@ class FavoriteService extends GetxService {
       return false;
     }
   }
-} 
+}

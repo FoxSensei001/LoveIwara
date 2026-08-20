@@ -13,8 +13,7 @@ import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/share_gallery_bottom_sheet.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 
 import '../../../../../common/enums/media_enums.dart';
 import '../../../../services/app_service.dart';
@@ -471,11 +470,9 @@ class ImageModelDetailContent extends StatelessWidget {
     try {
       final imageModel = controller.imageModelInfo.value;
       if (imageModel == null) {
-        showToastWidget(
-          MDToastWidget(
-            message: t.download.errors.imageModelNotFound,
-            type: MDToastType.error,
-          ),
+        showGlassToast(
+          t.download.errors.imageModelNotFound,
+          type: GlassToastType.error,
         );
         return;
       }
@@ -507,12 +504,7 @@ class ImageModelDetailContent extends StatelessWidget {
       // 创建下载任务
       final savePath = await _getSavePath(imageModel.title, imageModel.id);
       if (savePath == null) {
-        showToastWidget(
-          MDToastWidget(
-            message: t.common.operationCancelled,
-            type: MDToastType.info,
-          ),
-        );
+        showGlassToast(t.common.operationCancelled, type: GlassToastType.info);
         return;
       }
       final task = DownloadTask(
@@ -536,22 +528,15 @@ class ImageModelDetailContent extends StatelessWidget {
       // 标记图库有下载任务
       controller.markGalleryHasDownloadTask();
 
-      showToastWidget(
-        MDToastWidget(
-          message: t.download.startDownloading,
-          type: MDToastType.success,
-        ),
-      );
+      showGlassToast(t.download.startDownloading, type: GlassToastType.success);
 
       // 打开下载管理页面
       NaviService.navigateToDownloadTaskListPage();
     } catch (e) {
       LogUtils.e('添加下载任务失败', tag: 'ImageModelDetailContent', error: e);
-      showToastWidget(
-        MDToastWidget(
-          message: t.download.errors.downloadFailed,
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        t.download.errors.downloadFailed,
+        type: GlassToastType.error,
       );
     }
   }

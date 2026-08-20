@@ -20,8 +20,7 @@ import 'package:i_iwara/app/services/saved_search_service.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/saved_search_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 
 class SearchDialog extends StatelessWidget {
   final String userInputKeywords;
@@ -282,12 +281,10 @@ class _SearchContentState extends State<_SearchContent> {
       filters: _filters.toList(),
     );
     await _savedSearchService.add(search);
-    showToastWidget(
-      MDToastWidget(
-        message: t.savedSearch.saveSuccess,
-        type: MDToastType.success,
-      ),
-      position: ToastPosition.bottom,
+    showGlassToast(
+      t.savedSearch.saveSuccess,
+      type: GlassToastType.success,
+      position: GlassToastPosition.bottom,
     );
   }
 
@@ -1082,10 +1079,7 @@ class _SearchHistoryHeader extends StatelessWidget {
             // 与「收藏」分区标签保持一致的样式
             final title = Text(
               t.search.searchHistory,
-              style: TextStyle(
-                fontSize: 12,
-                color: theme.colorScheme.outline,
-              ),
+              style: TextStyle(fontSize: 12, color: theme.colorScheme.outline),
             );
 
             final actions = Wrap(

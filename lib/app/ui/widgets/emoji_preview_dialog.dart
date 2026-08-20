@@ -2,18 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 
 class EmojiPreviewDialog extends StatelessWidget {
   final String emojiUrl;
   final String? emojiName;
 
-  const EmojiPreviewDialog({
-    super.key,
-    required this.emojiUrl,
-    this.emojiName,
-  });
+  const EmojiPreviewDialog({super.key, required this.emojiUrl, this.emojiName});
 
   static void show({
     required BuildContext context,
@@ -23,35 +18,28 @@ class EmojiPreviewDialog extends StatelessWidget {
     showDialog(
       context: context,
       barrierDismissible: true,
-      builder: (BuildContext context) => EmojiPreviewDialog(
-        emojiUrl: emojiUrl,
-        emojiName: emojiName,
-      ),
+      builder: (BuildContext context) =>
+          EmojiPreviewDialog(emojiUrl: emojiUrl, emojiName: emojiName),
     );
   }
 
   void _copyEmojiLink() {
     Clipboard.setData(ClipboardData(text: emojiUrl));
-    showToastWidget(
-      MDToastWidget(
-        message: t.emoji.copyEmojiLinkSuccess,
-        type: MDToastType.success,
-      ),
-      position: ToastPosition.top,
+    showGlassToast(
+      t.emoji.copyEmojiLinkSuccess,
+      type: GlassToastType.success,
+      position: GlassToastPosition.top,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context);
-    
+
     return Dialog(
       backgroundColor: Colors.transparent,
       child: Container(
-        constraints: const BoxConstraints(
-          maxWidth: 400,
-          maxHeight: 500,
-        ),
+        constraints: const BoxConstraints(maxWidth: 400, maxHeight: 500),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
@@ -70,8 +58,12 @@ class EmojiPreviewDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                color: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(16),
+                ),
               ),
               child: Row(
                 children: [
@@ -96,7 +88,7 @@ class EmojiPreviewDialog extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // 表情包图片
             Flexible(
               child: Container(
@@ -112,9 +104,7 @@ class EmojiPreviewDialog extends StatelessWidget {
                         color: Colors.grey[200],
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Center(
-                        child: CircularProgressIndicator(),
-                      ),
+                      child: const Center(child: CircularProgressIndicator()),
                     ),
                     errorWidget: (context, url, error) => Container(
                       width: 200,
@@ -138,7 +128,7 @@ class EmojiPreviewDialog extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             // 操作按钮
             Container(
               padding: const EdgeInsets.all(16),

@@ -14,22 +14,17 @@ class PopularVideoListPage
           PopularVideoController,
           PopularVideoRepository
         > {
-  const PopularVideoListPage({
-    super.key,
-    super.contentResetVersion = 0,
-  }) : super(
-         controllerTag: 'video',
-         searchSegment: SearchSegment.video,
-         emptyIcon: Icons.video_library_outlined,
-       );
+  const PopularVideoListPage({super.key, super.contentResetVersion = 0})
+    : super(
+        controllerTag: 'video',
+        searchSegment: SearchSegment.video,
+        emptyIcon: Icons.video_library_outlined,
+      );
 
   // 实现创建 Controller 的方法
   @override
   PopularVideoController createSpecificController(String sortIdName) {
-    return Get.put(
-      PopularVideoController(sortId: sortIdName),
-      tag: sortIdName,
-    );
+    return Get.put(PopularVideoController(sortId: sortIdName), tag: sortIdName);
   }
 
   // 实现获取 Repository 的方法

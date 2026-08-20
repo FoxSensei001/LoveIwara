@@ -1,15 +1,18 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:i_iwara/app/models/oreno3d_favorite.model.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/oreno3d_localization_service.dart';
 import 'package:i_iwara/app/services/tag_localization_service.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/add_search_tag_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/oreno3d_tag_picker_dialog.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -22,194 +25,282 @@ class FavoriteIwaraTagsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     final pref = Get.find<UserPreferenceService>();
-    final mq = MediaQuery.of(context);
-    // Scaffold 已按 padding.bottom 抬高 FAB；edge-to-edge 下 padding.bottom 可能为 0，
-    // 此时手势条仍占空间，补上差值即可，避免三键导航下重复抬高。
-    final fabGap = math.max(
-      0.0,
-      computeBottomSafeInset(mq) - mq.padding.bottom,
-    );
+    final double statusBarHeight = MediaQuery.paddingOf(context).top;
+    final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
+
     return Scaffold(
-      appBar: AppBar(title: Text(t.favoriteTags.iwaraTitle)),
-      body: Column(
-        children: [
-          _QuickPickHint(),
-          Expanded(
-            child: Obx(() {
-              final tags = pref.videoSearchTagHistory;
-              if (tags.isEmpty) {
-                return Center(
-                  child: MyEmptyWidget(message: t.favoriteTags.emptyIwara),
-                );
-              }
-              return SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: tags
+      body: GlassHeaderOverlay(
+        headerExtent: headerExtent,
+        headerTop: statusBarHeight,
+        solidExtent: statusBarHeight,
+        body: Obx(
+          () => _FavoriteTagWall(
+            paddingTop: headerExtent,
+            emptyMessage: t.favoriteTags.emptyIwara,
+            addLabel: t.favoriteTags.addIwaraTag,
+            onAdd: () => showAppDialog(const AddSearchTagDialog()),
+            chips: pref.videoSearchTagHistory
+                .map(
+                  (tag) => _FavoriteChipData(
+                    label: TagLocalizationService.displayName(tag.id),
+                    onDeleted: () => pref.removeVideoSearchTag(tag),
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+        // header 行：左 返回圆钮 / 中 标题胶囊 / 右 动作胶囊
+        header: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.arrow_back),
+                tooltip: t.common.back,
+                onPressed: () => AppService.tryPop(),
+              ),
+              const SizedBox(width: 8),
+              Expanded(child: GlassTitlePill(title: t.favoriteTags.iwaraTitle)),
+              const SizedBox(width: 8),
+              GlassButtonGroup(
+                children: [
+                  GlassIconButton(
+                    icon: const Icon(Icons.add),
+                    tooltip: t.favoriteTags.addIwaraTag,
+                    onPressed: () => showAppDialog(const AddSearchTagDialog()),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 收藏的 Oreno3d 标签管理页（原作 / 角色 / 标签三段）。
+class FavoriteOreno3dTagsPage extends StatefulWidget {
+  const FavoriteOreno3dTagsPage({super.key});
+
+  @override
+  State<FavoriteOreno3dTagsPage> createState() =>
+      _FavoriteOreno3dTagsPageState();
+}
+
+class _FavoriteOreno3dTagsPageState extends State<FavoriteOreno3dTagsPage>
+    with SingleTickerProviderStateMixin {
+  static const List<String> _types = ['origin', 'character', 'tag'];
+
+  late final TabController _tabController;
+  late final UserPreferenceService _pref;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: _types.length, vsync: this);
+    _tabController.addListener(_onTabChanged);
+    _pref = Get.find<UserPreferenceService>();
+  }
+
+  @override
+  void dispose() {
+    _tabController.removeListener(_onTabChanged);
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void _onTabChanged() {
+    // 动画途中 indexIsChanging 为 true，只关心落定后的那次（添加动作要跟着当前段走）
+    if (_tabController.indexIsChanging) return;
+    if (mounted) setState(() {});
+  }
+
+  /// 打开选择器；管理页里点击行 = 切换收藏（爱心也同步），方便批量勾选。
+  void _showPicker(String type) {
+    showAppDialog(
+      Oreno3dTagPickerDialog(
+        initialType: type,
+        onSelected: (e) {
+          if (_pref.isOreno3dFavorite(e.type, e.id)) {
+            _pref.removeOreno3dFavorite(e.type, e.id);
+          } else {
+            _pref.addOreno3dFavorite(
+              Oreno3dFavorite(type: e.type, id: e.id, name: e.original),
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final double statusBarHeight = MediaQuery.paddingOf(context).top;
+    final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
+
+    final tabItems = [
+      GlassSegmentItem(label: t.oreno3d.origin),
+      GlassSegmentItem(label: t.oreno3d.characters),
+      GlassSegmentItem(label: t.oreno3d.tags),
+    ];
+
+    return Scaffold(
+      body: GlassHeaderOverlay(
+        headerExtent: headerExtent,
+        headerTop: statusBarHeight,
+        solidExtent: statusBarHeight,
+        body: TabBarView(
+          controller: _tabController,
+          physics: const ClampingScrollPhysics(),
+          children: [
+            for (final type in _types)
+              Obx(
+                () => _FavoriteTagWall(
+                  paddingTop: headerExtent,
+                  emptyMessage: t.favoriteTags.emptyOreno3d,
+                  addLabel: t.favoriteTags.addFavorite,
+                  onAdd: () => _showPicker(type),
+                  chips: _pref
+                      .oreno3dFavoritesOfType(type)
                       .map(
-                        (tag) => Chip(
-                          label: Text(
-                            TagLocalizationService.displayName(tag.id),
+                        (fav) => _FavoriteChipData(
+                          label: Oreno3dLocalizationService.displayName(
+                            type: fav.type,
+                            id: fav.id,
+                            name: fav.name,
                           ),
-                          onDeleted: () => pref.removeVideoSearchTag(tag),
-                          deleteIcon: const Icon(Icons.close, size: 18),
+                          onDeleted: () =>
+                              _pref.removeOreno3dFavorite(fav.type, fav.id),
                         ),
                       )
                       .toList(),
                 ),
-              );
-            }),
+              ),
+          ],
+        ),
+        // header 行：左 返回圆钮 / 中 分段胶囊（原作/角色/标签）/ 右 动作胶囊
+        header: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.arrow_back),
+                tooltip: t.common.back,
+                onPressed: () => AppService.tryPop(),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: GlassSegmentedControl(
+                    selectedIndex: _tabController.index,
+                    progress: _tabController.animation,
+                    onChanged: _tabController.animateTo,
+                    items: tabItems,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              GlassButtonGroup(
+                children: [
+                  GlassIconButton(
+                    icon: const Icon(Icons.add),
+                    tooltip: t.favoriteTags.addFavorite,
+                    onPressed: () => _showPicker(_types[_tabController.index]),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
-      ),
-      floatingActionButton: Padding(
-        padding: EdgeInsets.only(bottom: fabGap),
-        child: FloatingActionButton.extended(
-          onPressed: () => showAppDialog(const AddSearchTagDialog()),
-          icon: const Icon(Icons.add),
-          label: Text(t.favoriteTags.addIwaraTag),
         ),
       ),
     );
   }
 }
 
-/// 收藏的 Oreno3d 标签管理页（原作 / 角色 / 标签三个 Tab）。
-class FavoriteOreno3dTagsPage extends StatelessWidget {
-  const FavoriteOreno3dTagsPage({super.key});
+class _FavoriteChipData {
+  const _FavoriteChipData({required this.label, required this.onDeleted});
+
+  final String label;
+  final VoidCallback onDeleted;
+}
+
+/// 收藏标签墙：顶部快速选择提示 + 标签 Chip；空态给一枚「添加」入口。
+///
+/// 列表整体铺满区域，用 [paddingTop] 让出 header 高度，内容可以从玻璃 header
+/// 背后滚过去。
+class _FavoriteTagWall extends StatelessWidget {
+  const _FavoriteTagWall({
+    required this.paddingTop,
+    required this.chips,
+    required this.emptyMessage,
+    required this.addLabel,
+    required this.onAdd,
+  });
+
+  final double paddingTop;
+  final List<_FavoriteChipData> chips;
+  final String emptyMessage;
+  final String addLabel;
+  final VoidCallback onAdd;
 
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    final pref = Get.find<UserPreferenceService>();
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(t.favoriteTags.oreno3dTitle),
-          bottom: TabBar(
-            tabs: [
-              Tab(text: t.oreno3d.origin),
-              Tab(text: t.oreno3d.characters),
-              Tab(text: t.oreno3d.tags),
-            ],
-          ),
-        ),
-        body: Column(
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return ListView(
+      padding: EdgeInsets.fromLTRB(
+        16,
+        paddingTop + 8,
+        16,
+        MediaQuery.paddingOf(context).bottom + 24,
+      ),
+      children: [
+        // 收藏会出现在搜索快速选择中的提示条
+        Row(
           children: [
-            _QuickPickHint(),
+            Icon(Icons.info_outline, size: 16, color: colorScheme.outline),
+            const SizedBox(width: 6),
             Expanded(
-              child: TabBarView(
-                children: [
-                  _Oreno3dTab(pref: pref, type: 'origin'),
-                  _Oreno3dTab(pref: pref, type: 'character'),
-                  _Oreno3dTab(pref: pref, type: 'tag'),
-                ],
+              child: Text(
+                t.favoriteTags.quickPickHint,
+                style: TextStyle(fontSize: 12, color: colorScheme.outline),
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-/// 收藏会出现在搜索快速选择中的提示条。
-class _QuickPickHint extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final t = slang.Translations.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-      child: Row(
-        children: [
-          Icon(
-            Icons.info_outline,
-            size: 16,
-            color: Theme.of(context).colorScheme.outline,
-          ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              t.favoriteTags.quickPickHint,
-              style: TextStyle(
-                fontSize: 12,
-                color: Theme.of(context).colorScheme.outline,
-              ),
+        const SizedBox(height: 16),
+        if (chips.isEmpty) ...[
+          const SizedBox(height: 32),
+          MyEmptyWidget(message: emptyMessage),
+          const SizedBox(height: 16),
+          Center(
+            child: FilledButton.tonalIcon(
+              onPressed: onAdd,
+              icon: const Icon(Icons.add),
+              label: Text(addLabel),
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Oreno3d 收藏 Tab（origin / character / tag 各一份）。
-class _Oreno3dTab extends StatelessWidget {
-  final UserPreferenceService pref;
-  final String type;
-  const _Oreno3dTab({required this.pref, required this.type});
-
-  @override
-  Widget build(BuildContext context) {
-    final t = slang.Translations.of(context);
-    final mq = MediaQuery.of(context);
-    final fabGap = math.max(
-      0.0,
-      computeBottomSafeInset(mq) - mq.padding.bottom,
-    );
-    return Scaffold(
-      body: Obx(() {
-        final favorites = pref.oreno3dFavoritesOfType(type);
-        if (favorites.isEmpty) {
-          return Center(
-            child: MyEmptyWidget(message: t.favoriteTags.emptyOreno3d),
-          );
-        }
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Wrap(
+        ] else
+          Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: favorites.map((fav) {
-              final name = Oreno3dLocalizationService.displayName(
-                type: fav.type,
-                id: fav.id,
-                name: fav.name,
-              );
-              return Chip(
-                label: Text(name),
-                onDeleted: () => pref.removeOreno3dFavorite(fav.type, fav.id),
-                deleteIcon: const Icon(Icons.close, size: 18),
-              );
-            }).toList(),
+            children: chips
+                .map(
+                  (chip) => Chip(
+                    label: Text(chip.label),
+                    onDeleted: chip.onDeleted,
+                    deleteIcon: const Icon(Icons.close, size: 18),
+                  ),
+                )
+                .toList(),
           ),
-        );
-      }),
-      floatingActionButton: Padding(
-        padding: EdgeInsets.only(bottom: fabGap),
-        child: FloatingActionButton.extended(
-          onPressed: () => showAppDialog(
-            Oreno3dTagPickerDialog(
-              initialType: type,
-              // 管理页里点击行 = 切换收藏（爱心也同步），方便批量勾选。
-              onSelected: (e) {
-                if (pref.isOreno3dFavorite(e.type, e.id)) {
-                  pref.removeOreno3dFavorite(e.type, e.id);
-                } else {
-                  pref.addOreno3dFavorite(
-                    Oreno3dFavorite(type: e.type, id: e.id, name: e.original),
-                  );
-                }
-              },
-            ),
-          ),
-          icon: const Icon(Icons.add),
-          label: Text(t.favoriteTags.addFavorite),
-        ),
-      ),
+      ],
     );
   }
 }

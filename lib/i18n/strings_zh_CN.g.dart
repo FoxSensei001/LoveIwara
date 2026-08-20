@@ -358,14 +358,17 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String deleteRecordsInDateRangeConfirm({required Object num}) => '确定要删除该时间范围内的 ${num} 条历史记录吗？此操作不可恢复。';
 	@override String get noHistoryRecordsInRange => '该时间范围内没有历史记录';
 	@override String get followSuccessClickAgainToSpecialFollow => '已成功关注，再次点击以特别关注';
-	@override String get specialFollowTip => '已加入特别关注，可在订阅页左上角的选择框中切换到TA，快速查看更新';
+	@override String get specialFollowTip => '已加入特别关注，可在订阅页右上角的选择框中切换到TA，快速查看更新';
 	@override String get exitConfirmTip => '确定要退出吗？';
 	@override String get error => '错误';
 	@override String get taskRunning => '任务正在进行中，请稍后再试。';
 	@override String get operationCancelled => '操作已取消。';
 	@override String get unsavedChanges => '您有未保存的更改';
-	@override String get specialFollowsManagementTip => '拖动可重新排序 • 向左滑动可移除';
+	@override String get specialFollowsManagementTip => '拖动手柄可重新排序 • 点右侧按钮可移除';
 	@override String get specialFollowsManagement => '特别关注管理';
+	@override String get removeSpecialFollow => '移除特别关注';
+	@override String removeSpecialFollowConfirm({required Object name}) => '确定要将 ${name} 从特别关注中移除吗？';
+	@override String get noSpecialFollows => '还没有特别关注的作者';
 	@override String get createTimeDesc => '创建时间倒序';
 	@override String get createTimeAsc => '创建时间正序';
 	@override late final _TranslationsCommonPaginationZhCn pagination = _TranslationsCommonPaginationZhCn._(_root);
@@ -534,6 +537,10 @@ class _TranslationsFavoritesZhCn implements TranslationsFavoritesEn {
 	// Translations
 	@override String get clickToRestoreFavorite => '点击恢复最爱';
 	@override String get myFavorites => '我的最爱';
+	@override String get batchCancelFavorite => '批量取消最爱';
+	@override String batchCancelFavoriteConfirm({required Object count}) => '确定要取消选中的 ${count} 项最爱吗？取消后可以在列表中点击卡片恢复。';
+	@override String batchCancelFavoriteSuccess({required Object count}) => '已取消 ${count} 项最爱';
+	@override String batchCancelFavoriteResult({required Object success, required Object failed}) => '已取消 ${success} 项，${failed} 项失败';
 }
 
 // Path: galleryDetail
@@ -1221,6 +1228,7 @@ class _TranslationsConversationZhCn implements TranslationsConversationEn {
 	@override String get deleteThisMessage => '删除此消息';
 	@override String get deleteThisMessageSubtitle => '此操作不可撤销';
 	@override String get writeMessageHere => '在此处输入消息';
+	@override String get lastMessageFromMe => '我：';
 	@override String get sendMessage => '发送消息';
 }
 
@@ -1385,6 +1393,11 @@ class _TranslationsFavoriteZhCn implements TranslationsFavoriteEn {
 	@override String get editFolderSuccess => '文件夹更新成功';
 	@override String get editFolderFailed => '文件夹更新失败';
 	@override String get searchTags => '搜索标签';
+	@override String get noTagsInFolder => '本收藏夹内的作品还没有标签';
+	@override String get tagFilterMatchAll => '仅显示同时包含全部所选标签的作品';
+	@override String get clearSelectedTags => '清除已选标签';
+	@override String selectedTagCount({required Object count}) => '已选 ${count} 个';
+	@override String get noMatchingTags => '没有匹配的标签';
 }
 
 // Path: translation
@@ -3629,14 +3642,17 @@ extension on TranslationsZhCn {
 			'common.deleteRecordsInDateRangeConfirm' => ({required Object num}) => '确定要删除该时间范围内的 ${num} 条历史记录吗？此操作不可恢复。',
 			'common.noHistoryRecordsInRange' => '该时间范围内没有历史记录',
 			'common.followSuccessClickAgainToSpecialFollow' => '已成功关注，再次点击以特别关注',
-			'common.specialFollowTip' => '已加入特别关注，可在订阅页左上角的选择框中切换到TA，快速查看更新',
+			'common.specialFollowTip' => '已加入特别关注，可在订阅页右上角的选择框中切换到TA，快速查看更新',
 			'common.exitConfirmTip' => '确定要退出吗？',
 			'common.error' => '错误',
 			'common.taskRunning' => '任务正在进行中，请稍后再试。',
 			'common.operationCancelled' => '操作已取消。',
 			'common.unsavedChanges' => '您有未保存的更改',
-			'common.specialFollowsManagementTip' => '拖动可重新排序 • 向左滑动可移除',
+			'common.specialFollowsManagementTip' => '拖动手柄可重新排序 • 点右侧按钮可移除',
 			'common.specialFollowsManagement' => '特别关注管理',
+			'common.removeSpecialFollow' => '移除特别关注',
+			'common.removeSpecialFollowConfirm' => ({required Object name}) => '确定要将 ${name} 从特别关注中移除吗？',
+			'common.noSpecialFollows' => '还没有特别关注的作者',
 			'common.createTimeDesc' => '创建时间倒序',
 			'common.createTimeAsc' => '创建时间正序',
 			'common.pagination.totalItems' => ({required Object num}) => '共 ${num} 项',
@@ -3788,6 +3804,10 @@ extension on TranslationsZhCn {
 			'authorProfile.userProfile' => '用户资料',
 			'favorites.clickToRestoreFavorite' => '点击恢复最爱',
 			'favorites.myFavorites' => '我的最爱',
+			'favorites.batchCancelFavorite' => '批量取消最爱',
+			'favorites.batchCancelFavoriteConfirm' => ({required Object count}) => '确定要取消选中的 ${count} 项最爱吗？取消后可以在列表中点击卡片恢复。',
+			'favorites.batchCancelFavoriteSuccess' => ({required Object count}) => '已取消 ${count} 项最爱',
+			'favorites.batchCancelFavoriteResult' => ({required Object success, required Object failed}) => '已取消 ${success} 项，${failed} 项失败',
 			'galleryDetail.galleryDetail' => '图库详情',
 			'galleryDetail.viewGalleryDetail' => '查看图库详情',
 			'galleryDetail.copyLink' => '复制链接地址',
@@ -3889,6 +3909,8 @@ extension on TranslationsZhCn {
 			'settings.playControlArea' => '播放控制区域',
 			'settings.leftAndRightControlAreaWidth' => '左右控制区域宽度',
 			'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer' => '此配置决定播放器左右两侧的控制区域宽度。',
+			_ => null,
+		} ?? switch (path) {
 			'settings.proxyAddressCannotBeEmpty' => '代理地址不能为空。',
 			'settings.invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort' => '无效的代理地址格式。请使用 IP:端口 或 域名:端口 格式。',
 			'settings.proxyNormalWork' => '代理正常工作。',
@@ -3896,8 +3918,6 @@ extension on TranslationsZhCn {
 			'settings.testProxyFailedWithException' => ({required Object exception}) => '代理请求出错: ${exception}',
 			'settings.proxyConfig' => '代理配置',
 			'settings.thisIsHttpProxyAddress' => '此处为http代理地址',
-			_ => null,
-		} ?? switch (path) {
 			'settings.checkProxy' => '检查代理',
 			'settings.proxyAddress' => '代理地址',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => '请输入代理服务器的URL，例如 127.0.0.1:8080',
@@ -4403,6 +4423,8 @@ extension on TranslationsZhCn {
 			'oreno3d.messages.getVideoDetailFailed' => '获取视频详情失败',
 			'signIn.pleaseLoginFirst' => '请先登录',
 			'signIn.alreadySignedInToday' => '您今天已经签到过了！',
+			_ => null,
+		} ?? switch (path) {
 			'signIn.youDidNotStickToTheSignIn' => '您未能坚持签到。',
 			'signIn.signInSuccess' => '签到成功！',
 			'signIn.signInFailed' => '签到失败，请稍后再试',
@@ -4410,8 +4432,6 @@ extension on TranslationsZhCn {
 			'signIn.failureReason' => '未能坚持签到的原因',
 			'signIn.selectDateRange' => '选择日期范围',
 			'signIn.startDate' => '开始日期',
-			_ => null,
-		} ?? switch (path) {
 			'signIn.endDate' => '结束日期',
 			'signIn.invalidDate' => '日期格式错误',
 			'signIn.invalidDateRange' => '日期范围无效',
@@ -4759,6 +4779,7 @@ extension on TranslationsZhCn {
 			'conversation.deleteThisMessage' => '删除此消息',
 			'conversation.deleteThisMessageSubtitle' => '此操作不可撤销',
 			'conversation.writeMessageHere' => '在此处输入消息',
+			'conversation.lastMessageFromMe' => '我：',
 			'conversation.sendMessage' => '发送消息',
 			'splash.errors.initializationFailed' => '初始化失败，请重启应用',
 			'splash.preparing' => '准备中...',
@@ -4916,6 +4937,8 @@ extension on TranslationsZhCn {
 			'download.category.nameEmpty' => '分类名称不能为空',
 			'download.category.emptyHint' => '还没有分类，新建一个来整理你的下载。',
 			'download.category.moveTo' => '移至分类',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.moveToWithCount' => ({required Object count}) => '移动 ${count} 项到…',
 			'download.category.moveSuccess' => ({required Object title}) => '已移至「${title}」',
 			'download.category.moveToUncategorizedSuccess' => '已移至「未分类」',
@@ -4924,8 +4947,6 @@ extension on TranslationsZhCn {
 			'download.category.renameHint' => '输入分类名称',
 			'download.category.renameSuccess' => '已重命名',
 			'download.category.renameFailed' => '重命名失败',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.deleteTitle' => '删除分类',
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => '删除分类「${title}」？该分类下的 ${count} 个下载将移到「未分类」，文件不会被删除。',
 			'download.category.deleteSuccess' => '分类已删除',
@@ -5010,6 +5031,11 @@ extension on TranslationsZhCn {
 			'favorite.editFolderSuccess' => '文件夹更新成功',
 			'favorite.editFolderFailed' => '文件夹更新失败',
 			'favorite.searchTags' => '搜索标签',
+			'favorite.noTagsInFolder' => '本收藏夹内的作品还没有标签',
+			'favorite.tagFilterMatchAll' => '仅显示同时包含全部所选标签的作品',
+			'favorite.clearSelectedTags' => '清除已选标签',
+			'favorite.selectedTagCount' => ({required Object count}) => '已选 ${count} 个',
+			'favorite.noMatchingTags' => '没有匹配的标签',
 			'translation.currentService' => '当前服务',
 			'translation.testConnection' => '测试连接',
 			'translation.testConnectionSuccess' => '测试连接成功',
@@ -5425,6 +5451,8 @@ extension on TranslationsZhCn {
 			'emoji.import' => '导入',
 			'emoji.importSuccess' => ({required Object count}) => '成功导入${count}张图片',
 			'emoji.jsonFormatError' => 'JSON格式错误，请检查输入',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.createGroup' => '创建表情包分组',
 			'emoji.groupName' => '分组名称',
 			'emoji.enterGroupName' => '请输入分组名称',
@@ -5438,8 +5466,6 @@ extension on TranslationsZhCn {
 			'emoji.noEmojisInGroup' => '该分组暂无表情包',
 			'emoji.goToSettingsToAddEmojis' => '前往设置添加表情包',
 			'emoji.emojiManagement' => '表情包管理',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.manageEmojiGroupsAndImages' => '管理表情包分组和图片',
 			'emoji.uploadLocalImages' => '上传本地图片',
 			'emoji.uploadingImages' => '正在上传图片',

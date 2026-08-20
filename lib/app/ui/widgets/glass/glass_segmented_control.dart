@@ -42,6 +42,62 @@ class GlassSegmentedControl extends StatefulWidget {
   final ValueListenable<double>? progress;
   final double height;
 
+  /// 段内左右内边距。测量（[minWidthFor]）与真实布局共用同一组常量，
+  /// 别让两边各写各的漂移开。
+  static const double itemHorizontalPadding = 14;
+
+  /// 段内图标尺寸与图标到文字的间距。
+  static const double itemIconSize = 16;
+  static const double itemIconGap = 5;
+
+  /// 胶囊内缩（分段与玻璃壳之间的留白）。
+  static const double capsuleInset = 4;
+
+  static TextStyle _labelStyle(BuildContext context) =>
+      (Theme.of(context).textTheme.labelLarge ?? const TextStyle(fontSize: 14))
+          .copyWith(fontWeight: FontWeight.w600);
+
+  /// 平铺版本要**完整显示** [minVisibleItems] 个段，胶囊至少得有多宽。
+  ///
+  /// header 中间摆不下时会退化成下拉钮，但「摆不下」不该是拍脑袋的魔法数字：
+  /// 同一个阈值在中文两字标签下富余、在英文长标签下不够，换个语言就判错。
+  /// 这里按真实文案量出每段的宽度，取**最宽的那几段**求和——这样不管横向
+  /// 滚到哪一段，都保证至少有 [minVisibleItems] 个段是完整的；连这个都摆不
+  /// 下，平铺就没有意义了（只能看见一个段还得横着拨），该让位给下拉钮。
+  static double minWidthFor(
+    BuildContext context,
+    List<GlassSegmentItem> items, {
+    int minVisibleItems = 2,
+  }) {
+    if (items.isEmpty) return 0;
+    final TextStyle style = _labelStyle(context);
+    final TextScaler scaler = MediaQuery.textScalerOf(context);
+    final TextDirection direction = Directionality.of(context);
+
+    final widths = <double>[];
+    for (final item in items) {
+      final painter = TextPainter(
+        text: TextSpan(text: item.label, style: style),
+        textDirection: direction,
+        textScaler: scaler,
+        maxLines: 1,
+      )..layout();
+      double width = painter.width + itemHorizontalPadding * 2;
+      if (item.icon != null) width += itemIconSize + itemIconGap;
+      painter.dispose();
+      widths.add(width);
+    }
+    widths.sort((a, b) => b.compareTo(a));
+
+    final int take = minVisibleItems.clamp(1, widths.length);
+    double total = 0;
+    for (var i = 0; i < take; i++) {
+      total += widths[i];
+    }
+    // 胶囊内缩 + 左右两条玻璃描边
+    return total + capsuleInset * 2 + GlassTokens.strokeWidth * 2;
+  }
+
   @override
   State<GlassSegmentedControl> createState() => _GlassSegmentedControlState();
 }
@@ -344,8 +400,7 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    const double inset = 4;
+    const double inset = GlassSegmentedControl.capsuleInset;
     final double innerHeight = widget.height - inset * 2;
 
     final Widget row = Row(
@@ -353,7 +408,7 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
       mainAxisSize: MainAxisSize.min,
       children: [
         for (var i = 0; i < widget.items.length; i++)
-          _buildItem(context, i, cs, textTheme, innerHeight),
+          _buildItem(context, i, cs, innerHeight),
       ],
     );
 
@@ -450,7 +505,6 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
     BuildContext context,
     int index,
     ColorScheme cs,
-    TextTheme textTheme,
     double innerHeight,
   ) {
     final item = widget.items[index];
@@ -458,20 +512,20 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
     final Color selectedColor = cs.onSecondaryContainer;
     final Color unselectedColor = cs.onSurfaceVariant;
     // 字重保持不变：字重变化会改变段宽，导致高亮块测量失准
-    final TextStyle baseStyle =
-        (textTheme.labelLarge ?? const TextStyle(fontSize: 14)).copyWith(
-          fontWeight: FontWeight.w600,
-        );
+    final TextStyle baseStyle = GlassSegmentedControl._labelStyle(context);
 
     Widget buildContent(Color fg) => Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (item.icon != null) ...[
           IconTheme.merge(
-            data: IconThemeData(size: 16, color: fg),
+            data: IconThemeData(
+              size: GlassSegmentedControl.itemIconSize,
+              color: fg,
+            ),
             child: item.icon!,
           ),
-          const SizedBox(width: 5),
+          const SizedBox(width: GlassSegmentedControl.itemIconGap),
         ],
         DefaultTextStyle(
           style: baseStyle.copyWith(color: fg),
@@ -516,7 +570,9 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
       },
       builder: (context, pressed) => Container(
         height: innerHeight,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
+        padding: const EdgeInsets.symmetric(
+          horizontal: GlassSegmentedControl.itemHorizontalPadding,
+        ),
         alignment: Alignment.center,
         child: content,
       ),

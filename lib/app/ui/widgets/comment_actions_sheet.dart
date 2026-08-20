@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:oktoast/oktoast.dart';
 
-/// 评论 / 论坛楼层长按操作弹层：复制全文、选择复制、回复。
+/// 评论 / 论坛楼层 / 私信长按操作弹层：复制全文、选择复制、回复、翻译、删除。
 ///
 /// 正文里的 SelectionArea 长按选中已被长按手势替代（见
 /// CustomMarkdownBody.onLongPress），「选择复制」在弹窗里补回自由选取能力。
-/// [onReply] 为 null 时不显示回复项（锁定帖 / 子回复等场景）。
+/// [onReply] / [onTranslate] / [onDelete] 为 null 时不显示对应项（锁定帖 /
+/// 子回复 / 对方消息不可删等场景）。
 Future<void> showCommentActionsSheet({
   required BuildContext context,
   required String text,
   VoidCallback? onReply,
+  VoidCallback? onTranslate,
+  VoidCallback? onDelete,
 }) {
   final t = slang.Translations.of(context);
   final colorScheme = Theme.of(context).colorScheme;
@@ -49,11 +51,9 @@ Future<void> showCommentActionsSheet({
               onTap: () {
                 Navigator.of(sheetContext).pop();
                 Clipboard.setData(ClipboardData(text: text));
-                showToastWidget(
-                  MDToastWidget(
-                    message: t.common.copiedToClipboard,
-                    type: MDToastType.success,
-                  ),
+                showGlassToast(
+                  t.common.copiedToClipboard,
+                  type: GlassToastType.success,
                 );
               },
             ),
@@ -72,6 +72,27 @@ Future<void> showCommentActionsSheet({
                 onTap: () {
                   Navigator.of(sheetContext).pop();
                   onReply();
+                },
+              ),
+            if (onTranslate != null)
+              ListTile(
+                leading: const Icon(Icons.translate),
+                title: Text(t.common.translate),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  onTranslate();
+                },
+              ),
+            if (onDelete != null)
+              ListTile(
+                leading: Icon(Icons.delete_outline, color: colorScheme.error),
+                title: Text(
+                  t.common.delete,
+                  style: TextStyle(color: colorScheme.error),
+                ),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  onDelete();
                 },
               ),
           ],

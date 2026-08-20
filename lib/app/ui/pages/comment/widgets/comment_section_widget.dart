@@ -74,7 +74,9 @@ class _CommentSectionState extends State<CommentSection> {
     return Divider(
       height: 1,
       thickness: 0.5,
-      color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.4),
+      color: Theme.of(
+        context,
+      ).colorScheme.outlineVariant.withValues(alpha: 0.4),
     );
   }
 

@@ -11,6 +11,7 @@ import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_controller.dart';
 import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_detail_controller.dart';
 import 'package:i_iwara/app/ui/pages/play_list/play_list.dart';
@@ -58,8 +59,25 @@ void main() {
       );
       await _pumpPlaylistPage(tester);
 
-      expect(find.byIcon(Icons.more_vert), findsOneWidget);
+      // 默认态：卡片干干净净，没有勾选蒙版也没有批量删除浮钮
+      expect(find.byIcon(Icons.checklist), findsOneWidget);
+      expect(find.byIcon(Icons.circle_outlined), findsNothing);
+      expect(find.byIcon(Icons.delete), findsNothing);
 
+      // 进编辑态：卡片长出勾选圈，勾一个才出现批量删除浮钮
+      await _enterEditMode(tester);
+      expect(find.byIcon(Icons.circle_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.delete), findsNothing);
+
+      await tester.tap(find.byIcon(Icons.circle_outlined));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.byIcon(Icons.check_circle), findsOneWidget);
+      expect(find.byIcon(Icons.delete), findsOneWidget);
+
+      // 别人的播放列表：没有编辑键，也进不了多选
       await tester.pumpWidget(
         _buildTestApp(
           child: const PlayListPage(userId: 'user-1', isMine: false),
@@ -67,7 +85,8 @@ void main() {
       );
       await _pumpPlaylistPage(tester);
 
-      expect(find.byIcon(Icons.more_vert), findsNothing);
+      expect(find.byIcon(Icons.checklist), findsNothing);
+      expect(find.byIcon(Icons.circle_outlined), findsNothing);
     });
 
     testWidgets(
@@ -93,7 +112,6 @@ void main() {
         await _pumpPlaylistPage(tester);
 
         expect(find.text('Owned Playlist'), findsOneWidget);
-        expect(find.byIcon(Icons.more_vert), findsOneWidget);
 
         await _openDeleteDialog(tester);
 
@@ -161,6 +179,115 @@ void main() {
         expect(find.text('Owned Playlist'), findsNothing);
       },
     );
+  });
+
+  group('PlayListPage batch delete', () {
+    testWidgets('deletes several selected playlists in one pass', (
+      tester,
+    ) async {
+      final fakeService = _FakePlayListService(
+        playlists: [
+          PlaylistModel(
+            id: 'playlist-1',
+            title: 'First Playlist',
+            numVideos: 1,
+            user: User(id: 'user-1'),
+          ),
+          PlaylistModel(
+            id: 'playlist-2',
+            title: 'Second Playlist',
+            numVideos: 2,
+            user: User(id: 'user-1'),
+          ),
+          PlaylistModel(
+            id: 'playlist-3',
+            title: 'Third Playlist',
+            numVideos: 3,
+            user: User(id: 'user-1'),
+          ),
+        ],
+      );
+      Get.put<PlayListService>(fakeService);
+
+      await tester.pumpWidget(
+        _buildTestApp(
+          child: const PlayListPage(userId: 'user-1', isMine: true),
+        ),
+      );
+      await _pumpPlaylistPage(tester);
+
+      await _enterEditMode(tester);
+      expect(find.byIcon(Icons.circle_outlined), findsNWidgets(3));
+
+      // 勾前两张：勾完第一张后它变成 check_circle，未勾的又顶到 at(0)
+      await _tapFirstUnselectedCard(tester);
+      await _tapFirstUnselectedCard(tester);
+      expect(find.byIcon(Icons.check_circle), findsNWidgets(2));
+
+      await tester.tap(find.byIcon(Icons.delete));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
+      await tester.pump(const Duration(milliseconds: 200));
+
+      expect(find.text(t.common.confirmDelete), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(TextButton, t.common.delete).last);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(seconds: 3));
+
+      // 两条都删了，剩下的还在，删完自动退出编辑态
+      expect(fakeService.deletedPlaylistIds, ['playlist-1', 'playlist-2']);
+      expect(find.text('First Playlist'), findsNothing);
+      expect(find.text('Second Playlist'), findsNothing);
+      expect(find.text('Third Playlist'), findsOneWidget);
+      expect(find.byIcon(Icons.circle_outlined), findsNothing);
+      expect(find.byIcon(Icons.checklist), findsOneWidget);
+    });
+  });
+
+  group('PlayListPage pagination mode', () {
+    testWidgets('toggles between waterfall and pagination', (tester) async {
+      final fakeService = _FakePlayListService(
+        playlists: [
+          PlaylistModel(
+            id: 'playlist-1',
+            title: 'Owned Playlist',
+            numVideos: 3,
+            user: User(id: 'user-1'),
+          ),
+        ],
+      );
+      Get.put<PlayListService>(fakeService);
+
+      await tester.pumpWidget(
+        _buildTestApp(
+          child: const PlayListPage(userId: 'user-1', isMine: true),
+        ),
+      );
+      await _pumpPlaylistPage(tester);
+
+      // 默认瀑布流：没有底部分页栏
+      expect(find.byType(PaginationBar), findsNothing);
+      expect(find.text('Owned Playlist'), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.view_stream));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      // 切到分页：底部分页栏出现，数据仍在
+      expect(find.byType(PaginationBar), findsOneWidget);
+      expect(find.text('Owned Playlist'), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.grid_view));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(find.byType(PaginationBar), findsNothing);
+    });
   });
 
   group('PlayListDetailPage delete flow', () {
@@ -457,19 +584,32 @@ Future<void> _pumpPlaylistPage(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 200));
 }
 
-Future<void> _openDeleteDialog(WidgetTester tester) async {
-  final popupFinder = find.byWidgetPredicate(
-    (widget) => widget is PopupMenuButton,
-  );
-  final dynamic popupState = tester.state(popupFinder);
-  popupState.showButtonMenu();
+/// 列表页的删除入口：先进编辑态，卡片右上角才长出玻璃删除圆钮。
+Future<void> _enterEditMode(WidgetTester tester) async {
+  await tester.tap(find.byIcon(Icons.checklist));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 200));
   await tester.pump(const Duration(milliseconds: 200));
+}
 
-  expect(find.text(t.common.delete), findsOneWidget);
+/// 进编辑态 → 勾选第一张卡片 → 点批量删除浮钮 → 弹确认框。
+/// 勾选当前第一张还没被勾上的卡片。
+Future<void> _tapFirstUnselectedCard(WidgetTester tester) async {
+  await tester.tap(find.byIcon(Icons.circle_outlined).first);
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+  await tester.pump(const Duration(milliseconds: 300));
+}
 
-  await tester.tap(find.text(t.common.delete));
+Future<void> _openDeleteDialog(WidgetTester tester) async {
+  await _enterEditMode(tester);
+
+  await tester.tap(find.byIcon(Icons.circle_outlined).first);
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+  await tester.pump(const Duration(milliseconds: 300));
+
+  await tester.tap(find.byIcon(Icons.delete));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 200));
   await tester.pump(const Duration(milliseconds: 200));
@@ -477,7 +617,7 @@ Future<void> _openDeleteDialog(WidgetTester tester) async {
 
 Future<void> _openDetailMenu(WidgetTester tester) async {
   final popupFinder = find.byWidgetPredicate(
-    (widget) => widget is PopupMenuButton<String>,
+    (widget) => widget is PopupMenuButton,
   );
   final dynamic popupState = tester.state(popupFinder);
   popupState.showButtonMenu();

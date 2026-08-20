@@ -22,6 +22,10 @@ import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
+import 'package:i_iwara/app/models/saved_search_config.model.dart';
+import 'package:i_iwara/app/services/saved_search_config_service.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/saved_search_config_drawer.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 
 import 'package:i_iwara/app/services/tutorial_service.dart';
 
@@ -82,8 +86,24 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   /// 评级只在订阅流（未指定具体用户）下有效：带 `user=` 时服务端会忽略 rating。
   bool get _isRatingFilterAvailable => selectedId.isEmpty;
 
-  /// 当前 tab 是否支持筛选（0=视频，1=图库）
-  bool get _isFilterSupportedTab => _tabController.index <= 1;
+  /// 用于打开右侧「已保存筛选」抽屉。
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  /// header 形变专用的「视觉 tab」：横滑过半就算已经到了目标栏目。
+  ///
+  /// `TabController.index` 要等松手才跳，拿它驱动 header 会变成「手指都离开
+  /// 屏幕了，右侧两个筛选键才忽然消失、中间胶囊才忽然展开」。改读
+  /// `animation.value` 的四舍五入值，形变就跟 [GlassFlipLabel] 的翻牌交接点
+  /// 对齐在同一个位置——滑过半程的那一瞬，字翻完、键开始收、胶囊开始长。
+  int get _visualTabIndex {
+    final animation = _tabController.animation;
+    if (animation == null) return _tabController.index;
+    return animation.value.round().clamp(0, _tabController.length - 1);
+  }
+
+  /// 当前 tab 是否支持筛选（0=视频，1=图库）。按**视觉 tab** 算，好让筛选
+  /// 键在手指还没松开时就开始收——入口只在这里出现，业务上没有别的判断依赖它。
+  bool get _isFilterSupportedTab => _visualTabIndex <= 1;
 
   bool get _hasActiveFilter =>
       _filterTags.isNotEmpty ||
@@ -110,9 +130,9 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
 
   static const String _menuActionOpenSearch = 'open_search';
   static const String _menuActionRefresh = 'refresh';
-  static const String _menuActionOpenDrawer = 'open_drawer';
   static const String _menuActionScrollTop = 'scroll_top';
   static const String _menuActionTogglePagination = 'toggle_pagination';
+  static const String _menuActionToggleBatchSelect = 'toggle_batch_select';
 
   bool get _isBatchSupportedTab => _tabController.index <= 1;
 
@@ -131,9 +151,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
       case _menuActionRefresh:
         refreshCurrentList();
         break;
-      case _menuActionOpenDrawer:
-        AppService.switchGlobalDrawer();
-        break;
       case _menuActionScrollTop:
         mediaListController.scrollToTop();
         break;
@@ -141,6 +158,9 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
         mediaListController.setPaginatedMode(
           !mediaListController.isPaginated.value,
         );
+        break;
+      case _menuActionToggleBatchSelect:
+        _activeBatchController?.toggleMultiSelect();
         break;
     }
   }
@@ -185,6 +205,17 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
       icon: Icons.vertical_align_top,
       label: t.common.scrollToTop,
     );
+    // 批量选择：默认只收在菜单里（帖子 tab 不支持）；开启后按钮才会冒到
+    // 右侧胶囊中，菜单里的入口同步换成「退出编辑模式」。
+    if (_isBatchSupportedTab) {
+      final isMultiSelect =
+          _activeBatchController?.isMultiSelect.value ?? false;
+      addItem(
+        value: _menuActionToggleBatchSelect,
+        icon: isMultiSelect ? Icons.close : Icons.checklist,
+        label: isMultiSelect ? t.common.exitEditMode : t.common.editMode,
+      );
+    }
     items.add(const PopupMenuDivider());
     addItem(
       value: _menuActionTogglePagination,
@@ -195,75 +226,100 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
           ? t.common.pagination.waterfall
           : t.common.pagination.pagination,
     );
-    // 本页左侧没有「我」头像钮（位置给了特别关注选择器），设置入口放菜单里
-    addItem(
-      value: _menuActionOpenDrawer,
-      icon: Icons.settings,
-      label: t.common.settings,
-    );
+    // 「我」入口在 header 左侧的头像圆钮上（打开全局抽屉），菜单里不再重复
     return items;
   }
 
-  /// 右侧动作胶囊：[搜索(仅宽屏)] [筛选] [批量] 更多。
+  /// 右侧动作胶囊：[搜索(仅宽屏)] 特别关注筛选 · [筛选] [已保存筛选] [退出批量(多选中才冒出)] 更多。
   Widget _buildActionGroup(BuildContext context, {required bool isWide}) {
-    final t = slang.Translations.of(context);
     final batchController = _activeBatchController;
     return Obx(() {
       final isMultiSelect = batchController?.isMultiSelect.value ?? false;
-      return GlassButtonGroup(
-        children: [
-          GlassGroupSlot(
-            visible: isWide,
-            child: GlassIconButton(
-              key: _searchButtonKey,
-              icon: const Icon(Icons.search),
-              tooltip: t.common.search,
-              onPressed: _openSearchDialog,
-            ),
-          ),
-          GlassGroupSlot(
-            visible: _isFilterSupportedTab,
-            child: GlassIconButton(
-              icon: const Icon(Icons.filter_list),
-              tooltip: t.searchFilter.filterSettings,
-              showBadge: _hasActiveFilter,
-              onPressed: _openFilterDialog,
-            ),
-          ),
-          GlassGroupSlot(
-            visible: batchController != null,
-            child: GlassIconButton(
-              icon: Icon(isMultiSelect ? Icons.close : Icons.checklist),
-              tooltip: isMultiSelect
-                  ? t.common.exitEditMode
-                  : t.common.editMode,
-              onPressed: () => batchController?.toggleMultiSelect(),
-            ),
-          ),
-          SizedBox(
-            width: GlassTokens.groupIconButtonSize,
-            height: GlassTokens.groupIconButtonSize,
-            child: PopupMenuButton<String>(
-              padding: EdgeInsets.zero,
-              icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
-              position: PopupMenuPosition.under,
-              // 往下挪一点，别压住玻璃胶囊本身
-              offset: const Offset(0, 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              onSelected: _handleTopBarMenuAction,
-              itemBuilder: (context) =>
-                  _buildTopBarMenuItems(context: context, isWide: isWide),
-            ),
-          ),
-        ],
+      // 只让这一小块跟着横滑逐帧重建（整个 header 逐帧 setState 会连
+      // TabBarView 一起重建，太贵）。
+      return AnimatedBuilder(
+        animation: _tabController.animation!,
+        builder: (context, _) => _buildActionGroupBody(
+          context,
+          isWide: isWide,
+          isMultiSelect: isMultiSelect,
+          batchController: batchController,
+        ),
       );
     });
   }
 
-  /// 特别关注用户选择器（玻璃胶囊）。
-  Widget _buildUserSelector({required bool compact}) {
+  Widget _buildActionGroupBody(
+    BuildContext context, {
+    required bool isWide,
+    required bool isMultiSelect,
+    required BatchSelectController<dynamic>? batchController,
+  }) {
+    final t = slang.Translations.of(context);
+    final bool filterVisible = _isFilterSupportedTab;
+    return GlassButtonGroup(
+      children: [
+        GlassGroupSlot(
+          visible: isWide,
+          child: GlassIconButton(
+            key: _searchButtonKey,
+            icon: const Icon(Icons.search),
+            tooltip: t.common.search,
+            onPressed: _openSearchDialog,
+          ),
+        ),
+        // 特别关注筛选：也是「按用户筛列表」，所以跟筛选/已保存筛选放一起
+        _buildUserSelector(),
+        GlassGroupSlot(
+          visible: filterVisible,
+          child: GlassIconButton(
+            icon: const Icon(Icons.filter_list),
+            tooltip: t.searchFilter.filterSettings,
+            showBadge: _hasActiveFilter,
+            onPressed: _openFilterDialog,
+          ),
+        ),
+        // 已保存筛选：与热门视频/图库共用同一份配置池
+        GlassGroupSlot(
+          visible: filterVisible,
+          child: GlassIconButton(
+            icon: const Icon(Icons.bookmarks_outlined),
+            tooltip: t.savedSearchConfig.title,
+            onPressed: _openSavedConfigDrawer,
+          ),
+        ),
+        // 批量模式的入口在「更多」菜单里；开启后这里只承担退出职责
+        GlassGroupSlot(
+          visible: batchController != null && isMultiSelect,
+          child: GlassIconButton(
+            icon: const Icon(Icons.close),
+            tooltip: t.common.exitEditMode,
+            onPressed: () => batchController?.toggleMultiSelect(),
+          ),
+        ),
+        SizedBox(
+          width: GlassTokens.groupIconButtonSize,
+          height: GlassTokens.groupIconButtonSize,
+          child: PopupMenuButton<String>(
+            padding: EdgeInsets.zero,
+            icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
+            position: PopupMenuPosition.under,
+            // 往下挪一点，别压住玻璃胶囊本身
+            offset: const Offset(0, 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            onSelected: _handleTopBarMenuAction,
+            itemBuilder: (context) =>
+                _buildTopBarMenuItems(context: context, isWide: isWide),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 特别关注用户选择器：header 右侧动作胶囊里的无壳按钮位。
+  Widget _buildUserSelector() {
     return Obx(() {
       final likedUsers = userPreferenceService.likedUsers;
       final userDropdownItems = likedUsers
@@ -282,7 +338,54 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
         userList: userDropdownItems,
         selectedUserId: selectedId,
         onUserSelected: _onUserSelected,
-        compact: compact,
+        flat: true,
+      );
+    });
+  }
+
+  /// 左上角「我」圆钮：已登录显示头像（带未读红点），未登录显示占位图标。
+  ///
+  /// 和其他栏目（热门视频 / 图库 / 论坛 / 最新）保持同一位置同一形状：
+  /// **圆形** = 身份入口。右侧胶囊里那枚方形头像是特别关注筛选，别混淆。
+  Widget _buildAvatarButton(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+    return Obx(() {
+      final user = userService.hasLoadedProfile
+          ? userService.currentUser.value
+          : null;
+      final count =
+          userService.notificationCount.value + userService.messagesCount.value;
+
+      return GlassSurface(
+        circle: true,
+        tooltip: t.common.me,
+        onTap: AppService.switchGlobalDrawer,
+        child: Stack(
+          alignment: Alignment.center,
+          clipBehavior: Clip.none,
+          children: [
+            if (user != null)
+              // 头像铺满圆钮（只留 1px 玻璃描边），不要一圈内边距
+              IgnorePointer(
+                child: AvatarWidget(
+                  user: user,
+                  size: GlassTokens.pillHeight - 2,
+                ),
+              )
+            else
+              Icon(
+                Icons.account_circle,
+                size: 26,
+                color: colorScheme.onSurface,
+              ),
+            Positioned(
+              right: 2,
+              top: 2,
+              child: GlassAnimatedDot(visible: count > 0),
+            ),
+          ],
+        ),
       );
     });
   }
@@ -297,7 +400,10 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
       final visible =
           mediaListController.currentScrollOffset.value > 800 && !batchActive;
       return Positioned(
-        right: 16,
+        // 移动端底栏可见时与搜索圆钮中心共轴；宽屏（rail 布局）用普通右边距
+        right: isFloatingBarInsetActive(context)
+            ? GlassTokens.floatingActionCoAxisRight(GlassTokens.pillHeight)
+            : 16,
         // 分页模式下底部固定着分页栏，浮钮要在安全区之上再避开栏体
         bottom:
             MediaQuery.paddingOf(context).bottom +
@@ -385,11 +491,29 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     );
   }
 
+  /// 打开右侧「已保存筛选」抽屉（与热门视频/图库共用同一份配置池）。
+  void _openSavedConfigDrawer() {
+    _scaffoldKey.currentState?.openEndDrawer();
+  }
+
+  /// 应用一条已保存的筛选配置，并关闭抽屉。
+  void _applySavedConfig(SavedSearchConfig config) {
+    setState(() {
+      _filterTags = List<Tag>.from(config.tags);
+      _filterDate = config.date;
+      _filterRating = config.rating;
+    });
+    _scaffoldKey.currentState?.closeEndDrawer();
+  }
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_onTabChange);
+    if (!Get.isRegistered<SavedSearchConfigService>()) {
+      Get.put(SavedSearchConfigService(), permanent: true);
+    }
     mediaListController = Get.put(MediaListController());
     _videoBatchController = Get.put(
       BatchSelectController<Video>(),
@@ -527,26 +651,26 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     ];
 
     return Scaffold(
+      key: _scaffoldKey,
+      // 抽屉盖在浮动底栏之上，不需要为底栏让位：还原系统原始底部安全区
+      endDrawer: RemoveFloatingBarInset(
+        child: SavedSearchConfigDrawer(
+          segment: SavedSearchConfigService.sharedSegment,
+          onApply: _applySavedConfig,
+          onAddCurrent: () {
+            _scaffoldKey.currentState?.closeEndDrawer();
+            SavedSearchConfigDrawer.promptSaveCurrent(
+              segment: SavedSearchConfigService.sharedSegment,
+              tags: _filterTags,
+              date: _filterDate,
+              rating: _filterRating,
+            );
+          },
+        ),
+      ),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final bool isWide = MediaQuery.sizeOf(context).width > 600;
-          // 左侧特别关注选择器：窄屏只放头像（compact），宽屏带名字
-          final bool compactSelector = constraints.maxWidth < 720;
-          final double selectorWidth = compactSelector ? 64 : 220;
-          final int groupButtons =
-              (isWide ? 1 : 0) +
-              (_isFilterSupportedTab ? 1 : 0) +
-              (_isBatchSupportedTab ? 1 : 0) +
-              1;
-          final double actionGroupWidth =
-              GlassTokens.groupIconButtonSize * groupButtons + 8;
-          final double centerWidth =
-              constraints.maxWidth -
-              16 * 2 -
-              8 * 2 -
-              selectorWidth -
-              actionGroupWidth;
-          final bool useSegmented = centerWidth >= 176;
 
           return GlassHeaderOverlay(
             headerExtent: headerExtent,
@@ -645,30 +769,9 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  _buildUserSelector(compact: compactSelector),
+                  _buildAvatarButton(context),
                   const SizedBox(width: 8),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      // 玻璃壳由 GlassCapsuleMorph 常驻提供，两侧只换
-                      // 无壳内容——胶囊平滑伸缩，阴影/圆角全程完整。
-                      child: GlassCapsuleMorph(
-                        child: useSegmented
-                            ? GlassSegmentedControl(
-                                key: const ValueKey('segmented'),
-                                flat: true,
-                                selectedIndex: _tabController.index,
-                                progress: _tabController.animation,
-                                onChanged: (i) => _tabController.animateTo(i),
-                                items: tabItems,
-                              )
-                            : KeyedSubtree(
-                                key: const ValueKey('dropdown'),
-                                child: _buildTabDropdown(context, tabItems),
-                              ),
-                      ),
-                    ),
-                  ),
+                  _buildCenterCapsule(context, tabItems),
                   const SizedBox(width: 8),
                   _buildActionGroup(context, isWide: isWide),
                 ],
@@ -697,8 +800,55 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     );
   }
 
+  /// header 中间的子栏目控件：空间够就平铺分段胶囊，不够退化成下拉钮。
+  ///
+  /// 「够不够」不再靠公式预测右侧胶囊有几个键——那份算术在按钮**正在**
+  /// 收放的那几百毫秒里恒为错，会让分段胶囊在右侧还没让出空间时就被塞进
+  /// 来、当场被裁掉半截（2026-08-20 订阅页横滑到「投稿」的反馈）。这里直接
+  /// 读 `Expanded` 实际分到的宽度：右侧胶囊一帧一帧收窄，中间的可用宽度就
+  /// 一帧一帧变宽，`useSegmented` 自然在**真的放得下那一刻**才翻——两段动
+  /// 效因此天然串成先后，而不是抢在一起。
+  Widget _buildCenterCapsule(
+    BuildContext context,
+    List<GlassSegmentItem> tabItems,
+  ) {
+    return Expanded(
+      child: LayoutBuilder(
+        builder: (context, centerConstraints) {
+          // 平铺至少要能完整露出两个子栏目，否则不如让位给下拉钮
+          final bool useSegmented =
+              centerConstraints.maxWidth >=
+              GlassSegmentedControl.minWidthFor(context, tabItems);
+          return Align(
+            alignment: Alignment.centerLeft,
+            // 玻璃壳由 GlassCapsuleMorph 常驻提供，两侧只换
+            // 无壳内容——胶囊平滑伸缩，阴影/圆角全程完整。
+            child: GlassCapsuleMorph(
+              child: useSegmented
+                  ? GlassSegmentedControl(
+                      key: const ValueKey('segmented'),
+                      flat: true,
+                      selectedIndex: _tabController.index,
+                      progress: _tabController.animation,
+                      onChanged: (i) => _tabController.animateTo(i),
+                      items: tabItems,
+                    )
+                  : KeyedSubtree(
+                      key: const ValueKey('dropdown'),
+                      child: _buildTabDropdown(context, tabItems),
+                    ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   /// 过窄时的子栏目入口：下拉菜单（代替分段胶囊）。
   /// 只渲染「文字 + 箭头」的无壳内容，玻璃壳由外层 GlassCapsuleMorph 提供。
+  ///
+  /// 文案接 `_tabController.animation`：横滑 TabBarView 时跟着手指一格一格
+  /// 翻页（见 [GlassFlipLabel]），不是等滑完才换字。
   Widget _buildTabDropdown(BuildContext context, List<GlassSegmentItem> items) {
     final colorScheme = Theme.of(context).colorScheme;
     final index = _tabController.index;
@@ -716,8 +866,9 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                items[index].label,
+              GlassFlipLabel(
+                progress: _tabController.animation!,
+                labels: [for (final item in items) item.label],
                 style: TextStyle(
                   color: colorScheme.onSurface,
                   fontWeight: FontWeight.w600,

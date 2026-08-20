@@ -4,8 +4,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/layouts.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
@@ -275,12 +274,7 @@ class WelcomeStepWidget extends StatelessWidget {
                     final String message = _resolveLanguageChangedMessage(
                       value,
                     );
-                    showToastWidget(
-                      MDToastWidget(
-                        message: message,
-                        type: MDToastType.success,
-                      ),
-                    );
+                    showGlassToast(message, type: GlassToastType.success);
 
                     AppService.tryPop();
                   }

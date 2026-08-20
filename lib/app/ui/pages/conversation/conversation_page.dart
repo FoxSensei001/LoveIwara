@@ -77,31 +77,30 @@ class _ConversationPageState extends State<ConversationPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               ClipRRect(
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: Image.asset(
-                                    CommonConstants.launcherIconPath,
-                                    width: 80,
-                                    height: 80,
-                                  )),
+                                borderRadius: BorderRadius.circular(16),
+                                child: Image.asset(
+                                  CommonConstants.launcherIconPath,
+                                  width: 80,
+                                  height: 80,
+                                ),
+                              ),
                               const SizedBox(height: 24),
                               Text(
                                 t.conversation.noConversation,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
+                                style: Theme.of(context).textTheme.titleMedium
                                     ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurfaceVariant,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                                       fontWeight: FontWeight.w500,
                                     ),
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                t.conversation.selectFromLeftListAndStartConversation,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
+                                t
+                                    .conversation
+                                    .selectFromLeftListAndStartConversation,
+                                style: Theme.of(context).textTheme.bodyMedium
                                     ?.copyWith(
                                       color: Theme.of(context)
                                           .colorScheme

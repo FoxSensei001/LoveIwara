@@ -505,7 +505,10 @@ class _NewsPageState extends State<NewsPage>
     final t = slang.Translations.of(context);
     final visible = _showBackToTop;
     return Positioned(
-      right: 16,
+      // 移动端底栏可见时与搜索圆钮中心共轴；宽屏（rail 布局）用普通右边距
+      right: isFloatingBarInsetActive(context)
+          ? GlassTokens.floatingActionCoAxisRight(GlassTokens.pillHeight)
+          : 16,
       bottom: MediaQuery.paddingOf(context).bottom + 16,
       child: IgnorePointer(
         ignoring: !visible,
@@ -547,17 +550,6 @@ class _NewsPageState extends State<NewsPage>
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
-          // 中间分类区可用宽度不足时退化为下拉
-          const double actionGroupWidth =
-              GlassTokens.groupIconButtonSize * 2 + 8;
-          final double centerWidth =
-              constraints.maxWidth -
-              16 * 2 -
-              8 * 2 -
-              GlassTokens.pillHeight -
-              actionGroupWidth;
-          final bool useSegmented = centerWidth >= 220;
-
           return GlassHeaderOverlay(
             headerExtent: headerExtent,
             headerTop: statusBarHeight,
@@ -624,41 +616,60 @@ class _NewsPageState extends State<NewsPage>
                 children: [
                   _buildAvatarButton(context),
                   const SizedBox(width: 8),
+                  // 「够不够摆下分段胶囊」读 Expanded 实际分到的宽度，不靠
+                  // 公式预测右侧胶囊有几个键——按钮收放途中公式差着一整个
+                  // 动画的时长，会把分段胶囊塞进还没让出的空间里当场裁掉。
                   Expanded(
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      // 玻璃壳由 GlassCapsuleMorph 常驻提供，两侧只换
-                      // 无壳内容——胶囊平滑伸缩，阴影/圆角全程完整。
-                      child: GlassCapsuleMorph(
-                        child: useSegmented
-                            ? GlassSegmentedControl(
-                                key: const ValueKey('segmented'),
-                                flat: true,
-                                selectedIndex: _selectedCategory.index,
-                                progress: _pageProgress,
-                                onChanged: (i) => _switchCategory(
-                                  IwaraNewsCategoryType.values[i],
-                                ),
-                                items: categoryItems,
-                              )
-                            : KeyedSubtree(
-                                key: const ValueKey('dropdown'),
-                                child:
-                                    _NewsSelectButton<IwaraNewsCategoryType>(
-                                      icon: _categoryIcon(_selectedCategory),
-                                      label: _categoryLabel(
-                                        t,
-                                        _selectedCategory,
-                                      ),
-                                      values: IwaraNewsCategoryType.values,
-                                      selectedValue: _selectedCategory,
-                                      itemIconBuilder: _categoryIcon,
-                                      itemLabelBuilder: (category) =>
-                                          _categoryLabel(t, category),
-                                      onSelected: _switchCategory,
+                    child: LayoutBuilder(
+                      builder: (context, centerConstraints) {
+                        // 平铺至少要能完整露出两个分类，否则让位给下拉钮
+                        final bool useSegmented =
+                            centerConstraints.maxWidth >=
+                            GlassSegmentedControl.minWidthFor(
+                              context,
+                              categoryItems,
+                            );
+                        return Align(
+                          alignment: Alignment.centerLeft,
+                          // 玻璃壳由 GlassCapsuleMorph 常驻提供，两侧只换
+                          // 无壳内容——胶囊平滑伸缩，阴影/圆角全程完整。
+                          child: GlassCapsuleMorph(
+                            child: useSegmented
+                                ? GlassSegmentedControl(
+                                    key: const ValueKey('segmented'),
+                                    flat: true,
+                                    selectedIndex: _selectedCategory.index,
+                                    progress: _pageProgress,
+                                    onChanged: (i) => _switchCategory(
+                                      IwaraNewsCategoryType.values[i],
                                     ),
-                              ),
-                      ),
+                                    items: categoryItems,
+                                  )
+                                : KeyedSubtree(
+                                    key: const ValueKey('dropdown'),
+                                    child:
+                                        _NewsSelectButton<
+                                          IwaraNewsCategoryType
+                                        >(
+                                          icon: _categoryIcon(
+                                            _selectedCategory,
+                                          ),
+                                          label: _categoryLabel(
+                                            t,
+                                            _selectedCategory,
+                                          ),
+                                          values: IwaraNewsCategoryType.values,
+                                          selectedValue: _selectedCategory,
+                                          itemIconBuilder: _categoryIcon,
+                                          itemLabelBuilder: (category) =>
+                                              _categoryLabel(t, category),
+                                          onSelected: _switchCategory,
+                                          progress: _pageProgress,
+                                        ),
+                                  ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -684,6 +695,7 @@ class _NewsSelectButton<T> extends StatelessWidget {
     required this.itemIconBuilder,
     required this.itemLabelBuilder,
     required this.onSelected,
+    this.progress,
   });
 
   final IconData icon;
@@ -694,6 +706,10 @@ class _NewsSelectButton<T> extends StatelessWidget {
   final IconData Function(T value) itemIconBuilder;
   final String Function(T value) itemLabelBuilder;
   final Future<void> Function(T value) onSelected;
+
+  /// PageView 的小数页码。传了就让钮里的「图标 + 文案」跟着横滑进度翻页
+  /// （见 [GlassFlipLabel]），而不是等滑完才换字。
+  final ValueListenable<double>? progress;
 
   @override
   Widget build(BuildContext context) {
@@ -741,18 +757,37 @@ class _NewsSelectButton<T> extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(icon, size: 16, color: colorScheme.onSurface),
-                      const SizedBox(width: 6),
-                      Text(
-                        label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.onSurface,
+                      if (progress != null)
+                        GlassFlipLabel(
+                          progress: progress!,
+                          labels: [
+                            for (final value in values) itemLabelBuilder(value),
+                          ],
+                          icons: [
+                            for (final value in values)
+                              Icon(itemIconBuilder(value)),
+                          ],
+                          iconGap: 6,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onSurface,
+                          ),
+                        )
+                      else ...[
+                        Icon(icon, size: 16, color: colorScheme.onSurface),
+                        const SizedBox(width: 6),
+                        Text(
+                          label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onSurface,
+                          ),
                         ),
-                      ),
+                      ],
                       Icon(
                         Icons.arrow_drop_down_rounded,
                         color: colorScheme.onSurface,

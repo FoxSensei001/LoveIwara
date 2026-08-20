@@ -77,10 +77,8 @@ abstract class BaseInputDialogState<T extends BaseInputDialog> extends State<T> 
     );
 
     if (result == true) {
+      // 只记录「已同意」，不代发内容——用户仍需自己按提交键
       await _configService.setSetting(ConfigKey.RULES_AGREEMENT_KEY, true);
-      if (mounted) {
-        _handleSubmit();
-      }
     }
   }
 
@@ -112,12 +110,11 @@ abstract class BaseInputDialogState<T extends BaseInputDialog> extends State<T> 
   Future<void> _handleSubmit() async {
     if (_isSubmitDisabled) return;
 
-    if (widget.showRulesAgreement) {
-      final bool hasAgreed = _configService[ConfigKey.RULES_AGREEMENT_KEY];
-      if (!hasAgreed) {
-        await _showRulesDialog();
-        return;
-      }
+    // 未同意规则时不代发内容：只把规则弹出来，同意后仍由用户自己按提交
+    if (widget.showRulesAgreement &&
+        !_configService[ConfigKey.RULES_AGREEMENT_KEY]) {
+      await _showRulesDialog();
+      return;
     }
 
     setState(() => _isLoading = true);

@@ -15,7 +15,7 @@ import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/utils/iwara_deep_link_utils.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
@@ -200,7 +200,7 @@ class AppService extends GetxService {
           : t.siteMode.mainSite;
       messageService.queuePendingSiteModeToast(
         t.siteMode.switched(site: siteLabel),
-        MDToastType.success,
+        GlassToastType.success,
       );
     }
 

@@ -49,10 +49,7 @@ class IwaraNewsService extends GetxService {
     return IwaraNewsLanguage.en;
   }
 
-  String categorySlug(
-    IwaraNewsCategoryType type,
-    IwaraNewsLanguage language,
-  ) =>
+  String categorySlug(IwaraNewsCategoryType type, IwaraNewsLanguage language) =>
       _categorySlugs[type]![language]!;
 
   Future<List<IwaraNewsListItem>> fetchCategoryPosts(
@@ -166,7 +163,8 @@ class IwaraNewsService extends GetxService {
     required IwaraNewsLanguage fallbackLanguage,
   }) {
     final link = json['link']?.toString() ?? '';
-    final language = IwaraNewsParser.inferLanguageFromUrl(link) ?? fallbackLanguage;
+    final language =
+        IwaraNewsParser.inferLanguageFromUrl(link) ?? fallbackLanguage;
     return IwaraNewsListItem(
       id: _asInt(json['id']),
       title: IwaraNewsParser.decodeHtmlText(_rendered(json['title'])),
@@ -185,9 +183,7 @@ class IwaraNewsService extends GetxService {
     final language =
         IwaraNewsParser.inferLanguageFromUrl(link) ?? IwaraNewsLanguage.en;
 
-    final translationLinks = <IwaraNewsLanguage, String>{
-      language: link,
-    };
+    final translationLinks = <IwaraNewsLanguage, String>{language: link};
 
     try {
       if (link.isNotEmpty) {
@@ -203,7 +199,9 @@ class IwaraNewsService extends GetxService {
       id: _asInt(json['id']),
       title: IwaraNewsParser.decodeHtmlText(_rendered(json['title'])),
       excerpt: IwaraNewsParser.htmlToPlainText(_rendered(json['excerpt'])),
-      contentMarkdown: IwaraNewsParser.htmlToMarkdown(_rendered(json['content'])),
+      contentMarkdown: IwaraNewsParser.htmlToMarkdown(
+        _rendered(json['content']),
+      ),
       link: link,
       publishedAt: _parseDateTime(json['date']),
       updatedAt: _parseDateTime(json['modified']),
@@ -233,7 +231,10 @@ class IwaraNewsService extends GetxService {
 
   Future<String> _getString(Uri uri) async {
     final request = await _client.getUrl(uri).timeout(_requestTimeout);
-    request.headers.set(HttpHeaders.acceptHeader, 'application/json, text/html');
+    request.headers.set(
+      HttpHeaders.acceptHeader,
+      'application/json, text/html',
+    );
     try {
       final response = await request.close().timeout(_requestTimeout);
       if (response.statusCode < 200 || response.statusCode >= 300) {

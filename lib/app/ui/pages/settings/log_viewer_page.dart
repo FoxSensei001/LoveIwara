@@ -48,7 +48,8 @@ class _LogViewerPageState extends State<LogViewerPage> {
 
   void _onScroll() {
     if (!_scrollController.hasClients) return;
-    final atBottom = _scrollController.offset >=
+    final atBottom =
+        _scrollController.offset >=
         _scrollController.position.maxScrollExtent - 50;
     if (_autoScroll != atBottom) {
       setState(() => _autoScroll = atBottom);
@@ -63,7 +64,8 @@ class _LogViewerPageState extends State<LogViewerPage> {
     if (!mounted) return;
 
     // Check both length and last entry to detect changes when buffer is full
-    final changed = logs.length != _allLogs.length ||
+    final changed =
+        logs.length != _allLogs.length ||
         (logs.isNotEmpty &&
             _allLogs.isNotEmpty &&
             logs.last.timestamp != _allLogs.last.timestamp);
@@ -139,8 +141,9 @@ class _LogViewerPageState extends State<LogViewerPage> {
         surfaceTintColor: Colors.transparent,
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
-          statusBarIconBrightness:
-              isDarkMode ? Brightness.light : Brightness.dark,
+          statusBarIconBrightness: isDarkMode
+              ? Brightness.light
+              : Brightness.dark,
         ),
         flexibleSpace: ClipRRect(
           child: BackdropFilter(
@@ -163,137 +166,140 @@ class _LogViewerPageState extends State<LogViewerPage> {
         padding: EdgeInsets.only(bottom: bottomInset),
         child: Column(
           children: [
-          // Filter area
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            child: Column(
-              children: [
-                // Search bar
-                SizedBox(
-                  height: 36,
-                  child: TextField(
-                    controller: _searchController,
-                    style: theme.textTheme.bodySmall,
-                    decoration: InputDecoration(
-                      hintText: t.logViewer.searchHint,
-                      hintStyle: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                      prefixIcon: const Icon(Icons.search, size: 18),
-                      suffixIcon: _searchText.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear, size: 16),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() {
-                                  _searchText = '';
-                                  _applyFilters();
-                                });
-                              },
-                            )
-                          : null,
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide(
-                          color: theme.dividerColor.withValues(alpha: 0.2),
+            // Filter area
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              child: Column(
+                children: [
+                  // Search bar
+                  SizedBox(
+                    height: 36,
+                    child: TextField(
+                      controller: _searchController,
+                      style: theme.textTheme.bodySmall,
+                      decoration: InputDecoration(
+                        hintText: t.logViewer.searchHint,
+                        hintStyle: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                        prefixIcon: const Icon(Icons.search, size: 18),
+                        suffixIcon: _searchText.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear, size: 16),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() {
+                                    _searchText = '';
+                                    _applyFilters();
+                                  });
+                                },
+                              )
+                            : null,
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(
+                            color: theme.dividerColor.withValues(alpha: 0.2),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(
+                            color: theme.dividerColor.withValues(alpha: 0.2),
+                          ),
                         ),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide(
-                          color: theme.dividerColor.withValues(alpha: 0.2),
-                        ),
-                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _searchText = value;
+                          _applyFilters();
+                        });
+                      },
                     ),
-                    onChanged: (value) {
-                      setState(() {
-                        _searchText = value;
-                        _applyFilters();
-                      });
-                    },
                   ),
-                ),
-                const SizedBox(height: 6),
-                // Filter chips row
-                Row(
-                  children: [
-                    ...LogLevel.values
-                        .where((l) => l != LogLevel.fatal)
-                        .map((level) {
-                      final isActive = _activeFilters.contains(level);
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 6),
-                        child: FilterChip(
-                          label: Text(
-                            level.label,
-                            style: TextStyle(
-                              fontSize: 11,
+                  const SizedBox(height: 6),
+                  // Filter chips row
+                  Row(
+                    children: [
+                      ...LogLevel.values.where((l) => l != LogLevel.fatal).map((
+                        level,
+                      ) {
+                        final isActive = _activeFilters.contains(level);
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 6),
+                          child: FilterChip(
+                            label: Text(
+                              level.label,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: isActive
+                                    ? _getLevelColor(level, theme)
+                                    : theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            selected: isActive,
+                            onSelected: (_) => _toggleFilter(level),
+                            visualDensity: VisualDensity.compact,
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
+                            padding: EdgeInsets.zero,
+                            labelPadding: const EdgeInsets.symmetric(
+                              horizontal: 4,
+                            ),
+                            showCheckmark: false,
+                            side: BorderSide(
                               color: isActive
                                   ? _getLevelColor(level, theme)
-                                  : theme.colorScheme.onSurfaceVariant,
+                                  : theme.dividerColor.withValues(alpha: 0.3),
                             ),
+                            backgroundColor: Colors.transparent,
+                            selectedColor: _getLevelColor(
+                              level,
+                              theme,
+                            ).withValues(alpha: 0.1),
                           ),
-                          selected: isActive,
-                          onSelected: (_) => _toggleFilter(level),
-                          visualDensity: VisualDensity.compact,
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                          padding: EdgeInsets.zero,
-                          labelPadding:
-                              const EdgeInsets.symmetric(horizontal: 4),
-                          showCheckmark: false,
-                          side: BorderSide(
-                            color: isActive
-                                ? _getLevelColor(level, theme)
-                                : theme.dividerColor.withValues(alpha: 0.3),
-                          ),
-                          backgroundColor: Colors.transparent,
-                          selectedColor: _getLevelColor(level, theme)
-                              .withValues(alpha: 0.1),
+                        );
+                      }),
+                      const Spacer(),
+                      Text(
+                        '${_filteredLogs.length}',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
-                      );
-                    }),
-                    const Spacer(),
-                    Text(
-                      '${_filteredLogs.length}',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 1),
-          // Log list
-          Expanded(
-            child: _filteredLogs.isEmpty
-                ? Center(
-                    child: Text(
-                      t.logViewer.emptyState,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  )
-                : ListView.builder(
-                    controller: _scrollController,
-                    itemCount: _filteredLogs.length,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    itemBuilder: (context, index) {
-                      return _LogEntryWidget(
-                        event: _filteredLogs[index],
-                        theme: theme,
-                      );
-                    },
+                    ],
                   ),
-          ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            // Log list
+            Expanded(
+              child: _filteredLogs.isEmpty
+                  ? Center(
+                      child: Text(
+                        t.logViewer.emptyState,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      controller: _scrollController,
+                      itemCount: _filteredLogs.length,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      itemBuilder: (context, index) {
+                        return _LogEntryWidget(
+                          event: _filteredLogs[index],
+                          theme: theme,
+                        );
+                      },
+                    ),
+            ),
           ],
         ),
       ),
@@ -342,7 +348,8 @@ class _LogEntryWidget extends StatelessWidget {
       onLongPress: () {
         final text = StringBuffer();
         text.writeln(
-            '[${event.formattedTime}] [${event.level.label}] [${event.tag}]');
+          '[${event.formattedTime}] [${event.level.label}] [${event.tag}]',
+        );
         text.writeln(event.message);
         if (event.error != null) text.writeln('Error: ${event.error}');
         if (event.stackTrace != null) {
@@ -382,8 +389,9 @@ class _LogEntryWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest
-                    .withValues(alpha: 0.5),
+                color: theme.colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.5,
+                ),
                 borderRadius: BorderRadius.circular(3),
               ),
               child: Text(

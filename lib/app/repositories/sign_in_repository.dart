@@ -3,7 +3,8 @@ import 'base_repository.dart';
 
 class SignInRepository extends BaseRepository {
   SignInRepository._privateConstructor();
-  static final SignInRepository instance = SignInRepository._privateConstructor();
+  static final SignInRepository instance =
+      SignInRepository._privateConstructor();
 
   // 检查用户今天是否已签到
   Future<Map<String, dynamic>?> checkIfSignedInToday(String userId) async {
@@ -29,7 +30,11 @@ class SignInRepository extends BaseRepository {
   }
 
   // 执行签到操作
-  Future<void> signIn(String userId, {required bool isSuccess, String? reason}) async {
+  Future<void> signIn(
+    String userId, {
+    required bool isSuccess,
+    String? reason,
+  }) async {
     try {
       final now = DateTime.now();
       final dateStr = now.toIso8601String().split('T').first; // 获取日期部分
@@ -68,11 +73,15 @@ class SignInRepository extends BaseRepository {
         'SELECT date, status, reason FROM sign_in_records WHERE user_id = ? ORDER BY date DESC',
         [userId],
       );
-      return result.map((row) => {
-        'date': DateTime.parse(row['date'] as String),
-        'status': row['status'] as int,
-        'reason': row['reason'] as String?,
-      }).toList();
+      return result
+          .map(
+            (row) => {
+              'date': DateTime.parse(row['date'] as String),
+              'status': row['status'] as int,
+              'reason': row['reason'] as String?,
+            },
+          )
+          .toList();
     } catch (e) {
       LogUtils.e('获取签到记录时出错', error: e);
       rethrow;

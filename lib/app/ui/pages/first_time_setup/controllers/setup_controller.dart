@@ -10,31 +10,34 @@ import '../factories/setup_step_factory.dart';
 /// 首次设置控制器
 class SetupController extends GetxController {
   final ConfigService configService = Get.find<ConfigService>();
-  
+
   // 步骤管理
   final SetupStepManager stepManager = SetupStepManager();
   final RxInt currentStepIndex = 0.obs;
-  
+
   @override
   void onInit() {
     super.onInit();
     _initializeSteps();
     LogUtils.i('设置控制器已初始化', '设置控制器');
   }
-  
+
   /// 初始化步骤
   void _initializeSteps() {
     // 根据平台构建步骤
     final steps = SetupStepFactory.buildStepsForPlatform();
-    
+
     // 添加步骤到管理器
     for (final step in steps) {
       stepManager.addStep(step);
     }
     final stepNames = steps.map((step) => step.title).join(', ');
-    LogUtils.i('初始化步骤完成，共 ${stepManager.totalSteps} 个步骤, 分别有 $stepNames', '设置控制器');
+    LogUtils.i(
+      '初始化步骤完成，共 ${stepManager.totalSteps} 个步骤, 分别有 $stepNames',
+      '设置控制器',
+    );
   }
-  
+
   /// 检查是否可以继续
   bool canProceed() {
     final currentStep = stepManager.currentStep;
@@ -59,26 +62,26 @@ class SetupController extends GetxController {
         return true;
     }
   }
-  
+
   /// 下一步
   void nextStep() {
     if (stepManager.next()) {
       currentStepIndex.value = stepManager.currentIndex;
     }
   }
-  
+
   /// 上一步
   void previousStep() {
     if (stepManager.previous()) {
       currentStepIndex.value = stepManager.currentIndex;
     }
   }
-  
+
   /// 完成设置
   Future<void> completeSetup() async {
     // 标记首次设置完成
     await configService.setSetting(ConfigKey.FIRST_TIME_SETUP_COMPLETED, true);
-    
+
     LogUtils.i('设置保存完成，标记首次设置已完成', '设置控制器');
 
     // 震动反馈
@@ -88,12 +91,12 @@ class SetupController extends GetxController {
     LogUtils.i('准备跳转到主页', '设置控制器');
     appRouter.go('/');
   }
-  
+
   /// 获取当前步骤信息
   Map<String, dynamic> getCurrentStepInfo() {
     final step = stepManager.currentStep;
     if (step == null) return {};
-    
+
     return {
       'title': step.title,
       'subtitle': step.subtitle,

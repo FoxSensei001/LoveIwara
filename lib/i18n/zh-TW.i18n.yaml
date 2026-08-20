@@ -252,14 +252,17 @@ common:
   deleteRecordsInDateRangeConfirm: '確定要刪除該時間範圍內的 ${num} 條歷史紀錄嗎？此操作無法復原。'
   noHistoryRecordsInRange: 該時間範圍內沒有歷史紀錄
   followSuccessClickAgainToSpecialFollow: 已成功關注，再次點擊以特別關注
-  specialFollowTip: 已加入特別關注，可在訂閱頁左上角的選擇框中切換到TA，快速查看更新
+  specialFollowTip: 已加入特別關注，可在訂閱頁右上角的選擇框中切換到TA，快速查看更新
   exitConfirmTip: 確定要退出嗎？
   error: 錯誤
   taskRunning: "任務正在進行中，請稍後再試。"
   operationCancelled: "操作已取消。"
   unsavedChanges: "您有未儲存的更改"
-  specialFollowsManagementTip: 拖動可重新排序 • 向左滑動可移除
+  specialFollowsManagementTip: 拖動手柄可重新排序 • 點右側按鈕可移除
   specialFollowsManagement: 特別關注管理
+  removeSpecialFollow: 移除特別關注
+  removeSpecialFollowConfirm: '確定要將 ${name} 從特別關注中移除嗎？'
+  noSpecialFollows: 還沒有特別關注的作者
   createTimeDesc: 建立時間倒序
   createTimeAsc: 建立時間正序
   # 分頁相關
@@ -422,6 +425,10 @@ authorProfile:
 favorites:
   clickToRestoreFavorite: 點擊復原最愛
   myFavorites: 我的最愛
+  batchCancelFavorite: 批次取消最愛
+  batchCancelFavoriteConfirm(count): '確定要取消選取的 ${count} 項最愛嗎？取消後可以在列表中點擊卡片復原。'
+  batchCancelFavoriteSuccess(count): '已取消 ${count} 項最愛'
+  batchCancelFavoriteResult(success, failed): '已取消 ${success} 項，${failed} 項失敗'
 
 galleryDetail:
   galleryDetail: 圖庫詳情
@@ -1507,6 +1514,7 @@ conversation:
   deleteThisMessage: 刪除此消息
   deleteThisMessageSubtitle: 此操作不可復原
   writeMessageHere: 在此處輸入消息
+  lastMessageFromMe: "我："
   sendMessage: 發送消息
 
 splash:
@@ -1770,6 +1778,11 @@ favorite:
   editFolderSuccess: 資料夾更新成功
   editFolderFailed: 資料夾更新失敗
   searchTags: 搜尋標籤
+  noTagsInFolder: 本收藏夾內的作品還沒有標籤
+  tagFilterMatchAll: 僅顯示同時包含全部所選標籤的作品
+  clearSelectedTags: 清除已選標籤
+  selectedTagCount: "已選 ${count} 個"
+  noMatchingTags: 沒有符合的標籤
 
 translation:
   currentService: 目前服務

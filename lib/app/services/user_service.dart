@@ -939,8 +939,8 @@ class UserService extends GetxService {
         // 用户名做持久化去重，覆盖不会再走手动登录的老用户。
         final blacklist = data['tagBlacklist'] is List
             ? (data['tagBlacklist'] as List)
-                .map((e) => Tag.fromJson(e as Map<String, dynamic>))
-                .toList()
+                  .map((e) => Tag.fromJson(e as Map<String, dynamic>))
+                  .toList()
             : <Tag>[];
         unawaited(
           DefaultTagBlacklistReminder.checkAndRemind(blacklist: blacklist),

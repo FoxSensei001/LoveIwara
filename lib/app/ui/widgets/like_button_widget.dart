@@ -3,11 +3,10 @@ import 'package:get/get.dart';
 
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/login_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:i_iwara/utils/common_utils.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:shimmer/shimmer.dart';
 
 class LikeButtonWidget extends StatefulWidget {
@@ -61,7 +60,7 @@ class _LikeButtonWidgetState extends State<LikeButtonWidget> {
     // 如果 liked 为 null，说明正在加载状态，不允许操作
     if (_isLiked == null) return;
     if (!_userService.isAuthenticated) {
-      showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
+      showGlassToast(t.errors.pleaseLoginFirst, type: GlassToastType.error);
       LoginService.showLogin();
       return;
     }
@@ -87,12 +86,10 @@ class _LikeButtonWidgetState extends State<LikeButtonWidget> {
     } catch (e) {
       // 使用 CommonUtils.parseExceptionMessage 来获取详细的错误信息
       final errorMessage = CommonUtils.parseExceptionMessage(e);
-      showToastWidget(
-        MDToastWidget(
-          message: errorMessage,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.top,
+      showGlassToast(
+        errorMessage,
+        type: GlassToastType.error,
+        position: GlassToastPosition.top,
       );
     } finally {
       setState(() {
@@ -112,10 +109,7 @@ class _LikeButtonWidgetState extends State<LikeButtonWidget> {
           ? Shimmer.fromColors(
               baseColor: Colors.grey.shade300,
               highlightColor: Colors.grey.shade100,
-              child: const Icon(
-                Icons.favorite_border,
-                color: Colors.grey,
-              ),
+              child: const Icon(Icons.favorite_border, color: Colors.grey),
             )
           : Icon(
               _isLiked! ? Icons.favorite : Icons.favorite_border,
@@ -124,9 +118,11 @@ class _LikeButtonWidgetState extends State<LikeButtonWidget> {
       label: Text(
         _likeCount.toString(),
         style: TextStyle(
-          color: _isLiked == null ? Colors.grey : (_isLiked! ? Colors.pink : null),
+          color: _isLiked == null
+              ? Colors.grey
+              : (_isLiked! ? Colors.pink : null),
         ),
       ),
     );
   }
-} 
+}

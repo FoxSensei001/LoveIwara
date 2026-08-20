@@ -205,8 +205,11 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get unfollow => 'フォロー解除';
 	@override String get specialFollow => '特別フォロー';
 	@override String get specialFollowed => '特別フォロー済み';
-	@override String get specialFollowsManagementTip => 'ドラッグして並べ替え • 左スワイプで削除';
+	@override String get specialFollowsManagementTip => 'ハンドルをドラッグで並べ替え • 右のボタンで削除';
 	@override String get specialFollowsManagement => '特別フォロー管理';
+	@override String get removeSpecialFollow => '特別フォローを解除';
+	@override String removeSpecialFollowConfirm({required Object name}) => '${name} を特別フォローから外しますか？';
+	@override String get noSpecialFollows => '特別フォローはまだありません';
 	@override String get createTimeDesc => '作成時間降順';
 	@override String get createTimeAsc => '作成時間昇順';
 	@override String get gallery => 'ギャラリー';
@@ -363,7 +366,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String deleteRecordsInDateRangeConfirm({required Object num}) => 'この期間の ${num} 件の履歴を削除してもよろしいですか？この操作は取り消せません。';
 	@override String get noHistoryRecordsInRange => 'この期間の履歴はありません';
 	@override String get followSuccessClickAgainToSpecialFollow => 'フォローに成功しました。再度クリックして特別フォロー';
-	@override String get specialFollowTip => '特別フォローに追加しました。購読ページ左上のセレクターで切り替えると、すぐに確認できます';
+	@override String get specialFollowTip => '特別フォローに追加しました。購読ページ右上のセレクターで切り替えると、すぐに確認できます';
 	@override String get exitConfirmTip => '本当に退出しますか？';
 	@override String get error => 'エラー';
 	@override String get taskRunning => '既にタスクが実行中です。しばらくお待ちください。';
@@ -534,6 +537,10 @@ class _TranslationsFavoritesJa implements TranslationsFavoritesEn {
 	// Translations
 	@override String get clickToRestoreFavorite => 'お気に入りを復元するにはクリックしてください';
 	@override String get myFavorites => '私のお気に入り';
+	@override String get batchCancelFavorite => 'お気に入りを一括解除';
+	@override String batchCancelFavoriteConfirm({required Object count}) => '選択した ${count} 件のお気に入りを解除しますか？解除後もカードをタップすれば復元できます。';
+	@override String batchCancelFavoriteSuccess({required Object count}) => '${count} 件のお気に入りを解除しました';
+	@override String batchCancelFavoriteResult({required Object success, required Object failed}) => '${success} 件を解除しました。${failed} 件は失敗しました';
 }
 
 // Path: galleryDetail
@@ -1221,6 +1228,7 @@ class _TranslationsConversationJa implements TranslationsConversationEn {
 	@override String get deleteThisMessage => 'このメッセージを削除';
 	@override String get deleteThisMessageSubtitle => 'この操作は取り消せません';
 	@override String get writeMessageHere => 'ここにメッセージを入力...';
+	@override String get lastMessageFromMe => '自分: ';
 	@override String get sendMessage => 'メッセージを送信';
 }
 
@@ -1385,6 +1393,11 @@ class _TranslationsFavoriteJa implements TranslationsFavoriteEn {
 	@override String get editFolderSuccess => 'フォルダー名を更新しました';
 	@override String get editFolderFailed => 'フォルダー名の更新に失敗しました';
 	@override String get searchTags => 'タグを検索';
+	@override String get noTagsInFolder => 'このフォルダーの作品にはまだタグがありません';
+	@override String get tagFilterMatchAll => '選択したタグをすべて含む作品のみ表示します';
+	@override String get clearSelectedTags => '選択したタグをクリア';
+	@override String selectedTagCount({required Object count}) => '${count} 件選択中';
+	@override String get noMatchingTags => '一致するタグがありません';
 }
 
 // Path: translation
@@ -3476,8 +3489,11 @@ extension on TranslationsJa {
 			'common.unfollow' => 'フォロー解除',
 			'common.specialFollow' => '特別フォロー',
 			'common.specialFollowed' => '特別フォロー済み',
-			'common.specialFollowsManagementTip' => 'ドラッグして並べ替え • 左スワイプで削除',
+			'common.specialFollowsManagementTip' => 'ハンドルをドラッグで並べ替え • 右のボタンで削除',
 			'common.specialFollowsManagement' => '特別フォロー管理',
+			'common.removeSpecialFollow' => '特別フォローを解除',
+			'common.removeSpecialFollowConfirm' => ({required Object name}) => '${name} を特別フォローから外しますか？',
+			'common.noSpecialFollows' => '特別フォローはまだありません',
 			'common.createTimeDesc' => '作成時間降順',
 			'common.createTimeAsc' => '作成時間昇順',
 			'common.gallery' => 'ギャラリー',
@@ -3634,7 +3650,7 @@ extension on TranslationsJa {
 			'common.deleteRecordsInDateRangeConfirm' => ({required Object num}) => 'この期間の ${num} 件の履歴を削除してもよろしいですか？この操作は取り消せません。',
 			'common.noHistoryRecordsInRange' => 'この期間の履歴はありません',
 			'common.followSuccessClickAgainToSpecialFollow' => 'フォローに成功しました。再度クリックして特別フォロー',
-			'common.specialFollowTip' => '特別フォローに追加しました。購読ページ左上のセレクターで切り替えると、すぐに確認できます',
+			'common.specialFollowTip' => '特別フォローに追加しました。購読ページ右上のセレクターで切り替えると、すぐに確認できます',
 			'common.exitConfirmTip' => '本当に退出しますか？',
 			'common.error' => 'エラー',
 			'common.taskRunning' => '既にタスクが実行中です。しばらくお待ちください。',
@@ -3788,6 +3804,10 @@ extension on TranslationsJa {
 			'authorProfile.userProfile' => 'ユーザープロフィール',
 			'favorites.clickToRestoreFavorite' => 'お気に入りを復元するにはクリックしてください',
 			'favorites.myFavorites' => '私のお気に入り',
+			'favorites.batchCancelFavorite' => 'お気に入りを一括解除',
+			'favorites.batchCancelFavoriteConfirm' => ({required Object count}) => '選択した ${count} 件のお気に入りを解除しますか？解除後もカードをタップすれば復元できます。',
+			'favorites.batchCancelFavoriteSuccess' => ({required Object count}) => '${count} 件のお気に入りを解除しました',
+			'favorites.batchCancelFavoriteResult' => ({required Object success, required Object failed}) => '${success} 件を解除しました。${failed} 件は失敗しました',
 			'galleryDetail.galleryDetail' => 'ギャラリー詳細',
 			'galleryDetail.viewGalleryDetail' => 'ギャラリー詳細を表示',
 			'galleryDetail.copyLink' => 'リンクをコピー',
@@ -3889,6 +3909,8 @@ extension on TranslationsJa {
 			'settings.playControlArea' => '再生コントロールエリア',
 			'settings.leftAndRightControlAreaWidth' => '左右コントロールエリアの幅',
 			'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer' => 'この設定は、プレイヤーの左右にあるコントロールエリアの幅を決定します。',
+			_ => null,
+		} ?? switch (path) {
 			'settings.proxyAddressCannotBeEmpty' => 'プロキシアドレスは空にできません。',
 			'settings.invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort' => '無効なプロキシアドレス形式です。IP:ポート または ドメイン名:ポート の形式を使用してください。',
 			'settings.proxyNormalWork' => 'プロキシが正常に動作しています。',
@@ -3896,8 +3918,6 @@ extension on TranslationsJa {
 			'settings.testProxyFailedWithException' => ({required Object exception}) => 'プロキシリクエスト中にエラーが発生しました: ${exception}',
 			'settings.proxyConfig' => 'プロキシ設定',
 			'settings.thisIsHttpProxyAddress' => 'ここにHTTPプロキシアドレスを入力してください',
-			_ => null,
-		} ?? switch (path) {
 			'settings.checkProxy' => 'プロキシを確認',
 			'settings.proxyAddress' => 'プロキシアドレス',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => 'プロキシサーバーのURLを入力してください（例: 127.0.0.1:8080）',
@@ -4403,6 +4423,8 @@ extension on TranslationsJa {
 			'oreno3d.messages.getVideoDetailFailed' => '動画詳細の取得に失敗しました',
 			'signIn.pleaseLoginFirst' => 'サインインする前にログインしてください',
 			'signIn.alreadySignedInToday' => '今日は既にサインインしています！',
+			_ => null,
+		} ?? switch (path) {
 			'signIn.youDidNotStickToTheSignIn' => 'サインインを続けることができませんでした。',
 			'signIn.signInSuccess' => 'サインインに成功しました！',
 			'signIn.signInFailed' => 'サインインに失敗しました。後でもう一度お試しください',
@@ -4410,8 +4432,6 @@ extension on TranslationsJa {
 			'signIn.failureReason' => 'サインインに失敗した理由',
 			'signIn.selectDateRange' => '日付範囲を選択',
 			'signIn.startDate' => '開始日',
-			_ => null,
-		} ?? switch (path) {
 			'signIn.endDate' => '終了日',
 			'signIn.invalidDate' => '日付形式が正しくありません',
 			'signIn.invalidDateRange' => '日付範囲が無効です',
@@ -4759,6 +4779,7 @@ extension on TranslationsJa {
 			'conversation.deleteThisMessage' => 'このメッセージを削除',
 			'conversation.deleteThisMessageSubtitle' => 'この操作は取り消せません',
 			'conversation.writeMessageHere' => 'ここにメッセージを入力...',
+			'conversation.lastMessageFromMe' => '自分: ',
 			'conversation.sendMessage' => 'メッセージを送信',
 			'splash.errors.initializationFailed' => '初期化に失敗しました。アプリを再起動してください',
 			'splash.preparing' => '準備中...',
@@ -4916,6 +4937,8 @@ extension on TranslationsJa {
 			'download.category.createFailed' => 'カテゴリーの作成に失敗しました',
 			'download.category.nameEmpty' => 'カテゴリー名を入力してください',
 			'download.category.emptyHint' => 'カテゴリーがまだありません。作成してダウンロードを整理しましょう。',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.moveTo' => 'カテゴリーへ移動',
 			'download.category.moveToWithCount' => ({required Object count}) => '${count}件をカテゴリーへ移動…',
 			'download.category.moveSuccess' => ({required Object title}) => '「${title}」へ移動しました',
@@ -4924,8 +4947,6 @@ extension on TranslationsJa {
 			'download.category.renameTitle' => 'カテゴリー名の変更',
 			'download.category.renameHint' => 'カテゴリー名を入力',
 			'download.category.renameSuccess' => '名前を変更しました',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.renameFailed' => '名前の変更に失敗しました',
 			'download.category.deleteTitle' => 'カテゴリーの削除',
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'カテゴリー「${title}」を削除しますか？このカテゴリーの${count}件のダウンロードは「未分類」へ移動され、ファイルは削除されません。',
@@ -5010,6 +5031,11 @@ extension on TranslationsJa {
 			'favorite.editFolderSuccess' => 'フォルダー名を更新しました',
 			'favorite.editFolderFailed' => 'フォルダー名の更新に失敗しました',
 			'favorite.searchTags' => 'タグを検索',
+			'favorite.noTagsInFolder' => 'このフォルダーの作品にはまだタグがありません',
+			'favorite.tagFilterMatchAll' => '選択したタグをすべて含む作品のみ表示します',
+			'favorite.clearSelectedTags' => '選択したタグをクリア',
+			'favorite.selectedTagCount' => ({required Object count}) => '${count} 件選択中',
+			'favorite.noMatchingTags' => '一致するタグがありません',
 			'translation.currentService' => '現在のサービス',
 			'translation.testConnection' => 'テスト接続',
 			'translation.testConnectionSuccess' => 'テスト接続成功',
@@ -5425,6 +5451,8 @@ extension on TranslationsJa {
 			'emoji.import' => 'インポート',
 			'emoji.importSuccess' => ({required Object count}) => '${count}枚の画像をインポートしました',
 			'emoji.jsonFormatError' => 'JSON形式エラー、入力を確認してください',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.createGroup' => '絵文字グループを作成',
 			'emoji.groupName' => 'グループ名',
 			'emoji.enterGroupName' => 'グループ名を入力してください',
@@ -5438,8 +5466,6 @@ extension on TranslationsJa {
 			'emoji.noEmojisInGroup' => 'このグループには絵文字がありません',
 			'emoji.goToSettingsToAddEmojis' => '設定で絵文字を追加してください',
 			'emoji.emojiManagement' => '絵文字管理',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.manageEmojiGroupsAndImages' => '絵文字グループと画像を管理',
 			'emoji.uploadLocalImages' => 'ローカル画像をアップロード',
 			'emoji.uploadingImages' => '画像をアップロード中',

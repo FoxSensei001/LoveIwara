@@ -376,9 +376,7 @@ final GoRouter appRouter = GoRouter(
                 newsExtra == null) {
               return buildAdaptiveSwipeablePage(
                 state,
-                const Scaffold(
-                  body: Center(child: Text('Invalid news route')),
-                ),
+                const Scaffold(body: Center(child: Text('Invalid news route'))),
               );
             }
             return buildAdaptiveSwipeablePage(
@@ -656,7 +654,10 @@ final GoRouter appRouter = GoRouter(
           name: 'tag_videos',
           pageBuilder: (context, state) {
             final tag = _resolveTag(state);
-            return buildAdaptiveSwipeablePage(state, TagVideoListPage(tag: tag));
+            return buildAdaptiveSwipeablePage(
+              state,
+              TagVideoListPage(tag: tag),
+            );
           },
         ),
 

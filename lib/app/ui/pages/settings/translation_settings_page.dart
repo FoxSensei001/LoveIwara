@@ -21,34 +21,25 @@ class TranslationSettingsPage extends StatelessWidget {
     final configService = Get.find<ConfigService>();
     final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
 
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          BlurredSliverAppBar(
-            title: slang.t.translation.translation,
-            isWideScreen: isWideScreen,
-          ),
-          SliverPadding(
-            padding: EdgeInsets.fromLTRB(
-              16,
-              16,
-              16,
-              16 + bottomInset,
-            ),
-            sliver: SliverToBoxAdapter(
-              child: Obx(
-                () => Column(
-                  children: [
-                    _buildCurrentServiceCard(context, configService),
-                    const SizedBox(height: 16),
-                    _buildServicesCard(context, configService),
-                  ],
-                ),
+    return GlassSettingsScaffold(
+      title: slang.t.translation.translation,
+      isWideScreen: isWideScreen,
+      slivers: [
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
+          sliver: SliverToBoxAdapter(
+            child: Obx(
+              () => Column(
+                children: [
+                  _buildCurrentServiceCard(context, configService),
+                  const SizedBox(height: 16),
+                  _buildServicesCard(context, configService),
+                ],
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

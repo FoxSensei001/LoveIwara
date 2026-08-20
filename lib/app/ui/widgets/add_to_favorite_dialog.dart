@@ -7,8 +7,7 @@ import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:waterfall_flow/waterfall_flow.dart';
 
@@ -23,7 +22,7 @@ const double _kPickerHeaderExtent = _kPickerTitleRowHeight +
     _kPickerCreateRowHeight +
     _kPickerHeaderTailSpacing;
 
-/// header 蒙层「淡出段」的高度:比 `GlassTokens.headerFadeExtent`(56)短很多,
+/// header 蒙层「淡出段」的高度:比 `GlassTokens.headerFadeExtent`(24)再短一点,
 /// 因为弹窗四周有 clip,过长的半透明淡出会把第一排卡片糊上一层白;20 只作为
 /// 「卡片钻进 header 背后」的过渡带,列表首屏起始位置放在这段之后,视觉上就
 /// 不会看到蒙层压在卡片上。
@@ -117,33 +116,24 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
         // 如果已在文件夹中,移除后更新状态
         _itemFolders.removeWhere((f) => f.id == folder.id);
         if (mounted) {
-          showToastWidget(
-            MDToastWidget(
-              message: slang.t.favorite.removeSuccess,
-              type: MDToastType.success,
-            ),
+          showGlassToast(
+            slang.t.favorite.removeSuccess,
+            type: GlassToastType.success,
           );
         }
       } else {
         // 如果不在文件夹中,添加后更新状态
         _itemFolders.add(folder);
         if (mounted) {
-          showToastWidget(
-            MDToastWidget(
-              message: slang.t.favorite.addSuccess,
-              type: MDToastType.success,
-            ),
+          showGlassToast(
+            slang.t.favorite.addSuccess,
+            type: GlassToastType.success,
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        showToastWidget(
-          MDToastWidget(
-            message: slang.t.favorite.addFailed,
-            type: MDToastType.error,
-          ),
-        );
+        showGlassToast(slang.t.favorite.addFailed, type: GlassToastType.error);
       }
     }
 
@@ -166,11 +156,9 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
         _newFolderController.clear();
         await _fetchData();
         if (mounted) {
-          showToastWidget(
-            MDToastWidget(
-              message: slang.t.favorite.createFolderSuccess,
-              type: MDToastType.success,
-            ),
+          showGlassToast(
+            slang.t.favorite.createFolderSuccess,
+            type: GlassToastType.success,
           );
         }
       } else {
@@ -178,11 +166,9 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
       }
     } catch (e) {
       if (mounted) {
-        showToastWidget(
-          MDToastWidget(
-            message: slang.t.favorite.createFolderFailed,
-            type: MDToastType.error,
-          ),
+        showGlassToast(
+          slang.t.favorite.createFolderFailed,
+          type: GlassToastType.error,
         );
       }
     }

@@ -4,9 +4,9 @@ import 'package:i_iwara/app/models/history_record.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/services/post_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/utils/iwara_different_site_recovery.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart';
 
 class PostDetailController extends GetxController {
   final String postId;
@@ -38,10 +38,19 @@ class PostDetailController extends GetxController {
 
       ApiResult<PostModel> res = await _postService.fetchPostDetail(postId);
       if (!res.isSuccess) {
+        // 跨站资源：切到帖子真正所属的站点后本页会重建并重新请求。
+        if (await IwaraDifferentSiteRecovery.recover(
+          res.exception,
+          resourceKey: 'post:$postId',
+        )) {
+          return;
+        }
+
         errorMessage.value = res.message;
-        showToastWidget(
-          MDToastWidget(message: res.message, type: MDToastType.error),
-          position: ToastPosition.bottom,
+        showGlassToast(
+          res.message,
+          type: GlassToastType.error,
+          position: GlassToastPosition.bottom,
         );
         return;
       }

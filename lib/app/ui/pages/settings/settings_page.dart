@@ -72,6 +72,11 @@ class _SettingsPageState extends State<SettingsPage> {
   double offset = 0; // 用于手势拖拽
   HorizontalDragGestureRecognizer? gestureRecognizer;
 
+  // 本实例是否由深链直接打开某个子设置页（如抽屉里的"内容屏蔽"入口），
+  // 而不是先看到主列表再点进去的。这类入口从未展示过主列表，"返回"应当
+  // 直接离开整个 /settings_page 路由，见 [_handlePop]。
+  late final bool _isDeepLinkEntry;
+
   // 深层页面导航
   final GlobalKey<NavigatorState> _nestedNavigatorKey =
       GlobalKey<NavigatorState>();
@@ -84,6 +89,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     currentPage = widget.initialPage;
+    _isDeepLinkEntry = widget.initialPage != -1;
 
     // 设置静态引用
     SettingsPage._currentInstance = this;
@@ -183,8 +189,18 @@ class _SettingsPageState extends State<SettingsPage> {
       });
       return;
     }
-    // 如果没有嵌套路由或者页面栈，则返回主设置列表
+    // 如果没有嵌套路由或者页面栈，则返回主设置列表——
+    // 但深链直接打开的子页从未展示过主列表，此时应直接离开整个路由。
     if (currentPage != -1) {
+      if (_isDeepLinkEntry) {
+        // 直接 pop 本路由，不走 AppService.tryPop -> PopCoordinator.handleBack：
+        // 那条路会先查 SettingsPage.canPopInternally()，而 currentPage 仍
+        // 是深链进来时的值（!= -1），会被判定为"还能内部返回"又绕回这个
+        // 分支，死循环卡死这次返回。Navigator.pop 不经过 PopScope.canPop
+        // 判定，直接、一次性离开这个路由即可。
+        Navigator.of(context).pop();
+        return;
+      }
       setState(() {
         currentPage = -1;
       });
@@ -335,15 +351,12 @@ class _SettingsPageState extends State<SettingsPage> {
     final t = slang.Translations.of(context);
 
     return Material(
-      child: CustomScrollView(
-        slivers: [
-          BlurredSliverAppBar(
-            title: t.settings.settings,
-            isWideScreen: false, // 显示返回按钮
-            expandedHeight: 56,
-          ),
-          _buildCategoriesSliver(),
-        ],
+      // 与全部子页共用同一套玻璃骨架；返回走 [_handlePop]（宽屏先弹嵌套子页、
+      // 窄屏先回主列表，与原来 AppBar 返回键经 PopScope 的行为一致）
+      child: GlassSettingsScaffold(
+        title: t.settings.settings,
+        onBack: _handlePop,
+        slivers: [_buildCategoriesSliver()],
       ),
     );
   }

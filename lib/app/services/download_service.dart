@@ -13,7 +13,7 @@ import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/filename_template_service.dart';
 import 'package:i_iwara/app/services/message_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:path/path.dart' as path_lib;
@@ -1682,14 +1682,16 @@ class DownloadService extends GetxService {
               !notificationService.isAlreadyOnDownloadPage();
           messageService.showActionableMessage(
             slang.t.downloadNotifications.completedToast(name: title),
-            MDToastType.success,
-            onTap: showJumpAction ? notificationService.openDownloadTaskList : null,
+            GlassToastType.success,
+            onTap: showJumpAction
+                ? notificationService.openDownloadTaskList
+                : null,
             actionIcon: showJumpAction ? Icons.arrow_forward_ios_rounded : null,
           );
         } else {
           messageService.showMessage(
             slang.t.downloadNotifications.failedToast(name: title),
-            MDToastType.error,
+            GlassToastType.error,
           );
         }
       }
@@ -2076,7 +2078,9 @@ class DownloadService extends GetxService {
   /// 统一通过 [MessageService]（oktoast）展示提示，替代散落的原生 SnackBar。
   /// 沿用旧签名（含 [Color]）以免改动十余处调用点：红色映射为 error，其余为 info。
   void _showMessage(String message, Color color) {
-    final type = color == Colors.red ? MDToastType.error : MDToastType.info;
+    final type = color == Colors.red
+        ? GlassToastType.error
+        : GlassToastType.info;
     if (Get.isRegistered<MessageService>()) {
       Get.find<MessageService>().showMessage(message, type);
     } else {

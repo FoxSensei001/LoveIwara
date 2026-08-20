@@ -136,21 +136,24 @@ class _ImageModelCardListItemWidgetState
         title: widget.imageModel.title,
         authorId: widget.imageModel.user?.id,
       );
-      if (match != null && !_revealed) {
-        // 在真实卡片之上叠加磨砂遮罩，保证与普通卡片完全等高。
-        return Stack(
-          children: [
-            IgnorePointer(child: _buildCard(context)),
-            Positioned.fill(
-              child: BlockedMediaOverlay(
-                match: match,
-                onReveal: () => setState(() => _revealed = true),
-              ),
+      final blocked = match != null && !_revealed;
+      // 真实卡片与磨砂遮罩同时常驻，遮罩以淡入淡出 + 缩放过渡显隐，
+      // 保证与普通卡片完全等高，同时避免揭示/重新屏蔽时的瞬间硬切。
+      return Stack(
+        children: [
+          IgnorePointer(
+            ignoring: blocked,
+            child: _buildCard(context, showReblock: match != null && !blocked),
+          ),
+          Positioned.fill(
+            child: BlockedMediaOverlayFade(
+              match: match,
+              visible: blocked,
+              onReveal: () => setState(() => _revealed = true),
             ),
-          ],
-        );
-      }
-      return _buildCard(context, showReblock: match != null);
+          ),
+        ],
+      );
     });
   }
 
@@ -240,9 +243,8 @@ class _ImageModelCardListItemWidgetState
                           width: widget.width,
                           isHovering: showHoverState,
                           overlay: overlay,
-                          onReblock: showReblock
-                              ? () => setState(() => _revealed = false)
-                              : null,
+                          reblockVisible: showReblock,
+                          onReblock: () => setState(() => _revealed = false),
                         ),
                         Padding(
                           padding: const EdgeInsets.fromLTRB(10, 10, 10, 9),
@@ -306,14 +308,16 @@ class _Thumbnail extends StatelessWidget {
 
   final bool isHovering;
   final Widget? overlay;
-  final VoidCallback? onReblock;
+  final bool reblockVisible;
+  final VoidCallback onReblock;
 
   const _Thumbnail({
     required this.imageModel,
     required this.width,
     required this.isHovering,
     this.overlay,
-    this.onReblock,
+    required this.reblockVisible,
+    required this.onReblock,
   });
 
   @override
@@ -340,7 +344,7 @@ class _Thumbnail extends StatelessWidget {
             ),
             ..._buildTags(context),
             if (overlay != null) Positioned.fill(child: overlay!),
-            if (onReblock != null) ReblockChip(onTap: onReblock!),
+            ReblockChip(visible: reblockVisible, onTap: onReblock),
           ],
         ),
       ),

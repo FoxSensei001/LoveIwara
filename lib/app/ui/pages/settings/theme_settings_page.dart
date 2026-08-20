@@ -20,34 +20,25 @@ class ThemeSettingsPage extends StatelessWidget {
     final themeService = Get.find<ThemeService>();
     final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
 
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          BlurredSliverAppBar(
-            title: t.settings.themeSettings,
-            isWideScreen: isWideScreen,
+    return GlassSettingsScaffold(
+      title: t.settings.themeSettings,
+      isWideScreen: isWideScreen,
+      slivers: [
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              _buildThemeModeSection(context, themeService),
+              const SizedBox(height: 16),
+              _buildDynamicColorSection(context, themeService),
+              const SizedBox(height: 16),
+              _buildPresetColorsSection(context, themeService),
+              const SizedBox(height: 16),
+              _buildCustomColorsSection(context, themeService),
+            ]),
           ),
-          SliverPadding(
-            padding: EdgeInsets.fromLTRB(
-              16,
-              16,
-              16,
-              16 + bottomInset,
-            ),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _buildThemeModeSection(context, themeService),
-                const SizedBox(height: 16),
-                _buildDynamicColorSection(context, themeService),
-                const SizedBox(height: 16),
-                _buildPresetColorsSection(context, themeService),
-                const SizedBox(height: 16),
-                _buildCustomColorsSection(context, themeService),
-              ]),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -282,7 +273,9 @@ class ThemeSettingsPage extends StatelessWidget {
                                             ? Theme.of(
                                                 context,
                                               ).colorScheme.primary
-                                            : Colors.grey.withValues(alpha: 0.2),
+                                            : Colors.grey.withValues(
+                                                alpha: 0.2,
+                                              ),
                                         width: isSelected ? 2 : 1,
                                       ),
                                     ),
@@ -395,7 +388,8 @@ class ThemeSettingsPage extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              final hex = pickerColor.toARGB32()
+              final hex = pickerColor
+                  .toARGB32()
                   .toRadixString(16)
                   .substring(2)
                   .toUpperCase();

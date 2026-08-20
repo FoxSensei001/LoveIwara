@@ -65,7 +65,9 @@ class ProfileVideoTabListWidget extends StatefulWidget {
 class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
     with AutomaticKeepAliveClientMixin {
   late UserzVideoListRepository videoListRepository;
-  final ValueNotifier<int> _refreshSignal = ValueNotifier(0);
+
+  /// 带回执的刷新信号：header 上的刷新钮据此在刷完前显示沙漏。
+  final ListRefreshSignal _refreshSignal = ListRefreshSignal();
 
   /// 标签 / 日期筛选。作者页不提供评级筛选——服务端在带 `user=` 的查询里会忽略
   /// `rating`（实测混合评级作者两种取值返回完全相同的混合结果）。
@@ -261,10 +263,10 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
                       : t.common.pagination.pagination,
                   onPressed: widget.onPaginationToggle,
                 ),
-                GlassIconButton(
+                GlassAsyncIconButton(
                   icon: const Icon(Icons.refresh),
                   tooltip: t.common.refresh,
-                  onPressed: () => _refreshSignal.value++,
+                  onPressed: _refreshSignal.request,
                 ),
               ],
             ),

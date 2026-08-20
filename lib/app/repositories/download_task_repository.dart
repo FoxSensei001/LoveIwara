@@ -777,12 +777,7 @@ class DownloadTaskRepository {
         SET title = ?, description = ?, updated_at = ?
         WHERE id = ?
       ''',
-        [
-          title,
-          description,
-          DateTime.now().millisecondsSinceEpoch ~/ 1000,
-          id,
-        ],
+        [title, description, DateTime.now().millisecondsSinceEpoch ~/ 1000, id],
       );
       return true;
     } catch (e) {
@@ -864,11 +859,7 @@ class DownloadTaskRepository {
       final placeholders = List.filled(taskIds.length, '?').join(', ');
       _db.execute(
         'UPDATE download_tasks SET category_id = ?, updated_at = ? WHERE id IN ($placeholders)',
-        [
-          categoryId,
-          DateTime.now().millisecondsSinceEpoch,
-          ...taskIds,
-        ],
+        [categoryId, DateTime.now().millisecondsSinceEpoch, ...taskIds],
       );
     } catch (e) {
       LogUtils.e('归类下载任务失败', tag: 'DownloadTaskRepository', error: e);

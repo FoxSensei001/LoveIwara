@@ -62,7 +62,8 @@ class MarkdownSyntaxHelp extends StatelessWidget {
                     items: [
                       _SyntaxItem(
                         title: t.markdown.internalLink,
-                        syntax: 'https://iwara.tv/video/abc123\nhttps://iwara.tv/image/xyz789\nhttps://iwara.tv/profile/user123',
+                        syntax:
+                            'https://iwara.tv/video/abc123\nhttps://iwara.tv/image/xyz789\nhttps://iwara.tv/profile/user123',
                         description: t.markdown.supportAutoConvertLinkBelow,
                       ),
                       _SyntaxItem(
@@ -79,7 +80,8 @@ class MarkdownSyntaxHelp extends StatelessWidget {
                       _SyntaxItem(
                         title: t.markdown.paragraphAndLineBreak,
                         syntax: t.markdown.paragraphAndLineBreakSyntax,
-                        description: t.markdown.paragraphAndLineBreakDescription,
+                        description:
+                            t.markdown.paragraphAndLineBreakDescription,
                       ),
                       _SyntaxItem(
                         title: t.markdown.textStyle,
@@ -98,7 +100,10 @@ class MarkdownSyntaxHelp extends StatelessWidget {
                       ),
                       _SyntaxItem(
                         title: t.markdown.linkAndImage,
-                        syntax: t.markdown.linkAndImageSyntax(imgUrl: CommonConstants.defaultAvatarUrl, link: CommonConstants.iwaraBaseUrl),
+                        syntax: t.markdown.linkAndImageSyntax(
+                          imgUrl: CommonConstants.defaultAvatarUrl,
+                          link: CommonConstants.iwaraBaseUrl,
+                        ),
                         description: t.markdown.linkAndImageDescription,
                       ),
                       _SyntaxItem(
@@ -135,10 +140,7 @@ class MarkdownSyntaxHelp extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: Text(
             title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
         ...items.map((item) => _buildSyntaxItem(item, isNarrowScreen)),
@@ -157,19 +159,13 @@ class MarkdownSyntaxHelp extends StatelessWidget {
           children: [
             Text(
               item.title,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
             ),
             if (item.description != null) ...[
               const SizedBox(height: 8),
               Text(
                 item.description!,
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 13,
-                ),
+                style: const TextStyle(color: Colors.grey, fontSize: 13),
               ),
             ],
             const SizedBox(height: 8),
@@ -201,9 +197,7 @@ class MarkdownSyntaxHelp extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.grey.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(
-          color: Colors.grey.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,10 +213,7 @@ class MarkdownSyntaxHelp extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             item.syntax,
-            style: const TextStyle(
-              fontFamily: 'monospace',
-              fontSize: 13,
-            ),
+            style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
           ),
         ],
       ),
@@ -234,9 +225,7 @@ class MarkdownSyntaxHelp extends StatelessWidget {
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(
-          color: Colors.grey.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -270,4 +259,4 @@ class _SyntaxItem {
     required this.syntax,
     this.description,
   });
-} 
+}

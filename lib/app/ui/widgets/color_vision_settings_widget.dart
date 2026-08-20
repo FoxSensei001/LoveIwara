@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/common/color_vision_filters.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:oktoast/oktoast.dart';
 
 /// 通用的色觉辅助滤镜设置组件：一张可点击的卡片（显示当前档位），
 /// 点击后弹出档位选择对话框；可选附带一条说明提示横幅。
@@ -85,8 +84,7 @@ class ColorVisionSettingsWidget extends StatelessWidget {
     return {
       ColorVisionFilterType.none.id: t.colorVisionAssist.disable,
       ColorVisionFilterType.protanopia.id: t.colorVisionAssist.protanopia,
-      ColorVisionFilterType.deuteranopia.id:
-          t.colorVisionAssist.deuteranopia,
+      ColorVisionFilterType.deuteranopia.id: t.colorVisionAssist.deuteranopia,
       ColorVisionFilterType.tritanopia.id: t.colorVisionAssist.tritanopia,
     };
   }
@@ -167,10 +165,7 @@ class ColorVisionSettingsWidget extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(
-                Icons.invert_colors,
-                color: isDark ? Colors.white : null,
-              ),
+              Icon(Icons.invert_colors, color: isDark ? Colors.white : null),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -178,9 +173,7 @@ class ColorVisionSettingsWidget extends StatelessWidget {
                   children: [
                     Text(
                       t.colorVisionAssist.title,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.titleMedium?.copyWith(
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -344,16 +337,14 @@ class ColorVisionSettingsWidget extends StatelessWidget {
 
     configService[configKey] = type.id;
     // 滤镜即时作用于目标画面，提示用户已生效
-    showToastWidget(
-      MDToastWidget(
-        message: type == ColorVisionFilterType.none
-            ? t.colorVisionAssist.disabledToast
-            : t.colorVisionAssist.appliedToast(
-                filterName: optionLabels[type.id] ?? type.id,
-              ),
-        type: MDToastType.success,
-      ),
-      position: ToastPosition.top,
+    showGlassToast(
+      type == ColorVisionFilterType.none
+          ? t.colorVisionAssist.disabledToast
+          : t.colorVisionAssist.appliedToast(
+              filterName: optionLabels[type.id] ?? type.id,
+            ),
+      type: GlassToastType.success,
+      position: GlassToastPosition.top,
     );
   }
 }

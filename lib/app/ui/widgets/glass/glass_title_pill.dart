@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:shimmer/shimmer.dart';
@@ -158,6 +160,21 @@ class _GlassFullTitleDialog extends StatelessWidget {
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   const Spacer(),
+                  GlassIconButton(
+                    standalone: true,
+                    icon: const Icon(Icons.copy_outlined),
+                    tooltip: t.common.copy,
+                    onPressed: () async {
+                      await Clipboard.setData(
+                        ClipboardData(text: translateText),
+                      );
+                      showGlassToast(
+                        t.common.copiedToClipboard,
+                        type: GlassToastType.success,
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 8),
                   GlassIconButton(
                     standalone: true,
                     icon: const Icon(Icons.translate),

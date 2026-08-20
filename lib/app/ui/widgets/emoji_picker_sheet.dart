@@ -91,15 +91,20 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
           return Container(
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
             ),
             child: Column(
               children: [
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest
+                        .withValues(alpha: 0.3),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(16),
+                    ),
                   ),
                   child: Row(
                     children: [
@@ -116,21 +121,24 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
                         ),
                       ),
                       const Spacer(),
-                      ...List.generate(2, (i) => Padding(
-                            padding: const EdgeInsets.only(left: 8),
-                            child: Shimmer.fromColors(
-                              baseColor: Colors.grey[300]!,
-                              highlightColor: Colors.grey[100]!,
-                              child: Container(
-                                width: 36,
-                                height: 36,
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
+                      ...List.generate(
+                        2,
+                        (i) => Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: Container(
+                              width: 36,
+                              height: 36,
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
                               ),
                             ),
-                          )),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -140,10 +148,15 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
                       Container(
                         width: 80,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest
+                              .withValues(alpha: 0.3),
                           border: Border(
                             right: BorderSide(
-                              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.outline.withValues(alpha: 0.2),
                               width: 1,
                             ),
                           ),
@@ -153,7 +166,10 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
                           itemCount: 8,
                           itemBuilder: (context, index) {
                             return Container(
-                              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                              margin: const EdgeInsets.symmetric(
+                                vertical: 4,
+                                horizontal: 8,
+                              ),
                               padding: const EdgeInsets.all(8),
                               child: Shimmer.fromColors(
                                 baseColor: Colors.grey[300]!,
@@ -175,11 +191,12 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
                         child: GridView.builder(
                           controller: scrollController,
                           padding: const EdgeInsets.all(8),
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 4,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                          ),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 4,
+                                crossAxisSpacing: 8,
+                                mainAxisSpacing: 8,
+                              ),
                           itemCount: 16,
                           itemBuilder: (context, index) {
                             return Shimmer.fromColors(
@@ -212,98 +229,103 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
           padding: EdgeInsets.only(bottom: computeSheetBottomInset(context)),
           child: Column(
             children: [
-          // 标题栏（左上角下拉框选择尺寸，右侧为操作按钮）
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            ),
-            child: Row(
-              children: [
-                // 左上角尺寸选择下拉框
-                DropdownButton<EmojiSize>(
-                  value: _selectedSize,
-                  onChanged: (size) {
-                    if (size != null) _handleSizeChanged(size);
-                  },
-                  items: EmojiSize.values
-                      .map(
-                        (size) => DropdownMenuItem<EmojiSize>(
-                          value: size,
-                          child: Text(size.displayName),
-                        ),
-                      )
-                      .toList(),
-                  underline: const SizedBox.shrink(),
-                  isDense: true,
+              // 标题栏（左上角下拉框选择尺寸，右侧为操作按钮）
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(16),
+                  ),
                 ),
-                const Spacer(),
-                // 设置按钮
-                IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    NaviService.navigateToEmojiLibraryPage();
-                  },
-                  icon: const Icon(Icons.settings),
-                  tooltip: t.settings.settings,
+                child: Row(
+                  children: [
+                    // 左上角尺寸选择下拉框
+                    DropdownButton<EmojiSize>(
+                      value: _selectedSize,
+                      onChanged: (size) {
+                        if (size != null) _handleSizeChanged(size);
+                      },
+                      items: EmojiSize.values
+                          .map(
+                            (size) => DropdownMenuItem<EmojiSize>(
+                              value: size,
+                              child: Text(size.displayName),
+                            ),
+                          )
+                          .toList(),
+                      underline: const SizedBox.shrink(),
+                      isDense: true,
+                    ),
+                    const Spacer(),
+                    // 设置按钮
+                    IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        NaviService.navigateToEmojiLibraryPage();
+                      },
+                      icon: const Icon(Icons.settings),
+                      tooltip: t.settings.settings,
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
                 ),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close),
-                ),
-              ],
-            ),
-          ),
-          
-          // 移除窄屏下方的尺寸选择行（统一使用左上角下拉框）
-          
-          // 表情包选择器主体区域
-          Expanded(
-            child: Row(
-              children: [
-                // 左侧分组导航 rail
-                if (_groups.isNotEmpty)
-                  Container(
-                    width: 80,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest
-                          .withValues(alpha: 0.3),
-                      border: Border(
-                        right: BorderSide(
+              ),
+
+              // 移除窄屏下方的尺寸选择行（统一使用左上角下拉框）
+
+              // 表情包选择器主体区域
+              Expanded(
+                child: Row(
+                  children: [
+                    // 左侧分组导航 rail
+                    if (_groups.isNotEmpty)
+                      Container(
+                        width: 80,
+                        decoration: BoxDecoration(
                           color: Theme.of(context)
                               .colorScheme
-                              .outline
-                              .withValues(alpha: 0.2),
-                          width: 1,
+                              .surfaceContainerHighest
+                              .withValues(alpha: 0.3),
+                          border: Border(
+                            right: BorderSide(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.outline.withValues(alpha: 0.2),
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            bottom: 16,
+                          ), // 底部留出 padding
+                          child: EmojiPickerWidget(
+                            onEmojiSelected: _handleEmojiSelected,
+                            showOnlyTabs: true, // 只显示标签页，不显示内容
+                            isRailMode: true, // 新增参数，表示 rail 模式
+                            tabController:
+                                _tabController, // 传递共享的 TabController
+                          ),
                         ),
                       ),
-                    ),
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(bottom: 16), // 底部留出 padding
+                    // 右侧表情包内容区域
+                    Expanded(
                       child: EmojiPickerWidget(
                         onEmojiSelected: _handleEmojiSelected,
-                        showOnlyTabs: true, // 只显示标签页，不显示内容
-                        isRailMode: true, // 新增参数，表示 rail 模式
+                        showOnlyContent: true, // 只显示内容，不显示标签页
+                        scrollController: scrollController,
                         tabController: _tabController, // 传递共享的 TabController
                       ),
                     ),
-                  ),
-                // 右侧表情包内容区域
-                Expanded(
-                  child: EmojiPickerWidget(
-                    onEmojiSelected: _handleEmojiSelected,
-                    showOnlyContent: true, // 只显示内容，不显示标签页
-                    scrollController: scrollController,
-                    tabController: _tabController, // 传递共享的 TabController
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
             ],
           ),
         );

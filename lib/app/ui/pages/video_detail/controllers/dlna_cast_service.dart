@@ -3,19 +3,18 @@ import 'dart:async';
 import 'package:dlna_dart/dlna.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:oktoast/oktoast.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class DlnaCastService extends GetxService {
   static DlnaCastService get instance => Get.find<DlnaCastService>();
-  
+
   final RxBool isSearching = false.obs;
   final RxList<DLNADevice> devices = <DLNADevice>[].obs;
   final RxBool isConnected = false.obs;
   final RxString connectedDeviceName = ''.obs;
-  
+
   DLNAManager? _dlnaManager;
   StreamSubscription<Map<String, DLNADevice>>? _deviceSubscription;
   DLNADevice? _currentDevice;
@@ -57,16 +56,16 @@ class DlnaCastService extends GetxService {
 
       isSearching.value = true;
       devices.clear();
-      
+
       // 如果已经初始化过，先清理
       if (_isInitialized) {
         _cleanup();
       }
-      
+
       _dlnaManager = DLNAManager();
       final dlna = await _dlnaManager!.start();
       _isInitialized = true;
-      
+
       _deviceSubscription = dlna.devices.stream.listen((deviceMap) {
         devices.clear();
         deviceMap.forEach((key, device) {
@@ -74,16 +73,16 @@ class DlnaCastService extends GetxService {
         });
         LogUtils.d('发现 DLNA 设备: ${devices.length} 个', 'DlnaCastService');
       });
-      
+
       LogUtils.d('开始搜索 DLNA 设备', 'DlnaCastService');
     } catch (e) {
       LogUtils.e('启动 DLNA 搜索失败: $e', tag: 'DlnaCastService', error: e);
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.videoDetail.cast.unableToStartCastingSearch(error: e.toString()),
-          type: MDToastType.error,
+      showGlassToast(
+        slang.t.videoDetail.cast.unableToStartCastingSearch(
+          error: e.toString(),
         ),
-        position: ToastPosition.top,
+        type: GlassToastType.error,
+        position: GlassToastPosition.top,
       );
       isSearching.value = false;
       _isInitialized = false;
@@ -106,28 +105,26 @@ class DlnaCastService extends GetxService {
       _currentDevice = device;
       connectedDeviceName.value = device.info.friendlyName;
       isConnected.value = true;
-      
+
       // 设置视频 URL 并播放
       await device.setUrl(videoUrl);
       await device.play();
-      
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.videoDetail.cast.startCastingTo(deviceName: device.info.friendlyName),
-          type: MDToastType.success,
+
+      showGlassToast(
+        slang.t.videoDetail.cast.startCastingTo(
+          deviceName: device.info.friendlyName,
         ),
-        position: ToastPosition.top,
+        type: GlassToastType.success,
+        position: GlassToastPosition.top,
       );
-      
+
       LogUtils.d('成功投屏到设备: ${device.info.friendlyName}', 'DlnaCastService');
     } catch (e) {
       LogUtils.e('投屏失败: $e', tag: 'DlnaCastService', error: e);
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.videoDetail.cast.castFailed(error: e.toString()),
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.top,
+      showGlassToast(
+        slang.t.videoDetail.cast.castFailed(error: e.toString()),
+        type: GlassToastType.error,
+        position: GlassToastPosition.top,
         duration: const Duration(seconds: 5),
       );
       isConnected.value = false;
@@ -144,15 +141,13 @@ class DlnaCastService extends GetxService {
       }
       isConnected.value = false;
       connectedDeviceName.value = '';
-      
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.videoDetail.cast.castStopped,
-          type: MDToastType.info,
-        ),
-        position: ToastPosition.top,
+
+      showGlassToast(
+        slang.t.videoDetail.cast.castStopped,
+        type: GlassToastType.info,
+        position: GlassToastPosition.top,
       );
-      
+
       LogUtils.d('停止投屏', 'DlnaCastService');
     } catch (e) {
       LogUtils.e('停止投屏失败: $e', tag: 'DlnaCastService', error: e);

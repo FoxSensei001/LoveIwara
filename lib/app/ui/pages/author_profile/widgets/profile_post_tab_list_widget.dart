@@ -8,11 +8,10 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/post_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/controllers/userz_post_list_repository.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/post_tile_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/post_input_dialog.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
@@ -76,7 +75,9 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
   /// 这时才回退到本 controller，否则「回到顶部」按钮会失效。
   final ScrollController _fallbackController = ScrollController();
   final RxBool _showBackToTop = false.obs;
-  final ValueNotifier<int> _refreshSignal = ValueNotifier(0);
+
+  /// 带回执的刷新信号：header 上的刷新钮据此在刷完前显示沙漏。
+  final ListRefreshSignal _refreshSignal = ListRefreshSignal();
   final UserService _userService = Get.find<UserService>();
   final PostService _postService = Get.find<PostService>();
 
@@ -101,12 +102,7 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
         onSubmit: (title, body) async {
           final result = await _postService.postPost(title, body);
           if (result.isSuccess) {
-            showToastWidget(
-              MDToastWidget(
-                message: t.common.success,
-                type: MDToastType.success,
-              ),
-            );
+            showGlassToast(t.common.success, type: GlassToastType.success);
             AppService.tryPop();
             _requestRefresh();
           } else if (result.message == t.errors.tooManyRequests) {
@@ -133,18 +129,11 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
                   timeStr += t.errors.remainingSeconds(num: seconds);
                 }
 
-                showToastWidget(
-                  MDToastWidget(
-                    message: timeStr.trim(),
-                    type: MDToastType.error,
-                  ),
-                );
+                showGlassToast(timeStr.trim(), type: GlassToastType.error);
               }
             }
           } else {
-            showToastWidget(
-              MDToastWidget(message: result.message, type: MDToastType.error),
-            );
+            showGlassToast(result.message, type: GlassToastType.error);
           }
         },
       ),
@@ -152,7 +141,7 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
     );
   }
 
-  void _requestRefresh() => _refreshSignal.value++;
+  Future<void> _requestRefresh() => _refreshSignal.request();
 
   @override
   Widget build(BuildContext context) {
@@ -215,7 +204,7 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
                     : t.common.pagination.pagination,
                 onPressed: widget.onPaginationToggle,
               ),
-              GlassIconButton(
+              GlassAsyncIconButton(
                 icon: const Icon(Icons.refresh),
                 tooltip: t.common.refresh,
                 onPressed: _requestRefresh,

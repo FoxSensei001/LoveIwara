@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
-import 'package:oktoast/oktoast.dart';
 import 'history_list_repository.dart';
 
 class HistoryListController extends GetxController {
@@ -36,15 +35,24 @@ class HistoryListController extends GetxController {
       await historyDatabaseRepository.clearHistoryByType(itemType);
     }
     repository.refresh();
-    showToastWidget(
-      MDToastWidget(message: t.common.success, type: MDToastType.success),
-    );
+    showGlassToast(t.common.success, type: GlassToastType.success);
   }
 
   void toggleMultiSelect() {
     isMultiSelect.value = !isMultiSelect.value;
     if (!isMultiSelect.value) {
       selectedRecords.clear();
+    }
+  }
+
+  /// 清空所选。多选状态是跨 tab 共享的，得同步镜像到其它 tab 的控制器上，
+  /// 否则切个 tab 勾选又冒出来了。
+  void clearSelection() {
+    selectedRecords.clear();
+    for (final tag in const ['all', 'video', 'image', 'post', 'thread']) {
+      if (Get.isRegistered<HistoryListController>(tag: tag)) {
+        Get.find<HistoryListController>(tag: tag).selectedRecords.clear();
+      }
     }
   }
 
@@ -68,9 +76,7 @@ class HistoryListController extends GetxController {
       controller.repository.refresh();
     }
     isMultiSelect.value = false;
-    showToastWidget(
-      MDToastWidget(message: t.common.success, type: MDToastType.success),
-    );
+    showGlassToast(t.common.success, type: GlassToastType.success);
   }
 
   void search(String keyword) {
@@ -115,9 +121,7 @@ class HistoryListController extends GetxController {
         Get.find<HistoryListController>(tag: tag).repository.refresh();
       }
     }
-    showToastWidget(
-      MDToastWidget(message: t.common.success, type: MDToastType.success),
-    );
+    showGlassToast(t.common.success, type: GlassToastType.success);
   }
 
   void setDateRange(DateTimeRange? range) {

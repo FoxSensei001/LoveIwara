@@ -1,9 +1,8 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
 import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_detail_repository.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:oktoast/oktoast.dart';
 
 class PlayListDetailController extends GetxController {
   final PlayListService _playListService = Get.find<PlayListService>();
@@ -43,9 +42,10 @@ class PlayListDetailController extends GetxController {
     if (result.isSuccess) {
       playlistTitle.value = newTitle;
     } else {
-      showToastWidget(
-        MDToastWidget(message: result.message, type: MDToastType.error),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        result.message,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
     }
   }
@@ -87,24 +87,17 @@ class PlayListDetailController extends GetxController {
       // 删除成功后清空选择状态
       selectedVideos.clear();
 
-      // 刷新列表数据
-      await repository.refresh();
+      // 列表刷新交给页面：分页模式下只有 MediaListView 自己 refresh 才会
+      // 换掉当前显示的那一页，数据源自刷新是刷不到的。
 
       // 显示成功提示
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.common.success,
-          type: MDToastType.success,
-        ),
-      );
+      showGlassToast(slang.t.common.success, type: GlassToastType.success);
     } catch (error) {
       // 如果删除失败，显示错误
-      showToastWidget(
-        MDToastWidget(
-          message: 'Delete failed: $error',
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        'Delete failed: $error',
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
     } finally {
       isDeleting.value = false;
@@ -122,19 +115,15 @@ class PlayListDetailController extends GetxController {
         playlistId: playlistId,
       );
       if (!result.isSuccess) {
-        showToastWidget(
-          MDToastWidget(message: result.message, type: MDToastType.error),
-          position: ToastPosition.bottom,
+        showGlassToast(
+          result.message,
+          type: GlassToastType.error,
+          position: GlassToastPosition.bottom,
         );
         return false;
       }
 
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.common.success,
-          type: MDToastType.success,
-        ),
-      );
+      showGlassToast(slang.t.common.success, type: GlassToastType.success);
       return true;
     } finally {
       isDeleting.value = false;

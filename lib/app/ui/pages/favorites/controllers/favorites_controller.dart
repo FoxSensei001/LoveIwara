@@ -1,12 +1,12 @@
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/ui/pages/favorites/repositories/favorite_image_repository.dart';
 import 'package:i_iwara/app/ui/pages/favorites/repositories/favorite_video_repository.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 
 class FavoritesController extends GetxController {
   late FavoriteVideoRepository videoRepository;
@@ -35,7 +35,11 @@ class FavoritesController extends GetxController {
         if (!result.isSuccess) {
           // 如果失败，恢复状态
           canceledFavoriteVideoIds.add(video.id);
-          showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
+          showGlassToast(
+            result.message,
+            type: GlassToastType.error,
+            position: GlassToastPosition.bottom,
+          );
         }
       });
     } else {
@@ -46,7 +50,11 @@ class FavoritesController extends GetxController {
         if (!result.isSuccess) {
           // 如果失败，恢复状态
           canceledFavoriteVideoIds.remove(video.id);
-          showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
+          showGlassToast(
+            result.message,
+            type: GlassToastType.error,
+            position: GlassToastPosition.bottom,
+          );
         }
       });
     }
@@ -62,7 +70,11 @@ class FavoritesController extends GetxController {
         if (!result.isSuccess) {
           // 如果失败，恢复状态
           canceledFavoriteGalleryIds.add(image.id);
-          showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
+          showGlassToast(
+            result.message,
+            type: GlassToastType.error,
+            position: GlassToastPosition.bottom,
+          );
         }
       });
     } else {
@@ -73,11 +85,73 @@ class FavoritesController extends GetxController {
         if (!result.isSuccess) {
           // 如果失败，恢复状态
           canceledFavoriteGalleryIds.remove(image.id);
-          showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
+          showGlassToast(
+            result.message,
+            type: GlassToastType.error,
+            position: GlassToastPosition.bottom,
+          );
         }
       });
     }
   }
+
+  /// 批量取消视频最爱。返回 (成功数, 失败数)。
+  ///
+  /// 语义与单个取消保持一致：成功的进 [canceledFavoriteVideoIds]，卡片仍留在
+  /// 列表里显示「点击恢复最爱」蒙层，所以这是一次可撤销的操作，不需要二次
+  /// 确认之外的兜底。
+  Future<({int success, int failed})> batchCancelVideoFavorites(
+    Iterable<String> videoIds,
+  ) {
+    return _batchCancel(
+      videoIds,
+      _videoService.cancelFavoriteVideo,
+      canceledFavoriteVideoIds,
+    );
+  }
+
+  /// 批量取消图库最爱。返回 (成功数, 失败数)。
+  Future<({int success, int failed})> batchCancelImageFavorites(
+    Iterable<String> imageIds,
+  ) {
+    return _batchCancel(
+      imageIds,
+      _galleryService.cancelFavoriteImage,
+      canceledFavoriteGalleryIds,
+    );
+  }
+
+  /// 分批并发地取消最爱。
+  ///
+  /// 逐个串行在选了几十项时要等到天荒地老，一次性全发又等于对服务端做一次小型
+  /// 压测（还容易撞 429），所以按 [_batchChunkSize] 一组滚动发送。
+  Future<({int success, int failed})> _batchCancel(
+    Iterable<String> ids,
+    Future<ApiResult<void>> Function(String id) cancel,
+    RxSet<String> canceledIds,
+  ) async {
+    // 已经处于「已取消」状态的不再重复发请求，直接算成功（幂等）。
+    final pending = ids.where((id) => !canceledIds.contains(id)).toList();
+    int success = ids.length - pending.length;
+    int failed = 0;
+
+    for (int i = 0; i < pending.length; i += _batchChunkSize) {
+      final chunk = pending.skip(i).take(_batchChunkSize).toList();
+      final results = await Future.wait(chunk.map(cancel));
+      for (int j = 0; j < chunk.length; j++) {
+        if (results[j].isSuccess) {
+          canceledIds.add(chunk[j]);
+          success++;
+        } else {
+          failed++;
+        }
+      }
+    }
+
+    return (success: success, failed: failed);
+  }
+
+  static const int _batchChunkSize = 4;
 
   @override
   void onClose() {

@@ -852,8 +852,8 @@ class TranslationsCommonEn {
 	/// en: 'Followed successfully, click again to special follow'
 	String get followSuccessClickAgainToSpecialFollow => 'Followed successfully, click again to special follow';
 
-	/// en: 'Added to special follows — pick them from the selector at the top-left of the Subscriptions page for quick access'
-	String get specialFollowTip => 'Added to special follows — pick them from the selector at the top-left of the Subscriptions page for quick access';
+	/// en: 'Added to special follows — pick them from the selector at the top-right of the Subscriptions page for quick access'
+	String get specialFollowTip => 'Added to special follows — pick them from the selector at the top-right of the Subscriptions page for quick access';
 
 	/// en: 'Are you sure you want to exit?'
 	String get exitConfirmTip => 'Are you sure you want to exit?';
@@ -870,11 +870,20 @@ class TranslationsCommonEn {
 	/// en: 'You have unsaved changes'
 	String get unsavedChanges => 'You have unsaved changes';
 
-	/// en: 'Drag to reorder • Swipe left to remove'
-	String get specialFollowsManagementTip => 'Drag to reorder • Swipe left to remove';
+	/// en: 'Drag the handle to reorder • Tap the button to remove'
+	String get specialFollowsManagementTip => 'Drag the handle to reorder • Tap the button to remove';
 
 	/// en: 'Special Follows Management'
 	String get specialFollowsManagement => 'Special Follows Management';
+
+	/// en: 'Remove special follow'
+	String get removeSpecialFollow => 'Remove special follow';
+
+	/// en: 'Remove ${name} from special follows?'
+	String removeSpecialFollowConfirm({required Object name}) => 'Remove ${name} from special follows?';
+
+	/// en: 'No special follows yet'
+	String get noSpecialFollows => 'No special follows yet';
 
 	/// en: 'Create Time Desc'
 	String get createTimeDesc => 'Create Time Desc';
@@ -1287,6 +1296,18 @@ class TranslationsFavoritesEn {
 
 	/// en: 'My Favorites'
 	String get myFavorites => 'My Favorites';
+
+	/// en: 'Remove selected favorites'
+	String get batchCancelFavorite => 'Remove selected favorites';
+
+	/// en: 'Remove the ${count} selected item(s) from favorites? You can restore them by tapping the cards afterwards.'
+	String batchCancelFavoriteConfirm({required Object count}) => 'Remove the ${count} selected item(s) from favorites? You can restore them by tapping the cards afterwards.';
+
+	/// en: 'Removed ${count} item(s) from favorites'
+	String batchCancelFavoriteSuccess({required Object count}) => 'Removed ${count} item(s) from favorites';
+
+	/// en: 'Removed ${success} item(s), ${failed} failed'
+	String batchCancelFavoriteResult({required Object success, required Object failed}) => 'Removed ${success} item(s), ${failed} failed';
 }
 
 // Path: galleryDetail
@@ -3042,6 +3063,9 @@ class TranslationsConversationEn {
 	/// en: 'Write message here...'
 	String get writeMessageHere => 'Write message here...';
 
+	/// en: 'You: '
+	String get lastMessageFromMe => 'You: ';
+
 	/// en: 'Send message'
 	String get sendMessage => 'Send message';
 }
@@ -3451,6 +3475,21 @@ class TranslationsFavoriteEn {
 
 	/// en: 'Search tags'
 	String get searchTags => 'Search tags';
+
+	/// en: 'No tags on the items in this folder yet'
+	String get noTagsInFolder => 'No tags on the items in this folder yet';
+
+	/// en: 'Shows only items carrying every selected tag'
+	String get tagFilterMatchAll => 'Shows only items carrying every selected tag';
+
+	/// en: 'Clear selected tags'
+	String get clearSelectedTags => 'Clear selected tags';
+
+	/// en: '${count} selected'
+	String selectedTagCount({required Object count}) => '${count} selected';
+
+	/// en: 'No matching tags'
+	String get noMatchingTags => 'No matching tags';
 }
 
 // Path: translation
@@ -8386,14 +8425,17 @@ extension on Translations {
 			'common.deleteRecordsInDateRangeConfirm' => ({required Object num}) => 'Are you sure you want to delete ${num} history records in this date range? This cannot be undone.',
 			'common.noHistoryRecordsInRange' => 'No history records in this date range',
 			'common.followSuccessClickAgainToSpecialFollow' => 'Followed successfully, click again to special follow',
-			'common.specialFollowTip' => 'Added to special follows — pick them from the selector at the top-left of the Subscriptions page for quick access',
+			'common.specialFollowTip' => 'Added to special follows — pick them from the selector at the top-right of the Subscriptions page for quick access',
 			'common.exitConfirmTip' => 'Are you sure you want to exit?',
 			'common.error' => 'Error',
 			'common.taskRunning' => 'A task is already running, please wait.',
 			'common.operationCancelled' => 'Operation cancelled.',
 			'common.unsavedChanges' => 'You have unsaved changes',
-			'common.specialFollowsManagementTip' => 'Drag to reorder • Swipe left to remove',
+			'common.specialFollowsManagementTip' => 'Drag the handle to reorder • Tap the button to remove',
 			'common.specialFollowsManagement' => 'Special Follows Management',
+			'common.removeSpecialFollow' => 'Remove special follow',
+			'common.removeSpecialFollowConfirm' => ({required Object name}) => 'Remove ${name} from special follows?',
+			'common.noSpecialFollows' => 'No special follows yet',
 			'common.createTimeDesc' => 'Create Time Desc',
 			'common.createTimeAsc' => 'Create Time Asc',
 			'common.pagination.totalItems' => ({required Object num}) => 'Total ${num} items',
@@ -8545,6 +8587,10 @@ extension on Translations {
 			'authorProfile.userProfile' => 'User Profile',
 			'favorites.clickToRestoreFavorite' => 'Click to restore favorite',
 			'favorites.myFavorites' => 'My Favorites',
+			'favorites.batchCancelFavorite' => 'Remove selected favorites',
+			'favorites.batchCancelFavoriteConfirm' => ({required Object count}) => 'Remove the ${count} selected item(s) from favorites? You can restore them by tapping the cards afterwards.',
+			'favorites.batchCancelFavoriteSuccess' => ({required Object count}) => 'Removed ${count} item(s) from favorites',
+			'favorites.batchCancelFavoriteResult' => ({required Object success, required Object failed}) => 'Removed ${success} item(s), ${failed} failed',
 			'galleryDetail.galleryDetail' => 'Gallery Detail',
 			'galleryDetail.viewGalleryDetail' => 'View Gallery Detail',
 			'galleryDetail.copyLink' => 'Copy Link',
@@ -8646,6 +8692,8 @@ extension on Translations {
 			'settings.playControlArea' => 'Play Control Area',
 			'settings.leftAndRightControlAreaWidth' => 'Left and Right Control Area Width',
 			'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer' => 'This configuration determines the width of the control areas on the left and right sides of the player.',
+			_ => null,
+		} ?? switch (path) {
 			'settings.proxyAddressCannotBeEmpty' => 'Proxy address cannot be empty.',
 			'settings.invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort' => 'Invalid proxy address format. Please use the format of IP:port or domain name:port.',
 			'settings.proxyNormalWork' => 'Proxy normal work.',
@@ -8653,8 +8701,6 @@ extension on Translations {
 			'settings.testProxyFailedWithException' => ({required Object exception}) => 'Test proxy failed, exception: ${exception}',
 			'settings.proxyConfig' => 'Proxy Config',
 			'settings.thisIsHttpProxyAddress' => 'This is http proxy address',
-			_ => null,
-		} ?? switch (path) {
 			'settings.checkProxy' => 'Check Proxy',
 			'settings.proxyAddress' => 'Proxy Address',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => 'Please enter the URL of the proxy server, for example 127.0.0.1:8080',
@@ -9160,6 +9206,8 @@ extension on Translations {
 			'oreno3d.messages.getVideoDetailFailed' => 'Failed to get video details',
 			'signIn.pleaseLoginFirst' => 'Please login first',
 			'signIn.alreadySignedInToday' => 'You have already signed in today!',
+			_ => null,
+		} ?? switch (path) {
 			'signIn.youDidNotStickToTheSignIn' => 'You did not stick to the sign in.',
 			'signIn.signInSuccess' => 'Sign in successfully!',
 			'signIn.signInFailed' => 'Sign in failed, please try again later',
@@ -9167,8 +9215,6 @@ extension on Translations {
 			'signIn.failureReason' => 'Failure Reason',
 			'signIn.selectDateRange' => 'Select Date Range',
 			'signIn.startDate' => 'Start Date',
-			_ => null,
-		} ?? switch (path) {
 			'signIn.endDate' => 'End Date',
 			'signIn.invalidDate' => 'Invalid Date',
 			'signIn.invalidDateRange' => 'Invalid Date Range',
@@ -9516,6 +9562,7 @@ extension on Translations {
 			'conversation.deleteThisMessage' => 'Delete this message',
 			'conversation.deleteThisMessageSubtitle' => 'This operation cannot be undone',
 			'conversation.writeMessageHere' => 'Write message here...',
+			'conversation.lastMessageFromMe' => 'You: ',
 			'conversation.sendMessage' => 'Send message',
 			'splash.errors.initializationFailed' => 'Initialization failed, please restart the app',
 			'splash.preparing' => 'Preparing...',
@@ -9673,6 +9720,8 @@ extension on Translations {
 			'download.category.createFailed' => 'Failed to create category',
 			'download.category.nameEmpty' => 'Category name cannot be empty',
 			'download.category.emptyHint' => 'No categories yet. Create one to organize your downloads.',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.moveTo' => 'Move to category',
 			'download.category.moveToWithCount' => ({required Object count}) => 'Move ${count} item(s) to…',
 			'download.category.moveSuccess' => ({required Object title}) => 'Moved to ${title}',
@@ -9681,8 +9730,6 @@ extension on Translations {
 			'download.category.renameTitle' => 'Rename category',
 			'download.category.renameHint' => 'Enter category name',
 			'download.category.renameSuccess' => 'Category renamed',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.renameFailed' => 'Failed to rename category',
 			'download.category.deleteTitle' => 'Delete category',
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'Delete category "${title}"? Its ${count} download(s) will be moved to Uncategorized; the files will not be deleted.',
@@ -9767,6 +9814,11 @@ extension on Translations {
 			'favorite.editFolderSuccess' => 'Folder updated successfully',
 			'favorite.editFolderFailed' => 'Failed to update folder',
 			'favorite.searchTags' => 'Search tags',
+			'favorite.noTagsInFolder' => 'No tags on the items in this folder yet',
+			'favorite.tagFilterMatchAll' => 'Shows only items carrying every selected tag',
+			'favorite.clearSelectedTags' => 'Clear selected tags',
+			'favorite.selectedTagCount' => ({required Object count}) => '${count} selected',
+			'favorite.noMatchingTags' => 'No matching tags',
 			'translation.currentService' => 'Current Service',
 			'translation.testConnection' => 'Test Connection',
 			'translation.testConnectionSuccess' => 'Test connection success',
@@ -10182,6 +10234,8 @@ extension on Translations {
 			'log.exportCurrentLogs' => 'Export Current Logs',
 			'log.exportCurrentLogsDesc' => 'Export the current application logs to help developers diagnose problems',
 			'log.exportHistoryLogs' => 'Export History Logs',
+			_ => null,
+		} ?? switch (path) {
 			'log.exportHistoryLogsDesc' => 'Export logs within a specified date range',
 			'log.exportMergedLogs' => 'Export Merged Logs',
 			'log.exportMergedLogsDesc' => 'Export merged logs within a specified date range',
@@ -10195,8 +10249,6 @@ extension on Translations {
 			'log.confirmClearAllLogs' => 'Confirm Clear',
 			'log.confirmClearAllLogsDesc' => 'Are you sure you want to clear all log data? This operation cannot be undone.',
 			'log.clearAllLogsSuccess' => 'Log cleared successfully',
-			_ => null,
-		} ?? switch (path) {
 			'log.clearAllLogsFailed' => ({required Object error}) => 'Failed to clear logs: ${error}',
 			'log.unableToGetLogSizeInfo' => 'Unable to get log size information',
 			'log.currentLogSize' => 'Current Log Size:',

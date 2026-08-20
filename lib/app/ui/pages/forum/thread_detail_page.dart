@@ -8,7 +8,7 @@ import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_reply_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/share_thread_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
@@ -20,7 +20,6 @@ import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'widgets/thread_comment_card_widget.dart';
@@ -250,20 +249,16 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
     final thread = _thread.value;
     if (thread == null) return;
     if (thread.locked) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.forum.errors.threadLocked,
-          type: MDToastType.warning,
-        ),
+      showGlassToast(
+        slang.t.forum.errors.threadLocked,
+        type: GlassToastType.warning,
       );
       return;
     }
     if (!_userService.isAuthenticated) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.errors.pleaseLoginFirst,
-          type: MDToastType.warning,
-        ),
+      showGlassToast(
+        slang.t.errors.pleaseLoginFirst,
+        type: GlassToastType.warning,
       );
       return;
     }
@@ -336,9 +331,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
           GlassGroupSlot(
             visible: loaded,
             child: GlassIconButton(
-              icon: Icon(
-                loaded && thread.locked ? Icons.lock : Icons.reply,
-              ),
+              icon: Icon(loaded && thread.locked ? Icons.lock : Icons.reply),
               tooltip: t.forum.reply,
               onPressed: _showReplySheet,
             ),
@@ -813,13 +806,9 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
 
     void copyUsername() {
       Clipboard.setData(ClipboardData(text: thread.user.username));
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.forum.copySuccessForMessage(
-            str: thread.user.username,
-          ),
-          type: MDToastType.success,
-        ),
+      showGlassToast(
+        slang.t.forum.copySuccessForMessage(str: thread.user.username),
+        type: GlassToastType.success,
       );
     }
 

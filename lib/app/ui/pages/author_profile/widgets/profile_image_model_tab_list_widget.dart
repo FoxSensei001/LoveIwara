@@ -60,7 +60,9 @@ class _ProfileImageModelTabListWidgetState
     extends State<ProfileImageModelTabListWidget>
     with AutomaticKeepAliveClientMixin {
   late UserzImageModelListRepository imageListRepository;
-  final ValueNotifier<int> _refreshSignal = ValueNotifier(0);
+
+  /// 带回执的刷新信号：header 上的刷新钮据此在刷完前显示沙漏。
+  final ListRefreshSignal _refreshSignal = ListRefreshSignal();
 
   /// 标签 / 日期筛选。与视频 tab 一致，作者页不提供评级筛选——服务端在带
   /// `user=` 的查询里会忽略 `rating`。
@@ -247,10 +249,10 @@ class _ProfileImageModelTabListWidgetState
                       : t.common.pagination.pagination,
                   onPressed: widget.onPaginationToggle,
                 ),
-                GlassIconButton(
+                GlassAsyncIconButton(
                   icon: const Icon(Icons.refresh),
                   tooltip: t.common.refresh,
-                  onPressed: () => _refreshSignal.value++,
+                  onPressed: _refreshSignal.request,
                 ),
               ],
             ),

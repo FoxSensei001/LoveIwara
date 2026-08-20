@@ -2,11 +2,7 @@ import 'package:uuid/uuid.dart';
 import 'dart:convert';
 import 'package:i_iwara/app/models/tag.model.dart';
 
-enum FavoriteItemType {
-  video,
-  image,
-  user,
-}
+enum FavoriteItemType { video, image, user }
 
 class FavoriteItem {
   final String id;
@@ -37,10 +33,10 @@ class FavoriteItem {
     List<Tag>? tags,
     DateTime? createdAt,
     DateTime? updatedAt,
-  })  : id = id ?? const Uuid().v4(),
-        tags = tags ?? [],
-        createdAt = createdAt ?? DateTime.now(),
-        updatedAt = updatedAt ?? DateTime.now();
+  }) : id = id ?? const Uuid().v4(),
+       tags = tags ?? [],
+       createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   factory FavoriteItem.fromJson(Map<String, dynamic> json) {
     return FavoriteItem(
@@ -57,8 +53,10 @@ class FavoriteItem {
       authorUsername: json['author_username'],
       authorAvatarUrl: json['author_avatar_url'],
       extData: json['ext_data'] != null ? jsonDecode(json['ext_data']) : null,
-      tags: json['tags'] != null 
-          ? (jsonDecode(json['tags']) as List).map((tag) => Tag.fromJson(tag)).toList()
+      tags: json['tags'] != null
+          ? (jsonDecode(json['tags']) as List)
+                .map((tag) => Tag.fromJson(tag))
+                .toList()
           : null,
       createdAt: json['created_at'] != null
           ? DateTime.fromMillisecondsSinceEpoch(json['created_at'] * 1000)
@@ -81,7 +79,9 @@ class FavoriteItem {
       'author_username': authorUsername,
       'author_avatar_url': authorAvatarUrl,
       'ext_data': extData != null ? jsonEncode(extData) : null,
-      'tags': tags.isNotEmpty ? jsonEncode(tags.map((tag) => tag.toJson()).toList()) : null,
+      'tags': tags.isNotEmpty
+          ? jsonEncode(tags.map((tag) => tag.toJson()).toList())
+          : null,
       'created_at': createdAt.millisecondsSinceEpoch ~/ 1000,
       'updated_at': updatedAt.millisecondsSinceEpoch ~/ 1000,
     };
@@ -118,4 +118,4 @@ class FavoriteItem {
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
-} 
+}

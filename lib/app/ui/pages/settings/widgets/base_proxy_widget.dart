@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 
 import '../../../../../utils/logger_utils.dart';
 import '../../../../../utils/proxy/proxy_util.dart';
@@ -17,7 +16,8 @@ abstract class BaseProxyWidget extends StatefulWidget {
   BaseProxyWidgetState<BaseProxyWidget> createState();
 }
 
-abstract class BaseProxyWidgetState<T extends BaseProxyWidget> extends State<T> {
+abstract class BaseProxyWidgetState<T extends BaseProxyWidget>
+    extends State<T> {
   final TextEditingController proxyController = TextEditingController();
   final RxBool isProxyEnabled = false.obs;
   final RxBool isChecking = false.obs;
@@ -36,14 +36,13 @@ abstract class BaseProxyWidgetState<T extends BaseProxyWidget> extends State<T> 
     dioClient = Dio()..options.persistentConnection = false;
 
     // 初始化控件的值
-    proxyController.text =
-        configService[ConfigKey.PROXY_URL]?.toString() ?? '';
-    isProxyEnabled.value =
-        configService[ConfigKey.USE_PROXY] as bool? ?? false;
+    proxyController.text = configService[ConfigKey.PROXY_URL]?.toString() ?? '';
+    isProxyEnabled.value = configService[ConfigKey.USE_PROXY] as bool? ?? false;
 
     LogUtils.d(
-        '初始化完成, 代理地址: ${proxyController.text}, 是否启用代理: $isProxyEnabled',
-        tag);
+      '初始化完成, 代理地址: ${proxyController.text}, 是否启用代理: $isProxyEnabled',
+      tag,
+    );
   }
 
   @override
@@ -58,7 +57,8 @@ abstract class BaseProxyWidgetState<T extends BaseProxyWidget> extends State<T> 
   bool isValidProxyAddress(String address) {
     // 允许 IP:端口 或 域名:端口 格式，支持只写 IP:端口，也支持前面带有协议的地址，localhost:7890
     final RegExp regex = RegExp(
-        r'^(?:(?:https?|socks[45]):\/\/)?(?:[a-zA-Z0-9-_.]+|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):[1-9]\d{0,4}$');
+      r'^(?:(?:https?|socks[45]):\/\/)?(?:[a-zA-Z0-9-_.]+|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):[1-9]\d{0,4}$',
+    );
     return regex.hasMatch(address);
   }
 
@@ -67,23 +67,25 @@ abstract class BaseProxyWidgetState<T extends BaseProxyWidget> extends State<T> 
     final proxyUrl = configService[ConfigKey.PROXY_URL]?.toString() ?? '';
     LogUtils.i('开始检测代理: $proxyUrl', tag);
     if (proxyUrl.isEmpty) {
-      showToastWidget(
-          MDToastWidget(
-              message: slang.t.settings.proxyAddressCannotBeEmpty,
-              type: MDToastType.error),
-          position: ToastPosition.top);
+      showGlassToast(
+        slang.t.settings.proxyAddressCannotBeEmpty,
+        type: GlassToastType.error,
+        position: GlassToastPosition.top,
+      );
       LogUtils.e('检测代理失败: 代理地址为空', tag: tag);
       return;
     }
 
     if (!isValidProxyAddress(proxyUrl)) {
       LogUtils.e('检测代理格式失败: $proxyUrl', tag: tag);
-      showToastWidget(
-          MDToastWidget(
-              message: slang.t.settings
-                  .invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort,
-              type: MDToastType.error),
-          position: ToastPosition.top);
+      showGlassToast(
+        slang
+            .t
+            .settings
+            .invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort,
+        type: GlassToastType.error,
+        position: GlassToastPosition.top,
+      );
       return;
     }
 
@@ -96,28 +98,28 @@ abstract class BaseProxyWidgetState<T extends BaseProxyWidget> extends State<T> 
       // 使用 Dio 发送请求到谷歌
       final response = await dioClient.get('https://www.google.com');
       if (response.statusCode == 200 || response.statusCode == 302) {
-        showToastWidget(
-            MDToastWidget(
-                message: slang.t.settings.proxyNormalWork,
-                type: MDToastType.success),
-            position: ToastPosition.bottom);
+        showGlassToast(
+          slang.t.settings.proxyNormalWork,
+          type: GlassToastType.success,
+          position: GlassToastPosition.bottom,
+        );
         LogUtils.i('代理检测成功，响应状态码: ${response.statusCode}', tag);
       } else {
-        showToastWidget(
-            MDToastWidget(
-                message: slang.t.settings.testProxyFailedWithStatusCode(
-                    code: response.statusCode.toString()),
-                type: MDToastType.error),
-            position: ToastPosition.bottom);
+        showGlassToast(
+          slang.t.settings.testProxyFailedWithStatusCode(
+            code: response.statusCode.toString(),
+          ),
+          type: GlassToastType.error,
+          position: GlassToastPosition.bottom,
+        );
         LogUtils.e('代理检测失败，响应状态码: ${response.statusCode}', tag: tag);
       }
     } catch (e) {
-      showToastWidget(
-          MDToastWidget(
-              message: slang.t.settings
-                  .testProxyFailedWithException(exception: e.toString()),
-              type: MDToastType.error),
-          position: ToastPosition.bottom);
+      showGlassToast(
+        slang.t.settings.testProxyFailedWithException(exception: e.toString()),
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
+      );
       LogUtils.e('代理请求出错: $e', tag: tag);
     } finally {
       setState(() {
@@ -131,12 +133,10 @@ abstract class BaseProxyWidgetState<T extends BaseProxyWidget> extends State<T> 
   void setFlutterEngineProxy(String proxyUrl) {
     if (ProxyUtil.isSupportedPlatform()) {
       // 显示需要重启的提示
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.settings.needRestartToApply,
-          type: MDToastType.info,
-        ),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        slang.t.settings.needRestartToApply,
+        type: GlassToastType.info,
+        position: GlassToastPosition.bottom,
       );
     } else {
       LogUtils.e('当前平台不支持设置代理', tag: tag);
@@ -155,7 +155,8 @@ abstract class BaseProxyWidgetState<T extends BaseProxyWidget> extends State<T> 
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                    Theme.of(context).primaryColor),
+                  Theme.of(context).primaryColor,
+                ),
               ),
             )
           : ElevatedButton.icon(
@@ -164,7 +165,9 @@ abstract class BaseProxyWidgetState<T extends BaseProxyWidget> extends State<T> 
               label: Text(t.settings.checkProxy),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 12),
+                  horizontal: 16,
+                  vertical: 12,
+                ),
               ),
             ),
     );
@@ -192,7 +195,9 @@ abstract class BaseProxyWidgetState<T extends BaseProxyWidget> extends State<T> 
         children: [
           Icon(
             Icons.vpn_key,
-            color: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white
+                : null,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -203,24 +208,29 @@ abstract class BaseProxyWidgetState<T extends BaseProxyWidget> extends State<T> 
               ),
             ),
           ),
-          Obx(() => Switch(
-                value: isProxyEnabled.value,
-                onChanged: (value) {
-                  LogUtils.d(
-                      '启用代理: $value, 代理地址: ${configService[ConfigKey.PROXY_URL]}',
-                      tag);
-                  isProxyEnabled.value = value;
-                  configService[ConfigKey.USE_PROXY] = value;
-                  if (value) {
-                    setFlutterEngineProxy(proxyController.text.trim());
-                    LogUtils.i('代理已启用', tag);
-                  } else {
-                    setFlutterEngineProxy(proxyController.text.trim());
-                    LogUtils.i('代理已禁用（重启后生效）', tag);
-                  }
-                },
-                activeThumbColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
-              )),
+          Obx(
+            () => Switch(
+              value: isProxyEnabled.value,
+              onChanged: (value) {
+                LogUtils.d(
+                  '启用代理: $value, 代理地址: ${configService[ConfigKey.PROXY_URL]}',
+                  tag,
+                );
+                isProxyEnabled.value = value;
+                configService[ConfigKey.USE_PROXY] = value;
+                if (value) {
+                  setFlutterEngineProxy(proxyController.text.trim());
+                  LogUtils.i('代理已启用', tag);
+                } else {
+                  setFlutterEngineProxy(proxyController.text.trim());
+                  LogUtils.i('代理已禁用（重启后生效）', tag);
+                }
+              },
+              activeThumbColor: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : null,
+            ),
+          ),
         ],
       ),
     );

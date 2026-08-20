@@ -5,8 +5,7 @@ import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_row_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/responsive_dialog_widget.dart';
 
@@ -211,12 +210,10 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
     });
 
     final t = slang.Translations.of(context);
-    showToastWidget(
-      MDToastWidget(
-        message: t.searchFilter.copied,
-        type: MDToastType.success,
-      ),
-      position: ToastPosition.bottom,
+    showGlassToast(
+      t.searchFilter.copied,
+      type: GlassToastType.success,
+      position: GlassToastPosition.bottom,
     );
 
     Future.delayed(const Duration(seconds: 2), () {
@@ -237,26 +234,27 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
   // 验证范围类型的值
   String? _validateRangeValue(Filter filter) {
     if (filter.operator != FilterOperator.RANGE) return null;
-    
+
     if (filter.value is! Map) return slang.t.searchFilter.rangeValueFormatError;
-    
+
     final rangeValue = filter.value as Map;
     final from = rangeValue['from']?.toString().trim();
     final to = rangeValue['to']?.toString().trim();
-    
+
     // 对于范围类型，要求必须填写两个值
     if (from == null || from.isEmpty) {
       return slang.t.searchFilter.pleaseFillStartValue;
     }
-    
+
     if (to == null || to.isEmpty) {
       return slang.t.searchFilter.pleaseFillEndValue;
     }
-    
+
     // 验证逻辑关系
-    final field = FilterConfig.getContentType(_currentSegment)?.fields
-        .firstWhere((f) => f.name == filter.field);
-    
+    final field = FilterConfig.getContentType(
+      _currentSegment,
+    )?.fields.firstWhere((f) => f.name == filter.field);
+
     if (field?.type == FilterFieldType.NUMBER) {
       try {
         final fromNum = double.parse(from);
@@ -278,7 +276,7 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
         return slang.t.searchFilter.pleaseEnterValidDate;
       }
     }
-    
+
     return null;
   }
 
@@ -430,8 +428,7 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
                                   t.searchFilter.generatedQuery,
@@ -443,8 +440,9 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
                                   ),
                                 ),
                                 IconButton(
-                                  onPressed:
-                                      _validateForm() ? _copyToClipboard : null,
+                                  onPressed: _validateForm()
+                                      ? _copyToClipboard
+                                      : null,
                                   icon: Icon(
                                     _copied ? Icons.check : Icons.copy,
                                     size: 18,

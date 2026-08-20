@@ -3,9 +3,10 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/deep_link_service.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/common/constants.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
@@ -76,44 +77,61 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        width: double.infinity,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      clipBehavior: Clip.antiAlias,
+      child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.8,
-        ),
-        decoration: BoxDecoration(
-          color: Theme.of(context).dialogTheme.backgroundColor,
-          borderRadius: BorderRadius.circular(16),
+          maxWidth: 520,
+          maxHeight: MediaQuery.sizeOf(context).height * 0.8,
         ),
         child: CustomScrollView(
           shrinkWrap: true,
           slivers: [
-            // 标题部分
+            // 标题行：标题 + 玻璃关闭圆钮（全局统一约定）
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+                padding: const EdgeInsets.fromLTRB(20, 16, 12, 4),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      slang.t.linkInputDialog.title,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.insert_link_rounded,
+                          size: 22,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            slang.t.linkInputDialog.title,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                        GlassIconButton(
+                          standalone: true,
+                          icon: const Icon(Icons.close),
+                          tooltip: slang.t.common.close,
+                          onPressed: () => AppService.tryPop(),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      slang.t.linkInputDialog.supportedLinksHint(
-                        webName: CommonConstants.webName,
-                      ),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(
-                          context,
-                        ).textTheme.bodySmall?.color?.withValues(alpha: 0.8),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Text(
+                        slang.t.linkInputDialog.supportedLinksHint(
+                          webName: CommonConstants.webName,
+                        ),
+                        style: TextStyle(
+                          fontSize: 12,
+                          height: 1.3,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ),
                   ],
@@ -121,35 +139,58 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
               ),
             ),
 
-            // 输入表单部分
+            // 输入表单部分：玻璃胶囊输入框
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
                 child: Form(
                   key: formKey,
-                  child: TextFormField(
-                    controller: textController,
-                    decoration: InputDecoration(
-                      hintText: slang.t.linkInputDialog.inputHint(
-                        webName: CommonConstants.webName,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: GlassTokens.fill(colorScheme),
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(
+                        color: GlassTokens.stroke(colorScheme),
+                        width: GlassTokens.strokeWidth,
                       ),
-                      prefixIcon: const Icon(Icons.insert_link_rounded),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return slang.t.linkInputDialog.validatorEmptyLink;
-                      }
-                      // 如果未检测到iwara链接，显示错误
-                      if (extractedLinks.isEmpty) {
-                        return slang.t.linkInputDialog.validatorNoIwaraLink(
+                    child: TextFormField(
+                      controller: textController,
+                      decoration: InputDecoration(
+                        hintText: slang.t.linkInputDialog.inputHint(
                           webName: CommonConstants.webName,
-                        );
-                      }
-                      return null;
-                    },
-                    autofocus: true,
-                    maxLines: 3,
-                    minLines: 1,
+                        ),
+                        hintStyle: TextStyle(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        prefixIcon: Icon(
+                          Icons.insert_link_rounded,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return slang.t.linkInputDialog.validatorEmptyLink;
+                        }
+                        // 如果未检测到iwara链接，显示错误
+                        if (extractedLinks.isEmpty) {
+                          return slang.t.linkInputDialog.validatorNoIwaraLink(
+                            webName: CommonConstants.webName,
+                          );
+                        }
+                        return null;
+                      },
+                      autofocus: true,
+                      maxLines: 3,
+                      minLines: 1,
+                    ),
                   ),
                 ),
               ),
@@ -159,38 +200,60 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
             if (hasMultipleLinks)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 8),
-                      Text(
-                        slang.t.linkInputDialog.multipleLinksDetected,
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 8),
-                    ],
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                  child: Text(
+                    slang.t.linkInputDialog.multipleLinksDetected,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
 
-            // 链接列表 - 仅在有多个链接时显示
+            // 链接列表 - 仅在有多个链接时显示（圆角描边卡，与通知列表同款）
             if (hasMultipleLinks)
               SliverList(
                 delegate: SliverChildBuilderDelegate((context, index) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: ListTile(
-                      title: Text(
-                        extractedLinks[index],
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                    child: Material(
+                      color: colorScheme.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(14),
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        onTap: () {
+                          AppService.tryPop();
+                          _processUserLink(extractedLinks[index]);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: GlassTokens.stroke(colorScheme),
+                              width: GlassTokens.strokeWidth,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.link,
+                                size: 20,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  extractedLinks[index],
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      leading: const Icon(Icons.link),
-                      onTap: () {
-                        AppService.tryPop();
-                        _processUserLink(extractedLinks[index]);
-                      },
                     ),
                   );
                 }, childCount: extractedLinks.length),
@@ -199,17 +262,16 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
             // 按钮部分
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 16, 8, 16),
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     TextButton(
-                      child: const Text("取消"),
                       onPressed: () => AppService.tryPop(),
+                      child: Text(slang.t.common.cancel),
                     ),
                     const SizedBox(width: 8),
-                    ElevatedButton(
-                      child: const Text("确定"),
+                    FilledButton(
                       onPressed: () {
                         if (formKey.currentState!.validate()) {
                           // 如果只有一个链接，直接处理
@@ -229,8 +291,8 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
                           }
                         }
                       },
+                      child: Text(slang.t.common.confirm),
                     ),
-                    const SizedBox(width: 8),
                   ],
                 ),
               ),
@@ -248,14 +310,12 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
 
       if (!DeepLinkService.canHandleLink(link) &&
           !IwaraSiteUtils.isIwaraHost(uri.host)) {
-        showToastWidget(
-          MDToastWidget(
-            message: slang.t.linkInputDialog.notIwaraLink(
-              webName: CommonConstants.webName,
-            ),
-            type: MDToastType.error,
+        showGlassToast(
+          slang.t.linkInputDialog.notIwaraLink(
+            webName: CommonConstants.webName,
           ),
-          position: ToastPosition.top,
+          type: GlassToastType.error,
+          position: GlassToastPosition.top,
         );
         return;
       }
@@ -266,12 +326,10 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
         _showUnsupportedLinkDialog(link);
       }
     } catch (e) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.linkInputDialog.linkParseError(error: e.toString()),
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.top,
+      showGlassToast(
+        slang.t.linkInputDialog.linkParseError(error: e.toString()),
+        type: GlassToastType.error,
+        position: GlassToastPosition.top,
       );
     }
   }
@@ -363,12 +421,10 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.linkInputDialog.browserOpenFailed,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.top,
+      showGlassToast(
+        slang.t.linkInputDialog.browserOpenFailed,
+        type: GlassToastType.error,
+        position: GlassToastPosition.top,
       );
     }
   }
@@ -389,28 +445,36 @@ class _CustomDialogWithScrollView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      clipBehavior: Clip.antiAlias,
+      child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.8,
-        ),
-        decoration: BoxDecoration(
-          color: Theme.of(context).dialogTheme.backgroundColor,
-          borderRadius: BorderRadius.circular(16),
+          maxWidth: 520,
+          maxHeight: MediaQuery.sizeOf(context).height * 0.8,
         ),
         child: CustomScrollView(
           shrinkWrap: true,
           slivers: [
-            // 标题
+            // 标题行：标题 + 玻璃关闭圆钮（全局统一约定）
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                padding: const EdgeInsets.fromLTRB(20, 16, 12, 4),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    GlassIconButton(
+                      standalone: true,
+                      icon: const Icon(Icons.close),
+                      tooltip: slang.t.common.close,
+                      onPressed: () => AppService.tryPop(),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -418,7 +482,7 @@ class _CustomDialogWithScrollView extends StatelessWidget {
             // 内容
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
                 child: content is String ? Text(content) : content,
               ),
             ),
@@ -426,7 +490,7 @@ class _CustomDialogWithScrollView extends StatelessWidget {
             // 按钮
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+                padding: const EdgeInsets.fromLTRB(12, 0, 20, 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [

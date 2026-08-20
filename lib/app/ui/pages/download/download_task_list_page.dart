@@ -20,12 +20,11 @@ import 'package:i_iwara/app/ui/pages/download/widgets/gallery_download_task_item
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:super_clipboard/super_clipboard.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 /// Status filter options for download tasks
@@ -187,22 +186,18 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       );
     } catch (_) {
       if (!mounted) return;
-      showToastWidget(
-        MDToastWidget(
-          message: t.download.errors.failedToLoadTasks,
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        t.download.errors.failedToLoadTasks,
+        type: GlassToastType.error,
       );
       return;
     }
     if (!mounted) return;
 
     if (tasks.isEmpty) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.download.deleteByDate.noMatch,
-          type: MDToastType.warning,
-        ),
+      showGlassToast(
+        t.download.deleteByDate.noMatch,
+        type: GlassToastType.warning,
       );
       return;
     }
@@ -240,21 +235,17 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
 
     // 4. 结果提示：全部成功 / 部分被占用跳过。
     if (result.skipped == 0) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.download.deleteByDate.resultSuccess(count: result.deleted),
-          type: MDToastType.success,
-        ),
+      showGlassToast(
+        t.download.deleteByDate.resultSuccess(count: result.deleted),
+        type: GlassToastType.success,
       );
     } else {
-      showToastWidget(
-        MDToastWidget(
-          message: t.download.deleteByDate.resultPartial(
-            deleted: result.deleted,
-            skipped: result.skipped,
-          ),
-          type: MDToastType.warning,
+      showGlassToast(
+        t.download.deleteByDate.resultPartial(
+          deleted: result.deleted,
+          skipped: result.skipped,
         ),
+        type: GlassToastType.warning,
       );
     }
 
@@ -1801,11 +1792,9 @@ void showDownloadDetailDialog(BuildContext context, DownloadTask task) async {
                       await SystemClipboard.instance?.write([item]);
 
                       if (context.mounted) {
-                        showToastWidget(
-                          MDToastWidget(
-                            message: t.download.copySuccess,
-                            type: MDToastType.success,
-                          ),
+                        showGlassToast(
+                          t.download.copySuccess,
+                          type: GlassToastType.success,
                         );
                       }
                     },
@@ -1908,11 +1897,9 @@ class _DeleteByDateDialogState extends State<_DeleteByDateDialog> {
       final start = _startDate;
       final end = _endDate;
       if (start != null && end != null && start.isAfter(end)) {
-        showToastWidget(
-          MDToastWidget(
-            message: t.download.deleteByDate.invalidRange,
-            type: MDToastType.warning,
-          ),
+        showGlassToast(
+          t.download.deleteByDate.invalidRange,
+          type: GlassToastType.warning,
         );
         return;
       }

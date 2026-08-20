@@ -99,8 +99,11 @@ common:
   unfollow: フォロー解除
   specialFollow: 特別フォロー
   specialFollowed: 特別フォロー済み
-  specialFollowsManagementTip: ドラッグして並べ替え • 左スワイプで削除
+  specialFollowsManagementTip: ハンドルをドラッグで並べ替え • 右のボタンで削除
   specialFollowsManagement: 特別フォロー管理
+  removeSpecialFollow: 特別フォローを解除
+  removeSpecialFollowConfirm: '${name} を特別フォローから外しますか？'
+  noSpecialFollows: 特別フォローはまだありません
   createTimeDesc: 作成時間降順
   createTimeAsc: 作成時間昇順
   gallery: ギャラリー
@@ -258,7 +261,7 @@ common:
   deleteRecordsInDateRangeConfirm: 'この期間の ${num} 件の履歴を削除してもよろしいですか？この操作は取り消せません。'
   noHistoryRecordsInRange: この期間の履歴はありません
   followSuccessClickAgainToSpecialFollow: フォローに成功しました。再度クリックして特別フォロー
-  specialFollowTip: 特別フォローに追加しました。購読ページ左上のセレクターで切り替えると、すぐに確認できます
+  specialFollowTip: 特別フォローに追加しました。購読ページ右上のセレクターで切り替えると、すぐに確認できます
   exitConfirmTip: 本当に退出しますか？
   error: エラー
   taskRunning: "既にタスクが実行中です。しばらくお待ちください。"
@@ -423,6 +426,10 @@ authorProfile:
 favorites:
   clickToRestoreFavorite: お気に入りを復元するにはクリックしてください
   myFavorites: 私のお気に入り
+  batchCancelFavorite: お気に入りを一括解除
+  batchCancelFavoriteConfirm(count): '選択した ${count} 件のお気に入りを解除しますか？解除後もカードをタップすれば復元できます。'
+  batchCancelFavoriteSuccess(count): '${count} 件のお気に入りを解除しました'
+  batchCancelFavoriteResult(success, failed): '${success} 件を解除しました。${failed} 件は失敗しました'
 
 galleryDetail:
   galleryDetail: ギャラリー詳細
@@ -1466,6 +1473,7 @@ conversation:
   deleteThisMessage: このメッセージを削除
   deleteThisMessageSubtitle: この操作は取り消せません
   writeMessageHere: ここにメッセージを入力...
+  lastMessageFromMe: "自分: "
   sendMessage: メッセージを送信
 
 splash:
@@ -1731,6 +1739,11 @@ favorite:
   editFolderSuccess: フォルダー名を更新しました
   editFolderFailed: フォルダー名の更新に失敗しました
   searchTags: タグを検索
+  noTagsInFolder: このフォルダーの作品にはまだタグがありません
+  tagFilterMatchAll: 選択したタグをすべて含む作品のみ表示します
+  clearSelectedTags: 選択したタグをクリア
+  selectedTagCount: "${count} 件選択中"
+  noMatchingTags: 一致するタグがありません
 
 translation:
   currentService: 現在のサービス

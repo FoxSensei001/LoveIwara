@@ -6,9 +6,8 @@ import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:oktoast/oktoast.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
 // 头部各行的显式尺寸——列表要用 paddingTop 让出这些高度，让内容可以从
@@ -17,12 +16,13 @@ const double _kPickerTitleRowHeight = 16 + 44 + 4;
 const double _kPickerSearchRowHeight = 8 + 44;
 const double _kPickerCreateRowHeight = 10 + 44;
 const double _kPickerHeaderTailSpacing = 8;
-const double _kPickerHeaderExtent = _kPickerTitleRowHeight +
+const double _kPickerHeaderExtent =
+    _kPickerTitleRowHeight +
     _kPickerSearchRowHeight +
     _kPickerCreateRowHeight +
     _kPickerHeaderTailSpacing;
 
-/// header 蒙层「淡出段」的高度：比 `GlassTokens.headerFadeExtent`(56)短很多，
+/// header 蒙层「淡出段」的高度：比 `GlassTokens.headerFadeExtent`(24)再短一点，
 /// 因为弹窗四周有 clip，过长的半透明淡出会把第一排卡片糊上一层白；20 只作为
 /// 「卡片钻进 header 背后」的过渡带，列表首屏起始位置放在这段之后，视觉上就
 /// 不会看到蒙层压在卡片上。
@@ -36,13 +36,11 @@ const double _kStatusSlotSize = 20;
 class AddVideoToPlayListDialog extends StatefulWidget {
   final String videoId;
 
-  const AddVideoToPlayListDialog({
-    super.key,
-    required this.videoId,
-  });
+  const AddVideoToPlayListDialog({super.key, required this.videoId});
 
   @override
-  State<AddVideoToPlayListDialog> createState() => _AddVideoToPlayListDialogState();
+  State<AddVideoToPlayListDialog> createState() =>
+      _AddVideoToPlayListDialogState();
 }
 
 class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
@@ -89,8 +87,10 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
   void _filterPlaylists(String query) {
     setState(() {
       _filteredPlaylists = _playlists
-          .where((playlist) =>
-              playlist.title.toLowerCase().contains(query.toLowerCase()))
+          .where(
+            (playlist) =>
+                playlist.title.toLowerCase().contains(query.toLowerCase()),
+          )
           .toList();
     });
   }
@@ -126,12 +126,10 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
           }
         } else {
           // 显示错误提示
-          showToastWidget(
-            MDToastWidget(
-              message: result.message,
-              type: MDToastType.error,
-            ),
-            position: ToastPosition.bottom,
+          showGlassToast(
+            result.message,
+            type: GlassToastType.error,
+            position: GlassToastPosition.bottom,
           );
         }
       });
@@ -151,21 +149,17 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
       _newPlaylistController.clear();
       await _fetchPlaylists();
       // 显示成功提示
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.common.success,
-          type: MDToastType.success,
-        ),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        slang.t.common.success,
+        type: GlassToastType.success,
+        position: GlassToastPosition.bottom,
       );
     } else {
       // 显示错误提示
-      showToastWidget(
-        MDToastWidget(
-          message: result.message,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        result.message,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
     }
 
@@ -212,10 +206,7 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       clipBehavior: Clip.antiAlias,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: 600,
-          maxHeight: 800,
-        ),
+        constraints: const BoxConstraints(maxWidth: 600, maxHeight: 800),
         child: Stack(
           children: [
             // 主体：列表铺满整个区域，用 paddingTop 让出 header 高度,让内容
@@ -248,9 +239,7 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
                         Expanded(
                           child: Text(
                             t.common.playList,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
+                            style: Theme.of(context).textTheme.titleLarge
                                 ?.copyWith(fontWeight: FontWeight.w600),
                           ),
                         ),

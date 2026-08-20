@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/services/tag_localization_service.dart';
 import 'package:i_iwara/app/services/oreno3d_localization_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 标签翻译纠错 / 反馈入口（项目 issue）。
@@ -18,12 +17,10 @@ void copyTagText(String text) {
   final data = DataWriterItem();
   data.add(Formats.plainText(text));
   SystemClipboard.instance?.write([data]);
-  showToastWidget(
-    MDToastWidget(
-      message: slang.t.common.copiedToClipboard,
-      type: MDToastType.success,
-    ),
-    position: ToastPosition.bottom,
+  showGlassToast(
+    slang.t.common.copiedToClipboard,
+    type: GlassToastType.success,
+    position: GlassToastPosition.bottom,
     duration: const Duration(seconds: 1),
   );
 }

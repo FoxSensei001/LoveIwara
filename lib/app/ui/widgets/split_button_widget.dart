@@ -8,10 +8,9 @@ import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/login_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
-import 'package:oktoast/oktoast.dart';
 
 /// 操作栏按钮的胶囊高度：比 GlassTokens.pillHeight（44，独立浮动控件用）矮一档，
 /// 适配一排并列的密集操作按钮，避免整行显得过大。
@@ -173,12 +172,7 @@ class _FilledLikeButtonState extends State<FilledLikeButton> {
     // 如果 liked 为 null，说明正在加载状态，不允许操作
     if (_isLiked == null) return;
     if (!_userService.isAuthenticated) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.errors.pleaseLoginFirst,
-          type: MDToastType.error,
-        ),
-      );
+      showGlassToast(t.errors.pleaseLoginFirst, type: GlassToastType.error);
       LoginService.showLogin();
       return;
     }
@@ -204,9 +198,10 @@ class _FilledLikeButtonState extends State<FilledLikeButton> {
     } catch (e) {
       // 使用 CommonUtils.parseExceptionMessage 来获取详细的错误信息
       final errorMessage = CommonUtils.parseExceptionMessage(e);
-      showToastWidget(
-        MDToastWidget(message: errorMessage, type: MDToastType.error),
-        position: ToastPosition.top,
+      showGlassToast(
+        errorMessage,
+        type: GlassToastType.error,
+        position: GlassToastPosition.top,
       );
     } finally {
       if (mounted) {

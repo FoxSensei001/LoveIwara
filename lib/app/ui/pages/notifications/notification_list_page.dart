@@ -9,11 +9,10 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:loading_more_list/loading_more_list.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
@@ -73,28 +72,19 @@ class _NotificationListPageState extends State<NotificationListPage> {
       final result = await _userService.markAllNotificationAsRead();
       if (result.isSuccess) {
         _userService.refreshNotificationCount();
-        showToastWidget(
-          MDToastWidget(
-            message: slang.t.notifications.markAllAsReadSuccess,
-            type: MDToastType.success,
-          ),
+        showGlassToast(
+          slang.t.notifications.markAllAsReadSuccess,
+          type: GlassToastType.success,
         );
         // 刷新列表和计数
         await listSourceRepository.refresh();
       } else {
-        showToastWidget(
-          MDToastWidget(
-            message: result.message,
-            type: MDToastType.error,
-          ),
-        );
+        showGlassToast(result.message, type: GlassToastType.error);
       }
     } catch (e) {
-      showToastWidget(
-        MDToastWidget(
-          message: '${slang.t.errors.failedToOperate}: $e',
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        '${slang.t.errors.failedToOperate}: $e',
+        type: GlassToastType.error,
       );
     } finally {
       _isMarkingAllAsRead.value = false;
@@ -140,9 +130,7 @@ class _NotificationListPageState extends State<NotificationListPage> {
                       Expanded(
                         child: Text(
                           slang.t.notifications.notificationTypeHelp,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
+                          style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                       ),
@@ -161,7 +149,10 @@ class _NotificationListPageState extends State<NotificationListPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        slang.t.notifications.dueToLackOfNotificationTypeDetails,
+                        slang
+                            .t
+                            .notifications
+                            .dueToLackOfNotificationTypeDetails,
                         style: TextStyle(
                           color: colorScheme.onSurfaceVariant,
                           height: 1.4,
@@ -170,7 +161,9 @@ class _NotificationListPageState extends State<NotificationListPage> {
                       const SizedBox(height: 8),
                       Text(
                         slang
-                            .t.notifications.helpUsImproveNotificationTypeSupport,
+                            .t
+                            .notifications
+                            .helpUsImproveNotificationTypeSupport,
                         style: TextStyle(
                           color: colorScheme.onSurfaceVariant,
                           height: 1.4,
@@ -178,7 +171,9 @@ class _NotificationListPageState extends State<NotificationListPage> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        slang.t.notifications
+                        slang
+                            .t
+                            .notifications
                             .helpUsImproveNotificationTypeSupportLongText,
                         style: TextStyle(
                           color: colorScheme.onSurfaceVariant,
@@ -211,37 +206,35 @@ class _NotificationListPageState extends State<NotificationListPage> {
 
   /// 右侧动作胶囊：全部已读（带未读小红点）· 刷新 · 帮助。
   Widget _buildActionGroup(BuildContext context) {
-    return Obx(
-      () {
-        final bool marking = _isMarkingAllAsRead.value;
-        final bool refreshing = _isRefreshing.value;
-        final int unread = _unreadCount;
-        return GlassButtonGroup(
-          children: [
-            GlassIconButton(
-              // 忙碌时图标经 GlassAnimatedIcon 交叉过渡成沙漏，而不是整钮换 Shimmer
-              icon: Icon(
-                marking ? Icons.hourglass_top : Icons.mark_email_read,
-              ),
-              tooltip: slang.t.notifications.markAllAsRead,
-              // 未读小红点：有未读时弹跳出现，全部已读后收缩消失
-              showBadge: unread > 0 && !marking,
-              onPressed: marking ? null : _markAllAsRead,
-            ),
-            GlassIconButton(
-              icon: Icon(refreshing ? Icons.hourglass_top : Icons.refresh),
-              tooltip: slang.t.common.refresh,
-              onPressed: refreshing ? null : _refreshList,
-            ),
-            GlassIconButton(
-              icon: const Icon(Icons.help_outline),
-              tooltip: slang.t.notifications.notificationTypeHelp,
-              onPressed: _showHelpDialog,
-            ),
-          ],
-        );
-      },
-    );
+    return Obx(() {
+      final bool marking = _isMarkingAllAsRead.value;
+      final bool refreshing = _isRefreshing.value;
+      final int unread = _unreadCount;
+      return GlassButtonGroup(
+        children: [
+          GlassIconButton(
+            // 忙碌时图标经 GlassAnimatedIcon 交叉过渡成沙漏，而不是整钮换 Shimmer
+            icon: const Icon(Icons.mark_email_read),
+            loading: marking,
+            tooltip: slang.t.notifications.markAllAsRead,
+            // 未读小红点：有未读时弹跳出现，全部已读后收缩消失
+            showBadge: unread > 0,
+            onPressed: _markAllAsRead,
+          ),
+          GlassIconButton(
+            icon: const Icon(Icons.refresh),
+            loading: refreshing,
+            tooltip: slang.t.common.refresh,
+            onPressed: _refreshList,
+          ),
+          GlassIconButton(
+            icon: const Icon(Icons.help_outline),
+            tooltip: slang.t.notifications.notificationTypeHelp,
+            onPressed: _showHelpDialog,
+          ),
+        ],
+      );
+    });
   }
 
   /// 滚过一段后出现在右下角的「回到顶部」浮钮。
@@ -316,11 +309,11 @@ class _NotificationListPageState extends State<NotificationListPage> {
                     ),
                     indicatorBuilder: (context, status) =>
                         myLoadingMoreIndicator(
-                      context,
-                      status,
-                      isSliver: true,
-                      loadingMoreBase: listSourceRepository,
-                    ),
+                          context,
+                          status,
+                          isSliver: true,
+                          loadingMoreBase: listSourceRepository,
+                        ),
                   ),
                 ),
               ],
@@ -341,16 +334,14 @@ class _NotificationListPageState extends State<NotificationListPage> {
               const SizedBox(width: 8),
               // 标题胶囊：未读数并入标题，点按/长按可弹完整标题
               Expanded(
-                child: Obx(
-                  () {
-                    final int count = _unreadCount;
-                    return GlassTitlePill(
-                      title: count > 0
-                          ? '${slang.t.notifications.notifications} ($count)'
-                          : slang.t.notifications.notifications,
-                    );
-                  },
-                ),
+                child: Obx(() {
+                  final int count = _unreadCount;
+                  return GlassTitlePill(
+                    title: count > 0
+                        ? '${slang.t.notifications.notifications} ($count)'
+                        : slang.t.notifications.notifications,
+                  );
+                }),
               ),
               const SizedBox(width: 8),
               _buildActionGroup(context),

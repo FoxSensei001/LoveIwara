@@ -414,7 +414,11 @@ class PaginationBar extends StatefulWidget {
 
   /// `useBlurEffect` 模式下，分页栏内容上方额外的透明渐入区高度。
   /// 调用方给列表预留底部空间时要把它一并算进去，否则最后一行会被压在渐变里。
-  static const double fadeAboveExtent = 28.0;
+  ///
+  /// 只是一条软边，不是背景：2026-08-20 从 28 收到 14——过长的渐入区会在栏体
+  /// 之上糊出一片，看起来像分页栏的阴影漏到了内容里（与
+  /// [GlassTokens.headerFadeExtent] 同一次收紧）。
+  static const double fadeAboveExtent = 14.0;
 
   final int currentPage;
   final int totalPages;

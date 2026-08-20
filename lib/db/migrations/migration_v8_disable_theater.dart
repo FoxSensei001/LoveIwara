@@ -30,4 +30,4 @@ class MigrationV8DisableTheater extends Migration {
     db.execute('PRAGMA user_version = 7;');
     LogUtils.i('已回滚迁移v8：恢复剧院模式默认值');
   }
-} 
+}

@@ -89,7 +89,8 @@ class _SettingItemState extends State<SettingItem> {
                       Expanded(
                         child: Text(
                           widget.label,
-                          style: widget.labelStyle ??
+                          style:
+                              widget.labelStyle ??
                               Theme.of(context).textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -117,7 +118,8 @@ class _SettingItemState extends State<SettingItem> {
                       Expanded(
                         child: Text(
                           widget.label,
-                          style: widget.labelStyle ??
+                          style:
+                              widget.labelStyle ??
                               Theme.of(context).textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -129,10 +131,7 @@ class _SettingItemState extends State<SettingItem> {
                   ),
                 ),
                 const SizedBox(width: 16),
-                SizedBox(
-                  width: 120,
-                  child: _buildTextField(),
-                ),
+                SizedBox(width: 120, child: _buildTextField()),
               ],
             ),
           ],
@@ -142,7 +141,9 @@ class _SettingItemState extends State<SettingItem> {
               child: Text(
                 _errorText!,
                 style: TextStyle(
-                    color: Theme.of(context).colorScheme.error, fontSize: 12),
+                  color: Theme.of(context).colorScheme.error,
+                  fontSize: 12,
+                ),
               ),
             ),
         ],
@@ -154,13 +155,14 @@ class _SettingItemState extends State<SettingItem> {
     // TextField 代码保持不变
     return TextField(
       readOnly: widget.readOnly,
-      decoration: widget.inputDecoration ??
+      decoration:
+          widget.inputDecoration ??
           InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
             ),
-            contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
@@ -179,8 +181,9 @@ class _SettingItemState extends State<SettingItem> {
               ),
             ),
             filled: true,
-            fillColor:
-            widget.readOnly ? Colors.grey.shade100 : Colors.transparent,
+            fillColor: widget.readOnly
+                ? Colors.grey.shade100
+                : Colors.transparent,
           ),
       keyboardType: widget.keyboardType,
       controller: _controller,

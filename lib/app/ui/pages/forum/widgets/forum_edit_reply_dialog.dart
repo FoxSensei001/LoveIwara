@@ -4,10 +4,9 @@ import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/common/widgets/input/input_components.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
-import 'package:oktoast/oktoast.dart';
 
 class ForumEditReplyDialog extends StatefulWidget {
   const ForumEditReplyDialog({
@@ -53,12 +52,7 @@ class _ForumEditReplyDialogState extends State<ForumEditReplyDialog> {
           _isLoading = false;
         });
       }
-      showToastWidget(
-        MDToastWidget(
-          message: t.errors.failedToFetchData,
-          type: MDToastType.error,
-        ),
-      );
+      showGlassToast(t.errors.failedToFetchData, type: GlassToastType.error);
       return;
     }
 
@@ -67,10 +61,7 @@ class _ForumEditReplyDialogState extends State<ForumEditReplyDialog> {
     jsonBody['body'] = text;
 
     // 发送编辑请求
-    final result = await _forumService.editPost(
-      widget.postId,
-      jsonBody,
-    );
+    final result = await _forumService.editPost(widget.postId, jsonBody);
 
     if (mounted) {
       setState(() {
@@ -84,12 +75,7 @@ class _ForumEditReplyDialogState extends State<ForumEditReplyDialog> {
         AppService.tryPop();
       }
     } else {
-      showToastWidget(
-        MDToastWidget(
-          message: result.message,
-          type: MDToastType.error,
-        ),
-      );
+      showGlassToast(result.message, type: GlassToastType.error);
     }
   }
 
@@ -100,7 +86,7 @@ class _ForumEditReplyDialogState extends State<ForumEditReplyDialog> {
       hintText: t.common.writeYourContentHere,
       maxLength: widget.maxBodyInputLimit,
       maxLines: 5,
-      showEmojiPicker: true,  // 启用表情包功能
+      showEmojiPicker: true, // 启用表情包功能
       showTranslation: false,
       showMarkdownHelp: true,
       showPreview: true,
@@ -111,4 +97,4 @@ class _ForumEditReplyDialogState extends State<ForumEditReplyDialog> {
       initialContent: widget.initialContent,
     );
   }
-} 
+}

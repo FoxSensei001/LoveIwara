@@ -15,6 +15,7 @@ import 'package:i_iwara/app/models/history_record.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/oreno3d_client.dart' show Oreno3dClient;
+import 'package:i_iwara/app/utils/iwara_different_site_recovery.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/utils/oreno3d_match_util.dart';
 import 'package:i_iwara/app/models/oreno3d_video.model.dart';
@@ -23,7 +24,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/controllers/player_notice.dart
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/related_media_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/dlna_cast_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/error_widget.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/services/message_service.dart';
 import 'package:i_iwara/common/anime4k_presets.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -2086,6 +2087,16 @@ class MyVideoStateController extends GetxController
           tag: 'MyVideoStateController',
           error: e,
         );
+
+        // 跨站资源（主站模式打开 AI 站视频，或反之）：不是加载失败，而是站点选错了。
+        // 切到资源所属站点后应用子树会重建，本页会以新站点模式重新请求。
+        if (await IwaraDifferentSiteRecovery.recover(
+          e,
+          resourceKey: 'video:$videoId',
+        )) {
+          return;
+        }
+
         if (!_isDisposed) {
           if (e.response?.statusCode == 403) {
             var data = e.response?.data;
@@ -3797,7 +3808,7 @@ class MyVideoStateController extends GetxController
       if (Get.isRegistered<MessageService>()) {
         Get.find<MessageService>().showMessage(
           slang.t.anime4k.autoDisabledOnRenderFailure,
-          MDToastType.warning,
+          GlassToastType.warning,
         );
       }
     } catch (e) {

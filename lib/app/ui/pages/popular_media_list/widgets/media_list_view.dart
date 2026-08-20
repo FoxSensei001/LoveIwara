@@ -1,7 +1,11 @@
+import 'dart:async' show Completer;
+
 import 'package:dio/dio.dart' show CancelToken;
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/common/constants.dart' show CommonConstants;
 import 'package:i_iwara/utils/logger_utils.dart' show LogUtils;
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
@@ -239,6 +243,61 @@ abstract class ExtendedLoadingMoreBase<T> extends LoadingMoreBase<T>
   }
 }
 
+/// 把「瀑布 ↔ 分页」的选择写回全局默认。
+///
+/// 订阅页 / 论坛页是通过各自的 `setPaginatedMode` 做这件事的；没有列表控制器、
+/// 只用一个局部 bool 驱动 [MediaListView] 的页面（播放列表、本地收藏夹详情）
+/// 直接调这里，免得各写一遍还漏掉持久化——用户的选择要跨页面、跨启动生效。
+void persistPaginationMode(bool isPaginated) {
+  CommonConstants.isPaginated = isPaginated;
+  // 单测里不会注册 ConfigService；没注册就只更新进程内的默认值。
+  if (Get.isRegistered<ConfigService>()) {
+    Get.find<ConfigService>()[ConfigKey.DEFAULT_PAGINATION_MODE] = isPaginated;
+  }
+}
+
+/// header 刷新钮与 [MediaListView] 之间的「发信号 + 回执」握手。
+///
+/// 页面把刷新交给列表是靠一个自增的 [ValueNotifier]，发出去就没有下文——
+/// header 上的刷新钮因此没法知道刷完没有，也就没法给 loading 反馈。这里补上
+/// 回程：[request] 返回的 Future 会在列表真正刷完时落定，配合
+/// `GlassAsyncIconButton` 就是「点一下变沙漏、刷完变回刷新箭头」。
+///
+/// 没有任何 [MediaListView] 在听（对应的 tab 还没被构建过）时立即落定，
+/// 免得按钮永远卡在沙漏上。
+class ListRefreshSignal extends ValueNotifier<int> {
+  ListRefreshSignal() : super(0);
+
+  Completer<void>? _pending;
+
+  /// 发起一次刷新，返回的 Future 在列表刷完后落定。
+  Future<void> request() {
+    // 上一轮还没回执就又点了：把旧的先了结，只等最新这次。
+    _pending?.complete();
+    _pending = null;
+
+    value = value + 1;
+    if (!hasListeners) return Future<void>.value();
+
+    final completer = Completer<void>();
+    _pending = completer;
+    return completer.future;
+  }
+
+  /// 由 [MediaListView] 在刷新结束后调用。
+  void complete() {
+    final pending = _pending;
+    _pending = null;
+    if (pending != null && !pending.isCompleted) pending.complete();
+  }
+
+  @override
+  void dispose() {
+    complete();
+    super.dispose();
+  }
+}
+
 class MediaListView<T> extends StatefulWidget {
   /// 分页栏的完整垂直占用：控制条本体及其上方渐隐区。
   /// 所有悬浮控件在分页模式下都必须避开该范围。
@@ -397,7 +456,13 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     final signal = widget.refreshSignal;
     if (signal == null) return;
     _refreshSignalListener = () {
-      if (mounted) refresh();
+      if (!mounted) return;
+      // 带回执的信号：刷完（含失败）回一声，好让 header 的刷新钮退出沙漏态。
+      if (signal is ListRefreshSignal) {
+        refresh().whenComplete(signal.complete);
+      } else {
+        refresh();
+      }
     };
     signal.addListener(_refreshSignalListener!);
   }

@@ -44,28 +44,24 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          BlurredSliverAppBar(
-            title: slang.t.layoutSettings.title,
-            isWideScreen: widget.isWideScreen,
+    return GlassSettingsScaffold(
+      title: slang.t.layoutSettings.title,
+      isWideScreen: widget.isWideScreen,
+      slivers: [
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              _buildDescriptionCard(),
+              _buildLayoutModeCard(),
+              _buildNavigationOrderCard(),
+              _buildManualSettingsCard(),
+              _buildBreakpointsCard(),
+              _buildPreviewCard(),
+            ]),
           ),
-          SliverPadding(
-            padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _buildDescriptionCard(),
-                _buildLayoutModeCard(),
-                _buildNavigationOrderCard(),
-                _buildManualSettingsCard(),
-                _buildBreakpointsCard(),
-                _buildPreviewCard(),
-              ]),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

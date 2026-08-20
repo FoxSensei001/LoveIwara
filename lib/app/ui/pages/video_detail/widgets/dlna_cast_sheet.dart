@@ -38,7 +38,7 @@ class _DlnaCastSheetState extends State<DlnaCastSheet> {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final isNarrowScreen = screenSize.width < 600;
-    
+
     return Container(
       constraints: BoxConstraints(
         maxHeight: isNarrowScreen ? screenSize.height * 0.8 : 600,
@@ -87,7 +87,7 @@ class _DlnaCastSheetState extends State<DlnaCastSheet> {
               ],
             ),
           ),
-          
+
           // 内容区域
           Flexible(
             child: Padding(
@@ -99,48 +99,59 @@ class _DlnaCastSheetState extends State<DlnaCastSheet> {
                   Row(
                     children: [
                       Expanded(
-                        child: Obx(() => Text(
-                          widget.dlnaController.isSearching.value
-                              ? t.videoDetail.cast.dlnaCastSheet.searchingDevices
-                              : t.videoDetail.cast.dlnaCastSheet.searchPrompt,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontSize: isNarrowScreen ? 13 : 14,
+                        child: Obx(
+                          () => Text(
+                            widget.dlnaController.isSearching.value
+                                ? t
+                                      .videoDetail
+                                      .cast
+                                      .dlnaCastSheet
+                                      .searchingDevices
+                                : t.videoDetail.cast.dlnaCastSheet.searchPrompt,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(fontSize: isNarrowScreen ? 13 : 14),
                           ),
-                        )),
+                        ),
                       ),
                       SizedBox(width: isNarrowScreen ? 6 : 8),
-                      Obx(() => ElevatedButton.icon(
-                        onPressed: widget.dlnaController.isSearching.value
-                            ? null
-                            : () => widget.dlnaController.startSearch(),
-                        icon: widget.dlnaController.isSearching.value
-                            ? SizedBox(
-                                width: isNarrowScreen ? 14 : 16,
-                                height: isNarrowScreen ? 14 : 16,
-                                child: const CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : Icon(
-                                Icons.search,
-                                size: isNarrowScreen ? 16 : 18,
-                              ),
-                        label: Text(
-                          widget.dlnaController.isSearching.value ? t.videoDetail.cast.dlnaCastSheet.searching : t.videoDetail.cast.dlnaCastSheet.searchAgain,
-                          style: TextStyle(
-                            fontSize: isNarrowScreen ? 12 : 14,
+                      Obx(
+                        () => ElevatedButton.icon(
+                          onPressed: widget.dlnaController.isSearching.value
+                              ? null
+                              : () => widget.dlnaController.startSearch(),
+                          icon: widget.dlnaController.isSearching.value
+                              ? SizedBox(
+                                  width: isNarrowScreen ? 14 : 16,
+                                  height: isNarrowScreen ? 14 : 16,
+                                  child: const CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Icon(
+                                  Icons.search,
+                                  size: isNarrowScreen ? 16 : 18,
+                                ),
+                          label: Text(
+                            widget.dlnaController.isSearching.value
+                                ? t.videoDetail.cast.dlnaCastSheet.searching
+                                : t.videoDetail.cast.dlnaCastSheet.searchAgain,
+                            style: TextStyle(
+                              fontSize: isNarrowScreen ? 12 : 14,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isNarrowScreen ? 8 : 12,
+                              vertical: isNarrowScreen ? 6 : 8,
+                            ),
                           ),
                         ),
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: isNarrowScreen ? 8 : 12,
-                            vertical: isNarrowScreen ? 6 : 8,
-                          ),
-                        ),
-                      )),
+                      ),
                     ],
                   ),
-                  
+
                   SizedBox(height: isNarrowScreen ? 12 : 16),
-                  
+
                   // 设备列表
                   Expanded(
                     child: Obx(() {
@@ -157,8 +168,16 @@ class _DlnaCastSheetState extends State<DlnaCastSheet> {
                               SizedBox(height: isNarrowScreen ? 12 : 16),
                               Text(
                                 widget.dlnaController.isSearching.value
-                                    ? t.videoDetail.cast.dlnaCastSheet.searchingDevicesPrompt
-                                    : t.videoDetail.cast.dlnaCastSheet.noDevicesFound,
+                                    ? t
+                                          .videoDetail
+                                          .cast
+                                          .dlnaCastSheet
+                                          .searchingDevicesPrompt
+                                    : t
+                                          .videoDetail
+                                          .cast
+                                          .dlnaCastSheet
+                                          .noDevicesFound,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: Colors.grey[600],
@@ -169,23 +188,29 @@ class _DlnaCastSheetState extends State<DlnaCastSheet> {
                           ),
                         );
                       }
-                      
+
                       return ListView.builder(
                         shrinkWrap: true,
                         physics: const ClampingScrollPhysics(),
                         itemCount: widget.dlnaController.devices.length,
                         itemBuilder: (context, index) {
                           final device = widget.dlnaController.devices[index];
-                          final deviceType = device.info.deviceType.split(':')[3];
-                          
+                          final deviceType = device.info.deviceType.split(
+                            ':',
+                          )[3];
+
                           return Card(
-                            margin: EdgeInsets.only(bottom: isNarrowScreen ? 6 : 8),
+                            margin: EdgeInsets.only(
+                              bottom: isNarrowScreen ? 6 : 8,
+                            ),
                             child: ListTile(
                               contentPadding: EdgeInsets.symmetric(
                                 horizontal: isNarrowScreen ? 8 : 16,
                                 vertical: isNarrowScreen ? 4 : 8,
                               ),
-                              leading: widget.dlnaController.getDeviceIcon(deviceType),
+                              leading: widget.dlnaController.getDeviceIcon(
+                                deviceType,
+                              ),
                               title: Text(
                                 device.info.friendlyName,
                                 style: TextStyle(
@@ -196,14 +221,19 @@ class _DlnaCastSheetState extends State<DlnaCastSheet> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               subtitle: Text(
-                                widget.dlnaController.getDeviceTypeName(deviceType),
+                                widget.dlnaController.getDeviceTypeName(
+                                  deviceType,
+                                ),
                                 style: TextStyle(
                                   fontSize: isNarrowScreen ? 12 : 14,
                                 ),
                               ),
                               trailing: ElevatedButton(
                                 onPressed: () {
-                                  widget.dlnaController.castToDevice(device, widget.videoUrl);
+                                  widget.dlnaController.castToDevice(
+                                    device,
+                                    widget.videoUrl,
+                                  );
                                 },
                                 style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.symmetric(
@@ -219,7 +249,10 @@ class _DlnaCastSheetState extends State<DlnaCastSheet> {
                                 ),
                               ),
                               onTap: () {
-                                widget.dlnaController.castToDevice(device, widget.videoUrl);
+                                widget.dlnaController.castToDevice(
+                                  device,
+                                  widget.videoUrl,
+                                );
                               },
                             ),
                           );
@@ -231,43 +264,46 @@ class _DlnaCastSheetState extends State<DlnaCastSheet> {
               ),
             ),
           ),
-          
+
           // 底部按钮
           Container(
             padding: EdgeInsets.only(
               left: isNarrowScreen ? 12 : 16,
               right: isNarrowScreen ? 12 : 16,
               top: isNarrowScreen ? 12 : 16,
-              bottom: isNarrowScreen ? 12 + MediaQuery.of(context).padding.bottom : 16 + MediaQuery.of(context).padding.bottom,
+              bottom: isNarrowScreen
+                  ? 12 + MediaQuery.of(context).padding.bottom
+                  : 16 + MediaQuery.of(context).padding.bottom,
             ),
             decoration: BoxDecoration(
               border: Border(
-                top: BorderSide(
-                  color: Colors.grey.withValues(alpha: 0.2),
-                ),
+                top: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
               ),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 // 连接状态
-                Obx(() => widget.dlnaController.isConnected.value
-                    ? Text(
-                        t.videoDetail.cast.dlnaCastSheet.connectedTo(deviceName: widget.dlnaController.connectedDeviceName.value),
-                        style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.w500,
-                          fontSize: isNarrowScreen ? 12 : 14,
+                Obx(
+                  () => widget.dlnaController.isConnected.value
+                      ? Text(
+                          t.videoDetail.cast.dlnaCastSheet.connectedTo(
+                            deviceName:
+                                widget.dlnaController.connectedDeviceName.value,
+                          ),
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.w500,
+                            fontSize: isNarrowScreen ? 12 : 14,
+                          ),
+                          textAlign: TextAlign.center,
+                        )
+                      : Text(
+                          t.videoDetail.cast.dlnaCastSheet.notConnected,
+                          style: TextStyle(fontSize: isNarrowScreen ? 12 : 14),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
-                      )
-                    : Text(
-                        t.videoDetail.cast.dlnaCastSheet.notConnected,
-                        style: TextStyle(
-                          fontSize: isNarrowScreen ? 12 : 14,
-                        ),
-                        textAlign: TextAlign.center,
-                      )),
+                ),
                 SizedBox(height: isNarrowScreen ? 8 : 12),
                 // 按钮行
                 Row(

@@ -63,6 +63,7 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
 
   @override
   void dispose() {
+    glassBottomBarObstruction = 0;
     userService.stopNotificationTimer();
     EasyThrottle.cancel('refresh_page');
     _contentFocusNode.dispose();
@@ -358,12 +359,18 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
                         appService.showBottomNavi && !isWide && _isTabRootRoute;
 
                     final Widget content = Scaffold(body: body);
-                    if (!showBottomNav) return content;
+                    if (!showBottomNav) {
+                      glassBottomBarObstruction = 0;
+                      return content;
+                    }
 
                     final mq = MediaQuery.of(context);
                     final double safeBottom = mq.padding.bottom;
                     final double reserved =
                         GlassTokens.floatingBarReservedExtent;
+                    // 根 Overlay 上的浮层（toast）不在本子树里，读不到下面这份
+                    // 被抬高的 MediaQuery，只能靠这个全局值避开底栏。
+                    glassBottomBarObstruction = safeBottom + reserved;
 
                     return Stack(
                       fit: StackFit.expand,

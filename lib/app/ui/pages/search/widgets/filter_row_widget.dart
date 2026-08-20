@@ -343,7 +343,9 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          field.type == FilterFieldType.DATE ? t.searchFilter.dateRange : t.searchFilter.numberRange,
+          field.type == FilterFieldType.DATE
+              ? t.searchFilter.dateRange
+              : t.searchFilter.numberRange,
           style: Theme.of(
             context,
           ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
@@ -451,13 +453,8 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
       initialValue: currentValue,
       decoration: InputDecoration(
         labelText: fieldKey == 'from' ? t.searchFilter.from : t.searchFilter.to,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 8,
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
       keyboardType: TextInputType.number,
       validator: (value) {
@@ -474,10 +471,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
             ? Map<String, dynamic>.from(filter.value)
             : {'from': '', 'to': ''};
         currentValue[fieldKey] = value;
-        widget.onUpdate(
-          filter.id,
-          filter.copyWith(value: currentValue),
-        );
+        widget.onUpdate(filter.id, filter.copyWith(value: currentValue));
         // 触发验证
         _formFieldKey.currentState?.validate();
       },
@@ -528,7 +522,9 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
               ? _dateFromController
               : _dateToController,
           decoration: InputDecoration(
-            labelText: fieldKey == 'from' ? t.searchFilter.from : t.searchFilter.to,
+            labelText: fieldKey == 'from'
+                ? t.searchFilter.from
+                : t.searchFilter.to,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,
@@ -634,17 +630,17 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
                   horizontal: 12,
                   vertical: 8,
                 ),
-                            suffixIcon: const Icon(Icons.calendar_today),
-            hintText: t.searchFilter.clickToSelectDate,
-          ),
+                suffixIcon: const Icon(Icons.calendar_today),
+                hintText: t.searchFilter.clickToSelectDate,
+              ),
               readOnly: true,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) return null;
                 try {
                   DateTime.parse(value.trim());
-                            } catch (e) {
-              return t.searchFilter.pleaseEnterValidDate;
-            }
+                } catch (e) {
+                  return t.searchFilter.pleaseEnterValidDate;
+                }
                 return null;
               },
             ),
@@ -680,9 +676,9 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
             if (value == null || value.trim().isEmpty) return null;
             try {
               double.parse(value.trim());
-                    } catch (e) {
-          return t.searchFilter.pleaseEnterValidNumber;
-        }
+            } catch (e) {
+              return t.searchFilter.pleaseEnterValidNumber;
+            }
             return null;
           },
           onChanged: (value) {

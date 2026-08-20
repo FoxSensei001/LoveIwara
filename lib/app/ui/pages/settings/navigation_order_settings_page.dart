@@ -152,25 +152,21 @@ class _NavigationOrderSettingsPageState
   @override
   Widget build(BuildContext context) {
     final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          BlurredSliverAppBar(
-            title: slang.t.navigationOrderSettings.title,
-            isWideScreen: widget.isWideScreen,
+    return GlassSettingsScaffold(
+      title: slang.t.navigationOrderSettings.title,
+      isWideScreen: widget.isWideScreen,
+      slivers: [
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              _buildDescriptionCard(),
+              _buildNavigationOrderCard(),
+              _buildPreviewCard(),
+            ]),
           ),
-          SliverPadding(
-            padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _buildDescriptionCard(),
-                _buildNavigationOrderCard(),
-                _buildPreviewCard(),
-              ]),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -232,12 +228,13 @@ class _NavigationOrderSettingsPageState
                       Expanded(
                         child: Text(
                           slang.t.navigationOrderSettings.hideHint,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
-                            height: 1.4,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                                height: 1.4,
+                              ),
                         ),
                       ),
                     ],

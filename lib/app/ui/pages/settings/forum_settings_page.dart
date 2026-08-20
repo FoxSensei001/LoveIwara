@@ -13,10 +13,7 @@ class ForumSettingsPage extends StatelessWidget {
   final bool isWideScreen = false;
   final bool useSettingsNavi;
 
-  const ForumSettingsPage({
-    super.key,
-    this.useSettingsNavi = false,
-  });
+  const ForumSettingsPage({super.key, this.useSettingsNavi = false});
 
   @override
   Widget build(BuildContext context) {
@@ -24,164 +21,42 @@ class ForumSettingsPage extends StatelessWidget {
     final configService = Get.find<ConfigService>();
     final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
 
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          BlurredSliverAppBar(
-            title: t.settings.chatSettings.name,
-            isWideScreen: isWideScreen,
-          ),
-          SliverPadding(
-            padding: EdgeInsets.fromLTRB(
-              16,
-              16,
-              16,
-              16 + bottomInset,
-            ),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Text(
-                          t.settings.forum,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
+    return GlassSettingsScaffold(
+      title: t.settings.chatSettings.name,
+      isWideScreen: isWideScreen,
+      slivers: [
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        t.settings.forum,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
-                      const Divider(height: 1),
-                      Obx(
-                        () => SwitchListTile(
-                          title: Text(t.settings.disableForumReplyQuote),
-                          subtitle: Text(t.settings.disableForumReplyQuoteDesc),
-                          value:
-                              configService[ConfigKey
-                                  .DISABLE_FORUM_REPLY_QUOTE_KEY],
-                          onChanged: (value) {
+                    ),
+                    const Divider(height: 1),
+                    Obx(
+                      () => SwitchListTile(
+                        title: Text(t.settings.disableForumReplyQuote),
+                        subtitle: Text(t.settings.disableForumReplyQuoteDesc),
+                        value:
                             configService[ConfigKey
-                                    .DISABLE_FORUM_REPLY_QUOTE_KEY] =
-                                value;
-                          },
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(16),
-                              bottomRight: Radius.circular(16),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Card(
-                  elevation: 2,
-                  clipBehavior: Clip.hardEdge,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Text(
-                          t.settings.signature, // 需要在翻译文件中添加相应的翻译
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      const Divider(height: 1),
-                      Obx(
-                        () => SwitchListTile(
-                          title: Text(t.settings.enableSignature),
-                          subtitle: Text(t.settings.enableSignatureDesc),
-                          value: configService[ConfigKey.ENABLE_SIGNATURE_KEY],
-                          onChanged: (value) {
-                            configService[ConfigKey.ENABLE_SIGNATURE_KEY] =
-                                value;
-                          },
-                        ),
-                      ),
-                      Obx(
-                        () => configService[ConfigKey.ENABLE_SIGNATURE_KEY]
-                            ? ListTile(
-                                title: Text(t.settings.signatureContent),
-                                subtitle: Text(
-                                  configService[ConfigKey
-                                      .SIGNATURE_CONTENT_KEY],
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                trailing: const Icon(Icons.edit),
-                                onTap: () async {
-                                  final result =
-                                      await showModalBottomSheet<String>(
-                                        context: context,
-                                        isScrollControlled: true,
-                                        builder: (context) =>
-                                            SignatureEditSheet(
-                                              initialContent:
-                                                  configService[ConfigKey
-                                                      .SIGNATURE_CONTENT_KEY],
-                                            ),
-                                      );
-                                  if (result != null) {
-                                    configService[ConfigKey
-                                            .SIGNATURE_CONTENT_KEY] =
-                                        result;
-                                  }
-                                },
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.only(
-                                    bottomLeft: Radius.circular(16),
-                                    bottomRight: Radius.circular(16),
-                                  ),
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-                    ],
-                  ),
-                ),
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Text(
-                          t.emoji.emojiManagement,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      const Divider(height: 1),
-                      ListTile(
-                        leading: const Icon(Icons.emoji_emotions),
-                        title: Text(t.emoji.library),
-                        subtitle: Text(t.emoji.manageEmojiGroupsAndImages),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                        onTap: () {
-                          if (useSettingsNavi) {
-                            // 宽屏模式：使用设置页面的内部导航
-                            SettingsPage.navigateToNestedPage(
-                              EmojiLibraryPage(),
-                            );
-                          } else {
-                            // 窄屏模式：使用全局导航
-                            NaviService.navigateToEmojiLibraryPage();
-                          }
+                                .DISABLE_FORUM_REPLY_QUOTE_KEY],
+                        onChanged: (value) {
+                          configService[ConfigKey
+                                  .DISABLE_FORUM_REPLY_QUOTE_KEY] =
+                              value;
                         },
                         shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.only(
@@ -190,14 +65,122 @@ class ForumSettingsPage extends StatelessWidget {
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ]),
-            ),
+              ),
+              Card(
+                elevation: 2,
+                clipBehavior: Clip.hardEdge,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        t.settings.signature, // 需要在翻译文件中添加相应的翻译
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    Obx(
+                      () => SwitchListTile(
+                        title: Text(t.settings.enableSignature),
+                        subtitle: Text(t.settings.enableSignatureDesc),
+                        value: configService[ConfigKey.ENABLE_SIGNATURE_KEY],
+                        onChanged: (value) {
+                          configService[ConfigKey.ENABLE_SIGNATURE_KEY] = value;
+                        },
+                      ),
+                    ),
+                    Obx(
+                      () => configService[ConfigKey.ENABLE_SIGNATURE_KEY]
+                          ? ListTile(
+                              title: Text(t.settings.signatureContent),
+                              subtitle: Text(
+                                configService[ConfigKey.SIGNATURE_CONTENT_KEY],
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              trailing: const Icon(Icons.edit),
+                              onTap: () async {
+                                final result =
+                                    await showModalBottomSheet<String>(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      builder: (context) => SignatureEditSheet(
+                                        initialContent:
+                                            configService[ConfigKey
+                                                .SIGNATURE_CONTENT_KEY],
+                                      ),
+                                    );
+                                if (result != null) {
+                                  configService[ConfigKey
+                                          .SIGNATURE_CONTENT_KEY] =
+                                      result;
+                                }
+                              },
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(16),
+                                  bottomRight: Radius.circular(16),
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                  ],
+                ),
+              ),
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        t.emoji.emojiManagement,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.emoji_emotions),
+                      title: Text(t.emoji.library),
+                      subtitle: Text(t.emoji.manageEmojiGroupsAndImages),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () {
+                        if (useSettingsNavi) {
+                          // 宽屏模式：使用设置页面的内部导航
+                          SettingsPage.navigateToNestedPage(EmojiLibraryPage());
+                        } else {
+                          // 窄屏模式：使用全局导航
+                          NaviService.navigateToEmojiLibraryPage();
+                        }
+                      },
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(16),
+                          bottomRight: Radius.circular(16),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ]),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

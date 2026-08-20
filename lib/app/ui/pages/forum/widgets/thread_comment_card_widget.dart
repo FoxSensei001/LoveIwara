@@ -8,7 +8,7 @@ import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_reply_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_edit_reply_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/comment_actions_sheet.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
@@ -16,7 +16,6 @@ import 'package:i_iwara/app/ui/widgets/markdown_translation_controller.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:flutter/services.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/widgets/translation_language_selector.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
@@ -276,13 +275,9 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
 
   void _copyUsername() {
     Clipboard.setData(ClipboardData(text: widget.comment.user.username));
-    showToastWidget(
-      MDToastWidget(
-        message: slang.t.forum.copySuccessForMessage(
-          str: widget.comment.user.username,
-        ),
-        type: MDToastType.success,
-      ),
+    showGlassToast(
+      slang.t.forum.copySuccessForMessage(str: widget.comment.user.username),
+      type: GlassToastType.success,
     );
   }
 
@@ -290,11 +285,9 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
     final userService = Get.find<UserService>();
     if (!userService.isAuthenticated) {
       AppService.switchGlobalDrawer();
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.errors.pleaseLoginFirst,
-          type: MDToastType.warning,
-        ),
+      showGlassToast(
+        slang.t.errors.pleaseLoginFirst,
+        type: GlassToastType.warning,
       );
       return false;
     }

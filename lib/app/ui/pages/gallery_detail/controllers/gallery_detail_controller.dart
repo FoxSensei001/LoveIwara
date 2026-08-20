@@ -7,9 +7,9 @@ import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/utils/iwara_different_site_recovery.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart';
 
 import '../../../../../common/enums/media_enums.dart';
 import '../../video_detail/controllers/related_media_controller.dart';
@@ -77,10 +77,19 @@ class GalleryDetailController extends GetxController {
         imageModelId,
       );
       if (!res.isSuccess) {
+        // 跨站资源：切到图片真正所属的站点后本页会重建并重新请求。
+        if (await IwaraDifferentSiteRecovery.recover(
+          res.exception,
+          resourceKey: 'image:$imageModelId',
+        )) {
+          return;
+        }
+
         errorMessage.value = res.message;
-        showToastWidget(
-          MDToastWidget(message: res.message, type: MDToastType.error),
-          position: ToastPosition.bottom,
+        showGlassToast(
+          res.message,
+          type: GlassToastType.error,
+          position: GlassToastPosition.bottom,
         );
         return;
       }

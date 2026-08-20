@@ -16,7 +16,7 @@ class MigrationV10RemoveLogs extends Migration {
       DELETE FROM app_config 
       WHERE key IN ('ENABLE_LOG_PERSISTENCE', 'MAX_LOG_DATABASE_SIZE')
     ''');
-    
+
     // 注意：这里不删除 app_logs 表，因为它在独立的日志数据库中
     // 日志数据库的清理将在 DatabaseService 中处理
   }

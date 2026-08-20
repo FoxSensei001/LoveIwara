@@ -13,7 +13,7 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
@@ -23,7 +23,6 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/recent_thread_repository.dart';
 import 'package:i_iwara/app/ui/pages/forum/forum_skeleton_page.dart';
@@ -444,11 +443,9 @@ class _ForumPageState extends State<ForumPage> {
     UserService userService = Get.find<UserService>();
     if (!userService.isAuthenticated) {
       AppService.switchGlobalDrawer();
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.errors.pleaseLoginFirst,
-          type: MDToastType.warning,
-        ),
+      showGlassToast(
+        slang.t.errors.pleaseLoginFirst,
+        type: GlassToastType.warning,
       );
       return;
     }
@@ -639,7 +636,10 @@ class _ForumPageState extends State<ForumPage> {
     final t = slang.Translations.of(context);
     return Obx(
       () => Positioned(
-        right: 16,
+        // 移动端底栏可见时与搜索圆钮中心共轴；宽屏（rail 布局）用普通右边距
+        right: isFloatingBarInsetActive(context)
+            ? GlassTokens.floatingActionCoAxisRight(GlassTokens.pillHeight)
+            : 16,
         bottom:
             MediaQuery.paddingOf(context).bottom +
             16 +

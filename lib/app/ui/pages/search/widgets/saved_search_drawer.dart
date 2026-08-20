@@ -112,10 +112,7 @@ class SavedSearchDrawer extends StatelessWidget {
     return t.savedSearch.noKeyword;
   }
 
-  Future<void> _renameSearch(
-    BuildContext context,
-    SavedSearch search,
-  ) async {
+  Future<void> _renameSearch(BuildContext context, SavedSearch search) async {
     final t = slang.Translations.of(context);
     final controller = TextEditingController(text: search.name);
     final newName = await showAppDialog<String>(
@@ -234,8 +231,9 @@ class SavedSearchDrawer extends StatelessWidget {
                                       _displayName(context, search),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
-                                      style:
-                                          Theme.of(context).textTheme.bodyLarge,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodyLarge,
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
@@ -246,8 +244,7 @@ class SavedSearchDrawer extends StatelessWidget {
                                           .textTheme
                                           .bodySmall
                                           ?.copyWith(
-                                            color:
-                                                colorScheme.onSurfaceVariant,
+                                            color: colorScheme.onSurfaceVariant,
                                           ),
                                     ),
                                   ],

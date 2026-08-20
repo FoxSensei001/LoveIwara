@@ -2,9 +2,8 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/services/tag_localization_service.dart';
 import 'package:i_iwara/app/services/tag_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
-import 'package:oktoast/oktoast.dart';
 
 /// 标签控制器
 class TagController extends GetxController {
@@ -18,10 +17,8 @@ class TagController extends GetxController {
   final int pageSize = 20; // 每页数据量
   int page = 0; // 当前页码
 
-
   // 获取标签
   Future<void> getTags({bool refresh = false}) async {
-
     try {
       if (refresh) {
         // 刷新时重置分页和清空数据
@@ -32,12 +29,17 @@ class TagController extends GetxController {
       isLoading.value = true;
 
       final result = await _tagService.fetchTags(
-          page: page, limit: pageSize, params: {
-        'filter': searchInput,
-      });
+        page: page,
+        limit: pageSize,
+        params: {'filter': searchInput},
+      );
       if (result.isFail) {
         isLoading.value = false;
-        showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
+        showGlassToast(
+          result.message,
+          type: GlassToastType.error,
+          position: GlassToastPosition.bottom,
+        );
         return;
       }
       List<Tag> newTags = result.data!.results;
@@ -65,8 +67,11 @@ class TagController extends GetxController {
       isLoading.value = false;
     } catch (e) {
       isLoading.value = false;
-      showToastWidget(MDToastWidget(message: t.errors.errorWhileFetching, type: MDToastType.error), position: ToastPosition.bottom);
+      showGlassToast(
+        t.errors.errorWhileFetching,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
+      );
     }
   }
-
 }

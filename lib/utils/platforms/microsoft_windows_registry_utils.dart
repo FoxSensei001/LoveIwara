@@ -4,13 +4,12 @@ import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 import 'package:win32/win32.dart';
 
-
-const internetSettingsKey = r'Software\Microsoft\Windows\CurrentVersion\Internet Settings';
+const internetSettingsKey =
+    r'Software\Microsoft\Windows\CurrentVersion\Internet Settings';
 const MAX_ITEMLENGTH = 1024;
 
 /// 注册表操作工具类
 class RegistryUtil {
-
   /// 打开指定的注册表键
   ///
   /// [hive] 注册表根键，如 HKEY_CURRENT_USER
@@ -20,8 +19,7 @@ class RegistryUtil {
     final phKey = calloc<HANDLE>();
     final lpKeyPath = keyPath.toNativeUtf16();
     try {
-      final result = RegOpenKeyEx(
-          hive, lpKeyPath, 0, KEY_READ, phKey);
+      final result = RegOpenKeyEx(hive, lpKeyPath, 0, KEY_READ, phKey);
       if (result != ERROR_SUCCESS) {
         throw Exception("无法打开注册表键: $keyPath");
       }
@@ -45,7 +43,13 @@ class RegistryUtil {
 
     try {
       final status = RegQueryValueEx(
-          hKey, lpValueName, nullptr, lpType, lpData, lpcbData);
+        hKey,
+        lpValueName,
+        nullptr,
+        lpType,
+        lpData,
+        lpcbData,
+      );
 
       if (status != ERROR_SUCCESS) {
         return null;

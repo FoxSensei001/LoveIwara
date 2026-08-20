@@ -5,9 +5,8 @@ import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/ui/widgets/action_icon_button_scaffold.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/api_service.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -100,9 +99,7 @@ class _FriendButtonWidgetState extends State<FriendButtonWidget> {
     if (_friendStatus == 'pending') {
       return ElevatedButton.icon(
         onPressed: () => _handleFriendAction(context),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.orange,
-        ),
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
         icon: const Icon(Icons.person_remove, size: 18),
         label: Text(t.common.cancelFriendRequest),
       );
@@ -159,14 +156,9 @@ class _FriendButtonWidgetState extends State<FriendButtonWidget> {
 
   Future<void> _handleFriendAction(BuildContext context) async {
     final t = slang.Translations.of(context);
-    
+
     if (!_userService.isAuthenticated) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.errors.pleaseLoginFirst,
-          type: MDToastType.error,
-        ),
-      );
+      showGlassToast(t.errors.pleaseLoginFirst, type: GlassToastType.error);
       LoginService.showLogin();
       return;
     }
@@ -190,21 +182,17 @@ class _FriendButtonWidgetState extends State<FriendButtonWidget> {
         );
         widget.onUserUpdated?.call(_currentUser);
       } else {
-        showToastWidget(
-          MDToastWidget(
-            message: result.message,
-            type: MDToastType.error,
-          ),
-          position: ToastPosition.top,
+        showGlassToast(
+          result.message,
+          type: GlassToastType.error,
+          position: GlassToastPosition.top,
         );
       }
     } catch (e) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.errors.failedToOperate,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.top,
+      showGlassToast(
+        t.errors.failedToOperate,
+        type: GlassToastType.error,
+        position: GlassToastPosition.top,
       );
     } finally {
       if (mounted) {
@@ -212,4 +200,4 @@ class _FriendButtonWidgetState extends State<FriendButtonWidget> {
       }
     }
   }
-} 
+}

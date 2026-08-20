@@ -20,7 +20,7 @@ import 'package:i_iwara/app/ui/pages/author_profile/widgets/profile_playlist_tab
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
@@ -34,7 +34,6 @@ import 'package:i_iwara/app/routes/app_router.dart' show routeObserver;
 import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/utils/image_utils.dart';
-import 'package:oktoast/oktoast.dart';
 
 import '../../../../common/constants.dart';
 import '../../../services/user_service.dart';
@@ -292,12 +291,10 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     if (!mounted) {
       return;
     }
-    showToastWidget(
-      MDToastWidget(
-        message: slang.t.logViewer.copiedToClipboard,
-        type: MDToastType.success,
-      ),
-      position: ToastPosition.bottom,
+    showGlassToast(
+      slang.t.logViewer.copiedToClipboard,
+      type: GlassToastType.success,
+      position: GlassToastPosition.bottom,
     );
   }
 
@@ -311,12 +308,10 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     if (!mounted) {
       return;
     }
-    showToastWidget(
-      MDToastWidget(
-        message: slang.t.personalProfile.usernameCopied,
-        type: MDToastType.success,
-      ),
-      position: ToastPosition.bottom,
+    showGlassToast(
+      slang.t.personalProfile.usernameCopied,
+      type: GlassToastType.success,
+      position: GlassToastPosition.bottom,
     );
   }
 
@@ -380,23 +375,19 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                                 submitText: t.common.send,
                                 onSubmit: (text) async {
                                   if (text.trim().isEmpty) {
-                                    showToastWidget(
-                                      MDToastWidget(
-                                        message: t.errors.commentCanNotBeEmpty,
-                                        type: MDToastType.error,
-                                      ),
-                                      position: ToastPosition.bottom,
+                                    showGlassToast(
+                                      t.errors.commentCanNotBeEmpty,
+                                      type: GlassToastType.error,
+                                      position: GlassToastPosition.bottom,
                                     );
                                     return;
                                   }
                                   final UserService userService = Get.find();
                                   if (!userService.isAuthenticated) {
-                                    showToastWidget(
-                                      MDToastWidget(
-                                        message: t.errors.pleaseLoginFirst,
-                                        type: MDToastType.error,
-                                      ),
-                                      position: ToastPosition.bottom,
+                                    showGlassToast(
+                                      t.errors.pleaseLoginFirst,
+                                      type: GlassToastType.error,
+                                      position: GlassToastPosition.bottom,
                                     );
                                     LoginService.showLogin();
                                     return;
@@ -644,78 +635,86 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                 : Center(
                     key: const ValueKey('actions-menu'),
                     child: GlassButtonGroup(
-                children: [
-                  SizedBox(
-                    width: GlassTokens.groupIconButtonSize,
-                    height: GlassTokens.groupIconButtonSize,
-                    child: PopupMenuButton(
-                      padding: EdgeInsets.zero,
-                      icon: const Icon(
-                        Icons.more_vert,
-                        size: GlassTokens.iconSize,
-                      ),
-                      position: PopupMenuPosition.under,
-                      // 往下挪一点，别压住玻璃胶囊本身
-                      offset: const Offset(0, 8),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      onSelected: (value) {
-                        if (value == 'create') {
-                          _showCreatePostDialog();
-                        } else if (value == 'message') {
-                          showAppDialog(
-                            NewConversationDialog(
-                              initUserId: profileController.author.value?.id,
-                              onSubmit: () {
-                                NaviService.navigateToConversationPage();
-                              },
+                      children: [
+                        SizedBox(
+                          width: GlassTokens.groupIconButtonSize,
+                          height: GlassTokens.groupIconButtonSize,
+                          child: PopupMenuButton(
+                            padding: EdgeInsets.zero,
+                            icon: const Icon(
+                              Icons.more_vert,
+                              size: GlassTokens.iconSize,
                             ),
-                            barrierDismissible: true,
-                          );
-                        } else if (value == 'share') {
-                          // 分享用户主页
-                          final username =
-                              profileController.author.value?.username;
-                          if (username != null) {
-                            showModalBottomSheet(
-                              backgroundColor: Colors.transparent,
-                              isScrollControlled: true,
-                              builder: (context) => ShareUserBottomSheet(
-                                username: username,
-                                authorName:
-                                    profileController.author.value?.name ?? '',
-                                previewUrl:
-                                    profileController
-                                        .headerBackgroundUrl
-                                        .value ??
-                                    CommonConstants.defaultProfileHeaderUrl,
-                                avatarUrl: profileController
-                                    .author
-                                    .value
-                                    ?.avatar
-                                    ?.avatarUrl,
-                                followerCount:
-                                    profileController.followerCounts.value,
-                                followingCount:
-                                    profileController.followingCounts.value,
-                                commentCount: profileController
-                                    .commentController
-                                    .comments
-                                    .value
-                                    .length,
-                              ),
-                              context: context,
-                            );
-                          }
-                        }
-                      },
-                      itemBuilder: (context) => popupMenuItems,
+                            position: PopupMenuPosition.under,
+                            // 往下挪一点，别压住玻璃胶囊本身
+                            offset: const Offset(0, 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            onSelected: (value) {
+                              if (value == 'create') {
+                                _showCreatePostDialog();
+                              } else if (value == 'message') {
+                                showAppDialog(
+                                  NewConversationDialog(
+                                    initUserId:
+                                        profileController.author.value?.id,
+                                    onSubmit: () {
+                                      NaviService.navigateToConversationPage();
+                                    },
+                                  ),
+                                  barrierDismissible: true,
+                                );
+                              } else if (value == 'share') {
+                                // 分享用户主页
+                                final username =
+                                    profileController.author.value?.username;
+                                if (username != null) {
+                                  showModalBottomSheet(
+                                    backgroundColor: Colors.transparent,
+                                    isScrollControlled: true,
+                                    builder: (context) => ShareUserBottomSheet(
+                                      username: username,
+                                      authorName:
+                                          profileController
+                                              .author
+                                              .value
+                                              ?.name ??
+                                          '',
+                                      previewUrl:
+                                          profileController
+                                              .headerBackgroundUrl
+                                              .value ??
+                                          CommonConstants
+                                              .defaultProfileHeaderUrl,
+                                      avatarUrl: profileController
+                                          .author
+                                          .value
+                                          ?.avatar
+                                          ?.avatarUrl,
+                                      followerCount: profileController
+                                          .followerCounts
+                                          .value,
+                                      followingCount: profileController
+                                          .followingCounts
+                                          .value,
+                                      commentCount: profileController
+                                          .commentController
+                                          .comments
+                                          .value
+                                          .length,
+                                    ),
+                                    context: context,
+                                  );
+                                }
+                              }
+                            },
+                            itemBuilder: (context) => popupMenuItems,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-            );
+                  );
             return GlassShapeSwitcher(child: content);
           }),
           const SizedBox(width: 16),
@@ -1546,12 +1545,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
           if (!mounted) return;
 
           if (result.isSuccess) {
-            showToastWidget(
-              MDToastWidget(
-                message: t.common.success,
-                type: MDToastType.success,
-              ),
-            );
+            showGlassToast(t.common.success, type: GlassToastType.success);
             AppService.tryPop();
             // 帖子列表是本页的「后代」而非「祖先」，原先用
             // context.findAncestorWidgetOfExactType() 取它恒为 null，
@@ -1586,18 +1580,11 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                   timeStr += t.errors.remainingSeconds(num: seconds);
                 }
 
-                showToastWidget(
-                  MDToastWidget(
-                    message: timeStr.trim(),
-                    type: MDToastType.error,
-                  ),
-                );
+                showGlassToast(timeStr.trim(), type: GlassToastType.error);
               }
             }
           } else {
-            showToastWidget(
-              MDToastWidget(message: result.message, type: MDToastType.error),
-            );
+            showGlassToast(result.message, type: GlassToastType.error);
           }
         },
       ),

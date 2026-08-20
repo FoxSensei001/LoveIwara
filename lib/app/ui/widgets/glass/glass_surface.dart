@@ -107,7 +107,10 @@ class GlassSurface extends StatelessWidget {
           color: pressed ? GlassTokens.pressedFill(cs) : GlassTokens.fill(cs),
           shape: circle ? BoxShape.circle : BoxShape.rectangle,
           borderRadius: circle ? null : radius,
-          border: Border.all(color: GlassTokens.stroke(cs), width: 0.6),
+          border: Border.all(
+            color: GlassTokens.stroke(cs),
+            width: GlassTokens.strokeWidth,
+          ),
           boxShadow: elevated ? GlassTokens.shadow(cs) : null,
         ),
         child: content,
@@ -137,6 +140,10 @@ class GlassSurface extends StatelessWidget {
 /// - [standalone] = true：独立圆形玻璃钮（带底色 / 投影），直径 [size]。
 /// - [standalone] = false：放在 [GlassButtonGroup] 里的透明图标位，按下时
 ///   只在图标下方出现圆形高亮。
+///
+/// 触发耗时动作（刷新 / 保存 / 全部已读……）的按钮必须给出 loading 反馈：
+/// 页面已有可观察状态时传 [loading]，没有就用 [GlassAsyncIconButton] 让按钮
+/// 自己跟着 Future 走。
 class GlassIconButton extends StatelessWidget {
   const GlassIconButton({
     super.key,
@@ -149,6 +156,7 @@ class GlassIconButton extends StatelessWidget {
     this.showBadge = false,
     this.badgeLabel,
     this.color,
+    this.loading = false,
   });
 
   final Widget icon;
@@ -161,28 +169,52 @@ class GlassIconButton extends StatelessWidget {
   final Widget? badgeLabel;
   final Color? color;
 
+  /// 正在执行一段耗时动作：图标**原位**换成沙漏、按钮置灰不可按、小红点收起。
+  ///
+  /// 这是全 App 唯一的「按钮级 loading」表达，不要各页自己往 icon 里塞
+  /// `CircularProgressIndicator`：转圈在 40×40 的按钮位上比图标小一圈、粗细
+  /// 与线性图标不同族，换进换出还会跳一下尺寸；沙漏是同一套图标语言里的一枚
+  /// 字形，走 [GlassAnimatedIcon] 的缩放交叉过渡后读起来就是「这枚键自己变了
+  /// 个样子」，与词汇表里其它形变同源。
+  ///
+  /// 复位由状态源负责：接 Rx / setState 的传 [loading]，没有状态源的用
+  /// [GlassAsyncIconButton]。
+  final bool loading;
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final double resolvedSize =
         size ??
         (standalone ? GlassTokens.pillHeight : GlassTokens.groupIconButtonSize);
+    // loading 期间按钮一律不可按：重复点击刷新只会把同一份请求发两遍，
+    // 而「灰掉」正是用户能读到的「已经在做了」。
+    final VoidCallback? effectiveOnPressed = loading ? null : onPressed;
 
     Widget iconWidget = IconTheme.merge(
       data: IconThemeData(
         size: iconSize,
-        color: color ?? (onPressed == null ? cs.onSurface.withValues(alpha: 0.38) : cs.onSurface),
+        color:
+            color ??
+            (effectiveOnPressed == null
+                ? cs.onSurface.withValues(alpha: 0.38)
+                : cs.onSurface),
       ),
       // 图标本身在同一按钮位上换 codePoint 时做缩放交叉过渡
-      // （如多选↔退出、瀑布↔分页）。
-      child: GlassAnimatedIcon(icon: icon),
+      // （如多选↔退出、瀑布↔分页、动作↔沙漏）。
+      child: GlassAnimatedIcon(
+        icon: loading ? const Icon(Icons.hourglass_top) : icon,
+      ),
     );
     // 徽标始终挂载，通过弹跳缩放来实现显隐，避免小红点瞬间跳出/消失。
     // 有 label 的场景交给 Flutter 原生 Badge（数字变化本身就带过渡）。
+    // loading 期间收起徽标：沙漏已经说明「这件事正在做」，红点再挂着反而
+    // 像是又有新的待办。
+    final bool effectiveShowBadge = showBadge && !loading;
     if (badgeLabel != null) {
       iconWidget = Badge(
         label: badgeLabel,
-        isLabelVisible: showBadge,
+        isLabelVisible: effectiveShowBadge,
         child: iconWidget,
       );
     } else {
@@ -193,7 +225,7 @@ class GlassIconButton extends StatelessWidget {
           Positioned(
             top: -1,
             right: -1,
-            child: GlassAnimatedDot(visible: showBadge),
+            child: GlassAnimatedDot(visible: effectiveShowBadge),
           ),
         ],
       );
@@ -203,14 +235,14 @@ class GlassIconButton extends StatelessWidget {
       return GlassSurface(
         circle: true,
         height: resolvedSize,
-        onTap: onPressed,
+        onTap: effectiveOnPressed,
         tooltip: tooltip,
         child: Center(child: iconWidget),
       );
     }
 
     Widget result = GlassPressable(
-      onTap: onPressed,
+      onTap: effectiveOnPressed,
       scale: 0.9,
       builder: (context, pressed) => AnimatedContainer(
         duration: GlassTokens.pressDuration,
@@ -229,6 +261,100 @@ class GlassIconButton extends StatelessWidget {
       result = Tooltip(message: tooltip!, child: result);
     }
     return result;
+  }
+}
+
+/// 自己管 loading 的玻璃图标钮：点下去立刻进沙漏态，直到 [onPressed] 返回的
+/// Future 落定（正常结束或抛错都会复位）。
+///
+/// 用在**没有现成可观察状态**的耗时动作上——页面里那些 `onPressed: _refreshList`
+/// 之类「发出去就不管」的写法，点完按钮毫无变化，用户只能盯着列表猜有没有生效。
+/// 页面本身已经有 `isLoading` / `isSaving` 这类 Rx 或 setState 状态时，直接用
+/// [GlassIconButton.loading]，别在同一件事上养两份状态。
+///
+/// [minLoadingDuration] 保证沙漏至少停留一小会儿：命中缓存的刷新可能 20ms 就
+/// 回来了，不兜底的话按钮只是闪一下，读起来像「点了没反应」。
+class GlassAsyncIconButton extends StatefulWidget {
+  const GlassAsyncIconButton({
+    super.key,
+    required this.icon,
+    required this.onPressed,
+    this.tooltip,
+    this.standalone = false,
+    this.size,
+    this.iconSize = GlassTokens.iconSize,
+    this.showBadge = false,
+    this.badgeLabel,
+    this.color,
+    this.loading = false,
+    this.minLoadingDuration = const Duration(milliseconds: 320),
+  });
+
+  final Widget icon;
+
+  /// 耗时动作。传 null 表示禁用（与 [GlassIconButton.onPressed] 一致）。
+  final Future<void> Function()? onPressed;
+  final String? tooltip;
+  final bool standalone;
+  final double? size;
+  final double iconSize;
+  final bool showBadge;
+  final Widget? badgeLabel;
+  final Color? color;
+
+  /// 外部状态也表示「这件事正在做」时置真，与内部的忙碌状态取或。
+  ///
+  /// 用于同一件事既能从按钮触发、又能从别处触发的场合（下拉刷新、controller
+  /// 自发刷新）——这时按钮除了跟自己的 Future，也要跟着外部状态进沙漏。
+  final bool loading;
+  final Duration minLoadingDuration;
+
+  @override
+  State<GlassAsyncIconButton> createState() => _GlassAsyncIconButtonState();
+}
+
+class _GlassAsyncIconButtonState extends State<GlassAsyncIconButton> {
+  bool _busy = false;
+
+  Future<void> _run() async {
+    final action = widget.onPressed;
+    if (_busy || action == null) return;
+    setState(() => _busy = true);
+    try {
+      await Future.wait<void>([
+        action(),
+        Future<void>.delayed(widget.minLoadingDuration),
+      ]);
+    } catch (e, s) {
+      // 动作自身的失败提示由调用方负责（SnackBar / 错误态）；这里只保证
+      // 按钮能复位，并把异常照常上报，免得它被按钮悄悄吞掉。
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: e,
+          stack: s,
+          library: 'glass_surface',
+          context: ErrorDescription('GlassAsyncIconButton 的动作执行失败'),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassIconButton(
+      icon: widget.icon,
+      onPressed: widget.onPressed == null ? null : _run,
+      loading: _busy || widget.loading,
+      tooltip: widget.tooltip,
+      standalone: widget.standalone,
+      size: widget.size,
+      iconSize: widget.iconSize,
+      showBadge: widget.showBadge,
+      badgeLabel: widget.badgeLabel,
+      color: widget.color,
+    );
   }
 }
 
@@ -262,8 +388,11 @@ class GlassButtonGroup extends StatelessWidget {
       height: height,
       padding: const EdgeInsets.symmetric(horizontal: 2),
       child: AnimatedSize(
-        duration: GlassTokens.motionDuration,
-        curve: GlassTokens.motionCurve,
+        // 外壳收放比槽位（GlassGroupSlot）略慢半拍：壳体「追着」内容走，
+        // 入场跟着按钮慢慢撑开、出场等内容收完再从容合拢，读起来是
+        // 同一坨液态玻璃在形变，而不是两层动画各自为政。
+        duration: GlassTokens.groupMorphDuration,
+        curve: GlassTokens.groupSlotCurve,
         alignment: Alignment.centerRight,
         clipBehavior: Clip.hardEdge,
         child: Row(mainAxisSize: MainAxisSize.min, children: row),

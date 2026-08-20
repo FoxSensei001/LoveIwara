@@ -88,7 +88,10 @@ class DatabaseService {
     try {
       // 获取应用文档目录
       final appDocDir = await getApplicationDocumentsDirectory();
-      final dbDir = path.join(appDocDir.path, CommonConstants.applicationName ?? 'i_iwara');
+      final dbDir = path.join(
+        appDocDir.path,
+        CommonConstants.applicationName ?? 'i_iwara',
+      );
 
       // 日志数据库文件路径
       final logDbPath = path.join(dbDir, 'iwara_logs.db');
@@ -103,8 +106,6 @@ class DatabaseService {
       LogUtils.e('清理日志数据库失败', tag: 'DatabaseService', error: e);
     }
   }
-
-
 
   /// 关闭数据库
   void close() {

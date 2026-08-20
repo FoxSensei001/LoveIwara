@@ -37,7 +37,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
     setState(() {
       _isLoading = true;
     });
-    
+
     Future.delayed(const Duration(milliseconds: 100), () {
       final images = _emojiService.getEmojiImages(widget.group.groupId);
       setState(() {
@@ -151,23 +151,23 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                       return [
                         PopupMenuItem(
                           value: _ImportMenuAction.addByUrl,
-                           child: Row(
-                             children: [
-                               const Icon(Icons.link, size: 18),
-                               const SizedBox(width: 8),
-                               Text(t.emoji.addImageByUrl),
-                             ],
-                           ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.link, size: 18),
+                              const SizedBox(width: 8),
+                              Text(t.emoji.addImageByUrl),
+                            ],
+                          ),
                         ),
                         PopupMenuItem(
                           value: _ImportMenuAction.batchImport,
-                           child: Row(
-                             children: [
-                               const Icon(Icons.file_upload, size: 18),
-                               const SizedBox(width: 8),
-                               Text(t.emoji.batchImport),
-                             ],
-                           ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.file_upload, size: 18),
+                              const SizedBox(width: 8),
+                              Text(t.emoji.batchImport),
+                            ],
+                          ),
                         ),
                       ];
                     },
@@ -184,7 +184,9 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                 ] else ...[
                   IconButton(
                     icon: const Icon(Icons.select_all),
-                    onPressed: _selectedImages.length == _images.length ? _clearSelection : _selectAllImages,
+                    onPressed: _selectedImages.length == _images.length
+                        ? _clearSelection
+                        : _selectAllImages,
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.blue.shade50,
                       shape: const CircleBorder(),
@@ -228,8 +230,8 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
             child: _isLoading
                 ? _buildGridShimmer()
                 : _images.isEmpty
-                    ? _buildEmptyState()
-                    : _buildImageGrid(),
+                ? _buildEmptyState()
+                : _buildImageGrid(),
           ),
         ],
       ),
@@ -250,17 +252,12 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
           const SizedBox(height: 16),
           Text(
             t.emoji.noEmojis,
-            style: const TextStyle(
-              fontSize: 18,
-              color: Colors.grey,
-            ),
+            style: const TextStyle(fontSize: 18, color: Colors.grey),
           ),
           const SizedBox(height: 8),
           Text(
             t.emoji.clickToAddEmojis,
-            style: const TextStyle(
-              color: Colors.grey,
-            ),
+            style: const TextStyle(color: Colors.grey),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
@@ -284,7 +281,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
   Widget _buildImageGrid() {
     final screenWidth = MediaQuery.of(context).size.width;
     int crossAxisCount = 3; // 默认3列
-    
+
     // 根据屏幕宽度动态调整列数
     if (screenWidth > 1200) {
       crossAxisCount = 8; // 超宽屏显示8列
@@ -293,7 +290,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
     } else if (screenWidth > 600) {
       crossAxisCount = 4; // 中等屏幕显示4列
     }
-    
+
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -306,7 +303,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
       itemBuilder: (context, index) {
         final image = _images[index];
         final isSelected = _selectedImages.contains(image.imageId);
-        
+
         return GestureDetector(
           onLongPress: () {
             if (!_isSelectionMode) {
@@ -373,7 +370,9 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                         width: 24,
                         height: 24,
                         decoration: BoxDecoration(
-                          color: isSelected ? Colors.blue : Colors.white.withValues(alpha: 0.9),
+                          color: isSelected
+                              ? Colors.blue
+                              : Colors.white.withValues(alpha: 0.9),
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: isSelected ? Colors.blue : Colors.grey,
@@ -447,9 +446,8 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                     Expanded(
                       child: Text(
                         t.emoji.imagePreview,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                     ),
                     IconButton(
@@ -492,9 +490,16 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.broken_image, size: 64, color: Colors.grey),
+                                const Icon(
+                                  Icons.broken_image,
+                                  size: 64,
+                                  color: Colors.grey,
+                                ),
                                 const SizedBox(height: 16),
-                                Text(t.emoji.imageLoadFailed, style: const TextStyle(color: Colors.grey)),
+                                Text(
+                                  t.emoji.imageLoadFailed,
+                                  style: const TextStyle(color: Colors.grey),
+                                ),
                               ],
                             ),
                           ),
@@ -524,7 +529,10 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                           _showDeleteImageDialog(image);
                         },
                         icon: const Icon(Icons.delete, color: Colors.red),
-                        label: Text(t.emoji.delete, style: const TextStyle(color: Colors.red)),
+                        label: Text(
+                          t.emoji.delete,
+                          style: const TextStyle(color: Colors.red),
+                        ),
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: Colors.red),
                           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -584,7 +592,9 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(t.emoji.batchDelete),
-        content: Text(t.emoji.confirmBatchDelete(count: _selectedImages.length)),
+        content: Text(
+          t.emoji.confirmBatchDelete(count: _selectedImages.length),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -598,9 +608,9 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
               Navigator.pop(context);
               _toggleSelectionMode();
               _loadImages();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(t.emoji.deleteSuccess)),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(t.emoji.deleteSuccess)));
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: Text(t.emoji.delete),
@@ -716,11 +726,18 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                 try {
                   final List<dynamic> urls = json.decode(jsonText);
                   final List<String> urlStrings = urls.cast<String>();
-                  _emojiService.addEmojiImagesBatch(widget.group.groupId, urlStrings);
+                  _emojiService.addEmojiImagesBatch(
+                    widget.group.groupId,
+                    urlStrings,
+                  );
                   Navigator.pop(context);
                   _loadImages();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(t.emoji.importSuccess(count: urlStrings.length))),
+                    SnackBar(
+                      content: Text(
+                        t.emoji.importSuccess(count: urlStrings.length),
+                      ),
+                    ),
                   );
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -735,8 +752,6 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
       ),
     );
   }
-
-
 
   // 加载骨架屏
   Widget _buildGridShimmer() {

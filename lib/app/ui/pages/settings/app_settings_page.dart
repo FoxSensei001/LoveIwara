@@ -2,7 +2,7 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -10,7 +10,6 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/services/config_backup_service.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:i_iwara/utils/common_utils.dart';
-import 'package:oktoast/oktoast.dart';
 
 class AppSettingsPage extends StatefulWidget {
   final bool isWideScreen;
@@ -72,11 +71,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               onPressed: () {
                 final parsed = int.tryParse(controller.text.trim());
                 if (parsed == null || parsed < 1) {
-                  showToastWidget(
-                    MDToastWidget(
-                      message: slang.t.settings.autoDeleteHistoryDaysInvalid,
-                      type: MDToastType.error,
-                    ),
+                  showGlassToast(
+                    slang.t.settings.autoDeleteHistoryDaysInvalid,
+                    type: GlassToastType.error,
                   );
                   return;
                 }
@@ -94,7 +91,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   }
 
   final Map<String, String> _languageChangedMessages = {
-    'en': 'Language changed successfully, some features require restarting the app to take effect.',
+    'en':
+        'Language changed successfully, some features require restarting the app to take effect.',
     'ja': '言語が正常に変更されました。一部の機能はアプリを再起動して有効にする必要があります。',
     'zh-CN': '语言切换成功，部分功能需重启应用生效',
     'zh-TW': '語言切換成功，部分功能需重啟應用生效',
@@ -115,7 +113,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   if (value != null) {
                     // 更新配置
                     configService.updateApplicationLocale(value);
-                    
+
                     // 立即切换语言
                     if (value == 'system') {
                       slang.LocaleSettings.useDeviceLocale();
@@ -123,7 +121,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       // 根据语言代码找到对应的 AppLocale
                       slang.AppLocale? targetLocale;
                       for (final locale in slang.AppLocale.values) {
-                        if (locale.languageTag.toLowerCase() == value.toLowerCase()) {
+                        if (locale.languageTag.toLowerCase() ==
+                            value.toLowerCase()) {
                           targetLocale = locale;
                           break;
                         }
@@ -132,10 +131,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         slang.LocaleSettings.setLocale(targetLocale);
                       }
                     }
-                    
+
                     // 强制刷新整个应用界面
                     Get.forceAppUpdate();
-                    
+
                     Navigator.of(context).pop();
 
                     String message;
@@ -156,12 +155,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         _languageChangedMessages[localeKey] ??
                         _languageChangedMessages['en']!;
 
-                    showToastWidget(
-                      MDToastWidget(
-                        message: message,
-                        type: MDToastType.success,
-                      ),
-                    );
+                    showGlassToast(message, type: GlassToastType.success);
                   }
                 },
                 child: ListView(
@@ -240,14 +234,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     );
     if (confirmed != true) return;
     try {
-      await Get.find<ConfigBackupService>()
-          .exportConfig(includeSensitive: includeSensitive);
+      await Get.find<ConfigBackupService>().exportConfig(
+        includeSensitive: includeSensitive,
+      );
     } catch (e) {
-      showToastWidget(
-        MDToastWidget(
-          message: '${slang.t.settings.exportConfigFailed}: ${e.toString()}',
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        '${slang.t.settings.exportConfigFailed}: ${e.toString()}',
+        type: GlassToastType.error,
       );
     }
   }
@@ -280,11 +273,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         await _showImportRestartDialog();
       }
     } catch (e) {
-      showToastWidget(
-        MDToastWidget(
-          message: '${slang.t.settings.importConfigFailed}: ${e.toString()}',
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        '${slang.t.settings.importConfigFailed}: ${e.toString()}',
+        type: GlassToastType.error,
       );
     }
   }
@@ -314,287 +305,149 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   Widget build(BuildContext context) {
     final configService = Get.find<ConfigService>();
 
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          BlurredSliverAppBar(
-            title: slang.t.settings.appSettings,
-            isWideScreen: widget.isWideScreen,
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Text(
-                          slang.t.settings.history,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      const Divider(height: 1),
-                      Obx(
-                        () => SwitchListTile(
-                          title: Text(slang.t.settings.autoRecordHistory),
-                          subtitle: Text(
-                            slang.t.settings.autoRecordHistoryDesc,
-                          ),
-                          value:
-                              configService[ConfigKey.AUTO_RECORD_HISTORY_KEY],
-                          onChanged: (value) {
-                            configService[ConfigKey.AUTO_RECORD_HISTORY_KEY] =
-                                value;
-                            CommonConstants.enableHistory = value;
-                          },
-                        ),
-                      ),
-                      const Divider(height: 1),
-                      Obx(() {
-                        final bool enabled = configService[ConfigKey
-                            .AUTO_DELETE_HISTORY_ENABLED];
-                        final int days = configService[ConfigKey
-                            .AUTO_DELETE_HISTORY_DAYS];
-                        return Column(
-                          children: [
-                            SwitchListTile(
-                              title: Text(slang.t.settings.autoDeleteHistory),
-                              subtitle: Text(
-                                slang.t.settings.autoDeleteHistoryDesc,
-                              ),
-                              value: enabled,
-                              onChanged: (value) {
-                                configService[ConfigKey
-                                        .AUTO_DELETE_HISTORY_ENABLED] =
-                                    value;
-                              },
-                              shape: enabled
-                                  ? null
-                                  : const RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(16),
-                                        bottomRight: Radius.circular(16),
-                                      ),
-                                    ),
-                            ),
-                            if (enabled)
-                              ListTile(
-                                leading: const Icon(Icons.auto_delete_outlined),
-                                title: Text(
-                                  slang.t.settings.autoDeleteHistoryDays,
-                                ),
-                                subtitle: Text(
-                                  slang.t.settings.autoDeleteHistoryDaysValue(
-                                    num: days,
-                                  ),
-                                ),
-                                trailing: const Icon(Icons.edit),
-                                onTap: () => _showAutoDeleteDaysDialog(
-                                  configService,
-                                  days,
-                                ),
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.only(
-                                    bottomLeft: Radius.circular(16),
-                                    bottomRight: Radius.circular(16),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        );
-                      }),
-                    ],
-                  ),
+    return GlassSettingsScaffold(
+      title: slang.t.settings.appSettings,
+      isWideScreen: widget.isWideScreen,
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.all(16),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Text(
-                          slang.t.settings.privacy,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        slang.t.settings.history,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
-                      const Divider(height: 1),
-                      Obx(
-                        () => SwitchListTile(
-                          title: Text(
-                            slang.t.settings.activeBackgroundPrivacyMode,
-                          ),
-                          subtitle: Text(
-                            slang.t.settings.activeBackgroundPrivacyModeDesc,
-                          ),
-                          value:
-                              configService[ConfigKey
-                                  .ACTIVE_BACKGROUND_PRIVACY_MODE],
-                          onChanged: (value) {
-                            configService[ConfigKey
-                                    .ACTIVE_BACKGROUND_PRIVACY_MODE] =
-                                value;
-                          },
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(16),
-                              bottomRight: Radius.circular(16),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (VibrateUtils.hasVibrator())
-                  Card(
-                    elevation: 2,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(16)),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Text(
-                            slang.t.settings.interaction,
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        const Divider(height: 1),
-                        Obx(
-                          () => SwitchListTile(
-                            title: Text(slang.t.settings.enableVibration),
+                    const Divider(height: 1),
+                    Obx(
+                      () => SwitchListTile(
+                        title: Text(slang.t.settings.autoRecordHistory),
+                        subtitle: Text(slang.t.settings.autoRecordHistoryDesc),
+                        value: configService[ConfigKey.AUTO_RECORD_HISTORY_KEY],
+                        onChanged: (value) {
+                          configService[ConfigKey.AUTO_RECORD_HISTORY_KEY] =
+                              value;
+                          CommonConstants.enableHistory = value;
+                        },
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    Obx(() {
+                      final bool enabled =
+                          configService[ConfigKey.AUTO_DELETE_HISTORY_ENABLED];
+                      final int days =
+                          configService[ConfigKey.AUTO_DELETE_HISTORY_DAYS];
+                      return Column(
+                        children: [
+                          SwitchListTile(
+                            title: Text(slang.t.settings.autoDeleteHistory),
                             subtitle: Text(
-                              slang.t.settings.enableVibrationDesc,
+                              slang.t.settings.autoDeleteHistoryDesc,
                             ),
-                            value: configService[ConfigKey.ENABLE_VIBRATION],
+                            value: enabled,
                             onChanged: (value) {
-                              configService[ConfigKey.ENABLE_VIBRATION] = value;
-                              CommonConstants.enableVibration = value;
+                              configService[ConfigKey
+                                      .AUTO_DELETE_HISTORY_ENABLED] =
+                                  value;
                             },
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(16),
-                                bottomRight: Radius.circular(16),
+                            shape: enabled
+                                ? null
+                                : const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.only(
+                                      bottomLeft: Radius.circular(16),
+                                      bottomRight: Radius.circular(16),
+                                    ),
+                                  ),
+                          ),
+                          if (enabled)
+                            ListTile(
+                              leading: const Icon(Icons.auto_delete_outlined),
+                              title: Text(
+                                slang.t.settings.autoDeleteHistoryDays,
+                              ),
+                              subtitle: Text(
+                                slang.t.settings.autoDeleteHistoryDaysValue(
+                                  num: days,
+                                ),
+                              ),
+                              trailing: const Icon(Icons.edit),
+                              onTap: () => _showAutoDeleteDaysDialog(
+                                configService,
+                                days,
+                              ),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(16),
+                                  bottomRight: Radius.circular(16),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Text(
-                          slang.t.settings.language,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      const Divider(height: 1),
-                      Obx(
-                        () => ListTile(
-                          title: Text(slang.t.settings.language),
-                          subtitle: Text(
-                            _languageOptions[configService[ConfigKey
-                                    .APPLICATION_LOCALE]] ??
-                                '',
-                          ),
-                          trailing: const Icon(
-                            Icons.arrow_forward_ios,
-                            size: 16,
-                          ),
-                          onTap: () =>
-                              _showLanguageDialog(context, configService),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(16),
-                              bottomRight: Radius.circular(16),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                        ],
+                      );
+                    }),
+                  ],
                 ),
-                if (GetPlatform.isAndroid)
-                  Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+              ),
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        slang.t.settings.privacy,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Text(
-                            slang.t.settings.appLinks,
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold),
+                    const Divider(height: 1),
+                    Obx(
+                      () => SwitchListTile(
+                        title: Text(
+                          slang.t.settings.activeBackgroundPrivacyMode,
+                        ),
+                        subtitle: Text(
+                          slang.t.settings.activeBackgroundPrivacyModeDesc,
+                        ),
+                        value:
+                            configService[ConfigKey
+                                .ACTIVE_BACKGROUND_PRIVACY_MODE],
+                        onChanged: (value) {
+                          configService[ConfigKey
+                                  .ACTIVE_BACKGROUND_PRIVACY_MODE] =
+                              value;
+                        },
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(16),
+                            bottomRight: Radius.circular(16),
                           ),
                         ),
-                        const Divider(height: 1),
-                        ListTile(
-                          title: Text(slang.t.settings.defaultBrowser),
-                          subtitle: Text(slang.t.settings.defaultBrowserDesc),
-                          trailing: const Icon(Icons.open_in_new),
-                          onTap: () async {
-                            final packageName = CommonConstants.packageName;
-                            try {
-                              // 首先尝试使用APP_LINKS_SETTINGS
-                              final AndroidIntent intent = AndroidIntent(
-                                action: 'android.settings.APP_LINKS_SETTINGS',
-                                data: 'package:$packageName',
-                              );
-                              await intent.launch();
-                            } catch (e) {
-                              // 如果失败，尝试使用APPLICATION_DETAILS_SETTINGS
-                              final AndroidIntent intent = AndroidIntent(
-                                action:
-                                    'android.settings.APPLICATION_DETAILS_SETTINGS',
-                                data: 'package:$packageName',
-                              );
-                              await intent.launch();
-                            }
-                          },
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(16),
-                              bottomRight: Radius.circular(16),
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
+                ),
+              ),
+              if (VibrateUtils.hasVibrator())
                 Card(
                   elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(16)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -602,7 +455,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       Padding(
                         padding: const EdgeInsets.all(16),
                         child: Text(
-                          slang.t.settings.markdown,
+                          slang.t.settings.interaction,
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
@@ -610,19 +463,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       const Divider(height: 1),
                       Obx(
                         () => SwitchListTile(
-                          title: Text(
-                            slang.t.settings.showUnprocessedMarkdownText,
-                          ),
-                          subtitle: Text(
-                            slang.t.settings.showUnprocessedMarkdownTextDesc,
-                          ),
-                          value:
-                              configService[ConfigKey
-                                  .SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY],
+                          title: Text(slang.t.settings.enableVibration),
+                          subtitle: Text(slang.t.settings.enableVibrationDesc),
+                          value: configService[ConfigKey.ENABLE_VIBRATION],
                           onChanged: (value) {
-                            configService[ConfigKey
-                                    .SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY] =
-                                value;
+                            configService[ConfigKey.ENABLE_VIBRATION] = value;
+                            CommonConstants.enableVibration = value;
                           },
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.only(
@@ -635,8 +481,47 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     ],
                   ),
                 ),
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        slang.t.settings.language,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    Obx(
+                      () => ListTile(
+                        title: Text(slang.t.settings.language),
+                        subtitle: Text(
+                          _languageOptions[configService[ConfigKey
+                                  .APPLICATION_LOCALE]] ??
+                              '',
+                        ),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        onTap: () =>
+                            _showLanguageDialog(context, configService),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(16),
+                            bottomRight: Radius.circular(16),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (GetPlatform.isAndroid)
                 Card(
-                  clipBehavior: Clip.hardEdge,
                   elevation: 2,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -647,37 +532,128 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       Padding(
                         padding: const EdgeInsets.all(16),
                         child: Text(
-                          slang.t.settings.exportConfig,
+                          slang.t.settings.appLinks,
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
                       const Divider(height: 1),
                       ListTile(
-                        leading: const Icon(Icons.file_upload),
-                        title: Text(slang.t.settings.exportConfig),
-                        subtitle: Text(slang.t.settings.exportConfigDesc),
-                        onTap: _handleExportConfig,
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.file_download),
-                        title: Text(slang.t.settings.importConfig),
-                        subtitle: Text(slang.t.settings.importConfigDesc),
-                        onTap: _handleImportConfig,
+                        title: Text(slang.t.settings.defaultBrowser),
+                        subtitle: Text(slang.t.settings.defaultBrowserDesc),
+                        trailing: const Icon(Icons.open_in_new),
+                        onTap: () async {
+                          final packageName = CommonConstants.packageName;
+                          try {
+                            // 首先尝试使用APP_LINKS_SETTINGS
+                            final AndroidIntent intent = AndroidIntent(
+                              action: 'android.settings.APP_LINKS_SETTINGS',
+                              data: 'package:$packageName',
+                            );
+                            await intent.launch();
+                          } catch (e) {
+                            // 如果失败，尝试使用APPLICATION_DETAILS_SETTINGS
+                            final AndroidIntent intent = AndroidIntent(
+                              action:
+                                  'android.settings.APPLICATION_DETAILS_SETTINGS',
+                              data: 'package:$packageName',
+                            );
+                            await intent.launch();
+                          }
+                        },
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(16),
+                            bottomRight: Radius.circular(16),
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
-
-
-                SizedBox(
-                  height: computeBottomSafeInset(MediaQuery.of(context)),
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
                 ),
-              ]),
-            ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        slang.t.settings.markdown,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    Obx(
+                      () => SwitchListTile(
+                        title: Text(
+                          slang.t.settings.showUnprocessedMarkdownText,
+                        ),
+                        subtitle: Text(
+                          slang.t.settings.showUnprocessedMarkdownTextDesc,
+                        ),
+                        value:
+                            configService[ConfigKey
+                                .SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY],
+                        onChanged: (value) {
+                          configService[ConfigKey
+                                  .SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY] =
+                              value;
+                        },
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(16),
+                            bottomRight: Radius.circular(16),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Card(
+                clipBehavior: Clip.hardEdge,
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        slang.t.settings.exportConfig,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.file_upload),
+                      title: Text(slang.t.settings.exportConfig),
+                      subtitle: Text(slang.t.settings.exportConfigDesc),
+                      onTap: _handleExportConfig,
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.file_download),
+                      title: Text(slang.t.settings.importConfig),
+                      subtitle: Text(slang.t.settings.importConfigDesc),
+                      onTap: _handleImportConfig,
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(height: computeBottomSafeInset(MediaQuery.of(context))),
+            ]),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

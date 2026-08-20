@@ -1,15 +1,20 @@
-import 'dart:ui';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/iwara_news.model.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/iwara_news_service.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/error_widget.dart'
     show CommonErrorWidget;
+import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
@@ -35,10 +40,32 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
   String? _error;
   bool _isLoading = true;
 
+  final ScrollController _scrollController = ScrollController();
+
+  /// 列表滚过一段距离后显示右下角「回到顶部」浮钮。
+  final ValueNotifier<bool> _showBackToTop = ValueNotifier<bool>(false);
+
   @override
   void initState() {
     super.initState();
     _fetchDetail();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _showBackToTop.dispose();
+    super.dispose();
+  }
+
+  void _scrollToTop() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   Future<void> _reload() async {
@@ -95,14 +122,16 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
         mode: LaunchMode.externalApplication,
       );
       if (!launched && mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(slang.t.news.openInBrowser)));
+        showGlassToast(
+          slang.t.news.openInBrowser,
+          type: GlassToastType.warning,
+        );
       }
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(CommonUtils.parseExceptionMessage(error))),
+      showGlassToast(
+        CommonUtils.parseExceptionMessage(error),
+        type: GlassToastType.error,
       );
     }
   }
@@ -136,66 +165,119 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
     return trimmed;
   }
 
-  PreferredSizeWidget _buildAppBar(
-    BuildContext context,
-    _ResolvedNewsData resolved,
-  ) {
-    final t = slang.Translations.of(context);
-    final theme = Theme.of(context);
-    final detail = _detail;
+  /// header 标题：有正文 / 预览用真实标题，出错 / 空态用兜底标题，
+  /// 首次加载给 null 显示 shimmer 占位。
+  String? _resolveHeaderTitle(slang.Translations t) {
+    final detailTitle = _detail?.title;
+    if (detailTitle != null && detailTitle.isNotEmpty) return detailTitle;
+    final previewTitle = widget.previewData?.title;
+    if (previewTitle != null && previewTitle.isNotEmpty) {
+      return previewTitle;
+    }
+    if (_error != null || !_isLoading) return t.news.title;
+    return null;
+  }
 
-    return AppBar(
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.7),
-      surfaceTintColor: Colors.transparent,
-      flexibleSpace: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(color: Colors.transparent),
-        ),
+  /// 钉在顶部的玻璃 header 行：返回圆钮 / 标题胶囊 / 动作胶囊。
+  Widget _buildHeader(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          GlassIconButton(
+            standalone: true,
+            icon: const Icon(Icons.arrow_back),
+            tooltip: t.common.back,
+            onPressed: () => AppService.tryPop(),
+          ),
+          const SizedBox(width: 8),
+          // 标题胶囊：点按/长按弹出完整标题弹窗（长标题被截断时的出口）
+          Expanded(child: GlassTitlePill(title: _resolveHeaderTitle(t))),
+          const SizedBox(width: 8),
+          _buildActionGroup(context),
+        ],
       ),
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () => Navigator.of(context).maybePop(),
-      ),
-      titleSpacing: 0,
-      title: Text(
-        resolved.title,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: theme.textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.w700,
-          fontSize: 16,
-        ),
-      ),
-      actions: [
-        if (detail != null) ...[
-          IconButton(
-            onPressed: () => _openInBrowser(detail.link),
+    );
+  }
+
+  /// 右侧动作胶囊：浏览器打开 · 语言切换 · 刷新。
+  ///
+  /// 浏览器打开 / 语言切换要等正文就绪，用 [GlassGroupSlot] 随加载完成
+  /// 「挤进」胶囊；刷新键走 [GlassIconButton.loading] 的沙漏反馈。
+  Widget _buildActionGroup(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final detail = _detail;
+    return GlassButtonGroup(
+      children: [
+        GlassGroupSlot(
+          visible: detail != null,
+          child: GlassIconButton(
             icon: const Icon(Icons.open_in_browser_rounded),
             tooltip: t.news.openInBrowser,
+            onPressed: detail == null
+                ? null
+                : () => _openInBrowser(detail.link),
           ),
-          if (detail.translationLinks.length > 1)
-            _NewsDetailLanguageButton(
-              languages: detail.translationLinks,
-              currentLanguage: detail.language,
-              languageLabelBuilder: _languageLabel,
-              onSelected: (language) async {
-                if (language == detail.language) return;
-                final url = detail.translationLinks[language];
-                if (url != null && url.isNotEmpty) {
-                  await _switchLanguage(url);
-                }
-              },
-            ),
-        ],
-        IconButton(
-          onPressed: _isLoading ? null : _reload,
+        ),
+        GlassGroupSlot(
+          visible: detail != null && detail.translationLinks.length > 1,
+          // child 是急切求值的，detail 未就绪时放一个同尺寸占位
+          child: detail == null
+              ? const SizedBox(
+                  width: GlassTokens.groupIconButtonSize,
+                  height: GlassTokens.groupIconButtonSize,
+                )
+              : _NewsDetailLanguageButton(
+                  languages: detail.translationLinks,
+                  currentLanguage: detail.language,
+                  languageLabelBuilder: _languageLabel,
+                  onSelected: (language) async {
+                    if (language == detail.language) return;
+                    final url = detail.translationLinks[language];
+                    if (url != null && url.isNotEmpty) {
+                      await _switchLanguage(url);
+                    }
+                  },
+                ),
+        ),
+        GlassIconButton(
           icon: const Icon(Icons.refresh_rounded),
           tooltip: t.common.refresh,
+          loading: _isLoading,
+          onPressed: _reload,
         ),
       ],
+    );
+  }
+
+  /// 滚过一段后出现在右下角的「回到顶部」浮钮（窄屏；宽屏双列各自滚动不提供）。
+  Widget _buildScrollToTopFab(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Positioned(
+      right: 16,
+      bottom: MediaQuery.paddingOf(context).bottom + 16,
+      child: ValueListenableBuilder<bool>(
+        valueListenable: _showBackToTop,
+        builder: (context, visible, _) => IgnorePointer(
+          ignoring: !visible,
+          child: AnimatedSlide(
+            duration: GlassTokens.motionDuration,
+            curve: GlassTokens.motionCurve,
+            offset: visible ? Offset.zero : const Offset(0, 0.4),
+            child: AnimatedOpacity(
+              duration: GlassTokens.motionDuration,
+              opacity: visible ? 1 : 0,
+              child: GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.vertical_align_top),
+                tooltip: t.common.scrollToTop,
+                onPressed: _scrollToTop,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -299,6 +381,7 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
               const SizedBox(width: 12),
               Expanded(
                 child: SingleChildScrollView(
+                  controller: _scrollController,
                   padding: EdgeInsets.only(bottom: bottomInset),
                   child: _NewsDetailContent(
                     resolved: resolved,
@@ -321,6 +404,7 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
 
     final isSmallScreen = MediaQuery.sizeOf(context).width <= 600;
     return SingleChildScrollView(
+      controller: _scrollController,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -344,26 +428,63 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final t = slang.Translations.of(context);
-    final preview = widget.previewData;
-    final hasShellContent = _detail != null || preview != null;
     final screenWidth = MediaQuery.sizeOf(context).width;
-    final effectiveTopPadding =
-        MediaQuery.paddingOf(context).top + kToolbarHeight;
-    final isWideLayout = screenWidth >= 1080;
+    final bool isWideLayout = screenWidth >= 1080;
+    final double statusBarHeight = MediaQuery.paddingOf(context).top;
+    final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
+    final double effectiveTopPadding = headerExtent;
     final availableWideHeight =
         (MediaQuery.sizeOf(context).height - effectiveTopPadding - 6).clamp(
           200.0,
           double.infinity,
         );
 
-    if (_error != null && !hasShellContent && !_isLoading) {
-      return Scaffold(
-        appBar: _buildAppBar(
-          context,
-          _ResolvedNewsData.fallback(title: t.news.title),
+    return Scaffold(
+      body: GlassHeaderOverlay(
+        headerExtent: headerExtent,
+        headerTop: statusBarHeight,
+        solidExtent: statusBarHeight,
+        body: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            if (notification.metrics.axis == Axis.vertical &&
+                notification.depth == 0) {
+              _showBackToTop.value = notification.metrics.pixels >= 300;
+            }
+            return false;
+          },
+          child: _buildStateBody(
+            context,
+            isWideLayout: isWideLayout,
+            headerExtent: headerExtent,
+            effectiveTopPadding: effectiveTopPadding,
+            availableWideHeight: availableWideHeight,
+          ),
         ),
-        body: CommonErrorWidget(
+        // header 行：左 返回圆钮 / 中 标题胶囊 / 右 动作胶囊
+        header: _buildHeader(context),
+        extra: [
+          // 回到顶部浮钮（窄屏；宽屏双列各自滚动不提供）
+          if (!isWideLayout) _buildScrollToTopFab(context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStateBody(
+    BuildContext context, {
+    required bool isWideLayout,
+    required double headerExtent,
+    required double effectiveTopPadding,
+    required double availableWideHeight,
+  }) {
+    final t = slang.Translations.of(context);
+    final preview = widget.previewData;
+    final hasShellContent = _detail != null || preview != null;
+
+    if (_error != null && !hasShellContent && !_isLoading) {
+      return Padding(
+        padding: EdgeInsets.only(top: headerExtent),
+        child: CommonErrorWidget(
           text: _error ?? t.errors.errorWhileLoadingPost,
           children: [
             ElevatedButton(onPressed: _reload, child: Text(t.common.retry)),
@@ -377,60 +498,7 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
     }
 
     if (_isLoading && !hasShellContent) {
-      final loadingResolved = _ResolvedNewsData.fallback(title: t.news.title);
-      return Scaffold(
-        extendBodyBehindAppBar: true,
-        appBar: _buildAppBar(context, loadingResolved),
-        body: DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
-                Theme.of(context).colorScheme.surface,
-              ],
-            ),
-          ),
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: isWideLayout ? 1220 : 940),
-              child: _buildLoadingBody(
-                context,
-                isWideLayout: isWideLayout,
-                effectiveTopPadding: effectiveTopPadding,
-                availableWideHeight: availableWideHeight,
-                heroTag: preview?.heroTag,
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    if (!hasShellContent) {
-      return Scaffold(
-        appBar: _buildAppBar(
-          context,
-          _ResolvedNewsData.fallback(title: t.news.title),
-        ),
-        body: MyEmptyWidget(message: t.common.noData, onRefresh: _reload),
-      );
-    }
-
-    final resolved = _ResolvedNewsData.from(
-      detail: _detail,
-      preview: preview,
-      fallbackTitle: t.news.title,
-    );
-
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: _buildAppBar(context, resolved),
-      body: DecoratedBox(
+      return DecoratedBox(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -447,14 +515,55 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
           alignment: Alignment.topCenter,
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: isWideLayout ? 1220 : 940),
-            child: _buildContentBody(
+            child: _buildLoadingBody(
               context,
-              resolved: resolved,
               isWideLayout: isWideLayout,
               effectiveTopPadding: effectiveTopPadding,
               availableWideHeight: availableWideHeight,
               heroTag: preview?.heroTag,
             ),
+          ),
+        ),
+      );
+    }
+
+    if (!hasShellContent) {
+      return Padding(
+        padding: EdgeInsets.only(top: headerExtent),
+        child: MyEmptyWidget(message: t.common.noData, onRefresh: _reload),
+      );
+    }
+
+    final resolved = _ResolvedNewsData.from(
+      detail: _detail,
+      preview: preview,
+      fallbackTitle: t.news.title,
+    );
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
+            Theme.of(context).colorScheme.surface,
+          ],
+        ),
+      ),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: isWideLayout ? 1220 : 940),
+          child: _buildContentBody(
+            context,
+            resolved: resolved,
+            isWideLayout: isWideLayout,
+            effectiveTopPadding: effectiveTopPadding,
+            availableWideHeight: availableWideHeight,
+            heroTag: preview?.heroTag,
           ),
         ),
       ),
@@ -483,14 +592,6 @@ class _ResolvedNewsData {
       featuredImageUrl: detail?.featuredImageUrl ?? preview?.featuredImageUrl,
     );
   }
-
-  factory _ResolvedNewsData.fallback({required String title}) =>
-      _ResolvedNewsData(
-        title: title,
-        publishedAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        featuredImageUrl: null,
-      );
 
   final String title;
   final DateTime publishedAt;
@@ -963,6 +1064,8 @@ class _NewsDetailSkeletonBlock extends StatelessWidget {
   }
 }
 
+/// 语言切换钮：与玻璃动作胶囊同尺寸的 40×40 菜单触发位（与其他页的
+/// 尾部 PopupMenuButton 同一口径），菜单里勾选当前语言。
 class _NewsDetailLanguageButton extends StatelessWidget {
   const _NewsDetailLanguageButton({
     required this.languages,
@@ -979,54 +1082,40 @@ class _NewsDetailLanguageButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return PopupMenuButton<IwaraNewsLanguage>(
-      initialValue: currentLanguage,
-      position: PopupMenuPosition.under,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      tooltip: null,
-      onSelected: (language) {
-        onSelected(language);
-      },
-      itemBuilder: (context) => [
-        for (final entry in languages.entries)
-          PopupMenuItem<IwaraNewsLanguage>(
-            value: entry.key,
-            child: Row(
-              children: [
-                const Icon(Icons.translate_rounded, size: 18),
-                const SizedBox(width: 10),
-                Expanded(child: Text(languageLabelBuilder(entry.key))),
-                if (entry.key == currentLanguage) ...[
-                  const SizedBox(width: 8),
-                  Icon(Icons.check, size: 18, color: colorScheme.primary),
+    return SizedBox(
+      width: GlassTokens.groupIconButtonSize,
+      height: GlassTokens.groupIconButtonSize,
+      child: PopupMenuButton<IwaraNewsLanguage>(
+        initialValue: currentLanguage,
+        position: PopupMenuPosition.under,
+        // 往下挪一点，别压住玻璃胶囊本身
+        offset: const Offset(0, 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        tooltip: languageLabelBuilder(currentLanguage),
+        onSelected: (language) {
+          onSelected(language);
+        },
+        itemBuilder: (context) => [
+          for (final entry in languages.entries)
+            PopupMenuItem<IwaraNewsLanguage>(
+              value: entry.key,
+              child: Row(
+                children: [
+                  const Icon(Icons.translate_rounded, size: 18),
+                  const SizedBox(width: 10),
+                  Expanded(child: Text(languageLabelBuilder(entry.key))),
+                  if (entry.key == currentLanguage) ...[
+                    const SizedBox(width: 8),
+                    Icon(Icons.check, size: 18, color: colorScheme.primary),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-      ],
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 36),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: colorScheme.secondaryContainer,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.translate_rounded,
-                size: 16,
-                color: colorScheme.onSecondaryContainer,
-              ),
-              const SizedBox(width: 2),
-              Icon(
-                Icons.arrow_drop_down_rounded,
-                color: colorScheme.onSecondaryContainer,
-              ),
-            ],
-          ),
+        ],
+        icon: Icon(
+          Icons.translate_rounded,
+          size: GlassTokens.iconSize,
+          color: colorScheme.onSurface,
         ),
       ),
     );

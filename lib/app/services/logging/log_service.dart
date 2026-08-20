@@ -360,7 +360,8 @@ class LogService extends GetxService {
     );
 
     // fatal 即使被去重返回 null，也必须脱敏后再落盘，不能回退到原始事件。
-    final processed = _processor.process(event) ?? _processor.sanitizeEvent(event);
+    final processed =
+        _processor.process(event) ?? _processor.sanitizeEvent(event);
     _buffer.pushToRingOnly(processed);
     if (_policy.persistenceEnabled) {
       _sink.appendEmergencySync(processed.toJsonLine());

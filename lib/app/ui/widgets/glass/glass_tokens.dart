@@ -20,11 +20,18 @@ abstract final class GlassTokens {
   /// 图标尺寸。
   static const double iconSize = 22;
 
+  /// 玻璃体描边宽度。测量「某块内容摆不摆得下」时要把左右两条描边算进去。
+  static const double strokeWidth = 0.6;
+
   /// 顶部 header 行高度（不含状态栏）。
   static const double headerRowHeight = 56;
 
   /// header 行下方再多渐隐多少距离。
-  static const double headerFadeExtent = 56;
+  ///
+  /// 只是给「卡片钻进 header 背后」留一条软边，不是一整片背景：2026-08-20
+  /// 从 56 收到 24——56 那会儿蒙层的尾巴整整拖出 header 一大截，在内容上糊出
+  /// 一条肉眼可见的白/黑带，读起来像 header 的阴影漏了出去。
+  static const double headerFadeExtent = 24;
 
   /// 浮动 Tab 栏高度。
   static const double floatingTabBarHeight = 64;
@@ -38,17 +45,49 @@ abstract final class GlassTokens {
   /// 浮动底栏旁的独立圆钮直径。
   static const double floatingActionSize = 60;
 
+  /// 浮动底栏旁独立圆钮（搜索）的中心距屏幕右缘的水平距离。
+  /// 回顶浮钮等与它共轴时用 [floatingActionCoAxisRight] 反推各自的 `right`。
+  static const double floatingActionAxisRight =
+      floatingTabBarSideMargin + floatingActionSize / 2;
+
+  /// 让直径 [buttonSize] 的浮钮与浮动底栏旁的独立圆钮（搜索）中心共轴
+  /// 所需的 `right` 偏移（仅移动端底栏可见时有意义，见
+  /// [isFloatingBarInsetActive]）。
+  static double floatingActionCoAxisRight(double buttonSize) =>
+      floatingActionAxisRight - buttonSize / 2;
+
   /// 页面列表需要在安全区之上额外让出的高度（浮动底栏 + 间距 + 少量呼吸）。
   static const double floatingBarReservedExtent =
       floatingTabBarHeight + floatingTabBarBottomMargin + 8;
 
   /// 底部渐变蒙层在浮动底栏之上再延伸多少。
-  static const double bottomFadeExtent = 56;
+  /// 与 [headerFadeExtent] 同一口径（2026-08-20 一并从 56 收到 24）。
+  static const double bottomFadeExtent = 24;
 
   // ---- 动效 ----
   static const Duration pressDuration = Duration(milliseconds: 120);
   static const Duration motionDuration = Duration(milliseconds: 200);
   static const Curve motionCurve = Curves.easeOutCubic;
+
+  /// 按钮组槽位入场：比 [motionDuration] 慢，宽度走缓入缓出，
+  /// 「冒出来」的过程要能被看见，而不是头几帧就把大半宽度甩出来。
+  static const Duration groupSlotEnterDuration = Duration(milliseconds: 300);
+
+  /// 按钮组槽位出场：可以比入场干脆，但同样不许瞬时塌陷。
+  static const Duration groupSlotExitDuration = Duration(milliseconds: 200);
+
+  /// 槽位宽度收放曲线。easeOutCubic 会在开头猛冲，叠上外层胶囊的
+  /// AnimatedSize 后宽度像瞬跳--缓入缓出让展开有起势。
+  static const Curve groupSlotCurve = Curves.easeInOutCubic;
+
+  /// 按钮组胶囊外壳的收放时长：比槽位略长，壳体「追着」内容走，
+  /// 读起来是同一坨液态玻璃在形变，而不是两层动画各自为政。
+  static const Duration groupMorphDuration = Duration(milliseconds: 340);
+
+  /// 胶囊内容交接（分段胶囊↔下拉钮）：比常规 motion 长，因为它是**两段**
+  /// 时序——前半程旧内容收掉、后半程新内容长出来，各占一半才不显得仓促。
+  static const Duration capsuleMorphDuration = Duration(milliseconds: 300);
+
   static const double pressedScale = 0.96;
 
   // ---- 颜色 ----
@@ -82,6 +121,25 @@ abstract final class GlassTokens {
 
   /// 边缘渐变蒙层的基色。
   static Color scrimBase(ColorScheme cs) => cs.surface;
+}
+
+/// 浮动底栏当前遮挡掉的屏幕底部高度（含系统安全区）；底栏不可见时为 0。
+///
+/// Shell 在 build 里写、[RemoveFloatingBarInset] 之外的**根 Overlay 浮层**读。
+/// Shell 让页面避开底栏靠的是把高度加进 `MediaQuery.padding.bottom`
+/// （见 `home_shell_scaffold.dart`），但 toast 这类挂在根 Overlay 上的东西
+/// 压根不在 Shell 子树里，拿到的是系统原始安全区，不借这个值就会正好压在
+/// 底栏上。没人监听它，所以 build 期间直接赋值是安全的。
+double glassBottomBarObstruction = 0;
+
+/// 当前子树的 `MediaQuery.padding.bottom` 是否被 Shell 为浮动底栏抬高了
+/// （即移动端浮动底栏正在覆盖此子树）。
+///
+/// 回顶浮钮据此决定水平位置：底栏可见时与旁边的搜索圆钮中心共轴
+/// （[GlassTokens.floatingActionCoAxisRight]），否则用普通右边距。
+bool isFloatingBarInsetActive(BuildContext context) {
+  final mq = MediaQuery.of(context);
+  return mq.padding.bottom > mq.viewPadding.bottom;
 }
 
 /// 把 Shell 为浮动底栏额外抬高的 `MediaQuery.padding.bottom` 还原成系统原始

@@ -140,7 +140,12 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
 
   /// 应用当前选择并关闭弹窗。
   void _confirm() {
-    widget.onConfirm(tags, _buildFinalDate(), _effectiveRating, _selectedSortId);
+    widget.onConfirm(
+      tags,
+      _buildFinalDate(),
+      _effectiveRating,
+      _selectedSortId,
+    );
     AppService.tryPop();
   }
 
@@ -583,15 +588,12 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
                 // 切换标签 chip 显示：原始 key / 当前译文
                 if (_hasMeaningfulTagTranslation)
                   IconButton(
-                    icon: Icon(
-                      _showOriginalTags ? Icons.translate : Icons.tag,
-                    ),
+                    icon: Icon(_showOriginalTags ? Icons.translate : Icons.tag),
                     tooltip: _showOriginalTags
                         ? t.common.showTranslatedTag
                         : t.common.showOriginalTag,
-                    onPressed: () => setState(
-                      () => _showOriginalTags = !_showOriginalTags,
-                    ),
+                    onPressed: () =>
+                        setState(() => _showOriginalTags = !_showOriginalTags),
                   ),
                 const SizedBox(width: 8),
                 IconButton(

@@ -14,14 +14,12 @@ class PopularGalleryListPage
           PopularGalleryController,
           PopularGalleryRepository
         > {
-  const PopularGalleryListPage({
-    super.key,
-    super.contentResetVersion = 0,
-  }) : super(
-         controllerTag: 'gallery',
-         searchSegment: SearchSegment.image,
-         emptyIcon: Icons.photo_library_outlined,
-       );
+  const PopularGalleryListPage({super.key, super.contentResetVersion = 0})
+    : super(
+        controllerTag: 'gallery',
+        searchSegment: SearchSegment.image,
+        emptyIcon: Icons.photo_library_outlined,
+      );
 
   // 实现创建 Controller 的方法
   @override

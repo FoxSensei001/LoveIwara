@@ -69,7 +69,10 @@ class LogBuffer {
 
     // 兜底硬裁剪：即使全是高优先级日志也必须控制上限，避免内存持续增长。
     if (_writeQueue.length > LogConstants.highWaterMark) {
-      _writeQueue.removeRange(0, _writeQueue.length - LogConstants.highWaterMark);
+      _writeQueue.removeRange(
+        0,
+        _writeQueue.length - LogConstants.highWaterMark,
+      );
     }
   }
 }

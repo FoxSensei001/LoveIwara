@@ -7,7 +7,14 @@ import 'package:i_iwara/app/services/conversation_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/conversation/widgets/conversation_message_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/comment_actions_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
@@ -15,7 +22,7 @@ import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class MessageListWidget extends StatefulWidget {
   final ConversationModel conversation;
@@ -49,277 +56,55 @@ class _MessageListWidgetState extends State<MessageListWidget> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(),
-      body: Column(
-        children: [
-          Expanded(
-            child: LoadingMoreCustomScrollView(
-              controller: _scrollController,
-              reverse: true,
-              physics: const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                LoadingMoreSliverList<MessageModel>(
-                  SliverListConfig<MessageModel>(
-                    sourceList: _messageListRepository,
-                    itemBuilder: (context, message, index) {
-                      return _buildMessageItem(context, message);
-                    },
-                    indicatorBuilder: _buildIndicator,
-                    padding: const EdgeInsets.all(8.0),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          _buildBottomBar(),
-        ],
+  User get _otherParticipant => widget.conversation.participants.firstWhere(
+        (user) => user.id != _userService.currentUser.value?.id,
+        orElse: () => widget.conversation.participants.first,
+      );
+
+  void _showMessageComposer() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => ConversationMessageBottomSheet(
+        conversationId: widget.conversation.id,
+        onSubmit: () {
+          _messageListRepository.refresh(true);
+        },
       ),
     );
   }
 
-  PreferredSizeWidget? _buildAppBar() {
-    final otherParticipant = widget.conversation.participants.firstWhere(
-      (user) => user.id != _userService.currentUser.value?.id,
-      orElse: () => widget.conversation.participants.first,
-    );
-
-    return AppBar(
-      // 窄屏来的要显示返回按钮
-      leading: widget.fromNarrowScreen
-          ? IconButton(
-              onPressed: () => AppService.tryPop(),
-              icon: const Icon(Icons.arrow_back),
-            )
-          : const SizedBox.shrink(),
-      centerTitle: true,
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          buildUserName(context, otherParticipant, fontSize: 16),
-          Text(
-            '@${otherParticipant.username}',
-            style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
-          ),
-        ],
-      ),
-      actions: [
-        StreamBuilder<Iterable<MessageModel>>(
-          stream: _messageListRepository.rebuild,
-          builder: (context, snapshot) {
-            final isLoading =
-                _messageListRepository.isLoading &&
-                _messageListRepository.isEmpty;
-            return IconButton(
-              onPressed: isLoading
-                  ? null
-                  : () => _messageListRepository.refresh(true),
-              icon: isLoading
-                  ? Shimmer.fromColors(
-                      baseColor: Colors.grey[300]!,
-                      highlightColor: Colors.grey[100]!,
-                      child: const Icon(Icons.refresh),
-                    )
-                  : const Icon(Icons.refresh),
-            );
-          },
-        ),
-      ],
+  /// 中间标题胶囊：对方昵称，长按/点按可看完整昵称 + @用户名。
+  Widget _buildTitlePill(BuildContext context) {
+    final otherParticipant = _otherParticipant;
+    final String displayName = otherParticipant.name.isNotEmpty
+        ? otherParticipant.name
+        : otherParticipant.username;
+    return GlassTitlePill(
+      title: displayName,
+      subtitle: '@${otherParticipant.username}',
     );
   }
 
-  Widget? _buildIndicator(BuildContext context, IndicatorStatus status) {
-    Widget? widget;
-
-    switch (status) {
-      case IndicatorStatus.none:
-        return null;
-      case IndicatorStatus.loadingMoreBusying:
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
-            child: _buildShimmerItem(),
-          ),
-        );
-      case IndicatorStatus.fullScreenBusying:
-        widget = Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
-          child: Column(
-            children: List.generate(3, (index) => _buildShimmerItem()),
-          ),
-        );
-        return SliverFillRemaining(child: widget);
-      case IndicatorStatus.error:
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Card(
-            elevation: 0,
-            color: Theme.of(context).colorScheme.errorContainer,
-            child: InkWell(
-              onTap: () => _messageListRepository.errorRefresh(),
-              borderRadius: BorderRadius.circular(12),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 12,
-                  horizontal: 16,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Icon(
-                      Icons.error_outline,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      t.conversation.errors.loadFailedClickToRetry,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+  /// 右侧动作胶囊：仅刷新（忙碌时图标交叉过渡成沙漏）。
+  Widget _buildActionGroup(BuildContext context) {
+    return StreamBuilder<Iterable<MessageModel>>(
+      stream: _messageListRepository.rebuild,
+      builder: (context, snapshot) {
+        final bool isLoading =
+            _messageListRepository.isLoading && _messageListRepository.isEmpty;
+        return GlassButtonGroup(
+          children: [
+            GlassIconButton(
+              icon: const Icon(Icons.refresh),
+              loading: isLoading,
+              tooltip: t.common.refresh,
+              onPressed: () => _messageListRepository.refresh(true),
             ),
-          ),
+          ],
         );
-      case IndicatorStatus.fullScreenError:
-        widget = Card(
-          elevation: 0,
-          color: Theme.of(context).colorScheme.errorContainer,
-          child: InkWell(
-            onTap: () => _messageListRepository.errorRefresh(),
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Icon(
-                    Icons.error_outline,
-                    size: 48,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    t.conversation.errors.loadFailed,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    t.conversation.errors.clickToRetry,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onErrorContainer,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-        return SliverFillRemaining(
-          hasScrollBody: false,
-          child: Center(
-            child: Padding(padding: const EdgeInsets.all(16.0), child: widget),
-          ),
-        );
-      case IndicatorStatus.noMoreLoad:
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Center(
-            child: Text(
-              t.conversation.errors.noMoreConversations,
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodySmall?.color,
-              ),
-            ),
-          ),
-        );
-      case IndicatorStatus.empty:
-        widget = Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.chat_bubble_outline,
-                size: 48,
-                color: Theme.of(context).hintColor,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                t.conversation.tmpNoConversions,
-                style: TextStyle(
-                  color: Theme.of(context).hintColor,
-                  fontSize: 16,
-                ),
-              ),
-            ],
-          ),
-        );
-        return SliverFillRemaining(
-          hasScrollBody: false,
-          child: Center(child: widget),
-        );
-    }
-  }
-
-  Widget _buildShimmerItem() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(width: 100, height: 14, color: Colors.white),
-                    const SizedBox(width: 8),
-                    Container(width: 50, height: 12, color: Colors.white),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Container(
-                  width: double.infinity,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+      },
     );
   }
 
@@ -328,35 +113,64 @@ class _MessageListWidgetState extends State<MessageListWidget> {
     final ConversationService conversationService =
         Get.find<ConversationService>();
 
+    void showMessageTranslationDialog() {
+      showTranslationDialog(
+        context,
+        text: message.body,
+        barrierDismissible: true,
+      );
+    }
+
+    Future<void> deleteMessage() async {
+      final result = await conversationService.deleteMessage(message.id);
+      if (result.isSuccess) {
+        _messageListRepository.refresh(true);
+      } else {
+        showGlassToast(result.message, type: GlassToastType.error);
+      }
+    }
+
     Future<void> showDeleteConfirmation() async {
       await showModalBottomSheet(
         context: context,
-        builder: (BuildContext context) {
-          return SafeArea(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (sheetContext) {
+          final colorScheme = Theme.of(sheetContext).colorScheme;
+          return Padding(
+            padding: EdgeInsets.only(
+              top: 8,
+              bottom: computeSheetBottomInset(sheetContext) + 8,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ListTile(
-                  leading: Icon(
-                    Icons.delete_outline,
-                    color: Theme.of(context).colorScheme.error,
+                Container(
+                  width: 32,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 8),
+                  decoration: BoxDecoration(
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                  title: Text(t.conversation.deleteThisMessage),
+                ),
+                ListTile(
+                  leading: Icon(Icons.delete_outline, color: colorScheme.error),
+                  title: Text(
+                    t.conversation.deleteThisMessage,
+                    style: TextStyle(color: colorScheme.error),
+                  ),
                   subtitle: Text(t.conversation.deleteThisMessageSubtitle),
-                  onTap: () async {
-                    Navigator.pop(context);
-                    final result = await conversationService.deleteMessage(
-                      message.id,
-                    );
-                    if (result.isSuccess) {
-                      _messageListRepository.refresh(true);
-                    }
+                  onTap: () {
+                    Navigator.of(sheetContext).pop();
+                    deleteMessage();
                   },
                 ),
                 ListTile(
                   leading: const Icon(Icons.close),
                   title: Text(t.common.cancel),
-                  onTap: () => Navigator.pop(context),
+                  onTap: () => Navigator.of(sheetContext).pop(),
                 ),
               ],
             ),
@@ -365,11 +179,13 @@ class _MessageListWidgetState extends State<MessageListWidget> {
       );
     }
 
-    void showMessageTranslationDialog() {
-      showTranslationDialog(
-        context,
+    /// 长按消息正文：复制 / 选择复制 / 翻译 / 删除（仅自己发的消息）。
+    void showActionsSheet() {
+      showCommentActionsSheet(
+        context: context,
         text: message.body,
-        barrierDismissible: true,
+        onTranslate: showMessageTranslationDialog,
+        onDelete: isMe ? showDeleteConfirmation : null,
       );
     }
 
@@ -424,65 +240,15 @@ class _MessageListWidgetState extends State<MessageListWidget> {
                         ],
                       ),
                       const SizedBox(height: 2),
-                      // 第二行显示时间及操作按钮
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            CommonUtils.formatFriendlyTimestamp(
-                              message.createdAt,
-                            ),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(context).hintColor,
-                            ),
-                          ),
-                          if (!isMe) ...[
-                            const SizedBox(width: 8),
-                            IconButton(
-                              icon: Icon(
-                                Icons.translate,
-                                size: 18,
-                                color: Theme.of(context).hintColor,
-                              ),
-                              onPressed: showMessageTranslationDialog,
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(
-                                minWidth: 24,
-                                minHeight: 24,
-                              ),
-                            ),
-                          ],
-                          if (isMe) ...[
-                            const SizedBox(width: 8),
-                            IconButton(
-                              icon: Icon(
-                                Icons.delete_outline,
-                                size: 18,
-                                color: Theme.of(context).hintColor,
-                              ),
-                              onPressed: showDeleteConfirmation,
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(
-                                minWidth: 24,
-                                minHeight: 24,
-                              ),
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.translate,
-                                size: 18,
-                                color: Theme.of(context).hintColor,
-                              ),
-                              onPressed: showMessageTranslationDialog,
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(
-                                minWidth: 24,
-                                minHeight: 24,
-                              ),
-                            ),
-                          ],
-                        ],
+                      // 第二行只显示时间——翻译/删除移进长按操作菜单
+                      Text(
+                        CommonUtils.formatFriendlyTimestamp(
+                          message.createdAt,
+                        ),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).hintColor,
+                        ),
                       ),
                     ],
                   ),
@@ -495,29 +261,40 @@ class _MessageListWidgetState extends State<MessageListWidget> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Flexible(
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: isMe
+                      // 带小尾巴的对话气泡：尾巴从气泡顶角伸出、指向发送者
+                      // （对方消息在左角、自己的消息在右角，正好指着两侧头像）。
+                      // 轮廓（含尾巴）由 _MessageBubblePainter 一笔画成，
+                      // 描边不会从尾巴根部穿过去。
+                      child: CustomPaint(
+                        painter: _MessageBubblePainter(
+                          fill: isMe
                               ? Theme.of(
                                   context,
                                 ).primaryColor.withValues(alpha: 0.1)
                               : Theme.of(context).cardColor,
-                          borderRadius: BorderRadius.circular(16),
-                          border: !isMe
-                              ? Border.all(
-                                  color: Theme.of(
-                                    context,
-                                  ).dividerColor.withValues(alpha: 0.5),
-                                  width: 0.5,
-                                )
-                              : null,
+                          stroke: isMe
+                              ? Theme.of(
+                                  context,
+                                ).primaryColor.withValues(alpha: 0.28)
+                              : Theme.of(
+                                  context,
+                                ).dividerColor.withValues(alpha: 0.5),
+                          tailOnRight: isMe,
                         ),
-                        child: CustomMarkdownBody(
-                          data: message.body,
-                          originalData: message.body,
-                          initialShowUnprocessedText: false,
-                          clickInternalLinkByUrlLaunch: false,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(
+                            12,
+                            _MessageBubblePainter.tailHeight + 12,
+                            12,
+                            12,
+                          ),
+                          child: CustomMarkdownBody(
+                            data: message.body,
+                            originalData: message.body,
+                            initialShowUnprocessedText: false,
+                            clickInternalLinkByUrlLaunch: false,
+                            onLongPress: showActionsSheet,
+                          ),
                         ),
                       ),
                     ),
@@ -546,7 +323,8 @@ class _MessageListWidgetState extends State<MessageListWidget> {
     return AvatarWidget(user: user, size: 40);
   }
 
-  Widget _buildBottomBar() {
+  Widget _buildBottomBar(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return SafeArea(
       // 底部安全区交给 SafeArea 就够了。原先这里又手动加了一次
       // MediaQuery.padding.bottom，而这个 context 是 State.context、
@@ -554,43 +332,106 @@ class _MessageListWidgetState extends State<MessageListWidget> {
       // 之前看不出来，是因为 Shell 的 Scaffold 把 padding.bottom 抹成了 0；
       // 现在底栏隐藏时 bottomNavigationBar 真的为 null，这里就会露出双倍间距。
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextButton(
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (context) => ConversationMessageBottomSheet(
-                      conversationId: widget.conversation.id,
-                      onSubmit: () {
-                        _messageListRepository.refresh(true);
-                      },
-                    ),
-                  );
-                },
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    side: BorderSide(color: Theme.of(context).dividerColor),
-                  ),
-                  alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.fromLTRB(12.0, 6.0, 12.0, 6.0),
+        child: SizedBox(
+          width: double.infinity,
+          child: GlassSurface(
+            height: GlassTokens.pillHeight,
+            onTap: _showMessageComposer,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.edit_outlined,
+                  size: 18,
+                  color: colorScheme.onSurfaceVariant,
                 ),
-                child: Text(
-                  t.conversation.writeMessageHere,
-                  style: TextStyle(color: Theme.of(context).hintColor),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    t.conversation.writeMessageHere,
+                    style: TextStyle(color: colorScheme.onSurfaceVariant),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
+    final double listTopPadding = headerExtent + 8;
+
+    return Scaffold(
+      body: Column(
+        children: [
+          Expanded(
+            child: GlassHeaderOverlay(
+              headerExtent: headerExtent,
+              headerTop: statusBarHeight,
+              solidExtent: statusBarHeight,
+              body: RefreshIndicator(
+                // 指示器从 header 下方弹出
+                displacement: headerExtent,
+                onRefresh: () => _messageListRepository.refresh(true),
+                child: LoadingMoreCustomScrollView(
+                  controller: _scrollController,
+                  reverse: true,
+                  physics: const ClampingScrollPhysics(),
+                  slivers: [
+                    LoadingMoreSliverList<MessageModel>(
+                      SliverListConfig<MessageModel>(
+                        sourceList: _messageListRepository,
+                        itemBuilder: (context, message, index) {
+                          return _buildMessageItem(context, message);
+                        },
+                        indicatorBuilder: (context, status) =>
+                            myLoadingMoreIndicator(
+                          context,
+                          status,
+                          isSliver: true,
+                          loadingMoreBase: _messageListRepository,
+                        ),
+                        padding: EdgeInsets.fromLTRB(
+                          12.0,
+                          listTopPadding,
+                          12.0,
+                          8.0,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // header 行：左 返回圆钮（窄屏才有）/ 中 标题胶囊 / 右 动作胶囊
+              header: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    if (widget.fromNarrowScreen) ...[
+                      GlassIconButton(
+                        standalone: true,
+                        icon: const Icon(Icons.arrow_back),
+                        tooltip: t.common.back,
+                        onPressed: () => AppService.tryPop(),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    Expanded(child: _buildTitlePill(context)),
+                    const SizedBox(width: 8),
+                    _buildActionGroup(context),
+                  ],
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+          _buildBottomBar(context),
+        ],
       ),
     );
   }
@@ -687,5 +528,105 @@ class MessageListRepository extends LoadingMoreBase<MessageModel>
   void dispose() {
     super.dispose();
     clear();
+  }
+}
+
+/// 消息气泡背景：圆角矩形 + 从顶角伸出的小尾巴。
+///
+/// 尾巴位置由 [tailOnRight] 决定：自己的消息尾巴在右上角（指向右侧头像），
+/// 对方的消息尾巴在左上角（指向左侧头像）。整个轮廓（含尾巴）是一条闭合
+/// 路径，填充与描边共用，避免「描边从尾巴根部横穿过去」的破相。
+///
+/// 画布布局：顶部 [tailHeight] 高的条带留给尾巴，气泡主体从 y = tailHeight
+/// 开始；外层内容的 Padding 因此要多让出 [tailHeight]。
+class _MessageBubblePainter extends CustomPainter {
+  _MessageBubblePainter({
+    required this.fill,
+    required this.stroke,
+    required this.tailOnRight,
+  });
+
+  final Color fill;
+  final Color stroke;
+  final bool tailOnRight;
+
+  /// 气泡圆角。
+  static const double radius = 16;
+
+  /// 尾巴根部的宽度。
+  static const double tailWidth = 11;
+
+  /// 尾巴伸出的高度（也是画布顶部预留条带的高度）。
+  static const double tailHeight = 8;
+
+  /// 尾巴根部离气泡近端边缘的距离。
+  static const double tailInset = 14;
+
+  /// 尾巴尖端相对根部中心的水平偏移：往发送者一侧偏一点，
+  /// 让尾巴读起来是「指向头像」而不是竖直地杵着。
+  static const double tailLean = 2.5;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double bodyTop = tailHeight;
+    final double w = size.width;
+    final double h = size.height;
+
+    final Path path = Path();
+    // 从左上圆角起点开始顺时针走一圈
+    path.moveTo(radius, bodyTop);
+
+    // 顶边：走到尾巴处，伸出尾巴再回来
+    if (tailOnRight) {
+      final double baseRight = w - tailInset;
+      path.lineTo(baseRight - tailWidth, bodyTop);
+      path.lineTo(baseRight - tailWidth / 2 + tailLean, bodyTop - tailHeight);
+      path.lineTo(baseRight, bodyTop);
+    } else {
+      final double baseLeft = tailInset;
+      path.lineTo(baseLeft, bodyTop);
+      path.lineTo(baseLeft + tailWidth / 2 - tailLean, bodyTop - tailHeight);
+      path.lineTo(baseLeft + tailWidth, bodyTop);
+    }
+
+    path.lineTo(w - radius, bodyTop);
+    path.arcToPoint(
+      Offset(w, bodyTop + radius),
+      radius: const Radius.circular(radius),
+    );
+    path.lineTo(w, h - radius);
+    path.arcToPoint(
+      Offset(w - radius, h),
+      radius: const Radius.circular(radius),
+    );
+    path.lineTo(radius, h);
+    path.arcToPoint(
+      Offset(0, h - radius),
+      radius: const Radius.circular(radius),
+    );
+    path.lineTo(0, bodyTop + radius);
+    path.arcToPoint(
+      Offset(radius, bodyTop),
+      radius: const Radius.circular(radius),
+    );
+    path.close();
+
+    final Paint fillPaint = Paint()..color = fill;
+    canvas.drawPath(path, fillPaint);
+
+    final Paint strokePaint =
+        Paint()
+          ..color = stroke
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 0.5
+          ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(path, strokePaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _MessageBubblePainter oldDelegate) {
+    return oldDelegate.fill != fill ||
+        oldDelegate.stroke != stroke ||
+        oldDelegate.tailOnRight != tailOnRight;
   }
 }

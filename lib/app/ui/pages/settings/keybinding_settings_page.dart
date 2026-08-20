@@ -7,11 +7,10 @@ import 'package:i_iwara/app/services/player_keybinding/keybinding_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_action.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:oktoast/oktoast.dart';
 
 /// 全应用快捷键自定义。
 ///
@@ -45,27 +44,23 @@ class KeybindingSettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          BlurredSliverAppBar(
-            title: slang.t.settings.keybinding.title,
-            isWideScreen: isWideScreen,
-          ),
-          const SliverPadding(
-            padding: EdgeInsets.symmetric(vertical: 8),
-            sliver: SliverToBoxAdapter(
-              // 内嵌进外层 CustomScrollView：必须 shrinkWrap 且禁用内层滚动，
-              // 否则非 shrinkWrap 的 ListView 会获得无界高度，hit-test 时
-              // 内层 viewport 几何为 null 触发崩溃（viewport.dart 的 `!`）。
-              child: KeybindingSettingsView(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-              ),
+    return GlassSettingsScaffold(
+      title: slang.t.settings.keybinding.title,
+      isWideScreen: isWideScreen,
+      slivers: [
+        const SliverPadding(
+          padding: EdgeInsets.symmetric(vertical: 8),
+          sliver: SliverToBoxAdapter(
+            // 内嵌进外层 CustomScrollView：必须 shrinkWrap 且禁用内层滚动，
+            // 否则非 shrinkWrap 的 ListView 会获得无界高度，hit-test 时
+            // 内层 viewport 几何为 null 触发崩溃（viewport.dart 的 `!`）。
+            child: KeybindingSettingsView(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -654,9 +649,7 @@ class _KeybindingSettingsViewState extends State<KeybindingSettingsView> {
     );
     if (ok == true) {
       await _service.resetAll();
-      showToastWidget(
-        MDToastWidget(message: _t.resetAll, type: MDToastType.success),
-      );
+      showGlassToast(_t.resetAll, type: GlassToastType.success);
     }
   }
 

@@ -1,9 +1,8 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 
 import '../../../../models/api_result.model.dart';
@@ -62,9 +61,10 @@ class UserzImageModelListController extends GetxController {
       );
 
       if (!response.isSuccess) {
-        showToastWidget(
-          MDToastWidget(message: response.message, type: MDToastType.error),
-          position: ToastPosition.bottom,
+        showGlassToast(
+          response.message,
+          type: GlassToastType.error,
+          position: GlassToastPosition.bottom,
         );
         return;
       }

@@ -8,10 +8,7 @@ import 'base_media_repository.dart';
 class PopularVideoRepository extends BaseMediaRepository<Video> {
   final VideoService videoService;
 
-  PopularVideoRepository({
-    required this.videoService,
-    required super.sortId,
-  });
+  PopularVideoRepository({required this.videoService, required super.sortId});
 
   @override
   Future<ApiResult<PageData<Video>>> fetchData(

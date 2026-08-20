@@ -6,12 +6,11 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/comment_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/controllers/comment_controller.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_remove_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_translation_controller.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
-import 'package:oktoast/oktoast.dart';
 import 'dart:async';
 
 import '../../../../models/comment.model.dart';
@@ -30,6 +29,13 @@ class CommentItem extends StatefulWidget {
   final bool isReply;
   final void Function(Duration position)? onTimestampSeek;
 
+  /// 回复（子评论）编辑成功后回调：CommentItem 自己只发请求，
+  /// 列表刷新由宿主（回复弹层）负责。顶级评论走 [controller] 不经此回调。
+  final void Function(Comment updated)? onCommentEdited;
+
+  /// 回复（子评论）删除成功后回调，参数为被删评论 id。
+  final void Function(String commentId)? onCommentDeleted;
+
   const CommentItem({
     super.key,
     required this.comment,
@@ -37,6 +43,8 @@ class CommentItem extends StatefulWidget {
     this.controller,
     this.isReply = false,
     this.onTimestampSeek,
+    this.onCommentEdited,
+    this.onCommentDeleted,
   });
 
   @override
@@ -215,14 +223,17 @@ class _CommentItemState extends State<CommentItem> {
     );
   }
 
+  /// 回复（子评论）不由 CommentController 管（它只维护顶级评论列表），
+  /// 编辑/删除走 CommentService 直连 + [onCommentEdited]/[onCommentDeleted]
+  /// 通知宿主刷新；只有顶级评论才真正需要 controller。
+  bool get _isTopLevel => widget.comment.parent == null;
+
   void _showDeleteConfirmDialog() {
-    if (widget.controller == null) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.errors.canNotFindCommentController,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.bottom,
+    if (_isTopLevel && widget.controller == null) {
+      showGlassToast(
+        slang.t.errors.canNotFindCommentController,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
       return;
     }
@@ -230,7 +241,27 @@ class _CommentItemState extends State<CommentItem> {
     showAppDialog(
       CommentRemoveDialog(
         onDelete: () async {
-          await widget.controller!.deleteComment(widget.comment.id);
+          if (_isTopLevel) {
+            await widget.controller!.deleteComment(widget.comment.id);
+          } else {
+            final result = await _commentService.deleteComment(
+              widget.comment.id,
+            );
+            if (!mounted) return;
+            if (result.isSuccess) {
+              widget.onCommentDeleted?.call(widget.comment.id);
+              showGlassToast(
+                slang.t.common.commentDeletedSuccessfully,
+                type: GlassToastType.success,
+              );
+            } else {
+              showGlassToast(
+                result.message,
+                type: GlassToastType.error,
+                position: GlassToastPosition.bottom,
+              );
+            }
+          }
           AppService.tryPop();
         },
       ),
@@ -238,13 +269,11 @@ class _CommentItemState extends State<CommentItem> {
   }
 
   void _showEditDialog() {
-    if (widget.controller == null) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.errors.canNotFindCommentController,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.bottom,
+    if (_isTopLevel && widget.controller == null) {
+      showGlassToast(
+        slang.t.errors.canNotFindCommentController,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
       return;
     }
@@ -259,17 +288,15 @@ class _CommentItemState extends State<CommentItem> {
         submitText: slang.t.common.save,
         onSubmit: (text) async {
           if (text.trim().isEmpty) {
-            showToastWidget(
-              MDToastWidget(
-                message: slang.t.errors.commentCanNotBeEmpty,
-                type: MDToastType.error,
-              ),
-              position: ToastPosition.bottom,
+            showGlassToast(
+              slang.t.errors.commentCanNotBeEmpty,
+              type: GlassToastType.error,
+              position: GlassToastPosition.bottom,
             );
             return;
           }
 
-          if (widget.comment.parent == null) {
+          if (_isTopLevel) {
             await widget.controller!.editComment(widget.comment.id, text);
           } else {
             final result = await _commentService.editComment(
@@ -278,18 +305,23 @@ class _CommentItemState extends State<CommentItem> {
             );
             if (!mounted) return;
             if (result.isSuccess) {
-              showToastWidget(
-                MDToastWidget(
-                  message: slang.t.common.commentUpdated,
-                  type: MDToastType.success,
+              widget.onCommentEdited?.call(
+                widget.comment.copyWith(
+                  body: text,
+                  updatedAt: DateTime.now(),
                 ),
+              );
+              showGlassToast(
+                slang.t.common.commentUpdated,
+                type: GlassToastType.success,
               );
               // ignore: use_build_context_synchronously
               Navigator.of(context).pop();
             } else {
-              showToastWidget(
-                MDToastWidget(message: result.message, type: MDToastType.error),
-                position: ToastPosition.bottom,
+              showGlassToast(
+                result.message,
+                type: GlassToastType.error,
+                position: GlassToastPosition.bottom,
               );
             }
           }
@@ -300,12 +332,10 @@ class _CommentItemState extends State<CommentItem> {
 
   void _showReplyDialog() {
     if (widget.controller == null) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.errors.canNotFindCommentController,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        slang.t.errors.canNotFindCommentController,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
       return;
     }
@@ -319,12 +349,10 @@ class _CommentItemState extends State<CommentItem> {
         submitText: slang.t.common.reply,
         onSubmit: (text) async {
           if (text.trim().isEmpty) {
-            showToastWidget(
-              MDToastWidget(
-                message: slang.t.errors.commentCanNotBeEmpty,
-                type: MDToastType.error,
-              ),
-              position: ToastPosition.bottom,
+            showGlassToast(
+              slang.t.errors.commentCanNotBeEmpty,
+              type: GlassToastType.error,
+              position: GlassToastPosition.bottom,
             );
             return;
           }
