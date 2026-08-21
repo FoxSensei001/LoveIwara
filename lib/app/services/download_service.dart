@@ -580,7 +580,11 @@ class DownloadService extends GetxService {
     }
   }
 
-  // 暂停任务 [内存 -> 数据库]
+  /// 暂停任务。
+  ///
+  /// 走**乐观更新**：先把状态落进内存真源让那一行立刻变成「暂停」，再去写库、取消
+  /// 连接、等资源释放。这一段慢活加起来可能几百毫秒（取消清理本身就有 500ms 兜底），
+  /// 若等它跑完再改 UI，用户看到的就是「点了没反应」。任一步失败则回滚状态并提示。
   Future<void> pauseTask(String taskId) async {
     if (_processingTaskIds.contains(taskId)) {
       return;
@@ -589,10 +593,12 @@ class DownloadService extends GetxService {
 
     LogUtils.d('暂停任务: $taskId', 'DownloadService');
 
+    DownloadTask? task;
+    DownloadStatus? previousStatus;
     try {
       // 优先取 Store 里的实例：它就是 UI 正在显示的那个对象，就地改状态 + upsert
       // 才能保证「点暂停 → 那一行立刻变」；退化路径才回落到内存队列 / 数据库。
-      final task =
+      task =
           store.taskOf(taskId) ??
           _activeTasks[taskId] ??
           await _repository.getTaskById(taskId);
@@ -601,8 +607,12 @@ class DownloadService extends GetxService {
         return;
       }
 
+      previousStatus = task.status;
       task.status = DownloadStatus.paused;
-      // [优先更新持久化信息]
+      // 乐观更新：先让 UI 变，再干慢活。
+      _publishTask(task, 'paused');
+
+      // [持久化]
       await _repository.updateTask(task);
 
       // 清理内存前先判断是否真有进行中的下载，供取消等待判断是否需要兜底延时。
@@ -612,17 +622,26 @@ class DownloadService extends GetxService {
       _clearMemoryTask(taskId, '用户暂停下载');
       await _waitForCancelCleanup(taskId, hadActiveDownload: hadActiveDownload);
 
-      // 通知UI变更
-      _publishTask(task, 'paused');
-
       // 处理等待队列中的下一个任务
       _processQueue();
+    } catch (e) {
+      LogUtils.e('暂停任务失败: $taskId', tag: 'DownloadService', error: e);
+      // 回滚乐观更新：状态没能落库就不能让 UI 停在「暂停」上，否则界面与库不一致，
+      // 重进页面又会变回去——正是这类「显示的和实际的不一样」的来源。
+      if (task != null && previousStatus != null) {
+        task.status = previousStatus;
+        _publishTask(task, 'pauseRolledBack');
+      }
+      _showMessage(slang.t.errors.failedToOperate, Colors.red);
     } finally {
       _processingTaskIds.remove(taskId);
     }
   }
 
-  // 恢复任务 [数据库 -> 内存]
+  /// 恢复任务。
+  ///
+  /// 同样走乐观更新：视频任务恢复前要先联网校验链接是否还有效（[refreshVideoTask]，
+  /// 可能耗时数秒），不先把状态改成「等待中」的话，这几秒里界面完全没有反应。
   Future<void> resumeTask(String taskId) async {
     // 防止重复点击
     if (_processingTaskIds.contains(taskId)) {
@@ -630,10 +649,13 @@ class DownloadService extends GetxService {
     }
     _processingTaskIds.add(taskId);
 
+    DownloadTask? optimisticTask;
+    DownloadStatus? previousStatus;
     try {
       LogUtils.d('恢复任务: $taskId', 'DownloadService');
-      // 从数据库加载任务
-      DownloadTask? task = await _repository.getTaskById(taskId);
+      // 优先取内存真源里的实例（UI 正显示的那个），退化到数据库
+      DownloadTask? task =
+          store.taskOf(taskId) ?? await _repository.getTaskById(taskId);
       if (task == null) {
         LogUtils.d('任务不存在于数据库，无法恢复: $taskId', 'DownloadService');
         _showMessage(slang.t.download.errors.taskNotFound, Colors.red);
@@ -643,6 +665,11 @@ class DownloadService extends GetxService {
       if (task.status == DownloadStatus.paused ||
           task.status == DownloadStatus.failed) {
         LogUtils.d('任务状态为暂停或失败，需要验证链接有效性: $taskId', 'DownloadService');
+        // 乐观更新：先进等待区，联网校验在后台继续。
+        optimisticTask = task;
+        previousStatus = task.status;
+        task.status = DownloadStatus.pending;
+        _publishTask(task, 'resuming');
         // 如果是视频任务，需要验证链接有效性
         if (task.extData?.type == DownloadTaskExtDataType.video) {
           DownloadTask? newTask = await refreshVideoTask(task);
@@ -684,6 +711,14 @@ class DownloadService extends GetxService {
 
         _processQueue();
       }
+    } catch (e) {
+      LogUtils.e('恢复任务失败: $taskId', tag: 'DownloadService', error: e);
+      // 回滚乐观更新，避免界面停在「等待中」而库里其实还是暂停 / 失败。
+      if (optimisticTask != null && previousStatus != null) {
+        optimisticTask.status = previousStatus;
+        _publishTask(optimisticTask, 'resumeRolledBack');
+      }
+      _showMessage(slang.t.errors.failedToOperate, Colors.red);
     } finally {
       _processingTaskIds.remove(taskId);
     }
@@ -1865,9 +1900,11 @@ class DownloadService extends GetxService {
     _processingTaskIds.add(taskId);
 
     try {
-      // 1) 优先从内存取（如果当前正在下载），否则从数据库取
+      // 1) 优先从内存真源取（UI 正显示的那个实例），否则从数据库取
       DownloadTask? task =
-          _activeTasks[taskId] ?? await _repository.getTaskById(taskId);
+          store.taskOf(taskId) ??
+          _activeTasks[taskId] ??
+          await _repository.getTaskById(taskId);
       if (task == null) {
         LogUtils.d('重试失败：任务不存在: $taskId', 'DownloadService');
         _showMessage(slang.t.download.errors.taskNotFound, Colors.red);
@@ -1880,16 +1917,22 @@ class DownloadService extends GetxService {
         return;
       }
 
-      // 3) 如为视频任务，校验/刷新链接
+      // 3) 如为视频任务，校验/刷新链接（联网，可能数秒）。先乐观地把它挪出失败区，
+      //    刷新失败再退回去——否则这几秒里点了重试的那一行毫无变化。
+      final optimisticTask = task;
+      task.status = DownloadStatus.pending;
+      _publishTask(task, 'retrying');
       if (task.extData?.type == DownloadTaskExtDataType.video) {
         final refreshed = await refreshVideoTask(task);
         if (refreshed == null) {
-          // 刷新失败，维持失败状态并提示
+          // 刷新失败，退回失败状态并提示
           _showMessage(
             slang.t.download.errors.canNotRefreshVideoTask,
             Colors.red,
           );
-          await _repository.updateTask(task);
+          optimisticTask.status = DownloadStatus.failed;
+          await _repository.updateTask(optimisticTask);
+          _publishTask(optimisticTask, 'retryRolledBack');
           return;
         }
         task = refreshed;
@@ -1907,6 +1950,15 @@ class DownloadService extends GetxService {
       // 通知UI并处理队列
       _publishTask(task, 'retried');
       _processQueue();
+    } catch (e) {
+      LogUtils.e('重试任务失败: $taskId', tag: 'DownloadService', error: e);
+      // 回滚乐观更新：重试没成功就得退回失败区，不能让它挂在等待区里空等。
+      final stored = store.taskOf(taskId);
+      if (stored != null && stored.status == DownloadStatus.pending) {
+        stored.status = DownloadStatus.failed;
+        _publishTask(stored, 'retryRolledBack');
+      }
+      _showMessage(slang.t.errors.failedToOperate, Colors.red);
     } finally {
       _processingTaskIds.remove(taskId);
     }
