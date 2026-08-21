@@ -37,6 +37,7 @@ import 'widgets/loading_state_widget.dart';
 import 'widgets/error_state_widget.dart';
 import 'widgets/playback_issue_sheet.dart';
 import 'widgets/player_notice_chip.dart';
+import 'player_stack_builder.dart';
 import '../../controllers/my_video_state_controller.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
 
@@ -985,49 +986,57 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     double bufferingSize,
     double maxRadius,
   ) {
-    return Obx(() {
-      final controller = widget.myVideoStateController;
-      final showInitialPlaybackCover =
-          controller.shouldShowInitialPlaybackCover;
-      final showPlaybackChrome = controller.shouldShowPlaybackChrome;
+    final controller = widget.myVideoStateController;
+    return PlayerStackBuilder(
+      // In local mode every visibility getter below is constant because it
+      // short-circuits on isLocalVideoMode. Wrapping that path in Obx leaves
+      // GetX with no dependency to track and throws before Video is mounted.
+      observeChanges: !controller.isLocalVideoMode,
+      builder: () {
+        final showInitialPlaybackCover =
+            controller.shouldShowInitialPlaybackCover;
+        final showPlaybackChrome = controller.shouldShowPlaybackChrome;
 
-      return Stack(
-        children: [
-          // 视频播放区域
-          _buildVideoPlayer(),
-          if (showInitialPlaybackCover) _buildInitialPlaybackCover(),
-          // 播放提示胶囊：刻意排在手势层之前。后面的兄弟节点天然画在它上面，
-          // 双击快进胶囊、音量/亮度 HUD、错误浮层因此都会盖住它，不用额外处理。
-          if (controller.shouldShowOverlayHud)
-            _buildPlayerNotice(screenSize, paddingTop),
-          // 手势监听区域（抽取后减少整体重绘）
-          if (showPlaybackChrome) ..._buildGestureAreas(screenSize),
-          // 工具栏部分
-          if (showPlaybackChrome) ..._buildToolbars(),
-          // 双击波纹动画等效果
-          if (showPlaybackChrome) _buildRippleEffects(screenSize, maxRadius),
-          // 中央控制面板，比如播放/暂停按钮
-          _buildVideoControlOverlay(
-            screenSize,
-            paddingTop,
-            playPauseIconSize,
-            bufferingSize,
-          ),
-          if (controller.shouldShowLoadingBackButton) _buildLoadingBackButton(),
-          // InfoMessage 提示区域
-          if (controller.shouldShowOverlayHud) _buildInfoMessage(),
-          // 播放速度信息提示（左下角）
-          if (controller.shouldShowOverlayHud) _buildPlaybackSpeedInfoMessage(),
-          // 添加底部进度条
-          if (controller.shouldShowOverlayHud) _buildBottomProgressBar(),
-          // 添加遮罩层
-          if (showPlaybackChrome) _buildMaskLayer(),
-          // 添加锁定按钮
-          if (showPlaybackChrome) _buildLockButton(),
-          if (controller.shouldShowOverlayHud) _buildInnerPlaylistOverlay(),
-        ],
-      );
-    });
+        return Stack(
+          children: [
+            // 视频播放区域
+            _buildVideoPlayer(),
+            if (showInitialPlaybackCover) _buildInitialPlaybackCover(),
+            // 播放提示胶囊：刻意排在手势层之前。后面的兄弟节点天然画在它上面，
+            // 双击快进胶囊、音量/亮度 HUD、错误浮层因此都会盖住它，不用额外处理。
+            if (controller.shouldShowOverlayHud)
+              _buildPlayerNotice(screenSize, paddingTop),
+            // 手势监听区域（抽取后减少整体重绘）
+            if (showPlaybackChrome) ..._buildGestureAreas(screenSize),
+            // 工具栏部分
+            if (showPlaybackChrome) ..._buildToolbars(),
+            // 双击波纹动画等效果
+            if (showPlaybackChrome) _buildRippleEffects(screenSize, maxRadius),
+            // 中央控制面板，比如播放/暂停按钮
+            _buildVideoControlOverlay(
+              screenSize,
+              paddingTop,
+              playPauseIconSize,
+              bufferingSize,
+            ),
+            if (controller.shouldShowLoadingBackButton)
+              _buildLoadingBackButton(),
+            // InfoMessage 提示区域
+            if (controller.shouldShowOverlayHud) _buildInfoMessage(),
+            // 播放速度信息提示（左下角）
+            if (controller.shouldShowOverlayHud)
+              _buildPlaybackSpeedInfoMessage(),
+            // 添加底部进度条
+            if (controller.shouldShowOverlayHud) _buildBottomProgressBar(),
+            // 添加遮罩层
+            if (showPlaybackChrome) _buildMaskLayer(),
+            // 添加锁定按钮
+            if (showPlaybackChrome) _buildLockButton(),
+            if (controller.shouldShowOverlayHud) _buildInnerPlaylistOverlay(),
+          ],
+        );
+      },
+    );
   }
 
   /// 播放提示胶囊的锚点。几何全部在这里算好，胶囊只管渲染，
