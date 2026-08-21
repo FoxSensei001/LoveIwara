@@ -66,9 +66,39 @@ class DownloadService extends GetxService {
   // 获取所有活跃任务（仅包含下载中的任务）
   Map<String, DownloadTask> get tasks => _activeTasks;
 
-  // 分类（增删改 / 排序）变更通知器，用于刷新分类标签条与管理页。
-  final _categoriesChangedNotifier = 0.obs;
-  RxInt get categoriesChangedNotifier => _categoriesChangedNotifier;
+  /// 全部下载分类（含各自的任务计数），以及「未分类」的任务数。
+  ///
+  /// 这两个是**可观察状态本身**，不是「有变化」的信号：页面直接 `Obx` 读它们，
+  /// 不再各自持有一份快照、也不再靠 worker + postFrame 回调去重拉。
+  ///
+  /// 为什么改：分类此前走的是 `RxInt` 版本号广播 + 页面 `ever()` 订阅 + 帧回调
+  /// 里 setState 的链路。这条链有三个环节可能悄悄断掉（订阅挂在被换掉的服务实例
+  /// 上、帧回调等不到下一帧、收到广播的 State 不是屏幕上那个），而断掉时没有任何
+  /// 报错——表现就是「在管理页新建了分类，返回列表页没有，下拉刷新才出来」。
+  /// 换成 Obx 之后这三个环节整体消失：订阅在可见元素 build 时建立，值一变它自己
+  /// 重建，不存在中间人。
+  final RxList<DownloadCategory> categories = <DownloadCategory>[].obs;
+  final RxInt uncategorizedCount = 0.obs;
+
+  /// 从数据库重新装载分类与未分类计数。
+  ///
+  /// 所有分类写操作（新建 / 改名 / 删除 / 排序 / 移动任务）末尾都会 await 它，
+  /// 因此调用方拿到返回值时，可观察状态已经是最新的。
+  Future<void> refreshCategories() async {
+    try {
+      final list = await _repository.getAllCategories();
+      final uncategorized = await _repository.getUncategorizedCount();
+      categories.assignAll(list);
+      uncategorizedCount.value = uncategorized;
+      DownloadStateLog.emit(
+        this,
+        'categories/refreshed',
+        detail: '${list.length} 个分类',
+      );
+    } catch (e) {
+      LogUtils.e('加载下载分类失败', tag: 'DownloadService', error: e);
+    }
+  }
 
   /// 发布一条任务的最新状态。
   ///
@@ -88,17 +118,6 @@ class DownloadService extends GetxService {
   void _publishRemovedTask(String taskId, String event) {
     store.remove(taskId);
     DownloadStateLog.emit(this, 'task/$event', taskId: taskId);
-  }
-
-  /// 广播「分类已变更」并留下诊断埋点。
-  void _notifyCategoriesChanged(String event, {String? categoryId}) {
-    _categoriesChangedNotifier.value++;
-    DownloadStateLog.emit(
-      this,
-      'categories/$event',
-      taskId: categoryId,
-      detail: 'v=${_categoriesChangedNotifier.value}',
-    );
   }
 
   /// 记住的「下载到分类」默认值（'' / 读取失败视为未分类/null）。
@@ -186,7 +205,9 @@ class DownloadService extends GetxService {
       description: description,
     );
     if (category != null) {
-      _notifyCategoriesChanged('created', categoryId: category.id);
+      // 先把可观察状态刷新到最新，再返回：调用方一 await 完就能确信
+      // 分类条 / 选择器已经能看到这个新分类了。
+      await refreshCategories();
     }
     return category;
   }
@@ -202,7 +223,7 @@ class DownloadService extends GetxService {
       title: title,
       description: description,
     );
-    if (ok) _notifyCategoriesChanged('updated', categoryId: id);
+    if (ok) await refreshCategories();
     return ok;
   }
 
@@ -226,7 +247,7 @@ class DownloadService extends GetxService {
         }
       }
       store.invalidateCompleted();
-      _notifyCategoriesChanged('deleted', categoryId: id);
+      await refreshCategories();
     }
     return ok;
   }
@@ -234,7 +255,7 @@ class DownloadService extends GetxService {
   /// 批量更新分类顺序。
   Future<bool> updateCategoriesOrder(List<String> ids) async {
     final ok = await _repository.updateCategoriesOrder(ids);
-    if (ok) _notifyCategoriesChanged('reordered');
+    if (ok) await refreshCategories();
     return ok;
   }
 
@@ -266,7 +287,7 @@ class DownloadService extends GetxService {
     }
     // 被移动的可能是已完成任务，历史区按分类筛选的结果会变，让它重拉。
     store.invalidateCompleted();
-    _notifyCategoriesChanged('countsChanged', categoryId: effectiveId);
+    await refreshCategories();
   }
 
   // =============================== 内部方法 ===============================
@@ -459,6 +480,7 @@ class DownloadService extends GetxService {
 
       store.hydrate([...paused, ...failed, ...queueTasks]);
       _restoredPausedIds.assignAll(restoredIds);
+      await refreshCategories();
 
       LogUtils.d(
         '启动恢复：${restoredIds.length} 个未完成任务已置为暂停, '

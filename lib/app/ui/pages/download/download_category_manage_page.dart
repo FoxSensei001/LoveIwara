@@ -52,13 +52,17 @@ class _DownloadCategoryManagePageState
     super.dispose();
   }
 
+  /// 重新装载分类。
+  ///
+  /// 本页保留一份本地列表是因为拖拽排序需要「先改顺序、松手后再落库」的中间态；
+  /// 但数据来源统一是 [DownloadService.categories] 这个可观察状态，不再各自查库。
   Future<void> _fetch() async {
     setState(() => _isLoading = true);
     try {
-      final cats = await _service.getAllCategories();
+      await _service.refreshCategories();
       if (mounted) {
         setState(() {
-          _categories = cats;
+          _categories = List<DownloadCategory>.from(_service.categories);
           _isLoading = false;
         });
       }
@@ -570,10 +574,7 @@ class _CategoryNameDialogState extends State<_CategoryNameDialog> {
     final t = slang.Translations.of(context);
     final value = raw.trim();
     if (value.isEmpty) {
-      showGlassToast(
-        t.download.category.nameEmpty,
-        type: GlassToastType.error,
-      );
+      showGlassToast(t.download.category.nameEmpty, type: GlassToastType.error);
       return;
     }
     Navigator.of(context).pop(value);

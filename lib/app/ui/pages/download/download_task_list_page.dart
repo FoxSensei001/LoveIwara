@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
-import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/app/services/download/download_state_log.dart';
 import 'package:i_iwara/app/services/download/download_task_store.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
@@ -117,11 +116,11 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   final TextEditingController _searchController = TextEditingController();
   bool _isFilterLoading = false;
 
-  // 分类筛选状态：'all' | 'uncategorized' | <categoryId>
+  /// 分类筛选状态：`all` | `uncategorized` | 具体分类 id。
+  ///
+  /// 分类列表本身不再有页面快照——它是 [DownloadService.categories] 这个可观察
+  /// 状态，标签条直接 Obx 读。这里只留「当前选中哪个」这一个纯 UI 状态。
   String _categoryFilter = 'all';
-  List<DownloadCategory> _categories = [];
-  int _uncategorizedCount = 0;
-  Worker? _categoriesChangedWorker;
 
   void _enterSelectionMode() {
     setState(() {
@@ -279,14 +278,12 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   void initState() {
     super.initState();
     _historySource = _HistoryDownloadTasksSource(_downloadTaskRepository);
-    _reloadCategories();
+    // 分类条与活跃区都不需要订阅：它们直接 Obx 读服务里的可观察状态
+    //（DownloadService.categories / store 的分区 id 列表）。这里只补一次分类装载，
+    // 覆盖「服务启动早于本页、期间分类被别处改过」的情况。
+    unawaited(DownloadService.to.refreshCategories());
 
-    // 活跃区不需要任何订阅：它直接读 Store 的可观察 id 列表（见 _buildSingleList
-    // 里的 Obx），一条任务状态变了就只重建它所在的区与它自己那一行。
-    //
-    // 需要订阅的只剩两件事，都是「DB 里的数据可能变了，去重拉」这一类信号：
-    // 1. 历史区（已完成，分页在 DB 里）；
-    // 2. 分类标签条（分类表 + 各分类计数）。
+    // 需要订阅的只剩一件事：历史区（已完成任务分页在 DB 里，不在内存真源）。
     _completedRevisionWorker = ever(_store.completedRevision, (int revision) {
       DownloadStateLog.receive(
         this,
@@ -297,27 +294,8 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       _runAfterFrame(() {
         DownloadStateLog.apply(this, 'refreshHistory', detail: 'v=$revision');
         _refreshHistory();
-        // 任务增删 / 完成会影响各分类计数，顺带刷新分类条。
-        _reloadCategories();
       });
     });
-
-    // 分类增删改 / 排序变更时刷新分类条与筛选。
-    _categoriesChangedWorker = ever(
-      DownloadService.to.categoriesChangedNotifier,
-      (int version) {
-        DownloadStateLog.receive(
-          this,
-          DownloadService.to,
-          'categories',
-          detail: 'v=$version',
-        );
-        _runAfterFrame(() {
-          DownloadStateLog.apply(this, 'reloadCategories');
-          _reloadCategories();
-        });
-      },
-    );
   }
 
   /// 在下一帧结束后执行 [action]（仍挂载时），用于把 setState / DB 读等副作用移出
@@ -341,7 +319,6 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   void dispose() {
     _searchDebounce?.cancel();
     _completedRevisionWorker?.dispose();
-    _categoriesChangedWorker?.dispose();
     _scrollController.dispose();
     _categoryStripController.dispose();
     _showBackToTop.dispose();
@@ -456,7 +433,10 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   ///
   /// 活跃区不在此列——它读的是内存真源，永远是最新的，没有「刷新」这个概念。
   Future<void> _refreshAll() async {
-    await Future.wait([_refreshHistory(), _reloadCategories()]);
+    await Future.wait([
+      _refreshHistory(),
+      DownloadService.to.refreshCategories(),
+    ]);
   }
 
   /// header 中间的胶囊：普通模式是搜索框，多选模式换成「已选 N 条」。
@@ -785,34 +765,21 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     _applyFilters();
   }
 
-  /// 重新加载分类列表与未分类计数；若当前选中分类已被删除则回退到「全部」。
-  Future<void> _reloadCategories() async {
-    try {
-      final cats = await DownloadService.to.getAllCategories();
-      final uncat = await DownloadService.to.getUncategorizedCount();
-      if (!mounted) return;
-      var nextFilter = _categoryFilter;
-      final selectedCategoryGone =
-          nextFilter != 'all' &&
-          nextFilter != 'uncategorized' &&
-          !cats.any((c) => c.id == nextFilter);
-      // 选中「未分类」后又把所有分类删光时，「未分类」标签本身会从标签条上消失
-      //（它只在有分类时才有意义），若不重置会留下一个点不掉的筛选，一并回到「全部」。
-      final uncategorizedStrandedWhenStripHidden =
-          nextFilter == 'uncategorized' && cats.isEmpty;
-      if (selectedCategoryGone || uncategorizedStrandedWhenStripHidden) {
-        nextFilter = 'all';
-      }
-      final filterChanged = nextFilter != _categoryFilter;
-      setState(() {
-        _categories = cats;
-        _uncategorizedCount = uncat;
-        _categoryFilter = nextFilter;
-      });
-      if (filterChanged) _applyFilters();
-    } catch (_) {
-      // 分类加载失败时静默处理，不影响主列表
+  /// 实际生效的分类筛选。
+  ///
+  /// 选中的分类可能已被删除（在管理页删掉、或被别处清空），此时按「全部」处理。
+  /// 这里做成**纯计算**而不是去改 `_categoryFilter`：状态只有一份、由分类列表当场
+  /// 决定，不需要一个「发现分类没了就回写筛选」的副作用——那种回写既要挑时机，
+  /// 写错时机就会留下一个点不掉的空筛选。
+  String get _effectiveCategoryFilter {
+    final filter = _categoryFilter;
+    if (filter == 'all') return 'all';
+    final categories = DownloadService.to.categories;
+    // 「未分类」只在有分类时才有意义（无分类时它等同「全部」）。
+    if (filter == 'uncategorized') {
+      return categories.isEmpty ? 'all' : 'uncategorized';
     }
+    return categories.any((c) => c.id == filter) ? filter : 'all';
   }
 
   /// 批量「移至分类」：用已选任务打开移动弹窗，移动后退出多选。
@@ -829,8 +796,20 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   ///
   /// 标签本体是玻璃胶囊（选中态换成高亮底色），与 header 上的胶囊同族，
   /// 不再用 Material 的 ChoiceChip / ActionChip。
+  ///
+  /// 数据直接来自 [DownloadService.categories] 这个可观察状态：在管理页新建 /
+  /// 删除 / 改名的那一刻，这里就已经是最新的了。此前它读的是页面自己的一份快照，
+  /// 靠 worker + 帧回调去补——那条链断掉时没有任何报错，表现就是「返回列表页没有
+  /// 新分类，下拉刷新才出来」。
   Widget _buildCategoryStrip() {
+    return Obx(() => _buildCategoryStripContent(context));
+  }
+
+  Widget _buildCategoryStripContent(BuildContext context) {
     final t = slang.Translations.of(context);
+    final categories = DownloadService.to.categories;
+    final uncategorizedCount = DownloadService.to.uncategorizedCount.value;
+    final activeFilter = _effectiveCategoryFilter;
 
     return SizedBox(
       height: _categoryStripHeight,
@@ -864,10 +843,10 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
             children: [
               // 管理 / 新建入口放在最前：无分类时用更醒目的「管理分类」标签。
               _buildCategoryChip(
-                label: _categories.isEmpty
+                label: categories.isEmpty
                     ? t.download.category.manageTitle
                     : t.download.category.manage,
-                icon: _categories.isEmpty
+                icon: categories.isEmpty
                     ? Icons.create_new_folder_outlined
                     : Icons.settings_outlined,
                 selected: false,
@@ -875,22 +854,22 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
               ),
               _buildCategoryChip(
                 label: t.common.all,
-                selected: _categoryFilter == 'all',
+                selected: activeFilter == 'all',
                 onTap: () => _onCategorySelected('all'),
               ),
               // 「未分类」仅在已有分类时才有意义（无分类时等同「全部」）。
-              if (_categories.isNotEmpty)
+              if (categories.isNotEmpty)
                 _buildCategoryChip(
                   label: t.download.category.uncategorized,
-                  count: _uncategorizedCount,
-                  selected: _categoryFilter == 'uncategorized',
+                  count: uncategorizedCount,
+                  selected: activeFilter == 'uncategorized',
                   onTap: () => _onCategorySelected('uncategorized'),
                 ),
-              for (final c in _categories)
+              for (final c in categories)
                 _buildCategoryChip(
                   label: c.title,
                   count: c.itemCount ?? 0,
-                  selected: _categoryFilter == c.id,
+                  selected: activeFilter == c.id,
                   onTap: () => _onCategorySelected(c.id),
                 ),
             ],

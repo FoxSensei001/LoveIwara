@@ -4,7 +4,6 @@ import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/download_category_manage_page.dart';
-import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 
 /// 跳转到「管理分类」页面。下载分类选择器、下载清晰度弹窗、"更多"菜单里的
@@ -19,7 +18,7 @@ void openDownloadCategoryManagePage(BuildContext context) {
 ///
 /// - 已有分类：下拉（第一项「未分类」value=null，其余每个分类一项）+ 旁边齿轮管理入口。
 /// - 没有任何分类：不隐藏，而是显示「管理分类」按钮，让用户在下载弹窗里就能新建/管理。
-///   新建后通过 [DownloadService.categoriesChangedNotifier] 自动刷新出下拉。
+///   新建后通过 [DownloadService.categories] 这个可观察状态自动刷新出下拉。
 class DownloadCategoryPicker extends StatefulWidget {
   /// 当前选中的分类 ID；null 表示未分类。
   final String? value;
@@ -38,51 +37,17 @@ class DownloadCategoryPicker extends StatefulWidget {
 }
 
 class _DownloadCategoryPickerState extends State<DownloadCategoryPicker> {
-  List<DownloadCategory>? _categories;
-  Worker? _categoriesWorker;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadCategories();
-    // 在管理页新建/删除分类后，自动刷新选择器（无需关掉下载弹窗）。
-    _categoriesWorker = ever(
-      DownloadService.to.categoriesChangedNotifier,
-      (_) => _loadCategories(),
-    );
-  }
-
-  @override
-  void dispose() {
-    _categoriesWorker?.dispose();
-    super.dispose();
-  }
-
-  Future<void> _loadCategories() async {
-    try {
-      final categories = await DownloadService.to.getAllCategories();
-      if (!mounted) return;
-      setState(() => _categories = categories);
-    } catch (e) {
-      LogUtils.e('加载下载分类失败', tag: 'DownloadCategoryPicker', error: e);
-      if (!mounted) return;
-      setState(() => _categories = const []);
-    }
-  }
-
   void _openManage() {
     openDownloadCategoryManagePage(context);
-    // 返回后由 categoriesChangedNotifier 触发 _loadCategories 刷新。
+    // 返回后无需做任何事：下面是 Obx 读服务里的分类状态，新建的分类当场就在。
   }
 
   @override
   Widget build(BuildContext context) {
-    final categories = _categories;
-    // 加载中：占位不显示，避免闪烁
-    if (categories == null) {
-      return const SizedBox.shrink();
-    }
+    return Obx(() => _buildPicker(context, DownloadService.to.categories));
+  }
 
+  Widget _buildPicker(BuildContext context, List<DownloadCategory> categories) {
     final isEmpty = categories.isEmpty;
 
     // 选中的 ID 已不存在时回退为未分类，避免 Dropdown 断言失败。
