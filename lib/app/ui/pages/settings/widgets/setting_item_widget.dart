@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 
 class SettingItem extends StatefulWidget {
   final String label;
@@ -62,16 +63,16 @@ class _SettingItemState extends State<SettingItem> {
   Widget build(BuildContext context) {
     return Container(
       padding: widget.padding,
+      // 玻璃壳口径与 GlassSettingSection 一致：fill 底 + stroke 细描边，
+      // 不再用 box-shadow（玻璃组件的投影统一走 GlassTokens.shadow，行级
+      // 输入项不需要那么重的浮起感）。
       decoration: BoxDecoration(
-        color: widget.backgroundColor ?? Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: widget.backgroundColor ?? GlassTokens.fill(Theme.of(context).colorScheme),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: GlassTokens.stroke(Theme.of(context).colorScheme),
+          width: GlassTokens.strokeWidth,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
