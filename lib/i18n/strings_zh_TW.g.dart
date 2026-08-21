@@ -1354,6 +1354,7 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	@override String get clearFilters => '清除篩選';
 	@override String get pauseAll => '全部暫停';
 	@override String get resumeAll => '全部開始';
+	@override late final _TranslationsDownloadRestoredPausedZhTw restoredPaused = _TranslationsDownloadRestoredPausedZhTw._(_root);
 	@override String get emptyTaskList => '暫無下載任務';
 	@override String get noMatchingTasks => '沒有符合的任務';
 	@override late final _TranslationsDownloadDeleteByDateZhTw deleteByDate = _TranslationsDownloadDeleteByDateZhTw._(_root);
@@ -3087,6 +3088,18 @@ class _TranslationsDownloadErrorsZhTw implements TranslationsDownloadErrorsEn {
 	@override String get pleaseTryOtherViewer => '請嘗試使用其他查看器打開';
 	@override String unsupportedImageFormatWithMessage({required Object extension}) => '不支援的圖片格式: ${extension}, 可以嘗試下載到裝置上查看';
 	@override String get imageLoadFailed => '圖片載入失敗';
+}
+
+// Path: download.restoredPaused
+class _TranslationsDownloadRestoredPausedZhTw implements TranslationsDownloadRestoredPausedEn {
+	_TranslationsDownloadRestoredPausedZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String banner({required Object num}) => '上次離開時有 ${num} 個任務未完成，已暫停';
+	@override String get resume => '全部繼續';
+	@override String get dismiss => '忽略';
 }
 
 // Path: download.deleteByDate
@@ -4947,6 +4960,9 @@ extension on TranslationsZhTw {
 			'download.clearFilters' => '清除篩選',
 			'download.pauseAll' => '全部暫停',
 			'download.resumeAll' => '全部開始',
+			'download.restoredPaused.banner' => ({required Object num}) => '上次離開時有 ${num} 個任務未完成，已暫停',
+			'download.restoredPaused.resume' => '全部繼續',
+			'download.restoredPaused.dismiss' => '忽略',
 			'download.emptyTaskList' => '暫無下載任務',
 			'download.noMatchingTasks' => '沒有符合的任務',
 			'download.deleteByDate.menuTitle' => '依日期刪除',
@@ -5453,11 +5469,11 @@ extension on TranslationsZhTw {
 			'log.confirmToContinue' => '確定要繼續嗎？',
 			'log.logSizeLimitSetSuccess' => ({required Object size}) => '日誌大小上限已設定為 ${size}',
 			'emoji.name' => '表情',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.size' => '大小',
 			'emoji.small' => '小',
 			'emoji.medium' => '中',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.large' => '大',
 			'emoji.extraLarge' => '超大',
 			'emoji.copyEmojiLinkSuccess' => '表情包連結已複製',

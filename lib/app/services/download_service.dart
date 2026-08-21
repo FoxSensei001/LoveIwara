@@ -111,7 +111,12 @@ class DownloadService extends GetxService {
     }
   }
 
-  final _repository = DownloadTaskRepository();
+  /// 允许注入仓储，便于用内存数据库对启动恢复、状态机等做单元测试；
+  /// 生产路径不传参，行为与此前完全一致。
+  DownloadService({DownloadTaskRepository? repository})
+    : _repository = repository ?? DownloadTaskRepository();
+
+  final DownloadTaskRepository _repository;
 
   /// 已派发「终态通知」（完成/失败）的任务 id 集合，用于去重：
   /// 同一次终态转换只通知一次。当任务重新回到非终态（pending/downloading/
@@ -421,50 +426,70 @@ class DownloadService extends GetxService {
   /// 分区由状态唯一决定。
   Future<void> _loadActiveTasks() async {
     try {
-      // 拉取所有 downloading + pending 任务，按创建时间升序
-      final queueTasks = await _repository
-          .getDownloadingAndPendingTasksOrderByCreatedAtAsc();
-      int restoredDownloadingCount = 0;
-      int pendingCount = 0;
-
-      for (var task in queueTasks) {
-        if (task.status == DownloadStatus.downloading) {
-          // 启动时遇到 downloading 任务，一律恢复为 pending 并仅持久化到数据库
-          restoredDownloadingCount++;
-          await _repository.updateTaskStatusById(
-            task.id,
-            DownloadStatus.pending,
-          );
-          task.status = DownloadStatus.pending;
-        } else if (task.status == DownloadStatus.pending) {
-          pendingCount++;
-        }
-
-        // 队列中仅维护任务 id，顺序即为 created_at 升序
-        _enqueueTaskId(task.id);
-      }
-
       // 暂停 / 失败的任务不参与队列，但同样属于活跃区，必须进内存真源。
+      // 必须在下面把 downloading/pending 改写成 paused **之前**查，否则会把它们
+      // 重复读进来。
       final paused = await _repository.getAllTasksByStatus(
         DownloadStatus.paused,
       );
       final failed = await _repository.getAllTasksByStatus(
         DownloadStatus.failed,
       );
-      store.hydrate([...queueTasks, ...paused, ...failed]);
+
+      // 拉取所有 downloading + pending 任务，按创建时间升序
+      final queueTasks = await _repository
+          .getDownloadingAndPendingTasksOrderByCreatedAtAsc();
+
+      // 启动语义：上次没跑完的任务（downloading + pending）一律置为 paused，
+      // 不自动续传。
+      //
+      // 旧行为是自动接着跑：进程被系统杀死（LMK/OOM）或用户杀掉 App 之后一开应用
+      // 就在用户毫不知情的情况下动用移动数据；而且续传依赖的「已写字节数是否可信」
+      // 在这条路径上从未被验证过，恢复出错就是一个损坏的文件。改为全部暂停 +
+      // 顶部一键继续，把决定权交回用户。
+      final restoredIds = <String>[];
+      for (var task in queueTasks) {
+        await _repository.updateTaskStatusById(task.id, DownloadStatus.paused);
+        task.status = DownloadStatus.paused;
+        restoredIds.add(task.id);
+      }
+
+      store.hydrate([...paused, ...failed, ...queueTasks]);
+      _restoredPausedIds.assignAll(restoredIds);
 
       LogUtils.d(
-        '已加载 $restoredDownloadingCount 个历史下载中任务, $pendingCount 个等待中任务, '
-        '${paused.length} 个暂停任务, ${failed.length} 个失败任务',
+        '启动恢复：${restoredIds.length} 个未完成任务已置为暂停, '
+        '${paused.length} 个原暂停任务, ${failed.length} 个失败任务',
         'DownloadService',
       );
-
-      _processQueue();
     } catch (e) {
       LogUtils.e('加载下载任务失败', error: e);
       _showMessage(slang.t.download.errors.failedToLoadTasks, Colors.red);
     }
   }
+
+  /// 本次启动时被自动置为暂停的任务 id（上次退出时还没下完的那些）。
+  ///
+  /// 列表页据此显示「上次有 N 个任务未完成 · 全部继续」的提示条：全部暂停之后如果
+  /// 没有一键召回，用户下了 30 条就要手点 30 次，这个提示条是上面那条启动语义的
+  /// 必要配套，不是装饰。
+  final _restoredPausedIds = <String>[].obs;
+  RxList<String> get restoredPausedIds => _restoredPausedIds;
+
+  /// 继续「启动时被自动暂停」的那些任务。
+  ///
+  /// 刻意不复用 [resumeAll]：那会把用户很久以前手动暂停的任务也一并叫醒，
+  /// 而提示条上写的是「上次未完成的 N 个」，行为必须与文案一致。
+  Future<void> resumeRestoredTasks() async {
+    final ids = List<String>.from(_restoredPausedIds);
+    _restoredPausedIds.clear();
+    for (final id in ids) {
+      await resumeTask(id);
+    }
+  }
+
+  /// 用户忽略「上次未完成」提示条。
+  void dismissRestoredPaused() => _restoredPausedIds.clear();
 
   // 获取内存中的活跃任务
   DownloadTask? getMemoryActiveTaskById(String taskId) {

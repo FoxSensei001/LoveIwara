@@ -1325,6 +1325,7 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	@override String get clearFilters => '清除筛选';
 	@override String get pauseAll => '全部暂停';
 	@override String get resumeAll => '全部开始';
+	@override late final _TranslationsDownloadRestoredPausedZhCn restoredPaused = _TranslationsDownloadRestoredPausedZhCn._(_root);
 	@override String get emptyTaskList => '暂无下载任务';
 	@override String get noMatchingTasks => '没有匹配的任务';
 	@override late final _TranslationsDownloadDeleteByDateZhCn deleteByDate = _TranslationsDownloadDeleteByDateZhCn._(_root);
@@ -2999,6 +3000,18 @@ class _TranslationsDownloadErrorsZhCn implements TranslationsDownloadErrorsEn {
 	@override String unsupportedImageFormatWithMessage({required Object extension}) => '不支持的图片格式: ${extension}, 可以尝试下载到设备上查看';
 	@override String get imageLoadFailed => '图片加载失败';
 	@override String get pleaseTryOtherViewer => '请尝试使用其他查看器打开';
+}
+
+// Path: download.restoredPaused
+class _TranslationsDownloadRestoredPausedZhCn implements TranslationsDownloadRestoredPausedEn {
+	_TranslationsDownloadRestoredPausedZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String banner({required Object num}) => '上次退出时有 ${num} 个任务未完成，已暂停';
+	@override String get resume => '全部继续';
+	@override String get dismiss => '忽略';
 }
 
 // Path: download.deleteByDate
@@ -4916,6 +4929,9 @@ extension on TranslationsZhCn {
 			'download.clearFilters' => '清除筛选',
 			'download.pauseAll' => '全部暂停',
 			'download.resumeAll' => '全部开始',
+			'download.restoredPaused.banner' => ({required Object num}) => '上次退出时有 ${num} 个任务未完成，已暂停',
+			'download.restoredPaused.resume' => '全部继续',
+			'download.restoredPaused.dismiss' => '忽略',
 			'download.emptyTaskList' => '暂无下载任务',
 			'download.noMatchingTasks' => '没有匹配的任务',
 			'download.deleteByDate.menuTitle' => '按日期删除',
@@ -4939,11 +4955,11 @@ extension on TranslationsZhCn {
 			'download.category.label' => '分类',
 			'download.category.uncategorized' => '未分类',
 			'download.category.manage' => '管理',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.createShortcut' => '新建',
 			'download.category.newCategoryHint' => '新分类名称',
 			'download.category.createSuccess' => '分类已创建',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.createFailed' => '创建分类失败',
 			'download.category.nameEmpty' => '分类名称不能为空',
 			'download.category.emptyHint' => '还没有分类，新建一个来整理你的下载。',
@@ -5453,11 +5469,11 @@ extension on TranslationsZhCn {
 			'emoji.imageUrl' => '图片URL',
 			'emoji.enterImageUrl' => '请输入图片URL',
 			'emoji.add' => '添加',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.batchImport' => '批量导入',
 			'emoji.enterJsonUrlArray' => '请输入JSON格式的URL数组:',
 			'emoji.formatExample' => '格式示例:\n["url1", "url2", "url3"]',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.pasteJsonUrlArray' => '请粘贴JSON格式的URL数组',
 			'emoji.import' => '导入',
 			'emoji.importSuccess' => ({required Object count}) => '成功导入${count}张图片',

@@ -1612,6 +1612,10 @@ download:
   clearFilters: 清除筛选
   pauseAll: 全部暂停
   resumeAll: 全部开始
+  restoredPaused:
+    banner: '上次退出时有 ${num} 个任务未完成，已暂停'
+    resume: 全部继续
+    dismiss: 忽略
   emptyTaskList: 暂无下载任务
   noMatchingTasks: 没有匹配的任务
   deleteByDate:

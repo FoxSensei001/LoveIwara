@@ -1613,6 +1613,10 @@ download:
   clearFilters: フィルターをクリア
   pauseAll: すべて一時停止
   resumeAll: すべて開始
+  restoredPaused:
+    banner: '前回終了時に未完了だったタスク ${num} 件を一時停止しました'
+    resume: すべて再開
+    dismiss: 閉じる
   emptyTaskList: ダウンロードタスクがありません
   noMatchingTasks: 一致するタスクがありません
   deleteByDate:

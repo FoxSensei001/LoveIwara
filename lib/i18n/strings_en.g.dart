@@ -3317,6 +3317,8 @@ class TranslationsDownloadEn {
 	/// en: 'Start all'
 	String get resumeAll => 'Start all';
 
+	late final TranslationsDownloadRestoredPausedEn restoredPaused = TranslationsDownloadRestoredPausedEn._(_root);
+
 	/// en: 'No download tasks yet'
 	String get emptyTaskList => 'No download tasks yet';
 
@@ -7386,6 +7388,24 @@ class TranslationsDownloadErrorsEn {
 	String get pleaseTryOtherViewer => 'Please try using other viewers to open';
 }
 
+// Path: download.restoredPaused
+class TranslationsDownloadRestoredPausedEn {
+	TranslationsDownloadRestoredPausedEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: '${num} unfinished tasks from last session were paused'
+	String banner({required Object num}) => '${num} unfinished tasks from last session were paused';
+
+	/// en: 'Resume all'
+	String get resume => 'Resume all';
+
+	/// en: 'Dismiss'
+	String get dismiss => 'Dismiss';
+}
+
 // Path: download.deleteByDate
 class TranslationsDownloadDeleteByDateEn {
 	TranslationsDownloadDeleteByDateEn._(this._root);
@@ -9710,6 +9730,9 @@ extension on Translations {
 			'download.clearFilters' => 'Clear filters',
 			'download.pauseAll' => 'Pause all',
 			'download.resumeAll' => 'Start all',
+			'download.restoredPaused.banner' => ({required Object num}) => '${num} unfinished tasks from last session were paused',
+			'download.restoredPaused.resume' => 'Resume all',
+			'download.restoredPaused.dismiss' => 'Dismiss',
 			'download.emptyTaskList' => 'No download tasks yet',
 			'download.noMatchingTasks' => 'No matching tasks',
 			'download.deleteByDate.menuTitle' => 'Delete by date',
@@ -9732,11 +9755,11 @@ extension on Translations {
 			'download.category.manageTitle' => 'Manage categories',
 			'download.category.label' => 'Categories',
 			'download.category.uncategorized' => 'Uncategorized',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.manage' => 'Manage',
 			'download.category.createShortcut' => 'New',
 			'download.category.newCategoryHint' => 'New category name',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.createSuccess' => 'Category created',
 			'download.category.createFailed' => 'Failed to create category',
 			'download.category.nameEmpty' => 'Category name cannot be empty',
@@ -10246,11 +10269,11 @@ extension on Translations {
 			'linkInputDialog.unsupportedLink' => 'Unsupported Link',
 			'linkInputDialog.cancel' => 'Cancel',
 			'linkInputDialog.confirm' => 'Open in Browser',
+			_ => null,
+		} ?? switch (path) {
 			'log.logManagement' => 'Log Management',
 			'log.enableLogPersistence' => 'Enable Log Persistence',
 			'log.enableLogPersistenceDesc' => 'Save logs to the database for analysis',
-			_ => null,
-		} ?? switch (path) {
 			'log.logDatabaseSizeLimit' => 'Log Database Size Limit',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => 'Current: ${size}',
 			'log.exportCurrentLogs' => 'Export Current Logs',

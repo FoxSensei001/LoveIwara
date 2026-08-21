@@ -1326,6 +1326,7 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String get clearFilters => 'フィルターをクリア';
 	@override String get pauseAll => 'すべて一時停止';
 	@override String get resumeAll => 'すべて開始';
+	@override late final _TranslationsDownloadRestoredPausedJa restoredPaused = _TranslationsDownloadRestoredPausedJa._(_root);
 	@override String get emptyTaskList => 'ダウンロードタスクがありません';
 	@override String get noMatchingTasks => '一致するタスクがありません';
 	@override late final _TranslationsDownloadDeleteByDateJa deleteByDate = _TranslationsDownloadDeleteByDateJa._(_root);
@@ -2999,6 +3000,18 @@ class _TranslationsDownloadErrorsJa implements TranslationsDownloadErrorsEn {
 	@override String unsupportedImageFormatWithMessage({required Object extension}) => 'サポートされていない画像形式: ${extension}, デバイスにダウンロードして表示することができます';
 	@override String get imageLoadFailed => '画像の読み込みに失敗しました';
 	@override String get pleaseTryOtherViewer => '他のビューアーを使用してみてください';
+}
+
+// Path: download.restoredPaused
+class _TranslationsDownloadRestoredPausedJa implements TranslationsDownloadRestoredPausedEn {
+	_TranslationsDownloadRestoredPausedJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String banner({required Object num}) => '前回終了時に未完了だったタスク ${num} 件を一時停止しました';
+	@override String get resume => 'すべて再開';
+	@override String get dismiss => '閉じる';
 }
 
 // Path: download.deleteByDate
@@ -4917,6 +4930,9 @@ extension on TranslationsJa {
 			'download.clearFilters' => 'フィルターをクリア',
 			'download.pauseAll' => 'すべて一時停止',
 			'download.resumeAll' => 'すべて開始',
+			'download.restoredPaused.banner' => ({required Object num}) => '前回終了時に未完了だったタスク ${num} 件を一時停止しました',
+			'download.restoredPaused.resume' => 'すべて再開',
+			'download.restoredPaused.dismiss' => '閉じる',
 			'download.emptyTaskList' => 'ダウンロードタスクがありません',
 			'download.noMatchingTasks' => '一致するタスクがありません',
 			'download.deleteByDate.menuTitle' => '日付で削除',
@@ -4939,11 +4955,11 @@ extension on TranslationsJa {
 			'download.category.manageTitle' => 'カテゴリーの管理',
 			'download.category.label' => 'カテゴリー',
 			'download.category.uncategorized' => '未分類',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.manage' => '管理',
 			'download.category.createShortcut' => '新規作成',
 			'download.category.newCategoryHint' => '新しいカテゴリー名',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.createSuccess' => 'カテゴリーを作成しました',
 			'download.category.createFailed' => 'カテゴリーの作成に失敗しました',
 			'download.category.nameEmpty' => 'カテゴリー名を入力してください',
@@ -5453,11 +5469,11 @@ extension on TranslationsJa {
 			'emoji.imageUrl' => '画像URL',
 			'emoji.enterImageUrl' => '画像URLを入力してください',
 			'emoji.add' => '追加',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.batchImport' => '一括インポート',
 			'emoji.enterJsonUrlArray' => 'JSON形式のURL配列を入力してください:',
 			'emoji.formatExample' => '形式例:\n["url1", "url2", "url3"]',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.pasteJsonUrlArray' => 'JSON形式のURL配列を貼り付けてください',
 			'emoji.import' => 'インポート',
 			'emoji.importSuccess' => ({required Object count}) => '${count}枚の画像をインポートしました',

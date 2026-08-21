@@ -1169,6 +1169,8 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       slivers: [
         // 顶部留白，为悬浮的玻璃 header（标题行 + 分类条）让出位置
         SliverPadding(padding: EdgeInsets.only(top: topPadding)),
+        // 「上次未完成的任务已暂停」提示条（仅本次启动确有被暂停的任务时出现）
+        SliverToBoxAdapter(child: _buildRestoredPausedBanner(context)),
         // 顶部活跃区域
         if (hasActiveWidgets)
           SliverList(delegate: SliverChildListDelegate(activeWidgets)),
@@ -1270,6 +1272,55 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
         ],
       ),
     );
+  }
+
+  /// 「上次退出时有 N 个任务未完成，已暂停」提示条。
+  ///
+  /// 启动语义是「不自动续传，一律暂停」（见 DownloadService._loadActiveTasks）。
+  /// 没有这条一键召回，用户上次下了 30 条就得手点 30 次继续——它是那条语义的
+  /// 配套，不是装饰。点「全部继续」只叫醒这一批，不会波及用户很早以前手动暂停的
+  /// 任务。
+  Widget _buildRestoredPausedBanner(BuildContext context) {
+    return Obx(() {
+      final count = DownloadService.to.restoredPausedIds.length;
+      if (count == 0) return const SizedBox.shrink();
+
+      final t = slang.Translations.of(context);
+      final cs = Theme.of(context).colorScheme;
+
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+        child: GlassSurface(
+          height: 56,
+          borderRadius: BorderRadius.circular(16),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Row(
+            children: [
+              Icon(Icons.pause_circle_outline, size: 20, color: cs.primary),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  t.download.restoredPaused.banner(num: count),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              TextButton(
+                onPressed: () => DownloadService.to.resumeRestoredTasks(),
+                child: Text(t.download.restoredPaused.resume),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close, size: 18),
+                tooltip: t.download.restoredPaused.dismiss,
+                visualDensity: VisualDensity.compact,
+                onPressed: () => DownloadService.to.dismissRestoredPaused(),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
   }
 
   /// 取某个分区中通过当前筛选条件的任务。

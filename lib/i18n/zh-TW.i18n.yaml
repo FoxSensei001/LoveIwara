@@ -1653,6 +1653,10 @@ download:
   clearFilters: 清除篩選
   pauseAll: 全部暫停
   resumeAll: 全部開始
+  restoredPaused:
+    banner: '上次離開時有 ${num} 個任務未完成，已暫停'
+    resume: 全部繼續
+    dismiss: 忽略
   emptyTaskList: 暫無下載任務
   noMatchingTasks: 沒有符合的任務
   deleteByDate:
