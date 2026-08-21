@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 
 /// 「液态玻璃」风格的尺寸 / 颜色 token。
 ///
 /// 设计来源：docs/mockups/telegram_chat_list_design.md（本地设计稿，已 gitignore）。
-/// 全平台统一使用「半透明纯色渐变」而不是 BackdropFilter（性能 / 多端一致性）。
+///
+/// 材质有**两套后端**，由 `LiquidGlassScope` 决定用哪一套（见
+/// `liquid_glass_material.dart`）：
+///   - 传统档：半透明纯色 + 描边 + 投影，无 BackdropFilter。全平台一致、最省。
+///     取值见 [fill] / [stroke] / [shadow]。
+///   - 液态档：`liquid_glass_easy` 的真折射透镜。取值见本类下方「真·液态玻璃」段。
+/// 两档共用同一套**尺寸**与**动效**，所以切换后端不会改变布局，只改变材质。
 ///
 /// 「液态」的神在于**没有硬切**：任何 header 上的按钮组、分段胶囊、头像、
 /// 徽标发生形变都要有过渡而不是被瞬间替换。形变过渡的原语和取值参见
@@ -138,6 +145,60 @@ abstract final class GlassTokens {
 
   /// 边缘渐变蒙层的基色。
   static Color scrimBase(ColorScheme cs) => cs.surface;
+
+  // ---- 真·液态玻璃（liquid_glass_easy 后端）----
+  //
+  // 这一段只在 `LiquidGlassScope(enabled: true)` 的子树里生效。调参前先读
+  // docs/liquid_glass_easy.md——尤其是「一块 lens = 一次 backdrop 采样」和
+  // 「lens 不要放进滚动容器」两条。
+
+  /// 玻璃色调。**比传统档的 [fill] 透明得多**：0.80 的底色会把折射整个盖住，
+  /// 玻璃就退化成一块磨砂板。但也不能一路降到 0.15——header 胶囊里的字要压在
+  /// 滚动而过的封面图上，太透就读不清了。0.42/0.38 是「明显能看见背后在流动、
+  /// 同时文字还立得住」的折中值，是本套材质里最该按真机效果回调的一个数。
+  static Color liquidTint(ColorScheme cs) => cs.surfaceContainerLow.withValues(
+    alpha: cs.brightness == Brightness.dark ? 0.38 : 0.42,
+  );
+
+  /// 按下时的玻璃色调：与 [pressedFill] 同一口径（压深 8%）。
+  static Color liquidPressedTint(ColorScheme cs) =>
+      Color.alphaBlend(cs.onSurface.withValues(alpha: 0.08), liquidTint(cs));
+
+  /// 玻璃底下的背景模糊。传统档没有这一项（当初刻意不用 BackdropFilter）；
+  /// 液态档靠它把身后的高频细节化开，折射才不会糊成噪点。
+  static const LiquidGlassBlur liquidBlur = LiquidGlassBlur(
+    sigmaX: 14,
+    sigmaY: 14,
+  );
+
+  /// 轻微提饱和：真玻璃会把透过来的颜色压得更艳一点。
+  static const double liquidSaturation = 1.12;
+
+  /// 描边宽度。比传统档的 [strokeWidth]（0.6）粗——液态档的描边不是一条线，
+  /// 而是 shader 画的边缘光带，太细就看不出「厚度」。
+  static const double liquidBorderWidth = 1.2;
+
+  /// 折射强度。44/64 这种小胶囊上 distortion 超过 ~0.18 就会把边缘的字拽变形，
+  /// distortionWidth 也不能超过胶囊半高（22），否则整只胶囊都在畸变带里。
+  static const LiquidGlassRefraction liquidRefraction = LiquidGlassRefraction(
+    distortion: 0.12,
+    distortionWidth: 18,
+    chromaticAberration: 0.004,
+  );
+
+  /// 描边模式：Apple 风 SDF 边缘光（会从背景取色），而不是固定色描边。
+  static const LiquidGlassBorderType liquidBorderType = OpticalBorder(
+    borderSaturation: 1.4,
+    ambientIntensity: 1.0,
+  );
+
+  /// 接触阴影。与传统档的 [shadow] 表达同一件事（玻璃浮在内容之上），
+  /// 但它长在 lens 的形变盒里，按下时会跟着一起胀/回弹。
+  static LiquidGlassShadow liquidShadow(ColorScheme cs) => LiquidGlassShadow(
+    blur: 12,
+    opacity: cs.brightness == Brightness.dark ? 0.40 : 0.14,
+    offset: const Offset(0, 2),
+  );
 }
 
 /// 浮动底栏当前遮挡掉的屏幕底部高度（含系统安全区）；底栏不可见时为 0。

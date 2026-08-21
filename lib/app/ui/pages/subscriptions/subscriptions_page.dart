@@ -679,6 +679,9 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
             controllers: [_videoBatchController, _imageBatchController],
             activeIndex: () => _tabController.index,
             child: GlassHeaderOverlay(
+              // 订阅：header 与浮层 chrome 走真折射透镜，列表本体留在传统档
+              // （见 GlassHeaderOverlay.liquid）。
+              liquid: true,
               headerExtent: headerExtent,
               headerTop: statusBarHeight,
               solidExtent: statusBarHeight,

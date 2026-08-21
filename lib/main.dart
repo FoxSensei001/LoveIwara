@@ -11,6 +11,7 @@ import 'package:i_iwara/app/services/logging/log_models.dart';
 import 'package:i_iwara/app/services/logging/log_service.dart';
 import 'package:i_iwara/app/startup/app_startup.dart';
 import 'package:i_iwara/app/startup/app_startup_shell.dart';
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/db/database_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'app/ui/widgets/restart_app_widget.dart';
@@ -89,6 +90,11 @@ void main() {
         isProduction: isProduction,
       );
       await DeviceFormFactorUtils.applyMobileOrientationPolicy();
+
+      // 液态玻璃的 shader 异步加载：不预热的话，冷启动首屏第一块玻璃会先渲染
+      // 成磨砂、加载完再切成折射，肉眼能看见这一下材质跳变。不 await——加载失败
+      // 只是退回磨砂，不该拖住启动。
+      unawaited(warmUpLiquidGlassShaders());
 
       runApp(
         RestartApp.scope(

@@ -696,6 +696,9 @@ class PopularMediaListPageBaseState<
           return BatchDownloadSelectionScope(
             controllers: [_batchSelectController],
             child: GlassHeaderOverlay(
+            // 热门视频 / 图库：header 与浮层 chrome 走真折射透镜，列表本体
+            // 留在传统档（见 GlassHeaderOverlay.liquid）。
+            liquid: true,
             headerExtent: headerExtent,
             headerTop: statusBarHeight,
             solidExtent: statusBarHeight,

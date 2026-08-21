@@ -94,6 +94,7 @@ dependencies:
   dartantic_ai: ^3.4.1
   flutter_local_notifications: ^22.0.1
   local_notifier: ^0.1.6
+  liquid_glass_easy: ^4.1.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

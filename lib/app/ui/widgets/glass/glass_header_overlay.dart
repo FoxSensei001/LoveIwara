@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 
 /// 「header 悬浮在列表之上」的通用骨架。
 ///
@@ -45,7 +46,17 @@ class GlassHeaderOverlay extends StatelessWidget {
     this.headerHeight,
     this.solidExtent = 0,
     this.extra = const [],
+    this.liquid = false,
   });
+
+  /// 本页的浮层 chrome（[header] 与 [extra]）改用真折射透镜。
+  ///
+  /// 开关放在这里而不是让页面自己包 `LiquidGlassScope`，是因为 [extra] 里的
+  /// 每一项都必须是 `Positioned`（Stack 的直接子级）——在外面包一层
+  /// InheritedWidget 会把 `Positioned` 埋起来，浮钮当场失去定位。这里从
+  /// **整个 Stack 之上**打开，再单独给 [body] 关掉：列表在滚动容器里，lens
+  /// 放进去会被 Android 的拉伸回弹渲染成纯黑（见 `liquid_glass_material.dart`）。
+  final bool liquid;
 
   final Widget body;
 
@@ -68,11 +79,14 @@ class GlassHeaderOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    final Widget stack = Stack(
       // 所有子项都是 Positioned；松约束下也要撑满，别被某个非 Positioned 的占位压成 0 高
       fit: StackFit.expand,
       children: [
-        Positioned.fill(child: body),
+        // 列表本体永远留在传统档：它是滚动容器，装不得 lens。
+        Positioned.fill(
+          child: liquid ? LiquidGlassScope(enabled: false, child: body) : body,
+        ),
         Positioned(
           top: 0,
           left: 0,
@@ -93,5 +107,6 @@ class GlassHeaderOverlay extends StatelessWidget {
         ...extra,
       ],
     );
+    return liquid ? LiquidGlassScope(child: stack) : stack;
   }
 }

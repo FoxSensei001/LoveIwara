@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 
 /// 按下反馈：缩放 + 对外暴露 pressed 状态。
 ///
@@ -54,7 +55,12 @@ class _GlassPressableState extends State<GlassPressable> {
   }
 }
 
-/// 玻璃体容器：半透明底色 + 细描边 + 柔和投影，胶囊或圆形。
+/// 玻璃体容器：胶囊或圆形，是全 App **唯一**的玻璃材质定义处。
+///
+/// 材质有两套后端，由所处子树里有没有 `LiquidGlassScope` 决定：
+///   - 默认（传统档）：半透明底色 + 细描边 + 柔和投影，无 BackdropFilter。
+///   - `LiquidGlassScope(enabled: true)` 子树内（液态档）：`liquid_glass_easy`
+///     的真折射透镜（[LiquidGlassBox]）。两档尺寸语义一致，只换材质。
 ///
 /// 传 [onTap] 时整体可按（带缩放与底色加深）；不传时只做容器，
 /// 由子组件各自处理点击（例如 [GlassButtonGroup]）。
@@ -90,9 +96,23 @@ class GlassSurface extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final radius = borderRadius ?? BorderRadius.circular(height / 2);
+    final bool liquid = LiquidGlassScope.isEnabled(context);
 
     Widget buildBox(bool pressed) {
       Widget content = Padding(padding: padding, child: child);
+      if (liquid) {
+        // 液态档：裁切由 lens 自己按形状做掉，这里不再套 ClipOval/ClipRRect
+        // （多一层裁剪只会多一个 saveLayer，形状还未必对得上 shader 的角）。
+        return LiquidGlassBox(
+          height: height,
+          width: width,
+          circle: circle,
+          cornerRadius: radius.topLeft.x,
+          pressed: pressed,
+          elevated: elevated,
+          child: content,
+        );
+      }
       if (clipContent) {
         content = circle
             ? ClipOval(child: content)

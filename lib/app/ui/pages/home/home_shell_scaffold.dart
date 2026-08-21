@@ -16,6 +16,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_floating_tab_bar.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -422,20 +423,24 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     final displayOrder = _visibleOrder;
     final currentDisplayIndex = _currentDisplayIndexForOrder(displayOrder);
 
-    return GlassFloatingTabBar(
-      currentIndex: currentDisplayIndex,
-      onTap: (index) => _handleNavigationTap(index, displayOrder),
-      items: displayOrder.map((key) {
-        final item = AppService.navigationItems[key]!;
-        return GlassTabItem(icon: item.icon, label: item.title);
-      }).toList(),
-      trailing: GlassIconButton(
-        standalone: true,
-        size: GlassTokens.floatingActionSize,
-        iconSize: 26,
-        icon: const Icon(Icons.search),
-        tooltip: slang.t.common.search,
-        onPressed: _openSearchForCurrentBranch,
+    // 浮动底栏是整个 App 里最该「真的是玻璃」的一块：它常驻在滚动内容之上，
+    // 身后一直有东西在流动。它本身不在任何滚动容器里，正是 lens 的适用场景。
+    return LiquidGlassScope(
+      child: GlassFloatingTabBar(
+        currentIndex: currentDisplayIndex,
+        onTap: (index) => _handleNavigationTap(index, displayOrder),
+        items: displayOrder.map((key) {
+          final item = AppService.navigationItems[key]!;
+          return GlassTabItem(icon: item.icon, label: item.title);
+        }).toList(),
+        trailing: GlassIconButton(
+          standalone: true,
+          size: GlassTokens.floatingActionSize,
+          iconSize: 26,
+          icon: const Icon(Icons.search),
+          tooltip: slang.t.common.search,
+          onPressed: _openSearchForCurrentBranch,
+        ),
       ),
     );
   }
@@ -584,33 +589,37 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
       final count =
           userService.notificationCount.value + userService.messagesCount.value;
 
-      return GlassSurface(
-        circle: true,
-        tooltip: t.common.me,
-        onTap: AppService.switchGlobalDrawer,
-        child: Stack(
-          alignment: Alignment.center,
-          clipBehavior: Clip.none,
-          children: [
-            if (user != null)
-              IgnorePointer(
-                child: AvatarWidget(
-                  user: user,
-                  size: GlassTokens.pillHeight - 2,
+      // 侧栏身份钮也走液态档：它压在 NavigationRail 的实心面上，折射出来的是
+      // rail 的底色 + 自己身下那一小片，与窄屏 header 上同一枚圆钮观感一致。
+      return LiquidGlassScope(
+        child: GlassSurface(
+          circle: true,
+          tooltip: t.common.me,
+          onTap: AppService.switchGlobalDrawer,
+          child: Stack(
+            alignment: Alignment.center,
+            clipBehavior: Clip.none,
+            children: [
+              if (user != null)
+                IgnorePointer(
+                  child: AvatarWidget(
+                    user: user,
+                    size: GlassTokens.pillHeight - 2,
+                  ),
+                )
+              else
+                Icon(
+                  Icons.account_circle,
+                  size: 26,
+                  color: colorScheme.onSurface,
                 ),
-              )
-            else
-              Icon(
-                Icons.account_circle,
-                size: 26,
-                color: colorScheme.onSurface,
+              Positioned(
+                right: 2,
+                top: 2,
+                child: GlassAnimatedDot(visible: count > 0),
               ),
-            Positioned(
-              right: 2,
-              top: 2,
-              child: GlassAnimatedDot(visible: count > 0),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     });
