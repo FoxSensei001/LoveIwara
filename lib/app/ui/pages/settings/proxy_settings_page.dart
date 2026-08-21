@@ -19,7 +19,6 @@ class ProxySettingsPage extends StatelessWidget {
 
     return GlassSettingsScaffold(
       title: t.settings.networkSettings,
-      isWideScreen: isWideScreen,
       slivers: [
         // 单层滚动交给骨架的 CustomScrollView：这里不能再套
         // SliverFillRemaining + SingleChildScrollView，那会与骨架让位的

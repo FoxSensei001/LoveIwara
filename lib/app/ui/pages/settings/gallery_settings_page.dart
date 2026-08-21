@@ -19,7 +19,6 @@ class GallerySettingsPage extends StatelessWidget {
 
     return GlassSettingsScaffold(
       title: slang.t.settings.gallerySettings.gallerySettingsTitle,
-      isWideScreen: isWideScreen,
       slivers: [
         SliverPadding(
           padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),

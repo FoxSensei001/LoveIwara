@@ -8,7 +8,6 @@ import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/content_block_service.dart';
 import 'package:i_iwara/app/services/conversation_service.dart';
-import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
@@ -63,13 +62,10 @@ class _BlockSettingsPageState extends State<BlockSettingsPage>
     if (mounted) setState(() {});
   }
 
-  /// 返回：窄屏时先退回设置列表（与系统返回一致），退无可退再退出整个设置页。
+  /// 返回：统一交给 [AppService.tryPop]，由 PopCoordinator 按栈深决定是退回
+  /// 设置列表还是离开整个设置树——和系统返回键、Esc 走的是同一条链。
   void _handleBack() {
-    if (SettingsPage.canPopInternally()) {
-      SettingsPage.popInternally();
-    } else {
-      AppService.tryPop();
-    }
+    AppService.tryPop();
   }
 
   void _addRule(BuildContext context, {BlockRule? existing}) {

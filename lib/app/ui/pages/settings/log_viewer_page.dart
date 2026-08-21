@@ -144,7 +144,6 @@ class _LogViewerPageState extends State<LogViewerPage> {
 
     return GlassSettingsScaffold(
       title: t.logViewer.title,
-      isWideScreen: widget.isWideScreen,
       controller: _scrollController,
       // 不在底部时才出现「跳到底部」；GlassGroupSlot 让它平滑进出而不是闪现
       actions: [

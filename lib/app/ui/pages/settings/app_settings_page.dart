@@ -307,7 +307,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
 
     return GlassSettingsScaffold(
       title: slang.t.settings.appSettings,
-      isWideScreen: widget.isWideScreen,
       slivers: [
         SliverPadding(
           padding: const EdgeInsets.all(16),

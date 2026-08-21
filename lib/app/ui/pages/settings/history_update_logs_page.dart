@@ -60,7 +60,6 @@ class _HistoryUpdateLogsPageState extends State<HistoryUpdateLogsPage> {
     return GlassSettingsScaffold(
       title: t.settings.historyUpdateLogs,
       // 由「关于」页推入；即使是宽屏双栏，这里也保留返回钮（它不是左栏可选的分区）。
-      isWideScreen: false,
       slivers: [
         if (_isLoading || _error != null || _updateLogs.isEmpty)
           SliverFillRemaining(

@@ -159,7 +159,6 @@ class _AITranslationSettingsWidgetState
       key: _formKey,
       child: GlassSettingsScaffold(
         title: slang.t.translation.translation,
-        isWideScreen: widget.isWideScreen,
         slivers: [
           SliverPadding(
             padding: const EdgeInsets.all(16),

@@ -11,6 +11,8 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/ui/pages/settings/settings_navigation.dart';
+import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';
 
 /// 全应用快捷键自定义。
 ///
@@ -25,10 +27,12 @@ class KeybindingSettingsPage extends StatelessWidget {
   final bool isWideScreen;
 
   /// 设置页：独立页面跳转（全部作用域）。
+  ///
+  /// 走真路由而不是裸 `Navigator.push`：后者虽然「碰巧」能推进设置自己的
+  /// Navigator，但拿不到设置树的转场（窄屏侧滑 / 宽屏右栏横推），左栏高亮
+  /// 也不会跟着走——因为 URL 根本没变。
   static Future<void> open(BuildContext context) {
-    return Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => const KeybindingSettingsPage()));
+    return SettingsNavigation.openSubPage(SettingsSection.keybinding.path);
   }
 
   /// 播放器：底部抽屉弹出（默认仅视频作用域）。
@@ -46,7 +50,6 @@ class KeybindingSettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return GlassSettingsScaffold(
       title: slang.t.settings.keybinding.title,
-      isWideScreen: isWideScreen,
       slivers: [
         const SliverPadding(
           padding: EdgeInsets.symmetric(vertical: 8),

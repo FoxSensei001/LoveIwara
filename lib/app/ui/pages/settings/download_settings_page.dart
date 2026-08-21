@@ -108,7 +108,6 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
 
     return GlassSettingsScaffold(
       title: t.settings.downloadSettings.downloadSettings,
-      isWideScreen: widget.isWideScreen,
       slivers: [
         SliverPadding(
           padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
+import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
@@ -22,16 +22,16 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class GlassSettingsScaffold extends StatelessWidget {
   final String title;
 
-  /// 宽屏双栏模式：左栏就是导航，不显示返回钮。
-  final bool isWideScreen;
-
   /// 标题行右侧的动作位（走 [GlassIconButton]），尾缘自带 16 右边距。
   final List<Widget>? actions;
 
   /// 页面内容的 sliver 列表（不含 header，也不用自己让出 header 高度）。
   final List<Widget> slivers;
 
-  /// 自定义返回行为；不传则走设置页的层级语义（先内部返回，退无可退才退出）。
+  /// 返回钮显隐的强制覆盖；不传则按 [_resolveShowBack] 推导。
+  final bool? showBack;
+
+  /// 自定义返回行为；不传则走 [AppService.tryPop]。
   final VoidCallback? onBack;
 
   /// 滚动控制器（需要回顶 / 监听滚动的页面传）。
@@ -41,18 +41,23 @@ class GlassSettingsScaffold extends StatelessWidget {
     super.key,
     required this.title,
     required this.slivers,
-    this.isWideScreen = false,
     this.actions,
+    this.showBack,
     this.onBack,
     this.controller,
   });
 
-  static void _defaultBack() {
-    if (SettingsPage.canPopInternally()) {
-      SettingsPage.popInternally();
-    } else {
-      AppService.tryPop();
-    }
+  /// 要不要画返回钮，从「所处的导航栈」推导，而不是从调用方传的布尔值。
+  ///
+  /// - 设置内部还能退（窄屏的分区页、任意屏宽的三级页）→ 画，退一层。
+  /// - 宽屏的分区根页 → 不画：左栏就是它的返回，右栏再来一个是多余的。
+  /// - 窄屏的一级列表（内部退无可退）→ 画，[AppService.tryPop] 会一路走到
+  ///   宿主 Shell，弹掉整棵设置树。
+  bool _resolveShowBack(BuildContext context) {
+    if (showBack != null) return showBack!;
+    final canPopInner = Navigator.maybeOf(context)?.canPop() ?? false;
+    if (canPopInner) return true;
+    return MediaQuery.sizeOf(context).width <= kSettingsTwoPaneBreakpoint;
   }
 
   @override
@@ -61,6 +66,7 @@ class GlassSettingsScaffold extends StatelessWidget {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final double statusBarHeight = MediaQuery.paddingOf(context).top;
     final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
+    final bool showBackButton = _resolveShowBack(context);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
@@ -91,12 +97,12 @@ class GlassSettingsScaffold extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              if (!isWideScreen) ...[
+              if (showBackButton) ...[
                 GlassIconButton(
                   standalone: true,
                   icon: const Icon(Icons.arrow_back),
                   tooltip: t.common.back,
-                  onPressed: onBack ?? _defaultBack,
+                  onPressed: onBack ?? AppService.tryPop,
                 ),
                 const SizedBox(width: 8),
               ],

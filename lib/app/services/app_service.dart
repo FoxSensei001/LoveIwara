@@ -19,11 +19,11 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
-import 'package:i_iwara/utils/proxy/proxy_util.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 import '../routes/app_router.dart';
 import '../routes/home_shell_navigation.dart';
+import '../ui/pages/settings/settings_section.dart';
 import 'config_service.dart';
 import '../ui/widgets/restart_app_widget.dart';
 import 'message_service.dart';
@@ -705,49 +705,46 @@ class NaviService {
     appRouter.push('/emoji_library');
   }
 
+  // ===== 设置树入口 =====
+  //
+  // 全部退化成「push 一个路径」。历史实现是往 `/settings_page` 塞一个
+  // `SettingsPageExtra(initialPage: ProxyUtil.isSupportedPlatform() ? 12 : 11)`
+  // 这样的平台相关魔数索引，索引表分散在三处且要反向 ±1 修正；现在平台差异
+  // 由「路由注册不注册」表达，见 [SettingsSection.isAvailable]。
+  //
+  // 注意这些入口是 push 而不是 go：go_router 的 push 只压一页
+  // （ImperativeRouteMatch 取 matchList.last），所以从抽屉直达
+  // `/settings/block` 时栈里只有屏蔽设置这一页，返回直接离开设置——
+  // 这正是历史上要靠 `_isDeepLinkEntry` 特判才能做到的行为。
+
   // 跳转到设置页
   static void navigateToSettingsPage() {
-    appRouter.push('/settings_page');
+    appRouter.push(kSettingsRootPath);
   }
 
   // 跳转到翻译设置页
   static void navigateToTranslationSettingsPage() {
-    appRouter.push(
-      '/settings_page',
-      extra: SettingsPageExtra(
-        initialPage: ProxyUtil.isSupportedPlatform() ? 1 : 0,
-      ),
-    );
+    appRouter.push(SettingsSection.translation.path);
   }
 
   // 跳转到内容屏蔽设置页
   static void navigateToBlockSettingsPage() {
-    appRouter.push(
-      '/settings_page',
-      extra: SettingsPageExtra(
-        initialPage: ProxyUtil.isSupportedPlatform() ? 12 : 11,
-      ),
-    );
+    appRouter.push(SettingsSection.block.path);
   }
 
   // 跳转到诊断与反馈设置页（导出日志入口）
   static void navigateToDiagnosticsSettingsPage() {
-    appRouter.push(
-      '/settings_page',
-      extra: SettingsPageExtra(
-        initialPage: ProxyUtil.isSupportedPlatform() ? 11 : 10,
-      ),
-    );
+    appRouter.push(SettingsSection.diagnostics.path);
   }
 
   // 跳转到布局设置页
   static void navigateToLayoutSettingsPage() {
-    appRouter.push('/layout_settings_page');
+    appRouter.push(SettingsSubRoutes.displayLayout);
   }
 
   // 跳转到导航排序设置页
   static void navigateToNavigationOrderSettingsPage() {
-    appRouter.push('/navigation_order_settings_page');
+    appRouter.push(SettingsSubRoutes.displayNavigationOrder);
   }
 
   /// 跳转到本地视频播放页面（从下载任务进入）

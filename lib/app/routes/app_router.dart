@@ -44,6 +44,12 @@ import 'package:i_iwara/app/ui/pages/favorites/my_favorites.dart';
 import 'package:i_iwara/app/ui/pages/friends/friends_page.dart';
 import 'package:i_iwara/app/ui/pages/history/history_list_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
+import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';
+import 'package:i_iwara/app/ui/pages/settings/google_translation_settings_page.dart';
+import 'package:i_iwara/app/ui/pages/settings/history_update_logs_page.dart';
+import 'package:i_iwara/app/ui/pages/settings/log_viewer_page.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/ai_translation_setting_widget.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/deeplx_translation_setting_widget.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
 import 'package:i_iwara/app/ui/pages/download/gallery_download_task_detail_page.dart';
 import 'package:i_iwara/app/ui/pages/notifications/notification_list_page.dart';
@@ -83,6 +89,18 @@ final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 /// Home Shell（包含 NavigationRail + BottomNav Scaffold）的 Navigator key。
 /// 详情页会推入到这个 Navigator 中，从而保持 Shell 结构一直可见。
 final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
+
+/// 设置树（`/settings/**`）那层嵌套 Shell 的 Navigator key。
+///
+/// 设置的分区页 / 三级页都推入这个 Navigator，宽屏时它就是右栏，左栏由
+/// [SettingsShell] 常驻渲染（不是路由，所以切分区时左栏不参与转场）。
+///
+/// [PopCoordinator] 靠这个 key 判断「设置内部还能不能退一层」——它替代了历史上
+/// `SettingsPage.canPopInternally()` 那个基于 Widget 静态单例的特例：
+/// 同样是一个 GlobalKey 的 `canPop()`，无状态、无生命周期，和
+/// [rootNavigatorKey] / [shellNavigatorKey] 完全同构。
+final GlobalKey<NavigatorState> settingsShellNavigatorKey =
+    GlobalKey<NavigatorState>();
 
 /// 按分支索引获取对应的首页栏目页 Widget（实现了 [HomeWidgetInterface]）。
 /// 分支顺序与下方 [StatefulShellRoute] 的 branches 一一对应：
@@ -536,14 +554,49 @@ final GoRouter appRouter = GoRouter(
           builder: (context, state) => const HistoryListPage(),
         ),
 
-        // 设置页面
+        // 旧路径兼容：外部 deeplink / 历史书签仍可能指向 /settings_page。
         GoRoute(
           path: '/settings_page',
           name: 'settings_page',
-          builder: (context, state) {
-            final extra = state.extra as SettingsPageExtra?;
-            return SettingsPage(initialPage: extra?.initialPage ?? -1);
-          },
+          redirect: (context, state) => kSettingsRootPath,
+        ),
+
+        // ========== 设置树：嵌套 Shell（宽屏双栏 / 窄屏单栏） ==========
+        //
+        // 分区页与三级页都是**真路由**，栈由 go_router 唯一持有：
+        // 没有内部 _pageStack、没有 currentPage 索引、没有 PopScope 手工编排。
+        // 平台差异表达成「这条路由注册不注册」（见 SettingsSection.isAvailable），
+        // 而不是历史上那套 `ProxyUtil.isSupportedPlatform() ? 12 : 11` 的魔数索引。
+        ShellRoute(
+          navigatorKey: settingsShellNavigatorKey,
+          // 同 Home Shell：避免根观察者被重复挂载导致 overlay 重复计数。
+          notifyRootObserver: false,
+          builder: (context, state, child) =>
+              SettingsShell(location: state.uri.path, child: child),
+          routes: [
+            GoRoute(
+              path: kSettingsRootPath,
+              name: 'settings',
+              pageBuilder: (context, state) => _buildSettingsPage(
+                context,
+                state,
+                (_) => SettingsListPage(location: state.uri.path),
+              ),
+            ),
+            for (final section in SettingsSection.values)
+              if (section.isAvailable)
+                GoRoute(
+                  path: section.path,
+                  name: section.routeName,
+                  pageBuilder: (context, state) => _buildSettingsPage(
+                    context,
+                    state,
+                    (isWide) => section.buildPage(isWideScreen: isWide),
+                    fullSwipe: section.allowsFullSwipeBack,
+                  ),
+                  routes: _settingsSubRoutesOf(section),
+                ),
+          ],
         ),
 
         // 下载任务列表
@@ -789,27 +842,127 @@ final GoRouter appRouter = GoRouter(
               buildAdaptiveSwipeablePage(state, const EmojiLibraryPage()),
         ),
 
-        // 布局设置
-        GoRoute(
-          path: '/layout_settings_page',
-          name: 'layout_settings',
-          pageBuilder: (context, state) =>
-              buildAdaptiveSwipeablePage(state, const LayoutSettingsPage()),
-        ),
-
-        // 导航顺序设置
-        GoRoute(
-          path: '/navigation_order_settings_page',
-          name: 'navigation_order_settings',
-          pageBuilder: (context, state) => buildAdaptiveSwipeablePage(
-            state,
-            const NavigationOrderSettingsPage(),
-          ),
-        ),
       ],
     ),
   ],
 );
+
+/// 构建一个设置树里的页面。
+///
+/// 转场按 Q8 定的契约分两档：
+/// - 窄屏走 [buildAdaptiveSwipeablePage]，和全站其它二级页（视频详情 / 帖子详情
+///   / 搜索结果…）**完全一致**，iOS 上顺带拿到整页跟手侧滑返回。历史实现里那套
+///   设置页独有的「右滑入 + 底层左移 30% 视差」手写动画连同
+///   `HorizontalDragGestureRecognizer` 一起删掉了。
+/// - 宽屏只有右栏在动（左栏在 Shell builder 里，不参与路由转场），沿用原来
+///   双栏 AnimatedSwitcher 的 200ms 横推观感。
+///
+/// 页面本体包一层 [Builder] 再读宽度：这样窗口 resize 时 `isWideScreen` 会跟着
+/// 变，而不是被冻结在 push 那一刻。
+Page<void> _buildSettingsPage(
+  BuildContext context,
+  GoRouterState state,
+  Widget Function(bool isWideScreen) builder, {
+  bool fullSwipe = true,
+}) {
+  final Widget child = Builder(
+    builder: (context) => builder(
+      MediaQuery.sizeOf(context).width > kSettingsTwoPaneBreakpoint,
+    ),
+  );
+
+  final bool isWide =
+      MediaQuery.sizeOf(context).width > kSettingsTwoPaneBreakpoint;
+  if (!isWide) {
+    return buildAdaptiveSwipeablePage(state, child, fullSwipe: fullSwipe);
+  }
+
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    name: state.name ?? state.fullPath,
+    arguments: state.extra,
+    transitionDuration: const Duration(milliseconds: 200),
+    reverseTransitionDuration: const Duration(milliseconds: 200),
+    child: child,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(1, 0),
+          end: Offset.zero,
+        ).animate(
+          CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic,
+          ),
+        ),
+        child: child,
+      );
+    },
+  );
+}
+
+GoRoute _settingsSubRoute(
+  String path,
+  String name,
+  Widget Function(bool isWideScreen) builder,
+) => GoRoute(
+  path: path,
+  name: name,
+  pageBuilder: (context, state) =>
+      _buildSettingsPage(context, state, builder),
+);
+
+/// 分区页下面的三级页。路径即层级，宽窄屏走同一条路由
+/// （历史实现是「宽屏塞进右栏内部 Navigator、窄屏 push 到 Shell 顶层」两套实现）。
+List<RouteBase> _settingsSubRoutesOf(SettingsSection section) => switch (section) {
+  SettingsSection.translation => [
+    _settingsSubRoute(
+      'google',
+      'settings_translation_google',
+      (isWide) => GoogleTranslationSettingsPage(isWideScreen: isWide),
+    ),
+    _settingsSubRoute(
+      'ai',
+      'settings_translation_ai',
+      (isWide) => AITranslationSettingsPage(isWideScreen: isWide),
+    ),
+    _settingsSubRoute(
+      'deeplx',
+      'settings_translation_deeplx',
+      (isWide) => DeepLXTranslationSettingsPage(isWideScreen: isWide),
+    ),
+  ],
+  SettingsSection.display => [
+    _settingsSubRoute(
+      'layout',
+      'settings_display_layout',
+      (isWide) => LayoutSettingsPage(isWideScreen: isWide),
+    ),
+    // 两个入口（显示设置直接进 / 布局设置里再进）push 的是同一条路由，
+    // `push` 只压一页，所以两条路径下的返回都停在各自的上一页。
+    _settingsSubRoute(
+      'navigation_order',
+      'settings_display_navigation_order',
+      (isWide) => NavigationOrderSettingsPage(isWideScreen: isWide),
+    ),
+  ],
+  SettingsSection.about => [
+    _settingsSubRoute(
+      'changelog',
+      'settings_about_changelog',
+      (_) => const HistoryUpdateLogsPage(),
+    ),
+  ],
+  SettingsSection.diagnostics => [
+    _settingsSubRoute(
+      'logs',
+      'settings_diagnostics_logs',
+      (isWide) => LogViewerPage(isWideScreen: isWide),
+    ),
+  ],
+  _ => const <RouteBase>[],
+};
 
 class _NavigationLogObserver extends NavigatorObserver {
   _NavigationLogObserver(this.scope);
@@ -1137,11 +1290,6 @@ class PlayListExtra {
   final String userId;
   final bool isMine;
   const PlayListExtra({required this.userId, this.isMine = false});
-}
-
-class SettingsPageExtra {
-  final int initialPage;
-  const SettingsPageExtra({this.initialPage = -1});
 }
 
 class FollowsPageExtra {

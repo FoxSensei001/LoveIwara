@@ -154,7 +154,6 @@ class _NavigationOrderSettingsPageState
     final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
     return GlassSettingsScaffold(
       title: slang.t.navigationOrderSettings.title,
-      isWideScreen: widget.isWideScreen,
       slivers: [
         SliverPadding(
           padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),

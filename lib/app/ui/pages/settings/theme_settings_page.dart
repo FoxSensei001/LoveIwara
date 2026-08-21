@@ -22,7 +22,6 @@ class ThemeSettingsPage extends StatelessWidget {
 
     return GlassSettingsScaffold(
       title: t.settings.themeSettings,
-      isWideScreen: isWideScreen,
       slivers: [
         SliverPadding(
           padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),

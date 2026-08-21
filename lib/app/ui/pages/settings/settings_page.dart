@@ -1,249 +1,92 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
-import 'package:get/get.dart';
-import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/routes/app_router.dart';
+import 'package:i_iwara/app/ui/pages/settings/settings_navigation.dart';
+import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
-import 'translation_settings_page.dart';
-
-import '../../../../utils/proxy/proxy_util.dart';
-import 'app_settings_page.dart';
-import 'player_settings_page.dart';
-import 'forum_settings_page.dart';
-import 'proxy_settings_page.dart';
-import 'theme_settings_page.dart';
-import 'download_settings_page.dart';
-import 'display_settings_page.dart';
-import 'gallery_settings_page.dart';
-import 'block_settings_page.dart';
-import 'keybinding_settings_page.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'about_page.dart';
-import 'diagnostics_page.dart';
 
-class SettingsPage extends StatefulWidget {
-  const SettingsPage({this.initialPage = -1, super.key});
+/// 设置树的两栏骨架，作为 `/settings/**` 那层 `ShellRoute` 的 builder。
+///
+/// - 宽屏：左栏是常驻的分区列表（**不是路由**，所以切分区时它不参与转场），
+///   右栏是 [child]——即设置自己那个嵌套 Navigator。
+/// - 窄屏：直接就是 [child]，一级列表由 `/settings` 这条路由自己渲染。
+///
+/// 左栏高亮完全从 [location] 推导，没有第二份 `currentPage` 状态。
+class SettingsShell extends StatefulWidget {
+  const SettingsShell({super.key, required this.child, required this.location});
 
-  final int initialPage;
-
-  // 静态引用，用于子页面导航
-  static _SettingsPageState? _currentInstance;
+  final Widget child;
+  final String location;
 
   @override
-  State<SettingsPage> createState() => _SettingsPageState();
-
-  // 静态方法：在宽屏模式下导航到深层页面
-  static void navigateToNestedPage(Widget page) {
-    final instance = _currentInstance;
-    if (instance != null) {
-      if (instance.enableTwoViews) {
-        // 宽屏模式：使用内部导航
-        instance._nestedNavigatorKey.currentState?.push(
-          MaterialPageRoute(builder: (context) => page),
-        );
-      } else {
-        // 窄屏模式：使用页面栈
-        instance._addToPageStack(page);
-      }
-    }
-  }
-
-  // 新增静态方法，用于外部检查是否可以内部pop
-  static bool canPopInternally() {
-    final instance = _currentInstance;
-    if (instance == null) {
-      return false;
-    }
-    return (instance.enableTwoViews &&
-            (instance._nestedNavigatorKey.currentState?.canPop() ?? false)) ||
-        (!instance.enableTwoViews && instance._pageStack.isNotEmpty) ||
-        instance.currentPage != -1;
-  }
-
-  // 新增静态方法，用于外部触发内部pop
-  static void popInternally() {
-    _currentInstance?._handlePop();
-  }
+  State<SettingsShell> createState() => _SettingsShellState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
-  Worker? _selectedIndexWorker;
-  int currentPage = -1; // 当前选中的设置页面索引
-  double offset = 0; // 用于手势拖拽
-  HorizontalDragGestureRecognizer? gestureRecognizer;
-
-  // 本实例是否由深链直接打开某个子设置页（如抽屉里的"内容屏蔽"入口），
-  // 而不是先看到主列表再点进去的。这类入口从未展示过主列表，"返回"应当
-  // 直接离开整个 /settings_page 路由，见 [_handlePop]。
-  late final bool _isDeepLinkEntry;
-
-  // 深层页面导航
-  final GlobalKey<NavigatorState> _nestedNavigatorKey =
-      GlobalKey<NavigatorState>();
-  final List<Widget> _pageStack = []; // 页面栈
-
-  // 响应式布局判断
-  bool get enableTwoViews => MediaQuery.of(context).size.width > 720;
+class _SettingsShellState extends State<SettingsShell> {
+  /// 宽屏「自动选中第一个分区」的幂等闸门。
+  /// 离开 `/settings` 根就重新上膛，所以窄屏拖宽时能补触发一次。
+  bool _autoSelectScheduled = false;
 
   @override
-  void initState() {
-    super.initState();
-    currentPage = widget.initialPage;
-    _isDeepLinkEntry = widget.initialPage != -1;
-
-    // 设置静态引用
-    SettingsPage._currentInstance = this;
-
-    // 如果初始页面不是主设置列表，确保页面栈是干净的
-    if (widget.initialPage != -1) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _clearAllNestedPages();
-      });
-    }
-
-    // 初始化手势识别器
-    gestureRecognizer = HorizontalDragGestureRecognizer(debugOwner: this)
-      ..onUpdate = ((details) {
-        if (currentPage != -1 && !enableTwoViews) {
-          setState(() {
-            offset = (offset + details.delta.dx).clamp(
-              0.0,
-              MediaQuery.of(context).size.width,
-            );
-          });
-        }
-      })
-      ..onEnd = (details) async {
-        if (currentPage != -1 && !enableTwoViews) {
-          final screenWidth = MediaQuery.of(context).size.width;
-          final velocity = details.velocity.pixelsPerSecond.dx;
-
-          // 判断是否应该返回
-          bool shouldPop = false;
-          if (velocity > 300) {
-            // 快速向右滑动
-            shouldPop = true;
-          } else if (offset > screenWidth * 0.4) {
-            // 滑动距离超过40%
-            shouldPop = true;
-          }
-
-          if (shouldPop) {
-            _handlePop();
-          } else {
-            // 回弹到原位置
-            setState(() {
-              offset = 0;
-            });
-          }
-        }
-      };
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // MediaQuery 尺寸变化（桌面拖窗 / 旋转 / 分屏）也会走到这里。
+    _maybeAutoSelectFirstSection();
   }
 
   @override
-  void dispose() {
-    _selectedIndexWorker?.dispose();
-    gestureRecognizer?.dispose();
-
-    // 清理静态引用
-    if (SettingsPage._currentInstance == this) {
-      SettingsPage._currentInstance = null;
+  void didUpdateWidget(covariant SettingsShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.location != widget.location) {
+      _maybeAutoSelectFirstSection();
     }
-
-    super.dispose();
   }
 
-  // 添加页面到栈中
-  void _addToPageStack(Widget page) {
-    setState(() {
-      _pageStack.add(page);
+  /// 宽屏停在 `/settings` 时右栏会是空白，这里把它顶替成第一个可用分区。
+  ///
+  /// 用 `replace` 而非 `pushReplacement`：`replace` 复用 pageKey、不跑转场，
+  /// 而此刻整个设置壳本来就在做入场动画，右栏再叠一段推入会显得杂乱。
+  /// 顺带的好处是栈里不留 `/settings` 那一页——于是宽屏下从分区返回就直接
+  /// 离开设置，不会先落到一个空白右栏。
+  void _maybeAutoSelectFirstSection() {
+    if (widget.location != kSettingsRootPath) {
+      _autoSelectScheduled = false;
+      return;
+    }
+    if (_autoSelectScheduled) return;
+    if (!SettingsNavigation.isTwoPane(context)) return;
+
+    _autoSelectScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (SettingsNavigation.currentLocation != kSettingsRootPath) return;
+      if (!SettingsNavigation.isTwoPane(context)) return;
+      appRouter.replace(SettingsSection.firstAvailable.path);
     });
-  }
-
-  // 清理所有子页面和导航状态
-  void _clearAllNestedPages() {
-    setState(() {
-      // 清空页面栈
-      _pageStack.clear();
-      // 重置偏移量
-      offset = 0;
-    });
-
-    // 如果是宽屏模式，清除嵌套导航器的所有路由
-    if (enableTwoViews) {
-      _nestedNavigatorKey.currentState?.popUntil((route) => route.isFirst);
-    }
-  }
-
-  void _handlePop() {
-    // 宽屏模式下，先检查嵌套的Navigator是否可以pop
-    if (enableTwoViews &&
-        (_nestedNavigatorKey.currentState?.canPop() ?? false)) {
-      _nestedNavigatorKey.currentState!.pop();
-      return;
-    }
-    // 窄屏模式下，检查页面栈
-    if (!enableTwoViews && _pageStack.isNotEmpty) {
-      setState(() {
-        _pageStack.removeLast();
-      });
-      return;
-    }
-    // 如果没有嵌套路由或者页面栈，则返回主设置列表——
-    // 但深链直接打开的子页从未展示过主列表，此时应直接离开整个路由。
-    if (currentPage != -1) {
-      if (_isDeepLinkEntry) {
-        // 直接 pop 本路由，不走 AppService.tryPop -> PopCoordinator.handleBack：
-        // 那条路会先查 SettingsPage.canPopInternally()，而 currentPage 仍
-        // 是深链进来时的值（!= -1），会被判定为"还能内部返回"又绕回这个
-        // 分支，死循环卡死这次返回。Navigator.pop 不经过 PopScope.canPop
-        // 判定，直接、一次性离开这个路由即可。
-        Navigator.of(context).pop();
-        return;
-      }
-      setState(() {
-        currentPage = -1;
-      });
-      _clearAllNestedPages();
-      return;
-    }
-    // 如果已经在主设置列表，则pop整个SettingsPage
-    if (Navigator.canPop(context)) {
-      AppService.tryPop(context: context);
-    } else {
-      AppService.tryPop(context: context);
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool canPop =
-        !((enableTwoViews &&
-                (_nestedNavigatorKey.currentState?.canPop() ?? false)) ||
-            (!enableTwoViews && _pageStack.isNotEmpty) ||
-            currentPage != -1);
+    if (!SettingsNavigation.isTwoPane(context)) {
+      return widget.child;
+    }
 
-    return PopScope(
-      canPop: canPop,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) {
-          return;
-        }
-        _handlePop();
-      },
-      child: Material(child: _buildBody()),
-    );
-  }
-
-  Widget _buildBody() {
-    if (enableTwoViews) {
-      // 桌面端：双栏布局
-      return Row(
+    final t = slang.Translations.of(context);
+    return Material(
+      child: Row(
         children: [
           SizedBox(
             width: 280,
             height: double.infinity,
-            child: _buildLeft(), // 左侧导航
+            child: GlassSettingsScaffold(
+              title: t.settings.settings,
+              // 左栏的返回 = 离开整个设置；右栏的返回由各页自己按栈深推导。
+              onBack: SettingsNavigation.exitSettings,
+              slivers: [
+                SettingsSectionSliver(location: widget.location),
+              ],
+            ),
           ),
           Container(
             height: double.infinity,
@@ -256,205 +99,62 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
           ),
-          Expanded(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              transitionBuilder: (child, animation) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    return AnimatedBuilder(
-                      animation: animation,
-                      builder: (context, _) {
-                        var width = constraints.maxWidth;
-                        var value = animation.isForwardOrCompleted
-                            ? 1 - animation.value
-                            : 1;
-                        var left = width * value;
-                        return Stack(
-                          children: [
-                            Positioned(
-                              top: 0,
-                              bottom: 0,
-                              left: left,
-                              width: width,
-                              child: child,
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                );
-              },
-              child: _buildRight(), // 右侧内容
-            ),
-          ),
+          Expanded(child: widget.child),
         ],
-      );
-    } else {
-      // 移动端：单页布局
-      return Listener(
-        onPointerDown: handlePointerDown,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return Stack(
-              children: [
-                // 底层：导航列表
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  left: currentPage == -1 && _pageStack.isEmpty
-                      ? 0
-                      : -constraints.maxWidth * 0.3,
-                  width: constraints.maxWidth,
-                  top: 0,
-                  bottom: 0,
-                  child: _buildLeft(),
-                ),
-                // 顶层：设置子页面
-                if (currentPage != -1 && _pageStack.isEmpty)
-                  AnimatedPositioned(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                    left: offset,
-                    width: constraints.maxWidth,
-                    top: 0,
-                    bottom: 0,
-                    child: Material(elevation: 8, child: _buildRight()),
-                  ),
-                // 页面栈中的页面
-                ..._pageStack.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final page = entry.value;
-                  return AnimatedPositioned(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                    left: index == _pageStack.length - 1 ? offset : 0,
-                    width: constraints.maxWidth,
-                    top: 0,
-                    bottom: 0,
-                    child: Material(
-                      elevation: 8 + index.toDouble(),
-                      child: page,
-                    ),
-                  );
-                }),
-              ],
-            );
-          },
-        ),
-      );
-    }
-  }
-
-  Widget _buildLeft() {
-    final t = slang.Translations.of(context);
-
-    return Material(
-      // 与全部子页共用同一套玻璃骨架；返回走 [_handlePop]（宽屏先弹嵌套子页、
-      // 窄屏先回主列表，与原来 AppBar 返回键经 PopScope 的行为一致）
-      child: GlassSettingsScaffold(
-        title: t.settings.settings,
-        onBack: _handlePop,
-        slivers: [_buildCategoriesSliver()],
       ),
     );
   }
+}
 
-  Widget _buildCategoriesSliver() {
+/// `/settings` 这条路由的页面。
+///
+/// 窄屏是整页的一级列表；宽屏下列表已经常驻在左栏，这里只做一个瞬时占位
+/// ——[_SettingsShellState._maybeAutoSelectFirstSection] 会立刻把它顶替掉。
+class SettingsListPage extends StatelessWidget {
+  const SettingsListPage({super.key, required this.location});
+
+  final String location;
+
+  @override
+  Widget build(BuildContext context) {
+    if (SettingsNavigation.isTwoPane(context)) {
+      return const SizedBox.shrink();
+    }
+
     final t = slang.Translations.of(context);
+    return GlassSettingsScaffold(
+      title: t.settings.settings,
+      slivers: [SettingsSectionSliver(location: location)],
+    );
+  }
+}
 
-    // 定义分组设置项
-    final settingGroups = [
-      _SettingGroup(
-        title: t.settings.basicSettings,
-        items: [
-          if (ProxyUtil.isSupportedPlatform())
-            _SettingItem(
-              title: t.settings.networkSettings,
-              icon: Icons.wifi,
-              index: 0,
-            ),
-          _SettingItem(
-            title: t.translation.translation,
-            icon: Icons.translate,
-            index: ProxyUtil.isSupportedPlatform() ? 1 : 0,
+/// 一级分区列表（宽屏左栏与窄屏整页共用）。
+class SettingsSectionSliver extends StatelessWidget {
+  const SettingsSectionSliver({super.key, required this.location});
+
+  final String location;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final selected = SettingsSection.fromLocation(location);
+    final groups = settingsSectionGroups
+        .map(
+          (group) => (
+            title: group.title(t),
+            sections: group.sections.where((s) => s.isAvailable).toList(),
           ),
-          _SettingItem(
-            title: t.settings.keybinding.title,
-            icon: Icons.keyboard,
-            index: ProxyUtil.isSupportedPlatform() ? 2 : 1,
-          ),
-          _SettingItem(
-            title: t.settings.appSettings,
-            icon: Icons.settings,
-            index: ProxyUtil.isSupportedPlatform() ? 3 : 2,
-          ),
-          _SettingItem(
-            title: t.settings.downloadSettings.downloadSettingsTitle,
-            icon: Icons.download,
-            index: ProxyUtil.isSupportedPlatform() ? 5 : 4,
-          ),
-        ],
-      ),
-      _SettingGroup(
-        title: t.settings.personalizedSettings,
-        items: [
-          _SettingItem(
-            title: t.settings.chatSettings.name,
-            icon: Icons.forum,
-            index: ProxyUtil.isSupportedPlatform() ? 4 : 3,
-          ),
-          _SettingItem(
-            title: t.settings.playerSettings,
-            icon: Icons.play_circle_outline,
-            index: ProxyUtil.isSupportedPlatform() ? 6 : 5,
-          ),
-          _SettingItem(
-            title: t.settings.themeSettings,
-            icon: Icons.color_lens,
-            index: ProxyUtil.isSupportedPlatform() ? 7 : 6,
-          ),
-          _SettingItem(
-            title: t.displaySettings.layoutSettings,
-            icon: Icons.display_settings,
-            index: ProxyUtil.isSupportedPlatform() ? 8 : 7,
-          ),
-          _SettingItem(
-            title: t.settings.gallerySettings.gallerySettingsTitle,
-            icon: Icons.photo_library_outlined,
-            index: ProxyUtil.isSupportedPlatform() ? 9 : 8,
-          ),
-          _SettingItem(
-            title: t.settings.blockSettings.title,
-            icon: Icons.block,
-            index: ProxyUtil.isSupportedPlatform() ? 12 : 11,
-          ),
-        ],
-      ),
-      _SettingGroup(
-        title: t.settings.otherSettings,
-        items: [
-          _SettingItem(
-            title: t.settings.about,
-            icon: Icons.info_outline,
-            index: ProxyUtil.isSupportedPlatform() ? 10 : 9,
-          ),
-          _SettingItem(
-            title: t.settings.diagnosticsAndFeedback,
-            icon: Icons.bug_report_outlined,
-            index: ProxyUtil.isSupportedPlatform() ? 11 : 10,
-          ),
-        ],
-      ),
-    ];
+        )
+        .where((group) => group.sections.isNotEmpty)
+        .toList();
 
     final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
     return SliverPadding(
       padding: EdgeInsets.only(top: 8, bottom: 8 + bottomInset),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate((context, groupIndex) {
-          final group = settingGroups[groupIndex];
+          final group = groups[groupIndex];
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: Card(
@@ -479,66 +179,16 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                   ),
-                  ...List.generate(group.items.length, (itemIndex) {
-                    final item = group.items[itemIndex];
-                    final isSelected = currentPage == item.index;
-
+                  ...List.generate(group.sections.length, (itemIndex) {
+                    final section = group.sections[itemIndex];
                     return Column(
                       children: [
-                        Material(
-                          color: isSelected
-                              ? Theme.of(context).colorScheme.secondaryContainer
-                                    .withValues(alpha: 0.3)
-                              : Colors.transparent,
-                          child: InkWell(
-                            onTap: () {
-                              // 切换设置页时，清除所有子页面
-                              setState(() {
-                                currentPage = item.index;
-                              });
-                              _clearAllNestedPages();
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    item.icon,
-                                    size: 20,
-                                    color: isSelected
-                                        ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                      item.title,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(
-                                            fontWeight: isSelected
-                                                ? FontWeight.w500
-                                                : FontWeight.normal,
-                                            color: isSelected
-                                                ? Theme.of(
-                                                    context,
-                                                  ).colorScheme.primary
-                                                : null,
-                                          ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                        _SectionTile(
+                          section: section,
+                          title: section.title(t),
+                          isSelected: selected == section,
                         ),
-                        if (itemIndex != group.items.length - 1)
+                        if (itemIndex != group.sections.length - 1)
                           Padding(
                             padding: const EdgeInsets.only(left: 48),
                             child: Divider(
@@ -555,120 +205,59 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
           );
-        }, childCount: settingGroups.length),
+        }, childCount: groups.length),
       ),
     );
   }
-
-  Widget _buildRight() {
-    if (currentPage == -1 && _pageStack.isEmpty) {
-      return const SizedBox(); // 空页面
-    }
-
-    // 如果是宽屏模式，使用Navigator来管理深层页面
-    if (enableTwoViews) {
-      return Navigator(
-        key: _nestedNavigatorKey,
-        onGenerateRoute: (settings) {
-          return MaterialPageRoute(
-            builder: (context) {
-              return _getSettingsPage();
-            },
-          );
-        },
-      );
-    } else {
-      // 窄屏模式
-      if (_pageStack.isNotEmpty) {
-        return _pageStack.last;
-      }
-      return _getSettingsPage();
-    }
-  }
-
-  Widget _getSettingsPage() {
-    // 根据索引返回对应的设置页面
-    int adjustedIndex = currentPage;
-    if (!ProxyUtil.isSupportedPlatform()) {
-      // 如果不支持代理，需要调整索引
-      if (adjustedIndex >= 0) {
-        adjustedIndex += 1;
-      }
-    }
-
-    switch (adjustedIndex) {
-      case 0: // 网络设置
-        return ProxySettingsPage(isWideScreen: enableTwoViews);
-      case 1: // 翻译设置
-        return TranslationSettingsPage(isWideScreen: enableTwoViews);
-      case 2: // 键盘快捷键设置
-        return KeybindingSettingsPage(isWideScreen: enableTwoViews);
-      case 3: // 应用设置
-        return AppSettingsPage(isWideScreen: enableTwoViews);
-      case 4: // 聊天设置
-        return ForumSettingsPage(useSettingsNavi: true);
-      case 5: // 下载设置
-        return DownloadSettingsPage(isWideScreen: enableTwoViews);
-      case 6: // 播放器设置
-        return PlayerSettingsPage(isWideScreen: enableTwoViews);
-      case 7: // 主题设置
-        return ThemeSettingsPage(isWideScreen: enableTwoViews);
-      case 8: // 显示设置
-        return DisplaySettingsPage(useSettingsNavi: true);
-      case 9: // 图库设置
-        return GallerySettingsPage(isWideScreen: enableTwoViews);
-      case 12: // 内容屏蔽
-        return BlockSettingsPage(isWideScreen: enableTwoViews);
-      case 10: // 关于
-        return AboutPage(isWideScreen: enableTwoViews);
-      case 11: // 诊断与反馈
-        return DiagnosticsPage(isWideScreen: enableTwoViews);
-      default:
-        return const SizedBox();
-    }
-  }
-
-  // 手势处理方法
-  void handlePointerDown(PointerDownEvent event) {
-    if (!enableTwoViews && (currentPage != -1 || _pageStack.isNotEmpty)) {
-      // 只在窄屏且有子页面时才处理手势
-      if (event.position.dx < 20) {
-        gestureRecognizer?.addPointer(event);
-      }
-    }
-  }
 }
 
-// 设置项数据模型
-class SettingItem {
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final Widget page;
-  final String route;
-
-  SettingItem({
+class _SectionTile extends StatelessWidget {
+  const _SectionTile({
+    required this.section,
     required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.page,
-    required this.route,
+    required this.isSelected,
   });
-}
 
-// 分组设置项数据模型
-class _SettingGroup {
+  final SettingsSection section;
   final String title;
-  final List<_SettingItem> items;
+  final bool isSelected;
 
-  _SettingGroup({required this.title, required this.items});
-}
-
-// 简化的设置项模型（用于左侧导航）
-class _SettingItem {
-  final String title;
-  final IconData icon;
-  final int index;
-
-  _SettingItem({required this.title, required this.icon, required this.index});
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Material(
+      color: isSelected
+          ? colorScheme.secondaryContainer.withValues(alpha: 0.3)
+          : Colors.transparent,
+      child: InkWell(
+        onTap: () => SettingsNavigation.openSection(context, section),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Icon(
+                section.icon,
+                size: 20,
+                color: isSelected
+                    ? colorScheme.primary
+                    : colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: isSelected
+                        ? FontWeight.w500
+                        : FontWeight.normal,
+                    color: isSelected ? colorScheme.primary : null,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

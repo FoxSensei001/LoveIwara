@@ -4,16 +4,11 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/signature_edit_sheet_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
-import 'package:i_iwara/app/ui/pages/emoji_library/emoji_library_page.dart';
-import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 
 class ForumSettingsPage extends StatelessWidget {
-  final bool isWideScreen = false;
-  final bool useSettingsNavi;
-
-  const ForumSettingsPage({super.key, this.useSettingsNavi = false});
+  const ForumSettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +18,6 @@ class ForumSettingsPage extends StatelessWidget {
 
     return GlassSettingsScaffold(
       title: t.settings.chatSettings.name,
-      isWideScreen: isWideScreen,
       slivers: [
         SliverPadding(
           padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
@@ -159,13 +153,9 @@ class ForumSettingsPage extends StatelessWidget {
                       subtitle: Text(t.emoji.manageEmojiGroupsAndImages),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                       onTap: () {
-                        if (useSettingsNavi) {
-                          // 宽屏模式：使用设置页面的内部导航
-                          SettingsPage.navigateToNestedPage(EmojiLibraryPage());
-                        } else {
-                          // 窄屏模式：使用全局导航
-                          NaviService.navigateToEmojiLibraryPage();
-                        }
+                        // 表情库是共享资源页（聊天输入框也能进），不属于设置树，
+                        // 宽屏下也整页盖住设置，而不是塞进右栏。
+                        NaviService.navigateToEmojiLibraryPage();
                       },
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.only(

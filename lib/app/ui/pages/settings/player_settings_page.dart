@@ -20,7 +20,6 @@ class PlayerSettingsPage extends StatelessWidget {
     // 「外层 margin 区与内层列表各自滚动」的双层滚动冲突。
     return GlassSettingsScaffold(
       title: t.settings.playerSettings,
-      isWideScreen: isWideScreen,
       actions: [
         GlassIconButton(
           standalone: true,

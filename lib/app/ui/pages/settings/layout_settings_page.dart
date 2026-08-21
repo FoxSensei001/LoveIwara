@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/ui/pages/settings/navigation_order_settings_page.dart';
-import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/pages/settings/settings_navigation.dart';
+import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';
 
 class LayoutSettingsPage extends StatefulWidget {
   final bool isWideScreen;
@@ -46,7 +46,6 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
     final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
     return GlassSettingsScaffold(
       title: slang.t.layoutSettings.title,
-      isWideScreen: widget.isWideScreen,
       slivers: [
         SliverPadding(
           padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
@@ -209,14 +208,7 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
   }
 
   void _openNavigationOrderSettings() {
-    if (widget.isWideScreen && SettingsPage.canPopInternally()) {
-      SettingsPage.navigateToNestedPage(
-        NavigationOrderSettingsPage(isWideScreen: widget.isWideScreen),
-      );
-      return;
-    }
-
-    NaviService.navigateToNavigationOrderSettingsPage();
+    SettingsNavigation.openSubPage(SettingsSubRoutes.displayNavigationOrder);
   }
 
   Widget _buildNavigationOrderCard() {

@@ -14,11 +14,11 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/storage_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
-import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
-import 'package:i_iwara/app/ui/pages/settings/log_viewer_page.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/ui/pages/settings/settings_navigation.dart';
+import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';
 
 class DiagnosticsPage extends StatefulWidget {
   final bool isWideScreen;
@@ -205,7 +205,6 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
 
     return GlassSettingsScaffold(
       title: t.settings.diagnosticsAndFeedback,
-      isWideScreen: widget.isWideScreen,
       slivers: [
         SliverPadding(
           padding: EdgeInsets.only(
@@ -952,12 +951,7 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
   }
 
   void _openLogViewer() {
-    final page = LogViewerPage(isWideScreen: widget.isWideScreen);
-    if (widget.isWideScreen) {
-      SettingsPage.navigateToNestedPage(page);
-    } else {
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
-    }
+    SettingsNavigation.openSubPage(SettingsSubRoutes.diagnosticsLogs);
   }
 
   Future<void> _reportBug() async {

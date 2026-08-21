@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Translations;
-import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
-import 'package:i_iwara/app/ui/pages/settings/layout_settings_page.dart';
-import 'package:i_iwara/app/ui/pages/settings/navigation_order_settings_page.dart';
-import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
+import 'package:i_iwara/app/ui/pages/settings/settings_navigation.dart';
+import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/common/constants.dart';
 
 class DisplaySettingsPage extends StatelessWidget {
-  final bool isWideScreen = false;
-  final bool useSettingsNavi;
-
-  const DisplaySettingsPage({super.key, this.useSettingsNavi = false});
+  const DisplaySettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +18,6 @@ class DisplaySettingsPage extends StatelessWidget {
 
     return GlassSettingsScaffold(
       title: slang.t.displaySettings.title,
-      isWideScreen: isWideScreen,
       slivers: [
         SliverPadding(
           padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
@@ -358,15 +352,7 @@ class DisplaySettingsPage extends StatelessWidget {
             subtitle: Text(slang.t.displaySettings.layoutSettingsDesc),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
-              if (useSettingsNavi) {
-                // 宽屏模式：使用设置页面的内部导航
-                SettingsPage.navigateToNestedPage(
-                  LayoutSettingsPage(isWideScreen: isWideScreen),
-                );
-              } else {
-                // 窄屏模式：使用全局导航
-                NaviService.navigateToLayoutSettingsPage();
-              }
+              SettingsNavigation.openSubPage(SettingsSubRoutes.displayLayout);
             },
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.only(
@@ -404,15 +390,7 @@ class DisplaySettingsPage extends StatelessWidget {
             subtitle: Text(slang.t.displaySettings.customNavigationOrderDesc),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
-              if (useSettingsNavi) {
-                // 宽屏模式：使用设置页面的内部导航
-                SettingsPage.navigateToNestedPage(
-                  NavigationOrderSettingsPage(isWideScreen: isWideScreen),
-                );
-              } else {
-                // 窄屏模式：使用全局导航
-                NaviService.navigateToNavigationOrderSettingsPage();
-              }
+              SettingsNavigation.openSubPage(SettingsSubRoutes.displayNavigationOrder);
             },
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.only(

@@ -183,7 +183,6 @@ class _DeepLXTranslationSettingsWidgetState
       key: _formKey,
       child: GlassSettingsScaffold(
         title: slang.t.translation.deeplxTranslation,
-        isWideScreen: widget.isWideScreen,
         slivers: [
           SliverPadding(
             padding: const EdgeInsets.all(16),

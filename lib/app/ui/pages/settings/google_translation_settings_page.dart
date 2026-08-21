@@ -18,7 +18,6 @@ class GoogleTranslationSettingsPage extends StatelessWidget {
 
     return GlassSettingsScaffold(
       title: slang.t.translation.googleTranslation,
-      isWideScreen: isWideScreen,
       slivers: [
         SliverPadding(
           padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
