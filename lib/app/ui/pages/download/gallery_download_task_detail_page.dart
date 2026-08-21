@@ -42,7 +42,26 @@ class _GalleryDownloadTaskDetailPageState
     }
   }
 
-  DownloadTask? get task => DownloadService.to.tasks[widget.taskId];
+  /// 当前任务。
+  ///
+  /// 先读内存真源（覆盖下载中 / 等待 / 暂停 / 失败四种活跃状态），再回落到
+  /// 服务的下载中映射。此前只读后者——它只装「下载中」的任务，于是这个页面在任务
+  /// 一被暂停就当它不存在：状态区整块消失、图片网格退回静态数据。
+  DownloadTask? get task =>
+      DownloadService.to.store.taskOf(widget.taskId) ??
+      DownloadService.to.tasks[widget.taskId];
+
+  /// 在 Obx 中订阅这条任务的变化，并返回它的最新快照。
+  ///
+  /// 已完成的任务不在内存真源里（没有句柄），此时靠 completedRevision 兜底订阅，
+  /// 保证 Obx 至少有一个可观察依赖，且任务完成的那一刻这里会重建。
+  DownloadTask? _observeTask() {
+    final store = DownloadService.to.store;
+    store.completedRevision.value;
+    final handle = store.handleOf(widget.taskId);
+    handle?.revision.value;
+    return handle?.task ?? DownloadService.to.tasks[widget.taskId];
+  }
 
   Future<GalleryDownloadExtData?> getGalleryData() async {
     if (task == null) {
@@ -226,10 +245,9 @@ class _GalleryDownloadTaskDetailPageState
             const SizedBox(height: 16),
             // 下载状态
             Obx(() {
-              // 优先从活跃任务获取，如果不存在则从数据库获取
-              final currentTask = DownloadService.to.tasks[widget.taskId];
+              // 活跃任务（含暂停 / 失败）取内存真源，已完成任务没有动态状态可显示
+              final currentTask = _observeTask();
               if (currentTask == null) {
-                // 如果不是活跃任务，则不显示进度条等动态UI
                 return const SizedBox.shrink();
               }
 
@@ -267,9 +285,8 @@ class _GalleryDownloadTaskDetailPageState
             ),
             const SizedBox(height: 8),
             Obx(() {
-              // 优先从活跃任务获取，如果不存在则使用已加载的数据
-              DownloadTask? currentTask =
-                  DownloadService.to.tasks[widget.taskId];
+              // 优先从内存真源获取，如果不存在则使用已加载的数据
+              DownloadTask? currentTask = _observeTask();
 
               return LayoutBuilder(
                 builder: (context, constraints) {

@@ -474,7 +474,11 @@ class DownloadTaskRepository {
     }
   }
 
-  /// 分页获取历史任务（paused/completed，不含failed），按完成/更新时间降序排列
+  /// 分页获取历史任务（仅 completed），按完成/更新时间降序排列。
+  ///
+  /// 曾经这里还包含 paused：暂停的任务会从上方活跃区「掉进」下方的分页历史区，
+  /// 于是同一条任务在两个区之间来回搬家，需要一整套跨区去重才不重复显示。现在
+  /// 暂停属于活跃区（内存真源），历史区只装已完成任务，两者天然无交集。
   Future<List<DownloadTask>> getHistoryTasks({
     required int offset,
     required int limit,
@@ -483,7 +487,7 @@ class DownloadTaskRepository {
       final results = _db.select(
         '''
         SELECT * FROM download_tasks
-        WHERE status IN ('paused', 'completed')
+        WHERE status = 'completed'
         ORDER BY $_normalizedHistorySortExpression DESC, created_at DESC
         LIMIT ? OFFSET ?
       ''',
@@ -513,7 +517,7 @@ class DownloadTaskRepository {
 
   /// Search and filter tasks with pagination
   /// [searchQuery] - Search in fileName (case-insensitive)
-  /// [statusFilter] - Filter by status: 'all', 'history' (paused/completed),
+  /// [statusFilter] - Filter by status: 'all', 'history' (completed),
   /// 'failed', 'downloaded' (completed)
   /// [typeFilter] - Filter by type: 'all', 'video', 'gallery', 'other'
   Future<List<DownloadTask>> searchTasks({
@@ -542,8 +546,9 @@ class DownloadTaskRepository {
         case 'downloaded':
           whereClauses.add("status = 'completed'");
           break;
+        // 'history' = 已完成。暂停任务归活跃区管（见 getHistoryTasks 的注释）。
         case 'history':
-          whereClauses.add("status IN ('paused', 'completed')");
+          whereClauses.add("status = 'completed'");
           break;
         case 'all':
         default:
@@ -639,8 +644,9 @@ class DownloadTaskRepository {
         case 'downloaded':
           whereClauses.add("status = 'completed'");
           break;
+        // 'history' = 已完成。暂停任务归活跃区管（见 getHistoryTasks 的注释）。
         case 'history':
-          whereClauses.add("status IN ('paused', 'completed')");
+          whereClauses.add("status = 'completed'");
           break;
         case 'all':
         default:

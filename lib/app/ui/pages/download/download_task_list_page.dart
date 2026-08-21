@@ -9,6 +9,7 @@ import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/app/services/download/download_state_log.dart';
+import 'package:i_iwara/app/services/download/download_task_store.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
@@ -89,30 +90,21 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   Timer? _searchDebounce;
   static const Duration _searchDebounceDelay = Duration(milliseconds: 300);
 
-  // 等待中任务列表
-  List<DownloadTask> _pendingTasks = [];
-  bool _isLoadingPendingTasks = false;
-  int _lastPendingVersion = -1;
+  /// 活跃任务（下载中 / 等待 / 暂停 / 失败）的内存单一真源。
+  ///
+  /// 这四个区不再各自查库、也不再有页面级快照：分区由 Store 按状态唯一决定，
+  /// 页面只负责「订阅 + 筛选 + 渲染」。此前为了兜住「各区独立重查」带来的不一致，
+  /// 这里曾经并存四套补丁（脏标记重跑、刷新串行化、删除墓碑、跨区去重集合），
+  /// 随着真源合一它们全部失去存在意义，已一并删除。
+  DownloadTaskStore get _store => DownloadService.to.store;
 
-  // 失败任务列表
-  List<DownloadTask> _failedTasks = [];
-  bool _isLoadingFailedTasks = false;
-  int _lastFailedVersion = -1;
-
-  // 加载期间若有更新的状态版本到来，则置脏并在本轮加载结束后重跑，
-  // 避免“加载中丢弃后续更新”导致快照永远停留在旧状态的竞态。
-  bool _pendingReloadDirty = false;
-  bool _failedReloadDirty = false;
-
-  // 历史区域刷新串行化：LoadingMoreBase 不支持并发 refresh，
-  // 并发会相互 clear/addAll 造成列表被清空或漏掉“刚完成”的任务。
+  // 历史区域（已完成任务，DB 分页）刷新串行化：LoadingMoreBase 不支持并发
+  // refresh，并发会相互 clear/addAll 造成列表被清空或漏掉“刚完成”的任务。
   bool _isRefreshingHistory = false;
   bool _historyRefreshDirty = false;
-  int _lastHistoryVersion = -1;
 
-  // 用于监听任务状态变更
-  int _lastStatusVersion = -1;
-  Worker? _statusChangedWorker;
+  /// 历史区失效信号的订阅（任务完成 / 删除 / 改分类时由 Store 递增）。
+  Worker? _completedRevisionWorker;
 
   // 批量删除模式
   bool _isSelectionMode = false;
@@ -130,20 +122,6 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   List<DownloadCategory> _categories = [];
   int _uncategorizedCount = 0;
   Worker? _categoriesChangedWorker;
-  Worker? _removedTaskIdsWorker;
-
-  // 历史区去重 / 删除残留防护：
-  // - _deletedTombstones：本次会话中已成功删除、但异步历史刷新可能尚未从
-  //   _historySource 中剔除的任务 id。删除“下载中”任务时，取消清理会把它瞬时
-  //   写回 paused 并触发历史刷新，可能与删除的就地移除发生竞态而被重新读入；
-  //   构建时据墓碑隐藏，保证删除后立刻消失、无需重进页面。刷新确认 DB 已无该
-  //   行后清除（见 _refreshHistory）。
-  // - _historyHiddenIds：每次构建时重算 = 活跃区(下载中/等待/失败)的全部 id ∪
-  //   _deletedTombstones。历史区是独立的 LoadingMoreSliverList，原本不参与
-  //   顶部区域的 seenIds 去重；命中该集合的历史行直接跳过渲染，杜绝同一任务在
-  //   “下载中/暂停”等区域与历史区同时出现（如续传一个旧的暂停任务时的重复显示）。
-  final Set<String> _deletedTombstones = <String>{};
-  Set<String> _historyHiddenIds = <String>{};
 
   void _enterSelectionMode() {
     setState(() {
@@ -196,7 +174,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   /// 取所选任务的标题，供确认弹窗列出「到底要删哪几个」。
   List<String> _selectedTaskTitles() {
     final titles = <String>[];
-    for (final task in [..._pendingTasks, ..._failedTasks, ..._historySource]) {
+    for (final task in [..._store.activeTasks, ..._historySource]) {
       if (!_selectedTaskIds.contains(task.id)) continue;
       final title = task.fileName.trim();
       titles.add(title.isEmpty ? task.id : title);
@@ -293,9 +271,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       );
     }
 
-    // 5. 刷新各分区列表。
-    await _reloadPendingTasks();
-    await _reloadFailedTasks();
+    // 5. 刷新历史区（活跃区已由 Store 在删除时同步移除，无需刷新）。
     await _refreshHistory();
   }
 
@@ -303,29 +279,23 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   void initState() {
     super.initState();
     _historySource = _HistoryDownloadTasksSource(_downloadTaskRepository);
-    _reloadPendingTasks();
-    _reloadFailedTasks();
     _reloadCategories();
 
-    // 监听任务状态变更，将刷新（含 setState / DB 读）等副作用移出 build。
-    _statusChangedWorker = ever(DownloadService.to.taskStatusChangedNotifier, (
-      int currentVersion,
-    ) {
+    // 活跃区不需要任何订阅：它直接读 Store 的可观察 id 列表（见 _buildSingleList
+    // 里的 Obx），一条任务状态变了就只重建它所在的区与它自己那一行。
+    //
+    // 需要订阅的只剩两件事，都是「DB 里的数据可能变了，去重拉」这一类信号：
+    // 1. 历史区（已完成，分页在 DB 里）；
+    // 2. 分类标签条（分类表 + 各分类计数）。
+    _completedRevisionWorker = ever(_store.completedRevision, (int revision) {
       DownloadStateLog.receive(
         this,
         DownloadService.to,
-        'taskStatus',
-        detail: 'v=$currentVersion last=$_lastStatusVersion',
+        'completedRevision',
+        detail: 'v=$revision',
       );
-      if (currentVersion == _lastStatusVersion) return;
-      _lastStatusVersion = currentVersion;
-      // 延后到帧回调后执行，避免在 build/通知阶段触发 setState。
       _runAfterFrame(() {
-        DownloadStateLog.apply(this, 'reloadAll', detail: 'v=$currentVersion');
-        // 刷新顶部区域
-        _refreshPendingTasksIfNeeded();
-        _refreshFailedTasksIfNeeded();
-        // 刷新历史区域（串行 + 版本重跑，避免并发 refresh 漏掉刚完成的任务）
+        DownloadStateLog.apply(this, 'refreshHistory', detail: 'v=$revision');
         _refreshHistory();
         // 任务增删 / 完成会影响各分类计数，顺带刷新分类条。
         _reloadCategories();
@@ -348,25 +318,6 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
         });
       },
     );
-
-    // 删除任务：就地移除对应行，保留滚动位置（不整列重载）。
-    _removedTaskIdsWorker = ever(DownloadService.to.removedTaskIdsNotifier, (
-      List<String> ids,
-    ) {
-      DownloadStateLog.receive(
-        this,
-        DownloadService.to,
-        'removed',
-        detail: '${ids.length} 条',
-      );
-      if (ids.isEmpty) return;
-      _runAfterFrame(() {
-        DownloadStateLog.apply(this, 'removeInPlace', detail: '${ids.length} 条');
-        _removeTasksInPlace(ids);
-        // 删除影响各分类计数，刷新分类条。
-        _reloadCategories();
-      });
-    });
   }
 
   /// 在下一帧结束后执行 [action]（仍挂载时），用于把 setState / DB 读等副作用移出
@@ -389,9 +340,8 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   @override
   void dispose() {
     _searchDebounce?.cancel();
-    _statusChangedWorker?.dispose();
+    _completedRevisionWorker?.dispose();
     _categoriesChangedWorker?.dispose();
-    _removedTaskIdsWorker?.dispose();
     _scrollController.dispose();
     _categoryStripController.dispose();
     _showBackToTop.dispose();
@@ -446,9 +396,13 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
                     displacement: headerExtent,
                     onRefresh: _refreshAll,
                     child: Obx(() {
-                      // 仅订阅任务状态变更以触发重建；实际的刷新副作用在
-                      // initState 注册的 worker 中处理（见 _statusChangedWorker）。
-                      DownloadService.to.taskStatusChangedNotifier.value;
+                      // 只订阅活跃区的**结构**变化（新增 / 删除 / 换区）——读一下四个
+                      // id 列表即可。进度、速度这类每秒多次的更新不走这里，它们由每行
+                      // 自己的 progress trigger 承载，因此长列表不会被进度刷爆。
+                      _store.downloadingIds.length;
+                      _store.pendingIds.length;
+                      _store.pausedIds.length;
+                      _store.failedIds.length;
                       return _buildSingleList(headerExtent + _headerBottomGap);
                     }),
                   ),
@@ -498,14 +452,11 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     );
   }
 
-  /// 下拉刷新：顶部三个分区 + 历史区 + 分类计数一起重拉。
+  /// 下拉刷新：历史区 + 分类计数重拉。
+  ///
+  /// 活跃区不在此列——它读的是内存真源，永远是最新的，没有「刷新」这个概念。
   Future<void> _refreshAll() async {
-    await Future.wait([
-      _reloadPendingTasks(),
-      _reloadFailedTasks(),
-      _refreshHistory(),
-      _reloadCategories(),
-    ]);
+    await Future.wait([_refreshHistory(), _reloadCategories()]);
   }
 
   /// header 中间的胶囊：普通模式是搜索框，多选模式换成「已选 N 条」。
@@ -874,65 +825,6 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     if (moved == true) _exitSelectionMode();
   }
 
-  /// 删除后就地移除对应行，尽量保留滚动位置（避免整列重载导致跳回顶部）。
-  /// - 纯历史区删除：仅通知历史数据源就地刷新，不重建页面，滚动位置不变。
-  /// - 涉及顶部「下载中/失败/等待」区或活跃任务：重建一次页面（这些区域本就在
-  ///   视口上方，删除其元素时位置变化属预期）。
-  void _removeTasksInPlace(List<String> ids) {
-    final idSet = ids.toSet();
-    // 记入墓碑：即使下方就地从 _historySource 移除，异步的历史刷新（尤其删除
-    // “下载中”任务时，取消清理瞬时写回 paused 触发的刷新）仍可能把刚删的行重新
-    // 读回。构建时据墓碑隐藏，保证删除后立刻消失、无需重进页面；刷新确认 DB 已
-    // 无该行后会清除墓碑（见 _refreshHistory）。
-    _deletedTombstones.addAll(idSet);
-
-    final historyBefore = _historySource.length;
-    _historySource.removeWhere((t) => idSet.contains(t.id));
-    final historyChanged = _historySource.length != historyBefore;
-
-    final topBefore = _pendingTasks.length + _failedTasks.length;
-    _pendingTasks.removeWhere((t) => idSet.contains(t.id));
-    _failedTasks.removeWhere((t) => idSet.contains(t.id));
-    final topChanged =
-        (_pendingTasks.length + _failedTasks.length) != topBefore;
-
-    final pureHistoryChange = historyChanged && !topChanged;
-    if (pureHistoryChange) {
-      if (_historySource.isEmpty) {
-        // 历史已空：走一次完整刷新让「空状态」正确显示（此时无内容，跳动无感）。
-        _refreshHistory();
-      } else {
-        _historySource.setState();
-      }
-      return;
-    }
-
-    // 顶部「下载中/失败/等待」区或活跃任务受影响：需 setState 重建页面才能反映。
-    // 重建会改变历史上方的内容高度，使历史滚动位置漂移；这里记录重建前的偏移与
-    // 内容总高度，重建后按高度缩减量补偿，尽量让用户停留在原处。
-    // （纯顶部删除时补偿精确；同时删顶部+历史时为近似，但不会跳回顶部。）
-    if (historyChanged) _historySource.setState();
-    if (!mounted) return;
-    final hasClients = _scrollController.hasClients;
-    final beforeOffset = hasClients ? _scrollController.offset : 0.0;
-    final beforeMax = hasClients
-        ? _scrollController.position.maxScrollExtent
-        : 0.0;
-    setState(() {});
-    if (hasClients) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted || !_scrollController.hasClients) return;
-        final afterMax = _scrollController.position.maxScrollExtent;
-        final shrink = beforeMax - afterMax; // 内容总高度缩减量 ≈ 被删元素总高
-        if (shrink <= 0) return;
-        final target = (beforeOffset - shrink).clamp(0.0, afterMax);
-        if ((target - _scrollController.offset).abs() > 0.5) {
-          _scrollController.jumpTo(target);
-        }
-      });
-    }
-  }
-
   /// 顶部分类标签条：管理入口 / 全部 / 未分类 / 各分类（带计数）。
   ///
   /// 标签本体是玻璃胶囊（选中态换成高亮底色），与 header 上的胶囊同族，
@@ -1087,6 +979,10 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     });
   }
 
+  /// 应用筛选条件。
+  ///
+  /// 活跃区是纯内存过滤（[_visibleTasksOf]），条件一改下一帧就生效；这里只需要把
+  /// 条件同步给历史区的分页数据源并让它重拉。沙漏态因此只覆盖历史区这一次查询。
   void _applyFilters() async {
     final statusFilterStr = switch (_statusFilter) {
       DownloadStatusFilter.all => 'all',
@@ -1112,11 +1008,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       categoryFilter: _categoryFilter,
     );
     // 历史区域通过串行刷新触发（updateFilters 不再自行 refresh，避免并发）
-    _refreshHistory();
-
-    // Also filter the pending and failed tasks
-    await _reloadPendingTasks();
-    await _reloadFailedTasks();
+    await _refreshHistory();
 
     // Hide loading indicator
     if (mounted) {
@@ -1241,84 +1133,29 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   /// [topPadding] 是玻璃 header 需要让出的高度——留白必须由列表自身的
   /// SliverPadding 提供，不能在外面套 Padding，否则内容滚不到 header 背后。
   Widget _buildSingleList(double topPadding) {
-    // 跨分区去重：在状态切换的过渡窗口，同一任务可能同时存在于
-    // _activeTasks（下载中）与 _pendingTasks/_failedTasks 的旧快照里。
-    // 这里按“下载中 > 失败 > 等待中”的优先级保证每个任务最多只出现一次，
-    // 修复“重试后失败任务与处理中任务同时显示”这类重复项问题。
-    final seenIds = <String>{};
-
-    // 历史区隐藏集合（每次构建重算）：活跃区(下载中/等待/失败)的全部 id ∪ 已删除
-    // 墓碑。历史区是独立的 LoadingMoreSliverList，不参与上面的 seenIds 去重，故在
-    // 此集中计算一份隐藏集合，构建历史行时据此跳过，修复两类“同一任务重复/残留”：
-    //  1) 续传一个旧的暂停任务：它会进入 _activeTasks(下载中)，但 _historySource
-    //     里可能仍残留它的暂停副本 → “下载中”与“暂停”两份同时显示；
-    //  2) 删除“下载中”任务：取消清理会瞬时把它写成 paused 并被历史刷新读入，与删除
-    //     的就地移除发生竞态而残留，需重进页面才消失。
-    _historyHiddenIds = <String>{
-      ...DownloadService.to.tasks.keys,
-      for (final t in _pendingTasks) t.id,
-      for (final t in _failedTasks) t.id,
-      ..._deletedTombstones,
-    };
-
-    // 获取正在下载的任务 (apply filters)
-    final downloadingTasks = DownloadService.to.tasks.values
-        .where((task) => task.status == DownloadStatus.downloading)
-        .where(_filterTask)
-        .where((task) => seenIds.add(task.id))
-        .toList();
-
-    // Apply filters to failed and pending tasks (with cross-section dedup)
-    final filteredFailedTasks = _failedTasks
-        .where(_filterTask)
-        .where((task) => seenIds.add(task.id))
-        .toList();
-    final filteredPendingTasks = _pendingTasks
-        .where(_filterTask)
-        .where((task) => seenIds.add(task.id))
-        .toList();
+    // 活跃区四个分区全部来自内存真源。分区由任务状态唯一决定，因此：
+    // - 同一任务不可能同时出现在两个区（旧实现要靠 seenIds 跨区去重）；
+    // - 也不可能与底部历史区重复（历史区只装 completed，见 _HistoryDownloadTasksSource）。
+    // 这两条不变式让此前的跨区去重集合、删除墓碑一并成为多余，已删除。
+    final downloadingTasks = _visibleTasksOf(_store.downloadingIds);
+    final filteredFailedTasks = _visibleTasksOf(_store.failedIds);
+    final filteredPausedTasks = _visibleTasksOf(_store.pausedIds);
+    final filteredPendingTasks = _visibleTasksOf(_store.pendingIds);
 
     // 构建顶部活跃区域的 widgets
     final List<Widget> activeWidgets = [];
 
-    // 添加正在下载的任务
-    if (downloadingTasks.isNotEmpty) {
-      activeWidgets.add(
-        _buildSectionHeader(
-          title: slang.t.download.downloading,
-          count: downloadingTasks.length,
-        ),
-      );
-      activeWidgets.addAll(
-        downloadingTasks.map((task) => _buildTaskItem(task)),
-      );
+    void addSection(String title, List<DownloadTask> tasks) {
+      if (tasks.isEmpty) return;
+      activeWidgets.add(_buildSectionHeader(title: title, count: tasks.length));
+      activeWidgets.addAll(tasks.map((task) => _buildActiveTaskItem(task.id)));
     }
 
-    // 添加失败的任务（放在下载中之后、等待中之前，方便用户快速重试）
-    if (filteredFailedTasks.isNotEmpty) {
-      activeWidgets.add(
-        _buildSectionHeader(
-          title: slang.t.download.failed,
-          count: filteredFailedTasks.length,
-        ),
-      );
-      activeWidgets.addAll(
-        filteredFailedTasks.map((task) => _buildTaskItem(task)),
-      );
-    }
-
-    // 添加等待中的任务
-    if (filteredPendingTasks.isNotEmpty) {
-      activeWidgets.add(
-        _buildSectionHeader(
-          title: slang.t.download.waiting,
-          count: filteredPendingTasks.length,
-        ),
-      );
-      activeWidgets.addAll(
-        filteredPendingTasks.map((task) => _buildTaskItem(task)),
-      );
-    }
+    // 顺序：下载中 → 失败（方便快速重试）→ 暂停 → 等待中
+    addSection(slang.t.download.downloading, downloadingTasks);
+    addSection(slang.t.download.failed, filteredFailedTasks);
+    addSection(slang.t.download.paused, filteredPausedTasks);
+    addSection(slang.t.download.waiting, filteredPendingTasks);
 
     // 是否存在搜索 / 筛选条件（用于区分“暂无任务”与“无匹配结果”）
     final bool hasActiveFilter = _hasAnyFilter;
@@ -1373,15 +1210,12 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     );
   }
 
-  /// 构建历史任务条目，按天插入日期标题
+  /// 构建历史任务条目，按天插入日期标题。
+  ///
+  /// 历史区只装已完成任务，与活跃区没有交集，因此这里不再需要任何隐藏 / 去重判断
+  /// （旧实现要跳过「已在活跃区展示」和「已删除墓碑」两类行，还得为此在找上一行时
+  /// 跳过隐藏行才不漏日期标题）。
   Widget _buildHistoryItemWithDateHeader(DownloadTask task, int index) {
-    // 去重 / 删除残留防护：该 id 已在活跃区(下载中/等待/失败)展示或已被删除（墓碑），
-    // 历史区不再渲染，避免重复或残留。返回收缩占位以保持其余行的索引稳定（日期标题
-    // 改用“最近的可见行”比较，见下）。
-    if (_historyHiddenIds.contains(task.id)) {
-      return const SizedBox.shrink();
-    }
-
     final currentDate = task.createdAt;
 
     // 如果没有创建时间，直接渲染任务
@@ -1389,22 +1223,8 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       return _buildTaskItem(task);
     }
 
-    // 判断是否需要插入日期标题：与“前一个可见行”不是同一天则需要。必须跳过被隐藏的
-    // 行——否则当某天的首行被隐藏时，同日的下一可见行会与隐藏行比较而漏掉日期标题。
-    DateTime? prevVisibleDate;
-    bool hasPrevVisible = false;
-    for (int i = index - 1; i >= 0; i--) {
-      final prev = _historySource[i];
-      if (_historyHiddenIds.contains(prev.id)) continue;
-      hasPrevVisible = true;
-      prevVisibleDate = prev.createdAt;
-      break;
-    }
-
-    final needHeader =
-        !hasPrevVisible ||
-        prevVisibleDate == null ||
-        !_isSameDay(prevVisibleDate, currentDate);
+    final prevDate = index > 0 ? _historySource[index - 1].createdAt : null;
+    final needHeader = index == 0 || prevDate == null || !_isSameDay(prevDate, currentDate);
 
     if (!needHeader) {
       return _buildTaskItem(task);
@@ -1450,6 +1270,33 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
         ],
       ),
     );
+  }
+
+  /// 取某个分区中通过当前筛选条件的任务。
+  ///
+  /// 活跃任务全在内存里，筛选是纯内存过滤——没有 DB 查询、没有异步、没有竞态，
+  /// 因此筛选条件一改立刻生效，不再需要「筛选加载中」的沙漏态兜底。
+  List<DownloadTask> _visibleTasksOf(List<String> ids) {
+    final result = <DownloadTask>[];
+    for (final id in ids) {
+      final task = _store.taskOf(id);
+      if (task == null) continue;
+      if (!_filterTask(task)) continue;
+      result.add(task);
+    }
+    return result;
+  }
+
+  /// 活跃区的一行：只订阅自己那条任务的句柄。
+  ///
+  /// 这样一条任务暂停 / 继续 / 失败时，只有它自己重建，其余行与底部历史区纹丝不动。
+  Widget _buildActiveTaskItem(String taskId) {
+    final handle = _store.handleOf(taskId);
+    if (handle == null) return const SizedBox.shrink();
+    return Obx(() {
+      handle.revision.value; // 订阅这一行
+      return _buildTaskItem(handle.task);
+    });
   }
 
   Widget _buildTaskItem(DownloadTask task) {
@@ -1502,92 +1349,13 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     }
   }
 
-  /// 根据 DownloadService 的任务状态版本，按需刷新等待中任务。
-  /// 注意：加载进行中也要触发（通过置脏让本轮加载结束后重跑），
-  /// 否则加载窗口内到来的状态变更会被永久丢弃。
-  void _refreshPendingTasksIfNeeded() {
-    final currentVersion = DownloadService.to.taskStatusChangedNotifier.value;
-    if (!_isLoadingPendingTasks && currentVersion == _lastPendingVersion) {
-      return;
-    }
-    _reloadPendingTasks();
-  }
-
-  /// 根据 DownloadService 的任务状态版本，按需刷新失败任务。
-  void _refreshFailedTasksIfNeeded() {
-    final currentVersion = DownloadService.to.taskStatusChangedNotifier.value;
-    if (!_isLoadingFailedTasks && currentVersion == _lastFailedVersion) {
-      return;
-    }
-    _reloadFailedTasks();
-  }
-
-  /// 重新加载等待中任务。
-  /// 若加载期间状态版本又发生变化（或加载中被再次请求），结束后会自动重跑，
-  /// 保证最终读到的是最新的数据库状态，杜绝“丢失更新”竞态。
-  Future<void> _reloadPendingTasks() async {
-    if (_isLoadingPendingTasks) {
-      _pendingReloadDirty = true;
-      return;
-    }
-
-    _isLoadingPendingTasks = true;
-    try {
-      do {
-        _pendingReloadDirty = false;
-        final versionAtLoad =
-            DownloadService.to.taskStatusChangedNotifier.value;
-        final tasks = await _downloadTaskRepository
-            .getPendingTasksOrderByCreatedAtAsc();
-        _lastPendingVersion = versionAtLoad;
-        if (!mounted) return;
-        setState(() {
-          _pendingTasks = tasks;
-        });
-      } while (_pendingReloadDirty ||
-          DownloadService.to.taskStatusChangedNotifier.value !=
-              _lastPendingVersion);
-    } catch (e) {
-      // 读取等待中任务失败时，静默处理，避免影响主流程
-    } finally {
-      _isLoadingPendingTasks = false;
-    }
-  }
-
-  /// 重新加载失败任务（语义同 [_reloadPendingTasks]，带版本重跑）。
-  Future<void> _reloadFailedTasks() async {
-    if (_isLoadingFailedTasks) {
-      _failedReloadDirty = true;
-      return;
-    }
-
-    _isLoadingFailedTasks = true;
-    try {
-      do {
-        _failedReloadDirty = false;
-        final versionAtLoad =
-            DownloadService.to.taskStatusChangedNotifier.value;
-        final tasks = await _downloadTaskRepository
-            .getFailedTasksOrderByUpdatedAtDesc();
-        _lastFailedVersion = versionAtLoad;
-        if (!mounted) return;
-        setState(() {
-          _failedTasks = tasks;
-        });
-      } while (_failedReloadDirty ||
-          DownloadService.to.taskStatusChangedNotifier.value !=
-              _lastFailedVersion);
-    } catch (e) {
-      // 读取失败任务失败时，静默处理，避免影响主流程
-    } finally {
-      _isLoadingFailedTasks = false;
-    }
-  }
-
-  /// 串行刷新历史区域（paused/completed）。
-  /// 历史列表基于 LoadingMoreBase，并发 refresh 会相互 clear/addAll，
-  /// 造成列表被清空或漏掉“刚完成”的任务（正是“下载完成后不刷新”的根因）。
-  /// 这里串行化并在版本变化时重跑，确保最终读到最新状态。
+  /// 串行刷新历史区域（已完成任务）。
+  ///
+  /// 历史列表基于 LoadingMoreBase，并发 refresh 会相互 clear/addAll，造成列表被
+  /// 清空或漏掉“刚完成”的任务；这里串行化并在刷新期间收到新的失效信号时重跑一轮。
+  ///
+  /// 与旧实现的差别：不再需要按全局状态版本比对，也不再需要删除墓碑——历史区只装
+  /// 已完成任务，删除后的重拉一定读不到它，活跃任务也永远不会混进来。
   Future<void> _refreshHistory() async {
     if (!mounted) return;
     if (_isRefreshingHistory) {
@@ -1599,29 +1367,9 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     try {
       do {
         _historyRefreshDirty = false;
-        final versionAtRefresh =
-            DownloadService.to.taskStatusChangedNotifier.value;
         await _historySource.refresh(true);
-        _lastHistoryVersion = versionAtRefresh;
         if (!mounted) return;
-      } while (_historyRefreshDirty ||
-          DownloadService.to.taskStatusChangedNotifier.value !=
-              _lastHistoryVersion);
-
-      // 清理墓碑：刷新后历史源即来自 DB 的最新数据。若某个被删 id 已不在其中，说明
-      // DB 行确已删除，墓碑使命完成，移除以防无界增长，并允许该 id 日后合法重现。
-      // 反之若某次刷新恰好把“删除瞬时写回的 paused 行”读了进来（present 仍含该 id），
-      // 墓碑会被保留，继续隐藏该残留行，直至下一次刷新读到干净的 DB。
-      // 关键时序：取消清理写回 paused 发生在 deleteTask 删除 DB 行之前且被其 await，
-      // 因此墓碑加入时 paused 写已成往事、不存在“清墓碑后又有写回”的竞态。
-      if (_deletedTombstones.isNotEmpty) {
-        if (_historySource.isEmpty) {
-          _deletedTombstones.clear();
-        } else {
-          final present = <String>{for (final t in _historySource) t.id};
-          _deletedTombstones.removeWhere((id) => !present.contains(id));
-        }
-      }
+      } while (_historyRefreshDirty);
     } catch (e) {
       // 刷新历史失败时静默处理，避免影响主流程
     } finally {
@@ -1630,7 +1378,11 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   }
 }
 
-/// 历史任务数据源（paused/completed，不含failed），用于无限滚动加载
+/// 历史任务数据源（仅 completed），用于无限滚动加载。
+///
+/// 活跃任务（下载中 / 等待 / 暂停 / 失败）不在这里，它们由内存真源
+/// [DownloadTaskStore] 承载并显示在上方活跃区——两边没有交集，因此这个数据源
+/// 不需要任何去重 / 隐藏逻辑。
 class _HistoryDownloadTasksSource extends LoadingMoreBase<DownloadTask>
     with LoadingMoreRefreshGuard<DownloadTask> {
   final DownloadTaskRepository _repository;
