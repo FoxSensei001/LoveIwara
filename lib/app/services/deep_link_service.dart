@@ -109,6 +109,22 @@ class DeepLinkService extends GetxService {
     LogUtils.i('获取到初始链接: $_pendingInitialLink', 'DeepLinkService');
   }
 
+  /// 冷启动时那条把应用拉起来的链接属于哪个站点；无法在应用内处理时返回 null。
+  ///
+  /// 应用冷启动恒为主站（见 [AppService.syncSiteModeFromConfig]），所以一条 AI 站
+  /// 链接进来一定要切站，而切站要重启整棵树——用户会看到应用"自己重开了一次"。
+  /// 启动阶段先问一次这里，就能直接以正确的站点起步，把那次重启省掉。
+  IwaraSite? get pendingInitialLinkSite {
+    final uri = _pendingInitialLink;
+    if (uri == null || !canHandleInternally(uri)) {
+      return null;
+    }
+    return IwaraSiteUtils.fromHost(uri.host);
+  }
+
+  @visibleForTesting
+  void setPendingInitialLinkForTest(Uri? uri) => _pendingInitialLink = uri;
+
   // 标记服务已准备就绪
   void markReady() {
     LogUtils.i('DeepLinkService 标记为已准备就绪', 'DeepLinkService');

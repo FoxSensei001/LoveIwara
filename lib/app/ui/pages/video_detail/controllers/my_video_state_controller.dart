@@ -2008,6 +2008,7 @@ class MyVideoStateController extends GetxController
         if (_isDisposed) return;
 
         videoInfo.value = video_model.Video.fromJson(res.data);
+        IwaraDifferentSiteRecovery.markResolved('video:$videoId');
 
         // 缓存视频信息
         _cacheManager.cacheVideoInfo(videoId, videoInfo.value!);
@@ -2089,10 +2090,12 @@ class MyVideoStateController extends GetxController
         );
 
         // 跨站资源（主站模式打开 AI 站视频，或反之）：不是加载失败，而是站点选错了。
-        // 切到资源所属站点后应用子树会重建，本页会以新站点模式重新请求。
+        // 切站会退回首页并重建整棵树，本页连同评论/相关一起作废，由 reopen 在新
+        // 站点重新开一张干净的详情页，所以这里什么都不用做，直接 return。
         if (await IwaraDifferentSiteRecovery.recover(
           e,
           resourceKey: 'video:$videoId',
+          reopen: () => NaviService.navigateToVideoDetailPage(videoId),
         )) {
           return;
         }

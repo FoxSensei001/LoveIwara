@@ -185,6 +185,15 @@ class AppStartupCoordinator implements AppStartupRunner {
     _putIfAbsent<ConfigService>(configService);
     await Get.find<AppService>().syncSiteModeFromConfig(configService);
 
+    // 冷启动恒为主站。如果这次是被一条 AI 站链接拉起来的，趁应用树还没 build
+    // 直接以那个站点起步，省掉"开了页面才发现站点不对 → 切站 → 重启整棵树"。
+    if (Get.isRegistered<DeepLinkService>()) {
+      await Get.find<AppService>().adoptStartupSiteMode(
+        Get.find<DeepLinkService>().pendingInitialLinkSite,
+        configService,
+      );
+    }
+
     await _applyLocale(configService);
   }
 

@@ -3,6 +3,7 @@ import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/history_record.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
@@ -77,10 +78,12 @@ class GalleryDetailController extends GetxController {
         imageModelId,
       );
       if (!res.isSuccess) {
-        // 跨站资源：切到图片真正所属的站点后本页会重建并重新请求。
+        // 跨站资源：切站会退回首页并重建整棵树，本页作废，由 reopen 在新站点重新
+        // 开一张干净的详情页，这里直接 return。
         if (await IwaraDifferentSiteRecovery.recover(
           res.exception,
           resourceKey: 'image:$imageModelId',
+          reopen: () => NaviService.navigateToGalleryDetailPage(imageModelId),
         )) {
           return;
         }
@@ -93,6 +96,8 @@ class GalleryDetailController extends GetxController {
         );
         return;
       }
+
+      IwaraDifferentSiteRecovery.markResolved('image:$imageModelId');
 
       otherAuthorzImageModelsController ??= OtherAuthorzMediasController(
         mediaId: imageModelId,

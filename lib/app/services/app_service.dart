@@ -175,6 +175,33 @@ class AppService extends GetxService {
     _currentSiteMode.value = site;
   }
 
+  /// 启动阶段直接以 [site] 起步（应用树尚未 build 时才可以这么用）。
+  ///
+  /// 用于"被一条 AI 站链接拉起来"的冷启动：[syncSiteModeFromConfig] 刚把站点强制
+  /// 拉回主站，等 deeplink 真的去开页面时再切站，就要重启整棵树。这里趁树还没建
+  /// 起来把站点定下来——不重启、不复位导航、不弹 toast，纯粹改一下内存里的值。
+  Future<void> adoptStartupSiteMode(
+    IwaraSite? site,
+    ConfigService configService,
+  ) async {
+    if (site == null || _currentSiteMode.value == site) {
+      return;
+    }
+
+    LogUtils.i(
+      '启动链接属于 ${site.name} 站，直接以该站点起步',
+      'AppService',
+    );
+    _currentSiteMode.value = site;
+    await configService.setSetting(ConfigKey.APP_SITE_MODE, site.name);
+  }
+
+  /// 切换全局站点模式：换掉 MaterialApp 的 key 并重启整棵子树，所有页面按新站点
+  /// 从头来过。
+  ///
+  /// 重启会把当前页面的 State 连同它正在进行的加载一起换掉，所以**依赖"切完站
+  /// 原页面自己会重新请求"是不成立的**（详情页会永远停在 loading）。切站后还要
+  /// 落到某个页面时，用 [onApplied] 在新树里重新导航过去，别指望旧页面还活着。
   Future<void> applyGlobalSiteMode(
     IwaraSite site, {
     bool resetNavigation = true,
@@ -195,6 +222,7 @@ class AppService extends GetxService {
       final siteLabel = site == IwaraSite.ai
           ? t.siteMode.aiSite
           : t.siteMode.mainSite;
+      // 重启会连 toast 宿主一起换掉，必须等新树起来再弹。
       messageService.queuePendingSiteModeToast(
         t.siteMode.switched(site: siteLabel),
         GlassToastType.success,
@@ -202,7 +230,6 @@ class AppService extends GetxService {
     }
 
     _currentSiteMode.value = site;
-    _siteModeVersion.value++;
     invalidateHomeContent();
 
     try {
@@ -224,6 +251,8 @@ class AppService extends GetxService {
       _currentIndex.value = preferredBranch;
     }
 
+    // siteModeVersion 只有 MaterialApp 的 key 在用，和 RestartApp 是同一次重建。
+    _siteModeVersion.value++;
     RestartApp.restartApp();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -629,6 +658,13 @@ class NaviService {
     );
   }
 
+  /// 在 [site] 这个站点下打开一个资源（deeplink、正文里的站内链接等）。
+  ///
+  /// 站点一致时就是普通的 push。需要切站时，切站会把栈复位到首页再重建整棵树，
+  /// [navigate] 在新树的第一帧之后执行——**别把另一个站点的历史页面留在返回路径
+  /// 上**：应用冷启动恒为主站，一条 AI 站链接进来时，栈里剩下的全是主站的列表和
+  /// 详情页，留着只会让用户在错的站点里继续点下去。同一条口径见
+  /// [IwaraDifferentSiteRecovery]（服务端 301 判定跨站时的自动纠正）。
   static Future<void> navigateInSiteMode(
     IwaraSite site,
     Future<void> Function() navigate,
@@ -639,11 +675,7 @@ class NaviService {
       return;
     }
 
-    await appService.applyGlobalSiteMode(
-      site,
-      resetNavigation: false,
-      onApplied: navigate,
-    );
+    await appService.applyGlobalSiteMode(site, onApplied: navigate);
   }
 
   /// 跳转到通知列表页
