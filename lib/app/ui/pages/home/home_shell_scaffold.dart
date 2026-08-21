@@ -10,8 +10,10 @@ import 'package:i_iwara/app/services/pop_coordinator.dart';
 import 'package:i_iwara/app/ui/widgets/animated_navigation_rail_slot.dart';
 import 'package:i_iwara/app/ui/pages/community/community_page.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_floating_tab_bar.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
@@ -497,13 +499,7 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.settings),
-                  tooltip: slang.t.common.settings,
-                  onPressed: () {
-                    AppService.switchGlobalDrawer();
-                  },
-                ),
+                _buildRailIdentityButton(context),
                 IconButton(
                   icon: const Icon(Icons.exit_to_app),
                   tooltip: slang.t.common.back,
@@ -551,6 +547,73 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
         }
       },
     );
+  }
+
+  /// 侧边栏右下角的身份入口：首页根显示设置钮（打开抽屉），一旦深入到其他
+  /// 页面（详情页等）就换成头像钮——与窄屏 header 上「头像=我」的语义对齐，
+  /// 两侧同一个功能，只是形状完全不同，用 [GlassShapeSwitcher] 做形变过渡
+  /// 而不是硬切。
+  Widget _buildRailIdentityButton(BuildContext context) {
+    final bool showAvatar = !_isAtHomeRoot;
+    return GlassShapeSwitcher(
+      child: showAvatar
+          ? KeyedSubtree(
+              key: const ValueKey('rail_identity_avatar'),
+              child: _buildRailAvatarButton(context),
+            )
+          : KeyedSubtree(
+              key: const ValueKey('rail_identity_settings'),
+              child: IconButton(
+                icon: const Icon(Icons.settings),
+                tooltip: slang.t.common.settings,
+                onPressed: () {
+                  AppService.switchGlobalDrawer();
+                },
+              ),
+            ),
+    );
+  }
+
+  Widget _buildRailAvatarButton(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+    return Obx(() {
+      final user = userService.hasLoadedProfile
+          ? userService.currentUser.value
+          : null;
+      final count =
+          userService.notificationCount.value + userService.messagesCount.value;
+
+      return GlassSurface(
+        circle: true,
+        tooltip: t.common.me,
+        onTap: AppService.switchGlobalDrawer,
+        child: Stack(
+          alignment: Alignment.center,
+          clipBehavior: Clip.none,
+          children: [
+            if (user != null)
+              IgnorePointer(
+                child: AvatarWidget(
+                  user: user,
+                  size: GlassTokens.pillHeight - 2,
+                ),
+              )
+            else
+              Icon(
+                Icons.account_circle,
+                size: 26,
+                color: colorScheme.onSurface,
+              ),
+            Positioned(
+              right: 2,
+              top: 2,
+              child: GlassAnimatedDot(visible: count > 0),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   double _computeRailWidth(BuildContext context, List<String> displayOrder) {
