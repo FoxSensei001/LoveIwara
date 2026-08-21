@@ -108,21 +108,6 @@ class DownloadTaskRepository {
     }
   }
 
-  /// 获取所有等待中(pending)任务，按创建时间升序排列
-  Future<List<DownloadTask>> getPendingTasksOrderByCreatedAtAsc() async {
-    try {
-      final results = _db.select('''
-        SELECT * FROM download_tasks
-        WHERE status = 'pending'
-        ORDER BY created_at ASC
-      ''');
-      return results.map((row) => DownloadTask.fromRow(row)).toList();
-    } catch (e) {
-      LogUtils.e('获取等待中任务失败', tag: 'DownloadTaskRepository', error: e);
-      rethrow;
-    }
-  }
-
   // 插入任务
   Future<void> insertTask(DownloadTask task) async {
     try {
@@ -499,21 +484,6 @@ class DownloadTaskRepository {
       return results.map((row) => DownloadTask.fromRow(row)).toList();
     } catch (e) {
       LogUtils.e('获取历史任务失败', tag: 'DownloadTaskRepository', error: e);
-      rethrow;
-    }
-  }
-
-  /// 获取所有失败任务，按更新时间降序排列（最近失败的在前）
-  Future<List<DownloadTask>> getFailedTasksOrderByUpdatedAtDesc() async {
-    try {
-      final results = _db.select('''
-        SELECT * FROM download_tasks
-        WHERE status = 'failed'
-        ORDER BY updated_at DESC
-      ''');
-      return results.map((row) => DownloadTask.fromRow(row)).toList();
-    } catch (e) {
-      LogUtils.e('获取失败任务失败', tag: 'DownloadTaskRepository', error: e);
       rethrow;
     }
   }
