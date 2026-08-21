@@ -105,12 +105,21 @@ class GallerySettingsPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              // 图库色觉辅助（与播放器色觉辅助为独立开关）
-              ColorVisionSettingsWidget(
-                showInfoCard: false,
-                configKey: ConfigKey.GALLERY_COLOR_VISION_FILTER_ID,
-                descriptionOverride:
-                    slang.t.colorVisionAssist.galleryDescription,
+              // 图库色觉辅助（与播放器色觉辅助为独立开关）。走 embedded 模式，
+              // 套本页统一的 Card 外壳，与上面的「查看质量」卡片同一套视觉语言，
+              // 而不是组件自带的那份独立卡片样式（阴影/圆角/取色都跟全站对不上）。
+              Card(
+                elevation: 2,
+                clipBehavior: Clip.antiAlias,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: ColorVisionSettingsWidget(
+                  embedded: true,
+                  configKey: ConfigKey.GALLERY_COLOR_VISION_FILTER_ID,
+                  descriptionOverride:
+                      slang.t.colorVisionAssist.galleryDescription,
+                ),
               ),
             ]),
           ),

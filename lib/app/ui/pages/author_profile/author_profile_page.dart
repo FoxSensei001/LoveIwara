@@ -1520,61 +1520,89 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
             height: primaryRowHeight,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Obx(() {
-                  // 选择态下这只胶囊改报「已选 N 项」：进选择态是一次页面级
-                  // 的模式切换，header 不该毫无反应。
-                  // 两个控制器的 Rx 都要在分支之外读一次：播放列表 / 帖子 tab
-                  // 上 batch 为 null，那一支不碰可观察量会让 Obx 抛 ObxError。
-                  final bool videoSelecting =
-                      _videoBatchController.isMultiSelect.value;
-                  final bool imageSelecting =
-                      _imageBatchController.isMultiSelect.value;
-                  final batch = primaryTC.index == 0
-                      ? _videoBatchController
-                      : (primaryTC.index == 1 ? _imageBatchController : null);
-                  final bool selecting = primaryTC.index == 0
-                      ? videoSelecting
-                      : (primaryTC.index == 1 ? imageSelecting : false);
-                  if (batch != null && selecting) {
-                    return GlassCapsuleMorph(
-                      child: SizedBox(
-                        key: const ValueKey('selection'),
-                        width: 168,
-                        child: GlassSelectionSummary(
-                          selectedCount: batch.selectedCount,
-                          allSelected: false,
-                          // 懒加载列表够不到未加载的部分，不给全选
-                          onToggleAll: null,
-                        ),
-                      ),
-                    );
-                  }
-                  return GlassSegmentedControl(
-                    selectedIndex: primaryTC.index,
-                    progress: primaryTC.animation,
-                    onChanged: primaryTC.animateTo,
-                    items: [
-                      GlassSegmentItem(
-                        label: t.common.video,
-                        icon: const Icon(Icons.video_collection),
-                      ),
-                      GlassSegmentItem(
-                        label: t.common.gallery,
-                        icon: const Icon(Icons.image),
-                      ),
-                      GlassSegmentItem(
-                        label: t.common.playlist,
-                        icon: const Icon(Icons.playlist_play),
-                      ),
-                      GlassSegmentItem(
-                        label: t.common.post,
-                        icon: const Icon(Icons.article),
-                      ),
-                    ],
+              // 空间够就平铺分段胶囊，不够（露不出 2.5 个完整段）退化成
+              // 下拉钮——阈值与订阅页/热门列表页的子栏目胶囊共用同一约定
+              // （见 GlassSegmentedControl.minWidthFor）。
+              child: LayoutBuilder(
+                builder: (context, rowConstraints) {
+                  final primaryTabItems = [
+                    GlassSegmentItem(
+                      label: t.common.video,
+                      icon: const Icon(Icons.video_collection),
+                    ),
+                    GlassSegmentItem(
+                      label: t.common.gallery,
+                      icon: const Icon(Icons.image),
+                    ),
+                    GlassSegmentItem(
+                      label: t.common.playlist,
+                      icon: const Icon(Icons.playlist_play),
+                    ),
+                    GlassSegmentItem(
+                      label: t.common.post,
+                      icon: const Icon(Icons.article),
+                    ),
+                  ];
+                  final bool useSegmented =
+                      rowConstraints.maxWidth >=
+                      GlassSegmentedControl.minWidthFor(
+                        context,
+                        primaryTabItems,
+                      );
+                  return Align(
+                    alignment: Alignment.centerLeft,
+                    child: Obx(() {
+                      // 选择态下这只胶囊改报「已选 N 项」：进选择态是一次页面级
+                      // 的模式切换，header 不该毫无反应。
+                      // 两个控制器的 Rx 都要在分支之外读一次：播放列表 / 帖子 tab
+                      // 上 batch 为 null，那一支不碰可观察量会让 Obx 抛 ObxError。
+                      final bool videoSelecting =
+                          _videoBatchController.isMultiSelect.value;
+                      final bool imageSelecting =
+                          _imageBatchController.isMultiSelect.value;
+                      final batch = primaryTC.index == 0
+                          ? _videoBatchController
+                          : (primaryTC.index == 1
+                                ? _imageBatchController
+                                : null);
+                      final bool selecting = primaryTC.index == 0
+                          ? videoSelecting
+                          : (primaryTC.index == 1 ? imageSelecting : false);
+                      if (batch != null && selecting) {
+                        return GlassCapsuleMorph(
+                          child: SizedBox(
+                            key: const ValueKey('selection'),
+                            width: 168,
+                            child: GlassSelectionSummary(
+                              selectedCount: batch.selectedCount,
+                              allSelected: false,
+                              // 懒加载列表够不到未加载的部分，不给全选
+                              onToggleAll: null,
+                            ),
+                          ),
+                        );
+                      }
+                      return GlassCapsuleMorph(
+                        child: useSegmented
+                            ? GlassSegmentedControl(
+                                key: const ValueKey('segmented'),
+                                flat: true,
+                                selectedIndex: primaryTC.index,
+                                progress: primaryTC.animation,
+                                onChanged: primaryTC.animateTo,
+                                items: primaryTabItems,
+                              )
+                            : KeyedSubtree(
+                                key: const ValueKey('dropdown'),
+                                child: _buildPrimaryTabDropdown(
+                                  context,
+                                  primaryTabItems,
+                                ),
+                              ),
+                      );
+                    }),
                   );
-                }),
+                },
               ),
             ),
           ),
@@ -1583,6 +1611,66 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
           Obx(() => GlassSelectionDock(paginated: _isPaginated.value)),
         ],
       ),
+    );
+  }
+
+  /// 过窄时的主 Tab 入口：下拉菜单（代替分段胶囊）。
+  /// 只渲染「文字 + 箭头」的无壳内容，玻璃壳由外层 GlassCapsuleMorph 提供。
+  ///
+  /// 文案接 `primaryTC.animation`：横滑 TabBarView 时跟着手指一格一格
+  /// 翻页（见 [GlassFlipLabel]），不是等滑完才换字。
+  Widget _buildPrimaryTabDropdown(
+    BuildContext context,
+    List<GlassSegmentItem> items,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final index = primaryTC.index;
+    return PopupMenuButton<int>(
+      initialValue: index,
+      onSelected: (newIndex) => primaryTC.animateTo(newIndex),
+      position: PopupMenuPosition.under,
+      // 往下挪一点，别压住玻璃胶囊本身
+      offset: const Offset(0, 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: SizedBox(
+        height: GlassTokens.pillHeight,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 14, right: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GlassFlipLabel(
+                progress: primaryTC.animation!,
+                labels: [for (final item in items) item.label],
+                style: TextStyle(
+                  color: colorScheme.onSurface,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Icon(
+                Icons.arrow_drop_down,
+                size: 22,
+                color: colorScheme.onSurface,
+              ),
+            ],
+          ),
+        ),
+      ),
+      itemBuilder: (context) => [
+        for (var i = 0; i < items.length; i++)
+          PopupMenuItem<int>(
+            value: i,
+            child: Row(
+              children: [
+                Text(items[i].label),
+                if (i == index) ...[
+                  const Spacer(),
+                  Icon(Icons.check, size: 18, color: colorScheme.primary),
+                ],
+              ],
+            ),
+          ),
+      ],
     );
   }
 

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_navigation.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/common/constants.dart';
+import 'package:loading_more_list/loading_more_list.dart';
 
 class DisplaySettingsPage extends StatelessWidget {
   const DisplaySettingsPage({super.key});
@@ -130,6 +133,7 @@ class DisplaySettingsPage extends StatelessWidget {
   Widget _buildTraditionalPaginationDemo(BuildContext context) {
     return Container(
       key: const ValueKey('traditional'),
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: Theme.of(
           context,
@@ -139,7 +143,7 @@ class DisplaySettingsPage extends StatelessWidget {
           color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
         ),
       ),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
       child: Column(
         children: [
           // 模拟列表项
@@ -147,21 +151,16 @@ class DisplaySettingsPage extends StatelessWidget {
             3,
             (index) => _buildDemoListItem(context, index + 1),
           ),
-          const SizedBox(height: 8),
-          // 分页按钮
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildDemoPageButton(context, Icons.chevron_left, false),
-              const SizedBox(width: 8),
-              _buildDemoPageIndicator(context, '1'),
-              const SizedBox(width: 4),
-              _buildDemoPageIndicator(context, '2'),
-              const SizedBox(width: 4),
-              _buildDemoPageIndicator(context, '3'),
-              const SizedBox(width: 8),
-              _buildDemoPageButton(context, Icons.chevron_right, true),
-            ],
+          // 与 MediaListView 同一份 PaginationBar，而不是手绘假分页按钮——
+          // 这样这里的样式才会随分页栏的真实改版一起变，不会看起来是另一套东西。
+          PaginationBar(
+            currentPage: 0,
+            totalPages: 3,
+            totalItems: 42,
+            isLoading: false,
+            onPageChanged: (_) {},
+            useBlurEffect: true,
+            showBottomPadding: false,
           ),
         ],
       ),
@@ -188,29 +187,12 @@ class DisplaySettingsPage extends StatelessWidget {
             3,
             (index) => _buildDemoListItem(context, index + 1),
           ),
-          const SizedBox(height: 8),
-          // 加载更多指示器
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 12,
-                height: 12,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.6),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                slang.t.common.loadingMore,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
+          // 与列表页同一份「加载更多」指示器（loading_more_list 包），
+          // 而不是手绘的转圈+文字。
+          myLoadingMoreIndicator(
+            context,
+            IndicatorStatus.loadingMoreBusying,
+            isSliver: false,
           ),
         ],
       ),
@@ -272,58 +254,6 @@ class DisplaySettingsPage extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildDemoPageButton(
-    BuildContext context,
-    IconData icon,
-    bool enabled,
-  ) {
-    return Container(
-      width: 28,
-      height: 28,
-      decoration: BoxDecoration(
-        color: enabled
-            ? Theme.of(context).colorScheme.primaryContainer
-            : Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Icon(
-        icon,
-        size: 16,
-        color: enabled
-            ? Theme.of(context).colorScheme.onPrimaryContainer
-            : Theme.of(
-                context,
-              ).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
-      ),
-    );
-  }
-
-  Widget _buildDemoPageIndicator(BuildContext context, String page) {
-    final isActive = page == '1';
-    return Container(
-      width: 24,
-      height: 24,
-      decoration: BoxDecoration(
-        color: isActive
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Center(
-        child: Text(
-          page,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: isActive
-                ? Theme.of(context).colorScheme.onPrimary
-                : Theme.of(context).colorScheme.onSurfaceVariant,
-            fontSize: 10,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
       ),
     );
   }

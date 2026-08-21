@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
@@ -23,13 +24,27 @@ class MarkdownSyntaxHelp extends StatelessWidget {
       expand: false,
       builder: (context, scrollController) => Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         ),
         child: Column(
           children: [
+            // 拖拽条，与全站其它 DraggableScrollableSheet 同一口径
+            Center(
+              child: Container(
+                margin: const EdgeInsets.only(top: 12, bottom: 4),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
             Container(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -40,9 +55,11 @@ class MarkdownSyntaxHelp extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
+                  GlassIconButton(
+                    standalone: true,
                     icon: const Icon(Icons.close),
+                    tooltip: t.common.close,
+                    onPressed: () => Navigator.pop(context),
                   ),
                 ],
               ),
@@ -59,6 +76,7 @@ class MarkdownSyntaxHelp extends StatelessWidget {
                 ),
                 children: [
                   _buildSection(
+                    context,
                     title: t.markdown.iwaraSpecialMarkdownSyntax,
                     items: [
                       _SyntaxItem(
@@ -76,6 +94,7 @@ class MarkdownSyntaxHelp extends StatelessWidget {
                     isNarrowScreen: isNarrowScreen,
                   ),
                   _buildSection(
+                    context,
                     title: t.markdown.markdownBasicSyntax,
                     items: [
                       _SyntaxItem(
@@ -129,7 +148,8 @@ class MarkdownSyntaxHelp extends StatelessWidget {
     );
   }
 
-  Widget _buildSection({
+  Widget _buildSection(
+    BuildContext context, {
     required String title,
     required List<_SyntaxItem> items,
     required bool isNarrowScreen,
@@ -144,13 +164,18 @@ class MarkdownSyntaxHelp extends StatelessWidget {
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
-        ...items.map((item) => _buildSyntaxItem(item, isNarrowScreen)),
+        ...items.map((item) => _buildSyntaxItem(context, item, isNarrowScreen)),
         const SizedBox(height: 16),
       ],
     );
   }
 
-  Widget _buildSyntaxItem(_SyntaxItem item, bool isNarrowScreen) {
+  Widget _buildSyntaxItem(
+    BuildContext context,
+    _SyntaxItem item,
+    bool isNarrowScreen,
+  ) {
+    final cs = Theme.of(context).colorScheme;
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
       child: Padding(
@@ -166,13 +191,13 @@ class MarkdownSyntaxHelp extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 item.description!,
-                style: const TextStyle(color: Colors.grey, fontSize: 13),
+                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
               ),
             ],
             const SizedBox(height: 8),
             if (isNarrowScreen) ...[
               // 窄屏设备上垂直布局
-              _buildSyntaxBox(item),
+              _buildSyntaxBox(context, item),
               const SizedBox(height: 12),
               _buildPreviewBox(item),
             ] else ...[
@@ -180,7 +205,7 @@ class MarkdownSyntaxHelp extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(child: _buildSyntaxBox(item)),
+                  Expanded(child: _buildSyntaxBox(context, item)),
                   const SizedBox(width: 12),
                   Expanded(child: _buildPreviewBox(item)),
                 ],
@@ -192,13 +217,14 @@ class MarkdownSyntaxHelp extends StatelessWidget {
     );
   }
 
-  Widget _buildSyntaxBox(_SyntaxItem item) {
+  Widget _buildSyntaxBox(BuildContext context, _SyntaxItem item) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.grey.withValues(alpha: 0.1),
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -207,7 +233,7 @@ class MarkdownSyntaxHelp extends StatelessWidget {
             slang.t.markdown.syntax,
             style: TextStyle(
               fontSize: 12,
-              color: Colors.grey[600],
+              color: cs.onSurfaceVariant,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -246,11 +272,12 @@ class _SyntaxPreviewBoxState extends State<_SyntaxPreviewBox> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,7 +289,7 @@ class _SyntaxPreviewBoxState extends State<_SyntaxPreviewBox> {
                   slang.t.common.preview,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey[600],
+                    color: cs.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

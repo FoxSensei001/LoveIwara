@@ -1861,6 +1861,9 @@ class TranslationsSettingsEn {
 	/// en: 'News'
 	String get news => 'News';
 
+	/// en: 'Community'
+	String get community => 'Community';
+
 	/// en: 'Disable Forum Reply Quote'
 	String get disableForumReplyQuote => 'Disable Forum Reply Quote';
 
@@ -1905,6 +1908,9 @@ class TranslationsSettingsEn {
 
 	/// en: 'Custom Colors'
 	String get customColors => 'Custom Colors';
+
+	/// en: 'Dynamic color is on, so preset/custom colors are unavailable. Turn off dynamic color first.'
+	String get customColorsDisabledByDynamicColor => 'Dynamic color is on, so preset/custom colors are unavailable. Turn off dynamic color first.';
 
 	/// en: 'Pick Color'
 	String get pickColor => 'Pick Color';
@@ -4074,6 +4080,9 @@ class TranslationsNavigationOrderSettingsEn {
 
 	/// en: 'Browse official news, articles, and broadcasts'
 	String get newsDescription => 'Browse official news, articles, and broadcasts';
+
+	/// en: 'Forum discussions plus official news, articles and broadcasts'
+	String get communityDescription => 'Forum discussions plus official news, articles and broadcasts';
 }
 
 // Path: news
@@ -8768,6 +8777,7 @@ extension on Translations {
 			'settings.privacy' => 'Privacy',
 			'settings.forum' => 'Forum',
 			'settings.news' => 'News',
+			'settings.community' => 'Community',
 			'settings.disableForumReplyQuote' => 'Disable Forum Reply Quote',
 			'settings.disableForumReplyQuoteDesc' => 'Disable carrying replied floor information when replying in forum',
 			'settings.theaterMode' => 'Theater Mode',
@@ -8783,6 +8793,7 @@ extension on Translations {
 			'settings.useDynamicColorDesc' => 'This configuration determines whether the app uses dynamic color',
 			'settings.presetColors' => 'Preset Colors',
 			'settings.customColors' => 'Custom Colors',
+			'settings.customColorsDisabledByDynamicColor' => 'Dynamic color is on, so preset/custom colors are unavailable. Turn off dynamic color first.',
 			'settings.pickColor' => 'Pick Color',
 			'settings.cancel' => 'Cancel',
 			'settings.confirm' => 'Confirm',
@@ -9210,10 +9221,10 @@ extension on Translations {
 			'oreno3d.loading.gettingVideoInfo' => 'Getting video information...',
 			'oreno3d.loading.cancel' => 'Cancel',
 			'oreno3d.messages.videoNotFoundOrDeleted' => 'Video not found or has been deleted',
-			'oreno3d.messages.unableToGetVideoPlayLink' => 'Unable to get video playback link',
-			'oreno3d.messages.getVideoDetailFailed' => 'Failed to get video details',
 			_ => null,
 		} ?? switch (path) {
+			'oreno3d.messages.unableToGetVideoPlayLink' => 'Unable to get video playback link',
+			'oreno3d.messages.getVideoDetailFailed' => 'Failed to get video details',
 			'signIn.pleaseLoginFirst' => 'Please login first',
 			'signIn.alreadySignedInToday' => 'You have already signed in today!',
 			'signIn.youDidNotStickToTheSignIn' => 'You did not stick to the sign in.',
@@ -9724,10 +9735,10 @@ extension on Translations {
 			'download.category.manage' => 'Manage',
 			'download.category.createShortcut' => 'New',
 			'download.category.newCategoryHint' => 'New category name',
-			'download.category.createSuccess' => 'Category created',
-			'download.category.createFailed' => 'Failed to create category',
 			_ => null,
 		} ?? switch (path) {
+			'download.category.createSuccess' => 'Category created',
+			'download.category.createFailed' => 'Failed to create category',
 			'download.category.nameEmpty' => 'Category name cannot be empty',
 			'download.category.emptyHint' => 'No categories yet. Create one to organize your downloads.',
 			'download.category.moveTo' => 'Move to category',
@@ -10023,6 +10034,7 @@ extension on Translations {
 			'navigationOrderSettings.subscriptionDescription' => 'View latest content from followed users',
 			'navigationOrderSettings.forumDescription' => 'Participate in community discussions',
 			'navigationOrderSettings.newsDescription' => 'Browse official news, articles, and broadcasts',
+			'navigationOrderSettings.communityDescription' => 'Forum discussions plus official news, articles and broadcasts',
 			'news.title' => 'News',
 			'news.newsUpdates' => 'News Updates',
 			'news.articles' => 'Articles',
@@ -10237,11 +10249,11 @@ extension on Translations {
 			'log.logManagement' => 'Log Management',
 			'log.enableLogPersistence' => 'Enable Log Persistence',
 			'log.enableLogPersistenceDesc' => 'Save logs to the database for analysis',
+			_ => null,
+		} ?? switch (path) {
 			'log.logDatabaseSizeLimit' => 'Log Database Size Limit',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => 'Current: ${size}',
 			'log.exportCurrentLogs' => 'Export Current Logs',
-			_ => null,
-		} ?? switch (path) {
 			'log.exportCurrentLogsDesc' => 'Export the current application logs to help developers diagnose problems',
 			'log.exportHistoryLogs' => 'Export History Logs',
 			'log.exportHistoryLogsDesc' => 'Export logs within a specified date range',

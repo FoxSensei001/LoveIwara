@@ -755,6 +755,7 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get privacy => '隱私';
 	@override String get forum => '論壇';
 	@override String get news => '新聞';
+	@override String get community => '社群';
 	@override String get disableForumReplyQuote => '停用論壇回覆引用';
 	@override String get disableForumReplyQuoteDesc => '停用論壇回覆時攜帶被回覆樓層資訊';
 	@override String get theaterMode => '劇院模式';
@@ -770,6 +771,7 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get useDynamicColorDesc => '此配置決定應用是否使用動態顏色';
 	@override String get presetColors => '預設顏色';
 	@override String get customColors => '自訂顏色';
+	@override String get customColorsDisabledByDynamicColor => '已開啟動態顏色，預設/自訂顏色暫不可用，請先關閉動態顏色';
 	@override String get pickColor => '選擇顏色';
 	@override String get cancel => '取消';
 	@override String get confirm => '確認';
@@ -2008,6 +2010,7 @@ class _TranslationsNavigationOrderSettingsZhTw implements TranslationsNavigation
 	@override String get subscriptionDescription => '查看追蹤使用者的最新內容';
 	@override String get forumDescription => '參與社群討論';
 	@override String get newsDescription => '瀏覽官方新聞、文章與公告廣播';
+	@override String get communityDescription => '論壇討論與官方新聞、文章、公告廣播';
 }
 
 // Path: news
@@ -3981,6 +3984,7 @@ extension on TranslationsZhTw {
 			'settings.privacy' => '隱私',
 			'settings.forum' => '論壇',
 			'settings.news' => '新聞',
+			'settings.community' => '社群',
 			'settings.disableForumReplyQuote' => '停用論壇回覆引用',
 			'settings.disableForumReplyQuoteDesc' => '停用論壇回覆時攜帶被回覆樓層資訊',
 			'settings.theaterMode' => '劇院模式',
@@ -3996,6 +4000,7 @@ extension on TranslationsZhTw {
 			'settings.useDynamicColorDesc' => '此配置決定應用是否使用動態顏色',
 			'settings.presetColors' => '預設顏色',
 			'settings.customColors' => '自訂顏色',
+			'settings.customColorsDisabledByDynamicColor' => '已開啟動態顏色，預設/自訂顏色暫不可用，請先關閉動態顏色',
 			'settings.pickColor' => '選擇顏色',
 			'settings.cancel' => '取消',
 			'settings.confirm' => '確認',
@@ -4423,10 +4428,10 @@ extension on TranslationsZhTw {
 			'oreno3d.loading.gettingVideoInfo' => '正在獲取影片資訊...',
 			'oreno3d.loading.cancel' => '取消',
 			'oreno3d.messages.videoNotFoundOrDeleted' => '影片不存在或已被刪除',
-			'oreno3d.messages.unableToGetVideoPlayLink' => '無法獲取影片播放連結',
-			'oreno3d.messages.getVideoDetailFailed' => '獲取影片詳情失敗',
 			_ => null,
 		} ?? switch (path) {
+			'oreno3d.messages.unableToGetVideoPlayLink' => '無法獲取影片播放連結',
+			'oreno3d.messages.getVideoDetailFailed' => '獲取影片詳情失敗',
 			'firstTimeSetup.welcome.title' => '歡迎使用',
 			'firstTimeSetup.welcome.subtitle' => '讓我們開始您的個人化設定之旅',
 			'firstTimeSetup.welcome.description' => '只需幾步，即可為您量身打造最佳使用體驗',
@@ -4937,10 +4942,10 @@ extension on TranslationsZhTw {
 			'download.video' => '影片',
 			'download.gallery' => '圖庫',
 			'download.other' => '其他',
-			'download.clearFilters' => '清除篩選',
-			'download.pauseAll' => '全部暫停',
 			_ => null,
 		} ?? switch (path) {
+			'download.clearFilters' => '清除篩選',
+			'download.pauseAll' => '全部暫停',
 			'download.resumeAll' => '全部開始',
 			'download.emptyTaskList' => '暫無下載任務',
 			'download.noMatchingTasks' => '沒有符合的任務',
@@ -5451,10 +5456,10 @@ extension on TranslationsZhTw {
 			'emoji.size' => '大小',
 			'emoji.small' => '小',
 			'emoji.medium' => '中',
-			'emoji.large' => '大',
-			'emoji.extraLarge' => '超大',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.large' => '大',
+			'emoji.extraLarge' => '超大',
 			'emoji.copyEmojiLinkSuccess' => '表情包連結已複製',
 			'emoji.preview' => '表情包預覽',
 			'emoji.library' => '表情包庫',
@@ -5584,6 +5589,7 @@ extension on TranslationsZhTw {
 			'navigationOrderSettings.subscriptionDescription' => '查看追蹤使用者的最新內容',
 			'navigationOrderSettings.forumDescription' => '參與社群討論',
 			'navigationOrderSettings.newsDescription' => '瀏覽官方新聞、文章與公告廣播',
+			'navigationOrderSettings.communityDescription' => '論壇討論與官方新聞、文章、公告廣播',
 			'news.title' => '新聞',
 			'news.newsUpdates' => '最新動態',
 			'news.articles' => '文章',

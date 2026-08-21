@@ -608,6 +608,7 @@ settings:
   privacy: 隱私
   forum: 論壇
   news: 新聞
+  community: 社群
   disableForumReplyQuote: 停用論壇回覆引用
   disableForumReplyQuoteDesc: 停用論壇回覆時攜帶被回覆樓層資訊
   theaterMode: 劇院模式
@@ -623,6 +624,7 @@ settings:
   useDynamicColorDesc: 此配置決定應用是否使用動態顏色
   presetColors: 預設顏色
   customColors: 自訂顏色
+  customColorsDisabledByDynamicColor: 已開啟動態顏色，預設/自訂顏色暫不可用，請先關閉動態顏色
   pickColor: 選擇顏色
   cancel: 取消
   confirm: 確認
@@ -2348,6 +2350,7 @@ navigationOrderSettings:
   forumDescription: 參與社群討論
 
   newsDescription: 瀏覽官方新聞、文章與公告廣播
+  communityDescription: 論壇討論與官方新聞、文章、公告廣播
 
 news:
   title: 新聞

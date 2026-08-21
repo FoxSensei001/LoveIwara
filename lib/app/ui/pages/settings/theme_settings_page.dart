@@ -5,6 +5,8 @@ import 'package:i_iwara/app/models/theme_mode.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/theme_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
@@ -208,23 +210,45 @@ class ThemeSettingsPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  t.settings.customColors,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    t.settings.customColors,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: () {
-                    if (themeService.useDynamicColor) {
-                      return;
-                    }
-                    _showColorPicker(context, themeService);
-                  },
-                ),
+                const SizedBox(width: 8),
+                Obx(() {
+                  final disabled = themeService.useDynamicColor;
+                  return Opacity(
+                    opacity: disabled ? 0.5 : 1.0,
+                    child: GlassButtonGroup(
+                      children: [
+                        GlassIconButton(
+                          icon: const Icon(Icons.add),
+                          // 禁用时把 tooltip 换成原因说明，而不是沿用「选择颜色」——
+                          // 悬浮/长按能读到「为什么点不动」，不是死按钮。
+                          tooltip: disabled
+                              ? t.settings.customColorsDisabledByDynamicColor
+                              : t.settings.pickColor,
+                          onPressed: () {
+                            if (disabled) {
+                              // 按钮仍可点：点击即给出原因提示，而不是静默无反应。
+                              showGlassToast(
+                                t.settings.customColorsDisabledByDynamicColor,
+                                type: GlassToastType.info,
+                              );
+                              return;
+                            }
+                            _showColorPicker(context, themeService);
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                }),
               ],
             ),
           ),
@@ -306,13 +330,19 @@ class ThemeSettingsPage extends StatelessWidget {
                                             ).colorScheme.primary,
                                           ),
                                         const SizedBox(width: 8),
-                                        IconButton(
+                                        GlassIconButton(
+                                          standalone: true,
+                                          size: 36,
+                                          iconSize: 18,
                                           icon: const Icon(
                                             Icons.delete_outline,
                                           ),
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.error,
+                                          tooltip: t.common.delete,
                                           onPressed: () => themeService
                                               .removeCustomThemeColor(hex),
-                                          color: Colors.grey,
                                         ),
                                       ],
                                     ),
@@ -372,7 +402,18 @@ class ThemeSettingsPage extends StatelessWidget {
         CommonConstants.dynamicLightColorScheme?.primary ?? Colors.orange;
     showAppDialog(
       AlertDialog(
-        title: Text(t.settings.pickColor),
+        // 标题行关闭钮走全局约定的玻璃圆钮
+        title: Row(
+          children: [
+            Expanded(child: Text(t.settings.pickColor)),
+            GlassIconButton(
+              standalone: true,
+              icon: const Icon(Icons.close),
+              tooltip: t.common.close,
+              onPressed: () => AppService.tryPop(),
+            ),
+          ],
+        ),
         content: SingleChildScrollView(
           child: ColorPicker(
             pickerColor: pickerColor,

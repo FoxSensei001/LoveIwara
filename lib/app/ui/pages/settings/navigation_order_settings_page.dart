@@ -5,6 +5,9 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/routes/home_shell_navigation.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_floating_tab_bar.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
@@ -26,6 +29,11 @@ class _NavigationOrderSettingsPageState
   late Set<String> _hiddenItems;
   bool _isDragMode = false;
 
+  // 预览区域的可交互演示状态：让用户能在预览里点一下，
+  // 直观感受选中态的滑动高亮/指示条动画，而不是死图。
+  int _previewTabIndex = 0;
+  int _previewRailIndex = 0;
+
   // 导航项配置
   final Map<String, NavigationItem> _navigationItems = {
     'video': NavigationItem(
@@ -46,17 +54,13 @@ class _NavigationOrderSettingsPageState
       icon: Icons.subscriptions,
       description: slang.t.navigationOrderSettings.subscriptionDescription,
     ),
-    'forum': NavigationItem(
-      key: 'forum',
-      title: slang.t.settings.forum,
+    // 论坛与新闻已合并为「社区」一栏（页内用 header 下拉切换），
+    // 与 AppService.navigationItems 保持同一套键。
+    'community': NavigationItem(
+      key: 'community',
+      title: slang.t.settings.community,
       icon: Icons.forum,
-      description: slang.t.navigationOrderSettings.forumDescription,
-    ),
-    'news': NavigationItem(
-      key: 'news',
-      title: slang.t.settings.news,
-      icon: Icons.newspaper_rounded,
-      description: slang.t.navigationOrderSettings.newsDescription,
+      description: slang.t.navigationOrderSettings.communityDescription,
     ),
   };
 
@@ -115,27 +119,11 @@ class _NavigationOrderSettingsPageState
   List<String> get _visibleNavigationOrder =>
       _navigationOrder.where((key) => !_hiddenItems.contains(key)).toList();
 
+  /// 复用 [HomeShellNavigation] 的那一份实现，不要就地再写一遍：
+  /// 老配置里的 `forum` / `news` 需要被折叠成 `community`（合并迁移），
+  /// 本页还会把归一化结果**写回**配置，实现分叉的话会把顺序写坏。
   List<String> _normalizeNavigationOrder(dynamic rawOrder) {
-    final raw = rawOrder is List ? rawOrder : const <dynamic>[];
-    final result = <String>[];
-    final defaultOrder = List<String>.from(
-      ConfigKey.NAVIGATION_ORDER.defaultValue as List,
-    );
-
-    for (final item in raw) {
-      if (item is! String) continue;
-      if (!_navigationItems.containsKey(item)) continue;
-      if (result.contains(item)) continue;
-      result.add(item);
-    }
-
-    for (final item in defaultOrder) {
-      if (!result.contains(item) && _navigationItems.containsKey(item)) {
-        result.add(item);
-      }
-    }
-
-    return result;
+    return HomeShellNavigation.normalizeOrder(rawOrder);
   }
 
   void _resetToDefaults() {
@@ -164,6 +152,29 @@ class _NavigationOrderSettingsPageState
               _buildPreviewCard(),
             ]),
           ),
+        ),
+      ],
+    );
+  }
+
+  /// 卡片标题行右侧的动作胶囊：编辑/完成拖拽模式 · 重置。
+  ///
+  /// 位置维持原样（卡片标题行内，不挪去页面 header），只是把裸的
+  /// `OutlinedButton.icon` 换成全站统一的 [GlassButtonGroup] + [GlassIconButton]。
+  Widget _buildActionGroup() {
+    return GlassButtonGroup(
+      children: [
+        GlassIconButton(
+          icon: Icon(_isDragMode ? Icons.check : Icons.drag_handle),
+          tooltip: _isDragMode
+              ? slang.t.navigationOrderSettings.done
+              : slang.t.navigationOrderSettings.edit,
+          onPressed: () => setState(() => _isDragMode = !_isDragMode),
+        ),
+        GlassIconButton(
+          icon: const Icon(Icons.refresh),
+          tooltip: slang.t.navigationOrderSettings.reset,
+          onPressed: _showResetConfirmDialog,
         ),
       ],
     );
@@ -304,33 +315,8 @@ class _NavigationOrderSettingsPageState
                     ),
                   ),
                 ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    OutlinedButton.icon(
-                      icon: Icon(
-                        _isDragMode ? Icons.check : Icons.drag_handle,
-                        size: 18,
-                      ),
-                      label: Text(
-                        _isDragMode
-                            ? slang.t.navigationOrderSettings.done
-                            : slang.t.navigationOrderSettings.edit,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isDragMode = !_isDragMode;
-                        });
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                    OutlinedButton.icon(
-                      icon: const Icon(Icons.refresh, size: 18),
-                      label: Text(slang.t.navigationOrderSettings.reset),
-                      onPressed: () => _showResetConfirmDialog(),
-                    ),
-                  ],
-                ),
+                const SizedBox(width: 8),
+                _buildActionGroup(),
               ],
             ),
           ),
@@ -426,14 +412,16 @@ class _NavigationOrderSettingsPageState
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (isHideable)
-                          IconButton(
+                        if (isHideable) ...[
+                          GlassIconButton(
+                            standalone: true,
+                            size: 36,
                             icon: Icon(
                               isHidden
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
-                              size: 20,
                             ),
+                            iconSize: 18,
                             color: isHidden
                                 ? Theme.of(context).colorScheme.onSurfaceVariant
                                 : Theme.of(context).colorScheme.primary,
@@ -442,6 +430,8 @@ class _NavigationOrderSettingsPageState
                                 : slang.t.navigationOrderSettings.hide,
                             onPressed: () => _toggleVisibility(itemKey),
                           ),
+                          const SizedBox(width: 8),
+                        ],
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
@@ -487,6 +477,13 @@ class _NavigationOrderSettingsPageState
   }
 
   Widget _buildPreviewCard() {
+    // 预览必须跟 HomeShellScaffold 实际渲染的东西一致（浮动玻璃胶囊 + 独立
+    // 搜索圆钮 / NavigationRail），而不是自己另画一套方盒子——不然设置页
+    // 和真实效果对不上，用户按预览排完序会觉得「跟我看到的不一样」。
+    final visibleOrder = _visibleNavigationOrder;
+    if (_previewTabIndex >= visibleOrder.length) _previewTabIndex = 0;
+    if (_previewRailIndex >= visibleOrder.length) _previewRailIndex = 0;
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -515,43 +512,7 @@ class _NavigationOrderSettingsPageState
                   ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 12),
-                Container(
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Theme.of(context).dividerColor),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: _visibleNavigationOrder.map((itemKey) {
-                      final item = _navigationItems[itemKey]!;
-                      return Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              item.icon,
-                              size: 20,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              item.title,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
+                _buildBottomNavPreview(visibleOrder),
                 const SizedBox(height: 16),
                 Text(
                   slang.t.navigationOrderSettings.sidebarPreview,
@@ -560,48 +521,7 @@ class _NavigationOrderSettingsPageState
                   ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 12),
-                Container(
-                  width: 200,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Theme.of(context).dividerColor),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: _visibleNavigationOrder.asMap().entries.map((
-                      entry,
-                    ) {
-                      final index = entry.key;
-                      final itemKey = entry.value;
-                      final item = _navigationItems[itemKey]!;
-                      return ListTile(
-                        dense: true,
-                        leading: Icon(
-                          item.icon,
-                          size: 20,
-                          color: index == 0
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                        title: Text(
-                          item.title,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(
-                                color: index == 0
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                                fontWeight: index == 0
-                                    ? FontWeight.w500
-                                    : FontWeight.normal,
-                              ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
+                _buildSidebarPreview(visibleOrder),
               ],
             ),
           ),
@@ -610,11 +530,131 @@ class _NavigationOrderSettingsPageState
     );
   }
 
+  /// 移动端浮动底栏预览：真实的 [GlassFloatingTabBar] + 独立搜索圆钮，
+  /// 叠在一块模拟内容背景上，才能看出玻璃胶囊的半透明质感。
+  Widget _buildBottomNavPreview(List<String> visibleOrder) {
+    final cs = Theme.of(context).colorScheme;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        height: 148,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              cs.primaryContainer.withValues(alpha: 0.55),
+              cs.tertiaryContainer.withValues(alpha: 0.55),
+            ],
+          ),
+        ),
+        child: Stack(
+          children: [
+            // 模拟内容（卡片网格），仅用于给玻璃胶囊提供反差背景。
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 60),
+              child: GridView.count(
+                crossAxisCount: 3,
+                mainAxisSpacing: 8,
+                crossAxisSpacing: 8,
+                physics: const NeverScrollableScrollPhysics(),
+                children: List.generate(
+                  3,
+                  (_) => DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: cs.surface.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: 12,
+              right: 12,
+              bottom: 8,
+              child: GlassFloatingTabBar(
+                currentIndex: _previewTabIndex,
+                onTap: (index) => setState(() => _previewTabIndex = index),
+                items: visibleOrder.map((key) {
+                  final item = _navigationItems[key]!;
+                  return GlassTabItem(icon: item.icon, label: item.title);
+                }).toList(),
+                trailing: GlassIconButton(
+                  standalone: true,
+                  size: GlassTokens.floatingActionSize,
+                  iconSize: 26,
+                  icon: const Icon(Icons.search),
+                  onPressed: () {},
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 宽屏侧栏预览：真实的 [NavigationRail]（与 HomeShellScaffold 同一套
+  /// Material 组件），旁边留一小块内容区做参照。
+  Widget _buildSidebarPreview(List<String> visibleOrder) {
+    final cs = Theme.of(context).colorScheme;
+    final destinations = visibleOrder.map((key) {
+      final item = _navigationItems[key]!;
+      return NavigationRailDestination(
+        icon: Icon(item.icon),
+        label: Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+      );
+    }).toList();
+
+    // 与 HomeShellScaffold._buildNavigationRail 同一口径的最小高度估算
+    // （每项约 72，加上 trailing 区块与呼吸），否则窄容器里 NavigationRail
+    // 自身的 intrinsic 高度会超出预览框，画出溢出警示条。
+    final double railHeight = destinations.length * 72.0 + 2 * 48.0 + 32.0;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        height: railHeight,
+        color: cs.surface,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            NavigationRail(
+              labelType: NavigationRailLabelType.all,
+              selectedIndex: _previewRailIndex,
+              onDestinationSelected: (index) =>
+                  setState(() => _previewRailIndex = index),
+              destinations: destinations,
+            ),
+            VerticalDivider(width: 1, color: Theme.of(context).dividerColor),
+            Expanded(
+              child: Container(color: cs.surfaceContainerLowest),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showResetConfirmDialog() {
     showAppDialog(
       AlertDialog(
-        title: Text(
-          slang.t.navigationOrderSettings.confirmResetNavigationOrder,
+        // 标题行关闭钮走全局约定的玻璃圆钮
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                slang.t.navigationOrderSettings.confirmResetNavigationOrder,
+              ),
+            ),
+            GlassIconButton(
+              standalone: true,
+              icon: const Icon(Icons.close),
+              tooltip: slang.t.common.close,
+              onPressed: () => AppService.tryPop(),
+            ),
+          ],
         ),
         content: Text(
           slang.t.navigationOrderSettings.confirmResetNavigationOrderDesc,

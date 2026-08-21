@@ -90,6 +90,7 @@ class _PostInputDialogState extends State<PostInputDialog> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => const MarkdownSyntaxHelp(),
     );
   }

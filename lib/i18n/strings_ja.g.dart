@@ -755,6 +755,7 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get privacy => 'プライバシー';
 	@override String get forum => 'フォーラム';
 	@override String get news => 'ニュース';
+	@override String get community => 'コミュニティ';
 	@override String get disableForumReplyQuote => 'フォーラム返信引用を無効にする';
 	@override String get disableForumReplyQuoteDesc => 'フォーラム返信時の返信階層情報の携帯を無効にする';
 	@override String get theaterMode => '劇院モード';
@@ -770,6 +771,7 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get useDynamicColorDesc => 'この設定はアプリがダイナミックカラーを使用するかどうかを決定します';
 	@override String get presetColors => 'プリセットカラー';
 	@override String get customColors => 'カスタムカラー';
+	@override String get customColorsDisabledByDynamicColor => 'ダイナミックカラーが有効なため、プリセット/カスタムカラーは使用できません。先にダイナミックカラーをオフにしてください';
 	@override String get pickColor => 'カラーを選択';
 	@override String get cancel => 'キャンセル';
 	@override String get confirm => '確認';
@@ -1980,6 +1982,7 @@ class _TranslationsNavigationOrderSettingsJa implements TranslationsNavigationOr
 	@override String get subscriptionDescription => 'フォローしているユーザーの最新コンテンツを表示';
 	@override String get forumDescription => 'コミュニティディスカッションに参加';
 	@override String get newsDescription => '公式ニュース、記事、放送を閲覧';
+	@override String get communityDescription => 'フォーラムの議論と公式ニュース・記事・ブロードキャスト';
 }
 
 // Path: news
@@ -3981,6 +3984,7 @@ extension on TranslationsJa {
 			'settings.privacy' => 'プライバシー',
 			'settings.forum' => 'フォーラム',
 			'settings.news' => 'ニュース',
+			'settings.community' => 'コミュニティ',
 			'settings.disableForumReplyQuote' => 'フォーラム返信引用を無効にする',
 			'settings.disableForumReplyQuoteDesc' => 'フォーラム返信時の返信階層情報の携帯を無効にする',
 			'settings.theaterMode' => '劇院モード',
@@ -3996,6 +4000,7 @@ extension on TranslationsJa {
 			'settings.useDynamicColorDesc' => 'この設定はアプリがダイナミックカラーを使用するかどうかを決定します',
 			'settings.presetColors' => 'プリセットカラー',
 			'settings.customColors' => 'カスタムカラー',
+			'settings.customColorsDisabledByDynamicColor' => 'ダイナミックカラーが有効なため、プリセット/カスタムカラーは使用できません。先にダイナミックカラーをオフにしてください',
 			'settings.pickColor' => 'カラーを選択',
 			'settings.cancel' => 'キャンセル',
 			'settings.confirm' => '確認',
@@ -4423,10 +4428,10 @@ extension on TranslationsJa {
 			'oreno3d.loading.gettingVideoInfo' => '動画情報を取得中...',
 			'oreno3d.loading.cancel' => 'キャンセル',
 			'oreno3d.messages.videoNotFoundOrDeleted' => '動画が見つからないか削除されました',
-			'oreno3d.messages.unableToGetVideoPlayLink' => '動画再生リンクを取得できません',
-			'oreno3d.messages.getVideoDetailFailed' => '動画詳細の取得に失敗しました',
 			_ => null,
 		} ?? switch (path) {
+			'oreno3d.messages.unableToGetVideoPlayLink' => '動画再生リンクを取得できません',
+			'oreno3d.messages.getVideoDetailFailed' => '動画詳細の取得に失敗しました',
 			'signIn.pleaseLoginFirst' => 'サインインする前にログインしてください',
 			'signIn.alreadySignedInToday' => '今日は既にサインインしています！',
 			'signIn.youDidNotStickToTheSignIn' => 'サインインを続けることができませんでした。',
@@ -4937,10 +4942,10 @@ extension on TranslationsJa {
 			'download.category.manage' => '管理',
 			'download.category.createShortcut' => '新規作成',
 			'download.category.newCategoryHint' => '新しいカテゴリー名',
-			'download.category.createSuccess' => 'カテゴリーを作成しました',
-			'download.category.createFailed' => 'カテゴリーの作成に失敗しました',
 			_ => null,
 		} ?? switch (path) {
+			'download.category.createSuccess' => 'カテゴリーを作成しました',
+			'download.category.createFailed' => 'カテゴリーの作成に失敗しました',
 			'download.category.nameEmpty' => 'カテゴリー名を入力してください',
 			'download.category.emptyHint' => 'カテゴリーがまだありません。作成してダウンロードを整理しましょう。',
 			'download.category.moveTo' => 'カテゴリーへ移動',
@@ -5451,10 +5456,10 @@ extension on TranslationsJa {
 			'emoji.batchImport' => '一括インポート',
 			'emoji.enterJsonUrlArray' => 'JSON形式のURL配列を入力してください:',
 			'emoji.formatExample' => '形式例:\n["url1", "url2", "url3"]',
-			'emoji.pasteJsonUrlArray' => 'JSON形式のURL配列を貼り付けてください',
-			'emoji.import' => 'インポート',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.pasteJsonUrlArray' => 'JSON形式のURL配列を貼り付けてください',
+			'emoji.import' => 'インポート',
 			'emoji.importSuccess' => ({required Object count}) => '${count}枚の画像をインポートしました',
 			'emoji.jsonFormatError' => 'JSON形式エラー、入力を確認してください',
 			'emoji.createGroup' => '絵文字グループを作成',
@@ -5556,6 +5561,7 @@ extension on TranslationsJa {
 			'navigationOrderSettings.subscriptionDescription' => 'フォローしているユーザーの最新コンテンツを表示',
 			'navigationOrderSettings.forumDescription' => 'コミュニティディスカッションに参加',
 			'navigationOrderSettings.newsDescription' => '公式ニュース、記事、放送を閲覧',
+			'navigationOrderSettings.communityDescription' => 'フォーラムの議論と公式ニュース・記事・ブロードキャスト',
 			'news.title' => 'ニュース',
 			'news.newsUpdates' => '更新情報',
 			'news.articles' => '記事',

@@ -46,17 +46,27 @@ void main() {
   testWidgets('取最宽的两段：不管横向滚到哪儿都保证两段完整', (tester) async {
     await pumpProbe(tester);
 
-    // 只有最宽的两段参与计算，第三段再短也不影响
-    final a = GlassSegmentedControl.minWidthFor(ctx, const [
-      GlassSegmentItem(label: 'Gallery'),
-      GlassSegmentItem(label: 'Trending'),
-      GlassSegmentItem(label: 'A'),
-    ]);
-    final b = GlassSegmentedControl.minWidthFor(ctx, const [
-      GlassSegmentItem(label: 'Gallery'),
-      GlassSegmentItem(label: 'Trending'),
-      GlassSegmentItem(label: 'AAAAAAAAAAAA'),
-    ]);
+    // 显式传整数 minVisibleItems: 2，隔离掉默认值 2.5 带来的第三段半宽——
+    // 这条测试只关心「只有最宽的两段参与计算，第三段再短也不影响」这条不变量
+    const params = 2.0;
+    final a = GlassSegmentedControl.minWidthFor(
+      ctx,
+      const [
+        GlassSegmentItem(label: 'Gallery'),
+        GlassSegmentItem(label: 'Trending'),
+        GlassSegmentItem(label: 'A'),
+      ],
+      minVisibleItems: params,
+    );
+    final b = GlassSegmentedControl.minWidthFor(
+      ctx,
+      const [
+        GlassSegmentItem(label: 'Gallery'),
+        GlassSegmentItem(label: 'Trending'),
+        GlassSegmentItem(label: 'AAAAAAAAAAAA'),
+      ],
+      minVisibleItems: params,
+    );
     expect(b, greaterThan(a), reason: '第三段变得比前两段还宽时，要求也要跟着涨');
 
     // 段数不足 minVisibleItems 时按实际段数算，不虚报
@@ -69,6 +79,27 @@ void main() {
     ]);
     expect(single, lessThan(pair));
     expect(GlassSegmentedControl.minWidthFor(ctx, const []), 0);
+  });
+
+  testWidgets('默认阈值 2.5：只够显示 2 个完整段时不算够，得再加半段余量', (tester) async {
+    await pumpProbe(tester);
+
+    const items = [
+      GlassSegmentItem(label: 'Gallery'),
+      GlassSegmentItem(label: 'Trending'),
+      GlassSegmentItem(label: 'Post'),
+    ];
+    final exactlyTwo = GlassSegmentedControl.minWidthFor(
+      ctx,
+      items,
+      minVisibleItems: 2,
+    );
+    final defaultThreshold = GlassSegmentedControl.minWidthFor(ctx, items);
+    expect(
+      defaultThreshold,
+      greaterThan(exactlyTwo),
+      reason: '默认约定是 2.5 段，比刚好露出 2 个完整段的旧阈值更严格',
+    );
   });
 
   testWidgets('带图标的段要多留出图标宽度', (tester) async {

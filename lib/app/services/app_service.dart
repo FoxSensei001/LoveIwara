@@ -70,17 +70,14 @@ class AppService extends GetxService {
       icon: Icons.subscriptions,
       pageIndex: 2,
     ),
-    'forum': NavigationItem(
-      key: 'forum',
-      title: slang.t.settings.forum,
+    // 论坛 + 新闻合并成一个栏目：底栏最多容得下 5 个元素（4 tab + 搜索圆钮），
+    // 两者在页内用 header 上的目的地下拉切换，见 community_page.dart。
+    // 图标固定不随半边变化——tab 的图标要稳定，用户才找得到它。
+    'community': NavigationItem(
+      key: 'community',
+      title: slang.t.settings.community,
       icon: Icons.forum,
       pageIndex: 3,
-    ),
-    'news': NavigationItem(
-      key: 'news',
-      title: slang.t.settings.news,
-      icon: Icons.newspaper_rounded,
-      pageIndex: 4,
     ),
   };
 

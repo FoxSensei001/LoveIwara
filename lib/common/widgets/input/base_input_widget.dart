@@ -107,6 +107,7 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => const MarkdownSyntaxHelp(),
     );
   }

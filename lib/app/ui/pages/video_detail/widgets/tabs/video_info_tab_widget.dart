@@ -642,15 +642,11 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                     ExpandableSectionWidget(
                       title: t.oreno3d.name,
                       icon: Icons.view_in_ar,
+                      // 不加不透明背景色：外层 ExpandableSectionWidget 已是同色
+                      // Material，叠一层不透明背景会挡住其长按/点击水波纹。
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(UIConstants.cardPadding),
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

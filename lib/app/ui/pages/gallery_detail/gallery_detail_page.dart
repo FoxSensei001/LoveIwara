@@ -14,6 +14,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constan
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -232,66 +233,47 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
     );
   }
 
-  /// 钉在顶部的玻璃 header：透明 SliverAppBar（返回圆钮 / 标题胶囊 / 主页胶囊），
-  /// flexibleSpace 常驻 EdgeFadeScrim 托底，内容上滑时从玻璃行背后经过。
-  SliverAppBar _buildGlassAppBar(BuildContext context, double statusBarHeight) {
+  /// 玻璃 header 行：返回圆钮 / 标题胶囊 / 主页胶囊。
+  ///
+  /// 用 [GlassHeaderOverlay] 悬浮在滚动内容之上（普通 Stack + Positioned，
+  /// 不进 sliver 树）——之前塞进 SliverAppBar.flexibleSpace 时，蒙层的渐隐
+  /// 距离会被 FlexibleSpaceBar 压扁在 toolbarHeight 以内，渐变没走完就被
+  /// 截断，读起来像一条硬边阴影；悬浮实现没有这层限制，与热门列表页等
+  /// 页面同一套配方（见 glass_header_overlay.dart）。
+  Widget _buildGlassHeaderRow(BuildContext context) {
     final t = slang.Translations.of(context);
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    return SliverAppBar(
-      pinned: true,
-      toolbarHeight: GlassTokens.headerRowHeight,
-      backgroundColor: Colors.transparent,
-      surfaceTintColor: Colors.transparent,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      automaticallyImplyLeading: false,
-      centerTitle: false,
-      titleSpacing: 0,
-      systemOverlayStyle: SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: isDarkMode
-            ? Brightness.light
-            : Brightness.dark,
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarIconBrightness: isDarkMode
-            ? Brightness.light
-            : Brightness.dark,
-      ),
-      leadingWidth: 16 + GlassTokens.pillHeight + 8,
-      leading: Padding(
-        padding: const EdgeInsets.only(left: 16),
-        child: Center(
-          child: GlassIconButton(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          GlassIconButton(
             standalone: true,
             icon: const Icon(Icons.arrow_back),
             tooltip: t.common.back,
             onPressed: () => AppService.tryPop(),
           ),
-        ),
-      ),
-      // 标题胶囊：点按/长按弹出完整标题弹窗（长标题被截断时的出口）
-      title: Obx(
-        () => GlassTitlePill(
-          title:
-              detailController.imageModelInfo.value?.title ??
-              widget.initialTitle,
-        ),
-      ),
-      actions: [
-        GlassButtonGroup(
-          children: [
-            GlassIconButton(
-              icon: const Icon(Icons.home),
-              tooltip: t.videoDetail.home,
-              onPressed: () => appRouter.go('/'),
+          const SizedBox(width: 8),
+          // 标题胶囊：点按/长按弹出完整标题弹窗（长标题被截断时的出口）
+          Expanded(
+            child: Obx(
+              () => GlassTitlePill(
+                title:
+                    detailController.imageModelInfo.value?.title ??
+                    widget.initialTitle,
+              ),
             ),
-          ],
-        ),
-        const SizedBox(width: 16),
-      ],
-      flexibleSpace: EdgeFadeScrim.top(
-        height: statusBarHeight + GlassTokens.headerRowHeight,
-        solidExtent: statusBarHeight,
+          ),
+          const SizedBox(width: 8),
+          GlassButtonGroup(
+            children: [
+              GlassIconButton(
+                icon: const Icon(Icons.home),
+                tooltip: t.videoDetail.home,
+                onPressed: () => appRouter.go('/'),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -472,8 +454,9 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
   /// 概览卡顶部要让出的高度。
   ///
   /// 窄屏下概览卡直接跟在玻璃 header sliver 之后，SliverAppBar 已经占了位；
-  /// 宽屏同理。这里只补一点呼吸间距，别让封面紧贴 header 底缘。
-  static const double _overviewCardTopGap = 8;
+  /// 宽屏同理。这段间距同时要让卡片顶边滚动经过 header 时，与 header 玻璃
+  /// 按钮的投影拉开距离——挨太近会让实色卡片的硬边把按钮阴影衬得很重。
+  static const double _overviewCardTopGap = 20;
 
   Widget _buildHeroScrollerSection(
     BuildContext context, {
@@ -873,7 +856,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
           left: 0,
           right: 0,
           child: EdgeFadeScrim.top(
-            height: headerExtent,
+            height: headerExtent + GlassTokens.headerFadeExtent,
             solidExtent: statusBarHeight,
           ),
         ),
@@ -955,24 +938,35 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
             errorMessage: errorMessage,
           );
 
+          final double headerExtent =
+              paddingTop + GlassTokens.headerRowHeight;
+
           if (isWide) {
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 左列：玻璃 header 钉在顶部，概览卡从它背后滚过
+                // 左列：玻璃 header 悬浮在顶部，概览卡从它背后滚过
                 Expanded(
-                  child: CustomScrollView(
-                    controller: _wideScrollController,
-                    physics: detailController.isHoveringHorizontalList.value
-                        ? const NeverScrollableScrollPhysics()
-                        : null,
-                    slivers: [
-                      _buildGlassAppBar(context, paddingTop),
-                      SliverToBoxAdapter(child: overviewCard),
-                      const SliverToBoxAdapter(
-                        child: SafeArea(top: false, child: SizedBox.shrink()),
-                      ),
-                    ],
+                  child: GlassHeaderOverlay(
+                    headerExtent: headerExtent,
+                    headerTop: paddingTop,
+                    solidExtent: paddingTop,
+                    header: _buildGlassHeaderRow(context),
+                    body: CustomScrollView(
+                      controller: _wideScrollController,
+                      physics: detailController.isHoveringHorizontalList.value
+                          ? const NeverScrollableScrollPhysics()
+                          : null,
+                      slivers: [
+                        SliverToBoxAdapter(
+                          child: SizedBox(height: headerExtent),
+                        ),
+                        SliverToBoxAdapter(child: overviewCard),
+                        const SliverToBoxAdapter(
+                          child: SafeArea(top: false, child: SizedBox.shrink()),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 // 右列：固定宽度的相关图库（分段胶囊 + 瀑布流）
@@ -985,33 +979,32 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
             );
           } else {
             // 窄屏：ExtendedNestedScrollView——概览卡上滑收走，玻璃 header 与
-            // 相关图库分段行分别钉在顶部（分段行悬浮在列表之上，列表以
+            // 相关图库分段行分别悬浮在顶部（分段行悬浮在列表之上，列表以
             // topInset 让位）。
-            return Stack(
-              fit: StackFit.expand,
-              children: [
-                Positioned.fill(
-                  child: NotificationListener<ScrollNotification>(
-                    onNotification: _handleNestedScrollNotification,
-                    child: ExtendedNestedScrollView(
-                      key: _nestedKey,
-                      physics: detailController.isHoveringHorizontalList.value
-                          ? const NeverScrollableScrollPhysics()
-                          : null,
-                      onlyOneScrollInBody: true,
-                      // 玻璃 header 行是唯一钉住的部分
-                      pinnedHeaderSliverHeightBuilder: () =>
-                          paddingTop + GlassTokens.headerRowHeight,
-                      headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                        _buildGlassAppBar(context, paddingTop),
-                        SliverToBoxAdapter(child: overviewCard),
-                      ],
-                      body: _buildNarrowRelatedArea(context),
-                    ),
-                  ),
+            return GlassHeaderOverlay(
+              headerExtent: headerExtent,
+              headerTop: paddingTop,
+              solidExtent: paddingTop,
+              header: _buildGlassHeaderRow(context),
+              extra: [_buildScrollToTopFab(context)],
+              body: NotificationListener<ScrollNotification>(
+                onNotification: _handleNestedScrollNotification,
+                child: ExtendedNestedScrollView(
+                  key: _nestedKey,
+                  physics: detailController.isHoveringHorizontalList.value
+                      ? const NeverScrollableScrollPhysics()
+                      : null,
+                  onlyOneScrollInBody: true,
+                  // header 行已经悬浮在 GlassHeaderOverlay 里，sliver 树里
+                  // 不再有真正 pinned 的部分。
+                  pinnedHeaderSliverHeightBuilder: () => 0,
+                  headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                    SliverToBoxAdapter(child: SizedBox(height: headerExtent)),
+                    SliverToBoxAdapter(child: overviewCard),
+                  ],
+                  body: _buildNarrowRelatedArea(context),
                 ),
-                _buildScrollToTopFab(context),
-              ],
+              ),
             );
           }
         }),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
+import 'package:i_iwara/app/routes/home_shell_navigation.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
@@ -25,10 +26,9 @@ import 'package:i_iwara/app/ui/pages/home/home_shell_scaffold.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/popular_video_list_page.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/popular_gallery_list_page.dart';
 import 'package:i_iwara/app/ui/pages/subscriptions/subscriptions_page.dart';
-import 'package:i_iwara/app/ui/pages/forum/forum_page.dart';
+import 'package:i_iwara/app/ui/pages/community/community_page.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:i_iwara/app/ui/pages/news/news_detail_page.dart';
-import 'package:i_iwara/app/ui/pages/news/news_page.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/first_time_setup_page.dart';
 import 'package:i_iwara/app/ui/pages/login/login_page_wrapper.dart';
 import 'package:i_iwara/app/ui/pages/sign_in/sing_in_page.dart';
@@ -104,7 +104,7 @@ final GlobalKey<NavigatorState> settingsShellNavigatorKey =
 
 /// 按分支索引获取对应的首页栏目页 Widget（实现了 [HomeWidgetInterface]）。
 /// 分支顺序与下方 [StatefulShellRoute] 的 branches 一一对应：
-/// 0=视频 1=图集 2=订阅 3=论坛 4=新闻。
+/// 0=视频 1=图集 2=订阅 3=社区（论坛 + 新闻）。
 Widget? _homeBranchWidget(int branchIndex) {
   switch (branchIndex) {
     case 0:
@@ -114,9 +114,7 @@ Widget? _homeBranchWidget(int branchIndex) {
     case 2:
       return SubscriptionsPage.globalKey.currentWidget;
     case 3:
-      return ForumPage.globalKey.currentWidget;
-    case 4:
-      return NewsPage.globalKey.currentWidget;
+      return CommunityPage.globalKey.currentWidget;
     default:
       return null;
   }
@@ -319,40 +317,33 @@ final GoRouter appRouter = GoRouter(
                 ),
               ],
             ),
-            // 分支 3：论坛
+            // 分支 3：社区（论坛 + 新闻）
+            //
+            // 两者原本各占一个 branch，底栏因此要摆 5 个 tab + 1 个搜索圆钮
+            // 共 6 个元素，太挤。现在合成一个 branch，页内用 header 上的
+            // 目的地下拉在「论坛 / 新闻·更新 / 新闻·文章 / 新闻·广播」之间切，
+            // 两个子页都在同一棵子树里保活（见 community_page.dart）。
+            //
+            // `/forum` 与 `/news` 仍然可用——它们被下面的 redirect 路由折叠到
+            // 这里，老的深链 / 分享链接 / AndroidManifest 里的 App Links 不受影响。
             StatefulShellBranch(
               routes: [
                 GoRoute(
-                  path: '/forum',
-                  name: 'forum_home',
+                  path: '/community',
+                  name: 'community_home',
                   builder: (context, state) => Obx(() {
                     final homeContentVersion =
                         Get.find<AppService>().homeContentVersion;
-                    return ForumPage(
-                      key: ForumPage.globalKey,
+                    return CommunityPage(
+                      key: CommunityPage.globalKey,
                       contentResetVersion: homeContentVersion,
-                    );
-                  }),
-                ),
-              ],
-            ),
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: '/news',
-                  name: 'news_home',
-                  builder: (context, state) => Obx(() {
-                    final homeContentVersion =
-                        Get.find<AppService>().homeContentVersion;
-                    return NewsPage(
-                      key: NewsPage.globalKey,
-                      contentResetVersion: homeContentVersion,
-                      initialCategory:
-                          IwaraDeepLinkUtils.resolveNewsCategoryType(
-                            state.uri.queryParameters['category'],
-                          ) ??
-                          IwaraNewsCategoryType.newsUpdates,
-                      initialLanguage: IwaraDeepLinkUtils.resolveNewsLanguage(
+                      initialDestination: CommunityDestination.fromQuery(
+                        tab: state.uri.queryParameters['tab'],
+                        newsCategory: IwaraDeepLinkUtils.resolveNewsCategoryType(
+                          state.uri.queryParameters['category'],
+                        ),
+                      ),
+                      initialNewsLanguage: IwaraDeepLinkUtils.resolveNewsLanguage(
                         state.uri.queryParameters['lang'],
                       ),
                     );
@@ -361,6 +352,25 @@ final GoRouter appRouter = GoRouter(
               ],
             ),
           ],
+        ),
+
+        // ---- 老栏目路径 -> 社区栏目（保深链兼容，不建页面只做重定向） ----
+        //
+        // 注意：`/news/:postId`（新闻详情）是另一条独立路由，路径不同，
+        // 不会被这里吃掉。
+        GoRoute(
+          path: '/forum',
+          redirect: (context, state) => HomeShellNavigation.legacyTabLocation(
+            'forum',
+            state.uri.queryParameters,
+          ),
+        ),
+        GoRoute(
+          path: '/news',
+          redirect: (context, state) => HomeShellNavigation.legacyTabLocation(
+            'news',
+            state.uri.queryParameters,
+          ),
         ),
 
         // ========== 详情类页面（挂在 Shell 内部，导航栏保持可见） ==========

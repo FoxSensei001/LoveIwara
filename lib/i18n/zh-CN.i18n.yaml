@@ -609,6 +609,7 @@ settings:
   privacy: 隐私
   forum: 论坛
   news: 新闻
+  community: 社区
   disableForumReplyQuote: 禁用论坛回复引用
   disableForumReplyQuoteDesc: 禁用论坛回复时携带被回复楼层信息
   theaterMode: 剧院模式
@@ -624,6 +625,7 @@ settings:
   useDynamicColorDesc: 此配置决定应用是否使用动态颜色
   presetColors: 预设颜色
   customColors: 自定义颜色
+  customColorsDisabledByDynamicColor: 已开启动态颜色，预设/自定义颜色暂不可用，请先关闭动态颜色
   pickColor: 选择颜色
   cancel: 取消
   confirm: 确认
@@ -2305,6 +2307,7 @@ navigationOrderSettings:
   forumDescription: 参与社区讨论
 
   newsDescription: 浏览官方新闻、文章和公告广播
+  communityDescription: 论坛讨论与官方新闻、文章、公告广播
 
 news:
   title: 新闻

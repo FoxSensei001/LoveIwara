@@ -29,6 +29,9 @@ class DeepLinkService extends GetxService {
         case '/':
         case '/gallery':
         case '/subscriptions':
+        case '/community':
+        // 论坛 / 新闻已并入 `/community`，这两条仍会被路由重定向过去；
+        // 它们同样是 tab 根，必须 `go` 而不是 `push`。
         case '/forum':
         case '/news':
           return true;

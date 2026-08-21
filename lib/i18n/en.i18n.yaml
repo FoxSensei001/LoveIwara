@@ -607,6 +607,7 @@ settings:
   privacy: Privacy
   forum: Forum
   news: News
+  community: Community
   disableForumReplyQuote: Disable Forum Reply Quote
   disableForumReplyQuoteDesc: Disable carrying replied floor information when replying in forum
   theaterMode: Theater Mode
@@ -622,6 +623,7 @@ settings:
   useDynamicColorDesc: This configuration determines whether the app uses dynamic color
   presetColors: Preset Colors
   customColors: Custom Colors
+  customColorsDisabledByDynamicColor: Dynamic color is on, so preset/custom colors are unavailable. Turn off dynamic color first.
   pickColor: Pick Color
   cancel: Cancel
   confirm: Confirm
@@ -1952,6 +1954,7 @@ navigationOrderSettings:
   forumDescription: Participate in community discussions
 
   newsDescription: Browse official news, articles, and broadcasts
+  communityDescription: Forum discussions plus official news, articles and broadcasts
 
 news:
   title: News

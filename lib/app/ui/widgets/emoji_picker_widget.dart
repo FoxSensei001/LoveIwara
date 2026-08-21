@@ -212,26 +212,30 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
       }
 
       // 否则，显示“暂无表情”的提示
+      final cs = Theme.of(context).colorScheme;
       return SizedBox(
         height: 300,
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.emoji_emotions_outlined,
                 size: 48,
-                color: Colors.grey,
+                color: cs.onSurfaceVariant,
               ),
               const SizedBox(height: 16),
               Text(
                 t.emoji.noEmojis,
-                style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 16),
               ),
               const SizedBox(height: 8),
               Text(
                 t.emoji.goToSettingsToAddEmojis,
-                style: TextStyle(color: Colors.grey[500], fontSize: 14),
+                style: TextStyle(
+                  color: cs.onSurfaceVariant.withValues(alpha: 0.8),
+                  fontSize: 14,
+                ),
               ),
             ],
           ),
@@ -504,8 +508,11 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                         color: Theme.of(
                           context,
                         ).colorScheme.surfaceContainerHighest,
-                        child: const Center(
-                          child: Icon(Icons.broken_image, color: Colors.grey),
+                        child: Center(
+                          child: Icon(
+                            Icons.broken_image,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ),
                     ),
@@ -575,7 +582,9 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                 return Center(
                   child: Text(
                     t.emoji.noEmojisInGroup,
-                    style: const TextStyle(color: Colors.grey),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 );
               }
@@ -600,7 +609,9 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                     child: Container(
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: Colors.grey.shade300,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.outline.withValues(alpha: 0.2),
                           width: 1,
                         ),
                         borderRadius: BorderRadius.circular(8),
@@ -618,8 +629,13 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                             highlightColor: Colors.grey[100]!,
                             child: Container(color: Colors.white),
                           ),
-                          errorWidget: (context, url, error) => const Center(
-                            child: Icon(Icons.broken_image, color: Colors.grey),
+                          errorWidget: (context, url, error) => Center(
+                            child: Icon(
+                              Icons.broken_image,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
                           ),
                         ),
                       ),

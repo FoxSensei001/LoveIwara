@@ -16,9 +16,6 @@ import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
-import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_overflow_menu_button.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
@@ -28,35 +25,39 @@ import 'package:i_iwara/utils/common_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/recent_thread_repository.dart';
 import 'package:i_iwara/app/ui/pages/forum/forum_skeleton_page.dart';
-import 'package:i_iwara/app/ui/pages/home_page.dart';
+import 'package:i_iwara/app/ui/pages/community/community_header_state.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
-class ForumPage extends StatefulWidget implements HomeWidgetInterface {
-  static final globalKey = GlobalKey<_ForumPageState>();
+/// 论坛页——社区栏目的「论坛」半边。
+///
+/// 本页**不画自己的 header**：玻璃 header 行（头像 / 目的地下拉 / 动作胶囊）
+/// 和顶部渐隐蒙层由 [CommunityPage] 统一提供，切到新闻半边时右侧胶囊才能
+/// 形变而不是被整组替换。本页只负责内容区，并把影响按钮长相的那两项状态
+/// 通过 [headerState] 报上去。
+class ForumPage extends StatefulWidget {
+  static final globalKey = GlobalKey<ForumPageState>();
   final int contentResetVersion;
 
-  const ForumPage({super.key, this.contentResetVersion = 0});
+  /// 由 [CommunityPage] 持有、本页写入：header 上论坛专属按钮的当前形态。
+  final ValueNotifier<ForumHeaderState>? headerState;
+
+  const ForumPage({
+    super.key,
+    this.contentResetVersion = 0,
+    this.headerState,
+  });
 
   @override
-  State<ForumPage> createState() => _ForumPageState();
-
-  @override
-  void refreshCurrent() {
-    final state = globalKey.currentState;
-    if (state != null) {
-      state.tryRefreshCurrentList();
-    }
-  }
+  State<ForumPage> createState() => ForumPageState();
 }
 
-class _ForumPageState extends State<ForumPage> {
+class ForumPageState extends State<ForumPage> {
   final ForumService _forumService = Get.find<ForumService>();
   final ApiService _apiService = Get.find<ApiService>();
   List<ForumCategoryTreeModel>? _categories;
   bool _isLoading = true;
   String? _error;
-  final UserService userService = Get.find<UserService>();
   int _selectedRailIndex = 0; // 修改变量名称：选中 rail 的索引（0 为 最近，其余从 _categories 中获取）
   late RecentThreadListRepository _recentThreadRepository;
   // “最近”列表的滚动控制器，用于再次点击栏目时回到顶部
@@ -214,7 +215,7 @@ class _ForumPageState extends State<ForumPage> {
     if (!mounted) return;
     _scrollCurrentListToTop();
     // 整体重载：分类树、最近帖子、置顶/全站公告
-    _refreshAll();
+    refreshAll();
   }
 
   @override
@@ -233,14 +234,36 @@ class _ForumPageState extends State<ForumPage> {
     if (CommonConstants.enableForumSitewideAnnouncement) {
       _loadSitewideAnnouncement();
     }
+    _publishHeaderState();
   }
 
-  /// 切换「最近」列表的瀑布流 / 分页模式。
-  void _togglePaginationMode() {
+  /// 把「论坛半边的按钮该长什么样」报给 [CommunityPage]。
+  ///
+  /// 只报状态不报 widget——按钮本身由父页构建，父页首帧就能画出完整胶囊，
+  /// 不必等本页 State 挂上来。[ForumHeaderState] 实现了 `==`，值没变时
+  /// [ValueNotifier] 不会触发无谓的重建。
+  ///
+  /// 调用点既有点按回调也有生命周期钩子（initState / didUpdateWidget），
+  /// 后者跑在 build 阶段里，写入必须绕开——见 [runOutsideBuildPhase]。
+  void _publishHeaderState() {
+    final notifier = widget.headerState;
+    if (notifier == null || !mounted) return;
+    final next = ForumHeaderState(
+      showPaginationToggle: _selectedRailIndex == 0,
+      isPaginated: _isPaginated.value,
+    );
+    runOutsideBuildPhase(() {
+      if (mounted) notifier.value = next;
+    });
+  }
+
+  /// 切换「最近」列表的瀑布流 / 分页模式。由社区 header 上的按钮调用。
+  void togglePaginationMode() {
     final newValue = !_isPaginated.value;
     _isPaginated.value = newValue;
     CommonConstants.isPaginated = newValue;
     Get.find<ConfigService>()[ConfigKey.DEFAULT_PAGINATION_MODE] = newValue;
+    _publishHeaderState();
 
     _scrollCurrentListToTop();
     if (newValue) {
@@ -352,7 +375,8 @@ class _ForumPageState extends State<ForumPage> {
       _recentIndicatorStatus = IndicatorStatus.fullScreenBusying;
     });
 
-    _refreshAll();
+    _publishHeaderState();
+    refreshAll();
   }
 
   Future<void> _loadCategories({bool isRefresh = false}) async {
@@ -378,7 +402,8 @@ class _ForumPageState extends State<ForumPage> {
     }
   }
 
-  Future<void> _refreshAll() async {
+  /// 整页重载（分类树 / 最近帖子 / 置顶 + 全站公告）。
+  Future<void> refreshAll() async {
     // 刷新分类列表、最近帖子列表、置顶公告（并发执行）
     final tasks = <Future<void>>[
       _loadCategories(isRefresh: true),
@@ -441,7 +466,8 @@ class _ForumPageState extends State<ForumPage> {
     });
   }
 
-  void _showPostDialog() {
+  /// 发帖弹窗。由社区 header 上的「＋」调用。
+  void showPostDialog() {
     UserService userService = Get.find<UserService>();
     if (!userService.isAuthenticated) {
       AppService.switchGlobalDrawer();
@@ -461,7 +487,8 @@ class _ForumPageState extends State<ForumPage> {
     );
   }
 
-  void _openSearchDialog() {
+  /// 论坛搜索弹窗。由社区 header 上的搜索键调用。
+  void openSearchDialog() {
     showAppDialog(
       SearchDialog(
         userInputKeywords: '',
@@ -475,129 +502,6 @@ class _ForumPageState extends State<ForumPage> {
           );
         },
       ),
-    );
-  }
-
-  /// 左上角「我」圆钮：登录中显示闪烁占位，已登录显示头像（带未读红点）。
-  Widget _buildAvatarButton(BuildContext context) {
-    final t = slang.Translations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-    return Obx(() {
-      final Widget inner;
-      if (userService.isLogining.value) {
-        inner = KeyedSubtree(
-          key: const ValueKey('avatar-shimmer'),
-          child: Shimmer.fromColors(
-            baseColor: colorScheme.surfaceContainerHighest,
-            highlightColor: colorScheme.surface,
-            child: Container(
-              width: 26,
-              height: 26,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-        );
-      } else if (userService.hasLoadedProfile &&
-          userService.currentUser.value != null) {
-        inner = KeyedSubtree(
-          // 用户 id 变化时（切换账号）也触发一次交叉过渡
-          key: ValueKey('avatar-${userService.currentUser.value?.id}'),
-          child: IgnorePointer(
-            // 头像铺满圆钮（只留 1px 玻璃描边），不要一圈内边距
-            child: AvatarWidget(
-              user: userService.currentUser.value,
-              size: GlassTokens.pillHeight - 2,
-            ),
-          ),
-        );
-      } else {
-        inner = KeyedSubtree(
-          key: const ValueKey('avatar-placeholder'),
-          child: Icon(
-            Icons.account_circle,
-            size: 26,
-            color: colorScheme.onSurface,
-          ),
-        );
-      }
-      final count =
-          userService.notificationCount.value + userService.messagesCount.value;
-      return GlassSurface(
-        circle: true,
-        tooltip: t.common.me,
-        onTap: AppService.switchGlobalDrawer,
-        child: Stack(
-          alignment: Alignment.center,
-          clipBehavior: Clip.none,
-          children: [
-            // shimmer / avatar / placeholder 三态交叉过渡
-            GlassShapeSwitcher(child: inner),
-            Positioned(
-              right: 2,
-              top: 2,
-              child: GlassAnimatedDot(visible: count > 0),
-            ),
-          ],
-        ),
-      );
-    });
-  }
-
-  /// 右侧动作胶囊：[搜索(仅宽屏)] 发帖 · 更多。
-  Widget _buildActionGroup(BuildContext context, {required bool isWide}) {
-    final t = slang.Translations.of(context);
-    return GlassButtonGroup(
-      children: [
-        GlassGroupSlot(
-          visible: isWide,
-          child: GlassIconButton(
-            icon: const Icon(Icons.search),
-            tooltip: t.common.search,
-            onPressed: _openSearchDialog,
-          ),
-        ),
-        // 瀑布/分页切换只作用于「最近」列表，切到分类栏目时随之挤出
-        GlassGroupSlot(
-          visible: _selectedRailIndex == 0,
-          child: Obx(
-            () => GlassIconButton(
-              icon: Icon(
-                _isPaginated.value ? Icons.view_stream : Icons.view_module,
-              ),
-              tooltip: _isPaginated.value
-                  ? t.common.pagination.waterfall
-                  : t.common.pagination.pagination,
-              onPressed: _togglePaginationMode,
-            ),
-          ),
-        ),
-        GlassIconButton(
-          icon: const Icon(Icons.add),
-          tooltip: t.forum.createThread,
-          onPressed: _showPostDialog,
-        ),
-        // 「更多」只剩一条时（宽屏：搜索已提到胶囊上，菜单里只剩刷新）
-        // 自动变成那枚动作本身，不为一个选项多弹一次层
-        GlassGroupOverflowMenuButton(
-          actions: [
-            if (!isWide)
-              GlassMenuAction(
-                icon: Icons.search,
-                label: t.common.search,
-                onSelected: _openSearchDialog,
-              ),
-            GlassMenuAction(
-              icon: Icons.refresh,
-              label: t.common.refresh,
-              onSelected: _refreshAll,
-              showsLoading: true,
-            ),
-          ],
-        ),
-      ],
     );
   }
 
@@ -641,72 +545,18 @@ class _ForumPageState extends State<ForumPage> {
 
   @override
   Widget build(BuildContext context) {
-    final t = slang.Translations.of(context);
     final double statusBarHeight = MediaQuery.of(context).padding.top;
-    // header 行（状态栏 + 玻璃 header）占用的总高度，列表用它做 paddingTop
+    // 内容要让出的高度 = 状态栏 + 玻璃 header 行。
+    // header 本身由 CommunityPage 画（同一套几何），这里只负责让位。
     final double effectivePaddingTop = statusBarHeight + appBarHeight;
-    final bool isWide = MediaQuery.sizeOf(context).width > 600;
-    final textTheme = Theme.of(context).textTheme;
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          // 内容铺满整页，自己用 effectivePaddingTop 让出 header
-          Positioned.fill(child: _buildBody(context, effectivePaddingTop)),
-
-          // 顶部渐变蒙层（列表滚到下面时淡出）
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: EdgeFadeScrim.top(
-              height: effectivePaddingTop + GlassTokens.headerFadeExtent,
-              solidExtent: statusBarHeight,
-            ),
-          ),
-
-          // header 行：左 头像圆钮 / 中 标题 / 右 动作胶囊
-          Positioned(
-            top: statusBarHeight,
-            left: 0,
-            right: 0,
-            height: appBarHeight,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  _buildAvatarButton(context),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: GlassSurface(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        // 用 Row(min) 而不是 Center：Center 在有界约束下会撑满整个中间区
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              t.forum.forum,
-                              style: textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  _buildActionGroup(context, isWide: isWide),
-                ],
-              ),
-            ),
-          ),
-
-          _buildScrollToTopFab(context),
-        ],
-      ),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // 内容铺满整个半边，自己用 effectivePaddingTop 让出 header
+        Positioned.fill(child: _buildBody(context, effectivePaddingTop)),
+        _buildScrollToTopFab(context),
+      ],
     );
   }
 
@@ -745,7 +595,7 @@ class _ForumPageState extends State<ForumPage> {
       // 使用顶部 Tab 来切换"最近"及各分类内容
       return RefreshIndicator(
         displacement: effectivePaddingTop, // 设置下拉指示器的偏移量
-        onRefresh: _refreshAll,
+        onRefresh: refreshAll,
         child: DefaultTabController(
           key: ValueKey('forum-tabs-${widget.contentResetVersion}'),
           length: _categories!.length + 1,
@@ -801,7 +651,7 @@ class _ForumPageState extends State<ForumPage> {
     // 原有宽屏布局
     return RefreshIndicator(
       displacement: effectivePaddingTop, // 设置下拉指示器的偏移量
-      onRefresh: _refreshAll,
+      onRefresh: refreshAll,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -825,6 +675,8 @@ class _ForumPageState extends State<ForumPage> {
                       setState(() {
                         _selectedRailIndex = index;
                       });
+                      // 「瀑布/分页」只作用于「最近」，切走时那枚键要挤出去
+                      _publishHeaderState();
                     },
                     labelType: NavigationRailLabelType.all, // 显示图标和文本
                     destinations: [
@@ -1018,7 +870,7 @@ class _ForumPageState extends State<ForumPage> {
         RefreshIndicator(
           // 下拉指示器从玻璃 header 下方弹出
           displacement: effectivePaddingTop,
-          onRefresh: _refreshAll,
+          onRefresh: refreshAll,
           child: CustomScrollView(
             controller: _recentThreadsScrollController,
             physics: const ClampingScrollPhysics(),

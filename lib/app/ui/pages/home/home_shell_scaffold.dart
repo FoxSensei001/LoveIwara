@@ -8,6 +8,7 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/services/pop_coordinator.dart';
 import 'package:i_iwara/app/ui/widgets/animated_navigation_rail_slot.dart';
+import 'package:i_iwara/app/ui/pages/community/community_page.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_floating_tab_bar.dart';
@@ -450,8 +451,13 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     }
     final SearchSegment segment = switch (key) {
       'gallery' => SearchSegment.image,
-      'forum' => SearchSegment.forum,
-      // subscription / news / video 及未知栏目统一默认视频分段
+      // 社区栏目分论坛 / 新闻两半：在论坛那半才默认论坛分段，
+      // 新闻那半没有对应的搜索分段，落回视频。
+      'community' =>
+        CommunityPage.globalKey.currentState?.isOnForum ?? false
+            ? SearchSegment.forum
+            : SearchSegment.video,
+      // subscription / video 及未知栏目统一默认视频分段
       _ => SearchSegment.video,
     };
     showAppDialog(

@@ -65,10 +65,15 @@ class GlassSegmentedControl extends StatefulWidget {
   /// 这里按真实文案量出每段的宽度，取**最宽的那几段**求和——这样不管横向
   /// 滚到哪一段，都保证至少有 [minVisibleItems] 个段是完整的；连这个都摆不
   /// 下，平铺就没有意义了（只能看见一个段还得横着拨），该让位给下拉钮。
+  ///
+  /// [minVisibleItems] 支持小数（约定值 2.5）：整数部分的段完整计入，
+  /// 小数部分按比例算下一段（次宽的那段）的宽度——只够刚好露出 2 个完整段
+  /// 时不算「够」，得再多出半段的宽度做视觉余量/可横滑的提示，否则退化成
+  /// 下拉钮反而更清爽。
   static double minWidthFor(
     BuildContext context,
     List<GlassSegmentItem> items, {
-    int minVisibleItems = 2,
+    double minVisibleItems = 2.5,
   }) {
     if (items.isEmpty) return 0;
     final TextStyle style = _labelStyle(context);
@@ -90,10 +95,15 @@ class GlassSegmentedControl extends StatefulWidget {
     }
     widths.sort((a, b) => b.compareTo(a));
 
-    final int take = minVisibleItems.clamp(1, widths.length);
+    final double effectiveMin = minVisibleItems.clamp(1, widths.length.toDouble());
+    final int fullCount = effectiveMin.floor();
+    final double frac = effectiveMin - fullCount;
     double total = 0;
-    for (var i = 0; i < take; i++) {
+    for (var i = 0; i < fullCount; i++) {
       total += widths[i];
+    }
+    if (frac > 0 && fullCount < widths.length) {
+      total += widths[fullCount] * frac;
     }
     // 胶囊内缩 + 左右两条玻璃描边
     return total + capsuleInset * 2 + GlassTokens.strokeWidth * 2;

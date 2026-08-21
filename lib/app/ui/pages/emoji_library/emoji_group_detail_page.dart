@@ -8,11 +8,10 @@ import 'dart:convert';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/ui/widgets/glass/batch_confirm_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_overflow_menu_button.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
-
-enum _ImportMenuAction { addByUrl, batchImport }
 
 class EmojiGroupDetailSheet extends StatefulWidget {
   final EmojiGroup group;
@@ -109,11 +108,12 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
 
   Widget _buildSheet(BuildContext context) {
     final t = Translations.of(context);
+    final cs = Theme.of(context).colorScheme;
     return Container(
       height: MediaQuery.of(context).size.height * 0.9,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
         ),
@@ -128,7 +128,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: Colors.grey.shade300,
+              color: cs.outlineVariant,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -136,7 +136,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cs.surface,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
@@ -166,43 +166,19 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                 ),
                 const SizedBox(width: 8),
                 if (!_isSelectionMode) ...[
-                  PopupMenuButton<_ImportMenuAction>(
-                    icon: const Icon(Icons.more_vert),
-                    onSelected: (action) {
-                      switch (action) {
-                        case _ImportMenuAction.addByUrl:
-                          _showUrlInputDialog();
-                          break;
-                        case _ImportMenuAction.batchImport:
-                          _showBatchImportDialog();
-                          break;
-                      }
-                    },
-                    itemBuilder: (context) {
-                      final t = Translations.of(context);
-                      return [
-                        PopupMenuItem(
-                          value: _ImportMenuAction.addByUrl,
-                          child: Row(
-                            children: [
-                              const Icon(Icons.link, size: 18),
-                              const SizedBox(width: 8),
-                              Text(t.emoji.addImageByUrl),
-                            ],
-                          ),
-                        ),
-                        PopupMenuItem(
-                          value: _ImportMenuAction.batchImport,
-                          child: Row(
-                            children: [
-                              const Icon(Icons.file_upload, size: 18),
-                              const SizedBox(width: 8),
-                              Text(t.emoji.batchImport),
-                            ],
-                          ),
-                        ),
-                      ];
-                    },
+                  GlassGroupOverflowMenuButton(
+                    actions: [
+                      GlassMenuAction(
+                        icon: Icons.link,
+                        label: t.emoji.addImageByUrl,
+                        onSelected: _showUrlInputDialog,
+                      ),
+                      GlassMenuAction(
+                        icon: Icons.file_upload,
+                        label: t.emoji.batchImport,
+                        onSelected: _showBatchImportDialog,
+                      ),
+                    ],
                   ),
                   const SizedBox(width: 8),
                   GlassIconButton(
@@ -269,38 +245,31 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
 
   Widget _buildEmptyState() {
     final t = Translations.of(context);
+    final cs = Theme.of(context).colorScheme;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.emoji_emotions_outlined,
             size: 64,
-            color: Colors.grey,
+            color: cs.onSurfaceVariant,
           ),
           const SizedBox(height: 16),
           Text(
             t.emoji.noEmojis,
-            style: const TextStyle(fontSize: 18, color: Colors.grey),
+            style: TextStyle(fontSize: 18, color: cs.onSurfaceVariant),
           ),
           const SizedBox(height: 8),
           Text(
             t.emoji.clickToAddEmojis,
-            style: const TextStyle(color: Colors.grey),
+            style: TextStyle(color: cs.onSurfaceVariant),
           ),
           const SizedBox(height: 24),
-          ElevatedButton.icon(
+          FilledButton.tonalIcon(
             onPressed: () => _showAddImagesDialog(),
             icon: const Icon(Icons.add),
             label: Text(t.emoji.addEmojis),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
           ),
         ],
       ),
@@ -308,6 +277,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
   }
 
   Widget _buildImageGrid() {
+    final cs = Theme.of(context).colorScheme;
     final screenWidth = MediaQuery.of(context).size.width;
     int crossAxisCount = 3; // 默认3列
 
@@ -348,12 +318,12 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
             }
           },
           child: Container(
-            // 使用 Container 包装整个 Stack，确保一致的尺寸和对齐
+            // 使用 Container 包装整个 Stack，确保一致的尺寸和对齐。
+            // 选中态的描边/勾选角标统一由下面的 GlassSelectableOverlay 负责，
+            // 这里只画一条常驻的静态细边框，不再跟着 isSelected 变色/加粗
+            // （曾经两层描边各画各的，选中时会叠出双层边框）。
             decoration: BoxDecoration(
-              border: Border.all(
-                color: isSelected ? Colors.blue : Colors.grey.shade300,
-                width: isSelected ? 3 : 1,
-              ),
+              border: Border.all(color: cs.outlineVariant, width: 1),
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
@@ -383,9 +353,12 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                     },
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
-                        color: Colors.grey.shade100,
-                        child: const Center(
-                          child: Icon(Icons.broken_image, color: Colors.grey),
+                        color: cs.surfaceContainerHighest,
+                        child: Center(
+                          child: Icon(
+                            Icons.broken_image,
+                            color: cs.onSurfaceVariant,
+                          ),
                         ),
                       );
                     },
@@ -408,168 +381,178 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
     );
   }
 
+  /// 弹窗标题行：标题 + 玻璃关闭圆钮（全局统一约定）。
+  Widget _dialogTitleRow(Translations t, String title) {
+    return Row(
+      children: [
+        Expanded(child: Text(title)),
+        GlassIconButton(
+          standalone: true,
+          icon: const Icon(Icons.close),
+          tooltip: t.common.close,
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ],
+    );
+  }
+
   void _showImagePreview(EmojiImage image) {
     final t = Translations.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.9,
-            maxHeight: MediaQuery.of(context).size.height * 0.8,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.3),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
+    showAppDialog(
+      Builder(
+        builder: (context) {
+          final cs = Theme.of(context).colorScheme;
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.9,
+                maxHeight: MediaQuery.of(context).size.height * 0.8,
               ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 标题栏
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12),
+              decoration: BoxDecoration(
+                color: cs.surface,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
                   ),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.image, color: Colors.blue),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        t.emoji.imagePreview,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 标题栏：标题 + 玻璃关闭圆钮
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Icon(Icons.image, color: cs.primary),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            t.emoji.imagePreview,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        GlassIconButton(
+                          standalone: true,
+                          icon: const Icon(Icons.close),
+                          tooltip: t.common.close,
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // 图片内容
+                  Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: cs.outlineVariant),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          image.url,
+                          fit: BoxFit.contain,
+                          headers: const {
+                            'referer': CommonConstants.iwaraBaseUrl,
+                          },
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(color: Colors.white),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: cs.surfaceContainerHighest,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.broken_image,
+                                      size: 64,
+                                      color: cs.onSurfaceVariant,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      t.emoji.imageLoadFailed,
+                                      style: TextStyle(
+                                        color: cs.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close),
-                      style: IconButton.styleFrom(
-                        backgroundColor: Colors.grey.shade200,
-                        shape: const CircleBorder(),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // 图片内容
-              Expanded(
-                child: Container(
-                  margin: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.shade200),
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      image.url,
-                      fit: BoxFit.contain,
-                      headers: const {'referer': CommonConstants.iwaraBaseUrl},
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Shimmer.fromColors(
-                          baseColor: Colors.grey[300]!,
-                          highlightColor: Colors.grey[100]!,
-                          child: Container(color: Colors.white),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.grey.shade100,
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.broken_image,
-                                  size: 64,
-                                  color: Colors.grey,
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  t.emoji.imageLoadFailed,
-                                  style: const TextStyle(color: Colors.grey),
-                                ),
-                              ],
+                  // 操作按钮
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              _showDeleteImageDialog(image);
+                            },
+                            icon: Icon(Icons.delete, color: cs.error),
+                            label: Text(
+                              t.emoji.delete,
+                              style: TextStyle(color: cs.error),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: cs.error),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                              ),
                             ),
                           ),
-                        );
-                      },
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: FilledButton.icon(
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(Icons.close),
+                            label: Text(t.emoji.close),
+                            style: FilledButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
+                ],
               ),
-              // 操作按钮
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(12),
-                    bottomRight: Radius.circular(12),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _showDeleteImageDialog(image);
-                        },
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        label: Text(
-                          t.emoji.delete,
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.red),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.close),
-                        label: Text(t.emoji.close),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
 
   void _showDeleteImageDialog(EmojiImage image) {
     final t = Translations.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.emoji.deleteImage),
+    showAppDialog(
+      AlertDialog(
+        title: _dialogTitleRow(t, t.emoji.deleteImage),
         content: Text(t.emoji.confirmDeleteImage),
         actions: [
           TextButton(
@@ -582,7 +565,9 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
               Navigator.pop(context);
               _loadImages();
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
             child: Text(t.emoji.delete),
           ),
         ],
@@ -611,10 +596,9 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
 
   void _showAddImagesDialog() {
     final t = Translations.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.emoji.addImage),
+    showAppDialog(
+      AlertDialog(
+        title: _dialogTitleRow(t, t.emoji.addImage),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -643,12 +627,12 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
   void _showUrlInputDialog() {
     final t = Translations.of(context);
     final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.emoji.addImageUrl),
+    showAppDialog(
+      AlertDialog(
+        title: _dialogTitleRow(t, t.emoji.addImageUrl),
         content: TextField(
           controller: controller,
+          autofocus: true,
           decoration: InputDecoration(
             labelText: t.emoji.imageUrl,
             hintText: t.emoji.enterImageUrl,
@@ -678,10 +662,9 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
   void _showBatchImportDialog() {
     final t = Translations.of(context);
     final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.emoji.batchImport),
+    showAppDialog(
+      AlertDialog(
+        title: _dialogTitleRow(t, t.emoji.batchImport),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -721,16 +704,14 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                   );
                   Navigator.pop(context);
                   _loadImages();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        t.emoji.importSuccess(count: urlStrings.length),
-                      ),
-                    ),
+                  showGlassToast(
+                    t.emoji.importSuccess(count: urlStrings.length),
+                    type: GlassToastType.success,
                   );
                 } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(t.emoji.jsonFormatError)),
+                  showGlassToast(
+                    t.emoji.jsonFormatError,
+                    type: GlassToastType.error,
                   );
                 }
               }

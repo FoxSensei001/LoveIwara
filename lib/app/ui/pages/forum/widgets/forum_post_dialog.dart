@@ -185,6 +185,7 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => const MarkdownSyntaxHelp(),
     );
   }

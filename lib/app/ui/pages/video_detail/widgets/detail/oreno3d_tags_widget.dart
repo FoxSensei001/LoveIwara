@@ -220,12 +220,13 @@ class Oreno3dTagsWidget extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return Container(
+    // 不再自带不透明背景色：本组件始终作为 ExpandableSectionWidget 的
+    // child 使用，外层卡片已经是同色的 Material；这里若再叠一层不透明
+    // Container，会挡住外层 InkWell 长按/点击时的水波纹（水波纹绘制在
+    // Material 的子树之下，被上层不透明背景整片盖住，只在没有该背景的
+    // 页眉区域露出来）。
+    return SizedBox(
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(8),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

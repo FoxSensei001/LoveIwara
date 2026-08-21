@@ -755,6 +755,7 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get privacy => '隐私';
 	@override String get forum => '论坛';
 	@override String get news => '新闻';
+	@override String get community => '社区';
 	@override String get disableForumReplyQuote => '禁用论坛回复引用';
 	@override String get disableForumReplyQuoteDesc => '禁用论坛回复时携带被回复楼层信息';
 	@override String get theaterMode => '剧院模式';
@@ -770,6 +771,7 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get useDynamicColorDesc => '此配置决定应用是否使用动态颜色';
 	@override String get presetColors => '预设颜色';
 	@override String get customColors => '自定义颜色';
+	@override String get customColorsDisabledByDynamicColor => '已开启动态颜色，预设/自定义颜色暂不可用，请先关闭动态颜色';
 	@override String get pickColor => '选择颜色';
 	@override String get cancel => '取消';
 	@override String get confirm => '确认';
@@ -1980,6 +1982,7 @@ class _TranslationsNavigationOrderSettingsZhCn implements TranslationsNavigation
 	@override String get subscriptionDescription => '查看关注用户的最新内容';
 	@override String get forumDescription => '参与社区讨论';
 	@override String get newsDescription => '浏览官方新闻、文章和公告广播';
+	@override String get communityDescription => '论坛讨论与官方新闻、文章、公告广播';
 }
 
 // Path: news
@@ -3981,6 +3984,7 @@ extension on TranslationsZhCn {
 			'settings.privacy' => '隐私',
 			'settings.forum' => '论坛',
 			'settings.news' => '新闻',
+			'settings.community' => '社区',
 			'settings.disableForumReplyQuote' => '禁用论坛回复引用',
 			'settings.disableForumReplyQuoteDesc' => '禁用论坛回复时携带被回复楼层信息',
 			'settings.theaterMode' => '剧院模式',
@@ -3996,6 +4000,7 @@ extension on TranslationsZhCn {
 			'settings.useDynamicColorDesc' => '此配置决定应用是否使用动态颜色',
 			'settings.presetColors' => '预设颜色',
 			'settings.customColors' => '自定义颜色',
+			'settings.customColorsDisabledByDynamicColor' => '已开启动态颜色，预设/自定义颜色暂不可用，请先关闭动态颜色',
 			'settings.pickColor' => '选择颜色',
 			'settings.cancel' => '取消',
 			'settings.confirm' => '确认',
@@ -4423,10 +4428,10 @@ extension on TranslationsZhCn {
 			'oreno3d.loading.gettingVideoInfo' => '正在获取视频信息...',
 			'oreno3d.loading.cancel' => '取消',
 			'oreno3d.messages.videoNotFoundOrDeleted' => '视频不存在或已被删除',
-			'oreno3d.messages.unableToGetVideoPlayLink' => '无法获取视频播放链接',
-			'oreno3d.messages.getVideoDetailFailed' => '获取视频详情失败',
 			_ => null,
 		} ?? switch (path) {
+			'oreno3d.messages.unableToGetVideoPlayLink' => '无法获取视频播放链接',
+			'oreno3d.messages.getVideoDetailFailed' => '获取视频详情失败',
 			'signIn.pleaseLoginFirst' => '请先登录',
 			'signIn.alreadySignedInToday' => '您今天已经签到过了！',
 			'signIn.youDidNotStickToTheSignIn' => '您未能坚持签到。',
@@ -4937,10 +4942,10 @@ extension on TranslationsZhCn {
 			'download.category.createShortcut' => '新建',
 			'download.category.newCategoryHint' => '新分类名称',
 			'download.category.createSuccess' => '分类已创建',
-			'download.category.createFailed' => '创建分类失败',
-			'download.category.nameEmpty' => '分类名称不能为空',
 			_ => null,
 		} ?? switch (path) {
+			'download.category.createFailed' => '创建分类失败',
+			'download.category.nameEmpty' => '分类名称不能为空',
 			'download.category.emptyHint' => '还没有分类，新建一个来整理你的下载。',
 			'download.category.moveTo' => '移至分类',
 			'download.category.moveToWithCount' => ({required Object count}) => '移动 ${count} 项到…',
@@ -5451,10 +5456,10 @@ extension on TranslationsZhCn {
 			'emoji.batchImport' => '批量导入',
 			'emoji.enterJsonUrlArray' => '请输入JSON格式的URL数组:',
 			'emoji.formatExample' => '格式示例:\n["url1", "url2", "url3"]',
-			'emoji.pasteJsonUrlArray' => '请粘贴JSON格式的URL数组',
-			'emoji.import' => '导入',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.pasteJsonUrlArray' => '请粘贴JSON格式的URL数组',
+			'emoji.import' => '导入',
 			'emoji.importSuccess' => ({required Object count}) => '成功导入${count}张图片',
 			'emoji.jsonFormatError' => 'JSON格式错误，请检查输入',
 			'emoji.createGroup' => '创建表情包分组',
@@ -5556,6 +5561,7 @@ extension on TranslationsZhCn {
 			'navigationOrderSettings.subscriptionDescription' => '查看关注用户的最新内容',
 			'navigationOrderSettings.forumDescription' => '参与社区讨论',
 			'navigationOrderSettings.newsDescription' => '浏览官方新闻、文章和公告广播',
+			'navigationOrderSettings.communityDescription' => '论坛讨论与官方新闻、文章、公告广播',
 			'news.title' => '新闻',
 			'news.newsUpdates' => '最新动态',
 			'news.articles' => '文章',

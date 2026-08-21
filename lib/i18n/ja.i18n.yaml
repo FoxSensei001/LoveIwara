@@ -608,6 +608,7 @@ settings:
   privacy: プライバシー
   forum: フォーラム
   news: ニュース
+  community: コミュニティ
   disableForumReplyQuote: フォーラム返信引用を無効にする
   disableForumReplyQuoteDesc: フォーラム返信時の返信階層情報の携帯を無効にする
   theaterMode: 劇院モード
@@ -623,6 +624,7 @@ settings:
   useDynamicColorDesc: この設定はアプリがダイナミックカラーを使用するかどうかを決定します
   presetColors: プリセットカラー
   customColors: カスタムカラー
+  customColorsDisabledByDynamicColor: ダイナミックカラーが有効なため、プリセット/カスタムカラーは使用できません。先にダイナミックカラーをオフにしてください
   pickColor: カラーを選択
   cancel: キャンセル
   confirm: 確認
@@ -2307,6 +2309,7 @@ navigationOrderSettings:
   forumDescription: コミュニティディスカッションに参加
 
   newsDescription: 公式ニュース、記事、放送を閲覧
+  communityDescription: フォーラムの議論と公式ニュース・記事・ブロードキャスト
 
 news:
   title: ニュース
