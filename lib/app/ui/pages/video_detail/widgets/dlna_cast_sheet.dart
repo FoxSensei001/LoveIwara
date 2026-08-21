@@ -1,3 +1,4 @@
+import 'package:dlna_dart/dlna.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../i18n/strings.g.dart';
@@ -6,11 +7,13 @@ import '../controllers/dlna_cast_service.dart';
 class DlnaCastSheet extends StatefulWidget {
   final String videoUrl;
   final DlnaCastService dlnaController;
+  final VoidCallback? onCastStarted;
 
   const DlnaCastSheet({
     super.key,
     required this.videoUrl,
     required this.dlnaController,
+    this.onCastStarted,
   });
 
   @override
@@ -18,6 +21,14 @@ class DlnaCastSheet extends StatefulWidget {
 }
 
 class _DlnaCastSheetState extends State<DlnaCastSheet> {
+  Future<void> _castToDevice(DLNADevice device) async {
+    final started = await widget.dlnaController.castToDevice(
+      device,
+      widget.videoUrl,
+    );
+    if (started) widget.onCastStarted?.call();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -155,6 +166,7 @@ class _DlnaCastSheetState extends State<DlnaCastSheet> {
                   // 设备列表
                   Expanded(
                     child: Obx(() {
+                      final isCasting = widget.dlnaController.isCasting.value;
                       if (widget.dlnaController.devices.isEmpty) {
                         return Center(
                           child: Column(
@@ -195,9 +207,12 @@ class _DlnaCastSheetState extends State<DlnaCastSheet> {
                         itemCount: widget.dlnaController.devices.length,
                         itemBuilder: (context, index) {
                           final device = widget.dlnaController.devices[index];
-                          final deviceType = device.info.deviceType.split(
+                          final deviceTypeParts = device.info.deviceType.split(
                             ':',
-                          )[3];
+                          );
+                          final deviceType = deviceTypeParts.length > 3
+                              ? deviceTypeParts[3]
+                              : 'Unknown';
 
                           return Card(
                             margin: EdgeInsets.only(
@@ -229,12 +244,9 @@ class _DlnaCastSheetState extends State<DlnaCastSheet> {
                                 ),
                               ),
                               trailing: ElevatedButton(
-                                onPressed: () {
-                                  widget.dlnaController.castToDevice(
-                                    device,
-                                    widget.videoUrl,
-                                  );
-                                },
+                                onPressed: isCasting
+                                    ? null
+                                    : () => _castToDevice(device),
                                 style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.symmetric(
                                     horizontal: isNarrowScreen ? 8 : 12,
@@ -248,12 +260,9 @@ class _DlnaCastSheetState extends State<DlnaCastSheet> {
                                   ),
                                 ),
                               ),
-                              onTap: () {
-                                widget.dlnaController.castToDevice(
-                                  device,
-                                  widget.videoUrl,
-                                );
-                              },
+                              onTap: isCasting
+                                  ? null
+                                  : () => _castToDevice(device),
                             ),
                           );
                         },
@@ -283,10 +292,14 @@ class _DlnaCastSheetState extends State<DlnaCastSheet> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // 连接状态
-                Obx(
-                  () => widget.dlnaController.isConnected.value
-                      ? Text(
+                Obx(() {
+                  final isConnected = widget.dlnaController.isConnected.value;
+                  final isCasting = widget.dlnaController.isCasting.value;
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (isConnected)
+                        Text(
                           t.videoDetail.cast.dlnaCastSheet.connectedTo(
                             deviceName:
                                 widget.dlnaController.connectedDeviceName.value,
@@ -298,33 +311,33 @@ class _DlnaCastSheetState extends State<DlnaCastSheet> {
                           ),
                           textAlign: TextAlign.center,
                         )
-                      : Text(
+                      else
+                        Text(
                           t.videoDetail.cast.dlnaCastSheet.notConnected,
                           style: TextStyle(fontSize: isNarrowScreen ? 12 : 14),
                           textAlign: TextAlign.center,
                         ),
-                ),
-                SizedBox(height: isNarrowScreen ? 8 : 12),
-                // 按钮行
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    if (widget.dlnaController.isConnected.value)
-                      Expanded(
-                        child: TextButton(
-                          onPressed: () => widget.dlnaController.stopCast(),
-                          child: Text(
-                            t.videoDetail.cast.dlnaCastSheet.stopCasting,
-                            style: TextStyle(
-                              fontSize: isNarrowScreen ? 12 : 14,
+                      SizedBox(height: isNarrowScreen ? 8 : 12),
+                      if (isConnected)
+                        SizedBox(
+                          width: double.infinity,
+                          child: TextButton(
+                            onPressed: isCasting
+                                ? null
+                                : () async {
+                                    await widget.dlnaController.stopCast();
+                                  },
+                            child: Text(
+                              t.videoDetail.cast.dlnaCastSheet.stopCasting,
+                              style: TextStyle(
+                                fontSize: isNarrowScreen ? 12 : 14,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    if (widget.dlnaController.isConnected.value)
-                      SizedBox(width: isNarrowScreen ? 8 : 12),
-                  ],
-                ),
+                    ],
+                  );
+                }),
               ],
             ),
           ),

@@ -589,15 +589,30 @@ class _TopToolbarState extends State<TopToolbar> {
                   if (!GetPlatform.isWeb &&
                       !GetPlatform.isLinux &&
                       !widget.myVideoStateController.isLocalVideoMode)
-                    IconButton(
-                      tooltip: t.videoDetail.cast.dlnaCast,
-                      icon: Icon(
-                        Icons.cast,
-                        color: Colors.white,
-                        size: iconSize,
+                    Obx(
+                      () => IconButton(
+                        tooltip: t.videoDetail.cast.dlnaCast,
+                        icon: Icon(
+                          widget
+                                  .myVideoStateController
+                                  .dlnaCastService
+                                  .isConnected
+                                  .value
+                              ? Icons.cast_connected
+                              : Icons.cast,
+                          color: Colors.white,
+                          size: iconSize,
+                        ),
+                        onPressed:
+                            widget
+                                .myVideoStateController
+                                .dlnaCastService
+                                .isCasting
+                                .value
+                            ? null
+                            : () => widget.myVideoStateController
+                                  .showDlnaCastDialog(),
                       ),
-                      onPressed: () =>
-                          widget.myVideoStateController.showDlnaCastDialog(),
                     ),
                   if (GetPlatform.isAndroid)
                     IconButton(

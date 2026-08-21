@@ -7,11 +7,44 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
+abstract interface class DlnaDeviceTransport {
+  Future<void> setUrl(DLNADevice device, String videoUrl);
+
+  Future<void> play(DLNADevice device);
+
+  Future<void> stop(DLNADevice device);
+}
+
+class PackageDlnaDeviceTransport implements DlnaDeviceTransport {
+  const PackageDlnaDeviceTransport();
+
+  @override
+  Future<void> setUrl(DLNADevice device, String videoUrl) async {
+    await device.setUrl(videoUrl);
+  }
+
+  @override
+  Future<void> play(DLNADevice device) async {
+    await device.play();
+  }
+
+  @override
+  Future<void> stop(DLNADevice device) async {
+    await device.stop();
+  }
+}
+
 class DlnaCastService extends GetxService {
+  DlnaCastService({DlnaDeviceTransport? transport})
+    : _transport = transport ?? const PackageDlnaDeviceTransport();
+
   static DlnaCastService get instance => Get.find<DlnaCastService>();
+
+  final DlnaDeviceTransport _transport;
 
   final RxBool isSearching = false.obs;
   final RxList<DLNADevice> devices = <DLNADevice>[].obs;
+  final RxBool isCasting = false.obs;
   final RxBool isConnected = false.obs;
   final RxString connectedDeviceName = ''.obs;
 
@@ -19,6 +52,8 @@ class DlnaCastService extends GetxService {
   StreamSubscription<Map<String, DLNADevice>>? _deviceSubscription;
   DLNADevice? _currentDevice;
   bool _isInitialized = false;
+  Future<void> _operationQueue = Future<void>.value();
+  int _pendingOperationCount = 0;
 
   @override
   Future<void> onInit() async {
@@ -39,6 +74,7 @@ class DlnaCastService extends GetxService {
     _isInitialized = false;
     isSearching.value = false;
     devices.clear();
+    isCasting.value = false;
     isConnected.value = false;
     connectedDeviceName.value = '';
     _currentDevice = null;
@@ -67,10 +103,7 @@ class DlnaCastService extends GetxService {
       _isInitialized = true;
 
       _deviceSubscription = dlna.devices.stream.listen((deviceMap) {
-        devices.clear();
-        deviceMap.forEach((key, device) {
-          devices.add(device);
-        });
+        devices.assignAll(deviceMap.values.where(isCastCapableDevice));
         LogUtils.d('发现 DLNA 设备: ${devices.length} 个', 'DlnaCastService');
       });
 
@@ -100,15 +133,34 @@ class DlnaCastService extends GetxService {
   }
 
   /// 连接到指定设备并投屏
-  Future<void> castToDevice(DLNADevice device, String videoUrl) async {
+  Future<bool> castToDevice(DLNADevice device, String videoUrl) {
+    if (!isCastCapableDevice(device)) {
+      LogUtils.w(
+        '忽略不支持 AVTransport 的设备: ${device.info.friendlyName}',
+        'DlnaCastService',
+      );
+      return Future<bool>.value(false);
+    }
+
+    return _runSerialized(() => _castToDevice(device, videoUrl));
+  }
+
+  Future<bool> _castToDevice(DLNADevice device, String videoUrl) async {
     try {
+      final previousDevice = _currentDevice;
+      if (previousDevice != null && !identical(previousDevice, device)) {
+        await _stopDeviceBeforeCast(previousDevice);
+      }
+
+      // 部分渲染器（尤其是 LG）在已有传输会话时会以 UPnP 701 拒绝替换 URI。
+      // Stop 在空闲设备上也可能报错，因此这里只把它当作尽力而为的状态复位。
+      await _stopDeviceBeforeCast(device);
+      await _transport.setUrl(device, videoUrl);
+      await _transport.play(device);
+
       _currentDevice = device;
       connectedDeviceName.value = device.info.friendlyName;
       isConnected.value = true;
-
-      // 设置视频 URL 并播放
-      await device.setUrl(videoUrl);
-      await device.play();
 
       showGlassToast(
         slang.t.videoDetail.cast.startCastingTo(
@@ -119,6 +171,7 @@ class DlnaCastService extends GetxService {
       );
 
       LogUtils.d('成功投屏到设备: ${device.info.friendlyName}', 'DlnaCastService');
+      return true;
     } catch (e) {
       LogUtils.e('投屏失败: $e', tag: 'DlnaCastService', error: e);
       showGlassToast(
@@ -127,20 +180,35 @@ class DlnaCastService extends GetxService {
         position: GlassToastPosition.top,
         duration: const Duration(seconds: 5),
       );
+      _currentDevice = null;
       isConnected.value = false;
       connectedDeviceName.value = '';
+      return false;
+    }
+  }
+
+  Future<void> _stopDeviceBeforeCast(DLNADevice device) async {
+    try {
+      await _transport.stop(device);
+    } catch (e) {
+      LogUtils.d('投屏前停止设备失败，继续设置媒体地址: $e', 'DlnaCastService');
     }
   }
 
   /// 停止投屏
-  Future<void> stopCast() async {
+  Future<void> stopCast() => _runSerialized(_stopCast);
+
+  Future<void> _stopCast() async {
     try {
-      if (_currentDevice != null) {
-        _currentDevice!.stop();
-        _currentDevice = null;
+      final device = _currentDevice;
+      if (device != null) {
+        await _transport.stop(device);
+        if (identical(_currentDevice, device)) {
+          _currentDevice = null;
+          isConnected.value = false;
+          connectedDeviceName.value = '';
+        }
       }
-      isConnected.value = false;
-      connectedDeviceName.value = '';
 
       showGlassToast(
         slang.t.videoDetail.cast.castStopped,
@@ -152,6 +220,35 @@ class DlnaCastService extends GetxService {
     } catch (e) {
       LogUtils.e('停止投屏失败: $e', tag: 'DlnaCastService', error: e);
     }
+  }
+
+  Future<T> _runSerialized<T>(Future<T> Function() operation) async {
+    final predecessor = _operationQueue;
+    final release = Completer<void>();
+    _operationQueue = release.future;
+    _pendingOperationCount++;
+    isCasting.value = true;
+
+    try {
+      await predecessor;
+      return await operation();
+    } finally {
+      release.complete();
+      _pendingOperationCount--;
+      isCasting.value = _pendingOperationCount > 0;
+    }
+  }
+
+  /// 发现服务会返回 ssdp:all 下的媒体服务器、路由器等设备；只有声明了
+  /// AVTransport 控制端点的设备才可以接收 SetAVTransportURI/Play。
+  @visibleForTesting
+  static bool isCastCapableDevice(DLNADevice device) {
+    return device.info.serviceList.any((service) {
+      if (service is! Map) return false;
+      final serviceId = service['serviceId']?.toString() ?? '';
+      final controlUrl = service['controlURL']?.toString() ?? '';
+      return controlUrl.isNotEmpty && serviceId.contains('AVTransport');
+    });
   }
 
   /// 获取设备图标

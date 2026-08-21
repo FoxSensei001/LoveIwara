@@ -4470,9 +4470,6 @@ class MyVideoStateController extends GetxController
       return;
     }
 
-    // 暂停当前视频
-    player.pause();
-
     final videoUrl = getCurrentVideoUrl();
     if (videoUrl == null || videoUrl.isEmpty) {
       noticeCenter.reportApp(PlayerNoticeKind.castUrlUnavailable);
@@ -4480,7 +4477,11 @@ class MyVideoStateController extends GetxController
     }
 
     showAppBottomSheet(
-      DlnaCastSheet(videoUrl: videoUrl, dlnaController: _dlnaCastService),
+      DlnaCastSheet(
+        videoUrl: videoUrl,
+        dlnaController: _dlnaCastService,
+        onCastStarted: pausePlayback,
+      ),
       isScrollControlled: true,
       elevation: 0,
     );
