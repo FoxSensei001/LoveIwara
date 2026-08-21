@@ -19,11 +19,11 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
-import 'package:i_iwara/utils/proxy/proxy_util.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 import '../routes/app_router.dart';
 import '../routes/home_shell_navigation.dart';
+import '../ui/pages/settings/settings_page.dart' show SettingsSection;
 import 'config_service.dart';
 import '../ui/widgets/restart_app_widget.dart';
 import 'message_service.dart';
@@ -715,7 +715,7 @@ class NaviService {
     appRouter.push(
       '/settings_page',
       extra: SettingsPageExtra(
-        initialPage: ProxyUtil.isSupportedPlatform() ? 1 : 0,
+        initialSection: SettingsSection.translation,
       ),
     );
   }
@@ -724,9 +724,7 @@ class NaviService {
   static void navigateToBlockSettingsPage() {
     appRouter.push(
       '/settings_page',
-      extra: SettingsPageExtra(
-        initialPage: ProxyUtil.isSupportedPlatform() ? 12 : 11,
-      ),
+      extra: SettingsPageExtra(initialSection: SettingsSection.block),
     );
   }
 
@@ -734,9 +732,7 @@ class NaviService {
   static void navigateToDiagnosticsSettingsPage() {
     appRouter.push(
       '/settings_page',
-      extra: SettingsPageExtra(
-        initialPage: ProxyUtil.isSupportedPlatform() ? 11 : 10,
-      ),
+      extra: SettingsPageExtra(initialSection: SettingsSection.diagnostics),
     );
   }
 
