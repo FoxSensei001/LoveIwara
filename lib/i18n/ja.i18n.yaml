@@ -1613,6 +1613,17 @@ download:
   clearFilters: フィルターをクリア
   pauseAll: すべて一時停止
   resumeAll: すべて開始
+  errorTypes:
+    network: ネットワークエラー、再試行できます
+    serverRejected: サーバーに拒否されました。再ログインが必要かもしれません
+    notFound: リソースが失効または削除されました
+    diskFull: ストレージの空き容量が不足しています
+    fileInUse: ファイルが他のプログラムに使用されています
+    permission: 書き込み権限がありません
+    cancelled: キャンセルされました
+    unknown: 不明なエラー
+  errorDetailCopied: エラー詳細をコピーしました
+  errorDetailCopyHint: 長押しでエラー詳細をコピー
   restoredPaused:
     banner: '前回終了時に未完了だったタスク ${num} 件を一時停止しました'
     resume: すべて再開

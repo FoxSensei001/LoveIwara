@@ -1,5 +1,8 @@
 import 'dart:async';
 import 'dart:io';
+// 需要与本项目模型里同名的 FileSystemException 区分开：非 SDK 库的同名声明会
+// 遮蔽 dart:io 的，判断磁盘 / 权限 / 占用类错误时必须用带前缀的那个。
+import 'dart:io' as io;
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -459,7 +462,7 @@ class DownloadService extends GetxService {
 
       LogUtils.d(
         '启动恢复：${restoredIds.length} 个未完成任务已置为暂停, '
-        '${paused.length} 个原暂停任务, ${failed.length} 个失败任务',
+            '${paused.length} 个原暂停任务, ${failed.length} 个失败任务',
         'DownloadService',
       );
     } catch (e) {
@@ -711,6 +714,8 @@ class DownloadService extends GetxService {
             // 让任务变为失败状态，并记录错误信息
             task.status = DownloadStatus.failed;
             task.error = slang.t.download.errors.canNotRefreshVideoTask;
+            // 链接刷新不出来，基本等于资源已被删除 / 权限变更。
+            task.errorType = DownloadErrorType.notFound.name;
             await _repository.updateTask(task); // [更新持久化信息]
             // 此路径不经过 _updateTaskStatus，需显式派发终态通知。
             await _dispatchTerminalNotification(task);
@@ -1569,13 +1574,13 @@ class DownloadService extends GetxService {
               }
 
               task.status = DownloadStatus.failed;
-              task.error = _getErrorMessage(error);
+              _recordFailure(task, error);
               await _updateTaskStatus(task);
               completer.completeError(error);
             } catch (e) {
               LogUtils.e('处理下载错误时发生异常: $e', tag: 'DownloadService', error: e);
               task.status = DownloadStatus.failed;
-              task.error = _getErrorMessage(e);
+              _recordFailure(task, e);
               await _updateTaskStatus(task);
               completer.completeError(e);
             } finally {
@@ -1683,7 +1688,7 @@ class DownloadService extends GetxService {
 
           await _cleanupDownload(task, raf, subscription);
           task.status = DownloadStatus.failed;
-          task.error = _getErrorMessage(e);
+          _recordFailure(task, e);
           await _updateTaskStatus(task);
           _processQueue();
           return;
@@ -1916,6 +1921,103 @@ class DownloadService extends GetxService {
     return error.toString();
   }
 
+  /// 把异常归入 [DownloadErrorType]。
+  ///
+  /// 与 [_getErrorMessage] 的分工：那个产出给人看的原文（会随语言变），这个产出
+  /// 给程序用的稳定语义并落库（见 v19 迁移）。失败卡片显示哪句人话、将来「只重试
+  /// 网络类失败」这类批量操作，都基于这里的分类，而不是去解析错误文案。
+  DownloadErrorType classifyError(Object? error) {
+    if (error == null) return DownloadErrorType.unknown;
+
+    if (error is DioException) {
+      switch (error.type) {
+        case DioExceptionType.cancel:
+          return DownloadErrorType.cancelled;
+        case DioExceptionType.connectionTimeout:
+        case DioExceptionType.sendTimeout:
+        case DioExceptionType.receiveTimeout:
+        case DioExceptionType.connectionError:
+          return DownloadErrorType.network;
+        case DioExceptionType.badCertificate:
+          return DownloadErrorType.network;
+        case DioExceptionType.badResponse:
+          final code = error.response?.statusCode ?? 0;
+          if (code == 404 || code == 410) return DownloadErrorType.notFound;
+          if (code == 401 || code == 403) {
+            return DownloadErrorType.serverRejected;
+          }
+          // 5xx 属于服务端临时故障，重试有意义，归入网络类。
+          if (code >= 500) return DownloadErrorType.network;
+          return DownloadErrorType.serverRejected;
+        case DioExceptionType.unknown:
+          return classifyError(error.error);
+        default:
+          return DownloadErrorType.unknown;
+      }
+    }
+
+    if (error is FileSystemException) {
+      switch (error.type) {
+        case FileErrorType.accessDenied:
+          return DownloadErrorType.permission;
+        case FileErrorType.insufficientSpace:
+          return DownloadErrorType.diskFull;
+        case FileErrorType.notFound:
+          return DownloadErrorType.notFound;
+        case FileErrorType.alreadyExists:
+        case FileErrorType.ioError:
+          return DownloadErrorType.fileInUse;
+      }
+    }
+
+    if (error is io.FileSystemException) {
+      // dart:io 的错误码没有跨平台常量，只能按 errno + 文案兜底判断：
+      // 28/112 = 空间不足（POSIX/Windows），13/1 = 权限，32/26 = 文件被占用。
+      final code = error.osError?.errorCode;
+      final message = (error.osError?.message ?? error.message).toLowerCase();
+      if (code == 28 || code == 112 || message.contains('no space')) {
+        return DownloadErrorType.diskFull;
+      }
+      if (code == 13 || code == 1 || message.contains('permission denied')) {
+        return DownloadErrorType.permission;
+      }
+      if (code == 32 ||
+          code == 26 ||
+          message.contains('being used by another process') ||
+          message.contains('text file busy')) {
+        return DownloadErrorType.fileInUse;
+      }
+      return DownloadErrorType.unknown;
+    }
+
+    if (error is HandshakeException || error is SocketException) {
+      return DownloadErrorType.network;
+    }
+
+    if (error is NetworkException) {
+      switch (error.type) {
+        case NetworkErrorType.canceledByUser:
+          return DownloadErrorType.cancelled;
+        case NetworkErrorType.storageNotEnough:
+          return DownloadErrorType.diskFull;
+        case NetworkErrorType.serverError:
+          return DownloadErrorType.serverRejected;
+        case NetworkErrorType.noNetwork:
+        case NetworkErrorType.timeout:
+        case NetworkErrorType.invalidUrl:
+          return DownloadErrorType.network;
+      }
+    }
+
+    return DownloadErrorType.unknown;
+  }
+
+  /// 记录一次失败的原因（文案 + 分类）。
+  void _recordFailure(DownloadTask task, Object? error, {String? message}) {
+    task.error = message ?? _getErrorMessage(error);
+    task.errorType = classifyError(error).name;
+  }
+
   // 添加重试方法
   Future<void> retryTask(String taskId) async {
     // 防止重复点击
@@ -1966,6 +2068,7 @@ class DownloadService extends GetxService {
       // 4) 清理错误信息，入队并持久化
       LogUtils.i('重试下载任务: ${task.fileName}', 'DownloadService');
       task.error = null;
+      task.errorType = null;
       task.status = DownloadStatus.pending;
       // 解除终态通知去重，重下完成/失败时可再次通知。
       _notifiedTerminalTaskIds.remove(taskId);
@@ -2325,6 +2428,7 @@ class DownloadService extends GetxService {
               // 第二次尝试也失败，记录错误
               LogUtils.e('图片下载失败，已重试: $imageUrl', tag: 'DownloadService');
               task.error = slang.t.download.errors.partialDownloadFailed;
+              task.errorType = DownloadErrorType.network.name;
             }
           } catch (e) {
             LogUtils.e('下载图片出错: $imageUrl', tag: 'DownloadService', error: e);
@@ -2333,6 +2437,7 @@ class DownloadService extends GetxService {
                   .partialDownloadFailedWithMessage(
                     message: _getErrorMessage(e),
                   );
+              task.errorType = classifyError(e).name;
             }
           }
 
@@ -2368,6 +2473,8 @@ class DownloadService extends GetxService {
         }
         if (!allSuccess) {
           task.error = slang.t.download.errors.partialDownloadFailed;
+          // 逐图失败时已按具体异常归过类，这里只兜没归过的情况。
+          task.errorType ??= DownloadErrorType.network.name;
           LogUtils.e(
             '图库下载未完全成功: ${task.downloadedBytes}/${task.totalBytes}',
             tag: 'DownloadService',
@@ -2401,7 +2508,7 @@ class DownloadService extends GetxService {
     } catch (e) {
       LogUtils.e('下载图库失败', tag: 'DownloadService', error: e);
       task.status = DownloadStatus.failed;
-      task.error = _getErrorMessage(e);
+      _recordFailure(task, e);
       await _updateTaskStatus(task);
 
       // 清理进度状态

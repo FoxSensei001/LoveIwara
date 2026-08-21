@@ -1354,6 +1354,9 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	@override String get clearFilters => '清除篩選';
 	@override String get pauseAll => '全部暫停';
 	@override String get resumeAll => '全部開始';
+	@override late final _TranslationsDownloadErrorTypesZhTw errorTypes = _TranslationsDownloadErrorTypesZhTw._(_root);
+	@override String get errorDetailCopied => '已複製錯誤詳情';
+	@override String get errorDetailCopyHint => '長按複製錯誤詳情';
 	@override late final _TranslationsDownloadRestoredPausedZhTw restoredPaused = _TranslationsDownloadRestoredPausedZhTw._(_root);
 	@override String get emptyTaskList => '暫無下載任務';
 	@override String get noMatchingTasks => '沒有符合的任務';
@@ -3088,6 +3091,23 @@ class _TranslationsDownloadErrorsZhTw implements TranslationsDownloadErrorsEn {
 	@override String get pleaseTryOtherViewer => '請嘗試使用其他查看器打開';
 	@override String unsupportedImageFormatWithMessage({required Object extension}) => '不支援的圖片格式: ${extension}, 可以嘗試下載到裝置上查看';
 	@override String get imageLoadFailed => '圖片載入失敗';
+}
+
+// Path: download.errorTypes
+class _TranslationsDownloadErrorTypesZhTw implements TranslationsDownloadErrorTypesEn {
+	_TranslationsDownloadErrorTypesZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get network => '網路異常，可重試';
+	@override String get serverRejected => '伺服器拒絕，可能需要重新登入';
+	@override String get notFound => '資源已失效或被刪除';
+	@override String get diskFull => '儲存空間不足';
+	@override String get fileInUse => '檔案被其他程式佔用';
+	@override String get permission => '沒有寫入權限';
+	@override String get cancelled => '已取消';
+	@override String get unknown => '未知錯誤';
 }
 
 // Path: download.restoredPaused
@@ -4960,6 +4980,16 @@ extension on TranslationsZhTw {
 			'download.clearFilters' => '清除篩選',
 			'download.pauseAll' => '全部暫停',
 			'download.resumeAll' => '全部開始',
+			'download.errorTypes.network' => '網路異常，可重試',
+			'download.errorTypes.serverRejected' => '伺服器拒絕，可能需要重新登入',
+			'download.errorTypes.notFound' => '資源已失效或被刪除',
+			'download.errorTypes.diskFull' => '儲存空間不足',
+			'download.errorTypes.fileInUse' => '檔案被其他程式佔用',
+			'download.errorTypes.permission' => '沒有寫入權限',
+			'download.errorTypes.cancelled' => '已取消',
+			'download.errorTypes.unknown' => '未知錯誤',
+			'download.errorDetailCopied' => '已複製錯誤詳情',
+			'download.errorDetailCopyHint' => '長按複製錯誤詳情',
 			'download.restoredPaused.banner' => ({required Object num}) => '上次離開時有 ${num} 個任務未完成，已暫停',
 			'download.restoredPaused.resume' => '全部繼續',
 			'download.restoredPaused.dismiss' => '忽略',
@@ -5459,6 +5489,8 @@ extension on TranslationsZhTw {
 			'log.selectMergeRangeHint' => '請選擇要合併的日誌時間範圍',
 			'log.selectMergeRangeDays' => ({required Object days}) => '最近 ${days} 天',
 			'log.logStats' => '日誌統計資訊',
+			_ => null,
+		} ?? switch (path) {
 			'log.todayLogs' => ({required Object count}) => '今日日誌: ${count} 條',
 			'log.recent7DaysLogs' => ({required Object count}) => '最近7天: ${count} 條',
 			'log.totalLogs' => ({required Object count}) => '總計日誌: ${count} 條',
@@ -5469,8 +5501,6 @@ extension on TranslationsZhTw {
 			'log.confirmToContinue' => '確定要繼續嗎？',
 			'log.logSizeLimitSetSuccess' => ({required Object size}) => '日誌大小上限已設定為 ${size}',
 			'emoji.name' => '表情',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.size' => '大小',
 			'emoji.small' => '小',
 			'emoji.medium' => '中',

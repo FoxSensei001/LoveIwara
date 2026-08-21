@@ -110,7 +110,11 @@ void main() {
       store.upsert(t);
 
       expect(handle.revision.value, greaterThan(before));
-      expect(identical(store.taskOf('a'), t), isTrue, reason: '不得复制任务对象，避免两份状态分叉');
+      expect(
+        identical(store.taskOf('a'), t),
+        isTrue,
+        reason: '不得复制任务对象，避免两份状态分叉',
+      );
     });
   });
 

@@ -3317,6 +3317,14 @@ class TranslationsDownloadEn {
 	/// en: 'Start all'
 	String get resumeAll => 'Start all';
 
+	late final TranslationsDownloadErrorTypesEn errorTypes = TranslationsDownloadErrorTypesEn._(_root);
+
+	/// en: 'Error details copied'
+	String get errorDetailCopied => 'Error details copied';
+
+	/// en: 'Long press to copy error details'
+	String get errorDetailCopyHint => 'Long press to copy error details';
+
 	late final TranslationsDownloadRestoredPausedEn restoredPaused = TranslationsDownloadRestoredPausedEn._(_root);
 
 	/// en: 'No download tasks yet'
@@ -7388,6 +7396,39 @@ class TranslationsDownloadErrorsEn {
 	String get pleaseTryOtherViewer => 'Please try using other viewers to open';
 }
 
+// Path: download.errorTypes
+class TranslationsDownloadErrorTypesEn {
+	TranslationsDownloadErrorTypesEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Network problem, retry may help'
+	String get network => 'Network problem, retry may help';
+
+	/// en: 'Rejected by server, you may need to sign in again'
+	String get serverRejected => 'Rejected by server, you may need to sign in again';
+
+	/// en: 'Resource is gone or was deleted'
+	String get notFound => 'Resource is gone or was deleted';
+
+	/// en: 'Not enough storage space'
+	String get diskFull => 'Not enough storage space';
+
+	/// en: 'File is in use by another program'
+	String get fileInUse => 'File is in use by another program';
+
+	/// en: 'No write permission'
+	String get permission => 'No write permission';
+
+	/// en: 'Cancelled'
+	String get cancelled => 'Cancelled';
+
+	/// en: 'Unknown error'
+	String get unknown => 'Unknown error';
+}
+
 // Path: download.restoredPaused
 class TranslationsDownloadRestoredPausedEn {
 	TranslationsDownloadRestoredPausedEn._(this._root);
@@ -9730,6 +9771,16 @@ extension on Translations {
 			'download.clearFilters' => 'Clear filters',
 			'download.pauseAll' => 'Pause all',
 			'download.resumeAll' => 'Start all',
+			'download.errorTypes.network' => 'Network problem, retry may help',
+			'download.errorTypes.serverRejected' => 'Rejected by server, you may need to sign in again',
+			'download.errorTypes.notFound' => 'Resource is gone or was deleted',
+			'download.errorTypes.diskFull' => 'Not enough storage space',
+			'download.errorTypes.fileInUse' => 'File is in use by another program',
+			'download.errorTypes.permission' => 'No write permission',
+			'download.errorTypes.cancelled' => 'Cancelled',
+			'download.errorTypes.unknown' => 'Unknown error',
+			'download.errorDetailCopied' => 'Error details copied',
+			'download.errorDetailCopyHint' => 'Long press to copy error details',
 			'download.restoredPaused.banner' => ({required Object num}) => '${num} unfinished tasks from last session were paused',
 			'download.restoredPaused.resume' => 'Resume all',
 			'download.restoredPaused.dismiss' => 'Dismiss',
@@ -9745,6 +9796,8 @@ extension on Translations {
 			'download.deleteByDate.notSet' => 'Not set',
 			'download.deleteByDate.daysUnit' => 'days',
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => 'Delete tasks created more than ${days} day(s) ago',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.noMatch' => 'No tasks match the selected condition',
 			'download.deleteByDate.invalidRange' => 'Start date must be on or before end date',
 			'download.deleteByDate.confirmTitle' => 'Confirm deletion',
@@ -9755,8 +9808,6 @@ extension on Translations {
 			'download.category.manageTitle' => 'Manage categories',
 			'download.category.label' => 'Categories',
 			'download.category.uncategorized' => 'Uncategorized',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.manage' => 'Manage',
 			'download.category.createShortcut' => 'New',
 			'download.category.newCategoryHint' => 'New category name',
@@ -10259,6 +10310,8 @@ extension on Translations {
 			'linkInputDialog.multipleLinksDetected' => 'Multiple links detected, please select one:',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => 'Not a valid ${webName} link',
 			'linkInputDialog.linkParseError' => ({required Object error}) => 'Link parsing error: ${error}',
+			_ => null,
+		} ?? switch (path) {
 			'linkInputDialog.unsupportedLinkDialogTitle' => 'Unsupported Link',
 			'linkInputDialog.unsupportedLinkDialogContent' => 'This link type cannot be opened directly in the app and needs to be accessed using an external browser.\n\nDo you want to open this link in a browser?',
 			'linkInputDialog.openInBrowser' => 'Open in Browser',
@@ -10269,8 +10322,6 @@ extension on Translations {
 			'linkInputDialog.unsupportedLink' => 'Unsupported Link',
 			'linkInputDialog.cancel' => 'Cancel',
 			'linkInputDialog.confirm' => 'Open in Browser',
-			_ => null,
-		} ?? switch (path) {
 			'log.logManagement' => 'Log Management',
 			'log.enableLogPersistence' => 'Enable Log Persistence',
 			'log.enableLogPersistenceDesc' => 'Save logs to the database for analysis',

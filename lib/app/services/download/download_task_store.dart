@@ -45,7 +45,8 @@ class DownloadTaskHandle {
 class DownloadTaskStore {
   DownloadTaskStore();
 
-  final Map<String, DownloadTaskHandle> _handles = <String, DownloadTaskHandle>{};
+  final Map<String, DownloadTaskHandle> _handles =
+      <String, DownloadTaskHandle>{};
 
   /// 各区的任务 id（已排序）。UI 订阅这些列表来决定「有哪些行、什么顺序」。
   final RxList<String> downloadingIds = <String>[].obs;
@@ -83,7 +84,11 @@ class DownloadTaskStore {
       _handles[task.id] = DownloadTaskHandle(task);
     }
     _rebuildRegions();
-    DownloadStateLog.emit(this, 'store/hydrate', detail: '${_handles.length} 条');
+    DownloadStateLog.emit(
+      this,
+      'store/hydrate',
+      detail: '${_handles.length} 条',
+    );
   }
 
   /// 新增或更新一条任务。

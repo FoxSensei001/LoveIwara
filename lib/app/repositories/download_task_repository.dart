@@ -134,8 +134,8 @@ class DownloadTaskRepository {
       _db.execute(
         '''
         INSERT INTO download_tasks
-        (id, url, save_path, file_name, total_bytes, downloaded_bytes, status, supports_range, error, ext_data, media_type, media_id, quality, category_id, updated_at, completed_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (id, url, save_path, file_name, total_bytes, downloaded_bytes, status, supports_range, error, error_type, ext_data, media_type, media_id, quality, category_id, updated_at, completed_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ''',
         [
           task.id,
@@ -147,6 +147,7 @@ class DownloadTaskRepository {
           task.status.name,
           task.supportsRange ? 1 : 0,
           task.error,
+          task.errorType,
           extDataJson,
           task.mediaType,
           task.mediaId,
@@ -187,6 +188,7 @@ class DownloadTaskRepository {
             status = ?,
             supports_range = ?,
             error = ?,
+            error_type = ?,
             ext_data = ?,
             media_type = ?,
             media_id = ?,
@@ -205,6 +207,7 @@ class DownloadTaskRepository {
           task.status.name,
           task.supportsRange ? 1 : 0,
           task.error,
+          task.errorType,
           extDataJson,
           task.mediaType,
           task.mediaId,

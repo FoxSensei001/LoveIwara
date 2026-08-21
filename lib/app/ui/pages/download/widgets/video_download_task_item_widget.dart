@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_error_label.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/move_to_category_sheet.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -482,13 +483,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
                       status: task.status,
                       text: _getStatusText(context),
                     ),
-                  if (task.error != null)
-                    Text(
-                      task.error!,
-                      style: const TextStyle(color: Colors.red),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                  DownloadErrorLabel(task: task),
                 ],
               ),
             ),

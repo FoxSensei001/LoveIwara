@@ -1325,6 +1325,9 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	@override String get clearFilters => '清除筛选';
 	@override String get pauseAll => '全部暂停';
 	@override String get resumeAll => '全部开始';
+	@override late final _TranslationsDownloadErrorTypesZhCn errorTypes = _TranslationsDownloadErrorTypesZhCn._(_root);
+	@override String get errorDetailCopied => '已复制错误详情';
+	@override String get errorDetailCopyHint => '长按复制错误详情';
 	@override late final _TranslationsDownloadRestoredPausedZhCn restoredPaused = _TranslationsDownloadRestoredPausedZhCn._(_root);
 	@override String get emptyTaskList => '暂无下载任务';
 	@override String get noMatchingTasks => '没有匹配的任务';
@@ -3000,6 +3003,23 @@ class _TranslationsDownloadErrorsZhCn implements TranslationsDownloadErrorsEn {
 	@override String unsupportedImageFormatWithMessage({required Object extension}) => '不支持的图片格式: ${extension}, 可以尝试下载到设备上查看';
 	@override String get imageLoadFailed => '图片加载失败';
 	@override String get pleaseTryOtherViewer => '请尝试使用其他查看器打开';
+}
+
+// Path: download.errorTypes
+class _TranslationsDownloadErrorTypesZhCn implements TranslationsDownloadErrorTypesEn {
+	_TranslationsDownloadErrorTypesZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get network => '网络异常，可重试';
+	@override String get serverRejected => '服务器拒绝，可能需要重新登录';
+	@override String get notFound => '资源已失效或被删除';
+	@override String get diskFull => '存储空间不足';
+	@override String get fileInUse => '文件被其他程序占用';
+	@override String get permission => '没有写入权限';
+	@override String get cancelled => '已取消';
+	@override String get unknown => '未知错误';
 }
 
 // Path: download.restoredPaused
@@ -4929,6 +4949,16 @@ extension on TranslationsZhCn {
 			'download.clearFilters' => '清除筛选',
 			'download.pauseAll' => '全部暂停',
 			'download.resumeAll' => '全部开始',
+			'download.errorTypes.network' => '网络异常，可重试',
+			'download.errorTypes.serverRejected' => '服务器拒绝，可能需要重新登录',
+			'download.errorTypes.notFound' => '资源已失效或被删除',
+			'download.errorTypes.diskFull' => '存储空间不足',
+			'download.errorTypes.fileInUse' => '文件被其他程序占用',
+			'download.errorTypes.permission' => '没有写入权限',
+			'download.errorTypes.cancelled' => '已取消',
+			'download.errorTypes.unknown' => '未知错误',
+			'download.errorDetailCopied' => '已复制错误详情',
+			'download.errorDetailCopyHint' => '长按复制错误详情',
 			'download.restoredPaused.banner' => ({required Object num}) => '上次退出时有 ${num} 个任务未完成，已暂停',
 			'download.restoredPaused.resume' => '全部继续',
 			'download.restoredPaused.dismiss' => '忽略',
@@ -4945,6 +4975,8 @@ extension on TranslationsZhCn {
 			'download.deleteByDate.daysUnit' => '天',
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => '删除 ${days} 天以前创建的任务',
 			'download.deleteByDate.noMatch' => '没有符合条件的任务',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.invalidRange' => '开始日期不能晚于结束日期',
 			'download.deleteByDate.confirmTitle' => '确认删除',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '确定删除这 ${count} 个下载任务及其文件吗？此操作不可撤销。',
@@ -4955,8 +4987,6 @@ extension on TranslationsZhCn {
 			'download.category.label' => '分类',
 			'download.category.uncategorized' => '未分类',
 			'download.category.manage' => '管理',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.createShortcut' => '新建',
 			'download.category.newCategoryHint' => '新分类名称',
 			'download.category.createSuccess' => '分类已创建',
@@ -5459,6 +5489,8 @@ extension on TranslationsZhCn {
 			'emoji.close' => '关闭',
 			'emoji.deleteImage' => '删除图片',
 			'emoji.confirmDeleteImage' => '确定要删除这张图片吗？',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.cancel' => '取消',
 			'emoji.batchDelete' => '批量删除',
 			'emoji.confirmBatchDelete' => ({required Object count}) => '确定要删除选中的${count}张图片吗？此操作不可撤销。',
@@ -5469,8 +5501,6 @@ extension on TranslationsZhCn {
 			'emoji.imageUrl' => '图片URL',
 			'emoji.enterImageUrl' => '请输入图片URL',
 			'emoji.add' => '添加',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.batchImport' => '批量导入',
 			'emoji.enterJsonUrlArray' => '请输入JSON格式的URL数组:',
 			'emoji.formatExample' => '格式示例:\n["url1", "url2", "url3"]',

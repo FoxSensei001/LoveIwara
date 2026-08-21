@@ -1653,6 +1653,17 @@ download:
   clearFilters: 清除篩選
   pauseAll: 全部暫停
   resumeAll: 全部開始
+  errorTypes:
+    network: 網路異常，可重試
+    serverRejected: 伺服器拒絕，可能需要重新登入
+    notFound: 資源已失效或被刪除
+    diskFull: 儲存空間不足
+    fileInUse: 檔案被其他程式佔用
+    permission: 沒有寫入權限
+    cancelled: 已取消
+    unknown: 未知錯誤
+  errorDetailCopied: 已複製錯誤詳情
+  errorDetailCopyHint: 長按複製錯誤詳情
   restoredPaused:
     banner: '上次離開時有 ${num} 個任務未完成，已暫停'
     resume: 全部繼續

@@ -1610,6 +1610,17 @@ download:
   clearFilters: Clear filters
   pauseAll: Pause all
   resumeAll: Start all
+  errorTypes:
+    network: Network problem, retry may help
+    serverRejected: Rejected by server, you may need to sign in again
+    notFound: Resource is gone or was deleted
+    diskFull: Not enough storage space
+    fileInUse: File is in use by another program
+    permission: No write permission
+    cancelled: Cancelled
+    unknown: Unknown error
+  errorDetailCopied: Error details copied
+  errorDetailCopyHint: Long press to copy error details
   restoredPaused:
     banner: '${num} unfinished tasks from last session were paused'
     resume: Resume all

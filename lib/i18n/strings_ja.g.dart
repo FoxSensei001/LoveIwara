@@ -1326,6 +1326,9 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String get clearFilters => 'フィルターをクリア';
 	@override String get pauseAll => 'すべて一時停止';
 	@override String get resumeAll => 'すべて開始';
+	@override late final _TranslationsDownloadErrorTypesJa errorTypes = _TranslationsDownloadErrorTypesJa._(_root);
+	@override String get errorDetailCopied => 'エラー詳細をコピーしました';
+	@override String get errorDetailCopyHint => '長押しでエラー詳細をコピー';
 	@override late final _TranslationsDownloadRestoredPausedJa restoredPaused = _TranslationsDownloadRestoredPausedJa._(_root);
 	@override String get emptyTaskList => 'ダウンロードタスクがありません';
 	@override String get noMatchingTasks => '一致するタスクがありません';
@@ -3000,6 +3003,23 @@ class _TranslationsDownloadErrorsJa implements TranslationsDownloadErrorsEn {
 	@override String unsupportedImageFormatWithMessage({required Object extension}) => 'サポートされていない画像形式: ${extension}, デバイスにダウンロードして表示することができます';
 	@override String get imageLoadFailed => '画像の読み込みに失敗しました';
 	@override String get pleaseTryOtherViewer => '他のビューアーを使用してみてください';
+}
+
+// Path: download.errorTypes
+class _TranslationsDownloadErrorTypesJa implements TranslationsDownloadErrorTypesEn {
+	_TranslationsDownloadErrorTypesJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get network => 'ネットワークエラー、再試行できます';
+	@override String get serverRejected => 'サーバーに拒否されました。再ログインが必要かもしれません';
+	@override String get notFound => 'リソースが失効または削除されました';
+	@override String get diskFull => 'ストレージの空き容量が不足しています';
+	@override String get fileInUse => 'ファイルが他のプログラムに使用されています';
+	@override String get permission => '書き込み権限がありません';
+	@override String get cancelled => 'キャンセルされました';
+	@override String get unknown => '不明なエラー';
 }
 
 // Path: download.restoredPaused
@@ -4930,6 +4950,16 @@ extension on TranslationsJa {
 			'download.clearFilters' => 'フィルターをクリア',
 			'download.pauseAll' => 'すべて一時停止',
 			'download.resumeAll' => 'すべて開始',
+			'download.errorTypes.network' => 'ネットワークエラー、再試行できます',
+			'download.errorTypes.serverRejected' => 'サーバーに拒否されました。再ログインが必要かもしれません',
+			'download.errorTypes.notFound' => 'リソースが失効または削除されました',
+			'download.errorTypes.diskFull' => 'ストレージの空き容量が不足しています',
+			'download.errorTypes.fileInUse' => 'ファイルが他のプログラムに使用されています',
+			'download.errorTypes.permission' => '書き込み権限がありません',
+			'download.errorTypes.cancelled' => 'キャンセルされました',
+			'download.errorTypes.unknown' => '不明なエラー',
+			'download.errorDetailCopied' => 'エラー詳細をコピーしました',
+			'download.errorDetailCopyHint' => '長押しでエラー詳細をコピー',
 			'download.restoredPaused.banner' => ({required Object num}) => '前回終了時に未完了だったタスク ${num} 件を一時停止しました',
 			'download.restoredPaused.resume' => 'すべて再開',
 			'download.restoredPaused.dismiss' => '閉じる',
@@ -4945,6 +4975,8 @@ extension on TranslationsJa {
 			'download.deleteByDate.notSet' => '未設定',
 			'download.deleteByDate.daysUnit' => '日',
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => '${days}日前より古いタスクを削除',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.noMatch' => '条件に一致するタスクがありません',
 			'download.deleteByDate.invalidRange' => '開始日は終了日以前にしてください',
 			'download.deleteByDate.confirmTitle' => '削除の確認',
@@ -4955,8 +4987,6 @@ extension on TranslationsJa {
 			'download.category.manageTitle' => 'カテゴリーの管理',
 			'download.category.label' => 'カテゴリー',
 			'download.category.uncategorized' => '未分類',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.manage' => '管理',
 			'download.category.createShortcut' => '新規作成',
 			'download.category.newCategoryHint' => '新しいカテゴリー名',
@@ -5459,6 +5489,8 @@ extension on TranslationsJa {
 			'emoji.close' => '閉じる',
 			'emoji.deleteImage' => '画像を削除',
 			'emoji.confirmDeleteImage' => 'この画像を削除してもよろしいですか？',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.cancel' => 'キャンセル',
 			'emoji.batchDelete' => '一括削除',
 			'emoji.confirmBatchDelete' => ({required Object count}) => '選択された${count}枚の画像を削除してもよろしいですか？この操作は元に戻せません。',
@@ -5469,8 +5501,6 @@ extension on TranslationsJa {
 			'emoji.imageUrl' => '画像URL',
 			'emoji.enterImageUrl' => '画像URLを入力してください',
 			'emoji.add' => '追加',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.batchImport' => '一括インポート',
 			'emoji.enterJsonUrlArray' => 'JSON形式のURL配列を入力してください:',
 			'emoji.formatExample' => '形式例:\n["url1", "url2", "url3"]',

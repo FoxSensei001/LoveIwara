@@ -1612,6 +1612,17 @@ download:
   clearFilters: 清除筛选
   pauseAll: 全部暂停
   resumeAll: 全部开始
+  errorTypes:
+    network: 网络异常，可重试
+    serverRejected: 服务器拒绝，可能需要重新登录
+    notFound: 资源已失效或被删除
+    diskFull: 存储空间不足
+    fileInUse: 文件被其他程序占用
+    permission: 没有写入权限
+    cancelled: 已取消
+    unknown: 未知错误
+  errorDetailCopied: 已复制错误详情
+  errorDetailCopyHint: 长按复制错误详情
   restoredPaused:
     banner: '上次退出时有 ${num} 个任务未完成，已暂停'
     resume: 全部继续

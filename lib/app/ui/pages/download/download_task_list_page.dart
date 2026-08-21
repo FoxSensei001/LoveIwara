@@ -1226,7 +1226,8 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     }
 
     final prevDate = index > 0 ? _historySource[index - 1].createdAt : null;
-    final needHeader = index == 0 || prevDate == null || !_isSameDay(prevDate, currentDate);
+    final needHeader =
+        index == 0 || prevDate == null || !_isSameDay(prevDate, currentDate);
 
     if (!needHeader) {
       return _buildTaskItem(task);
