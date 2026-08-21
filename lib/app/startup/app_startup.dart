@@ -108,14 +108,10 @@ class AppStartupCoordinator implements AppStartupRunner {
     }
 
     await _initializeBaseServices();
-    await _initializeCoreAppServices();
-
-    if (Get.isRegistered<ConfigService>()) {
-      final configService = Get.find<ConfigService>();
-      await logService.applyPolicy(
-        LogService.policyFromConfig(configService, isProduction: isProduction),
-      );
-    }
+    await _initializeCoreAppServices(
+      logService: logService,
+      isProduction: isProduction,
+    );
 
     _coreInitialized = true;
   }
@@ -178,11 +174,23 @@ class AppStartupCoordinator implements AppStartupRunner {
     _putIfAbsent<MessageService>(MessageService());
   }
 
-  Future<void> _initializeCoreAppServices() async {
+  Future<void> _initializeCoreAppServices({
+    required LogService logService,
+    required bool isProduction,
+  }) async {
     _putIfAbsent<AppService>(AppService());
 
     final configService = await ConfigService().init();
     _putIfAbsent<ConfigService>(configService);
+
+    // 日志策略要在 ConfigService 一就绪就应用，而不是等整个 core 初始化跑完。
+    // 日志总开关出厂默认关闭，用户既然关了，剩下的启动流程就不该再按全价
+    // 打日志（控制台 PrettyPrinter 是这条链路上最贵的一段）。
+    // 更早是做不到的：开关存在配置表里，得先有 DB 和 ConfigService。
+    await logService.applyPolicy(
+      LogService.policyFromConfig(configService, isProduction: isProduction),
+    );
+
     await Get.find<AppService>().syncSiteModeFromConfig(configService);
 
     // 冷启动恒为主站。如果这次是被一条 AI 站链接拉起来的，趁应用树还没 build
