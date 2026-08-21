@@ -8,6 +8,7 @@ import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/download/download_state_log.dart';
 import 'package:i_iwara/app/services/download_notification_service.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/filename_template_service.dart';
@@ -67,6 +68,32 @@ class DownloadService extends GetxService {
   // 从而在删除后保留滚动位置（解决「删一条就跳回最近下载」的问题）。
   final _removedTaskIdsNotifier = Rx<List<String>>(const []);
   Rx<List<String>> get removedTaskIdsNotifier => _removedTaskIdsNotifier;
+
+  /// 广播「任务状态已变更」并留下诊断埋点。
+  ///
+  /// 所有状态广播都必须走这里，不要再直接 `_taskStatusChangedNotifier.value++`：
+  /// [event] 会写进日志，出问题时能一眼看出是哪条路径发的广播、有没有被订阅方收到
+  /// （见 [DownloadStateLog]）。
+  void _notifyTaskStatusChanged(String event, {String? taskId}) {
+    _taskStatusChangedNotifier.value++;
+    DownloadStateLog.emit(
+      this,
+      'taskStatus/$event',
+      taskId: taskId,
+      detail: 'v=${_taskStatusChangedNotifier.value}',
+    );
+  }
+
+  /// 广播「分类已变更」并留下诊断埋点。
+  void _notifyCategoriesChanged(String event, {String? categoryId}) {
+    _categoriesChangedNotifier.value++;
+    DownloadStateLog.emit(
+      this,
+      'categories/$event',
+      taskId: categoryId,
+      detail: 'v=${_categoriesChangedNotifier.value}',
+    );
+  }
 
   /// 记住的「下载到分类」默认值（'' / 读取失败视为未分类/null）。
   /// 供跳过弹窗的下载路径（单图保存等）沿用上次所选分类。
@@ -147,7 +174,9 @@ class DownloadService extends GetxService {
       title: title,
       description: description,
     );
-    if (category != null) _categoriesChangedNotifier.value++;
+    if (category != null) {
+      _notifyCategoriesChanged('created', categoryId: category.id);
+    }
     return category;
   }
 
@@ -162,7 +191,7 @@ class DownloadService extends GetxService {
       title: title,
       description: description,
     );
-    if (ok) _categoriesChangedNotifier.value++;
+    if (ok) _notifyCategoriesChanged('updated', categoryId: id);
     return ok;
   }
 
@@ -177,9 +206,9 @@ class DownloadService extends GetxService {
       for (final t in _activeTasks.values) {
         if (t.categoryId == id) t.categoryId = null;
       }
-      _categoriesChangedNotifier.value++;
+      _notifyCategoriesChanged('deleted', categoryId: id);
       // 任务的归属变了（退回未分类），刷新列表。
-      _taskStatusChangedNotifier.value++;
+      _notifyTaskStatusChanged('categoryDeleted');
     }
     return ok;
   }
@@ -187,7 +216,7 @@ class DownloadService extends GetxService {
   /// 批量更新分类顺序。
   Future<bool> updateCategoriesOrder(List<String> ids) async {
     final ok = await _repository.updateCategoriesOrder(ids);
-    if (ok) _categoriesChangedNotifier.value++;
+    if (ok) _notifyCategoriesChanged('reordered');
     return ok;
   }
 
@@ -212,8 +241,8 @@ class DownloadService extends GetxService {
       if (t != null) t.categoryId = effectiveId;
     }
     // 元数据变更不会自动触发列表刷新，这里手动 bump。
-    _taskStatusChangedNotifier.value++;
-    _categoriesChangedNotifier.value++; // 分类计数变化
+    _notifyTaskStatusChanged('assignedToCategory');
+    _notifyCategoriesChanged('countsChanged', categoryId: effectiveId);
   }
 
   // =============================== 内部方法 ===============================
@@ -549,7 +578,7 @@ class DownloadService extends GetxService {
       await _waitForCancelCleanup(taskId, hadActiveDownload: hadActiveDownload);
 
       // 通知UI变更
-      _taskStatusChangedNotifier.value++;
+      _notifyTaskStatusChanged('paused', taskId: taskId);
 
       // 处理等待队列中的下一个任务
       _processQueue();
@@ -613,7 +642,7 @@ class DownloadService extends GetxService {
         _enqueueTaskId(taskId);
 
         // 通知任务状态变更
-        _taskStatusChangedNotifier.value++;
+        _notifyTaskStatusChanged('resumed', taskId: taskId);
 
         _processQueue();
       }
@@ -961,6 +990,7 @@ class DownloadService extends GetxService {
       // 通知列表「就地移除」该任务行（保留滚动位置），而非整列重载。
       if (notify) {
         _removedTaskIdsNotifier.value = [taskId];
+        DownloadStateLog.emit(this, 'removed', taskId: taskId);
       }
       return true;
     } finally {
@@ -985,6 +1015,11 @@ class DownloadService extends GetxService {
     // 统一广播一次被删除的 id，列表就地移除（保留滚动位置）。
     if (removed.isNotEmpty) {
       _removedTaskIdsNotifier.value = removed;
+      DownloadStateLog.emit(
+        this,
+        'removedBatch',
+        detail: '${removed.length} 条',
+      );
     }
   }
 
@@ -1034,7 +1069,7 @@ class DownloadService extends GetxService {
 
     // 统一刷新一次（即使全部跳过也刷新，便于回收“文件已丢失”被清理的项）。
     if (total > 0) {
-      _taskStatusChangedNotifier.value++;
+      _notifyTaskStatusChanged('deleted', taskId: 'x$total');
     }
 
     return DeleteTasksResult(total: total, deleted: deleted, skipped: skipped);
@@ -1593,7 +1628,7 @@ class DownloadService extends GetxService {
     _activeTasks.remove(task.id);
 
     // 通知任务状态变更
-    _taskStatusChangedNotifier.value++;
+    _notifyTaskStatusChanged('completed', taskId: task.id);
   }
 
   Future<void> _updateTaskStatus(DownloadTask task) async {
@@ -1607,7 +1642,7 @@ class DownloadService extends GetxService {
     await _repository.updateTask(task);
 
     // 通知任务状态变更
-    _taskStatusChangedNotifier.value++;
+    _notifyTaskStatusChanged('status=${task.status.name}', taskId: task.id);
 
     // 统一的终态通知派发入口（视频完成/失败、图库 outer-catch 失败均走此处）。
     await _dispatchTerminalNotification(task);
@@ -1815,7 +1850,7 @@ class DownloadService extends GetxService {
       await _repository.updateTask(task);
 
       // 通知UI并处理队列
-      _taskStatusChangedNotifier.value++;
+      _notifyTaskStatusChanged('retried', taskId: taskId);
       _processQueue();
     } finally {
       _processingTaskIds.remove(taskId);
@@ -2220,7 +2255,8 @@ class DownloadService extends GetxService {
       } else {
         _activeTasks.remove(task.id);
       }
-      _taskStatusChangedNotifier.value++; // 状态变更，通知列表刷新
+      // 状态变更，通知列表刷新
+      _notifyTaskStatusChanged('gallery=${task.status.name}', taskId: task.id);
       _notifyProgress(task.id); // 确保最后一次进度被更新
 
       // 图库主完成/部分失败路径不经过 _updateTaskStatus，需显式派发终态通知。

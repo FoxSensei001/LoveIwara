@@ -338,15 +338,28 @@ class AppStartupCoordinator implements AppStartupRunner {
 
     _registerDeferredSingleton<PermissionService>(PermissionService());
     // 系统通知服务需在 DownloadService 之前注册，确保派发钩子能解析到它。
+    // 下载这一簇全部 permanent：它们持有活跃连接、文件句柄与内存队列，
+    // 被启动回滚 delete 掉会导致下载中断 + UI 监听挂在死实例上（见
+    // _registerDeferredSingleton 的注释）。
     _registerDeferredSingleton<DownloadNotificationService>(
       DownloadNotificationService(),
+      permanent: true,
     );
-    _registerDeferredSingleton<DownloadService>(DownloadService());
-    _registerDeferredSingleton<DownloadPathService>(DownloadPathService());
+    _registerDeferredSingleton<DownloadService>(
+      DownloadService(),
+      permanent: true,
+    );
+    _registerDeferredSingleton<DownloadPathService>(
+      DownloadPathService(),
+      permanent: true,
+    );
     _registerDeferredSingleton<FilenameTemplateService>(
       FilenameTemplateService(),
     );
-    _registerDeferredSingleton<BatchDownloadService>(BatchDownloadService());
+    _registerDeferredSingleton<BatchDownloadService>(
+      BatchDownloadService(),
+      permanent: true,
+    );
     _registerDeferredSingleton<TranslationService>(TranslationService());
     _registerDeferredSingleton<FavoriteService>(FavoriteService());
     _registerDeferredSingleton<PlaybackHistoryService>(
@@ -463,12 +476,22 @@ class AppStartupCoordinator implements AppStartupRunner {
     Get.put<T>(service, permanent: permanent);
   }
 
+  /// 注册一个延迟阶段的单例。
+  ///
+  /// [permanent] = true 时**不登记回滚清理**：该服务在启动失败重试时不会被
+  /// `Get.delete` 换掉。这对持有长生命周期状态的服务是硬性要求——下载服务持有
+  /// 活跃 dio 连接、文件句柄与内存队列，一旦被 force delete，正在跑的下载会被
+  /// 连根拔掉；更隐蔽的是：页面上已经挂在旧实例 Rx 上的监听会静默失聪，表现为
+  /// 「暂停/继续/删除都不刷新，必须重进页面」。
   void _registerDeferredSingleton<T>(T service, {bool permanent = false}) {
     if (Get.isRegistered<T>()) {
       return;
     }
 
     Get.put<T>(service, permanent: permanent);
+    if (permanent) {
+      return;
+    }
     _cleanupActions.add(() async {
       if (Get.isRegistered<T>()) {
         Get.delete<T>(force: true);

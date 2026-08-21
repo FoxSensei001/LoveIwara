@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/models/download/download_category.model.dart';
+import 'package:i_iwara/app/services/download/download_state_log.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
@@ -310,10 +311,17 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     _statusChangedWorker = ever(DownloadService.to.taskStatusChangedNotifier, (
       int currentVersion,
     ) {
+      DownloadStateLog.receive(
+        this,
+        DownloadService.to,
+        'taskStatus',
+        detail: 'v=$currentVersion last=$_lastStatusVersion',
+      );
       if (currentVersion == _lastStatusVersion) return;
       _lastStatusVersion = currentVersion;
       // 延后到帧回调后执行，避免在 build/通知阶段触发 setState。
       _runAfterFrame(() {
+        DownloadStateLog.apply(this, 'reloadAll', detail: 'v=$currentVersion');
         // 刷新顶部区域
         _refreshPendingTasksIfNeeded();
         _refreshFailedTasksIfNeeded();
@@ -327,8 +335,15 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     // 分类增删改 / 排序变更时刷新分类条与筛选。
     _categoriesChangedWorker = ever(
       DownloadService.to.categoriesChangedNotifier,
-      (_) {
+      (int version) {
+        DownloadStateLog.receive(
+          this,
+          DownloadService.to,
+          'categories',
+          detail: 'v=$version',
+        );
         _runAfterFrame(() {
+          DownloadStateLog.apply(this, 'reloadCategories');
           _reloadCategories();
         });
       },
@@ -338,8 +353,15 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     _removedTaskIdsWorker = ever(DownloadService.to.removedTaskIdsNotifier, (
       List<String> ids,
     ) {
+      DownloadStateLog.receive(
+        this,
+        DownloadService.to,
+        'removed',
+        detail: '${ids.length} 条',
+      );
       if (ids.isEmpty) return;
       _runAfterFrame(() {
+        DownloadStateLog.apply(this, 'removeInPlace', detail: '${ids.length} 条');
         _removeTasksInPlace(ids);
         // 删除影响各分类计数，刷新分类条。
         _reloadCategories();
