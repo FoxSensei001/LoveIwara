@@ -155,8 +155,11 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
     _isApplyingLogPolicy = true;
     try {
       final service = Get.find<LogService>();
+      // 必须和 main.dart / app_startup.dart 用同一个口径 `!kDebugMode`。
+      // 用 kReleaseMode 会让 profile 下用户一动开关就把 minLevel 打回 DEBUG，
+      // 而 LogUtils._isProduction 仍是 true、d() 照样早退——两边又打架。
       await service.applyPolicy(
-        LogService.policyFromConfig(config, isProduction: kReleaseMode),
+        LogService.policyFromConfig(config, isProduction: !kDebugMode),
       );
     } finally {
       _isApplyingLogPolicy = false;
@@ -511,7 +514,10 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
     }
     return [
       'enabled=${h.enabled} persistence=${h.persistenceEnabled}',
-      'queue=${h.queueDepth} ring=${h.ringDepth} dropped=${h.droppedCount}',
+      'queue=${h.queueDepth} ring=${h.ringDepth}',
+      'dropped=${h.droppedCount} '
+          '(processor=${h.droppedByProcessor} minLevel=${h.droppedByMinLevel} disabled=${h.droppedByDisabled})',
+      'suppressed=${h.processorSuppressedCount} rateLimited=${h.processorRateLimitedCount}',
       'flush=${h.flushCount} fail=${h.flushFailureCount} latency=${h.lastFlushLatencyMs ?? '-'}ms',
       'file=${_formatBytes(h.currentLogFileBytes)} degraded=${h.sinkDegraded}',
       'exportFail=${h.exportFailCount} lastExport=${_formatTime(h.lastExportAt)}',
@@ -607,24 +613,19 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
       );
     }
 
-    if (h.droppedCount >= _droppedWarnThreshold) {
+    // 唯一真正代表「日志丢了」的量只有限流。其余几个都不是健康问题：
+    // droppedByMinLevel / droppedByDisabled 是按配置过滤（设计内），
+    // processorSuppressedCount 是重复错误去重（本就该抑制，而且指纹归一化
+    // 生效后它增长很快）。把这些算进来的话，告警要么立刻误报、要么迟早误报。
+    // 原始分项仍完整展示在 _buildHealthSummary() 里，不丢信息。
+    if (h.processorRateLimitedCount >= _droppedWarnThreshold) {
       alerts.add(
         _HealthAlert(
           title: slang.t.diagnostics.healthAlert.droppedTooManyTitle,
           detail: slang.t.diagnostics.healthAlert.droppedTooManyDetail(
-            droppedCount: h.droppedCount,
+            droppedCount: h.processorRateLimitedCount,
             threshold: _droppedWarnThreshold,
           ),
-          critical: false,
-        ),
-      );
-    }
-
-    if (h.processorRateLimitedCount > 0) {
-      alerts.add(
-        _HealthAlert(
-          title: slang.t.diagnostics.healthAlert.rateLimitedTitle,
-          detail: 'processorRateLimited=${h.processorRateLimitedCount}',
           critical: false,
         ),
       );
