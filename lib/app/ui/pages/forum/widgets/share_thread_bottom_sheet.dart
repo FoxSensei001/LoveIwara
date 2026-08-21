@@ -6,10 +6,9 @@ import 'package:flutter/rendering.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/services/share_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
@@ -36,21 +35,17 @@ class _ShareThreadBottomSheetState extends State<ShareThreadBottomSheet> {
   Future<void> _copyLink() async {
     try {
       await ShareService.copyToClipboard(_shareUrl);
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.galleryDetail.copyLink,
-          type: MDToastType.success,
-        ),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        slang.t.galleryDetail.copyLink,
+        type: GlassToastType.success,
+        position: GlassToastPosition.bottom,
       );
     } catch (e) {
       LogUtils.e('复制链接失败', error: e, tag: 'ShareThreadBottomSheet');
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.errors.failedToOperate,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        slang.t.errors.failedToOperate,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
     }
   }

@@ -12,10 +12,9 @@ import 'package:i_iwara/app/services/default_tag_blacklist_reminder.dart';
 import 'package:i_iwara/app/services/iwara_site_headers.dart';
 import 'package:i_iwara/app/services/storage_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart' show LogUtils;
-import 'package:oktoast/oktoast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
@@ -121,11 +120,9 @@ class _LoginDialogState extends State<LoginDialog> {
       });
     } catch (error) {
       LogUtils.e('加载保存的凭据失败: $error', tag: 'LoginDialogV2');
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.errors.failedToLoadSavedCredentials,
-          type: MDToastType.warning,
-        ),
+      showGlassToast(
+        slang.t.errors.failedToLoadSavedCredentials,
+        type: GlassToastType.warning,
       );
     }
   }
@@ -172,13 +169,11 @@ class _LoginDialogState extends State<LoginDialog> {
         // 登录已成功(token 已就绪)；资料拉取成败决定提示文案，
         // 避免"成功 toast + 资料为空"的割裂(#3)。资料失败时后台会重试。
         final profileLoaded = await _userService.fetchUserProfile();
-        showToastWidget(
-          MDToastWidget(
-            message: profileLoaded
-                ? slang.t.auth.loginSuccess
-                : slang.t.auth.loginSuccessProfilePending,
-            type: profileLoaded ? MDToastType.success : MDToastType.warning,
-          ),
+        showGlassToast(
+          profileLoaded
+              ? slang.t.auth.loginSuccess
+              : slang.t.auth.loginSuccessProfilePending,
+          type: profileLoaded ? GlassToastType.success : GlassToastType.warning,
         );
         _userService.startNotificationTimer();
         if (_rememberMe) {
@@ -193,9 +188,10 @@ class _LoginDialogState extends State<LoginDialog> {
         unawaited(DefaultTagBlacklistReminder.checkAndRemind());
       } else {
         LogUtils.w('登录失败（业务返回）: ${result.message}', 'LoginDialogV2');
-        showToastWidget(
-          MDToastWidget(message: result.message, type: MDToastType.error),
-          position: ToastPosition.bottom,
+        showGlassToast(
+          result.message,
+          type: GlassToastType.error,
+          position: GlassToastPosition.bottom,
         );
       }
     } catch (error, stackTrace) {
@@ -205,12 +201,10 @@ class _LoginDialogState extends State<LoginDialog> {
         error: error,
         stackTrace: stackTrace,
       );
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.errors.unknownError,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        slang.t.errors.unknownError,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
     } finally {
       if (mounted) {
@@ -234,12 +228,10 @@ class _LoginDialogState extends State<LoginDialog> {
       }
     } catch (error) {
       LogUtils.e('打开官网注册页面失败: $error', tag: 'LoginDialogV2');
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.search.googleSearchBrowserOpenFailed(error: url),
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        slang.t.search.googleSearchBrowserOpenFailed(error: url),
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
     }
   }
@@ -518,10 +510,7 @@ class _LoginFormSection extends StatelessWidget {
 
 /// 注册引导面板：应用内不再提供注册功能，改为以友好的说明文案引导用户前往官网注册。
 class _RegisterNoticeSection extends StatelessWidget {
-  const _RegisterNoticeSection({
-    super.key,
-    required this.onOpenWebsite,
-  });
+  const _RegisterNoticeSection({super.key, required this.onOpenWebsite});
 
   final VoidCallback onOpenWebsite;
 

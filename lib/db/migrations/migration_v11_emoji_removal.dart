@@ -20,10 +20,13 @@ class MigrationV11EmojiRemoval extends Migration {
     ];
 
     for (final url in urlsToRemove) {
-      db.execute('''
+      db.execute(
+        '''
         DELETE FROM EmojiImages
         WHERE url = ?;
-      ''', [url]);
+      ''',
+        [url],
+      );
     }
 
     db.execute('PRAGMA user_version = 11;');
@@ -49,10 +52,13 @@ class MigrationV11EmojiRemoval extends Migration {
       ];
 
       for (final url in urlsToRestore) {
-        db.execute('''
+        db.execute(
+          '''
           INSERT INTO EmojiImages (group_id, url, thumbnail_url)
           VALUES (?, ?, ?);
-        ''', [groupId, url, url]);
+        ''',
+          [groupId, url, url],
+        );
       }
     }
 

@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/content_block_service.dart';
@@ -148,21 +149,24 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
         title: widget.video.title,
         authorId: widget.video.user?.id,
       );
-      if (match != null && !_revealed) {
-        // 在真实卡片之上叠加磨砂遮罩，保证与普通卡片完全等高。
-        return Stack(
-          children: [
-            IgnorePointer(child: _buildCard(context)),
-            Positioned.fill(
-              child: BlockedMediaOverlay(
-                match: match,
-                onReveal: () => setState(() => _revealed = true),
-              ),
+      final blocked = match != null && !_revealed;
+      // 真实卡片与磨砂遮罩同时常驻，遮罩以淡入淡出 + 缩放过渡显隐，
+      // 保证与普通卡片完全等高，同时避免揭示/重新屏蔽时的瞬间硬切。
+      return Stack(
+        children: [
+          IgnorePointer(
+            ignoring: blocked,
+            child: _buildCard(context, showReblock: match != null && !blocked),
+          ),
+          Positioned.fill(
+            child: BlockedMediaOverlayFade(
+              match: match,
+              visible: blocked,
+              onReveal: () => setState(() => _revealed = true),
             ),
-          ],
-        );
-      }
-      return _buildCard(context, showReblock: match != null);
+          ),
+        ],
+      );
     });
   }
 
@@ -176,22 +180,6 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
     );
     final bool enableHover = !widget.isMultiSelectMode && _isDesktopPlatform();
     final bool showHoverState = enableHover && _isHovering;
-
-    // 多选模式下的遮罩
-    final Widget? overlay = widget.isMultiSelectMode
-        ? Container(
-            color: widget.isSelected
-                ? Colors.black.withValues(alpha: 0.45)
-                : Colors.black.withValues(alpha: 0.2),
-            child: Center(
-              child: Icon(
-                widget.isSelected ? Icons.check_circle : Icons.circle_outlined,
-                color: widget.isSelected ? Colors.white : Colors.white70,
-                size: 40,
-              ),
-            ),
-          )
-        : null;
 
     return RepaintBoundary(
       child: SizedBox(
@@ -262,10 +250,8 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
                           video: widget.video,
                           width: widget.width,
                           isHovering: showHoverState,
-                          overlay: overlay,
-                          onReblock: showReblock
-                              ? () => setState(() => _revealed = false)
-                              : null,
+                          reblockVisible: showReblock,
+                          onReblock: () => setState(() => _revealed = false),
                         ),
                         Padding(
                           padding: const EdgeInsets.fromLTRB(10, 10, 10, 9),
@@ -304,6 +290,16 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                  // 多选态：勾选片 + 描边包住**整张卡片**（含标题与作者行），
+                  // 而不是只框住缩略图——框到一半读起来像被裁断了。常驻挂载，
+                  // 进出选择态两个方向都有淡入淡出。
+                  Positioned.fill(
+                    child: GlassSelectableOverlay(
+                      selectionMode: widget.isMultiSelectMode,
+                      selected: widget.isSelected,
+                      borderRadius: radius,
                     ),
                   ),
                 ],
@@ -365,15 +361,15 @@ class _Thumbnail extends StatelessWidget {
   final double width;
 
   final bool isHovering;
-  final Widget? overlay;
-  final VoidCallback? onReblock;
+  final bool reblockVisible;
+  final VoidCallback onReblock;
 
   const _Thumbnail({
     required this.video,
     required this.width,
     required this.isHovering,
-    this.overlay,
-    this.onReblock,
+    required this.reblockVisible,
+    required this.onReblock,
   });
 
   @override
@@ -390,8 +386,7 @@ class _Thumbnail extends StatelessWidget {
           children: [
             _buildImage(),
             ...buildTags(context, t),
-            if (overlay != null) Positioned.fill(child: overlay!),
-            if (onReblock != null) ReblockChip(onTap: onReblock!),
+            ReblockChip(visible: reblockVisible, onTap: onReblock),
           ],
         ),
       ),

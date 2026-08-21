@@ -3,16 +3,14 @@ import 'base_repository.dart';
 
 class CommonsRepository extends BaseRepository {
   CommonsRepository._privateConstructor();
-  static final CommonsRepository instance = CommonsRepository._privateConstructor();
+  static final CommonsRepository instance =
+      CommonsRepository._privateConstructor();
 
   // 获取配置
   Future<String?> getData(String key) async {
     try {
       final db = databaseService.database;
-      final result = db.select(
-        'SELECT data FROM commons WHERE key = ?',
-        [key],
-      );
+      final result = db.select('SELECT data FROM commons WHERE key = ?', [key]);
       if (result.isNotEmpty) {
         return result.first['data'] as String;
       }
@@ -46,10 +44,7 @@ class CommonsRepository extends BaseRepository {
   Future<void> deleteData(String key) async {
     try {
       final db = databaseService.database;
-      db.execute(
-        'DELETE FROM commons WHERE key = ?',
-        [key],
-      );
+      db.execute('DELETE FROM commons WHERE key = ?', [key]);
     } catch (e) {
       LogUtils.e('删除配置数据时出错', error: e);
       rethrow;
@@ -62,10 +57,9 @@ class CommonsRepository extends BaseRepository {
       final db = databaseService.database;
       final result = db.select('SELECT key, data FROM commons');
       return Map.fromEntries(
-        result.map((row) => MapEntry(
-          row['key'] as String,
-          row['data'] as String,
-        )),
+        result.map(
+          (row) => MapEntry(row['key'] as String, row['data'] as String),
+        ),
       );
     } catch (e) {
       LogUtils.e('获取所有配置数据时出错', error: e);

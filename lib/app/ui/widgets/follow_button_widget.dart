@@ -12,11 +12,10 @@ import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/ui/widgets/action_icon_button_scaffold.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/vibrate_utils.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
@@ -144,11 +143,9 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                   VibrateUtils.vibrate();
                   final UserService userService = Get.find();
                   if (!userService.isAuthenticated) {
-                    showToastWidget(
-                      MDToastWidget(
-                        message: t.errors.pleaseLoginFirst,
-                        type: MDToastType.error,
-                      ),
+                    showGlassToast(
+                      t.errors.pleaseLoginFirst,
+                      type: GlassToastType.error,
                     );
                     LoginService.showLogin();
                     return;
@@ -167,12 +164,10 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                     );
                     // 每次特别关注成功都提示一次去哪能快速用上它——不做持久化计数，
                     // 不像普通关注的 tip 那样怕打扰：这是用户刚主动点出来的操作。
-                    showToastWidget(
-                      MDToastWidget(
-                        message: t.common.specialFollowTip,
-                        type: MDToastType.success,
-                      ),
-                      position: ToastPosition.bottom,
+                    showGlassToast(
+                      t.common.specialFollowTip,
+                      type: GlassToastType.success,
+                      position: GlassToastPosition.bottom,
                     );
                   }
                   final rootNavigator = Navigator.of(
@@ -199,11 +194,9 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                   VibrateUtils.vibrate();
                   final UserService userService = Get.find();
                   if (!userService.isAuthenticated) {
-                    showToastWidget(
-                      MDToastWidget(
-                        message: t.errors.pleaseLoginFirst,
-                        type: MDToastType.error,
-                      ),
+                    showGlassToast(
+                      t.errors.pleaseLoginFirst,
+                      type: GlassToastType.error,
                     );
                     LoginService.showLogin();
                     return;
@@ -234,21 +227,17 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                         AppService.tryPop();
                       }
                     } else {
-                      showToastWidget(
-                        MDToastWidget(
-                          message: result.message,
-                          type: MDToastType.error,
-                        ),
-                        position: ToastPosition.top,
+                      showGlassToast(
+                        result.message,
+                        type: GlassToastType.error,
+                        position: GlassToastPosition.top,
                       );
                     }
                   } catch (e) {
-                    showToastWidget(
-                      MDToastWidget(
-                        message: t.errors.failedToOperate,
-                        type: MDToastType.error,
-                      ),
-                      position: ToastPosition.top,
+                    showGlassToast(
+                      t.errors.failedToOperate,
+                      type: GlassToastType.error,
+                      position: GlassToastPosition.top,
                     );
                   } finally {
                     isProcessing.value = false;
@@ -303,18 +292,17 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
           }
         }
       } else {
-        showToastWidget(
-          MDToastWidget(message: result.message, type: MDToastType.error),
-          position: ToastPosition.top,
+        showGlassToast(
+          result.message,
+          type: GlassToastType.error,
+          position: GlassToastPosition.top,
         );
       }
     } catch (e) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.errors.failedToOperate,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.top,
+      showGlassToast(
+        t.errors.failedToOperate,
+        type: GlassToastType.error,
+        position: GlassToastPosition.top,
       );
     } finally {
       if (mounted) {

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/logging/log_models.dart';
 import 'package:i_iwara/app/services/logging/log_service.dart';
 import 'package:i_iwara/app/startup/app_startup.dart';
 import 'package:i_iwara/app/startup/app_startup_shell.dart';
@@ -29,9 +30,16 @@ void main() {
       bool isProduction = !kDebugMode;
       await LogUtils.init(isProduction: isProduction);
 
-      // 初始化日志持久化服务
-      final logService = await LogService().init();
+      // 初始化日志持久化服务。
+      // 显式传 policy：LogService 自己的默认值按 kReleaseMode 判定，而 LogUtils
+      // 按 !kDebugMode——profile 模式下两者会打架（控制台不打 debug，落盘却照收）。
+      // 统一用同一个 isProduction。
+      final logService = await LogService().init(
+        policy: LogPolicy.defaults(isProduction: isProduction),
+      );
       Get.put(logService, permanent: true);
+      // 挂上引用，让 LogUtils 的热路径不必每条日志都查一次 GetX 容器。
+      LogUtils.attachLogService(logService);
 
       // 注册生命周期监听，确保移动端正常退出时清理崩溃标记
       final lifecycleObserver = _AppLifecycleObserver(logService);

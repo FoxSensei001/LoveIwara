@@ -1,6 +1,11 @@
+import 'dart:async' show Completer;
+
 import 'package:dio/dio.dart' show CancelToken;
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/common/constants.dart' show CommonConstants;
 import 'package:i_iwara/utils/logger_utils.dart' show LogUtils;
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
@@ -238,7 +243,67 @@ abstract class ExtendedLoadingMoreBase<T> extends LoadingMoreBase<T>
   }
 }
 
+/// 把「瀑布 ↔ 分页」的选择写回全局默认。
+///
+/// 订阅页 / 论坛页是通过各自的 `setPaginatedMode` 做这件事的；没有列表控制器、
+/// 只用一个局部 bool 驱动 [MediaListView] 的页面（播放列表、本地收藏夹详情）
+/// 直接调这里，免得各写一遍还漏掉持久化——用户的选择要跨页面、跨启动生效。
+void persistPaginationMode(bool isPaginated) {
+  CommonConstants.isPaginated = isPaginated;
+  // 单测里不会注册 ConfigService；没注册就只更新进程内的默认值。
+  if (Get.isRegistered<ConfigService>()) {
+    Get.find<ConfigService>()[ConfigKey.DEFAULT_PAGINATION_MODE] = isPaginated;
+  }
+}
+
+/// header 刷新钮与 [MediaListView] 之间的「发信号 + 回执」握手。
+///
+/// 页面把刷新交给列表是靠一个自增的 [ValueNotifier]，发出去就没有下文——
+/// header 上的刷新钮因此没法知道刷完没有，也就没法给 loading 反馈。这里补上
+/// 回程：[request] 返回的 Future 会在列表真正刷完时落定，配合
+/// `GlassAsyncIconButton` 就是「点一下变沙漏、刷完变回刷新箭头」。
+///
+/// 没有任何 [MediaListView] 在听（对应的 tab 还没被构建过）时立即落定，
+/// 免得按钮永远卡在沙漏上。
+class ListRefreshSignal extends ValueNotifier<int> {
+  ListRefreshSignal() : super(0);
+
+  Completer<void>? _pending;
+
+  /// 发起一次刷新，返回的 Future 在列表刷完后落定。
+  Future<void> request() {
+    // 上一轮还没回执就又点了：把旧的先了结，只等最新这次。
+    _pending?.complete();
+    _pending = null;
+
+    value = value + 1;
+    if (!hasListeners) return Future<void>.value();
+
+    final completer = Completer<void>();
+    _pending = completer;
+    return completer.future;
+  }
+
+  /// 由 [MediaListView] 在刷新结束后调用。
+  void complete() {
+    final pending = _pending;
+    _pending = null;
+    if (pending != null && !pending.isCompleted) pending.complete();
+  }
+
+  @override
+  void dispose() {
+    complete();
+    super.dispose();
+  }
+}
+
 class MediaListView<T> extends StatefulWidget {
+  /// 分页栏的完整垂直占用：控制条本体及其上方渐隐区。
+  /// 所有悬浮控件在分页模式下都必须避开该范围。
+  static const double paginationBarReservedExtent =
+      PaginationBar.barHeight + PaginationBar.fadeAboveExtent;
+
   final LoadingMoreBase<T> sourceList;
   final Widget Function(BuildContext context, T item, int index) itemBuilder;
   final Widget Function(
@@ -259,6 +324,10 @@ class MediaListView<T> extends StatefulWidget {
   final bool forceTotalCountUnknown;
   final void Function(double offset, double delta, ScrollDirection direction)?
   onScrollMetricsChanged;
+
+  /// 外部刷新信号。分页模式必须由本组件调用 [refresh]，否则只更新数据源而不会
+  /// 更新当前显示的 [paginatedItems]。
+  final ValueListenable<int>? refreshSignal;
 
   /// 分页切换时的回调（用于多选模式下重置选择）
   final VoidCallback? onPageChanged;
@@ -288,6 +357,7 @@ class MediaListView<T> extends StatefulWidget {
     this.forceTotalCountUnknown = false,
     this.onPageChanged,
     this.onScrollMetricsChanged,
+    this.refreshSignal,
     this.listCoordinator,
   });
 
@@ -323,6 +393,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   MediaListController? _mediaListController;
   // 添加 rebuildKey 监听器引用，用于清理
   VoidCallback? _rebuildKeyListener;
+  VoidCallback? _refreshSignalListener;
 
   int get totalItems {
     if (widget.sourceList is ExtendedLoadingMoreBase<T>) {
@@ -355,6 +426,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     // 订阅页的无 tag 单例，导致本组件的其它复用方（热门 / 搜索 / 论坛 /
     // 作者页）被订阅页的状态变化牵连着刷新。
     _mediaListController = widget.listCoordinator;
+    _listenToRefreshSignal();
 
     if (_mediaListController != null) {
       // 如果控制器和滚动控制器可用，注册滚动到顶部回调
@@ -380,6 +452,21 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     }
   }
 
+  void _listenToRefreshSignal() {
+    final signal = widget.refreshSignal;
+    if (signal == null) return;
+    _refreshSignalListener = () {
+      if (!mounted) return;
+      // 带回执的信号：刷完（含失败）回一声，好让 header 的刷新钮退出沙漏态。
+      if (signal is ListRefreshSignal) {
+        refresh().whenComplete(signal.complete);
+      } else {
+        refresh();
+      }
+    };
+    signal.addListener(_refreshSignalListener!);
+  }
+
   // 添加滚动到顶部方法
   void _scrollToTop() {
     if (widget.scrollController != null &&
@@ -395,6 +482,14 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   @override
   void didUpdateWidget(MediaListView<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.refreshSignal != widget.refreshSignal) {
+      if (oldWidget.refreshSignal != null && _refreshSignalListener != null) {
+        oldWidget.refreshSignal!.removeListener(_refreshSignalListener!);
+      }
+      _refreshSignalListener = null;
+      _listenToRefreshSignal();
+    }
 
     if (oldWidget.listCoordinator != widget.listCoordinator) {
       _rebuildKeyListener?.call();
@@ -642,6 +737,9 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     }
     // 清理 rebuildKey 监听器
     _rebuildKeyListener?.call();
+    if (widget.refreshSignal != null && _refreshSignalListener != null) {
+      widget.refreshSignal!.removeListener(_refreshSignalListener!);
+    }
     _pageController.dispose();
     super.dispose();
   }
@@ -836,8 +934,10 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   Widget _buildPaginatedView(BuildContext context, double availableWidth) {
     // 获取系统底部安全区域高度
     final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
-    // 计算分页栏所需的底部边距（PaginationBar内部已处理paddingBottom，这里只需要基础高度）
-    final paginationBarHeight = 46;
+    // 计算分页栏所需的底部边距（PaginationBar内部已处理paddingBottom，这里只需要基础高度
+    // + 悬浮模式下上方的透明渐入区，保证最后一行能完整滚出渐变）
+    final paginationBarHeight = MediaListView.paginationBarReservedExtent
+        .toInt();
 
     // 使用实际可用宽度（来自 LayoutBuilder），而非屏幕宽度
     final screenWidth = availableWidth;

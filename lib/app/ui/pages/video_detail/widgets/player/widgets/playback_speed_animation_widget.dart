@@ -12,10 +12,12 @@ class PlaybackSpeedAnimationWidget extends StatefulWidget {
   });
 
   @override
-  State<PlaybackSpeedAnimationWidget> createState() => _PlaybackSpeedAnimationWidgetState();
+  State<PlaybackSpeedAnimationWidget> createState() =>
+      _PlaybackSpeedAnimationWidgetState();
 }
 
-class _PlaybackSpeedAnimationWidgetState extends State<PlaybackSpeedAnimationWidget>
+class _PlaybackSpeedAnimationWidgetState
+    extends State<PlaybackSpeedAnimationWidget>
     with TickerProviderStateMixin {
   static const double _kHeight = 32;
   static const double _kHorizontalPadding = 12.0;
@@ -131,15 +133,14 @@ class _PlaybackSpeedAnimationWidgetState extends State<PlaybackSpeedAnimationWid
             decoration: ShapeDecoration(
               color: Colors.black54,
               shape: StadiumBorder(
-                side: BorderSide(
-                  color: cs.outlineVariant,
-                  width: 1,
-                ),
+                side: BorderSide(color: cs.outlineVariant, width: 1),
               ),
             ),
             child: Container(
               height: _kHeight,
-              padding: const EdgeInsets.symmetric(horizontal: _kHorizontalPadding),
+              padding: const EdgeInsets.symmetric(
+                horizontal: _kHorizontalPadding,
+              ),
               // 无背景填充，保持透明
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -154,7 +155,8 @@ class _PlaybackSpeedAnimationWidgetState extends State<PlaybackSpeedAnimationWid
                   AnimatedBuilder(
                     animation: _loopController,
                     builder: (context, child) {
-                      final angle = math.sin(_loopController.value * 2 * math.pi) * 0.06;
+                      final angle =
+                          math.sin(_loopController.value * 2 * math.pi) * 0.06;
                       return Transform.rotate(angle: angle, child: child);
                     },
                     child: Icon(
@@ -168,11 +170,13 @@ class _PlaybackSpeedAnimationWidgetState extends State<PlaybackSpeedAnimationWid
                     scale: _bumpScaleAnimation,
                     child: Text(
                       '×${_formatSpeed(widget.playbackSpeed)}',
-                      style: theme.textTheme.labelLarge?.copyWith(
+                      style:
+                          theme.textTheme.labelLarge?.copyWith(
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
                             letterSpacing: 0.2,
-                          ) ?? TextStyle(
+                          ) ??
+                          TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
@@ -220,11 +224,13 @@ class _ArrowFlow extends StatelessWidget {
           final phase = (progress.value + i / count) % 1.0;
           final wave = 0.5 + 0.5 * math.sin(phase * 2 * math.pi);
           final opacity = 0.25 + 0.75 * wave; // 0.25~1.0
-          widgets.add(Icon(
-            Icons.chevron_right_rounded,
-            size: size,
-            color: color.withValues(alpha: opacity.clamp(0.0, 1.0)),
-          ));
+          widgets.add(
+            Icon(
+              Icons.chevron_right_rounded,
+              size: size,
+              color: color.withValues(alpha: opacity.clamp(0.0, 1.0)),
+            ),
+          );
           if (i < count - 1) widgets.add(const SizedBox(width: 2));
         }
         return Row(mainAxisSize: MainAxisSize.min, children: widgets);
@@ -232,4 +238,3 @@ class _ArrowFlow extends StatelessWidget {
     );
   }
 }
-

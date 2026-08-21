@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:oktoast/oktoast.dart';
 
 class ForumEditTitleDialog extends StatefulWidget {
   final String postId;
@@ -57,11 +57,9 @@ class _ForumEditTitleDialogState extends State<ForumEditTitleDialog> {
 
     // 检查标题是否为空
     if (_titleController.text.trim().isEmpty) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.errors.titleCanNotBeEmpty,
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        slang.t.errors.titleCanNotBeEmpty,
+        type: GlassToastType.error,
       );
       return;
     }
@@ -85,12 +83,7 @@ class _ForumEditTitleDialogState extends State<ForumEditTitleDialog> {
         widget.onSubmit?.call();
         AppService.tryPop();
       } else {
-        showToastWidget(
-          MDToastWidget(
-            message: result.message,
-            type: MDToastType.error,
-          ),
-        );
+        showGlassToast(result.message, type: GlassToastType.error);
       }
     }
   }
@@ -100,6 +93,7 @@ class _ForumEditTitleDialogState extends State<ForumEditTitleDialog> {
     final t = slang.Translations.of(context);
 
     return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       child: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -107,48 +101,33 @@ class _ForumEditTitleDialogState extends State<ForumEditTitleDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      slang.t.forum.editTitle,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: AppService.tryPop,
-                    icon: const Icon(Icons.close),
-                    tooltip: t.common.close,
-                  ),
-                ],
+              GlassComposerHeader(
+                title: slang.t.forum.editTitle,
+                icon: Icons.title,
+                onClose: AppService.tryPop,
               ),
               const SizedBox(height: 16),
-              TextField(
-                controller: _titleController,
-                maxLength: maxTitleLength,
-                decoration: InputDecoration(
-                  labelText: slang.t.forum.title,
-                  border: const OutlineInputBorder(),
-                  counterText: '$_currentTitleLength / $maxTitleLength',
+              GlassInputSurface(
+                child: TextField(
+                  controller: _titleController,
+                  maxLength: maxTitleLength,
+                  decoration: glassFieldDecoration(
+                    context,
+                    label: slang.t.forum.title,
+                    counterText: '$_currentTitleLength / $maxTitleLength',
+                  ),
+                  enabled: !_isLoading,
                 ),
-                enabled: !_isLoading,
               ),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _handleSubmit,
-                child: _isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : Text(slang.t.forum.submit),
+              GlassComposerActions(
+                onSubmit:
+                    _currentTitleLength > 0 &&
+                        _currentTitleLength <= maxTitleLength
+                    ? _handleSubmit
+                    : null,
+                submitText: t.forum.submit,
+                isLoading: _isLoading,
               ),
             ],
           ),

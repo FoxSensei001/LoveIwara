@@ -360,7 +360,8 @@ enum ConfigKey {
   LAYOUT_BREAKPOINTS, // 布局断点配置
   // 导航相关配置
   NAVIGATION_ORDER, // 导航项排序
-  NAVIGATION_HIDDEN, // 隐藏的导航项（目前仅论坛/新闻可隐藏）
+  NAVIGATION_HIDDEN, // 隐藏的导航项（目前仅「社区」可隐藏）
+  COMMUNITY_LAST_DESTINATION, // 社区栏目上次停留的目的地（论坛 / 新闻的某个分类）
   // 全屏方向配置
   FULLSCREEN_ORIENTATION, // 进入全屏后的屏幕方向
   // 首次设置相关
@@ -610,6 +611,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'navigation_order';
       case ConfigKey.NAVIGATION_HIDDEN:
         return 'navigation_hidden';
+      case ConfigKey.COMMUNITY_LAST_DESTINATION:
+        return 'community_last_destination';
       case ConfigKey.FULLSCREEN_ORIENTATION:
         return 'fullscreen_orientation';
       case ConfigKey.FIRST_TIME_SETUP_COMPLETED:
@@ -879,11 +882,12 @@ extension ConfigKeyExtension on ConfigKey {
           'video',
           'gallery',
           'subscription',
-          'forum',
-          'news',
-        ]; // 默认导航顺序
+          'community',
+        ]; // 默认导航顺序（论坛+新闻已合并为「社区」）
       case ConfigKey.NAVIGATION_HIDDEN:
         return <String>[]; // 默认不隐藏任何导航项
+      case ConfigKey.COMMUNITY_LAST_DESTINATION:
+        return 'forum'; // 社区栏目默认落在论坛
       case ConfigKey.FULLSCREEN_ORIENTATION:
         return 'landscape_left'; // 默认左侧横屏
       case ConfigKey.FIRST_TIME_SETUP_COMPLETED:

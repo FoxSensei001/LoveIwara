@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/common/widgets/input/base_input_widget.dart';
 import 'package:i_iwara/app/ui/widgets/enhanced_emoji_text_field.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 /// 基础底部弹窗输入组件
@@ -50,7 +51,8 @@ class BaseBottomSheetInput extends StatefulWidget {
 
 class _BaseBottomSheetInputState extends State<BaseBottomSheetInput> {
   late TextEditingController _controller;
-  final GlobalKey<EnhancedEmojiTextFieldState> _emojiTextFieldKey = GlobalKey<EnhancedEmojiTextFieldState>();
+  final GlobalKey<EnhancedEmojiTextFieldState> _emojiTextFieldKey =
+      GlobalKey<EnhancedEmojiTextFieldState>();
 
   @override
   void initState() {
@@ -77,44 +79,32 @@ class _BaseBottomSheetInputState extends State<BaseBottomSheetInput> {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20.0)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 头部标题栏
-          Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
+          // 拖拽条：底部弹窗的通用抓手
+          Center(
+            child: Container(
+              margin: const EdgeInsets.only(top: 12, bottom: 4),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
-            child: Row(
-              children: [
-                if (widget.titleIcon != null) ...[
-                  Icon(
-                    widget.titleIcon,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 20.0,
-                  ),
-                  const SizedBox(width: 8.0),
-                ],
-                Expanded(
-                  child: Text(
-                    widget.title,
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  onPressed: _handleCancel,
-                  icon: const Icon(Icons.close_rounded),
-                  visualDensity: VisualDensity.compact,
-                ),
-              ],
+          ),
+          // 头部标题栏：标题 + 玻璃关闭圆钮
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 0),
+            child: GlassComposerHeader(
+              title: widget.title,
+              icon: widget.titleIcon,
+              onClose: _handleCancel,
             ),
           ),
           // 内容区域
@@ -138,13 +128,14 @@ class _BaseBottomSheetInputState extends State<BaseBottomSheetInput> {
               showPreview: widget.showPreview,
               showRulesAgreement: widget.showRulesAgreement,
               onSubmit: _handleSubmit,
-              onCancel: _handleCancel,
               isLoading: widget.isLoading,
               errorText: widget.errorText,
               initialContent: widget.initialContent,
               enabled: widget.enabled,
               focusNode: widget.focusNode,
-              emojiTextFieldKey: widget.showEmojiPicker ? _emojiTextFieldKey : null,
+              emojiTextFieldKey: widget.showEmojiPicker
+                  ? _emojiTextFieldKey
+                  : null,
               submitText: widget.submitText,
             ),
           ),
@@ -172,7 +163,7 @@ class BottomSheetInputHelper {
     String? submitText,
   }) async {
     String? result;
-    
+
     await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
@@ -196,7 +187,7 @@ class BottomSheetInputHelper {
         },
       ),
     );
-    
+
     return result;
   }
 }

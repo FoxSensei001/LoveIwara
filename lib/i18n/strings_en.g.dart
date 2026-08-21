@@ -639,6 +639,12 @@ class TranslationsCommonEn {
 	/// en: 'Clear Selection'
 	String get clearSelection => 'Clear Selection';
 
+	/// en: 'Select items to continue'
+	String get selectItemsToContinue => 'Select items to continue';
+
+	/// en: 'and ${num} more'
+	String andMoreItems({required Object num}) => 'and ${num} more';
+
 	/// en: 'Batch Delete'
 	String get batchDelete => 'Batch Delete';
 
@@ -852,8 +858,8 @@ class TranslationsCommonEn {
 	/// en: 'Followed successfully, click again to special follow'
 	String get followSuccessClickAgainToSpecialFollow => 'Followed successfully, click again to special follow';
 
-	/// en: 'Added to special follows — pick them from the selector at the top-left of the Subscriptions page for quick access'
-	String get specialFollowTip => 'Added to special follows — pick them from the selector at the top-left of the Subscriptions page for quick access';
+	/// en: 'Added to special follows — pick them from the selector at the top-right of the Subscriptions page for quick access'
+	String get specialFollowTip => 'Added to special follows — pick them from the selector at the top-right of the Subscriptions page for quick access';
 
 	/// en: 'Are you sure you want to exit?'
 	String get exitConfirmTip => 'Are you sure you want to exit?';
@@ -870,11 +876,20 @@ class TranslationsCommonEn {
 	/// en: 'You have unsaved changes'
 	String get unsavedChanges => 'You have unsaved changes';
 
-	/// en: 'Drag to reorder • Swipe left to remove'
-	String get specialFollowsManagementTip => 'Drag to reorder • Swipe left to remove';
+	/// en: 'Drag the handle to reorder • Tap the button to remove'
+	String get specialFollowsManagementTip => 'Drag the handle to reorder • Tap the button to remove';
 
 	/// en: 'Special Follows Management'
 	String get specialFollowsManagement => 'Special Follows Management';
+
+	/// en: 'Remove special follow'
+	String get removeSpecialFollow => 'Remove special follow';
+
+	/// en: 'Remove ${name} from special follows?'
+	String removeSpecialFollowConfirm({required Object name}) => 'Remove ${name} from special follows?';
+
+	/// en: 'No special follows yet'
+	String get noSpecialFollows => 'No special follows yet';
 
 	/// en: 'Create Time Desc'
 	String get createTimeDesc => 'Create Time Desc';
@@ -907,6 +922,9 @@ class TranslationsCommonEn {
 
 	/// en: 'Copy'
 	String get copy => 'Copy';
+
+	/// en: 'Select & Copy'
+	String get selectCopy => 'Select & Copy';
 
 	/// en: 'Copied to clipboard'
 	String get copiedToClipboard => 'Copied to clipboard';
@@ -1284,6 +1302,18 @@ class TranslationsFavoritesEn {
 
 	/// en: 'My Favorites'
 	String get myFavorites => 'My Favorites';
+
+	/// en: 'Remove selected favorites'
+	String get batchCancelFavorite => 'Remove selected favorites';
+
+	/// en: 'Remove the ${count} selected item(s) from favorites? You can restore them by tapping the cards afterwards.'
+	String batchCancelFavoriteConfirm({required Object count}) => 'Remove the ${count} selected item(s) from favorites? You can restore them by tapping the cards afterwards.';
+
+	/// en: 'Removed ${count} item(s) from favorites'
+	String batchCancelFavoriteSuccess({required Object count}) => 'Removed ${count} item(s) from favorites';
+
+	/// en: 'Removed ${success} item(s), ${failed} failed'
+	String batchCancelFavoriteResult({required Object success, required Object failed}) => 'Removed ${success} item(s), ${failed} failed';
 }
 
 // Path: galleryDetail
@@ -1831,6 +1861,9 @@ class TranslationsSettingsEn {
 	/// en: 'News'
 	String get news => 'News';
 
+	/// en: 'Community'
+	String get community => 'Community';
+
 	/// en: 'Disable Forum Reply Quote'
 	String get disableForumReplyQuote => 'Disable Forum Reply Quote';
 
@@ -1875,6 +1908,9 @@ class TranslationsSettingsEn {
 
 	/// en: 'Custom Colors'
 	String get customColors => 'Custom Colors';
+
+	/// en: 'Dynamic color is on, so preset/custom colors are unavailable. Turn off dynamic color first.'
+	String get customColorsDisabledByDynamicColor => 'Dynamic color is on, so preset/custom colors are unavailable. Turn off dynamic color first.';
 
 	/// en: 'Pick Color'
 	String get pickColor => 'Pick Color';
@@ -3039,6 +3075,9 @@ class TranslationsConversationEn {
 	/// en: 'Write message here...'
 	String get writeMessageHere => 'Write message here...';
 
+	/// en: 'You: '
+	String get lastMessageFromMe => 'You: ';
+
 	/// en: 'Send message'
 	String get sendMessage => 'Send message';
 }
@@ -3278,6 +3317,16 @@ class TranslationsDownloadEn {
 	/// en: 'Start all'
 	String get resumeAll => 'Start all';
 
+	late final TranslationsDownloadErrorTypesEn errorTypes = TranslationsDownloadErrorTypesEn._(_root);
+
+	/// en: 'Error details copied'
+	String get errorDetailCopied => 'Error details copied';
+
+	/// en: 'Long press to copy error details'
+	String get errorDetailCopyHint => 'Long press to copy error details';
+
+	late final TranslationsDownloadRestoredPausedEn restoredPaused = TranslationsDownloadRestoredPausedEn._(_root);
+
 	/// en: 'No download tasks yet'
 	String get emptyTaskList => 'No download tasks yet';
 
@@ -3448,6 +3497,21 @@ class TranslationsFavoriteEn {
 
 	/// en: 'Search tags'
 	String get searchTags => 'Search tags';
+
+	/// en: 'No tags on the items in this folder yet'
+	String get noTagsInFolder => 'No tags on the items in this folder yet';
+
+	/// en: 'Shows only items carrying every selected tag'
+	String get tagFilterMatchAll => 'Shows only items carrying every selected tag';
+
+	/// en: 'Clear selected tags'
+	String get clearSelectedTags => 'Clear selected tags';
+
+	/// en: '${count} selected'
+	String selectedTagCount({required Object count}) => '${count} selected';
+
+	/// en: 'No matching tags'
+	String get noMatchingTags => 'No matching tags';
 }
 
 // Path: translation
@@ -4026,6 +4090,9 @@ class TranslationsNavigationOrderSettingsEn {
 
 	/// en: 'Browse official news, articles, and broadcasts'
 	String get newsDescription => 'Browse official news, articles, and broadcasts';
+
+	/// en: 'Forum discussions plus official news, articles and broadcasts'
+	String get communityDescription => 'Forum discussions plus official news, articles and broadcasts';
 }
 
 // Path: news
@@ -7329,6 +7396,57 @@ class TranslationsDownloadErrorsEn {
 	String get pleaseTryOtherViewer => 'Please try using other viewers to open';
 }
 
+// Path: download.errorTypes
+class TranslationsDownloadErrorTypesEn {
+	TranslationsDownloadErrorTypesEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Network problem, retry may help'
+	String get network => 'Network problem, retry may help';
+
+	/// en: 'Rejected by server, you may need to sign in again'
+	String get serverRejected => 'Rejected by server, you may need to sign in again';
+
+	/// en: 'Resource is gone or was deleted'
+	String get notFound => 'Resource is gone or was deleted';
+
+	/// en: 'Not enough storage space'
+	String get diskFull => 'Not enough storage space';
+
+	/// en: 'File is in use by another program'
+	String get fileInUse => 'File is in use by another program';
+
+	/// en: 'No write permission'
+	String get permission => 'No write permission';
+
+	/// en: 'Cancelled'
+	String get cancelled => 'Cancelled';
+
+	/// en: 'Unknown error'
+	String get unknown => 'Unknown error';
+}
+
+// Path: download.restoredPaused
+class TranslationsDownloadRestoredPausedEn {
+	TranslationsDownloadRestoredPausedEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: '${num} unfinished tasks from last session were paused'
+	String banner({required Object num}) => '${num} unfinished tasks from last session were paused';
+
+	/// en: 'Resume all'
+	String get resume => 'Resume all';
+
+	/// en: 'Dismiss'
+	String get dismiss => 'Dismiss';
+}
+
 // Path: download.deleteByDate
 class TranslationsDownloadDeleteByDateEn {
 	TranslationsDownloadDeleteByDateEn._(this._root);
@@ -8312,6 +8430,8 @@ extension on Translations {
 			'common.paused' => 'Paused',
 			'common.clear' => 'Clear',
 			'common.clearSelection' => 'Clear Selection',
+			'common.selectItemsToContinue' => 'Select items to continue',
+			'common.andMoreItems' => ({required Object num}) => 'and ${num} more',
 			'common.batchDelete' => 'Batch Delete',
 			'common.user' => 'User',
 			'common.post' => 'Post',
@@ -8383,14 +8503,17 @@ extension on Translations {
 			'common.deleteRecordsInDateRangeConfirm' => ({required Object num}) => 'Are you sure you want to delete ${num} history records in this date range? This cannot be undone.',
 			'common.noHistoryRecordsInRange' => 'No history records in this date range',
 			'common.followSuccessClickAgainToSpecialFollow' => 'Followed successfully, click again to special follow',
-			'common.specialFollowTip' => 'Added to special follows — pick them from the selector at the top-left of the Subscriptions page for quick access',
+			'common.specialFollowTip' => 'Added to special follows — pick them from the selector at the top-right of the Subscriptions page for quick access',
 			'common.exitConfirmTip' => 'Are you sure you want to exit?',
 			'common.error' => 'Error',
 			'common.taskRunning' => 'A task is already running, please wait.',
 			'common.operationCancelled' => 'Operation cancelled.',
 			'common.unsavedChanges' => 'You have unsaved changes',
-			'common.specialFollowsManagementTip' => 'Drag to reorder • Swipe left to remove',
+			'common.specialFollowsManagementTip' => 'Drag the handle to reorder • Tap the button to remove',
 			'common.specialFollowsManagement' => 'Special Follows Management',
+			'common.removeSpecialFollow' => 'Remove special follow',
+			'common.removeSpecialFollowConfirm' => ({required Object name}) => 'Remove ${name} from special follows?',
+			'common.noSpecialFollows' => 'No special follows yet',
 			'common.createTimeDesc' => 'Create Time Desc',
 			'common.createTimeAsc' => 'Create Time Asc',
 			'common.pagination.totalItems' => ({required Object num}) => 'Total ${num} items',
@@ -8410,6 +8533,7 @@ extension on Translations {
 			'common.tagOriginalKey' => 'Original Tag',
 			'common.tagTranslation' => 'Translation',
 			'common.copy' => 'Copy',
+			'common.selectCopy' => 'Select & Copy',
 			'common.copiedToClipboard' => 'Copied to clipboard',
 			'common.showOriginalTag' => 'Show Original Tag',
 			'common.showTranslatedTag' => 'Show Translation',
@@ -8541,6 +8665,10 @@ extension on Translations {
 			'authorProfile.userProfile' => 'User Profile',
 			'favorites.clickToRestoreFavorite' => 'Click to restore favorite',
 			'favorites.myFavorites' => 'My Favorites',
+			'favorites.batchCancelFavorite' => 'Remove selected favorites',
+			'favorites.batchCancelFavoriteConfirm' => ({required Object count}) => 'Remove the ${count} selected item(s) from favorites? You can restore them by tapping the cards afterwards.',
+			'favorites.batchCancelFavoriteSuccess' => ({required Object count}) => 'Removed ${count} item(s) from favorites',
+			'favorites.batchCancelFavoriteResult' => ({required Object success, required Object failed}) => 'Removed ${success} item(s), ${failed} failed',
 			'galleryDetail.galleryDetail' => 'Gallery Detail',
 			'galleryDetail.viewGalleryDetail' => 'View Gallery Detail',
 			'galleryDetail.copyLink' => 'Copy Link',
@@ -8640,6 +8768,8 @@ extension on Translations {
 			'settings.rememberBrightness' => 'Remember Brightness',
 			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => 'This configuration determines whether the brightness will be kept when playing videos again.',
 			'settings.playControlArea' => 'Play Control Area',
+			_ => null,
+		} ?? switch (path) {
 			'settings.leftAndRightControlAreaWidth' => 'Left and Right Control Area Width',
 			'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer' => 'This configuration determines the width of the control areas on the left and right sides of the player.',
 			'settings.proxyAddressCannotBeEmpty' => 'Proxy address cannot be empty.',
@@ -8650,8 +8780,6 @@ extension on Translations {
 			'settings.proxyConfig' => 'Proxy Config',
 			'settings.thisIsHttpProxyAddress' => 'This is http proxy address',
 			'settings.checkProxy' => 'Check Proxy',
-			_ => null,
-		} ?? switch (path) {
 			'settings.proxyAddress' => 'Proxy Address',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => 'Please enter the URL of the proxy server, for example 127.0.0.1:8080',
 			'settings.enableProxy' => 'Enable Proxy',
@@ -8710,6 +8838,7 @@ extension on Translations {
 			'settings.privacy' => 'Privacy',
 			'settings.forum' => 'Forum',
 			'settings.news' => 'News',
+			'settings.community' => 'Community',
 			'settings.disableForumReplyQuote' => 'Disable Forum Reply Quote',
 			'settings.disableForumReplyQuoteDesc' => 'Disable carrying replied floor information when replying in forum',
 			'settings.theaterMode' => 'Theater Mode',
@@ -8725,6 +8854,7 @@ extension on Translations {
 			'settings.useDynamicColorDesc' => 'This configuration determines whether the app uses dynamic color',
 			'settings.presetColors' => 'Preset Colors',
 			'settings.customColors' => 'Custom Colors',
+			'settings.customColorsDisabledByDynamicColor' => 'Dynamic color is on, so preset/custom colors are unavailable. Turn off dynamic color first.',
 			'settings.pickColor' => 'Pick Color',
 			'settings.cancel' => 'Cancel',
 			'settings.confirm' => 'Confirm',
@@ -9152,6 +9282,8 @@ extension on Translations {
 			'oreno3d.loading.gettingVideoInfo' => 'Getting video information...',
 			'oreno3d.loading.cancel' => 'Cancel',
 			'oreno3d.messages.videoNotFoundOrDeleted' => 'Video not found or has been deleted',
+			_ => null,
+		} ?? switch (path) {
 			'oreno3d.messages.unableToGetVideoPlayLink' => 'Unable to get video playback link',
 			'oreno3d.messages.getVideoDetailFailed' => 'Failed to get video details',
 			'signIn.pleaseLoginFirst' => 'Please login first',
@@ -9164,8 +9296,6 @@ extension on Translations {
 			'signIn.selectDateRange' => 'Select Date Range',
 			'signIn.startDate' => 'Start Date',
 			'signIn.endDate' => 'End Date',
-			_ => null,
-		} ?? switch (path) {
 			'signIn.invalidDate' => 'Invalid Date',
 			'signIn.invalidDateRange' => 'Invalid Date Range',
 			'signIn.errorFormatText' => 'Date Format Error',
@@ -9512,6 +9642,7 @@ extension on Translations {
 			'conversation.deleteThisMessage' => 'Delete this message',
 			'conversation.deleteThisMessageSubtitle' => 'This operation cannot be undone',
 			'conversation.writeMessageHere' => 'Write message here...',
+			'conversation.lastMessageFromMe' => 'You: ',
 			'conversation.sendMessage' => 'Send message',
 			'splash.errors.initializationFailed' => 'Initialization failed, please restart the app',
 			'splash.preparing' => 'Preparing...',
@@ -9640,6 +9771,19 @@ extension on Translations {
 			'download.clearFilters' => 'Clear filters',
 			'download.pauseAll' => 'Pause all',
 			'download.resumeAll' => 'Start all',
+			'download.errorTypes.network' => 'Network problem, retry may help',
+			'download.errorTypes.serverRejected' => 'Rejected by server, you may need to sign in again',
+			'download.errorTypes.notFound' => 'Resource is gone or was deleted',
+			'download.errorTypes.diskFull' => 'Not enough storage space',
+			'download.errorTypes.fileInUse' => 'File is in use by another program',
+			'download.errorTypes.permission' => 'No write permission',
+			'download.errorTypes.cancelled' => 'Cancelled',
+			'download.errorTypes.unknown' => 'Unknown error',
+			'download.errorDetailCopied' => 'Error details copied',
+			'download.errorDetailCopyHint' => 'Long press to copy error details',
+			'download.restoredPaused.banner' => ({required Object num}) => '${num} unfinished tasks from last session were paused',
+			'download.restoredPaused.resume' => 'Resume all',
+			'download.restoredPaused.dismiss' => 'Dismiss',
 			'download.emptyTaskList' => 'No download tasks yet',
 			'download.noMatchingTasks' => 'No matching tasks',
 			'download.deleteByDate.menuTitle' => 'Delete by date',
@@ -9652,6 +9796,8 @@ extension on Translations {
 			'download.deleteByDate.notSet' => 'Not set',
 			'download.deleteByDate.daysUnit' => 'days',
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => 'Delete tasks created more than ${days} day(s) ago',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.noMatch' => 'No tasks match the selected condition',
 			'download.deleteByDate.invalidRange' => 'Start date must be on or before end date',
 			'download.deleteByDate.confirmTitle' => 'Confirm deletion',
@@ -9678,8 +9824,6 @@ extension on Translations {
 			'download.category.renameHint' => 'Enter category name',
 			'download.category.renameSuccess' => 'Category renamed',
 			'download.category.renameFailed' => 'Failed to rename category',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.deleteTitle' => 'Delete category',
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'Delete category "${title}"? Its ${count} download(s) will be moved to Uncategorized; the files will not be deleted.',
 			'download.category.deleteSuccess' => 'Category deleted',
@@ -9763,6 +9907,11 @@ extension on Translations {
 			'favorite.editFolderSuccess' => 'Folder updated successfully',
 			'favorite.editFolderFailed' => 'Failed to update folder',
 			'favorite.searchTags' => 'Search tags',
+			'favorite.noTagsInFolder' => 'No tags on the items in this folder yet',
+			'favorite.tagFilterMatchAll' => 'Shows only items carrying every selected tag',
+			'favorite.clearSelectedTags' => 'Clear selected tags',
+			'favorite.selectedTagCount' => ({required Object count}) => '${count} selected',
+			'favorite.noMatchingTags' => 'No matching tags',
 			'translation.currentService' => 'Current Service',
 			'translation.testConnection' => 'Test Connection',
 			'translation.testConnectionSuccess' => 'Test connection success',
@@ -9959,6 +10108,7 @@ extension on Translations {
 			'navigationOrderSettings.subscriptionDescription' => 'View latest content from followed users',
 			'navigationOrderSettings.forumDescription' => 'Participate in community discussions',
 			'navigationOrderSettings.newsDescription' => 'Browse official news, articles, and broadcasts',
+			'navigationOrderSettings.communityDescription' => 'Forum discussions plus official news, articles and broadcasts',
 			'news.title' => 'News',
 			'news.newsUpdates' => 'News Updates',
 			'news.articles' => 'Articles',
@@ -10160,6 +10310,8 @@ extension on Translations {
 			'linkInputDialog.multipleLinksDetected' => 'Multiple links detected, please select one:',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => 'Not a valid ${webName} link',
 			'linkInputDialog.linkParseError' => ({required Object error}) => 'Link parsing error: ${error}',
+			_ => null,
+		} ?? switch (path) {
 			'linkInputDialog.unsupportedLinkDialogTitle' => 'Unsupported Link',
 			'linkInputDialog.unsupportedLinkDialogContent' => 'This link type cannot be opened directly in the app and needs to be accessed using an external browser.\n\nDo you want to open this link in a browser?',
 			'linkInputDialog.openInBrowser' => 'Open in Browser',
@@ -10192,8 +10344,6 @@ extension on Translations {
 			'log.confirmClearAllLogsDesc' => 'Are you sure you want to clear all log data? This operation cannot be undone.',
 			'log.clearAllLogsSuccess' => 'Log cleared successfully',
 			'log.clearAllLogsFailed' => ({required Object error}) => 'Failed to clear logs: ${error}',
-			_ => null,
-		} ?? switch (path) {
 			'log.unableToGetLogSizeInfo' => 'Unable to get log size information',
 			'log.currentLogSize' => 'Current Log Size:',
 			'log.logCount' => 'Log Count:',

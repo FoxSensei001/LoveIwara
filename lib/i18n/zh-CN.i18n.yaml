@@ -182,6 +182,8 @@ common:
   paused: 已暂停
   clear: 清除
   clearSelection: 清空选择
+  selectItemsToContinue: 选择项目以继续
+  andMoreItems(num): '还有 ${num} 项'
   batchDelete: 批量删除
   user: 用户
   post: 投稿
@@ -254,14 +256,17 @@ common:
   deleteRecordsInDateRangeConfirm: '确定要删除该时间范围内的 ${num} 条历史记录吗？此操作不可恢复。'
   noHistoryRecordsInRange: 该时间范围内没有历史记录
   followSuccessClickAgainToSpecialFollow: 已成功关注，再次点击以特别关注
-  specialFollowTip: 已加入特别关注，可在订阅页左上角的选择框中切换到TA，快速查看更新
+  specialFollowTip: 已加入特别关注，可在订阅页右上角的选择框中切换到TA，快速查看更新
   exitConfirmTip: 确定要退出吗？
   error: 错误
   taskRunning: "任务正在进行中，请稍后再试。"
   operationCancelled: "操作已取消。"
   unsavedChanges: "您有未保存的更改"
-  specialFollowsManagementTip: 拖动可重新排序 • 向左滑动可移除
+  specialFollowsManagementTip: 拖动手柄可重新排序 • 点右侧按钮可移除
   specialFollowsManagement: 特别关注管理
+  removeSpecialFollow: 移除特别关注
+  removeSpecialFollowConfirm: '确定要将 ${name} 从特别关注中移除吗？'
+  noSpecialFollows: 还没有特别关注的作者
   createTimeDesc: 创建时间倒序
   createTimeAsc: 创建时间正序
   # 分页相关
@@ -283,6 +288,7 @@ common:
   tagOriginalKey: 原始标签
   tagTranslation: 译文
   copy: 复制
+  selectCopy: 选择复制
   copiedToClipboard: 已复制到剪贴板
   showOriginalTag: 显示原始标签
   showTranslatedTag: 显示译文
@@ -423,6 +429,10 @@ authorProfile:
 favorites:
   clickToRestoreFavorite: 点击恢复最爱
   myFavorites: 我的最爱
+  batchCancelFavorite: 批量取消最爱
+  batchCancelFavoriteConfirm(count): '确定要取消选中的 ${count} 项最爱吗？取消后可以在列表中点击卡片恢复。'
+  batchCancelFavoriteSuccess(count): '已取消 ${count} 项最爱'
+  batchCancelFavoriteResult(success, failed): '已取消 ${success} 项，${failed} 项失败'
 
 galleryDetail:
   galleryDetail: 图库详情
@@ -599,6 +609,7 @@ settings:
   privacy: 隐私
   forum: 论坛
   news: 新闻
+  community: 社区
   disableForumReplyQuote: 禁用论坛回复引用
   disableForumReplyQuoteDesc: 禁用论坛回复时携带被回复楼层信息
   theaterMode: 剧院模式
@@ -614,6 +625,7 @@ settings:
   useDynamicColorDesc: 此配置决定应用是否使用动态颜色
   presetColors: 预设颜色
   customColors: 自定义颜色
+  customColorsDisabledByDynamicColor: 已开启动态颜色，预设/自定义颜色暂不可用，请先关闭动态颜色
   pickColor: 选择颜色
   cancel: 取消
   confirm: 确认
@@ -1466,6 +1478,7 @@ conversation:
   deleteThisMessage: 删除此消息
   deleteThisMessageSubtitle: 此操作不可撤销
   writeMessageHere: 在此处输入消息
+  lastMessageFromMe: "我："
   sendMessage: 发送消息
 
 splash:
@@ -1599,6 +1612,21 @@ download:
   clearFilters: 清除筛选
   pauseAll: 全部暂停
   resumeAll: 全部开始
+  errorTypes:
+    network: 网络异常，可重试
+    serverRejected: 服务器拒绝，可能需要重新登录
+    notFound: 资源已失效或被删除
+    diskFull: 存储空间不足
+    fileInUse: 文件被其他程序占用
+    permission: 没有写入权限
+    cancelled: 已取消
+    unknown: 未知错误
+  errorDetailCopied: 已复制错误详情
+  errorDetailCopyHint: 长按复制错误详情
+  restoredPaused:
+    banner: '上次退出时有 ${num} 个任务未完成，已暂停'
+    resume: 全部继续
+    dismiss: 忽略
   emptyTaskList: 暂无下载任务
   noMatchingTasks: 没有匹配的任务
   deleteByDate:
@@ -1728,6 +1756,11 @@ favorite:
   editFolderSuccess: 文件夹更新成功
   editFolderFailed: 文件夹更新失败
   searchTags: 搜索标签
+  noTagsInFolder: 本收藏夹内的作品还没有标签
+  tagFilterMatchAll: 仅显示同时包含全部所选标签的作品
+  clearSelectedTags: 清除已选标签
+  selectedTagCount: "已选 ${count} 个"
+  noMatchingTags: 没有匹配的标签
 
 translation:
   currentService: 当前服务
@@ -2289,6 +2322,7 @@ navigationOrderSettings:
   forumDescription: 参与社区讨论
 
   newsDescription: 浏览官方新闻、文章和公告广播
+  communityDescription: 论坛讨论与官方新闻、文章、公告广播
 
 news:
   title: 新闻

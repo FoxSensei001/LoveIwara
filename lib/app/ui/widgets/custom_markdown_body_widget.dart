@@ -8,7 +8,7 @@ import 'package:i_iwara/app/services/deep_link_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_translation_controller.dart';
 import 'package:i_iwara/app/ui/widgets/translation_language_selector.dart';
 import 'package:i_iwara/app/ui/widgets/translation_powered_by_widget.dart';
@@ -17,7 +17,6 @@ import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/image_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:markdown_widget/markdown_widget.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
@@ -41,6 +40,22 @@ class CustomMarkdownBody extends StatefulWidget {
   final String Function(String url)? urlPreprocessor; // 页面级 markdown url 预处理
   // 点击文本中的时间节点（如 1:01）时的跳转回调；为 null 时不解析时间节点
   final void Function(Duration position)? onTimestampSeek;
+  // 点击正文纯文本 / 段落空白处的回调（如评论区「点按任意处回复」）。
+  // SelectionArea 自带 tap 识别器且在手势竞技场里赢过外层 InkWell（更深者
+  // 胜），外面包点击层接不到；必须由这里在 SelectionArea 内侧接住再透传。
+  // 链接 / 图片 / 时间节点等 span 级手势比这层更深，依旧优先。
+  final VoidCallback? onTap;
+  // 长按正文的回调（如评论区长按弹操作菜单）。同样挂在 SelectionArea 内侧，
+  // 会取代其长按选中文本的默认行为——调用方应在菜单里提供「选择复制」入口。
+  final VoidCallback? onLongPress;
+  // 内容处理状态变化回调：本文与格式化结果有差异时为 true。post-frame 触发，
+  // 调用方可安全 setState。
+  //
+  // 「显示原始文本」的开关不再由本组件自己画在正文下方——它一律由外层放进
+  // 已有的动作栏 / 标题行，用 only-icon 的 `MarkdownOriginalTextToggle`
+  // 呈现：本回调告诉外层「有没有可切换的差异」（决定那枚钮出不出现），
+  // [initialShowUnprocessedText] 回来受控当前状态。
+  final ValueChanged<bool>? onProcessedContentChanged;
 
   const CustomMarkdownBody({
     super.key,
@@ -57,6 +72,9 @@ class CustomMarkdownBody extends StatefulWidget {
     this.showHorizontalRules = true,
     this.urlPreprocessor,
     this.onTimestampSeek,
+    this.onTap,
+    this.onLongPress,
+    this.onProcessedContentChanged,
   });
 
   @override
@@ -128,6 +146,16 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     super.didUpdateWidget(oldWidget);
     if (!oldWidget.showTranslationButton && widget.showTranslationButton) {
       _resolvedTranslationService;
+    }
+
+    // 外部受控的「显示原始文本」开关（如全站公告卡片自己的动作行）
+    if (oldWidget.initialShowUnprocessedText !=
+            widget.initialShowUnprocessedText &&
+        widget.initialShowUnprocessedText != null &&
+        widget.initialShowUnprocessedText != _showOriginal) {
+      setState(() {
+        _showOriginal = widget.initialShowUnprocessedText!;
+      });
     }
 
     if (oldWidget.data != widget.data ||
@@ -521,12 +549,10 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
 
   void _showLinkOpenFailedToast(String href) {
     LogUtils.e('无法打开链接: $href', tag: 'CustomMarkdownBody');
-    showToastWidget(
-      MDToastWidget(
-        message: t.errors.errorWhileOpeningLink(link: href),
-        type: MDToastType.error,
-      ),
-      position: ToastPosition.top,
+    showGlassToast(
+      t.errors.errorWhileOpeningLink(link: href),
+      type: GlassToastType.error,
+      position: GlassToastPosition.top,
     );
   }
 
@@ -807,6 +833,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
           if (translatedText == t.common.translateFailedPleaseTryAgainLater)
             SelectableText(
               translatedText,
+              onTap: widget.onTap,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.error,
                 fontSize: 14,
@@ -829,6 +856,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                 const SizedBox(height: 8),
                 SelectableText(
                   translatedText,
+                  onTap: widget.onTap,
                   style: TextStyle(
                     fontSize: 14,
                     color: Theme.of(context).colorScheme.onSurface,
@@ -844,6 +872,8 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
               skipMarkdownProcessing: true,
               clickInternalLinkByUrlLaunch: widget.clickInternalLinkByUrlLaunch,
               maxImageHeight: widget.maxImageHeight,
+              onTap: widget.onTap,
+              onLongPress: widget.onLongPress,
             ),
         ],
       ),
@@ -1153,42 +1183,54 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   }
 
   Widget _buildMarkdownContent(MarkdownConfig config) {
-    return SelectionArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: _markdownGenerator.buildWidgets(
-          _showOriginal ? widget.data : _displayData,
-          config: config,
-        ),
+    Widget content = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: _markdownGenerator.buildWidgets(
+        _showOriginal ? widget.data : _displayData,
+        config: config,
       ),
     );
+    if (widget.onTap != null || widget.onLongPress != null) {
+      // 必须挂在 SelectionArea 内侧（见 onTap / onLongPress 字段注释）
+      content = GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: widget.onTap,
+        onLongPress: widget.onLongPress,
+        child: content,
+      );
+    }
+    return SelectionArea(child: content);
   }
 
-  Widget _buildProcessedTextToggle() {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: TextButton.icon(
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+  /// 翻译结果区的出现 / 消失过渡：淡入淡出 + 高度自顶部展开收起。
+  /// [content] 为 null 表示隐藏；消失时旧内容会完整走一遍反向动画。
+  Widget _animatedTranslationReveal(Widget? content) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 250),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: SizeTransition(
+          sizeFactor: animation,
+          alignment: Alignment.topCenter,
+          child: child,
         ),
-        icon: Icon(
-          _showOriginal ? Icons.format_paint : Icons.format_paint_outlined,
-          size: 14,
-        ),
-        iconAlignment: IconAlignment.end,
-        label: Text(
-          _showOriginal
-              ? t.common.showProcessedText
-              : t.common.showOriginalText,
-          style: const TextStyle(fontSize: 12),
-        ),
-        onPressed: () {
-          setState(() {
-            _showOriginal = !_showOriginal;
-          });
-        },
       ),
+      // 默认 layoutBuilder 会把新旧子项居中叠放，翻译块是顶部对齐的流式内容，
+      // 过渡期间需按左上角锚定，否则收起时会从中间往两头缩
+      layoutBuilder: (currentChild, previousChildren) => Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.topLeft,
+        children: [...previousChildren, ?currentChild],
+      ),
+      child: content == null
+          ? const SizedBox.shrink(key: ValueKey('translation-hidden'))
+          : KeyedSubtree(
+              key: const ValueKey('translation-visible'),
+              child: content,
+            ),
     );
   }
 
@@ -1196,32 +1238,35 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     if (widget.translationController != null) {
       return Obx(() {
         final controller = widget.translationController!;
-        if (!controller.hasTranslation) {
-          return const SizedBox.shrink();
-        }
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 8),
-            _buildTranslatedContent(
-              context,
-              customText: controller.translatedText.value,
-              isTranslating: controller.isTranslating.value,
-              isTranslationComplete: controller.isTranslationComplete.value,
-            ),
-          ],
-        );
+        final Widget? content = !controller.hasTranslation
+            ? null
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+                  _buildTranslatedContent(
+                    context,
+                    customText: controller.translatedText.value,
+                    isTranslating: controller.isTranslating.value,
+                    isTranslationComplete:
+                        controller.isTranslationComplete.value,
+                  ),
+                ],
+              );
+        return _animatedTranslationReveal(content);
       });
     }
 
-    if (widget.showTranslationButton && _translatedText != null) {
-      return Column(
-        children: [const SizedBox(height: 8), _buildTranslatedContent(context)],
-      );
-    }
-
-    return const SizedBox.shrink();
+    final Widget? content =
+        widget.showTranslationButton && _translatedText != null
+        ? Column(
+            children: [
+              const SizedBox(height: 8),
+              _buildTranslatedContent(context),
+            ],
+          )
+        : null;
+    return _animatedTranslationReveal(content);
   }
 
   Widget _buildTranslationControls(BuildContext context) {
@@ -1240,8 +1285,23 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     );
   }
 
+  /// 上次通知给外部的处理状态；build 里比对，变化才 post-frame 通知。
+  bool? _lastNotifiedProcessed;
+
+  void _notifyProcessedContent() {
+    final cb = widget.onProcessedContentChanged;
+    if (cb == null) return;
+    final v = _hasProcessedContent;
+    if (_lastNotifiedProcessed == v) return;
+    _lastNotifiedProcessed = v;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) cb(v);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    _notifyProcessedContent();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final maxImageHeight = widget.maxImageHeight;
     final normalImagePlaceholderHeight = maxImageHeight != null
@@ -1269,10 +1329,6 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
         children: [
           if (widget.translationButtonAtTop) _buildTranslationControls(context),
           markdownContent,
-          if (_hasProcessedContent) ...[
-            const SizedBox(height: 8),
-            _buildProcessedTextToggle(),
-          ],
           if (!widget.translationButtonAtTop)
             _buildTranslationControls(context),
           _buildTranslationSection(context),

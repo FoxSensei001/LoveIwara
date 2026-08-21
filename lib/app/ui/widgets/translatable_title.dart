@@ -77,9 +77,7 @@ class _TranslatableTitleState extends State<TranslatableTitle> {
           maxLines: widget.collapsedMaxLines,
           textDirection: Directionality.of(context),
           textScaler: MediaQuery.textScalerOf(context),
-        )..layout(
-            maxWidth: (maxWidth - iconSlotWidth).clamp(0.0, maxWidth),
-          );
+        )..layout(maxWidth: (maxWidth - iconSlotWidth).clamp(0.0, maxWidth));
         final bool isOverflowing = painter.didExceedMaxLines;
 
         // 用裸 Icon + GestureDetector 而非 IconButton：后者即便 padding/constraints
@@ -89,15 +87,16 @@ class _TranslatableTitleState extends State<TranslatableTitle> {
           required VoidCallback onPressed,
           String? tooltip,
         }) {
-          // 纵向多给、横向少给内边距：既把可点击区域撑到 ~28x36（手指好点），
-          // 又不至于把图标之间、图标与文字之间的间距拉得太开。
-          // HitTestBehavior.opaque 让整个内边距区域都可点击。
+          // 两个内联动作使用同一固定图标槽，避免各自的内边距把标题行高撑大，
+          // 也让翻译与展开按钮在文字的中线处对齐。
+          // HitTestBehavior.opaque 让整个图标槽都可点击。
           Widget child = GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: onPressed,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-              child: iconChild,
+            child: SizedBox(
+              width: iconSlotWidth,
+              height: iconSlotWidth,
+              child: Center(child: iconChild),
             ),
           );
           if (tooltip != null && tooltip.isNotEmpty) {
@@ -174,8 +173,9 @@ class _TranslatableTitleState extends State<TranslatableTitle> {
           firstCurve: animCurve,
           secondCurve: animCurve,
           alignment: Alignment.topLeft,
-          crossFadeState:
-              _expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+          crossFadeState: _expanded
+              ? CrossFadeState.showSecond
+              : CrossFadeState.showFirst,
           firstChild: collapsedChild,
           secondChild: expandedChild,
         );

@@ -4,11 +4,10 @@ import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/content_block_service.dart';
 import 'package:i_iwara/app/ui/widgets/action_icon_button_scaffold.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/vibrate_utils.dart';
-import 'package:oktoast/oktoast.dart';
 
 /// 用户主页操作栏上的「屏蔽 / 取消屏蔽」按钮（本地屏蔽，不调用 Iwara API）。
 class BlockUserButtonWidget extends StatelessWidget {
@@ -41,12 +40,7 @@ class BlockUserButtonWidget extends StatelessWidget {
               AppService.tryPop();
               VibrateUtils.vibrate();
               await _service.blockUser(user);
-              showToastWidget(
-                MDToastWidget(
-                  message: t.userBlocked,
-                  type: MDToastType.success,
-                ),
-              );
+              showGlassToast(t.userBlocked, type: GlassToastType.success);
             },
             child: Text(t.blockUser),
           ),
@@ -58,11 +52,9 @@ class BlockUserButtonWidget extends StatelessWidget {
   Future<void> _onUnblock() async {
     VibrateUtils.vibrate();
     await _service.unblockUser(user.id);
-    showToastWidget(
-      MDToastWidget(
-        message: slang.t.settings.blockSettings.userUnblocked,
-        type: MDToastType.success,
-      ),
+    showGlassToast(
+      slang.t.settings.blockSettings.userUnblocked,
+      type: GlassToastType.success,
     );
   }
 

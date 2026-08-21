@@ -15,7 +15,9 @@ class MigrationV14FavoriteFolderOrder extends Migration {
     LogUtils.i('开始执行迁移v14：为 favorite_folders 添加 display_order 字段');
 
     // 添加 display_order 字段（默认为 0）
-    db.execute('ALTER TABLE favorite_folders ADD COLUMN display_order INTEGER NOT NULL DEFAULT 0;');
+    db.execute(
+      'ALTER TABLE favorite_folders ADD COLUMN display_order INTEGER NOT NULL DEFAULT 0;',
+    );
 
     // 为现有记录初始化 display_order，按创建时间排序
     try {

@@ -8,18 +8,17 @@ import 'package:share_plus/share_plus.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/services/logging/log_service.dart';
 import 'package:i_iwara/app/services/logging/log_models.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/storage_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
-import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
-import 'package:i_iwara/app/ui/pages/settings/log_viewer_page.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/ui/pages/settings/settings_navigation.dart';
+import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';
 
 class DiagnosticsPage extends StatefulWidget {
   final bool isWideScreen;
@@ -156,8 +155,11 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
     _isApplyingLogPolicy = true;
     try {
       final service = Get.find<LogService>();
+      // 必须和 main.dart / app_startup.dart 用同一个口径 `!kDebugMode`。
+      // 用 kReleaseMode 会让 profile 下用户一动开关就把 minLevel 打回 DEBUG，
+      // 而 LogUtils._isProduction 仍是 true、d() 照样早退——两边又打架。
       await service.applyPolicy(
-        LogService.policyFromConfig(config, isProduction: kReleaseMode),
+        LogService.policyFromConfig(config, isProduction: !kDebugMode),
       );
     } finally {
       _isApplyingLogPolicy = false;
@@ -204,311 +206,304 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
       2,
     ).clamp(1, 10);
 
-    return Material(
-      child: CustomScrollView(
-        slivers: [
-          BlurredSliverAppBar(
-            title: t.settings.diagnosticsAndFeedback,
-            isWideScreen: widget.isWideScreen,
-            expandedHeight: 56,
+    return GlassSettingsScaffold(
+      title: t.settings.diagnosticsAndFeedback,
+      slivers: [
+        SliverPadding(
+          padding: EdgeInsets.only(
+            left: 12,
+            right: 12,
+            top: 8,
+            bottom: 8 + bottomInset,
           ),
-          SliverPadding(
-            padding: EdgeInsets.only(
-              left: 12,
-              right: 12,
-              top: 8,
-              bottom: 8 + bottomInset,
-            ),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                // 诊断信息
-                _buildCard(
-                  theme: theme,
-                  children: [
-                    _buildSectionHeader(
-                      theme,
-                      Icons.info_outline,
-                      t.diagnostics.infoSectionTitle,
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              // 诊断信息
+              _buildCard(
+                theme: theme,
+                children: [
+                  _buildSectionHeader(
+                    theme,
+                    Icons.info_outline,
+                    t.diagnostics.infoSectionTitle,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildInfoRow(
-                            t.diagnostics.appVersionLabel,
-                            CommonConstants.VERSION,
-                          ),
-                          const SizedBox(height: 4),
-                          if (_deviceInfo.isNotEmpty)
-                            Text(
-                              _deviceInfo,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
-                                fontFamily: 'monospace',
-                              ),
-                            ),
-                          const SizedBox(height: 4),
-                          _buildSecureStorageRow(theme, t),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-
-                _buildCard(
-                  theme: theme,
-                  children: [
-                    _buildSectionHeader(
-                      theme,
-                      Icons.tune,
-                      t.diagnostics.logPolicySectionTitle,
-                    ),
-                    if (!hasConfig)
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                        child: Text(t.diagnostics.configServiceUnavailable),
-                      )
-                    else ...[
-                      _buildSwitchTile(
-                        title: t.diagnostics.enableLoggingTitle,
-                        subtitle: t.diagnostics.enableLoggingSubtitle,
-                        value: logEnabled,
-                        onChanged: (v) =>
-                            _updateLogSetting(ConfigKey.LOGGING_ENABLED, v),
-                      ),
-                      _buildDivider(),
-                      _buildSwitchTile(
-                        title: t.diagnostics.enableLogPersistenceTitle,
-                        subtitle: t.diagnostics.enableLogPersistenceSubtitle,
-                        value: persistenceEnabled,
-                        onChanged: logEnabled
-                            ? (v) => _updateLogSetting(
-                                ConfigKey.LOG_PERSISTENCE_ENABLED,
-                                v,
-                              )
-                            : null,
-                      ),
-                      _buildDivider(),
-                      _buildDropdownTile(
-                        title: t.diagnostics.minLogLevelTitle,
-                        subtitle: t.diagnostics.minLogLevelSubtitle,
-                        value: minLevel,
-                        options: const [
-                          'DEBUG',
-                          'INFO',
-                          'WARN',
-                          'ERROR',
-                          'FATAL',
-                        ],
-                        onChanged: logEnabled
-                            ? (v) =>
-                                  _updateLogSetting(ConfigKey.LOG_MIN_LEVEL, v)
-                            : null,
-                      ),
-                      _buildDivider(),
-                      _buildDropdownTile(
-                        title: t.diagnostics.maxFileSizeTitle,
-                        subtitle: t.diagnostics.maxFileSizeSubtitle,
-                        value: '${maxFileMb}MB',
-                        options: const ['1MB', '2MB', '5MB', '10MB', '20MB'],
-                        onChanged: persistenceEnabled
-                            ? (v) => _updateLogSetting(
-                                ConfigKey.LOG_MAX_FILE_MB,
-                                int.parse(v.replaceAll('MB', '')),
-                              )
-                            : null,
-                      ),
-                      _buildDivider(),
-                      _buildDropdownTile(
-                        title: t.diagnostics.rotatedFileCountTitle,
-                        subtitle: t.diagnostics.rotatedFileCountSubtitle,
-                        value: '$maxRotated',
-                        options: const [
-                          '1',
-                          '2',
-                          '3',
-                          '4',
-                          '5',
-                          '6',
-                          '7',
-                          '8',
-                          '9',
-                          '10',
-                        ],
-                        onChanged: persistenceEnabled
-                            ? (v) => _updateLogSetting(
-                                ConfigKey.LOG_MAX_ROTATED_FILES,
-                                int.parse(v),
-                              )
-                            : null,
-                      ),
-                      _buildDivider(),
-                      _buildDropdownTile(
-                        title: t.diagnostics.hangFileSizeTitle,
-                        subtitle: t.diagnostics.hangFileSizeSubtitle,
-                        value: '${maxHangFileMb}MB',
-                        options: const [
-                          '1MB',
-                          '2MB',
-                          '3MB',
-                          '5MB',
-                          '10MB',
-                          '20MB',
-                        ],
-                        onChanged: persistenceEnabled
-                            ? (v) => _updateLogSetting(
-                                ConfigKey.LOG_HANG_MAX_FILE_MB,
-                                int.parse(v.replaceAll('MB', '')),
-                              )
-                            : null,
-                      ),
-                      _buildDivider(),
-                      _buildDropdownTile(
-                        title: t.diagnostics.hangRotatedFileCountTitle,
-                        subtitle: t.diagnostics.hangRotatedFileCountSubtitle,
-                        value: '$maxHangRotated',
-                        options: const [
-                          '1',
-                          '2',
-                          '3',
-                          '4',
-                          '5',
-                          '6',
-                          '7',
-                          '8',
-                          '9',
-                          '10',
-                        ],
-                        onChanged: persistenceEnabled
-                            ? (v) => _updateLogSetting(
-                                ConfigKey.LOG_HANG_MAX_ROTATED_FILES,
-                                int.parse(v),
-                              )
-                            : null,
-                      ),
-                    ],
-                  ],
-                ),
-                const SizedBox(height: 8),
-
-                _buildCard(
-                  theme: theme,
-                  children: [
-                    _buildSectionHeader(
-                      theme,
-                      Icons.monitor_heart,
-                      t.diagnostics.healthSectionTitle,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _buildHealthSummary(),
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              fontFamily: 'monospace',
-                              height: 1.35,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          _buildHealthAlerts(theme, maxFileBytes: maxFileBytes),
-                          const SizedBox(height: 8),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: OutlinedButton.icon(
-                              onPressed: _refreshLogHealth,
-                              icon: const Icon(Icons.refresh, size: 16),
-                              label: Text(t.diagnostics.refreshMetrics),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-
-                // 操作
-                _buildCard(
-                  theme: theme,
-                  children: [
-                    _buildSectionHeader(
-                      theme,
-                      Icons.build_outlined,
-                      t.diagnostics.toolsSectionTitle,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.errorContainer.withValues(
-                            alpha: 0.35,
-                          ),
-                          borderRadius: BorderRadius.circular(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildInfoRow(
+                          t.diagnostics.appVersionLabel,
+                          CommonConstants.VERSION,
                         ),
-                        child: Text(
-                          t.diagnostics.privacyNotice,
+                        const SizedBox(height: 4),
+                        if (_deviceInfo.isNotEmpty)
+                          Text(
+                            _deviceInfo,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                              fontFamily: 'monospace',
+                            ),
+                          ),
+                        const SizedBox(height: 4),
+                        _buildSecureStorageRow(theme, t),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              _buildCard(
+                theme: theme,
+                children: [
+                  _buildSectionHeader(
+                    theme,
+                    Icons.tune,
+                    t.diagnostics.logPolicySectionTitle,
+                  ),
+                  if (!hasConfig)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                      child: Text(t.diagnostics.configServiceUnavailable),
+                    )
+                  else ...[
+                    _buildSwitchTile(
+                      title: t.diagnostics.enableLoggingTitle,
+                      subtitle: t.diagnostics.enableLoggingSubtitle,
+                      value: logEnabled,
+                      onChanged: (v) =>
+                          _updateLogSetting(ConfigKey.LOGGING_ENABLED, v),
+                    ),
+                    _buildDivider(),
+                    _buildSwitchTile(
+                      title: t.diagnostics.enableLogPersistenceTitle,
+                      subtitle: t.diagnostics.enableLogPersistenceSubtitle,
+                      value: persistenceEnabled,
+                      onChanged: logEnabled
+                          ? (v) => _updateLogSetting(
+                              ConfigKey.LOG_PERSISTENCE_ENABLED,
+                              v,
+                            )
+                          : null,
+                    ),
+                    _buildDivider(),
+                    _buildDropdownTile(
+                      title: t.diagnostics.minLogLevelTitle,
+                      subtitle: t.diagnostics.minLogLevelSubtitle,
+                      value: minLevel,
+                      options: const [
+                        'DEBUG',
+                        'INFO',
+                        'WARN',
+                        'ERROR',
+                        'FATAL',
+                      ],
+                      onChanged: logEnabled
+                          ? (v) => _updateLogSetting(ConfigKey.LOG_MIN_LEVEL, v)
+                          : null,
+                    ),
+                    _buildDivider(),
+                    _buildDropdownTile(
+                      title: t.diagnostics.maxFileSizeTitle,
+                      subtitle: t.diagnostics.maxFileSizeSubtitle,
+                      value: '${maxFileMb}MB',
+                      options: const ['1MB', '2MB', '5MB', '10MB', '20MB'],
+                      onChanged: persistenceEnabled
+                          ? (v) => _updateLogSetting(
+                              ConfigKey.LOG_MAX_FILE_MB,
+                              int.parse(v.replaceAll('MB', '')),
+                            )
+                          : null,
+                    ),
+                    _buildDivider(),
+                    _buildDropdownTile(
+                      title: t.diagnostics.rotatedFileCountTitle,
+                      subtitle: t.diagnostics.rotatedFileCountSubtitle,
+                      value: '$maxRotated',
+                      options: const [
+                        '1',
+                        '2',
+                        '3',
+                        '4',
+                        '5',
+                        '6',
+                        '7',
+                        '8',
+                        '9',
+                        '10',
+                      ],
+                      onChanged: persistenceEnabled
+                          ? (v) => _updateLogSetting(
+                              ConfigKey.LOG_MAX_ROTATED_FILES,
+                              int.parse(v),
+                            )
+                          : null,
+                    ),
+                    _buildDivider(),
+                    _buildDropdownTile(
+                      title: t.diagnostics.hangFileSizeTitle,
+                      subtitle: t.diagnostics.hangFileSizeSubtitle,
+                      value: '${maxHangFileMb}MB',
+                      options: const [
+                        '1MB',
+                        '2MB',
+                        '3MB',
+                        '5MB',
+                        '10MB',
+                        '20MB',
+                      ],
+                      onChanged: persistenceEnabled
+                          ? (v) => _updateLogSetting(
+                              ConfigKey.LOG_HANG_MAX_FILE_MB,
+                              int.parse(v.replaceAll('MB', '')),
+                            )
+                          : null,
+                    ),
+                    _buildDivider(),
+                    _buildDropdownTile(
+                      title: t.diagnostics.hangRotatedFileCountTitle,
+                      subtitle: t.diagnostics.hangRotatedFileCountSubtitle,
+                      value: '$maxHangRotated',
+                      options: const [
+                        '1',
+                        '2',
+                        '3',
+                        '4',
+                        '5',
+                        '6',
+                        '7',
+                        '8',
+                        '9',
+                        '10',
+                      ],
+                      onChanged: persistenceEnabled
+                          ? (v) => _updateLogSetting(
+                              ConfigKey.LOG_HANG_MAX_ROTATED_FILES,
+                              int.parse(v),
+                            )
+                          : null,
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              _buildCard(
+                theme: theme,
+                children: [
+                  _buildSectionHeader(
+                    theme,
+                    Icons.monitor_heart,
+                    t.diagnostics.healthSectionTitle,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _buildHealthSummary(),
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onErrorContainer,
+                            fontFamily: 'monospace',
                             height: 1.35,
                           ),
                         ),
+                        const SizedBox(height: 10),
+                        _buildHealthAlerts(theme, maxFileBytes: maxFileBytes),
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: OutlinedButton.icon(
+                            onPressed: _refreshLogHealth,
+                            icon: const Icon(Icons.refresh, size: 16),
+                            label: Text(t.diagnostics.refreshMetrics),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              // 操作
+              _buildCard(
+                theme: theme,
+                children: [
+                  _buildSectionHeader(
+                    theme,
+                    Icons.build_outlined,
+                    t.diagnostics.toolsSectionTitle,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.errorContainer.withValues(
+                          alpha: 0.35,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        t.diagnostics.privacyNotice,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onErrorContainer,
+                          height: 1.35,
+                        ),
                       ),
                     ),
-                    _buildActionTile(
-                      icon: Icons.upload_file,
-                      title: t.diagnostics.exportLogsTitle,
-                      subtitle: t.diagnostics.exportLogsSubtitle,
-                      trailing: _isExporting
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : null,
-                      onTap: _isExporting ? null : _exportLogs,
+                  ),
+                  _buildActionTile(
+                    icon: Icons.upload_file,
+                    title: t.diagnostics.exportLogsTitle,
+                    subtitle: t.diagnostics.exportLogsSubtitle,
+                    trailing: _isExporting
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : null,
+                    onTap: _isExporting ? null : _exportLogs,
+                  ),
+                  _buildDivider(),
+                  _buildActionTile(
+                    icon: Icons.visibility,
+                    title: t.diagnostics.viewLogsTitle,
+                    subtitle: t.diagnostics.viewLogsSubtitle,
+                    onTap: _openLogViewer,
+                  ),
+                  _buildDivider(),
+                  _buildActionTile(
+                    icon: Icons.mail_outline,
+                    title: t.diagnostics.copySupportEmailTitle,
+                    subtitle: _supportEmail,
+                    trailing: Icon(
+                      Icons.copy_rounded,
+                      size: 18,
+                      color: theme.colorScheme.primary,
                     ),
-                    _buildDivider(),
-                    _buildActionTile(
-                      icon: Icons.visibility,
-                      title: t.diagnostics.viewLogsTitle,
-                      subtitle: t.diagnostics.viewLogsSubtitle,
-                      onTap: _openLogViewer,
-                    ),
-                    _buildDivider(),
-                    _buildActionTile(
-                      icon: Icons.mail_outline,
-                      title: t.diagnostics.copySupportEmailTitle,
-                      subtitle: _supportEmail,
-                      trailing: Icon(
-                        Icons.copy_rounded,
-                        size: 18,
-                        color: theme.colorScheme.primary,
-                      ),
-                      onTap: _copySupportEmail,
-                    ),
-                    _buildDivider(),
-                    _buildActionTile(
-                      icon: Icons.bug_report,
-                      title: t.diagnostics.reportIssueTitle,
-                      subtitle: t.diagnostics.reportIssueSubtitle,
-                      onTap: _reportBug,
-                    ),
-                  ],
-                ),
-              ]),
-            ),
+                    onTap: _copySupportEmail,
+                  ),
+                  _buildDivider(),
+                  _buildActionTile(
+                    icon: Icons.bug_report,
+                    title: t.diagnostics.reportIssueTitle,
+                    subtitle: t.diagnostics.reportIssueSubtitle,
+                    onTap: _reportBug,
+                  ),
+                ],
+              ),
+            ]),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -519,7 +514,10 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
     }
     return [
       'enabled=${h.enabled} persistence=${h.persistenceEnabled}',
-      'queue=${h.queueDepth} ring=${h.ringDepth} dropped=${h.droppedCount}',
+      'queue=${h.queueDepth} ring=${h.ringDepth}',
+      'dropped=${h.droppedCount} '
+          '(processor=${h.droppedByProcessor} minLevel=${h.droppedByMinLevel} disabled=${h.droppedByDisabled})',
+      'suppressed=${h.processorSuppressedCount} rateLimited=${h.processorRateLimitedCount}',
       'flush=${h.flushCount} fail=${h.flushFailureCount} latency=${h.lastFlushLatencyMs ?? '-'}ms',
       'file=${_formatBytes(h.currentLogFileBytes)} degraded=${h.sinkDegraded}',
       'exportFail=${h.exportFailCount} lastExport=${_formatTime(h.lastExportAt)}',
@@ -615,24 +613,19 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
       );
     }
 
-    if (h.droppedCount >= _droppedWarnThreshold) {
+    // 唯一真正代表「日志丢了」的量只有限流。其余几个都不是健康问题：
+    // droppedByMinLevel / droppedByDisabled 是按配置过滤（设计内），
+    // processorSuppressedCount 是重复错误去重（本就该抑制，而且指纹归一化
+    // 生效后它增长很快）。把这些算进来的话，告警要么立刻误报、要么迟早误报。
+    // 原始分项仍完整展示在 _buildHealthSummary() 里，不丢信息。
+    if (h.processorRateLimitedCount >= _droppedWarnThreshold) {
       alerts.add(
         _HealthAlert(
           title: slang.t.diagnostics.healthAlert.droppedTooManyTitle,
           detail: slang.t.diagnostics.healthAlert.droppedTooManyDetail(
-            droppedCount: h.droppedCount,
+            droppedCount: h.processorRateLimitedCount,
             threshold: _droppedWarnThreshold,
           ),
-          critical: false,
-        ),
-      );
-    }
-
-    if (h.processorRateLimitedCount > 0) {
-      alerts.add(
-        _HealthAlert(
-          title: slang.t.diagnostics.healthAlert.rateLimitedTitle,
-          detail: 'processorRateLimited=${h.processorRateLimitedCount}',
           critical: false,
         ),
       );
@@ -767,8 +760,7 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
       SecureStorageHealth.healthy => t.diagnostics.secureStorageHealthy,
       SecureStorageHealth.recoveredAfterReset =>
         t.diagnostics.secureStorageRecovered,
-      SecureStorageHealth.unavailable =>
-        t.diagnostics.secureStorageUnavailable,
+      SecureStorageHealth.unavailable => t.diagnostics.secureStorageUnavailable,
     };
     final dualWrite = storage.secureStorageUntrusted
         ? t.diagnostics.secureStorageDualWrite
@@ -913,11 +905,9 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
 
     try {
       if (!Get.isRegistered<LogService>()) {
-        showToastWidget(
-          MDToastWidget(
-            message: slang.t.diagnostics.toast.logServiceNotInitialized,
-            type: MDToastType.error,
-          ),
+        showGlassToast(
+          slang.t.diagnostics.toast.logServiceNotInitialized,
+          type: GlassToastType.error,
         );
         return;
       }
@@ -936,11 +926,9 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
         );
         if (result != null) {
           await File(file.path).copy(result.path);
-          showToastWidget(
-            MDToastWidget(
-              message: slang.t.diagnostics.toast.exportSuccess,
-              type: MDToastType.success,
-            ),
+          showGlassToast(
+            slang.t.diagnostics.toast.exportSuccess,
+            type: GlassToastType.success,
           );
         }
       } else {
@@ -952,11 +940,9 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
         );
       }
     } catch (e) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.diagnostics.toast.exportFailed(error: e.toString()),
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        slang.t.diagnostics.toast.exportFailed(error: e.toString()),
+        type: GlassToastType.error,
       );
     } finally {
       if (mounted) {
@@ -966,12 +952,7 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
   }
 
   void _openLogViewer() {
-    final page = LogViewerPage(isWideScreen: widget.isWideScreen);
-    if (widget.isWideScreen) {
-      SettingsPage.navigateToNestedPage(page);
-    } else {
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
-    }
+    SettingsNavigation.openSubPage(SettingsSubRoutes.diagnosticsLogs);
   }
 
   Future<void> _reportBug() async {
@@ -986,11 +967,9 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
   Future<void> _copySupportEmail() async {
     await Clipboard.setData(const ClipboardData(text: _supportEmail));
     if (mounted) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.diagnostics.toast.supportEmailCopied,
-          type: MDToastType.success,
-        ),
+      showGlassToast(
+        slang.t.diagnostics.toast.supportEmailCopied,
+        type: GlassToastType.success,
       );
     }
   }

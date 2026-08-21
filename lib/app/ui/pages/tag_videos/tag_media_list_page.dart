@@ -338,12 +338,13 @@ class _TagMediaListPageState extends State<TagMediaListPage>
                                 ),
                                 // 问号 icon：打开详情弹窗（原文 + 译文 + 复制 + 反馈）
                                 IconButton(
-                                  icon: const Icon(Icons.help_outline, size: 18),
-                                  tooltip: t.common.tagInfo,
-                                  onPressed: () => showTagDetailDialog(
-                                    context,
-                                    widget.tag,
+                                  icon: const Icon(
+                                    Icons.help_outline,
+                                    size: 18,
                                   ),
+                                  tooltip: t.common.tagInfo,
+                                  onPressed: () =>
+                                      showTagDetailDialog(context, widget.tag),
                                 ),
                               ],
                             ),

@@ -8,32 +8,71 @@ import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/content_block_service.dart';
 import 'package:i_iwara/app/services/conversation_service.dart';
-import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart';
 
-class BlockSettingsPage extends StatelessWidget {
+class BlockSettingsPage extends StatefulWidget {
   final bool isWideScreen;
 
   const BlockSettingsPage({super.key, this.isWideScreen = false});
+
+  @override
+  State<BlockSettingsPage> createState() => _BlockSettingsPageState();
+}
+
+class _BlockSettingsPageState extends State<BlockSettingsPage>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
 
   ContentBlockService get _service => Get.find<ContentBlockService>();
 
   slang.TranslationsSettingsBlockSettingsEn get _t =>
       slang.t.settings.blockSettings;
 
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(
+      length: BlockRuleType.values.length,
+      vsync: this,
+    );
+    _tabController.addListener(_onTabChanged);
+  }
+
+  @override
+  void dispose() {
+    _tabController.removeListener(_onTabChanged);
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void _onTabChanged() {
+    // 动画途中 indexIsChanging 为 true，只关心落定后的那次
+    if (_tabController.indexIsChanging) return;
+    if (mounted) setState(() {});
+  }
+
+  /// 返回：统一交给 [AppService.tryPop]，由 PopCoordinator 按栈深决定是退回
+  /// 设置列表还是离开整个设置树——和系统返回键、Esc 走的是同一条链。
+  void _handleBack() {
+    AppService.tryPop();
+  }
+
   void _addRule(BuildContext context, {BlockRule? existing}) {
     // 新增规则时，根据当前所处的 tab 自动选择对应的规则类型。
-    final controller = DefaultTabController.maybeOf(context);
     BlockRuleType? initialType;
-    if (existing == null && controller != null) {
-      final index = controller.index;
+    if (existing == null) {
+      final index = _tabController.index;
       if (index >= 0 && index < BlockRuleType.values.length) {
         initialType = BlockRuleType.values[index];
       }
@@ -56,10 +95,8 @@ class BlockSettingsPage extends StatelessWidget {
           }
           // 提交后自动跳到该规则类型对应的 tab。
           final targetIndex = BlockRuleType.values.indexOf(rule.type);
-          if (controller != null &&
-              targetIndex >= 0 &&
-              controller.index != targetIndex) {
-            controller.animateTo(targetIndex);
+          if (targetIndex >= 0 && _tabController.index != targetIndex) {
+            _tabController.animateTo(targetIndex);
           }
         },
       ),
@@ -71,15 +108,11 @@ class BlockSettingsPage extends StatelessWidget {
     try {
       final ok = await _service.exportRulesToFile();
       if (ok) {
-        showToastWidget(
-          MDToastWidget(message: _t.exportSuccess, type: MDToastType.success),
-        );
+        showGlassToast(_t.exportSuccess, type: GlassToastType.success);
       }
     } catch (e) {
       LogUtils.e('导出屏蔽规则失败', tag: 'BlockSettingsPage', error: e);
-      showToastWidget(
-        MDToastWidget(message: _t.exportFailed, type: MDToastType.error),
-      );
+      showGlassToast(_t.exportFailed, type: GlassToastType.error);
     }
   }
 
@@ -87,17 +120,13 @@ class BlockSettingsPage extends StatelessWidget {
     try {
       final added = await _service.importRulesFromFile();
       if (added == null) return; // 用户取消
-      showToastWidget(
-        MDToastWidget(
-          message: _t.importSuccess(count: added.toString()),
-          type: MDToastType.success,
-        ),
+      showGlassToast(
+        _t.importSuccess(count: added.toString()),
+        type: GlassToastType.success,
       );
     } catch (e) {
       LogUtils.e('导入屏蔽规则失败', tag: 'BlockSettingsPage', error: e);
-      showToastWidget(
-        MDToastWidget(message: _t.importFailed, type: MDToastType.error),
-      );
+      showGlassToast(_t.importFailed, type: GlassToastType.error);
     }
   }
 
@@ -105,269 +134,197 @@ class BlockSettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context);
     final bottomInset = computeBottomSafeInset(mq);
-    // Scaffold 已按 padding.bottom 抬高 FAB；在 edge-to-edge 下 padding.bottom 可能为 0，
-    // 此时手势条仍占空间，补上差值即可，避免在三键导航下重复抬高。
-    final fabGap = math.max(0.0, bottomInset - mq.padding.bottom);
+    final double statusBarHeight = mq.padding.top;
+    final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
 
-    return DefaultTabController(
-      length: BlockRuleType.values.length,
-      child: Scaffold(
-        floatingActionButton: Padding(
-          padding: EdgeInsets.only(bottom: fabGap),
-          // 用 Builder 取得 DefaultTabController 下层的 context，
-          // 否则 _addRule 里 DefaultTabController.maybeOf 会向上找不到 controller。
-          child: Builder(
-            builder: (context) => FloatingActionButton.extended(
-              onPressed: () => _addRule(context),
-              icon: const Icon(Icons.add),
-              label: Text(_t.addRule),
-            ),
-          ),
-        ),
-        body: NestedScrollView(
-          headerSliverBuilder: (context, _) => [
-            BlurredSliverAppBar(title: _t.title, isWideScreen: isWideScreen),
-            SliverToBoxAdapter(
-              child: _Centered(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                  child: Obx(
-                    () => _buildHeaderCard(context, _service.rules.toList()),
-                  ),
-                ),
-              ),
-            ),
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: _PinnedTabBarDelegate(
-                child: _Centered(
-                  child: _buildTabBar(context),
-                ),
-              ),
-            ),
-          ],
-          body: _Centered(
-            child: TabBarView(
-              children: [
-                for (final type in BlockRuleType.values)
-                  _buildTypeList(context, type, bottomInset),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+    final tabItems = [
+      for (final type in BlockRuleType.values)
+        GlassSegmentItem(label: _typeLabel(type), icon: Icon(_typeIcon(type))),
+    ];
 
-  /// 顶部概览卡：图标、说明、启用数概览、导入/导出菜单。
-  Widget _buildHeaderCard(BuildContext context, List<BlockRule> rules) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final enabledCount = rules.where((r) => r.enabled).length;
-
-    return Card(
-      elevation: 0,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: theme.dividerColor.withValues(alpha: 0.12)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Scaffold(
+      body: GlassHeaderOverlay(
+        headerExtent: headerExtent,
+        headerTop: statusBarHeight,
+        solidExtent: statusBarHeight,
+        body: TabBarView(
+          controller: _tabController,
+          physics: const ClampingScrollPhysics(),
           children: [
-            Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: scheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(Icons.block, color: scheme.onPrimaryContainer),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _t.title,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        _t.subtitle,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurfaceVariant,
-                          height: 1.3,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            // 启用概览（左） + 导入/导出二级菜单（右）
-            Row(
-              children: [
-                if (rules.isNotEmpty)
-                  _StatChip(
-                    icon: Icons.toggle_on,
-                    label: '$enabledCount/${rules.length}',
-                  ),
-                const Spacer(),
-                _buildImportExportMenu(context),
-              ],
-            ),
+            for (final type in BlockRuleType.values)
+              _Centered(
+                child: _buildTypeList(context, type, headerExtent, bottomInset),
+              ),
           ],
         ),
-      ),
-    );
-  }
-
-  /// 导入 / 导出合并为单个按钮的二级菜单。
-  Widget _buildImportExportMenu(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    return PopupMenuButton<String>(
-      tooltip: _t.importExport,
-      position: PopupMenuPosition.under,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      onSelected: (v) {
-        if (v == 'import') {
-          _import(context);
-        } else if (v == 'export') {
-          _export(context);
-        }
-      },
-      itemBuilder: (context) => [
-        PopupMenuItem(
-          value: 'import',
+        // header 行：左 返回圆钮（窄屏才有）/ 中 类型分段胶囊 / 右 动作胶囊
+        header: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              const Icon(Icons.file_download_outlined, size: 20),
-              const SizedBox(width: 12),
-              Text(_t.importRules),
+              // 宽屏是双栏布局、左栏就是导航，返回钮整体淡出而不是瞬间消失
+              GlassShapeSwitcher(
+                child: widget.isWideScreen
+                    ? const SizedBox.shrink(key: ValueKey('block-back-hidden'))
+                    : Padding(
+                        key: const ValueKey('block-back'),
+                        padding: const EdgeInsets.only(right: 8),
+                        child: GlassIconButton(
+                          standalone: true,
+                          icon: const Icon(Icons.arrow_back),
+                          tooltip: slang.t.common.back,
+                          onPressed: _handleBack,
+                        ),
+                      ),
+              ),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: GlassSegmentedControl(
+                    selectedIndex: _tabController.index,
+                    progress: _tabController.animation,
+                    onChanged: _tabController.animateTo,
+                    items: tabItems,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              _buildActionGroup(context),
             ],
           ),
         ),
-        PopupMenuItem(
-          value: 'export',
-          child: Row(
-            children: [
-              const Icon(Icons.file_upload_outlined, size: 20),
-              const SizedBox(width: 12),
-              Text(_t.exportRules),
+      ),
+    );
+  }
+
+  /// 右侧动作胶囊：新增规则 · 导入/导出二级菜单。
+  Widget _buildActionGroup(BuildContext context) {
+    return GlassButtonGroup(
+      children: [
+        GlassIconButton(
+          icon: const Icon(Icons.add),
+          tooltip: _t.addRule,
+          onPressed: () => _addRule(context),
+        ),
+        SizedBox(
+          width: GlassTokens.groupIconButtonSize,
+          height: GlassTokens.groupIconButtonSize,
+          child: PopupMenuButton<String>(
+            padding: EdgeInsets.zero,
+            tooltip: _t.importExport,
+            icon: const Icon(Icons.import_export, size: GlassTokens.iconSize),
+            position: PopupMenuPosition.under,
+            // 往下挪一点，别压住玻璃胶囊本身
+            offset: const Offset(0, 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            onSelected: (v) {
+              if (v == 'import') {
+                _import(context);
+              } else if (v == 'export') {
+                _export(context);
+              }
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'import',
+                child: Row(
+                  children: [
+                    const Icon(Icons.file_download_outlined, size: 20),
+                    const SizedBox(width: 12),
+                    Text(_t.importRules),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'export',
+                child: Row(
+                  children: [
+                    const Icon(Icons.file_upload_outlined, size: 20),
+                    const SizedBox(width: 12),
+                    Text(_t.exportRules),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
       ],
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: theme.dividerColor.withValues(alpha: 0.2)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.import_export, size: 18, color: scheme.onSurface),
-            const SizedBox(width: 6),
-            Text(
-              _t.importExport,
-              style: theme.textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const Icon(Icons.arrow_drop_down, size: 20),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// 三个类型对应的 TabBar（图标 + 文字），靠左排列。
-  Widget _buildTabBar(BuildContext context) {
-    final theme = Theme.of(context);
-    // 给定有限宽度后，isScrollable + TabAlignment.start 才会让标签靠左排列
-    // 而不是均分；宽屏下随 720 内容块居中，标签仍贴该块左缘。
-    return SizedBox(
-      width: double.infinity,
-      child: TabBar(
-        isScrollable: true,
-        tabAlignment: TabAlignment.start,
-        indicatorSize: TabBarIndicatorSize.label,
-        labelColor: theme.colorScheme.primary,
-        unselectedLabelColor: theme.colorScheme.onSurfaceVariant,
-        dividerColor: Colors.transparent,
-        tabs: [
-          for (final type in BlockRuleType.values) _buildTab(type),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTab(BlockRuleType type) {
-    return Tab(
-      height: 48,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(_typeIcon(type), size: 18),
-          const SizedBox(width: 8),
-          Flexible(
-            child: Text(
-              _typeLabel(type),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
   /// 单个类型的规则列表（每条规则一张卡片）。
+  ///
+  /// 列表铺满整个区域，用 [headerExtent] 让出玻璃 header 的高度，卡片可以从
+  /// header 背后滚过去；顶部一行说明 + 启用数概览，替代原先的概览大卡。
   Widget _buildTypeList(
     BuildContext context,
     BlockRuleType type,
+    double headerExtent,
     double bottomInset,
   ) {
     return Obx(() {
       final rules = _service.rules.where((r) => r.type == type).toList()
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-      if (rules.isEmpty) {
-        return ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 32),
-              child: _EmptyState(text: _t.noRules),
-            ),
-          ],
-        );
-      }
+      final enabledCount = rules.where((r) => r.enabled).length;
 
       return ListView.separated(
-        padding: EdgeInsets.fromLTRB(16, 16, 16, 96 + bottomInset),
-        itemCount: rules.length,
-        separatorBuilder: (_, _) => const SizedBox(height: 10),
-        itemBuilder: (context, i) => _RuleTile(
-          rule: rules[i],
-          onToggle: (v) => _service.toggleRule(rules[i].id, v),
-          onEdit: () => _addRule(context, existing: rules[i]),
-          onDelete: () => _service.removeRule(rules[i].id),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          headerExtent + 8,
+          16,
+          24 + bottomInset,
         ),
+        // 首项是说明行，其余是规则卡；空态时只有说明行 + 空占位
+        itemCount: (rules.isEmpty ? 1 : rules.length) + 1,
+        separatorBuilder: (_, _) => const SizedBox(height: 10),
+        itemBuilder: (context, i) {
+          if (i == 0) {
+            return _buildTypeSummary(context, rules.length, enabledCount);
+          }
+          if (rules.isEmpty) {
+            return Padding(
+              padding: const EdgeInsets.only(top: 32),
+              child: _EmptyState(text: _t.noRules),
+            );
+          }
+          final rule = rules[i - 1];
+          return _RuleTile(
+            rule: rule,
+            onToggle: (v) => _service.toggleRule(rule.id, v),
+            onEdit: () => _addRule(context, existing: rule),
+            onDelete: () => _service.removeRule(rule.id),
+          );
+        },
       );
     });
+  }
+
+  /// 列表顶部说明行：一句用途说明 + 本类型「已启用/总数」。
+  Widget _buildTypeSummary(BuildContext context, int total, int enabled) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 2),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Text(
+              _t.subtitle,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                height: 1.3,
+              ),
+            ),
+          ),
+          if (total > 0) ...[
+            const SizedBox(width: 12),
+            _StatChip(icon: Icons.toggle_on, label: '$enabled/$total'),
+          ],
+        ],
+      ),
+    );
   }
 }
 
@@ -386,48 +343,6 @@ class _Centered extends StatelessWidget {
       ),
     );
   }
-}
-
-/// 固定在顶部的 TabBar 头部代理。
-class _PinnedTabBarDelegate extends SliverPersistentHeaderDelegate {
-  final Widget child;
-
-  const _PinnedTabBarDelegate({required this.child});
-
-  static const double _height = 52;
-
-  @override
-  double get minExtent => _height;
-
-  @override
-  double get maxExtent => _height;
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    final theme = Theme.of(context);
-    return Container(
-      height: _height,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-        border: Border(
-          bottom: BorderSide(
-            color: theme.dividerColor.withValues(alpha: 0.2),
-            width: 0.5,
-          ),
-        ),
-      ),
-      child: child,
-    );
-  }
-
-  @override
-  bool shouldRebuild(covariant _PinnedTabBarDelegate oldDelegate) =>
-      oldDelegate.child != child;
 }
 
 class _StatChip extends StatelessWidget {
@@ -484,7 +399,9 @@ class _TypeChoiceCard extends StatelessWidget {
     final scheme = theme.colorScheme;
     final fg = selected ? scheme.onPrimaryContainer : scheme.onSurfaceVariant;
     return Material(
-      color: selected ? scheme.primaryContainer : scheme.surfaceContainerHighest,
+      color: selected
+          ? scheme.primaryContainer
+          : scheme.surfaceContainerHighest,
       borderRadius: BorderRadius.circular(14),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -591,78 +508,78 @@ class _RuleTile extends StatelessWidget {
             horizontal: 16,
             vertical: 2,
           ),
-        leading: Container(
-          width: 38,
-          height: 38,
-          decoration: BoxDecoration(
-            color: scheme.secondaryContainer,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(
-            _typeIcon(rule.type),
-            size: 18,
-            color: scheme.onSecondaryContainer,
-          ),
-        ),
-        title: Text(
-          titleText,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        subtitle: subtitleParts.isEmpty
-            ? null
-            : Text(
-                subtitleParts.join(' · '),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Switch(value: rule.enabled, onChanged: onToggle),
-            PopupMenuButton<String>(
-              tooltip: '',
-              icon: const Icon(Icons.more_vert),
-              onSelected: (v) {
-                if (v == 'edit') onEdit();
-                if (v == 'delete') onDelete();
-              },
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: 'edit',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.edit_outlined, size: 18),
-                      const SizedBox(width: 10),
-                      Text(t.editRule),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'delete',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.delete_outline,
-                        size: 18,
-                        color: scheme.error,
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        t.deleteRule,
-                        style: TextStyle(color: scheme.error),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+          leading: Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: scheme.secondaryContainer,
+              borderRadius: BorderRadius.circular(10),
             ),
-          ],
-        ),
+            child: Icon(
+              _typeIcon(rule.type),
+              size: 18,
+              color: scheme.onSecondaryContainer,
+            ),
+          ),
+          title: Text(
+            titleText,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          subtitle: subtitleParts.isEmpty
+              ? null
+              : Text(
+                  subtitleParts.join(' · '),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Switch(value: rule.enabled, onChanged: onToggle),
+              PopupMenuButton<String>(
+                tooltip: '',
+                icon: const Icon(Icons.more_vert),
+                onSelected: (v) {
+                  if (v == 'edit') onEdit();
+                  if (v == 'delete') onDelete();
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.edit_outlined, size: 18),
+                        const SizedBox(width: 10),
+                        Text(t.editRule),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.delete_outline,
+                          size: 18,
+                          color: scheme.error,
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          t.deleteRule,
+                          style: TextStyle(color: scheme.error),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -780,64 +697,94 @@ class _RuleEditorSheetState extends State<_RuleEditorSheet> {
       (t.regexEx9Pattern, t.regexEx9Desc, t.regexEx9Sample),
       (t.regexEx10Pattern, t.regexEx10Desc, t.regexEx10Sample),
     ];
-    final width = math.min(
-      420.0,
-      MediaQuery.sizeOf(context).width - 48,
-    );
+    final width = math.min(420.0, MediaQuery.sizeOf(context).width - 48);
 
+    // 富内容弹窗一律走 Dialog + 标题行(图标/标题/玻璃关闭圆钮) 的形制，
+    // 而不是系统默认 AlertDialog 外壳；抄 comment_actions_sheet.dart 的
+    // _SelectCopyDialog / glass_title_pill.dart 的 _GlassFullTitleDialog。
     showAppDialog(
-      AlertDialog(
-        title: Text(t.regexHelpTitle),
-        contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-        content: SizedBox(
-          width: width,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  t.regexHelpIntro,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    height: 1.35,
+      Dialog(
+        insetPadding: const EdgeInsets.all(20),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: width,
+            maxHeight: MediaQuery.sizeOf(context).height * 0.8,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 12, 8),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.code,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        t.regexHelpTitle,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    GlassIconButton(
+                      standalone: true,
+                      icon: const Icon(Icons.close),
+                      tooltip: slang.t.common.close,
+                      onPressed: () => AppService.tryPop(),
+                    ),
+                  ],
+                ),
+              ),
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        t.regexHelpIntro,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          height: 1.35,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      for (final e in examples)
+                        _RegexExampleTile(
+                          pattern: e.$1,
+                          desc: e.$2,
+                          sample: e.$3,
+                          sampleLabel: t.regexHelpSampleLabel,
+                          matchedTag: t.regexHelpMatchedTag,
+                          noMatchTag: t.regexHelpNoMatch,
+                          onTap: () {
+                            _valueController.text = e.$1;
+                            _valueController.selection =
+                                TextSelection.collapsed(offset: e.$1.length);
+                            setState(() => _error = null);
+                            AppService.tryPop();
+                          },
+                        ),
+                      const SizedBox(height: 4),
+                      Text(
+                        t.regexHelpTapHint,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 14),
-                for (final e in examples)
-                  _RegexExampleTile(
-                    pattern: e.$1,
-                    desc: e.$2,
-                    sample: e.$3,
-                    sampleLabel: t.regexHelpSampleLabel,
-                    matchedTag: t.regexHelpMatchedTag,
-                    noMatchTag: t.regexHelpNoMatch,
-                    onTap: () {
-                      _valueController.text = e.$1;
-                      _valueController.selection = TextSelection.collapsed(
-                        offset: e.$1.length,
-                      );
-                      setState(() => _error = null);
-                      AppService.tryPop();
-                    },
-                  ),
-                const SizedBox(height: 4),
-                Text(
-                  t.regexHelpTapHint,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.common.confirm),
-          ),
-        ],
       ),
     );
   }
@@ -865,6 +812,137 @@ class _RuleEditorSheetState extends State<_RuleEditorSheet> {
         ),
       ),
       isScrollControlled: true,
+    );
+  }
+
+  /// userId 类型的取值区域：搜索选人 + 校验错误提示。
+  Widget _buildUserField(BuildContext context, ThemeData theme) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: _openUserSearch,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: _error != null
+                    ? theme.colorScheme.error
+                    : theme.dividerColor,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                if (_selectedUserAvatarUrl != null)
+                  AvatarWidget(avatarUrl: _selectedUserAvatarUrl, size: 32)
+                else
+                  const Icon(Icons.person_search),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _selectedUserId == null
+                      ? Text(
+                          slang.t.conversation.errors.clickToSelectAUser,
+                          style: TextStyle(color: theme.hintColor),
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _selectedUserName?.isNotEmpty == true
+                                  ? _selectedUserName!
+                                  : _selectedUserId!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              _selectedUserId!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: theme.hintColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+                const Icon(Icons.search),
+              ],
+            ),
+          ),
+        ),
+        if (_error != null) ...[
+          const SizedBox(height: 6),
+          Text(
+            _error!,
+            style: TextStyle(color: theme.colorScheme.error, fontSize: 12),
+          ),
+        ],
+      ],
+    );
+  }
+
+  /// 关键词 / 正则类型的取值区域：文本输入框（正则带帮助入口）+ 大小写开关。
+  Widget _buildValueField(
+    BuildContext context,
+    ThemeData theme,
+    slang.TranslationsSettingsBlockSettingsEn t,
+    bool isRegex,
+  ) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextField(
+          controller: _valueController,
+          autofocus: true,
+          decoration: InputDecoration(
+            labelText: t.value,
+            hintText: isRegex ? t.regexHint : null,
+            errorText: _error,
+            border: const OutlineInputBorder(),
+            suffixIcon: isRegex
+                ? IconButton(
+                    icon: const Icon(Icons.help_outline),
+                    tooltip: t.regexHelp,
+                    onPressed: _showRegexHelp,
+                  )
+                : null,
+          ),
+          onChanged: (_) {
+            if (_error != null) setState(() => _error = null);
+          },
+        ),
+        if (isRegex) ...[
+          const SizedBox(height: 6),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: _showRegexHelp,
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                minimumSize: const Size(0, 32),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              icon: const Icon(Icons.lightbulb_outline, size: 16),
+              label: Text(t.regexHelp),
+            ),
+          ),
+        ],
+        const SizedBox(height: 4),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(t.caseSensitive),
+          value: _caseSensitive,
+          onChanged: (v) => setState(() => _caseSensitive = v),
+        ),
+      ],
     );
   }
 
@@ -948,7 +1026,7 @@ class _RuleEditorSheetState extends State<_RuleEditorSheet> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 8, 4),
+            padding: const EdgeInsets.fromLTRB(20, 8, 12, 4),
             child: Row(
               children: [
                 Expanded(
@@ -959,9 +1037,11 @@ class _RuleEditorSheetState extends State<_RuleEditorSheet> {
                     ),
                   ),
                 ),
-                IconButton(
-                  onPressed: () => AppService.tryPop(),
+                GlassIconButton(
+                  standalone: true,
                   icon: const Icon(Icons.close),
+                  tooltip: slang.t.common.close,
+                  onPressed: () => AppService.tryPop(),
                 ),
               ],
             ),
@@ -974,154 +1054,48 @@ class _RuleEditorSheetState extends State<_RuleEditorSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(t.ruleType, style: theme.textTheme.labelLarge),
-            const SizedBox(height: 8),
-            // 用图标 + 文字纵向堆叠的选项卡替代 SegmentedButton，
-            // 避免窄屏 Modal 中横向空间不足导致文字疯狂换行。
-            Row(
-              children: [
-                for (final type in BlockRuleType.values) ...[
-                  if (type != BlockRuleType.values.first)
-                    const SizedBox(width: 8),
-                  Expanded(
-                    child: _TypeChoiceCard(
-                      icon: _typeIcon(type),
-                      label: _typeLabel(type),
-                      selected: _type == type,
-                      onTap: () {
-                        if (_type == type) return;
-                        setState(() {
-                          _type = type;
-                          _error = null;
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ],
-            ),
-            const SizedBox(height: 16),
-            if (isUser) ...[
-              InkWell(
-                onTap: _openUserSearch,
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: _error != null
-                          ? theme.colorScheme.error
-                          : theme.dividerColor,
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
+                  const SizedBox(height: 8),
+                  // 用图标 + 文字纵向堆叠的选项卡替代 SegmentedButton，
+                  // 避免窄屏 Modal 中横向空间不足导致文字疯狂换行。
+                  Row(
                     children: [
-                      if (_selectedUserAvatarUrl != null)
-                        AvatarWidget(
-                          avatarUrl: _selectedUserAvatarUrl,
-                          size: 32,
-                        )
-                      else
-                        const Icon(Icons.person_search),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _selectedUserId == null
-                            ? Text(
-                                slang
-                                    .t
-                                    .conversation
-                                    .errors
-                                    .clickToSelectAUser,
-                                style: TextStyle(color: theme.hintColor),
-                              )
-                            : Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    _selectedUserName?.isNotEmpty == true
-                                        ? _selectedUserName!
-                                        : _selectedUserId!,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    _selectedUserId!,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: theme.hintColor,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                      ),
-                      const Icon(Icons.search),
+                      for (final type in BlockRuleType.values) ...[
+                        if (type != BlockRuleType.values.first)
+                          const SizedBox(width: 8),
+                        Expanded(
+                          child: _TypeChoiceCard(
+                            icon: _typeIcon(type),
+                            label: _typeLabel(type),
+                            selected: _type == type,
+                            onTap: () {
+                              if (_type == type) return;
+                              setState(() {
+                                _type = type;
+                                _error = null;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
                     ],
                   ),
-                ),
-              ),
-              if (_error != null) ...[
-                const SizedBox(height: 6),
-                Text(
-                  _error!,
-                  style: TextStyle(
-                    color: theme.colorScheme.error,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ] else ...[
-              TextField(
-                controller: _valueController,
-                autofocus: true,
-                decoration: InputDecoration(
-                  labelText: t.value,
-                  hintText: isRegex ? t.regexHint : null,
-                  errorText: _error,
-                  border: const OutlineInputBorder(),
-                  suffixIcon: isRegex
-                      ? IconButton(
-                          icon: const Icon(Icons.help_outline),
-                          tooltip: t.regexHelp,
-                          onPressed: _showRegexHelp,
-                        )
-                      : null,
-                ),
-                onChanged: (_) {
-                  if (_error != null) setState(() => _error = null);
-                },
-              ),
-              if (isRegex) ...[
-                const SizedBox(height: 6),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton.icon(
-                    onPressed: _showRegexHelp,
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      minimumSize: const Size(0, 32),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  const SizedBox(height: 16),
+                  // 切换规则类型时，下面这一整块（用户选择器 ↔ 值输入框，含
+                  // 正则专属的帮助按钮/大小写开关）形状差异很大，用
+                  // GlassShapeSwitcher 接管「淡出旧的 + 淡入新的 + 容器高度
+                  // 连续过渡」，而不是任由 Column 硬切高度。key 按 _type 取，
+                  // 关键词↔正则也会各自触发一次过渡（正则专属的帮助按钮就是
+                  // 在这两者之间增减的）。
+                  GlassShapeSwitcher(
+                    sizeAlignment: Alignment.topCenter,
+                    layoutAlignment: Alignment.topLeft,
+                    child: KeyedSubtree(
+                      key: ValueKey(_type),
+                      child: isUser
+                          ? _buildUserField(context, theme)
+                          : _buildValueField(context, theme, t, isRegex),
                     ),
-                    icon: const Icon(Icons.lightbulb_outline, size: 16),
-                    label: Text(t.regexHelp),
                   ),
-                ),
-              ],
-              const SizedBox(height: 4),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(t.caseSensitive),
-                value: _caseSensitive,
-                onChanged: (v) => setState(() => _caseSensitive = v),
-              ),
-            ],
                 ],
               ),
             ),
@@ -1157,10 +1131,7 @@ class _UserSearchSheet extends StatefulWidget {
   final ValueChanged<User> onUserSelected;
   final ScrollController? scrollController;
 
-  const _UserSearchSheet({
-    required this.onUserSelected,
-    this.scrollController,
-  });
+  const _UserSearchSheet({required this.onUserSelected, this.scrollController});
 
   @override
   State<_UserSearchSheet> createState() => _UserSearchSheetState();
@@ -1235,20 +1206,23 @@ class _UserSearchSheetState extends State<_UserSearchSheet> {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.fromLTRB(16, 16, 12, 16),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  t.conversation.selectAUser,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    t.conversation.selectAUser,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-                IconButton(
-                  onPressed: () => AppService.tryPop(),
+                GlassIconButton(
+                  standalone: true,
                   icon: const Icon(Icons.close),
+                  tooltip: t.common.close,
+                  onPressed: () => AppService.tryPop(),
                 ),
               ],
             ),
@@ -1427,13 +1401,14 @@ class _RegexExampleTile extends StatelessWidget {
                         color: scheme.onSurfaceVariant.withValues(alpha: 0.8),
                       ),
                     ),
-                    Expanded(
-                      child: _buildSamplePreview(context, range),
-                    ),
+                    Expanded(child: _buildSamplePreview(context, range)),
                   ],
                 ),
                 const SizedBox(height: 8),
-                _MatchTag(matched: matched, label: matched ? matchedTag : noMatchTag),
+                _MatchTag(
+                  matched: matched,
+                  label: matched ? matchedTag : noMatchTag,
+                ),
               ],
             ),
           ),
@@ -1482,9 +1457,7 @@ class _MatchTag extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final fg = matched ? scheme.onErrorContainer : scheme.onSurfaceVariant;
-    final bg = matched
-        ? scheme.errorContainer
-        : scheme.surfaceContainerHighest;
+    final bg = matched ? scheme.errorContainer : scheme.surfaceContainerHighest;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(

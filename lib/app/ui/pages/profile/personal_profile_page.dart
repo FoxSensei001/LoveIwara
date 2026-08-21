@@ -1,15 +1,20 @@
-import 'dart:ui';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/services/overlay_tracker.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/common/widgets/input/input_components.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/services/upload_service.dart';
 import 'package:path/path.dart' as path;
@@ -33,9 +38,16 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
   bool _isUploadingAvatar = false;
   bool _isUploadingHeader = false;
 
+  /// 个人简介的「显示原始文本」：由简介卡片底部动作行那枚 only-icon 钮受控
+  /// （正文内置行内开关已关闭），初值沿用全局设置项。
+  late bool _showOriginalDescription;
+  bool _descriptionHasProcessedContent = false;
+
   @override
   void initState() {
     super.initState();
+    _showOriginalDescription = Get.find<ConfigService>()[ConfigKey
+        .SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
     _fetchData();
   }
 
@@ -43,13 +55,9 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
     try {
       await _userService.fetchUserProfile();
     } catch (e) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.personalProfile.fetchUserProfileFailed(
-            error: e.toString(),
-          ),
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        slang.t.personalProfile.fetchUserProfileFailed(error: e.toString()),
+        type: GlassToastType.error,
       );
     } finally {
       if (mounted) {
@@ -62,307 +70,386 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final double statusBarHeight = MediaQuery.paddingOf(context).top;
+    final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
+
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: Text(slang.t.personalProfile.editPersonalProfile),
-        centerTitle: false,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        flexibleSpace: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              color: Theme.of(
-                context,
-              ).colorScheme.surface.withValues(alpha: 0.8),
-            ),
+      body: GlassHeaderOverlay(
+        headerExtent: headerExtent,
+        headerTop: statusBarHeight,
+        solidExtent: statusBarHeight,
+        body: _buildBody(context, headerExtent),
+        // header 行：左 返回圆钮 / 中 标题胶囊 / 右 动作胶囊（刷新）
+        header: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.arrow_back),
+                tooltip: slang.t.common.back,
+                onPressed: () => AppService.tryPop(),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: GlassTitlePill(
+                  title: slang.t.personalProfile.editPersonalProfile,
+                ),
+              ),
+              const SizedBox(width: 8),
+              GlassButtonGroup(
+                children: [
+                  GlassIconButton(
+                    // 拉取中图标原位换成沙漏（液态玻璃形变词汇表）
+                    icon: const Icon(Icons.refresh),
+                    loading: _isLoading,
+                    tooltip: slang.t.common.refresh,
+                    onPressed: _refresh,
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
-      body: _isLoading
-          ? const _PersonalProfileSkeleton()
-          : Obx(() {
-              final user = _userService.currentUser.value;
-              if (user == null) {
-                return Center(child: Text(slang.t.auth.notLoggedIn));
-              }
-
-              final screenWidth = MediaQuery.of(context).size.width;
-              final bool isWide = screenWidth > 600;
-              final double avatarSize = isWide ? 140.0 : 100.0;
-              final double buttonContainerSize = isWide ? 44.0 : 36.0;
-              final double iconSize = isWide ? 24.0 : 20.0;
-
-              return ListView(
-                padding: EdgeInsets.only(
-                  top: kToolbarHeight + MediaQuery.of(context).padding.top,
-                ),
-                children: [
-                  const SizedBox(height: 24),
-                  // 头像区域
-                  Center(
-                    child: Column(
-                      children: [
-                        Stack(
-                          children: [
-                            AvatarWidget(user: user, size: avatarSize),
-                            Positioned(
-                              right: 0,
-                              bottom: 0,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Theme.of(
-                                      context,
-                                    ).scaffoldBackgroundColor,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: _isUploadingAvatar
-                                    ? SizedBox(
-                                        width: buttonContainerSize,
-                                        height: buttonContainerSize,
-                                        child: const Padding(
-                                          padding: EdgeInsets.all(8.0),
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor: AlwaysStoppedAnimation(
-                                              Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                    : IconButton(
-                                        icon: Icon(
-                                          Icons.camera_alt,
-                                          size: iconSize,
-                                        ),
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onPrimary,
-                                        onPressed: _pickAndUploadAvatar,
-                                        constraints: BoxConstraints(
-                                          minWidth: buttonContainerSize,
-                                          minHeight: buttonContainerSize,
-                                        ),
-                                        padding: EdgeInsets.zero,
-                                      ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          slang.t.personalProfile.suggestedResolution(
-                            resolution: '300x300',
-                            size: '0.6MB',
-                          ),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(context).colorScheme.outline,
-                          ),
-                        ),
-                        Text(
-                          slang.t.personalProfile.supportedFormats(
-                            formats: '.jpg, .png, .gif, .webp, .webm',
-                          ),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(context).colorScheme.outline,
-                          ),
-                        ),
-                        if (user.premium != true)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4.0),
-                            child: Text(
-                              slang.t.personalProfile.premiumBenefit(
-                                type: slang.t.personalProfile.avatar,
-                                formats: '.gif, .webp',
-                              ),
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.outline.withValues(alpha: 0.7),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // 背景图片分组
-                  _buildSectionHeader(
-                    context,
-                    slang.t.personalProfile.homepageBackground,
-                  ),
-                  _buildHeaderImageSection(context, user),
-                  const Divider(),
-
-                  // 基本信息分组
-                  _buildSectionHeader(
-                    context,
-                    slang.t.personalProfile.basicInfo,
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.person_outline),
-                    title: Text(slang.t.personalProfile.nickname),
-                    subtitle: Text(user.name),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => _showEditNicknameDialog(context, user.name),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.alternate_email),
-                    title: Text(slang.t.personalProfile.username),
-                    subtitle: Text(user.username),
-                    // 用户名通常不可修改，或者有单独的修改流程
-                    trailing: const Icon(Icons.copy, size: 18),
-                    onTap: () {
-                      // 复制用户名
-                      Clipboard.setData(ClipboardData(text: user.username));
-                      showToastWidget(
-                        MDToastWidget(
-                          message: slang.t.personalProfile.usernameCopied,
-                          type: MDToastType.success,
-                        ),
-                      );
-                    },
-                  ),
-
-                  const Divider(),
-
-                  // 个人简介分组
-                  _buildSectionHeader(
-                    context,
-                    slang.t.personalProfile.personalIntroduction,
-                  ),
-                  InkWell(
-                    onTap: () =>
-                        _showEditDescriptionDialog(context, user.description),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 12.0,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (user.description != null &&
-                              user.description!.isNotEmpty)
-                            CustomMarkdownBody(data: user.description!)
-                          else
-                            Text(
-                              slang.t.personalProfile.noPersonalIntroduction,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.outline,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text(
-                                slang.t.personalProfile.clickToEdit,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Icon(
-                                Icons.edit,
-                                size: 14,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const Divider(),
-
-                  // 通知设置分组
-                  _buildSectionHeader(
-                    context,
-                    slang.t.personalProfile.notificationSettings,
-                  ),
-                  SwitchListTile(
-                    secondary: const Icon(Icons.comment_outlined),
-                    title: Text(
-                      slang.t.personalProfile.contentCommentNotification,
-                    ),
-                    subtitle: Text(
-                      slang.t.personalProfile.contentCommentNotificationDesc,
-                    ),
-                    value: user.notifications?.comment ?? false,
-                    onChanged: (bool value) =>
-                        _handleToggleNotification('comment', value),
-                  ),
-                  SwitchListTile(
-                    secondary: const Icon(Icons.reply_outlined),
-                    title: Text(
-                      slang.t.personalProfile.commentReplyNotification,
-                    ),
-                    subtitle: Text(
-                      slang.t.personalProfile.commentReplyNotificationDesc,
-                    ),
-                    value: user.notifications?.reply ?? false,
-                    onChanged: (bool value) =>
-                        _handleToggleNotification('reply', value),
-                  ),
-                  SwitchListTile(
-                    secondary: const Icon(Icons.alternate_email_outlined),
-                    title: Text(slang.t.personalProfile.mentionNotification),
-                    subtitle: Text(
-                      slang.t.personalProfile.mentionNotificationDesc,
-                    ),
-                    value: user.notifications?.mention ?? false,
-                    onChanged: (bool value) =>
-                        _handleToggleNotification('mention', value),
-                  ),
-
-                  const Divider(),
-
-                  // 账号信息分组
-                  ...[
-                    _buildSectionHeader(
-                      context,
-                      slang.t.personalProfile.accountInfo,
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.calendar_today_outlined),
-                      title: Text(slang.t.personalProfile.registrationTime),
-                      subtitle: Text(
-                        // 简单格式化
-                        "${user.createdAt.year}-${user.createdAt.month.toString().padLeft(2, '0')}-${user.createdAt.day.toString().padLeft(2, '0')}",
-                      ),
-                    ),
-                  ],
-
-                  const SizedBox(height: 40),
-                ],
-              );
-            }),
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title) {
+  Future<void> _refresh() async {
+    if (mounted) setState(() => _isLoading = true);
+    await _fetchData();
+  }
+
+  Widget _buildBody(BuildContext context, double headerExtent) {
+    if (_isLoading) {
+      return _PersonalProfileSkeleton(paddingTop: headerExtent);
+    }
+    return Obx(() {
+      final user = _userService.currentUser.value;
+      if (user == null) {
+        return Center(child: Text(slang.t.auth.notLoggedIn));
+      }
+
+      final screenWidth = MediaQuery.of(context).size.width;
+      final bool isWide = screenWidth > 600;
+      final double avatarSize = isWide ? 140.0 : 100.0;
+      final double buttonContainerSize = isWide ? 44.0 : 36.0;
+      final double iconSize = isWide ? 24.0 : 20.0;
+      // 圆形头像上的编辑徽标：中心落在圆周 45° 处，让徽标"骑"在边缘上，
+      // 而不是像 right:0/bottom:0 那样整块扣进头像照片内部挡脸。
+      final double avatarBadgeOffset =
+          avatarSize / 2 * (1 - math.sqrt2 / 2) - buttonContainerSize / 2;
+
+      return RefreshIndicator(
+        // 指示器从 header 下方弹出
+        displacement: headerExtent,
+        onRefresh: _fetchData,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.only(
+            top: headerExtent,
+            bottom: MediaQuery.paddingOf(context).bottom,
+          ),
+          children: [
+            const SizedBox(height: 24),
+            // 头像区域
+            Center(
+              child: Column(
+                children: [
+                  Stack(
+                    // 徽标偏移量为负，需要允许它溢出 Stack 的隐式(头像大小)边界
+                    clipBehavior: Clip.none,
+                    children: [
+                      AvatarWidget(user: user, size: avatarSize),
+                      Positioned(
+                        right: avatarBadgeOffset,
+                        bottom: avatarBadgeOffset,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Theme.of(context).scaffoldBackgroundColor,
+                              width: 2,
+                            ),
+                          ),
+                          child: _isUploadingAvatar
+                              ? SizedBox(
+                                  width: buttonContainerSize,
+                                  height: buttonContainerSize,
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation(
+                                        Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : IconButton(
+                                  icon: Icon(Icons.camera_alt, size: iconSize),
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary,
+                                  onPressed: _pickAndUploadAvatar,
+                                  constraints: BoxConstraints(
+                                    minWidth: buttonContainerSize,
+                                    minHeight: buttonContainerSize,
+                                  ),
+                                  padding: EdgeInsets.zero,
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    slang.t.personalProfile.suggestedResolution(
+                      resolution: '300x300',
+                      size: '0.6MB',
+                    ),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                  ),
+                  Text(
+                    slang.t.personalProfile.supportedFormats(
+                      formats: '.jpg, .png, .gif, .webp, .webm',
+                    ),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                  ),
+                  if (user.premium != true)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: Text(
+                        slang.t.personalProfile.premiumBenefit(
+                          type: slang.t.personalProfile.avatar,
+                          formats: '.gif, .webp',
+                        ),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.outline.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // 背景图片分组
+            _buildSectionCard(
+              context,
+              title: slang.t.personalProfile.homepageBackground,
+              children: [_buildHeaderImageSection(context, user)],
+            ),
+
+            // 基本信息分组
+            _buildSectionCard(
+              context,
+              title: slang.t.personalProfile.basicInfo,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.person_outline),
+                  title: Text(slang.t.personalProfile.nickname),
+                  subtitle: Text(user.name),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _showEditNicknameDialog(context, user.name),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.alternate_email),
+                  title: Text(slang.t.personalProfile.username),
+                  subtitle: Text(user.username),
+                  // 用户名通常不可修改，或者有单独的修改流程
+                  trailing: const Icon(Icons.copy, size: 18),
+                  onTap: () {
+                    // 复制用户名
+                    Clipboard.setData(ClipboardData(text: user.username));
+                    showGlassToast(
+                      slang.t.personalProfile.usernameCopied,
+                      type: GlassToastType.success,
+                    );
+                  },
+                ),
+              ],
+            ),
+
+            // 个人简介分组
+            _buildSectionCard(
+              context,
+              title: slang.t.personalProfile.personalIntroduction,
+              children: [
+                InkWell(
+                  onTap: () =>
+                      _showEditDescriptionDialog(context, user.description),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 12.0,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (user.description != null &&
+                            user.description!.isNotEmpty)
+                          CustomMarkdownBody(
+                            data: user.description!,
+                            initialShowUnprocessedText:
+                                _showOriginalDescription,
+                            onProcessedContentChanged: (hasProcessed) {
+                              if (_descriptionHasProcessedContent ==
+                                  hasProcessed) {
+                                return;
+                              }
+                              setState(
+                                () => _descriptionHasProcessedContent =
+                                    hasProcessed,
+                              );
+                            },
+                          )
+                        else
+                          Text(
+                            slang.t.personalProfile.noPersonalIntroduction,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.outline,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            MarkdownOriginalTextToggle(
+                              visible: _descriptionHasProcessedContent,
+                              showOriginal: _showOriginalDescription,
+                              padding: const EdgeInsets.only(right: 8),
+                              onChanged: (v) => setState(
+                                () => _showOriginalDescription = v,
+                              ),
+                            ),
+                            Text(
+                              slang.t.personalProfile.clickToEdit,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Icon(
+                              Icons.edit,
+                              size: 14,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            // 通知设置分组
+            _buildSectionCard(
+              context,
+              title: slang.t.personalProfile.notificationSettings,
+              children: [
+                SwitchListTile(
+                  secondary: const Icon(Icons.comment_outlined),
+                  title: Text(
+                    slang.t.personalProfile.contentCommentNotification,
+                  ),
+                  subtitle: Text(
+                    slang.t.personalProfile.contentCommentNotificationDesc,
+                  ),
+                  value: user.notifications?.comment ?? false,
+                  onChanged: (bool value) =>
+                      _handleToggleNotification('comment', value),
+                ),
+                SwitchListTile(
+                  secondary: const Icon(Icons.reply_outlined),
+                  title: Text(slang.t.personalProfile.commentReplyNotification),
+                  subtitle: Text(
+                    slang.t.personalProfile.commentReplyNotificationDesc,
+                  ),
+                  value: user.notifications?.reply ?? false,
+                  onChanged: (bool value) =>
+                      _handleToggleNotification('reply', value),
+                ),
+                SwitchListTile(
+                  secondary: const Icon(Icons.alternate_email_outlined),
+                  title: Text(slang.t.personalProfile.mentionNotification),
+                  subtitle: Text(
+                    slang.t.personalProfile.mentionNotificationDesc,
+                  ),
+                  value: user.notifications?.mention ?? false,
+                  onChanged: (bool value) =>
+                      _handleToggleNotification('mention', value),
+                ),
+              ],
+            ),
+
+            // 账号信息分组
+            _buildSectionCard(
+              context,
+              title: slang.t.personalProfile.accountInfo,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.calendar_today_outlined),
+                  title: Text(slang.t.personalProfile.registrationTime),
+                  subtitle: Text(
+                    // 简单格式化
+                    "${user.createdAt.year}-${user.createdAt.month.toString().padLeft(2, '0')}-${user.createdAt.day.toString().padLeft(2, '0')}",
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 40),
+          ],
+        ),
+      );
+    });
+  }
+
+  /// 分组卡片：圆角描边卡 + 顶部小标题（与设置页的分组卡同款）。
+  Widget _buildSectionCard(
+    BuildContext context, {
+    required String title,
+    required List<Widget> children,
+  }) {
+    final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Text(
-        title,
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.primary,
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
+      padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
+      child: Card(
+        elevation: 0,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: theme.dividerColor.withValues(alpha: 0.12)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+              child: Text(
+                title,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ),
+            ...children,
+          ],
         ),
       ),
     );
@@ -394,108 +481,18 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
       _userService.currentUser.value = user.copyWith(
         notifications: originalNotifications,
       );
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.personalProfile.updateNotificationSettingsFailed(
-            error: result.message,
-          ),
-          type: MDToastType.error,
+      showGlassToast(
+        slang.t.personalProfile.updateNotificationSettingsFailed(
+          error: result.message,
         ),
+        type: GlassToastType.error,
       );
     }
   }
 
   void _showEditNicknameDialog(BuildContext context, String currentName) {
-    final TextEditingController controller = TextEditingController(
-      text: currentName,
-    );
-    final RxBool isSaving = false.obs;
-
     showAppDialog(
-      AlertDialog(
-        title: Text(slang.t.personalProfile.editNickname),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: controller,
-              autofocus: true,
-              decoration: InputDecoration(
-                labelText: slang.t.personalProfile.nickname,
-                hintText: slang.t.personalProfile.nicknameCannotBeEmpty,
-                border: const OutlineInputBorder(),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              if (OverlayTracker.instance.hasOverlay) {
-                AppService.tryPop();
-              }
-            },
-            child: Text(slang.t.common.cancel),
-          ),
-          Obx(
-            () => TextButton(
-              onPressed: isSaving.value
-                  ? null
-                  : () async {
-                      final newName = controller.text.trim();
-                      if (newName.isEmpty) {
-                        showToastWidget(
-                          MDToastWidget(
-                            message:
-                                slang.t.personalProfile.nicknameCannotBeEmpty,
-                            type: MDToastType.warning,
-                          ),
-                        );
-                        return;
-                      }
-                      if (newName == currentName) {
-                        if (OverlayTracker.instance.hasOverlay) {
-                          AppService.tryPop();
-                        }
-                        return;
-                      }
-
-                      isSaving.value = true;
-                      final result = await _userService.updateUserProfile(
-                        name: newName,
-                      );
-                      isSaving.value = false;
-
-                      if (result.isSuccess) {
-                        showToastWidget(
-                          MDToastWidget(
-                            message: slang.t.personalProfile.changeSuccess,
-                            type: MDToastType.success,
-                          ),
-                        );
-                        if (OverlayTracker.instance.hasOverlay) {
-                          AppService.tryPop();
-                        }
-                      } else {
-                        showToastWidget(
-                          MDToastWidget(
-                            message: result.message,
-                            type: MDToastType.error,
-                          ),
-                        );
-                      }
-                    },
-              child: isSaving.value
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(slang.t.common.save),
-            ),
-          ),
-        ],
-      ),
+      _EditNicknameDialog(currentName: currentName, userService: _userService),
     );
   }
 
@@ -529,22 +526,18 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
     ];
 
     if (!allowedExtensions.contains(ext)) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.personalProfile.unsupportedFileFormat,
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        slang.t.personalProfile.unsupportedFileFormat,
+        type: GlassToastType.error,
       );
       return;
     }
 
     final fileSize = await file.length();
     if (fileSize > 0.6 * 1024 * 1024) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.personalProfile.fileTooLarge(size: '0.6MB'),
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        slang.t.personalProfile.fileTooLarge(size: '0.6MB'),
+        type: GlassToastType.error,
       );
       return;
     }
@@ -556,11 +549,9 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
     try {
       final uploadedImage = await uploadService.uploadImageFile(file);
       if (uploadedImage == null) {
-        showToastWidget(
-          MDToastWidget(
-            message: slang.t.personalProfile.uploadFailed,
-            type: MDToastType.error,
-          ),
+        showGlassToast(
+          slang.t.personalProfile.uploadFailed,
+          type: GlassToastType.error,
         );
         return;
       }
@@ -569,26 +560,18 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
         avatar: uploadedImage,
       );
       if (result.isSuccess) {
-        showToastWidget(
-          MDToastWidget(
-            message: slang.t.personalProfile.avatarUpdatedSuccessfully,
-            type: MDToastType.success,
-          ),
+        showGlassToast(
+          slang.t.personalProfile.avatarUpdatedSuccessfully,
+          type: GlassToastType.success,
         );
       } else {
-        showToastWidget(
-          MDToastWidget(
-            message: slang.t.personalProfile.updateAvatarFailed(
-              error: result.message,
-            ),
-            type: MDToastType.error,
-          ),
+        showGlassToast(
+          slang.t.personalProfile.updateAvatarFailed(error: result.message),
+          type: GlassToastType.error,
         );
       }
     } catch (e) {
-      showToastWidget(
-        MDToastWidget(message: '操作失败: $e', type: MDToastType.error),
-      );
+      showGlassToast('操作失败: $e', type: GlassToastType.error);
     } finally {
       if (mounted) {
         setState(() {
@@ -608,7 +591,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
     final double iconSize = isWide ? 24.0 : 20.0;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -727,22 +710,18 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
     ];
 
     if (!allowedExtensions.contains(ext)) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.personalProfile.unsupportedFileFormat,
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        slang.t.personalProfile.unsupportedFileFormat,
+        type: GlassToastType.error,
       );
       return;
     }
 
     final fileSize = await file.length();
     if (fileSize > 1.5 * 1024 * 1024) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.personalProfile.fileTooLarge(size: '1.5MB'),
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        slang.t.personalProfile.fileTooLarge(size: '1.5MB'),
+        type: GlassToastType.error,
       );
       return;
     }
@@ -754,11 +733,9 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
     try {
       final uploadedImage = await uploadService.uploadImageFile(file);
       if (uploadedImage == null) {
-        showToastWidget(
-          MDToastWidget(
-            message: slang.t.personalProfile.uploadFailed,
-            type: MDToastType.error,
-          ),
+        showGlassToast(
+          slang.t.personalProfile.uploadFailed,
+          type: GlassToastType.error,
         );
         return;
       }
@@ -767,29 +744,18 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
         header: uploadedImage,
       );
       if (result.isSuccess) {
-        showToastWidget(
-          MDToastWidget(
-            message: slang.t.personalProfile.backgroundUpdatedSuccessfully,
-            type: MDToastType.success,
-          ),
+        showGlassToast(
+          slang.t.personalProfile.backgroundUpdatedSuccessfully,
+          type: GlassToastType.success,
         );
       } else {
-        showToastWidget(
-          MDToastWidget(
-            message: slang.t.personalProfile.updateBackgroundFailed(
-              error: result.message,
-            ),
-            type: MDToastType.error,
-          ),
+        showGlassToast(
+          slang.t.personalProfile.updateBackgroundFailed(error: result.message),
+          type: GlassToastType.error,
         );
       }
     } catch (e) {
-      showToastWidget(
-        MDToastWidget(
-          message: '${slang.t.common.error}: $e',
-          type: MDToastType.error,
-        ),
-      );
+      showGlassToast('${slang.t.common.error}: $e', type: GlassToastType.error);
     } finally {
       if (mounted) {
         setState(() {
@@ -797,6 +763,132 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
         });
       }
     }
+  }
+}
+
+/// 昵称编辑弹窗。
+///
+/// 必须是 StatefulWidget：controller 由弹窗自己的 dispose 回收——放在
+/// showDialog 的 whenComplete 里会在退场动画还没播完时就被销毁。
+class _EditNicknameDialog extends StatefulWidget {
+  const _EditNicknameDialog({
+    required this.currentName,
+    required this.userService,
+  });
+
+  final String currentName;
+  final UserService userService;
+
+  @override
+  State<_EditNicknameDialog> createState() => _EditNicknameDialogState();
+}
+
+class _EditNicknameDialogState extends State<_EditNicknameDialog> {
+  late final TextEditingController _controller = TextEditingController(
+    text: widget.currentName,
+  );
+  bool _isSaving = false;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final newName = _controller.text.trim();
+    if (newName.isEmpty) {
+      showGlassToast(
+        slang.t.personalProfile.nicknameCannotBeEmpty,
+        type: GlassToastType.warning,
+      );
+      return;
+    }
+    if (newName == widget.currentName) {
+      AppService.tryPop();
+      return;
+    }
+
+    setState(() => _isSaving = true);
+    final result = await widget.userService.updateUserProfile(name: newName);
+    if (!mounted) return;
+    setState(() => _isSaving = false);
+
+    if (result.isSuccess) {
+      showGlassToast(
+        slang.t.personalProfile.changeSuccess,
+        type: GlassToastType.success,
+      );
+      AppService.tryPop();
+    } else {
+      showGlassToast(result.message, type: GlassToastType.error);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return AlertDialog(
+      // 标题行：标题 + 玻璃关闭圆钮（全局统一约定）
+      title: Row(
+        children: [
+          Expanded(child: Text(slang.t.personalProfile.editNickname)),
+          GlassIconButton(
+            standalone: true,
+            icon: const Icon(Icons.close),
+            tooltip: slang.t.common.close,
+            onPressed: _isSaving ? null : () => AppService.tryPop(),
+          ),
+        ],
+      ),
+      content: Container(
+        decoration: BoxDecoration(
+          color: GlassTokens.fill(colorScheme),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: GlassTokens.stroke(colorScheme),
+            width: GlassTokens.strokeWidth,
+          ),
+        ),
+        child: TextField(
+          controller: _controller,
+          autofocus: true,
+          enabled: !_isSaving,
+          onSubmitted: (_) => _submit(),
+          decoration: InputDecoration(
+            hintText: slang.t.personalProfile.nicknameCannotBeEmpty,
+            hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+            border: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            prefixIcon: Icon(
+              Icons.person_outline,
+              color: colorScheme.onSurfaceVariant,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _isSaving ? null : () => AppService.tryPop(),
+          child: Text(slang.t.common.cancel),
+        ),
+        TextButton(
+          onPressed: _isSaving ? null : _submit,
+          child: _isSaving
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Text(slang.t.common.save),
+        ),
+      ],
+    );
   }
 }
 
@@ -835,19 +927,15 @@ class _EditDescriptionDialogState extends State<_EditDescriptionDialog> {
     });
 
     if (result.isSuccess) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.personalProfile.changeSuccess,
-          type: MDToastType.success,
-        ),
+      showGlassToast(
+        slang.t.personalProfile.changeSuccess,
+        type: GlassToastType.success,
       );
       if (mounted) {
         AppService.tryPop();
       }
     } else {
-      showToastWidget(
-        MDToastWidget(message: result.message, type: MDToastType.error),
-      );
+      showGlassToast(result.message, type: GlassToastType.error);
     }
   }
 
@@ -872,7 +960,10 @@ class _EditDescriptionDialogState extends State<_EditDescriptionDialog> {
 }
 
 class _PersonalProfileSkeleton extends StatelessWidget {
-  const _PersonalProfileSkeleton();
+  const _PersonalProfileSkeleton({required this.paddingTop});
+
+  /// 让出玻璃 header 的高度（与正式内容同一口径）。
+  final double paddingTop;
 
   @override
   Widget build(BuildContext context) {
@@ -883,6 +974,7 @@ class _PersonalProfileSkeleton extends StatelessWidget {
       baseColor: baseColor,
       highlightColor: highlightColor,
       child: ListView(
+        padding: EdgeInsets.only(top: paddingTop),
         children: [
           const SizedBox(height: 24),
           // Avatar area

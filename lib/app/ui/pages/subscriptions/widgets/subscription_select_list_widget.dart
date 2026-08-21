@@ -53,8 +53,10 @@ class SubscriptionSelectListState extends State<SubscriptionSelectList> {
     final currentOffset = _scrollController.offset;
     final targetOffset = isLeft
         ? max(currentOffset - viewportWidth, 0.0)
-        : min(currentOffset + viewportWidth,
-            _scrollController.position.maxScrollExtent);
+        : min(
+            currentOffset + viewportWidth,
+            _scrollController.position.maxScrollExtent,
+          );
 
     _scrollController.animateTo(
       targetOffset,
@@ -82,10 +84,7 @@ class SubscriptionSelectListState extends State<SubscriptionSelectList> {
           children: [
             Padding(
               padding: const EdgeInsets.only(left: 8.0),
-              child: _buildIconWithLabel(
-                allSubscriptionItem,
-                theme,
-              ),
+              child: _buildIconWithLabel(allSubscriptionItem, theme),
             ),
             Expanded(
               child: MouseRegion(
@@ -134,17 +133,13 @@ class SubscriptionSelectListState extends State<SubscriptionSelectList> {
         left: -10,
         top: 0,
         bottom: 0,
-        child: Center(
-          child: _buildScrollButton(true),
-        ),
+        child: Center(child: _buildScrollButton(true)),
       ),
       Positioned(
         right: 10,
         top: 0,
         bottom: 0,
-        child: Center(
-          child: _buildScrollButton(false),
-        ),
+        child: Center(child: _buildScrollButton(false)),
       ),
     ];
   }
@@ -181,7 +176,7 @@ class SubscriptionSelectListState extends State<SubscriptionSelectList> {
       child: InkWell(
         onTap: () => {
           if (widget.selectedUserId != selectItem.id)
-            widget.onUserSelected(selectItem.id)
+            widget.onUserSelected(selectItem.id),
         },
         onLongPress: selectItem.onLongPress,
         onSecondaryTap: selectItem.onLongPress,
@@ -194,10 +189,7 @@ class SubscriptionSelectListState extends State<SubscriptionSelectList> {
               Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.transparent,
-                    width: 2,
-                  ),
+                  border: Border.all(color: Colors.transparent, width: 2),
                 ),
                 child: CircleAvatar(
                   radius: isSmallScreen ? 16 : 18,
@@ -230,7 +222,9 @@ class SubscriptionSelectListState extends State<SubscriptionSelectList> {
                       ? theme.colorScheme.primary
                       : Colors.transparent,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(isSmallScreen ? 16 : 18),
+                    borderRadius: BorderRadius.circular(
+                      isSmallScreen ? 16 : 18,
+                    ),
                     child: CachedNetworkImage(
                       imageUrl: selectItem.avatarUrl,
                       placeholder: (context, url) => Shimmer.fromColors(
@@ -243,14 +237,14 @@ class SubscriptionSelectListState extends State<SubscriptionSelectList> {
                       ),
                       errorWidget: (context, url, error) => CircleAvatar(
                         radius: isSmallScreen ? 16 : 18,
-                        backgroundImage: const NetworkImage(CommonConstants.defaultAvatarUrl),
-                        onBackgroundImageError: (exception, stackTrace) => Icon(
-                          Icons.person,
-                          size: isSmallScreen ? 16 : 18,
+                        backgroundImage: const NetworkImage(
+                          CommonConstants.defaultAvatarUrl,
                         ),
+                        onBackgroundImageError: (exception, stackTrace) =>
+                            Icon(Icons.person, size: isSmallScreen ? 16 : 18),
                       ),
                       httpHeaders: const {
-                        'referer': CommonConstants.iwaraBaseUrl
+                        'referer': CommonConstants.iwaraBaseUrl,
                       },
                       fit: BoxFit.cover,
                     ),
@@ -265,8 +259,7 @@ class SubscriptionSelectListState extends State<SubscriptionSelectList> {
                 color: isSelected
                     ? theme.colorScheme.primary
                     : theme.textTheme.bodyMedium?.color,
-                fontWeight:
-                    isSelected ? FontWeight.bold : FontWeight.normal,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,

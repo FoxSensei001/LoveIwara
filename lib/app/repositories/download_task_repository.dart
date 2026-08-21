@@ -108,21 +108,6 @@ class DownloadTaskRepository {
     }
   }
 
-  /// 获取所有等待中(pending)任务，按创建时间升序排列
-  Future<List<DownloadTask>> getPendingTasksOrderByCreatedAtAsc() async {
-    try {
-      final results = _db.select('''
-        SELECT * FROM download_tasks
-        WHERE status = 'pending'
-        ORDER BY created_at ASC
-      ''');
-      return results.map((row) => DownloadTask.fromRow(row)).toList();
-    } catch (e) {
-      LogUtils.e('获取等待中任务失败', tag: 'DownloadTaskRepository', error: e);
-      rethrow;
-    }
-  }
-
   // 插入任务
   Future<void> insertTask(DownloadTask task) async {
     try {
@@ -134,8 +119,8 @@ class DownloadTaskRepository {
       _db.execute(
         '''
         INSERT INTO download_tasks
-        (id, url, save_path, file_name, total_bytes, downloaded_bytes, status, supports_range, error, ext_data, media_type, media_id, quality, category_id, updated_at, completed_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (id, url, save_path, file_name, total_bytes, downloaded_bytes, status, supports_range, error, error_type, ext_data, media_type, media_id, quality, category_id, updated_at, completed_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ''',
         [
           task.id,
@@ -147,6 +132,7 @@ class DownloadTaskRepository {
           task.status.name,
           task.supportsRange ? 1 : 0,
           task.error,
+          task.errorType,
           extDataJson,
           task.mediaType,
           task.mediaId,
@@ -187,6 +173,7 @@ class DownloadTaskRepository {
             status = ?,
             supports_range = ?,
             error = ?,
+            error_type = ?,
             ext_data = ?,
             media_type = ?,
             media_id = ?,
@@ -205,6 +192,7 @@ class DownloadTaskRepository {
           task.status.name,
           task.supportsRange ? 1 : 0,
           task.error,
+          task.errorType,
           extDataJson,
           task.mediaType,
           task.mediaId,
@@ -474,7 +462,11 @@ class DownloadTaskRepository {
     }
   }
 
-  /// 分页获取历史任务（paused/completed，不含failed），按完成/更新时间降序排列
+  /// 分页获取历史任务（仅 completed），按完成/更新时间降序排列。
+  ///
+  /// 曾经这里还包含 paused：暂停的任务会从上方活跃区「掉进」下方的分页历史区，
+  /// 于是同一条任务在两个区之间来回搬家，需要一整套跨区去重才不重复显示。现在
+  /// 暂停属于活跃区（内存真源），历史区只装已完成任务，两者天然无交集。
   Future<List<DownloadTask>> getHistoryTasks({
     required int offset,
     required int limit,
@@ -483,7 +475,7 @@ class DownloadTaskRepository {
       final results = _db.select(
         '''
         SELECT * FROM download_tasks
-        WHERE status IN ('paused', 'completed')
+        WHERE status = 'completed'
         ORDER BY $_normalizedHistorySortExpression DESC, created_at DESC
         LIMIT ? OFFSET ?
       ''',
@@ -496,24 +488,9 @@ class DownloadTaskRepository {
     }
   }
 
-  /// 获取所有失败任务，按更新时间降序排列（最近失败的在前）
-  Future<List<DownloadTask>> getFailedTasksOrderByUpdatedAtDesc() async {
-    try {
-      final results = _db.select('''
-        SELECT * FROM download_tasks
-        WHERE status = 'failed'
-        ORDER BY updated_at DESC
-      ''');
-      return results.map((row) => DownloadTask.fromRow(row)).toList();
-    } catch (e) {
-      LogUtils.e('获取失败任务失败', tag: 'DownloadTaskRepository', error: e);
-      rethrow;
-    }
-  }
-
   /// Search and filter tasks with pagination
   /// [searchQuery] - Search in fileName (case-insensitive)
-  /// [statusFilter] - Filter by status: 'all', 'history' (paused/completed),
+  /// [statusFilter] - Filter by status: 'all', 'history' (completed),
   /// 'failed', 'downloaded' (completed)
   /// [typeFilter] - Filter by type: 'all', 'video', 'gallery', 'other'
   Future<List<DownloadTask>> searchTasks({
@@ -542,8 +519,9 @@ class DownloadTaskRepository {
         case 'downloaded':
           whereClauses.add("status = 'completed'");
           break;
+        // 'history' = 已完成。暂停任务归活跃区管（见 getHistoryTasks 的注释）。
         case 'history':
-          whereClauses.add("status IN ('paused', 'completed')");
+          whereClauses.add("status = 'completed'");
           break;
         case 'all':
         default:
@@ -639,8 +617,9 @@ class DownloadTaskRepository {
         case 'downloaded':
           whereClauses.add("status = 'completed'");
           break;
+        // 'history' = 已完成。暂停任务归活跃区管（见 getHistoryTasks 的注释）。
         case 'history':
-          whereClauses.add("status IN ('paused', 'completed')");
+          whereClauses.add("status = 'completed'");
           break;
         case 'all':
         default:
@@ -777,12 +756,7 @@ class DownloadTaskRepository {
         SET title = ?, description = ?, updated_at = ?
         WHERE id = ?
       ''',
-        [
-          title,
-          description,
-          DateTime.now().millisecondsSinceEpoch ~/ 1000,
-          id,
-        ],
+        [title, description, DateTime.now().millisecondsSinceEpoch ~/ 1000, id],
       );
       return true;
     } catch (e) {
@@ -864,11 +838,7 @@ class DownloadTaskRepository {
       final placeholders = List.filled(taskIds.length, '?').join(', ');
       _db.execute(
         'UPDATE download_tasks SET category_id = ?, updated_at = ? WHERE id IN ($placeholders)',
-        [
-          categoryId,
-          DateTime.now().millisecondsSinceEpoch,
-          ...taskIds,
-        ],
+        [categoryId, DateTime.now().millisecondsSinceEpoch, ...taskIds],
       );
     } catch (e) {
       LogUtils.e('归类下载任务失败', tag: 'DownloadTaskRepository', error: e);

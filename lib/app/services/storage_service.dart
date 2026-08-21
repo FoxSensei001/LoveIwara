@@ -283,8 +283,9 @@ class StorageService {
   @visibleForTesting
   void debugSetSecureStorageAvailable(bool value) {
     _useSecureStorage = value;
-    _health =
-        value ? SecureStorageHealth.healthy : SecureStorageHealth.unavailable;
+    _health = value
+        ? SecureStorageHealth.healthy
+        : SecureStorageHealth.unavailable;
   }
 
   /// 测试专用：注入降级加密器（隔离密钥文件位置）。

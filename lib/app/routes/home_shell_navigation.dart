@@ -13,8 +13,7 @@ class HomeShellNavigation {
     'video',
     'gallery',
     'subscription',
-    'forum',
-    'news',
+    'community',
   ];
 
   /// Stable key -> go_router branch index.
@@ -23,8 +22,7 @@ class HomeShellNavigation {
     'video': 0,
     'gallery': 1,
     'subscription': 2,
-    'forum': 3,
-    'news': 4,
+    'community': 3,
   };
 
   /// Stable key -> tab-root path.
@@ -33,23 +31,59 @@ class HomeShellNavigation {
     'video': '/',
     'gallery': '/gallery',
     'subscription': '/subscriptions',
-    'forum': '/forum',
-    'news': '/news',
+    'community': '/community',
   };
 
   /// Keys the user is allowed to hide from the navigation UI.
-  /// The corresponding `StatefulShellRoute` branches still exist so deep links
-  /// (e.g. `/forum`, `/news`) keep working even while hidden.
-  static const Set<String> hideableKeys = <String>{'forum', 'news'};
+  /// The corresponding `StatefulShellRoute` branch still exists so deep links
+  /// (e.g. `/community`, `/forum`, `/news`) keep working even while hidden.
+  static const Set<String> hideableKeys = <String>{'community'};
+
+  /// 已下线的导航键 -> 现行键。
+  ///
+  /// 论坛与新闻在「社区」栏目里合并成了一个 tab（底栏元素数超了，见
+  /// `community_page.dart`）。老用户的 [ConfigKey.NAVIGATION_ORDER] /
+  /// [ConfigKey.NAVIGATION_HIDDEN] 里仍然存着 `forum` / `news`，
+  /// [normalizeOrder] 会把它们就地折叠成 `community`——**位置按先出现的那个算**，
+  /// 这样自定义过顺序的用户不会看到社区栏莫名其妙掉到最后一位。
+  static const Map<String, String> legacyKeyAliases = <String, String>{
+    'forum': 'community',
+    'news': 'community',
+  };
+
+  /// 把一个可能是老键的导航键折叠成现行键；未知键返回 null。
+  static String? resolveKey(Object? rawKey) {
+    if (rawKey is! String) return null;
+    final aliased = legacyKeyAliases[rawKey] ?? rawKey;
+    return branchIndexByKey.containsKey(aliased) ? aliased : null;
+  }
+
+  /// 老栏目路径（`/forum` / `/news`）折叠到 `/community` 后的目标地址。
+  ///
+  /// 原有的 query 必须**原样带过去**：`/news?category=articles&lang=ja`
+  /// 要变成 `/community?tab=news&category=articles&lang=ja`，否则从新闻站
+  /// 分享出来的链接点进来会丢掉分类和语言。`tab` 放在前面、让原 query 覆盖
+  /// 在后，是为了让显式带 `tab=` 的地址仍然说了算。
+  static String legacyTabLocation(
+    String tab,
+    Map<String, String> queryParameters,
+  ) {
+    return Uri(
+      path: pathByKey['community']!,
+      queryParameters: <String, String>{'tab': tab, ...queryParameters},
+    ).toString();
+  }
 
   static int branchIndexForKey(String? key, {int fallback = 0}) {
-    if (key == null) return fallback;
-    return branchIndexByKey[key] ?? fallback;
+    final resolved = resolveKey(key);
+    if (resolved == null) return fallback;
+    return branchIndexByKey[resolved] ?? fallback;
   }
 
   static String pathForKey(String? key, {String fallback = '/'}) {
-    if (key == null) return fallback;
-    return pathByKey[key] ?? fallback;
+    final resolved = resolveKey(key);
+    if (resolved == null) return fallback;
+    return pathByKey[resolved] ?? fallback;
   }
 
   static String pathForBranchIndex(int branchIndex, {String fallback = '/'}) {
@@ -62,18 +96,19 @@ class HomeShellNavigation {
   }
 
   /// Normalize a persisted navigation order.
+  /// - folds legacy keys via [legacyKeyAliases] (`forum`/`news` -> `community`)
   /// - removes unknown keys
-  /// - removes duplicates
+  /// - removes duplicates (first position wins)
   /// - appends missing keys using [canonicalOrder]
   static List<String> normalizeOrder(dynamic rawOrder) {
     final raw = rawOrder is List ? rawOrder : const <dynamic>[];
     final result = <String>[];
 
     for (final item in raw) {
-      if (item is! String) continue;
-      if (!branchIndexByKey.containsKey(item)) continue;
-      if (result.contains(item)) continue;
-      result.add(item);
+      final key = resolveKey(item);
+      if (key == null) continue;
+      if (result.contains(key)) continue;
+      result.add(key);
     }
 
     for (final item in canonicalOrder) {
@@ -88,15 +123,37 @@ class HomeShellNavigation {
   /// Normalize a persisted hidden-navigation list.
   /// - keeps only known, hideable keys
   /// - removes duplicates
+  ///
+  /// 合并迁移的关键一条：老配置里的 `forum` / `news` **必须两个都被隐藏**，
+  /// 才把合并后的 `community` 判定为隐藏。只藏了新闻的用户当初还看得见论坛，
+  /// 迁移后整条社区栏就不该凭空消失。
   static List<String> normalizeHidden(dynamic rawHidden) {
     final raw = rawHidden is List ? rawHidden : const <dynamic>[];
+    final legacySeen = <String>{};
     final result = <String>[];
 
     for (final item in raw) {
       if (item is! String) continue;
+      if (legacyKeyAliases.containsKey(item)) {
+        legacySeen.add(item);
+        continue;
+      }
       if (!hideableKeys.contains(item)) continue;
       if (result.contains(item)) continue;
       result.add(item);
+    }
+
+    // 老键折叠：同一个现行键下的**所有**老键都在隐藏列表里才算隐藏。
+    for (final entry in legacyKeyAliases.entries) {
+      final target = entry.value;
+      if (result.contains(target)) continue;
+      if (!hideableKeys.contains(target)) continue;
+      final legacyGroup = legacyKeyAliases.entries
+          .where((e) => e.value == target)
+          .map((e) => e.key);
+      if (legacyGroup.every(legacySeen.contains)) {
+        result.add(target);
+      }
     }
 
     return result;

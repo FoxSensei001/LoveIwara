@@ -71,7 +71,10 @@ class _CrashRecoveryDialogWidgetState
               padding: const EdgeInsets.only(top: 6),
               child: Text(
                 t.crashRecoveryDialog.lastException(
-                  message: _limitText(widget.crashInfo.fatalError!.message, 120),
+                  message: _limitText(
+                    widget.crashInfo.fatalError!.message,
+                    120,
+                  ),
                 ),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.error,

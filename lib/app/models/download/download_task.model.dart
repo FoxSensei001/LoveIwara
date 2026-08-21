@@ -12,7 +12,14 @@ class DownloadTask {
   int downloadedBytes; // 已下载大小 [在图库下载中，可以用于表示已下载的图片数量]
   DownloadStatus status; // 下载状态
   bool supportsRange; // 是否支持断点续传
-  String? error; // 错误信息
+  String? error; // 错误信息（自由文本，多为异常原文，用于排查）
+
+  /// 失败原因分类（[DownloadErrorType] 的 name）。
+  ///
+  /// [error] 是给排查用的原文，会随语言 / 依赖库版本变化，程序不该去解析它；
+  /// 这一列才是给程序和 UI 用的稳定语义：决定卡片上显示哪句人话、以及将来做
+  /// 「只重试网络类失败」这种批量操作时的查询条件。历史数据为 null，视为未知。
+  String? errorType;
   DownloadTaskExtData? extData; // 额外数据
   /// 媒体类型：'video' | 'gallery' 等，配合 mediaId/quality 用于快速索引
   String? mediaType;
@@ -48,6 +55,7 @@ class DownloadTask {
     this.status = DownloadStatus.pending,
     this.supportsRange = false,
     this.error,
+    this.errorType,
     this.extData,
     this.mediaType,
     this.mediaId,
@@ -91,6 +99,10 @@ class DownloadTask {
       status: DownloadStatus.values.byName(row['status']),
       supportsRange: row['supports_range'] == 1,
       error: row['error'],
+      // 防御式读取：兼容 v19 迁移前的旧行 / 测试注入的旧 schema
+      errorType: row.containsKey('error_type')
+          ? row['error_type'] as String?
+          : null,
       extData: extData,
       mediaType: row['media_type'] as String?,
       mediaId: row['media_id'] as String?,
@@ -119,6 +131,7 @@ class DownloadTask {
       'status': status.name,
       'supports_range': supportsRange ? 1 : 0,
       'error': error,
+      'error_type': errorType,
       'ext_data': extData != null ? jsonEncode(extData!.toJson()) : null,
       'media_type': mediaType,
       'media_id': mediaId,
@@ -145,6 +158,52 @@ class DownloadTask {
 }
 
 enum DownloadStatus { pending, downloading, paused, completed, failed }
+
+/// 下载失败的原因分类。
+///
+/// 分类的用途有两个：让失败卡片能说人话（而不是甩一段异常字符串），以及让
+/// 「哪些失败值得重试」这件事可判断、可查询。落库的是枚举名（见 v19 迁移）。
+enum DownloadErrorType {
+  /// 网络层问题：超时、连接中断、DNS / 代理异常。重试通常有意义。
+  network,
+
+  /// 服务端明确拒绝：401/403 等，多为登录态失效或权限不足。
+  serverRejected,
+
+  /// 资源已不存在：404 / 链接失效。视频任务可通过重新获取链接自愈。
+  notFound,
+
+  /// 磁盘空间不足。
+  diskFull,
+
+  /// 目标文件被占用（杀软扫描、播放器打开中等）。
+  fileInUse,
+
+  /// 无写入权限 / 目标路径不可写。
+  permission,
+
+  /// 用户取消。
+  cancelled,
+
+  /// 未能归类。
+  unknown;
+
+  /// 该类失败重试是否通常有意义（供批量重试等功能判断）。
+  bool get isRetriable =>
+      this == DownloadErrorType.network ||
+      this == DownloadErrorType.notFound ||
+      this == DownloadErrorType.diskFull ||
+      this == DownloadErrorType.fileInUse;
+
+  /// 从落库的字符串还原；未知 / 历史数据返回 [DownloadErrorType.unknown]。
+  static DownloadErrorType parse(String? raw) {
+    if (raw == null) return DownloadErrorType.unknown;
+    for (final value in DownloadErrorType.values) {
+      if (value.name == raw) return value;
+    }
+    return DownloadErrorType.unknown;
+  }
+}
 
 class FileSystemException implements Exception {
   final String message;

@@ -10,7 +10,6 @@ import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.d
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
-import 'package:i_iwara/utils/logger_utils.dart';
 
 /// [showDownloadPickerSheet] 确认下载后的返回结果：选中的清晰度与分类。
 class DownloadPickerResult {
@@ -80,8 +79,6 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
   // 用户手动点过某个清晰度图块后置空——这时它已经不是“预选”了，图块不用再挂标签。
   DownloadPickerPreselectSource? _preselectSource;
   String? _selectedCategoryId;
-  List<DownloadCategory>? _categories;
-  Worker? _categoriesWorker;
 
   @override
   void initState() {
@@ -99,37 +96,10 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
     _selectedCategoryId = (lastCategory == null || lastCategory.isEmpty)
         ? null
         : lastCategory;
-
-    _loadCategories();
-    _categoriesWorker = ever(
-      DownloadService.to.categoriesChangedNotifier,
-      (_) => _loadCategories(),
-    );
   }
 
-  @override
-  void dispose() {
-    _categoriesWorker?.dispose();
-    super.dispose();
-  }
-
-  Future<void> _loadCategories() async {
-    try {
-      final categories = await DownloadService.to.getAllCategories();
-      if (!mounted) return;
-      setState(() => _categories = categories);
-    } catch (e) {
-      LogUtils.e('加载下载分类失败', tag: 'DownloadPickerSheet', error: e);
-      if (!mounted) return;
-      setState(() => _categories = const []);
-    }
-  }
-
-  /// 选中的分类已不存在（如刚被删除）时回退为「未分类」，避免 Chip 状态悬空。
-  /// 分类列表还没加载完成时先原样透传，不阻塞用户看清晰度网格。
-  String? get _validCategoryId {
-    final categories = _categories;
-    if (categories == null) return _selectedCategoryId;
+  /// 选中的分类已不存在（如刚在管理页被删掉）时回退为「未分类」，避免标签悬空。
+  String? _validCategoryIdIn(List<DownloadCategory> categories) {
     final id = _selectedCategoryId;
     if (id == null) return null;
     return categories.any((c) => c.id == id) ? id : null;
@@ -150,7 +120,7 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
     Navigator.of(context).pop(
       DownloadPickerResult(
         source: _selectedSource,
-        categoryId: _validCategoryId,
+        categoryId: _validCategoryIdIn(DownloadService.to.categories),
       ),
     );
   }
@@ -337,13 +307,21 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
     );
   }
 
+  /// 分类标签行。
+  ///
+  /// 直接 Obx 读服务里的分类状态：在这个弹窗上点「管理分类」新建完返回，标签当场
+  /// 就在，不需要页面自己订阅广播再去重拉（那条链断掉时是静默的）。
   Widget _buildCategoryChips(BuildContext context, slang.Translations t) {
-    final categories = _categories;
-    if (categories == null) {
-      // 加载中：占位不显示，避免闪烁（与 DownloadCategoryPicker 一致的处理方式）。
-      return const SizedBox(height: 34);
-    }
-    final validCategoryId = _validCategoryId;
+    return Obx(
+      () => _buildCategoryChipsContent(t, DownloadService.to.categories),
+    );
+  }
+
+  Widget _buildCategoryChipsContent(
+    slang.Translations t,
+    List<DownloadCategory> categories,
+  ) {
+    final validCategoryId = _validCategoryIdIn(categories);
     return Wrap(
       spacing: 7,
       runSpacing: 7,

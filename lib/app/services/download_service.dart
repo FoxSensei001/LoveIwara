@@ -1,5 +1,8 @@
 import 'dart:async';
 import 'dart:io';
+// 需要与本项目模型里同名的 FileSystemException 区分开：非 SDK 库的同名声明会
+// 遮蔽 dart:io 的，判断磁盘 / 权限 / 占用类错误时必须用带前缀的那个。
+import 'dart:io' as io;
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -8,12 +11,14 @@ import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/download/download_state_log.dart';
+import 'package:i_iwara/app/services/download/download_task_store.dart';
 import 'package:i_iwara/app/services/download_notification_service.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/filename_template_service.dart';
 import 'package:i_iwara/app/services/message_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:path/path.dart' as path_lib;
@@ -50,23 +55,70 @@ class DownloadService extends GetxService {
 
   /// =============================== 对外暴露的接口, 对当前的业务无影响 ===============================
 
-  // 用于通知任务状态变更的 RxInt
-  final _taskStatusChangedNotifier = 0.obs;
+  /// 活跃任务（pending/downloading/paused/failed）的内存单一真源。
+  ///
+  /// UI 一律从这里读活跃任务，不再各自查库：分区由状态唯一决定，一条任务不可能
+  /// 同时出现在两个区；每行只订阅自己的句柄，状态变化只重建那一行。
+  /// 已完成任务量大且只读，仍在 DB 分页，通过 [DownloadTaskStore.completedRevision]
+  /// 精确失效（见该类的类注释）。
+  final DownloadTaskStore store = DownloadTaskStore();
 
   // 获取所有活跃任务（仅包含下载中的任务）
   Map<String, DownloadTask> get tasks => _activeTasks;
 
-  // 获取任务状态变更通知器 [仅在任务状态变更时，进行通知，用于刷新UI列表数据]
-  RxInt get taskStatusChangedNotifier => _taskStatusChangedNotifier;
+  /// 全部下载分类（含各自的任务计数），以及「未分类」的任务数。
+  ///
+  /// 这两个是**可观察状态本身**，不是「有变化」的信号：页面直接 `Obx` 读它们，
+  /// 不再各自持有一份快照、也不再靠 worker + postFrame 回调去重拉。
+  ///
+  /// 为什么改：分类此前走的是 `RxInt` 版本号广播 + 页面 `ever()` 订阅 + 帧回调
+  /// 里 setState 的链路。这条链有三个环节可能悄悄断掉（订阅挂在被换掉的服务实例
+  /// 上、帧回调等不到下一帧、收到广播的 State 不是屏幕上那个），而断掉时没有任何
+  /// 报错——表现就是「在管理页新建了分类，返回列表页没有，下拉刷新才出来」。
+  /// 换成 Obx 之后这三个环节整体消失：订阅在可见元素 build 时建立，值一变它自己
+  /// 重建，不存在中间人。
+  final RxList<DownloadCategory> categories = <DownloadCategory>[].obs;
+  final RxInt uncategorizedCount = 0.obs;
 
-  // 分类（增删改 / 排序）变更通知器，用于刷新分类标签条与管理页。
-  final _categoriesChangedNotifier = 0.obs;
-  RxInt get categoriesChangedNotifier => _categoriesChangedNotifier;
+  /// 从数据库重新装载分类与未分类计数。
+  ///
+  /// 所有分类写操作（新建 / 改名 / 删除 / 排序 / 移动任务）末尾都会 await 它，
+  /// 因此调用方拿到返回值时，可观察状态已经是最新的。
+  Future<void> refreshCategories() async {
+    try {
+      final list = await _repository.getAllCategories();
+      final uncategorized = await _repository.getUncategorizedCount();
+      categories.assignAll(list);
+      uncategorizedCount.value = uncategorized;
+      DownloadStateLog.emit(
+        this,
+        'categories/refreshed',
+        detail: '${list.length} 个分类',
+      );
+    } catch (e) {
+      LogUtils.e('加载下载分类失败', tag: 'DownloadService', error: e);
+    }
+  }
 
-  // 删除任务时广播被删除的 id，供列表「就地移除」对应行而非整列重载，
-  // 从而在删除后保留滚动位置（解决「删一条就跳回最近下载」的问题）。
-  final _removedTaskIdsNotifier = Rx<List<String>>(const []);
-  Rx<List<String>> get removedTaskIdsNotifier => _removedTaskIdsNotifier;
+  /// 发布一条任务的最新状态。
+  ///
+  /// 所有会改变任务状态 / 归属的路径都必须走这里：Store 据此把它放进正确的区、
+  /// 只重建对应的那一行；同时留下埋点，出问题时能看出是哪条路径发的、有没有落到 UI。
+  void _publishTask(DownloadTask task, String event) {
+    store.upsert(task);
+    DownloadStateLog.emit(
+      this,
+      'task/$event',
+      taskId: task.id,
+      detail: 'status=${task.status.name}',
+    );
+  }
+
+  /// 发布「一条任务已被删除」。
+  void _publishRemovedTask(String taskId, String event) {
+    store.remove(taskId);
+    DownloadStateLog.emit(this, 'task/$event', taskId: taskId);
+  }
 
   /// 记住的「下载到分类」默认值（'' / 读取失败视为未分类/null）。
   /// 供跳过弹窗的下载路径（单图保存等）沿用上次所选分类。
@@ -81,7 +133,12 @@ class DownloadService extends GetxService {
     }
   }
 
-  final _repository = DownloadTaskRepository();
+  /// 允许注入仓储，便于用内存数据库对启动恢复、状态机等做单元测试；
+  /// 生产路径不传参，行为与此前完全一致。
+  DownloadService({DownloadTaskRepository? repository})
+    : _repository = repository ?? DownloadTaskRepository();
+
+  final DownloadTaskRepository _repository;
 
   /// 已派发「终态通知」（完成/失败）的任务 id 集合，用于去重：
   /// 同一次终态转换只通知一次。当任务重新回到非终态（pending/downloading/
@@ -147,7 +204,11 @@ class DownloadService extends GetxService {
       title: title,
       description: description,
     );
-    if (category != null) _categoriesChangedNotifier.value++;
+    if (category != null) {
+      // 先把可观察状态刷新到最新，再返回：调用方一 await 完就能确信
+      // 分类条 / 选择器已经能看到这个新分类了。
+      await refreshCategories();
+    }
     return category;
   }
 
@@ -162,7 +223,7 @@ class DownloadService extends GetxService {
       title: title,
       description: description,
     );
-    if (ok) _categoriesChangedNotifier.value++;
+    if (ok) await refreshCategories();
     return ok;
   }
 
@@ -177,9 +238,16 @@ class DownloadService extends GetxService {
       for (final t in _activeTasks.values) {
         if (t.categoryId == id) t.categoryId = null;
       }
-      _categoriesChangedNotifier.value++;
-      // 任务的归属变了（退回未分类），刷新列表。
-      _taskStatusChangedNotifier.value++;
+      // 活跃任务的分类归属同样要就地清空并刷新对应行；已完成任务在库里，
+      // 让历史区重拉即可。
+      for (final t in store.activeTasks) {
+        if (t.categoryId == id) {
+          t.categoryId = null;
+          store.touch(t.id);
+        }
+      }
+      store.invalidateCompleted();
+      await refreshCategories();
     }
     return ok;
   }
@@ -187,7 +255,7 @@ class DownloadService extends GetxService {
   /// 批量更新分类顺序。
   Future<bool> updateCategoriesOrder(List<String> ids) async {
     final ok = await _repository.updateCategoriesOrder(ids);
-    if (ok) _categoriesChangedNotifier.value++;
+    if (ok) await refreshCategories();
     return ok;
   }
 
@@ -210,10 +278,16 @@ class DownloadService extends GetxService {
     for (final id in taskIds) {
       final t = _activeTasks[id];
       if (t != null) t.categoryId = effectiveId;
+      // Store 里的活跃任务同样就地更新并刷新该行（元数据变更不换区）。
+      final stored = store.taskOf(id);
+      if (stored != null) {
+        stored.categoryId = effectiveId;
+        store.touch(id);
+      }
     }
-    // 元数据变更不会自动触发列表刷新，这里手动 bump。
-    _taskStatusChangedNotifier.value++;
-    _categoriesChangedNotifier.value++; // 分类计数变化
+    // 被移动的可能是已完成任务，历史区按分类筛选的结果会变，让它重拉。
+    store.invalidateCompleted();
+    await refreshCategories();
   }
 
   // =============================== 内部方法 ===============================
@@ -366,45 +440,81 @@ class DownloadService extends GetxService {
     await _loadActiveTasks();
   }
 
-  // =============================== 加载活跃任务（仅加载下载中的任务） ===============================
-  // 获取downloading、pending状态的全部任务，
-  // 通过_downloadQueue来存储任务的id，供_processQueue()方法使用
-  // 注意：内存中的 _activeTasks 只保存 downloading 任务
+  // =============================== 加载活跃任务 ===============================
+  /// 启动时把**全部活跃任务**（downloading / pending / paused / failed）装载进
+  /// [store]，并把可跑的任务重新入队。
+  ///
+  /// 注意与旧实现的差别：旧实现只捞 downloading + pending（因为内存里只留下载中
+  /// 的任务），暂停与失败的任务完全不进内存，UI 只能自己查库——这正是「暂停后那条
+  /// 任务跑到分页历史区里去了、状态还对不上」的来源。现在活跃任务一律常驻内存，
+  /// 分区由状态唯一决定。
   Future<void> _loadActiveTasks() async {
     try {
-      // 拉取所有 downloading + pending 任务，按创建时间升序
-      final tasks = await _repository
-          .getDownloadingAndPendingTasksOrderByCreatedAtAsc();
-      int restoredDownloadingCount = 0;
-      int pendingCount = 0;
-
-      for (var task in tasks) {
-        if (task.status == DownloadStatus.downloading) {
-          // 启动时遇到 downloading 任务，一律恢复为 pending 并仅持久化到数据库
-          restoredDownloadingCount++;
-          await _repository.updateTaskStatusById(
-            task.id,
-            DownloadStatus.pending,
-          );
-        } else if (task.status == DownloadStatus.pending) {
-          pendingCount++;
-        }
-
-        // 队列中仅维护任务 id，顺序即为 created_at 升序
-        _enqueueTaskId(task.id);
-      }
-
-      LogUtils.d(
-        '已加载 $restoredDownloadingCount 个历史下载中任务, $pendingCount 个等待中任务',
-        'DownloadService',
+      // 暂停 / 失败的任务不参与队列，但同样属于活跃区，必须进内存真源。
+      // 必须在下面把 downloading/pending 改写成 paused **之前**查，否则会把它们
+      // 重复读进来。
+      final paused = await _repository.getAllTasksByStatus(
+        DownloadStatus.paused,
+      );
+      final failed = await _repository.getAllTasksByStatus(
+        DownloadStatus.failed,
       );
 
-      _processQueue();
+      // 拉取所有 downloading + pending 任务，按创建时间升序
+      final queueTasks = await _repository
+          .getDownloadingAndPendingTasksOrderByCreatedAtAsc();
+
+      // 启动语义：上次没跑完的任务（downloading + pending）一律置为 paused，
+      // 不自动续传。
+      //
+      // 旧行为是自动接着跑：进程被系统杀死（LMK/OOM）或用户杀掉 App 之后一开应用
+      // 就在用户毫不知情的情况下动用移动数据；而且续传依赖的「已写字节数是否可信」
+      // 在这条路径上从未被验证过，恢复出错就是一个损坏的文件。改为全部暂停 +
+      // 顶部一键继续，把决定权交回用户。
+      final restoredIds = <String>[];
+      for (var task in queueTasks) {
+        await _repository.updateTaskStatusById(task.id, DownloadStatus.paused);
+        task.status = DownloadStatus.paused;
+        restoredIds.add(task.id);
+      }
+
+      store.hydrate([...paused, ...failed, ...queueTasks]);
+      _restoredPausedIds.assignAll(restoredIds);
+      await refreshCategories();
+
+      LogUtils.d(
+        '启动恢复：${restoredIds.length} 个未完成任务已置为暂停, '
+            '${paused.length} 个原暂停任务, ${failed.length} 个失败任务',
+        'DownloadService',
+      );
     } catch (e) {
       LogUtils.e('加载下载任务失败', error: e);
       _showMessage(slang.t.download.errors.failedToLoadTasks, Colors.red);
     }
   }
+
+  /// 本次启动时被自动置为暂停的任务 id（上次退出时还没下完的那些）。
+  ///
+  /// 列表页据此显示「上次有 N 个任务未完成 · 全部继续」的提示条：全部暂停之后如果
+  /// 没有一键召回，用户下了 30 条就要手点 30 次，这个提示条是上面那条启动语义的
+  /// 必要配套，不是装饰。
+  final _restoredPausedIds = <String>[].obs;
+  RxList<String> get restoredPausedIds => _restoredPausedIds;
+
+  /// 继续「启动时被自动暂停」的那些任务。
+  ///
+  /// 刻意不复用 [resumeAll]：那会把用户很久以前手动暂停的任务也一并叫醒，
+  /// 而提示条上写的是「上次未完成的 N 个」，行为必须与文案一致。
+  Future<void> resumeRestoredTasks() async {
+    final ids = List<String>.from(_restoredPausedIds);
+    _restoredPausedIds.clear();
+    for (final id in ids) {
+      await resumeTask(id);
+    }
+  }
+
+  /// 用户忽略「上次未完成」提示条。
+  void dismissRestoredPaused() => _restoredPausedIds.clear();
 
   // 获取内存中的活跃任务
   DownloadTask? getMemoryActiveTaskById(String taskId) {
@@ -450,8 +560,9 @@ class DownloadService extends GetxService {
       task.status = DownloadStatus.pending;
       await _insertTaskWithSavePathRetry(task, requestedSavePath);
 
-      // 仅添加到下载队列，pending 任务不常驻内存
       _enqueueTaskId(task.id);
+      // 新任务立刻进内存真源：列表页据此立即多出一行，不必等任何广播或重进页面。
+      _publishTask(task, 'added');
 
       LogUtils.i('添加下载任务: ${task.fileName}', 'DownloadService');
       _processQueue();
@@ -519,7 +630,11 @@ class DownloadService extends GetxService {
     }
   }
 
-  // 暂停任务 [内存 -> 数据库]
+  /// 暂停任务。
+  ///
+  /// 走**乐观更新**：先把状态落进内存真源让那一行立刻变成「暂停」，再去写库、取消
+  /// 连接、等资源释放。这一段慢活加起来可能几百毫秒（取消清理本身就有 500ms 兜底），
+  /// 若等它跑完再改 UI，用户看到的就是「点了没反应」。任一步失败则回滚状态并提示。
   Future<void> pauseTask(String taskId) async {
     if (_processingTaskIds.contains(taskId)) {
       return;
@@ -528,17 +643,26 @@ class DownloadService extends GetxService {
 
     LogUtils.d('暂停任务: $taskId', 'DownloadService');
 
+    DownloadTask? task;
+    DownloadStatus? previousStatus;
     try {
-      // 优先从内存中获取下载中任务，如不存在则从数据库获取
-      final task =
-          _activeTasks[taskId] ?? await _repository.getTaskById(taskId);
+      // 优先取 Store 里的实例：它就是 UI 正在显示的那个对象，就地改状态 + upsert
+      // 才能保证「点暂停 → 那一行立刻变」；退化路径才回落到内存队列 / 数据库。
+      task =
+          store.taskOf(taskId) ??
+          _activeTasks[taskId] ??
+          await _repository.getTaskById(taskId);
       if (task == null) {
         LogUtils.d('任务不存在: $taskId', 'DownloadService');
         return;
       }
 
+      previousStatus = task.status;
       task.status = DownloadStatus.paused;
-      // [优先更新持久化信息]
+      // 乐观更新：先让 UI 变，再干慢活。
+      _publishTask(task, 'paused');
+
+      // [持久化]
       await _repository.updateTask(task);
 
       // 清理内存前先判断是否真有进行中的下载，供取消等待判断是否需要兜底延时。
@@ -548,17 +672,26 @@ class DownloadService extends GetxService {
       _clearMemoryTask(taskId, '用户暂停下载');
       await _waitForCancelCleanup(taskId, hadActiveDownload: hadActiveDownload);
 
-      // 通知UI变更
-      _taskStatusChangedNotifier.value++;
-
       // 处理等待队列中的下一个任务
       _processQueue();
+    } catch (e) {
+      LogUtils.e('暂停任务失败: $taskId', tag: 'DownloadService', error: e);
+      // 回滚乐观更新：状态没能落库就不能让 UI 停在「暂停」上，否则界面与库不一致，
+      // 重进页面又会变回去——正是这类「显示的和实际的不一样」的来源。
+      if (task != null && previousStatus != null) {
+        task.status = previousStatus;
+        _publishTask(task, 'pauseRolledBack');
+      }
+      _showMessage(slang.t.errors.failedToOperate, Colors.red);
     } finally {
       _processingTaskIds.remove(taskId);
     }
   }
 
-  // 恢复任务 [数据库 -> 内存]
+  /// 恢复任务。
+  ///
+  /// 同样走乐观更新：视频任务恢复前要先联网校验链接是否还有效（[refreshVideoTask]，
+  /// 可能耗时数秒），不先把状态改成「等待中」的话，这几秒里界面完全没有反应。
   Future<void> resumeTask(String taskId) async {
     // 防止重复点击
     if (_processingTaskIds.contains(taskId)) {
@@ -566,10 +699,13 @@ class DownloadService extends GetxService {
     }
     _processingTaskIds.add(taskId);
 
+    DownloadTask? optimisticTask;
+    DownloadStatus? previousStatus;
     try {
       LogUtils.d('恢复任务: $taskId', 'DownloadService');
-      // 从数据库加载任务
-      DownloadTask? task = await _repository.getTaskById(taskId);
+      // 优先取内存真源里的实例（UI 正显示的那个），退化到数据库
+      DownloadTask? task =
+          store.taskOf(taskId) ?? await _repository.getTaskById(taskId);
       if (task == null) {
         LogUtils.d('任务不存在于数据库，无法恢复: $taskId', 'DownloadService');
         _showMessage(slang.t.download.errors.taskNotFound, Colors.red);
@@ -579,6 +715,11 @@ class DownloadService extends GetxService {
       if (task.status == DownloadStatus.paused ||
           task.status == DownloadStatus.failed) {
         LogUtils.d('任务状态为暂停或失败，需要验证链接有效性: $taskId', 'DownloadService');
+        // 乐观更新：先进等待区，联网校验在后台继续。
+        optimisticTask = task;
+        previousStatus = task.status;
+        task.status = DownloadStatus.pending;
+        _publishTask(task, 'resuming');
         // 如果是视频任务，需要验证链接有效性
         if (task.extData?.type == DownloadTaskExtDataType.video) {
           DownloadTask? newTask = await refreshVideoTask(task);
@@ -595,10 +736,15 @@ class DownloadService extends GetxService {
             // 让任务变为失败状态，并记录错误信息
             task.status = DownloadStatus.failed;
             task.error = slang.t.download.errors.canNotRefreshVideoTask;
+            // 链接刷新不出来，基本等于资源已被删除 / 权限变更。
+            task.errorType = DownloadErrorType.notFound.name;
             await _repository.updateTask(task); // [更新持久化信息]
             // 此路径不经过 _updateTaskStatus，需显式派发终态通知。
             await _dispatchTerminalNotification(task);
             _clearMemoryTask(taskId, '刷新视频任务失败，无法处理');
+            // 续传失败也是一次状态变更：不发布的话，这一行会一直停在「暂停」，
+            // 用户点了继续却毫无反应，必须重进页面才看到它其实已经失败了。
+            _publishTask(task, 'resumeRefreshFailed');
             LogUtils.d('刷新视频任务失败，无法处理: $taskId', 'DownloadService');
             return;
           }
@@ -613,10 +759,18 @@ class DownloadService extends GetxService {
         _enqueueTaskId(taskId);
 
         // 通知任务状态变更
-        _taskStatusChangedNotifier.value++;
+        _publishTask(task, 'resumed');
 
         _processQueue();
       }
+    } catch (e) {
+      LogUtils.e('恢复任务失败: $taskId', tag: 'DownloadService', error: e);
+      // 回滚乐观更新，避免界面停在「等待中」而库里其实还是暂停 / 失败。
+      if (optimisticTask != null && previousStatus != null) {
+        optimisticTask.status = previousStatus;
+        _publishTask(optimisticTask, 'resumeRolledBack');
+      }
+      _showMessage(slang.t.errors.failedToOperate, Colors.red);
     } finally {
       _processingTaskIds.remove(taskId);
     }
@@ -830,7 +984,10 @@ class DownloadService extends GetxService {
       LogUtils.i('开始删除下载任务: $taskId', 'DownloadService');
       DownloadTask? task;
       // 获取任务信息
-      task = _activeTasks[taskId] ?? await _repository.getTaskById(taskId);
+      task =
+          store.taskOf(taskId) ??
+          _activeTasks[taskId] ??
+          await _repository.getTaskById(taskId);
 
       // 如果内存和数据库中都没有任务信息，则视为已删除（可能已被并发删除）
       if (task == null) {
@@ -840,6 +997,9 @@ class DownloadService extends GetxService {
         }
         // 防止内存问题，清理内存中的信息
         _clearMemoryTask(taskId, '任务不存在时的清理');
+        // 库里已经没有它了，内存真源也必须跟着清掉，否则这一行会一直挂在列表上
+        // 直到下次启动（这条路径此前直接 return，是「删了还在」的残留来源之一）。
+        _publishRemovedTask(taskId, 'removedMissing');
         return true;
       }
 
@@ -958,9 +1118,10 @@ class DownloadService extends GetxService {
 
       _clearMemoryTask(taskId, '任务已删除');
 
-      // 通知列表「就地移除」该任务行（保留滚动位置），而非整列重载。
+      // 从内存真源里移除：活跃区那一行立刻消失；若删的是已完成任务，
+      // Store 会让历史区精确失效重拉。批量删除时由调用方统一收口（notify=false）。
       if (notify) {
-        _removedTaskIdsNotifier.value = [taskId];
+        _publishRemovedTask(taskId, 'removed');
       }
       return true;
     } finally {
@@ -982,9 +1143,14 @@ class DownloadService extends GetxService {
       );
       if (ok) removed.add(taskId);
     }
-    // 统一广播一次被删除的 id，列表就地移除（保留滚动位置）。
+    // 统一从内存真源移除一次，列表相应的行随之消失（滚动位置不受影响）。
     if (removed.isNotEmpty) {
-      _removedTaskIdsNotifier.value = removed;
+      store.removeAll(removed);
+      DownloadStateLog.emit(
+        this,
+        'task/removedBatch',
+        detail: '${removed.length} 条',
+      );
     }
   }
 
@@ -1005,6 +1171,7 @@ class DownloadService extends GetxService {
     final total = tasks.length;
     int deleted = 0;
     int skipped = 0;
+    final removedIds = <String>[];
 
     onProgress?.call(0, total);
     for (var i = 0; i < tasks.length; i++) {
@@ -1026,15 +1193,24 @@ class DownloadService extends GetxService {
       }
       if (ok) {
         deleted++;
+        removedIds.add(tasks[i].id);
       } else {
         skipped++;
       }
       onProgress?.call(i + 1, total);
     }
 
-    // 统一刷新一次（即使全部跳过也刷新，便于回收“文件已丢失”被清理的项）。
+    // 统一从内存真源移除一次。只移除真正删掉的那些——被占用而跳过的任务记录仍在
+    // 库里，把它们一并移出内存会让这些行凭空消失，直到下次启动才回来。
     if (total > 0) {
-      _taskStatusChangedNotifier.value++;
+      store.removeAll(removedIds);
+      // 即使全部跳过也让历史区重拉，便于回收“文件已丢失”被清理的项。
+      store.invalidateCompleted();
+      DownloadStateLog.emit(
+        this,
+        'task/deletedByDate',
+        detail: '删除 $deleted / 跳过 $skipped',
+      );
     }
 
     return DeleteTasksResult(total: total, deleted: deleted, skipped: skipped);
@@ -1420,13 +1596,13 @@ class DownloadService extends GetxService {
               }
 
               task.status = DownloadStatus.failed;
-              task.error = _getErrorMessage(error);
+              _recordFailure(task, error);
               await _updateTaskStatus(task);
               completer.completeError(error);
             } catch (e) {
               LogUtils.e('处理下载错误时发生异常: $e', tag: 'DownloadService', error: e);
               task.status = DownloadStatus.failed;
-              task.error = _getErrorMessage(e);
+              _recordFailure(task, e);
               await _updateTaskStatus(task);
               completer.completeError(e);
             } finally {
@@ -1534,7 +1710,7 @@ class DownloadService extends GetxService {
 
           await _cleanupDownload(task, raf, subscription);
           task.status = DownloadStatus.failed;
-          task.error = _getErrorMessage(e);
+          _recordFailure(task, e);
           await _updateTaskStatus(task);
           _processQueue();
           return;
@@ -1592,8 +1768,9 @@ class DownloadService extends GetxService {
     // 从内存中移除下载中的任务（pending 不会进入 _activeTasks）
     _activeTasks.remove(task.id);
 
-    // 通知任务状态变更
-    _taskStatusChangedNotifier.value++;
+    // 通知任务状态变更：completed 不属于活跃区，Store 会把它移出活跃集合
+    // 并让历史区重拉，于是「刚下完的任务」立刻出现在历史区顶部。
+    _publishTask(task, 'completed');
   }
 
   Future<void> _updateTaskStatus(DownloadTask task) async {
@@ -1607,7 +1784,7 @@ class DownloadService extends GetxService {
     await _repository.updateTask(task);
 
     // 通知任务状态变更
-    _taskStatusChangedNotifier.value++;
+    _publishTask(task, 'statusChanged');
 
     // 统一的终态通知派发入口（视频完成/失败、图库 outer-catch 失败均走此处）。
     await _dispatchTerminalNotification(task);
@@ -1682,14 +1859,16 @@ class DownloadService extends GetxService {
               !notificationService.isAlreadyOnDownloadPage();
           messageService.showActionableMessage(
             slang.t.downloadNotifications.completedToast(name: title),
-            MDToastType.success,
-            onTap: showJumpAction ? notificationService.openDownloadTaskList : null,
+            GlassToastType.success,
+            onTap: showJumpAction
+                ? notificationService.openDownloadTaskList
+                : null,
             actionIcon: showJumpAction ? Icons.arrow_forward_ios_rounded : null,
           );
         } else {
           messageService.showMessage(
             slang.t.downloadNotifications.failedToast(name: title),
-            MDToastType.error,
+            GlassToastType.error,
           );
         }
       }
@@ -1764,6 +1943,103 @@ class DownloadService extends GetxService {
     return error.toString();
   }
 
+  /// 把异常归入 [DownloadErrorType]。
+  ///
+  /// 与 [_getErrorMessage] 的分工：那个产出给人看的原文（会随语言变），这个产出
+  /// 给程序用的稳定语义并落库（见 v19 迁移）。失败卡片显示哪句人话、将来「只重试
+  /// 网络类失败」这类批量操作，都基于这里的分类，而不是去解析错误文案。
+  DownloadErrorType classifyError(Object? error) {
+    if (error == null) return DownloadErrorType.unknown;
+
+    if (error is DioException) {
+      switch (error.type) {
+        case DioExceptionType.cancel:
+          return DownloadErrorType.cancelled;
+        case DioExceptionType.connectionTimeout:
+        case DioExceptionType.sendTimeout:
+        case DioExceptionType.receiveTimeout:
+        case DioExceptionType.connectionError:
+          return DownloadErrorType.network;
+        case DioExceptionType.badCertificate:
+          return DownloadErrorType.network;
+        case DioExceptionType.badResponse:
+          final code = error.response?.statusCode ?? 0;
+          if (code == 404 || code == 410) return DownloadErrorType.notFound;
+          if (code == 401 || code == 403) {
+            return DownloadErrorType.serverRejected;
+          }
+          // 5xx 属于服务端临时故障，重试有意义，归入网络类。
+          if (code >= 500) return DownloadErrorType.network;
+          return DownloadErrorType.serverRejected;
+        case DioExceptionType.unknown:
+          return classifyError(error.error);
+        default:
+          return DownloadErrorType.unknown;
+      }
+    }
+
+    if (error is FileSystemException) {
+      switch (error.type) {
+        case FileErrorType.accessDenied:
+          return DownloadErrorType.permission;
+        case FileErrorType.insufficientSpace:
+          return DownloadErrorType.diskFull;
+        case FileErrorType.notFound:
+          return DownloadErrorType.notFound;
+        case FileErrorType.alreadyExists:
+        case FileErrorType.ioError:
+          return DownloadErrorType.fileInUse;
+      }
+    }
+
+    if (error is io.FileSystemException) {
+      // dart:io 的错误码没有跨平台常量，只能按 errno + 文案兜底判断：
+      // 28/112 = 空间不足（POSIX/Windows），13/1 = 权限，32/26 = 文件被占用。
+      final code = error.osError?.errorCode;
+      final message = (error.osError?.message ?? error.message).toLowerCase();
+      if (code == 28 || code == 112 || message.contains('no space')) {
+        return DownloadErrorType.diskFull;
+      }
+      if (code == 13 || code == 1 || message.contains('permission denied')) {
+        return DownloadErrorType.permission;
+      }
+      if (code == 32 ||
+          code == 26 ||
+          message.contains('being used by another process') ||
+          message.contains('text file busy')) {
+        return DownloadErrorType.fileInUse;
+      }
+      return DownloadErrorType.unknown;
+    }
+
+    if (error is HandshakeException || error is SocketException) {
+      return DownloadErrorType.network;
+    }
+
+    if (error is NetworkException) {
+      switch (error.type) {
+        case NetworkErrorType.canceledByUser:
+          return DownloadErrorType.cancelled;
+        case NetworkErrorType.storageNotEnough:
+          return DownloadErrorType.diskFull;
+        case NetworkErrorType.serverError:
+          return DownloadErrorType.serverRejected;
+        case NetworkErrorType.noNetwork:
+        case NetworkErrorType.timeout:
+        case NetworkErrorType.invalidUrl:
+          return DownloadErrorType.network;
+      }
+    }
+
+    return DownloadErrorType.unknown;
+  }
+
+  /// 记录一次失败的原因（文案 + 分类）。
+  void _recordFailure(DownloadTask task, Object? error, {String? message}) {
+    task.error = message ?? _getErrorMessage(error);
+    task.errorType = classifyError(error).name;
+  }
+
   // 添加重试方法
   Future<void> retryTask(String taskId) async {
     // 防止重复点击
@@ -1773,9 +2049,11 @@ class DownloadService extends GetxService {
     _processingTaskIds.add(taskId);
 
     try {
-      // 1) 优先从内存取（如果当前正在下载），否则从数据库取
+      // 1) 优先从内存真源取（UI 正显示的那个实例），否则从数据库取
       DownloadTask? task =
-          _activeTasks[taskId] ?? await _repository.getTaskById(taskId);
+          store.taskOf(taskId) ??
+          _activeTasks[taskId] ??
+          await _repository.getTaskById(taskId);
       if (task == null) {
         LogUtils.d('重试失败：任务不存在: $taskId', 'DownloadService');
         _showMessage(slang.t.download.errors.taskNotFound, Colors.red);
@@ -1788,16 +2066,22 @@ class DownloadService extends GetxService {
         return;
       }
 
-      // 3) 如为视频任务，校验/刷新链接
+      // 3) 如为视频任务，校验/刷新链接（联网，可能数秒）。先乐观地把它挪出失败区，
+      //    刷新失败再退回去——否则这几秒里点了重试的那一行毫无变化。
+      final optimisticTask = task;
+      task.status = DownloadStatus.pending;
+      _publishTask(task, 'retrying');
       if (task.extData?.type == DownloadTaskExtDataType.video) {
         final refreshed = await refreshVideoTask(task);
         if (refreshed == null) {
-          // 刷新失败，维持失败状态并提示
+          // 刷新失败，退回失败状态并提示
           _showMessage(
             slang.t.download.errors.canNotRefreshVideoTask,
             Colors.red,
           );
-          await _repository.updateTask(task);
+          optimisticTask.status = DownloadStatus.failed;
+          await _repository.updateTask(optimisticTask);
+          _publishTask(optimisticTask, 'retryRolledBack');
           return;
         }
         task = refreshed;
@@ -1806,6 +2090,7 @@ class DownloadService extends GetxService {
       // 4) 清理错误信息，入队并持久化
       LogUtils.i('重试下载任务: ${task.fileName}', 'DownloadService');
       task.error = null;
+      task.errorType = null;
       task.status = DownloadStatus.pending;
       // 解除终态通知去重，重下完成/失败时可再次通知。
       _notifiedTerminalTaskIds.remove(taskId);
@@ -1813,8 +2098,17 @@ class DownloadService extends GetxService {
       await _repository.updateTask(task);
 
       // 通知UI并处理队列
-      _taskStatusChangedNotifier.value++;
+      _publishTask(task, 'retried');
       _processQueue();
+    } catch (e) {
+      LogUtils.e('重试任务失败: $taskId', tag: 'DownloadService', error: e);
+      // 回滚乐观更新：重试没成功就得退回失败区，不能让它挂在等待区里空等。
+      final stored = store.taskOf(taskId);
+      if (stored != null && stored.status == DownloadStatus.pending) {
+        stored.status = DownloadStatus.failed;
+        _publishTask(stored, 'retryRolledBack');
+      }
+      _showMessage(slang.t.errors.failedToOperate, Colors.red);
     } finally {
       _processingTaskIds.remove(taskId);
     }
@@ -2076,7 +2370,9 @@ class DownloadService extends GetxService {
   /// 统一通过 [MessageService]（oktoast）展示提示，替代散落的原生 SnackBar。
   /// 沿用旧签名（含 [Color]）以免改动十余处调用点：红色映射为 error，其余为 info。
   void _showMessage(String message, Color color) {
-    final type = color == Colors.red ? MDToastType.error : MDToastType.info;
+    final type = color == Colors.red
+        ? GlassToastType.error
+        : GlassToastType.info;
     if (Get.isRegistered<MessageService>()) {
       Get.find<MessageService>().showMessage(message, type);
     } else {
@@ -2154,6 +2450,7 @@ class DownloadService extends GetxService {
               // 第二次尝试也失败，记录错误
               LogUtils.e('图片下载失败，已重试: $imageUrl', tag: 'DownloadService');
               task.error = slang.t.download.errors.partialDownloadFailed;
+              task.errorType = DownloadErrorType.network.name;
             }
           } catch (e) {
             LogUtils.e('下载图片出错: $imageUrl', tag: 'DownloadService', error: e);
@@ -2162,6 +2459,7 @@ class DownloadService extends GetxService {
                   .partialDownloadFailedWithMessage(
                     message: _getErrorMessage(e),
                   );
+              task.errorType = classifyError(e).name;
             }
           }
 
@@ -2197,6 +2495,8 @@ class DownloadService extends GetxService {
         }
         if (!allSuccess) {
           task.error = slang.t.download.errors.partialDownloadFailed;
+          // 逐图失败时已按具体异常归过类，这里只兜没归过的情况。
+          task.errorType ??= DownloadErrorType.network.name;
           LogUtils.e(
             '图库下载未完全成功: ${task.downloadedBytes}/${task.totalBytes}',
             tag: 'DownloadService',
@@ -2216,7 +2516,8 @@ class DownloadService extends GetxService {
       } else {
         _activeTasks.remove(task.id);
       }
-      _taskStatusChangedNotifier.value++; // 状态变更，通知列表刷新
+      // 状态变更，通知列表刷新
+      _publishTask(task, 'galleryStatusChanged');
       _notifyProgress(task.id); // 确保最后一次进度被更新
 
       // 图库主完成/部分失败路径不经过 _updateTaskStatus，需显式派发终态通知。
@@ -2229,7 +2530,7 @@ class DownloadService extends GetxService {
     } catch (e) {
       LogUtils.e('下载图库失败', tag: 'DownloadService', error: e);
       task.status = DownloadStatus.failed;
-      task.error = _getErrorMessage(e);
+      _recordFailure(task, e);
       await _updateTaskStatus(task);
 
       // 清理进度状态
@@ -2264,6 +2565,8 @@ class DownloadService extends GetxService {
       _updateImageProgress(task.id, imageId, 0);
       task.status = DownloadStatus.downloading;
       await _repository.updateTask(task);
+      // 图库逐图下载也要过内存真源：只写库不发布，这一行会停在续传前的旧状态。
+      _publishTask(task, 'galleryImageStart');
 
       // 使用流式下载并直接写盘，避免把整张原图（可能数十 MB）读进内存；
       // 同时传入 cancelToken，使暂停能立即中断当前图片下载而非等整张下完。

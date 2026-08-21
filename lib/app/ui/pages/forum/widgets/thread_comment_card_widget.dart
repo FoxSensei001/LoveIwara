@@ -7,18 +7,22 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_reply_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_edit_reply_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/comment_actions_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_translation_controller.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:flutter/services.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/widgets/translation_language_selector.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
+/// 论坛楼层项：与评论区同一套「扁平线程流」语言——无卡片、头像列 + 内容列、
+/// 身份小徽标（楼主 / 我）代替旧版整卡强调色，动作行是幽灵胶囊钮。
+/// 角色身份（admin / officer）由 [buildUserName] 的名字着色承载。
 class ThreadCommentCardWidget extends StatefulWidget {
   final ThreadCommentModel comment;
   final String threadAuthorId;
@@ -45,16 +49,29 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
   final UserService _userService = Get.find<UserService>();
   final ConfigService _configService = Get.find();
 
-  // 楼主强调色（琥珀），优先级高于工作人员角色色
+  // 楼主强调色（琥珀），与主楼卡片保持一致
   static const Color _authorAccent = Color(0xFFFFB300);
+
+  /// 动作行所有控件的统一高度：胶囊钮 / 翻译胶囊 / 更多圆钮必须一样高，
+  /// 否则视觉上大小不一（语言选择器内部是默认 48 触摸目标的 IconButton，
+  /// 不约束会把翻译胶囊撑高一圈）。
+  static const double _actionPillHeight = 30.0;
 
   // 使用翻译控制器
   late final MarkdownTranslationController _translationController;
+
+  /// 「显示原始文本」由动作行那枚 only-icon 钮受控（正文内置开关已关闭），
+  /// 初值仍沿用全局设置项。
+  late bool _showOriginal;
+
+  /// 正文加工前后确实有差异时才让那枚钮长出来。
+  bool _hasProcessedContent = false;
 
   @override
   void initState() {
     super.initState();
     _translationController = MarkdownTranslationController();
+    _showOriginal = _configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
   }
 
   @override
@@ -63,69 +80,116 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
     super.dispose();
   }
 
-  /// 计算卡片的强调色：发帖人(楼主) > admin > officer/moderator。
-  /// 高级用户(premium)、受限用户(limited)、普通用户返回 null（使用普通卡片）。
-  Color? _resolveAccentColor() {
-    if (widget.threadAuthorId == widget.comment.user.id) {
-      return _authorAccent;
-    }
-    final role = widget.comment.user.role;
-    if (role == 'admin' || widget.comment.user.isAdmin) {
-      return Colors.red;
-    }
-    if (role == 'officer' || role == 'moderator') {
-      return Colors.green.shade400;
-    }
-    return null;
-  }
-
-  // 构建翻译按钮
-  Widget _buildTranslationButton(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Obx(
-          () => IconButton(
-            onPressed: _translationController.isTranslating.value
-                ? null
-                : () => _handleTranslation(),
-            visualDensity: VisualDensity.compact,
-            padding: const EdgeInsets.all(6),
-            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-            style: IconButton.styleFrom(
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            icon: _translationController.isTranslating.value
-                ? SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  )
-                : Icon(
-                    Icons.translate,
-                    size: 20,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+  /// 胶囊动作钮：小图标 + 小字 + 浅色胶囊底。
+  /// 传 [color]（如主色）时底色用它的淡化版本，否则用中性浅灰底。
+  Widget _buildGhostAction(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    VoidCallback? onTap,
+    Color? color,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final fg = color ?? colorScheme.onSurfaceVariant;
+    final bg = color != null
+        ? color.withValues(alpha: 0.12)
+        : colorScheme.surfaceContainerHigh;
+    return Material(
+      color: bg,
+      borderRadius: BorderRadius.circular(999),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(999),
+        onTap: onTap,
+        child: Container(
+          height: _actionPillHeight,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(icon, size: 16, color: fg),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: fg,
+                  height: 1,
+                ),
+              ),
+            ],
           ),
         ),
-        // 不设置间隙，紧靠着放置
-        TranslationLanguageSelector(
-          compact: true,
-          extrimCompact: true,
-          selectedLanguage: _configService.currentTranslationSort,
-          onLanguageSelected: (sort) {
-            _configService.updateTranslationLanguage(sort);
-            if (_translationController.hasTranslation) {
-              _handleTranslation();
-            }
-          },
+      ),
+    );
+  }
+
+  /// 翻译入口：翻译图标（翻译中转菊花）+ 紧凑语言选择器，合装进一个胶囊。
+  Widget _buildTranslationControls(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Material(
+      color: colorScheme.surfaceContainerHigh,
+      borderRadius: BorderRadius.circular(999),
+      child: SizedBox(
+        height: _actionPillHeight,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Obx(() {
+              final busy = _translationController.isTranslating.value;
+              return InkWell(
+                borderRadius: BorderRadius.circular(999),
+                onTap: busy ? null : _handleTranslation,
+                child: Container(
+                  height: _actionPillHeight,
+                  padding: const EdgeInsets.only(left: 10, right: 4),
+                  alignment: Alignment.center,
+                  child: busy
+                      ? const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Icon(
+                          Icons.translate,
+                          size: 16,
+                          color: colorScheme.primary,
+                        ),
+                ),
+              );
+            }),
+            // 收紧语言选择器（内部是默认 48 触摸目标的 IconButton）到胶囊高度
+            SizedBox(
+              width: 34,
+              height: _actionPillHeight,
+              child: IconButtonTheme(
+                data: IconButtonThemeData(
+                  style: IconButton.styleFrom(
+                    fixedSize: const Size(34, _actionPillHeight),
+                    padding: EdgeInsets.zero,
+                    alignment: Alignment.center,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+                child: TranslationLanguageSelector(
+                  compact: true,
+                  extrimCompact: true,
+                  selectedLanguage: _configService.currentTranslationSort,
+                  onLanguageSelected: (sort) {
+                    _configService.updateTranslationLanguage(sort);
+                    if (_translationController.hasTranslation) {
+                      _handleTranslation();
+                    }
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(width: 2),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -136,23 +200,77 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
     );
   }
 
-  // 紧凑的页脚操作按钮（统一尺寸与点击区域）
-  Widget _buildFooterIconButton({
-    required IconData icon,
-    required VoidCallback onPressed,
-    String? tooltip,
-    Color? color,
-  }) {
-    return IconButton(
-      onPressed: onPressed,
-      tooltip: tooltip,
-      icon: Icon(icon, size: 20),
-      color: color ?? Theme.of(context).colorScheme.onSurfaceVariant,
-      visualDensity: VisualDensity.compact,
-      padding: const EdgeInsets.all(6),
-      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-      style: IconButton.styleFrom(
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+  /// 「更多」圆钮：目前只有本人可编辑，无可选项时整钮隐藏。
+  Widget _buildActionMenu(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final isOwner =
+        _userService.currentUser.value?.id == widget.comment.user.id;
+    if (!isOwner) {
+      return const SizedBox.shrink();
+    }
+
+    // 间距自带：菜单不可见（返回 shrink）时不能留下悬空的固定间距，
+    // 否则右侧的翻译胶囊会贴不到行尾
+    return Padding(
+      padding: const EdgeInsets.only(left: 8),
+      child: Material(
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+        shape: const CircleBorder(),
+        child: SizedBox(
+          width: _actionPillHeight,
+          height: _actionPillHeight,
+          child: PopupMenuButton<String>(
+            icon: Icon(
+              Icons.more_horiz,
+              size: 18,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            padding: EdgeInsets.zero,
+            position: PopupMenuPosition.under,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            constraints: const BoxConstraints(minWidth: 140),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'edit',
+                child: Row(
+                  children: [
+                    const Icon(Icons.edit, size: 16),
+                    const SizedBox(width: 8),
+                    Text(t.common.edit, style: const TextStyle(fontSize: 14)),
+                  ],
+                ),
+              ),
+            ],
+            onSelected: (value) {
+              if (value == 'edit') {
+                _handleEdit();
+              }
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 身份小徽标（「楼主」用琥珀强调色 /「我」用主色）。
+  Widget _buildIdentityChip(String label, Color color) {
+    return Container(
+      margin: const EdgeInsets.only(left: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 10.5,
+          fontWeight: FontWeight.w700,
+          color: color,
+          height: 1.2,
+        ),
       ),
     );
   }
@@ -164,15 +282,21 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
     );
   }
 
+  void _copyUsername() {
+    Clipboard.setData(ClipboardData(text: widget.comment.user.username));
+    showGlassToast(
+      slang.t.forum.copySuccessForMessage(str: widget.comment.user.username),
+      type: GlassToastType.success,
+    );
+  }
+
   bool _ensureLoggedIn() {
     final userService = Get.find<UserService>();
     if (!userService.isAuthenticated) {
       AppService.switchGlobalDrawer();
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.errors.pleaseLoginFirst,
-          type: MDToastType.warning,
-        ),
+      showGlassToast(
+        slang.t.errors.pleaseLoginFirst,
+        type: GlassToastType.warning,
       );
       return false;
     }
@@ -197,6 +321,17 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
     );
   }
 
+  bool get _canReply => !widget.lockedThread;
+
+  /// 长按（整行或正文文本上）弹出操作菜单：复制 / 选择复制 / 回复。
+  void _showActionsSheet() {
+    showCommentActionsSheet(
+      context: context,
+      text: widget.comment.body,
+      onReply: _canReply ? _handleReply : null,
+    );
+  }
+
   void _handleEdit() {
     if (!_ensureLoggedIn()) return;
     showAppDialog(
@@ -211,247 +346,192 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
     );
   }
 
+  /// 元信息单行：@用户名 · 时间 (· xx编辑)(· 待审核)。
+  /// 待审核用警示色区分，其余灰字。
+  Widget _buildMetaLine(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+    final comment = widget.comment;
+    final bool isEdited = comment.createdAt != comment.updatedAt;
+
+    final parts = <String>[
+      '@${comment.user.username}',
+      CommonUtils.formatFriendlyTimestamp(comment.createdAt),
+      if (isEdited)
+        t.common.editedAt(
+          num: CommonUtils.formatFriendlyTimestamp(comment.updatedAt),
+        ),
+    ];
+
+    final baseStyle = TextStyle(
+      fontSize: 12,
+      height: 1.2,
+      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+    );
+
+    // 点按复制用户名（沿用旧版行为）
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: _copyUsername,
+        child: Text.rich(
+          TextSpan(
+            text: parts.join(' · '),
+            children: [
+              if (!comment.approved)
+                TextSpan(
+                  text: ' · ${t.forum.pendingReview}',
+                  style: baseStyle.copyWith(color: colorScheme.error),
+                ),
+            ],
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: baseStyle,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
-    final mutedColor = colorScheme.onSurfaceVariant;
-    final bool isCurrentUser =
-        _userService.currentUser.value?.id == widget.comment.user.id;
-    final bool isEdited = widget.comment.createdAt != widget.comment.updatedAt;
-    final Color? accentColor = _resolveAccentColor();
-    final bool isSpecial = accentColor != null;
+    final comment = widget.comment;
 
-    // 特殊用户：淡色背景 tint + 角色色描边；普通用户：常规卡片
-    final Color cardColor = isSpecial
-        ? Color.alphaBlend(
-            accentColor.withValues(alpha: 0.06),
-            colorScheme.surfaceContainerLowest,
-          )
-        : colorScheme.surfaceContainerLowest;
-    final Color borderColor = isSpecial
-        ? accentColor.withValues(alpha: 0.35)
-        : colorScheme.outlineVariant.withValues(alpha: 0.3);
+    final bool isMe = _userService.currentUser.value?.id == comment.user.id;
+    final bool isThreadAuthor = widget.threadAuthorId == comment.user.id;
+    final bool canReply = _canReply;
 
-    return Card(
-      elevation: 0,
-      color: cardColor,
-      margin: const EdgeInsets.symmetric(vertical: 5.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: borderColor),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: [
-          Padding(
-            // 竖条占去约 3.5px，左内边距相应缩小以保持头像对齐
-            padding: EdgeInsets.fromLTRB(isSpecial ? 10.5 : 14, 12, 14, 6),
-            child: Column(
+    return RepaintBoundary(
+      // 整条楼层区域可点：点按任意空白处直接回复（锁定帖不响应），
+      // 长按弹出 复制/选择复制/回复 操作菜单
+      //（头像 / 名字 / 幽灵钮 / 菜单等内层手势优先，不受影响）
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: canReply ? _handleReply : null,
+          onLongPress: _showActionsSheet,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10.0),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                  // 头部：头像 + 用户名 + 楼层号 / @用户名 · 时间
-                  Row(
+                // 头像列
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    onTap: _navigateToProfile,
+                    child: AvatarWidget(user: comment.user, size: 36),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                // 内容列
+                Expanded(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: GestureDetector(
-                          onTap: _navigateToProfile,
-                          child: AvatarWidget(
-                            user: widget.comment.user,
-                            size: 40,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // 第一行：用户名 + 楼层号
-                            Row(
+                      // 名字行：左侧「名字 + 身份徽标」为一组占满剩余宽度，
+                      // 楼号固定钉在行尾
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Row(
                               children: [
-                                Expanded(
+                                Flexible(
                                   child: MouseRegion(
                                     cursor: SystemMouseCursors.click,
                                     child: GestureDetector(
                                       onTap: _navigateToProfile,
                                       child: buildUserName(
                                         context,
-                                        widget.comment.user,
-                                        fontSize: 15,
+                                        comment.user,
+                                        fontSize: 14,
                                         bold: true,
                                       ),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  '#${widget.comment.replyNum + 1}',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: mutedColor.withValues(alpha: 0.7),
+                                if (isThreadAuthor)
+                                  _buildIdentityChip(
+                                    t.common.author,
+                                    _authorAccent,
                                   ),
-                                ),
+                                if (isMe)
+                                  _buildIdentityChip(
+                                    t.common.me,
+                                    colorScheme.primary,
+                                  ),
                               ],
                             ),
-                            const SizedBox(height: 3),
-                            // 第二行：@用户名 · 发布时间（· 待审核）
-                            Row(
-                              children: [
-                                Flexible(
-                                  child: MouseRegion(
-                                    cursor: SystemMouseCursors.click,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Clipboard.setData(
-                                          ClipboardData(
-                                            text: widget.comment.user.username,
-                                          ),
-                                        );
-                                        showToastWidget(
-                                          MDToastWidget(
-                                            message: slang.t.forum
-                                                .copySuccessForMessage(
-                                                  str: widget
-                                                      .comment.user.username,
-                                                ),
-                                            type: MDToastType.success,
-                                          ),
-                                        );
-                                      },
-                                      child: Text(
-                                        '@${widget.comment.user.username}',
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: mutedColor,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                          ),
+                          // 楼号弱化为灰字，钉在行尾
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: Text(
+                              '#${comment.replyNum + 1}',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: colorScheme.onSurfaceVariant.withValues(
+                                  alpha: 0.6,
                                 ),
-                                Text(
-                                  '  ·  ',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: mutedColor,
-                                  ),
-                                ),
-                                Text(
-                                  CommonUtils.formatFriendlyTimestamp(
-                                    widget.comment.createdAt,
-                                  ),
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: mutedColor,
-                                  ),
-                                ),
-                                if (!widget.comment.approved) ...[
-                                  Text(
-                                    '  ·  ',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: mutedColor,
-                                    ),
-                                  ),
-                                  Text(
-                                    slang.t.forum.pendingReview,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: colorScheme.error,
-                                    ),
-                                  ),
-                                ],
-                              ],
+                              ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      _buildMetaLine(context),
+                      const SizedBox(height: 8),
+                      // 正文；SelectionArea 会吞掉 tap 传不到整行的 InkWell，
+                      // 点按回复需经 onTap 显式透传进去
+                      CustomMarkdownBody(
+                        data: comment.body,
+                        originalData: comment.body,
+                        showTranslationButton: false,
+                        translationController: _translationController,
+                        padding: EdgeInsets.zero,
+                        onTap: canReply ? _handleReply : null,
+                        onLongPress: _showActionsSheet,
+                        initialShowUnprocessedText: _showOriginal,
+                        onProcessedContentChanged: (hasProcessed) {
+                          if (_hasProcessedContent == hasProcessed) return;
+                          setState(() => _hasProcessedContent = hasProcessed);
+                        },
+                      ),
+                      const SizedBox(height: 4),
+                      // 动作行：回复 …… 翻译 / 更多
+                      Row(
+                        children: [
+                          if (canReply)
+                            _buildGhostAction(
+                              context,
+                              icon: Icons.reply,
+                              label: t.common.reply,
+                              onTap: _handleReply,
+                            ),
+                          const Spacer(),
+                          MarkdownOriginalTextToggle(
+                            visible: _hasProcessedContent,
+                            showOriginal: _showOriginal,
+                            pillSize: _actionPillHeight,
+                            padding: const EdgeInsets.only(right: 8),
+                            onChanged: (v) => setState(() => _showOriginal = v),
+                          ),
+                          _buildTranslationControls(context),
+                          _buildActionMenu(context),
+                        ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  // 用户信息行与内容行之间的细分割线
-                  Divider(
-                    height: 1,
-                    thickness: 0.5,
-                    color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-                  ),
-                  const SizedBox(height: 10),
-                  // 正文
-                  CustomMarkdownBody(
-                    data: widget.comment.body,
-                    originalData: widget.comment.body,
-                    showTranslationButton: false,
-                    translationController: _translationController,
-                    padding: EdgeInsets.zero,
-                  ),
-                  const SizedBox(height: 2),
-                  // 页脚：编辑时间（左）+ 翻译 / 编辑 / 回复（右）
-                  Row(
-                    children: [
-                      // 左侧编辑时间用 Expanded 占满剩余空间，
-                      // 保证右侧按钮始终完全贴右
-                      Expanded(
-                        child: isEdited
-                            ? Row(
-                                children: [
-                                  Icon(
-                                    Icons.edit_outlined,
-                                    size: 13,
-                                    color: mutedColor,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Flexible(
-                                    child: Text(
-                                      slang.t.common.editedAt(
-                                        num: CommonUtils.formatFriendlyTimestamp(
-                                          widget.comment.updatedAt,
-                                        ),
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 11.5,
-                                        color: mutedColor,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-                      _buildTranslationButton(context),
-                      if (isCurrentUser)
-                        _buildFooterIconButton(
-                          icon: Icons.edit_outlined,
-                          tooltip: slang.t.common.edit,
-                          onPressed: _handleEdit,
-                        ),
-                      if (!widget.lockedThread)
-                        _buildFooterIconButton(
-                          icon: Icons.reply,
-                          tooltip: slang.t.common.reply,
-                          color: colorScheme.primary,
-                          onPressed: _handleReply,
-                        ),
-                    ],
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-            // 左侧角色色竖条（仅特殊用户），覆盖全卡高度
-            if (isSpecial)
-              Positioned(
-                top: 0,
-                bottom: 0,
-                left: 0,
-                child: Container(width: 3.5, color: accentColor),
-              ),
-          ],
+          ),
         ),
-      );
+      ),
+    );
   }
 }

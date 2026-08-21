@@ -4,13 +4,12 @@ import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/api_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:shimmer/shimmer.dart';
 
 class PrivateOrDeletedVideoWidget extends StatefulWidget {
@@ -24,10 +23,12 @@ class PrivateOrDeletedVideoWidget extends StatefulWidget {
   });
 
   @override
-  State<PrivateOrDeletedVideoWidget> createState() => _PrivateOrDeletedVideoWidgetState();
+  State<PrivateOrDeletedVideoWidget> createState() =>
+      _PrivateOrDeletedVideoWidgetState();
 }
 
-class _PrivateOrDeletedVideoWidgetState extends State<PrivateOrDeletedVideoWidget> {
+class _PrivateOrDeletedVideoWidgetState
+    extends State<PrivateOrDeletedVideoWidget> {
   final UserService _userService = Get.find();
   bool _isFriendRequestPending = false;
   bool _isLoading = false;
@@ -42,8 +43,9 @@ class _PrivateOrDeletedVideoWidgetState extends State<PrivateOrDeletedVideoWidge
     if (!_userService.isAuthenticated || widget.author == null) return;
 
     try {
-      final response = await Get.find<ApiService>()
-          .get(ApiConstants.userRelationshipStatus(widget.author!.id));
+      final response = await Get.find<ApiService>().get(
+        ApiConstants.userRelationshipStatus(widget.author!.id),
+      );
       if (mounted) {
         setState(() {
           _isFriendRequestPending = response.data['status'] == 'pending';
@@ -60,18 +62,28 @@ class _PrivateOrDeletedVideoWidgetState extends State<PrivateOrDeletedVideoWidge
     setState(() => _isLoading = true);
     try {
       if (_isFriendRequestPending) {
-        final result = await _userService.cancelFriendRequest(widget.author!.id);
+        final result = await _userService.cancelFriendRequest(
+          widget.author!.id,
+        );
         if (result.isSuccess) {
           setState(() => _isFriendRequestPending = false);
         } else {
-          showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error),position: ToastPosition.top);
+          showGlassToast(
+            result.message,
+            type: GlassToastType.error,
+            position: GlassToastPosition.top,
+          );
         }
       } else {
         final result = await _userService.addFriend(widget.author!.id);
         if (result.isSuccess) {
           setState(() => _isFriendRequestPending = true);
         } else {
-          showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error),position: ToastPosition.top);
+          showGlassToast(
+            result.message,
+            type: GlassToastType.error,
+            position: GlassToastPosition.top,
+          );
         }
       }
     } finally {
@@ -89,7 +101,14 @@ class _PrivateOrDeletedVideoWidgetState extends State<PrivateOrDeletedVideoWidge
           spacing: 8,
           children: [
             // 作者名称和标签
-            if (widget.author != null) AvatarWidget(user: widget.author, size: 70, onTap: () => NaviService.navigateToAuthorProfilePage(widget.author!.username),),
+            if (widget.author != null)
+              AvatarWidget(
+                user: widget.author,
+                size: 70,
+                onTap: () => NaviService.navigateToAuthorProfilePage(
+                  widget.author!.username,
+                ),
+              ),
             Wrap(
               alignment: WrapAlignment.center,
               crossAxisAlignment: WrapCrossAlignment.center,
@@ -111,25 +130,19 @@ class _PrivateOrDeletedVideoWidgetState extends State<PrivateOrDeletedVideoWidge
             if (widget.author != null && widget.author!.username.isNotEmpty)
               SelectableText(
                 '@${widget.author!.username}',
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 16,
-                ),
+                style: const TextStyle(color: Colors.grey, fontSize: 16),
               ),
             // 私密视频提示
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (!widget.isPrivate) 
-                  const Icon(
-                    Icons.error_outline,
-                    size: 24,
-                    color: Colors.grey,
-                  ),
-                if (!widget.isPrivate) 
-                  const SizedBox(width: 8),
+                if (!widget.isPrivate)
+                  const Icon(Icons.error_outline, size: 24, color: Colors.grey),
+                if (!widget.isPrivate) const SizedBox(width: 8),
                 Text(
-                  widget.isPrivate ? t.videoDetail.privateVideo : t.errors.notFound,
+                  widget.isPrivate
+                      ? t.videoDetail.privateVideo
+                      : t.errors.notFound,
                   style: const TextStyle(fontSize: 18),
                   textAlign: TextAlign.center,
                 ),
@@ -141,7 +154,9 @@ class _PrivateOrDeletedVideoWidgetState extends State<PrivateOrDeletedVideoWidge
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (widget.author != null && _userService.currentUser.value?.id != widget.author!.id) ...[
+                  if (widget.author != null &&
+                      _userService.currentUser.value?.id !=
+                          widget.author!.id) ...[
                     _buildFriendButton(),
                     const SizedBox(width: 16),
                   ],
@@ -163,11 +178,17 @@ class _PrivateOrDeletedVideoWidgetState extends State<PrivateOrDeletedVideoWidge
     if (_isLoading) {
       return Shimmer.fromColors(
         baseColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-        highlightColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
+        highlightColor: Theme.of(
+          context,
+        ).colorScheme.primary.withValues(alpha: 0.6),
         child: FilledButton.icon(
           onPressed: null,
           icon: const Icon(Icons.person_add),
-          label: Text(_isFriendRequestPending ? t.common.cancelFriendRequest : t.common.addFriend),
+          label: Text(
+            _isFriendRequestPending
+                ? t.common.cancelFriendRequest
+                : t.common.addFriend,
+          ),
         ),
       );
     }
@@ -177,9 +198,10 @@ class _PrivateOrDeletedVideoWidgetState extends State<PrivateOrDeletedVideoWidge
         onPressed: () async {
           final result = await _userService.removeFriend(widget.author!.id);
           if (!result.isSuccess) {
-            showToastWidget(
-              MDToastWidget(message: result.message, type: MDToastType.error),
-              position: ToastPosition.top,
+            showGlassToast(
+              result.message,
+              type: GlassToastType.error,
+              position: GlassToastPosition.top,
             );
           }
         },
@@ -191,9 +213,7 @@ class _PrivateOrDeletedVideoWidgetState extends State<PrivateOrDeletedVideoWidge
     if (_isFriendRequestPending) {
       return FilledButton.icon(
         onPressed: _handleFriendRequest,
-        style: FilledButton.styleFrom(
-          backgroundColor: Colors.orange,
-        ),
+        style: FilledButton.styleFrom(backgroundColor: Colors.orange),
         icon: const Icon(Icons.person_remove),
         label: Text(t.common.cancelFriendRequest),
       );
@@ -205,4 +225,4 @@ class _PrivateOrDeletedVideoWidgetState extends State<PrivateOrDeletedVideoWidge
       label: Text(t.common.addFriend),
     );
   }
-} 
+}

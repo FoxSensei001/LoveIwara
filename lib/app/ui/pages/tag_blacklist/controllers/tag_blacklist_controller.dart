@@ -1,9 +1,8 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:flutter/foundation.dart';
 
 class TagBlacklistController extends GetxController {
@@ -48,19 +47,12 @@ class TagBlacklistController extends GetxController {
       } else {
         hasError.value = true;
         errorMessage.value = result.message;
-        showToastWidget(
-          MDToastWidget(message: result.message, type: MDToastType.error),
-        );
+        showGlassToast(result.message, type: GlassToastType.error);
       }
     } catch (e) {
       hasError.value = true;
       errorMessage.value = e.toString();
-      showToastWidget(
-        MDToastWidget(
-          message: t.errors.failedToFetchData,
-          type: MDToastType.error,
-        ),
-      );
+      showGlassToast(t.errors.failedToFetchData, type: GlassToastType.error);
     } finally {
       isLoading.value = false;
     }
@@ -74,23 +66,14 @@ class TagBlacklistController extends GetxController {
         tagBlacklist: blacklistTags.map((tag) => tag.id).toList(),
       );
       if (result.isSuccess) {
-        showToastWidget(
-          MDToastWidget(message: t.common.success, type: MDToastType.success),
-        );
+        showGlassToast(t.common.success, type: GlassToastType.success);
         // 更新初始状态为当前保存成功的状态
         initialTagIds.value = blacklistTags.map((tag) => tag.id).toList();
       } else {
-        showToastWidget(
-          MDToastWidget(message: result.message, type: MDToastType.error),
-        );
+        showGlassToast(result.message, type: GlassToastType.error);
       }
     } catch (e) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.errors.failedToOperate,
-          type: MDToastType.error,
-        ),
-      );
+      showGlassToast(t.errors.failedToOperate, type: GlassToastType.error);
     } finally {
       isSaving.value = false;
     }
@@ -105,11 +88,9 @@ class TagBlacklistController extends GetxController {
   bool addTags(List<Tag> tags) {
     // 检查是否超出限制
     if (blacklistTags.length + tags.length > tagLimit) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.errors.tagLimitExceeded(limit: tagLimit),
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        t.errors.tagLimitExceeded(limit: tagLimit),
+        type: GlassToastType.error,
       );
       return false;
     }

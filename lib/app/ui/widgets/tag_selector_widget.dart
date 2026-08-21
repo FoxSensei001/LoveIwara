@@ -29,7 +29,6 @@ class TagSelectorWidget extends StatefulWidget {
 }
 
 class _TagSelectorWidgetState extends State<TagSelectorWidget> {
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -51,15 +50,15 @@ class _TagSelectorWidgetState extends State<TagSelectorWidget> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.3),
               ),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               children: [
-                Expanded(
-                  child: _buildSelectedTagsDisplay(),
-                ),
+                Expanded(child: _buildSelectedTagsDisplay()),
                 const Icon(Icons.arrow_drop_down),
               ],
             ),
@@ -131,7 +130,8 @@ class TagSelectionDialog extends StatefulWidget {
 }
 
 class _TagSelectionDialogState extends State<TagSelectionDialog> {
-  final UserPreferenceService _userPreferenceService = Get.find<UserPreferenceService>();
+  final UserPreferenceService _userPreferenceService =
+      Get.find<UserPreferenceService>();
   late List<String> _currentSelectedTags;
 
   @override
@@ -144,7 +144,7 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     final screenHeight = MediaQuery.of(context).size.height;
-    
+
     return Container(
       height: screenHeight * 0.8,
       decoration: const BoxDecoration(
@@ -161,7 +161,9 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.2),
                 ),
               ),
             ),
@@ -181,8 +183,13 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onPrimary,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                       ),
                       child: Text(t.common.confirm),
                     ),
@@ -196,7 +203,7 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
               ],
             ),
           ),
-          
+
           // 操作按钮 - 居右排布
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -219,32 +226,40 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
                 const SizedBox(width: 8),
                 IconButton(
                   onPressed: _showRemoveTagDialog,
-                  icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
+                  icon: const Icon(
+                    Icons.remove_circle_outline,
+                    color: Colors.red,
+                  ),
                   tooltip: t.tagSelector.removeTagTooltip,
                 ),
                 const SizedBox(width: 8),
                 IconButton(
                   onPressed: _showAddTagDialog,
-                  icon: const Icon(Icons.add_circle_outline, color: Colors.green),
+                  icon: const Icon(
+                    Icons.add_circle_outline,
+                    color: Colors.green,
+                  ),
                   tooltip: t.tagSelector.addTagTooltip,
                 ),
               ],
             ),
           ),
-          
+
           // 标签列表 - 使用Wrap布局提高空间利用率，居左对齐
           Expanded(
             child: Obx(() {
-              final availableTags = _userPreferenceService.videoSearchTagHistory.value;
-              
+              final availableTags =
+                  _userPreferenceService.videoSearchTagHistory.value;
+
               if (availableTags.isEmpty) {
-                return const Center(
-                  child: MyEmptyWidget(),
-                );
+                return const Center(child: MyEmptyWidget());
               }
-              
+
               return SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Wrap(
@@ -253,16 +268,19 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
                     alignment: WrapAlignment.start,
                     children: availableTags.map((tag) {
                       final isSelected = _currentSelectedTags.contains(tag.id);
-                      
+
                       return FilterChip(
                         label: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(TagLocalizationService.displayName(tag.id)),
-                            if (tag.type == MediaRating.ECCHI.value || tag.sensitive) ...[
+                            if (tag.type == MediaRating.ECCHI.value ||
+                                tag.sensitive) ...[
                               const SizedBox(width: 4),
                               Icon(
-                                tag.type == MediaRating.ECCHI.value ? Icons.local_offer : Icons.warning,
+                                tag.type == MediaRating.ECCHI.value
+                                    ? Icons.local_offer
+                                    : Icons.warning,
                                 size: 12,
                                 color: Colors.red,
                               ),
@@ -281,11 +299,17 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
                             }
                           });
                         },
-                        selectedColor: Theme.of(context).colorScheme.primaryContainer,
-                        checkmarkColor: Theme.of(context).colorScheme.onPrimaryContainer,
+                        selectedColor: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer,
+                        checkmarkColor: Theme.of(
+                          context,
+                        ).colorScheme.onPrimaryContainer,
                         backgroundColor: Theme.of(context).colorScheme.surface,
                         side: BorderSide(
-                          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.outline.withValues(alpha: 0.3),
                         ),
                       );
                     }).toList(),
@@ -300,10 +324,7 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
   }
 
   void _showAddTagDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => const AddTagDialog(),
-    );
+    showDialog(context: context, builder: (context) => const AddTagDialog());
   }
 
   void _showRemoveTagDialog() {
@@ -317,7 +338,9 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
             _userPreferenceService.removeVideoSearchTagById(id);
           }
           setState(() {
-            _currentSelectedTags.removeWhere((tagId) => removedTags.contains(tagId));
+            _currentSelectedTags.removeWhere(
+              (tagId) => removedTags.contains(tagId),
+            );
           });
         },
         videoSearchTagHistory: _userPreferenceService.videoSearchTagHistory,
@@ -338,7 +361,8 @@ class _AddTagDialogState extends State<AddTagDialog> {
   final ScrollController scrollController = ScrollController();
   final TextEditingController textEditingController = TextEditingController();
   final TagController tagController = Get.put(TagController());
-  final UserPreferenceService userPreferenceService = Get.find<UserPreferenceService>();
+  final UserPreferenceService userPreferenceService =
+      Get.find<UserPreferenceService>();
 
   @override
   void initState() {
@@ -369,9 +393,7 @@ class _AddTagDialogState extends State<AddTagDialog> {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: ConstrainedBox(
         constraints: const BoxConstraints(
           maxWidth: 1200,
@@ -423,7 +445,8 @@ class _AddTagDialogState extends State<AddTagDialog> {
               return Expanded(
                 child: ListView.builder(
                   controller: scrollController,
-                  itemCount: tagController.tags.length +
+                  itemCount:
+                      tagController.tags.length +
                       (tagController.hasMore.value ? 1 : 0),
                   itemBuilder: (context, index) {
                     if (index == tagController.tags.length) {
@@ -437,19 +460,28 @@ class _AddTagDialogState extends State<AddTagDialog> {
                         style: const TextStyle(fontSize: 16),
                       ),
                       subtitle: _buildTagRatings(tag, context),
-                      trailing: Obx(() => IconButton(
-                        icon: Icon(
-                          userPreferenceService.isUserSearchTagObject(tag) ? Icons.favorite : Icons.favorite_border,
-                          color: userPreferenceService.isUserSearchTagObject(tag) ? Colors.red : null,
+                      trailing: Obx(
+                        () => IconButton(
+                          icon: Icon(
+                            userPreferenceService.isUserSearchTagObject(tag)
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            color:
+                                userPreferenceService.isUserSearchTagObject(tag)
+                                ? Colors.red
+                                : null,
+                          ),
+                          onPressed: () {
+                            if (userPreferenceService.isUserSearchTagObject(
+                              tag,
+                            )) {
+                              userPreferenceService.removeVideoSearchTag(tag);
+                            } else {
+                              userPreferenceService.addVideoSearchTag(tag);
+                            }
+                          },
                         ),
-                        onPressed: () {
-                          if (userPreferenceService.isUserSearchTagObject(tag)) {
-                            userPreferenceService.removeVideoSearchTag(tag);
-                          } else {
-                            userPreferenceService.addVideoSearchTag(tag);
-                          }
-                        },
-                      )),
+                      ),
                       onTap: () {
                         if (userPreferenceService.isUserSearchTagObject(tag)) {
                           userPreferenceService.removeVideoSearchTag(tag);
@@ -481,14 +513,20 @@ class _AddTagDialogState extends State<AddTagDialog> {
         if (tag.type == MediaRating.ECCHI.value) ...[
           const Icon(Icons.local_offer, size: 16, color: Colors.red),
           const SizedBox(width: 4),
-          Text(t.common.r18, style: const TextStyle(fontSize: 12, color: Colors.red)),
+          Text(
+            t.common.r18,
+            style: const TextStyle(fontSize: 12, color: Colors.red),
+          ),
         ],
         if (sensitive) ...[
           const SizedBox(width: 8),
           const Icon(Icons.warning, size: 16, color: Colors.red),
           const SizedBox(width: 4),
-          Text(t.common.sensitive, style: const TextStyle(fontSize: 12, color: Colors.red)),
-        ]
+          Text(
+            t.common.sensitive,
+            style: const TextStyle(fontSize: 12, color: Colors.red),
+          ),
+        ],
       ],
     );
   }
@@ -530,7 +568,9 @@ class _RemoveTagDialogState extends State<RemoveTagDialog> {
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.2),
                 ),
               ),
             ),
@@ -544,14 +584,19 @@ class _RemoveTagDialogState extends State<RemoveTagDialog> {
                 Row(
                   children: [
                     ElevatedButton(
-                      onPressed: selectedIds.isEmpty ? null : () {
-                        widget.onRemoveIds(selectedIds.toList());
-                        Navigator.of(context).pop();
-                      },
+                      onPressed: selectedIds.isEmpty
+                          ? null
+                          : () {
+                              widget.onRemoveIds(selectedIds.toList());
+                              Navigator.of(context).pop();
+                            },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.error,
                         foregroundColor: Theme.of(context).colorScheme.onError,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                       ),
                       child: Text(t.tagSelector.delete),
                     ),
@@ -571,28 +616,33 @@ class _RemoveTagDialogState extends State<RemoveTagDialog> {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: selectedIds.isEmpty ? null : () {
-                      setState(() {
-                        selectedIds.clear();
-                      });
-                    },
+                    onPressed: selectedIds.isEmpty
+                        ? null
+                        : () {
+                            setState(() {
+                              selectedIds.clear();
+                            });
+                          },
                     child: Text(t.tagSelector.cancelSelection),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: widget.videoSearchTagHistory.isEmpty ? null : () {
-                      setState(() {
-                        if (selectedIds.length == widget.videoSearchTagHistory.length) {
-                          selectedIds.clear();
-                        } else {
-                          selectedIds = widget.videoSearchTagHistory
-                              .map((tag) => tag.id)
-                              .toSet();
-                        }
-                      });
-                    },
+                    onPressed: widget.videoSearchTagHistory.isEmpty
+                        ? null
+                        : () {
+                            setState(() {
+                              if (selectedIds.length ==
+                                  widget.videoSearchTagHistory.length) {
+                                selectedIds.clear();
+                              } else {
+                                selectedIds = widget.videoSearchTagHistory
+                                    .map((tag) => tag.id)
+                                    .toSet();
+                              }
+                            });
+                          },
                     child: Text(
                       selectedIds.length == widget.videoSearchTagHistory.length
                           ? t.tagSelector.cancelSelectAll
@@ -618,10 +668,13 @@ class _RemoveTagDialogState extends State<RemoveTagDialog> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(TagLocalizationService.displayName(tag.id)),
-                          if (tag.type == MediaRating.ECCHI.value || tag.sensitive) ...[
+                          if (tag.type == MediaRating.ECCHI.value ||
+                              tag.sensitive) ...[
                             const SizedBox(width: 4),
                             Icon(
-                              tag.type == MediaRating.ECCHI.value ? Icons.local_offer : Icons.warning,
+                              tag.type == MediaRating.ECCHI.value
+                                  ? Icons.local_offer
+                                  : Icons.warning,
                               size: 12,
                               color: Colors.red,
                             ),
@@ -638,11 +691,17 @@ class _RemoveTagDialogState extends State<RemoveTagDialog> {
                           }
                         });
                       },
-                      selectedColor: Theme.of(context).colorScheme.errorContainer,
-                      checkmarkColor: Theme.of(context).colorScheme.onErrorContainer,
+                      selectedColor: Theme.of(
+                        context,
+                      ).colorScheme.errorContainer,
+                      checkmarkColor: Theme.of(
+                        context,
+                      ).colorScheme.onErrorContainer,
                       backgroundColor: Theme.of(context).colorScheme.surface,
                       side: BorderSide(
-                        color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.outline.withValues(alpha: 0.3),
                       ),
                     );
                   }).toList(),

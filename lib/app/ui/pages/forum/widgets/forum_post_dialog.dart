@@ -8,14 +8,15 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/rules_agreement_dialog_widget.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_syntax_help_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_preview_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/enhanced_emoji_text_field.dart';
 import 'package:i_iwara/app/ui/widgets/emoji_picker_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
@@ -184,6 +185,7 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => const MarkdownSyntaxHelp(),
     );
   }
@@ -203,10 +205,8 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
     );
 
     if (result == true) {
+      // 只记录「已同意」，不代发内容——用户仍需自己按提交键
       await _configService.setSetting(ConfigKey.RULES_AGREEMENT_KEY, true);
-      if (mounted) {
-        _handleSubmit();
-      }
     }
   }
 
@@ -216,42 +216,27 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
     }
     if (_currentBodyLength > maxBodyLength || _currentBodyLength == 0) return;
     if (_selectedCategoryId == null) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.forum.errors.pleaseSelectCategory,
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        t.forum.errors.pleaseSelectCategory,
+        type: GlassToastType.error,
       );
       return;
     }
 
     // 检查标题是否为空
     if (_titleController.text.trim().isEmpty) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.errors.titleCanNotBeEmpty,
-          type: MDToastType.error,
-        ),
-      );
+      showGlassToast(t.errors.titleCanNotBeEmpty, type: GlassToastType.error);
       return;
     }
 
     // 检查内容是否为空
     if (_bodyController.text.trim().isEmpty) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.errors.contentCanNotBeEmpty,
-          type: MDToastType.error,
-        ),
-      );
+      showGlassToast(t.errors.contentCanNotBeEmpty, type: GlassToastType.error);
       return;
     }
 
-    final bool hasAgreed = _configService[ConfigKey.RULES_AGREEMENT_KEY];
-    if (!hasAgreed) {
-      await _showRulesDialog();
-      return;
-    }
+    // 未同意规则时提交键本就是禁用态，这里只兜底拦一道
+    if (!_configService[ConfigKey.RULES_AGREEMENT_KEY]) return;
 
     if (mounted) {
       setState(() {
@@ -283,69 +268,208 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
         );
       }
     } else {
-      showToastWidget(
-        MDToastWidget(message: result.message, type: MDToastType.error),
-      );
+      showGlassToast(result.message, type: GlassToastType.error);
     }
   }
 
   Widget _buildLoadingDropdown() {
-    return Container(
-      height: 60,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey[400]!),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: const Center(
-        child: SizedBox(
-          width: 24,
-          height: 24,
-          child: CircularProgressIndicator(strokeWidth: 2),
+    return GlassInputSurface(
+      child: const SizedBox(
+        height: 60,
+        child: Center(
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
         ),
       ),
     );
   }
 
   Widget _buildErrorWidget() {
-    return Container(
-      height: 60,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.red[200]!),
-        borderRadius: BorderRadius.circular(4),
+    final colorScheme = Theme.of(context).colorScheme;
+    return GlassInputSurface(
+      child: SizedBox(
+        height: 60,
+        child: Row(
+          children: [
+            const SizedBox(width: 14),
+            Icon(Icons.error_outline, color: colorScheme.error, size: 20),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                _loadError ?? t.errors.unknownError,
+                style: TextStyle(color: colorScheme.error, fontSize: 14),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 8),
+            GlassIconButton(
+              icon: const Icon(Icons.refresh),
+              tooltip: t.common.refresh,
+              color: colorScheme.error,
+              onPressed: _loadInitialData,
+            ),
+            const SizedBox(width: 8),
+          ],
+        ),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Row(
+    );
+  }
+
+  /// 分类选择器：玻璃壳里的「标签 + 当前值 + 箭头」，点开走底部弹窗选择。
+  Widget _buildCategorySelector(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final bool hasSelection = _selectedCategoryId != null;
+    return GlassInputSurface(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(22),
+        onTap: _showCategoryPicker,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                t.forum.selectCategory,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Row(
                 children: [
-                  Icon(Icons.error_outline, color: Colors.red[400], size: 20),
-                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      _loadError ?? t.errors.unknownError,
-                      style: TextStyle(color: Colors.red[400], fontSize: 14),
-                      maxLines: 2,
+                      hasSelection
+                          ? _categories!
+                                .expand((cat) => cat.children)
+                                .firstWhere(
+                                  (sub) => sub.id == _selectedCategoryId,
+                                )
+                                .label
+                          : t.forum.selectCategory,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: hasSelection
+                            ? colorScheme.onSurface
+                            : colorScheme.onSurfaceVariant,
+                      ),
                     ),
+                  ),
+                  Icon(
+                    Icons.arrow_drop_down,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ],
               ),
-            ),
+            ],
           ),
-          Container(
-            decoration: BoxDecoration(
-              border: Border(left: BorderSide(color: Colors.red[200]!)),
+        ),
+      ),
+    );
+  }
+
+  void _showCategoryPicker() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.3,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) => Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: GlassComposerHeader(
+                title: t.forum.selectCategory,
+                icon: Icons.label_outline,
+                onClose: () => Navigator.pop(context),
+              ),
             ),
-            child: IconButton(
-              onPressed: _loadInitialData,
-              icon: const Icon(Icons.refresh),
-              tooltip: t.common.refresh,
-              color: Colors.red[400],
+            const Divider(height: 1),
+            Expanded(
+              child: ListView.builder(
+                controller: scrollController,
+                padding: EdgeInsets.only(
+                  bottom: computeSheetBottomInset(context),
+                ),
+                itemCount: _categories?.length ?? 0,
+                itemBuilder: (context, index) {
+                  final category = _categories![index];
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                        child: Text(
+                          category.name,
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      ...category.children
+                          .where((sub) => !sub.locked)
+                          .map(
+                            (sub) => ListTile(
+                              selected: _selectedCategoryId == sub.id,
+                              selectedTileColor: Theme.of(context)
+                                  .colorScheme
+                                  .primaryContainer
+                                  .withValues(alpha: 0.1),
+                              contentPadding: const EdgeInsets.fromLTRB(
+                                32,
+                                4,
+                                16,
+                                4,
+                              ),
+                              title: Text(
+                                sub.label,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              subtitle: sub.description.isNotEmpty
+                                  ? Text(
+                                      sub.description,
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                                      ),
+                                    )
+                                  : null,
+                              onTap: () {
+                                setState(() {
+                                  _selectedCategoryId = sub.id;
+                                });
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ),
+                    ],
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -356,6 +480,7 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
         _cooldown?.limited == true && _remainingSeconds > 0;
 
     return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       child: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -363,43 +488,39 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      t.forum.createPost,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => AppService.tryPop(),
-                    icon: const Icon(Icons.close),
-                    tooltip: t.common.close,
-                  ),
-                ],
+              GlassComposerHeader(
+                title: t.forum.createPost,
+                icon: Icons.post_add,
+                onClose: () => AppService.tryPop(),
               ),
               if (isCoolingDown) ...[
                 const SizedBox(height: 8),
+                // 冷却提示：与列表项 chip 同款软色胶囊
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(4),
+                    color: Colors.orange.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(999),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.timer, color: Colors.orange),
+                      const Icon(Icons.timer, color: Colors.orange, size: 18),
                       const SizedBox(width: 8),
-                      Text(
-                        t.forum.cooldownRemaining(
-                          minutes: (_remainingSeconds ~/ 60).toString(),
-                          seconds: (_remainingSeconds % 60).toString(),
+                      Expanded(
+                        child: Text(
+                          t.forum.cooldownRemaining(
+                            minutes: (_remainingSeconds ~/ 60).toString(),
+                            seconds: (_remainingSeconds % 60).toString(),
+                          ),
+                          style: const TextStyle(
+                            color: Colors.orange,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                        style: const TextStyle(color: Colors.orange),
                       ),
                     ],
                   ),
@@ -412,308 +533,89 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
               else if (_loadError != null)
                 _buildErrorWidget()
               else
-                InkWell(
-                  onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(16),
-                        ),
-                      ),
-                      builder: (context) => DraggableScrollableSheet(
-                        initialChildSize: 0.6,
-                        minChildSize: 0.3,
-                        maxChildSize: 0.9,
-                        expand: false,
-                        builder: (context, scrollController) => Column(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      t.forum.selectCategory,
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    icon: const Icon(Icons.close),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const Divider(height: 1),
-                            Expanded(
-                              child: ListView.builder(
-                                controller: scrollController,
-                                padding: EdgeInsets.only(
-                                  bottom: computeSheetBottomInset(context),
-                                ),
-                                itemCount: _categories?.length ?? 0,
-                                itemBuilder: (context, index) {
-                                  final category = _categories![index];
-                                  return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                          16,
-                                          16,
-                                          16,
-                                          8,
-                                        ),
-                                        child: Text(
-                                          category.name,
-                                          style: const TextStyle(
-                                            color: Colors.grey,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      ...category.children
-                                          .where((sub) => !sub.locked)
-                                          .map(
-                                            (sub) => ListTile(
-                                              selected:
-                                                  _selectedCategoryId == sub.id,
-                                              selectedTileColor:
-                                                  Theme.of(context)
-                                                      .colorScheme
-                                                      .primaryContainer
-                                                      .withValues(alpha: 0.1),
-                                              contentPadding:
-                                                  const EdgeInsets.fromLTRB(
-                                                    32,
-                                                    4,
-                                                    16,
-                                                    4,
-                                                  ),
-                                              title: Text(
-                                                sub.label,
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                              subtitle:
-                                                  sub.description.isNotEmpty
-                                                  ? Text(
-                                                      sub.description,
-                                                      style: TextStyle(
-                                                        fontSize: 13,
-                                                        color: Colors.grey[600],
-                                                      ),
-                                                    )
-                                                  : null,
-                                              onTap: () {
-                                                setState(() {
-                                                  _selectedCategoryId = sub.id;
-                                                });
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                          ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey[400]!),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          t.forum.selectCategory,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                _selectedCategoryId != null
-                                    ? _categories!
-                                          .expand((cat) => cat.children)
-                                          .firstWhere(
-                                            (sub) =>
-                                                sub.id == _selectedCategoryId,
-                                          )
-                                          .label
-                                    : t.forum.selectCategory,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: _selectedCategoryId != null
-                                      ? Colors.black
-                                      : Colors.grey[600],
-                                ),
-                              ),
-                            ),
-                            Icon(
-                              Icons.arrow_drop_down,
-                              color: Colors.grey[600],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                _buildCategorySelector(context),
               const SizedBox(height: 16),
               // 标题输入框
-              TextField(
-                controller: _titleController,
-                maxLines: 1,
-                maxLength: maxTitleLength,
-                decoration: InputDecoration(
-                  labelText: t.common.title,
-                  hintText: t.common.enterTitle,
-                  border: const OutlineInputBorder(),
-                  counterText: '$_currentTitleLength/$maxTitleLength',
-                  errorText: _currentTitleLength > maxTitleLength
-                      ? t.errors.exceedsMaxLength(
-                          max: maxTitleLength.toString(),
-                        )
-                      : null,
+              GlassInputSurface(
+                child: TextField(
+                  controller: _titleController,
+                  maxLines: 1,
+                  maxLength: maxTitleLength,
+                  decoration: glassFieldDecoration(
+                    context,
+                    label: t.common.title,
+                    hint: t.common.enterTitle,
+                    counterText: '$_currentTitleLength/$maxTitleLength',
+                    errorText: _currentTitleLength > maxTitleLength
+                        ? t.errors.exceedsMaxLength(
+                            max: maxTitleLength.toString(),
+                          )
+                        : null,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
               // 内容输入框（支持表情）
-              EnhancedEmojiTextField(
-                key: _emojiTextFieldKey,
-                controller: _bodyController,
-                maxLines: 5,
-                maxLength: maxBodyLength,
-                decoration: InputDecoration(
-                  hintText: t.common.writeYourContentHere,
-                  errorText: _currentBodyLength > maxBodyLength
-                      ? t.errors.exceedsMaxLength(max: maxBodyLength.toString())
-                      : null,
-                ),
-                onChanged: (value) {
-                  if (mounted) {
-                    setState(() {
-                      _currentBodyLength = value.length;
-                    });
-                  }
-                },
-              ),
-              const SizedBox(height: 16),
-              // 新增操作按钮行
-              Wrap(
-                alignment: WrapAlignment.end,
-                spacing: 8,
-                children: [
-                  // 翻译按钮
-                  IconButton(
-                    onPressed: _bodyController.text.isNotEmpty
-                        ? () {
-                            showTranslationDialog(
-                              context,
-                              text: _bodyController.text,
-                              defaultLanguageKeyMode: false,
-                            );
-                          }
-                        : null,
-                    icon: Icon(
-                      Icons.translate,
-                      color: _bodyController.text.isEmpty
-                          ? Theme.of(context).disabledColor
-                          : null,
-                    ),
-                    tooltip: t.common.translate,
-                  ),
-                  // 帮助按钮
-                  IconButton(
-                    onPressed: _showMarkdownHelp,
-                    icon: const Icon(Icons.help_outline),
-                    tooltip: t.markdown.markdownSyntax,
-                  ),
-                  // 预览按钮
-                  IconButton(
-                    onPressed: _showPreview,
-                    icon: const Icon(Icons.preview),
-                    tooltip: t.common.preview,
-                  ),
-                  // 表情按钮
-                  IconButton(
-                    onPressed: _showEmojiPicker,
-                    icon: const Icon(Icons.emoji_emotions_outlined),
-                    tooltip: t.emoji.selectEmoji,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Wrap(
-                alignment: WrapAlignment.end,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  Obx(() {
-                    final bool hasAgreed =
-                        _configService[ConfigKey.RULES_AGREEMENT_KEY];
-                    return TextButton.icon(
-                      onPressed: () => _showRulesDialog(),
-                      icon: Icon(
-                        hasAgreed
-                            ? Icons.check_box
-                            : Icons.check_box_outline_blank,
-                        size: 20,
-                      ),
-                      label: Text(t.common.agreeToRules),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                      ),
-                    );
-                  }),
-                  TextButton(
-                    onPressed: () => AppService.tryPop(),
-                    child: Text(t.common.cancel),
-                  ),
-                  ElevatedButton(
-                    onPressed:
-                        isCoolingDown ||
-                            (_currentTitleLength > maxTitleLength ||
-                                _currentTitleLength == 0) ||
-                            (_currentBodyLength > maxBodyLength ||
-                                _currentBodyLength == 0) ||
-                            _selectedCategoryId == null
-                        ? null
-                        : _handleSubmit,
-                    child: _isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+              GlassInputSurface(
+                child: EnhancedEmojiTextField(
+                  key: _emojiTextFieldKey,
+                  controller: _bodyController,
+                  maxLines: 5,
+                  maxLength: maxBodyLength,
+                  decoration: glassFieldDecoration(
+                    context,
+                    hint: t.common.writeYourContentHere,
+                    errorText: _currentBodyLength > maxBodyLength
+                        ? t.errors.exceedsMaxLength(
+                            max: maxBodyLength.toString(),
                           )
-                        : Text(t.common.send),
+                        : null,
                   ),
-                ],
+                  onChanged: (value) {
+                    if (mounted) {
+                      setState(() {
+                        _currentBodyLength = value.length;
+                      });
+                    }
+                  },
+                ),
               ),
+              const SizedBox(height: 16),
+              // 工具行：翻译 · 表情 · MD 帮助 · 预览
+              GlassComposerToolbar(
+                onTranslate: () {
+                  showTranslationDialog(
+                    context,
+                    text: _bodyController.text,
+                    defaultLanguageKeyMode: false,
+                  );
+                },
+                translateEnabled: _bodyController.text.isNotEmpty,
+                onEmoji: _showEmojiPicker,
+                onMarkdownHelp: _showMarkdownHelp,
+                onPreview: _showPreview,
+              ),
+              const SizedBox(height: 16),
+              Obx(() {
+                final bool hasAgreed =
+                    _configService[ConfigKey.RULES_AGREEMENT_KEY];
+                final bool canSubmit =
+                    hasAgreed &&
+                    !isCoolingDown &&
+                    _currentTitleLength > 0 &&
+                    _currentTitleLength <= maxTitleLength &&
+                    _currentBodyLength > 0 &&
+                    _currentBodyLength <= maxBodyLength &&
+                    _selectedCategoryId != null;
+                return GlassComposerActions(
+                  rulesAgreed: hasAgreed,
+                  onRulesTap: () => _showRulesDialog(),
+                  onSubmit: canSubmit ? _handleSubmit : null,
+                  // 只差「同意规则」时：按钮仍可点，点下去弹规则全文
+                  onBlockedTap: !hasAgreed ? () => _showRulesDialog() : null,
+                  isLoading: _isLoading,
+                );
+              }),
             ],
           ),
         ),

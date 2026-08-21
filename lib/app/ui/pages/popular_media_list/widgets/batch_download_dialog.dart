@@ -6,9 +6,8 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/batch_download_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/utils/common_utils.dart';
@@ -545,13 +544,12 @@ class _BatchDownloadDialogState<T> extends State<BatchDownloadDialog<T>> {
         stack: stack,
       );
       if (mounted) {
-        showToastWidget(
-          MDToastWidget(
-            message: slang.t.download.batchDownload
-                .batchDownloadFailedWithException(exception: e.toString()),
-            type: MDToastType.error,
+        showGlassToast(
+          slang.t.download.batchDownload.batchDownloadFailedWithException(
+            exception: e.toString(),
           ),
-          position: ToastPosition.top,
+          type: GlassToastType.error,
+          position: GlassToastPosition.top,
         );
         AppService.tryPop();
       }

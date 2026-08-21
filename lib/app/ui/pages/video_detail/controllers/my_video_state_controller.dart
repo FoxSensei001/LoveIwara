@@ -15,6 +15,7 @@ import 'package:i_iwara/app/models/history_record.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/oreno3d_client.dart' show Oreno3dClient;
+import 'package:i_iwara/app/utils/iwara_different_site_recovery.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/utils/oreno3d_match_util.dart';
 import 'package:i_iwara/app/models/oreno3d_video.model.dart';
@@ -23,7 +24,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/controllers/player_notice.dart
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/related_media_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/dlna_cast_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/error_widget.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/services/message_service.dart';
 import 'package:i_iwara/common/anime4k_presets.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -2007,6 +2008,7 @@ class MyVideoStateController extends GetxController
         if (_isDisposed) return;
 
         videoInfo.value = video_model.Video.fromJson(res.data);
+        IwaraDifferentSiteRecovery.markResolved('video:$videoId');
 
         // 缓存视频信息
         _cacheManager.cacheVideoInfo(videoId, videoInfo.value!);
@@ -2086,6 +2088,18 @@ class MyVideoStateController extends GetxController
           tag: 'MyVideoStateController',
           error: e,
         );
+
+        // 跨站资源（主站模式打开 AI 站视频，或反之）：不是加载失败，而是站点选错了。
+        // 切站会退回首页并重建整棵树，本页连同评论/相关一起作废，由 reopen 在新
+        // 站点重新开一张干净的详情页，所以这里什么都不用做，直接 return。
+        if (await IwaraDifferentSiteRecovery.recover(
+          e,
+          resourceKey: 'video:$videoId',
+          reopen: () => NaviService.navigateToVideoDetailPage(videoId),
+        )) {
+          return;
+        }
+
         if (!_isDisposed) {
           if (e.response?.statusCode == 403) {
             var data = e.response?.data;
@@ -3797,7 +3811,7 @@ class MyVideoStateController extends GetxController
       if (Get.isRegistered<MessageService>()) {
         Get.find<MessageService>().showMessage(
           slang.t.anime4k.autoDisabledOnRenderFailure,
-          MDToastType.warning,
+          GlassToastType.warning,
         );
       }
     } catch (e) {
@@ -4459,9 +4473,6 @@ class MyVideoStateController extends GetxController
       return;
     }
 
-    // 暂停当前视频
-    player.pause();
-
     final videoUrl = getCurrentVideoUrl();
     if (videoUrl == null || videoUrl.isEmpty) {
       noticeCenter.reportApp(PlayerNoticeKind.castUrlUnavailable);
@@ -4469,7 +4480,11 @@ class MyVideoStateController extends GetxController
     }
 
     showAppBottomSheet(
-      DlnaCastSheet(videoUrl: videoUrl, dlnaController: _dlnaCastService),
+      DlnaCastSheet(
+        videoUrl: videoUrl,
+        dlnaController: _dlnaCastService,
+        onCastStarted: pausePlayback,
+      ),
       isScrollControlled: true,
       elevation: 0,
     );

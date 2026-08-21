@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-typedef SlideChangeCallback = void Function(
-    double leftRatio, double middleRatio, double rightRatio);
+
+typedef SlideChangeCallback =
+    void Function(double leftRatio, double middleRatio, double rightRatio);
 
 class ThreeSectionSlider extends StatefulWidget {
   /// 回调函数，当滑块滑动结束时触发，返回左、中、右三部分的比例
@@ -41,15 +42,19 @@ class _ThreeSectionSliderState extends State<ThreeSectionSlider> {
     setState(() {
       if (dividerIndex == 0) {
         // 移动左侧分隔线
-        double newLeftRatio =
-            (leftRatio + delta).clamp(minSideRatio, 0.5 - minSideRatio / 2);
+        double newLeftRatio = (leftRatio + delta).clamp(
+          minSideRatio,
+          0.5 - minSideRatio / 2,
+        );
         double change = newLeftRatio - leftRatio;
         leftRatio = rightRatio = newLeftRatio;
         middleRatio -= change * 2;
       } else {
         // 移动右侧分隔线
-        double newRightRatio =
-            (rightRatio - delta).clamp(minSideRatio, 0.5 - minSideRatio / 2);
+        double newRightRatio = (rightRatio - delta).clamp(
+          minSideRatio,
+          0.5 - minSideRatio / 2,
+        );
         double change = newRightRatio - rightRatio;
         leftRatio = rightRatio = newRightRatio;
         middleRatio -= change * 2;
@@ -58,9 +63,11 @@ class _ThreeSectionSliderState extends State<ThreeSectionSlider> {
   }
 
   void _onSlideChangeFinished() {
-    LogUtils.d('左侧: ${(leftRatio * 100).toStringAsFixed(1)}% | '
-        '中间: ${(middleRatio * 100).toStringAsFixed(1)}% | '
-        '右侧: ${(rightRatio * 100).toStringAsFixed(1)}%');
+    LogUtils.d(
+      '左侧: ${(leftRatio * 100).toStringAsFixed(1)}% | '
+      '中间: ${(middleRatio * 100).toStringAsFixed(1)}% | '
+      '右侧: ${(rightRatio * 100).toStringAsFixed(1)}%',
+    );
     // 调用外部回调
     if (widget.onSlideChangeCallback != null) {
       widget.onSlideChangeCallback!(leftRatio, middleRatio, rightRatio);

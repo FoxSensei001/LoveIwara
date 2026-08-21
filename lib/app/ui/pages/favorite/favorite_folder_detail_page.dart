@@ -1,24 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:i_iwara/app/models/favorite/favorite_item.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
+import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
+import 'package:i_iwara/app/ui/pages/favorite/widgets/folder_tag_filter.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
-import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
-import 'package:oktoast/oktoast.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
+/// 本地收藏夹详情：夹内作品列表（玻璃化 + 瀑布/分页双模式）。
 class FavoriteFolderDetailPage extends StatefulWidget {
   final String folderId;
   final String? folderTitle;
@@ -36,257 +42,204 @@ class FavoriteFolderDetailPage extends StatefulWidget {
 
 class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
   late final FavoriteItemRepository _repository;
-  final TextEditingController _searchController = TextEditingController();
-  final TextEditingController _tagSearchController = TextEditingController();
-  DateTimeRange? _selectedDateRange;
+  final ScrollController _scrollController = ScrollController();
+
+  /// 外部刷新信号：分页模式必须由 MediaListView 自己刷新，
+  /// 直接 `repository.refresh()` 只会动数据源、不会换掉当前显示的那一页。
+  final ValueNotifier<int> _refreshSignal = ValueNotifier<int>(0);
+
+  /// 列表滚过一段距离后显示右下角「回到顶部」浮钮。
+  final ValueNotifier<bool> _showBackToTop = ValueNotifier<bool>(false);
+
+  late bool _isPaginated = CommonConstants.isPaginated;
+
+  _FavoriteFilter _filter = const _FavoriteFilter();
 
   @override
   void initState() {
     super.initState();
     _repository = FavoriteItemRepository(widget.folderId);
-    _searchController.addListener(() {
-      setState(() {
-        _repository.searchText = _searchController.text;
-        _repository.refresh();
-      });
-    });
-    _tagSearchController.addListener(() {
-      setState(() {
-        _repository.tagSearch = _tagSearchController.text;
-        _repository.refresh();
-      });
-    });
   }
 
   @override
   void dispose() {
-    _searchController.dispose();
-    _tagSearchController.dispose();
+    _scrollController.dispose();
+    _refreshSignal.dispose();
+    _showBackToTop.dispose();
     _repository.dispose();
     super.dispose();
   }
 
-  Future<void> _selectDateRange() async {
-    final DateTimeRange? picked = await showDateRangePicker(
-      context: context,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
-      initialDateRange: _selectedDateRange,
-    );
+  void _refreshList() => _refreshSignal.value++;
 
-    if (picked != null && picked != _selectedDateRange) {
-      setState(() {
-        _selectedDateRange = picked;
-        _repository.startDate = picked.start;
-        _repository.endDate = picked.end;
-        _repository.refresh();
-      });
-    }
+  void _togglePaginationMode() {
+    setState(() => _isPaginated = !_isPaginated);
+    persistPaginationMode(_isPaginated);
+  }
+
+  void _scrollToTop() {
+    if (!_scrollController.hasClients) return;
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
+
+  Future<void> _openFilterSheet() async {
+    final result = await showModalBottomSheet<_FavoriteFilter>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) =>
+          _FavoriteFilterSheet(initial: _filter, folderId: widget.folderId),
+    );
+    if (result == null || !mounted) return;
+
+    setState(() {
+      _filter = result;
+      _repository.searchText = result.searchText;
+      _repository.tagIds = result.tags.map((tag) => tag.id).toList();
+      _repository.startDate = result.dateRange?.start;
+      _repository.endDate = result.dateRange?.end;
+    });
+    _refreshList();
+  }
+
+  /// 右侧动作胶囊：筛选（生效时带红点）· 瀑布/分页。
+  ///
+  /// 没有刷新键：本地收藏是本地库，只会被 App 自己的操作改动（增删、筛选都会
+  /// 就地刷新列表），留一个手动刷新纯属占位；真要重拉还有下拉刷新。
+  Widget _buildActionGroup(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return GlassButtonGroup(
+      children: [
+        GlassIconButton(
+          icon: const Icon(Icons.filter_list),
+          showBadge: _filter.isActive,
+          tooltip: t.searchFilter.filterSettings,
+          onPressed: _openFilterSheet,
+        ),
+        GlassIconButton(
+          icon: Icon(_isPaginated ? Icons.grid_view : Icons.view_stream),
+          tooltip: _isPaginated
+              ? t.common.pagination.waterfall
+              : t.common.pagination.pagination,
+          onPressed: _togglePaginationMode,
+        ),
+      ],
+    );
+  }
+
+  /// 滚过一段后出现在右下角的「回到顶部」浮钮；分页模式下抬到分页栏之上。
+  Widget _buildScrollToTopFab(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Positioned(
+      right: 16,
+      bottom:
+          computeBottomSafeInset(MediaQuery.of(context)) +
+          16 +
+          (_isPaginated ? PaginationBar.barHeight : 0),
+      child: ValueListenableBuilder<bool>(
+        valueListenable: _showBackToTop,
+        builder: (context, visible, _) => IgnorePointer(
+          ignoring: !visible,
+          child: AnimatedSlide(
+            duration: GlassTokens.motionDuration,
+            curve: GlassTokens.motionCurve,
+            offset: visible ? Offset.zero : const Offset(0, 0.4),
+            child: AnimatedOpacity(
+              duration: GlassTokens.motionDuration,
+              opacity: visible ? 1 : 0,
+              child: GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.vertical_align_top),
+                tooltip: t.common.scrollToTop,
+                onPressed: _scrollToTop,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
+    final bool isNarrow = MediaQuery.sizeOf(context).width <= 600;
+    final double maxCrossAxisExtent = isNarrow
+        ? MediaQuery.sizeOf(context).width / 2
+        : 200;
+
     return Scaffold(
-      appBar: AppBar(title: Text(widget.folderTitle ?? '')),
-      body: Column(
-        children: [
-          // 搜索和时间筛选区域
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                // 搜索框
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: slang.t.favorite.searchItems,
-                      prefixIcon: const Icon(Icons.search),
-                    ),
-                  ),
+      body: GlassHeaderOverlay(
+        headerExtent: headerExtent,
+        headerTop: statusBarHeight,
+        solidExtent: statusBarHeight,
+        body: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            if (notification.depth == 0 &&
+                notification.metrics.axis == Axis.vertical) {
+              _showBackToTop.value = notification.metrics.pixels >= 300;
+            }
+            return false;
+          },
+          child: MediaListView<FavoriteItem>(
+            sourceList: _repository,
+            isPaginated: _isPaginated,
+            refreshSignal: _refreshSignal,
+            scrollController: _scrollController,
+            paddingTop: headerExtent,
+            emptyIcon: Icons.folder_open,
+            extendedListDelegate:
+                SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: maxCrossAxisExtent,
+                  crossAxisSpacing: isNarrow ? 4 : 5,
+                  mainAxisSpacing: isNarrow ? 4 : 5,
                 ),
-                const SizedBox(width: 8),
-                // 标签搜索按钮
-                Material(
-                  color: Theme.of(context).colorScheme.secondaryContainer,
-                  borderRadius: BorderRadius.circular(8),
-                  child: InkWell(
-                    onTap: () => _showTagSearchBottomSheet(context),
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.tag,
-                            size: 24,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSecondaryContainer,
-                          ),
-                          if (_repository.tagSearch?.isNotEmpty == true) ...[
-                            const SizedBox(width: 4),
-                            Icon(
-                              Icons.clear,
-                              size: 16,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSecondaryContainer,
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                // 日期选择按钮
-                Material(
-                  color: Theme.of(context).colorScheme.secondaryContainer,
-                  borderRadius: BorderRadius.circular(8),
-                  child: InkWell(
-                    onTap: _selectDateRange,
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.date_range,
-                            size: 24,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSecondaryContainer,
-                          ),
-                          if (_selectedDateRange != null) ...[
-                            const SizedBox(width: 4),
-                            Icon(
-                              Icons.clear,
-                              size: 16,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSecondaryContainer,
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+            itemBuilder: (context, item, index) => Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: isNarrow ? 2 : 0,
+                vertical: isNarrow ? 2 : 3,
+              ),
+              child: _buildFavoriteItem(item),
             ),
           ),
-          // 显示选中的时间范围、搜索文本和标签
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                if (_selectedDateRange != null)
-                  _buildFilterChip(
-                    icon: Icons.date_range,
-                    text:
-                        '${CommonUtils.formatDate(_selectedDateRange!.start)} - ${CommonUtils.formatDate(_selectedDateRange!.end)}',
-                    color: Theme.of(context).colorScheme.secondaryContainer,
-                    onTap: () {
-                      setState(() {
-                        _selectedDateRange = null;
-                        _repository.startDate = null;
-                        _repository.endDate = null;
-                        _repository.refresh();
-                      });
-                    },
-                  ),
-                if (_searchController.text.isNotEmpty)
-                  _buildFilterChip(
-                    icon: Icons.search,
-                    text: _searchController.text,
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    onTap: () {
-                      setState(() {
-                        _searchController.clear();
-                      });
-                    },
-                  ),
-                if (_tagSearchController.text.isNotEmpty)
-                  _buildFilterChip(
-                    icon: Icons.tag,
-                    text: _tagSearchController.text,
-                    color: Theme.of(context).colorScheme.tertiaryContainer,
-                    onTap: () {
-                      setState(() {
-                        _tagSearchController.clear();
-                      });
-                    },
-                  ),
-              ],
-            ),
-          ),
-          // 列表内容
-          Expanded(
-            child: LoadingMoreCustomScrollView(
-              slivers: <Widget>[
-                LoadingMoreSliverList(
-                  SliverListConfig<FavoriteItem>(
-                    extendedListDelegate:
-                        SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent:
-                              MediaQuery.of(context).size.width <= 600
-                              ? MediaQuery.of(context).size.width / 2
-                              : 200,
-                          crossAxisSpacing:
-                              MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-                          mainAxisSpacing:
-                              MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-                        ),
-                    itemBuilder:
-                        (BuildContext context, FavoriteItem item, int index) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal:
-                                  MediaQuery.of(context).size.width <= 600
-                                  ? 2
-                                  : 0,
-                              vertical: MediaQuery.of(context).size.width <= 600
-                                  ? 2
-                                  : 3,
-                            ),
-                            child: _buildFavoriteItem(item),
-                          );
-                        },
-                    sourceList: _repository,
-                    padding: EdgeInsets.only(
-                      left: MediaQuery.of(context).size.width <= 600
-                          ? 2.0
-                          : 5.0,
-                      right: MediaQuery.of(context).size.width <= 600
-                          ? 2.0
-                          : 5.0,
-                      top: MediaQuery.of(context).size.width <= 600 ? 2.0 : 3.0,
-                      bottom: computeBottomSafeInset(MediaQuery.of(context)),
-                    ),
-                    lastChildLayoutType: LastChildLayoutType.foot,
-                    indicatorBuilder: _buildIndicator,
-                  ),
+        ),
+        // header 行：左 返回圆钮 / 中 收藏夹标题胶囊 / 右 动作胶囊
+        header: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.arrow_back),
+                tooltip: t.common.back,
+                onPressed: () => AppService.tryPop(),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: GlassTitlePill(
+                  title: (widget.folderTitle?.isEmpty ?? true)
+                      ? t.favorite.localizeFavorite
+                      : widget.folderTitle,
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 8),
+              _buildActionGroup(context),
+            ],
           ),
-        ],
+        ),
+        extra: [_buildScrollToTopFab(context)],
       ),
     );
   }
 
   Widget _buildFavoriteItem(FavoriteItem item) {
-    final width = MediaQuery.of(context).size.width <= 600
-        ? MediaQuery.of(context).size.width / 2 - 8
+    final width = MediaQuery.sizeOf(context).width <= 600
+        ? MediaQuery.sizeOf(context).width / 2 - 8
         : 200.0;
 
     switch (item.itemType) {
@@ -300,7 +253,7 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
               clipBehavior: Clip.antiAlias,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(
-                  MediaQuery.of(context).size.width < 600 ? 6 : 8,
+                  MediaQuery.sizeOf(context).width < 600 ? 6 : 8,
                 ),
               ),
               child: Column(
@@ -324,7 +277,7 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
               clipBehavior: Clip.antiAlias,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(
-                  MediaQuery.of(context).size.width < 600 ? 6 : 8,
+                  MediaQuery.sizeOf(context).width < 600 ? 6 : 8,
                 ),
               ),
               child: Column(
@@ -457,7 +410,7 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(
-            MediaQuery.of(context).size.width < 600 ? 6 : 8,
+            MediaQuery.sizeOf(context).width < 600 ? 6 : 8,
           ),
         ),
         child: Column(
@@ -497,7 +450,7 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(
-            MediaQuery.of(context).size.width < 600 ? 6 : 8,
+            MediaQuery.sizeOf(context).width < 600 ? 6 : 8,
           ),
         ),
         child: InkWell(
@@ -568,215 +521,291 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
     );
   }
 
-  Widget? _buildIndicator(BuildContext context, IndicatorStatus status) {
-    Widget? widget;
+  Future<void> _removeItem(FavoriteItem item) async {
+    final t = slang.Translations.of(context);
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Row(
+          children: [
+            Expanded(child: Text(t.favorite.removeItemTitle)),
+            GlassIconButton(
+              standalone: true,
+              icon: const Icon(Icons.close),
+              tooltip: t.common.close,
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+            ),
+          ],
+        ),
+        content: Text(t.favorite.removeItemConfirmWithTitle(title: item.title)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(t.common.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(t.common.confirm),
+          ),
+        ],
+      ),
+    );
 
-    switch (status) {
-      case IndicatorStatus.none:
-        return null;
-      case IndicatorStatus.loadingMoreBusying:
-        return Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
-            vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
-          ),
-          child: Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
-            child: _buildShimmerItem(
-              MediaQuery.of(context).size.width <= 600 ? 180 : 200,
-            ),
-          ),
-        );
-      case IndicatorStatus.fullScreenBusying:
-        widget = Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
-          child: GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600
-                  ? 180
-                  : 200,
-              crossAxisSpacing: MediaQuery.of(context).size.width <= 600
-                  ? 4
-                  : 5,
-              mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-              childAspectRatio: 1,
-            ),
-            padding: EdgeInsets.only(
-              left: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-              right: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-              top: MediaQuery.of(context).size.width <= 600 ? 2.0 : 3.0,
-            ),
-            itemCount: 6,
-            itemBuilder: (context, index) => _buildShimmerItem(
-              MediaQuery.of(context).size.width <= 600 ? 180 : 200,
-            ),
-          ),
-        );
-        return SliverFillRemaining(child: widget);
-      case IndicatorStatus.error:
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Card(
-            elevation: 0,
-            color: Theme.of(context).colorScheme.errorContainer,
-            child: InkWell(
-              onTap: () => _repository.errorRefresh(),
-              borderRadius: BorderRadius.circular(12),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 12,
-                  horizontal: 16,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Icon(
-                      Icons.error_outline,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.error,
+    if (result != true) return;
+
+    try {
+      final success = await FavoriteService.to.removeFromFolder(item.id);
+      if (!success) throw Exception('删除失败');
+      _refreshList();
+      if (!mounted) return;
+      showGlassToast(
+        t.favorite.removeItemSuccess,
+        type: GlassToastType.success,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      showGlassToast(t.favorite.removeItemFailed, type: GlassToastType.error);
+    }
+  }
+}
+
+/// 收藏夹内容筛选条件（标题关键字 / 标签 / 时间范围）。
+class _FavoriteFilter {
+  const _FavoriteFilter({
+    this.searchText,
+    this.tags = const [],
+    this.dateRange,
+  });
+
+  final String? searchText;
+
+  /// 已选标签，多选为 AND 语义（作品需同时带上全部标签）。
+  final List<Tag> tags;
+
+  final DateTimeRange? dateRange;
+
+  bool get isActive =>
+      (searchText?.isNotEmpty ?? false) || tags.isNotEmpty || dateRange != null;
+}
+
+/// 筛选弹窗：一次改完关键字 / 标签 / 时间范围再应用，避免逐字符触发重查。
+class _FavoriteFilterSheet extends StatefulWidget {
+  const _FavoriteFilterSheet({required this.initial, required this.folderId});
+
+  final _FavoriteFilter initial;
+  final String folderId;
+
+  @override
+  State<_FavoriteFilterSheet> createState() => _FavoriteFilterSheetState();
+}
+
+class _FavoriteFilterSheetState extends State<_FavoriteFilterSheet> {
+  late final TextEditingController _searchController = TextEditingController(
+    text: widget.initial.searchText,
+  );
+  late List<Tag> _tags = List<Tag>.from(widget.initial.tags);
+  late DateTimeRange? _dateRange = widget.initial.dateRange;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickDateRange() async {
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      initialDateRange: _dateRange,
+    );
+    if (picked == null || !mounted) return;
+    setState(() => _dateRange = picked);
+  }
+
+  void _apply() {
+    Navigator.of(context).pop(
+      _FavoriteFilter(
+        searchText: _searchController.text.trim().isEmpty
+            ? null
+            : _searchController.text.trim(),
+        tags: _tags,
+        dateRange: _dateRange,
+      ),
+    );
+  }
+
+  Widget _glassField(BuildContext context, {required Widget child}) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      decoration: BoxDecoration(
+        color: GlassTokens.fill(colorScheme),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: GlassTokens.stroke(colorScheme),
+          width: GlassTokens.strokeWidth,
+        ),
+      ),
+      child: child,
+    );
+  }
+
+  InputDecoration _fieldDecoration(
+    BuildContext context, {
+    required String hint,
+    required IconData icon,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+      border: InputBorder.none,
+      focusedBorder: InputBorder.none,
+      prefixIcon: Icon(icon, color: colorScheme.onSurfaceVariant),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: computeSheetBottomInset(context)),
+      // 标签区把弹窗撑高了：限高 + 只让中间内容滚动，标题行与确认行常驻可见
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height * 0.85,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // 标题行：标题 + 玻璃关闭圆钮
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 16, 4),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      t.searchFilter.filterSettings,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      slang.t.conversation.errors.loadFailedClickToRetry,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
+                  ),
+                  GlassIconButton(
+                    standalone: true,
+                    icon: const Icon(Icons.close),
+                    tooltip: t.common.close,
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+            ),
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                      child: _glassField(
+                        context,
+                        child: TextField(
+                          controller: _searchController,
+                          textInputAction: TextInputAction.done,
+                          decoration: _fieldDecoration(
+                            context,
+                            hint: t.favorite.searchItems,
+                            icon: Icons.search,
+                          ),
+                          onSubmitted: (_) => _apply(),
+                        ),
+                      ),
+                    ),
+                    // 时间范围：点按选择，已选中时右侧给一个清除钮
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                      child: _glassField(
+                        context,
+                        child: InkWell(
+                          onTap: _pickDateRange,
+                          borderRadius: BorderRadius.circular(22),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 14, 8, 14),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.date_range,
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    _dateRange == null
+                                        ? t.common.selectDateRange
+                                        : '${CommonUtils.formatDate(_dateRange!.start)} - '
+                                              '${CommonUtils.formatDate(_dateRange!.end)}',
+                                    style: TextStyle(
+                                      color: _dateRange == null
+                                          ? colorScheme.onSurfaceVariant
+                                          : colorScheme.onSurface,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                if (_dateRange != null)
+                                  IconButton(
+                                    icon: const Icon(Icons.clear, size: 18),
+                                    tooltip: t.common.clearDateRange,
+                                    onPressed: () =>
+                                        setState(() => _dateRange = null),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                      child: FolderTagFilter(
+                        folderId: widget.folderId,
+                        selectedTags: _tags,
+                        onChanged: (tags) => setState(() => _tags = tags),
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-          ),
-        );
-      case IndicatorStatus.fullScreenError:
-        widget = Card(
-          elevation: 0,
-          color: Theme.of(context).colorScheme.errorContainer,
-          child: InkWell(
-            onTap: () => _repository.errorRefresh(),
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Icon(
-                    Icons.error_outline,
-                    size: 48,
-                    color: Theme.of(context).colorScheme.error,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton.icon(
+                    onPressed: () {
+                      _searchController.clear();
+                      setState(() {
+                        _tags = [];
+                        _dateRange = null;
+                      });
+                    },
+                    icon: const Icon(Icons.clear_all),
+                    label: Text(t.searchFilter.clearAll),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    slang.t.conversation.errors.loadFailed,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    slang.t.conversation.errors.clickToRetry,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onErrorContainer,
-                      fontSize: 14,
-                    ),
+                  const SizedBox(width: 12),
+                  FilledButton(
+                    onPressed: _apply,
+                    child: Text(t.common.confirm),
                   ),
                 ],
-              ),
-            ),
-          ),
-        );
-        return SliverFillRemaining(
-          hasScrollBody: false,
-          child: Center(
-            child: Padding(padding: const EdgeInsets.all(16.0), child: widget),
-          ),
-        );
-      case IndicatorStatus.noMoreLoad:
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Center(
-            child: Text(
-              slang.t.common.noMoreDatas,
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodySmall?.color,
-              ),
-            ),
-          ),
-        );
-      case IndicatorStatus.empty:
-        widget = Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.folder_open,
-                size: 48,
-                color: Theme.of(context).hintColor,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                slang.t.common.noData,
-                style: TextStyle(
-                  color: Theme.of(context).hintColor,
-                  fontSize: 16,
-                ),
-              ),
-            ],
-          ),
-        );
-        return SliverFillRemaining(
-          hasScrollBody: false,
-          child: Center(child: widget),
-        );
-    }
-  }
-
-  Widget _buildShimmerItem(double width) {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: SizedBox(
-        width: width,
-        height: width,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 缩略图区域
-            Container(
-              width: width,
-              height: width * 9 / 16,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            const SizedBox(height: 8),
-            // 标题区域
-            Container(
-              width: width * 0.8,
-              height: 16,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-            const SizedBox(height: 8),
-            // 信息区域
-            Container(
-              width: width * 0.6,
-              height: 12,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
               ),
             ),
           ],
@@ -784,313 +813,66 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
       ),
     );
   }
-
-  Future<void> _removeItem(FavoriteItem item) async {
-    final t = slang.Translations.of(context);
-    final result = await showModalBottomSheet<bool>(
-      context: context,
-      builder: (context) {
-        final mq = MediaQuery.of(context);
-        final bottomSafeInset = computeBottomSafeInset(mq);
-
-        return Padding(
-          padding: EdgeInsets.only(bottom: bottomSafeInset),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    Text(
-                      t.favorite.removeItemTitle,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      t.favorite.removeItemConfirmWithTitle(title: item.title),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: Text(t.common.cancel),
-                    ),
-                  ),
-                  const VerticalDivider(width: 1),
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () => Navigator.of(context).pop(true),
-                      child: Text(
-                        t.common.confirm,
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-
-    if (result == true) {
-      try {
-        final success = await FavoriteService.to.removeFromFolder(item.id);
-        if (success) {
-          _repository.refresh();
-          if (mounted) {
-            showToastWidget(
-              MDToastWidget(
-                message: t.favorite.removeItemSuccess,
-                type: MDToastType.success,
-              ),
-            );
-          }
-        } else {
-          throw Exception('删除失败');
-        }
-      } catch (e) {
-        if (mounted) {
-          showToastWidget(
-            MDToastWidget(
-              message: t.favorite.removeItemFailed,
-              type: MDToastType.error,
-            ),
-          );
-        }
-      }
-    }
-  }
-
-  Widget _buildFilterChip({
-    required IconData icon,
-    required String text,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: color.withValues(alpha: 0.3)),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: 14,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                text,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.close,
-                  size: 12,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showTagSearchBottomSheet(BuildContext context) {
-    final t = slang.Translations.of(context);
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) {
-        final mq = MediaQuery.of(context);
-        final bottomInset = mq.viewInsets.bottom;
-        final bottomSafeInset = computeBottomSafeInset(mq);
-
-        return Padding(
-          padding: EdgeInsets.only(bottom: bottomInset + bottomSafeInset),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        t.favorite.searchTags,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                    ),
-                    if (_repository.tagSearch?.isNotEmpty == true)
-                      TextButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            _tagSearchController.clear();
-                            _repository.tagSearch = null;
-                            _repository.refresh();
-                          });
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(Icons.clear),
-                        label: Text(t.common.clear),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _tagSearchController,
-                  decoration: InputDecoration(
-                    hintText: t.favorite.searchTags,
-                    prefixIcon: const Icon(Icons.tag),
-                  ),
-                  autofocus: true,
-                  onSubmitted: (value) {
-                    setState(() {
-                      _repository.tagSearch = value;
-                      _repository.refresh();
-                    });
-                    Navigator.pop(context);
-                  },
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(t.common.cancel),
-                    ),
-                    const SizedBox(width: 16),
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          _repository.tagSearch = _tagSearchController.text;
-                          _repository.refresh();
-                        });
-                        Navigator.pop(context);
-                      },
-                      child: Text(t.common.confirm),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 }
 
-class FavoriteItemRepository extends LoadingMoreBase<FavoriteItem>
-    with LoadingMoreRefreshGuard<FavoriteItem> {
+/// 收藏夹内容数据源。
+///
+/// 走 [ExtendedLoadingMoreBase] 是为了拿到 `loadPageData` / `requestTotalCount`
+/// 这套分页契约——[MediaListView] 的分页模式依赖它，普通 `LoadingMoreBase`
+/// 只能跑瀑布流。
+class FavoriteItemRepository extends ExtendedLoadingMoreBase<FavoriteItem> {
   final String folderId;
-  int _pageIndex = 0;
-  bool _hasMore = true;
-  bool forceRefresh = false;
 
   String? searchText;
-  String? tagSearch;
+
+  /// 已选标签 id，多个为 AND 语义。
+  List<String> tagIds = const [];
+
   DateTime? startDate;
   DateTime? endDate;
-
-  static const int pageSize = 20;
 
   FavoriteItemRepository(this.folderId);
 
   @override
-  bool get hasMore => _hasMore || forceRefresh;
-
-  @override
-  void resetPagingState() {
-    super.resetPagingState(); // 代际自增，作废在途回写
-    _hasMore = true;
-    _pageIndex = 0;
+  Future<Map<String, dynamic>> fetchDataFromSource(
+    Map<String, dynamic> params,
+    int page,
+    int limit,
+  ) async {
+    final items = await FavoriteService.to.getFolderItems(
+      folderId,
+      offset: page * limit,
+      limit: limit,
+      searchText: searchText,
+      tagIds: tagIds,
+      startDate: startDate,
+      endDate: endDate,
+    );
+    final count = await FavoriteService.to.countFolderItems(
+      folderId,
+      searchText: searchText,
+      tagIds: tagIds,
+      startDate: startDate,
+      endDate: endDate,
+    );
+    return {'items': items, 'count': count};
   }
 
   @override
-  Future<bool> refresh([bool notifyStateChanged = false]) async {
-    return runGuardedRefresh(() async {
-      forceRefresh = !notifyStateChanged;
-      try {
-        return await super.refresh(notifyStateChanged);
-      } finally {
-        forceRefresh = false;
-      }
-    });
-  }
+  List<FavoriteItem> extractDataList(Map<String, dynamic> response) =>
+      response['items'] as List<FavoriteItem>;
 
   @override
-  Future<bool> loadData([bool isLoadMoreAction = false]) async {
-    bool isSuccess = false;
-    // 代际 + 页码快照必须在 await 之前取：await 期间可能发生 refresh()，
-    // 那样回来的第 N 页会被当成第 0 页写进列表，页码也跟着错位。
-    final int generation = currentGeneration;
-    final int page = _pageIndex;
-    try {
-      final items = await FavoriteService.to.getFolderItems(
-        folderId,
-        offset: page * pageSize,
-        limit: pageSize,
-        searchText: searchText,
-        tagSearch: tagSearch,
-        startDate: startDate,
-        endDate: endDate,
-      );
+  int extractTotalCount(Map<String, dynamic> response) =>
+      response['count'] as int;
 
-      // await 期间已被 refresh() 作废 → 丢弃本次结果。必须返回 true：
-      // 返回 false 会被 loading_more_list 映射成一个假的错误页。
-      if (isStaleGeneration(generation)) {
-        return true;
-      }
-
-      if (page == 0) {
-        clear();
-      }
-
-      addAll(items);
-
-      _hasMore = items.length >= pageSize;
-      _pageIndex = page + 1;
-      isSuccess = true;
-    } catch (e, stack) {
-      if (isStaleGeneration(generation)) {
-        return true;
-      }
-      isSuccess = false;
-      LogUtils.e('加载收藏夹内容失败', error: e, stack: stack);
-    }
-    return isSuccess;
+  @override
+  void logError(String message, dynamic error, [StackTrace? stackTrace]) {
+    LogUtils.e(
+      '加载收藏夹内容失败: $message',
+      error: error,
+      stack: stackTrace,
+      tag: 'FavoriteItemRepository',
+    );
   }
 }

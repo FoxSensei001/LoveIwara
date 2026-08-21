@@ -13,9 +13,8 @@ import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart' show showToastWidget, ToastPosition;
 
-import '../../widgets/md_toast_widget.dart' show MDToastWidget, MDToastType;
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 
 class DownloadSettingsPage extends StatefulWidget {
   final bool isWideScreen;
@@ -107,64 +106,54 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     final t = slang.Translations.of(context);
     final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
 
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          BlurredSliverAppBar(
-            title: t.settings.downloadSettings.downloadSettings,
-            isWideScreen: widget.isWideScreen,
+    return GlassSettingsScaffold(
+      title: t.settings.downloadSettings.downloadSettings,
+      slivers: [
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              // 最大并发下载数设置
+              _buildConcurrencySection(context),
+              const SizedBox(height: 16),
+
+              // 下载完成/失败通知开关
+              _buildNotificationSection(context),
+              const SizedBox(height: 16),
+
+              // 文件命名模板设置
+              _buildFilenameTemplateSection(context),
+              const SizedBox(height: 16),
+
+              // 推荐路径选择
+              RecommendedPathsWidget(
+                key: const ValueKey('recommended_paths'),
+                onPathSelected: () {
+                  // 同步自定义路径控制器
+                  _syncCustomPathFromConfig();
+                  setState(() {});
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // 权限状态显示
+              _buildPermissionSection(context),
+              const SizedBox(height: 16),
+
+              // 路径状态显示
+              _buildPathStatusWidget(context),
+              const SizedBox(height: 16),
+
+              // 自定义下载路径设置
+              _buildCustomPathSection(context),
+              const SizedBox(height: 16),
+
+              // 功能测试
+              const DownloadTestWidget(key: ValueKey('download_test')),
+            ]),
           ),
-          SliverPadding(
-            padding: EdgeInsets.fromLTRB(
-              16,
-              16,
-              16,
-              16 + bottomInset,
-            ),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                // 最大并发下载数设置
-                _buildConcurrencySection(context),
-                const SizedBox(height: 16),
-
-                // 下载完成/失败通知开关
-                _buildNotificationSection(context),
-                const SizedBox(height: 16),
-
-                // 文件命名模板设置
-                _buildFilenameTemplateSection(context),
-                const SizedBox(height: 16),
-
-                // 推荐路径选择
-                RecommendedPathsWidget(
-                  key: const ValueKey('recommended_paths'),
-                  onPathSelected: () {
-                    // 同步自定义路径控制器
-                    _syncCustomPathFromConfig();
-                    setState(() {});
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // 权限状态显示
-                _buildPermissionSection(context),
-                const SizedBox(height: 16),
-
-                // 路径状态显示
-                _buildPathStatusWidget(context),
-                const SizedBox(height: 16),
-
-                // 自定义下载路径设置
-                _buildCustomPathSection(context),
-                const SizedBox(height: 16),
-
-                // 功能测试
-                const DownloadTestWidget(key: ValueKey('download_test')),
-              ]),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -235,7 +224,8 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                 );
               }
 
-              final hasPermission = downloadPathService.storagePermissionGranted;
+              final hasPermission =
+                  downloadPathService.storagePermissionGranted;
 
               return Column(
                 children: [
@@ -250,10 +240,19 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                       Expanded(
                         child: Text(
                           hasPermission
-                              ? t.settings.downloadSettings.storagePermissionGranted
-                              : t.settings.downloadSettings.storagePermissionNotGranted,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: hasPermission ? Colors.green : Colors.orange,
+                              ? t
+                                    .settings
+                                    .downloadSettings
+                                    .storagePermissionGranted
+                              : t
+                                    .settings
+                                    .downloadSettings
+                                    .storagePermissionNotGranted,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: hasPermission
+                                    ? Colors.green
+                                    : Colors.orange,
                                 fontWeight: FontWeight.w500,
                               ),
                         ),
@@ -267,23 +266,27 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: () async {
-                          final granted = await permissionService.requestStoragePermission();
+                          final granted = await permissionService
+                              .requestStoragePermission();
                           if (granted) {
-                            showToastWidget(
-                              MDToastWidget(
-                                message: t.settings.downloadSettings.storagePermissionGrantSuccess,
-                                type: MDToastType.success,
-                              ),
+                            showGlassToast(
+                              t
+                                  .settings
+                                  .downloadSettings
+                                  .storagePermissionGrantSuccess,
+                              type: GlassToastType.success,
                             );
                           } else {
-                            showToastWidget(
-                              MDToastWidget(
-                                message: t.settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited,
-                                type: MDToastType.warning,
-                              ),
+                            showGlassToast(
+                              t
+                                  .settings
+                                  .downloadSettings
+                                  .storagePermissionGrantFailedButSomeFeaturesMayBeLimited,
+                              type: GlassToastType.warning,
                             );
                           }
-                          await downloadPathService.refreshPermissionAndRelated();
+                          await downloadPathService
+                              .refreshPermissionAndRelated();
                         },
                         icon: const Icon(Icons.security),
                         label: Text(
@@ -295,8 +298,8 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                     Text(
                       permissionService.getPermissionDescription(),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).textTheme.bodySmall?.color,
-                          ),
+                        color: Theme.of(context).textTheme.bodySmall?.color,
+                      ),
                     ),
                   ],
                 ],
@@ -317,10 +320,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
       if (isLoading && pathInfo == null) {
         return Card(
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 8,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               children: [
                 const SizedBox(
@@ -552,22 +552,18 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
 
   Future<void> _fixPathIssue(PathValidationReason reason) async {
     final t = slang.Translations.of(context);
-      final success = await downloadPathService.fixPathIssue(reason);
+    final success = await downloadPathService.fixPathIssue(reason);
 
     if (success) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.settings.downloadSettings.issueFixed,
-          type: MDToastType.success,
-        ),
+      showGlassToast(
+        t.settings.downloadSettings.issueFixed,
+        type: GlassToastType.success,
       );
       await downloadPathService.refreshPathStatus();
     } else {
-      showToastWidget(
-        MDToastWidget(
-          message: t.settings.downloadSettings.fixFailed,
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        t.settings.downloadSettings.fixFailed,
+        type: GlassToastType.error,
       );
     }
   }
@@ -625,8 +621,8 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
               label: '$current',
               onChanged: (value) {
                 setState(() {
-                  configService[ConfigKey.MAX_CONCURRENT_DOWNLOADS] =
-                      value.round();
+                  configService[ConfigKey.MAX_CONCURRENT_DOWNLOADS] = value
+                      .round();
                 });
                 // 调高并发后立即让队列补充启动更多等待中的任务
                 if (Get.isRegistered<DownloadService>()) {
@@ -662,8 +658,8 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                   child: Text(
                     t.settings.downloadSettings.enableDownloadNotifications,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -672,11 +668,13 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
               () => SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(
-                  t.settings.downloadSettings
+                  t
+                      .settings
+                      .downloadSettings
                       .enableDownloadNotificationsDescription,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).textTheme.bodySmall?.color,
-                      ),
+                    color: Theme.of(context).textTheme.bodySmall?.color,
+                  ),
                 ),
                 value:
                     configService[ConfigKey.DOWNLOAD_NOTIFICATIONS_ENABLED] ??
@@ -690,12 +688,12 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                     final granted = await DownloadNotificationService.to
                         .requestPermission();
                     if (!granted) {
-                      showToastWidget(
-                        MDToastWidget(
-                          message: t.settings.downloadSettings
-                              .notificationPermissionDenied,
-                          type: MDToastType.warning,
-                        ),
+                      showGlassToast(
+                        t
+                            .settings
+                            .downloadSettings
+                            .notificationPermissionDenied,
+                        type: GlassToastType.warning,
                       );
                     }
                   }
@@ -924,29 +922,37 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                                   ),
                                   const SizedBox(height: 8),
                                   Obx(() {
-                                    final hasPermission = downloadPathService.storagePermissionGranted;
+                                    final hasPermission = downloadPathService
+                                        .storagePermissionGranted;
                                     if (!hasPermission) {
                                       return SizedBox(
                                         width: double.infinity,
                                         child: ElevatedButton.icon(
                                           onPressed: () async {
-                                            final granted = await permissionService.requestStoragePermission();
+                                            final granted =
+                                                await permissionService
+                                                    .requestStoragePermission();
                                             if (granted) {
-                                              showToastWidget(
-                                                MDToastWidget(
-                                                  message: t.settings.downloadSettings.storagePermissionGrantSuccess,
-                                                  type: MDToastType.success,
-                                                ),
+                                              showGlassToast(
+                                                t
+                                                    .settings
+                                                    .downloadSettings
+                                                    .storagePermissionGrantSuccess,
+                                                type: GlassToastType.success,
                                               );
                                             }
-                                            await downloadPathService.refreshPermissionAndRelated();
+                                            await downloadPathService
+                                                .refreshPermissionAndRelated();
                                           },
                                           icon: const Icon(
                                             Icons.security,
                                             size: 16,
                                           ),
                                           label: Text(
-                                            t.settings.downloadSettings.grantStoragePermission,
+                                            t
+                                                .settings
+                                                .downloadSettings
+                                                .grantStoragePermission,
                                           ),
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: Colors.orange,
@@ -964,7 +970,10 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                                           ),
                                           const SizedBox(width: 8),
                                           Text(
-                                            t.settings.downloadSettings.storagePermissionGranted,
+                                            t
+                                                .settings
+                                                .downloadSettings
+                                                .storagePermissionGranted,
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodySmall
@@ -1352,34 +1361,28 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
         await downloadPathService.refreshPathStatus();
         final validation = downloadPathService.pathStatus?.validationResult;
         final isUsable = validation == null || validation.isValid;
-        showToastWidget(
-          MDToastWidget(
-            message: isUsable
-                ? t.settings.downloadSettings.downloadPathUpdated
-                : validation.message,
-            type: isUsable ? MDToastType.success : MDToastType.warning,
-          ),
-          position: ToastPosition.bottom,
+        showGlassToast(
+          isUsable
+              ? t.settings.downloadSettings.downloadPathUpdated
+              : validation.message,
+          type: isUsable ? GlassToastType.success : GlassToastType.warning,
+          position: GlassToastPosition.bottom,
         );
       }
     } on PlatformException catch (e) {
       // 原生选择器返回的错误（消息本身面向用户），不展示异常包装
       LogUtils.e('选择下载路径失败', error: e, tag: 'DownloadSettingsPage');
-      showToastWidget(
-        MDToastWidget(
-          message: e.message ?? t.settings.downloadSettings.selectPathFailed,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        e.message ?? t.settings.downloadSettings.selectPathFailed,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
     } catch (e) {
       LogUtils.e('选择下载路径失败', error: e, tag: 'DownloadSettingsPage');
-      showToastWidget(
-        MDToastWidget(
-          message: '${t.settings.downloadSettings.selectPathFailed}: $e',
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        '${t.settings.downloadSettings.selectPathFailed}: $e',
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
     }
   }
@@ -1395,20 +1398,15 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
       configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] = recommendedPath;
       _isUpdatingFromConfig = false;
 
-      showToastWidget(
-        MDToastWidget(
-          message: t.settings.downloadSettings.recommendedPathSet,
-          type: MDToastType.success,
-        ),
+      showGlassToast(
+        t.settings.downloadSettings.recommendedPathSet,
+        type: GlassToastType.success,
       );
       await downloadPathService.refreshPathStatus();
     } catch (e) {
-      showToastWidget(
-        MDToastWidget(
-          message:
-              '${t.settings.downloadSettings.setRecommendedPathFailed}: $e',
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        '${t.settings.downloadSettings.setRecommendedPathFailed}: $e',
+        type: GlassToastType.error,
       );
     }
   }
@@ -1419,22 +1417,18 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     controller.text = defaultValue;
     configService[configKey] = defaultValue;
 
-    showToastWidget(
-      MDToastWidget(
-        message: t.settings.downloadSettings.templateResetToDefault,
-        type: MDToastType.success,
-      ),
+    showGlassToast(
+      t.settings.downloadSettings.templateResetToDefault,
+      type: GlassToastType.success,
     );
   }
 
   void _copyVariableToClipboard(String variable, BuildContext context) {
     final t = slang.Translations.of(context);
     Clipboard.setData(ClipboardData(text: variable));
-    showToastWidget(
-      MDToastWidget(
-        message: '${t.settings.downloadSettings.variableCopied}: $variable',
-        type: MDToastType.success,
-      ),
+    showGlassToast(
+      '${t.settings.downloadSettings.variableCopied}: $variable',
+      type: GlassToastType.success,
     );
   }
 }

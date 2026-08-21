@@ -1,3 +1,4 @@
+import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -12,12 +13,17 @@ import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/image_model_detail_c
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translatable_title.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/widget_extensions.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../widgets/infinite_scroll_waterfall_tab.dart';
@@ -89,15 +95,25 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
   final double sideColumnMinWidth = 400.0; // 右侧固定宽度
   final double leftColumnMinWidth = 600.0; // 左侧内容的最小期望宽度，用于判断是否宽屏
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
+  // 窄屏：ExtendedNestedScrollView 的状态钥匙（回顶要拿内外两个控制器）
+  final GlobalKey<ExtendedNestedScrollViewState> _nestedKey =
+      GlobalKey<ExtendedNestedScrollViewState>();
+
+  // 宽屏：左列 CustomScrollView 的控制器
+  final ScrollController _wideScrollController = ScrollController();
+
+  /// 列表滚过一段距离后显示右下角「回到顶部」浮钮（仅窄屏）。
+  final ValueNotifier<bool> _showBackToTop = ValueNotifier<bool>(false);
+  double _outerScrollPixels = 0;
+  double _innerScrollPixels = 0;
 
   // dispose
   @override
   void dispose() {
+    _relatedTabController.removeListener(_handleRelatedTabChange);
     _relatedTabController.dispose();
+    _wideScrollController.dispose();
+    _showBackToTop.dispose();
     Get.delete<GalleryDetailController>(tag: uniqueTag);
     Get.delete<CommentController>(tag: uniqueTag);
     Get.delete<RelatedMediasController>(tag: uniqueTag);
@@ -112,6 +128,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
     imageModelId = widget.imageModelId;
     uniqueTag = UniqueKey().toString();
     _relatedTabController = TabController(length: 2, vsync: this);
+    _relatedTabController.addListener(_handleRelatedTabChange);
 
     if (imageModelId.isEmpty) {
       return;
@@ -138,40 +155,123 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
     );
   }
 
-  // 构建AppBar
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    return AppBar(
-      systemOverlayStyle: SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: isDarkMode
-            ? Brightness.light
-            : Brightness.dark,
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarIconBrightness: isDarkMode
-            ? Brightness.light
-            : Brightness.dark,
-      ),
-      backgroundColor: Colors.transparent,
-      titleSpacing: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () => Navigator.of(context).pop(),
-      ),
-      title: Row(
-        children: [
-          Expanded(
-            child: Obx(
-              () => Text(
-                detailController.imageModelInfo.value?.title ?? '',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+  // 相关图库分段行随 tab 落定重排（横滑过程由 progress 驱动，无需重建）
+  void _handleRelatedTabChange() {
+    if (_relatedTabController.indexIsChanging) return;
+    if (mounted) setState(() {});
+  }
+
+  bool _handleNestedScrollNotification(ScrollNotification notification) {
+    // depth 0 = ExtendedNestedScrollView 外层（玻璃 header + 概览卡），
+    // depth 1 = 内层相关列表
+    if (notification.depth == 0) {
+      _outerScrollPixels = notification.metrics.pixels;
+    } else if (notification.depth == 1) {
+      _innerScrollPixels = notification.metrics.pixels;
+    }
+    final show = _outerScrollPixels > 240 || _innerScrollPixels > 600;
+    if (_showBackToTop.value != show) _showBackToTop.value = show;
+    return false;
+  }
+
+  void _scrollToTop() {
+    final state = _nestedKey.currentState;
+    if (state != null) {
+      final inner = state.innerController;
+      if (inner.hasClients) {
+        inner.animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+        );
+      }
+      final outer = state.outerController;
+      if (outer.hasClients) {
+        outer.animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+        );
+      }
+    }
+    if (_wideScrollController.hasClients) {
+      _wideScrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+      );
+    }
+  }
+
+  /// 滚过一段后出现在右下角的「回到顶部」浮钮（窄屏）。
+  Widget _buildScrollToTopFab(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Positioned(
+      right: 16,
+      bottom: MediaQuery.paddingOf(context).bottom + 16,
+      child: ValueListenableBuilder<bool>(
+        valueListenable: _showBackToTop,
+        builder: (context, visible, _) => IgnorePointer(
+          ignoring: !visible,
+          child: AnimatedSlide(
+            duration: GlassTokens.motionDuration,
+            curve: GlassTokens.motionCurve,
+            offset: visible ? Offset.zero : const Offset(0, 0.4),
+            child: AnimatedOpacity(
+              duration: GlassTokens.motionDuration,
+              opacity: visible ? 1 : 0,
+              child: GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.vertical_align_top),
+                tooltip: t.common.scrollToTop,
+                onPressed: _scrollToTop,
               ),
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.home),
-            onPressed: () => appRouter.go('/'),
+        ),
+      ),
+    );
+  }
+
+  /// 玻璃 header 行：返回圆钮 / 标题胶囊 / 主页胶囊。
+  ///
+  /// 用 [GlassHeaderOverlay] 悬浮在滚动内容之上（普通 Stack + Positioned，
+  /// 不进 sliver 树）——之前塞进 SliverAppBar.flexibleSpace 时，蒙层的渐隐
+  /// 距离会被 FlexibleSpaceBar 压扁在 toolbarHeight 以内，渐变没走完就被
+  /// 截断，读起来像一条硬边阴影；悬浮实现没有这层限制，与热门列表页等
+  /// 页面同一套配方（见 glass_header_overlay.dart）。
+  Widget _buildGlassHeaderRow(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          GlassIconButton(
+            standalone: true,
+            icon: const Icon(Icons.arrow_back),
+            tooltip: t.common.back,
+            onPressed: () => AppService.tryPop(),
+          ),
+          const SizedBox(width: 8),
+          // 标题胶囊：点按/长按弹出完整标题弹窗（长标题被截断时的出口）
+          Expanded(
+            child: Obx(
+              () => GlassTitlePill(
+                title:
+                    detailController.imageModelInfo.value?.title ??
+                    widget.initialTitle,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          GlassButtonGroup(
+            children: [
+              GlassIconButton(
+                icon: const Icon(Icons.home),
+                tooltip: t.videoDetail.home,
+                onPressed: () => appRouter.go('/'),
+              ),
+            ],
           ),
         ],
       ),
@@ -261,68 +361,71 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
                           ),
                         ),
                         const Spacer(),
-                        // 排序切换按钮
-                        Obx(
-                          () => IconButton(
-                            onPressed: () {
-                              commentController.toggleSortOrder();
-                            },
-                            icon: Icon(
-                              commentController.sortOrder.value
-                                  ? Icons
-                                        .arrow_downward_rounded // 倒序图标
-                                  : Icons.arrow_upward_rounded, // 正序图标
-                            ),
-                            tooltip: commentController.sortOrder.value
-                                ? slang.t.common.createTimeDesc
-                                : slang.t.common.createTimeAsc,
-                          ),
-                        ),
-                        // 添加评论按钮
-                        IconButton(
-                          onPressed: () {
-                            showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true,
-                              backgroundColor: Colors.transparent,
-                              builder: (context) => CommentInputBottomSheet(
-                                title: slang.t.common.sendComment,
-                                submitText: slang.t.common.send,
-                                onSubmit: (text) async {
-                                  if (text.trim().isEmpty) {
-                                    showToastWidget(
-                                      MDToastWidget(
-                                        message:
-                                            slang.t.errors.commentCanNotBeEmpty,
-                                        type: MDToastType.error,
-                                      ),
-                                      position: ToastPosition.bottom,
-                                    );
-                                    return;
-                                  }
-                                  final UserService userService = Get.find();
-                                  if (!userService.isAuthenticated) {
-                                    showToastWidget(
-                                      MDToastWidget(
-                                        message:
-                                            slang.t.errors.pleaseLoginFirst,
-                                        type: MDToastType.error,
-                                      ),
-                                      position: ToastPosition.bottom,
-                                    );
-                                    LoginService.showLogin();
-                                    return;
-                                  }
-                                  await commentController.postComment(text);
+                        // 排序 / 发评论合成一只玻璃胶囊
+                        GlassButtonGroup(
+                          children: [
+                            Obx(
+                              () => GlassIconButton(
+                                onPressed: () {
+                                  commentController.toggleSortOrder();
                                 },
+                                icon: Icon(
+                                  commentController.sortOrder.value
+                                      ? Icons
+                                            .arrow_downward_rounded // 倒序图标
+                                      : Icons.arrow_upward_rounded, // 正序图标
+                                ),
+                                tooltip: commentController.sortOrder.value
+                                    ? slang.t.common.createTimeDesc
+                                    : slang.t.common.createTimeAsc,
                               ),
-                            );
-                          },
-                          icon: const Icon(Icons.add_comment),
+                            ),
+                            // 添加评论按钮
+                            GlassIconButton(
+                              icon: const Icon(Icons.add_comment),
+                              tooltip: slang.t.common.sendComment,
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (context) => CommentInputBottomSheet(
+                                    title: slang.t.common.sendComment,
+                                    submitText: slang.t.common.send,
+                                    onSubmit: (text) async {
+                                      if (text.trim().isEmpty) {
+                                        showGlassToast(
+                                          slang.t.errors.commentCanNotBeEmpty,
+                                          type: GlassToastType.error,
+                                          position: GlassToastPosition.bottom,
+                                        );
+                                        return;
+                                      }
+                                      final UserService userService =
+                                          Get.find();
+                                      if (!userService.isAuthenticated) {
+                                        showGlassToast(
+                                          slang.t.errors.pleaseLoginFirst,
+                                          type: GlassToastType.error,
+                                          position: GlassToastPosition.bottom,
+                                        );
+                                        LoginService.showLogin();
+                                        return;
+                                      }
+                                      await commentController.postComment(text);
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
-                        // 关闭按钮
-                        IconButton(
+                        const SizedBox(width: 8),
+                        // 关闭按钮：弹层关闭键一律玻璃圆钮
+                        GlassIconButton(
+                          standalone: true,
                           icon: const Icon(Icons.close),
+                          tooltip: slang.t.common.close,
                           onPressed: () => Navigator.pop(context),
                         ),
                       ],
@@ -347,6 +450,13 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
       },
     );
   }
+
+  /// 概览卡顶部要让出的高度。
+  ///
+  /// 窄屏下概览卡直接跟在玻璃 header sliver 之后，SliverAppBar 已经占了位；
+  /// 宽屏同理。这段间距同时要让卡片顶边滚动经过 header 时，与 header 玻璃
+  /// 按钮的投影拉开距离——挨太近会让实色卡片的硬边把按钮阴影衬得很重。
+  static const double _overviewCardTopGap = 20;
 
   Widget _buildHeroScrollerSection(
     BuildContext context, {
@@ -382,7 +492,12 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
     final radius = BorderRadius.circular(14);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: UIConstants.pagePadding),
+      padding: const EdgeInsets.fromLTRB(
+        UIConstants.pagePadding,
+        _overviewCardTopGap,
+        UIConstants.pagePadding,
+        0,
+      ),
       child: Stack(
         children: [
           Positioned.fill(
@@ -618,28 +733,22 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
     return _GalleryCardSkeleton(width: width);
   }
 
-  Widget _buildRelatedTabBar(BuildContext context) {
+  /// 相关图库分段胶囊：接 TabController.animation，横滑 TabBarView 时
+  /// 高亮块跟手插值。
+  Widget _buildRelatedSegmentedControl(BuildContext context) {
     final t = slang.Translations.of(context);
-    return Material(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: TabBar(
-        controller: _relatedTabController,
-        tabs: [
-          Tab(text: t.galleryDetail.authorOtherGalleries),
-          Tab(text: t.galleryDetail.relatedGalleries),
-        ],
-        labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-        unselectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.normal,
-          fontSize: 14,
-        ),
-        indicatorSize: TabBarIndicatorSize.label,
-        dividerHeight: 0,
-      ),
+    return GlassSegmentedControl(
+      selectedIndex: _relatedTabController.index,
+      progress: _relatedTabController.animation,
+      onChanged: _relatedTabController.animateTo,
+      items: [
+        GlassSegmentItem(label: t.galleryDetail.authorOtherGalleries),
+        GlassSegmentItem(label: t.galleryDetail.relatedGalleries),
+      ],
     );
   }
 
-  Widget _buildRelatedTabBarView(BuildContext context) {
+  Widget _buildRelatedTabBarView(BuildContext context, {double topInset = 0}) {
     final t = slang.Translations.of(context);
     return TabBarView(
       controller: _relatedTabController,
@@ -660,6 +769,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
             crossAxisCount: _galleryDetailSideListCrossAxisCount,
             emptyMessage: t.galleryDetail.authorNoOtherGalleries,
             skeletonBuilder: _buildGalleryCardSkeleton,
+            topInset: topInset,
             itemBuilder: (context, imageModel, itemWidth) {
               return ImageModelCardListItemWidget(
                 imageModel: imageModel,
@@ -679,6 +789,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
             crossAxisCount: _galleryDetailSideListCrossAxisCount,
             emptyMessage: t.galleryDetail.noRelatedGalleries,
             skeletonBuilder: _buildGalleryCardSkeleton,
+            topInset: topInset,
             itemBuilder: (context, imageModel, itemWidth) {
               return ImageModelCardListItemWidget(
                 imageModel: imageModel,
@@ -691,12 +802,77 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
     );
   }
 
-  Widget _buildWideSideColumn(BuildContext context) {
-    return Column(
+  /// 窄屏：分段胶囊行悬浮在相关列表之上（列表用 topInset 让位）。
+  static const double _relatedTabsRowHeight = GlassTokens.pillHeight + 16;
+
+  Widget _buildNarrowRelatedArea(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
       children: [
-        const SizedBox(height: UIConstants.pagePadding),
-        _buildRelatedTabBar(context),
-        Expanded(child: _buildRelatedTabBarView(context)),
+        Positioned.fill(
+          child: _buildRelatedTabBarView(
+            context,
+            topInset: _relatedTabsRowHeight,
+          ),
+        ),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          height: _relatedTabsRowHeight,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: _buildRelatedSegmentedControl(context),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 宽屏右列：相关图库（分段胶囊 + 瀑布流）。
+  ///
+  /// 和窄屏的 [_buildNarrowRelatedArea] 同一套路：列表铺满整列、用 topInset 让位，
+  /// 分段行浮在它之上，卡片上滑时从胶囊背后穿过去。
+  ///
+  /// 与窄屏的差别在顶部那段状态栏：左列的状态栏留白是 SliverAppBar 自己吃掉的，
+  /// 右列没有 AppBar，得自己让出 `padding.top` 并补一条 EdgeFadeScrim 托底
+  /// （对应左列 header 的 flexibleSpace），否则卡片会滑进状态栏底下糊成一团。
+  /// 分段行按 headerRowHeight 居中，与左列 header 上的胶囊同一水平线。
+  Widget _buildWideSideColumn(BuildContext context) {
+    final double statusBarHeight = MediaQuery.paddingOf(context).top;
+    final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Positioned.fill(
+          child: _buildRelatedTabBarView(context, topInset: headerExtent),
+        ),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: EdgeFadeScrim.top(
+            height: headerExtent + GlassTokens.headerFadeExtent,
+            solidExtent: statusBarHeight,
+          ),
+        ),
+        Positioned(
+          top: statusBarHeight,
+          left: 0,
+          right: 0,
+          height: GlassTokens.headerRowHeight,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: _buildRelatedSegmentedControl(context),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -745,7 +921,6 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
         return KeyEventResult.ignored;
       },
       child: Scaffold(
-        appBar: isWide ? null : _buildAppBar(context),
         body: Obx(() {
           final imageModelInfo = detailController.imageModelInfo.value;
           final isLoading = detailController.isImageModelInfoLoading.value;
@@ -763,39 +938,38 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
             errorMessage: errorMessage,
           );
 
+          final double headerExtent =
+              paddingTop + GlassTokens.headerRowHeight;
+
           if (isWide) {
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Left Column (Scrollable Content with AppBar)
+                // 左列：玻璃 header 悬浮在顶部，概览卡从它背后滚过
                 Expanded(
-                  child: Column(
-                    children: [
-                      // AppBar for wide screen layout
-                      _buildAppBar(context),
-                      // Scrollable content
-                      Expanded(
-                        child: SingleChildScrollView(
-                          // 左侧内容整体可滚动
-                          physics:
-                              detailController.isHoveringHorizontalList.value
-                              ? const NeverScrollableScrollPhysics()
-                              : null,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              overviewCard,
-                              // 4. Safe Area Bottom Padding
-                              const SafeArea(top: false, child: SizedBox.shrink()),
-                            ],
-                          ),
+                  child: GlassHeaderOverlay(
+                    headerExtent: headerExtent,
+                    headerTop: paddingTop,
+                    solidExtent: paddingTop,
+                    header: _buildGlassHeaderRow(context),
+                    body: CustomScrollView(
+                      controller: _wideScrollController,
+                      physics: detailController.isHoveringHorizontalList.value
+                          ? const NeverScrollableScrollPhysics()
+                          : null,
+                      slivers: [
+                        SliverToBoxAdapter(
+                          child: SizedBox(height: headerExtent),
                         ),
-                      ),
-                    ],
+                        SliverToBoxAdapter(child: overviewCard),
+                        const SliverToBoxAdapter(
+                          child: SafeArea(top: false, child: SizedBox.shrink()),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                // Right Column (Fixed Width, Scrollable List)
+                // 右列：固定宽度的相关图库（分段胶囊 + 瀑布流）
                 SizedBox(
                   // 右侧固定宽度
                   width: sideColumnMinWidth,
@@ -804,20 +978,32 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
               ],
             );
           } else {
-            // Narrow Screen Layout — NestedScrollView so overview scrolls
-            // away while TabBar pins at the top.
-            return NestedScrollView(
-              physics: detailController.isHoveringHorizontalList.value
-                  ? const NeverScrollableScrollPhysics()
-                  : null,
-              headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                SliverToBoxAdapter(child: overviewCard),
-              ],
-              body: Column(
-                children: [
-                  _buildRelatedTabBar(context),
-                  Expanded(child: _buildRelatedTabBarView(context)),
-                ],
+            // 窄屏：ExtendedNestedScrollView——概览卡上滑收走，玻璃 header 与
+            // 相关图库分段行分别悬浮在顶部（分段行悬浮在列表之上，列表以
+            // topInset 让位）。
+            return GlassHeaderOverlay(
+              headerExtent: headerExtent,
+              headerTop: paddingTop,
+              solidExtent: paddingTop,
+              header: _buildGlassHeaderRow(context),
+              extra: [_buildScrollToTopFab(context)],
+              body: NotificationListener<ScrollNotification>(
+                onNotification: _handleNestedScrollNotification,
+                child: ExtendedNestedScrollView(
+                  key: _nestedKey,
+                  physics: detailController.isHoveringHorizontalList.value
+                      ? const NeverScrollableScrollPhysics()
+                      : null,
+                  onlyOneScrollInBody: true,
+                  // header 行已经悬浮在 GlassHeaderOverlay 里，sliver 树里
+                  // 不再有真正 pinned 的部分。
+                  pinnedHeaderSliverHeightBuilder: () => 0,
+                  headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                    SliverToBoxAdapter(child: SizedBox(height: headerExtent)),
+                    SliverToBoxAdapter(child: overviewCard),
+                  ],
+                  body: _buildNarrowRelatedArea(context),
+                ),
               ),
             );
           }

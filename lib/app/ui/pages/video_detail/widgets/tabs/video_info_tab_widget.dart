@@ -15,12 +15,11 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/add_to_favorite_dialog.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart' show LogUtils;
-import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart'; // 导入共享常量和组件
@@ -643,15 +642,11 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                     ExpandableSectionWidget(
                       title: t.oreno3d.name,
                       icon: Icons.view_in_ar,
+                      // 不加不透明背景色：外层 ExpandableSectionWidget 已是同色
+                      // Material，叠一层不透明背景会挡住其长按/点击水波纹。
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(UIConstants.cardPadding),
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -913,8 +908,11 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                     : Icons.playlist_add,
                 label: t.common.playList,
                 onTap: () => _handlePlaylistAction(context),
+                // 用 colorScheme.primary，不用 Theme.of(context).primaryColor——
+                // primaryColor 是 M2 遗留字段，M3 深色主题下它不跟随 colorScheme
+                // 翻转，选中态的图标/文字会退化成近黑色，糊在深色卡片上看不清。
                 accentColor: widget.controller.isInAnyPlaylist.value
-                    ? Theme.of(context).primaryColor
+                    ? Theme.of(context).colorScheme.primary
                     : null,
               ),
             ),
@@ -925,8 +923,9 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                     : Icons.bookmark_border,
                 label: t.favorite.localizeFavorite,
                 onTap: () => _handleFavoriteAction(context, videoInfo),
+                // 同上：M3 深色主题下必须走 colorScheme.primary。
                 accentColor: widget.controller.isInAnyFavorite.value
-                    ? Theme.of(context).primaryColor
+                    ? Theme.of(context).colorScheme.primary
                     : null,
               ),
             ),
@@ -947,12 +946,10 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
     final UserService userService = Get.find();
 
     if (!userService.isAuthenticated) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.errors.pleaseLoginFirst,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        t.errors.pleaseLoginFirst,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
       LoginService.showLogin();
       return;
@@ -1172,23 +1169,16 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
 
     if (sources.isEmpty) {
       LogUtils.w('没有可用的下载源', 'VideoInfoTabWidget');
-      showToastWidget(
-        MDToastWidget(
-          message: t.download.errors.noDownloadSourceNowPleaseWaitInfoLoaded,
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        t.download.errors.noDownloadSourceNowPleaseWaitInfoLoaded,
+        type: GlassToastType.error,
       );
       return;
     }
     final UserService userService = Get.find();
     if (!userService.isAuthenticated) {
       LogUtils.w('用户未登录，无法下载', 'VideoInfoTabWidget');
-      showToastWidget(
-        MDToastWidget(
-          message: t.errors.pleaseLoginFirst,
-          type: MDToastType.error,
-        ),
-      );
+      showGlassToast(t.errors.pleaseLoginFirst, type: GlassToastType.error);
       LoginService.showLogin();
       return;
     }
@@ -1239,12 +1229,10 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
 
     if (source.download == null) {
       LogUtils.w('所选质量没有下载链接', 'VideoInfoTabWidget');
-      showToastWidget(
-        MDToastWidget(
-          message: t.videoDetail.noDownloadUrl,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.top,
+      showGlassToast(
+        t.videoDetail.noDownloadUrl,
+        type: GlassToastType.error,
+        position: GlassToastPosition.top,
       );
       return;
     }
@@ -1253,11 +1241,9 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
       final videoInfo = widget.controller.videoInfo.value;
       if (videoInfo == null) {
         LogUtils.e('下载失败：视频信息为空', tag: 'VideoInfoTabWidget');
-        showToastWidget(
-          MDToastWidget(
-            message: t.download.errors.videoInfoNotFound,
-            type: MDToastType.error,
-          ),
+        showGlassToast(
+          t.download.errors.videoInfoNotFound,
+          type: GlassToastType.error,
         );
         return;
       }
@@ -1311,12 +1297,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
 
       if (savePath == null) {
         LogUtils.d('用户取消了下载操作', 'VideoInfoTabWidget');
-        showToastWidget(
-          MDToastWidget(
-            message: t.common.operationCancelled,
-            type: MDToastType.info,
-          ),
-        );
+        showGlassToast(t.common.operationCancelled, type: GlassToastType.info);
         return;
       }
 
@@ -1370,63 +1351,24 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
         message = t.download.errors.downloadFailed;
       }
 
-      showToastWidget(
-        MDToastWidget(message: message, type: MDToastType.error),
-        position: ToastPosition.top,
+      showGlassToast(
+        message,
+        type: GlassToastType.error,
+        position: GlassToastPosition.top,
       );
     }
   }
 
-  /// 统一展示“开始下载”的 SnackBar，确保旧提示被清理并按时消失
+  /// 统一展示「开始下载」的提示：一条带「查看下载列表」动作的玻璃 toast。
   void _showDownloadStartedSnackBar() {
-    final currentContext = context;
-    final t = slang.Translations.of(currentContext);
+    final t = slang.Translations.of(context);
 
-    // 使用 showToastWidget 自定义一个类似 SnackBar 的 UI
-    showToastWidget(
-      Container(
-        margin: const EdgeInsets.all(16),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: Theme.of(
-            currentContext,
-          ).colorScheme.inverseSurface, // 通常 SnackBar 是深色的
-          borderRadius: BorderRadius.circular(4),
-          boxShadow: const [BoxShadow(blurRadius: 8, color: Colors.black26)],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Expanded(
-              child: Text(
-                t.videoDetail.startDownloading,
-                style: TextStyle(
-                  color: Theme.of(currentContext).colorScheme.onInverseSurface,
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            TextButton(
-              onPressed: () {
-                // 关闭 Toast (如果你没有引用 dismissAllToast，可以让它自然消失，或者手动调用)
-                dismissAllToast();
-                NaviService.navigateToDownloadTaskListPage();
-              },
-              child: Text(
-                t.download.viewDownloadList,
-                style: TextStyle(
-                  color: Theme.of(currentContext).colorScheme.inversePrimary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      position: ToastPosition.bottom,
-      duration: const Duration(seconds: 4),
-      handleTouch: true, // 关键：允许点击 Toast 内部的按钮
-      dismissOtherToast: true, // 可选：显示新的时关闭旧的
+    showGlassToast(
+      t.videoDetail.startDownloading,
+      type: GlassToastType.success,
+      position: GlassToastPosition.bottom,
+      actionLabel: t.download.viewDownloadList,
+      onAction: NaviService.navigateToDownloadTaskListPage,
     );
   }
 

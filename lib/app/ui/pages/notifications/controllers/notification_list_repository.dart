@@ -1,10 +1,9 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class NotificationListRepository extends LoadingMoreBase<Map<String, dynamic>>
@@ -37,11 +36,9 @@ class NotificationListRepository extends LoadingMoreBase<Map<String, dynamic>>
       });
     } catch (e, stack) {
       LogUtils.e('刷新通知列表失败', error: e, stack: stack);
-      showToastWidget(
-        MDToastWidget(
-          message: '${slang.t.errors.failedToRefresh}: $e',
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        '${slang.t.errors.failedToRefresh}: $e',
+        type: GlassToastType.error,
       );
       return false;
     }
@@ -56,11 +53,9 @@ class NotificationListRepository extends LoadingMoreBase<Map<String, dynamic>>
     final int page = _pageIndex;
     try {
       if (!_userService.isAuthenticated) {
-        showToastWidget(
-          MDToastWidget(
-            message: slang.t.errors.pleaseLoginFirst,
-            type: MDToastType.error,
-          ),
+        showGlassToast(
+          slang.t.errors.pleaseLoginFirst,
+          type: GlassToastType.error,
         );
         return false;
       }
@@ -106,11 +101,9 @@ class NotificationListRepository extends LoadingMoreBase<Map<String, dynamic>>
       }
       isSuccess = false;
       LogUtils.e('加载通知列表失败', error: e, stack: stack);
-      showToastWidget(
-        MDToastWidget(
-          message: '${slang.t.errors.failedToFetchData}: $e',
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        '${slang.t.errors.failedToFetchData}: $e',
+        type: GlassToastType.error,
       );
     }
     return isSuccess;

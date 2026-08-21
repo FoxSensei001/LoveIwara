@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_error_label.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/move_to_category_sheet.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
@@ -10,9 +11,8 @@ import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_scale.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_status_colors.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/status_label_widget.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:open_file/open_file.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 import 'package:path/path.dart' as path;
@@ -26,9 +26,16 @@ class DefaultDownloadTaskItem extends StatelessWidget {
 
   IconData _getFileIcon() {
     final extension = path.extension(task.fileName).toLowerCase();
-    
+
     // 图片文件
-    if (['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'].contains(extension)) {
+    if ([
+      '.jpg',
+      '.jpeg',
+      '.png',
+      '.gif',
+      '.webp',
+      '.bmp',
+    ].contains(extension)) {
       return Icons.image;
     }
     // 音频文件
@@ -36,7 +43,14 @@ class DefaultDownloadTaskItem extends StatelessWidget {
       return Icons.audio_file;
     }
     // 视频文件
-    else if (['.mp4', '.mkv', '.avi', '.mov', '.wmv', '.flv'].contains(extension)) {
+    else if ([
+      '.mp4',
+      '.mkv',
+      '.avi',
+      '.mov',
+      '.wmv',
+      '.flv',
+    ].contains(extension)) {
       return Icons.video_file;
     }
     // 压缩文件
@@ -54,7 +68,14 @@ class DefaultDownloadTaskItem extends StatelessWidget {
   bool _isImageFile() {
     if (task.status != DownloadStatus.completed) return false;
     final extension = path.extension(task.fileName).toLowerCase();
-    return ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'].contains(extension);
+    return [
+      '.jpg',
+      '.jpeg',
+      '.png',
+      '.gif',
+      '.webp',
+      '.bmp',
+    ].contains(extension);
   }
 
   @override
@@ -63,188 +84,202 @@ class DefaultDownloadTaskItem extends StatelessWidget {
     final scale = DownloadUiScale.of(context);
     return DownloadActionButtonTheme(
       child: GestureDetector(
-      onSecondaryTapUp: (details) {
-        final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-        final RelativeRect position = RelativeRect.fromRect(
-          Rect.fromPoints(
-            details.globalPosition,
-            details.globalPosition,
-          ),
-          Offset.zero & overlay.size,
-        );
-        showMenu(
-          context: context,
-          position: position,
-          items: [
-            // 查看下载详情
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.info),
-                  const SizedBox(width: 8),
-                  Text(t.download.downloadDetail),
-                ],
-              ),
-              onTap: () => showDownloadDetailDialog(context, task),
-            ),
-            // 复制下载链接
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.link),
-                  const SizedBox(width: 8),
-                  Text(t.download.copyDownloadUrl),
-                ],
-              ),
-              onTap: () => _copyDownloadUrl(context),
-            ),
-            // 移至分类
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.drive_file_move_outline),
-                  const SizedBox(width: 8),
-                  Text(t.download.category.moveTo),
-                ],
-              ),
-              onTap: () => showMoveToCategorySheet(context, [task.id]),
-            ),
-            if (task.status == DownloadStatus.completed) ...[
+        onSecondaryTapUp: (details) {
+          final RenderBox overlay =
+              Overlay.of(context).context.findRenderObject() as RenderBox;
+          final RelativeRect position = RelativeRect.fromRect(
+            Rect.fromPoints(details.globalPosition, details.globalPosition),
+            Offset.zero & overlay.size,
+          );
+          showMenu(
+            context: context,
+            position: position,
+            items: [
+              // 查看下载详情
               PopupMenuItem(
                 child: Row(
                   children: [
-                    const Icon(Icons.open_in_new),
+                    const Icon(Icons.info),
                     const SizedBox(width: 8),
-                    Text(t.download.openFile),
+                    Text(t.download.downloadDetail),
                   ],
                 ),
-                onTap: () => _openFile(context),
+                onTap: () => showDownloadDetailDialog(context, task),
               ),
-              if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
+              // 复制下载链接
+              PopupMenuItem(
+                child: Row(
+                  children: [
+                    const Icon(Icons.link),
+                    const SizedBox(width: 8),
+                    Text(t.download.copyDownloadUrl),
+                  ],
+                ),
+                onTap: () => _copyDownloadUrl(context),
+              ),
+              // 移至分类
+              PopupMenuItem(
+                child: Row(
+                  children: [
+                    const Icon(Icons.drive_file_move_outline),
+                    const SizedBox(width: 8),
+                    Text(t.download.category.moveTo),
+                  ],
+                ),
+                onTap: () => showMoveToCategorySheet(context, [task.id]),
+              ),
+              if (task.status == DownloadStatus.completed) ...[
                 PopupMenuItem(
                   child: Row(
                     children: [
-                      const Icon(Icons.folder_open),
+                      const Icon(Icons.open_in_new),
                       const SizedBox(width: 8),
-                      Text(t.download.showInFolder),
+                      Text(t.download.openFile),
                     ],
                   ),
-                  onTap: () => _showInFolder(context),
+                  onTap: () => _openFile(context),
                 ),
-            ],
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.delete, color: Colors.red),
-                  const SizedBox(width: 8),
-                  Text(t.download.deleteTask, style: const TextStyle(color: Colors.red)),
-                ],
-              ),
-              onTap: () => _showDeleteConfirmDialog(context),
-            ),
-            // 强制删除
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.delete, color: Colors.red),
-                  const SizedBox(width: 8),
-                  Text(t.download.forceDeleteTask, style: const TextStyle(color: Colors.red)),
-                ],
-              ),
-              onTap: () => _showDeleteConfirmDialog(context, force: true),
-            ),
-          ],
-        );
-      },
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        clipBehavior: Clip.hardEdge,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: InkWell(
-          onTap: () => _onTap(context),
-          child: Column(
-            children: [
-              // 上部内容区域（带 padding）
-              Padding(
-                padding: EdgeInsets.all(12 * scale),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 文件图标
-                    Container(
-                      width: 48 * scale,
-                      height: 48 * scale,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: _isImageFile() ?
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.file(
-                            File(task.savePath),
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => Icon(
-                              _getFileIcon(),
-                              size: 24 * scale,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                        )
-                        : Icon(
-                          _getFileIcon(),
-                          size: 24 * scale,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                    ),
-                    SizedBox(width: 12 * scale),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // 文件名
-                          Text(
-                            task.fileName,
-                            style: Theme.of(context).textTheme.titleMedium,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                    // 主要操作 + 快捷删除按钮
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
+                if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
+                  PopupMenuItem(
+                    child: Row(
                       children: [
-                        _buildMainActionButton(context),
-                        Obx(() {
-                          final isProcessing = DownloadService.to.isTaskProcessing(task.id);
-                          return IconButton(
-                            icon: isProcessing
-                                ? SizedBox(
-                                    width: 24 * scale,
-                                    height: 24 * scale,
-                                    child: const CircularProgressIndicator(strokeWidth: 2),
-                                  )
-                                : const Icon(Icons.delete_outline),
-                            tooltip: t.download.deleteTask,
-                            onPressed: isProcessing ? null : () => _showDeleteConfirmDialog(context),
-                          );
-                        }),
+                        const Icon(Icons.folder_open),
+                        const SizedBox(width: 8),
+                        Text(t.download.showInFolder),
                       ],
+                    ),
+                    onTap: () => _showInFolder(context),
+                  ),
+              ],
+              PopupMenuItem(
+                child: Row(
+                  children: [
+                    const Icon(Icons.delete, color: Colors.red),
+                    const SizedBox(width: 8),
+                    Text(
+                      t.download.deleteTask,
+                      style: const TextStyle(color: Colors.red),
                     ),
                   ],
                 ),
+                onTap: () => _showDeleteConfirmDialog(context),
               ),
-              // 进度和状态（紧贴边缘，无 padding）
-              _buildProgressStatusBar(context),
+              // 强制删除
+              PopupMenuItem(
+                child: Row(
+                  children: [
+                    const Icon(Icons.delete, color: Colors.red),
+                    const SizedBox(width: 8),
+                    Text(
+                      t.download.forceDeleteTask,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ],
+                ),
+                onTap: () => _showDeleteConfirmDialog(context, force: true),
+              ),
             ],
+          );
+        },
+        child: Card(
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          clipBehavior: Clip.hardEdge,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: InkWell(
+            onTap: () => _onTap(context),
+            child: Column(
+              children: [
+                // 上部内容区域（带 padding）
+                Padding(
+                  padding: EdgeInsets.all(12 * scale),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 文件图标
+                      Container(
+                        width: 48 * scale,
+                        height: 48 * scale,
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: _isImageFile()
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.file(
+                                  File(task.savePath),
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Icon(
+                                        _getFileIcon(),
+                                        size: 24 * scale,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary,
+                                      ),
+                                ),
+                              )
+                            : Icon(
+                                _getFileIcon(),
+                                size: 24 * scale,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                      ),
+                      SizedBox(width: 12 * scale),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // 文件名
+                            Text(
+                              task.fileName,
+                              style: Theme.of(context).textTheme.titleMedium,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      // 主要操作 + 快捷删除按钮
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildMainActionButton(context),
+                          Obx(() {
+                            final isProcessing = DownloadService.to
+                                .isTaskProcessing(task.id);
+                            return IconButton(
+                              icon: isProcessing
+                                  ? SizedBox(
+                                      width: 24 * scale,
+                                      height: 24 * scale,
+                                      child: const CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(Icons.delete_outline),
+                              tooltip: t.download.deleteTask,
+                              onPressed: isProcessing
+                                  ? null
+                                  : () => _showDeleteConfirmDialog(context),
+                            );
+                          }),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                // 进度和状态（紧贴边缘，无 padding）
+                _buildProgressStatusBar(context),
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -324,7 +359,10 @@ class DefaultDownloadTaskItem extends StatelessWidget {
               children: [
                 // 标题
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
                   child: Row(
                     children: [
                       Text(
@@ -382,7 +420,9 @@ class DefaultDownloadTaskItem extends StatelessWidget {
                               _openFile(context);
                             },
                           ),
-                          if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
+                          if (Platform.isWindows ||
+                              Platform.isMacOS ||
+                              Platform.isLinux)
                             ListTile(
                               leading: const Icon(Icons.folder_open),
                               title: Text(t.download.showInFolder),
@@ -395,7 +435,10 @@ class DefaultDownloadTaskItem extends StatelessWidget {
                         const Divider(height: 1),
                         ListTile(
                           leading: const Icon(Icons.delete, color: Colors.red),
-                          title: Text(t.download.deleteTask, style: const TextStyle(color: Colors.red)),
+                          title: Text(
+                            t.download.deleteTask,
+                            style: const TextStyle(color: Colors.red),
+                          ),
                           onTap: () {
                             Navigator.pop(context);
                             _showDeleteConfirmDialog(context);
@@ -404,7 +447,10 @@ class DefaultDownloadTaskItem extends StatelessWidget {
                         // 强制删除
                         ListTile(
                           leading: const Icon(Icons.delete, color: Colors.red),
-                          title: Text(t.download.forceDeleteTask, style: const TextStyle(color: Colors.red)),
+                          title: Text(
+                            t.download.forceDeleteTask,
+                            style: const TextStyle(color: Colors.red),
+                          ),
                           onTap: () {
                             Navigator.pop(context);
                             _showDeleteConfirmDialog(context, force: true);
@@ -473,14 +519,11 @@ class DefaultDownloadTaskItem extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  StatusLabel(status: task.status, text: _getStatusText(context)),
-                  if (task.error != null)
-                    Text(
-                      task.error!,
-                      style: const TextStyle(color: Colors.red),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                  StatusLabel(
+                    status: task.status,
+                    text: _getStatusText(context),
+                  ),
+                  DownloadErrorLabel(task: task),
                 ],
               ),
             ),
@@ -503,27 +546,39 @@ class DefaultDownloadTaskItem extends StatelessWidget {
         return t.download.waitingForDownload;
       case DownloadStatus.downloading:
         if (task.totalBytes > 0) {
-          final progress =
-              (task.downloadedBytes / task.totalBytes * 100).toStringAsFixed(1);
+          final progress = (task.downloadedBytes / task.totalBytes * 100)
+              .toStringAsFixed(1);
           final downloaded = _formatFileSize(task.downloadedBytes);
           final total = _formatFileSize(task.totalBytes);
           final speed = (task.speed / 1024 / 1024).toStringAsFixed(2);
           // return '下载中 $downloaded/$total ($progress%) • ${speed}MB/s';
-          return t.download.downloadingDownloadedTotalProgressSpeed(downloaded: downloaded, total: total, progress: progress, speed: speed);
+          return t.download.downloadingDownloadedTotalProgressSpeed(
+            downloaded: downloaded,
+            total: total,
+            progress: progress,
+            speed: speed,
+          );
         } else {
           final downloaded = _formatFileSize(task.downloadedBytes);
           final speed = (task.speed / 1024 / 1024).toStringAsFixed(2);
           // return '下载中 $downloaded • ${speed}MB/s';
-          return t.download.downloadingOnlyDownloadedAndSpeed(downloaded: downloaded, speed: speed);
+          return t.download.downloadingOnlyDownloadedAndSpeed(
+            downloaded: downloaded,
+            speed: speed,
+          );
         }
       case DownloadStatus.paused:
         if (task.totalBytes > 0) {
-          final progress =
-              (task.downloadedBytes / task.totalBytes * 100).toStringAsFixed(1);
+          final progress = (task.downloadedBytes / task.totalBytes * 100)
+              .toStringAsFixed(1);
           final downloaded = _formatFileSize(task.downloadedBytes);
           final total = _formatFileSize(task.totalBytes);
           // return '已暂停 • $downloaded/$total ($progress%)';
-          return t.download.pausedForDownloadedAndTotal(downloaded: downloaded, total: total, progress: progress);
+          return t.download.pausedForDownloadedAndTotal(
+            downloaded: downloaded,
+            total: total,
+            progress: progress,
+          );
         } else {
           final downloaded = _formatFileSize(task.downloadedBytes);
           // return '已暂停 • 已下载 $downloaded';
@@ -548,8 +603,9 @@ class DefaultDownloadTaskItem extends StatelessWidget {
       unitIndex++;
     }
 
-    String sizeStr =
-        size >= 10 ? size.round().toString() : size.toStringAsFixed(1);
+    String sizeStr = size >= 10
+        ? size.round().toString()
+        : size.toStringAsFixed(1);
     return '$sizeStr ${units[unitIndex]}';
   }
 
@@ -561,20 +617,16 @@ class DefaultDownloadTaskItem extends StatelessWidget {
       await SystemClipboard.instance?.write([item]);
 
       if (context.mounted) {
-        showToastWidget(
-          MDToastWidget(
-            message: t.download.copyDownloadUrlSuccess,
-            type: MDToastType.success,
-          ),
+        showGlassToast(
+          t.download.copyDownloadUrlSuccess,
+          type: GlassToastType.success,
         );
       }
     } catch (e) {
       if (context.mounted) {
-        showToastWidget(
-          MDToastWidget(
-            message: t.download.errors.copyFailed,
-            type: MDToastType.error,
-          ),
+        showGlassToast(
+          t.download.errors.copyFailed,
+          type: GlassToastType.error,
         );
       }
     }
@@ -589,11 +641,9 @@ class DefaultDownloadTaskItem extends StatelessWidget {
       final file = File(filePath);
       if (!await file.exists()) {
         if (context.mounted) {
-          showToastWidget(
-            MDToastWidget(
-              message: t.download.errors.fileNotFound,
-              type: MDToastType.error,
-            ),
+          showGlassToast(
+            t.download.errors.fileNotFound,
+            type: GlassToastType.error,
           );
         }
         return;
@@ -611,11 +661,9 @@ class DefaultDownloadTaskItem extends StatelessWidget {
     } catch (e) {
       LogUtils.e('打开文件夹失败', tag: 'DownloadTaskItem', error: e);
       if (context.mounted) {
-        showToastWidget(
-          MDToastWidget(
-            message: t.download.errors.openFolderFailed,
-            type: MDToastType.error,
-          ),
+        showGlassToast(
+          t.download.errors.openFolderFailed,
+          type: GlassToastType.error,
         );
       }
     }
@@ -630,37 +678,36 @@ class DefaultDownloadTaskItem extends StatelessWidget {
       final file = File(filePath);
       if (!await file.exists()) {
         if (context.mounted) {
-          showToastWidget(
-            MDToastWidget(
-              message: t.download.errors.fileNotFound,
-              type: MDToastType.error,
-            ),
+          showGlassToast(
+            t.download.errors.fileNotFound,
+            type: GlassToastType.error,
           );
         }
         return;
       }
 
       final result = await OpenFile.open(filePath);
-      LogUtils.d('打开文件结果: ${result.type}, ${result.message}', 'DownloadTaskItem');
+      LogUtils.d(
+        '打开文件结果: ${result.type}, ${result.message}',
+        'DownloadTaskItem',
+      );
       if (result.type != ResultType.done) {
         LogUtils.e('打开文件失败: ${result.message}', tag: 'DownloadTaskItem');
         if (context.mounted) {
-          showToastWidget(
-            MDToastWidget(
-              message: t.download.errors.openFileFailedWithMessage(message: result.message),
-              type: MDToastType.error,
+          showGlassToast(
+            t.download.errors.openFileFailedWithMessage(
+              message: result.message,
             ),
+            type: GlassToastType.error,
           );
         }
       }
     } catch (e) {
       LogUtils.e('打开文件失败', tag: 'DownloadTaskItem', error: e);
       if (context.mounted) {
-        showToastWidget(
-          MDToastWidget(
-            message: t.download.errors.openFileFailed,
-            type: MDToastType.error,
-          ),
+        showGlassToast(
+          t.download.errors.openFileFailed,
+          type: GlassToastType.error,
         );
       }
     }
@@ -688,8 +735,14 @@ class DefaultDownloadTaskItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           AlertDialog(
-            title: Text(force ? t.download.forceDeleteTask : t.download.deleteTask),
-            content: Text(force ? t.download.forceDeleteTaskConfirmation : t.download.deleteTaskConfirmation),
+            title: Text(
+              force ? t.download.forceDeleteTask : t.download.deleteTask,
+            ),
+            content: Text(
+              force
+                  ? t.download.forceDeleteTaskConfirmation
+                  : t.download.deleteTaskConfirmation,
+            ),
             actions: [
               TextButton(
                 onPressed: () => AppService.tryPop(),
@@ -698,7 +751,10 @@ class DefaultDownloadTaskItem extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   AppService.tryPop();
-                  DownloadService.to.deleteTask(task.id, ignoreFileDeleteError: force);
+                  DownloadService.to.deleteTask(
+                    task.id,
+                    ignoreFileDeleteError: force,
+                  );
                 },
                 child: Text(
                   t.common.confirm,

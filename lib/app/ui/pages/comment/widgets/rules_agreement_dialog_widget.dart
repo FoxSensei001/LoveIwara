@@ -5,6 +5,8 @@ import 'package:i_iwara/app/models/rules.model.dart';
 import 'package:i_iwara/app/services/comment_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 class RulesAgreementDialog extends StatefulWidget {
@@ -25,9 +27,19 @@ class _RulesAgreementDialogState extends State<RulesAgreementDialog> {
   String _error = '';
   List<RulesModel> _rules = [];
 
+  /// 「显示原始文本」在本弹窗里是整份规则的显示偏好：一枚玻璃圆钮放标题行，
+  /// 所有条目跟着一起翻（每条正文的内置行内开关已关闭）。
+  late bool _showOriginal;
+
+  /// 哪些条目确实有加工差异；只要有一条有，标题行那枚钮就长出来。
+  /// ListView 会回收条目，所以这里只增不减——避免滚动时按钮忽隐忽现。
+  final Set<int> _processedRuleIndexes = <int>{};
+
   @override
   void initState() {
     super.initState();
+    _showOriginal = Get.find<ConfigService>()[ConfigKey
+        .SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
     _loadRules();
   }
 
@@ -67,18 +79,28 @@ class _RulesAgreementDialogState extends State<RulesAgreementDialog> {
         Container(
           padding: const EdgeInsets.all(16.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                t.common.rules,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  t.common.rules,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-              IconButton(
-                onPressed: () => Navigator.pop(context),
+              MarkdownOriginalTextToggle(
+                style: MarkdownToggleStyle.glass,
+                visible: _processedRuleIndexes.isNotEmpty,
+                showOriginal: _showOriginal,
+                padding: const EdgeInsets.only(right: 4),
+                onChanged: (v) => setState(() => _showOriginal = v),
+              ),
+              GlassIconButton(
+                standalone: true,
                 icon: const Icon(Icons.close),
+                tooltip: t.common.close,
+                onPressed: () => Navigator.pop(context),
               ),
             ],
           ),
@@ -118,6 +140,14 @@ class _RulesAgreementDialogState extends State<RulesAgreementDialog> {
                     CustomMarkdownBody(
                       data: rule.getLocalizedBody(),
                       clickInternalLinkByUrlLaunch: true,
+                      initialShowUnprocessedText: _showOriginal,
+                      onProcessedContentChanged: (hasProcessed) {
+                        if (!hasProcessed ||
+                            _processedRuleIndexes.contains(index)) {
+                          return;
+                        }
+                        setState(() => _processedRuleIndexes.add(index));
+                      },
                     ),
                     const SizedBox(height: 16),
                   ],

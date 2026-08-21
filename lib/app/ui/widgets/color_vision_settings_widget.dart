@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/common/color_vision_filters.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:oktoast/oktoast.dart';
 
 /// 通用的色觉辅助滤镜设置组件：一张可点击的卡片（显示当前档位），
 /// 点击后弹出档位选择对话框；可选附带一条说明提示横幅。
@@ -85,8 +85,7 @@ class ColorVisionSettingsWidget extends StatelessWidget {
     return {
       ColorVisionFilterType.none.id: t.colorVisionAssist.disable,
       ColorVisionFilterType.protanopia.id: t.colorVisionAssist.protanopia,
-      ColorVisionFilterType.deuteranopia.id:
-          t.colorVisionAssist.deuteranopia,
+      ColorVisionFilterType.deuteranopia.id: t.colorVisionAssist.deuteranopia,
       ColorVisionFilterType.tritanopia.id: t.colorVisionAssist.tritanopia,
     };
   }
@@ -167,10 +166,7 @@ class ColorVisionSettingsWidget extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(
-                Icons.invert_colors,
-                color: isDark ? Colors.white : null,
-              ),
+              Icon(Icons.invert_colors, color: isDark ? Colors.white : null),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -178,9 +174,7 @@ class ColorVisionSettingsWidget extends StatelessWidget {
                   children: [
                     Text(
                       t.colorVisionAssist.title,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.titleMedium?.copyWith(
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -227,106 +221,102 @@ class ColorVisionSettingsWidget extends StatelessWidget {
     final headerText = description ?? t.colorVisionAssist.description;
 
     await showAppDialog<void>(
-      AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.invert_colors, color: Theme.of(context).primaryColor),
-            const SizedBox(width: 8),
-            Expanded(child: Text(t.colorVisionAssist.title)),
-            IconButton(
-              onPressed: () => AppService.tryPop(),
-              icon: const Icon(Icons.close),
-              tooltip: t.common.close,
-              visualDensity: VisualDensity.compact,
+      Builder(
+        builder: (context) {
+          final cs = Theme.of(context).colorScheme;
+          return AlertDialog(
+            // 标题行关闭钮走全局约定的玻璃圆钮
+            title: Row(
+              children: [
+                Icon(Icons.invert_colors, color: cs.primary),
+                const SizedBox(width: 8),
+                Expanded(child: Text(t.colorVisionAssist.title)),
+                GlassIconButton(
+                  standalone: true,
+                  icon: const Icon(Icons.close),
+                  tooltip: t.common.close,
+                  onPressed: () => AppService.tryPop(),
+                ),
+              ],
             ),
-          ],
-        ),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.6,
-            ),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Text(
-                      headerText,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                  ...ColorVisionFilterType.values.map((type) {
-                    final isSelected =
-                        (configService[configKey] as String) == type.id;
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: isSelected
-                              ? Theme.of(context).primaryColor
-                              : Colors.grey.withValues(alpha: 0.3),
-                          width: isSelected ? 2 : 1,
+            content: SizedBox(
+              width: double.maxFinite,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.6,
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Text(
+                          headerText,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: cs.onSurfaceVariant),
                         ),
-                        borderRadius: BorderRadius.circular(8),
-                        color: isSelected
-                            ? Theme.of(
-                                context,
-                              ).primaryColor.withValues(alpha: 0.1)
-                            : null,
                       ),
-                      child: ListTile(
-                        title: Text(
-                          optionLabels[type.id] ?? type.id,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
+                      ...ColorVisionFilterType.values.map((type) {
+                        final isSelected =
+                            (configService[configKey] as String) == type.id;
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: isSelected
+                                  ? cs.primary
+                                  : cs.outlineVariant,
+                              width: isSelected ? 2 : 1,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
                             color: isSelected
-                                ? Theme.of(context).primaryColor
+                                ? cs.primaryContainer.withValues(alpha: 0.4)
                                 : null,
                           ),
-                        ),
-                        subtitle: Text(
-                          optionDescriptions[type.id] ?? '',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: isSelected
-                                ? Theme.of(
-                                    context,
-                                  ).primaryColor.withValues(alpha: 0.8)
-                                : Colors.grey[600],
-                          ),
-                        ),
-                        trailing: isSelected
-                            ? Icon(
-                                Icons.check_circle,
-                                color: Theme.of(context).primaryColor,
-                              )
-                            : Icon(
-                                Icons.radio_button_unchecked,
-                                color: Colors.grey[400],
+                          child: ListTile(
+                            title: Text(
+                              optionLabels[type.id] ?? type.id,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: isSelected ? cs.primary : null,
                               ),
-                        onTap: () {
-                          _applySelection(
-                            configService,
-                            type,
-                            configKey,
-                            optionLabels,
-                          );
-                          AppService.tryPop();
-                        },
-                      ),
-                    );
-                  }),
-                ],
+                            ),
+                            subtitle: Text(
+                              optionDescriptions[type.id] ?? '',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: isSelected
+                                    ? cs.primary.withValues(alpha: 0.8)
+                                    : cs.onSurfaceVariant,
+                              ),
+                            ),
+                            trailing: isSelected
+                                ? Icon(Icons.check_circle, color: cs.primary)
+                                : Icon(
+                                    Icons.radio_button_unchecked,
+                                    color: cs.outline,
+                                  ),
+                            onTap: () {
+                              _applySelection(
+                                configService,
+                                type,
+                                configKey,
+                                optionLabels,
+                              );
+                              AppService.tryPop();
+                            },
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
       barrierDismissible: true,
     );
@@ -344,16 +334,14 @@ class ColorVisionSettingsWidget extends StatelessWidget {
 
     configService[configKey] = type.id;
     // 滤镜即时作用于目标画面，提示用户已生效
-    showToastWidget(
-      MDToastWidget(
-        message: type == ColorVisionFilterType.none
-            ? t.colorVisionAssist.disabledToast
-            : t.colorVisionAssist.appliedToast(
-                filterName: optionLabels[type.id] ?? type.id,
-              ),
-        type: MDToastType.success,
-      ),
-      position: ToastPosition.top,
+    showGlassToast(
+      type == ColorVisionFilterType.none
+          ? t.colorVisionAssist.disabledToast
+          : t.colorVisionAssist.appliedToast(
+              filterName: optionLabels[type.id] ?? type.id,
+            ),
+      type: GlassToastType.success,
+      position: GlassToastPosition.top,
     );
   }
 }

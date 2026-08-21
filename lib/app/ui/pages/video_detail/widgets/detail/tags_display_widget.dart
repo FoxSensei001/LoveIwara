@@ -42,9 +42,7 @@ class TagsDisplayWidget extends StatelessWidget {
     final hasTranslation = localized != tag.id;
     final label = showOriginal ? tag.id : localized;
     // 悬浮提示展示「另一面」：当前显示译名则提示原始 key，反之亦然。
-    final tooltip = hasTranslation
-        ? (showOriginal ? localized : tag.id)
-        : null;
+    final tooltip = hasTranslation ? (showOriginal ? localized : tag.id) : null;
 
     final chip = MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -68,13 +66,7 @@ class TagsDisplayWidget extends StatelessWidget {
               width: 1,
             ),
           ),
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontSize: 13,
-              height: 1.2,
-            ),
-          ),
+          child: Text(label, style: const TextStyle(fontSize: 13, height: 1.2)),
         ),
       ),
     );

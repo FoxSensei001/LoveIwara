@@ -117,6 +117,16 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   // 记录已预加载的图片索引，避免重复预加载
   final Set<int> _preloadedImages = {};
 
+  // 下拉/上滑返回：超过该位移（或够快的甩动）就 pop
+  static const double _dismissTriggerDistance = 160.0;
+
+  // 背景消隐参考距离：比触发阈值略大，松手前背景已淡到接近透明，
+  // 接上路由自身的淡出不会有突兀跳变。
+  static const double _dismissFadeDistance = 200.0;
+
+  // 背景最多淡到的透明度（保留一点点压暗，避免下层页面直接刺眼地全亮）
+  static const double _dismissMinBackgroundAlpha = 0.08;
+
   int get _controllerCount {
     var count = widget.galleryItems.length;
     final standardLength = widget.standardGalleryItems?.length ?? 0;
@@ -571,7 +581,8 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   void _onDismissDragEnd(DragEndDetails details) {
     final dy = _dismissOffset.dy;
     final vy = details.velocity.pixelsPerSecond.dy;
-    final shouldDismiss = dy.abs() > 160 || vy.abs() > 900;
+    final shouldDismiss =
+        dy.abs() > _dismissTriggerDistance || vy.abs() > 900;
 
     if (shouldDismiss) {
       Navigator.of(context).maybePop();
@@ -766,8 +777,14 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
         ? _screenWidth * 0.2
         : _screenWidth * 0.25;
 
-    final dismissProgress = (_dismissOffset.dy.abs() / 320).clamp(0.0, 1.0);
-    final backgroundAlpha = (1.0 - dismissProgress).clamp(0.0, 1.0);
+    final dismissProgress = (_dismissOffset.dy.abs() / _dismissFadeDistance)
+        .clamp(0.0, 1.0);
+    // 拖得越远背景越透，露出下层页面（Telegram 观感）。
+    // 曲线用 easeOut：刚起手就有明显反馈，尾段变化放缓。
+    final backgroundAlpha =
+        1.0 -
+        Curves.easeOut.transform(dismissProgress) *
+            (1.0 - _dismissMinBackgroundAlpha);
     final contentScale = (1.0 - dismissProgress * 0.12).clamp(0.88, 1.0);
     final chromeOpacity = (_isUiVisible && !_isDraggingToDismiss) ? 1.0 : 0.0;
 
@@ -835,6 +852,12 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                           KeyedSubtree(
                             key: ValueKey(_activeQuality),
                             child: PhotoViewGallery.builder(
+                              // PhotoView 默认会给每页铺一层不透明黑底，压在外层那层
+                              // 会随拖拽淡出的黑背景之上 —— 不置空的话拖拽消隐完全看不见。
+                              // 黑底统一由外层 Container 提供。
+                              backgroundDecoration: const BoxDecoration(
+                                color: Colors.transparent,
+                              ),
                               scrollPhysics: const BouncingScrollPhysics(),
                               allowImplicitScrolling: false,
                               wantKeepAlive: false,

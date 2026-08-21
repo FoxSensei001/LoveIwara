@@ -7,8 +7,11 @@ import 'package:i_iwara/common/constants.dart';
 import 'dart:convert';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
-
-enum _ImportMenuAction { addByUrl, batchImport }
+import 'package:i_iwara/app/ui/widgets/glass/batch_confirm_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_overflow_menu_button.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 
 class EmojiGroupDetailSheet extends StatefulWidget {
   final EmojiGroup group;
@@ -37,7 +40,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
     setState(() {
       _isLoading = true;
     });
-    
+
     Future.delayed(const Duration(milliseconds: 100), () {
       final images = _emojiService.getEmojiImages(widget.group.groupId);
       setState(() {
@@ -80,11 +83,37 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context);
+    // 选择态：动作行由底部玻璃坞承载，与全站其它九处批量能力同一套语言。
+    // 系统返回 / iOS 侧滑 / Esc 先退选择态，而不是把整只弹窗关掉。
+    return BatchSelectionScope(
+      active: _isSelectionMode,
+      selectedCount: _selectedImages.length,
+      actions: [
+        GlassSelectionAction(
+          icon: Icons.delete,
+          label: t.emoji.delete,
+          destructive: true,
+          onPressed: _selectedImages.isEmpty ? null : _showBatchDeleteDialog,
+        ),
+      ],
+      onClear: _clearSelection,
+      child: SelectionPopScope(
+        active: _isSelectionMode,
+        onExit: _toggleSelectionMode,
+        child: _buildSheet(context),
+      ),
+    );
+  }
+
+  Widget _buildSheet(BuildContext context) {
+    final t = Translations.of(context);
+    final cs = Theme.of(context).colorScheme;
     return Container(
       height: MediaQuery.of(context).size.height * 0.9,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
         ),
@@ -99,7 +128,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: Colors.grey.shade300,
+              color: cs.outlineVariant,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -107,7 +136,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cs.surface,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
@@ -123,8 +152,11 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
             child: Row(
               children: [
                 Expanded(
+                  // 选择态下标题让位给计数：进选择态是一次页面级的模式切换
                   child: Text(
-                    widget.group.name,
+                    _isSelectionMode
+                        ? t.common.selectedRecords(num: _selectedImages.length)
+                        : widget.group.name,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -134,102 +166,77 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                 ),
                 const SizedBox(width: 8),
                 if (!_isSelectionMode) ...[
-                  PopupMenuButton<_ImportMenuAction>(
-                    icon: const Icon(Icons.more_vert),
-                    onSelected: (action) {
-                      switch (action) {
-                        case _ImportMenuAction.addByUrl:
-                          _showUrlInputDialog();
-                          break;
-                        case _ImportMenuAction.batchImport:
-                          _showBatchImportDialog();
-                          break;
-                      }
-                    },
-                    itemBuilder: (context) {
-                      final t = Translations.of(context);
-                      return [
-                        PopupMenuItem(
-                          value: _ImportMenuAction.addByUrl,
-                           child: Row(
-                             children: [
-                               const Icon(Icons.link, size: 18),
-                               const SizedBox(width: 8),
-                               Text(t.emoji.addImageByUrl),
-                             ],
-                           ),
-                        ),
-                        PopupMenuItem(
-                          value: _ImportMenuAction.batchImport,
-                           child: Row(
-                             children: [
-                               const Icon(Icons.file_upload, size: 18),
-                               const SizedBox(width: 8),
-                               Text(t.emoji.batchImport),
-                             ],
-                           ),
-                        ),
-                      ];
-                    },
+                  GlassGroupOverflowMenuButton(
+                    actions: [
+                      GlassMenuAction(
+                        icon: Icons.link,
+                        label: t.emoji.addImageByUrl,
+                        onSelected: _showUrlInputDialog,
+                      ),
+                      GlassMenuAction(
+                        icon: Icons.file_upload,
+                        label: t.emoji.batchImport,
+                        onSelected: _showBatchImportDialog,
+                      ),
+                    ],
                   ),
                   const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.select_all),
-                    onPressed: () => _toggleSelectionMode(),
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.orange.shade50,
-                      shape: const CircleBorder(),
-                    ),
+                  GlassIconButton(
+                    standalone: true,
+                    icon: const Icon(Icons.checklist),
+                    tooltip: t.common.editMode,
+                    onPressed: _images.isEmpty ? null : _toggleSelectionMode,
                   ),
                 ] else ...[
-                  IconButton(
-                    icon: const Icon(Icons.select_all),
-                    onPressed: _selectedImages.length == _images.length ? _clearSelection : _selectAllImages,
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.blue.shade50,
-                      shape: const CircleBorder(),
+                  // 全选 ↔ 取消全选：图标在原位交叉过渡（本页列表是有限的
+                  // 一整组表情，全选够得着，所以这里给了全选键）
+                  GlassIconButton(
+                    standalone: true,
+                    icon: Icon(
+                      _selectedImages.length == _images.length
+                          ? Icons.remove_done
+                          : Icons.done_all,
                     ),
+                    tooltip: _selectedImages.length == _images.length
+                        ? t.common.cancelSelectAll
+                        : t.common.selectAll,
+                    onPressed: _selectedImages.length == _images.length
+                        ? _clearSelection
+                        : _selectAllImages,
                   ),
-                  if (_selectedImages.isNotEmpty) ...[
-                    const SizedBox(width: 8),
-                    IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () => _showBatchDeleteDialog(),
-                      style: IconButton.styleFrom(
-                        backgroundColor: Colors.red.shade50,
-                        shape: const CircleBorder(),
-                      ),
-                    ),
-                  ],
                   const SizedBox(width: 8),
-                  IconButton(
+                  GlassIconButton(
+                    standalone: true,
                     icon: const Icon(Icons.close),
+                    tooltip: t.common.exitEditMode,
                     onPressed: _toggleSelectionMode,
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.grey.shade100,
-                      shape: const CircleBorder(),
-                    ),
                   ),
                 ],
                 const SizedBox(width: 8),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
+                GlassIconButton(
+                  standalone: true,
                   icon: const Icon(Icons.close),
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.grey.shade100,
-                    shape: const CircleBorder(),
-                  ),
+                  tooltip: t.common.close,
+                  onPressed: () => Navigator.pop(context),
                 ),
               ],
             ),
           ),
-          // 内容区域
+          // 内容区域。选择态的动作坞浮在网格之上（本页没有分页栏，
+          // 所以永远走独立浮条这一支）。
           Expanded(
-            child: _isLoading
-                ? _buildGridShimmer()
-                : _images.isEmpty
-                    ? _buildEmptyState()
-                    : _buildImageGrid(),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: _isLoading
+                      ? _buildGridShimmer()
+                      : _images.isEmpty
+                      ? _buildEmptyState()
+                      : _buildImageGrid(),
+                ),
+                const GlassSelectionDock(),
+              ],
+            ),
           ),
         ],
       ),
@@ -238,43 +245,31 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
 
   Widget _buildEmptyState() {
     final t = Translations.of(context);
+    final cs = Theme.of(context).colorScheme;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.emoji_emotions_outlined,
             size: 64,
-            color: Colors.grey,
+            color: cs.onSurfaceVariant,
           ),
           const SizedBox(height: 16),
           Text(
             t.emoji.noEmojis,
-            style: const TextStyle(
-              fontSize: 18,
-              color: Colors.grey,
-            ),
+            style: TextStyle(fontSize: 18, color: cs.onSurfaceVariant),
           ),
           const SizedBox(height: 8),
           Text(
             t.emoji.clickToAddEmojis,
-            style: const TextStyle(
-              color: Colors.grey,
-            ),
+            style: TextStyle(color: cs.onSurfaceVariant),
           ),
           const SizedBox(height: 24),
-          ElevatedButton.icon(
+          FilledButton.tonalIcon(
             onPressed: () => _showAddImagesDialog(),
             icon: const Icon(Icons.add),
             label: Text(t.emoji.addEmojis),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
           ),
         ],
       ),
@@ -282,9 +277,10 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
   }
 
   Widget _buildImageGrid() {
+    final cs = Theme.of(context).colorScheme;
     final screenWidth = MediaQuery.of(context).size.width;
     int crossAxisCount = 3; // 默认3列
-    
+
     // 根据屏幕宽度动态调整列数
     if (screenWidth > 1200) {
       crossAxisCount = 8; // 超宽屏显示8列
@@ -293,7 +289,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
     } else if (screenWidth > 600) {
       crossAxisCount = 4; // 中等屏幕显示4列
     }
-    
+
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -306,7 +302,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
       itemBuilder: (context, index) {
         final image = _images[index];
         final isSelected = _selectedImages.contains(image.imageId);
-        
+
         return GestureDetector(
           onLongPress: () {
             if (!_isSelectionMode) {
@@ -322,12 +318,12 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
             }
           },
           child: Container(
-            // 使用 Container 包装整个 Stack，确保一致的尺寸和对齐
+            // 使用 Container 包装整个 Stack，确保一致的尺寸和对齐。
+            // 选中态的描边/勾选角标统一由下面的 GlassSelectableOverlay 负责，
+            // 这里只画一条常驻的静态细边框，不再跟着 isSelected 变色/加粗
+            // （曾经两层描边各画各的，选中时会叠出双层边框）。
             decoration: BoxDecoration(
-              border: Border.all(
-                color: isSelected ? Colors.blue : Colors.grey.shade300,
-                width: isSelected ? 3 : 1,
-              ),
+              border: Border.all(color: cs.outlineVariant, width: 1),
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
@@ -357,45 +353,25 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                     },
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
-                        color: Colors.grey.shade100,
-                        child: const Center(
-                          child: Icon(Icons.broken_image, color: Colors.grey),
+                        color: cs.surfaceContainerHighest,
+                        child: Center(
+                          child: Icon(
+                            Icons.broken_image,
+                            color: cs.onSurfaceVariant,
+                          ),
                         ),
                       );
                     },
                   ),
-                  // 选择指示器
-                  if (_isSelectionMode)
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          color: isSelected ? Colors.blue : Colors.white.withValues(alpha: 0.9),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: isSelected ? Colors.blue : Colors.grey,
-                            width: 2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.2),
-                              blurRadius: 2,
-                              offset: const Offset(0, 1),
-                            ),
-                          ],
-                        ),
-                        child: isSelected
-                            ? const Icon(
-                                Icons.check,
-                                size: 16,
-                                color: Colors.white,
-                              )
-                            : null,
-                      ),
+                  // 选择态：角标勾选片 + 选中描边（全站统一，
+                  // 见 GlassSelectableOverlay）。常驻挂载以获得进出过渡。
+                  Positioned.fill(
+                    child: GlassSelectableOverlay(
+                      selectionMode: _isSelectionMode,
+                      selected: isSelected,
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                  ),
                 ],
               ),
             ),
@@ -405,159 +381,178 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
     );
   }
 
+  /// 弹窗标题行：标题 + 玻璃关闭圆钮（全局统一约定）。
+  Widget _dialogTitleRow(Translations t, String title) {
+    return Row(
+      children: [
+        Expanded(child: Text(title)),
+        GlassIconButton(
+          standalone: true,
+          icon: const Icon(Icons.close),
+          tooltip: t.common.close,
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ],
+    );
+  }
+
   void _showImagePreview(EmojiImage image) {
     final t = Translations.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.9,
-            maxHeight: MediaQuery.of(context).size.height * 0.8,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.3),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
+    showAppDialog(
+      Builder(
+        builder: (context) {
+          final cs = Theme.of(context).colorScheme;
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.9,
+                maxHeight: MediaQuery.of(context).size.height * 0.8,
               ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 标题栏
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12),
+              decoration: BoxDecoration(
+                color: cs.surface,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
                   ),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.image, color: Colors.blue),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        t.emoji.imagePreview,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 标题栏：标题 + 玻璃关闭圆钮
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Icon(Icons.image, color: cs.primary),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            t.emoji.imagePreview,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        GlassIconButton(
+                          standalone: true,
+                          icon: const Icon(Icons.close),
+                          tooltip: t.common.close,
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // 图片内容
+                  Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: cs.outlineVariant),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          image.url,
+                          fit: BoxFit.contain,
+                          headers: const {
+                            'referer': CommonConstants.iwaraBaseUrl,
+                          },
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(color: Colors.white),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: cs.surfaceContainerHighest,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.broken_image,
+                                      size: 64,
+                                      color: cs.onSurfaceVariant,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      t.emoji.imageLoadFailed,
+                                      style: TextStyle(
+                                        color: cs.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ),
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close),
-                      style: IconButton.styleFrom(
-                        backgroundColor: Colors.grey.shade200,
-                        shape: const CircleBorder(),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // 图片内容
-              Expanded(
-                child: Container(
-                  margin: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.shade200),
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      image.url,
-                      fit: BoxFit.contain,
-                      headers: const {'referer': CommonConstants.iwaraBaseUrl},
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Shimmer.fromColors(
-                          baseColor: Colors.grey[300]!,
-                          highlightColor: Colors.grey[100]!,
-                          child: Container(color: Colors.white),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.grey.shade100,
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.broken_image, size: 64, color: Colors.grey),
-                                const SizedBox(height: 16),
-                                Text(t.emoji.imageLoadFailed, style: const TextStyle(color: Colors.grey)),
-                              ],
+                  // 操作按钮
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              _showDeleteImageDialog(image);
+                            },
+                            icon: Icon(Icons.delete, color: cs.error),
+                            label: Text(
+                              t.emoji.delete,
+                              style: TextStyle(color: cs.error),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: cs.error),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                              ),
                             ),
                           ),
-                        );
-                      },
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: FilledButton.icon(
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(Icons.close),
+                            label: Text(t.emoji.close),
+                            style: FilledButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
+                ],
               ),
-              // 操作按钮
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(12),
-                    bottomRight: Radius.circular(12),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _showDeleteImageDialog(image);
-                        },
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        label: Text(t.emoji.delete, style: const TextStyle(color: Colors.red)),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.red),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.close),
-                        label: Text(t.emoji.close),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
 
   void _showDeleteImageDialog(EmojiImage image) {
     final t = Translations.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.emoji.deleteImage),
+    showAppDialog(
+      AlertDialog(
+        title: _dialogTitleRow(t, t.emoji.deleteImage),
         content: Text(t.emoji.confirmDeleteImage),
         actions: [
           TextButton(
@@ -570,7 +565,9 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
               Navigator.pop(context);
               _loadImages();
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
             child: Text(t.emoji.delete),
           ),
         ],
@@ -578,44 +575,30 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
     );
   }
 
-  void _showBatchDeleteDialog() {
+  /// 批量删除确认：走全站统一的玻璃确认弹窗。
+  Future<void> _showBatchDeleteDialog() async {
+    if (_selectedImages.isEmpty) return;
     final t = Translations.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.emoji.batchDelete),
-        content: Text(t.emoji.confirmBatchDelete(count: _selectedImages.length)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(t.emoji.cancel),
-          ),
-          TextButton(
-            onPressed: () {
-              for (final imageId in _selectedImages) {
-                _emojiService.deleteEmojiImage(imageId);
-              }
-              Navigator.pop(context);
-              _toggleSelectionMode();
-              _loadImages();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(t.emoji.deleteSuccess)),
-              );
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t.emoji.delete),
-          ),
-        ],
-      ),
+    final confirmed = await showBatchConfirmDialog(
+      title: t.emoji.batchDelete,
+      message: t.emoji.confirmBatchDelete(count: _selectedImages.length),
+      confirmLabel: t.emoji.delete,
+      totalCount: _selectedImages.length,
     );
+    if (!confirmed || !mounted) return;
+    for (final imageId in _selectedImages) {
+      _emojiService.deleteEmojiImage(imageId);
+    }
+    _toggleSelectionMode();
+    _loadImages();
+    showGlassToast(t.emoji.deleteSuccess, type: GlassToastType.success);
   }
 
   void _showAddImagesDialog() {
     final t = Translations.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.emoji.addImage),
+    showAppDialog(
+      AlertDialog(
+        title: _dialogTitleRow(t, t.emoji.addImage),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -644,12 +627,12 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
   void _showUrlInputDialog() {
     final t = Translations.of(context);
     final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.emoji.addImageUrl),
+    showAppDialog(
+      AlertDialog(
+        title: _dialogTitleRow(t, t.emoji.addImageUrl),
         content: TextField(
           controller: controller,
+          autofocus: true,
           decoration: InputDecoration(
             labelText: t.emoji.imageUrl,
             hintText: t.emoji.enterImageUrl,
@@ -679,10 +662,9 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
   void _showBatchImportDialog() {
     final t = Translations.of(context);
     final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.emoji.batchImport),
+    showAppDialog(
+      AlertDialog(
+        title: _dialogTitleRow(t, t.emoji.batchImport),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -716,15 +698,20 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                 try {
                   final List<dynamic> urls = json.decode(jsonText);
                   final List<String> urlStrings = urls.cast<String>();
-                  _emojiService.addEmojiImagesBatch(widget.group.groupId, urlStrings);
+                  _emojiService.addEmojiImagesBatch(
+                    widget.group.groupId,
+                    urlStrings,
+                  );
                   Navigator.pop(context);
                   _loadImages();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(t.emoji.importSuccess(count: urlStrings.length))),
+                  showGlassToast(
+                    t.emoji.importSuccess(count: urlStrings.length),
+                    type: GlassToastType.success,
                   );
                 } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(t.emoji.jsonFormatError)),
+                  showGlassToast(
+                    t.emoji.jsonFormatError,
+                    type: GlassToastType.error,
                   );
                 }
               }
@@ -735,8 +722,6 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
       ),
     );
   }
-
-
 
   // 加载骨架屏
   Widget _buildGridShimmer() {

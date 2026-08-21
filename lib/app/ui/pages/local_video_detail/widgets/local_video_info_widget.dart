@@ -56,7 +56,11 @@ class LocalVideoInfoWidget extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.info_outline, size: 20, color: theme.colorScheme.primary),
+                Icon(
+                  Icons.info_outline,
+                  size: 20,
+                  color: theme.colorScheme.primary,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   t.videoDetail.localInfo.videoInfo,
@@ -374,16 +378,22 @@ class LocalVideoInfoWidget extends StatelessWidget {
       final result = await OpenFile.open(dir);
       if (result.type != ResultType.done) {
         if (context.mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('${t.videoDetail.localInfo.openFolderFailed}: ${result.message}')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '${t.videoDetail.localInfo.openFolderFailed}: ${result.message}',
+              ),
+            ),
+          );
         }
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('${t.videoDetail.localInfo.openFolderFailed}: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${t.videoDetail.localInfo.openFolderFailed}: $e'),
+          ),
+        );
       }
     }
   }

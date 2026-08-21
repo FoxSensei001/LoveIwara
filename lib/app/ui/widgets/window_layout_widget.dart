@@ -23,12 +23,13 @@ class WindowTitleBarLayout extends StatelessWidget {
         var body = Stack(
           children: [
             Obx(() {
-              final double statusBarHeight = MediaQuery.paddingOf(context).top +
+              final double statusBarHeight =
+                  MediaQuery.paddingOf(context).top +
                   (controller.showTitleBar ? AppService.titleBarHeight : 0);
               return MediaQuery(
-                data: MediaQuery.of(context).copyWith(
-                  padding: EdgeInsets.only(top: statusBarHeight),
-                ),
+                data: MediaQuery.of(
+                  context,
+                ).copyWith(padding: EdgeInsets.only(top: statusBarHeight)),
                 child: child,
               );
             }),
@@ -45,43 +46,54 @@ class WindowTitleBarLayout extends StatelessWidget {
                   color: Colors.transparent,
                   child: Theme(
                     data: Theme.of(context),
-                    child: Builder(builder: (context) {
-                      return SizedBox(
-                        height: AppService.titleBarHeight,
-                        child: Row(
-                          children: [
-                            if (!GetPlatform.isMacOS)
-                              _buildMenuButton(controller, context)
-                                  .toAlign(Alignment.centerLeft)
-                            else
-                              const DragToMoveArea(
-                                child: SizedBox(
-                                  height: double.infinity,
-                                  width: 16,
-                                ),
-                              ).paddingRight(52),
-                            Expanded(
-                              child: DragToMoveArea(
-                                child: Text(
-                                  'Love Iwara',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: (context.brightness == Brightness.dark)
-                                        ? Colors.white
-                                        : Colors.black,
+                    child: Builder(
+                      builder: (context) {
+                        return SizedBox(
+                          height: AppService.titleBarHeight,
+                          child: Row(
+                            children: [
+                              if (!GetPlatform.isMacOS)
+                                _buildMenuButton(
+                                  controller,
+                                  context,
+                                ).toAlign(Alignment.centerLeft)
+                              else
+                                const DragToMoveArea(
+                                  child: SizedBox(
+                                    height: double.infinity,
+                                    width: 16,
                                   ),
-                                ).toAlign(Alignment.centerLeft).paddingLeft(4),
+                                ).paddingRight(52),
+                              Expanded(
+                                child: DragToMoveArea(
+                                  child:
+                                      Text(
+                                            'Love Iwara',
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color:
+                                                  (context.brightness ==
+                                                      Brightness.dark)
+                                                  ? Colors.white
+                                                  : Colors.black,
+                                            ),
+                                          )
+                                          .toAlign(Alignment.centerLeft)
+                                          .paddingLeft(4),
+                                ),
                               ),
-                            ),
-                            if (!GetPlatform.isMacOS)
-                              const WindowButtons()
-                            else
-                              _buildMenuButton(controller, context)
-                                  .toAlign(Alignment.centerRight),
-                          ],
-                        ),
-                      );
-                    }),
+                              if (!GetPlatform.isMacOS)
+                                const WindowButtons()
+                              else
+                                _buildMenuButton(
+                                  controller,
+                                  context,
+                                ).toAlign(Alignment.centerRight),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
               );
@@ -98,25 +110,26 @@ class WindowTitleBarLayout extends StatelessWidget {
     );
   }
 
-
   Widget _buildMenuButton(AppService controller, BuildContext context) {
     return InkWell(
-        onTap: () {
-          AppService.switchGlobalDrawer();
-        },
-        child: SizedBox(
-          width: 42,
-          height: double.infinity,
-          child: Center(
-            child: CustomPaint(
-              size: const Size(18, 20),
-              painter: _MenuPainter(
-                  color: (Theme.of(context).brightness == Brightness.dark)
-                      ? Colors.white
-                      : Colors.black),
+      onTap: () {
+        AppService.switchGlobalDrawer();
+      },
+      child: SizedBox(
+        width: 42,
+        height: double.infinity,
+        child: Center(
+          child: CustomPaint(
+            size: const Size(18, 20),
+            painter: _MenuPainter(
+              color: (Theme.of(context).brightness == Brightness.dark)
+                  ? Colors.white
+                  : Colors.black,
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
 
@@ -190,8 +203,12 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final defaultIconColor = isDark ? Colors.white.withValues(alpha: 0.8) : Colors.black.withValues(alpha: 0.8);
-    final defaultHoverColor = isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.04);
+    final defaultIconColor = isDark
+        ? Colors.white.withValues(alpha: 0.8)
+        : Colors.black.withValues(alpha: 0.8);
+    final defaultHoverColor = isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : Colors.black.withValues(alpha: 0.04);
 
     return SizedBox(
       width: 138,
@@ -282,12 +299,8 @@ class _WindowButtonState extends State<WindowButton> {
           child: Container(
             width: 46,
             height: double.infinity,
-            decoration: BoxDecoration(
-              color: _getBackgroundColor(isDark),
-            ),
-            child: Center(
-              child: _buildIcon(),
-            ),
+            decoration: BoxDecoration(color: _getBackgroundColor(isDark)),
+            child: Center(child: _buildIcon()),
           ),
         ),
       ),
@@ -380,10 +393,7 @@ class _MaximizePainter extends _IconPainter {
 class RestoreIcon extends StatelessWidget {
   final Color color;
 
-  const RestoreIcon({
-    super.key,
-    required this.color,
-  });
+  const RestoreIcon({super.key, required this.color});
 
   @override
   Widget build(BuildContext context) => _AlignedPaint(_RestorePainter(color));
@@ -399,9 +409,15 @@ class _RestorePainter extends _IconPainter {
     canvas.drawLine(const Offset(2, 2), const Offset(2, 0), p);
     canvas.drawLine(const Offset(2, 0), Offset(size.width, 0), p);
     canvas.drawLine(
-        Offset(size.width, 0), Offset(size.width, size.height - 2), p);
-    canvas.drawLine(Offset(size.width, size.height - 2),
-        Offset(size.width - 2, size.height - 2), p);
+      Offset(size.width, 0),
+      Offset(size.width, size.height - 2),
+      p,
+    );
+    canvas.drawLine(
+      Offset(size.width, size.height - 2),
+      Offset(size.width - 2, size.height - 2),
+      p,
+    );
   }
 }
 
@@ -422,7 +438,10 @@ class _MinimizePainter extends _IconPainter {
   void paint(Canvas canvas, Size size) {
     Paint p = getPaint(color);
     canvas.drawLine(
-        Offset(0, size.height / 2), Offset(size.width, size.height / 2), p);
+      Offset(0, size.height / 2),
+      Offset(size.width, size.height / 2),
+      p,
+    );
   }
 }
 
@@ -444,8 +463,9 @@ class _AlignedPaint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-        alignment: Alignment.center,
-        child: CustomPaint(size: const Size(10, 10), painter: painter));
+      alignment: Alignment.center,
+      child: CustomPaint(size: const Size(10, 10), painter: painter),
+    );
   }
 }
 
@@ -506,8 +526,10 @@ class WindowPlacement {
     return WindowPlacement(rect, isMaximized);
   }
 
-  static const defaultPlacement =
-      WindowPlacement(Rect.fromLTWH(10, 10, 900, 600), false);
+  static const defaultPlacement = WindowPlacement(
+    Rect.fromLTWH(10, 10, 900, 600),
+    false,
+  );
 
   static WindowPlacement cache = defaultPlacement;
 

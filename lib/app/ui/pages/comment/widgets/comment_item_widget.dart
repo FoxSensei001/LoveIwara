@@ -6,16 +6,16 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/comment_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/controllers/comment_controller.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_remove_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_translation_controller.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
-import 'package:oktoast/oktoast.dart';
 import 'dart:async';
 
-import '../../../../../common/constants.dart';
 import '../../../../models/comment.model.dart';
+import '../../../widgets/comment_actions_sheet.dart';
 import '../../../widgets/custom_markdown_body_widget.dart';
 import '../widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -30,6 +30,13 @@ class CommentItem extends StatefulWidget {
   final bool isReply;
   final void Function(Duration position)? onTimestampSeek;
 
+  /// 回复（子评论）编辑成功后回调：CommentItem 自己只发请求，
+  /// 列表刷新由宿主（回复弹层）负责。顶级评论走 [controller] 不经此回调。
+  final void Function(Comment updated)? onCommentEdited;
+
+  /// 回复（子评论）删除成功后回调，参数为被删评论 id。
+  final void Function(String commentId)? onCommentDeleted;
+
   const CommentItem({
     super.key,
     required this.comment,
@@ -37,6 +44,8 @@ class CommentItem extends StatefulWidget {
     this.controller,
     this.isReply = false,
     this.onTimestampSeek,
+    this.onCommentEdited,
+    this.onCommentDeleted,
   });
 
   @override
@@ -51,20 +60,35 @@ class _CommentItemState extends State<CommentItem> {
   // 翻译控制器
   late final MarkdownTranslationController _translationController;
 
-  OverlayEntry? _overlayEntry;
-  final LayerLink _layerLink = LayerLink();
+  /// 「显示原始文本」由动作行那枚 only-icon 钮受控（正文内置开关已关闭），
+  /// 初值仍沿用全局设置项。
+  late bool _showOriginal;
+
+  /// 正文加工前后确实有差异时才让那枚钮长出来。
+  bool _hasProcessedContent = false;
 
   @override
   void initState() {
     super.initState();
     _translationController = MarkdownTranslationController();
+    _showOriginal = _configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
   }
 
   @override
   void dispose() {
-    _overlayEntry?.remove();
     _translationController.dispose();
     super.dispose();
+  }
+
+  bool get _canReply => !widget.isReply && widget.comment.parent == null;
+
+  /// 长按（整条评论或正文文本上）弹出操作菜单：复制 / 选择复制 / 回复。
+  void _showActionsSheet() {
+    showCommentActionsSheet(
+      context: context,
+      text: widget.comment.body,
+      onReply: _canReply ? _showReplyDialog : null,
+    );
   }
 
   void _handleViewReplies() {
@@ -81,97 +105,123 @@ class _CommentItemState extends State<CommentItem> {
     );
   }
 
-  void _showTranslationMenuOverlay() {
-    _overlayEntry?.remove();
+  /// 动作行所有控件的统一高度：胶囊钮 / 翻译胶囊 / 更多圆钮必须一样高，
+  /// 否则视觉上大小不一（语言选择器内部是默认 48 触摸目标的 IconButton，
+  /// 不约束会把翻译胶囊撑高一圈）。
+  static const double _actionPillHeight = 30.0;
 
-    final overlay = Overlay.of(context);
-    _overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        width: 200,
-        child: CompositedTransformFollower(
-          link: _layerLink,
-          offset: const Offset(0, 40),
-          child: Material(
-            elevation: 4,
-            borderRadius: BorderRadius.circular(8),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: CommonConstants.translationSorts.map((sort) {
-                final isSelected =
-                    sort.id == _configService.currentTranslationSort.id;
-                return ListTile(
-                  dense: true,
-                  selected: isSelected,
-                  title: Text(sort.label),
-                  onTap: () {
-                    _configService.updateTranslationLanguage(sort);
-                    _toggleTranslationMenu();
-                    if (_translationController.hasTranslation) {
-                      _handleTranslation();
-                    }
-                  },
-                );
-              }).toList(),
-            ),
+  /// 胶囊动作钮：小图标 + 小字 + 浅色胶囊底。
+  /// 传 [color]（如主色）时底色用它的淡化版本，否则用中性浅灰底。
+  Widget _buildGhostAction(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    VoidCallback? onTap,
+    Color? color,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final fg = color ?? colorScheme.onSurfaceVariant;
+    final bg = color != null
+        ? color.withValues(alpha: 0.12)
+        : colorScheme.surfaceContainerHigh;
+    return Material(
+      color: bg,
+      borderRadius: BorderRadius.circular(999),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(999),
+        onTap: onTap,
+        child: Container(
+          height: _actionPillHeight,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(icon, size: 16, color: fg),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: fg,
+                  height: 1,
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
-
-    overlay.insert(_overlayEntry!);
   }
 
-  void _toggleTranslationMenu() {
-    if (_overlayEntry != null) {
-      _overlayEntry?.remove();
-      _overlayEntry = null;
-    } else {
-      _showTranslationMenuOverlay();
-    }
-  }
-
-  Widget _buildTranslationButton(BuildContext context) {
-    final configService = Get.find<ConfigService>();
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Obx(
-          () => IconButton(
-            onPressed: _translationController.isTranslating.value
-                ? null
-                : () => _handleTranslation(),
-            icon: _translationController.isTranslating.value
-                ? SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Theme.of(context).colorScheme.primary,
-                      ),
+  /// 翻译入口：翻译图标（翻译中转菊花）+ 紧凑语言选择器，合装进一个胶囊。
+  Widget _buildTranslationControls(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Material(
+      color: colorScheme.surfaceContainerHigh,
+      borderRadius: BorderRadius.circular(999),
+      child: SizedBox(
+        height: _actionPillHeight,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Obx(() {
+              final busy = _translationController.isTranslating.value;
+              return InkWell(
+                borderRadius: BorderRadius.circular(999),
+                onTap: busy ? null : _handleTranslation,
+                child: Container(
+                  height: _actionPillHeight,
+                  padding: const EdgeInsets.only(left: 10, right: 4),
+                  alignment: Alignment.center,
+                  child: busy
+                      ? const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Icon(
+                          Icons.translate,
+                          size: 16,
+                          color: colorScheme.primary,
+                        ),
+                ),
+              );
+            }),
+            // 收紧语言选择器（内部是默认 48 触摸目标的 IconButton）到胶囊高度
+            Obx(
+              () => SizedBox(
+                width: 34,
+                height: _actionPillHeight,
+                child: IconButtonTheme(
+                  data: IconButtonThemeData(
+                    style: IconButton.styleFrom(
+                      fixedSize: const Size(34, _actionPillHeight),
+                      padding: EdgeInsets.zero,
+                      alignment: Alignment.center,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                  )
-                : Icon(
-                    Icons.translate,
-                    size: 24,
-                    color: Theme.of(context).colorScheme.primary,
                   ),
-          ),
+                  child: TranslationLanguageSelector(
+                    compact: true,
+                    extrimCompact: true,
+                    selectedLanguage: _configService.currentTranslationSort,
+                    onLanguageSelected: (sort) {
+                      _configService.updateTranslationLanguage(sort);
+                      if (_translationController.hasTranslation) {
+                        _handleTranslation();
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 2),
+          ],
         ),
-        Obx(
-          () => TranslationLanguageSelector(
-            compact: true,
-            extrimCompact: true,
-            selectedLanguage: configService.currentTranslationSort,
-            onLanguageSelected: (sort) {
-              configService.updateTranslationLanguage(sort);
-              if (_translationController.hasTranslation) {
-                _handleTranslation();
-              }
-            },
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -182,115 +232,17 @@ class _CommentItemState extends State<CommentItem> {
     );
   }
 
-  Widget _buildTimeInfo(Comment comment, BuildContext context) {
-    final t = slang.Translations.of(context);
-    if (comment.createdAt == null) return const SizedBox.shrink();
-
-    final hasEdit =
-        comment.updatedAt != null &&
-        comment.createdAt != null &&
-        comment.updatedAt!.isAfter(comment.createdAt!);
-
-    final timeTextStyle = TextStyle(
-      fontSize: 12,
-      color: Theme.of(
-        context,
-      ).colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
-    );
-
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.access_time,
-                    size: 14,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    CommonUtils.formatFriendlyTimestamp(comment.createdAt),
-                    style: timeTextStyle,
-                  ),
-                  const Spacer(),
-                ],
-              ),
-              if (hasEdit)
-                Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.edit_calendar,
-                        size: 14,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        t.common.editedAt(
-                          num: CommonUtils.formatFriendlyTimestamp(
-                            comment.updatedAt,
-                          ),
-                        ),
-                        style: timeTextStyle,
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        ),
-        // 回复数量指示器
-        if (!widget.isReply && widget.comment.numReplies > 0)
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(20),
-              onTap: _handleViewReplies,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Badge.count(
-                      count: widget.comment.numReplies,
-                      child: Icon(
-                        Icons.comment_outlined,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Icon(
-                      Icons.keyboard_arrow_up,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
+  /// 回复（子评论）不由 CommentController 管（它只维护顶级评论列表），
+  /// 编辑/删除走 CommentService 直连 + [onCommentEdited]/[onCommentDeleted]
+  /// 通知宿主刷新；只有顶级评论才真正需要 controller。
+  bool get _isTopLevel => widget.comment.parent == null;
 
   void _showDeleteConfirmDialog() {
-    if (widget.controller == null) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.errors.canNotFindCommentController,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.bottom,
+    if (_isTopLevel && widget.controller == null) {
+      showGlassToast(
+        slang.t.errors.canNotFindCommentController,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
       return;
     }
@@ -298,7 +250,27 @@ class _CommentItemState extends State<CommentItem> {
     showAppDialog(
       CommentRemoveDialog(
         onDelete: () async {
-          await widget.controller!.deleteComment(widget.comment.id);
+          if (_isTopLevel) {
+            await widget.controller!.deleteComment(widget.comment.id);
+          } else {
+            final result = await _commentService.deleteComment(
+              widget.comment.id,
+            );
+            if (!mounted) return;
+            if (result.isSuccess) {
+              widget.onCommentDeleted?.call(widget.comment.id);
+              showGlassToast(
+                slang.t.common.commentDeletedSuccessfully,
+                type: GlassToastType.success,
+              );
+            } else {
+              showGlassToast(
+                result.message,
+                type: GlassToastType.error,
+                position: GlassToastPosition.bottom,
+              );
+            }
+          }
           AppService.tryPop();
         },
       ),
@@ -306,13 +278,11 @@ class _CommentItemState extends State<CommentItem> {
   }
 
   void _showEditDialog() {
-    if (widget.controller == null) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.errors.canNotFindCommentController,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.bottom,
+    if (_isTopLevel && widget.controller == null) {
+      showGlassToast(
+        slang.t.errors.canNotFindCommentController,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
       return;
     }
@@ -327,17 +297,15 @@ class _CommentItemState extends State<CommentItem> {
         submitText: slang.t.common.save,
         onSubmit: (text) async {
           if (text.trim().isEmpty) {
-            showToastWidget(
-              MDToastWidget(
-                message: slang.t.errors.commentCanNotBeEmpty,
-                type: MDToastType.error,
-              ),
-              position: ToastPosition.bottom,
+            showGlassToast(
+              slang.t.errors.commentCanNotBeEmpty,
+              type: GlassToastType.error,
+              position: GlassToastPosition.bottom,
             );
             return;
           }
 
-          if (widget.comment.parent == null) {
+          if (_isTopLevel) {
             await widget.controller!.editComment(widget.comment.id, text);
           } else {
             final result = await _commentService.editComment(
@@ -346,18 +314,23 @@ class _CommentItemState extends State<CommentItem> {
             );
             if (!mounted) return;
             if (result.isSuccess) {
-              showToastWidget(
-                MDToastWidget(
-                  message: slang.t.common.commentUpdated,
-                  type: MDToastType.success,
+              widget.onCommentEdited?.call(
+                widget.comment.copyWith(
+                  body: text,
+                  updatedAt: DateTime.now(),
                 ),
+              );
+              showGlassToast(
+                slang.t.common.commentUpdated,
+                type: GlassToastType.success,
               );
               // ignore: use_build_context_synchronously
               Navigator.of(context).pop();
             } else {
-              showToastWidget(
-                MDToastWidget(message: result.message, type: MDToastType.error),
-                position: ToastPosition.bottom,
+              showGlassToast(
+                result.message,
+                type: GlassToastType.error,
+                position: GlassToastPosition.bottom,
               );
             }
           }
@@ -368,12 +341,10 @@ class _CommentItemState extends State<CommentItem> {
 
   void _showReplyDialog() {
     if (widget.controller == null) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.errors.canNotFindCommentController,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        slang.t.errors.canNotFindCommentController,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
       return;
     }
@@ -387,12 +358,10 @@ class _CommentItemState extends State<CommentItem> {
         submitText: slang.t.common.reply,
         onSubmit: (text) async {
           if (text.trim().isEmpty) {
-            showToastWidget(
-              MDToastWidget(
-                message: slang.t.errors.commentCanNotBeEmpty,
-                type: MDToastType.error,
-              ),
-              position: ToastPosition.bottom,
+            showGlassToast(
+              slang.t.errors.commentCanNotBeEmpty,
+              type: GlassToastType.error,
+              position: GlassToastPosition.bottom,
             );
             return;
           }
@@ -425,226 +394,314 @@ class _CommentItemState extends State<CommentItem> {
       return const SizedBox.shrink();
     }
 
-    return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert, size: 16),
-      padding: EdgeInsets.zero,
-      itemBuilder: (context) => [
-        if (hasReplyOption)
-          PopupMenuItem(
-            value: 'reply',
-            child: Row(
-              children: [
-                const Icon(Icons.reply, size: 16),
-                const SizedBox(width: 8),
-                Text(t.common.reply, style: const TextStyle(fontSize: 14)),
-              ],
+    // 间距自带：菜单不可见（返回 shrink）时不能留下悬空的固定间距，
+    // 否则右侧的翻译胶囊会贴不到行尾
+    return Padding(
+      padding: const EdgeInsets.only(left: 8),
+      child: Material(
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+        shape: const CircleBorder(),
+        child: SizedBox(
+          width: _actionPillHeight,
+          height: _actionPillHeight,
+          child: PopupMenuButton<String>(
+            icon: Icon(
+              Icons.more_horiz,
+              size: 18,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-          ),
-        if (isOwner) ...[
-          PopupMenuItem(
-            value: 'edit',
-            child: Row(
-              children: [
-                const Icon(Icons.edit, size: 16),
-                const SizedBox(width: 8),
-                Text(t.common.edit, style: const TextStyle(fontSize: 14)),
-              ],
+            padding: EdgeInsets.zero,
+            position: PopupMenuPosition.under,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-          ),
-          PopupMenuItem(
-            value: 'delete',
-            child: Row(
-              children: [
-                const Icon(Icons.delete, size: 16),
-                const SizedBox(width: 8),
-                Text(t.common.delete, style: const TextStyle(fontSize: 14)),
-              ],
-            ),
-          ),
-        ],
-      ],
-      onSelected: (value) {
-        switch (value) {
-          case 'reply':
-            _showReplyDialog();
-            break;
-          case 'edit':
-            _showEditDialog();
-            break;
-          case 'delete':
-            _showDeleteConfirmDialog();
-            break;
-        }
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final comment = widget.comment;
-    final t = slang.Translations.of(context);
-
-    // 计算评论卡片高亮：内容作者优先（secondary 绿色系），其次当前登录用户（primary 蓝色系）。
-    // 二者兼具时按「作者」强调，但下方角标仍会同时显示「作者」「我」。
-    final currentUserId = _userService.currentUser.value?.id;
-    final commentUserId = comment.user?.id;
-    final isMe = commentUserId != null && commentUserId == currentUserId;
-    final isContentAuthor = commentUserId != null &&
-        widget.authorUserId != null &&
-        commentUserId == widget.authorUserId;
-    final colorScheme = Theme.of(context).colorScheme;
-    final Color? highlightColor = isContentAuthor
-        ? colorScheme.secondary
-        : (isMe ? colorScheme.primary : null);
-
-    return RepaintBoundary(
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: widget.isReply ? 0.0 : 8.0,
-          right: 8.0,
-          top: 6.0,
-          bottom: 6.0,
-        ),
-        child: _wrapWithHighlight(
-          highlightColor,
-          Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                onTap: () => NaviService.navigateToAuthorProfilePage(
-                  comment.user?.username ?? '',
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    _buildUserAvatar(comment),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Flexible(
-                                child: buildUserName(
-                                  context,
-                                  comment.user!,
-                                  fontSize: 14,
-                                  bold: true,
-                                ),
-                              ),
-                              // 显示楼号（只有顶级评论显示）
-                              if (widget.comment.parent == null &&
-                                  comment.floorNumber != null)
-                                Text(
-                                  '#${comment.floorNumber}',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
-                                  ),
-                                ),
-                            ],
-                          ),
-                          Text(
-                            '@${comment.user?.username ?? ''}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 6),
-            Padding(
-              padding: const EdgeInsets.only(left: 36.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Material(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
-                    clipBehavior: Clip.antiAlias,
-                    child: InkWell(
-                      onTap: !widget.isReply && widget.comment.parent == null
-                          ? _showReplyDialog
-                          : null,
-                      child: CustomMarkdownBody(
-                        data: comment.body,
-                        originalData: comment.body,
-                        showTranslationButton: false,
-                        translationController: _translationController,
-                        onTimestampSeek: widget.onTimestampSeek,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
+            constraints: const BoxConstraints(minWidth: 140),
+            itemBuilder: (context) => [
+              if (hasReplyOption)
+                PopupMenuItem(
+                  value: 'reply',
+                  child: Row(
                     children: [
-                      _buildTranslationButton(context),
-                      const Spacer(),
-                      if (!widget.isReply && comment.parent == null)
-                        IconButton(
-                          onPressed: _showReplyDialog,
-                          icon: const Icon(Icons.reply, size: 20),
-                          visualDensity: VisualDensity.compact,
-                          tooltip: t.common.reply,
-                          style: IconButton.styleFrom(
-                            foregroundColor: Theme.of(
-                              context,
-                            ).colorScheme.primary,
-                          ),
-                        ),
-                      _buildActionMenu(context),
+                      const Icon(Icons.reply, size: 16),
+                      const SizedBox(width: 8),
+                      Text(
+                        t.common.reply,
+                        style: const TextStyle(fontSize: 14),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 2),
-                  _buildTimeInfo(comment, context),
-                ],
-              ),
-            ),
-          ],
+                ),
+              if (isOwner) ...[
+                PopupMenuItem(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.edit, size: 16),
+                      const SizedBox(width: 8),
+                      Text(t.common.edit, style: const TextStyle(fontSize: 14)),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.delete, size: 16),
+                      const SizedBox(width: 8),
+                      Text(
+                        t.common.delete,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+            onSelected: (value) {
+              switch (value) {
+                case 'reply':
+                  _showReplyDialog();
+                  break;
+                case 'edit':
+                  _showEditDialog();
+                  break;
+                case 'delete':
+                  _showDeleteConfirmDialog();
+                  break;
+              }
+            },
           ),
         ),
       ),
     );
   }
 
-  /// 当评论来自内容作者或当前登录用户时，给整条评论加左侧强调条 + 淡色背景，
-  /// 让其在评论流中「一眼可辨」；否则原样返回，普通评论保持轻量样式不变。
-  Widget _wrapWithHighlight(Color? highlightColor, Widget child) {
-    if (highlightColor == null) return child;
-    return Stack(
-      children: [
-        // 左侧强调竖条，随卡片高度自适应拉伸
-        Positioned(
-          left: 0,
-          top: 0,
-          bottom: 0,
-          child: Container(width: 3, color: highlightColor),
+  /// 身份小徽标（「作者」/「我」），代替旧版的整条左侧强调竖条。
+  Widget _buildIdentityChip(String label, Color color) {
+    return Container(
+      margin: const EdgeInsets.only(left: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 10.5,
+          fontWeight: FontWeight.w700,
+          color: color,
+          height: 1.2,
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
-          child: child,
-        ),
-      ],
+      ),
     );
   }
 
-  Widget _buildUserAvatar(Comment comment) {
-    return AvatarWidget(user: comment.user, size: 32);
+  /// 元信息单行：@用户名 · 时间 (· xx编辑)。
+  String _buildMetaLine(Comment comment, slang.Translations t) {
+    final parts = <String>[];
+    final username = comment.user?.username ?? '';
+    if (username.isNotEmpty) parts.add('@$username');
+    if (comment.createdAt != null) {
+      parts.add(CommonUtils.formatFriendlyTimestamp(comment.createdAt));
+    }
+    final hasEdit =
+        comment.updatedAt != null &&
+        comment.createdAt != null &&
+        comment.updatedAt!.isAfter(comment.createdAt!);
+    if (hasEdit) {
+      parts.add(
+        t.common.editedAt(
+          num: CommonUtils.formatFriendlyTimestamp(comment.updatedAt),
+        ),
+      );
+    }
+    return parts.join(' · ');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final comment = widget.comment;
+    final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    // 身份标识：内容作者（secondary）与当前登录用户（primary），可同时显示。
+    final currentUserId = _userService.currentUser.value?.id;
+    final commentUserId = comment.user?.id;
+    final isMe = commentUserId != null && commentUserId == currentUserId;
+    final isContentAuthor =
+        commentUserId != null &&
+        widget.authorUserId != null &&
+        commentUserId == widget.authorUserId;
+
+    final bool canReply = _canReply;
+    final metaLine = _buildMetaLine(comment, t);
+
+    void openProfile() =>
+        NaviService.navigateToAuthorProfilePage(comment.user?.username ?? '');
+
+    return RepaintBoundary(
+      // 整条评论区域可点：顶级评论点按任意空白处直接回复，
+      // 长按弹出 复制/选择复制/回复 操作菜单
+      //（头像 / 名字 / 幽灵钮 / 菜单等内层手势优先，不受影响）
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: canReply ? _showReplyDialog : null,
+          onLongPress: _showActionsSheet,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 头像列
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    onTap: openProfile,
+                    child: AvatarWidget(
+                      user: comment.user,
+                      size: widget.isReply ? 30 : 36,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                // 内容列
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 名字行：左侧「名字 + 身份徽标」为一组占满剩余宽度，
+                      // 楼号固定钉在行尾（不能用 Flexible+Spacer 平分空间的写法：
+                      // 名字短时用不完的份额会留在行尾，楼号就贴不到最右）
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Flexible(
+                                  child: MouseRegion(
+                                    cursor: SystemMouseCursors.click,
+                                    child: GestureDetector(
+                                      onTap: openProfile,
+                                      child: buildUserName(
+                                        context,
+                                        comment.user,
+                                        fontSize: 14,
+                                        bold: true,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                if (isContentAuthor)
+                                  _buildIdentityChip(
+                                    t.common.author,
+                                    colorScheme.secondary,
+                                  ),
+                                if (isMe)
+                                  _buildIdentityChip(
+                                    t.common.me,
+                                    colorScheme.primary,
+                                  ),
+                              ],
+                            ),
+                          ),
+                          // 楼号（只有顶级评论显示），弱化为灰字
+                          if (comment.parent == null &&
+                              comment.floorNumber != null)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: Text(
+                                '#${comment.floorNumber}',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: colorScheme.onSurfaceVariant
+                                      .withValues(alpha: 0.6),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      if (metaLine.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          metaLine,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            height: 1.2,
+                            color: colorScheme.onSurfaceVariant.withValues(
+                              alpha: 0.8,
+                            ),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 8),
+                      // 正文；SelectionArea 会吞掉 tap 传不到整条评论的
+                      // InkWell，点按回复需经 onTap 显式透传进去
+                      CustomMarkdownBody(
+                        data: comment.body,
+                        originalData: comment.body,
+                        showTranslationButton: false,
+                        translationController: _translationController,
+                        onTimestampSeek: widget.onTimestampSeek,
+                        onTap: canReply ? _showReplyDialog : null,
+                        onLongPress: _showActionsSheet,
+                        initialShowUnprocessedText: _showOriginal,
+                        onProcessedContentChanged: (hasProcessed) {
+                          if (_hasProcessedContent == hasProcessed) return;
+                          setState(() => _hasProcessedContent = hasProcessed);
+                        },
+                      ),
+                      const SizedBox(height: 4),
+                      // 动作行：回复 / 查看回复 …… 翻译 / 更多
+                      Row(
+                        children: [
+                          if (canReply) ...[
+                            _buildGhostAction(
+                              context,
+                              icon: Icons.reply,
+                              label: t.common.reply,
+                              onTap: _showReplyDialog,
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          if (!widget.isReply && comment.numReplies > 0)
+                            Tooltip(
+                              message: t.common.viewReplies(
+                                num: comment.numReplies,
+                              ),
+                              child: _buildGhostAction(
+                                context,
+                                icon: Icons.chat_bubble_outline,
+                                label: '${comment.numReplies}',
+                                color: colorScheme.primary,
+                                onTap: _handleViewReplies,
+                              ),
+                            ),
+                          const Spacer(),
+                          MarkdownOriginalTextToggle(
+                            visible: _hasProcessedContent,
+                            showOriginal: _showOriginal,
+                            pillSize: _actionPillHeight,
+                            padding: const EdgeInsets.only(right: 8),
+                            onChanged: (v) => setState(() => _showOriginal = v),
+                          ),
+                          _buildTranslationControls(context),
+                          _buildActionMenu(context),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -3,13 +3,20 @@ import 'package:i_iwara/app/models/saved_search_config.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
-/// 管理热门视频/图库的「已保存快速筛选配置」。
+/// 管理热门视频/图库/订阅页共用的「已保存快速筛选配置」。
 ///
-/// 按 segment（`video` / `image`）分别维护一份可响应式的列表，
-/// 持久化到 [ConfigService] 的 [ConfigKey.POPULAR_SAVED_SEARCH_CONFIGS]
-/// （结构为 `{ segment: [config, ...] }`）。
+/// 所有页面共用 [sharedSegment] 一个池子；segment 参数保留是为了
+/// 兼容按池存储的数据结构（`{ segment: [config, ...] }`，持久化在
+/// [ConfigService] 的 [ConfigKey.POPULAR_SAVED_SEARCH_CONFIGS]），
+/// 历史上按 `video` / `image` 分池的旧数据会在启动时迁移合并。
 class SavedSearchConfigService extends GetxService {
   static const String _tag = 'SavedSearchConfigService';
+
+  /// 全局共享的配置池：热门视频 / 热门图库 / 订阅页读写同一份配置。
+  static const String sharedSegment = 'media';
+
+  /// 历史版本按栏目分池的旧键，启动时合并进 [sharedSegment] 后删除。
+  static const List<String> _legacySegments = ['video', 'image'];
 
   final ConfigService _configService = Get.find<ConfigService>();
 
@@ -19,6 +26,32 @@ class SavedSearchConfigService extends GetxService {
   /// 获取指定 segment 的响应式配置列表。可在 `Obx` 中直接监听。
   RxList<SavedSearchConfig> listFor(String segment) {
     return _cache.putIfAbsent(segment, () => _load(segment).obs);
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    _migrateLegacySegments();
+  }
+
+  /// 把旧版 `video` / `image` 两个池子的配置合并进共享池。
+  ///
+  /// 同步部分（缓存合并 + 删旧键）在 onInit 里当场完成，之后各页
+  /// `listFor` 读到的就是合并后的结果；持久化异步落盘。旧键删除后
+  /// 本方法自然幂等。
+  void _migrateLegacySegments() {
+    final map = _rawMap();
+    if (!_legacySegments.any(map.containsKey)) return;
+
+    final merged = <SavedSearchConfig>[...listFor(sharedSegment)];
+    for (final segment in _legacySegments) {
+      merged.addAll(_load(segment));
+    }
+    _cache[sharedSegment] = merged.obs;
+
+    map.removeWhere((key, _) => _legacySegments.contains(key));
+    map[sharedSegment] = merged.map((e) => e.toJson()).toList();
+    _configService.setSetting(ConfigKey.POPULAR_SAVED_SEARCH_CONFIGS, map);
   }
 
   Map<String, dynamic> _rawMap() {

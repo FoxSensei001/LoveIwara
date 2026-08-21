@@ -86,24 +86,30 @@ class MigrationV9EmojiLibrary extends Migration {
       "https://emoji.discadia.com/emojis/2034556f-7de9-46e5-9d7f-02f39ffa81e6.PNG",
       "https://emoji.discadia.com/emojis/59566abb-0d12-48ee-b96a-99ec2834f93e.PNG",
       "https://emoji.discadia.com/emojis/e6f271cd-9323-44b5-a42a-0067783aad78.PNG",
-      "https://emoji.discadia.com/emojis/bd3264bd-95aa-4e4c-a97e-006be98dd3c5.PNG"
+      "https://emoji.discadia.com/emojis/bd3264bd-95aa-4e4c-a97e-006be98dd3c5.PNG",
     ];
 
     // 批量插入senkosan表情包
     for (int i = 0; i < senkoEmojiUrls.length; i++) {
-      db.execute('''
+      db.execute(
+        '''
         INSERT INTO EmojiImages (group_id, url, thumbnail_url) 
         VALUES (?, ?, ?);
-      ''', [senkoGroupId, senkoEmojiUrls[i], senkoEmojiUrls[i]]);
+      ''',
+        [senkoGroupId, senkoEmojiUrls[i], senkoEmojiUrls[i]],
+      );
     }
 
     // 更新senkosan表情包分组的封面图为第一张图片
     if (senkoEmojiUrls.isNotEmpty) {
-      db.execute('''
+      db.execute(
+        '''
         UPDATE EmojiGroups 
         SET cover_url = ? 
         WHERE group_id = ?;
-      ''', [senkoEmojiUrls.first, senkoGroupId]);
+      ''',
+        [senkoEmojiUrls.first, senkoGroupId],
+      );
     }
 
     // 默认表情包URL列表
@@ -145,24 +151,30 @@ class MigrationV9EmojiLibrary extends Migration {
       "https://linux.do/uploads/default/optimized/4X/7/8/0/78015ed5ccdc87e5769eb2d1af5cdaf466c1cb07_2_500x500.png",
       "https://linux.do/uploads/default/optimized/4X/2/f/4/2f453be9d3d69d459637f3cd824b6f9641b6f592_2_500x500.png",
       "https://linux.do/uploads/default/optimized/4X/2/4/c/24cac75d64461ba1d1b0c3c8560a1c10acb3f3ad_2_500x500.png",
-      "https://linux.do/uploads/default/optimized/4X/3/d/2/3d245f6de7d3549174cef112560dec8ae3a768d7_2_500x500.png"
+      "https://linux.do/uploads/default/optimized/4X/3/d/2/3d245f6de7d3549174cef112560dec8ae3a768d7_2_500x500.png",
     ];
 
     // 批量插入默认表情包
     for (int i = 0; i < emojiUrls.length; i++) {
-      db.execute('''
+      db.execute(
+        '''
         INSERT INTO EmojiImages (group_id, url, thumbnail_url) 
         VALUES (?, ?, ?);
-      ''', [groupId, emojiUrls[i], emojiUrls[i]]);
+      ''',
+        [groupId, emojiUrls[i], emojiUrls[i]],
+      );
     }
 
     // 更新表情包分组的封面图为第一张图片
     if (emojiUrls.isNotEmpty) {
-      db.execute('''
+      db.execute(
+        '''
         UPDATE EmojiGroups 
         SET cover_url = ? 
         WHERE group_id = ?;
-      ''', [emojiUrls.first, groupId]);
+      ''',
+        [emojiUrls.first, groupId],
+      );
     }
 
     db.execute('PRAGMA user_version = 9;');

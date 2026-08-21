@@ -108,14 +108,10 @@ class AppStartupCoordinator implements AppStartupRunner {
     }
 
     await _initializeBaseServices();
-    await _initializeCoreAppServices();
-
-    if (Get.isRegistered<ConfigService>()) {
-      final configService = Get.find<ConfigService>();
-      await logService.applyPolicy(
-        LogService.policyFromConfig(configService, isProduction: isProduction),
-      );
-    }
+    await _initializeCoreAppServices(
+      logService: logService,
+      isProduction: isProduction,
+    );
 
     _coreInitialized = true;
   }
@@ -178,12 +174,33 @@ class AppStartupCoordinator implements AppStartupRunner {
     _putIfAbsent<MessageService>(MessageService());
   }
 
-  Future<void> _initializeCoreAppServices() async {
+  Future<void> _initializeCoreAppServices({
+    required LogService logService,
+    required bool isProduction,
+  }) async {
     _putIfAbsent<AppService>(AppService());
 
     final configService = await ConfigService().init();
     _putIfAbsent<ConfigService>(configService);
+
+    // 日志策略要在 ConfigService 一就绪就应用，而不是等整个 core 初始化跑完。
+    // 日志总开关出厂默认关闭，用户既然关了，剩下的启动流程就不该再按全价
+    // 打日志（控制台 PrettyPrinter 是这条链路上最贵的一段）。
+    // 更早是做不到的：开关存在配置表里，得先有 DB 和 ConfigService。
+    await logService.applyPolicy(
+      LogService.policyFromConfig(configService, isProduction: isProduction),
+    );
+
     await Get.find<AppService>().syncSiteModeFromConfig(configService);
+
+    // 冷启动恒为主站。如果这次是被一条 AI 站链接拉起来的，趁应用树还没 build
+    // 直接以那个站点起步，省掉"开了页面才发现站点不对 → 切站 → 重启整棵树"。
+    if (Get.isRegistered<DeepLinkService>()) {
+      await Get.find<AppService>().adoptStartupSiteMode(
+        Get.find<DeepLinkService>().pendingInitialLinkSite,
+        configService,
+      );
+    }
 
     await _applyLocale(configService);
   }
@@ -338,15 +355,28 @@ class AppStartupCoordinator implements AppStartupRunner {
 
     _registerDeferredSingleton<PermissionService>(PermissionService());
     // 系统通知服务需在 DownloadService 之前注册，确保派发钩子能解析到它。
+    // 下载这一簇全部 permanent：它们持有活跃连接、文件句柄与内存队列，
+    // 被启动回滚 delete 掉会导致下载中断 + UI 监听挂在死实例上（见
+    // _registerDeferredSingleton 的注释）。
     _registerDeferredSingleton<DownloadNotificationService>(
       DownloadNotificationService(),
+      permanent: true,
     );
-    _registerDeferredSingleton<DownloadService>(DownloadService());
-    _registerDeferredSingleton<DownloadPathService>(DownloadPathService());
+    _registerDeferredSingleton<DownloadService>(
+      DownloadService(),
+      permanent: true,
+    );
+    _registerDeferredSingleton<DownloadPathService>(
+      DownloadPathService(),
+      permanent: true,
+    );
     _registerDeferredSingleton<FilenameTemplateService>(
       FilenameTemplateService(),
     );
-    _registerDeferredSingleton<BatchDownloadService>(BatchDownloadService());
+    _registerDeferredSingleton<BatchDownloadService>(
+      BatchDownloadService(),
+      permanent: true,
+    );
     _registerDeferredSingleton<TranslationService>(TranslationService());
     _registerDeferredSingleton<FavoriteService>(FavoriteService());
     _registerDeferredSingleton<PlaybackHistoryService>(
@@ -463,12 +493,22 @@ class AppStartupCoordinator implements AppStartupRunner {
     Get.put<T>(service, permanent: permanent);
   }
 
+  /// 注册一个延迟阶段的单例。
+  ///
+  /// [permanent] = true 时**不登记回滚清理**：该服务在启动失败重试时不会被
+  /// `Get.delete` 换掉。这对持有长生命周期状态的服务是硬性要求——下载服务持有
+  /// 活跃 dio 连接、文件句柄与内存队列，一旦被 force delete，正在跑的下载会被
+  /// 连根拔掉；更隐蔽的是：页面上已经挂在旧实例 Rx 上的监听会静默失聪，表现为
+  /// 「暂停/继续/删除都不刷新，必须重进页面」。
   void _registerDeferredSingleton<T>(T service, {bool permanent = false}) {
     if (Get.isRegistered<T>()) {
       return;
     }
 
     Get.put<T>(service, permanent: permanent);
+    if (permanent) {
+      return;
+    }
     _cleanupActions.add(() async {
       if (Get.isRegistered<T>()) {
         Get.delete<T>(force: true);

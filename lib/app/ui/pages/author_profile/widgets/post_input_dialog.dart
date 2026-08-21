@@ -3,14 +3,14 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/rules_agreement_dialog_widget.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_syntax_help_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_preview_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/enhanced_emoji_text_field.dart';
 import 'package:i_iwara/app/ui/widgets/emoji_picker_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 
 class PostInputDialog extends StatefulWidget {
@@ -90,6 +90,7 @@ class _PostInputDialogState extends State<PostInputDialog> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => const MarkdownSyntaxHelp(),
     );
   }
@@ -109,10 +110,8 @@ class _PostInputDialogState extends State<PostInputDialog> {
     );
 
     if (result == true) {
+      // 只记录「已同意」，不代发内容——用户仍需自己按提交键
       await _configService.setSetting(ConfigKey.RULES_AGREEMENT_KEY, true);
-      if (mounted) {
-        _handleSubmit();
-      }
     }
   }
 
@@ -125,31 +124,18 @@ class _PostInputDialogState extends State<PostInputDialog> {
 
     // 检查标题是否为空
     if (_titleController.text.trim().isEmpty) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.errors.titleCanNotBeEmpty,
-          type: MDToastType.error,
-        ),
-      );
+      showGlassToast(t.errors.titleCanNotBeEmpty, type: GlassToastType.error);
       return;
     }
 
     // 检查内容是否为空
     if (_bodyController.text.trim().isEmpty) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.errors.contentCanNotBeEmpty,
-          type: MDToastType.error,
-        ),
-      );
+      showGlassToast(t.errors.contentCanNotBeEmpty, type: GlassToastType.error);
       return;
     }
 
-    final bool hasAgreed = _configService[ConfigKey.RULES_AGREEMENT_KEY];
-    if (!hasAgreed) {
-      await _showRulesDialog();
-      return;
-    }
+    // 未同意规则时提交键本就是禁用态，这里只兜底拦一道
+    if (!_configService[ConfigKey.RULES_AGREEMENT_KEY]) return;
 
     setState(() {
       _isLoading = true;
@@ -185,150 +171,91 @@ class _PostInputDialogState extends State<PostInputDialog> {
   Widget build(BuildContext context) {
     final t = slang.t;
     return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    t.common.createPost,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => AppService.tryPop(),
-                  icon: const Icon(Icons.close),
-                  tooltip: t.common.close,
-                ),
-              ],
+            GlassComposerHeader(
+              title: t.common.createPost,
+              icon: Icons.post_add,
+              onClose: () => AppService.tryPop(),
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: _titleController,
-              maxLines: 1,
-              maxLength: maxTitleLength,
-              decoration: InputDecoration(
-                labelText: t.common.title,
-                hintText: t.common.enterTitle,
-                border: const OutlineInputBorder(),
-                counterText: '$_currentTitleLength/$maxTitleLength',
-                errorText: _currentTitleLength > maxTitleLength
-                    ? t.errors.exceedsMaxLength(max: maxTitleLength.toString())
-                    : null,
-              ),
-            ),
-            const SizedBox(height: 16),
-            EnhancedEmojiTextField(
-              key: _emojiTextFieldKey,
-              controller: _bodyController,
-              maxLines: 5,
-              maxLength: maxBodyLength,
-              decoration: InputDecoration(
-                hintText: t.common.writeYourContentHere,
-                errorText: _currentBodyLength > maxBodyLength
-                    ? t.errors.exceedsMaxLength(max: maxBodyLength.toString())
-                    : null,
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _currentBodyLength = value.length;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              alignment: WrapAlignment.end,
-              spacing: 8,
-              children: [
-                IconButton(
-                  onPressed: _bodyController.text.isNotEmpty
-                      ? () {
-                          showTranslationDialog(
-                            context,
-                            text: _bodyController.text,
-                            defaultLanguageKeyMode: false,
-                          );
-                        }
-                      : null,
-                  icon: Icon(
-                    Icons.translate,
-                    color: _bodyController.text.isEmpty
-                        ? Theme.of(context).disabledColor
-                        : null,
-                  ),
-                  tooltip: t.common.translate,
-                ),
-                IconButton(
-                  onPressed: _showEmojiPicker,
-                  icon: const Icon(Icons.emoji_emotions_outlined),
-                  tooltip: t.emoji.selectEmoji,
-                ),
-                IconButton(
-                  onPressed: _showMarkdownHelp,
-                  icon: const Icon(Icons.help_outline),
-                  tooltip: t.markdown.markdownSyntax,
-                ),
-                IconButton(
-                  onPressed: _showPreview,
-                  icon: const Icon(Icons.preview),
-                  tooltip: t.common.preview,
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              alignment: WrapAlignment.end,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                Obx(() {
-                  final bool hasAgreed =
-                      _configService[ConfigKey.RULES_AGREEMENT_KEY];
-                  return TextButton.icon(
-                    onPressed: () => _showRulesDialog(),
-                    icon: Icon(
-                      hasAgreed
-                          ? Icons.check_box
-                          : Icons.check_box_outline_blank,
-                      size: 20,
-                    ),
-                    label: Text(t.common.agreeToRules),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                    ),
-                  );
-                }),
-                TextButton(
-                  onPressed: () => AppService.tryPop(),
-                  child: Text(t.common.cancel),
-                ),
-                ElevatedButton(
-                  onPressed:
-                      (_currentTitleLength > maxTitleLength ||
-                              _currentTitleLength == 0) ||
-                          (_currentBodyLength > maxBodyLength ||
-                              _currentBodyLength == 0)
-                      ? null
-                      : _handleSubmit,
-                  child: _isLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+            GlassInputSurface(
+              child: TextField(
+                controller: _titleController,
+                maxLines: 1,
+                maxLength: maxTitleLength,
+                decoration: glassFieldDecoration(
+                  context,
+                  label: t.common.title,
+                  hint: t.common.enterTitle,
+                  counterText: '$_currentTitleLength/$maxTitleLength',
+                  errorText: _currentTitleLength > maxTitleLength
+                      ? t.errors.exceedsMaxLength(
+                          max: maxTitleLength.toString(),
                         )
-                      : Text(t.common.send),
+                      : null,
                 ),
-              ],
+              ),
             ),
+            const SizedBox(height: 16),
+            GlassInputSurface(
+              child: EnhancedEmojiTextField(
+                key: _emojiTextFieldKey,
+                controller: _bodyController,
+                maxLines: 5,
+                maxLength: maxBodyLength,
+                decoration: glassFieldDecoration(
+                  context,
+                  hint: t.common.writeYourContentHere,
+                  errorText: _currentBodyLength > maxBodyLength
+                      ? t.errors.exceedsMaxLength(max: maxBodyLength.toString())
+                      : null,
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _currentBodyLength = value.length;
+                  });
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+            // 工具行：翻译 · 表情 · MD 帮助 · 预览
+            GlassComposerToolbar(
+              onTranslate: () {
+                showTranslationDialog(
+                  context,
+                  text: _bodyController.text,
+                  defaultLanguageKeyMode: false,
+                );
+              },
+              translateEnabled: _bodyController.text.isNotEmpty,
+              onEmoji: _showEmojiPicker,
+              onMarkdownHelp: _showMarkdownHelp,
+              onPreview: _showPreview,
+            ),
+            const SizedBox(height: 16),
+            Obx(() {
+              final bool hasAgreed =
+                  _configService[ConfigKey.RULES_AGREEMENT_KEY];
+              final bool contentReady =
+                  _currentTitleLength > 0 &&
+                  _currentTitleLength <= maxTitleLength &&
+                  _currentBodyLength > 0 &&
+                  _currentBodyLength <= maxBodyLength;
+              return GlassComposerActions(
+                rulesAgreed: hasAgreed,
+                onRulesTap: () => _showRulesDialog(),
+                onSubmit: contentReady && hasAgreed ? _handleSubmit : null,
+                // 只差「同意规则」时：按钮仍可点，点下去弹规则全文
+                onBlockedTap: !hasAgreed ? () => _showRulesDialog() : null,
+                isLoading: _isLoading,
+              );
+            }),
           ],
         ),
       ),

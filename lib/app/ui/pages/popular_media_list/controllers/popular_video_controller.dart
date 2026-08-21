@@ -12,9 +12,6 @@ class PopularVideoController extends BaseMediaController<Video> {
 
   @override
   BaseMediaRepository<Video> createRepository() {
-    return PopularVideoRepository(
-      videoService: _videoService,
-      sortId: sortId,
-    );
+    return PopularVideoRepository(videoService: _videoService, sortId: sortId);
   }
 }

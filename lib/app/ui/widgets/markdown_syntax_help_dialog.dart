@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class MarkdownSyntaxHelp extends StatelessWidget {
@@ -22,13 +24,27 @@ class MarkdownSyntaxHelp extends StatelessWidget {
       expand: false,
       builder: (context, scrollController) => Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         ),
         child: Column(
           children: [
+            // 拖拽条，与全站其它 DraggableScrollableSheet 同一口径
+            Center(
+              child: Container(
+                margin: const EdgeInsets.only(top: 12, bottom: 4),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
             Container(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -39,9 +55,11 @@ class MarkdownSyntaxHelp extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
+                  GlassIconButton(
+                    standalone: true,
                     icon: const Icon(Icons.close),
+                    tooltip: t.common.close,
+                    onPressed: () => Navigator.pop(context),
                   ),
                 ],
               ),
@@ -58,11 +76,13 @@ class MarkdownSyntaxHelp extends StatelessWidget {
                 ),
                 children: [
                   _buildSection(
+                    context,
                     title: t.markdown.iwaraSpecialMarkdownSyntax,
                     items: [
                       _SyntaxItem(
                         title: t.markdown.internalLink,
-                        syntax: 'https://iwara.tv/video/abc123\nhttps://iwara.tv/image/xyz789\nhttps://iwara.tv/profile/user123',
+                        syntax:
+                            'https://iwara.tv/video/abc123\nhttps://iwara.tv/image/xyz789\nhttps://iwara.tv/profile/user123',
                         description: t.markdown.supportAutoConvertLinkBelow,
                       ),
                       _SyntaxItem(
@@ -74,12 +94,14 @@ class MarkdownSyntaxHelp extends StatelessWidget {
                     isNarrowScreen: isNarrowScreen,
                   ),
                   _buildSection(
+                    context,
                     title: t.markdown.markdownBasicSyntax,
                     items: [
                       _SyntaxItem(
                         title: t.markdown.paragraphAndLineBreak,
                         syntax: t.markdown.paragraphAndLineBreakSyntax,
-                        description: t.markdown.paragraphAndLineBreakDescription,
+                        description:
+                            t.markdown.paragraphAndLineBreakDescription,
                       ),
                       _SyntaxItem(
                         title: t.markdown.textStyle,
@@ -98,7 +120,10 @@ class MarkdownSyntaxHelp extends StatelessWidget {
                       ),
                       _SyntaxItem(
                         title: t.markdown.linkAndImage,
-                        syntax: t.markdown.linkAndImageSyntax(imgUrl: CommonConstants.defaultAvatarUrl, link: CommonConstants.iwaraBaseUrl),
+                        syntax: t.markdown.linkAndImageSyntax(
+                          imgUrl: CommonConstants.defaultAvatarUrl,
+                          link: CommonConstants.iwaraBaseUrl,
+                        ),
                         description: t.markdown.linkAndImageDescription,
                       ),
                       _SyntaxItem(
@@ -123,7 +148,8 @@ class MarkdownSyntaxHelp extends StatelessWidget {
     );
   }
 
-  Widget _buildSection({
+  Widget _buildSection(
+    BuildContext context, {
     required String title,
     required List<_SyntaxItem> items,
     required bool isNarrowScreen,
@@ -135,19 +161,21 @@ class MarkdownSyntaxHelp extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: Text(
             title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
-        ...items.map((item) => _buildSyntaxItem(item, isNarrowScreen)),
+        ...items.map((item) => _buildSyntaxItem(context, item, isNarrowScreen)),
         const SizedBox(height: 16),
       ],
     );
   }
 
-  Widget _buildSyntaxItem(_SyntaxItem item, bool isNarrowScreen) {
+  Widget _buildSyntaxItem(
+    BuildContext context,
+    _SyntaxItem item,
+    bool isNarrowScreen,
+  ) {
+    final cs = Theme.of(context).colorScheme;
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
       child: Padding(
@@ -157,25 +185,19 @@ class MarkdownSyntaxHelp extends StatelessWidget {
           children: [
             Text(
               item.title,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
             ),
             if (item.description != null) ...[
               const SizedBox(height: 8),
               Text(
                 item.description!,
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 13,
-                ),
+                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
               ),
             ],
             const SizedBox(height: 8),
             if (isNarrowScreen) ...[
               // 窄屏设备上垂直布局
-              _buildSyntaxBox(item),
+              _buildSyntaxBox(context, item),
               const SizedBox(height: 12),
               _buildPreviewBox(item),
             ] else ...[
@@ -183,7 +205,7 @@ class MarkdownSyntaxHelp extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(child: _buildSyntaxBox(item)),
+                  Expanded(child: _buildSyntaxBox(context, item)),
                   const SizedBox(width: 12),
                   Expanded(child: _buildPreviewBox(item)),
                 ],
@@ -195,15 +217,14 @@ class MarkdownSyntaxHelp extends StatelessWidget {
     );
   }
 
-  Widget _buildSyntaxBox(_SyntaxItem item) {
+  Widget _buildSyntaxBox(BuildContext context, _SyntaxItem item) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.grey.withValues(alpha: 0.1),
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(
-          color: Colors.grey.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,17 +233,14 @@ class MarkdownSyntaxHelp extends StatelessWidget {
             slang.t.markdown.syntax,
             style: TextStyle(
               fontSize: 12,
-              color: Colors.grey[600],
+              color: cs.onSurfaceVariant,
               fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             item.syntax,
-            style: const TextStyle(
-              fontFamily: 'monospace',
-              fontSize: 13,
-            ),
+            style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
           ),
         ],
       ),
@@ -230,29 +248,69 @@ class MarkdownSyntaxHelp extends StatelessWidget {
   }
 
   Widget _buildPreviewBox(_SyntaxItem item) {
+    return _SyntaxPreviewBox(item: item);
+  }
+}
+
+/// 语法示例的渲染结果框。
+///
+/// 单独拆成有状态组件，只为托住「显示原始文本」的开关状态：
+/// CustomMarkdownBody 的行内开关已关闭，那枚 only-icon 钮收进了框头
+/// 「预览」标签那一行的右端。
+class _SyntaxPreviewBox extends StatefulWidget {
+  const _SyntaxPreviewBox({required this.item});
+
+  final _SyntaxItem item;
+
+  @override
+  State<_SyntaxPreviewBox> createState() => _SyntaxPreviewBoxState();
+}
+
+class _SyntaxPreviewBoxState extends State<_SyntaxPreviewBox> {
+  bool _showOriginal = false;
+  bool _hasProcessedContent = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(
-          color: Colors.grey.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            slang.t.common.preview,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  slang.t.common.preview,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: cs.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              MarkdownOriginalTextToggle(
+                visible: _hasProcessedContent,
+                showOriginal: _showOriginal,
+                pillSize: 24,
+                onChanged: (v) => setState(() => _showOriginal = v),
+              ),
+            ],
           ),
           const SizedBox(height: 4),
           CustomMarkdownBody(
-            data: item.syntax,
+            data: widget.item.syntax,
             clickInternalLinkByUrlLaunch: true,
+            initialShowUnprocessedText: _showOriginal,
+            onProcessedContentChanged: (v) {
+              if (_hasProcessedContent == v) return;
+              setState(() => _hasProcessedContent = v);
+            },
           ),
         ],
       ),
@@ -270,4 +328,4 @@ class _SyntaxItem {
     required this.syntax,
     this.description,
   });
-} 
+}

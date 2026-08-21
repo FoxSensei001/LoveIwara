@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/user.model.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import '../../../../../utils/logger_utils.dart';
 import '../../../../repositories/sign_in_repository.dart';
 import '../../../../services/user_service.dart';
@@ -45,14 +44,16 @@ class SignInController extends GetxController {
       final todayRecord = await _signInRepository.checkIfSignedInToday(userId);
       if (todayRecord != null) {
         hasSignedInToday.value = true;
-        failureReason.value = todayRecord['status'] == 1 ? '' : todayRecord['reason'] ?? '';
+        failureReason.value = todayRecord['status'] == 1
+            ? ''
+            : todayRecord['reason'] ?? '';
       } else {
         hasSignedInToday.value = false;
         failureReason.value = '';
       }
     } catch (e) {
       LogUtils.e('检查签到状态时出错', error: e);
-      showToastWidget(MDToastWidget(message: slang.t.errors.errorOccurred, type: MDToastType.error));
+      showGlassToast(slang.t.errors.errorOccurred, type: GlassToastType.error);
     } finally {
       isLoading.value = false;
     }
@@ -62,32 +63,50 @@ class SignInController extends GetxController {
   Future<void> signIn({required bool isSuccess, String? reason}) async {
     final user = _userService.currentUser.value;
     if (user == null) {
-      showToastWidget(MDToastWidget(message: slang.t.signIn.pleaseLoginFirst, type: MDToastType.error));
+      showGlassToast(
+        slang.t.signIn.pleaseLoginFirst,
+        type: GlassToastType.error,
+      );
       return;
     }
     if (hasSignedInToday.value) {
       LogUtils.i('用户已签到，无需重复签到');
-      showToastWidget(MDToastWidget(message: slang.t.signIn.alreadySignedInToday, type: MDToastType.error));
+      showGlassToast(
+        slang.t.signIn.alreadySignedInToday,
+        type: GlassToastType.error,
+      );
       return;
     }
     isLoading.value = true;
     try {
-      await _signInRepository.signIn(user.id, isSuccess: isSuccess, reason: reason);
+      await _signInRepository.signIn(
+        user.id,
+        isSuccess: isSuccess,
+        reason: reason,
+      );
       hasSignedInToday.value = true;
       if (isSuccess) {
         totalSignIns.value += 1;
-        showToastWidget(MDToastWidget(message: slang.t.signIn.signInSuccess, type: MDToastType.success));
+        showGlassToast(
+          slang.t.signIn.signInSuccess,
+          type: GlassToastType.success,
+        );
       } else {
         failureReason.value = reason ?? '';
-        showToastWidget(MDToastWidget(message: slang.t.signIn.youDidNotStickToTheSignIn, type: MDToastType.error));
+        showGlassToast(
+          slang.t.signIn.youDidNotStickToTheSignIn,
+          type: GlassToastType.error,
+        );
       }
       // 更新连续签到天数
-      consecutiveSignIns.value = await _signInRepository.getConsecutiveSignIns(user.id);
+      consecutiveSignIns.value = await _signInRepository.getConsecutiveSignIns(
+        user.id,
+      );
       // 更新签到状态
       await _fetchSignInHistory(user.id);
     } catch (e) {
       LogUtils.e('签到失败', error: e);
-      showToastWidget(MDToastWidget(message: slang.t.signIn.signInFailed, type: MDToastType.error));
+      showGlassToast(slang.t.signIn.signInFailed, type: GlassToastType.error);
     } finally {
       isLoading.value = false;
     }
@@ -101,7 +120,11 @@ class SignInController extends GetxController {
       signInStatus.clear();
       signInReasons.clear();
       for (var record in records) {
-        DateTime date = DateTime(record['date'].year, record['date'].month, record['date'].day);
+        DateTime date = DateTime(
+          record['date'].year,
+          record['date'].month,
+          record['date'].day,
+        );
         bool isSuccess = (record['status'] as int) == 1;
         signInStatus[date] = isSuccess;
         if (!isSuccess && record['reason'] != null) {
@@ -109,10 +132,15 @@ class SignInController extends GetxController {
         }
       }
       totalSignIns.value = await _signInRepository.getTotalSignIns(userId);
-      consecutiveSignIns.value = await _signInRepository.getConsecutiveSignIns(userId);
+      consecutiveSignIns.value = await _signInRepository.getConsecutiveSignIns(
+        userId,
+      );
     } catch (e) {
       LogUtils.e('获取签到历史时出错', error: e);
-      showToastWidget(MDToastWidget(message: slang.t.errors.errorWhileFetchingDatas, type: MDToastType.error));
+      showGlassToast(
+        slang.t.errors.errorWhileFetchingDatas,
+        type: GlassToastType.error,
+      );
     } finally {
       isLoading.value = false;
     }

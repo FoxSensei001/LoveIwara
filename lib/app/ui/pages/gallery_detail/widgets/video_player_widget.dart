@@ -13,11 +13,7 @@ class VideoPlayerWidget extends StatefulWidget {
   final String videoUrl;
   final Map<String, String>? headers;
 
-  const VideoPlayerWidget({
-    super.key,
-    required this.videoUrl,
-    this.headers,
-  });
+  const VideoPlayerWidget({super.key, required this.videoUrl, this.headers});
 
   @override
   State<VideoPlayerWidget> createState() => VideoPlayerWidgetState();
@@ -56,7 +52,9 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       _setupPlayerListeners();
 
       // 检查视频格式兼容性
-      final fileExtension = CommonUtils.getFileExtension(widget.videoUrl).toLowerCase();
+      final fileExtension = CommonUtils.getFileExtension(
+        widget.videoUrl,
+      ).toLowerCase();
       LogUtils.d('视频格式: $fileExtension', 'VideoPlayerWidget');
 
       // Android平台对某些格式的特殊处理
@@ -67,9 +65,13 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       // 打开视频但不自动播放
       LogUtils.d('开始加载视频文件', 'VideoPlayerWidget');
       await _openVideoWithRetry();
-
     } catch (e, stackTrace) {
-      LogUtils.e('视频播放器初始化失败: $e', tag: 'VideoPlayerWidget', error: e, stackTrace: stackTrace);
+      LogUtils.e(
+        '视频播放器初始化失败: $e',
+        tag: 'VideoPlayerWidget',
+        error: e,
+        stackTrace: stackTrace,
+      );
       if (mounted) {
         setState(() {
           _hasError = true;
@@ -86,16 +88,12 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         LogUtils.d('尝试打开视频 (第${_retryCount + 1}次)', 'VideoPlayerWidget');
 
         // 创建媒体对象，针对Android平台进行优化
-        final media = Media(
-          widget.videoUrl,
-          httpHeaders: widget.headers,
-        );
+        final media = Media(widget.videoUrl, httpHeaders: widget.headers);
 
         await _player.open(media);
         await _player.pause(); // 确保暂停状态
         LogUtils.d('视频文件加载完成', 'VideoPlayerWidget');
         return; // 成功则退出
-
       } catch (e) {
         _retryCount++;
         LogUtils.w('视频打开失败 (第$_retryCount次尝试): $e', 'VideoPlayerWidget');
@@ -127,8 +125,12 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       LogUtils.e('视频播放器错误: $error', tag: 'VideoPlayerWidget', error: error);
 
       // 检测是否为WEBM编解码器错误
-      final isCodecError = error.toString().toLowerCase().contains('could not open codec');
-      final fileExtension = CommonUtils.getFileExtension(widget.videoUrl).toLowerCase();
+      final isCodecError = error.toString().toLowerCase().contains(
+        'could not open codec',
+      );
+      final fileExtension = CommonUtils.getFileExtension(
+        widget.videoUrl,
+      ).toLowerCase();
       final isWebmError = isCodecError && fileExtension == 'webm';
 
       if (mounted) {
@@ -290,21 +292,21 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                 color: Colors.black.withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(4),
               ),
-                                child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.videocam, color: Colors.white, size: 16),
-                      const SizedBox(width: 4),
-                      Text(
-                        slang.t.mediaPlayer.video,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.videocam, color: Colors.white, size: 16),
+                  const SizedBox(width: 4),
+                  Text(
+                    slang.t.mediaPlayer.video,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
+                ],
+              ),
             ),
           ),
         ],
@@ -360,13 +362,15 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         } else {
           suggestion = slang.t.mediaPlayer.currentDeviceCodecNotSupported;
         }
-      } else if (errorMsg.contains('network') || errorMsg.contains('connection')) {
+      } else if (errorMsg.contains('network') ||
+          errorMsg.contains('connection')) {
         errorDescription = slang.t.mediaPlayer.networkConnectionIssue;
         suggestion = slang.t.mediaPlayer.checkNetworkConnection;
       } else if (errorMsg.contains('permission')) {
         errorDescription = slang.t.mediaPlayer.insufficientPermission;
         suggestion = slang.t.mediaPlayer.appMayLackMediaPermission;
-      } else if (errorMsg.contains('format') || errorMsg.contains('unsupported')) {
+      } else if (errorMsg.contains('format') ||
+          errorMsg.contains('unsupported')) {
         errorDescription = slang.t.mediaPlayer.unsupportedVideoFormat;
         suggestion = slang.t.mediaPlayer.tryOtherVideoPlayer;
       }
@@ -409,11 +413,17 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                 decoration: BoxDecoration(
                   color: Colors.orange.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: Colors.orange.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.lightbulb_outline, color: Colors.orange, size: 20),
+                    const Icon(
+                      Icons.lightbulb_outline,
+                      color: Colors.orange,
+                      size: 20,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -510,10 +520,7 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
       final uri = Uri.parse(widget.videoUrl);
       if (await canLaunchUrl(uri)) {
-        await launchUrl(
-          uri,
-          mode: LaunchMode.externalApplication,
-        );
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
         LogUtils.d('已启动外部播放器', 'VideoPlayerWidget');
       } else {
         LogUtils.w('无法启动外部播放器', 'VideoPlayerWidget');

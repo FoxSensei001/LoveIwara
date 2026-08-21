@@ -5,13 +5,13 @@ import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/services/filename_template_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:oktoast/oktoast.dart';
 import 'dart:io';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 
 /// 下载功能测试组件
 class DownloadTestWidget extends StatefulWidget {
   final bool showInDialog;
-  
+
   const DownloadTestWidget({super.key, this.showInDialog = false});
 
   /// 显示测试对话框
@@ -43,7 +43,7 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    
+
     if (widget.showInDialog) {
       return Column(
         mainAxisSize: MainAxisSize.min,
@@ -85,7 +85,7 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
               ],
             ),
           ),
-          
+
           // 内容区域
           Flexible(
             child: SingleChildScrollView(
@@ -96,7 +96,7 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
         ],
       );
     }
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -113,16 +113,13 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
         Row(
           children: [
             if (!widget.showInDialog) ...[
-              Icon(
-                Icons.science,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+              Icon(Icons.science, color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: 8),
               Text(
                 t.settings.downloadSettings.functionalTest,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const Spacer(),
             ],
@@ -135,7 +132,11 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.play_arrow),
-              label: Text(_isTesting ? t.settings.downloadSettings.testInProgress : t.settings.downloadSettings.runTest),
+              label: Text(
+                _isTesting
+                    ? t.settings.downloadSettings.testInProgress
+                    : t.settings.downloadSettings.runTest,
+              ),
             ),
           ],
         ),
@@ -147,19 +148,19 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
           ),
         ),
 
-        if (_testResults.isNotEmpty) ...[ 
+        if (_testResults.isNotEmpty) ...[
           const SizedBox(height: 16),
           const Divider(),
           const SizedBox(height: 16),
 
           Text(
             t.settings.downloadSettings.testResults,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          
+
           ..._testResults.map((result) => _buildTestResultItem(result)),
         ],
       ],
@@ -183,9 +184,9 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
               Expanded(
                 child: Text(
                   result.name,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                 ),
               ),
             ],
@@ -197,7 +198,9 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
               child: Text(
                 result.message,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: result.passed ? Colors.green.shade600 : Colors.red.shade600,
+                  color: result.passed
+                      ? Colors.green.shade600
+                      : Colors.red.shade600,
                 ),
               ),
             ),
@@ -233,9 +236,17 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
       final passedCount = results.where((r) => r.passed).length;
       final totalCount = results.length;
 
-      showToast('${t.settings.downloadSettings.testCompleted}: $passedCount/$totalCount ${t.settings.downloadSettings.testPassed}');
+      showGlassToast(
+        '${t.settings.downloadSettings.testCompleted}: $passedCount/$totalCount ${t.settings.downloadSettings.testPassed}',
+        type: passedCount == totalCount
+            ? GlassToastType.success
+            : GlassToastType.warning,
+      );
     } catch (e) {
-      showToast('${t.settings.downloadSettings.testFailed}: $e');
+      showGlassToast(
+        '${t.settings.downloadSettings.testFailed}: $e',
+        type: GlassToastType.error,
+      );
     } finally {
       setState(() {
         _isTesting = false;
@@ -252,7 +263,9 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
       return TestResult(
         name: t.settings.downloadSettings.testStoragePermissionCheck,
         passed: true,
-        message: hasPermission ? t.settings.downloadSettings.testStoragePermissionGranted : t.settings.downloadSettings.testStoragePermissionMissing,
+        message: hasPermission
+            ? t.settings.downloadSettings.testStoragePermissionGranted
+            : t.settings.downloadSettings.testStoragePermissionMissing,
       );
     } catch (e) {
       return TestResult(
@@ -269,9 +282,12 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
       final filenameService = Get.find<FilenameTemplateService>();
       final configService = Get.find<ConfigService>();
 
-      final videoTemplate = configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] as String;
-      final galleryTemplate = configService[ConfigKey.GALLERY_FILENAME_TEMPLATE] as String;
-      final imageTemplate = configService[ConfigKey.IMAGE_FILENAME_TEMPLATE] as String;
+      final videoTemplate =
+          configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] as String;
+      final galleryTemplate =
+          configService[ConfigKey.GALLERY_FILENAME_TEMPLATE] as String;
+      final imageTemplate =
+          configService[ConfigKey.IMAGE_FILENAME_TEMPLATE] as String;
 
       final videoValid = filenameService.validateTemplate(videoTemplate);
       final galleryValid = filenameService.validateTemplate(galleryTemplate);
@@ -280,20 +296,26 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
       final allValid = videoValid && galleryValid && imageValid;
 
       String details = '';
-      details += '${t.settings.downloadSettings.testVideoTemplate}: $videoTemplate (${videoValid ? t.settings.downloadSettings.testValid : t.settings.downloadSettings.testInvalid})\n';
-      details += '${t.settings.downloadSettings.testGalleryTemplate}: $galleryTemplate (${galleryValid ? t.settings.downloadSettings.testValid : t.settings.downloadSettings.testInvalid})\n';
-      details += '${t.settings.downloadSettings.testImageTemplate}: $imageTemplate (${imageValid ? t.settings.downloadSettings.testValid : t.settings.downloadSettings.testInvalid})';
+      details +=
+          '${t.settings.downloadSettings.testVideoTemplate}: $videoTemplate (${videoValid ? t.settings.downloadSettings.testValid : t.settings.downloadSettings.testInvalid})\n';
+      details +=
+          '${t.settings.downloadSettings.testGalleryTemplate}: $galleryTemplate (${galleryValid ? t.settings.downloadSettings.testValid : t.settings.downloadSettings.testInvalid})\n';
+      details +=
+          '${t.settings.downloadSettings.testImageTemplate}: $imageTemplate (${imageValid ? t.settings.downloadSettings.testValid : t.settings.downloadSettings.testInvalid})';
 
       return TestResult(
         name: t.settings.downloadSettings.testFilenameTemplateValidation,
         passed: allValid,
-        message: allValid ? t.settings.downloadSettings.testAllTemplatesValid : '${t.settings.downloadSettings.testSomeTemplatesInvalid}\n$details',
+        message: allValid
+            ? t.settings.downloadSettings.testAllTemplatesValid
+            : '${t.settings.downloadSettings.testSomeTemplatesInvalid}\n$details',
       );
     } catch (e) {
       return TestResult(
         name: t.settings.downloadSettings.testFilenameTemplateValidation,
         passed: false,
-        message: '${t.settings.downloadSettings.testTemplateValidationFailed}: $e',
+        message:
+            '${t.settings.downloadSettings.testTemplateValidationFailed}: $e',
       );
     }
   }
@@ -307,9 +329,9 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
 
       final testDir = Directory(testPath);
       final testFile = File('$testPath/.download_test');
-      
+
       final dirExistedBefore = await testDir.exists();
-      
+
       if (!dirExistedBefore) {
         await testDir.create(recursive: true);
       }
@@ -326,21 +348,27 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
 
       String details = '';
       details += '${t.settings.downloadSettings.testPath}: $testPath\n';
-      details += '${t.settings.downloadSettings.testBasePath}: ${pathInfo.currentPath}\n';
-      details += '${t.settings.downloadSettings.testDirectoryCreation}: ${dirExists ? t.settings.downloadSettings.testSuccess : t.settings.downloadSettings.testFailed}\n';
-      details += '${t.settings.downloadSettings.testFileWriting}: ${fileExists ? t.settings.downloadSettings.testSuccess : t.settings.downloadSettings.testFailed}\n';
-      details += '${t.settings.downloadSettings.testFileContent}: ${fileContent == 'test' ? t.settings.downloadSettings.testCorrect : t.settings.downloadSettings.testError}';
+      details +=
+          '${t.settings.downloadSettings.testBasePath}: ${pathInfo.currentPath}\n';
+      details +=
+          '${t.settings.downloadSettings.testDirectoryCreation}: ${dirExists ? t.settings.downloadSettings.testSuccess : t.settings.downloadSettings.testFailed}\n';
+      details +=
+          '${t.settings.downloadSettings.testFileWriting}: ${fileExists ? t.settings.downloadSettings.testSuccess : t.settings.downloadSettings.testFailed}\n';
+      details +=
+          '${t.settings.downloadSettings.testFileContent}: ${fileContent == 'test' ? t.settings.downloadSettings.testCorrect : t.settings.downloadSettings.testError}';
 
       return TestResult(
         name: t.settings.downloadSettings.testDirectoryOperationTest,
         passed: true,
-        message: '${t.settings.downloadSettings.testDirectoryOperationNormal}\n$details',
+        message:
+            '${t.settings.downloadSettings.testDirectoryOperationNormal}\n$details',
       );
     } catch (e) {
       return TestResult(
         name: t.settings.downloadSettings.testDirectoryOperationTest,
         passed: false,
-        message: '${t.settings.downloadSettings.testDirectoryOperationFailed}: $e',
+        message:
+            '${t.settings.downloadSettings.testDirectoryOperationFailed}: $e',
       );
     }
   }
@@ -352,9 +380,5 @@ class TestResult {
   final bool passed;
   final String message;
 
-  TestResult({
-    required this.name,
-    required this.passed,
-    required this.message,
-  });
+  TestResult({required this.name, required this.passed, required this.message});
 }

@@ -1,23 +1,30 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 
 class MessageService extends GetxService {
   final List<_QueuedMessage> _messageQueue = [];
   _QueuedMessage? _pendingSiteModeToast;
   bool _isReady = false;
 
+  /// 队列里的消息一条条放，不要一次性全弹。
+  ///
+  /// 同一时刻只保留一条 toast（见 [showGlassToast]），一次性 for 循环发出去
+  /// 的结果是用户只看得到最后一条。
+  static const Duration _queueGap = Duration(milliseconds: 2600);
+
   void markReady() {
     _isReady = true;
     _processQueue();
   }
 
-  void showMessage(String message, MDToastType type) {
+  void showMessage(String message, GlassToastType type) {
     if (!_isReady) {
       _messageQueue.add(_QueuedMessage(message, type));
     } else {
-      _showToast(message, type);
+      showGlassToast(message, type: type);
     }
   }
 
@@ -26,29 +33,24 @@ class MessageService extends GetxService {
   /// （例如已身处目标页面，无需再引导跳转）。
   void showActionableMessage(
     String message,
-    MDToastType type, {
+    GlassToastType type, {
     VoidCallback? onTap,
     IconData? actionIcon,
   }) {
-    showToastWidget(
-      MDToastWidget(
-        message: message,
-        type: type,
-        onTap: onTap,
-        rightIcon: actionIcon != null
-            ? Icon(actionIcon, color: Colors.white, size: 18)
-            : null,
-      ),
-      position: ToastPosition.bottom,
-      handleTouch: onTap != null,
+    showGlassToast(
+      message,
+      type: type,
+      position: GlassToastPosition.bottom,
+      actionIcon: actionIcon,
+      onAction: onTap,
     );
   }
 
-  void queueMessage(String message, MDToastType type) {
+  void queueMessage(String message, GlassToastType type) {
     _messageQueue.add(_QueuedMessage(message, type));
   }
 
-  void queuePendingSiteModeToast(String message, MDToastType type) {
+  void queuePendingSiteModeToast(String message, GlassToastType type) {
     _pendingSiteModeToast = _QueuedMessage(message, type);
   }
 
@@ -59,26 +61,30 @@ class MessageService extends GetxService {
     }
 
     _pendingSiteModeToast = null;
-    _showToast(pendingToast.message, pendingToast.type);
+    showGlassToast(pendingToast.message, type: pendingToast.type);
   }
 
   void _processQueue() {
-    if (!_isReady) return;
+    if (!_isReady || _messageQueue.isEmpty) return;
 
-    for (var message in _messageQueue) {
-      _showToast(message.message, message.type);
-    }
+    final pending = List<_QueuedMessage>.from(_messageQueue);
     _messageQueue.clear();
-  }
-
-  void _showToast(String message, MDToastType type) {
-    showToastWidget(MDToastWidget(message: message, type: type));
+    for (var i = 0; i < pending.length; i++) {
+      final message = pending[i];
+      if (i == 0) {
+        showGlassToast(message.message, type: message.type);
+        continue;
+      }
+      Timer(_queueGap * i, () {
+        showGlassToast(message.message, type: message.type);
+      });
+    }
   }
 }
 
 class _QueuedMessage {
   final String message;
-  final MDToastType type;
+  final GlassToastType type;
 
   _QueuedMessage(this.message, this.type);
 }

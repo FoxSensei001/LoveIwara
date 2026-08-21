@@ -2,26 +2,41 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/user.model.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/conversation_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_syntax_help_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/widgets/enhanced_emoji_text_field.dart';
 import 'package:i_iwara/app/ui/widgets/emoji_picker_sheet.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
+/// 底部弹窗顶部拖拽把手，与 comment_actions_sheet / BaseBottomSheetInput 同款。
+Widget _buildSheetDragHandle(BuildContext context) {
+  return Center(
+    child: Container(
+      margin: const EdgeInsets.only(top: 10, bottom: 2),
+      width: 40,
+      height: 4,
+      decoration: BoxDecoration(
+        color: Theme.of(
+          context,
+        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(2),
+      ),
+    ),
+  );
+}
+
 class NewConversationDialog extends StatefulWidget {
-  const NewConversationDialog({
-    super.key,
-    this.initUserId,
-    this.onSubmit,
-  });
+  const NewConversationDialog({super.key, this.initUserId, this.onSubmit});
 
   final String? initUserId;
   final VoidCallback? onSubmit;
@@ -31,7 +46,8 @@ class NewConversationDialog extends StatefulWidget {
 }
 
 class _NewConversationDialogState extends State<NewConversationDialog> {
-  final ConversationService _conversationService = Get.find<ConversationService>();
+  final ConversationService _conversationService =
+      Get.find<ConversationService>();
   final ConfigService _configService = Get.find<ConfigService>();
   late TextEditingController _bodyController;
   late TextEditingController _titleController;
@@ -39,7 +55,8 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
   int _currentBodyLength = 0;
   User? _selectedUser;
   late EmojiSize _selectedEmojiSize;
-  final GlobalKey<EnhancedEmojiTextFieldState> _emojiTextFieldKey = GlobalKey<EnhancedEmojiTextFieldState>();
+  final GlobalKey<EnhancedEmojiTextFieldState> _emojiTextFieldKey =
+      GlobalKey<EnhancedEmojiTextFieldState>();
 
   // 内容最大长度
   static const int maxBodyLength = 1000;
@@ -61,7 +78,8 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
 
     // 初始化表情尺寸
     final savedSizeSuffix = _configService[ConfigKey.DEFAULT_EMOJI_SIZE];
-    _selectedEmojiSize = EmojiSize.fromAltSuffix(savedSizeSuffix) ?? EmojiSize.medium;
+    _selectedEmojiSize =
+        EmojiSize.fromAltSuffix(savedSizeSuffix) ?? EmojiSize.medium;
 
     // 如果有初始用户ID，搜索用户信息
     if (widget.initUserId != null) {
@@ -110,58 +128,69 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
   }
 
   void _showPreview() {
+    // 预览弹层自己托一份「显示原始文本」状态：那枚 only-icon 钮挂在
+    // GlassComposerHeader 的 trailing 位（关闭钮左侧），正文行内开关已关闭。
+    bool showOriginal =
+        Get.find<ConfigService>()[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
+    bool hasProcessed = false;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) => DraggableScrollableSheet(
         initialChildSize: 0.7,
         minChildSize: 0.5,
         maxChildSize: 0.95,
         expand: false,
-        builder: (context, scrollController) => Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    t.common.preview,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+        builder: (context, scrollController) => StatefulBuilder(
+          builder: (context, setSheetState) => Column(
+            children: [
+              _buildSheetDragHandle(context),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 12.0),
+                child: GlassComposerHeader(
+                  title: t.common.preview,
+                  icon: Icons.preview,
+                  onClose: () => Navigator.of(context).pop(),
+                  trailing: MarkdownOriginalTextToggle(
+                    style: MarkdownToggleStyle.glass,
+                    visible: hasProcessed,
+                    showOriginal: showOriginal,
+                    onChanged: (v) => setSheetState(() => showOriginal = v),
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1),
-            Expanded(
-              child: SingleChildScrollView(
-                controller: scrollController,
-                padding: EdgeInsets.fromLTRB(
-                  16.0,
-                  16.0,
-                  16.0,
-                  16.0 + computeSheetBottomInset(context),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CustomMarkdownBody(
-                      data: _bodyController.text,
-                      originalData: _bodyController.text,
-                      clickInternalLinkByUrlLaunch: true,
-                    ),
-                  ],
                 ),
               ),
-            ),
-          ],
+              const Divider(height: 1),
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  padding: EdgeInsets.fromLTRB(
+                    16.0,
+                    16.0,
+                    16.0,
+                    16.0 + computeSheetBottomInset(context),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CustomMarkdownBody(
+                        data: _bodyController.text,
+                        originalData: _bodyController.text,
+                        clickInternalLinkByUrlLaunch: true,
+                        initialShowUnprocessedText: showOriginal,
+                        onProcessedContentChanged: (v) {
+                          if (hasProcessed == v) return;
+                          setSheetState(() => hasProcessed = v);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -171,6 +200,7 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => const MarkdownSyntaxHelp(),
     );
   }
@@ -179,6 +209,9 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) => DraggableScrollableSheet(
         initialChildSize: 0.7,
         minChildSize: 0.5,
@@ -199,45 +232,34 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
   void _handleSubmit() async {
     if (_currentBodyLength > maxBodyLength || _currentBodyLength == 0) return;
     if (_selectedUser == null) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.conversation.errors.pleaseSelectAUser,
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        t.conversation.errors.pleaseSelectAUser,
+        type: GlassToastType.error,
       );
       return;
     }
 
     // 检查标题是否为空
     if (_titleController.text.trim().isEmpty) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.conversation.errors.pleaseEnterATitle,
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        t.conversation.errors.pleaseEnterATitle,
+        type: GlassToastType.error,
       );
       return;
     }
 
     // 检查标题长度
     if (_titleController.text.length > maxTitleLength) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.errors.exceedsMaxLength(max: maxTitleLength.toString()),
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        t.errors.exceedsMaxLength(max: maxTitleLength.toString()),
+        type: GlassToastType.error,
       );
       return;
     }
 
     // 检查内容是否为空
     if (_bodyController.text.trim().isEmpty) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.errors.contentCanNotBeEmpty,
-          type: MDToastType.error,
-        ),
-      );
+      showGlassToast(t.errors.contentCanNotBeEmpty, type: GlassToastType.error);
       return;
     }
 
@@ -265,18 +287,18 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
         widget.onSubmit?.call();
       }
     } else {
-      showToastWidget(
-        MDToastWidget(
-          message: result.message,
-          type: MDToastType.error,
-        ),
-      );
+      showGlassToast(result.message, type: GlassToastType.error);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool canSubmit =
+        _selectedUser != null &&
+        _currentBodyLength > 0 &&
+        _currentBodyLength <= maxBodyLength;
     return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       child: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -284,150 +306,124 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      t.conversation.startConversation,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: _showMarkdownHelp,
-                        icon: const Icon(Icons.help_outline),
-                        tooltip: t.markdown.markdownSyntax,
-                      ),
-                      IconButton(
-                        onPressed: _showPreview,
-                        icon: const Icon(Icons.preview),
-                        tooltip: t.common.preview,
-                      ),
-                  IconButton(
-                    onPressed: _showEmojiPicker,
-                    icon: const Icon(Icons.emoji_emotions_outlined),
-                    tooltip: t.emoji.selectEmoji,
-                  ),
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.close),
-                        tooltip: t.common.close,
-                      ),
-                    ],
-                  ),
-                ],
+              GlassComposerHeader(
+                title: t.conversation.startConversation,
+                icon: Icons.chat_bubble_outline,
+                onClose: () => AppService.tryPop(),
               ),
               const SizedBox(height: 16),
               // 选择用户
-              InkWell(
-                onTap: _showUserSearch,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Theme.of(context).dividerColor),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _selectedUser == null
-                            ? Text(
-                                t.conversation.errors.clickToSelectAUser,
-                                style: TextStyle(
-                                  color: Theme.of(context).hintColor,
-                                ),
-                              )
-                            : Row(
-                                children: [
-                                  AvatarWidget(
-                                    user: _selectedUser,
-                                    size: 40
+              GlassInputSurface(
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(22),
+                  onTap: _showUserSearch,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: _selectedUser == null
+                              ? Text(
+                                  t.conversation.errors.clickToSelectAUser,
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                                   ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        buildUserName(context, _selectedUser!, fontSize: 14),
-                                        Text(
-                                          '@${_selectedUser!.username}',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Theme.of(context).hintColor,
-                                          ),
-                                        ),
-                                      ],
+                                )
+                              : Row(
+                                  children: [
+                                    AvatarWidget(
+                                      user: _selectedUser,
+                                      size: 40,
                                     ),
-                                  ),
-                                ],
-                              ),
-                      ),
-                      const Icon(Icons.arrow_drop_down),
-                    ],
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          buildUserName(
+                                            context,
+                                            _selectedUser!,
+                                            fontSize: 14,
+                                          ),
+                                          Text(
+                                            '@${_selectedUser!.username}',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                        ),
+                        const Icon(Icons.arrow_drop_down),
+                      ],
+                    ),
                   ),
                 ),
               ),
               const SizedBox(height: 16),
               // 标题输入框
-              TextField(
-                controller: _titleController,
-                maxLength: maxTitleLength,
-                decoration: InputDecoration(
-                  labelText: t.conversation.title,
-                  hintText: t.conversation.errors.pleaseEnterATitle,
-                  border: const OutlineInputBorder(),
-                  counterText: '${_titleController.text.length}/$maxTitleLength',
+              GlassInputSurface(
+                child: TextField(
+                  controller: _titleController,
+                  maxLength: maxTitleLength,
+                  decoration: glassFieldDecoration(
+                    context,
+                    label: t.conversation.title,
+                    hint: t.conversation.errors.pleaseEnterATitle,
+                    counterText:
+                        '${_titleController.text.length}/$maxTitleLength',
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
               // 内容输入框
-              EnhancedEmojiTextField(
-                key: _emojiTextFieldKey,
-                controller: _bodyController,
-                maxLines: 5,
-                maxLength: maxBodyLength,
-                decoration: InputDecoration(
-                  hintText: t.common.writeYourContentHere,
-                  errorText: _currentBodyLength > maxBodyLength
-                      ? t.errors.exceedsMaxLength(max: maxBodyLength.toString())
-                      : null,
+              GlassInputSurface(
+                child: EnhancedEmojiTextField(
+                  key: _emojiTextFieldKey,
+                  controller: _bodyController,
+                  maxLines: 5,
+                  maxLength: maxBodyLength,
+                  decoration: glassFieldDecoration(
+                    context,
+                    hint: t.common.writeYourContentHere,
+                    errorText: _currentBodyLength > maxBodyLength
+                        ? t.errors.exceedsMaxLength(
+                            max: maxBodyLength.toString(),
+                          )
+                        : null,
+                  ),
+                  onChanged: (value) {
+                    if (mounted) {
+                      setState(() {
+                        _currentBodyLength = value.length;
+                      });
+                    }
+                  },
                 ),
-                onChanged: (value) {
-                  if (mounted) {
-                    setState(() {
-                      _currentBodyLength = value.length;
-                    });
-                  }
-                },
               ),
               const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(t.common.cancel),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: (_currentBodyLength > maxBodyLength ||
-                            _currentBodyLength == 0)
-                        ? null
-                        : _handleSubmit,
-                    child: _isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Text(t.common.send),
-                  ),
-                ],
+              // 工具行：Markdown 帮助 · 预览 · 表情
+              GlassComposerToolbar(
+                onMarkdownHelp: _showMarkdownHelp,
+                onPreview: _showPreview,
+                onEmoji: _showEmojiPicker,
+              ),
+              const SizedBox(height: 16),
+              GlassComposerActions(
+                onSubmit: canSubmit ? _handleSubmit : null,
+                isLoading: _isLoading,
               ),
             ],
           ),
@@ -440,16 +436,15 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
 class _UserSearchSheet extends StatefulWidget {
   final Function(User) onUserSelected;
 
-  const _UserSearchSheet({
-    required this.onUserSelected,
-  });
+  const _UserSearchSheet({required this.onUserSelected});
 
   @override
   State<_UserSearchSheet> createState() => _UserSearchSheetState();
 }
 
 class _UserSearchSheetState extends State<_UserSearchSheet> {
-  final ConversationService _conversationService = Get.find<ConversationService>();
+  final ConversationService _conversationService =
+      Get.find<ConversationService>();
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   final List<User> _searchResults = [];
@@ -511,23 +506,13 @@ class _UserSearchSheetState extends State<_UserSearchSheet> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                t.conversation.selectAUser,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close),
-              ),
-            ],
+        _buildSheetDragHandle(context),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 12.0),
+          child: GlassComposerHeader(
+            title: t.conversation.selectAUser,
+            icon: Icons.person_search,
+            onClose: () => Navigator.of(context).pop(),
           ),
         ),
         const Divider(height: 1),
@@ -543,7 +528,10 @@ class _UserSearchSheetState extends State<_UserSearchSheet> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
             ),
           ),
         ),
@@ -559,9 +547,7 @@ class _UserSearchSheetState extends State<_UserSearchSheet> {
               itemBuilder: (context, index) {
                 final user = _searchResults[index];
                 return ListTile(
-                  leading: AvatarWidget(
-                    user: user,
-                  ),
+                  leading: AvatarWidget(user: user),
                   title: buildUserName(context, user, fontSize: 14),
                   subtitle: Text('@${user.username}'),
                   onTap: () => widget.onUserSelected(user),
@@ -572,4 +558,4 @@ class _UserSearchSheetState extends State<_UserSearchSheet> {
       ],
     );
   }
-} 
+}

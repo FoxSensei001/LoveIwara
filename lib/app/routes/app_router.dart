@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
+import 'package:i_iwara/app/routes/home_shell_navigation.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
@@ -25,10 +26,9 @@ import 'package:i_iwara/app/ui/pages/home/home_shell_scaffold.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/popular_video_list_page.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/popular_gallery_list_page.dart';
 import 'package:i_iwara/app/ui/pages/subscriptions/subscriptions_page.dart';
-import 'package:i_iwara/app/ui/pages/forum/forum_page.dart';
+import 'package:i_iwara/app/ui/pages/community/community_page.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:i_iwara/app/ui/pages/news/news_detail_page.dart';
-import 'package:i_iwara/app/ui/pages/news/news_page.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/first_time_setup_page.dart';
 import 'package:i_iwara/app/ui/pages/login/login_page_wrapper.dart';
 import 'package:i_iwara/app/ui/pages/sign_in/sing_in_page.dart';
@@ -38,11 +38,18 @@ import 'package:i_iwara/app/ui/pages/gallery_detail/gallery_detail_page.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/author_profile_page.dart';
 import 'package:i_iwara/app/ui/pages/search/search_result.dart';
 import 'package:i_iwara/app/ui/pages/play_list/play_list_detail.dart';
+import 'package:i_iwara/app/ui/widgets/fade_branch_container.dart';
 import 'package:i_iwara/app/ui/pages/play_list/play_list.dart';
 import 'package:i_iwara/app/ui/pages/favorites/my_favorites.dart';
 import 'package:i_iwara/app/ui/pages/friends/friends_page.dart';
 import 'package:i_iwara/app/ui/pages/history/history_list_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
+import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';
+import 'package:i_iwara/app/ui/pages/settings/google_translation_settings_page.dart';
+import 'package:i_iwara/app/ui/pages/settings/history_update_logs_page.dart';
+import 'package:i_iwara/app/ui/pages/settings/log_viewer_page.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/ai_translation_setting_widget.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/deeplx_translation_setting_widget.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
 import 'package:i_iwara/app/ui/pages/download/gallery_download_task_detail_page.dart';
 import 'package:i_iwara/app/ui/pages/notifications/notification_list_page.dart';
@@ -83,9 +90,21 @@ final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 /// 详情页会推入到这个 Navigator 中，从而保持 Shell 结构一直可见。
 final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
 
+/// 设置树（`/settings/**`）那层嵌套 Shell 的 Navigator key。
+///
+/// 设置的分区页 / 三级页都推入这个 Navigator，宽屏时它就是右栏，左栏由
+/// [SettingsShell] 常驻渲染（不是路由，所以切分区时左栏不参与转场）。
+///
+/// [PopCoordinator] 靠这个 key 判断「设置内部还能不能退一层」——它替代了历史上
+/// `SettingsPage.canPopInternally()` 那个基于 Widget 静态单例的特例：
+/// 同样是一个 GlobalKey 的 `canPop()`，无状态、无生命周期，和
+/// [rootNavigatorKey] / [shellNavigatorKey] 完全同构。
+final GlobalKey<NavigatorState> settingsShellNavigatorKey =
+    GlobalKey<NavigatorState>();
+
 /// 按分支索引获取对应的首页栏目页 Widget（实现了 [HomeWidgetInterface]）。
 /// 分支顺序与下方 [StatefulShellRoute] 的 branches 一一对应：
-/// 0=视频 1=图集 2=订阅 3=论坛 4=新闻。
+/// 0=视频 1=图集 2=订阅 3=社区（论坛 + 新闻）。
 Widget? _homeBranchWidget(int branchIndex) {
   switch (branchIndex) {
     case 0:
@@ -95,9 +114,7 @@ Widget? _homeBranchWidget(int branchIndex) {
     case 2:
       return SubscriptionsPage.globalKey.currentWidget;
     case 3:
-      return ForumPage.globalKey.currentWidget;
-    case 4:
-      return NewsPage.globalKey.currentWidget;
+      return CommunityPage.globalKey.currentWidget;
     default:
       return null;
   }
@@ -229,8 +246,10 @@ final GoRouter appRouter = GoRouter(
         return HomeShellScaffold(currentPath: state.uri.path, child: child);
       },
       routes: [
-        // 内层 StatefulShellRoute：4 个 Tab，支持状态保留的切换
-        StatefulShellRoute.indexedStack(
+        // 内层 StatefulShellRoute：各 Tab 状态保留的切换。
+        // 容器不用默认 indexedStack（硬切），换成 FadeBranchContainer：
+        // 切分支时新页在旧页上方轻淡入（Telegram 式）。
+        StatefulShellRoute(
           // 同上：避免根观察者被重复挂载到各分支 Navigator。
           notifyRootObserver: false,
           builder: (context, state, navigationShell) {
@@ -239,6 +258,11 @@ final GoRouter appRouter = GoRouter(
             Get.find<AppService>().navigationShell = navigationShell;
             return navigationShell;
           },
+          navigatorContainerBuilder: (context, navigationShell, children) =>
+              FadeBranchContainer(
+                currentIndex: navigationShell.currentIndex,
+                children: children,
+              ),
           branches: [
             // 分支 0：视频（热门视频）
             StatefulShellBranch(
@@ -293,40 +317,33 @@ final GoRouter appRouter = GoRouter(
                 ),
               ],
             ),
-            // 分支 3：论坛
+            // 分支 3：社区（论坛 + 新闻）
+            //
+            // 两者原本各占一个 branch，底栏因此要摆 5 个 tab + 1 个搜索圆钮
+            // 共 6 个元素，太挤。现在合成一个 branch，页内用 header 上的
+            // 目的地下拉在「论坛 / 新闻·更新 / 新闻·文章 / 新闻·广播」之间切，
+            // 两个子页都在同一棵子树里保活（见 community_page.dart）。
+            //
+            // `/forum` 与 `/news` 仍然可用——它们被下面的 redirect 路由折叠到
+            // 这里，老的深链 / 分享链接 / AndroidManifest 里的 App Links 不受影响。
             StatefulShellBranch(
               routes: [
                 GoRoute(
-                  path: '/forum',
-                  name: 'forum_home',
+                  path: '/community',
+                  name: 'community_home',
                   builder: (context, state) => Obx(() {
                     final homeContentVersion =
                         Get.find<AppService>().homeContentVersion;
-                    return ForumPage(
-                      key: ForumPage.globalKey,
+                    return CommunityPage(
+                      key: CommunityPage.globalKey,
                       contentResetVersion: homeContentVersion,
-                    );
-                  }),
-                ),
-              ],
-            ),
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: '/news',
-                  name: 'news_home',
-                  builder: (context, state) => Obx(() {
-                    final homeContentVersion =
-                        Get.find<AppService>().homeContentVersion;
-                    return NewsPage(
-                      key: NewsPage.globalKey,
-                      contentResetVersion: homeContentVersion,
-                      initialCategory:
-                          IwaraDeepLinkUtils.resolveNewsCategoryType(
-                            state.uri.queryParameters['category'],
-                          ) ??
-                          IwaraNewsCategoryType.newsUpdates,
-                      initialLanguage: IwaraDeepLinkUtils.resolveNewsLanguage(
+                      initialDestination: CommunityDestination.fromQuery(
+                        tab: state.uri.queryParameters['tab'],
+                        newsCategory: IwaraDeepLinkUtils.resolveNewsCategoryType(
+                          state.uri.queryParameters['category'],
+                        ),
+                      ),
+                      initialNewsLanguage: IwaraDeepLinkUtils.resolveNewsLanguage(
                         state.uri.queryParameters['lang'],
                       ),
                     );
@@ -335,6 +352,25 @@ final GoRouter appRouter = GoRouter(
               ],
             ),
           ],
+        ),
+
+        // ---- 老栏目路径 -> 社区栏目（保深链兼容，不建页面只做重定向） ----
+        //
+        // 注意：`/news/:postId`（新闻详情）是另一条独立路由，路径不同，
+        // 不会被这里吃掉。
+        GoRoute(
+          path: '/forum',
+          redirect: (context, state) => HomeShellNavigation.legacyTabLocation(
+            'forum',
+            state.uri.queryParameters,
+          ),
+        ),
+        GoRoute(
+          path: '/news',
+          redirect: (context, state) => HomeShellNavigation.legacyTabLocation(
+            'news',
+            state.uri.queryParameters,
+          ),
         ),
 
         // ========== 详情类页面（挂在 Shell 内部，导航栏保持可见） ==========
@@ -376,9 +412,7 @@ final GoRouter appRouter = GoRouter(
                 newsExtra == null) {
               return buildAdaptiveSwipeablePage(
                 state,
-                const Scaffold(
-                  body: Center(child: Text('Invalid news route')),
-                ),
+                const Scaffold(body: Center(child: Text('Invalid news route'))),
               );
             }
             return buildAdaptiveSwipeablePage(
@@ -530,14 +564,49 @@ final GoRouter appRouter = GoRouter(
           builder: (context, state) => const HistoryListPage(),
         ),
 
-        // 设置页面
+        // 旧路径兼容：外部 deeplink / 历史书签仍可能指向 /settings_page。
         GoRoute(
           path: '/settings_page',
           name: 'settings_page',
-          builder: (context, state) {
-            final extra = state.extra as SettingsPageExtra?;
-            return SettingsPage(initialPage: extra?.initialPage ?? -1);
-          },
+          redirect: (context, state) => kSettingsRootPath,
+        ),
+
+        // ========== 设置树：嵌套 Shell（宽屏双栏 / 窄屏单栏） ==========
+        //
+        // 分区页与三级页都是**真路由**，栈由 go_router 唯一持有：
+        // 没有内部 _pageStack、没有 currentPage 索引、没有 PopScope 手工编排。
+        // 平台差异表达成「这条路由注册不注册」（见 SettingsSection.isAvailable），
+        // 而不是历史上那套 `ProxyUtil.isSupportedPlatform() ? 12 : 11` 的魔数索引。
+        ShellRoute(
+          navigatorKey: settingsShellNavigatorKey,
+          // 同 Home Shell：避免根观察者被重复挂载导致 overlay 重复计数。
+          notifyRootObserver: false,
+          builder: (context, state, child) =>
+              SettingsShell(location: state.uri.path, child: child),
+          routes: [
+            GoRoute(
+              path: kSettingsRootPath,
+              name: 'settings',
+              pageBuilder: (context, state) => _buildSettingsPage(
+                context,
+                state,
+                (_) => SettingsListPage(location: state.uri.path),
+              ),
+            ),
+            for (final section in SettingsSection.values)
+              if (section.isAvailable)
+                GoRoute(
+                  path: section.path,
+                  name: section.routeName,
+                  pageBuilder: (context, state) => _buildSettingsPage(
+                    context,
+                    state,
+                    (isWide) => section.buildPage(isWideScreen: isWide),
+                    fullSwipe: section.allowsFullSwipeBack,
+                  ),
+                  routes: _settingsSubRoutesOf(section),
+                ),
+          ],
         ),
 
         // 下载任务列表
@@ -656,7 +725,10 @@ final GoRouter appRouter = GoRouter(
           name: 'tag_videos',
           pageBuilder: (context, state) {
             final tag = _resolveTag(state);
-            return buildAdaptiveSwipeablePage(state, TagVideoListPage(tag: tag));
+            return buildAdaptiveSwipeablePage(
+              state,
+              TagVideoListPage(tag: tag),
+            );
           },
         ),
 
@@ -780,27 +852,171 @@ final GoRouter appRouter = GoRouter(
               buildAdaptiveSwipeablePage(state, const EmojiLibraryPage()),
         ),
 
-        // 布局设置
-        GoRoute(
-          path: '/layout_settings_page',
-          name: 'layout_settings',
-          pageBuilder: (context, state) =>
-              buildAdaptiveSwipeablePage(state, const LayoutSettingsPage()),
-        ),
-
-        // 导航顺序设置
-        GoRoute(
-          path: '/navigation_order_settings_page',
-          name: 'navigation_order_settings',
-          pageBuilder: (context, state) => buildAdaptiveSwipeablePage(
-            state,
-            const NavigationOrderSettingsPage(),
-          ),
-        ),
       ],
     ),
   ],
 );
+
+/// 构建一个设置树里的页面。
+///
+/// 转场按 Q8 定的契约分两档：
+/// - 窄屏走 [buildAdaptiveSwipeablePage]，和全站其它二级页（视频详情 / 帖子详情
+///   / 搜索结果…）**完全一致**，iOS 上顺带拿到整页跟手侧滑返回。历史实现里那套
+///   设置页独有的「右滑入 + 底层左移 30% 视差」手写动画连同
+///   `HorizontalDragGestureRecognizer` 一起删掉了。
+/// - 宽屏只有右栏在动（左栏在 Shell builder 里，不参与路由转场），沿用原来
+///   双栏 AnimatedSwitcher 的 200ms 横推观感。
+///
+/// 页面本体包一层 [Builder] 再读宽度：这样窗口 resize 时 `isWideScreen` 会跟着
+/// 变，而不是被冻结在 push 那一刻。
+///
+/// 外面那层 [ColoredBox] 是必需的：设置各页的骨架 `GlassSettingsScaffold` 最终
+/// 落到 `GlassHeaderOverlay`，那只是个 `Stack`，**自己不画底色**——静态时底色由
+/// 双栏骨架/宿主 Scaffold 提供，看不出问题；可一旦进入路由转场，两张透明页会
+/// 直接叠在一起，上一页的内容透过来就是「视觉残留」。M3 下
+/// `canvasColor == scaffoldBackgroundColor == colorScheme.surface`，所以这里补
+/// 的底色和原本透出来的完全一致，静态观感不变。
+Page<void> _buildSettingsPage(
+  BuildContext context,
+  GoRouterState state,
+  Widget Function(bool isWideScreen) builder, {
+  bool fullSwipe = true,
+}) {
+  final Widget child = Builder(
+    builder: (context) => ColoredBox(
+      color: Theme.of(context).colorScheme.surface,
+      child: builder(
+        MediaQuery.sizeOf(context).width > kSettingsTwoPaneBreakpoint,
+      ),
+    ),
+  );
+
+  final bool isWide =
+      MediaQuery.sizeOf(context).width > kSettingsTwoPaneBreakpoint;
+  if (!isWide) {
+    return buildAdaptiveSwipeablePage(state, child, fullSwipe: fullSwipe);
+  }
+
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    name: state.name ?? state.fullPath,
+    arguments: state.extra,
+    transitionDuration: const Duration(milliseconds: 260),
+    reverseTransitionDuration: const Duration(milliseconds: 220),
+    child: child,
+    transitionsBuilder: _settingsPaneTransition,
+  );
+}
+
+/// 宽屏右栏的转场：M3 fade-through + 一小段 X 位移（横向平级切换的原生手法）。
+///
+/// 关键是**出场页也要动**。此前只给入场页做了整幅横推、出场页原地不动，于是切
+/// 分区时旧页会一直杵在下面直到新页盖满——读起来就是「上一页的残留」。这里让
+/// 旧页先淡出（前 40%）、新页后淡入（后 60%），中间那一小段露出的是同色底，
+/// 两页内容不会在半透明状态下互相叠加。
+Widget _settingsPaneTransition(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+  Widget child,
+) {
+  const double shift = 0.04;
+
+  // 出场：有新页压上来时，本页向左让位并淡出。
+  final Animation<Offset> outgoingSlide =
+      Tween<Offset>(begin: Offset.zero, end: const Offset(-shift, 0)).animate(
+        CurvedAnimation(parent: secondaryAnimation, curve: Curves.easeInCubic),
+      );
+  final Animation<double> outgoingFade = Tween<double>(begin: 1, end: 0).animate(
+    CurvedAnimation(
+      parent: secondaryAnimation,
+      curve: const Interval(0, 0.4, curve: Curves.easeOut),
+    ),
+  );
+
+  // 入场：从右侧一小段位移滑入并淡入。
+  final Animation<Offset> incomingSlide =
+      Tween<Offset>(begin: const Offset(shift, 0), end: Offset.zero).animate(
+        CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+      );
+  final Animation<double> incomingFade = CurvedAnimation(
+    parent: animation,
+    curve: const Interval(0.4, 1, curve: Curves.easeIn),
+  );
+
+  return SlideTransition(
+    position: outgoingSlide,
+    child: FadeTransition(
+      opacity: outgoingFade,
+      child: SlideTransition(
+        position: incomingSlide,
+        child: FadeTransition(opacity: incomingFade, child: child),
+      ),
+    ),
+  );
+}
+
+GoRoute _settingsSubRoute(
+  String path,
+  String name,
+  Widget Function(bool isWideScreen) builder,
+) => GoRoute(
+  path: path,
+  name: name,
+  pageBuilder: (context, state) =>
+      _buildSettingsPage(context, state, builder),
+);
+
+/// 分区页下面的三级页。路径即层级，宽窄屏走同一条路由
+/// （历史实现是「宽屏塞进右栏内部 Navigator、窄屏 push 到 Shell 顶层」两套实现）。
+List<RouteBase> _settingsSubRoutesOf(SettingsSection section) => switch (section) {
+  SettingsSection.translation => [
+    _settingsSubRoute(
+      'google',
+      'settings_translation_google',
+      (isWide) => GoogleTranslationSettingsPage(isWideScreen: isWide),
+    ),
+    _settingsSubRoute(
+      'ai',
+      'settings_translation_ai',
+      (isWide) => AITranslationSettingsPage(isWideScreen: isWide),
+    ),
+    _settingsSubRoute(
+      'deeplx',
+      'settings_translation_deeplx',
+      (isWide) => DeepLXTranslationSettingsPage(isWideScreen: isWide),
+    ),
+  ],
+  SettingsSection.display => [
+    _settingsSubRoute(
+      'layout',
+      'settings_display_layout',
+      (isWide) => LayoutSettingsPage(isWideScreen: isWide),
+    ),
+    // 两个入口（显示设置直接进 / 布局设置里再进）push 的是同一条路由，
+    // `push` 只压一页，所以两条路径下的返回都停在各自的上一页。
+    _settingsSubRoute(
+      'navigation_order',
+      'settings_display_navigation_order',
+      (isWide) => NavigationOrderSettingsPage(isWideScreen: isWide),
+    ),
+  ],
+  SettingsSection.about => [
+    _settingsSubRoute(
+      'changelog',
+      'settings_about_changelog',
+      (_) => const HistoryUpdateLogsPage(),
+    ),
+  ],
+  SettingsSection.diagnostics => [
+    _settingsSubRoute(
+      'logs',
+      'settings_diagnostics_logs',
+      (isWide) => LogViewerPage(isWideScreen: isWide),
+    ),
+  ],
+  _ => const <RouteBase>[],
+};
 
 class _NavigationLogObserver extends NavigatorObserver {
   _NavigationLogObserver(this.scope);
@@ -1128,11 +1344,6 @@ class PlayListExtra {
   final String userId;
   final bool isMine;
   const PlayListExtra({required this.userId, this.isMine = false});
-}
-
-class SettingsPageExtra {
-  final int initialPage;
-  const SettingsPageExtra({this.initialPage = -1});
 }
 
 class FollowsPageExtra {

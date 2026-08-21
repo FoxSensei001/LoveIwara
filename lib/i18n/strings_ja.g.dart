@@ -205,8 +205,11 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get unfollow => 'フォロー解除';
 	@override String get specialFollow => '特別フォロー';
 	@override String get specialFollowed => '特別フォロー済み';
-	@override String get specialFollowsManagementTip => 'ドラッグして並べ替え • 左スワイプで削除';
+	@override String get specialFollowsManagementTip => 'ハンドルをドラッグで並べ替え • 右のボタンで削除';
 	@override String get specialFollowsManagement => '特別フォロー管理';
+	@override String get removeSpecialFollow => '特別フォローを解除';
+	@override String removeSpecialFollowConfirm({required Object name}) => '${name} を特別フォローから外しますか？';
+	@override String get noSpecialFollows => '特別フォローはまだありません';
 	@override String get createTimeDesc => '作成時間降順';
 	@override String get createTimeAsc => '作成時間昇順';
 	@override String get gallery => 'ギャラリー';
@@ -292,6 +295,8 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get paused => '一時停止';
 	@override String get clear => 'クリア';
 	@override String get clearSelection => '選択を解除';
+	@override String get selectItemsToContinue => '項目を選択してください';
+	@override String andMoreItems({required Object num}) => '他 ${num} 件';
 	@override String get batchDelete => '一括削除';
 	@override String get user => 'ユーザー';
 	@override String get post => '投稿';
@@ -363,7 +368,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String deleteRecordsInDateRangeConfirm({required Object num}) => 'この期間の ${num} 件の履歴を削除してもよろしいですか？この操作は取り消せません。';
 	@override String get noHistoryRecordsInRange => 'この期間の履歴はありません';
 	@override String get followSuccessClickAgainToSpecialFollow => 'フォローに成功しました。再度クリックして特別フォロー';
-	@override String get specialFollowTip => '特別フォローに追加しました。購読ページ左上のセレクターで切り替えると、すぐに確認できます';
+	@override String get specialFollowTip => '特別フォローに追加しました。購読ページ右上のセレクターで切り替えると、すぐに確認できます';
 	@override String get exitConfirmTip => '本当に退出しますか？';
 	@override String get error => 'エラー';
 	@override String get taskRunning => '既にタスクが実行中です。しばらくお待ちください。';
@@ -377,6 +382,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get tagOriginalKey => '元のタグ';
 	@override String get tagTranslation => '翻訳';
 	@override String get copy => 'コピー';
+	@override String get selectCopy => '選択してコピー';
 	@override String get copiedToClipboard => 'クリップボードにコピーしました';
 	@override String get showOriginalTag => '元のタグを表示';
 	@override String get showTranslatedTag => '翻訳を表示';
@@ -533,6 +539,10 @@ class _TranslationsFavoritesJa implements TranslationsFavoritesEn {
 	// Translations
 	@override String get clickToRestoreFavorite => 'お気に入りを復元するにはクリックしてください';
 	@override String get myFavorites => '私のお気に入り';
+	@override String get batchCancelFavorite => 'お気に入りを一括解除';
+	@override String batchCancelFavoriteConfirm({required Object count}) => '選択した ${count} 件のお気に入りを解除しますか？解除後もカードをタップすれば復元できます。';
+	@override String batchCancelFavoriteSuccess({required Object count}) => '${count} 件のお気に入りを解除しました';
+	@override String batchCancelFavoriteResult({required Object success, required Object failed}) => '${success} 件を解除しました。${failed} 件は失敗しました';
 }
 
 // Path: galleryDetail
@@ -745,6 +755,7 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get privacy => 'プライバシー';
 	@override String get forum => 'フォーラム';
 	@override String get news => 'ニュース';
+	@override String get community => 'コミュニティ';
 	@override String get disableForumReplyQuote => 'フォーラム返信引用を無効にする';
 	@override String get disableForumReplyQuoteDesc => 'フォーラム返信時の返信階層情報の携帯を無効にする';
 	@override String get theaterMode => '劇院モード';
@@ -760,6 +771,7 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get useDynamicColorDesc => 'この設定はアプリがダイナミックカラーを使用するかどうかを決定します';
 	@override String get presetColors => 'プリセットカラー';
 	@override String get customColors => 'カスタムカラー';
+	@override String get customColorsDisabledByDynamicColor => 'ダイナミックカラーが有効なため、プリセット/カスタムカラーは使用できません。先にダイナミックカラーをオフにしてください';
 	@override String get pickColor => 'カラーを選択';
 	@override String get cancel => 'キャンセル';
 	@override String get confirm => '確認';
@@ -1220,6 +1232,7 @@ class _TranslationsConversationJa implements TranslationsConversationEn {
 	@override String get deleteThisMessage => 'このメッセージを削除';
 	@override String get deleteThisMessageSubtitle => 'この操作は取り消せません';
 	@override String get writeMessageHere => 'ここにメッセージを入力...';
+	@override String get lastMessageFromMe => '自分: ';
 	@override String get sendMessage => 'メッセージを送信';
 }
 
@@ -1313,6 +1326,10 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String get clearFilters => 'フィルターをクリア';
 	@override String get pauseAll => 'すべて一時停止';
 	@override String get resumeAll => 'すべて開始';
+	@override late final _TranslationsDownloadErrorTypesJa errorTypes = _TranslationsDownloadErrorTypesJa._(_root);
+	@override String get errorDetailCopied => 'エラー詳細をコピーしました';
+	@override String get errorDetailCopyHint => '長押しでエラー詳細をコピー';
+	@override late final _TranslationsDownloadRestoredPausedJa restoredPaused = _TranslationsDownloadRestoredPausedJa._(_root);
 	@override String get emptyTaskList => 'ダウンロードタスクがありません';
 	@override String get noMatchingTasks => '一致するタスクがありません';
 	@override late final _TranslationsDownloadDeleteByDateJa deleteByDate = _TranslationsDownloadDeleteByDateJa._(_root);
@@ -1384,6 +1401,11 @@ class _TranslationsFavoriteJa implements TranslationsFavoriteEn {
 	@override String get editFolderSuccess => 'フォルダー名を更新しました';
 	@override String get editFolderFailed => 'フォルダー名の更新に失敗しました';
 	@override String get searchTags => 'タグを検索';
+	@override String get noTagsInFolder => 'このフォルダーの作品にはまだタグがありません';
+	@override String get tagFilterMatchAll => '選択したタグをすべて含む作品のみ表示します';
+	@override String get clearSelectedTags => '選択したタグをクリア';
+	@override String selectedTagCount({required Object count}) => '${count} 件選択中';
+	@override String get noMatchingTags => '一致するタグがありません';
 }
 
 // Path: translation
@@ -1964,6 +1986,7 @@ class _TranslationsNavigationOrderSettingsJa implements TranslationsNavigationOr
 	@override String get subscriptionDescription => 'フォローしているユーザーの最新コンテンツを表示';
 	@override String get forumDescription => 'コミュニティディスカッションに参加';
 	@override String get newsDescription => '公式ニュース、記事、放送を閲覧';
+	@override String get communityDescription => 'フォーラムの議論と公式ニュース・記事・ブロードキャスト';
 }
 
 // Path: news
@@ -2982,6 +3005,35 @@ class _TranslationsDownloadErrorsJa implements TranslationsDownloadErrorsEn {
 	@override String get pleaseTryOtherViewer => '他のビューアーを使用してみてください';
 }
 
+// Path: download.errorTypes
+class _TranslationsDownloadErrorTypesJa implements TranslationsDownloadErrorTypesEn {
+	_TranslationsDownloadErrorTypesJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get network => 'ネットワークエラー、再試行できます';
+	@override String get serverRejected => 'サーバーに拒否されました。再ログインが必要かもしれません';
+	@override String get notFound => 'リソースが失効または削除されました';
+	@override String get diskFull => 'ストレージの空き容量が不足しています';
+	@override String get fileInUse => 'ファイルが他のプログラムに使用されています';
+	@override String get permission => '書き込み権限がありません';
+	@override String get cancelled => 'キャンセルされました';
+	@override String get unknown => '不明なエラー';
+}
+
+// Path: download.restoredPaused
+class _TranslationsDownloadRestoredPausedJa implements TranslationsDownloadRestoredPausedEn {
+	_TranslationsDownloadRestoredPausedJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String banner({required Object num}) => '前回終了時に未完了だったタスク ${num} 件を一時停止しました';
+	@override String get resume => 'すべて再開';
+	@override String get dismiss => '閉じる';
+}
+
 // Path: download.deleteByDate
 class _TranslationsDownloadDeleteByDateJa implements TranslationsDownloadDeleteByDateEn {
 	_TranslationsDownloadDeleteByDateJa._(this._root);
@@ -3475,8 +3527,11 @@ extension on TranslationsJa {
 			'common.unfollow' => 'フォロー解除',
 			'common.specialFollow' => '特別フォロー',
 			'common.specialFollowed' => '特別フォロー済み',
-			'common.specialFollowsManagementTip' => 'ドラッグして並べ替え • 左スワイプで削除',
+			'common.specialFollowsManagementTip' => 'ハンドルをドラッグで並べ替え • 右のボタンで削除',
 			'common.specialFollowsManagement' => '特別フォロー管理',
+			'common.removeSpecialFollow' => '特別フォローを解除',
+			'common.removeSpecialFollowConfirm' => ({required Object name}) => '${name} を特別フォローから外しますか？',
+			'common.noSpecialFollows' => '特別フォローはまだありません',
 			'common.createTimeDesc' => '作成時間降順',
 			'common.createTimeAsc' => '作成時間昇順',
 			'common.gallery' => 'ギャラリー',
@@ -3562,6 +3617,8 @@ extension on TranslationsJa {
 			'common.paused' => '一時停止',
 			'common.clear' => 'クリア',
 			'common.clearSelection' => '選択を解除',
+			'common.selectItemsToContinue' => '項目を選択してください',
+			'common.andMoreItems' => ({required Object num}) => '他 ${num} 件',
 			'common.batchDelete' => '一括削除',
 			'common.user' => 'ユーザー',
 			'common.post' => '投稿',
@@ -3633,7 +3690,7 @@ extension on TranslationsJa {
 			'common.deleteRecordsInDateRangeConfirm' => ({required Object num}) => 'この期間の ${num} 件の履歴を削除してもよろしいですか？この操作は取り消せません。',
 			'common.noHistoryRecordsInRange' => 'この期間の履歴はありません',
 			'common.followSuccessClickAgainToSpecialFollow' => 'フォローに成功しました。再度クリックして特別フォロー',
-			'common.specialFollowTip' => '特別フォローに追加しました。購読ページ左上のセレクターで切り替えると、すぐに確認できます',
+			'common.specialFollowTip' => '特別フォローに追加しました。購読ページ右上のセレクターで切り替えると、すぐに確認できます',
 			'common.exitConfirmTip' => '本当に退出しますか？',
 			'common.error' => 'エラー',
 			'common.taskRunning' => '既にタスクが実行中です。しばらくお待ちください。',
@@ -3655,6 +3712,7 @@ extension on TranslationsJa {
 			'common.tagOriginalKey' => '元のタグ',
 			'common.tagTranslation' => '翻訳',
 			'common.copy' => 'コピー',
+			'common.selectCopy' => '選択してコピー',
 			'common.copiedToClipboard' => 'クリップボードにコピーしました',
 			'common.showOriginalTag' => '元のタグを表示',
 			'common.showTranslatedTag' => '翻訳を表示',
@@ -3786,6 +3844,10 @@ extension on TranslationsJa {
 			'authorProfile.userProfile' => 'ユーザープロフィール',
 			'favorites.clickToRestoreFavorite' => 'お気に入りを復元するにはクリックしてください',
 			'favorites.myFavorites' => '私のお気に入り',
+			'favorites.batchCancelFavorite' => 'お気に入りを一括解除',
+			'favorites.batchCancelFavoriteConfirm' => ({required Object count}) => '選択した ${count} 件のお気に入りを解除しますか？解除後もカードをタップすれば復元できます。',
+			'favorites.batchCancelFavoriteSuccess' => ({required Object count}) => '${count} 件のお気に入りを解除しました',
+			'favorites.batchCancelFavoriteResult' => ({required Object success, required Object failed}) => '${success} 件を解除しました。${failed} 件は失敗しました',
 			'galleryDetail.galleryDetail' => 'ギャラリー詳細',
 			'galleryDetail.viewGalleryDetail' => 'ギャラリー詳細を表示',
 			'galleryDetail.copyLink' => 'リンクをコピー',
@@ -3885,6 +3947,8 @@ extension on TranslationsJa {
 			'settings.rememberBrightness' => '明るさを記憶',
 			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => 'この設定は、今後動画を再生する際に以前の明るさ設定を使用するかどうかを決定します。',
 			'settings.playControlArea' => '再生コントロールエリア',
+			_ => null,
+		} ?? switch (path) {
 			'settings.leftAndRightControlAreaWidth' => '左右コントロールエリアの幅',
 			'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer' => 'この設定は、プレイヤーの左右にあるコントロールエリアの幅を決定します。',
 			'settings.proxyAddressCannotBeEmpty' => 'プロキシアドレスは空にできません。',
@@ -3895,8 +3959,6 @@ extension on TranslationsJa {
 			'settings.proxyConfig' => 'プロキシ設定',
 			'settings.thisIsHttpProxyAddress' => 'ここにHTTPプロキシアドレスを入力してください',
 			'settings.checkProxy' => 'プロキシを確認',
-			_ => null,
-		} ?? switch (path) {
 			'settings.proxyAddress' => 'プロキシアドレス',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => 'プロキシサーバーのURLを入力してください（例: 127.0.0.1:8080）',
 			'settings.enableProxy' => 'プロキシを有効にする',
@@ -3955,6 +4017,7 @@ extension on TranslationsJa {
 			'settings.privacy' => 'プライバシー',
 			'settings.forum' => 'フォーラム',
 			'settings.news' => 'ニュース',
+			'settings.community' => 'コミュニティ',
 			'settings.disableForumReplyQuote' => 'フォーラム返信引用を無効にする',
 			'settings.disableForumReplyQuoteDesc' => 'フォーラム返信時の返信階層情報の携帯を無効にする',
 			'settings.theaterMode' => '劇院モード',
@@ -3970,6 +4033,7 @@ extension on TranslationsJa {
 			'settings.useDynamicColorDesc' => 'この設定はアプリがダイナミックカラーを使用するかどうかを決定します',
 			'settings.presetColors' => 'プリセットカラー',
 			'settings.customColors' => 'カスタムカラー',
+			'settings.customColorsDisabledByDynamicColor' => 'ダイナミックカラーが有効なため、プリセット/カスタムカラーは使用できません。先にダイナミックカラーをオフにしてください',
 			'settings.pickColor' => 'カラーを選択',
 			'settings.cancel' => 'キャンセル',
 			'settings.confirm' => '確認',
@@ -4397,6 +4461,8 @@ extension on TranslationsJa {
 			'oreno3d.loading.gettingVideoInfo' => '動画情報を取得中...',
 			'oreno3d.loading.cancel' => 'キャンセル',
 			'oreno3d.messages.videoNotFoundOrDeleted' => '動画が見つからないか削除されました',
+			_ => null,
+		} ?? switch (path) {
 			'oreno3d.messages.unableToGetVideoPlayLink' => '動画再生リンクを取得できません',
 			'oreno3d.messages.getVideoDetailFailed' => '動画詳細の取得に失敗しました',
 			'signIn.pleaseLoginFirst' => 'サインインする前にログインしてください',
@@ -4409,8 +4475,6 @@ extension on TranslationsJa {
 			'signIn.selectDateRange' => '日付範囲を選択',
 			'signIn.startDate' => '開始日',
 			'signIn.endDate' => '終了日',
-			_ => null,
-		} ?? switch (path) {
 			'signIn.invalidDate' => '日付形式が正しくありません',
 			'signIn.invalidDateRange' => '日付範囲が無効です',
 			'signIn.errorFormatText' => '日付形式が正しくありません',
@@ -4757,6 +4821,7 @@ extension on TranslationsJa {
 			'conversation.deleteThisMessage' => 'このメッセージを削除',
 			'conversation.deleteThisMessageSubtitle' => 'この操作は取り消せません',
 			'conversation.writeMessageHere' => 'ここにメッセージを入力...',
+			'conversation.lastMessageFromMe' => '自分: ',
 			'conversation.sendMessage' => 'メッセージを送信',
 			'splash.errors.initializationFailed' => '初期化に失敗しました。アプリを再起動してください',
 			'splash.preparing' => '準備中...',
@@ -4885,6 +4950,19 @@ extension on TranslationsJa {
 			'download.clearFilters' => 'フィルターをクリア',
 			'download.pauseAll' => 'すべて一時停止',
 			'download.resumeAll' => 'すべて開始',
+			'download.errorTypes.network' => 'ネットワークエラー、再試行できます',
+			'download.errorTypes.serverRejected' => 'サーバーに拒否されました。再ログインが必要かもしれません',
+			'download.errorTypes.notFound' => 'リソースが失効または削除されました',
+			'download.errorTypes.diskFull' => 'ストレージの空き容量が不足しています',
+			'download.errorTypes.fileInUse' => 'ファイルが他のプログラムに使用されています',
+			'download.errorTypes.permission' => '書き込み権限がありません',
+			'download.errorTypes.cancelled' => 'キャンセルされました',
+			'download.errorTypes.unknown' => '不明なエラー',
+			'download.errorDetailCopied' => 'エラー詳細をコピーしました',
+			'download.errorDetailCopyHint' => '長押しでエラー詳細をコピー',
+			'download.restoredPaused.banner' => ({required Object num}) => '前回終了時に未完了だったタスク ${num} 件を一時停止しました',
+			'download.restoredPaused.resume' => 'すべて再開',
+			'download.restoredPaused.dismiss' => '閉じる',
 			'download.emptyTaskList' => 'ダウンロードタスクがありません',
 			'download.noMatchingTasks' => '一致するタスクがありません',
 			'download.deleteByDate.menuTitle' => '日付で削除',
@@ -4897,6 +4975,8 @@ extension on TranslationsJa {
 			'download.deleteByDate.notSet' => '未設定',
 			'download.deleteByDate.daysUnit' => '日',
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => '${days}日前より古いタスクを削除',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.noMatch' => '条件に一致するタスクがありません',
 			'download.deleteByDate.invalidRange' => '開始日は終了日以前にしてください',
 			'download.deleteByDate.confirmTitle' => '削除の確認',
@@ -4923,8 +5003,6 @@ extension on TranslationsJa {
 			'download.category.renameHint' => 'カテゴリー名を入力',
 			'download.category.renameSuccess' => '名前を変更しました',
 			'download.category.renameFailed' => '名前の変更に失敗しました',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.deleteTitle' => 'カテゴリーの削除',
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'カテゴリー「${title}」を削除しますか？このカテゴリーの${count}件のダウンロードは「未分類」へ移動され、ファイルは削除されません。',
 			'download.category.deleteSuccess' => 'カテゴリーを削除しました',
@@ -5008,6 +5086,11 @@ extension on TranslationsJa {
 			'favorite.editFolderSuccess' => 'フォルダー名を更新しました',
 			'favorite.editFolderFailed' => 'フォルダー名の更新に失敗しました',
 			'favorite.searchTags' => 'タグを検索',
+			'favorite.noTagsInFolder' => 'このフォルダーの作品にはまだタグがありません',
+			'favorite.tagFilterMatchAll' => '選択したタグをすべて含む作品のみ表示します',
+			'favorite.clearSelectedTags' => '選択したタグをクリア',
+			'favorite.selectedTagCount' => ({required Object count}) => '${count} 件選択中',
+			'favorite.noMatchingTags' => '一致するタグがありません',
 			'translation.currentService' => '現在のサービス',
 			'translation.testConnection' => 'テスト接続',
 			'translation.testConnectionSuccess' => 'テスト接続成功',
@@ -5406,6 +5489,8 @@ extension on TranslationsJa {
 			'emoji.close' => '閉じる',
 			'emoji.deleteImage' => '画像を削除',
 			'emoji.confirmDeleteImage' => 'この画像を削除してもよろしいですか？',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.cancel' => 'キャンセル',
 			'emoji.batchDelete' => '一括削除',
 			'emoji.confirmBatchDelete' => ({required Object count}) => '選択された${count}枚の画像を削除してもよろしいですか？この操作は元に戻せません。',
@@ -5437,8 +5522,6 @@ extension on TranslationsJa {
 			'emoji.goToSettingsToAddEmojis' => '設定で絵文字を追加してください',
 			'emoji.emojiManagement' => '絵文字管理',
 			'emoji.manageEmojiGroupsAndImages' => '絵文字グループと画像を管理',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.uploadLocalImages' => 'ローカル画像をアップロード',
 			'emoji.uploadingImages' => '画像をアップロード中',
 			'emoji.uploadingImagesProgress' => ({required Object count}) => '${count} 枚の画像をアップロード中、お待ちください...',
@@ -5524,6 +5607,7 @@ extension on TranslationsJa {
 			'navigationOrderSettings.subscriptionDescription' => 'フォローしているユーザーの最新コンテンツを表示',
 			'navigationOrderSettings.forumDescription' => 'コミュニティディスカッションに参加',
 			'navigationOrderSettings.newsDescription' => '公式ニュース、記事、放送を閲覧',
+			'navigationOrderSettings.communityDescription' => 'フォーラムの議論と公式ニュース・記事・ブロードキャスト',
 			'news.title' => 'ニュース',
 			'news.newsUpdates' => '更新情報',
 			'news.articles' => '記事',

@@ -38,14 +38,16 @@ class Oreno3dClient {
     Map<String, String>? headers,
   }) {
     _dio = dio ?? Dio();
-        
+
     _dio.options = BaseOptions(
       baseUrl: baseUrl,
       connectTimeout: connectTimeout ?? const Duration(seconds: 30),
       receiveTimeout: receiveTimeout ?? const Duration(seconds: 30),
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept':
+            'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,ja;q=0.7',
         'Connection': 'keep-alive',
         'Upgrade-Insecure-Requests': '1',
@@ -62,19 +64,26 @@ class Oreno3dClient {
       InterceptorsWrapper(
         onRequest: (options, handler) {
           // 仅记录方法/URL/查询参数；不打印 headers 与 data，避免日志噪音和潜在信息泄漏
-          LogUtils.d('🚀 发送请求: ${options.method} ${options.baseUrl}${options.path} query=${options.queryParameters}', 'Oreno3dClient');
+          LogUtils.d(
+            '🚀 发送请求: ${options.method} ${options.baseUrl}${options.path} query=${options.queryParameters}',
+            'Oreno3dClient',
+          );
           handler.next(options);
         },
         onResponse: (response, handler) {
           // 记录响应信息
           final responseInfo = {
             'statusCode': response.statusCode,
-            'url': '${response.requestOptions.baseUrl}${response.requestOptions.path}',
+            'url':
+                '${response.requestOptions.baseUrl}${response.requestOptions.path}',
             'responseHeaders': response.headers.map,
             'responseSize': response.data?.toString().length ?? 0,
             'duration': response.requestOptions.extra['duration'] ?? 'unknown',
           };
-          LogUtils.d('✅ 收到响应: ${response.statusCode} ${response.requestOptions.baseUrl}${response.requestOptions.path}', 'Oreno3dClient');
+          LogUtils.d(
+            '✅ 收到响应: ${response.statusCode} ${response.requestOptions.baseUrl}${response.requestOptions.path}',
+            'Oreno3dClient',
+          );
           LogUtils.d('响应详情: $responseInfo', 'Oreno3dClient');
           handler.next(response);
         },
@@ -82,13 +91,17 @@ class Oreno3dClient {
           // 记录错误信息
           final errorInfo = {
             'method': error.requestOptions.method,
-            'url': '${error.requestOptions.baseUrl}${error.requestOptions.path}',
+            'url':
+                '${error.requestOptions.baseUrl}${error.requestOptions.path}',
             'statusCode': error.response?.statusCode,
             'errorType': error.type.toString(),
             'errorMessage': error.message,
           };
-          LogUtils.e('❌ 请求失败: ${error.requestOptions.method} ${error.requestOptions.baseUrl}${error.requestOptions.path}', 
-            error: error, tag: 'Oreno3dClient');
+          LogUtils.e(
+            '❌ 请求失败: ${error.requestOptions.method} ${error.requestOptions.baseUrl}${error.requestOptions.path}',
+            error: error,
+            tag: 'Oreno3dClient',
+          );
           LogUtils.d('错误详情: $errorInfo', 'Oreno3dClient');
           handler.next(error);
         },
@@ -103,18 +116,22 @@ class Oreno3dClient {
           handler.next(options);
         },
         onResponse: (response, handler) {
-          final startTime = response.requestOptions.extra['startTime'] as DateTime?;
+          final startTime =
+              response.requestOptions.extra['startTime'] as DateTime?;
           if (startTime != null) {
             final duration = DateTime.now().difference(startTime);
-            response.requestOptions.extra['duration'] = '${duration.inMilliseconds}ms';
+            response.requestOptions.extra['duration'] =
+                '${duration.inMilliseconds}ms';
           }
           handler.next(response);
         },
         onError: (error, handler) {
-          final startTime = error.requestOptions.extra['startTime'] as DateTime?;
+          final startTime =
+              error.requestOptions.extra['startTime'] as DateTime?;
           if (startTime != null) {
             final duration = DateTime.now().difference(startTime);
-            error.requestOptions.extra['duration'] = '${duration.inMilliseconds}ms';
+            error.requestOptions.extra['duration'] =
+                '${duration.inMilliseconds}ms';
           }
           handler.next(error);
         },
@@ -147,13 +164,18 @@ class Oreno3dClient {
 
       if (response.statusCode == 200) {
         final htmlContent = response.data as String;
-        return Oreno3dHtmlParser.parseSearchResult(htmlContent, keyword, page: page);
+        return Oreno3dHtmlParser.parseSearchResult(
+          htmlContent,
+          keyword,
+          page: page,
+        );
       } else {
         throw DioException(
           requestOptions: response.requestOptions,
           response: response,
           type: DioExceptionType.badResponse,
-          message: '${slang.t.oreno3d.errors.requestFailed} ${response.statusCode}',
+          message:
+              '${slang.t.oreno3d.errors.requestFailed} ${response.statusCode}',
         );
       }
     } on DioException catch (e) {
@@ -185,7 +207,8 @@ class Oreno3dClient {
           requestOptions: response.requestOptions,
           response: response,
           type: DioExceptionType.badResponse,
-          message: '${slang.t.oreno3d.errors.requestFailed} ${response.statusCode}',
+          message:
+              '${slang.t.oreno3d.errors.requestFailed} ${response.statusCode}',
         );
       }
     } on DioException catch (e) {
@@ -216,7 +239,8 @@ class Oreno3dClient {
           requestOptions: response.requestOptions,
           response: response,
           type: DioExceptionType.badResponse,
-          message: '${slang.t.oreno3d.errors.requestFailed} ${response.statusCode}',
+          message:
+              '${slang.t.oreno3d.errors.requestFailed} ${response.statusCode}',
         );
       }
     } on DioException catch (e) {
@@ -237,7 +261,10 @@ class Oreno3dClient {
     CancelToken? cancelToken,
   }) async {
     try {
-      final htmlContent = await getVideoDetail('/movies/$videoId', cancelToken: cancelToken);
+      final htmlContent = await getVideoDetail(
+        '/movies/$videoId',
+        cancelToken: cancelToken,
+      );
       return Oreno3dHtmlParser.parseVideoDetail(htmlContent, videoId);
     } on DioException catch (e) {
       // 如果是取消请求，直接重新抛出，保持 DioException 类型
@@ -311,7 +338,9 @@ class Oreno3dClient {
           case 503:
             return Exception(slang.t.oreno3d.errors.serviceUnavailable);
           default:
-            return Exception('${slang.t.oreno3d.errors.requestFailed} $statusCode');
+            return Exception(
+              '${slang.t.oreno3d.errors.requestFailed} $statusCode',
+            );
         }
       case DioExceptionType.cancel:
         return Exception(slang.t.oreno3d.errors.requestCancelled);
@@ -326,5 +355,4 @@ class Oreno3dClient {
   void close({bool force = false}) {
     _dio.close(force: force);
   }
-
 }

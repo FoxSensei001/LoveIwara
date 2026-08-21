@@ -15,15 +15,15 @@ import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/utils/iwara_deep_link_utils.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
-import 'package:i_iwara/utils/proxy/proxy_util.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 import '../routes/app_router.dart';
 import '../routes/home_shell_navigation.dart';
+import '../ui/pages/settings/settings_section.dart';
 import 'config_service.dart';
 import '../ui/widgets/restart_app_widget.dart';
 import 'message_service.dart';
@@ -70,17 +70,14 @@ class AppService extends GetxService {
       icon: Icons.subscriptions,
       pageIndex: 2,
     ),
-    'forum': NavigationItem(
-      key: 'forum',
-      title: slang.t.settings.forum,
+    // 论坛 + 新闻合并成一个栏目：底栏最多容得下 5 个元素（4 tab + 搜索圆钮），
+    // 两者在页内用 header 上的目的地下拉切换，见 community_page.dart。
+    // 图标固定不随半边变化——tab 的图标要稳定，用户才找得到它。
+    'community': NavigationItem(
+      key: 'community',
+      title: slang.t.settings.community,
       icon: Icons.forum,
       pageIndex: 3,
-    ),
-    'news': NavigationItem(
-      key: 'news',
-      title: slang.t.settings.news,
-      icon: Icons.newspaper_rounded,
-      pageIndex: 4,
     ),
   };
 
@@ -178,6 +175,33 @@ class AppService extends GetxService {
     _currentSiteMode.value = site;
   }
 
+  /// 启动阶段直接以 [site] 起步（应用树尚未 build 时才可以这么用）。
+  ///
+  /// 用于"被一条 AI 站链接拉起来"的冷启动：[syncSiteModeFromConfig] 刚把站点强制
+  /// 拉回主站，等 deeplink 真的去开页面时再切站，就要重启整棵树。这里趁树还没建
+  /// 起来把站点定下来——不重启、不复位导航、不弹 toast，纯粹改一下内存里的值。
+  Future<void> adoptStartupSiteMode(
+    IwaraSite? site,
+    ConfigService configService,
+  ) async {
+    if (site == null || _currentSiteMode.value == site) {
+      return;
+    }
+
+    LogUtils.i(
+      '启动链接属于 ${site.name} 站，直接以该站点起步',
+      'AppService',
+    );
+    _currentSiteMode.value = site;
+    await configService.setSetting(ConfigKey.APP_SITE_MODE, site.name);
+  }
+
+  /// 切换全局站点模式：换掉 MaterialApp 的 key 并重启整棵子树，所有页面按新站点
+  /// 从头来过。
+  ///
+  /// 重启会把当前页面的 State 连同它正在进行的加载一起换掉，所以**依赖"切完站
+  /// 原页面自己会重新请求"是不成立的**（详情页会永远停在 loading）。切站后还要
+  /// 落到某个页面时，用 [onApplied] 在新树里重新导航过去，别指望旧页面还活着。
   Future<void> applyGlobalSiteMode(
     IwaraSite site, {
     bool resetNavigation = true,
@@ -198,14 +222,14 @@ class AppService extends GetxService {
       final siteLabel = site == IwaraSite.ai
           ? t.siteMode.aiSite
           : t.siteMode.mainSite;
+      // 重启会连 toast 宿主一起换掉，必须等新树起来再弹。
       messageService.queuePendingSiteModeToast(
         t.siteMode.switched(site: siteLabel),
-        MDToastType.success,
+        GlassToastType.success,
       );
     }
 
     _currentSiteMode.value = site;
-    _siteModeVersion.value++;
     invalidateHomeContent();
 
     try {
@@ -227,6 +251,8 @@ class AppService extends GetxService {
       _currentIndex.value = preferredBranch;
     }
 
+    // siteModeVersion 只有 MaterialApp 的 key 在用，和 RestartApp 是同一次重建。
+    _siteModeVersion.value++;
     RestartApp.restartApp();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -632,6 +658,13 @@ class NaviService {
     );
   }
 
+  /// 在 [site] 这个站点下打开一个资源（deeplink、正文里的站内链接等）。
+  ///
+  /// 站点一致时就是普通的 push。需要切站时，切站会把栈复位到首页再重建整棵树，
+  /// [navigate] 在新树的第一帧之后执行——**别把另一个站点的历史页面留在返回路径
+  /// 上**：应用冷启动恒为主站，一条 AI 站链接进来时，栈里剩下的全是主站的列表和
+  /// 详情页，留着只会让用户在错的站点里继续点下去。同一条口径见
+  /// [IwaraDifferentSiteRecovery]（服务端 301 判定跨站时的自动纠正）。
   static Future<void> navigateInSiteMode(
     IwaraSite site,
     Future<void> Function() navigate,
@@ -642,11 +675,7 @@ class NaviService {
       return;
     }
 
-    await appService.applyGlobalSiteMode(
-      site,
-      resetNavigation: false,
-      onApplied: navigate,
-    );
+    await appService.applyGlobalSiteMode(site, onApplied: navigate);
   }
 
   /// 跳转到通知列表页
@@ -705,49 +734,46 @@ class NaviService {
     appRouter.push('/emoji_library');
   }
 
+  // ===== 设置树入口 =====
+  //
+  // 全部退化成「push 一个路径」。历史实现是往 `/settings_page` 塞一个
+  // `SettingsPageExtra(initialPage: ProxyUtil.isSupportedPlatform() ? 12 : 11)`
+  // 这样的平台相关魔数索引，索引表分散在三处且要反向 ±1 修正；现在平台差异
+  // 由「路由注册不注册」表达，见 [SettingsSection.isAvailable]。
+  //
+  // 注意这些入口是 push 而不是 go：go_router 的 push 只压一页
+  // （ImperativeRouteMatch 取 matchList.last），所以从抽屉直达
+  // `/settings/block` 时栈里只有屏蔽设置这一页，返回直接离开设置——
+  // 这正是历史上要靠 `_isDeepLinkEntry` 特判才能做到的行为。
+
   // 跳转到设置页
   static void navigateToSettingsPage() {
-    appRouter.push('/settings_page');
+    appRouter.push(kSettingsRootPath);
   }
 
   // 跳转到翻译设置页
   static void navigateToTranslationSettingsPage() {
-    appRouter.push(
-      '/settings_page',
-      extra: SettingsPageExtra(
-        initialPage: ProxyUtil.isSupportedPlatform() ? 1 : 0,
-      ),
-    );
+    appRouter.push(SettingsSection.translation.path);
   }
 
   // 跳转到内容屏蔽设置页
   static void navigateToBlockSettingsPage() {
-    appRouter.push(
-      '/settings_page',
-      extra: SettingsPageExtra(
-        initialPage: ProxyUtil.isSupportedPlatform() ? 12 : 11,
-      ),
-    );
+    appRouter.push(SettingsSection.block.path);
   }
 
   // 跳转到诊断与反馈设置页（导出日志入口）
   static void navigateToDiagnosticsSettingsPage() {
-    appRouter.push(
-      '/settings_page',
-      extra: SettingsPageExtra(
-        initialPage: ProxyUtil.isSupportedPlatform() ? 11 : 10,
-      ),
-    );
+    appRouter.push(SettingsSection.diagnostics.path);
   }
 
   // 跳转到布局设置页
   static void navigateToLayoutSettingsPage() {
-    appRouter.push('/layout_settings_page');
+    appRouter.push(SettingsSubRoutes.displayLayout);
   }
 
   // 跳转到导航排序设置页
   static void navigateToNavigationOrderSettingsPage() {
-    appRouter.push('/navigation_order_settings_page');
+    appRouter.push(SettingsSubRoutes.displayNavigationOrder);
   }
 
   /// 跳转到本地视频播放页面（从下载任务进入）

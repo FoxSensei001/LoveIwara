@@ -33,7 +33,7 @@ class MigrationV2History extends Migration {
       CREATE INDEX idx_history_records_type_date 
       ON history_records(item_type, created_at);
     ''');
-    
+
     db.execute('''
       CREATE INDEX idx_history_records_title
       ON history_records(title);

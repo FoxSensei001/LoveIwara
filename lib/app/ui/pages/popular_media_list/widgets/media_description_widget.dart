@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_translation_controller.dart';
 import 'package:i_iwara/app/ui/widgets/translation_language_selector.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -32,6 +33,14 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
   late final MarkdownTranslationController _translationController;
   final ConfigService _configService = Get.find();
   bool _hasOverflow = false;
+
+  /// 「显示原始文本」由标题行那枚 only-icon 钮受控（正文内置开关已关闭），
+  /// 初值仍沿用全局设置项。三处正文（测量副本 / 展开态 / 折叠态）共用同一份状态。
+  late bool _showOriginal;
+
+  /// 正文加工前后确实有差异时才让那枚钮长出来。
+  /// 由**离屏测量副本**上报——它常驻树上，不像可见正文那样在展开/折叠之间重建。
+  bool _hasProcessedContent = false;
   static const double _defaultMaxHeight = 200.0;
   // 折叠态底部预留的空白带：正文视口比遮罩矮这么多，遮罩最后一行像素下面不放任何内容。
   // ShaderMask 的 dstIn 只作用在遮罩矩形内，矩形底边落在物理像素中间时最后一行可能没被
@@ -49,6 +58,7 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
     _contentKey = GlobalKey();
     _measureKey = GlobalKey();
     _translationController = MarkdownTranslationController();
+    _showOriginal = _configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkOverflow();
     });
@@ -80,45 +90,76 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
     }
   }
 
+  /// 与评论区（comment_item_widget.dart）保持一致的胶囊高度
+  static const double _translationPillHeight = 30.0;
+
+  /// 翻译入口：翻译图标（翻译中转菊花）+ 紧凑语言选择器，合装进一个胶囊。
+  /// 样式与 CommentItem._buildTranslationControls 保持一致。
   Widget _buildTranslationButton(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Obx(
-          () => IconButton(
-            onPressed: _translationController.isTranslating.value
-                ? null
-                : () => _handleTranslation(),
-            icon: _translationController.isTranslating.value
-                ? SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Theme.of(context).colorScheme.primary,
-                      ),
+    final colorScheme = Theme.of(context).colorScheme;
+    return Material(
+      color: colorScheme.surfaceContainerHigh,
+      borderRadius: BorderRadius.circular(999),
+      child: SizedBox(
+        height: _translationPillHeight,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Obx(() {
+              final busy = _translationController.isTranslating.value;
+              return InkWell(
+                borderRadius: BorderRadius.circular(999),
+                onTap: busy ? null : _handleTranslation,
+                child: Container(
+                  height: _translationPillHeight,
+                  padding: const EdgeInsets.only(left: 10, right: 4),
+                  alignment: Alignment.center,
+                  child: busy
+                      ? const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Icon(
+                          Icons.translate,
+                          size: 16,
+                          color: colorScheme.primary,
+                        ),
+                ),
+              );
+            }),
+            // 收紧语言选择器（内部是默认 48 触摸目标的 IconButton）到胶囊高度
+            Obx(
+              () => SizedBox(
+                width: 34,
+                height: _translationPillHeight,
+                child: IconButtonTheme(
+                  data: IconButtonThemeData(
+                    style: IconButton.styleFrom(
+                      fixedSize: const Size(34, _translationPillHeight),
+                      padding: EdgeInsets.zero,
+                      alignment: Alignment.center,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                  )
-                : Icon(
-                    Icons.translate,
-                    size: 24,
-                    color: Theme.of(context).colorScheme.primary,
                   ),
-          ),
+                  child: TranslationLanguageSelector(
+                    compact: true,
+                    extrimCompact: true,
+                    selectedLanguage: _configService.currentTranslationSort,
+                    onLanguageSelected: (sort) {
+                      _configService.updateTranslationLanguage(sort);
+                      if (_translationController.hasTranslation) {
+                        _handleTranslation();
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 2),
+          ],
         ),
-        TranslationLanguageSelector(
-          compact: true,
-          selectedLanguage: _configService.currentTranslationSort,
-          onLanguageSelected: (sort) {
-            _configService.updateTranslationLanguage(sort);
-            if (_translationController.hasTranslation) {
-              _handleTranslation();
-            }
-          },
-        ),
-      ],
+      ),
     );
   }
 
@@ -179,7 +220,25 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                   ),
                 ],
               ),
-              _buildTranslationButton(context),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  MarkdownOriginalTextToggle(
+                    visible: _hasProcessedContent,
+                    showOriginal: _showOriginal,
+                    pillSize: _translationPillHeight,
+                    padding: const EdgeInsets.only(right: 8),
+                    onChanged: (v) {
+                      setState(() => _showOriginal = v);
+                      // 原文/处理后文本高度不同，折叠阈值要跟着重算
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) _checkOverflow();
+                      });
+                    },
+                  ),
+                  _buildTranslationButton(context),
+                ],
+              ),
             ],
           ),
           const SizedBox(height: 8),
@@ -198,6 +257,12 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                     showTranslationButton: false,
                     translationController: _translationController,
                     onTimestampSeek: widget.onTimestampSeek,
+                    initialShowUnprocessedText: _showOriginal,
+                    // 只由这份常驻的测量副本上报，避免展开/折叠切换时重复通知
+                    onProcessedContentChanged: (hasProcessed) {
+                      if (_hasProcessedContent == hasProcessed) return;
+                      setState(() => _hasProcessedContent = hasProcessed);
+                    },
                   ),
                 ],
               ),
@@ -220,6 +285,7 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                           showTranslationButton: false,
                           translationController: _translationController,
                           onTimestampSeek: widget.onTimestampSeek,
+                          initialShowUnprocessedText: _showOriginal,
                         ),
                       ),
                     )
@@ -255,6 +321,7 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                                       translationController:
                                           _translationController,
                                       onTimestampSeek: widget.onTimestampSeek,
+                                      initialShowUnprocessedText: _showOriginal,
                                     ),
                                   ),
                                 ),

@@ -3,10 +3,8 @@ import 'package:get/get.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
-import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
-import 'package:i_iwara/app/ui/pages/settings/google_translation_settings_page.dart';
-import 'package:i_iwara/app/ui/pages/settings/widgets/ai_translation_setting_widget.dart';
-import 'package:i_iwara/app/ui/pages/settings/widgets/deeplx_translation_setting_widget.dart';
+import 'package:i_iwara/app/ui/pages/settings/settings_navigation.dart';
+import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -21,34 +19,24 @@ class TranslationSettingsPage extends StatelessWidget {
     final configService = Get.find<ConfigService>();
     final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
 
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          BlurredSliverAppBar(
-            title: slang.t.translation.translation,
-            isWideScreen: isWideScreen,
-          ),
-          SliverPadding(
-            padding: EdgeInsets.fromLTRB(
-              16,
-              16,
-              16,
-              16 + bottomInset,
-            ),
-            sliver: SliverToBoxAdapter(
-              child: Obx(
-                () => Column(
-                  children: [
-                    _buildCurrentServiceCard(context, configService),
-                    const SizedBox(height: 16),
-                    _buildServicesCard(context, configService),
-                  ],
-                ),
+    return GlassSettingsScaffold(
+      title: slang.t.translation.translation,
+      slivers: [
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
+          sliver: SliverToBoxAdapter(
+            child: Obx(
+              () => Column(
+                children: [
+                  _buildCurrentServiceCard(context, configService),
+                  const SizedBox(height: 16),
+                  _buildServicesCard(context, configService),
+                ],
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -167,9 +155,7 @@ class TranslationSettingsPage extends StatelessWidget {
             subtitle: slang.t.translation.googleTranslationDescription,
             isSelected: isGoogleSelected,
             onTap: () {
-              SettingsPage.navigateToNestedPage(
-                GoogleTranslationSettingsPage(isWideScreen: isWideScreen),
-              );
+              SettingsNavigation.openSubPage(SettingsSubRoutes.translationGoogle);
             },
           ),
           const Divider(height: 1, indent: 56),
@@ -190,9 +176,7 @@ class TranslationSettingsPage extends StatelessWidget {
             subtitle: slang.t.translation.aiTranslationDescription,
             isSelected: isAISelected,
             onTap: () {
-              SettingsPage.navigateToNestedPage(
-                AITranslationSettingsPage(isWideScreen: isWideScreen),
-              );
+              SettingsNavigation.openSubPage(SettingsSubRoutes.translationAi);
             },
           ),
           const Divider(height: 1, indent: 56),
@@ -209,9 +193,7 @@ class TranslationSettingsPage extends StatelessWidget {
             isSelected: isDeepLXSelected,
             isLast: true,
             onTap: () {
-              SettingsPage.navigateToNestedPage(
-                DeepLXTranslationSettingsPage(isWideScreen: isWideScreen),
-              );
+              SettingsNavigation.openSubPage(SettingsSubRoutes.translationDeeplx);
             },
           ),
         ],

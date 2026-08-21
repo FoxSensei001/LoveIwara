@@ -2,9 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/link_input_dialog_widget.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/iwara_site_switcher.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
@@ -352,11 +351,9 @@ class GlobalDrawerColumns extends StatelessWidget {
     // 先提示稍候而非 NPE（naviCall 内部会解引用 currentUser.value!）。
     if (userService.currentUser.value == null) {
       AppService.switchGlobalDrawer();
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.auth.loginSuccessProfilePending,
-          type: MDToastType.warning,
-        ),
+      showGlassToast(
+        slang.t.auth.loginSuccessProfilePending,
+        type: GlassToastType.warning,
       );
       return;
     }
@@ -366,12 +363,10 @@ class GlobalDrawerColumns extends StatelessWidget {
 
   void _showLoginError(BuildContext context) {
     final t = slang.Translations.of(context);
-    showToastWidget(
-      MDToastWidget(
-        message: t.errors.pleaseLoginFirst,
-        type: MDToastType.error,
-      ),
-      position: ToastPosition.top,
+    showGlassToast(
+      t.errors.pleaseLoginFirst,
+      type: GlassToastType.error,
+      position: GlassToastPosition.top,
     );
   }
 
@@ -444,11 +439,9 @@ class GlobalDrawerColumns extends StatelessWidget {
             LoginService.showLogin();
           } else if (user == null) {
             // 已认证但资料尚未加载完成：跳转需要 username，先提示稍候而非 NPE。
-            showToastWidget(
-              MDToastWidget(
-                message: slang.t.auth.loginSuccessProfilePending,
-                type: MDToastType.warning,
-              ),
+            showGlassToast(
+              slang.t.auth.loginSuccessProfilePending,
+              type: GlassToastType.warning,
             );
           } else {
             NaviService.navigateToAuthorProfilePage(user.username);
@@ -758,9 +751,15 @@ class LogoutDialog extends StatelessWidget {
             try {
               userService.clearAllNotificationCounts();
               await userService.logout();
-              showToast(slang.t.auth.logoutSuccess);
+              showGlassToast(
+                slang.t.auth.logoutSuccess,
+                type: GlassToastType.success,
+              );
             } catch (e) {
-              showToast('${slang.t.auth.logoutFailed}: $e');
+              showGlassToast(
+                '${slang.t.auth.logoutFailed}: $e',
+                type: GlassToastType.error,
+              );
             }
           },
         ),

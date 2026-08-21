@@ -4,11 +4,10 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'dart:convert';
 import 'dart:async';
@@ -140,12 +139,10 @@ class _AITranslationSettingsWidgetState
     final wasEnabled = configService[ConfigKey.USE_AI_TRANSLATION] as bool;
     if (wasEnabled) {
       // 显示提示
-      showToastWidget(
-        MDToastWidget(
-          message: message ?? slang.t.translation.aiTranslationWillBeDisabled,
-          type: MDToastType.warning,
-        ),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        message ?? slang.t.translation.aiTranslationWillBeDisabled,
+        type: GlassToastType.warning,
+        position: GlassToastPosition.bottom,
         duration: const Duration(seconds: 5),
       );
     }
@@ -160,12 +157,9 @@ class _AITranslationSettingsWidgetState
     // 将 Form 提升到最外层
     return Form(
       key: _formKey,
-      child: CustomScrollView(
+      child: GlassSettingsScaffold(
+        title: slang.t.translation.translation,
         slivers: [
-          BlurredSliverAppBar(
-            title: slang.t.translation.translation,
-            isWideScreen: widget.isWideScreen,
-          ),
           SliverPadding(
             padding: const EdgeInsets.all(16),
             sliver: SliverLayoutBuilder(
@@ -455,7 +449,10 @@ class _AITranslationSettingsWidgetState
                                               strokeWidth: 2,
                                             ),
                                           )
-                                        : const Icon(Icons.cloud_download, size: 18),
+                                        : const Icon(
+                                            Icons.cloud_download,
+                                            size: 18,
+                                          ),
                                     label: Text(
                                       _isFetchingModels.value
                                           ? slang.t.translation.fetchingModels
@@ -606,7 +603,10 @@ class _AITranslationSettingsWidgetState
                   .map(
                     (id) => DropdownMenuItem<String>(
                       value: id,
-                      child: Text(labelFor(id), overflow: TextOverflow.ellipsis),
+                      child: Text(
+                        labelFor(id),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   )
                   .toList(),
@@ -720,14 +720,10 @@ class _AITranslationSettingsWidgetState
     _hasTested.value = false;
     _testResult.value = null;
 
-    showToastWidget(
-      MDToastWidget(
-        message: slang.t.translation.presetApplied(
-          name: _localizedPresetName(preset),
-        ),
-        type: MDToastType.success,
-      ),
-      position: ToastPosition.bottom,
+    showGlassToast(
+      slang.t.translation.presetApplied(name: _localizedPresetName(preset)),
+      type: GlassToastType.success,
+      position: GlassToastPosition.bottom,
     );
   }
 
@@ -791,12 +787,10 @@ class _AITranslationSettingsWidgetState
     final baseUrl = _baseUrlController.text.trim();
     final apiKey = _apiKeyController.text.trim();
     if (apiKey.isEmpty) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.translation.apiKeyCannotBeEmpty,
-          type: MDToastType.warning,
-        ),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        slang.t.translation.apiKeyCannotBeEmpty,
+        type: GlassToastType.warning,
+        position: GlassToastPosition.bottom,
       );
       return;
     }
@@ -811,12 +805,10 @@ class _AITranslationSettingsWidgetState
     if (result.isSuccess && result.data != null && result.data!.isNotEmpty) {
       _showModelPickerDialog(result.data!);
     } else {
-      showToastWidget(
-        MDToastWidget(
-          message: result.message,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        result.message,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
     }
   }
@@ -938,7 +930,9 @@ class _AITranslationSettingsWidgetState
             Icon(
               Icons.edit_note,
               size: 20,
-              color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.grey[600],
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white70
+                  : Colors.grey[600],
             ),
             const SizedBox(width: 8),
             Text(
@@ -1217,24 +1211,20 @@ class _AITranslationSettingsWidgetState
   void _handleTestConnection() {
     final form = _formKey.currentState;
     if (form == null || !form.validate()) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.translation.pleaseCheckInputParametersFormat,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        slang.t.translation.pleaseCheckInputParametersFormat,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
       return;
     }
 
     // baseUrl 现在可选（留空用服务商默认端点），仅要求 model 与 apiKey
     if (_modelController.text.isEmpty || _apiKeyController.text.isEmpty) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.translation.pleaseFillInAPIAddressModelNameAndKey,
-          type: MDToastType.warning,
-        ),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        slang.t.translation.pleaseFillInAPIAddressModelNameAndKey,
+        type: GlassToastType.warning,
+        position: GlassToastPosition.bottom,
       );
       return;
     }
@@ -1246,14 +1236,10 @@ class _AITranslationSettingsWidgetState
     final form = _formKey.currentState;
     if (value) {
       if (form == null || !form.validate()) {
-        showToastWidget(
-          // MDToastWidget(message: '请先填写有效的配置参数', type: MDToastType.error),
-          MDToastWidget(
-            message:
-                slang.t.translation.pleaseFillInValidConfigurationParameters,
-            type: MDToastType.error,
-          ),
-          position: ToastPosition.bottom,
+        showGlassToast(
+          slang.t.translation.pleaseFillInValidConfigurationParameters,
+          type: GlassToastType.error,
+          position: GlassToastPosition.bottom,
         );
         return;
       }
@@ -1262,13 +1248,10 @@ class _AITranslationSettingsWidgetState
         return;
       }
       if (!_hasTested.value) {
-        showToastWidget(
-          // MDToastWidget(message: '请先完成连接测试', type: MDToastType.warning),
-          MDToastWidget(
-            message: slang.t.translation.pleaseCompleteConnectionTest,
-            type: MDToastType.warning,
-          ),
-          position: ToastPosition.bottom,
+        showGlassToast(
+          slang.t.translation.pleaseCompleteConnectionTest,
+          type: GlassToastType.warning,
+          position: GlassToastPosition.bottom,
         );
         return;
       }
@@ -1492,7 +1475,9 @@ class _AITranslationSettingsWidgetState
             Icon(
               icon,
               size: 20,
-              color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.grey[600],
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white70
+                  : Colors.grey[600],
             ),
             const SizedBox(width: 8),
             Text(label, style: Theme.of(context).textTheme.labelLarge),
@@ -1549,7 +1534,9 @@ class _AITranslationSettingsWidgetState
             Icon(
               Icons.key,
               size: 20,
-              color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.grey[600],
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white70
+                  : Colors.grey[600],
             ),
             const SizedBox(width: 8),
             Text(
@@ -1846,11 +1833,7 @@ const List<_ProviderPreset> _providerPresets = [
     reasoning: true,
     sendTemperature: false,
   ),
-  _ProviderPreset(
-    id: 'gemini',
-    name: 'Google Gemini (原生)',
-    provider: 'google',
-  ),
+  _ProviderPreset(id: 'gemini', name: 'Google Gemini (原生)', provider: 'google'),
   _ProviderPreset(
     id: 'gemini_reasoning',
     name: 'Google Gemini 推理 (thinking)',

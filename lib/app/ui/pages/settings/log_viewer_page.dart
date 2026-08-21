@@ -1,13 +1,26 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/logging/log_service.dart';
 import 'package:i_iwara/app/services/logging/log_models.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
+/// 日志查看器（诊断页入口）。
+///
+/// 玻璃化改造：
+/// - 旧 AppBar 的 BackdropFilter blur 违反「无 blur 纯渐变」，整页换
+///   [GlassSettingsScaffold]（GlassHeaderOverlay 渐变蒙层）。
+/// - 级别筛选从 FilterChip 换成玻璃多选胶囊（选中态底/边/字色同一段过渡）。
+/// - 「跳到底部」浮钮从 FAB 挪进 header 动作位，出现/消失走
+///   [GlassGroupSlot] 平滑挤入挤出。
+/// - 复制反馈从 SnackBar 换 [showGlassToast]。
 class LogViewerPage extends StatefulWidget {
   final bool isWideScreen;
 
@@ -48,7 +61,8 @@ class _LogViewerPageState extends State<LogViewerPage> {
 
   void _onScroll() {
     if (!_scrollController.hasClients) return;
-    final atBottom = _scrollController.offset >=
+    final atBottom =
+        _scrollController.offset >=
         _scrollController.position.maxScrollExtent - 50;
     if (_autoScroll != atBottom) {
       setState(() => _autoScroll = atBottom);
@@ -63,7 +77,8 @@ class _LogViewerPageState extends State<LogViewerPage> {
     if (!mounted) return;
 
     // Check both length and last entry to detect changes when buffer is full
-    final changed = logs.length != _allLogs.length ||
+    final changed =
+        logs.length != _allLogs.length ||
         (logs.isNotEmpty &&
             _allLogs.isNotEmpty &&
             logs.last.timestamp != _allLogs.last.timestamp);
@@ -104,6 +119,11 @@ class _LogViewerPageState extends State<LogViewerPage> {
     }
   }
 
+  void _jumpToBottom() {
+    setState(() => _autoScroll = true);
+    _scrollToBottom();
+  }
+
   void _toggleFilter(LogLevel level) {
     setState(() {
       if (_activeFilters.contains(level)) {
@@ -120,195 +140,120 @@ class _LogViewerPageState extends State<LogViewerPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
     final t = slang.t;
-    final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          t.logViewer.title,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w600,
+    return GlassSettingsScaffold(
+      title: t.logViewer.title,
+      controller: _scrollController,
+      // 不在底部时才出现「跳到底部」；GlassGroupSlot 让它平滑进出而不是闪现
+      actions: [
+        GlassGroupSlot(
+          visible: !_autoScroll,
+          child: GlassIconButton(
+            icon: const Icon(Icons.arrow_downward),
+            onPressed: _jumpToBottom,
           ),
         ),
-        automaticallyImplyLeading: !widget.isWideScreen,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        backgroundColor: Colors.transparent,
-        surfaceTintColor: Colors.transparent,
-        systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness:
-              isDarkMode ? Brightness.light : Brightness.dark,
-        ),
-        flexibleSpace: ClipRRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              decoration: BoxDecoration(
-                color: theme.scaffoldBackgroundColor.withValues(alpha: 0.8),
-                border: Border(
-                  bottom: BorderSide(
-                    color: theme.dividerColor.withValues(alpha: 0.2),
-                    width: 0.5,
-                  ),
+      ],
+      slivers: [
+        SliverToBoxAdapter(child: _buildFilterArea(context, theme, t)),
+        if (_filteredLogs.isEmpty)
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
+              child: Text(
+                t.logViewer.emptyState,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
-          ),
-        ),
-      ),
-      body: Padding(
-        padding: EdgeInsets.only(bottom: bottomInset),
-        child: Column(
-          children: [
-          // Filter area
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            child: Column(
-              children: [
-                // Search bar
-                SizedBox(
-                  height: 36,
-                  child: TextField(
-                    controller: _searchController,
-                    style: theme.textTheme.bodySmall,
-                    decoration: InputDecoration(
-                      hintText: t.logViewer.searchHint,
-                      hintStyle: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                      prefixIcon: const Icon(Icons.search, size: 18),
-                      suffixIcon: _searchText.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear, size: 16),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() {
-                                  _searchText = '';
-                                  _applyFilters();
-                                });
-                              },
-                            )
-                          : null,
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide(
-                          color: theme.dividerColor.withValues(alpha: 0.2),
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide(
-                          color: theme.dividerColor.withValues(alpha: 0.2),
-                        ),
-                      ),
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        _searchText = value;
-                        _applyFilters();
-                      });
-                    },
-                  ),
+          )
+        else
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => _LogEntryWidget(
+                  event: _filteredLogs[index],
+                  theme: theme,
                 ),
-                const SizedBox(height: 6),
-                // Filter chips row
-                Row(
-                  children: [
-                    ...LogLevel.values
-                        .where((l) => l != LogLevel.fatal)
-                        .map((level) {
-                      final isActive = _activeFilters.contains(level);
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 6),
-                        child: FilterChip(
-                          label: Text(
-                            level.label,
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: isActive
-                                  ? _getLevelColor(level, theme)
-                                  : theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                          selected: isActive,
-                          onSelected: (_) => _toggleFilter(level),
-                          visualDensity: VisualDensity.compact,
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                          padding: EdgeInsets.zero,
-                          labelPadding:
-                              const EdgeInsets.symmetric(horizontal: 4),
-                          showCheckmark: false,
-                          side: BorderSide(
-                            color: isActive
-                                ? _getLevelColor(level, theme)
-                                : theme.dividerColor.withValues(alpha: 0.3),
-                          ),
-                          backgroundColor: Colors.transparent,
-                          selectedColor: _getLevelColor(level, theme)
-                              .withValues(alpha: 0.1),
-                        ),
-                      );
-                    }),
-                    const Spacer(),
-                    Text(
-                      '${_filteredLogs.length}',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                childCount: _filteredLogs.length,
+              ),
             ),
           ),
-          const Divider(height: 1),
-          // Log list
-          Expanded(
-            child: _filteredLogs.isEmpty
-                ? Center(
-                    child: Text(
-                      t.logViewer.emptyState,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  )
-                : ListView.builder(
-                    controller: _scrollController,
-                    itemCount: _filteredLogs.length,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    itemBuilder: (context, index) {
-                      return _LogEntryWidget(
-                        event: _filteredLogs[index],
-                        theme: theme,
-                      );
-                    },
-                  ),
-          ),
-          ],
-        ),
-      ),
-      floatingActionButton: !_autoScroll
-          ? Padding(
-              padding: EdgeInsets.only(bottom: bottomInset),
-              child: FloatingActionButton.small(
-                onPressed: () {
-                  setState(() => _autoScroll = true);
-                  _scrollToBottom();
-                },
-                child: const Icon(Icons.arrow_downward, size: 18),
+      ],
+    );
+  }
+
+  /// 搜索框 + 级别筛选胶囊 + 命中计数。
+  Widget _buildFilterArea(
+    BuildContext context,
+    ThemeData theme,
+    slang.Translations t,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
+      child: Column(
+        children: [
+          GlassInputSurface(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: TextField(
+              controller: _searchController,
+              style: theme.textTheme.bodySmall,
+              decoration: glassFieldDecoration(
+                context,
+                hint: t.logViewer.searchHint,
+                icon: Icons.search,
+              ).copyWith(
+                suffixIcon: _searchText.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, size: 16),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() {
+                            _searchText = '';
+                            _applyFilters();
+                          });
+                        },
+                      )
+                    : null,
+                isDense: true,
               ),
-            )
-          : null,
+              onChanged: (value) {
+                setState(() {
+                  _searchText = value;
+                  _applyFilters();
+                });
+              },
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              ...LogLevel.values.where((l) => l != LogLevel.fatal).map((level) {
+                final isActive = _activeFilters.contains(level);
+                return Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: _LevelChip(
+                    label: level.label,
+                    color: _getLevelColor(level, theme),
+                    active: isActive,
+                    onTap: () => _toggleFilter(level),
+                  ),
+                );
+              }),
+              const Spacer(),
+              Text(
+                '${_filteredLogs.length}',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -327,6 +272,53 @@ class _LogViewerPageState extends State<LogViewerPage> {
   }
 }
 
+/// 级别筛选胶囊：底色 / 描边 / 文字三色一起经 [GlassAnimatedColors] 过渡，
+/// 选中读起来是「点亮」，未选中是「熄灭」，而不是 FilterChip 的硬切。
+class _LevelChip extends StatelessWidget {
+  final String label;
+  final Color color;
+  final bool active;
+  final VoidCallback onTap;
+
+  const _LevelChip({
+    required this.label,
+    required this.color,
+    required this.active,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return GlassAnimatedColors(
+      colors: [
+        active ? Color.alphaBlend(color.withValues(alpha: 0.22), GlassTokens.fill(cs)) : GlassTokens.fill(cs),
+        active ? color : cs.onSurfaceVariant,
+        active ? color.withValues(alpha: 0.7) : GlassTokens.stroke(cs),
+      ],
+      builder: (context, c) => GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: c[0],
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: c[2], width: GlassTokens.strokeWidth),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: active ? FontWeight.w600 : FontWeight.w500,
+              color: c[1],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _LogEntryWidget extends StatelessWidget {
   final LogEvent event;
   final ThemeData theme;
@@ -342,18 +334,17 @@ class _LogEntryWidget extends StatelessWidget {
       onLongPress: () {
         final text = StringBuffer();
         text.writeln(
-            '[${event.formattedTime}] [${event.level.label}] [${event.tag}]');
+          '[${event.formattedTime}] [${event.level.label}] [${event.tag}]',
+        );
         text.writeln(event.message);
         if (event.error != null) text.writeln('Error: ${event.error}');
         if (event.stackTrace != null) {
           text.writeln('Stack: ${event.stackTrace}');
         }
         Clipboard.setData(ClipboardData(text: text.toString()));
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(slang.t.logViewer.copiedToClipboard),
-            duration: Duration(seconds: 1),
-          ),
+        showGlassToast(
+          slang.t.logViewer.copiedToClipboard,
+          type: GlassToastType.success,
         );
       },
       child: Padding(
@@ -382,8 +373,9 @@ class _LogEntryWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest
-                    .withValues(alpha: 0.5),
+                color: theme.colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.5,
+                ),
                 borderRadius: BorderRadius.circular(3),
               ),
               child: Text(

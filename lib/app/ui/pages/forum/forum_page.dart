@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
-import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/iwara_page.model.dart';
 import 'package:i_iwara/app/services/api_service.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
@@ -13,65 +13,83 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
-import 'package:i_iwara/app/utils/url_utils.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/recent_thread_repository.dart';
 import 'package:i_iwara/app/ui/pages/forum/forum_skeleton_page.dart';
-import 'package:i_iwara/app/ui/pages/home_page.dart';
+import 'package:i_iwara/app/ui/pages/community/community_header_state.dart';
 import 'package:shimmer/shimmer.dart';
-import 'dart:ui';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
-class ForumPage extends StatefulWidget implements HomeWidgetInterface {
-  static final globalKey = GlobalKey<_ForumPageState>();
+/// 论坛页——社区栏目的「论坛」半边。
+///
+/// 本页**不画自己的 header**：玻璃 header 行（头像 / 目的地下拉 / 动作胶囊）
+/// 和顶部渐隐蒙层由 [CommunityPage] 统一提供，切到新闻半边时右侧胶囊才能
+/// 形变而不是被整组替换。本页只负责内容区，并把影响按钮长相的那两项状态
+/// 通过 [headerState] 报上去。
+class ForumPage extends StatefulWidget {
+  static final globalKey = GlobalKey<ForumPageState>();
   final int contentResetVersion;
+
+  /// 由 [CommunityPage] 持有、本页写入：header 上论坛专属按钮的当前形态。
+  final ValueNotifier<ForumHeaderState>? headerState;
 
   const ForumPage({
     super.key,
     this.contentResetVersion = 0,
+    this.headerState,
   });
 
   @override
-  State<ForumPage> createState() => _ForumPageState();
-
-  @override
-  void refreshCurrent() {
-    final state = globalKey.currentState;
-    if (state != null) {
-      state.tryRefreshCurrentList();
-    }
-  }
+  State<ForumPage> createState() => ForumPageState();
 }
 
-class _ForumPageState extends State<ForumPage> {
+class ForumPageState extends State<ForumPage> {
   final ForumService _forumService = Get.find<ForumService>();
   final ApiService _apiService = Get.find<ApiService>();
-  final AppService _appService = Get.find<AppService>();
   List<ForumCategoryTreeModel>? _categories;
   bool _isLoading = true;
   String? _error;
-  final UserService userService = Get.find<UserService>();
   int _selectedRailIndex = 0; // 修改变量名称：选中 rail 的索引（0 为 最近，其余从 _categories 中获取）
   late RecentThreadListRepository _recentThreadRepository;
   // “最近”列表的滚动控制器，用于再次点击栏目时回到顶部
   final ScrollController _recentThreadsScrollController = ScrollController();
   // 分类内容（rail 布局下同一时刻仅显示一个分类）的滚动控制器，用于回到顶部
   final ScrollController _categoryScrollController = ScrollController();
+
+  /// 当前可见列表是否已滚过一段距离（控制右下角「回到顶部」浮钮）。
+  final ValueNotifier<bool> _showBackToTop = ValueNotifier<bool>(false);
+  static const double _backToTopOffset = 600;
   static const double _cardRadius = 14.0;
   static const double _pageSidePadding = 8.0;
-  final appBarHeight = 56.0;
+  final double appBarHeight = GlassTokens.headerRowHeight;
 
-  Map<String, String> get _iwaraImageHeaders => {
-    'referer': _appService.currentSiteMode.baseUrl,
-  };
+  // ---- 「最近」列表分页模式 ----
+  final RxBool _isPaginated = CommonConstants.isPaginated.obs;
+  static const int _recentItemsPerPage = 20;
+  int _recentCurrentPage = 0;
+  bool _recentPageLoading = false;
+  List<ForumThreadModel> _recentPaginatedItems = [];
+  IndicatorStatus _recentIndicatorStatus = IndicatorStatus.fullScreenBusying;
+  String? _recentErrorMessage;
+  bool _recentFirstLoad = true;
+
+  int get _recentTotalItems => _recentThreadRepository.requestTotalCount;
+  int get _recentTotalPages => _recentTotalItems > 0
+      ? (_recentTotalItems / _recentItemsPerPage).ceil()
+      : 1;
+
+  // ---- 全站公告卡片「显示原始文本」外部受控开关 ----
+  bool _sitewideShowOriginal = false;
+  bool _sitewideHasProcessed = false;
 
   // 置顶公告相关
   List<ForumThreadModel> _stickyAnnouncements = [];
@@ -163,9 +181,8 @@ class _ForumPageState extends State<ForumPage> {
     );
   }
 
-  void tryRefreshCurrentList() {
-    if (!mounted) return;
-    // 当前可见列表回到顶部（“最近”或某个分类，二者同一时刻只挂载其一）
+  /// 当前可见列表回到顶部（“最近”或某个分类，二者同一时刻只挂载其一）。
+  void _scrollCurrentListToTop() {
     for (final controller in [
       _recentThreadsScrollController,
       _categoryScrollController,
@@ -178,26 +195,150 @@ class _ForumPageState extends State<ForumPage> {
         );
       }
     }
+  }
+
+  void _updateBackToTop() {
+    bool show = false;
+    for (final controller in [
+      _recentThreadsScrollController,
+      _categoryScrollController,
+    ]) {
+      if (controller.hasClients && controller.offset > _backToTopOffset) {
+        show = true;
+        break;
+      }
+    }
+    if (_showBackToTop.value != show) _showBackToTop.value = show;
+  }
+
+  void tryRefreshCurrentList() {
+    if (!mounted) return;
+    _scrollCurrentListToTop();
     // 整体重载：分类树、最近帖子、置顶/全站公告
-    _refreshAll();
+    refreshAll();
   }
 
   @override
   void initState() {
     super.initState();
+    _recentThreadsScrollController.addListener(_updateBackToTop);
+    _categoryScrollController.addListener(_updateBackToTop);
+    _sitewideShowOriginal =
+        Get.find<ConfigService>()[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
     _loadCategories();
     _recentThreadRepository = RecentThreadListRepository();
+    if (_isPaginated.value) {
+      _loadRecentPage(0);
+    }
     _loadStickyAnnouncements();
     if (CommonConstants.enableForumSitewideAnnouncement) {
       _loadSitewideAnnouncement();
+    }
+    _publishHeaderState();
+  }
+
+  /// 把「论坛半边的按钮该长什么样」报给 [CommunityPage]。
+  ///
+  /// 只报状态不报 widget——按钮本身由父页构建，父页首帧就能画出完整胶囊，
+  /// 不必等本页 State 挂上来。[ForumHeaderState] 实现了 `==`，值没变时
+  /// [ValueNotifier] 不会触发无谓的重建。
+  ///
+  /// 调用点既有点按回调也有生命周期钩子（initState / didUpdateWidget），
+  /// 后者跑在 build 阶段里，写入必须绕开——见 [runOutsideBuildPhase]。
+  void _publishHeaderState() {
+    final notifier = widget.headerState;
+    if (notifier == null || !mounted) return;
+    final next = ForumHeaderState(
+      showPaginationToggle: _selectedRailIndex == 0,
+      isPaginated: _isPaginated.value,
+    );
+    runOutsideBuildPhase(() {
+      if (mounted) notifier.value = next;
+    });
+  }
+
+  /// 切换「最近」列表的瀑布流 / 分页模式。由社区 header 上的按钮调用。
+  void togglePaginationMode() {
+    final newValue = !_isPaginated.value;
+    _isPaginated.value = newValue;
+    CommonConstants.isPaginated = newValue;
+    Get.find<ConfigService>()[ConfigKey.DEFAULT_PAGINATION_MODE] = newValue;
+    _publishHeaderState();
+
+    _scrollCurrentListToTop();
+    if (newValue) {
+      _recentCurrentPage = 0;
+      _loadRecentPage(0);
+    } else {
+      _recentThreadRepository.refresh(true);
+    }
+  }
+
+  /// 加载「最近」列表的分页数据。
+  Future<void> _loadRecentPage(int page) async {
+    if (_recentPageLoading) return;
+
+    setState(() {
+      _recentPageLoading = true;
+      if (_recentFirstLoad || page == 0) {
+        _recentIndicatorStatus = IndicatorStatus.fullScreenBusying;
+      } else {
+        _recentIndicatorStatus = IndicatorStatus.loadingMoreBusying;
+      }
+    });
+
+    final bool pageChanged = page != _recentCurrentPage && !_recentFirstLoad;
+
+    try {
+      final items = await _recentThreadRepository.loadPageData(
+        page,
+        _recentItemsPerPage,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _recentPaginatedItems = items;
+        _recentCurrentPage = page;
+        _recentPageLoading = false;
+        _recentFirstLoad = false;
+
+        if (items.isEmpty && page == 0) {
+          _recentIndicatorStatus = IndicatorStatus.empty;
+        } else if (items.isEmpty) {
+          _recentIndicatorStatus = IndicatorStatus.noMoreLoad;
+        } else {
+          _recentIndicatorStatus = IndicatorStatus.none;
+        }
+      });
+
+      if (pageChanged) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollCurrentListToTop();
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _recentPageLoading = false;
+        _recentFirstLoad = false;
+        _recentErrorMessage = CommonUtils.parseExceptionMessage(e);
+        _recentIndicatorStatus = page == 0
+            ? IndicatorStatus.fullScreenError
+            : IndicatorStatus.error;
+      });
     }
   }
 
   @override
   void dispose() {
     _recentThreadRepository.dispose();
+    _recentThreadsScrollController.removeListener(_updateBackToTop);
+    _categoryScrollController.removeListener(_updateBackToTop);
     _recentThreadsScrollController.dispose();
     _categoryScrollController.dispose();
+    _showBackToTop.dispose();
     super.dispose();
   }
 
@@ -225,9 +366,17 @@ class _ForumPageState extends State<ForumPage> {
       _sitewideAnnouncement = null;
       _sitewideAnnouncementError = null;
       _isLoadingSitewideAnnouncement = false;
+      // 分页态重置（仓库已重建，旧页数据/错误全部作废）
+      _recentPaginatedItems = [];
+      _recentCurrentPage = 0;
+      _recentFirstLoad = true;
+      _recentPageLoading = false;
+      _recentErrorMessage = null;
+      _recentIndicatorStatus = IndicatorStatus.fullScreenBusying;
     });
 
-    _refreshAll();
+    _publishHeaderState();
+    refreshAll();
   }
 
   Future<void> _loadCategories({bool isRefresh = false}) async {
@@ -253,11 +402,15 @@ class _ForumPageState extends State<ForumPage> {
     }
   }
 
-  Future<void> _refreshAll() async {
+  /// 整页重载（分类树 / 最近帖子 / 置顶 + 全站公告）。
+  Future<void> refreshAll() async {
     // 刷新分类列表、最近帖子列表、置顶公告（并发执行）
     final tasks = <Future<void>>[
       _loadCategories(isRefresh: true),
-      _recentThreadRepository.refresh(true),
+      if (_isPaginated.value)
+        _loadRecentPage(0)
+      else
+        _recentThreadRepository.refresh(true),
       _loadStickyAnnouncements(isRefresh: true),
       if (CommonConstants.enableForumSitewideAnnouncement)
         _loadSitewideAnnouncement(isRefresh: true),
@@ -274,9 +427,7 @@ class _ForumPageState extends State<ForumPage> {
       });
     }
 
-    final result = await _forumService.fetchStickyAnnouncements(
-      limit: 5,
-    );
+    final result = await _forumService.fetchStickyAnnouncements(limit: 5);
 
     if (mounted) {
       setState(() {
@@ -315,15 +466,14 @@ class _ForumPageState extends State<ForumPage> {
     });
   }
 
-  void _showPostDialog() {
+  /// 发帖弹窗。由社区 header 上的「＋」调用。
+  void showPostDialog() {
     UserService userService = Get.find<UserService>();
     if (!userService.isAuthenticated) {
       AppService.switchGlobalDrawer();
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.errors.pleaseLoginFirst,
-          type: MDToastType.warning,
-        ),
+      showGlassToast(
+        slang.t.errors.pleaseLoginFirst,
+        type: GlassToastType.warning,
       );
       return;
     }
@@ -337,142 +487,76 @@ class _ForumPageState extends State<ForumPage> {
     );
   }
 
+  /// 论坛搜索弹窗。由社区 header 上的搜索键调用。
+  void openSearchDialog() {
+    showAppDialog(
+      SearchDialog(
+        userInputKeywords: '',
+        initialSegment: SearchSegment.forum,
+        onSearch: (searchInfo, segment, filters, sort) {
+          NaviService.toSearchPage(
+            searchInfo: searchInfo,
+            segment: segment,
+            filters: filters,
+            sort: sort,
+          );
+        },
+      ),
+    );
+  }
+
+  /// 滚过一段后出现在右下角的「回到顶部」浮钮；「最近」分页模式下抬到分页栏之上。
+  Widget _buildScrollToTopFab(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Obx(
+      () => Positioned(
+        // 移动端底栏可见时与搜索圆钮中心共轴；宽屏（rail 布局）用普通右边距
+        right: isFloatingBarInsetActive(context)
+            ? GlassTokens.floatingActionCoAxisRight(GlassTokens.pillHeight)
+            : 16,
+        bottom:
+            MediaQuery.paddingOf(context).bottom +
+            16 +
+            (_isPaginated.value && _selectedRailIndex == 0 ? 46 : 0),
+        child: ValueListenableBuilder<bool>(
+          valueListenable: _showBackToTop,
+          builder: (context, visible, _) => IgnorePointer(
+            ignoring: !visible,
+            child: AnimatedSlide(
+              duration: GlassTokens.motionDuration,
+              curve: GlassTokens.motionCurve,
+              offset: visible ? Offset.zero : const Offset(0, 0.4),
+              child: AnimatedOpacity(
+                duration: GlassTokens.motionDuration,
+                opacity: visible ? 1 : 0,
+                child: GlassIconButton(
+                  standalone: true,
+                  icon: const Icon(Icons.vertical_align_top),
+                  tooltip: t.common.scrollToTop,
+                  onPressed: _scrollCurrentListToTop,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final t = slang.Translations.of(context);
-    // 计算 AppBar 和状态栏的总高度
-    final double effectivePaddingTop =
-        MediaQuery.of(context).padding.top + appBarHeight;
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    // 内容要让出的高度 = 状态栏 + 玻璃 header 行。
+    // header 本身由 CommunityPage 画（同一套几何），这里只负责让位。
+    final double effectivePaddingTop = statusBarHeight + appBarHeight;
 
-    return Scaffold(
-      extendBodyBehindAppBar: true, // 让内容延伸到AppBar下面，以便显示毛玻璃效果
-      appBar: AppBar(
-        elevation: 0,
-        toolbarHeight: appBarHeight,
-        backgroundColor: Theme.of(
-          context,
-        ).colorScheme.surface.withValues(alpha: 0.7), // 设置半透明背景
-        flexibleSpace: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10), // 毛玻璃效果参数
-            child: Container(color: Colors.transparent),
-          ),
-        ),
-        title: Row(
-          children: [
-            IconButton(
-              icon: Obx(() {
-                if (userService.isLogining.value) {
-                  return Material(
-                    color: Colors.transparent,
-                    child: SizedBox(
-                      width: 40,
-                      height: 40,
-                      child: Center(
-                        child: Shimmer.fromColors(
-                          baseColor: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerHighest,
-                          highlightColor: Theme.of(context).colorScheme.surface,
-                          child: Container(
-                            width: 24,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                } else if (userService.hasLoadedProfile) {
-                  return Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      AvatarWidget(
-                        user: userService.currentUser.value,
-                        size: 40,
-                      ),
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Obx(() {
-                          final count =
-                              userService.notificationCount.value +
-                              userService.messagesCount.value;
-                          if (count > 0) {
-                            return Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.error,
-                                shape: BoxShape.circle,
-                              ),
-                            );
-                          }
-                          return const SizedBox.shrink();
-                        }),
-                      ),
-                    ],
-                  );
-                } else {
-                  return const Icon(Icons.account_circle);
-                }
-              }),
-              onPressed: () {
-                AppService.switchGlobalDrawer();
-              },
-            ),
-            Text(t.forum.forum),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              showAppDialog(
-                SearchDialog(
-                  userInputKeywords: '',
-                  initialSegment: SearchSegment.forum,
-                  onSearch: (searchInfo, segment, filters, sort) {
-                    NaviService.toSearchPage(
-                      searchInfo: searchInfo,
-                      segment: segment,
-                      filters: filters,
-                      sort: sort,
-                    );
-                  },
-                ),
-              );
-            },
-            tooltip: t.common.search,
-            style: IconButton.styleFrom(
-              padding: const EdgeInsets.all(8),
-              visualDensity: VisualDensity.compact,
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _refreshAll,
-            tooltip: t.common.refresh,
-            style: IconButton.styleFrom(
-              padding: const EdgeInsets.all(8),
-              visualDensity: VisualDensity.compact,
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _showPostDialog,
-            tooltip: t.forum.createThread,
-            style: IconButton.styleFrom(
-              padding: const EdgeInsets.all(8),
-              visualDensity: VisualDensity.compact,
-            ),
-          ),
-        ],
-      ),
-      body: _buildBody(context, effectivePaddingTop), // 传递 effectivePaddingTop
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // 内容铺满整个半边，自己用 effectivePaddingTop 让出 header
+        Positioned.fill(child: _buildBody(context, effectivePaddingTop)),
+        _buildScrollToTopFab(context),
+      ],
     );
   }
 
@@ -511,7 +595,7 @@ class _ForumPageState extends State<ForumPage> {
       // 使用顶部 Tab 来切换"最近"及各分类内容
       return RefreshIndicator(
         displacement: effectivePaddingTop, // 设置下拉指示器的偏移量
-        onRefresh: _refreshAll,
+        onRefresh: refreshAll,
         child: DefaultTabController(
           key: ValueKey('forum-tabs-${widget.contentResetVersion}'),
           length: _categories!.length + 1,
@@ -567,13 +651,18 @@ class _ForumPageState extends State<ForumPage> {
     // 原有宽屏布局
     return RefreshIndicator(
       displacement: effectivePaddingTop, // 设置下拉指示器的偏移量
-      onRefresh: _refreshAll,
+      onRefresh: refreshAll,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(
             width: 60,
             child: SingleChildScrollView(
+              // 分类栏也从玻璃 header 下方开始、底部给浮动底栏让位（内容可滚到背后）
+              padding: EdgeInsets.only(
+                top: effectivePaddingTop,
+                bottom: MediaQuery.of(context).padding.bottom,
+              ),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   minHeight: MediaQuery.of(context).size.height,
@@ -586,6 +675,8 @@ class _ForumPageState extends State<ForumPage> {
                       setState(() {
                         _selectedRailIndex = index;
                       });
+                      // 「瀑布/分页」只作用于「最近」，切走时那枚键要挤出去
+                      _publishHeaderState();
                     },
                     labelType: NavigationRailLabelType.all, // 显示图标和文本
                     destinations: [
@@ -639,74 +730,100 @@ class _ForumPageState extends State<ForumPage> {
     );
   }
 
-  Widget _buildRecentThreads(BuildContext context, double effectivePaddingTop) {
-    // 接收 effectivePaddingTop
+  bool get _hasSitewideSection =>
+      CommonConstants.enableForumSitewideAnnouncement &&
+      (_isLoadingSitewideAnnouncement ||
+          _sitewideAnnouncement != null ||
+          _sitewideAnnouncementError != null);
+
+  bool get _hasStickySection =>
+      _isLoadingStickyAnnouncements || _stickyAnnouncements.isNotEmpty;
+
+  /// 「最近」列表顶部的公告区块（全站公告 + 置顶公告），瀑布流和分页两种
+  /// 模式共用；没有内容时返回 null。
+  Widget? _buildTopSectionsSliver(double effectivePaddingTop) {
     final bool isWideScreen = MediaQuery.of(context).size.width >= 900;
-    final bool enableSitewide = CommonConstants.enableForumSitewideAnnouncement;
-    final bool hasSitewideSection =
-        enableSitewide &&
-        (_isLoadingSitewideAnnouncement ||
-            _sitewideAnnouncement != null ||
-            _sitewideAnnouncementError != null);
+    final bool hasSitewideSection = _hasSitewideSection;
+    final bool hasStickySection = _hasStickySection;
+    if (!hasSitewideSection && !hasStickySection) return null;
 
-    final bool hasStickySection =
-        _isLoadingStickyAnnouncements || _stickyAnnouncements.isNotEmpty;
+    return SliverPadding(
+      padding: EdgeInsets.only(
+        top: effectivePaddingTop + 8,
+        left: 8,
+        right: 8,
+        bottom: 12,
+      ),
+      sliver: SliverToBoxAdapter(
+        child: isWideScreen
+            ? Align(
+                alignment: Alignment.topLeft,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: hasSitewideSection && hasStickySection
+                        ? 1100
+                        : 720,
+                  ),
+                  child: _buildTopAnnouncementsRowOrSingle(
+                    hasSitewideSection: hasSitewideSection,
+                    hasStickySection: hasStickySection,
+                  ),
+                ),
+              )
+            : _buildTopAnnouncementsColumn(
+                hasSitewideSection: hasSitewideSection,
+                hasStickySection: hasStickySection,
+              ),
+      ),
+    );
+  }
 
-    final bool hasTopSections = hasSitewideSection || hasStickySection;
+  static const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent
+  _recentWaterfallDelegate = SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+    maxCrossAxisExtent: 300,
+    crossAxisSpacing: 5,
+    mainAxisSpacing: 5,
+  );
+
+  Widget _buildRecentThreadItem(ForumThreadModel thread) {
+    return ThreadListItemWidget(
+      thread: thread,
+      categoryId: thread.section,
+      onTap: () => NaviService.navigateToForumThreadDetailPage(
+        thread.section,
+        thread.id,
+        initialThread: thread,
+      ),
+    );
+  }
+
+  Widget _buildRecentThreads(BuildContext context, double effectivePaddingTop) {
+    return Obx(
+      () => _isPaginated.value
+          ? _buildRecentPaginated(context, effectivePaddingTop)
+          : _buildRecentWaterfall(context, effectivePaddingTop),
+    );
+  }
+
+  /// 瀑布流模式的「最近」列表。
+  Widget _buildRecentWaterfall(
+    BuildContext context,
+    double effectivePaddingTop,
+  ) {
+    final topSliver = _buildTopSectionsSliver(effectivePaddingTop);
 
     return LoadingMoreCustomScrollView(
       controller: _recentThreadsScrollController,
       slivers: <Widget>[
-        if (hasTopSections)
-          SliverPadding(
-            padding: EdgeInsets.only(
-              top: effectivePaddingTop + 8,
-              left: 8,
-              right: 8,
-              bottom: 12,
-            ),
-            sliver: SliverToBoxAdapter(
-              child: isWideScreen
-                  ? Align(
-                      alignment: Alignment.topLeft,
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxWidth: hasSitewideSection && hasStickySection
-                              ? 1100
-                              : 720,
-                        ),
-                        child: _buildTopAnnouncementsRowOrSingle(
-                          hasSitewideSection: hasSitewideSection,
-                          hasStickySection: hasStickySection,
-                        ),
-                      ),
-                    )
-                  : _buildTopAnnouncementsColumn(
-                      hasSitewideSection: hasSitewideSection,
-                      hasStickySection: hasStickySection,
-                    ),
-            ),
-          ),
+        ?topSliver,
         LoadingMoreSliverList<ForumThreadModel>(
           SliverListConfig<ForumThreadModel>(
-            extendedListDelegate:
-                const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 300,
-                  crossAxisSpacing: 5,
-                  mainAxisSpacing: 5,
-                ),
-            itemBuilder: (context, thread, index) => ThreadListItemWidget(
-              thread: thread,
-              categoryId: thread.section,
-              onTap: () => NaviService.navigateToForumThreadDetailPage(
-                thread.section,
-                thread.id,
-                initialThread: thread,
-              ),
-            ),
+            extendedListDelegate: _recentWaterfallDelegate,
+            itemBuilder: (context, thread, index) =>
+                _buildRecentThreadItem(thread),
             sourceList: _recentThreadRepository,
             padding: EdgeInsets.only(
-              top: hasTopSections ? 0 : effectivePaddingTop, // 顶部由置顶区域占位
+              top: topSliver != null ? 0 : effectivePaddingTop, // 顶部由置顶区域占位
               bottom: MediaQuery.of(context).padding.bottom, // 添加底部安全区域边距
               left: 8, // 统一左右边距
               right: 8,
@@ -726,6 +843,86 @@ class _ForumPageState extends State<ForumPage> {
                 paddingTop: isFullScreenIndicator ? effectivePaddingTop : 0,
               );
             },
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 分页模式的「最近」列表：公告区块 + 瀑布网格 + 底部分页栏。
+  Widget _buildRecentPaginated(
+    BuildContext context,
+    double effectivePaddingTop,
+  ) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    // 46 = 分页栏内容高度；再加悬浮模式上方的透明渐入区
+    final paginationBarHeight = 46 + PaginationBar.fadeAboveExtent;
+    final topSliver = _buildTopSectionsSliver(effectivePaddingTop);
+
+    final bool isFullScreenStatus =
+        _recentIndicatorStatus == IndicatorStatus.fullScreenBusying ||
+        _recentIndicatorStatus == IndicatorStatus.fullScreenError ||
+        (_recentIndicatorStatus == IndicatorStatus.empty &&
+            _recentPaginatedItems.isEmpty);
+
+    return Stack(
+      children: [
+        RefreshIndicator(
+          // 下拉指示器从玻璃 header 下方弹出
+          displacement: effectivePaddingTop,
+          onRefresh: refreshAll,
+          child: CustomScrollView(
+            controller: _recentThreadsScrollController,
+            physics: const ClampingScrollPhysics(),
+            slivers: [
+              topSliver ??
+                  SliverToBoxAdapter(
+                    child: SizedBox(height: effectivePaddingTop + 8),
+                  ),
+              if (isFullScreenStatus)
+                buildIndicator(
+                      context,
+                      _recentIndicatorStatus,
+                      () => _loadRecentPage(_recentCurrentPage),
+                      emptyIcon: Icons.forum_outlined,
+                      paddingTop: 0,
+                      errorMessage: _recentErrorMessage,
+                    ) ??
+                    const SliverToBoxAdapter(child: SizedBox.shrink())
+              else
+                SliverPadding(
+                  padding: EdgeInsets.only(
+                    left: 8,
+                    right: 8,
+                    bottom: paginationBarHeight + bottomPadding + 4.0,
+                  ),
+                  sliver: SliverWaterfallFlow(
+                    gridDelegate: _recentWaterfallDelegate,
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) =>
+                          _buildRecentThreadItem(_recentPaginatedItems[index]),
+                      childCount: _recentPaginatedItems.length,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+
+        // 分页控制栏
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: PaginationBar(
+            currentPage: _recentCurrentPage,
+            totalPages: _recentTotalPages,
+            totalItems: _recentTotalItems,
+            isLoading: _recentPageLoading,
+            onPageChanged: _loadRecentPage,
+            useBlurEffect: true,
+            paddingBottom: bottomPadding,
+            showBottomPadding: true,
           ),
         ),
       ],
@@ -786,10 +983,81 @@ class _ForumPageState extends State<ForumPage> {
     return _buildStickyAnnouncementsSection();
   }
 
+  /// 卡片内幽灵胶囊钮：小图标 + 小字 + 浅色胶囊底（与评论区动作行同款）。
+  Widget _buildGhostAction({
+    required IconData icon,
+    required String label,
+    VoidCallback? onTap,
+    Color? color,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final fg = color ?? colorScheme.onSurfaceVariant;
+    final bg = color != null
+        ? color.withValues(alpha: 0.12)
+        : colorScheme.surfaceContainerHigh;
+    return Material(
+      color: bg,
+      borderRadius: BorderRadius.circular(999),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(999),
+        onTap: onTap,
+        child: Container(
+          height: 30,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(icon, size: 16, color: fg),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: fg,
+                  height: 1,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 卡片内幽灵圆钮（仅图标）。
+  Widget _buildGhostIconAction({
+    required IconData icon,
+    required String tooltip,
+    VoidCallback? onTap,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: colorScheme.surfaceContainerHigh,
+        shape: const CircleBorder(),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: onTap,
+          child: SizedBox(
+            width: 30,
+            height: 30,
+            child: Icon(icon, size: 18, color: colorScheme.onSurfaceVariant),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 全站公告卡片：宽窄屏统一布局——头部行（图标 + 标题 + 刷新圆钮）、
+  /// chips（敏感 / 更新时间）、正文 Markdown、底部单行动作
+  /// [🖌 only-icon 原文切换] [查看全文]（原生行内 toggle 已关闭，由本卡片受控）。
   Widget _buildSitewideAnnouncementCard() {
     final t = slang.Translations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
-    final bool isWideScreen = MediaQuery.of(context).size.width >= 900;
 
     if (_isLoadingSitewideAnnouncement) {
       return _buildSitewideAnnouncementSkeleton();
@@ -822,7 +1090,6 @@ class _ForumPageState extends State<ForumPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(
                   Icons.campaign_rounded,
@@ -831,237 +1098,155 @@ class _ForumPageState extends State<ForumPage> {
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: colorScheme.onSurface,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Wrap(
-                        spacing: 6,
-                        runSpacing: 6,
-                        children: [
-                          if (page.sensitive)
-                            _buildForumLabelChip(
-                              text: t.common.sensitive,
-                              foregroundColor: colorScheme.error,
-                              backgroundColor: colorScheme.error.withValues(
-                                alpha: 0.12,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ],
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: colorScheme.onSurface,
+                    ),
                   ),
                 ),
-                const SizedBox(width: 4),
-                IconButton(
+                const SizedBox(width: 8),
+                _buildGhostIconAction(
+                  icon: Icons.refresh,
                   tooltip: t.common.refresh,
-                  onPressed: _loadSitewideAnnouncement,
-                  icon: const Icon(Icons.refresh, size: 18),
-                  style: IconButton.styleFrom(
-                    visualDensity: VisualDensity.compact,
-                    padding: const EdgeInsets.all(6),
-                  ),
+                  onTap: _loadSitewideAnnouncement,
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            _buildForumMetaChip(
-              icon: Icons.schedule_rounded,
-              text: CommonUtils.formatFriendlyTimestamp(page.updatedAt),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                if (page.sensitive)
+                  _buildForumLabelChip(
+                    text: t.common.sensitive,
+                    foregroundColor: colorScheme.error,
+                    backgroundColor: colorScheme.error.withValues(alpha: 0.12),
+                  ),
+                _buildForumMetaChip(
+                  icon: Icons.schedule_rounded,
+                  text: CommonUtils.formatFriendlyTimestamp(page.updatedAt),
+                ),
+              ],
             ),
             const Divider(height: 18),
-            if (isWideScreen)
-              _buildSitewideAnnouncementPreview(body: body)
-            else
-              Column(
-                children: [
-                  CustomMarkdownBody(
-                    data: body,
-                    padding: EdgeInsets.zero,
-                    maxImageHeight: 220,
-                  ),
-                  const SizedBox(height: 8),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton.icon(
-                      onPressed: () =>
-                          _showSitewideAnnouncementDialog(body: body),
-                      icon: const Icon(Icons.open_in_full, size: 16),
-                      label: Text(t.forum.sitewide.readMore),
-                      style: TextButton.styleFrom(
-                        visualDensity: VisualDensity.compact,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            CustomMarkdownBody(
+              data: body,
+              padding: EdgeInsets.zero,
+              maxImageHeight: 220,
+              initialShowUnprocessedText: _sitewideShowOriginal,
+              onProcessedContentChanged: (hasProcessed) {
+                if (_sitewideHasProcessed == hasProcessed) return;
+                setState(() => _sitewideHasProcessed = hasProcessed);
+              },
+            ),
+            const SizedBox(height: 8),
+            // 单行动作：显示原始文本（有处理差异时才出现） · 查看全文
+            Row(
+              children: [
+                const Spacer(),
+                MarkdownOriginalTextToggle(
+                  visible: _sitewideHasProcessed,
+                  showOriginal: _sitewideShowOriginal,
+                  padding: const EdgeInsets.only(right: 8),
+                  onChanged: (v) =>
+                      setState(() => _sitewideShowOriginal = v),
+                ),
+                _buildGhostAction(
+                  icon: Icons.open_in_full,
+                  label: t.forum.sitewide.readMore,
+                  color: colorScheme.primary,
+                  onTap: () => _showSitewideAnnouncementDialog(body: body),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSitewideAnnouncementPreview({required String body}) {
-    final t = slang.Translations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-    final imageUrl = _extractFirstMarkdownImageUrl(body);
-    final previewText = _buildPlainPreviewText(body);
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (imageUrl != null) ...[
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: CachedNetworkImage(
-              imageUrl: imageUrl,
-              httpHeaders: _iwaraImageHeaders,
-              width: 160,
-              height: 90,
-              fit: BoxFit.cover,
-              placeholder: (context, url) => Shimmer.fromColors(
-                baseColor: Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerHighest,
-                highlightColor: Theme.of(context).colorScheme.surface,
-                child: Container(width: 160, height: 90, color: Colors.white),
-              ),
-              errorWidget: (context, url, error) => Container(
-                width: 160,
-                height: 90,
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                child: Icon(
-                  Icons.broken_image_outlined,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-        ],
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Spacer(),
-                  TextButton.icon(
-                    onPressed: () =>
-                        _showSitewideAnnouncementDialog(body: body),
-                    icon: const Icon(Icons.open_in_full, size: 16),
-                    label: Text(t.forum.sitewide.readMore),
-                    style: TextButton.styleFrom(
-                      visualDensity: VisualDensity.compact,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                previewText,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 13,
-                  height: 1.35,
-                  color: colorScheme.onSurface,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
   void _showSitewideAnnouncementDialog({required String body}) {
     final t = slang.Translations.of(context);
     final title = t.forum.sitewide.title;
+    // 全文弹窗有自己的一份「显示原始文本」状态（不跟卡片联动）：
+    // 弹窗与卡片同时在屏上，跟着一起翻反而看不出是哪一处被切换了。
+    bool showOriginal =
+        Get.find<ConfigService>()[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
+    bool hasProcessed = false;
     showDialog<void>(
       context: context,
       useRootNavigator: false,
-      builder: (dialogContext) => Dialog(
-        insetPadding: const EdgeInsets.all(20),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 760, maxHeight: 720),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 8, 8),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.campaign,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => Dialog(
+          insetPadding: const EdgeInsets.all(20),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 760, maxHeight: 720),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 8, 8),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.campaign,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.of(dialogContext).pop(),
-                      icon: const Icon(Icons.close),
-                      tooltip: slang.t.common.close,
-                      style: IconButton.styleFrom(
-                        visualDensity: VisualDensity.compact,
+                      MarkdownOriginalTextToggle(
+                        style: MarkdownToggleStyle.glass,
+                        visible: hasProcessed,
+                        showOriginal: showOriginal,
+                        padding: const EdgeInsets.only(right: 4),
+                        onChanged: (v) =>
+                            setDialogState(() => showOriginal = v),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: CustomMarkdownBody(
-                    data: body,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    maxImageHeight: 420,
+                      GlassIconButton(
+                        standalone: true,
+                        icon: const Icon(Icons.close),
+                        tooltip: slang.t.common.close,
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+                const Divider(height: 1),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: CustomMarkdownBody(
+                      data: body,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      maxImageHeight: 420,
+                      initialShowUnprocessedText: showOriginal,
+                      onProcessedContentChanged: (v) {
+                        if (hasProcessed == v) return;
+                        setDialogState(() => hasProcessed = v);
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
-  }
-
-  String _buildPlainPreviewText(String markdown) {
-    var text = markdown;
-    text = text.replaceAll(RegExp(r'!\[[^\]]*\]\([^)]+\)'), ' ');
-    text = text.replaceAll(RegExp(r'\[([^\]]+)\]\([^)]+\)'), r'$1');
-    text = text.replaceAll('\n', ' ');
-    text = text.replaceAll(RegExp(r'\s+'), ' ').trim();
-    return text;
-  }
-
-  String? _extractFirstMarkdownImageUrl(String markdown) {
-    final match = RegExp(r'!\[[^\]]*\]\(([^)]+)\)').firstMatch(markdown);
-    if (match == null) return null;
-    final url = match.group(1)?.trim();
-    if (url == null || url.isEmpty) return null;
-    return UrlUtils.upgradeIwaraHttpToHttps(url);
   }
 
   Widget _buildSitewideAnnouncementErrorCard({

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/common/widgets/input/base_input_widget.dart';
 import 'package:i_iwara/app/ui/widgets/enhanced_emoji_text_field.dart';
-import 'package:i_iwara/i18n/strings.g.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 
 /// 基础对话框输入组件
 class BaseDialogInput extends StatefulWidget {
@@ -24,6 +24,9 @@ class BaseDialogInput extends StatefulWidget {
   final String? submitText;
   final String? cancelText;
 
+  /// 标题左侧的小图标（与 [BaseBottomSheetInput] 对齐）。
+  final IconData? titleIcon;
+
   const BaseDialogInput({
     super.key,
     required this.title,
@@ -44,6 +47,7 @@ class BaseDialogInput extends StatefulWidget {
     this.focusNode,
     this.submitText,
     this.cancelText,
+    this.titleIcon,
   });
 
   @override
@@ -81,31 +85,18 @@ class _BaseDialogInputState extends State<BaseDialogInput> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 标题栏
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    widget.title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  onPressed: _handleCancel,
-                  icon: const Icon(Icons.close),
-                  tooltip: t.common.close,
-                ),
-              ],
+            // 标题栏：标题 + 玻璃关闭圆钮
+            GlassComposerHeader(
+              title: widget.title,
+              icon: widget.titleIcon,
+              onClose: _handleCancel,
             ),
             const SizedBox(height: 16),
             // 输入区域
@@ -121,7 +112,6 @@ class _BaseDialogInputState extends State<BaseDialogInput> {
               showPreview: widget.showPreview,
               showRulesAgreement: widget.showRulesAgreement,
               onSubmit: _handleSubmit,
-              onCancel: _handleCancel,
               isLoading: widget.isLoading,
               errorText: widget.errorText,
               initialContent: widget.initialContent,
@@ -153,6 +143,7 @@ class DialogInputHelper {
     String? initialContent,
     String? submitText,
     String? cancelText,
+    IconData? titleIcon,
   }) async {
     String? result;
     
@@ -171,6 +162,7 @@ class DialogInputHelper {
         initialContent: initialContent,
         submitText: submitText,
         cancelText: cancelText,
+        titleIcon: titleIcon,
         onSubmit: (text) {
           result = text;
           Navigator.of(context).pop();

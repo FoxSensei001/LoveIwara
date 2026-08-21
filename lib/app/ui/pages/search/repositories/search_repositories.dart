@@ -12,10 +12,8 @@ import 'search_repository.dart';
 /// 视频搜索仓库
 class VideoSearchRepository extends SearchRepository<Video> {
   final String? sortKey;
-  VideoSearchRepository({
-    required super.query,
-    this.sortKey,
-  }) : super(segment: SearchSegment.video.apiType);
+  VideoSearchRepository({required super.query, this.sortKey})
+    : super(segment: SearchSegment.video.apiType);
 
   @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
@@ -32,10 +30,8 @@ class VideoSearchRepository extends SearchRepository<Video> {
 /// 图片搜索仓库
 class ImageSearchRepository extends SearchRepository<ImageModel> {
   final String? sortKey;
-  ImageSearchRepository({
-    required super.query,
-    this.sortKey,
-  }) : super(segment: SearchSegment.image.apiType);
+  ImageSearchRepository({required super.query, this.sortKey})
+    : super(segment: SearchSegment.image.apiType);
 
   @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
@@ -53,7 +49,7 @@ class ImageSearchRepository extends SearchRepository<ImageModel> {
 class UserSearchRepository extends SearchRepository<User> {
   final String? sortKey;
   UserSearchRepository({required super.query, this.sortKey})
-      : super(segment: SearchSegment.user.apiType);
+    : super(segment: SearchSegment.user.apiType);
 
   @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
@@ -71,7 +67,7 @@ class UserSearchRepository extends SearchRepository<User> {
 class PostSearchRepository extends SearchRepository<PostModel> {
   final String? sortKey;
   PostSearchRepository({required super.query, this.sortKey})
-      : super(segment: SearchSegment.post.apiType);
+    : super(segment: SearchSegment.post.apiType);
 
   @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
@@ -89,7 +85,7 @@ class PostSearchRepository extends SearchRepository<PostModel> {
 class ForumSearchRepository extends SearchRepository<ForumThreadModel> {
   final String? sortKey;
   ForumSearchRepository({required super.query, this.sortKey})
-      : super(segment: SearchSegment.forum.apiType);
+    : super(segment: SearchSegment.forum.apiType);
 
   @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
@@ -107,7 +103,7 @@ class ForumSearchRepository extends SearchRepository<ForumThreadModel> {
 class ForumPostsSearchRepository extends SearchRepository<ThreadCommentModel> {
   final String? sortKey;
   ForumPostsSearchRepository({required super.query, this.sortKey})
-      : super(segment: SearchSegment.forum_posts.apiType);
+    : super(segment: SearchSegment.forum_posts.apiType);
 
   @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
@@ -151,10 +147,8 @@ class Oreno3dSearchRepository extends SearchRepository<Oreno3dVideo> {
 /// 播放列表搜索仓库
 class PlaylistSearchRepository extends SearchRepository<PlaylistModel> {
   final String? sortKey;
-  PlaylistSearchRepository({
-    required super.query,
-    this.sortKey,
-  }) : super(segment: SearchSegment.playlist.apiType);
+  PlaylistSearchRepository({required super.query, this.sortKey})
+    : super(segment: SearchSegment.playlist.apiType);
 
   @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {

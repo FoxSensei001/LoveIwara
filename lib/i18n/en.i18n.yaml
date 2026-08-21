@@ -180,6 +180,8 @@ common:
   paused: Paused
   clear: Clear
   clearSelection: Clear Selection
+  selectItemsToContinue: Select items to continue
+  andMoreItems(num): 'and ${num} more'
   batchDelete: Batch Delete
   user: User
   post: Post
@@ -252,14 +254,17 @@ common:
   deleteRecordsInDateRangeConfirm: 'Are you sure you want to delete ${num} history records in this date range? This cannot be undone.'
   noHistoryRecordsInRange: No history records in this date range
   followSuccessClickAgainToSpecialFollow: Followed successfully, click again to special follow
-  specialFollowTip: Added to special follows — pick them from the selector at the top-left of the Subscriptions page for quick access
+  specialFollowTip: Added to special follows — pick them from the selector at the top-right of the Subscriptions page for quick access
   exitConfirmTip: Are you sure you want to exit?
   error: Error
   taskRunning: "A task is already running, please wait."
   operationCancelled: "Operation cancelled."
   unsavedChanges: "You have unsaved changes"
-  specialFollowsManagementTip: Drag to reorder • Swipe left to remove
+  specialFollowsManagementTip: Drag the handle to reorder • Tap the button to remove
   specialFollowsManagement: Special Follows Management
+  removeSpecialFollow: Remove special follow
+  removeSpecialFollowConfirm: 'Remove ${name} from special follows?'
+  noSpecialFollows: No special follows yet
   createTimeDesc: Create Time Desc
   createTimeAsc: Create Time Asc
   # Pagination related
@@ -281,6 +286,7 @@ common:
   tagOriginalKey: Original Tag
   tagTranslation: Translation
   copy: Copy
+  selectCopy: "Select & Copy"
   copiedToClipboard: Copied to clipboard
   showOriginalTag: Show Original Tag
   showTranslatedTag: Show Translation
@@ -421,6 +427,10 @@ authorProfile:
 favorites:
   clickToRestoreFavorite: Click to restore favorite
   myFavorites: My Favorites
+  batchCancelFavorite: Remove selected favorites
+  batchCancelFavoriteConfirm(count): 'Remove the ${count} selected item(s) from favorites? You can restore them by tapping the cards afterwards.'
+  batchCancelFavoriteSuccess(count): 'Removed ${count} item(s) from favorites'
+  batchCancelFavoriteResult(success, failed): 'Removed ${success} item(s), ${failed} failed'
 
 galleryDetail:
   galleryDetail: Gallery Detail
@@ -597,6 +607,7 @@ settings:
   privacy: Privacy
   forum: Forum
   news: News
+  community: Community
   disableForumReplyQuote: Disable Forum Reply Quote
   disableForumReplyQuoteDesc: Disable carrying replied floor information when replying in forum
   theaterMode: Theater Mode
@@ -612,6 +623,7 @@ settings:
   useDynamicColorDesc: This configuration determines whether the app uses dynamic color
   presetColors: Preset Colors
   customColors: Custom Colors
+  customColorsDisabledByDynamicColor: Dynamic color is on, so preset/custom colors are unavailable. Turn off dynamic color first.
   pickColor: Pick Color
   cancel: Cancel
   confirm: Confirm
@@ -1462,6 +1474,7 @@ conversation:
   deleteThisMessage: Delete this message
   deleteThisMessageSubtitle: This operation cannot be undone
   writeMessageHere: Write message here...
+  lastMessageFromMe: "You: "
   sendMessage: Send message
 
 splash:
@@ -1597,6 +1610,21 @@ download:
   clearFilters: Clear filters
   pauseAll: Pause all
   resumeAll: Start all
+  errorTypes:
+    network: Network problem, retry may help
+    serverRejected: Rejected by server, you may need to sign in again
+    notFound: Resource is gone or was deleted
+    diskFull: Not enough storage space
+    fileInUse: File is in use by another program
+    permission: No write permission
+    cancelled: Cancelled
+    unknown: Unknown error
+  errorDetailCopied: Error details copied
+  errorDetailCopyHint: Long press to copy error details
+  restoredPaused:
+    banner: '${num} unfinished tasks from last session were paused'
+    resume: Resume all
+    dismiss: Dismiss
   emptyTaskList: No download tasks yet
   noMatchingTasks: No matching tasks
   deleteByDate:
@@ -1726,6 +1754,11 @@ favorite:
   editFolderSuccess: Folder updated successfully
   editFolderFailed: Failed to update folder
   searchTags: Search tags
+  noTagsInFolder: No tags on the items in this folder yet
+  tagFilterMatchAll: Shows only items carrying every selected tag
+  clearSelectedTags: Clear selected tags
+  selectedTagCount: "${count} selected"
+  noMatchingTags: No matching tags
 
 translation:
   currentService: Current Service
@@ -1936,6 +1969,7 @@ navigationOrderSettings:
   forumDescription: Participate in community discussions
 
   newsDescription: Browse official news, articles, and broadcasts
+  communityDescription: Forum discussions plus official news, articles and broadcasts
 
 news:
   title: News

@@ -1,18 +1,32 @@
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/ui/pages/follows/controllers/follows_controller.dart';
-import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/widgets/user_card.dart';
-import 'package:loading_more_list/loading_more_list.dart';
+import 'package:waterfall_flow/waterfall_flow.dart';
 
 class FollowersList extends StatefulWidget {
   final ScrollController scrollController;
   final FollowsController controller;
 
+  /// 列表顶部让出的高度（玻璃 header 悬浮在列表之上）。
+  final double paddingTop;
+
+  /// 分页模式（false = 瀑布/无限滚动）。
+  final bool isPaginated;
+
+  /// 外部刷新信号：分页模式必须由 MediaListView 自己刷新，
+  /// 直接 `repository.refresh()` 只会动数据源、不会换掉当前显示的那一页。
+  final ValueListenable<int>? refreshSignal;
+
   const FollowersList({
     super.key,
     required this.scrollController,
     required this.controller,
+    this.paddingTop = 0,
+    this.isPaginated = false,
+    this.refreshSignal,
   });
 
   @override
@@ -28,37 +42,22 @@ class _FollowersListState extends State<FollowersList>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return RefreshIndicator(
-      onRefresh: () async {
-        await widget.controller.followersRepository.refresh(true);
-      },
-      child: LoadingMoreCustomScrollView(
-        controller: widget.scrollController,
-        slivers: [
-          LoadingMoreSliverList<User>(
-            SliverListConfig<User>(
-              itemBuilder: (context, user, index) {
-                return UserCard(
-                  user: user,
-                );
-              },
-              sourceList: widget.controller.followersRepository,
-              padding: EdgeInsets.fromLTRB(
-                5.0,
-                5.0,
-                5.0,
-                MediaQuery.of(context).padding.bottom + 5.0,
-              ),
-              indicatorBuilder: (context, status) => myLoadingMoreIndicator(
-                context,
-                status,
-                isSliver: true,
-                loadingMoreBase: widget.controller.followersRepository,
-              ),
-            ),
+    return MediaListView<User>(
+      sourceList: widget.controller.followersRepository,
+      isPaginated: widget.isPaginated,
+      refreshSignal: widget.refreshSignal,
+      scrollController: widget.scrollController,
+      paddingTop: widget.paddingTop,
+      emptyIcon: Icons.group_outlined,
+      // 用户卡是通栏条目：窄屏一列，宽屏才分列
+      extendedListDelegate:
+          const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 600,
+            crossAxisSpacing: 5,
+            mainAxisSpacing: 0,
           ),
-        ],
-      ),
+      // 接口返回的关注/被关注状态不可靠，这里只做纯列表展示，不露出关注按钮
+      itemBuilder: (context, user, index) => UserCard(user: user),
     );
   }
 }

@@ -3,8 +3,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/friends/repositories/friend_list_repository.dart';
 import 'package:i_iwara/app/ui/pages/friends/repositories/friend_request_repository.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 
 class FriendsController extends GetxController {
   final UserService _userService = Get.find();
@@ -51,9 +50,10 @@ class FriendsController extends GetxController {
     if (result.isSuccess) {
       friendRepository.refresh();
     } else {
-      showToastWidget(
-        MDToastWidget(message: result.message, type: MDToastType.error),
-        position: ToastPosition.bottom
+      showGlassToast(
+        result.message,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
     }
   }
@@ -66,9 +66,10 @@ class FriendsController extends GetxController {
       // 刷新好友列表
       friendRepository.refresh();
     } else {
-      showToastWidget(
-        MDToastWidget(message: result.message, type: MDToastType.error),
-        position: ToastPosition.bottom
+      showGlassToast(
+        result.message,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
     }
   }
@@ -79,9 +80,10 @@ class FriendsController extends GetxController {
     if (result.isSuccess) {
       requestRepository.refresh();
     } else {
-      showToastWidget(
-        MDToastWidget(message: result.message, type: MDToastType.error),
-        position: ToastPosition.bottom
+      showGlassToast(
+        result.message,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
     }
   }
@@ -93,9 +95,10 @@ class FriendsController extends GetxController {
     if (result.isSuccess) {
       requestRepository.refresh();
     } else {
-      showToastWidget(
-        MDToastWidget(message: result.message, type: MDToastType.error),
-        position: ToastPosition.bottom
+      showGlassToast(
+        result.message,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
     }
   }

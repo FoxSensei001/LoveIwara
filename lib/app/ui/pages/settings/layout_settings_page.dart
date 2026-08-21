@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Translations;
+import 'package:i_iwara/app/routes/home_shell_navigation.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/ui/pages/settings/navigation_order_settings_page.dart';
-import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/pages/settings/settings_navigation.dart';
+import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';
 
 class LayoutSettingsPage extends StatefulWidget {
   final bool isWideScreen;
@@ -44,28 +46,23 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          BlurredSliverAppBar(
-            title: slang.t.layoutSettings.title,
-            isWideScreen: widget.isWideScreen,
+    return GlassSettingsScaffold(
+      title: slang.t.layoutSettings.title,
+      slivers: [
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              _buildDescriptionCard(),
+              _buildLayoutModeCard(),
+              _buildNavigationOrderCard(),
+              _buildManualSettingsCard(),
+              _buildBreakpointsCard(),
+              _buildPreviewCard(),
+            ]),
           ),
-          SliverPadding(
-            padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _buildDescriptionCard(),
-                _buildLayoutModeCard(),
-                _buildNavigationOrderCard(),
-                _buildManualSettingsCard(),
-                _buildBreakpointsCard(),
-                _buildPreviewCard(),
-              ]),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -140,10 +137,14 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
                     ),
                   ),
                 ),
-                OutlinedButton.icon(
-                  icon: const Icon(Icons.refresh, size: 18),
-                  label: Text(slang.t.layoutSettings.reset),
-                  onPressed: () => _showResetConfirmDialog(),
+                GlassButtonGroup(
+                  children: [
+                    GlassIconButton(
+                      icon: const Icon(Icons.refresh),
+                      tooltip: slang.t.layoutSettings.reset,
+                      onPressed: () => _showResetConfirmDialog(),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -176,34 +177,18 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
     );
   }
 
+  /// 这里必须复用 [HomeShellNavigation] 的那一份实现，不要就地再写一遍：
+  /// 老配置里的 `forum` / `news` 需要被折叠成 `community`（合并迁移），
+  /// 自己按「丢未知键 + 补缺失键」实现的话，社区栏会被追加到末尾，
+  /// 预览出来的顺序和真实底栏对不上。
   List<String> get _navigationDisplayOrder {
-    final orderRaw = _configService[ConfigKey.NAVIGATION_ORDER];
-    final raw = orderRaw is List ? orderRaw : const <dynamic>[];
-    final result = <String>[];
-    final defaultOrder = List<String>.from(
-      ConfigKey.NAVIGATION_ORDER.defaultValue as List,
+    final order = HomeShellNavigation.normalizeOrder(
+      _configService[ConfigKey.NAVIGATION_ORDER],
     );
-
-    for (final item in raw) {
-      if (item is! String) continue;
-      if (!AppService.navigationItems.containsKey(item)) continue;
-      if (result.contains(item)) continue;
-      result.add(item);
-    }
-
-    for (final item in defaultOrder) {
-      if (!result.contains(item)) {
-        result.add(item);
-      }
-    }
-
-    final hiddenRaw = _configService[ConfigKey.NAVIGATION_HIDDEN];
-    final hidden = hiddenRaw is List
-        ? hiddenRaw.whereType<String>().toSet()
-        : const <String>{};
-    result.removeWhere(hidden.contains);
-
-    return result;
+    final hidden = HomeShellNavigation.normalizeHidden(
+      _configService[ConfigKey.NAVIGATION_HIDDEN],
+    );
+    return HomeShellNavigation.visibleOrder(order, hidden);
   }
 
   String get _navigationOrderPreview {
@@ -213,14 +198,7 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
   }
 
   void _openNavigationOrderSettings() {
-    if (widget.isWideScreen && SettingsPage.canPopInternally()) {
-      SettingsPage.navigateToNestedPage(
-        NavigationOrderSettingsPage(isWideScreen: widget.isWideScreen),
-      );
-      return;
-    }
-
-    NaviService.navigateToNavigationOrderSettingsPage();
+    SettingsNavigation.openSubPage(SettingsSubRoutes.displayNavigationOrder);
   }
 
   Widget _buildNavigationOrderCard() {
@@ -339,8 +317,11 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.remove, size: 20),
+                        GlassIconButton(
+                          standalone: true,
+                          size: 36,
+                          iconSize: 18,
+                          icon: const Icon(Icons.remove),
                           onPressed: () {
                             final current =
                                 _configService[ConfigKey.MANUAL_COLUMNS_COUNT]
@@ -353,6 +334,7 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
                             }
                           },
                         ),
+                        const SizedBox(width: 8),
                         SizedBox(
                           width: 80,
                           child: TextField(
@@ -386,8 +368,12 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
                             },
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.add, size: 20),
+                        const SizedBox(width: 8),
+                        GlassIconButton(
+                          standalone: true,
+                          size: 36,
+                          iconSize: 18,
+                          icon: const Icon(Icons.add),
                           onPressed: () {
                             final current =
                                 _configService[ConfigKey.MANUAL_COLUMNS_COUNT]
@@ -432,7 +418,10 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    IconButton(
+                    GlassIconButton(
+                      standalone: true,
+                      size: 36,
+                      iconSize: 18,
                       icon: const Icon(Icons.remove),
                       onPressed: () {
                         final current =
@@ -445,6 +434,7 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
                         }
                       },
                     ),
+                    const SizedBox(width: 6),
                     SizedBox(
                       width: 60,
                       child: TextField(
@@ -473,7 +463,11 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
                         },
                       ),
                     ),
-                    IconButton(
+                    const SizedBox(width: 6),
+                    GlassIconButton(
+                      standalone: true,
+                      size: 36,
+                      iconSize: 18,
                       icon: const Icon(Icons.add),
                       onPressed: () {
                         final current =
@@ -493,6 +487,18 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
         ),
       );
     });
+  }
+
+  Widget _buildAddBreakpointButton() {
+    return GlassButtonGroup(
+      children: [
+        GlassIconButton(
+          icon: const Icon(Icons.add),
+          tooltip: slang.t.layoutSettings.add,
+          onPressed: () => _showAddBreakpointDialog(),
+        ),
+      ],
+    );
   }
 
   Widget _buildBreakpointsCard() {
@@ -515,31 +521,17 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
               child: isNarrowScreen
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  ? Row(
                       children: [
-                        Text(
-                          slang.t.layoutSettings.breakpointConfig,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            icon: const Icon(Icons.add, size: 18),
-                            label: Text(slang.t.layoutSettings.add),
-                            onPressed: () => _showAddBreakpointDialog(),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.secondaryContainer,
-                              foregroundColor: Theme.of(
-                                context,
-                              ).colorScheme.onSecondaryContainer,
-                            ),
+                        Expanded(
+                          child: Text(
+                            slang.t.layoutSettings.breakpointConfig,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                         ),
+                        const SizedBox(width: 8),
+                        _buildAddBreakpointButton(),
                       ],
                     )
                   : Row(
@@ -551,19 +543,7 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                         ),
-                        ElevatedButton.icon(
-                          icon: const Icon(Icons.add, size: 18),
-                          label: Text(slang.t.layoutSettings.add),
-                          onPressed: () => _showAddBreakpointDialog(),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.secondaryContainer,
-                            foregroundColor: Theme.of(
-                              context,
-                            ).colorScheme.onSecondaryContainer,
-                          ),
-                        ),
+                        _buildAddBreakpointButton(),
                       ],
                     ),
             ),
@@ -633,8 +613,11 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.remove, size: 20),
+                GlassIconButton(
+                  standalone: true,
+                  size: 36,
+                  iconSize: 18,
+                  icon: const Icon(Icons.remove),
                   onPressed: () {
                     final breakpoints = _getSafeBreakpoints();
                     final defaultColumns = breakpoints['9999'] ?? 6;
@@ -644,6 +627,7 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
                     }
                   },
                 ),
+                const SizedBox(width: 8),
                 Container(
                   width: 80,
                   padding: const EdgeInsets.symmetric(
@@ -662,8 +646,12 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.add, size: 20),
+                const SizedBox(width: 8),
+                GlassIconButton(
+                  standalone: true,
+                  size: 36,
+                  iconSize: 18,
+                  icon: const Icon(Icons.add),
                   onPressed: () {
                     final breakpoints = _getSafeBreakpoints();
                     final defaultColumns = breakpoints['9999'] ?? 6;
@@ -703,7 +691,10 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            IconButton(
+            GlassIconButton(
+              standalone: true,
+              size: 36,
+              iconSize: 18,
               icon: const Icon(Icons.remove),
               onPressed: () {
                 final breakpoints = _getSafeBreakpoints();
@@ -714,6 +705,7 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
                 }
               },
             ),
+            const SizedBox(width: 6),
             Container(
               width: 60,
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -727,7 +719,11 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ),
-            IconButton(
+            const SizedBox(width: 6),
+            GlassIconButton(
+              standalone: true,
+              size: 36,
+              iconSize: 18,
               icon: const Icon(Icons.add),
               onPressed: () {
                 final breakpoints = _getSafeBreakpoints();
@@ -881,29 +877,23 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  OutlinedButton.icon(
-                    icon: const Icon(Icons.edit_outlined, size: 16),
-                    label: Text(slang.t.layoutSettings.edit),
+                  GlassIconButton(
+                    standalone: true,
+                    size: 36,
+                    iconSize: 18,
+                    icon: const Icon(Icons.edit_outlined),
+                    tooltip: slang.t.layoutSettings.edit,
                     onPressed: () => _showEditBreakpointDialog(width, columns),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                    ),
                   ),
                   const SizedBox(width: 8),
-                  OutlinedButton.icon(
-                    icon: const Icon(Icons.delete_outline, size: 16),
-                    label: Text(slang.t.layoutSettings.delete),
+                  GlassIconButton(
+                    standalone: true,
+                    size: 36,
+                    iconSize: 18,
+                    icon: const Icon(Icons.delete_outline),
+                    color: Theme.of(context).colorScheme.error,
+                    tooltip: slang.t.layoutSettings.delete,
                     onPressed: () => _showDeleteBreakpointDialog(width),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      foregroundColor: Colors.red,
-                    ),
                   ),
                 ],
               ),
@@ -937,13 +927,21 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              IconButton(
+              GlassIconButton(
+                standalone: true,
+                size: 36,
+                iconSize: 18,
                 icon: const Icon(Icons.edit_outlined),
                 onPressed: () => _showEditBreakpointDialog(width, columns),
                 tooltip: slang.t.layoutSettings.edit,
               ),
-              IconButton(
+              const SizedBox(width: 4),
+              GlassIconButton(
+                standalone: true,
+                size: 36,
+                iconSize: 18,
                 icon: const Icon(Icons.delete_outline),
+                color: Theme.of(context).colorScheme.error,
                 onPressed: () => _showDeleteBreakpointDialog(width),
                 tooltip: slang.t.layoutSettings.delete,
               ),
@@ -1096,6 +1094,21 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
     }
   }
 
+  /// 弹窗标题行：标题 + 玻璃关闭圆钮（全局统一约定）。
+  Widget _dialogTitleRow(String title) {
+    return Row(
+      children: [
+        Expanded(child: Text(title)),
+        GlassIconButton(
+          standalone: true,
+          icon: const Icon(Icons.close),
+          tooltip: slang.t.common.close,
+          onPressed: () => AppService.tryPop(),
+        ),
+      ],
+    );
+  }
+
   void _showAddBreakpointDialog() {
     final widthController = TextEditingController();
     final columnsController = TextEditingController();
@@ -1103,7 +1116,7 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
 
     showAppDialog(
       AlertDialog(
-        title: Text(slang.t.layoutSettings.addBreakpoint),
+        title: _dialogTitleRow(slang.t.layoutSettings.addBreakpoint),
         content: Form(
           key: formKey,
           child: Column(
@@ -1195,7 +1208,7 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
 
     showAppDialog(
       AlertDialog(
-        title: Text(slang.t.layoutSettings.editBreakpoint),
+        title: _dialogTitleRow(slang.t.layoutSettings.editBreakpoint),
         content: Form(
           key: formKey,
           child: Column(
@@ -1304,7 +1317,9 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
   void _showResetConfirmDialog() {
     showAppDialog(
       AlertDialog(
-        title: Text(slang.t.layoutSettings.confirmResetLayoutSettings),
+        title: _dialogTitleRow(
+          slang.t.layoutSettings.confirmResetLayoutSettings,
+        ),
         content: Text(slang.t.layoutSettings.confirmResetLayoutSettingsDesc),
         actions: [
           TextButton(
@@ -1347,7 +1362,7 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
   void _showDeleteBreakpointDialog(String width) {
     showAppDialog(
       AlertDialog(
-        title: Text(slang.t.layoutSettings.confirmDeleteBreakpoint),
+        title: _dialogTitleRow(slang.t.layoutSettings.confirmDeleteBreakpoint),
         content: Text(
           slang.t.layoutSettings.confirmDeleteBreakpointDesc(width: width),
         ),

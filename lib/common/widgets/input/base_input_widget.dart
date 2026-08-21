@@ -6,6 +6,7 @@ import 'package:i_iwara/app/ui/widgets/markdown_preview_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/emoji_picker_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/enhanced_emoji_text_field.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/rules_agreement_dialog_widget.dart';
@@ -24,7 +25,6 @@ class BaseInputWidget extends StatefulWidget {
   final bool showPreview;
   final bool showRulesAgreement;
   final Function(String)? onSubmit;
-  final VoidCallback? onCancel;
   final bool isLoading;
   final String? errorText;
   final String? initialContent;
@@ -46,7 +46,6 @@ class BaseInputWidget extends StatefulWidget {
     this.showPreview = true,
     this.showRulesAgreement = false,
     this.onSubmit,
-    this.onCancel,
     this.isLoading = false,
     this.errorText,
     this.initialContent,
@@ -68,11 +67,12 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
   @override
   void initState() {
     super.initState();
-    
+
     // 初始化表情包规格
     if (widget.showEmojiPicker) {
       final savedSizeSuffix = _configService[ConfigKey.DEFAULT_EMOJI_SIZE];
-      _selectedEmojiSize = EmojiSize.fromAltSuffix(savedSizeSuffix) ?? EmojiSize.medium;
+      _selectedEmojiSize =
+          EmojiSize.fromAltSuffix(savedSizeSuffix) ?? EmojiSize.medium;
     }
 
     // 设置初始内容
@@ -83,12 +83,13 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
     // 添加小尾巴
     if (widget.initialContent == null || widget.initialContent!.isEmpty) {
       if (_configService[ConfigKey.ENABLE_SIGNATURE_KEY]) {
-        widget.controller.text += _configService[ConfigKey.SIGNATURE_CONTENT_KEY];
+        widget.controller.text +=
+            _configService[ConfigKey.SIGNATURE_CONTENT_KEY];
       }
     }
 
     _currentLength = widget.controller.text.length;
-    
+
     widget.controller.addListener(() {
       if (mounted) {
         setState(() {
@@ -106,6 +107,7 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => const MarkdownSyntaxHelp(),
     );
   }
@@ -135,9 +137,12 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
   void _insertEmoji(String imageUrl, [EmojiSize? size]) {
     if (widget.emojiTextFieldKey?.currentState != null) {
       // 使用EnhancedEmojiTextField的内部方法插入表情
-      widget.emojiTextFieldKey!.currentState!.insertEmoji(imageUrl, size: size ?? _selectedEmojiSize);
+      widget.emojiTextFieldKey!.currentState!.insertEmoji(
+        imageUrl,
+        size: size ?? _selectedEmojiSize,
+      );
     }
-    
+
     // 更新字符计数
     setState(() {
       _currentLength = widget.controller.text.length;
@@ -153,17 +158,15 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
         minChildSize: 0.5,
         maxChildSize: 0.95,
         expand: false,
-        builder: (context, scrollController) => RulesAgreementDialog(
-          scrollController: scrollController,
-        ),
+        builder: (context, scrollController) =>
+            RulesAgreementDialog(scrollController: scrollController),
       ),
     );
 
     if (result == true) {
+      // 只记录「已同意」，不代发内容——同意规则和发出内容是两件事，
+      // 用户点完同意后仍需自己按提交键。
       await _configService.setSetting(ConfigKey.RULES_AGREEMENT_KEY, true);
-      if (mounted) {
-        _handleSubmit();
-      }
     }
   }
 
@@ -175,13 +178,11 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
       return;
     }
 
-    // 如果需要规则协议但用户未同意
-    if (widget.showRulesAgreement) {
-      final bool hasAgreed = _configService[ConfigKey.RULES_AGREEMENT_KEY];
-      if (!hasAgreed) {
-        _showRulesDialog();
-        return;
-      }
+    // 未同意规则时提交键本就是禁用态（见 build 里的 canSubmit），
+    // 这里只兜底拦一道，不再顺手弹规则弹窗+代发。
+    if (widget.showRulesAgreement &&
+        !_configService[ConfigKey.RULES_AGREEMENT_KEY]) {
+      return;
     }
 
     widget.onSubmit?.call(widget.controller.text);
@@ -189,150 +190,114 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final String? errorText =
+        widget.errorText ??
+        (_currentLength > widget.maxLength
+            ? t.errors.exceedsMaxLength(max: widget.maxLength.toString())
+            : null);
+    final bool canSubmit =
+        _currentLength > 0 && _currentLength <= widget.maxLength;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // 输入框
-        if (widget.showEmojiPicker)
-          EnhancedEmojiTextField(
-            key: widget.emojiTextFieldKey,
-            controller: widget.controller,
-            maxLines: widget.maxLines,
-            maxLength: widget.maxLength,
-            decoration: InputDecoration(
-              hintText: widget.hintText,
-              errorText: widget.errorText ?? (_currentLength > widget.maxLength
-                  ? t.errors.exceedsMaxLength(max: widget.maxLength.toString())
-                  : null),
-            ),
-            onChanged: (value) {
-              setState(() {
-                _currentLength = value.length;
-              });
-            },
-            enabled: widget.enabled && !widget.isLoading,
-            focusNode: widget.focusNode,
-            onEmojiInserted: (imageUrl) {
-              setState(() {
-                _currentLength = widget.controller.text.length;
-              });
-            },
-          )
-        else
-          TextField(
-            controller: widget.controller,
-            maxLines: widget.maxLines,
-            maxLength: widget.maxLength,
-            enabled: widget.enabled && !widget.isLoading,
-            focusNode: widget.focusNode,
-            decoration: InputDecoration(
-              hintText: widget.hintText,
-              border: const OutlineInputBorder(),
-              counterText: '$_currentLength/${widget.maxLength}',
-              errorText: widget.errorText ?? (_currentLength > widget.maxLength
-                  ? t.errors.exceedsMaxLength(max: widget.maxLength.toString())
-                  : null),
-            ),
-            onChanged: (value) {
-              setState(() {
-                _currentLength = value.length;
-              });
-            },
-          ),
-        
-        const SizedBox(height: 16),
-        
-        // 操作按钮行
-        Wrap(
-          alignment: WrapAlignment.end,
-          spacing: 8,
-          children: [
-            if (widget.showTranslation)
-              IconButton(
-                onPressed: widget.controller.text.isNotEmpty
-                    ? () {
-                        showAppDialog(
-                          TranslationDialog(
-                            text: widget.controller.text,
-                            defaultLanguageKeyMode: false,
-                          ),
-                          barrierDismissible: true,
-                        );
-                      }
-                    : null,
-                icon: Icon(
-                  Icons.translate,
-                  color: widget.controller.text.isEmpty
-                      ? Theme.of(context).disabledColor
-                      : null,
+        // 输入域：玻璃壳包住无边框输入控件
+        GlassInputSurface(
+          child: widget.showEmojiPicker
+              ? EnhancedEmojiTextField(
+                  key: widget.emojiTextFieldKey,
+                  controller: widget.controller,
+                  maxLines: widget.maxLines,
+                  maxLength: widget.maxLength,
+                  decoration: glassFieldDecoration(
+                    context,
+                    hint: widget.hintText,
+                    errorText: errorText,
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _currentLength = value.length;
+                    });
+                  },
+                  enabled: widget.enabled && !widget.isLoading,
+                  focusNode: widget.focusNode,
+                  onEmojiInserted: (imageUrl) {
+                    setState(() {
+                      _currentLength = widget.controller.text.length;
+                    });
+                  },
+                )
+              : TextField(
+                  controller: widget.controller,
+                  maxLines: widget.maxLines,
+                  maxLength: widget.maxLength,
+                  enabled: widget.enabled && !widget.isLoading,
+                  focusNode: widget.focusNode,
+                  decoration: glassFieldDecoration(
+                    context,
+                    hint: widget.hintText,
+                    errorText: errorText,
+                    counterText: '$_currentLength/${widget.maxLength}',
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _currentLength = value.length;
+                    });
+                  },
                 ),
-                tooltip: t.common.translate,
-              ),
-            if (widget.showEmojiPicker)
-              IconButton(
-                onPressed: _showEmojiPickerDialog,
-                icon: const Icon(Icons.emoji_emotions_outlined),
-                tooltip: t.emoji.selectEmoji,
-              ),
-            if (widget.showMarkdownHelp)
-              IconButton(
-                onPressed: _showMarkdownHelp,
-                icon: const Icon(Icons.help_outline),
-                tooltip: t.markdown.markdownSyntax,
-              ),
-            if (widget.showPreview)
-              IconButton(
-                onPressed: _showPreview,
-                icon: const Icon(Icons.preview),
-                tooltip: t.common.preview,
-              ),
-          ],
         ),
-        
+
         const SizedBox(height: 16),
-        
-        // 底部操作按钮
-        Wrap(
-          alignment: WrapAlignment.end,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            if (widget.showRulesAgreement)
-              Obx(() {
-                final bool hasAgreed = _configService[ConfigKey.RULES_AGREEMENT_KEY];
-                return TextButton.icon(
-                  onPressed: () => _showRulesDialog(),
-                  icon: Icon(
-                    hasAgreed ? Icons.check_box : Icons.check_box_outline_blank,
-                    size: 20,
-                  ),
-                  label: Text(t.common.agreeToRules),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                  ),
-                );
-              }),
-            if (widget.onCancel != null)
-              TextButton(
-                onPressed: widget.onCancel,
-                child: Text(t.common.cancel),
-              ),
-            if (widget.onSubmit != null)
-              ElevatedButton(
-                onPressed: (_currentLength > widget.maxLength || _currentLength == 0)
-                    ? null
-                    : _handleSubmit,
-                child: widget.isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(widget.submitText ?? t.common.send),
-              ),
-          ],
+
+        // 工具行：翻译 / 表情 / MD 帮助 / 预览，聚成一只玻璃胶囊
+        GlassComposerToolbar(
+          onTranslate: widget.showTranslation
+              ? () {
+                  showAppDialog(
+                    TranslationDialog(
+                      text: widget.controller.text,
+                      defaultLanguageKeyMode: false,
+                    ),
+                    barrierDismissible: true,
+                  );
+                }
+              : null,
+          translateEnabled: widget.controller.text.isNotEmpty,
+          onEmoji: widget.showEmojiPicker ? _showEmojiPickerDialog : null,
+          onMarkdownHelp: widget.showMarkdownHelp ? _showMarkdownHelp : null,
+          onPreview: widget.showPreview ? _showPreview : null,
         ),
+
+        const SizedBox(height: 16),
+
+        // 动作行：左侧规则徽标 · 右侧提交（未同意规则时提交键为禁用态，
+        // 用户先点徽标读规则并同意，再自己按提交）
+        if (widget.showRulesAgreement)
+          Obx(() {
+            final bool hasAgreed =
+                _configService[ConfigKey.RULES_AGREEMENT_KEY];
+            return GlassComposerActions(
+              rulesAgreed: hasAgreed,
+              onRulesTap: () => _showRulesDialog(),
+              onSubmit: widget.onSubmit == null || !canSubmit || !hasAgreed
+                  ? null
+                  : _handleSubmit,
+              // 只差「同意规则」时：按钮仍可点，点下去弹规则全文
+              onBlockedTap: !hasAgreed && canSubmit
+                  ? () => _showRulesDialog()
+                  : null,
+              submitText: widget.submitText,
+              isLoading: widget.isLoading,
+            );
+          })
+        else
+          GlassComposerActions(
+            onSubmit: widget.onSubmit == null || !canSubmit
+                ? null
+                : _handleSubmit,
+            submitText: widget.submitText,
+            isLoading: widget.isLoading,
+          ),
       ],
     );
   }

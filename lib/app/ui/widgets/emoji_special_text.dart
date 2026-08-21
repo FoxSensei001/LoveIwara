@@ -11,22 +11,25 @@ class EmojiText extends SpecialText {
   static const String flag = "![emo";
   final int start;
 
-  EmojiText(TextStyle textStyle, {this.start = 0}) : super(flag, ")", textStyle);
+  EmojiText(TextStyle textStyle, {this.start = 0})
+    : super(flag, ")", textStyle);
 
   @override
   InlineSpan finishText() {
     final String emojiText = toString();
-    
+
     // 提取图片URL和规格信息
     // 匹配格式：![emo]() 或 ![emo:规格]()
-    final urlMatch = RegExp(r'!\[emo(?::([^\]]+))?\]\((.*?)\)').firstMatch(emojiText);
+    final urlMatch = RegExp(
+      r'!\[emo(?::([^\]]+))?\]\((.*?)\)',
+    ).firstMatch(emojiText);
     if (urlMatch == null) {
       return TextSpan(text: emojiText, style: textStyle);
     }
-    
+
     final imageUrl = urlMatch.group(2)!;
     final sizeSuffix = urlMatch.group(1); // 可能为null
-    
+
     // 确定表情包规格
     EmojiSize emojiSize;
     if (sizeSuffix != null) {
@@ -34,7 +37,7 @@ class EmojiText extends SpecialText {
     } else {
       emojiSize = EmojiSize.medium; // 默认中等大小
     }
-    
+
     return ImageSpan(
       CachedNetworkImageProvider(
         imageUrl,
@@ -97,7 +100,7 @@ class EmojiSpecialTextSpanBuilder extends SpecialTextSpanBuilder {
         start: index - (EmojiText.flag.length - 1),
       );
     }
-    
+
     return null;
   }
 }

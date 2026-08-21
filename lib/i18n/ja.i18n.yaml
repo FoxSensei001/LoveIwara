@@ -99,8 +99,11 @@ common:
   unfollow: フォロー解除
   specialFollow: 特別フォロー
   specialFollowed: 特別フォロー済み
-  specialFollowsManagementTip: ドラッグして並べ替え • 左スワイプで削除
+  specialFollowsManagementTip: ハンドルをドラッグで並べ替え • 右のボタンで削除
   specialFollowsManagement: 特別フォロー管理
+  removeSpecialFollow: 特別フォローを解除
+  removeSpecialFollowConfirm: '${name} を特別フォローから外しますか？'
+  noSpecialFollows: 特別フォローはまだありません
   createTimeDesc: 作成時間降順
   createTimeAsc: 作成時間昇順
   gallery: ギャラリー
@@ -186,6 +189,8 @@ common:
   paused: 一時停止
   clear: クリア
   clearSelection: 選択を解除
+  selectItemsToContinue: 項目を選択してください
+  andMoreItems(num): '他 ${num} 件'
   batchDelete: 一括削除
   user: ユーザー
   post: 投稿
@@ -258,7 +263,7 @@ common:
   deleteRecordsInDateRangeConfirm: 'この期間の ${num} 件の履歴を削除してもよろしいですか？この操作は取り消せません。'
   noHistoryRecordsInRange: この期間の履歴はありません
   followSuccessClickAgainToSpecialFollow: フォローに成功しました。再度クリックして特別フォロー
-  specialFollowTip: 特別フォローに追加しました。購読ページ左上のセレクターで切り替えると、すぐに確認できます
+  specialFollowTip: 特別フォローに追加しました。購読ページ右上のセレクターで切り替えると、すぐに確認できます
   exitConfirmTip: 本当に退出しますか？
   error: エラー
   taskRunning: "既にタスクが実行中です。しばらくお待ちください。"
@@ -282,6 +287,7 @@ common:
   tagOriginalKey: 元のタグ
   tagTranslation: 翻訳
   copy: コピー
+  selectCopy: 選択してコピー
   copiedToClipboard: クリップボードにコピーしました
   showOriginalTag: 元のタグを表示
   showTranslatedTag: 翻訳を表示
@@ -422,6 +428,10 @@ authorProfile:
 favorites:
   clickToRestoreFavorite: お気に入りを復元するにはクリックしてください
   myFavorites: 私のお気に入り
+  batchCancelFavorite: お気に入りを一括解除
+  batchCancelFavoriteConfirm(count): '選択した ${count} 件のお気に入りを解除しますか？解除後もカードをタップすれば復元できます。'
+  batchCancelFavoriteSuccess(count): '${count} 件のお気に入りを解除しました'
+  batchCancelFavoriteResult(success, failed): '${success} 件を解除しました。${failed} 件は失敗しました'
 
 galleryDetail:
   galleryDetail: ギャラリー詳細
@@ -598,6 +608,7 @@ settings:
   privacy: プライバシー
   forum: フォーラム
   news: ニュース
+  community: コミュニティ
   disableForumReplyQuote: フォーラム返信引用を無効にする
   disableForumReplyQuoteDesc: フォーラム返信時の返信階層情報の携帯を無効にする
   theaterMode: 劇院モード
@@ -613,6 +624,7 @@ settings:
   useDynamicColorDesc: この設定はアプリがダイナミックカラーを使用するかどうかを決定します
   presetColors: プリセットカラー
   customColors: カスタムカラー
+  customColorsDisabledByDynamicColor: ダイナミックカラーが有効なため、プリセット/カスタムカラーは使用できません。先にダイナミックカラーをオフにしてください
   pickColor: カラーを選択
   cancel: キャンセル
   confirm: 確認
@@ -1465,6 +1477,7 @@ conversation:
   deleteThisMessage: このメッセージを削除
   deleteThisMessageSubtitle: この操作は取り消せません
   writeMessageHere: ここにメッセージを入力...
+  lastMessageFromMe: "自分: "
   sendMessage: メッセージを送信
 
 splash:
@@ -1600,6 +1613,21 @@ download:
   clearFilters: フィルターをクリア
   pauseAll: すべて一時停止
   resumeAll: すべて開始
+  errorTypes:
+    network: ネットワークエラー、再試行できます
+    serverRejected: サーバーに拒否されました。再ログインが必要かもしれません
+    notFound: リソースが失効または削除されました
+    diskFull: ストレージの空き容量が不足しています
+    fileInUse: ファイルが他のプログラムに使用されています
+    permission: 書き込み権限がありません
+    cancelled: キャンセルされました
+    unknown: 不明なエラー
+  errorDetailCopied: エラー詳細をコピーしました
+  errorDetailCopyHint: 長押しでエラー詳細をコピー
+  restoredPaused:
+    banner: '前回終了時に未完了だったタスク ${num} 件を一時停止しました'
+    resume: すべて再開
+    dismiss: 閉じる
   emptyTaskList: ダウンロードタスクがありません
   noMatchingTasks: 一致するタスクがありません
   deleteByDate:
@@ -1730,6 +1758,11 @@ favorite:
   editFolderSuccess: フォルダー名を更新しました
   editFolderFailed: フォルダー名の更新に失敗しました
   searchTags: タグを検索
+  noTagsInFolder: このフォルダーの作品にはまだタグがありません
+  tagFilterMatchAll: 選択したタグをすべて含む作品のみ表示します
+  clearSelectedTags: 選択したタグをクリア
+  selectedTagCount: "${count} 件選択中"
+  noMatchingTags: 一致するタグがありません
 
 translation:
   currentService: 現在のサービス
@@ -2291,6 +2324,7 @@ navigationOrderSettings:
   forumDescription: コミュニティディスカッションに参加
 
   newsDescription: 公式ニュース、記事、放送を閲覧
+  communityDescription: フォーラムの議論と公式ニュース・記事・ブロードキャスト
 
 news:
   title: ニュース

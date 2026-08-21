@@ -17,32 +17,25 @@ class ProxySettingsPage extends StatelessWidget {
     final configService = Get.find<ConfigService>();
     final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
 
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          BlurredSliverAppBar(
-            title: t.settings.networkSettings,
-            isWideScreen: isWideScreen,
-          ),
-          SliverFillRemaining(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.only(bottom: bottomInset),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ProxyConfigWidget(
-                    configService: configService,
-                    showTitle: true,
-                    padding: const EdgeInsets.all(16),
-                    compactMode: false,
-                    wrapWithCard: true,
-                  )
-                ],
-              ),
+    return GlassSettingsScaffold(
+      title: t.settings.networkSettings,
+      slivers: [
+        // 单层滚动交给骨架的 CustomScrollView：这里不能再套
+        // SliverFillRemaining + SingleChildScrollView，那会与骨架让位的
+        // spacer 叠出一屏多的高度，且形成双层滚动。
+        SliverPadding(
+          padding: EdgeInsets.only(bottom: bottomInset),
+          sliver: SliverToBoxAdapter(
+            child: ProxyConfigWidget(
+              configService: configService,
+              showTitle: true,
+              padding: const EdgeInsets.all(16),
+              compactMode: false,
+              wrapWithCard: true,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

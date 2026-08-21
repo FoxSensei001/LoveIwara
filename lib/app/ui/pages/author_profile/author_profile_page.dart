@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -21,16 +20,20 @@ import 'package:i_iwara/app/ui/pages/author_profile/widgets/profile_playlist_tab
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
-import 'package:i_iwara/app/ui/widgets/top_padding_height_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/app/routes/app_router.dart' show routeObserver;
 import 'package:i_iwara/app/services/overlay_tracker.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/utils/image_utils.dart';
-import 'package:oktoast/oktoast.dart';
 
 import '../../../../common/constants.dart';
 import '../../../services/user_service.dart';
@@ -48,7 +51,8 @@ import 'package:i_iwara/app/ui/widgets/friend_button_widget.dart';
 import '../popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
-import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/batch_download_selection.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class AuthorProfilePage extends StatefulWidget {
@@ -81,12 +85,17 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
   late TabController postSecondaryTC;
   late final BatchSelectController<Video> _videoBatchController;
   late final BatchSelectController<ImageModel> _imageBatchController;
+  final RxBool _isPaginated = false.obs;
   late String username;
 
   final GlobalKey<ExtendedNestedScrollViewState> _key =
       GlobalKey<ExtendedNestedScrollViewState>();
   late String uniqueTag;
-  late ScrollController _tabBarScrollController;
+
+  /// 窄屏：外层 / 内层滚动位置（控制右下角「回到顶部」浮钮）。
+  final ValueNotifier<bool> _showBackToTop = ValueNotifier<bool>(false);
+  double _outerScrollPixels = 0;
+  double _innerScrollPixels = 0;
   final GlobalKey<State<StatefulWidget>> _postListKey = GlobalKey();
 
   // 各 tab 列表用 GlobalKey：宽窄布局切换时子树是被搬走而不是销毁重建，
@@ -134,8 +143,6 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
       BatchSelectController<ImageModel>(),
       tag: 'author_profile_image_batch_$uniqueTag',
     );
-
-    _tabBarScrollController = ScrollController();
   }
 
   @override
@@ -178,7 +185,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     imageSecondaryTC.dispose();
     playlistSecondaryTC.dispose();
     postSecondaryTC.dispose();
-    _tabBarScrollController.dispose();
+    _showBackToTop.dispose();
     Get.delete<AuthorProfileController>(tag: uniqueTag);
     Get.delete<BatchSelectController<Video>>(
       tag: 'author_profile_video_batch_$uniqueTag',
@@ -195,19 +202,84 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     }
   }
 
-  void _handleScroll(double delta) {
-    if (_tabBarScrollController.hasClients) {
-      final double newOffset = _tabBarScrollController.offset + delta;
-      if (newOffset < 0) {
-        _tabBarScrollController.jumpTo(0);
-      } else if (newOffset > _tabBarScrollController.position.maxScrollExtent) {
-        _tabBarScrollController.jumpTo(
-          _tabBarScrollController.position.maxScrollExtent,
-        );
-      } else {
-        _tabBarScrollController.jumpTo(newOffset);
-      }
+  void _togglePaginationMode() {
+    final isPaginated = !_isPaginated.value;
+    _isPaginated.value = isPaginated;
+    _videoBatchController.setPaginatedMode(isPaginated);
+    _imageBatchController.setPaginatedMode(isPaginated);
+  }
+
+  bool _handleNestedScrollNotification(ScrollNotification notification) {
+    if (notification is! ScrollUpdateNotification &&
+        notification is! ScrollEndNotification &&
+        notification is! OverscrollNotification) {
+      return false;
     }
+    // depth 0 = ExtendedNestedScrollView 外层（头图 + 资料区），depth 1 = 内层列表
+    if (notification.depth == 0) {
+      _outerScrollPixels = notification.metrics.pixels;
+    } else if (notification.depth == 1) {
+      _innerScrollPixels = notification.metrics.pixels;
+    }
+    final show = _outerScrollPixels > 240 || _innerScrollPixels > 600;
+    if (_showBackToTop.value != show) _showBackToTop.value = show;
+    return false;
+  }
+
+  void _scrollToTop() {
+    final state = _key.currentState;
+    if (state == null) return;
+    final inner = state.innerController;
+    if (inner.hasClients) {
+      inner.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+      );
+    }
+    final outer = state.outerController;
+    if (outer.hasClients) {
+      outer.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+      );
+    }
+  }
+
+  /// 滚过一段后出现在右下角的「回到顶部」浮钮（窄屏）。
+  Widget _buildScrollToTopFab(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Obx(
+      () => Positioned(
+        right: 16,
+        bottom:
+            MediaQuery.paddingOf(context).bottom +
+            16 +
+            (_isPaginated.value ? PaginationBar.barHeight : 0),
+        child: ValueListenableBuilder<bool>(
+          valueListenable: _showBackToTop,
+          builder: (context, visible, _) => IgnorePointer(
+            ignoring: !visible,
+            child: AnimatedSlide(
+              duration: GlassTokens.motionDuration,
+              curve: GlassTokens.motionCurve,
+              offset: visible ? Offset.zero : const Offset(0, 0.4),
+              child: AnimatedOpacity(
+                duration: GlassTokens.motionDuration,
+                opacity: visible ? 1 : 0,
+                child: GlassIconButton(
+                  standalone: true,
+                  icon: const Icon(Icons.vertical_align_top),
+                  tooltip: t.common.scrollToTop,
+                  onPressed: _scrollToTop,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _copyAuthorName(String authorName) async {
@@ -220,12 +292,10 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     if (!mounted) {
       return;
     }
-    showToastWidget(
-      MDToastWidget(
-        message: slang.t.logViewer.copiedToClipboard,
-        type: MDToastType.success,
-      ),
-      position: ToastPosition.bottom,
+    showGlassToast(
+      slang.t.logViewer.copiedToClipboard,
+      type: GlassToastType.success,
+      position: GlassToastPosition.bottom,
     );
   }
 
@@ -239,12 +309,10 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     if (!mounted) {
       return;
     }
-    showToastWidget(
-      MDToastWidget(
-        message: slang.t.personalProfile.usernameCopied,
-        type: MDToastType.success,
-      ),
-      position: ToastPosition.bottom,
+    showGlassToast(
+      slang.t.personalProfile.usernameCopied,
+      type: GlassToastType.success,
+      position: GlassToastPosition.bottom,
     );
   }
 
@@ -253,18 +321,26 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
         return DraggableScrollableSheet(
-          initialChildSize: 0.8,
+          initialChildSize: 0.75,
           minChildSize: 0.2,
-          maxChildSize: 0.8,
+          maxChildSize: 0.92,
           expand: false,
+          snap: true,
           builder: (context, scrollController) {
-            // 底部弹窗自己让出系统手势条/导航条
-            return SheetBottomSafeArea(
+            return Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(20),
+                ),
+              ),
+              // 底部弹窗自己让出系统手势条/导航条
+              padding: EdgeInsets.only(
+                bottom: computeSheetBottomInset(context),
+              ),
               child: Column(
                 children: [
                   // 拖拽条
@@ -283,63 +359,93 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                   ),
                   // 顶部标题栏
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     child: Row(
                       children: [
                         Text(
                           t.common.commentList,
-                          style: TextStyle(
-                            fontSize: Theme.of(
-                              context,
-                            ).textTheme.titleLarge?.fontSize,
+                          style: const TextStyle(
+                            fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const Spacer(),
-                        // 添加评论按钮
-                        IconButton(
-                          onPressed: () {
-                            showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true,
-                              backgroundColor: Colors.transparent,
-                              builder: (context) => CommentInputBottomSheet(
-                                title: t.common.sendComment,
-                                submitText: t.common.send,
-                                onSubmit: (text) async {
-                                  if (text.trim().isEmpty) {
-                                    showToastWidget(
-                                      MDToastWidget(
-                                        message: t.errors.commentCanNotBeEmpty,
-                                        type: MDToastType.error,
-                                      ),
-                                      position: ToastPosition.bottom,
-                                    );
-                                    return;
-                                  }
-                                  final UserService userService = Get.find();
-                                  if (!userService.isAuthenticated) {
-                                    showToastWidget(
-                                      MDToastWidget(
-                                        message: t.errors.pleaseLoginFirst,
-                                        type: MDToastType.error,
-                                      ),
-                                      position: ToastPosition.bottom,
-                                    );
-                                    LoginService.showLogin();
-                                    return;
-                                  }
-                                  await profileController.commentController
-                                      .postComment(text);
-                                },
+                        // 排序 / 发评论合成一只玻璃胶囊
+                        GlassButtonGroup(
+                          children: [
+                            Obx(
+                              () => GlassIconButton(
+                                icon: Icon(
+                                  profileController
+                                          .commentController
+                                          .sortOrder
+                                          .value
+                                      ? Icons
+                                            .arrow_downward_rounded // 倒序图标
+                                      : Icons.arrow_upward_rounded, // 正序图标
+                                ),
+                                tooltip:
+                                    profileController
+                                        .commentController
+                                        .sortOrder
+                                        .value
+                                    ? t.common.createTimeDesc
+                                    : t.common.createTimeAsc,
+                                onPressed: profileController
+                                    .commentController
+                                    .toggleSortOrder,
                               ),
-                            );
-                          },
-                          icon: const Icon(Icons.add_comment),
+                            ),
+                            // 添加评论按钮
+                            GlassIconButton(
+                              icon: const Icon(Icons.add_comment),
+                              tooltip: t.common.sendComment,
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (context) => CommentInputBottomSheet(
+                                    title: t.common.sendComment,
+                                    submitText: t.common.send,
+                                    onSubmit: (text) async {
+                                      if (text.trim().isEmpty) {
+                                        showGlassToast(
+                                          t.errors.commentCanNotBeEmpty,
+                                          type: GlassToastType.error,
+                                          position: GlassToastPosition.bottom,
+                                        );
+                                        return;
+                                      }
+                                      final UserService userService =
+                                          Get.find();
+                                      if (!userService.isAuthenticated) {
+                                        showGlassToast(
+                                          t.errors.pleaseLoginFirst,
+                                          type: GlassToastType.error,
+                                          position: GlassToastPosition.bottom,
+                                        );
+                                        LoginService.showLogin();
+                                        return;
+                                      }
+                                      await profileController.commentController
+                                          .postComment(text);
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
-                        // 关闭按钮
-                        IconButton(
+                        const SizedBox(width: 8),
+                        // 关闭按钮：弹层关闭键一律玻璃圆钮
+                        GlassIconButton(
+                          standalone: true,
                           icon: const Icon(Icons.close),
+                          tooltip: t.common.close,
                           onPressed: () => Navigator.pop(context),
                         ),
                       ],
@@ -409,17 +515,21 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
       return Stack(
         children: [
           Scaffold(
-            body: ExtendedNestedScrollView(
-              key: _key,
-              headerSliverBuilder:
-                  (BuildContext context, bool innerBoxIsScrolled) =>
-                      _buildHeaderSliver(context, innerBoxIsScrolled),
-              onlyOneScrollInBody: true,
-              pinnedHeaderSliverHeightBuilder: () =>
-                  _calculatePinnedHeaderHeight(),
-              body: _buildTabBarView(context, isWideScreen: false),
+            body: NotificationListener<ScrollNotification>(
+              onNotification: _handleNestedScrollNotification,
+              child: ExtendedNestedScrollView(
+                key: _key,
+                headerSliverBuilder:
+                    (BuildContext context, bool innerBoxIsScrolled) =>
+                        _buildHeaderSliver(context, innerBoxIsScrolled),
+                onlyOneScrollInBody: true,
+                pinnedHeaderSliverHeightBuilder: () =>
+                    _calculatePinnedHeaderHeight(),
+                body: _buildTabBarView(context, isWideScreen: false),
+              ),
             ),
           ),
+          _buildScrollToTopFab(context),
         ],
       );
     }
@@ -482,6 +592,31 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
             ? 300
             : context.width * 43 / 150,
         pinned: true,
+        // 顶栏本身透明：展开时按钮悬浮在头图上，收起后由 flexibleSpace 里的
+        // 渐变蒙层托底，内容从按钮背后经过（与首页玻璃 header 一致）
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
+        // 透明底色会被 AppBar 估成「深色背景」而把状态栏图标设成白色，
+        // 这里按主题明暗显式指定
+        systemOverlayStyle: Theme.of(context).brightness == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        automaticallyImplyLeading: false,
+        leadingWidth: 16 + GlassTokens.pillHeight + 8,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16),
+          child: Center(
+            child: GlassIconButton(
+              standalone: true,
+              icon: const Icon(Icons.arrow_back),
+              tooltip: t.common.back,
+              onPressed: AppService.tryPop,
+            ),
+          ),
+        ),
         actions: [
           // 添加more按钮
           Obx(() {
@@ -532,215 +667,292 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
               );
             }
 
-            // 如果没有可选项，则不显示
-            if (popupMenuItems.isEmpty) {
-              return const SizedBox.shrink();
-            }
-
-            return PopupMenuButton(
-              icon: const Icon(Icons.more_vert),
-              onSelected: (value) {
-                if (value == 'create') {
-                  _showCreatePostDialog();
-                } else if (value == 'message') {
-                  showAppDialog(
-                    NewConversationDialog(
-                      initUserId: profileController.author.value?.id,
-                      onSubmit: () {
-                        NaviService.navigateToConversationPage();
-                      },
+            // 有可选项时显示胶囊，没有时收成 0 宽——用 GlassShapeSwitcher
+            // 让整块 action group 淡入淡出+宽度过渡（未登录访客切换到已登录、
+            // 或作者信息延迟加载时都会命中这次形变）。
+            final Widget content = popupMenuItems.isEmpty
+                ? const KeyedSubtree(
+                    key: ValueKey('actions-empty'),
+                    child: SizedBox.shrink(),
+                  )
+                : Center(
+                    key: const ValueKey('actions-menu'),
+                    child: GlassButtonGroup(
+                      children: [
+                        SizedBox(
+                          width: GlassTokens.groupIconButtonSize,
+                          height: GlassTokens.groupIconButtonSize,
+                          child: PopupMenuButton(
+                            padding: EdgeInsets.zero,
+                            icon: const Icon(
+                              Icons.more_vert,
+                              size: GlassTokens.iconSize,
+                            ),
+                            position: PopupMenuPosition.under,
+                            // 往下挪一点，别压住玻璃胶囊本身
+                            offset: const Offset(0, 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            onSelected: (value) {
+                              if (value == 'create') {
+                                _showCreatePostDialog();
+                              } else if (value == 'message') {
+                                showAppDialog(
+                                  NewConversationDialog(
+                                    initUserId:
+                                        profileController.author.value?.id,
+                                    onSubmit: () {
+                                      NaviService.navigateToConversationPage();
+                                    },
+                                  ),
+                                  barrierDismissible: true,
+                                );
+                              } else if (value == 'share') {
+                                // 分享用户主页
+                                final username =
+                                    profileController.author.value?.username;
+                                if (username != null) {
+                                  showModalBottomSheet(
+                                    backgroundColor: Colors.transparent,
+                                    isScrollControlled: true,
+                                    builder: (context) => ShareUserBottomSheet(
+                                      username: username,
+                                      authorName:
+                                          profileController
+                                              .author
+                                              .value
+                                              ?.name ??
+                                          '',
+                                      previewUrl:
+                                          profileController
+                                              .headerBackgroundUrl
+                                              .value ??
+                                          CommonConstants
+                                              .defaultProfileHeaderUrl,
+                                      avatarUrl: profileController
+                                          .author
+                                          .value
+                                          ?.avatar
+                                          ?.avatarUrl,
+                                      followerCount: profileController
+                                          .followerCounts
+                                          .value,
+                                      followingCount: profileController
+                                          .followingCounts
+                                          .value,
+                                      commentCount: profileController
+                                          .commentController
+                                          .comments
+                                          .value
+                                          .length,
+                                    ),
+                                    context: context,
+                                  );
+                                }
+                              }
+                            },
+                            itemBuilder: (context) => popupMenuItems,
+                          ),
+                        ),
+                      ],
                     ),
-                    barrierDismissible: true,
                   );
-                } else if (value == 'share') {
-                  // 分享用户主页
-                  final username = profileController.author.value?.username;
-                  if (username != null) {
-                    showModalBottomSheet(
-                      backgroundColor: Colors.transparent,
-                      isScrollControlled: true,
-                      builder: (context) => ShareUserBottomSheet(
-                        username: username,
-                        authorName: profileController.author.value?.name ?? '',
-                        previewUrl:
-                            profileController.headerBackgroundUrl.value ??
-                            CommonConstants.defaultProfileHeaderUrl,
-                        avatarUrl:
-                            profileController.author.value?.avatar?.avatarUrl,
-                        followerCount: profileController.followerCounts.value,
-                        followingCount: profileController.followingCounts.value,
-                        commentCount: profileController
-                            .commentController
-                            .comments
-                            .value
-                            .length,
-                      ),
-                      context: context,
-                    );
-                  }
-                }
-              },
-              itemBuilder: (context) => popupMenuItems,
-            );
+            return GlassShapeSwitcher(child: content);
           }),
+          const SizedBox(width: 16),
           // 多选按钮
           // Removed the Obx multi-select button from actions as per instruction.
         ],
-        flexibleSpace: FlexibleSpaceBar(
-          background: Stack(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  // 进入图片详情页
-                  final headerUrl =
-                      profileController.headerBackgroundUrl.value ??
-                      CommonConstants.defaultProfileHeaderUrl;
-                  final headerHeroTag =
-                      'author_header:${profileController.author.value?.id ?? headerUrl}';
-                  ImageItem item = ImageItem(
-                    url: headerUrl,
-                    data: ImageItemData(
-                      id: profileController.author.value?.id ?? '',
-                      url: headerUrl,
-                      originalUrl: headerUrl,
-                    ),
-                  );
-                  final t = slang.Translations.of(context);
-                  final menuItems = [
-                    MenuItem(
-                      title: t.galleryDetail.copyLink,
-                      icon: Icons.copy,
-                      onTap: () => ImageUtils.copyLink(item),
-                    ),
-                    MenuItem(
-                      title: t.galleryDetail.copyImage,
-                      icon: Icons.copy,
-                      onTap: () => ImageUtils.copyImage(item),
-                    ),
-                    if (GetPlatform.isDesktop)
-                      MenuItem(
-                        title: t.galleryDetail.saveAs,
-                        icon: Icons.download,
-                        onTap: () => ImageUtils.downloadImageForDesktop(item),
-                      ),
-                    MenuItem(
-                      title: t.download.saveToAppDirectory,
-                      icon: Icons.save,
-                      onTap: () => ImageUtils.downloadImageToAppDirectory(item),
-                    ),
-                  ];
-                  pushPhotoViewWrapperOverlay(
-                    context: context,
-                    imageItems: [item],
-                    initialIndex: 0,
-                    menuItemsBuilder: (context, item) => menuItems,
-                    heroTagBuilder: (_) => headerHeroTag,
-                  );
-                },
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: Hero(
-                    tag:
-                        'author_header:${profileController.author.value?.id ?? (profileController.headerBackgroundUrl.value ?? CommonConstants.defaultProfileHeaderUrl)}',
-                    child: CachedNetworkImage(
-                      imageUrl:
-                          profileController.headerBackgroundUrl.value ??
-                          CommonConstants.defaultProfileHeaderUrl,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                    ),
-                  ),
-                ),
-              ),
-              // 上次在线时间标签
-              Positioned(
-                right: 8,
-                bottom: 40,
-                child: Obx(() {
-                  final user = profileController.author.value;
-                  if (user == null || user.seenAt == null) {
-                    return const SizedBox.shrink();
-                  }
-                  final t = slang.Translations.of(context);
-                  return Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.access_time,
-                          size: 14,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          t.common.lastSeenAt(
-                            str: CommonUtils.formatFriendlyTimestamp(
-                              user.seenAt,
+        flexibleSpace: LayoutBuilder(
+          builder: (context, constraints) {
+            final double statusBar = MediaQuery.of(context).padding.top;
+            final double minExtent = statusBar + kToolbarHeight;
+            // 只在最后 ~48px 的收起过程中把蒙层淡入，展开时头图上不压蒙层
+            final double scrimOpacity =
+                ((minExtent + 48 - constraints.maxHeight) / 48).clamp(0.0, 1.0);
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                FlexibleSpaceBar(
+                  background: Stack(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          // 进入图片详情页
+                          final headerUrl =
+                              profileController.headerBackgroundUrl.value ??
+                              CommonConstants.defaultProfileHeaderUrl;
+                          final headerHeroTag =
+                              'author_header:${profileController.author.value?.id ?? headerUrl}';
+                          ImageItem item = ImageItem(
+                            url: headerUrl,
+                            data: ImageItemData(
+                              id: profileController.author.value?.id ?? '',
+                              url: headerUrl,
+                              originalUrl: headerUrl,
+                            ),
+                          );
+                          final t = slang.Translations.of(context);
+                          final menuItems = [
+                            MenuItem(
+                              title: t.galleryDetail.copyLink,
+                              icon: Icons.copy,
+                              onTap: () => ImageUtils.copyLink(item),
+                            ),
+                            MenuItem(
+                              title: t.galleryDetail.copyImage,
+                              icon: Icons.copy,
+                              onTap: () => ImageUtils.copyImage(item),
+                            ),
+                            if (GetPlatform.isDesktop)
+                              MenuItem(
+                                title: t.galleryDetail.saveAs,
+                                icon: Icons.download,
+                                onTap: () =>
+                                    ImageUtils.downloadImageForDesktop(item),
+                              ),
+                            MenuItem(
+                              title: t.download.saveToAppDirectory,
+                              icon: Icons.save,
+                              onTap: () =>
+                                  ImageUtils.downloadImageToAppDirectory(item),
+                            ),
+                          ];
+                          pushPhotoViewWrapperOverlay(
+                            context: context,
+                            imageItems: [item],
+                            initialIndex: 0,
+                            menuItemsBuilder: (context, item) => menuItems,
+                            heroTagBuilder: (_) => headerHeroTag,
+                          );
+                        },
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: Hero(
+                            tag:
+                                'author_header:${profileController.author.value?.id ?? (profileController.headerBackgroundUrl.value ?? CommonConstants.defaultProfileHeaderUrl)}',
+                            child: CachedNetworkImage(
+                              imageUrl:
+                                  profileController.headerBackgroundUrl.value ??
+                                  CommonConstants.defaultProfileHeaderUrl,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: double.infinity,
                             ),
                           ),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                          ),
                         ),
-                      ],
+                      ),
+                      // 上次在线时间标签
+                      Positioned(
+                        right: 8,
+                        bottom: 40,
+                        child: Obx(() {
+                          final user = profileController.author.value;
+                          if (user == null || user.seenAt == null) {
+                            return const SizedBox.shrink();
+                          }
+                          final t = slang.Translations.of(context);
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.6),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.access_time,
+                                  size: 14,
+                                  color: Colors.white,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  t.common.lastSeenAt(
+                                    str: CommonUtils.formatFriendlyTimestamp(
+                                      user.seenAt,
+                                    ),
+                                  ),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                      ),
+                      // 加入时间标签
+                      Positioned(
+                        right: 8,
+                        bottom: 8,
+                        child: Obx(() {
+                          if (profileController.author.value?.createdAt ==
+                              null) {
+                            return const SizedBox.shrink();
+                          }
+                          final joinDate =
+                              profileController.author.value!.createdAt;
+                          final t = slang.Translations.of(context);
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.6),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.calendar_today,
+                                  size: 14,
+                                  color: Colors.white,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  t.common.joined(
+                                    str: CommonUtils.formatFriendlyTimestamp(
+                                      joinDate,
+                                    ),
+                                  ),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
+                ),
+                if (scrimOpacity > 0)
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: Opacity(
+                      opacity: scrimOpacity,
+                      child: EdgeFadeScrim.top(
+                        // smoothstep 在 height 处刚好衰减到 0，不会出现硬边
+                        height: minExtent,
+                        solidExtent: statusBar,
+                      ),
                     ),
-                  );
-                }),
-              ),
-              // 加入时间标签
-              Positioned(
-                right: 8,
-                bottom: 8,
-                child: Obx(() {
-                  if (profileController.author.value?.createdAt == null) {
-                    return const SizedBox.shrink();
-                  }
-                  final joinDate = profileController.author.value!.createdAt;
-                  final t = slang.Translations.of(context);
-                  return Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.calendar_today,
-                          size: 14,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          t.common.joined(
-                            str: CommonUtils.formatFriendlyTimestamp(joinDate),
-                          ),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              ),
-            ],
-          ),
+                  ),
+              ],
+            );
+          },
         ),
       ),
       // 用户信息
@@ -1190,163 +1402,274 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
 
   Widget _buildTabBarView(BuildContext context, {bool isWideScreen = true}) {
     final t = slang.Translations.of(context);
-    return Stack(
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            isWideScreen ? TopPaddingHeightWidget() : const SizedBox.shrink(),
-            MouseRegion(
-              child: Listener(
-                onPointerSignal: (pointerSignal) {
-                  if (pointerSignal is PointerScrollEvent) {
-                    _handleScroll(pointerSignal.scrollDelta.dy);
-                  }
+    // 主 Tab 行悬浮在各 tab 列表之上（宽屏时它上方还有状态栏）；
+    // 各 tab 自己再把排序行叠在它下面，并用 paddingTop 让出这两行。
+    final double headerTop = isWideScreen
+        ? MediaQuery.of(context).padding.top
+        : 0.0;
+    const double primaryRowHeight = GlassTokens.pillHeight + 16;
+    final double overlayTopInset = headerTop + primaryRowHeight;
+    final double scrimSolidExtent = headerTop;
+    // 宽屏时本 Stack 在 Row/Expanded 下拿到的是「高度松约束」，需要
+    // StackFit.expand 才能撑满可用空间。
+    return BatchDownloadSelectionScope(
+      // 视频 / 图库两个控制器只广播当前 tab 那一个
+      controllers: [_videoBatchController, _imageBatchController],
+      activeIndex: () => primaryTC.index,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned.fill(
+            child: TabBarView(
+              controller: primaryTC,
+              children: <Widget>[
+                Obx(
+                  () => profileController.author.value?.id != null
+                      ? ProfileVideoTabListWidget(
+                          key: _videoTabKey,
+                          userId: profileController.author.value!.id,
+                          tabKey: t.common.video,
+                          tc: videoSecondaryTC,
+                          overlayTopInset: overlayTopInset,
+                          scrimSolidExtent: scrimSolidExtent,
+                          onFetchFinished: ({int? count}) {},
+                          isMultiSelectMode:
+                              _videoBatchController.isMultiSelect.value,
+                          selectedItemIds:
+                              _videoBatchController.selectedMediaIds,
+                          onItemSelect: (video) =>
+                              _videoBatchController.toggleSelection(video),
+                          onPageChanged: () {
+                            _videoBatchController.onPageChanged();
+                            _scrollToTop();
+                          },
+                          isPaginated: _isPaginated.value,
+                          onPaginationToggle: _togglePaginationMode,
+                          onMultiSelectToggle: () =>
+                              _videoBatchController.toggleMultiSelect(),
+                          onOpenVideo: _openVideoFromAuthorProfile,
+                        )
+                      : const SizedBox.shrink(),
+                ),
+                Obx(
+                  () => profileController.author.value?.id != null
+                      ? ProfileImageModelTabListWidget(
+                          key: _imageTabKey,
+                          userId: profileController.author.value!.id,
+                          tabKey: t.common.gallery,
+                          tc: imageSecondaryTC,
+                          overlayTopInset: overlayTopInset,
+                          scrimSolidExtent: scrimSolidExtent,
+                          onFetchFinished: ({int? count}) {},
+                          isMultiSelectMode:
+                              _imageBatchController.isMultiSelect.value,
+                          selectedItemIds:
+                              _imageBatchController.selectedMediaIds,
+                          onItemSelect: (image) =>
+                              _imageBatchController.toggleSelection(image),
+                          onPageChanged: () {
+                            _imageBatchController.onPageChanged();
+                            _scrollToTop();
+                          },
+                          isPaginated: _isPaginated.value,
+                          onPaginationToggle: _togglePaginationMode,
+                          onMultiSelectToggle: () =>
+                              _imageBatchController.toggleMultiSelect(),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+                Obx(
+                  () => profileController.author.value?.id != null
+                      ? ProfilePlaylistTabListWidget(
+                          overlayTopInset: overlayTopInset,
+                          scrimSolidExtent: scrimSolidExtent,
+                          key: _playlistTabKey,
+                          userId: profileController.author.value!.id,
+                          tabKey: t.common.playlist,
+                          tc: playlistSecondaryTC,
+                          onFetchFinished: ({int? count}) {},
+                          isPaginated: _isPaginated.value,
+                          onPaginationToggle: _togglePaginationMode,
+                          onPageChanged: _scrollToTop,
+                        )
+                      : const SizedBox.shrink(),
+                ),
+                Obx(
+                  () => profileController.author.value?.id != null
+                      ? ProfilePostTabListWidget(
+                          overlayTopInset: overlayTopInset,
+                          scrimSolidExtent: scrimSolidExtent,
+                          key: _postListKey,
+                          widgetKey: _postListKey,
+                          userId: profileController.author.value!.id,
+                          tabKey: t.common.post,
+                          tc: postSecondaryTC,
+                          isPaginated: _isPaginated.value,
+                          onPaginationToggle: _togglePaginationMode,
+                          onPageChanged: _scrollToTop,
+                        )
+                      : const SizedBox.shrink(),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: headerTop,
+            left: 0,
+            right: 0,
+            height: primaryRowHeight,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              // 空间够就平铺分段胶囊，不够（露不出 2.5 个完整段）退化成
+              // 下拉钮——阈值与订阅页/热门列表页的子栏目胶囊共用同一约定
+              // （见 GlassSegmentedControl.minWidthFor）。
+              child: LayoutBuilder(
+                builder: (context, rowConstraints) {
+                  final primaryTabItems = [
+                    GlassSegmentItem(
+                      label: t.common.video,
+                      icon: const Icon(Icons.video_collection),
+                    ),
+                    GlassSegmentItem(
+                      label: t.common.gallery,
+                      icon: const Icon(Icons.image),
+                    ),
+                    GlassSegmentItem(
+                      label: t.common.playlist,
+                      icon: const Icon(Icons.playlist_play),
+                    ),
+                    GlassSegmentItem(
+                      label: t.common.post,
+                      icon: const Icon(Icons.article),
+                    ),
+                  ];
+                  final bool useSegmented =
+                      rowConstraints.maxWidth >=
+                      GlassSegmentedControl.minWidthFor(
+                        context,
+                        primaryTabItems,
+                      );
+                  return Align(
+                    alignment: Alignment.centerLeft,
+                    child: Obx(() {
+                      // 选择态下这只胶囊改报「已选 N 项」：进选择态是一次页面级
+                      // 的模式切换，header 不该毫无反应。
+                      // 两个控制器的 Rx 都要在分支之外读一次：播放列表 / 帖子 tab
+                      // 上 batch 为 null，那一支不碰可观察量会让 Obx 抛 ObxError。
+                      final bool videoSelecting =
+                          _videoBatchController.isMultiSelect.value;
+                      final bool imageSelecting =
+                          _imageBatchController.isMultiSelect.value;
+                      final batch = primaryTC.index == 0
+                          ? _videoBatchController
+                          : (primaryTC.index == 1
+                                ? _imageBatchController
+                                : null);
+                      final bool selecting = primaryTC.index == 0
+                          ? videoSelecting
+                          : (primaryTC.index == 1 ? imageSelecting : false);
+                      if (batch != null && selecting) {
+                        return GlassCapsuleMorph(
+                          child: SizedBox(
+                            key: const ValueKey('selection'),
+                            width: 168,
+                            child: GlassSelectionSummary(
+                              selectedCount: batch.selectedCount,
+                              allSelected: false,
+                              // 懒加载列表够不到未加载的部分，不给全选
+                              onToggleAll: null,
+                            ),
+                          ),
+                        );
+                      }
+                      return GlassCapsuleMorph(
+                        child: useSegmented
+                            ? GlassSegmentedControl(
+                                key: const ValueKey('segmented'),
+                                flat: true,
+                                selectedIndex: primaryTC.index,
+                                progress: primaryTC.animation,
+                                onChanged: primaryTC.animateTo,
+                                items: primaryTabItems,
+                              )
+                            : KeyedSubtree(
+                                key: const ValueKey('dropdown'),
+                                child: _buildPrimaryTabDropdown(
+                                  context,
+                                  primaryTabItems,
+                                ),
+                              ),
+                      );
+                    }),
+                  );
                 },
-                child: SingleChildScrollView(
-                  controller: _tabBarScrollController,
-                  scrollDirection: Axis.horizontal,
-                  physics: const ClampingScrollPhysics(),
-                  child: Row(
-                    children: [
-                      TabBar(
-                        isScrollable: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        overlayColor: WidgetStateProperty.all(
-                          Colors.transparent,
-                        ),
-                        tabAlignment: TabAlignment.start,
-                        dividerColor: Colors.transparent,
-                        controller: primaryTC,
-                        tabs: [
-                          Tab(
-                            child: Row(
-                              children: [
-                                const Icon(Icons.video_collection),
-                                const SizedBox(width: 8),
-                                Text(t.common.video),
-                              ],
-                            ),
-                          ),
-                          Tab(
-                            child: Row(
-                              children: [
-                                const Icon(Icons.image),
-                                const SizedBox(width: 8),
-                                Text(t.common.gallery),
-                              ],
-                            ),
-                          ),
-                          Tab(
-                            child: Row(
-                              children: [
-                                const Icon(Icons.playlist_play),
-                                const SizedBox(width: 8),
-                                Text(t.common.playlist),
-                              ],
-                            ),
-                          ),
-                          Tab(
-                            child: Row(
-                              children: [
-                                const Icon(Icons.article),
-                                const SizedBox(width: 8),
-                                Text(t.common.post),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+              ),
+            ),
+          ),
+          // 批量动作：瀑布流模式下的底部玻璃坞；分页模式下动作行由分页栏
+          // 自己承载（见 BatchSelectionScope），底部不会出现第二条玻璃。
+          Obx(() => GlassSelectionDock(paginated: _isPaginated.value)),
+        ],
+      ),
+    );
+  }
+
+  /// 过窄时的主 Tab 入口：下拉菜单（代替分段胶囊）。
+  /// 只渲染「文字 + 箭头」的无壳内容，玻璃壳由外层 GlassCapsuleMorph 提供。
+  ///
+  /// 文案接 `primaryTC.animation`：横滑 TabBarView 时跟着手指一格一格
+  /// 翻页（见 [GlassFlipLabel]），不是等滑完才换字。
+  Widget _buildPrimaryTabDropdown(
+    BuildContext context,
+    List<GlassSegmentItem> items,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final index = primaryTC.index;
+    return PopupMenuButton<int>(
+      initialValue: index,
+      onSelected: (newIndex) => primaryTC.animateTo(newIndex),
+      position: PopupMenuPosition.under,
+      // 往下挪一点，别压住玻璃胶囊本身
+      offset: const Offset(0, 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: SizedBox(
+        height: GlassTokens.pillHeight,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 14, right: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GlassFlipLabel(
+                progress: primaryTC.animation!,
+                labels: [for (final item in items) item.label],
+                style: TextStyle(
+                  color: colorScheme.onSurface,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-            ),
-            Expanded(
-              child: TabBarView(
-                controller: primaryTC,
-                children: <Widget>[
-                  Obx(
-                    () => profileController.author.value?.id != null
-                        ? ProfileVideoTabListWidget(
-                            key: _videoTabKey,
-                            userId: profileController.author.value!.id,
-                            tabKey: t.common.video,
-                            tc: videoSecondaryTC,
-                            onFetchFinished: ({int? count}) {},
-                            isMultiSelectMode:
-                                _videoBatchController.isMultiSelect.value,
-                            selectedItemIds:
-                                _videoBatchController.selectedMediaIds,
-                            onItemSelect: (video) =>
-                                _videoBatchController.toggleSelection(video),
-                            onPageChanged: () =>
-                                _videoBatchController.onPageChanged(),
-                            onMultiSelectToggle: () =>
-                                _videoBatchController.toggleMultiSelect(),
-                            onOpenVideo: _openVideoFromAuthorProfile,
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-                  Obx(
-                    () => profileController.author.value?.id != null
-                        ? ProfileImageModelTabListWidget(
-                            key: _imageTabKey,
-                            userId: profileController.author.value!.id,
-                            tabKey: t.common.gallery,
-                            tc: imageSecondaryTC,
-                            onFetchFinished: ({int? count}) {},
-                            isMultiSelectMode:
-                                _imageBatchController.isMultiSelect.value,
-                            selectedItemIds:
-                                _imageBatchController.selectedMediaIds,
-                            onItemSelect: (image) =>
-                                _imageBatchController.toggleSelection(image),
-                            onPageChanged: () =>
-                                _imageBatchController.onPageChanged(),
-                            onMultiSelectToggle: () =>
-                                _imageBatchController.toggleMultiSelect(),
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-                  Obx(
-                    () => profileController.author.value?.id != null
-                        ? ProfilePlaylistTabListWidget(
-                            key: _playlistTabKey,
-                            userId: profileController.author.value!.id,
-                            tabKey: t.common.playlist,
-                            tc: playlistSecondaryTC,
-                            onFetchFinished: ({int? count}) {},
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-                  Obx(
-                    () => profileController.author.value?.id != null
-                        ? ProfilePostTabListWidget(
-                            key: _postListKey,
-                            widgetKey: _postListKey,
-                            userId: profileController.author.value!.id,
-                            tabKey: t.common.post,
-                            tc: postSecondaryTC,
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-                ],
+              Icon(
+                Icons.arrow_drop_down,
+                size: 22,
+                color: colorScheme.onSurface,
               ),
+            ],
+          ),
+        ),
+      ),
+      itemBuilder: (context) => [
+        for (var i = 0; i < items.length; i++)
+          PopupMenuItem<int>(
+            value: i,
+            child: Row(
+              children: [
+                Text(items[i].label),
+                if (i == index) ...[
+                  const Spacer(),
+                  Icon(Icons.check, size: 18, color: colorScheme.primary),
+                ],
+              ],
             ),
-          ],
-        ),
-        // 批量下载悬浮按钮
-        BatchActionFabColumn<Video>(
-          controller: _videoBatchController,
-          heroTagPrefix: 'author_profile_video_$uniqueTag',
-          visible: () => primaryTC.index == 0,
-        ),
-        BatchActionFabColumn<ImageModel>(
-          controller: _imageBatchController,
-          heroTagPrefix: 'author_profile_image_$uniqueTag',
-          visible: () => primaryTC.index == 1,
-        ),
+          ),
       ],
     );
   }
@@ -1375,12 +1698,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
           if (!mounted) return;
 
           if (result.isSuccess) {
-            showToastWidget(
-              MDToastWidget(
-                message: t.common.success,
-                type: MDToastType.success,
-              ),
-            );
+            showGlassToast(t.common.success, type: GlassToastType.success);
             AppService.tryPop();
             // 帖子列表是本页的「后代」而非「祖先」，原先用
             // context.findAncestorWidgetOfExactType() 取它恒为 null，
@@ -1415,18 +1733,11 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                   timeStr += t.errors.remainingSeconds(num: seconds);
                 }
 
-                showToastWidget(
-                  MDToastWidget(
-                    message: timeStr.trim(),
-                    type: MDToastType.error,
-                  ),
-                );
+                showGlassToast(timeStr.trim(), type: GlassToastType.error);
               }
             }
           } else {
-            showToastWidget(
-              MDToastWidget(message: result.message, type: MDToastType.error),
-            );
+            showGlassToast(result.message, type: GlassToastType.error);
           }
         },
       ),

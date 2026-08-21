@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/sign_in/widgets/sign_in_heatmap_widget.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:oktoast/oktoast.dart';
-
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 
 import '../../../services/user_service.dart';
 import '../../../services/login_service.dart';
@@ -54,7 +52,11 @@ class _SignInPageState extends State<SignInPage> {
     if (picked != null) {
       // 确保日期范围不超过1年
       if (picked.end.difference(picked.start).inDays > 365) {
-        showToastWidget(MDToastWidget(message: slang.t.signIn.dateRangeCantBeMoreThanOneYear, type: MDToastType.error), position: ToastPosition.bottom);
+        showGlassToast(
+          slang.t.signIn.dateRangeCantBeMoreThanOneYear,
+          type: GlassToastType.error,
+          position: GlassToastPosition.bottom,
+        );
         return;
       }
       setState(() {
@@ -114,7 +116,9 @@ class _SignInPageState extends State<SignInPage> {
                         label: Text(t.auth.login),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 32, vertical: 16),
+                            horizontal: 32,
+                            vertical: 16,
+                          ),
                         ),
                       ),
                     ],
@@ -138,15 +142,9 @@ class _SignInPageState extends State<SignInPage> {
                     return Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Flexible(
-                          flex: 2,
-                          child: _buildMainContent(context),
-                        ),
+                        Flexible(flex: 2, child: _buildMainContent(context)),
                         const SizedBox(width: 24),
-                        Flexible(
-                          flex: 3,
-                          child: _buildHeatMapCard(context),
-                        ),
+                        Flexible(flex: 3, child: _buildHeatMapCard(context)),
                       ],
                     );
                   }
@@ -176,14 +174,16 @@ class _SignInPageState extends State<SignInPage> {
           children: [
             if (!controller.hasSignedInToday.value)
               ElevatedButton.icon(
-                      onPressed: _showSignInDialog,
-                      icon: const Icon(Icons.check_circle_outline),
-                      label: Text(t.signIn.signIn),
-                      style: ElevatedButton.styleFrom(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                      ),
-                    ),
+                onPressed: _showSignInDialog,
+                icon: const Icon(Icons.check_circle_outline),
+                label: Text(t.signIn.signIn),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 16,
+                  ),
+                ),
+              ),
             const SizedBox(height: 16),
             if (useVerticalLayout)
               Column(
@@ -254,10 +254,8 @@ class _SignInPageState extends State<SignInPage> {
             const SizedBox(height: 16),
             SignInHeatMap(
               signInStatus: controller.signInStatus.map(
-                (key, value) => MapEntry(
-                  DateTime(key.year, key.month, key.day),
-                  value,
-                ),
+                (key, value) =>
+                    MapEntry(DateTime(key.year, key.month, key.day), value),
               ),
               consecutiveSignIns: controller.consecutiveSignIns.value,
               startDate: startDate,
@@ -287,10 +285,7 @@ class _SignInPageState extends State<SignInPage> {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 4),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
+            Text(title, style: Theme.of(context).textTheme.titleSmall),
           ],
         ),
       ),
@@ -298,7 +293,10 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   void _showSignInDialog() {
-    showAppDialog(SignInDialog(controller: controller), barrierDismissible: false);
+    showAppDialog(
+      SignInDialog(controller: controller),
+      barrierDismissible: false,
+    );
   }
 }
 

@@ -118,7 +118,11 @@ class SetupStepFactory {
   }
 
   // 私有构建方法
-  static Widget _buildWelcomeStep(BuildContext context, bool isDesktop, bool isNarrow) {
+  static Widget _buildWelcomeStep(
+    BuildContext context,
+    bool isDesktop,
+    bool isNarrow,
+  ) {
     return WelcomeStepWidget(
       title: slang.t.firstTimeSetup.welcome.title,
       subtitle: slang.t.firstTimeSetup.welcome.subtitle,
@@ -127,7 +131,11 @@ class SetupStepFactory {
     );
   }
 
-  static Widget _buildBasicSettingsStep(BuildContext context, bool isDesktop, bool isNarrow) {
+  static Widget _buildBasicSettingsStep(
+    BuildContext context,
+    bool isDesktop,
+    bool isNarrow,
+  ) {
     return BasicSettingsStepWidget(
       title: slang.t.firstTimeSetup.basic.title,
       subtitle: slang.t.firstTimeSetup.basic.subtitle,
@@ -136,7 +144,11 @@ class SetupStepFactory {
     );
   }
 
-  static Widget _buildNetworkSettingsStep(BuildContext context, bool isDesktop, bool isNarrow) {
+  static Widget _buildNetworkSettingsStep(
+    BuildContext context,
+    bool isDesktop,
+    bool isNarrow,
+  ) {
     return NetworkSettingsStepWidget(
       title: slang.t.firstTimeSetup.network.title,
       subtitle: slang.t.firstTimeSetup.network.subtitle,
@@ -145,7 +157,11 @@ class SetupStepFactory {
     );
   }
 
-  static Widget _buildThemeStep(BuildContext context, bool isDesktop, bool isNarrow) {
+  static Widget _buildThemeStep(
+    BuildContext context,
+    bool isDesktop,
+    bool isNarrow,
+  ) {
     return ThemeStepWidget(
       title: slang.t.firstTimeSetup.theme.title,
       subtitle: slang.t.firstTimeSetup.theme.subtitle,
@@ -154,7 +170,11 @@ class SetupStepFactory {
     );
   }
 
-  static Widget _buildPlayerSettingsStep(BuildContext context, bool isDesktop, bool isNarrow) {
+  static Widget _buildPlayerSettingsStep(
+    BuildContext context,
+    bool isDesktop,
+    bool isNarrow,
+  ) {
     return PlayerSettingsStepWidget(
       title: slang.t.firstTimeSetup.player.title,
       subtitle: slang.t.firstTimeSetup.player.subtitle,
@@ -163,7 +183,11 @@ class SetupStepFactory {
     );
   }
 
-  static Widget _buildCompletionStep(BuildContext context, bool isDesktop, bool isNarrow) {
+  static Widget _buildCompletionStep(
+    BuildContext context,
+    bool isDesktop,
+    bool isNarrow,
+  ) {
     return CompletionStepWidget(
       title: slang.t.firstTimeSetup.completion.title,
       subtitle: slang.t.firstTimeSetup.completion.subtitle,

@@ -40,8 +40,9 @@ class AnimatedGestureIllustration extends StatelessWidget {
     // 深色画面上的强调色：主题 primary 提亮，保证对比度。
     final Color accent = Color.lerp(cs.primary, Colors.white, 0.5)!;
     // 键盘卡按用户真实配置的快捷键展示（每次外层重建时取一次，不逐帧取）。
-    final _KeyLabels? keyLabels =
-        visual == GestureVisual.keys ? _resolveKeyLabels() : null;
+    final _KeyLabels? keyLabels = visual == GestureVisual.keys
+        ? _resolveKeyLabels()
+        : null;
     return LayoutBuilder(
       builder: (context, c) {
         final double w = c.maxWidth;
@@ -408,7 +409,11 @@ class _Painter {
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
-                  colors: [Color(0xFFFFE0B0), Color(0x66FFD8A8), Color(0x00FFD8A8)],
+                  colors: [
+                    Color(0xFFFFE0B0),
+                    Color(0x66FFD8A8),
+                    Color(0x00FFD8A8),
+                  ],
                   stops: [0, .5, 1],
                 ),
               ),
@@ -455,10 +460,7 @@ class _Painter {
             children: [
               const Icon(Icons.arrow_back_ios_new, size: 11, color: _dim),
               const SizedBox(width: 6),
-              Text(
-                '示例视频',
-                style: TextStyle(color: _dim, fontSize: 9.5),
-              ),
+              Text('示例视频', style: TextStyle(color: _dim, fontSize: 9.5)),
               const Spacer(),
               const Icon(Icons.more_vert, size: 12, color: _dim),
             ],
@@ -478,57 +480,61 @@ class _Painter {
         duration: const Duration(milliseconds: 200),
         opacity: visible ? 1 : 0,
         child: Container(
-        height: _barH,
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-            colors: [Color(0x99000000), Color(0x00000000)],
+          height: _barH,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+              colors: [Color(0x99000000), Color(0x00000000)],
+            ),
           ),
-        ),
-        child: Row(
-          children: [
-            Icon(playing ? Icons.play_arrow : Icons.pause, size: 13, color: _dim),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Stack(
-                alignment: Alignment.centerLeft,
-                children: [
-                  Container(
-                    height: 2.5,
-                    decoration: BoxDecoration(
-                      color: Colors.white24,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  FractionallySizedBox(
-                    widthFactor: progress.clamp(0.0, 1.0),
-                    child: Container(
+          child: Row(
+            children: [
+              Icon(
+                playing ? Icons.play_arrow : Icons.pause,
+                size: 13,
+                color: _dim,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Stack(
+                  alignment: Alignment.centerLeft,
+                  children: [
+                    Container(
                       height: 2.5,
                       decoration: BoxDecoration(
-                        color: _mediaAccent,
+                        color: Colors.white24,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-                  ),
-                  Align(
-                    alignment: Alignment(progress.clamp(0.0, 1.0) * 2 - 1, 0),
-                    child: Container(
-                      width: 7,
-                      height: 7,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _mediaAccentStrong,
+                    FractionallySizedBox(
+                      widthFactor: progress.clamp(0.0, 1.0),
+                      child: Container(
+                        height: 2.5,
+                        decoration: BoxDecoration(
+                          color: _mediaAccent,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                    Align(
+                      alignment: Alignment(progress.clamp(0.0, 1.0) * 2 - 1, 0),
+                      child: Container(
+                        width: 7,
+                        height: 7,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: _mediaAccentStrong,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-          ],
-        ),
+              const SizedBox(width: 8),
+            ],
+          ),
         ),
       ),
     );
@@ -699,10 +705,7 @@ class _Painter {
               children: [
                 Icon(icon, color: accent, size: 22),
                 const SizedBox(height: 3),
-                Text(
-                  label,
-                  style: const TextStyle(color: _dim, fontSize: 8.5),
-                ),
+                Text(label, style: const TextStyle(color: _dim, fontSize: 8.5)),
               ],
             ),
           ),
@@ -745,7 +748,9 @@ class _Painter {
         child: Icon(
           Icons.chevron_right,
           size: 12,
-          color: Colors.white.withValues(alpha: (0.25 + 0.75 * wave).clamp(0.0, 1.0)),
+          color: Colors.white.withValues(
+            alpha: (0.25 + 0.75 * wave).clamp(0.0, 1.0),
+          ),
         ),
       );
     });
@@ -833,10 +838,7 @@ class _Painter {
                   const SizedBox(height: 6),
                   Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: [
-                      chip(kl.speedDown, 3),
-                      chip(kl.speedUp, 4),
-                    ],
+                    children: [chip(kl.speedDown, 3), chip(kl.speedUp, 4)],
                   ),
                 ],
               ),
@@ -868,7 +870,10 @@ class _Painter {
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(7),
-                  border: Border.all(color: on ? accent : Colors.white38, width: 1.2),
+                  border: Border.all(
+                    color: on ? accent : Colors.white38,
+                    width: 1.2,
+                  ),
                   color: on ? accent.withValues(alpha: 0.22) : Colors.white10,
                 ),
                 child: Text(

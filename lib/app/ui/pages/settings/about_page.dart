@@ -9,8 +9,9 @@ import 'package:i_iwara/utils/common_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
-import 'package:i_iwara/app/ui/pages/settings/history_update_logs_page.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/pages/settings/settings_navigation.dart';
+import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';
 
 class AboutPage extends StatefulWidget {
   final bool isWideScreen;
@@ -298,12 +299,7 @@ class _AboutPageState extends State<AboutPage> {
         title: Text(t.settings.historyUpdateLogs),
         trailing: const Icon(Icons.chevron_right),
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const HistoryUpdateLogsPage(),
-            ),
-          );
+          SettingsNavigation.openSubPage(SettingsSubRoutes.aboutChangelog);
         },
       ),
     );
@@ -363,27 +359,22 @@ class _AboutPageState extends State<AboutPage> {
     final t = slang.Translations.of(context);
     final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
 
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          BlurredSliverAppBar(
-            title: t.settings.about,
-            isWideScreen: widget.isWideScreen,
+    return GlassSettingsScaffold(
+      title: t.settings.about,
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.all(16),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              _buildAppInfoSection(),
+              _buildUpdateSection(),
+              _buildHistoryUpdatesSection(),
+              _buildLinksSection(),
+              SizedBox(height: bottomInset),
+            ]),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _buildAppInfoSection(),
-                _buildUpdateSection(),
-                _buildHistoryUpdatesSection(),
-                _buildLinksSection(),
-                SizedBox(height: bottomInset),
-              ]),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

@@ -27,11 +27,16 @@ class MigrationV7ConfigStorage extends Migration {
         try {
           final storedValue = storage.readData(key.key);
           if (storedValue != null) {
-            String valueStr = storedValue is List ? jsonEncode(storedValue) : storedValue.toString();
-            db.execute('''
+            String valueStr = storedValue is List
+                ? jsonEncode(storedValue)
+                : storedValue.toString();
+            db.execute(
+              '''
               INSERT OR REPLACE INTO app_config (key, value)
               VALUES (?, ?)
-            ''', [key.key, valueStr]);
+            ''',
+              [key.key, valueStr],
+            );
           }
         } catch (e) {
           // 如果某个配置项处理失败，记录日志但继续处理其他配置项

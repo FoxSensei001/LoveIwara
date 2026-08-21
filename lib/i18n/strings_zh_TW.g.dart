@@ -287,6 +287,8 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get paused => '已暫停';
 	@override String get clear => '清除';
 	@override String get clearSelection => '清空選擇';
+	@override String get selectItemsToContinue => '選擇項目以繼續';
+	@override String andMoreItems({required Object num}) => '還有 ${num} 項';
 	@override String get batchDelete => '批量刪除';
 	@override String get user => '使用者';
 	@override String get post => '投稿';
@@ -358,14 +360,17 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String deleteRecordsInDateRangeConfirm({required Object num}) => '確定要刪除該時間範圍內的 ${num} 條歷史紀錄嗎？此操作無法復原。';
 	@override String get noHistoryRecordsInRange => '該時間範圍內沒有歷史紀錄';
 	@override String get followSuccessClickAgainToSpecialFollow => '已成功關注，再次點擊以特別關注';
-	@override String get specialFollowTip => '已加入特別關注，可在訂閱頁左上角的選擇框中切換到TA，快速查看更新';
+	@override String get specialFollowTip => '已加入特別關注，可在訂閱頁右上角的選擇框中切換到TA，快速查看更新';
 	@override String get exitConfirmTip => '確定要退出嗎？';
 	@override String get error => '錯誤';
 	@override String get taskRunning => '任務正在進行中，請稍後再試。';
 	@override String get operationCancelled => '操作已取消。';
 	@override String get unsavedChanges => '您有未儲存的更改';
-	@override String get specialFollowsManagementTip => '拖動可重新排序 • 向左滑動可移除';
+	@override String get specialFollowsManagementTip => '拖動手柄可重新排序 • 點右側按鈕可移除';
 	@override String get specialFollowsManagement => '特別關注管理';
+	@override String get removeSpecialFollow => '移除特別關注';
+	@override String removeSpecialFollowConfirm({required Object name}) => '確定要將 ${name} 從特別關注中移除嗎？';
+	@override String get noSpecialFollows => '還沒有特別關注的作者';
 	@override String get createTimeDesc => '建立時間倒序';
 	@override String get createTimeAsc => '建立時間正序';
 	@override late final _TranslationsCommonPaginationZhTw pagination = _TranslationsCommonPaginationZhTw._(_root);
@@ -377,6 +382,7 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get tagOriginalKey => '原始標籤';
 	@override String get tagTranslation => '譯文';
 	@override String get copy => '複製';
+	@override String get selectCopy => '選擇複製';
 	@override String get copiedToClipboard => '已複製到剪貼簿';
 	@override String get showOriginalTag => '顯示原始標籤';
 	@override String get showTranslatedTag => '顯示譯文';
@@ -533,6 +539,10 @@ class _TranslationsFavoritesZhTw implements TranslationsFavoritesEn {
 	// Translations
 	@override String get clickToRestoreFavorite => '點擊復原最愛';
 	@override String get myFavorites => '我的最愛';
+	@override String get batchCancelFavorite => '批次取消最愛';
+	@override String batchCancelFavoriteConfirm({required Object count}) => '確定要取消選取的 ${count} 項最愛嗎？取消後可以在列表中點擊卡片復原。';
+	@override String batchCancelFavoriteSuccess({required Object count}) => '已取消 ${count} 項最愛';
+	@override String batchCancelFavoriteResult({required Object success, required Object failed}) => '已取消 ${success} 項，${failed} 項失敗';
 }
 
 // Path: galleryDetail
@@ -745,6 +755,7 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get privacy => '隱私';
 	@override String get forum => '論壇';
 	@override String get news => '新聞';
+	@override String get community => '社群';
 	@override String get disableForumReplyQuote => '停用論壇回覆引用';
 	@override String get disableForumReplyQuoteDesc => '停用論壇回覆時攜帶被回覆樓層資訊';
 	@override String get theaterMode => '劇院模式';
@@ -760,6 +771,7 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get useDynamicColorDesc => '此配置決定應用是否使用動態顏色';
 	@override String get presetColors => '預設顏色';
 	@override String get customColors => '自訂顏色';
+	@override String get customColorsDisabledByDynamicColor => '已開啟動態顏色，預設/自訂顏色暫不可用，請先關閉動態顏色';
 	@override String get pickColor => '選擇顏色';
 	@override String get cancel => '取消';
 	@override String get confirm => '確認';
@@ -1248,6 +1260,7 @@ class _TranslationsConversationZhTw implements TranslationsConversationEn {
 	@override String get deleteThisMessage => '刪除此消息';
 	@override String get deleteThisMessageSubtitle => '此操作不可復原';
 	@override String get writeMessageHere => '在此處輸入消息';
+	@override String get lastMessageFromMe => '我：';
 	@override String get sendMessage => '發送消息';
 }
 
@@ -1341,6 +1354,10 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	@override String get clearFilters => '清除篩選';
 	@override String get pauseAll => '全部暫停';
 	@override String get resumeAll => '全部開始';
+	@override late final _TranslationsDownloadErrorTypesZhTw errorTypes = _TranslationsDownloadErrorTypesZhTw._(_root);
+	@override String get errorDetailCopied => '已複製錯誤詳情';
+	@override String get errorDetailCopyHint => '長按複製錯誤詳情';
+	@override late final _TranslationsDownloadRestoredPausedZhTw restoredPaused = _TranslationsDownloadRestoredPausedZhTw._(_root);
 	@override String get emptyTaskList => '暫無下載任務';
 	@override String get noMatchingTasks => '沒有符合的任務';
 	@override late final _TranslationsDownloadDeleteByDateZhTw deleteByDate = _TranslationsDownloadDeleteByDateZhTw._(_root);
@@ -1412,6 +1429,11 @@ class _TranslationsFavoriteZhTw implements TranslationsFavoriteEn {
 	@override String get editFolderSuccess => '資料夾更新成功';
 	@override String get editFolderFailed => '資料夾更新失敗';
 	@override String get searchTags => '搜尋標籤';
+	@override String get noTagsInFolder => '本收藏夾內的作品還沒有標籤';
+	@override String get tagFilterMatchAll => '僅顯示同時包含全部所選標籤的作品';
+	@override String get clearSelectedTags => '清除已選標籤';
+	@override String selectedTagCount({required Object count}) => '已選 ${count} 個';
+	@override String get noMatchingTags => '沒有符合的標籤';
 }
 
 // Path: translation
@@ -1992,6 +2014,7 @@ class _TranslationsNavigationOrderSettingsZhTw implements TranslationsNavigation
 	@override String get subscriptionDescription => '查看追蹤使用者的最新內容';
 	@override String get forumDescription => '參與社群討論';
 	@override String get newsDescription => '瀏覽官方新聞、文章與公告廣播';
+	@override String get communityDescription => '論壇討論與官方新聞、文章、公告廣播';
 }
 
 // Path: news
@@ -3070,6 +3093,35 @@ class _TranslationsDownloadErrorsZhTw implements TranslationsDownloadErrorsEn {
 	@override String get imageLoadFailed => '圖片載入失敗';
 }
 
+// Path: download.errorTypes
+class _TranslationsDownloadErrorTypesZhTw implements TranslationsDownloadErrorTypesEn {
+	_TranslationsDownloadErrorTypesZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get network => '網路異常，可重試';
+	@override String get serverRejected => '伺服器拒絕，可能需要重新登入';
+	@override String get notFound => '資源已失效或被刪除';
+	@override String get diskFull => '儲存空間不足';
+	@override String get fileInUse => '檔案被其他程式佔用';
+	@override String get permission => '沒有寫入權限';
+	@override String get cancelled => '已取消';
+	@override String get unknown => '未知錯誤';
+}
+
+// Path: download.restoredPaused
+class _TranslationsDownloadRestoredPausedZhTw implements TranslationsDownloadRestoredPausedEn {
+	_TranslationsDownloadRestoredPausedZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String banner({required Object num}) => '上次離開時有 ${num} 個任務未完成，已暫停';
+	@override String get resume => '全部繼續';
+	@override String get dismiss => '忽略';
+}
+
 // Path: download.deleteByDate
 class _TranslationsDownloadDeleteByDateZhTw implements TranslationsDownloadDeleteByDateEn {
 	_TranslationsDownloadDeleteByDateZhTw._(this._root);
@@ -3557,6 +3609,8 @@ extension on TranslationsZhTw {
 			'common.paused' => '已暫停',
 			'common.clear' => '清除',
 			'common.clearSelection' => '清空選擇',
+			'common.selectItemsToContinue' => '選擇項目以繼續',
+			'common.andMoreItems' => ({required Object num}) => '還有 ${num} 項',
 			'common.batchDelete' => '批量刪除',
 			'common.user' => '使用者',
 			'common.post' => '投稿',
@@ -3628,14 +3682,17 @@ extension on TranslationsZhTw {
 			'common.deleteRecordsInDateRangeConfirm' => ({required Object num}) => '確定要刪除該時間範圍內的 ${num} 條歷史紀錄嗎？此操作無法復原。',
 			'common.noHistoryRecordsInRange' => '該時間範圍內沒有歷史紀錄',
 			'common.followSuccessClickAgainToSpecialFollow' => '已成功關注，再次點擊以特別關注',
-			'common.specialFollowTip' => '已加入特別關注，可在訂閱頁左上角的選擇框中切換到TA，快速查看更新',
+			'common.specialFollowTip' => '已加入特別關注，可在訂閱頁右上角的選擇框中切換到TA，快速查看更新',
 			'common.exitConfirmTip' => '確定要退出嗎？',
 			'common.error' => '錯誤',
 			'common.taskRunning' => '任務正在進行中，請稍後再試。',
 			'common.operationCancelled' => '操作已取消。',
 			'common.unsavedChanges' => '您有未儲存的更改',
-			'common.specialFollowsManagementTip' => '拖動可重新排序 • 向左滑動可移除',
+			'common.specialFollowsManagementTip' => '拖動手柄可重新排序 • 點右側按鈕可移除',
 			'common.specialFollowsManagement' => '特別關注管理',
+			'common.removeSpecialFollow' => '移除特別關注',
+			'common.removeSpecialFollowConfirm' => ({required Object name}) => '確定要將 ${name} 從特別關注中移除嗎？',
+			'common.noSpecialFollows' => '還沒有特別關注的作者',
 			'common.createTimeDesc' => '建立時間倒序',
 			'common.createTimeAsc' => '建立時間正序',
 			'common.pagination.totalItems' => ({required Object num}) => '共 ${num} 項',
@@ -3655,6 +3712,7 @@ extension on TranslationsZhTw {
 			'common.tagOriginalKey' => '原始標籤',
 			'common.tagTranslation' => '譯文',
 			'common.copy' => '複製',
+			'common.selectCopy' => '選擇複製',
 			'common.copiedToClipboard' => '已複製到剪貼簿',
 			'common.showOriginalTag' => '顯示原始標籤',
 			'common.showTranslatedTag' => '顯示譯文',
@@ -3786,6 +3844,10 @@ extension on TranslationsZhTw {
 			'authorProfile.userProfile' => '使用者資料',
 			'favorites.clickToRestoreFavorite' => '點擊復原最愛',
 			'favorites.myFavorites' => '我的最愛',
+			'favorites.batchCancelFavorite' => '批次取消最愛',
+			'favorites.batchCancelFavoriteConfirm' => ({required Object count}) => '確定要取消選取的 ${count} 項最愛嗎？取消後可以在列表中點擊卡片復原。',
+			'favorites.batchCancelFavoriteSuccess' => ({required Object count}) => '已取消 ${count} 項最愛',
+			'favorites.batchCancelFavoriteResult' => ({required Object success, required Object failed}) => '已取消 ${success} 項，${failed} 項失敗',
 			'galleryDetail.galleryDetail' => '圖庫詳情',
 			'galleryDetail.viewGalleryDetail' => '查看圖庫詳情',
 			'galleryDetail.copyLink' => '複製連結地址',
@@ -3885,6 +3947,8 @@ extension on TranslationsZhTw {
 			'settings.rememberBrightness' => '記住亮度',
 			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => '此設定將決定當您之後播放影片時，是否會保留先前的亮度設定。',
 			'settings.playControlArea' => '播放控制區域',
+			_ => null,
+		} ?? switch (path) {
 			'settings.leftAndRightControlAreaWidth' => '左右控制區域寬度',
 			'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer' => '此設定將決定播放器左右兩側控制區域的寬度。',
 			'settings.proxyAddressCannotBeEmpty' => '代理伺服器地址不能為空。',
@@ -3895,8 +3959,6 @@ extension on TranslationsZhTw {
 			'settings.proxyConfig' => '代理設定',
 			'settings.thisIsHttpProxyAddress' => '此為 HTTP 代理伺服器地址',
 			'settings.checkProxy' => '檢查代理',
-			_ => null,
-		} ?? switch (path) {
 			'settings.proxyAddress' => '代理地址',
 			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => '請輸入代理伺服器的 URL，例如 127.0.0.1:8080',
 			'settings.enableProxy' => '啟用代理',
@@ -3955,6 +4017,7 @@ extension on TranslationsZhTw {
 			'settings.privacy' => '隱私',
 			'settings.forum' => '論壇',
 			'settings.news' => '新聞',
+			'settings.community' => '社群',
 			'settings.disableForumReplyQuote' => '停用論壇回覆引用',
 			'settings.disableForumReplyQuoteDesc' => '停用論壇回覆時攜帶被回覆樓層資訊',
 			'settings.theaterMode' => '劇院模式',
@@ -3970,6 +4033,7 @@ extension on TranslationsZhTw {
 			'settings.useDynamicColorDesc' => '此配置決定應用是否使用動態顏色',
 			'settings.presetColors' => '預設顏色',
 			'settings.customColors' => '自訂顏色',
+			'settings.customColorsDisabledByDynamicColor' => '已開啟動態顏色，預設/自訂顏色暫不可用，請先關閉動態顏色',
 			'settings.pickColor' => '選擇顏色',
 			'settings.cancel' => '取消',
 			'settings.confirm' => '確認',
@@ -4397,6 +4461,8 @@ extension on TranslationsZhTw {
 			'oreno3d.loading.gettingVideoInfo' => '正在獲取影片資訊...',
 			'oreno3d.loading.cancel' => '取消',
 			'oreno3d.messages.videoNotFoundOrDeleted' => '影片不存在或已被刪除',
+			_ => null,
+		} ?? switch (path) {
 			'oreno3d.messages.unableToGetVideoPlayLink' => '無法獲取影片播放連結',
 			'oreno3d.messages.getVideoDetailFailed' => '獲取影片詳情失敗',
 			'firstTimeSetup.welcome.title' => '歡迎使用',
@@ -4409,8 +4475,6 @@ extension on TranslationsZhTw {
 			'firstTimeSetup.network.subtitle' => '配置網路連線選項',
 			'firstTimeSetup.network.description' => '根據您的網路環境進行相應配置',
 			'firstTimeSetup.network.tip' => '設定成功後需重啟應用才會生效',
-			_ => null,
-		} ?? switch (path) {
 			'firstTimeSetup.theme.title' => '主題設定',
 			'firstTimeSetup.theme.subtitle' => '選擇您喜歡的介面主題',
 			'firstTimeSetup.theme.description' => '個人化您的視覺體驗',
@@ -4785,6 +4849,7 @@ extension on TranslationsZhTw {
 			'conversation.deleteThisMessage' => '刪除此消息',
 			'conversation.deleteThisMessageSubtitle' => '此操作不可復原',
 			'conversation.writeMessageHere' => '在此處輸入消息',
+			'conversation.lastMessageFromMe' => '我：',
 			'conversation.sendMessage' => '發送消息',
 			'splash.errors.initializationFailed' => '初始化失敗，請重啟應用',
 			'splash.preparing' => '準備中...',
@@ -4910,9 +4975,24 @@ extension on TranslationsZhTw {
 			'download.video' => '影片',
 			'download.gallery' => '圖庫',
 			'download.other' => '其他',
+			_ => null,
+		} ?? switch (path) {
 			'download.clearFilters' => '清除篩選',
 			'download.pauseAll' => '全部暫停',
 			'download.resumeAll' => '全部開始',
+			'download.errorTypes.network' => '網路異常，可重試',
+			'download.errorTypes.serverRejected' => '伺服器拒絕，可能需要重新登入',
+			'download.errorTypes.notFound' => '資源已失效或被刪除',
+			'download.errorTypes.diskFull' => '儲存空間不足',
+			'download.errorTypes.fileInUse' => '檔案被其他程式佔用',
+			'download.errorTypes.permission' => '沒有寫入權限',
+			'download.errorTypes.cancelled' => '已取消',
+			'download.errorTypes.unknown' => '未知錯誤',
+			'download.errorDetailCopied' => '已複製錯誤詳情',
+			'download.errorDetailCopyHint' => '長按複製錯誤詳情',
+			'download.restoredPaused.banner' => ({required Object num}) => '上次離開時有 ${num} 個任務未完成，已暫停',
+			'download.restoredPaused.resume' => '全部繼續',
+			'download.restoredPaused.dismiss' => '忽略',
 			'download.emptyTaskList' => '暫無下載任務',
 			'download.noMatchingTasks' => '沒有符合的任務',
 			'download.deleteByDate.menuTitle' => '依日期刪除',
@@ -4923,8 +5003,6 @@ extension on TranslationsZhTw {
 			'download.deleteByDate.startDate' => '開始日期',
 			'download.deleteByDate.endDate' => '結束日期',
 			'download.deleteByDate.notSet' => '未設定',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.daysUnit' => '天',
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => '刪除 ${days} 天以前建立的任務',
 			'download.deleteByDate.noMatch' => '沒有符合條件的任務',
@@ -5036,6 +5114,11 @@ extension on TranslationsZhTw {
 			'favorite.editFolderSuccess' => '資料夾更新成功',
 			'favorite.editFolderFailed' => '資料夾更新失敗',
 			'favorite.searchTags' => '搜尋標籤',
+			'favorite.noTagsInFolder' => '本收藏夾內的作品還沒有標籤',
+			'favorite.tagFilterMatchAll' => '僅顯示同時包含全部所選標籤的作品',
+			'favorite.clearSelectedTags' => '清除已選標籤',
+			'favorite.selectedTagCount' => ({required Object count}) => '已選 ${count} 個',
+			'favorite.noMatchingTags' => '沒有符合的標籤',
 			'translation.currentService' => '目前服務',
 			'translation.testConnection' => '測試連接',
 			'translation.testConnectionSuccess' => '測試連線成功',
@@ -5406,6 +5489,8 @@ extension on TranslationsZhTw {
 			'log.selectMergeRangeHint' => '請選擇要合併的日誌時間範圍',
 			'log.selectMergeRangeDays' => ({required Object days}) => '最近 ${days} 天',
 			'log.logStats' => '日誌統計資訊',
+			_ => null,
+		} ?? switch (path) {
 			'log.todayLogs' => ({required Object count}) => '今日日誌: ${count} 條',
 			'log.recent7DaysLogs' => ({required Object count}) => '最近7天: ${count} 條',
 			'log.totalLogs' => ({required Object count}) => '總計日誌: ${count} 條',
@@ -5437,8 +5522,6 @@ extension on TranslationsZhTw {
 			'emoji.cancel' => '取消',
 			'emoji.batchDelete' => '批次刪除',
 			'emoji.confirmBatchDelete' => ({required Object count}) => '確定要刪除選中的${count}張圖片嗎？此操作不可復原。',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.deleteSuccess' => '成功刪除',
 			'emoji.addImage' => '添加圖片',
 			'emoji.addImageByUrl' => '透過URL添加',
@@ -5552,6 +5635,7 @@ extension on TranslationsZhTw {
 			'navigationOrderSettings.subscriptionDescription' => '查看追蹤使用者的最新內容',
 			'navigationOrderSettings.forumDescription' => '參與社群討論',
 			'navigationOrderSettings.newsDescription' => '瀏覽官方新聞、文章與公告廣播',
+			'navigationOrderSettings.communityDescription' => '論壇討論與官方新聞、文章、公告廣播',
 			'news.title' => '新聞',
 			'news.newsUpdates' => '最新動態',
 			'news.articles' => '文章',

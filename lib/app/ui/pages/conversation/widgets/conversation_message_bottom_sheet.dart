@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/conversation_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/common/widgets/input/input_components.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
-import 'package:oktoast/oktoast.dart';
 
 class ConversationMessageBottomSheet extends StatefulWidget {
   const ConversationMessageBottomSheet({
@@ -17,11 +16,14 @@ class ConversationMessageBottomSheet extends StatefulWidget {
   final VoidCallback? onSubmit;
 
   @override
-  State<ConversationMessageBottomSheet> createState() => _ConversationMessageBottomSheetState();
+  State<ConversationMessageBottomSheet> createState() =>
+      _ConversationMessageBottomSheetState();
 }
 
-class _ConversationMessageBottomSheetState extends State<ConversationMessageBottomSheet> {
-  final ConversationService _conversationService = Get.find<ConversationService>();
+class _ConversationMessageBottomSheetState
+    extends State<ConversationMessageBottomSheet> {
+  final ConversationService _conversationService =
+      Get.find<ConversationService>();
   bool _isLoading = false;
 
   void _handleSubmit(String text) async {
@@ -48,12 +50,7 @@ class _ConversationMessageBottomSheetState extends State<ConversationMessageBott
         Navigator.pop(context);
       }
     } else {
-      showToastWidget(
-        MDToastWidget(
-          message: result.message,
-          type: MDToastType.error,
-        ),
-      );
+      showGlassToast(result.message, type: GlassToastType.error);
     }
   }
 

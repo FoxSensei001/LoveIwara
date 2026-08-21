@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/tag_selector_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -110,17 +111,15 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 600;
 
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.only(bottom: 12),
+      // 与玻璃控件同一套底色/描边，卡片圆角与弹窗外壳呼应
       decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-        ),
+        color: GlassTokens.fill(colorScheme),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: GlassTokens.stroke(colorScheme), width: 0.6),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,7 +195,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
       initialValue: widget.filter.field,
       decoration: InputDecoration(
         labelText: t.searchFilter.field,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
       items: availableFields.map((field) {
@@ -249,7 +248,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
       initialValue: widget.filter.locale ?? 'en',
       decoration: InputDecoration(
         labelText: t.searchFilter.language,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
       items: const [
@@ -278,7 +277,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
       initialValue: selectedOperator,
       decoration: InputDecoration(
         labelText: t.searchFilter.operator,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
       items: availableOperators.map((operator) {
@@ -344,7 +343,9 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          field.type == FilterFieldType.DATE ? t.searchFilter.dateRange : t.searchFilter.numberRange,
+          field.type == FilterFieldType.DATE
+              ? t.searchFilter.dateRange
+              : t.searchFilter.numberRange,
           style: Theme.of(
             context,
           ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
@@ -452,13 +453,8 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
       initialValue: currentValue,
       decoration: InputDecoration(
         labelText: fieldKey == 'from' ? t.searchFilter.from : t.searchFilter.to,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 8,
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
       keyboardType: TextInputType.number,
       validator: (value) {
@@ -475,10 +471,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
             ? Map<String, dynamic>.from(filter.value)
             : {'from': '', 'to': ''};
         currentValue[fieldKey] = value;
-        widget.onUpdate(
-          filter.id,
-          filter.copyWith(value: currentValue),
-        );
+        widget.onUpdate(filter.id, filter.copyWith(value: currentValue));
         // 触发验证
         _formFieldKey.currentState?.validate();
       },
@@ -529,8 +522,10 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
               ? _dateFromController
               : _dateToController,
           decoration: InputDecoration(
-            labelText: fieldKey == 'from' ? t.searchFilter.from : t.searchFilter.to,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            labelText: fieldKey == 'from'
+                ? t.searchFilter.from
+                : t.searchFilter.to,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 8,
@@ -568,7 +563,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
         DropdownButtonFormField<String>(
           initialValue: filter.value?.toString() ?? 'true',
           decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 8,
@@ -629,23 +624,23 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
               controller: _dateController,
               decoration: InputDecoration(
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 12,
                   vertical: 8,
                 ),
-                            suffixIcon: const Icon(Icons.calendar_today),
-            hintText: t.searchFilter.clickToSelectDate,
-          ),
+                suffixIcon: const Icon(Icons.calendar_today),
+                hintText: t.searchFilter.clickToSelectDate,
+              ),
               readOnly: true,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) return null;
                 try {
                   DateTime.parse(value.trim());
-                            } catch (e) {
-              return t.searchFilter.pleaseEnterValidDate;
-            }
+                } catch (e) {
+                  return t.searchFilter.pleaseEnterValidDate;
+                }
                 return null;
               },
             ),
@@ -670,7 +665,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
         TextFormField(
           initialValue: filter.value?.toString() ?? '',
           decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 8,
@@ -681,9 +676,9 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
             if (value == null || value.trim().isEmpty) return null;
             try {
               double.parse(value.trim());
-                    } catch (e) {
-          return t.searchFilter.pleaseEnterValidNumber;
-        }
+            } catch (e) {
+              return t.searchFilter.pleaseEnterValidNumber;
+            }
             return null;
           },
           onChanged: (value) {
@@ -725,7 +720,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
         TextFormField(
           initialValue: filter.value?.toString() ?? '',
           decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 8,
@@ -758,7 +753,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
         DropdownButtonFormField<String>(
           initialValue: filter.value?.toString() ?? '',
           decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 8,

@@ -181,12 +181,9 @@ class _DeepLXTranslationSettingsWidgetState
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: CustomScrollView(
+      child: GlassSettingsScaffold(
+        title: slang.t.translation.deeplxTranslation,
         slivers: [
-          BlurredSliverAppBar(
-            title: slang.t.translation.deeplxTranslation,
-            isWideScreen: widget.isWideScreen,
-          ),
           SliverPadding(
             padding: const EdgeInsets.all(16),
             sliver: SliverLayoutBuilder(

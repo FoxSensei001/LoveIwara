@@ -10,7 +10,8 @@ class MigrationV13DownloadTaskMediaIndex extends Migration {
   int get version => 13;
 
   @override
-  String get description => '为 download_tasks 增加 media_type/media_id/quality 字段并建立索引';
+  String get description =>
+      '为 download_tasks 增加 media_type/media_id/quality 字段并建立索引';
 
   @override
   void up(CommonDatabase db) {
@@ -130,16 +131,10 @@ class MigrationV13DownloadTaskMediaIndex extends Migration {
     LogUtils.i('开始回滚迁移v13：移除 download_tasks 的媒体索引');
 
     // 仅删除索引，保留新增列，避免复杂的表重建逻辑
-    db.execute(
-      'DROP INDEX IF EXISTS idx_download_tasks_media_type_id;',
-    );
-    db.execute(
-      'DROP INDEX IF EXISTS idx_download_tasks_video_quality;',
-    );
+    db.execute('DROP INDEX IF EXISTS idx_download_tasks_media_type_id;');
+    db.execute('DROP INDEX IF EXISTS idx_download_tasks_video_quality;');
 
     db.execute('PRAGMA user_version = 12;');
     LogUtils.i('已回滚迁移v13：数据库版本已回退到 v12');
   }
 }
-
-

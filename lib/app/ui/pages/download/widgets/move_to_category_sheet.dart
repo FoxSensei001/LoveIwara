@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/app/services/download_service.dart';
-import 'package:i_iwara/app/ui/pages/download/download_category_manage_page.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart'
+    show openDownloadCategoryManagePage;
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 打开「移至分类」底部弹窗。返回 true 表示发生了移动（调用方据此退出多选等）。
@@ -72,23 +72,19 @@ class _MoveToCategorySheetState extends State<_MoveToCategorySheet> {
     try {
       await _service.assignTasksToCategory(widget.taskIds, categoryId);
       if (!mounted) return;
-      showToastWidget(
-        MDToastWidget(
-          message: categoryId == null
-              ? t.download.category.moveToUncategorizedSuccess
-              : t.download.category.moveSuccess(title: categoryTitle ?? ''),
-          type: MDToastType.success,
-        ),
+      showGlassToast(
+        categoryId == null
+            ? t.download.category.moveToUncategorizedSuccess
+            : t.download.category.moveSuccess(title: categoryTitle ?? ''),
+        type: GlassToastType.success,
       );
       Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) return;
       setState(() => _isMoving = false);
-      showToastWidget(
-        MDToastWidget(
-          message: t.download.category.moveFailed,
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        t.download.category.moveFailed,
+        type: GlassToastType.error,
       );
     }
   }
@@ -102,11 +98,9 @@ class _MoveToCategorySheetState extends State<_MoveToCategorySheet> {
     if (!mounted) return;
     setState(() => _isCreating = false);
     if (cat == null) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.download.category.createFailed,
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        t.download.category.createFailed,
+        type: GlassToastType.error,
       );
       return;
     }
@@ -144,13 +138,7 @@ class _MoveToCategorySheetState extends State<_MoveToCategorySheet> {
                       ),
                     ),
                     TextButton.icon(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const DownloadCategoryManagePage(),
-                          ),
-                        );
-                      },
+                      onPressed: () => openDownloadCategoryManagePage(context),
                       icon: const Icon(Icons.settings_outlined, size: 18),
                       label: Text(t.download.category.manage),
                     ),

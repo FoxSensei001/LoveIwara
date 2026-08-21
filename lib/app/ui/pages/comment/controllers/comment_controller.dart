@@ -4,11 +4,10 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
 
@@ -242,17 +241,16 @@ class CommentController<T extends CommentType> extends GetxController {
         comments.insert(0, result.data!);
       }
       totalComments.value++;
-      showToastWidget(
-        MDToastWidget(
-          message: t.common.commentPostedSuccessfully,
-          type: MDToastType.success,
-        ),
+      showGlassToast(
+        t.common.commentPostedSuccessfully,
+        type: GlassToastType.success,
       );
       AppService.tryPop();
     } else {
-      showToastWidget(
-        MDToastWidget(message: result.message, type: MDToastType.error),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        result.message,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
     }
 
@@ -265,18 +263,27 @@ class CommentController<T extends CommentType> extends GetxController {
     if (result.isSuccess) {
       comments.removeWhere((comment) => comment.id == commentId);
       totalComments.value--;
-      showToastWidget(
-        MDToastWidget(
-          message: t.common.commentDeletedSuccessfully,
-          type: MDToastType.success,
-        ),
+      showGlassToast(
+        t.common.commentDeletedSuccessfully,
+        type: GlassToastType.success,
       );
     } else {
-      showToastWidget(
-        MDToastWidget(message: result.message, type: MDToastType.error),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        result.message,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
     }
+  }
+
+  /// 子回复被删除后，同步主列表中对应顶级评论的 numReplies（仅本地状态）。
+  /// 与 postComment 里 parentId 分支的 +1 互为镜像。
+  void onReplyDeleted(String parentId) {
+    final index = comments.indexWhere((c) => c.id == parentId);
+    if (index == -1) return;
+    final parent = comments[index];
+    if (parent.numReplies <= 0) return;
+    comments[index] = parent.copyWith(numReplies: parent.numReplies - 1);
   }
 
   // 编辑评论
@@ -289,18 +296,17 @@ class CommentController<T extends CommentType> extends GetxController {
           body: newBody,
           updatedAt: DateTime.now(),
         );
-        showToastWidget(
-          MDToastWidget(
-            message: t.common.commentUpdatedSuccessfully,
-            type: MDToastType.success,
-          ),
+        showGlassToast(
+          t.common.commentUpdatedSuccessfully,
+          type: GlassToastType.success,
         );
         AppService.tryPop();
       }
     } else {
-      showToastWidget(
-        MDToastWidget(message: result.message, type: MDToastType.error),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        result.message,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
     }
   }

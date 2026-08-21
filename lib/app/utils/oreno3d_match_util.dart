@@ -110,14 +110,14 @@ class Oreno3dMatchUtil {
         .toList();
 
     // 用括号段做"显著来源"；没括号则退回完整标题。
-    final salientSource =
-        bracketSegments.isNotEmpty ? bracketSegments.join(' ') : title;
+    final salientSource = bracketSegments.isNotEmpty
+        ? bracketSegments.join(' ')
+        : title;
 
     // 2. 切出 token（按净化后的空格分词）。
-    final tokens = sanitizeKeyword(salientSource)
-        .split(' ')
-        .where((t) => t.isNotEmpty)
-        .toList();
+    final tokens = sanitizeKeyword(
+      salientSource,
+    ).split(' ').where((t) => t.isNotEmpty).toList();
 
     // 3. 优先：长 CJK token。按长度倒序，最多取 3 条。
     final cjkLong = tokens.where((t) => _hasCjk(t) && t.length >= 2).toList()
@@ -147,11 +147,7 @@ class Oreno3dMatchUtil {
   }
 
   static List<String> _words(String title) {
-    return title
-        .toLowerCase()
-        .split(' ')
-        .where((w) => w.isNotEmpty)
-        .toList();
+    return title.toLowerCase().split(' ').where((w) => w.isNotEmpty).toList();
   }
 
   /// 匹配各种成对括号；group(1) 为内层文本。
@@ -185,7 +181,8 @@ class Oreno3dMatchUtil {
   static bool _isLatinAlphanum(String s) {
     if (s.isEmpty) return false;
     for (final r in s.runes) {
-      final ok = (r >= 0x30 && r <= 0x39) ||
+      final ok =
+          (r >= 0x30 && r <= 0x39) ||
           (r >= 0x41 && r <= 0x5A) ||
           (r >= 0x61 && r <= 0x7A) ||
           r == 0x27;

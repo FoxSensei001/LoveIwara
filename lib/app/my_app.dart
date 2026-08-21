@@ -9,6 +9,7 @@ import 'package:i_iwara/app/services/version_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/keybinding_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_action.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/global_drawer_content_widget.dart';
 import 'package:i_iwara/app/ui/widgets/privacy_over_lay_widget.dart';
 import 'package:i_iwara/app/ui/widgets/window_layout_widget.dart';
@@ -209,39 +210,50 @@ class _MyAppState extends State<MyApp> {
             ? ThemeMode.light
             : ThemeMode.dark;
 
-        return OKToast(
-          child: Obx(() {
-            final siteModeVersion = Get.find<AppService>().siteModeVersion;
-            return MaterialApp.router(
-              key: ValueKey('app-site-mode-$siteModeVersion'),
-              debugShowCheckedModeBanner: false,
-              title: t.common.appName,
-              theme: appLightTheme.value,
-              darkTheme: appDarkTheme.value,
-              themeMode: appThemeMode.value,
-              // 添加本地化支持
-              localizationsDelegates: const [
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: const [
-                Locale('en', ''), // English
-                Locale('ja', ''), // Japanese
-                Locale('zh', 'CN'), // Chinese (Simplified)
-                Locale('zh', 'TW'), // Chinese (Traditional)
-              ],
-              locale: LocaleSettings.currentLocale.flutterLocale,
-              routerConfig: appRouter,
-              builder: (context, child) {
-                if (null == child) {
-                  return const SizedBox.shrink();
-                }
-                return MyAppLayout(child: child);
-              },
-            );
-          }),
-        );
+        return Obx(() {
+          final siteModeVersion = Get.find<AppService>().siteModeVersion;
+          return MaterialApp.router(
+            key: ValueKey('app-site-mode-$siteModeVersion'),
+            debugShowCheckedModeBanner: false,
+            title: t.common.appName,
+            theme: appLightTheme.value,
+            darkTheme: appDarkTheme.value,
+            themeMode: appThemeMode.value,
+            // 添加本地化支持
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en', ''), // English
+              Locale('ja', ''), // Japanese
+              Locale('zh', 'CN'), // Chinese (Simplified)
+              Locale('zh', 'TW'), // Chinese (Traditional)
+            ],
+            locale: LocaleSettings.currentLocale.flutterLocale,
+            routerConfig: appRouter,
+            builder: (context, child) {
+              if (null == child) {
+                return const SizedBox.shrink();
+              }
+              // OKToast 必须挂在 MaterialApp **内部**：它自建的 Overlay 就是
+              // toast 的宿主，放在 MaterialApp 外面时那棵子树上没有 Theme /
+              // Localizations，`Theme.of` 只能拿到 Flutter 的 fallback 主题
+              // （恒为浅色蓝），玻璃 toast 在深色模式下会是一块亮片。
+              // 放在这里同时还能拿到真实的系统安全区（MyAppLayout 之上，
+              // 尚未被 ApplyFixedMediaQueryInsets 改写）。
+              return OKToast(
+                position: ToastPosition.top,
+                dismissOtherOnShow: true,
+                animationBuilder: glassToastRootAnimationBuilder,
+                animationCurve: Curves.linear,
+                animationDuration: glassToastAnimationDuration,
+                child: MyAppLayout(child: child),
+              );
+            },
+          );
+        });
       },
     );
   }

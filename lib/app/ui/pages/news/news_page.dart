@@ -1,49 +1,60 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/services/app_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:i_iwara/app/models/iwara_news.model.dart';
+import 'package:i_iwara/app/ui/pages/community/community_header_state.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/iwara_news_service.dart';
-import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/ui/pages/home_page.dart';
-import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:shimmer/shimmer.dart';
 
-class NewsPage extends StatefulWidget implements HomeWidgetInterface {
-  static final globalKey = GlobalKey<_NewsPageState>();
+/// 新闻页——社区栏目的「新闻」半边。
+///
+/// 本页**不画自己的 header**：玻璃 header 行（头像 / 目的地下拉 / 动作胶囊）
+/// 和顶部渐隐蒙层由 [CommunityPage] 统一提供。原先在中间胶囊上的三分类
+/// 分段控件也一并上交——分类现在是目的地下拉里的三个条目，横滑切分类时
+/// 由 [categoryProgress] 驱动下拉钮标题跟手翻页。
+class NewsPage extends StatefulWidget {
+  static final globalKey = GlobalKey<NewsPageState>();
 
   final int contentResetVersion;
   final IwaraNewsCategoryType initialCategory;
   final IwaraNewsLanguage? initialLanguage;
+
+  /// 由 [CommunityPage] 持有、本页写入：header 上新闻专属按钮的当前形态。
+  final ValueNotifier<NewsHeaderState>? headerState;
+
+  /// 由 [CommunityPage] 持有、本页写入：分类 PageView 的小数页码。
+  /// 目的地下拉钮的标题靠它跟着横滑逐帧翻页，而不是滑完才换字。
+  final ValueNotifier<double>? categoryProgress;
+
+  /// 横滑切了分类：让 [CommunityPage] 同步目的地。
+  final ValueChanged<IwaraNewsCategoryType>? onCategoryChanged;
 
   const NewsPage({
     super.key,
     this.contentResetVersion = 0,
     this.initialCategory = IwaraNewsCategoryType.newsUpdates,
     this.initialLanguage,
+    this.headerState,
+    this.categoryProgress,
+    this.onCategoryChanged,
   });
 
   @override
-  State<NewsPage> createState() => _NewsPageState();
-
-  @override
-  void refreshCurrent() {
-    globalKey.currentState?.refreshCurrent();
-  }
+  State<NewsPage> createState() => NewsPageState();
 }
 
-class _NewsPageState extends State<NewsPage>
+class NewsPageState extends State<NewsPage>
     with SingleTickerProviderStateMixin {
-  static const double _categoryTabsBreakpoint = 600;
   static const double _backToTopOffset = 320;
 
   final IwaraNewsService _newsService = Get.find<IwaraNewsService>();
@@ -61,12 +72,9 @@ class _NewsPageState extends State<NewsPage>
   };
 
   late final PageController _pageController;
-  late final ScrollController _tabBarScrollController;
-  late final TabController _tabController;
   late IwaraNewsCategoryType _selectedCategory;
   IwaraNewsLanguage? _selectedLanguage;
-  bool _tabBarAtStart = true;
-  bool _tabBarAtEnd = true;
+
 
   _NewsFeedState get _currentFeed => _feeds[_selectedCategory]!;
   bool get _showBackToTop =>
@@ -83,17 +91,30 @@ class _NewsPageState extends State<NewsPage>
         type: ScrollController()..addListener(() => _handleFeedScroll(type)),
     };
     _pageController = PageController(initialPage: _selectedCategory.index);
-    _tabBarScrollController = ScrollController();
-    _tabBarScrollController.addListener(_updateTabBarScrollIndicators);
-    _tabController = TabController(
-      length: IwaraNewsCategoryType.values.length,
-      vsync: this,
-      initialIndex: _selectedCategory.index,
+    _pageController.addListener(_syncPageProgress);
+  }
+
+  void _syncPageProgress() {
+    if (!_pageController.hasClients) return;
+    final page = _pageController.page;
+    if (page == null) return;
+    // 目的地下拉钮的标题跟着横滑逐帧走（这份 notifier 由 CommunityPage 持有）
+    widget.categoryProgress?.value = page;
+  }
+
+  /// 把「新闻半边的按钮该长什么样」报给 [CommunityPage]。
+  ///
+  /// 只报状态不报 widget，理由同 [ForumHeaderState] 的说明；写入时机的坑
+  /// 见 [runOutsideBuildPhase]（didChangeDependencies 会同步走到这里）。
+  void _publishHeaderState() {
+    final notifier = widget.headerState;
+    if (notifier == null || !mounted) return;
+    final next = NewsHeaderState(
+      language: _selectedLanguage,
+      isLoading: _currentFeed.isLoading,
     );
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _updateTabBarScrollIndicators();
-      }
+    runOutsideBuildPhase(() {
+      if (mounted) notifier.value = next;
     });
   }
 
@@ -103,6 +124,7 @@ class _NewsPageState extends State<NewsPage>
     _selectedLanguage ??= _newsService.resolveLanguage(
       slang.LocaleSettings.currentLocale.languageCode,
     );
+    _publishHeaderState();
     _ensureCategoryLoaded(_selectedCategory);
   }
 
@@ -112,26 +134,21 @@ class _NewsPageState extends State<NewsPage>
 
     final nextLanguage = widget.initialLanguage ?? _selectedLanguage;
     final languageChanged = nextLanguage != _selectedLanguage;
-    final categoryChanged = oldWidget.initialCategory != widget.initialCategory;
 
-    if (oldWidget.initialLanguage != widget.initialLanguage ||
-        categoryChanged) {
+    if (languageChanged) {
       setState(() {
-        _selectedCategory = widget.initialCategory;
         _selectedLanguage = nextLanguage;
-        if (languageChanged) {
-          _invalidateAllFeeds();
-        }
+        _invalidateAllFeeds();
       });
-      _tabController.index = _selectedCategory.index;
-      if (_pageController.hasClients) {
-        _pageController.jumpToPage(_selectedCategory.index);
-      }
-      if (languageChanged) {
-        _refreshCategory(_selectedCategory);
-      } else {
-        _ensureCategoryLoaded(_selectedCategory);
-      }
+      _publishHeaderState();
+      _refreshCategory(_selectedCategory);
+    }
+
+    // 分类由 CommunityPage 的目的地下拉下发。比的是**当前**分类而不是
+    // 上一帧的入参：横滑切分类会经由 onCategoryChanged 让父页回流一个新的
+    // initialCategory，那一趟必须是幂等的，不能再把 PageView 拨一次。
+    if (widget.initialCategory != _selectedCategory) {
+      _switchCategory(widget.initialCategory);
     }
 
     if (oldWidget.contentResetVersion != widget.contentResetVersion) {
@@ -144,9 +161,7 @@ class _NewsPageState extends State<NewsPage>
     for (final controller in _feedScrollControllers.values) {
       controller.dispose();
     }
-    _tabBarScrollController.removeListener(_updateTabBarScrollIndicators);
-    _tabBarScrollController.dispose();
-    _tabController.dispose();
+    _pageController.removeListener(_syncPageProgress);
     _pageController.dispose();
     super.dispose();
   }
@@ -154,47 +169,25 @@ class _NewsPageState extends State<NewsPage>
   Future<void> refreshCurrent() async {
     if (!mounted) return;
     // 当前分类回到顶部（不阻塞数据刷新）
-    unawaited(_scrollCurrentCategoryToTop());
+    unawaited(scrollCurrentCategoryToTop());
     // 作废所有分类的数据：当前分类立即重载，其他已访问分类在下次切换时重新拉取
     setState(_invalidateAllFeeds);
     await _refreshCategory(_selectedCategory);
   }
 
-  Future<void> _handleLanguageChange(IwaraNewsLanguage language) async {
+  /// 切换新闻语言。由社区 header 上的语言键调用。
+  Future<void> setLanguage(IwaraNewsLanguage language) async {
     if (_selectedLanguage == language) return;
     setState(() {
       _selectedLanguage = language;
       _invalidateAllFeeds();
     });
+    _publishHeaderState();
     await _refreshCategory(_selectedCategory);
   }
 
-  void _updateTabBarScrollIndicators() {
-    if (!_tabBarScrollController.hasClients) return;
-    final position = _tabBarScrollController.position;
-    final atStart = position.pixels <= position.minScrollExtent + 1;
-    final atEnd = position.pixels >= position.maxScrollExtent - 1;
-    if (atStart != _tabBarAtStart || atEnd != _tabBarAtEnd) {
-      setState(() {
-        _tabBarAtStart = atStart;
-        _tabBarAtEnd = atEnd;
-      });
-    }
-  }
-
-  void _handleTabBarScroll(double delta) {
-    if (!_tabBarScrollController.hasClients) return;
-    final newOffset = _tabBarScrollController.offset + delta;
-    if (newOffset < 0) {
-      _tabBarScrollController.jumpTo(0);
-    } else if (newOffset > _tabBarScrollController.position.maxScrollExtent) {
-      _tabBarScrollController.jumpTo(
-        _tabBarScrollController.position.maxScrollExtent,
-      );
-    } else {
-      _tabBarScrollController.jumpTo(newOffset);
-    }
-  }
+  /// 重载当前分类。由社区 header 「更多 → 刷新」调用。
+  Future<void> refreshCurrentCategory() => _refreshCategory(_selectedCategory);
 
   void _handleFeedScroll(IwaraNewsCategoryType type) {
     final controller = _feedScrollControllers[type];
@@ -210,7 +203,8 @@ class _NewsPageState extends State<NewsPage>
     });
   }
 
-  Future<void> _scrollCurrentCategoryToTop() async {
+  /// 当前分类回到顶部。由社区 header 「更多 → 回到顶部」与右下角浮钮调用。
+  Future<void> scrollCurrentCategoryToTop() async {
     final controller = _feedScrollControllers[_selectedCategory];
     if (controller == null || !controller.hasClients) return;
 
@@ -241,6 +235,7 @@ class _NewsPageState extends State<NewsPage>
         feed.error = null;
       }
     });
+    _publishHeaderState();
 
     try {
       final items = await _newsService.fetchCategoryPosts(
@@ -262,6 +257,7 @@ class _NewsPageState extends State<NewsPage>
           ..isLoading = false
           ..isLoadingMore = false;
       });
+      _publishHeaderState();
     } catch (error) {
       if (!mounted || requestVersion != _feedRequestVersions[type]) return;
       setState(() {
@@ -270,6 +266,7 @@ class _NewsPageState extends State<NewsPage>
           ..isLoading = false
           ..isLoadingMore = false;
       });
+      _publishHeaderState();
     }
   }
 
@@ -352,46 +349,18 @@ class _NewsPageState extends State<NewsPage>
     }
   }
 
-  String _languageLabel(IwaraNewsLanguage language) {
-    switch (language) {
-      case IwaraNewsLanguage.en:
-        return 'English';
-      case IwaraNewsLanguage.ja:
-        return '日本語';
-      case IwaraNewsLanguage.zh:
-        return '简体中文';
-    }
-  }
-
-  String _categoryLabel(slang.Translations t, IwaraNewsCategoryType category) {
-    switch (category) {
-      case IwaraNewsCategoryType.newsUpdates:
-        return t.news.newsUpdates;
-      case IwaraNewsCategoryType.articles:
-        return t.news.articles;
-      case IwaraNewsCategoryType.broadcast:
-        return t.news.broadcast;
-    }
-  }
-
-  IconData _categoryIcon(IwaraNewsCategoryType category) {
-    switch (category) {
-      case IwaraNewsCategoryType.newsUpdates:
-        return Icons.update_rounded;
-      case IwaraNewsCategoryType.articles:
-        return Icons.article_outlined;
-      case IwaraNewsCategoryType.broadcast:
-        return Icons.campaign_outlined;
-    }
-  }
-
   Future<void> _switchCategory(IwaraNewsCategoryType category) async {
     if (_selectedCategory == category) return;
     setState(() {
       _selectedCategory = category;
     });
-    if (_tabController.index != category.index) {
-      _tabController.animateTo(category.index);
+    // didUpdateWidget 也会走到这里（父页下拉选中后回流），那趟处在 build
+    // 阶段内，不能同步回调父页的 setState。
+    final onChanged = widget.onCategoryChanged;
+    if (onChanged != null) {
+      runOutsideBuildPhase(() {
+        if (mounted) onChanged(category);
+      });
     }
     if (_pageController.hasClients) {
       await _pageController.animateToPage(
@@ -403,414 +372,107 @@ class _NewsPageState extends State<NewsPage>
     await _ensureCategoryLoaded(category);
   }
 
+  /// 滚过一段后出现在右下角的「回到顶部」浮钮。
+  Widget _buildScrollToTopFab(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final visible = _showBackToTop;
+    return Positioned(
+      // 移动端底栏可见时与搜索圆钮中心共轴；宽屏（rail 布局）用普通右边距
+      right: isFloatingBarInsetActive(context)
+          ? GlassTokens.floatingActionCoAxisRight(GlassTokens.pillHeight)
+          : 16,
+      bottom: MediaQuery.paddingOf(context).bottom + 16,
+      child: IgnorePointer(
+        ignoring: !visible,
+        child: AnimatedSlide(
+          duration: GlassTokens.motionDuration,
+          curve: GlassTokens.motionCurve,
+          offset: visible ? Offset.zero : const Offset(0, 0.4),
+          child: AnimatedOpacity(
+            duration: GlassTokens.motionDuration,
+            opacity: visible ? 1 : 0,
+            child: GlassIconButton(
+              standalone: true,
+              icon: const Icon(Icons.vertical_align_top),
+              tooltip: t.common.scrollToTop,
+              onPressed: scrollCurrentCategoryToTop,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final t = slang.Translations.of(context);
-    final isWideLayout =
-        MediaQuery.sizeOf(context).width >= _categoryTabsBreakpoint;
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    // 内容要让出的高度 = 状态栏 + 玻璃 header 行。
+    // header 本身由 CommunityPage 画（同一套几何），这里只负责让位。
+    final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
 
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 62,
-        titleSpacing: 12,
-        title: _NewsTopBarTitle(title: t.news.title),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                if (!isWideLayout) {
-                  return Align(
-                    alignment: Alignment.centerLeft,
-                    child: _NewsSelectButton<IwaraNewsCategoryType>(
-                      icon: _categoryIcon(_selectedCategory),
-                      label: _categoryLabel(t, _selectedCategory),
-                      values: IwaraNewsCategoryType.values,
-                      selectedValue: _selectedCategory,
-                      itemIconBuilder: _categoryIcon,
-                      itemLabelBuilder: (category) =>
-                          _categoryLabel(t, category),
-                      onSelected: _switchCategory,
-                    ),
-                  );
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  theme.colorScheme.surfaceContainerLowest,
+                  theme.colorScheme.surface,
+                ],
+              ),
+            ),
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: IwaraNewsCategoryType.values.length,
+              onPageChanged: (index) {
+                final category = IwaraNewsCategoryType.values[index];
+                if (_selectedCategory != category) {
+                  setState(() {
+                    _selectedCategory = category;
+                  });
+                  // 目的地下拉的标题要跟着横滑改
+                  widget.onCategoryChanged?.call(category);
                 }
-
-                return _NewsCategoryTabs(
-                  controller: _tabController,
-                  scrollController: _tabBarScrollController,
-                  categories: IwaraNewsCategoryType.values,
-                  labelBuilder: (category) => _categoryLabel(t, category),
-                  iconBuilder: _categoryIcon,
-                  onTap: _switchCategory,
-                  atStart: _tabBarAtStart,
-                  atEnd: _tabBarAtEnd,
-                  onPointerScroll: _handleTabBarScroll,
+                _ensureCategoryLoaded(category);
+              },
+              itemBuilder: (context, index) {
+                final category = IwaraNewsCategoryType.values[index];
+                return _NewsCategoryList(
+                  feed: _feeds[category]!,
+                  scrollController: _feedScrollControllers[category]!,
+                  paddingTop: headerExtent,
+                  onRefresh: () => _refreshCategory(category),
+                  onLoadMore: () => _loadMoreCategory(category),
+                  onTapItem: (item) => context.push(
+                    '/news/${item.id}',
+                    extra: NewsDetailExtra(
+                      postId: item.id,
+                      postUrl: item.link,
+                      title: item.title,
+                      excerpt: item.excerpt,
+                      publishedAt: item.publishedAt,
+                      updatedAt: item.updatedAt,
+                      language: item.language,
+                      featuredImageUrl: item.featuredImageUrl,
+                      heroTag:
+                          'news-card-'
+                          '${item.language.name}-'
+                          '${item.categoryType.name}-'
+                          '${item.id}',
+                    ),
+                  ),
                 );
               },
             ),
           ),
         ),
-        actions: [
-          if (_showBackToTop)
-            IconButton(
-              onPressed: _scrollCurrentCategoryToTop,
-              icon: const Icon(Icons.arrow_upward_rounded),
-              tooltip: t.common.scrollToTop,
-            ),
-          _NewsSelectButton<IwaraNewsLanguage>(
-            icon: Icons.translate_rounded,
-            label: _languageLabel(_selectedLanguage ?? IwaraNewsLanguage.en),
-            showLabel: false,
-            values: IwaraNewsLanguage.values,
-            selectedValue: _selectedLanguage ?? IwaraNewsLanguage.en,
-            itemIconBuilder: (_) => Icons.translate_rounded,
-            itemLabelBuilder: _languageLabel,
-            onSelected: _handleLanguageChange,
-          ),
-          IconButton(
-            onPressed: _currentFeed.isLoading
-                ? null
-                : () => _refreshCategory(_selectedCategory),
-            icon: const Icon(Icons.refresh_rounded),
-            tooltip: t.common.refresh,
-          ),
-        ],
-      ),
-      body: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              theme.colorScheme.surfaceContainerLowest,
-              theme.colorScheme.surface,
-            ],
-          ),
-        ),
-        child: PageView.builder(
-          controller: _pageController,
-          itemCount: IwaraNewsCategoryType.values.length,
-          onPageChanged: (index) {
-            final category = IwaraNewsCategoryType.values[index];
-            if (_tabController.index != index) {
-              _tabController.animateTo(index);
-            }
-            if (_selectedCategory != category) {
-              setState(() {
-                _selectedCategory = category;
-              });
-            }
-            _ensureCategoryLoaded(category);
-          },
-          itemBuilder: (context, index) {
-            final category = IwaraNewsCategoryType.values[index];
-            return _NewsCategoryList(
-              feed: _feeds[category]!,
-              scrollController: _feedScrollControllers[category]!,
-              onRefresh: () => _refreshCategory(category),
-              onLoadMore: () => _loadMoreCategory(category),
-              onTapItem: (item) => context.push(
-                '/news/${item.id}',
-                extra: NewsDetailExtra(
-                  postId: item.id,
-                  postUrl: item.link,
-                  title: item.title,
-                  excerpt: item.excerpt,
-                  publishedAt: item.publishedAt,
-                  updatedAt: item.updatedAt,
-                  language: item.language,
-                  featuredImageUrl: item.featuredImageUrl,
-                  heroTag:
-                      'news-card-'
-                      '${item.language.name}-'
-                      '${item.categoryType.name}-'
-                      '${item.id}',
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _NewsTopBarTitle extends StatelessWidget {
-  const _NewsTopBarTitle({required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    final userService = Get.find<UserService>();
-
-    return Row(
-      children: [
-        Obx(() {
-          final user = userService.currentUser.value;
-          final count =
-              userService.notificationCount.value +
-              userService.messagesCount.value;
-
-          if (user != null && userService.hasLoadedProfile) {
-            return SizedBox(
-              width: 36,
-              height: 36,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  AvatarWidget(
-                    user: user,
-                    size: 36,
-                    onTap: AppService.switchGlobalDrawer,
-                  ),
-                  if (count > 0)
-                    Positioned(
-                      right: -1,
-                      top: -1,
-                      child: Container(
-                        width: 9,
-                        height: 9,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.error,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.surface,
-                            width: 1.5,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            );
-          }
-
-          return Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(18),
-              onTap: AppService.switchGlobalDrawer,
-              child: SizedBox(
-                width: 36,
-                height: 36,
-                child: Icon(
-                  Icons.account_circle,
-                  size: 24,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
-          );
-        }),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
+        _buildScrollToTopFab(context),
       ],
-    );
-  }
-}
-
-class _NewsSelectButton<T> extends StatelessWidget {
-  const _NewsSelectButton({
-    required this.icon,
-    required this.label,
-    this.showLabel = true,
-    required this.values,
-    required this.selectedValue,
-    required this.itemIconBuilder,
-    required this.itemLabelBuilder,
-    required this.onSelected,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool showLabel;
-  final List<T> values;
-  final T selectedValue;
-  final IconData Function(T value) itemIconBuilder;
-  final String Function(T value) itemLabelBuilder;
-  final Future<void> Function(T value) onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Theme(
-      data: Theme.of(context).copyWith(
-        splashFactory: NoSplash.splashFactory,
-        highlightColor: Colors.transparent,
-      ),
-      child: PopupMenuButton<T>(
-        initialValue: selectedValue,
-        tooltip: showLabel ? label : null,
-        onSelected: (value) {
-          onSelected(value);
-        },
-        position: PopupMenuPosition.under,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        itemBuilder: (context) => [
-          for (final item in values)
-            PopupMenuItem<T>(
-              value: item,
-              child: Row(
-                children: [
-                  Icon(itemIconBuilder(item), size: 18),
-                  const SizedBox(width: 10),
-                  Expanded(child: Text(itemLabelBuilder(item))),
-                  if (item == selectedValue) ...[
-                    const SizedBox(width: 8),
-                    Icon(Icons.check, size: 18, color: colorScheme.primary),
-                  ],
-                ],
-              ),
-            ),
-        ],
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 36),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: colorScheme.secondaryContainer,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 16, color: colorScheme.onSecondaryContainer),
-              if (showLabel) ...[
-                const SizedBox(width: 6),
-                Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: colorScheme.onSecondaryContainer,
-                  ),
-                ),
-              ],
-              const SizedBox(width: 2),
-              Icon(
-                Icons.arrow_drop_down_rounded,
-                color: colorScheme.onSecondaryContainer,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _NewsCategoryTabs extends StatelessWidget {
-  const _NewsCategoryTabs({
-    required this.controller,
-    required this.scrollController,
-    required this.categories,
-    required this.labelBuilder,
-    required this.iconBuilder,
-    required this.onTap,
-    required this.atStart,
-    required this.atEnd,
-    required this.onPointerScroll,
-  });
-
-  final TabController controller;
-  final ScrollController scrollController;
-  final List<IwaraNewsCategoryType> categories;
-  final String Function(IwaraNewsCategoryType category) labelBuilder;
-  final IconData Function(IwaraNewsCategoryType category) iconBuilder;
-  final Future<void> Function(IwaraNewsCategoryType category) onTap;
-  final bool atStart;
-  final bool atEnd;
-  final void Function(double delta) onPointerScroll;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    Widget tabContent = MouseRegion(
-      child: Listener(
-        onPointerSignal: (pointerSignal) {
-          if (pointerSignal is PointerScrollEvent) {
-            onPointerScroll(pointerSignal.scrollDelta.dy);
-          }
-        },
-        child: SingleChildScrollView(
-          controller: scrollController,
-          scrollDirection: Axis.horizontal,
-          physics: const ClampingScrollPhysics(),
-          child: TabBar(
-            controller: controller,
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            dividerColor: Colors.transparent,
-            overlayColor: WidgetStateProperty.all(Colors.transparent),
-            padding: EdgeInsets.zero,
-            labelColor: theme.colorScheme.onSurface,
-            unselectedLabelColor: theme.colorScheme.onSurfaceVariant,
-            indicatorSize: TabBarIndicatorSize.label,
-            indicator: UnderlineTabIndicator(
-              borderRadius: BorderRadius.circular(999),
-              borderSide: BorderSide(
-                width: 3,
-                color: theme.colorScheme.primary,
-              ),
-              insets: const EdgeInsets.only(bottom: 2),
-            ),
-            onTap: (index) => onTap(categories[index]),
-            tabs: [
-              for (final category in categories)
-                Tab(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(iconBuilder(category), size: 16),
-                      const SizedBox(width: 6),
-                      Text(labelBuilder(category)),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-
-    if (atStart && atEnd) {
-      return Align(alignment: Alignment.centerLeft, child: tabContent);
-    }
-
-    return ShaderMask(
-      shaderCallback: (rect) {
-        return LinearGradient(
-          colors: [
-            atStart ? Colors.white : Colors.transparent,
-            Colors.white,
-            Colors.white,
-            atEnd ? Colors.white : Colors.transparent,
-          ],
-          stops: const [0.0, 0.05, 0.85, 1.0],
-        ).createShader(rect);
-      },
-      blendMode: BlendMode.dstIn,
-      child: tabContent,
     );
   }
 }
@@ -819,6 +481,7 @@ class _NewsCategoryList extends StatelessWidget {
   const _NewsCategoryList({
     required this.feed,
     required this.scrollController,
+    required this.paddingTop,
     required this.onRefresh,
     required this.onLoadMore,
     required this.onTapItem,
@@ -826,6 +489,7 @@ class _NewsCategoryList extends StatelessWidget {
 
   final _NewsFeedState feed;
   final ScrollController scrollController;
+  final double paddingTop;
   final Future<void> Function() onRefresh;
   final Future<void> Function() onLoadMore;
   final void Function(IwaraNewsListItem item) onTapItem;
@@ -835,20 +499,27 @@ class _NewsCategoryList extends StatelessWidget {
     final t = slang.Translations.of(context);
 
     if (feed.isLoading && feed.items.isEmpty) {
-      return const _NewsFeedSkeleton();
+      return _NewsFeedSkeleton(paddingTop: paddingTop);
     }
 
     if (feed.error != null && feed.items.isEmpty) {
-      return MyEmptyWidget(message: feed.error!, onRefresh: onRefresh);
+      return Padding(
+        padding: EdgeInsets.only(top: paddingTop),
+        child: MyEmptyWidget(message: feed.error!, onRefresh: onRefresh),
+      );
     }
 
     if (feed.items.isEmpty) {
-      return MyEmptyWidget(message: t.common.noData, onRefresh: onRefresh);
+      return Padding(
+        padding: EdgeInsets.only(top: paddingTop),
+        child: MyEmptyWidget(message: t.common.noData, onRefresh: onRefresh),
+      );
     }
 
     final showFooter = feed.isLoadingMore || feed.loadMoreError != null;
 
     return RefreshIndicator(
+      edgeOffset: paddingTop,
       onRefresh: onRefresh,
       child: NotificationListener<ScrollNotification>(
         onNotification: (notification) {
@@ -860,7 +531,13 @@ class _NewsCategoryList extends StatelessWidget {
         child: ListView.separated(
           controller: scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
+          // 底部额外让出安全区（窄屏时 Shell 已把浮动底栏高度加进 padding.bottom）
+          padding: EdgeInsets.fromLTRB(
+            16,
+            paddingTop + 4,
+            16,
+            28 + MediaQuery.of(context).padding.bottom,
+          ),
           itemCount: feed.items.length + (showFooter ? 1 : 0),
           separatorBuilder: (context, index) =>
               SizedBox(height: index == 0 ? 16 : 12),
@@ -1344,13 +1021,20 @@ class _NewsMetaPill extends StatelessWidget {
 }
 
 class _NewsFeedSkeleton extends StatelessWidget {
-  const _NewsFeedSkeleton();
+  const _NewsFeedSkeleton({required this.paddingTop});
+
+  final double paddingTop;
 
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        paddingTop + 4,
+        16,
+        28 + MediaQuery.of(context).padding.bottom,
+      ),
       itemCount: 5,
       separatorBuilder: (context, index) =>
           SizedBox(height: index == 0 ? 16 : 12),

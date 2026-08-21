@@ -18,6 +18,7 @@ void createDownloadTasksTable(CommonDatabase db) {
       status TEXT NOT NULL,
       supports_range INTEGER NOT NULL DEFAULT 0,
       error TEXT,
+      error_type TEXT,
       ext_data TEXT,
       created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
       updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
@@ -79,7 +80,10 @@ void main() {
   });
 
   group('DownloadTaskRepository.searchTasks', () {
-    test('history filter only returns paused and completed tasks', () async {
+    // 契约变更：历史区只装已完成任务。暂停任务归活跃区（内存真源 DownloadTaskStore）
+    // 管辖——它此前会从活跃区「掉进」分页历史区，同一条任务在两个区来回搬家，
+    // 正是需要跨区去重、删除墓碑那一套补丁的根源。
+    test('history filter only returns completed tasks', () async {
       await repository.insertTask(
         taskWithStatus('pending-task', DownloadStatus.pending),
       );
@@ -104,9 +108,21 @@ void main() {
       );
 
       expect(tasks.map((task) => task.status).toSet(), {
-        DownloadStatus.paused,
         DownloadStatus.completed,
       });
+    });
+
+    test('getHistoryTasks excludes paused tasks', () async {
+      await repository.insertTask(
+        taskWithStatus('paused-task', DownloadStatus.paused),
+      );
+      await repository.insertTask(
+        taskWithStatus('completed-task', DownloadStatus.completed),
+      );
+
+      final tasks = await repository.getHistoryTasks(offset: 0, limit: 20);
+
+      expect(tasks.map((task) => task.id), ['completed-task']);
     });
   });
 

@@ -32,6 +32,16 @@ class BatchSelectController<T> extends GetxController {
     }
   }
 
+  /// 长按某一项直接进入多选并选中它。
+  ///
+  /// 「先点右上角开多选、再回来点这一项」是两步，而长按是一步——原先只有
+  /// 表情库支持这个手势，现在统一到所有列表。
+  void enterMultiSelectWith(T media) {
+    if (isMultiSelect.value) return;
+    isMultiSelect.value = true;
+    toggleSelection(media);
+  }
+
   /// 退出多选模式
   void exitMultiSelect() {
     if (isMultiSelect.value) {
@@ -64,6 +74,46 @@ class BatchSelectController<T> extends GetxController {
   void clearSelection() {
     selectedMediaIds.clear();
     selectedMediaItems.clear();
+  }
+
+  /// 取媒体 id；不是受支持的类型时返回 null。
+  static String? _idOf(Object? media) {
+    if (media is Video) return media.id;
+    if (media is ImageModel) return media.id;
+    return null;
+  }
+
+  /// 当前可见的这批是否已被全选。
+  ///
+  /// 分页模式下 [items] 就是本页，所以「全选」的语义天然是**全选本页**——
+  /// 翻页会清空选择（见 [onPageChanged]），跨页全选是够不着的东西，不给按钮。
+  bool isAllSelected(List<T> items) {
+    if (items.isEmpty) return false;
+    for (final item in items) {
+      final id = _idOf(item);
+      if (id == null || !selectedMediaIds.contains(id)) return false;
+    }
+    return true;
+  }
+
+  /// 全选 [items]；已经全选时改为取消全选。
+  void toggleSelectAll(List<T> items) {
+    if (items.isEmpty) return;
+    if (isAllSelected(items)) {
+      for (final item in items) {
+        final id = _idOf(item);
+        if (id == null) continue;
+        selectedMediaIds.remove(id);
+        selectedMediaItems.remove(id);
+      }
+      return;
+    }
+    for (final item in items) {
+      final id = _idOf(item);
+      if (id == null) continue;
+      selectedMediaIds.add(id);
+      selectedMediaItems[id] = item;
+    }
   }
 
   /// 分页切换时重置选择（分页模式专用）

@@ -61,10 +61,12 @@ class GlslShaderService extends GetxService {
       // 获取 assets 目录下的所有 GLSL 文件
       final assetManifest = await AssetManifest.loadFromAssetBundle(rootBundle);
       final glslAssets =
-          assetManifest.listAssets()
+          assetManifest
+              .listAssets()
               .where(
                 (asset) =>
-                    asset.startsWith(shaderAssetPath) && asset.endsWith('.glsl'),
+                    asset.startsWith(shaderAssetPath) &&
+                    asset.endsWith('.glsl'),
               )
               .toList()
             ..sort();
@@ -147,7 +149,11 @@ class GlslShaderService extends GetxService {
 
       LogUtils.d('复制 GLSL 文件: $fileName -> $tempFilePath', 'GlslShaderService');
     } catch (e) {
-      LogUtils.e('复制 GLSL 文件失败: $assetPath', tag: 'GlslShaderService', error: e);
+      LogUtils.e(
+        '复制 GLSL 文件失败: $assetPath',
+        tag: 'GlslShaderService',
+        error: e,
+      );
       rethrow;
     }
   }
@@ -221,7 +227,10 @@ class GlslShaderService extends GetxService {
         final shaderDir = Directory(_tempShaderDirectory!);
         if (await shaderDir.exists()) {
           await shaderDir.delete(recursive: true);
-          LogUtils.d('清理临时 GLSL 目录: $_tempShaderDirectory', 'GlslShaderService');
+          LogUtils.d(
+            '清理临时 GLSL 目录: $_tempShaderDirectory',
+            'GlslShaderService',
+          );
         }
       } catch (e) {
         LogUtils.e('清理临时 GLSL 目录失败', tag: 'GlslShaderService', error: e);
@@ -240,4 +249,3 @@ class GlslShaderService extends GetxService {
     return await file.exists();
   }
 }
-

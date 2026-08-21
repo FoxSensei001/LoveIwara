@@ -8,13 +8,12 @@ import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
-import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
+import 'package:i_iwara/app/ui/widgets/translatable_title.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/share_gallery_bottom_sheet.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 
 import '../../../../../common/enums/media_enums.dart';
 import '../../../../services/app_service.dart';
@@ -130,32 +129,10 @@ class ImageModelDetailContent extends StatelessWidget {
           color: Theme.of(context).textTheme.bodyLarge?.color,
         );
 
-        return RichText(
-          text: TextSpan(
-            style: textStyle,
-            children: [
-              TextSpan(text: title),
-              WidgetSpan(
-                alignment: PlaceholderAlignment.middle,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: IconButton(
-                    onPressed: () {
-                      showTranslationDialog(context, text: title);
-                    },
-                    icon: Icon(
-                      Icons.translate,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
+        // 复用视频详情页的标题组件：内联翻译按钮改用裸 Icon + GestureDetector
+        // 实现的可点击区域，而不是这里原先的 IconButton（padding/constraints
+        // 即便置零也仍带内部留白，跟文字内联时按钮明显偏大，两页大小对不齐）。
+        return TranslatableTitle(text: title, style: textStyle);
       },
     );
   }
@@ -400,8 +377,11 @@ class ImageModelDetailContent extends StatelessWidget {
             icon: Icons.download,
             label: t.download.download,
             onTap: () => _downloadGallery(context),
+            // 用 colorScheme.primary，不用 Theme.of(context).primaryColor——
+            // primaryColor 是 M2 遗留字段，M3 深色主题下它不跟随 colorScheme
+            // 翻转，选中态的图标/文字会退化成近黑色，糊在深色卡片上看不清。
             accentColor: controller.hasAnyDownloadTask.value
-                ? Theme.of(context).primaryColor
+                ? Theme.of(context).colorScheme.primary
                 : null,
           ),
         ),
@@ -448,8 +428,9 @@ class ImageModelDetailContent extends StatelessWidget {
                     : Icons.bookmark_border,
                 label: t.favorite.localizeFavorite,
                 onTap: () => _addToFavorite(context),
+                // 同上：M3 深色主题下必须走 colorScheme.primary。
                 accentColor: controller.isInAnyFavorite.value
-                    ? Theme.of(context).primaryColor
+                    ? Theme.of(context).colorScheme.primary
                     : null,
               ),
             ),
@@ -489,11 +470,9 @@ class ImageModelDetailContent extends StatelessWidget {
     try {
       final imageModel = controller.imageModelInfo.value;
       if (imageModel == null) {
-        showToastWidget(
-          MDToastWidget(
-            message: t.download.errors.imageModelNotFound,
-            type: MDToastType.error,
-          ),
+        showGlassToast(
+          t.download.errors.imageModelNotFound,
+          type: GlassToastType.error,
         );
         return;
       }
@@ -525,12 +504,7 @@ class ImageModelDetailContent extends StatelessWidget {
       // 创建下载任务
       final savePath = await _getSavePath(imageModel.title, imageModel.id);
       if (savePath == null) {
-        showToastWidget(
-          MDToastWidget(
-            message: t.common.operationCancelled,
-            type: MDToastType.info,
-          ),
-        );
+        showGlassToast(t.common.operationCancelled, type: GlassToastType.info);
         return;
       }
       final task = DownloadTask(
@@ -554,22 +528,15 @@ class ImageModelDetailContent extends StatelessWidget {
       // 标记图库有下载任务
       controller.markGalleryHasDownloadTask();
 
-      showToastWidget(
-        MDToastWidget(
-          message: t.download.startDownloading,
-          type: MDToastType.success,
-        ),
-      );
+      showGlassToast(t.download.startDownloading, type: GlassToastType.success);
 
       // 打开下载管理页面
       NaviService.navigateToDownloadTaskListPage();
     } catch (e) {
       LogUtils.e('添加下载任务失败', tag: 'ImageModelDetailContent', error: e);
-      showToastWidget(
-        MDToastWidget(
-          message: t.download.errors.downloadFailed,
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        t.download.errors.downloadFailed,
+        type: GlassToastType.error,
       );
     }
   }

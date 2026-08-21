@@ -5,14 +5,13 @@ import 'package:flutter/services.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
-import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 /// 统一的返回键协调器。
 /// 用一个基于优先级的返回链替代 AppService.tryPop()：
 ///   1. 全局 Drawer 打开时 → 先关闭 Drawer
 ///   2. 有遮罩层（对话框 / BottomSheet 等）→ 关闭最顶部遮罩层
-///   3. SettingsPage 内部导航栈可返回 → 先做内部返回
+///   3. 设置树的嵌套 Navigator 可返回 → 先在设置内部退一层
 ///   4a. 根 GoRouter 路由可返回 → 优先弹出（全屏页等顶层包装）
 ///   4b. Shell Navigator 可返回 → 弹出 Shell 内部详情页
 ///   4c. GoRouter 还能返回 → 弹出其他根级路由
@@ -127,7 +126,6 @@ class PopCoordinator {
     final scaffoldState = AppService.globalDrawerKey.currentState;
     if (scaffoldState?.isDrawerOpen ?? false) return false;
     if (OverlayTracker.instance.hasOverlay) return false;
-    if (SettingsPage.canPopInternally()) return false;
 
     final shellNav = shellNavigatorKey.currentState;
     if (shellNav != null && shellNav.canPop()) return false;
@@ -169,10 +167,11 @@ class PopCoordinator {
         return;
       }
 
-      // 3. SettingsPage 内部导航返回
-      if (SettingsPage.canPopInternally()) {
-        SettingsPage.popInternally();
-        LogUtils.d('handleBack -> SettingsPage 内部返回', 'PopCoordinator');
+      // 3. 设置树内部返回。
+      // 必须排在 4a/4b 之前：设置壳自身只是宿主 Shell Navigator 上的**一页**，
+      // 直接走 4b 会把整棵设置树一次弹掉，而不是退一层。
+      if (_tryPopSettingsShell()) {
+        LogUtils.d('handleBack -> 设置树内部返回', 'PopCoordinator');
         return;
       }
 
@@ -228,17 +227,41 @@ class PopCoordinator {
       return true;
     }
 
-    // 3. SettingsPage 内部导航返回
-    if (SettingsPage.canPopInternally()) {
-      SettingsPage.popInternally();
-      LogUtils.d(
-        'tryCloseOverlayOrDrawer -> SettingsPage 内部返回',
-        'PopCoordinator',
-      );
+    // 3. 设置树内部返回
+    if (_tryPopSettingsShell()) {
+      LogUtils.d('tryCloseOverlayOrDrawer -> 设置树内部返回', 'PopCoordinator');
       return true;
     }
 
     return false;
+  }
+
+  /// 设置树的嵌套 Navigator 还能退一层就退一层。
+  ///
+  /// 这里替代了历史上的 `SettingsPage.canPopInternally()/popInternally()`——
+  /// 那一对静态方法要穿透一个 Widget 的静态单例去问「宽屏内部 Navigator /
+  /// 窄屏手写页面栈 / currentPage 索引」三套栈里谁还有内容，既依赖实例存活，
+  /// 也依赖它们被手工同步。现在只问一个 GlobalKey 的 `canPop()`。
+  ///
+  /// 用 maybePop 以尊重页面上的 PopScope。
+  ///
+  /// 只有在设置壳**确实是当前最上层**时才算数：设置树里能推出盖在自己上面的
+  /// 页面（聊天设置 → 表情库走的是顶层 `/emoji_library`），此时这次返回属于
+  /// 那一页，不属于设置内部——同 4a/4b 之间那条「全屏页覆盖 shell 时别误关
+  /// shell 内详情页」的规则。
+  static bool _tryPopSettingsShell() {
+    final nav = settingsShellNavigatorKey.currentState;
+    if (nav == null || !nav.canPop()) return false;
+
+    // 根级路由盖住了整个 Shell
+    if (rootNavigatorKey.currentState?.canPop() ?? false) return false;
+
+    // 宿主 Shell Navigator 上还有别的页面压在设置壳上面
+    final shellRoute = ModalRoute.of(nav.context);
+    if (shellRoute != null && !shellRoute.isCurrent) return false;
+
+    unawaited(nav.maybePop());
+    return true;
   }
 
   /// 在正常页面 pop 之前，尝试优先关闭最顶部的遮罩路由。
@@ -255,6 +278,11 @@ class PopCoordinator {
     // Some popup routes can be mounted on Shell navigator.
     final shellNav = shellNavigatorKey.currentState;
     if (_tryPopPopupRoute(shellNav)) {
+      return true;
+    }
+
+    // 设置树的嵌套 Navigator 上也可能挂着弹层。
+    if (_tryPopPopupRoute(settingsShellNavigatorKey.currentState)) {
       return true;
     }
 

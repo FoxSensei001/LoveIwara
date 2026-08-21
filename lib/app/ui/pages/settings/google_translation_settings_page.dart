@@ -16,30 +16,20 @@ class GoogleTranslationSettingsPage extends StatelessWidget {
     final configService = Get.find<ConfigService>();
     final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
 
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          BlurredSliverAppBar(
-            title: slang.t.translation.googleTranslation,
-            isWideScreen: isWideScreen,
+    return GlassSettingsScaffold(
+      title: slang.t.translation.googleTranslation,
+      slivers: [
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              _buildStatusCard(context, configService),
+              const SizedBox(height: 16),
+              _buildFeaturesCard(context),
+            ]),
           ),
-          SliverPadding(
-            padding: EdgeInsets.fromLTRB(
-              16,
-              16,
-              16,
-              16 + bottomInset,
-            ),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _buildStatusCard(context, configService),
-                const SizedBox(height: 16),
-                _buildFeaturesCard(context),
-              ]),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

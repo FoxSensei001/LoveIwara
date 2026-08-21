@@ -72,9 +72,13 @@ class _FirstTimeSetupPageState extends State<FirstTimeSetupPage>
         surfaceTintColor: Colors.transparent,
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
-          statusBarIconBrightness: theme.brightness == Brightness.dark ? Brightness.light : Brightness.dark,
+          statusBarIconBrightness: theme.brightness == Brightness.dark
+              ? Brightness.light
+              : Brightness.dark,
           systemNavigationBarColor: Colors.transparent,
-          systemNavigationBarIconBrightness: theme.brightness == Brightness.dark ? Brightness.light : Brightness.dark,
+          systemNavigationBarIconBrightness: theme.brightness == Brightness.dark
+              ? Brightness.light
+              : Brightness.dark,
         ),
         flexibleSpace: ClipRRect(
           child: BackdropFilter(
@@ -122,60 +126,77 @@ class _FirstTimeSetupPageState extends State<FirstTimeSetupPage>
         }),
         actions: [
           // 上一步按钮
-          Obx(() => AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            child: _controller.currentStepIndex.value > 0
-                ? Container(
-                    key: const ValueKey('prev'),
-                    width: 40,
-                    height: 40,
-                    margin: const EdgeInsets.only(right: 8),
-                    child: Material(
-                      color: theme.colorScheme.surfaceContainer,
-                      borderRadius: BorderRadius.circular(12),
-                      child: InkWell(
-                        onTap: _previousStep,
+          Obx(
+            () => AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: _controller.currentStepIndex.value > 0
+                  ? Container(
+                      key: const ValueKey('prev'),
+                      width: 40,
+                      height: 40,
+                      margin: const EdgeInsets.only(right: 8),
+                      child: Material(
+                        color: theme.colorScheme.surfaceContainer,
                         borderRadius: BorderRadius.circular(12),
-                        child: Icon(
-                          Icons.chevron_left,
-                          color: theme.colorScheme.onSurface,
-                          size: 24,
+                        child: InkWell(
+                          onTap: _previousStep,
+                          borderRadius: BorderRadius.circular(12),
+                          child: Icon(
+                            Icons.chevron_left,
+                            color: theme.colorScheme.onSurface,
+                            size: 24,
+                          ),
                         ),
                       ),
+                    )
+                  : const SizedBox(
+                      key: ValueKey('empty'),
+                      width: 48,
+                      height: 40,
                     ),
-                  )
-                : const SizedBox(key: ValueKey('empty'), width: 48, height: 40),
-          )),
+            ),
+          ),
           // 下一步/完成按钮
-          Obx(() => AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            width: 40,
-            height: 40,
-            margin: const EdgeInsets.only(right: 16),
-            child: Material(
-              color: _controller.canProceed()
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.surfaceContainer,
-              borderRadius: BorderRadius.circular(12),
-              child: InkWell(
-                onTap: _controller.canProceed()
-                    ? (_controller.currentStepIndex.value == _controller.stepManager.totalSteps - 1 ? _completeSetup : _nextStep)
-                    : null,
+          Obx(
+            () => AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 40,
+              height: 40,
+              margin: const EdgeInsets.only(right: 16),
+              child: Material(
+                color: _controller.canProceed()
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.surfaceContainer,
                 borderRadius: BorderRadius.circular(12),
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: Icon(
-                    key: ValueKey(_controller.currentStepIndex.value == _controller.stepManager.totalSteps - 1),
-                    _controller.currentStepIndex.value == _controller.stepManager.totalSteps - 1 ? Icons.done : Icons.chevron_right,
-                    color: _controller.canProceed()
-                        ? theme.colorScheme.onPrimary
-                        : theme.colorScheme.onSurface.withValues(alpha: 0.38),
-                    size: 24,
+                child: InkWell(
+                  onTap: _controller.canProceed()
+                      ? (_controller.currentStepIndex.value ==
+                                _controller.stepManager.totalSteps - 1
+                            ? _completeSetup
+                            : _nextStep)
+                      : null,
+                  borderRadius: BorderRadius.circular(12),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    child: Icon(
+                      key: ValueKey(
+                        _controller.currentStepIndex.value ==
+                            _controller.stepManager.totalSteps - 1,
+                      ),
+                      _controller.currentStepIndex.value ==
+                              _controller.stepManager.totalSteps - 1
+                          ? Icons.done
+                          : Icons.chevron_right,
+                      color: _controller.canProceed()
+                          ? theme.colorScheme.onPrimary
+                          : theme.colorScheme.onSurface.withValues(alpha: 0.38),
+                      size: 24,
+                    ),
                   ),
                 ),
               ),
             ),
-          )),
+          ),
         ],
         centerTitle: false,
       ),
@@ -185,16 +206,21 @@ class _FirstTimeSetupPageState extends State<FirstTimeSetupPage>
           children: [
             // 主要内容区域
             Expanded(
-              child: Obx(() => AnimatedSwitcher(
-                duration: const Duration(milliseconds: 400),
-                transitionBuilder: (Widget child, Animation<double> animation) {
-                  return FadeTransition(
-                    opacity: animation,
-                    child: child,
-                  );
-                },
-                child: _buildStepContent(context, _controller.currentStepIndex.value, isDesktop, isNarrow),
-              )),
+              child: Obx(
+                () => AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 400),
+                  transitionBuilder:
+                      (Widget child, Animation<double> animation) {
+                        return FadeTransition(opacity: animation, child: child);
+                      },
+                  child: _buildStepContent(
+                    context,
+                    _controller.currentStepIndex.value,
+                    isDesktop,
+                    isNarrow,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -202,10 +228,15 @@ class _FirstTimeSetupPageState extends State<FirstTimeSetupPage>
     );
   }
 
-  Widget _buildStepContent(BuildContext context, int step, bool isDesktop, bool isNarrow) {
+  Widget _buildStepContent(
+    BuildContext context,
+    int step,
+    bool isDesktop,
+    bool isNarrow,
+  ) {
     final currentStep = _controller.stepManager.currentStep;
     if (currentStep == null) return const SizedBox.shrink();
-    
+
     return Container(
       key: ValueKey(step),
       child: currentStep.builder(context, isDesktop, isNarrow),

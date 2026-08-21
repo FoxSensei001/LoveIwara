@@ -3,18 +3,14 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:oktoast/oktoast.dart';
 
 /// 推荐路径选择组件
 class RecommendedPathsWidget extends StatefulWidget {
   final VoidCallback? onPathSelected;
 
-  const RecommendedPathsWidget({
-    super.key,
-    this.onPathSelected,
-  });
+  const RecommendedPathsWidget({super.key, this.onPathSelected});
 
   @override
   State<RecommendedPathsWidget> createState() => _RecommendedPathsWidgetState();
@@ -43,9 +39,9 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
           children: [
             Text(
               t.settings.downloadSettings.recommendedPaths,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
@@ -55,7 +51,7 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             Obx(() {
               if (_downloadPathService.isRecommendedPathsLoading) {
                 return const Center(child: CircularProgressIndicator());
@@ -66,10 +62,12 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
               }
               return Column(
                 children: paths
-                    .map((recommendedPath) => Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: _buildPathTile(recommendedPath),
-                        ))
+                    .map(
+                      (recommendedPath) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _buildPathTile(recommendedPath),
+                      ),
+                    )
                     .toList(),
               );
             }),
@@ -84,10 +82,7 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: Border.all(
-          color: Theme.of(context).dividerColor,
-          width: 1,
-        ),
+        border: Border.all(color: Theme.of(context).dividerColor, width: 1),
         borderRadius: BorderRadius.circular(8),
         color: Theme.of(context).colorScheme.surface,
       ),
@@ -98,8 +93,11 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
             children: [
               Icon(
                 _getPathIcon(recommendedPath.type),
-                color: recommendedPath.isRecommended ? Colors.green : 
-                       recommendedPath.requiresPermission ? Colors.orange : Colors.grey,
+                color: recommendedPath.isRecommended
+                    ? Colors.green
+                    : recommendedPath.requiresPermission
+                    ? Colors.orange
+                    : Colors.grey,
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -113,14 +111,18 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    if (recommendedPath.isRecommended || recommendedPath.requiresPermission)
+                    if (recommendedPath.isRecommended ||
+                        recommendedPath.requiresPermission)
                       const SizedBox(height: 4),
                     Wrap(
                       spacing: 6,
                       children: [
                         if (recommendedPath.isRecommended)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.green,
                               borderRadius: BorderRadius.circular(10),
@@ -136,7 +138,10 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
                           ),
                         if (recommendedPath.requiresPermission)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.orange,
                               borderRadius: BorderRadius.circular(10),
@@ -158,13 +163,13 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
             ],
           ),
           const SizedBox(height: 12),
-          
+
           Text(
             recommendedPath.description,
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 8),
-          
+
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(8),
@@ -184,15 +189,17 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
             ),
           ),
           const SizedBox(height: 12),
-          
+
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: recommendedPath.requiresPermission 
+              onPressed: recommendedPath.requiresPermission
                   ? () => _requestPermissionAndSelect(recommendedPath)
                   : () => _selectPath(recommendedPath),
               child: Text(
-                recommendedPath.requiresPermission ? t.settings.downloadSettings.authorizeAndSelect : t.settings.downloadSettings.select,
+                recommendedPath.requiresPermission
+                    ? t.settings.downloadSettings.authorizeAndSelect
+                    : t.settings.downloadSettings.select,
                 style: const TextStyle(fontSize: 12),
               ),
             ),
@@ -215,7 +222,9 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
     }
   }
 
-  Future<void> _requestPermissionAndSelect(RecommendedPath recommendedPath) async {
+  Future<void> _requestPermissionAndSelect(
+    RecommendedPath recommendedPath,
+  ) async {
     final t = slang.Translations.of(context);
     final granted = await _permissionService.requestStoragePermission();
 
@@ -223,11 +232,9 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
       await _selectPath(recommendedPath);
       await _downloadPathService.refreshPermissionAndRelated();
     } else {
-      showToastWidget(
-        MDToastWidget(
-          message: t.settings.downloadSettings.permissionAuthorizationFailed,
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        t.settings.downloadSettings.permissionAuthorizationFailed,
+        type: GlassToastType.error,
       );
     }
   }
@@ -236,37 +243,39 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
     final t = slang.Translations.of(context);
     try {
       // 验证路径
-      final validationResult = await _downloadPathService.validatePath(recommendedPath.path);
-      
+      final validationResult = await _downloadPathService.validatePath(
+        recommendedPath.path,
+      );
+
       if (!validationResult.isValid) {
-        showToastWidget(
-          MDToastWidget(
-            message: '${t.settings.downloadSettings.pathValidationFailed}: ${validationResult.message}',
-            type: MDToastType.error,
-          ),
+        showGlassToast(
+          '${t.settings.downloadSettings.pathValidationFailed}: ${validationResult.message}',
+          type: GlassToastType.error,
         );
         return;
       }
-      
+
       // 设置路径
-      await _configService.setSetting(ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH, true);
-      await _configService.setSetting(ConfigKey.CUSTOM_DOWNLOAD_PATH, recommendedPath.path);
-      await _downloadPathService.refreshPathStatus();
-      
-      showToastWidget(
-        MDToastWidget(
-          message: '${t.settings.downloadSettings.downloadPathSetTo}: ${recommendedPath.name}',
-          type: MDToastType.success,
-        ),
+      await _configService.setSetting(
+        ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH,
+        true,
       );
-      
+      await _configService.setSetting(
+        ConfigKey.CUSTOM_DOWNLOAD_PATH,
+        recommendedPath.path,
+      );
+      await _downloadPathService.refreshPathStatus();
+
+      showGlassToast(
+        '${t.settings.downloadSettings.downloadPathSetTo}: ${recommendedPath.name}',
+        type: GlassToastType.success,
+      );
+
       widget.onPathSelected?.call();
     } catch (e) {
-      showToastWidget(
-        MDToastWidget(
-          message: '${t.settings.downloadSettings.setPathFailed}: $e',
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        '${t.settings.downloadSettings.setPathFailed}: $e',
+        type: GlassToastType.error,
       );
     }
   }

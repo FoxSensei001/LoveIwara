@@ -140,6 +140,47 @@ class HistoryRepository {
     return result.isEmpty ? 0 : (result.first['cnt'] as int);
   }
 
+  /// 统计「列表查询」命中的记录数（类型 + 关键字 + 时间范围），分页模式算总页数用。
+  ///
+  /// 条件必须与 [getRecordsByTypeAndTimeRange] / [searchByTitleAndTimeRange]
+  /// 逐条对齐——包括「时间区间一律筛 created_at，只有排序才看 orderByUpdated」
+  /// 这一点；两边口径一旦不同，页数就会和实际能翻到的页对不上。
+  Future<int> countRecordsForList({
+    String itemType = 'all',
+    String keyword = '',
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
+    final List<Object?> params = [];
+    final List<String> conditions = [];
+
+    if (keyword.isNotEmpty) {
+      conditions.add('title LIKE ?');
+      params.add('%$keyword%');
+    }
+    if (itemType != 'all') {
+      conditions.add('item_type = ?');
+      params.add(itemType);
+    }
+    if (startDate != null) {
+      conditions.add('created_at >= ?');
+      params.add(startDate.toIso8601String());
+    }
+    if (endDate != null) {
+      conditions.add('created_at <= ?');
+      params.add(endDate.toIso8601String());
+    }
+
+    final String where = conditions.isNotEmpty
+        ? 'WHERE ${conditions.join(' AND ')}'
+        : '';
+    final result = _db.select(
+      'SELECT COUNT(*) AS cnt FROM history_records $where',
+      params,
+    );
+    return result.isEmpty ? 0 : (result.first['cnt'] as int);
+  }
+
   /// 按时间范围 + 类型删除记录，返回被删除的条数。
   Future<int> deleteRecordsByTimeRange({
     String itemType = 'all',

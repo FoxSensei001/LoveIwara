@@ -3,10 +3,11 @@ import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/history_record.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/post_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/utils/iwara_different_site_recovery.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart';
 
 class PostDetailController extends GetxController {
   final String postId;
@@ -38,15 +39,27 @@ class PostDetailController extends GetxController {
 
       ApiResult<PostModel> res = await _postService.fetchPostDetail(postId);
       if (!res.isSuccess) {
+        // 跨站资源：切站会退回首页并重建整棵树，本页作废，由 reopen 在新站点重新
+        // 开一张干净的详情页，这里直接 return。
+        if (await IwaraDifferentSiteRecovery.recover(
+          res.exception,
+          resourceKey: 'post:$postId',
+          reopen: () => NaviService.navigateToPostDetailPage(postId, null),
+        )) {
+          return;
+        }
+
         errorMessage.value = res.message;
-        showToastWidget(
-          MDToastWidget(message: res.message, type: MDToastType.error),
-          position: ToastPosition.bottom,
+        showGlassToast(
+          res.message,
+          type: GlassToastType.error,
+          position: GlassToastPosition.bottom,
         );
         return;
       }
 
       postInfo.value = res.data;
+      IwaraDifferentSiteRecovery.markResolved('post:$postId');
 
       try {
         final HistoryRepository historyRepository = HistoryRepository();

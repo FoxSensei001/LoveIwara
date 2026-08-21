@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 
 class SettingItem extends StatefulWidget {
   final String label;
@@ -62,16 +63,16 @@ class _SettingItemState extends State<SettingItem> {
   Widget build(BuildContext context) {
     return Container(
       padding: widget.padding,
+      // 玻璃壳口径与 GlassSettingSection 一致：fill 底 + stroke 细描边，
+      // 不再用 box-shadow（玻璃组件的投影统一走 GlassTokens.shadow，行级
+      // 输入项不需要那么重的浮起感）。
       decoration: BoxDecoration(
-        color: widget.backgroundColor ?? Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: widget.backgroundColor ?? GlassTokens.fill(Theme.of(context).colorScheme),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: GlassTokens.stroke(Theme.of(context).colorScheme),
+          width: GlassTokens.strokeWidth,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -89,7 +90,8 @@ class _SettingItemState extends State<SettingItem> {
                       Expanded(
                         child: Text(
                           widget.label,
-                          style: widget.labelStyle ??
+                          style:
+                              widget.labelStyle ??
                               Theme.of(context).textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -117,7 +119,8 @@ class _SettingItemState extends State<SettingItem> {
                       Expanded(
                         child: Text(
                           widget.label,
-                          style: widget.labelStyle ??
+                          style:
+                              widget.labelStyle ??
                               Theme.of(context).textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -129,10 +132,7 @@ class _SettingItemState extends State<SettingItem> {
                   ),
                 ),
                 const SizedBox(width: 16),
-                SizedBox(
-                  width: 120,
-                  child: _buildTextField(),
-                ),
+                SizedBox(width: 120, child: _buildTextField()),
               ],
             ),
           ],
@@ -142,7 +142,9 @@ class _SettingItemState extends State<SettingItem> {
               child: Text(
                 _errorText!,
                 style: TextStyle(
-                    color: Theme.of(context).colorScheme.error, fontSize: 12),
+                  color: Theme.of(context).colorScheme.error,
+                  fontSize: 12,
+                ),
               ),
             ),
         ],
@@ -154,13 +156,14 @@ class _SettingItemState extends State<SettingItem> {
     // TextField 代码保持不变
     return TextField(
       readOnly: widget.readOnly,
-      decoration: widget.inputDecoration ??
+      decoration:
+          widget.inputDecoration ??
           InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
             ),
-            contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
@@ -179,8 +182,9 @@ class _SettingItemState extends State<SettingItem> {
               ),
             ),
             filled: true,
-            fillColor:
-            widget.readOnly ? Colors.grey.shade100 : Colors.transparent,
+            fillColor: widget.readOnly
+                ? Colors.grey.shade100
+                : Colors.transparent,
           ),
       keyboardType: widget.keyboardType,
       controller: _controller,

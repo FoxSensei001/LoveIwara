@@ -1,5 +1,5 @@
+import 'dart:async';
 import 'dart:convert';
-import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -7,11 +7,13 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
-import 'package:i_iwara/app/models/download/download_category.model.dart';
+import 'package:i_iwara/app/services/download/download_state_log.dart';
+import 'package:i_iwara/app/services/download/download_task_store.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
-import 'package:i_iwara/app/ui/pages/download/download_category_manage_page.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart'
+    show openDownloadCategoryManagePage;
 import 'package:i_iwara/app/ui/pages/download/widgets/move_to_category_sheet.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/default_download_task_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_scale.dart';
@@ -20,12 +22,18 @@ import 'package:i_iwara/app/ui/pages/download/widgets/gallery_download_task_item
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:super_clipboard/super_clipboard.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
-import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/ui/widgets/glass/batch_confirm_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 /// Status filter options for download tasks
@@ -34,6 +42,10 @@ enum DownloadStatusFilter { all, failed, downloaded }
 /// Type filter options for download tasks
 enum DownloadTypeFilter { all, video, gallery, other }
 
+/// 下载任务列表页（玻璃化）。
+///
+/// header 两行：第一行「返回 / 中间胶囊（搜索框 ↔ 已选计数）/ 动作胶囊」，
+/// 第二行分类标签条。状态 / 类型筛选收进筛选弹窗，生效时动作胶囊上挂红点。
 class DownloadTaskListPage extends StatefulWidget {
   const DownloadTaskListPage({super.key});
 
@@ -42,6 +54,26 @@ class DownloadTaskListPage extends StatefulWidget {
 }
 
 class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
+  /// 标题行与分类条之间的间距。
+  static const double _headerRowGap = 6;
+
+  /// 分类条与列表首屏之间的呼吸。
+  ///
+  /// 单行 header 的 56 里天然留了余量（胶囊只有 44 高），两行 header 的第二行
+  /// 高度就是胶囊高度、一点余量都没有——不补这一段，第一张卡片会紧贴分类条下沿。
+  static const double _headerBottomGap = 8;
+
+  /// 分类条所占行高（与玻璃胶囊同高，标签本体略矮居中）。
+  static const double _categoryStripHeight = GlassTokens.pillHeight;
+
+  /// 分类标签本体高度。
+  static const double _categoryChipHeight = 36;
+
+  static const String _menuActionManageCategory = 'manageCategory';
+  static const String _menuActionDeleteByDate = 'deleteByDate';
+  static const String _menuActionResumeAll = 'resumeAll';
+  static const String _menuActionPauseAll = 'pauseAll';
+
   final DownloadTaskRepository _downloadTaskRepository =
       DownloadTaskRepository();
   final ScrollController _scrollController = ScrollController();
@@ -49,30 +81,29 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   final ScrollController _categoryStripController = ScrollController();
   late _HistoryDownloadTasksSource _historySource;
 
-  // 等待中任务列表
-  List<DownloadTask> _pendingTasks = [];
-  bool _isLoadingPendingTasks = false;
-  int _lastPendingVersion = -1;
+  /// 列表滚过一段距离后显示右下角「回到顶部」浮钮。
+  final ValueNotifier<bool> _showBackToTop = ValueNotifier<bool>(false);
 
-  // 失败任务列表
-  List<DownloadTask> _failedTasks = [];
-  bool _isLoadingFailedTasks = false;
-  int _lastFailedVersion = -1;
+  /// 搜索输入防抖：每敲一个字都要走三条本地 DB 查询 + 历史区串行刷新，
+  /// 不防抖既浪费查询，也让筛选钮的沙漏态一路抽搐。
+  Timer? _searchDebounce;
+  static const Duration _searchDebounceDelay = Duration(milliseconds: 300);
 
-  // 加载期间若有更新的状态版本到来，则置脏并在本轮加载结束后重跑，
-  // 避免“加载中丢弃后续更新”导致快照永远停留在旧状态的竞态。
-  bool _pendingReloadDirty = false;
-  bool _failedReloadDirty = false;
+  /// 活跃任务（下载中 / 等待 / 暂停 / 失败）的内存单一真源。
+  ///
+  /// 这四个区不再各自查库、也不再有页面级快照：分区由 Store 按状态唯一决定，
+  /// 页面只负责「订阅 + 筛选 + 渲染」。此前为了兜住「各区独立重查」带来的不一致，
+  /// 这里曾经并存四套补丁（脏标记重跑、刷新串行化、删除墓碑、跨区去重集合），
+  /// 随着真源合一它们全部失去存在意义，已一并删除。
+  DownloadTaskStore get _store => DownloadService.to.store;
 
-  // 历史区域刷新串行化：LoadingMoreBase 不支持并发 refresh，
-  // 并发会相互 clear/addAll 造成列表被清空或漏掉“刚完成”的任务。
+  // 历史区域（已完成任务，DB 分页）刷新串行化：LoadingMoreBase 不支持并发
+  // refresh，并发会相互 clear/addAll 造成列表被清空或漏掉“刚完成”的任务。
   bool _isRefreshingHistory = false;
   bool _historyRefreshDirty = false;
-  int _lastHistoryVersion = -1;
 
-  // 用于监听任务状态变更
-  int _lastStatusVersion = -1;
-  Worker? _statusChangedWorker;
+  /// 历史区失效信号的订阅（任务完成 / 删除 / 改分类时由 Store 递增）。
+  Worker? _completedRevisionWorker;
 
   // 批量删除模式
   bool _isSelectionMode = false;
@@ -85,25 +116,11 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   final TextEditingController _searchController = TextEditingController();
   bool _isFilterLoading = false;
 
-  // 分类筛选状态：'all' | 'uncategorized' | <categoryId>
+  /// 分类筛选状态：`all` | `uncategorized` | 具体分类 id。
+  ///
+  /// 分类列表本身不再有页面快照——它是 [DownloadService.categories] 这个可观察
+  /// 状态，标签条直接 Obx 读。这里只留「当前选中哪个」这一个纯 UI 状态。
   String _categoryFilter = 'all';
-  List<DownloadCategory> _categories = [];
-  int _uncategorizedCount = 0;
-  Worker? _categoriesChangedWorker;
-  Worker? _removedTaskIdsWorker;
-
-  // 历史区去重 / 删除残留防护：
-  // - _deletedTombstones：本次会话中已成功删除、但异步历史刷新可能尚未从
-  //   _historySource 中剔除的任务 id。删除“下载中”任务时，取消清理会把它瞬时
-  //   写回 paused 并触发历史刷新，可能与删除的就地移除发生竞态而被重新读入；
-  //   构建时据墓碑隐藏，保证删除后立刻消失、无需重进页面。刷新确认 DB 已无该
-  //   行后清除（见 _refreshHistory）。
-  // - _historyHiddenIds：每次构建时重算 = 活跃区(下载中/等待/失败)的全部 id ∪
-  //   _deletedTombstones。历史区是独立的 LoadingMoreSliverList，原本不参与
-  //   顶部区域的 seenIds 去重；命中该集合的历史行直接跳过渲染，杜绝同一任务在
-  //   “下载中/暂停”等区域与历史区同时出现（如续传一个旧的暂停任务时的重复显示）。
-  final Set<String> _deletedTombstones = <String>{};
-  Set<String> _historyHiddenIds = <String>{};
 
   void _enterSelectionMode() {
     setState(() {
@@ -129,37 +146,40 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     });
   }
 
+  /// 批量删除确认：走全站统一的玻璃确认弹窗（含所选预览）。
+  ///
+  /// 原先这里是裸 `showDialog + AlertDialog`——没走 `showAppDialog`，出入场
+  /// 动画与全站不是一套；主按钮还只写着「确认」，看不出按下去会发生什么。
   Future<void> _deleteSelectedTasks() async {
     if (_selectedTaskIds.isEmpty) return;
 
     final t = slang.Translations.of(context);
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.common.confirmDelete),
-        content: Text(
-          t.common.areYouSureYouWantToDeleteSelectedItems(
-            num: _selectedTaskIds.length,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(t.common.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t.common.confirm),
-          ),
-        ],
+    final confirmed = await showBatchConfirmDialog(
+      title: t.common.confirmDelete,
+      // 删的是已经落盘的文件，不像取消最爱那样能点回来，措辞要说清楚
+      message: t.download.deleteByDate.confirmContent(
+        count: _selectedTaskIds.length,
       ),
+      confirmLabel: t.common.delete,
+      previewTitles: _selectedTaskTitles(),
+      totalCount: _selectedTaskIds.length,
     );
 
-    if (result == true) {
-      await DownloadService.to.deleteTasks(_selectedTaskIds.toList());
-      _exitSelectionMode();
+    if (!confirmed || !mounted) return;
+    await DownloadService.to.deleteTasks(_selectedTaskIds.toList());
+    _exitSelectionMode();
+  }
+
+  /// 取所选任务的标题，供确认弹窗列出「到底要删哪几个」。
+  List<String> _selectedTaskTitles() {
+    final titles = <String>[];
+    for (final task in [..._store.activeTasks, ..._historySource]) {
+      if (!_selectedTaskIds.contains(task.id)) continue;
+      final title = task.fileName.trim();
+      titles.add(title.isEmpty ? task.id : title);
+      if (titles.length >= 3) break;
     }
+    return titles;
   }
 
   /// 入口：打开“按日期删除”弹窗，拿到用户选择的日期条件后进入确认与删除流程。
@@ -187,22 +207,18 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       );
     } catch (_) {
       if (!mounted) return;
-      showToastWidget(
-        MDToastWidget(
-          message: t.download.errors.failedToLoadTasks,
-          type: MDToastType.error,
-        ),
+      showGlassToast(
+        t.download.errors.failedToLoadTasks,
+        type: GlassToastType.error,
       );
       return;
     }
     if (!mounted) return;
 
     if (tasks.isEmpty) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.download.deleteByDate.noMatch,
-          type: MDToastType.warning,
-        ),
+      showGlassToast(
+        t.download.deleteByDate.noMatch,
+        type: GlassToastType.warning,
       );
       return;
     }
@@ -211,7 +227,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t.download.deleteByDate.confirmTitle),
+        title: _dialogTitleRow(context, t.download.deleteByDate.confirmTitle),
         content: Text(
           t.download.deleteByDate.confirmContent(count: tasks.length),
         ),
@@ -240,27 +256,21 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
 
     // 4. 结果提示：全部成功 / 部分被占用跳过。
     if (result.skipped == 0) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.download.deleteByDate.resultSuccess(count: result.deleted),
-          type: MDToastType.success,
-        ),
+      showGlassToast(
+        t.download.deleteByDate.resultSuccess(count: result.deleted),
+        type: GlassToastType.success,
       );
     } else {
-      showToastWidget(
-        MDToastWidget(
-          message: t.download.deleteByDate.resultPartial(
-            deleted: result.deleted,
-            skipped: result.skipped,
-          ),
-          type: MDToastType.warning,
+      showGlassToast(
+        t.download.deleteByDate.resultPartial(
+          deleted: result.deleted,
+          skipped: result.skipped,
         ),
+        type: GlassToastType.warning,
       );
     }
 
-    // 5. 刷新各分区列表。
-    await _reloadPendingTasks();
-    await _reloadFailedTasks();
+    // 5. 刷新历史区（活跃区已由 Store 在删除时同步移除，无需刷新）。
     await _refreshHistory();
   }
 
@@ -268,47 +278,22 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   void initState() {
     super.initState();
     _historySource = _HistoryDownloadTasksSource(_downloadTaskRepository);
-    _reloadPendingTasks();
-    _reloadFailedTasks();
-    _reloadCategories();
+    // 分类条与活跃区都不需要订阅：它们直接 Obx 读服务里的可观察状态
+    //（DownloadService.categories / store 的分区 id 列表）。这里只补一次分类装载，
+    // 覆盖「服务启动早于本页、期间分类被别处改过」的情况。
+    unawaited(DownloadService.to.refreshCategories());
 
-    // 监听任务状态变更，将刷新（含 setState / DB 读）等副作用移出 build。
-    _statusChangedWorker = ever(DownloadService.to.taskStatusChangedNotifier, (
-      int currentVersion,
-    ) {
-      if (currentVersion == _lastStatusVersion) return;
-      _lastStatusVersion = currentVersion;
-      // 延后到帧回调后执行，避免在 build/通知阶段触发 setState。
+    // 需要订阅的只剩一件事：历史区（已完成任务分页在 DB 里，不在内存真源）。
+    _completedRevisionWorker = ever(_store.completedRevision, (int revision) {
+      DownloadStateLog.receive(
+        this,
+        DownloadService.to,
+        'completedRevision',
+        detail: 'v=$revision',
+      );
       _runAfterFrame(() {
-        // 刷新顶部区域
-        _refreshPendingTasksIfNeeded();
-        _refreshFailedTasksIfNeeded();
-        // 刷新历史区域（串行 + 版本重跑，避免并发 refresh 漏掉刚完成的任务）
+        DownloadStateLog.apply(this, 'refreshHistory', detail: 'v=$revision');
         _refreshHistory();
-        // 任务增删 / 完成会影响各分类计数，顺带刷新分类条。
-        _reloadCategories();
-      });
-    });
-
-    // 分类增删改 / 排序变更时刷新分类条与筛选。
-    _categoriesChangedWorker = ever(
-      DownloadService.to.categoriesChangedNotifier,
-      (_) {
-        _runAfterFrame(() {
-          _reloadCategories();
-        });
-      },
-    );
-
-    // 删除任务：就地移除对应行，保留滚动位置（不整列重载）。
-    _removedTaskIdsWorker = ever(DownloadService.to.removedTaskIdsNotifier, (
-      List<String> ids,
-    ) {
-      if (ids.isEmpty) return;
-      _runAfterFrame(() {
-        _removeTasksInPlace(ids);
-        // 删除影响各分类计数，刷新分类条。
-        _reloadCategories();
       });
     });
   }
@@ -332,11 +317,11 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
 
   @override
   void dispose() {
-    _statusChangedWorker?.dispose();
-    _categoriesChangedWorker?.dispose();
-    _removedTaskIdsWorker?.dispose();
+    _searchDebounce?.cancel();
+    _completedRevisionWorker?.dispose();
     _scrollController.dispose();
     _categoryStripController.dispose();
+    _showBackToTop.dispose();
     _historySource.dispose();
     _searchController.dispose();
     super.dispose();
@@ -344,478 +329,425 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final t = slang.Translations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final double statusBarHeight = MediaQuery.paddingOf(context).top;
+    final double headerHeight =
+        GlassTokens.headerRowHeight + _headerRowGap + _categoryStripHeight;
+    final double headerExtent = statusBarHeight + headerHeight;
+    final bool isWide = MediaQuery.sizeOf(context).width > 600;
 
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        // 普通模式下不再显示页面标题（按需求移除），仅在多选模式下显示已选数量。
-        title: _isSelectionMode
-            ? Text(t.common.selectedRecords(num: _selectedTaskIds.length))
-            : null,
-        leading: _isSelectionMode
-            ? null // 多选模式下隐藏返回按钮，退出按钮在左下角
-            : null,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        // AppBar 透明，需按主题显式设置状态栏图标明暗，否则会沿用上一页
-        // （如视频详情页的白色图标），在浅色背景下看不见。
-        systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness:
-              Theme.of(context).brightness == Brightness.dark
-              ? Brightness.light
-              : Brightness.dark,
-          statusBarBrightness: Theme.of(context).brightness == Brightness.dark
-              ? Brightness.dark
-              : Brightness.light,
-        ),
-        flexibleSpace: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              decoration: BoxDecoration(
-                color: colorScheme.surface.withValues(alpha: 0.8),
-              ),
-            ),
-          ),
-        ),
-        actions: [
-          if (!_isSelectionMode) ...[
-            IconButton(
-              icon: const Icon(Icons.play_arrow_outlined),
-              tooltip: t.download.resumeAll,
-              onPressed: () => DownloadService.to.resumeAll(),
-            ),
-            IconButton(
-              icon: const Icon(Icons.pause_outlined),
-              tooltip: t.download.pauseAll,
-              onPressed: () => DownloadService.to.pauseAll(),
-            ),
-            // “其他”菜单：批量删除 / 按日期删除，后续可扩展更多批量操作。
-            PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert),
-              tooltip: t.download.moreOptions,
-              onSelected: (value) {
-                switch (value) {
-                  case 'manageCategory':
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const DownloadCategoryManagePage(),
-                      ),
-                    );
-                    break;
-                  case 'batchDelete':
-                    _enterSelectionMode();
-                    break;
-                  case 'deleteByDate':
-                    _showDeleteByDateDialog();
-                    break;
-                }
-              },
-              itemBuilder: (context) => [
-                PopupMenuItem<String>(
-                  value: 'manageCategory',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.folder_outlined,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(t.download.category.manageTitle),
-                    ],
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'batchDelete',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.delete_sweep_outlined,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(t.common.batchDelete),
-                    ],
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'deleteByDate',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.auto_delete_outlined,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(t.download.deleteByDate.menuTitle),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      // 没有 AppBar 就没人管状态栏图标明暗，不显式声明会沿用上一页
+      //（如视频详情页的白色图标），在浅色背景下看不见。
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
       ),
-      body: DownloadScaleScope(
-        child: Stack(
-          children: [
-            // Main content (列表在底层)
-            Obx(() {
-              // 仅订阅任务状态变更以触发重建；实际的刷新副作用在
-              // initState 注册的 worker 中处理（见 _statusChangedWorker）。
-              DownloadService.to.taskStatusChangedNotifier.value;
-              return _buildSingleList();
-            }),
-            // 顶部悬浮的搜索栏（透明背景，紧贴 AppBar 下方）
-            Positioned(
-              top: kToolbarHeight + MediaQuery.of(context).padding.top,
-              left: 0,
-              right: 0,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildFilterBar(),
-                  // 分类标签条：始终显示，便于发现并进入分类系统
-                  // （无分类时显示「全部 + 管理分类」入口）。
-                  _buildCategoryStrip(),
-                  // Loading indicator for filter
-                  if (_isFilterLoading) const LinearProgressIndicator(),
+      child: Scaffold(
+        body: BatchSelectionScope(
+          active: _isSelectionMode,
+          selectedCount: _selectedTaskIds.length,
+          actions: _batchActions(context),
+          onClear: () => setState(_selectedTaskIds.clear),
+          // 系统返回 / iOS 侧滑 / Esc 先退选择态，而不是把整页弹掉
+          child: SelectionPopScope(
+            active: _isSelectionMode,
+            onExit: _exitSelectionMode,
+            child: DownloadScaleScope(
+              child: GlassHeaderOverlay(
+                headerExtent: headerExtent,
+                headerTop: statusBarHeight,
+                headerHeight: headerHeight,
+                solidExtent: statusBarHeight,
+                body: NotificationListener<ScrollNotification>(
+                  onNotification: (notification) {
+                    if (notification.depth == 0 &&
+                        notification.metrics.axis == Axis.vertical) {
+                      _showBackToTop.value = notification.metrics.pixels >= 300;
+                    }
+                    return false;
+                  },
+                  child: RefreshIndicator(
+                    // 指示器从玻璃 header 下方弹出，而不是被 header 压住
+                    displacement: headerExtent,
+                    onRefresh: _refreshAll,
+                    child: Obx(() {
+                      // 只订阅活跃区的**结构**变化（新增 / 删除 / 换区）——读一下四个
+                      // id 列表即可。进度、速度这类每秒多次的更新不走这里，它们由每行
+                      // 自己的 progress trigger 承载，因此长列表不会被进度刷爆。
+                      _store.downloadingIds.length;
+                      _store.pendingIds.length;
+                      _store.pausedIds.length;
+                      _store.failedIds.length;
+                      return _buildSingleList(headerExtent + _headerBottomGap);
+                    }),
+                  ),
+                ),
+                // header：第一行「返回 / 搜索或已选计数 / 动作胶囊」，第二行分类条
+                header: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      height: GlassTokens.headerRowHeight,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          children: [
+                            GlassIconButton(
+                              standalone: true,
+                              icon: const Icon(Icons.arrow_back),
+                              tooltip: slang.Translations.of(
+                                context,
+                              ).common.back,
+                              onPressed: () => AppService.tryPop(),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(child: _buildCenterCapsule(context)),
+                            const SizedBox(width: 8),
+                            _buildActionGroup(context, isWide: isWide),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: _headerRowGap),
+                    // 分类标签条：始终显示，便于发现并进入分类系统
+                    // （无分类时显示「全部 + 管理分类」入口）。
+                    _buildCategoryStrip(),
+                  ],
+                ),
+                extra: [
+                  _buildScrollToTopFab(context),
+                  // 批量动作：下载列表是单列长列表、没有分页栏，永远走底部玻璃坞
+                  const GlassSelectionDock(),
                 ],
               ),
             ),
-            // 左下角操作按钮组
-            BatchActionFab(
-              isMultiSelect: _isSelectionMode,
-              selectedCount: _selectedTaskIds.length,
-              heroTagPrefix: 'downloadList',
-              onExit: _exitSelectionMode,
-              onClear: () {
-                setState(() {
-                  _selectedTaskIds.clear();
-                });
-              },
-              customActionBuilder: (context) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // 移至分类
-                    FloatingActionButton.small(
-                      heroTag: 'batchMoveCategoryFAB_downloadList',
-                      onPressed: _moveSelectedToCategory,
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.primaryContainer,
-                      foregroundColor: Theme.of(
-                        context,
-                      ).colorScheme.onPrimaryContainer,
-                      tooltip: t.download.category.moveTo,
-                      child: const Icon(Icons.drive_file_move_outline),
-                    ),
-                    const SizedBox(height: 8),
-                    // 删除
-                    FloatingActionButton.small(
-                      heroTag: 'batchDeleteFAB_downloadList',
-                      onPressed: _deleteSelectedTasks,
-                      backgroundColor: Theme.of(context).colorScheme.error,
-                      foregroundColor: Theme.of(context).colorScheme.onError,
-                      tooltip: t.common.delete,
-                      child: const Icon(Icons.delete),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  /// Build the filter bar with search and dropdown filter icons
-  Widget _buildFilterBar() {
+  /// 下拉刷新：历史区 + 分类计数重拉。
+  ///
+  /// 活跃区不在此列——它读的是内存真源，永远是最新的，没有「刷新」这个概念。
+  Future<void> _refreshAll() async {
+    await Future.wait([
+      _refreshHistory(),
+      DownloadService.to.refreshCategories(),
+    ]);
+  }
+
+  /// header 中间的胶囊：普通模式是搜索框，多选模式换成「已选 N 条」。
+  ///
+  /// 两侧都是玻璃胶囊，走 [GlassCapsuleMorph] 单壳常驻、内容交接，
+  /// 而不是两只胶囊硬切。
+  Widget _buildCenterCapsule(BuildContext context) {
+    return GlassCapsuleMorph(
+      child: _isSelectionMode
+          ? KeyedSubtree(
+              key: const ValueKey('selection'),
+              child: _buildSelectionSummary(context),
+            )
+          : KeyedSubtree(
+              key: const ValueKey('search'),
+              child: _buildSearchContent(context),
+            ),
+    );
+  }
+
+  /// 搜索胶囊的内容（无壳，玻璃壳由 [GlassCapsuleMorph] 提供）。
+  Widget _buildSearchContent(BuildContext context) {
     final t = slang.Translations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
-    final hasActiveFilter =
-        _statusFilter != DownloadStatusFilter.all ||
-        _typeFilter != DownloadTypeFilter.all ||
-        _categoryFilter != 'all';
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
-      color: Colors.transparent,
-      child: Row(
-        children: [
-          // Search bar (用 Flexible 配合 AnimatedContainer 实现宽度动画)
-          Expanded(
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: t.download.searchTasks,
-                prefixIcon: const Icon(Icons.search, size: 20),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear, size: 20),
-                        onPressed: () {
-                          _searchController.clear();
-                          _onSearchChanged('');
-                        },
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: colorScheme.surfaceContainerHighest.withValues(
-                  alpha: 0.7,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                isDense: true,
+    return Row(
+      children: [
+        const SizedBox(width: 14),
+        Icon(Icons.search, size: 20, color: colorScheme.onSurfaceVariant),
+        const SizedBox(width: 8),
+        Expanded(
+          child: TextField(
+            controller: _searchController,
+            onChanged: _onSearchChanged,
+            textAlignVertical: TextAlignVertical.center,
+            style: const TextStyle(fontSize: 14),
+            decoration: InputDecoration(
+              isDense: true,
+              hintText: t.download.searchTasks,
+              hintStyle: TextStyle(
+                fontSize: 14,
+                color: colorScheme.onSurfaceVariant,
               ),
-              style: Theme.of(context).textTheme.bodyMedium,
-              onChanged: _onSearchChanged,
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(vertical: 12),
             ),
           ),
-          const SizedBox(width: 4),
-          // Clear filters button with animation
-          AnimatedSize(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeInOut,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              transitionBuilder: (child, animation) => FadeTransition(
-                opacity: animation,
-                child: ScaleTransition(scale: animation, child: child),
-              ),
-              child: hasActiveFilter
-                  ? IconButton(
-                      key: const ValueKey('clear_filter'),
-                      iconSize: 24,
-                      visualDensity: VisualDensity.compact,
-                      constraints: const BoxConstraints(
-                        minWidth: 44,
-                        minHeight: 44,
-                      ),
-                      padding: EdgeInsets.zero,
-                      icon: Icon(
-                        Icons.filter_alt_off,
-                        color: colorScheme.error,
-                      ),
-                      tooltip: t.download.clearFilters,
-                      onPressed: _clearFilters,
-                    )
-                  : const SizedBox.shrink(key: ValueKey('no_filter')),
+        ),
+        // 有输入时右侧长出清空钮（跟输入框实时走，不等防抖）
+        ValueListenableBuilder<TextEditingValue>(
+          valueListenable: _searchController,
+          builder: (context, value, _) => GlassGroupSlot(
+            visible: value.text.isNotEmpty,
+            child: IconButton(
+              icon: const Icon(Icons.close, size: 18),
+              tooltip: t.common.clear,
+              onPressed: () {
+                _searchController.clear();
+                _onSearchChanged('');
+              },
             ),
           ),
-          // Status filter dropdown - 根据状态显示不同图标
-          PopupMenuButton<DownloadStatusFilter>(
-            padding: const EdgeInsets.all(10),
-            tooltip: t.download.statusLabel(
-              label: _getStatusLabel(_statusFilter, t),
-            ),
-            onSelected: (value) {
-              setState(() {
-                _statusFilter = value;
-              });
-              _applyFilters();
-            },
-            itemBuilder: (context) => [
-              _buildFilterMenuItem(
-                value: DownloadStatusFilter.all,
-                label: t.download.allStatus,
-                icon: Icons.filter_list,
-                isSelected: _statusFilter == DownloadStatusFilter.all,
-              ),
-              _buildFilterMenuItem(
-                value: DownloadStatusFilter.failed,
-                label: t.download.failed,
-                icon: Icons.error_outline,
-                isSelected: _statusFilter == DownloadStatusFilter.failed,
-              ),
-              _buildFilterMenuItem(
-                value: DownloadStatusFilter.downloaded,
-                label: t.download.downloaded,
-                icon: Icons.check_circle_outline,
-                isSelected: _statusFilter == DownloadStatusFilter.downloaded,
-              ),
-            ],
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              transitionBuilder: (child, animation) =>
-                  ScaleTransition(scale: animation, child: child),
-              child: Icon(
-                _getStatusIcon(_statusFilter),
-                key: ValueKey(_statusFilter),
-                size: 26,
-                color: _statusFilter != DownloadStatusFilter.all
-                    ? colorScheme.primary
-                    : null,
-              ),
-            ),
-          ),
-          // Type filter dropdown - 根据类型显示不同图标
-          PopupMenuButton<DownloadTypeFilter>(
-            padding: const EdgeInsets.all(10),
-            tooltip: t.download.typeLabel(label: _getTypeLabel(_typeFilter, t)),
-            onSelected: (value) {
-              setState(() {
-                _typeFilter = value;
-              });
-              _applyFilters();
-            },
-            itemBuilder: (context) => [
-              _buildTypeFilterMenuItem(
-                value: DownloadTypeFilter.all,
-                label: t.download.allTypes,
-                icon: Icons.category_outlined,
-                isSelected: _typeFilter == DownloadTypeFilter.all,
-              ),
-              _buildTypeFilterMenuItem(
-                value: DownloadTypeFilter.video,
-                label: t.download.video,
-                icon: Icons.videocam_outlined,
-                isSelected: _typeFilter == DownloadTypeFilter.video,
-              ),
-              _buildTypeFilterMenuItem(
-                value: DownloadTypeFilter.gallery,
-                label: t.download.gallery,
-                icon: Icons.photo_library_outlined,
-                isSelected: _typeFilter == DownloadTypeFilter.gallery,
-              ),
-              _buildTypeFilterMenuItem(
-                value: DownloadTypeFilter.other,
-                label: t.download.other,
-                icon: Icons.more_horiz,
-                isSelected: _typeFilter == DownloadTypeFilter.other,
-              ),
-            ],
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              transitionBuilder: (child, animation) =>
-                  ScaleTransition(scale: animation, child: child),
-              child: Icon(
-                _getTypeIcon(_typeFilter),
-                key: ValueKey(_typeFilter),
-                size: 26,
-                color: _typeFilter != DownloadTypeFilter.all
-                    ? colorScheme.primary
-                    : null,
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 4),
+      ],
     );
   }
 
-  /// 获取状态筛选的图标
-  IconData _getStatusIcon(DownloadStatusFilter filter) {
-    return switch (filter) {
-      DownloadStatusFilter.all => Icons.filter_list,
-      DownloadStatusFilter.failed => Icons.error_outline,
-      DownloadStatusFilter.downloaded => Icons.check_circle_outline,
-    };
+  /// 多选模式下中间胶囊的内容：已选数量。
+  Widget _buildSelectionSummary(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Row(
+      children: [
+        const SizedBox(width: 14),
+        Icon(Icons.checklist, size: 20, color: colorScheme.onSurfaceVariant),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            t.common.selectedRecords(num: _selectedTaskIds.length),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+        ),
+        const SizedBox(width: 14),
+      ],
+    );
   }
 
-  /// 获取类型筛选的图标
-  IconData _getTypeIcon(DownloadTypeFilter filter) {
-    return switch (filter) {
-      DownloadTypeFilter.all => Icons.category_outlined,
-      DownloadTypeFilter.video => Icons.videocam_outlined,
-      DownloadTypeFilter.gallery => Icons.photo_library_outlined,
-      DownloadTypeFilter.other => Icons.more_horiz,
-    };
+  /// 右侧动作胶囊：[全部开始 · 全部暂停(宽屏)] 筛选(生效挂红点) · 多选
+  /// [更多(管理分类 / 按日期删除，窄屏再收下全部开始 · 全部暂停)]。
+  Widget _buildActionGroup(BuildContext context, {required bool isWide}) {
+    final t = slang.Translations.of(context);
+    // 多选时「全部开始 / 全部暂停 / 更多」与当前语境无关，一并挤出胶囊
+    final bool showBulkPlayback = isWide && !_isSelectionMode;
+
+    return GlassButtonGroup(
+      children: [
+        GlassGroupSlot(
+          visible: showBulkPlayback,
+          child: GlassIconButton(
+            icon: const Icon(Icons.play_arrow_outlined),
+            tooltip: t.download.resumeAll,
+            onPressed: () => DownloadService.to.resumeAll(),
+          ),
+        ),
+        GlassGroupSlot(
+          visible: showBulkPlayback,
+          child: GlassIconButton(
+            icon: const Icon(Icons.pause_outlined),
+            tooltip: t.download.pauseAll,
+            onPressed: () => DownloadService.to.pauseAll(),
+          ),
+        ),
+        GlassIconButton(
+          icon: const Icon(Icons.filter_list),
+          tooltip: t.searchFilter.filterSettings,
+          // 状态 / 类型是收在弹窗里的条件，生效时用红点告诉用户「有东西在筛」。
+          // 不挂 loading：这枚键自己的动作是「弹出筛选面板」，一瞬间的事；
+          // 真正耗时的重查发生在列表里，由列表自己的加载指示器交代。
+          showBadge: _hasSheetFilter,
+          onPressed: _openFilterSheet,
+        ),
+        GlassIconButton(
+          // 多选↔退出在同一按钮位上交叉过渡
+          icon: Icon(_isSelectionMode ? Icons.close : Icons.checklist),
+          tooltip: _isSelectionMode ? t.common.exitEditMode : t.common.editMode,
+          onPressed: _isSelectionMode
+              ? _exitSelectionMode
+              : _enterSelectionMode,
+        ),
+        GlassGroupSlot(
+          visible: !_isSelectionMode,
+          child: SizedBox(
+            width: GlassTokens.groupIconButtonSize,
+            height: GlassTokens.groupIconButtonSize,
+            child: PopupMenuButton<String>(
+              padding: EdgeInsets.zero,
+              icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
+              tooltip: t.download.moreOptions,
+              position: PopupMenuPosition.under,
+              // 往下挪一点，别压住玻璃胶囊本身
+              offset: const Offset(0, 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              onSelected: (value) {
+                switch (value) {
+                  case _menuActionManageCategory:
+                    _openCategoryManagePage();
+                  case _menuActionDeleteByDate:
+                    _showDeleteByDateDialog();
+                  case _menuActionResumeAll:
+                    DownloadService.to.resumeAll();
+                  case _menuActionPauseAll:
+                    DownloadService.to.pauseAll();
+                }
+              },
+              itemBuilder: (context) => [
+                // 窄屏胶囊塞不下批量播放控制，收进这里
+                if (!isWide) ...[
+                  _buildMenuItem(
+                    value: _menuActionResumeAll,
+                    icon: Icons.play_arrow_outlined,
+                    label: t.download.resumeAll,
+                  ),
+                  _buildMenuItem(
+                    value: _menuActionPauseAll,
+                    icon: Icons.pause_outlined,
+                    label: t.download.pauseAll,
+                  ),
+                  const PopupMenuDivider(),
+                ],
+                _buildMenuItem(
+                  value: _menuActionManageCategory,
+                  icon: Icons.folder_outlined,
+                  label: t.download.category.manageTitle,
+                ),
+                _buildMenuItem(
+                  value: _menuActionDeleteByDate,
+                  icon: Icons.auto_delete_outlined,
+                  label: t.download.deleteByDate.menuTitle,
+                  isDestructive: true,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
-  PopupMenuItem<DownloadStatusFilter> _buildFilterMenuItem({
-    required DownloadStatusFilter value,
-    required String label,
+  PopupMenuItem<String> _buildMenuItem({
+    required String value,
     required IconData icon,
-    required bool isSelected,
+    required String label,
+    bool isDestructive = false,
   }) {
-    return PopupMenuItem(
+    final colorScheme = Theme.of(context).colorScheme;
+    final color = isDestructive
+        ? colorScheme.error
+        : colorScheme.onSurfaceVariant;
+    return PopupMenuItem<String>(
       value: value,
       child: Row(
         children: [
-          Icon(
-            icon,
-            size: 20,
-            color: isSelected
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
+          Icon(icon, size: 20, color: color),
           const SizedBox(width: 12),
-          Expanded(child: Text(label)),
-          if (isSelected)
-            Icon(
-              Icons.check,
-              size: 18,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+          Text(label),
         ],
       ),
     );
   }
 
-  PopupMenuItem<DownloadTypeFilter> _buildTypeFilterMenuItem({
-    required DownloadTypeFilter value,
-    required String label,
-    required IconData icon,
-    required bool isSelected,
-  }) {
-    return PopupMenuItem(
-      value: value,
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            size: 20,
-            color: isSelected
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(width: 12),
-          Expanded(child: Text(label)),
-          if (isSelected)
-            Icon(
-              Icons.check,
-              size: 18,
-              color: Theme.of(context).colorScheme.primary,
+  void _openCategoryManagePage() => openDownloadCategoryManagePage(context);
+
+  /// 滚过一段后出现在右下角的「回到顶部」浮钮。
+  Widget _buildScrollToTopFab(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Positioned(
+      right: 16,
+      bottom: computeBottomSafeInset(MediaQuery.of(context)) + 16,
+      child: ValueListenableBuilder<bool>(
+        valueListenable: _showBackToTop,
+        builder: (context, visible, _) => IgnorePointer(
+          ignoring: !visible,
+          child: AnimatedSlide(
+            duration: GlassTokens.motionDuration,
+            curve: GlassTokens.motionCurve,
+            offset: visible ? Offset.zero : const Offset(0, 0.4),
+            child: AnimatedOpacity(
+              duration: GlassTokens.motionDuration,
+              opacity: visible ? 1 : 0,
+              child: GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.vertical_align_top),
+                tooltip: t.common.scrollToTop,
+                onPressed: _scrollToTop,
+              ),
             ),
-        ],
+          ),
+        ),
       ),
     );
   }
 
-  String _getStatusLabel(DownloadStatusFilter filter, slang.Translations t) {
-    return switch (filter) {
-      DownloadStatusFilter.all => t.common.all,
-      DownloadStatusFilter.failed => t.download.failed,
-      DownloadStatusFilter.downloaded => t.download.downloaded,
-    };
+  void _scrollToTop() {
+    if (!_scrollController.hasClients) return;
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
   }
 
-  String _getTypeLabel(DownloadTypeFilter filter, slang.Translations t) {
-    return switch (filter) {
-      DownloadTypeFilter.all => t.common.all,
-      DownloadTypeFilter.video => t.download.video,
-      DownloadTypeFilter.gallery => t.download.gallery,
-      DownloadTypeFilter.other => t.download.other,
-    };
+  /// 选择态下可用的批量动作：删除（主，error 实心）· 移至分类（次，图标位）。
+  List<GlassSelectionAction> _batchActions(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final bool hasSelection = _selectedTaskIds.isNotEmpty;
+    return [
+      GlassSelectionAction(
+        icon: Icons.delete,
+        label: t.common.delete,
+        destructive: true,
+        onPressed: hasSelection ? _deleteSelectedTasks : null,
+      ),
+      GlassSelectionAction(
+        icon: Icons.drive_file_move_outline,
+        label: t.download.category.moveTo,
+        onPressed: hasSelection ? _moveSelectedToCategory : null,
+      ),
+    ];
+  }
+
+  /// 状态 / 类型筛选是否生效（分类筛选有分类条直观呈现，不算在内）。
+  bool get _hasSheetFilter =>
+      _statusFilter != DownloadStatusFilter.all ||
+      _typeFilter != DownloadTypeFilter.all;
+
+  /// 是否存在任意筛选条件（用于区分「暂无任务」与「无匹配结果」）。
+  bool get _hasAnyFilter =>
+      _hasSheetFilter || _categoryFilter != 'all' || _searchQuery.isNotEmpty;
+
+  /// 打开筛选弹窗：一次改完状态 + 类型再应用，不像原来两个下拉各触发一次重查。
+  Future<void> _openFilterSheet() async {
+    final result = await showModalBottomSheet<_DownloadFilterSelection>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => _DownloadFilterSheet(
+        initial: _DownloadFilterSelection(
+          status: _statusFilter,
+          type: _typeFilter,
+        ),
+      ),
+    );
+    if (result == null || !mounted) return;
+    if (result.status == _statusFilter && result.type == _typeFilter) return;
+    setState(() {
+      _statusFilter = result.status;
+      _typeFilter = result.type;
+    });
+    _applyFilters();
   }
 
   void _clearFilters() {
+    // 防抖里可能还压着一次「旧关键字」的重查，先作废，否则清完又被写回来
+    _searchDebounce?.cancel();
     setState(() {
       _searchQuery = '';
       _searchController.clear();
@@ -833,34 +765,21 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     _applyFilters();
   }
 
-  /// 重新加载分类列表与未分类计数；若当前选中分类已被删除则回退到「全部」。
-  Future<void> _reloadCategories() async {
-    try {
-      final cats = await DownloadService.to.getAllCategories();
-      final uncat = await DownloadService.to.getUncategorizedCount();
-      if (!mounted) return;
-      var nextFilter = _categoryFilter;
-      final selectedCategoryGone =
-          nextFilter != 'all' &&
-          nextFilter != 'uncategorized' &&
-          !cats.any((c) => c.id == nextFilter);
-      // 选中「未分类」后又把所有分类删光时，标签条会整条隐藏（仅在有分类时显示），
-      // 若不重置会留下一个看不见、无法点掉的筛选，这里一并回到「全部」。
-      final uncategorizedStrandedWhenStripHidden =
-          nextFilter == 'uncategorized' && cats.isEmpty;
-      if (selectedCategoryGone || uncategorizedStrandedWhenStripHidden) {
-        nextFilter = 'all';
-      }
-      final filterChanged = nextFilter != _categoryFilter;
-      setState(() {
-        _categories = cats;
-        _uncategorizedCount = uncat;
-        _categoryFilter = nextFilter;
-      });
-      if (filterChanged) _applyFilters();
-    } catch (_) {
-      // 分类加载失败时静默处理，不影响主列表
+  /// 实际生效的分类筛选。
+  ///
+  /// 选中的分类可能已被删除（在管理页删掉、或被别处清空），此时按「全部」处理。
+  /// 这里做成**纯计算**而不是去改 `_categoryFilter`：状态只有一份、由分类列表当场
+  /// 决定，不需要一个「发现分类没了就回写筛选」的副作用——那种回写既要挑时机，
+  /// 写错时机就会留下一个点不掉的空筛选。
+  String get _effectiveCategoryFilter {
+    final filter = _categoryFilter;
+    if (filter == 'all') return 'all';
+    final categories = DownloadService.to.categories;
+    // 「未分类」只在有分类时才有意义（无分类时它等同「全部」）。
+    if (filter == 'uncategorized') {
+      return categories.isEmpty ? 'all' : 'uncategorized';
     }
+    return categories.any((c) => c.id == filter) ? filter : 'all';
   }
 
   /// 批量「移至分类」：用已选任务打开移动弹窗，移动后退出多选。
@@ -873,90 +792,27 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     if (moved == true) _exitSelectionMode();
   }
 
-  /// 删除后就地移除对应行，尽量保留滚动位置（避免整列重载导致跳回顶部）。
-  /// - 纯历史区删除：仅通知历史数据源就地刷新，不重建页面，滚动位置不变。
-  /// - 涉及顶部「下载中/失败/等待」区或活跃任务：重建一次页面（这些区域本就在
-  ///   视口上方，删除其元素时位置变化属预期）。
-  void _removeTasksInPlace(List<String> ids) {
-    final idSet = ids.toSet();
-    // 记入墓碑：即使下方就地从 _historySource 移除，异步的历史刷新（尤其删除
-    // “下载中”任务时，取消清理瞬时写回 paused 触发的刷新）仍可能把刚删的行重新
-    // 读回。构建时据墓碑隐藏，保证删除后立刻消失、无需重进页面；刷新确认 DB 已
-    // 无该行后会清除墓碑（见 _refreshHistory）。
-    _deletedTombstones.addAll(idSet);
-
-    final historyBefore = _historySource.length;
-    _historySource.removeWhere((t) => idSet.contains(t.id));
-    final historyChanged = _historySource.length != historyBefore;
-
-    final topBefore = _pendingTasks.length + _failedTasks.length;
-    _pendingTasks.removeWhere((t) => idSet.contains(t.id));
-    _failedTasks.removeWhere((t) => idSet.contains(t.id));
-    final topChanged =
-        (_pendingTasks.length + _failedTasks.length) != topBefore;
-
-    final pureHistoryChange = historyChanged && !topChanged;
-    if (pureHistoryChange) {
-      if (_historySource.isEmpty) {
-        // 历史已空：走一次完整刷新让「空状态」正确显示（此时无内容，跳动无感）。
-        _refreshHistory();
-      } else {
-        _historySource.setState();
-      }
-      return;
-    }
-
-    // 顶部「下载中/失败/等待」区或活跃任务受影响：需 setState 重建页面才能反映。
-    // 重建会改变历史上方的内容高度，使历史滚动位置漂移；这里记录重建前的偏移与
-    // 内容总高度，重建后按高度缩减量补偿，尽量让用户停留在原处。
-    // （纯顶部删除时补偿精确；同时删顶部+历史时为近似，但不会跳回顶部。）
-    if (historyChanged) _historySource.setState();
-    if (!mounted) return;
-    final hasClients = _scrollController.hasClients;
-    final beforeOffset = hasClients ? _scrollController.offset : 0.0;
-    final beforeMax = hasClients
-        ? _scrollController.position.maxScrollExtent
-        : 0.0;
-    setState(() {});
-    if (hasClients) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted || !_scrollController.hasClients) return;
-        final afterMax = _scrollController.position.maxScrollExtent;
-        final shrink = beforeMax - afterMax; // 内容总高度缩减量 ≈ 被删元素总高
-        if (shrink <= 0) return;
-        final target = (beforeOffset - shrink).clamp(0.0, afterMax);
-        if ((target - _scrollController.offset).abs() > 0.5) {
-          _scrollController.jumpTo(target);
-        }
-      });
-    }
+  /// 顶部分类标签条：管理入口 / 全部 / 未分类 / 各分类（带计数）。
+  ///
+  /// 标签本体是玻璃胶囊（选中态换成高亮底色），与 header 上的胶囊同族，
+  /// 不再用 Material 的 ChoiceChip / ActionChip。
+  ///
+  /// 数据直接来自 [DownloadService.categories] 这个可观察状态：在管理页新建 /
+  /// 删除 / 改名的那一刻，这里就已经是最新的了。此前它读的是页面自己的一份快照，
+  /// 靠 worker + 帧回调去补——那条链断掉时没有任何报错，表现就是「返回列表页没有
+  /// 新分类，下拉刷新才出来」。
+  Widget _buildCategoryStrip() {
+    return Obx(() => _buildCategoryStripContent(context));
   }
 
-  /// 顶部分类标签条：全部 / 未分类 / 各分类（带计数）/ 管理入口。
-  Widget _buildCategoryStrip() {
+  Widget _buildCategoryStripContent(BuildContext context) {
     final t = slang.Translations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-
-    Widget buildChip({
-      required String label,
-      int? count,
-      required bool selected,
-      required VoidCallback onTap,
-    }) {
-      return Padding(
-        padding: const EdgeInsets.only(right: 8),
-        child: ChoiceChip(
-          label: Text(count != null ? '$label · $count' : label),
-          selected: selected,
-          onSelected: (_) => onTap(),
-          visualDensity: VisualDensity.compact,
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
-      );
-    }
+    final categories = DownloadService.to.categories;
+    final uncategorizedCount = DownloadService.to.uncategorizedCount.value;
+    final activeFilter = _effectiveCategoryFilter;
 
     return SizedBox(
-      height: 40,
+      height: _categoryStripHeight,
       child: Listener(
         // 鼠标悬浮在分类条上滚动滚轮时，把纵向滚轮增量转成横向滑动。
         // 仅当分类条确有横向可滚动空间时才接管事件，否则交还底层纵向列表。
@@ -978,71 +834,134 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
             });
           }
         },
-        child: ListView(
-          controller: _categoryStripController,
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
-          children: [
-            // 管理 / 新建入口放在最前：无分类时用更醒目的「管理分类」标签。
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: ActionChip(
-                avatar: Icon(
-                  _categories.isEmpty
-                      ? Icons.create_new_folder_outlined
-                      : Icons.settings_outlined,
-                  size: 16,
-                  color: colorScheme.onSurfaceVariant,
+        child: ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+          child: ListView(
+            controller: _categoryStripController,
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            children: [
+              // 管理 / 新建入口放在最前：无分类时用更醒目的「管理分类」标签。
+              _buildCategoryChip(
+                label: categories.isEmpty
+                    ? t.download.category.manageTitle
+                    : t.download.category.manage,
+                icon: categories.isEmpty
+                    ? Icons.create_new_folder_outlined
+                    : Icons.settings_outlined,
+                selected: false,
+                onTap: _openCategoryManagePage,
+              ),
+              _buildCategoryChip(
+                label: t.common.all,
+                selected: activeFilter == 'all',
+                onTap: () => _onCategorySelected('all'),
+              ),
+              // 「未分类」仅在已有分类时才有意义（无分类时等同「全部」）。
+              if (categories.isNotEmpty)
+                _buildCategoryChip(
+                  label: t.download.category.uncategorized,
+                  count: uncategorizedCount,
+                  selected: activeFilter == 'uncategorized',
+                  onTap: () => _onCategorySelected('uncategorized'),
                 ),
-                label: Text(
-                  _categories.isEmpty
-                      ? t.download.category.manageTitle
-                      : t.download.category.manage,
+              for (final c in categories)
+                _buildCategoryChip(
+                  label: c.title,
+                  count: c.itemCount ?? 0,
+                  selected: activeFilter == c.id,
+                  onTap: () => _onCategorySelected(c.id),
                 ),
-                visualDensity: VisualDensity.compact,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const DownloadCategoryManagePage(),
-                    ),
-                  );
-                },
-              ),
-            ),
-            buildChip(
-              label: t.common.all,
-              selected: _categoryFilter == 'all',
-              onTap: () => _onCategorySelected('all'),
-            ),
-            // 「未分类」仅在已有分类时才有意义（无分类时等同「全部」）。
-            if (_categories.isNotEmpty)
-              buildChip(
-                label: t.download.category.uncategorized,
-                count: _uncategorizedCount,
-                selected: _categoryFilter == 'uncategorized',
-                onTap: () => _onCategorySelected('uncategorized'),
-              ),
-            for (final c in _categories)
-              buildChip(
-                label: c.title,
-                count: c.itemCount ?? 0,
-                selected: _categoryFilter == c.id,
-                onTap: () => _onCategorySelected(c.id),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  void _onSearchChanged(String value) {
-    setState(() {
-      _searchQuery = value;
-    });
-    _applyFilters();
+  /// 单枚分类标签：玻璃胶囊，选中态换高亮底色（底色 / 文字色都带过渡，
+  /// 切分类时是「同一枚标签亮起来」，不是瞬间换一块颜色）。
+  Widget _buildCategoryChip({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+    int? count,
+    IconData? icon,
+  }) {
+    final cs = Theme.of(context).colorScheme;
+    final Color foreground = selected
+        ? cs.onSecondaryContainer
+        : cs.onSurfaceVariant;
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: Center(
+        child: GlassPressable(
+          onTap: onTap,
+          scale: 0.95,
+          builder: (context, pressed) => AnimatedContainer(
+            duration: GlassTokens.motionDuration,
+            curve: GlassTokens.motionCurve,
+            height: _categoryChipHeight,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              color: selected
+                  ? GlassTokens.selectedHighlight(cs)
+                  : (pressed
+                        ? GlassTokens.pressedFill(cs)
+                        : GlassTokens.fill(cs)),
+              borderRadius: BorderRadius.circular(_categoryChipHeight / 2),
+              border: Border.all(
+                color: GlassTokens.stroke(cs),
+                width: GlassTokens.strokeWidth,
+              ),
+              boxShadow: GlassTokens.shadow(cs),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null) ...[
+                  Icon(icon, size: 16, color: foreground),
+                  const SizedBox(width: 6),
+                ],
+                AnimatedDefaultTextStyle(
+                  duration: GlassTokens.motionDuration,
+                  curve: GlassTokens.motionCurve,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: foreground,
+                  ),
+                  child: Text(count != null ? '$label · $count' : label),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
+  /// 搜索输入：防抖后再落到筛选上。
+  ///
+  /// 每次 [_applyFilters] 都是三条本地 DB 查询 + 一轮串行历史刷新，逐字符触发
+  /// 既浪费查询，也让筛选钮的沙漏态一路抽搐。
+  void _onSearchChanged(String value) {
+    _searchDebounce?.cancel();
+    if (value == _searchQuery) return;
+    _searchDebounce = Timer(_searchDebounceDelay, () {
+      if (!mounted || value == _searchQuery) return;
+      setState(() {
+        _searchQuery = value;
+      });
+      _applyFilters();
+    });
+  }
+
+  /// 应用筛选条件。
+  ///
+  /// 活跃区是纯内存过滤（[_visibleTasksOf]），条件一改下一帧就生效；这里只需要把
+  /// 条件同步给历史区的分页数据源并让它重拉。沙漏态因此只覆盖历史区这一次查询。
   void _applyFilters() async {
     final statusFilterStr = switch (_statusFilter) {
       DownloadStatusFilter.all => 'all',
@@ -1068,11 +987,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       categoryFilter: _categoryFilter,
     );
     // 历史区域通过串行刷新触发（updateFilters 不再自行 refresh，避免并发）
-    _refreshHistory();
-
-    // Also filter the pending and failed tasks
-    await _reloadPendingTasks();
-    await _reloadFailedTasks();
+    await _refreshHistory();
 
     // Hide loading indicator
     if (mounted) {
@@ -1192,111 +1107,49 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     );
   }
 
-  Widget _buildSingleList() {
-    // 跨分区去重：在状态切换的过渡窗口，同一任务可能同时存在于
-    // _activeTasks（下载中）与 _pendingTasks/_failedTasks 的旧快照里。
-    // 这里按“下载中 > 失败 > 等待中”的优先级保证每个任务最多只出现一次，
-    // 修复“重试后失败任务与处理中任务同时显示”这类重复项问题。
-    final seenIds = <String>{};
-
-    // 历史区隐藏集合（每次构建重算）：活跃区(下载中/等待/失败)的全部 id ∪ 已删除
-    // 墓碑。历史区是独立的 LoadingMoreSliverList，不参与上面的 seenIds 去重，故在
-    // 此集中计算一份隐藏集合，构建历史行时据此跳过，修复两类“同一任务重复/残留”：
-    //  1) 续传一个旧的暂停任务：它会进入 _activeTasks(下载中)，但 _historySource
-    //     里可能仍残留它的暂停副本 → “下载中”与“暂停”两份同时显示；
-    //  2) 删除“下载中”任务：取消清理会瞬时把它写成 paused 并被历史刷新读入，与删除
-    //     的就地移除发生竞态而残留，需重进页面才消失。
-    _historyHiddenIds = <String>{
-      ...DownloadService.to.tasks.keys,
-      for (final t in _pendingTasks) t.id,
-      for (final t in _failedTasks) t.id,
-      ..._deletedTombstones,
-    };
-
-    // 获取正在下载的任务 (apply filters)
-    final downloadingTasks = DownloadService.to.tasks.values
-        .where((task) => task.status == DownloadStatus.downloading)
-        .where(_filterTask)
-        .where((task) => seenIds.add(task.id))
-        .toList();
-
-    // Apply filters to failed and pending tasks (with cross-section dedup)
-    final filteredFailedTasks = _failedTasks
-        .where(_filterTask)
-        .where((task) => seenIds.add(task.id))
-        .toList();
-    final filteredPendingTasks = _pendingTasks
-        .where(_filterTask)
-        .where((task) => seenIds.add(task.id))
-        .toList();
+  /// 单列列表：顶部「下载中 / 失败 / 等待」活跃区 + 底部无限滚动的历史区。
+  ///
+  /// [topPadding] 是玻璃 header 需要让出的高度——留白必须由列表自身的
+  /// SliverPadding 提供，不能在外面套 Padding，否则内容滚不到 header 背后。
+  Widget _buildSingleList(double topPadding) {
+    // 活跃区四个分区全部来自内存真源。分区由任务状态唯一决定，因此：
+    // - 同一任务不可能同时出现在两个区（旧实现要靠 seenIds 跨区去重）；
+    // - 也不可能与底部历史区重复（历史区只装 completed，见 _HistoryDownloadTasksSource）。
+    // 这两条不变式让此前的跨区去重集合、删除墓碑一并成为多余，已删除。
+    final downloadingTasks = _visibleTasksOf(_store.downloadingIds);
+    final filteredFailedTasks = _visibleTasksOf(_store.failedIds);
+    final filteredPausedTasks = _visibleTasksOf(_store.pausedIds);
+    final filteredPendingTasks = _visibleTasksOf(_store.pendingIds);
 
     // 构建顶部活跃区域的 widgets
     final List<Widget> activeWidgets = [];
 
-    // 添加正在下载的任务
-    if (downloadingTasks.isNotEmpty) {
-      activeWidgets.add(
-        _buildSectionHeader(
-          title: slang.t.download.downloading,
-          count: downloadingTasks.length,
-        ),
-      );
-      activeWidgets.addAll(
-        downloadingTasks.map((task) => _buildTaskItem(task)),
-      );
+    void addSection(String title, List<DownloadTask> tasks) {
+      if (tasks.isEmpty) return;
+      activeWidgets.add(_buildSectionHeader(title: title, count: tasks.length));
+      activeWidgets.addAll(tasks.map((task) => _buildActiveTaskItem(task.id)));
     }
 
-    // 添加失败的任务（放在下载中之后、等待中之前，方便用户快速重试）
-    if (filteredFailedTasks.isNotEmpty) {
-      activeWidgets.add(
-        _buildSectionHeader(
-          title: slang.t.download.failed,
-          count: filteredFailedTasks.length,
-        ),
-      );
-      activeWidgets.addAll(
-        filteredFailedTasks.map((task) => _buildTaskItem(task)),
-      );
-    }
-
-    // 添加等待中的任务
-    if (filteredPendingTasks.isNotEmpty) {
-      activeWidgets.add(
-        _buildSectionHeader(
-          title: slang.t.download.waiting,
-          count: filteredPendingTasks.length,
-        ),
-      );
-      activeWidgets.addAll(
-        filteredPendingTasks.map((task) => _buildTaskItem(task)),
-      );
-    }
-
-    // 搜索栏高度 (padding + content + border)
-    const filterBarHeight = 54.0;
-    // 分类标签条高度
-    const categoryStripHeight = 40.0;
-    final double topInsetHeight = filterBarHeight + categoryStripHeight;
-    // AppBar 高度 + 状态栏高度
-    final appBarTotalHeight =
-        kToolbarHeight + MediaQuery.of(context).padding.top;
+    // 顺序：下载中 → 失败（方便快速重试）→ 暂停 → 等待中
+    addSection(slang.t.download.downloading, downloadingTasks);
+    addSection(slang.t.download.failed, filteredFailedTasks);
+    addSection(slang.t.download.paused, filteredPausedTasks);
+    addSection(slang.t.download.waiting, filteredPendingTasks);
 
     // 是否存在搜索 / 筛选条件（用于区分“暂无任务”与“无匹配结果”）
-    final bool hasActiveFilter =
-        _searchQuery.isNotEmpty ||
-        _statusFilter != DownloadStatusFilter.all ||
-        _typeFilter != DownloadTypeFilter.all ||
-        _categoryFilter != 'all';
+    final bool hasActiveFilter = _hasAnyFilter;
     // 顶部活跃区域是否有内容（决定 history 为空时是否接管为整页空状态）
     final bool hasActiveWidgets = activeWidgets.isNotEmpty;
 
     return LoadingMoreCustomScrollView(
       controller: _scrollController,
+      // 空列表也要能下拉（否则筛不到结果时刷不了）
+      physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
-        // 顶部留白，为悬浮的 AppBar 和搜索栏留出空间
-        SliverPadding(
-          padding: EdgeInsets.only(top: appBarTotalHeight + topInsetHeight),
-        ),
+        // 顶部留白，为悬浮的玻璃 header（标题行 + 分类条）让出位置
+        SliverPadding(padding: EdgeInsets.only(top: topPadding)),
+        // 「上次未完成的任务已暂停」提示条（仅本次启动确有被暂停的任务时出现）
+        SliverToBoxAdapter(child: _buildRestoredPausedBanner(context)),
         // 顶部活跃区域
         if (hasActiveWidgets)
           SliverList(delegate: SliverChildListDelegate(activeWidgets)),
@@ -1311,7 +1164,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
               0,
               0,
               0,
-              MediaQuery.of(context).padding.bottom +
+              computeBottomSafeInset(MediaQuery.of(context)) +
                   (_isSelectionMode ? 80 : 0), // 多选模式下增加底部padding防止遮挡
             ),
             indicatorBuilder: (context, status) {
@@ -1338,15 +1191,12 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     );
   }
 
-  /// 构建历史任务条目，按天插入日期标题
+  /// 构建历史任务条目，按天插入日期标题。
+  ///
+  /// 历史区只装已完成任务，与活跃区没有交集，因此这里不再需要任何隐藏 / 去重判断
+  /// （旧实现要跳过「已在活跃区展示」和「已删除墓碑」两类行，还得为此在找上一行时
+  /// 跳过隐藏行才不漏日期标题）。
   Widget _buildHistoryItemWithDateHeader(DownloadTask task, int index) {
-    // 去重 / 删除残留防护：该 id 已在活跃区(下载中/等待/失败)展示或已被删除（墓碑），
-    // 历史区不再渲染，避免重复或残留。返回收缩占位以保持其余行的索引稳定（日期标题
-    // 改用“最近的可见行”比较，见下）。
-    if (_historyHiddenIds.contains(task.id)) {
-      return const SizedBox.shrink();
-    }
-
     final currentDate = task.createdAt;
 
     // 如果没有创建时间，直接渲染任务
@@ -1354,22 +1204,9 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       return _buildTaskItem(task);
     }
 
-    // 判断是否需要插入日期标题：与“前一个可见行”不是同一天则需要。必须跳过被隐藏的
-    // 行——否则当某天的首行被隐藏时，同日的下一可见行会与隐藏行比较而漏掉日期标题。
-    DateTime? prevVisibleDate;
-    bool hasPrevVisible = false;
-    for (int i = index - 1; i >= 0; i--) {
-      final prev = _historySource[i];
-      if (_historyHiddenIds.contains(prev.id)) continue;
-      hasPrevVisible = true;
-      prevVisibleDate = prev.createdAt;
-      break;
-    }
-
+    final prevDate = index > 0 ? _historySource[index - 1].createdAt : null;
     final needHeader =
-        !hasPrevVisible ||
-        prevVisibleDate == null ||
-        !_isSameDay(prevVisibleDate, currentDate);
+        index == 0 || prevDate == null || !_isSameDay(prevDate, currentDate);
 
     if (!needHeader) {
       return _buildTaskItem(task);
@@ -1417,6 +1254,82 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     );
   }
 
+  /// 「上次退出时有 N 个任务未完成，已暂停」提示条。
+  ///
+  /// 启动语义是「不自动续传，一律暂停」（见 DownloadService._loadActiveTasks）。
+  /// 没有这条一键召回，用户上次下了 30 条就得手点 30 次继续——它是那条语义的
+  /// 配套，不是装饰。点「全部继续」只叫醒这一批，不会波及用户很早以前手动暂停的
+  /// 任务。
+  Widget _buildRestoredPausedBanner(BuildContext context) {
+    return Obx(() {
+      final count = DownloadService.to.restoredPausedIds.length;
+      if (count == 0) return const SizedBox.shrink();
+
+      final t = slang.Translations.of(context);
+      final cs = Theme.of(context).colorScheme;
+
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+        child: GlassSurface(
+          height: 56,
+          borderRadius: BorderRadius.circular(16),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Row(
+            children: [
+              Icon(Icons.pause_circle_outline, size: 20, color: cs.primary),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  t.download.restoredPaused.banner(num: count),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              TextButton(
+                onPressed: () => DownloadService.to.resumeRestoredTasks(),
+                child: Text(t.download.restoredPaused.resume),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close, size: 18),
+                tooltip: t.download.restoredPaused.dismiss,
+                visualDensity: VisualDensity.compact,
+                onPressed: () => DownloadService.to.dismissRestoredPaused(),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
+  /// 取某个分区中通过当前筛选条件的任务。
+  ///
+  /// 活跃任务全在内存里，筛选是纯内存过滤——没有 DB 查询、没有异步、没有竞态，
+  /// 因此筛选条件一改立刻生效，不再需要「筛选加载中」的沙漏态兜底。
+  List<DownloadTask> _visibleTasksOf(List<String> ids) {
+    final result = <DownloadTask>[];
+    for (final id in ids) {
+      final task = _store.taskOf(id);
+      if (task == null) continue;
+      if (!_filterTask(task)) continue;
+      result.add(task);
+    }
+    return result;
+  }
+
+  /// 活跃区的一行：只订阅自己那条任务的句柄。
+  ///
+  /// 这样一条任务暂停 / 继续 / 失败时，只有它自己重建，其余行与底部历史区纹丝不动。
+  Widget _buildActiveTaskItem(String taskId) {
+    final handle = _store.handleOf(taskId);
+    if (handle == null) return const SizedBox.shrink();
+    return Obx(() {
+      handle.revision.value; // 订阅这一行
+      return _buildTaskItem(handle.task);
+    });
+  }
+
   Widget _buildTaskItem(DownloadTask task) {
     Widget item;
     if (task.extData?.type == DownloadTaskExtDataType.video) {
@@ -1429,28 +1342,24 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
 
     if (_isSelectionMode) {
       final isSelected = _selectedTaskIds.contains(task.id);
-      final scale = DownloadUiScale.of(context);
       return Stack(
         children: [
           // 列表项本身
           item,
-          // 覆盖层 - 使用 Padding 和 ClipRRect 匹配 Card 的样式（margin 8/4, radius 12）
+          // 选择态：角标勾选片 + 选中描边（全站统一，见 GlassSelectableOverlay）。
+          // 内边距与圆角对齐 Card 的样式（margin 8/4, radius 12）
           Positioned.fill(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Material(
-                  color: isSelected ? Colors.black38 : Colors.black12,
-                  child: InkWell(
-                    onTap: () => _toggleItemSelection(task.id),
-                    child: Center(
-                      child: Icon(
-                        isSelected ? Icons.check_circle : Icons.circle_outlined,
-                        color: isSelected ? Colors.white : Colors.white70,
-                        size: 40 * scale,
-                      ),
-                    ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () => _toggleItemSelection(task.id),
+                  child: GlassSelectableOverlay(
+                    selectionMode: true,
+                    selected: isSelected,
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
               ),
@@ -1471,92 +1380,13 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     }
   }
 
-  /// 根据 DownloadService 的任务状态版本，按需刷新等待中任务。
-  /// 注意：加载进行中也要触发（通过置脏让本轮加载结束后重跑），
-  /// 否则加载窗口内到来的状态变更会被永久丢弃。
-  void _refreshPendingTasksIfNeeded() {
-    final currentVersion = DownloadService.to.taskStatusChangedNotifier.value;
-    if (!_isLoadingPendingTasks && currentVersion == _lastPendingVersion) {
-      return;
-    }
-    _reloadPendingTasks();
-  }
-
-  /// 根据 DownloadService 的任务状态版本，按需刷新失败任务。
-  void _refreshFailedTasksIfNeeded() {
-    final currentVersion = DownloadService.to.taskStatusChangedNotifier.value;
-    if (!_isLoadingFailedTasks && currentVersion == _lastFailedVersion) {
-      return;
-    }
-    _reloadFailedTasks();
-  }
-
-  /// 重新加载等待中任务。
-  /// 若加载期间状态版本又发生变化（或加载中被再次请求），结束后会自动重跑，
-  /// 保证最终读到的是最新的数据库状态，杜绝“丢失更新”竞态。
-  Future<void> _reloadPendingTasks() async {
-    if (_isLoadingPendingTasks) {
-      _pendingReloadDirty = true;
-      return;
-    }
-
-    _isLoadingPendingTasks = true;
-    try {
-      do {
-        _pendingReloadDirty = false;
-        final versionAtLoad =
-            DownloadService.to.taskStatusChangedNotifier.value;
-        final tasks = await _downloadTaskRepository
-            .getPendingTasksOrderByCreatedAtAsc();
-        _lastPendingVersion = versionAtLoad;
-        if (!mounted) return;
-        setState(() {
-          _pendingTasks = tasks;
-        });
-      } while (_pendingReloadDirty ||
-          DownloadService.to.taskStatusChangedNotifier.value !=
-              _lastPendingVersion);
-    } catch (e) {
-      // 读取等待中任务失败时，静默处理，避免影响主流程
-    } finally {
-      _isLoadingPendingTasks = false;
-    }
-  }
-
-  /// 重新加载失败任务（语义同 [_reloadPendingTasks]，带版本重跑）。
-  Future<void> _reloadFailedTasks() async {
-    if (_isLoadingFailedTasks) {
-      _failedReloadDirty = true;
-      return;
-    }
-
-    _isLoadingFailedTasks = true;
-    try {
-      do {
-        _failedReloadDirty = false;
-        final versionAtLoad =
-            DownloadService.to.taskStatusChangedNotifier.value;
-        final tasks = await _downloadTaskRepository
-            .getFailedTasksOrderByUpdatedAtDesc();
-        _lastFailedVersion = versionAtLoad;
-        if (!mounted) return;
-        setState(() {
-          _failedTasks = tasks;
-        });
-      } while (_failedReloadDirty ||
-          DownloadService.to.taskStatusChangedNotifier.value !=
-              _lastFailedVersion);
-    } catch (e) {
-      // 读取失败任务失败时，静默处理，避免影响主流程
-    } finally {
-      _isLoadingFailedTasks = false;
-    }
-  }
-
-  /// 串行刷新历史区域（paused/completed）。
-  /// 历史列表基于 LoadingMoreBase，并发 refresh 会相互 clear/addAll，
-  /// 造成列表被清空或漏掉“刚完成”的任务（正是“下载完成后不刷新”的根因）。
-  /// 这里串行化并在版本变化时重跑，确保最终读到最新状态。
+  /// 串行刷新历史区域（已完成任务）。
+  ///
+  /// 历史列表基于 LoadingMoreBase，并发 refresh 会相互 clear/addAll，造成列表被
+  /// 清空或漏掉“刚完成”的任务；这里串行化并在刷新期间收到新的失效信号时重跑一轮。
+  ///
+  /// 与旧实现的差别：不再需要按全局状态版本比对，也不再需要删除墓碑——历史区只装
+  /// 已完成任务，删除后的重拉一定读不到它，活跃任务也永远不会混进来。
   Future<void> _refreshHistory() async {
     if (!mounted) return;
     if (_isRefreshingHistory) {
@@ -1568,29 +1398,9 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     try {
       do {
         _historyRefreshDirty = false;
-        final versionAtRefresh =
-            DownloadService.to.taskStatusChangedNotifier.value;
         await _historySource.refresh(true);
-        _lastHistoryVersion = versionAtRefresh;
         if (!mounted) return;
-      } while (_historyRefreshDirty ||
-          DownloadService.to.taskStatusChangedNotifier.value !=
-              _lastHistoryVersion);
-
-      // 清理墓碑：刷新后历史源即来自 DB 的最新数据。若某个被删 id 已不在其中，说明
-      // DB 行确已删除，墓碑使命完成，移除以防无界增长，并允许该 id 日后合法重现。
-      // 反之若某次刷新恰好把“删除瞬时写回的 paused 行”读了进来（present 仍含该 id），
-      // 墓碑会被保留，继续隐藏该残留行，直至下一次刷新读到干净的 DB。
-      // 关键时序：取消清理写回 paused 发生在 deleteTask 删除 DB 行之前且被其 await，
-      // 因此墓碑加入时 paused 写已成往事、不存在“清墓碑后又有写回”的竞态。
-      if (_deletedTombstones.isNotEmpty) {
-        if (_historySource.isEmpty) {
-          _deletedTombstones.clear();
-        } else {
-          final present = <String>{for (final t in _historySource) t.id};
-          _deletedTombstones.removeWhere((id) => !present.contains(id));
-        }
-      }
+      } while (_historyRefreshDirty);
     } catch (e) {
       // 刷新历史失败时静默处理，避免影响主流程
     } finally {
@@ -1599,7 +1409,11 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   }
 }
 
-/// 历史任务数据源（paused/completed，不含failed），用于无限滚动加载
+/// 历史任务数据源（仅 completed），用于无限滚动加载。
+///
+/// 活跃任务（下载中 / 等待 / 暂停 / 失败）不在这里，它们由内存真源
+/// [DownloadTaskStore] 承载并显示在上方活跃区——两边没有交集，因此这个数据源
+/// 不需要任何去重 / 隐藏逻辑。
 class _HistoryDownloadTasksSource extends LoadingMoreBase<DownloadTask>
     with LoadingMoreRefreshGuard<DownloadTask> {
   final DownloadTaskRepository _repository;
@@ -1719,6 +1533,195 @@ class _HistoryDownloadTasksSource extends LoadingMoreBase<DownloadTask>
   }
 }
 
+/// 状态 + 类型的筛选结果。
+class _DownloadFilterSelection {
+  const _DownloadFilterSelection({required this.status, required this.type});
+
+  final DownloadStatusFilter status;
+  final DownloadTypeFilter type;
+}
+
+/// 筛选弹窗：状态与类型一次改完再应用。
+///
+/// 原来这两项是 header 上并排的两个下拉菜单，各自触发一次全量重查；收进弹窗后
+/// header 只留一枚带红点的筛选钮，条件是否生效一眼可见。
+class _DownloadFilterSheet extends StatefulWidget {
+  const _DownloadFilterSheet({required this.initial});
+
+  final _DownloadFilterSelection initial;
+
+  @override
+  State<_DownloadFilterSheet> createState() => _DownloadFilterSheetState();
+}
+
+class _DownloadFilterSheetState extends State<_DownloadFilterSheet> {
+  late DownloadStatusFilter _status = widget.initial.status;
+  late DownloadTypeFilter _type = widget.initial.type;
+
+  static const List<DownloadStatusFilter> _statuses =
+      DownloadStatusFilter.values;
+  static const List<DownloadTypeFilter> _types = DownloadTypeFilter.values;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: computeSheetBottomInset(context)),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 标题行：标题 + 玻璃关闭圆钮
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 16, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    t.searchFilter.filterSettings,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                GlassIconButton(
+                  standalone: true,
+                  icon: const Icon(Icons.close),
+                  tooltip: t.common.close,
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
+          ),
+          // 状态：所有状态 / 失败 / 已下载
+          _buildSegmentRow(
+            selectedIndex: _statuses.indexOf(_status),
+            onChanged: (index) => setState(() => _status = _statuses[index]),
+            items: [
+              for (final s in _statuses)
+                GlassSegmentItem(
+                  label: _statusFilterLabel(s, t),
+                  icon: Icon(_statusFilterIcon(s)),
+                ),
+            ],
+          ),
+          // 类型：所有类型 / 视频 / 图库 / 其他
+          _buildSegmentRow(
+            selectedIndex: _types.indexOf(_type),
+            onChanged: (index) => setState(() => _type = _types[index]),
+            items: [
+              for (final type in _types)
+                GlassSegmentItem(
+                  label: _typeFilterLabel(type, t),
+                  icon: Icon(_typeFilterIcon(type)),
+                ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton.icon(
+                  onPressed: () => setState(() {
+                    _status = DownloadStatusFilter.all;
+                    _type = DownloadTypeFilter.all;
+                  }),
+                  icon: const Icon(Icons.filter_alt_off),
+                  label: Text(t.searchFilter.clearAll),
+                ),
+                const SizedBox(width: 12),
+                FilledButton(
+                  onPressed: () => Navigator.of(
+                    context,
+                  ).pop(_DownloadFilterSelection(status: _status, type: _type)),
+                  child: Text(t.common.confirm),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 分段胶囊横向铺一行：段数固定但文案可长可短，胶囊自己能横向滚。
+  Widget _buildSegmentRow({
+    required List<GlassSegmentItem> items,
+    required int selectedIndex,
+    required ValueChanged<int> onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: GlassSegmentedControl(
+          items: items,
+          selectedIndex: selectedIndex,
+          onChanged: onChanged,
+        ),
+      ),
+    );
+  }
+}
+
+/// 弹窗标题行：标题 + 玻璃关闭圆钮（全局统一约定，见 dialog-close-button-glass）。
+///
+/// [context] 传弹窗自己的 context，默认关闭动作就是把它 pop 掉（确认类弹窗因此
+/// 拿到 null，等同「取消」）；需要别的关闭语义时传 [onClose]。
+Widget _dialogTitleRow(
+  BuildContext context,
+  String title, {
+  VoidCallback? onClose,
+}) {
+  return Row(
+    children: [
+      Expanded(child: Text(title)),
+      GlassIconButton(
+        standalone: true,
+        icon: const Icon(Icons.close),
+        tooltip: slang.Translations.of(context).common.close,
+        onPressed: onClose ?? () => Navigator.of(context).pop(),
+      ),
+    ],
+  );
+}
+
+IconData _statusFilterIcon(DownloadStatusFilter filter) {
+  return switch (filter) {
+    DownloadStatusFilter.all => Icons.filter_list,
+    DownloadStatusFilter.failed => Icons.error_outline,
+    DownloadStatusFilter.downloaded => Icons.check_circle_outline,
+  };
+}
+
+IconData _typeFilterIcon(DownloadTypeFilter filter) {
+  return switch (filter) {
+    DownloadTypeFilter.all => Icons.category_outlined,
+    DownloadTypeFilter.video => Icons.videocam_outlined,
+    DownloadTypeFilter.gallery => Icons.photo_library_outlined,
+    DownloadTypeFilter.other => Icons.more_horiz,
+  };
+}
+
+String _statusFilterLabel(DownloadStatusFilter filter, slang.Translations t) {
+  return switch (filter) {
+    DownloadStatusFilter.all => t.download.allStatus,
+    DownloadStatusFilter.failed => t.download.failed,
+    DownloadStatusFilter.downloaded => t.download.downloaded,
+  };
+}
+
+String _typeFilterLabel(DownloadTypeFilter filter, slang.Translations t) {
+  return switch (filter) {
+    DownloadTypeFilter.all => t.download.allTypes,
+    DownloadTypeFilter.video => t.download.video,
+    DownloadTypeFilter.gallery => t.download.gallery,
+    DownloadTypeFilter.other => t.download.other,
+  };
+}
+
 void showDownloadDetailDialog(BuildContext context, DownloadTask task) async {
   final t = slang.Translations.of(context);
   final theme = Theme.of(context);
@@ -1761,10 +1764,16 @@ void showDownloadDetailDialog(BuildContext context, DownloadTask task) async {
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                t.download.downloadDetail,
-                style: theme.textTheme.titleLarge,
+              padding: const EdgeInsets.fromLTRB(20, 16, 16, 8),
+              child: Builder(
+                builder: (dialogContext) => DefaultTextStyle.merge(
+                  style: theme.textTheme.titleLarge,
+                  child: _dialogTitleRow(
+                    dialogContext,
+                    t.download.downloadDetail,
+                    onClose: () => AppService.tryPop(),
+                  ),
+                ),
               ),
             ),
             Expanded(
@@ -1801,20 +1810,13 @@ void showDownloadDetailDialog(BuildContext context, DownloadTask task) async {
                       await SystemClipboard.instance?.write([item]);
 
                       if (context.mounted) {
-                        showToastWidget(
-                          MDToastWidget(
-                            message: t.download.copySuccess,
-                            type: MDToastType.success,
-                          ),
+                        showGlassToast(
+                          t.download.copySuccess,
+                          type: GlassToastType.success,
                         );
                       }
                     },
                     child: Text(t.download.copy),
-                  ),
-                  const SizedBox(width: 8),
-                  TextButton(
-                    onPressed: () => AppService.tryPop(),
-                    child: Text(t.common.close),
                   ),
                 ],
               ),
@@ -1908,11 +1910,9 @@ class _DeleteByDateDialogState extends State<_DeleteByDateDialog> {
       final start = _startDate;
       final end = _endDate;
       if (start != null && end != null && start.isAfter(end)) {
-        showToastWidget(
-          MDToastWidget(
-            message: t.download.deleteByDate.invalidRange,
-            type: MDToastType.warning,
-          ),
+        showGlassToast(
+          t.download.deleteByDate.invalidRange,
+          type: GlassToastType.warning,
         );
         return;
       }
@@ -1956,9 +1956,12 @@ class _DeleteByDateDialogState extends State<_DeleteByDateDialog> {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16),
-                  child: Text(
-                    t.download.deleteByDate.dialogTitle,
+                  child: DefaultTextStyle.merge(
                     style: Theme.of(context).textTheme.titleLarge,
+                    child: _dialogTitleRow(
+                      context,
+                      t.download.deleteByDate.dialogTitle,
+                    ),
                   ),
                 ),
                 DropdownButtonFormField<_DeleteByDateMode>(

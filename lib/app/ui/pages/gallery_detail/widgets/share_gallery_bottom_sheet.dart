@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/services/share_service.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
@@ -68,12 +67,10 @@ class _ShareGalleryBottomSheetState extends State<ShareGalleryBottomSheet> {
       }
     } catch (e) {
       LogUtils.e('生成分享图片失败', error: e, tag: 'ShareGalleryBottomSheet');
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.errors.failedToOperate,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        slang.t.errors.failedToOperate,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
     } finally {
       setState(() {
@@ -93,21 +90,17 @@ class _ShareGalleryBottomSheetState extends State<ShareGalleryBottomSheet> {
   Future<void> _copyLink() async {
     try {
       await ShareService.copyToClipboard(_shareUrl);
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.galleryDetail.copyLink,
-          type: MDToastType.success,
-        ),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        slang.t.galleryDetail.copyLink,
+        type: GlassToastType.success,
+        position: GlassToastPosition.bottom,
       );
     } catch (e) {
       LogUtils.e('复制链接失败', error: e, tag: 'ShareGalleryBottomSheet');
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.errors.failedToOperate,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.bottom,
+      showGlassToast(
+        slang.t.errors.failedToOperate,
+        type: GlassToastType.error,
+        position: GlassToastPosition.bottom,
       );
     }
   }
@@ -121,9 +114,7 @@ class _ShareGalleryBottomSheetState extends State<ShareGalleryBottomSheet> {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       ),
       // 底部弹窗自己让出系统手势条/导航条
-      padding: EdgeInsets.only(
-        bottom: computeSheetBottomInset(context),
-      ),
+      padding: EdgeInsets.only(bottom: computeSheetBottomInset(context)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -84,4 +84,4 @@ class MigrationV4Favorites extends Migration {
     db.execute('PRAGMA user_version = 3;');
     LogUtils.i('已回滚迁移v4：删除收藏夹和收藏项目表');
   }
-} 
+}
