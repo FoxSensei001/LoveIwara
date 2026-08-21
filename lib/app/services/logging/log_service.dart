@@ -26,8 +26,21 @@ class LogService extends GetxService {
   late LogPolicy _policy;
 
   Timer? _flushTimer;
+  Timer? _errorFlushTimer;
   bool _initialized = false;
-  bool _flushInProgress = false;
+
+  /// 在途的那次落盘。用 future 而不是 bool：并发调用要能**等**到它结束，
+  /// 而不是被静默丢弃——退出路径 close() 正是靠这个保证日志真的写出去了。
+  Future<void>? _flushInFlight;
+
+  /// 在途那次是不是「强制落盘」（forceFlush + 多批排干）。合流时要用它判断
+  /// 能不能安全搭车，见 [_flushBuffer]。
+  bool _inFlightIsImmediate = false;
+
+  /// 在途那次是不是「不封顶」（maxBatches == null，一次排干）。
+  /// 必须和 [_inFlightIsImmediate] 分开记：一个封顶 8 批的 immediate flush
+  /// **无法**满足 close()/export 的「必须排干」要求，合流进去就会丢队列尾巴。
+  bool _inFlightUncapped = false;
   int _droppedCount = 0;
   int _droppedByDisabled = 0;
   int _droppedByMinLevel = 0;
@@ -42,14 +55,24 @@ class LogService extends GetxService {
   String get sessionId => _sessionId;
   LogPolicy get policy => _policy;
 
-  Future<LogService> init({LogPolicy? policy}) async {
+  /// [paths] / [sink] 仅供测试注入；生产一律走 [LogPaths.resolve]（依赖
+  /// path_provider 插件）和自建的 [LogFileSink]。
+  ///
+  /// [sink] 存在的理由：flush 的并发协调（在途合流、批次封顶、error 合并窗口、
+  /// 退出排干）只有在写盘耗时可控时才能确定性地构造出时序，而真实文件写在
+  /// 临时目录里快到撞不出竞态。
+  Future<LogService> init({
+    LogPolicy? policy,
+    LogPaths? paths,
+    LogFileSink? sink,
+  }) async {
     _sessionId = const Uuid().v4();
-    _paths = await LogPaths.resolve();
+    _paths = paths ?? await LogPaths.resolve();
     _policy = (policy ?? LogPolicy.defaults(isProduction: kReleaseMode))
         .normalized();
     _processor = LogProcessor(maxLogsPerSecond: _policy.maxLogsPerSecond);
     _buffer = LogBuffer();
-    _sink = LogFileSink(_paths);
+    _sink = sink ?? LogFileSink(_paths);
     _sink.applyPolicy(
       maxFileBytes: _policy.maxFileBytes,
       maxRotatedFiles: _policy.maxRotatedFiles,
@@ -176,12 +199,17 @@ class LogService extends GetxService {
     return fallback;
   }
 
+  /// [errorText] / [stackTraceText] 供调用方复用**已经**字符串化过的结果。
+  /// AOT 下 `StackTrace.toString()` 需要符号化，是重操作；调用方（LogUtils.e）
+  /// 为了拼控制台输出已经转过一次，这里不能再转第二次。
   void log({
     required LogLevel level,
     required String message,
     String tag = 'i_iwara',
     Object? error,
     StackTrace? stackTrace,
+    String? errorText,
+    String? stackTraceText,
   }) {
     if (!_initialized) {
       _consoleFallback(level, message, tag, error, stackTrace);
@@ -203,8 +231,8 @@ class LogService extends GetxService {
       level: level,
       tag: tag,
       message: message,
-      error: error?.toString(),
-      stackTrace: stackTrace?.toString(),
+      error: errorText ?? error?.toString(),
+      stackTrace: stackTraceText ?? stackTrace?.toString(),
       sessionId: _sessionId,
     );
 
@@ -222,13 +250,27 @@ class LogService extends GetxService {
     }
 
     if (_policy.persistenceEnabled && level.value >= LogLevel.error.value) {
-      unawaited(_flushBuffer(immediate: true));
+      _scheduleErrorFlush();
     }
   }
 
-  Future<void> flush() async {
-    await _flushBuffer(immediate: true);
+  /// 把窗口内的多条 error 合并成一次强制落盘。逐条 `flush: true` 就是逐条
+  /// fsync，一波网络错误能连做几十次同步 I/O。fatal 不依赖这里——它走
+  /// [captureUnhandledError] 的 `appendEmergencySync` 当场同步落盘。
+  void _scheduleErrorFlush() {
+    if (_errorFlushTimer?.isActive ?? false) return;
+    _errorFlushTimer = Timer(LogConstants.errorFlushDebounce, () {
+      unawaited(_flushBuffer(immediate: true));
+    });
   }
+
+  /// 把队列**全部**落盘后才返回（不受 immediate 的批次封顶约束）。
+  /// 退出路径和导出路径都依赖这个保证。
+  ///
+  /// 「在途的那次不够强就挂到它后面重跑」的逻辑收在 [_flushBuffer] 里，
+  /// 这里不要再自己 `await _flushInFlight` —— 那样等于把同一套判定写两遍，
+  /// 而且中间那段空隙会被别的 flush 抢先占住 `_flushInFlight`。
+  Future<void> flush() => _flushBuffer(immediate: true, maxBatches: null);
 
   /// 同步标记本次为正常退出。退出编排方（桌面 onWindowClose / 移动端 detached）
   /// 应在 flush / 停 watchdog / 关库等慢操作**之前**第一时间调用，使后续清理
@@ -241,12 +283,21 @@ class LogService extends GetxService {
   Future<void> close() async {
     if (!_initialized) return;
     _flushTimer?.cancel();
+    _errorFlushTimer?.cancel();
     // 注意：正常退出路径已在 close() 之前通过 markCleanExitSync() 同步删除了
     // 崩溃标记，因此这里 _stopPersistenceSubsystems 里的 markCleanExit 多为
     // 幂等的二次删除。close() 自身仍保持「先 flush 再停子系统」的顺序，作为
     // 未提前标记的直接调用方的兜底（先把日志落盘）。
     if (_policy.persistenceEnabled) {
-      await _flushBuffer(immediate: true);
+      // 加超时：写盘 syscall 若卡住（存储被卸载 / 网络挂载盘），flush 的 future
+      // 永不完成，退出路径就会无限 await——桌面端表现为窗口关不掉。
+      // 宁可丢掉队列尾巴，也不能把退出流程挂死。
+      await flush().timeout(
+        LogConstants.exitFlushTimeout,
+        onTimeout: () {
+          debugPrint('[LogService] Exit flush timed out, abandoning queue');
+        },
+      );
     } else {
       _buffer.clearWriteQueue();
     }
@@ -375,25 +426,73 @@ class LogService extends GetxService {
     }
   }
 
-  Future<void> _flushBuffer({bool immediate = false}) async {
-    if (!_initialized || !_buffer.hasItemsToFlush) return;
+  /// [maxBatches] 为 null 表示不封顶（退出/导出路径用），
+  /// 否则最多连续写这么多批就交还事件循环。
+  Future<void> _flushBuffer({
+    bool immediate = false,
+    int? maxBatches = LogConstants.maxImmediateFlushBatches,
+  }) {
+    final inFlight = _flushInFlight;
+    // 同一时刻只允许一次写盘；后来者直接合流到在途那次，而不是被静默丢弃。
+    if (inFlight != null) {
+      // 只有当在途那次**至少和本次一样强**时才能安全搭车，两个维度都要看：
+      //
+      // - immediate：普通周期 flush 是 forceFlush=false 且只写一批就 break，
+      //   合流进去这条 error 的 fsync 会被整个跳过，而 _errorFlushTimer 已经
+      //   fire、没有任何重排机制。
+      // - uncapped：一个封顶 8 批的 immediate flush 满足不了 close()/export
+      //   的「必须排干」要求，合流进去队列 >1600 条时会丢尾巴。
+      //
+      // 不满足就挂到它后面重跑一次。whenComplete 的注册早于这里的 then，
+      // 所以续体跑到时 _flushInFlight 已被清空，会开一次全新的 flush。
+      final needsStronger =
+          (immediate && !_inFlightIsImmediate) ||
+          (maxBatches == null && !_inFlightUncapped);
+      if (needsStronger) {
+        return inFlight.then(
+          (_) => _flushBuffer(immediate: immediate, maxBatches: maxBatches),
+        );
+      }
+      return inFlight;
+    }
+    if (!_initialized || !_buffer.hasItemsToFlush) return Future<void>.value();
     if (!_policy.persistenceEnabled) {
       _buffer.clearWriteQueue();
-      return;
+      return Future<void>.value();
     }
-    if (_flushInProgress) return;
 
-    _flushInProgress = true;
+    final future = _runFlush(immediate: immediate, maxBatches: maxBatches);
+    _flushInFlight = future;
+    _inFlightIsImmediate = immediate;
+    _inFlightUncapped = maxBatches == null;
+    future.whenComplete(() {
+      if (identical(_flushInFlight, future)) {
+        _flushInFlight = null;
+        _inFlightIsImmediate = false;
+        _inFlightUncapped = false;
+      }
+    });
+    return future;
+  }
+
+  Future<void> _runFlush({
+    required bool immediate,
+    required int? maxBatches,
+  }) async {
     final stopwatch = Stopwatch()..start();
     var wroteAny = false;
     var hadFailure = false;
+    var batches = 0;
     try {
       while (_buffer.hasItemsToFlush) {
         final batchSize = immediate ? 200 : LogConstants.flushBatchSize;
         final batch = _buffer.drain(maxItems: batchSize);
         if (batch.isEmpty) break;
 
-        final ok = await _sink.appendBatch(batch, forceFlush: immediate);
+        final ok = await _sink.appendBatch(
+          batch.map((e) => e.line),
+          forceFlush: immediate,
+        );
         if (!ok) {
           hadFailure = true;
           _buffer.requeueFront(batch);
@@ -402,6 +501,11 @@ class LogService extends GetxService {
         wroteAny = true;
 
         if (!immediate) break;
+
+        // 封顶：immediate 时每批都带 fsync，队列积压时不封顶能一口气做
+        // 几十次同步 I/O 把事件循环钉死。剩余部分交给 300ms 周期 flush。
+        // 退出/导出路径传 null，必须一次排干。
+        if (maxBatches != null && ++batches >= maxBatches) break;
       }
     } catch (e) {
       hadFailure = true;
@@ -416,7 +520,6 @@ class LogService extends GetxService {
       if (hadFailure) {
         _flushFailureCount++;
       }
-      _flushInProgress = false;
     }
   }
 
@@ -502,6 +605,7 @@ class LogService extends GetxService {
   @override
   void onClose() {
     _flushTimer?.cancel();
+    _errorFlushTimer?.cancel();
     if (_initialized) {
       unawaited(_stopPersistenceSubsystems());
     }

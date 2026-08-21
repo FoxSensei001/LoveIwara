@@ -407,6 +407,34 @@ abstract class LogConstants {
   static const int flushBatchSize = 50;
   static const Duration flushInterval = Duration(milliseconds: 300);
   static const int highWaterMark = 5000;
+
+  /// 触发裁剪后回落到的条数目标。留出迟滞区间，使 O(n) 的裁剪从「每次 push 都跑」
+  /// 摊薄成「每 (highWaterMark - writeQueueTrimTarget) 次 push 跑一次」。
+  static const int writeQueueTrimTarget = 3500;
+
+  /// 写队列的**字符数**上限（UTF-16 码元，即 `String.length`），不是字节数。
+  ///
+  /// 只限条数是不够的：单条最大 message 2000 + err 1000 + stack 2000 字符，
+  /// 5000 条最坏堆到 2500 万码元；Dart 的字符串按码元计费（非 ASCII 走
+  /// TwoByteString，2 字节/码元），也就是约 50MB 常驻堆。
+  ///
+  /// 刻意不换算成 UTF-8 字节：这个上限管的是**内存**，而堆占用本来就按码元算；
+  /// 换成字节还得为每条日志多编码一遍（push 一次、落盘再一次），正是本模块一路
+  /// 在消灭的那类开销。
+  static const int maxWriteQueueChars = 4 * 1024 * 1024;
+  static const int writeQueueCharsTrimTarget = 3 * 1024 * 1024;
+
+  /// 退出时等待落盘的上限。超时就放弃队列尾巴，绝不把退出流程挂死。
+  static const Duration exitFlushTimeout = Duration(seconds: 2);
+
+  /// error 触发落盘的合并窗口。一次网络错误风暴会产生大量互不相同的 error，
+  /// 逐条 fsync 会把事件循环钉死；窗口内的 error 合并成一次 fsync。
+  /// fatal 不走这条路径，仍由 appendEmergencySync 同步落盘。
+  static const Duration errorFlushDebounce = Duration(milliseconds: 50);
+
+  /// 单次 immediate flush 最多连续写几批，避免一口气做几十次 fsync。
+  /// 剩余部分由周期 flush 接手。
+  static const int maxImmediateFlushBatches = 8;
   static const String fatalSnapshotFileName = 'last_fatal.json';
   static const String hangEventsFileName = 'hang_events.jsonl';
   static const int defaultHangEventsMaxFileBytes = 2 * 1024 * 1024;
