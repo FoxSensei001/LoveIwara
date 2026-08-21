@@ -80,9 +80,17 @@ class _SettingsShellState extends State<SettingsShell> {
             width: 280,
             height: double.infinity,
             child: GlassSettingsScaffold(
+              // 返回不给自定义实现：走和系统返回键 / Esc 完全相同的那条链
+              // （[AppService.tryPop] → PopCoordinator），按栈深退一层——在分区
+              // 根就离开整个设置。
+              //
+              // 别改回「一次性弹掉整棵设置树」：go_router 的
+              // `RouteMatchList.remove(shellMatch)` 在嵌套 Shell 还有多层匹配时
+              // 找不到要移除的东西、直接 `return this`，pop 被静默吞掉——表现就是
+              // 三级页里点左栏返回钮**毫无反应**。而分多次 pop 也不行：同一帧内
+              // 连续 pop 会打到同一个尚未重建的 route，抛
+              // `Bad state: Future already completed`。
               title: t.settings.settings,
-              // 左栏的返回 = 离开整个设置；右栏的返回由各页自己按栈深推导。
-              onBack: SettingsNavigation.exitSettings,
               slivers: [
                 SettingsSectionSliver(location: widget.location),
               ],

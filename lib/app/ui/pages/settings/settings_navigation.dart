@@ -53,14 +53,6 @@ abstract final class SettingsNavigation {
     return appRouter.push<void>(path).then((_) {});
   }
 
-  /// 离开整个设置子树。
-  ///
-  /// 设置壳自身是宿主 Shell Navigator 上的一页，弹掉它就等于整棵设置树一起走，
-  /// 只跑一次转场（逐层 pop 会连放好几段动画）。
-  static void exitSettings() {
-    shellNavigatorKey.currentState?.maybePop();
-  }
-
   /// 把设置内部导航栈收回到分区根（深度 1）。
   static void _collapseToSectionRoot() {
     var safety = 8;

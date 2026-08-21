@@ -859,6 +859,13 @@ final GoRouter appRouter = GoRouter(
 ///
 /// 页面本体包一层 [Builder] 再读宽度：这样窗口 resize 时 `isWideScreen` 会跟着
 /// 变，而不是被冻结在 push 那一刻。
+///
+/// 外面那层 [ColoredBox] 是必需的：设置各页的骨架 `GlassSettingsScaffold` 最终
+/// 落到 `GlassHeaderOverlay`，那只是个 `Stack`，**自己不画底色**——静态时底色由
+/// 双栏骨架/宿主 Scaffold 提供，看不出问题；可一旦进入路由转场，两张透明页会
+/// 直接叠在一起，上一页的内容透过来就是「视觉残留」。M3 下
+/// `canvasColor == scaffoldBackgroundColor == colorScheme.surface`，所以这里补
+/// 的底色和原本透出来的完全一致，静态观感不变。
 Page<void> _buildSettingsPage(
   BuildContext context,
   GoRouterState state,
@@ -866,8 +873,11 @@ Page<void> _buildSettingsPage(
   bool fullSwipe = true,
 }) {
   final Widget child = Builder(
-    builder: (context) => builder(
-      MediaQuery.sizeOf(context).width > kSettingsTwoPaneBreakpoint,
+    builder: (context) => ColoredBox(
+      color: Theme.of(context).colorScheme.surface,
+      child: builder(
+        MediaQuery.sizeOf(context).width > kSettingsTwoPaneBreakpoint,
+      ),
     ),
   );
 
@@ -881,24 +891,58 @@ Page<void> _buildSettingsPage(
     key: state.pageKey,
     name: state.name ?? state.fullPath,
     arguments: state.extra,
-    transitionDuration: const Duration(milliseconds: 200),
-    reverseTransitionDuration: const Duration(milliseconds: 200),
+    transitionDuration: const Duration(milliseconds: 260),
+    reverseTransitionDuration: const Duration(milliseconds: 220),
     child: child,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(1, 0),
-          end: Offset.zero,
-        ).animate(
-          CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOutCubic,
-            reverseCurve: Curves.easeInCubic,
-          ),
-        ),
-        child: child,
+    transitionsBuilder: _settingsPaneTransition,
+  );
+}
+
+/// 宽屏右栏的转场：M3 fade-through + 一小段 X 位移（横向平级切换的原生手法）。
+///
+/// 关键是**出场页也要动**。此前只给入场页做了整幅横推、出场页原地不动，于是切
+/// 分区时旧页会一直杵在下面直到新页盖满——读起来就是「上一页的残留」。这里让
+/// 旧页先淡出（前 40%）、新页后淡入（后 60%），中间那一小段露出的是同色底，
+/// 两页内容不会在半透明状态下互相叠加。
+Widget _settingsPaneTransition(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+  Widget child,
+) {
+  const double shift = 0.04;
+
+  // 出场：有新页压上来时，本页向左让位并淡出。
+  final Animation<Offset> outgoingSlide =
+      Tween<Offset>(begin: Offset.zero, end: const Offset(-shift, 0)).animate(
+        CurvedAnimation(parent: secondaryAnimation, curve: Curves.easeInCubic),
       );
-    },
+  final Animation<double> outgoingFade = Tween<double>(begin: 1, end: 0).animate(
+    CurvedAnimation(
+      parent: secondaryAnimation,
+      curve: const Interval(0, 0.4, curve: Curves.easeOut),
+    ),
+  );
+
+  // 入场：从右侧一小段位移滑入并淡入。
+  final Animation<Offset> incomingSlide =
+      Tween<Offset>(begin: const Offset(shift, 0), end: Offset.zero).animate(
+        CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+      );
+  final Animation<double> incomingFade = CurvedAnimation(
+    parent: animation,
+    curve: const Interval(0.4, 1, curve: Curves.easeIn),
+  );
+
+  return SlideTransition(
+    position: outgoingSlide,
+    child: FadeTransition(
+      opacity: outgoingFade,
+      child: SlideTransition(
+        position: incomingSlide,
+        child: FadeTransition(opacity: incomingFade, child: child),
+      ),
+    ),
   );
 }
 

@@ -210,6 +210,49 @@ void main() {
       expect(find.text('HOME'), findsOneWidget);
     });
 
+    testWidgets('go_router 无法一次性移除多层嵌套 Shell —— 别再写「一次弹掉整棵设置树」', (
+      tester,
+    ) async {
+      final router = await pump(tester);
+
+      router.push(kSettingsRootPath);
+      await tester.pumpAndSettle();
+      router.replace(SettingsSection.translation.path);
+      await tester.pumpAndSettle();
+
+      // 深度 1：宿主 Shell 弹掉设置壳这一页 —— 有效。
+      homeShellKey.currentState!.maybePop();
+      await tester.pumpAndSettle();
+      expect(find.text('HOME'), findsOneWidget);
+
+      // 深度 2：同样的调用**被静默吞掉**。
+      // 根因在 RouteMatchList.remove(shellMatch)：嵌套 Shell 里还有多层匹配时
+      // 它找不到要移除的东西，直接 `return this`，pop 就没了。
+      // 设置页左栏的返回钮曾经走这条路，表现就是「进三级页后点了没反应」。
+      router.push(kSettingsRootPath);
+      await tester.pumpAndSettle();
+      router.replace(SettingsSection.translation.path);
+      await tester.pumpAndSettle();
+      router.push(SettingsSubRoutes.translationAi);
+      await tester.pumpAndSettle();
+
+      homeShellKey.currentState!.maybePop();
+      await tester.pumpAndSettle();
+      expect(
+        router.state.uri.path,
+        SettingsSubRoutes.translationAi,
+        reason: 'go_router 若哪天修了这个限制，这条会红——那时才可以简化左栏返回逻辑',
+      );
+
+      // 正确做法：逐层退（左栏返回钮现在走 AppService.tryPop 这条链）。
+      router.pop();
+      await tester.pumpAndSettle();
+      expect(find.text('SECTION:translation'), findsOneWidget);
+      router.pop();
+      await tester.pumpAndSettle();
+      expect(find.text('HOME'), findsOneWidget);
+    });
+
     testWidgets('从 Shell 内的详情页进设置，详情页仍在栈里', (tester) async {
       final router = await pump(tester);
 
