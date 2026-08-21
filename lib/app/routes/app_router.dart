@@ -542,7 +542,7 @@ final GoRouter appRouter = GoRouter(
           name: 'settings_page',
           builder: (context, state) {
             final extra = state.extra as SettingsPageExtra?;
-            return SettingsPage(initialSection: extra?.initialSection);
+            return SettingsPage(initialPage: extra?.initialPage ?? -1);
           },
         ),
 
@@ -1140,8 +1140,8 @@ class PlayListExtra {
 }
 
 class SettingsPageExtra {
-  final SettingsSection? initialSection;
-  const SettingsPageExtra({this.initialSection});
+  final int initialPage;
+  const SettingsPageExtra({this.initialPage = -1});
 }
 
 class FollowsPageExtra {
