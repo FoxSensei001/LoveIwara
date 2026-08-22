@@ -22,8 +22,10 @@ import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 ///   「返回圆钮（`GlassIconButton(standalone: true)` + `AppService.tryPop`）
 ///   / 中间 `GlassTitlePill`（可点按弹全文，别手写死标题）
 ///   / 右侧 `GlassButtonGroup`」。胶囊里：仅宽屏直出的键和等数据就绪的键都
-///   用 `GlassGroupSlot` 包；尾部固定一个 40×40 的 PopupMenuButton
-///   （`offset: Offset(0, 8)`、圆角 12），窄屏功能收进这里。
+///   用 `GlassGroupSlot` 包；尾部固定一个 `GlassGroupOverflowMenuButton`
+///   （或自己 `GlassIconButton` + `showGlassMenu`），窄屏功能收进这里。
+///   **不要再用 `PopupMenuButton`**——它吐出来的是块不透明的 Material 卡片，
+///   跟玻璃胶囊接不上（见 `glass_menu.dart`）。
 /// - [body] 外包一层 `NotificationListener<ScrollNotification>`
 ///   （`depth == 0` 且纵向、`pixels >= 300`）驱动回到顶部浮钮的显隐；
 ///   浮钮放进 [extra]，`bottom = padding.bottom + 16 + (分页模式 ? 46 : 0)`

@@ -128,11 +128,11 @@ abstract final class GlassTokens {
     alpha: cs.brightness == Brightness.dark ? 0.45 : 0.35,
   );
 
-  /// 玻璃体外投影。
-  static List<BoxShadow> shadow(ColorScheme cs) => [
+  /// 玻璃体外投影。[alphaScale] 供材质淡入用（见 [GlassSurface.materialize]）。
+  static List<BoxShadow> shadow(ColorScheme cs, {double alphaScale = 1}) => [
     BoxShadow(
       color: Colors.black.withValues(
-        alpha: cs.brightness == Brightness.dark ? 0.40 : 0.10,
+        alpha: (cs.brightness == Brightness.dark ? 0.40 : 0.10) * alphaScale,
       ),
       blurRadius: 12,
       offset: const Offset(0, 2),
@@ -194,10 +194,22 @@ abstract final class GlassTokens {
 
   /// 接触阴影。与传统档的 [shadow] 表达同一件事（玻璃浮在内容之上），
   /// 但它长在 lens 的形变盒里，按下时会跟着一起胀/回弹。
-  static LiquidGlassShadow liquidShadow(ColorScheme cs) => LiquidGlassShadow(
+  /// [alphaScale] 供材质淡入用（见 [GlassSurface.materialize]）。
+  static LiquidGlassShadow liquidShadow(
+    ColorScheme cs, {
+    double alphaScale = 1,
+  }) => LiquidGlassShadow(
     blur: 12,
-    opacity: cs.brightness == Brightness.dark ? 0.40 : 0.14,
+    opacity: (cs.brightness == Brightness.dark ? 0.40 : 0.14) * alphaScale,
     offset: const Offset(0, 2),
+  );
+
+  /// 跟手形变（`LiquidGlassLens.touch`）。用 `.subtle()`——按钮组胶囊/菜单面板
+  /// 都是「工具条 / 大面板」而不是单枚按钮，官方文档明确建议这一档给这类容器用，
+  /// 默认档的拉伸量对它们来说太夸张。只在显式传 [LiquidGlassBox.touchFlex]
+  /// 为真的容器上生效——不是每块玻璃都该动，见调用点注释。
+  static const LiquidGlassTouch liquidFlex = LiquidGlassTouch(
+    flex: LiquidGlassFlex.subtle(),
   );
 }
 

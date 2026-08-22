@@ -78,12 +78,19 @@ class GlassSurface extends StatelessWidget {
     this.tooltip,
     this.elevated = true,
     this.clipContent = false,
+    this.liquidTouch = false,
+    this.materialize = 1.0,
   });
 
   final Widget child;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
-  final double height;
+
+  /// 玻璃体高度。传 null 表示**按内容自适应**（菜单面板一类高度不定的玻璃），
+  /// 这时 [borderRadius] 必须显式给出——没有高度就推不出胶囊半径。
+  /// [circle] 为真时不可为 null。
+  final double? height;
+
   final double? width;
   final EdgeInsetsGeometry padding;
   final bool circle;
@@ -92,11 +99,43 @@ class GlassSurface extends StatelessWidget {
   final bool elevated;
   final bool clipContent;
 
+  /// 液态档下是否接入跟手形变（见 [LiquidGlassBox.touchFlex]）。传统档忽略
+  /// 此项。只在 [height] / [width] 已经是**钉死尺寸**时打开——见
+  /// [LiquidGlassBox.touchFlex] 上的约束说明，调用点自己保证。
+  final bool liquidTouch;
+
+  /// 材质的「在场程度」：0 = 玻璃还没长出来，1 = 正常。
+  ///
+  /// **玻璃自己的淡入淡出必须走这里，不能用 `Opacity` 包一层**：α∈(0,1) 时
+  /// `RenderOpacity` 会 `saveLayer` 把子树隔离出去，液态档的 lens 靠 backdrop
+  /// 采样吃身后的像素，隔离之后层里什么都没有——读起来就是「内容先出现、
+  /// 玻璃背景后到」（详见 `liquid_glass_material.dart` 顶部那段实锤）。
+  /// 这里压的是**材质自身**的透明度（底色 / 描边 / 投影），图层结构全程不变，
+  /// 折射一帧都不会断。
+  ///
+  /// 两档的 0 端不完全一样：传统档是彻底透明，液态档还留着折射与边缘光
+  /// （见 [LiquidGlassBox.materialize]）。它是给几十到一两百毫秒的**材质淡入**
+  /// 用的，不是显隐开关——真要藏起来请让调用方别建这块玻璃。
+  final double materialize;
+
   @override
   Widget build(BuildContext context) {
+    assert(
+      !circle || height != null,
+      'GlassSurface(circle: true) 必须给 height——圆的直径就是它。',
+    );
+    assert(
+      height != null || borderRadius != null,
+      'GlassSurface(height: null) 必须给 borderRadius——没有高度推不出胶囊半径。',
+    );
     final cs = Theme.of(context).colorScheme;
-    final radius = borderRadius ?? BorderRadius.circular(height / 2);
+    final double m = materialize.clamp(0.0, 1.0);
+    final radius =
+        borderRadius ??
+        BorderRadius.circular((height ?? GlassTokens.pillHeight) / 2);
     final bool liquid = LiquidGlassScope.isEnabled(context);
+
+    Color dim(Color c) => m >= 1 ? c : c.withValues(alpha: c.a * m);
 
     Widget buildBox(bool pressed) {
       Widget content = Padding(padding: padding, child: child);
@@ -110,6 +149,8 @@ class GlassSurface extends StatelessWidget {
           cornerRadius: radius.topLeft.x,
           pressed: pressed,
           elevated: elevated,
+          touchFlex: liquidTouch,
+          materialize: m,
           child: content,
         );
       }
@@ -124,14 +165,18 @@ class GlassSurface extends StatelessWidget {
         height: height,
         width: circle ? height : width,
         decoration: BoxDecoration(
-          color: pressed ? GlassTokens.pressedFill(cs) : GlassTokens.fill(cs),
+          color: dim(
+            pressed ? GlassTokens.pressedFill(cs) : GlassTokens.fill(cs),
+          ),
           shape: circle ? BoxShape.circle : BoxShape.rectangle,
           borderRadius: circle ? null : radius,
           border: Border.all(
-            color: GlassTokens.stroke(cs),
+            color: dim(GlassTokens.stroke(cs)),
             width: GlassTokens.strokeWidth,
           ),
-          boxShadow: elevated ? GlassTokens.shadow(cs) : null,
+          boxShadow: elevated
+              ? GlassTokens.shadow(cs, alphaScale: m)
+              : null,
         ),
         child: content,
       );
@@ -394,11 +439,24 @@ class GlassButtonGroup extends StatelessWidget {
     required this.children,
     this.height = GlassTokens.pillHeight,
     this.spacing = 0,
+    this.touchFlex = false,
+    this.touchFlexSignature,
   });
 
   final List<Widget> children;
   final double height;
   final double spacing;
+
+  /// 液态档下是否给整只胶囊接入 [GlassTokens.liquidFlex]（长按跟手拉伸）。
+  /// 传统档忽略。胶囊宽度是「抱内容」算出来的、还会随按钮增删动画过渡，
+  /// 不满足 touch 的钉死尺寸要求——打开这项时走 [LiquidGlassSettledTouch]：
+  /// 过渡中自然退回不开 touch 的原有行为，静止下来才量出精确宽度并开 touch。
+  final bool touchFlex;
+
+  /// 影响胶囊里哪些子项可见（因而影响胶囊宽度）的外部状态摘要，例如
+  /// `'$isWide|$isMultiSelect'`。[touchFlex] 为 true 时必须传，见
+  /// [LiquidGlassSettledTouch.signature]。
+  final Object? touchFlexSignature;
 
   @override
   Widget build(BuildContext context) {
@@ -408,18 +466,38 @@ class GlassButtonGroup extends StatelessWidget {
       if (i > 0 && spacing > 0) row.add(SizedBox(width: spacing));
       row.add(children[i]);
     }
-    return GlassSurface(
-      height: height,
-      padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: AnimatedSize(
-        // 外壳收放比槽位（GlassGroupSlot）略慢半拍：壳体「追着」内容走，
-        // 入场跟着按钮慢慢撑开、出场等内容收完再从容合拢，读起来是
-        // 同一坨液态玻璃在形变，而不是两层动画各自为政。
-        duration: GlassTokens.groupMorphDuration,
-        curve: GlassTokens.groupSlotCurve,
-        alignment: Alignment.centerRight,
-        clipBehavior: Clip.hardEdge,
-        child: Row(mainAxisSize: MainAxisSize.min, children: row),
+
+    Widget buildSurface({double? width, bool liquidTouch = false}) {
+      return GlassSurface(
+        height: height,
+        width: width,
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        liquidTouch: liquidTouch,
+        child: AnimatedSize(
+          // 外壳收放比槽位（GlassGroupSlot）略慢半拍：壳体「追着」内容走，
+          // 入场跟着按钮慢慢撑开、出场等内容收完再从容合拢，读起来是
+          // 同一坨液态玻璃在形变，而不是两层动画各自为政。
+          duration: GlassTokens.groupMorphDuration,
+          curve: GlassTokens.groupSlotCurve,
+          alignment: Alignment.centerRight,
+          clipBehavior: Clip.hardEdge,
+          child: Row(mainAxisSize: MainAxisSize.min, children: row),
+        ),
+      );
+    }
+
+    if (!touchFlex) return buildSurface();
+
+    assert(
+      touchFlexSignature != null,
+      'GlassButtonGroup(touchFlex: true) 必须给 touchFlexSignature，'
+      '否则宽度一变就没法判断该不该重新量。',
+    );
+    return LiquidGlassSettledTouch(
+      signature: touchFlexSignature ?? row.length,
+      builder: (context, lockedSize) => buildSurface(
+        width: lockedSize?.width,
+        liquidTouch: lockedSize != null,
       ),
     );
   }

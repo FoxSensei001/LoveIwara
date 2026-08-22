@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:shimmer/shimmer.dart';
@@ -82,6 +83,10 @@ class _CompactSubscriptionDropdownState
   /// OverlayEntry 是否还挂在 Overlay 上（退场动画结束后才置回 false）。
   bool _overlayAttached = false;
 
+  /// 开面板那一刻取样到的玻璃档位。面板挂在 Overlay 上、不在页面子树里，
+  /// 读不到 `LiquidGlassScope`，只能在这边取了带过去。
+  bool _liquid = false;
+
   @override
   void dispose() {
     if (_overlayAttached) {
@@ -129,6 +134,7 @@ class _CompactSubscriptionDropdownState
   // 打开下拉菜单
   void _openDropdown() {
     if (_overlayAttached) return;
+    _liquid = LiquidGlassScope.isEnabled(context);
     _overlayEntry = _createOverlayEntry();
     Overlay.of(context).insert(_overlayEntry);
     _overlayAttached = true;
@@ -193,21 +199,29 @@ class _CompactSubscriptionDropdownState
               // 入场自锚点向下放大淡入，退场反向收拢，避免面板瞬间出现/消失
               child: _DropdownPanel(
                 key: _panelKey,
-                child: Material(
-                  elevation: 4.0,
-                  borderRadius: BorderRadius.circular(8.0),
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  child: Container(
-                    constraints: BoxConstraints(maxHeight: calculatedHeight),
-                    child: ListView(
-                      padding: EdgeInsets.zero,
-                      shrinkWrap: true,
-                      children: [
-                        _buildDropdownItem(_allItem),
-                        ...widget.userList.map(
-                          (item) => _buildDropdownItem(item),
-                        ),
-                      ],
+                // 面板挂在 Overlay 上，读不到触发件那边的 LiquidGlassScope；
+                // 材质档位在开面板时就地取样（_openDropdown），这里重新供上，
+                // 玻璃胶囊才不会吐出一块实心板。
+                child: LiquidGlassScope(
+                  enabled: _liquid,
+                  child: GlassSurface(
+                    // 高度按内容走（外层还有 maxHeight 卡着），所以必须显式给圆角
+                    height: null,
+                    borderRadius: BorderRadius.circular(20),
+                    clipContent: true,
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxHeight: calculatedHeight),
+                      child: ListView(
+                        padding: EdgeInsets.zero,
+                        shrinkWrap: true,
+                        children: [
+                          _buildDropdownItem(_allItem),
+                          ...widget.userList.map(
+                            (item) => _buildDropdownItem(item),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -220,90 +234,15 @@ class _CompactSubscriptionDropdownState
   }
 
   Widget _buildDropdownItem(SubscriptionDropdownItem item) {
-    final theme = Theme.of(context);
-    final bool isSelected = widget.selectedUserId == item.id;
-
-    return InkWell(
+    return _DropdownRow(
+      item: item,
+      selected: widget.selectedUserId == item.id,
       onTap: () {
         if (widget.selectedUserId != item.id) {
           widget.onUserSelected(item.id);
         }
         _closeDropdown();
       },
-      onLongPress: item.onLongPress,
-      child: Container(
-        height: 48.0,
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        decoration: BoxDecoration(
-          color: isSelected ? theme.colorScheme.surfaceContainerHighest : null,
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        child: Row(
-          children: [
-            if (item.avatarUrl.isEmpty)
-              CircleAvatar(
-                radius: 14,
-                backgroundColor: isSelected
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.surfaceContainerHighest,
-                child: Icon(
-                  Icons.cloud,
-                  color: isSelected
-                      ? theme.colorScheme.onPrimary
-                      : theme.colorScheme.onSurfaceVariant,
-                  size: 14,
-                ),
-              )
-            else
-              CircleAvatar(
-                radius: 14,
-                backgroundColor: Colors.transparent,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: CachedNetworkImage(
-                    imageUrl: item.avatarUrl,
-                    placeholder: (context, url) => Shimmer.fromColors(
-                      baseColor: Colors.grey[300]!,
-                      highlightColor: Colors.grey[100]!,
-                      child: CircleAvatar(
-                        radius: 14,
-                        backgroundColor: Colors.white,
-                      ),
-                    ),
-                    errorWidget: (context, url, error) => CircleAvatar(
-                      radius: 14,
-                      backgroundImage: const NetworkImage(
-                        CommonConstants.defaultAvatarUrl,
-                      ),
-                      onBackgroundImageError: (exception, stackTrace) =>
-                          const Icon(Icons.person, size: 14),
-                    ),
-                    httpHeaders: const {
-                      'referer': CommonConstants.iwaraBaseUrl,
-                    },
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                item.label,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: isSelected
-                      ? theme.colorScheme.primary
-                      : theme.textTheme.bodyMedium?.color,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            if (isSelected)
-              Icon(Icons.check, color: theme.colorScheme.primary, size: 16),
-          ],
-        ),
-      ),
     );
   }
 
@@ -498,6 +437,128 @@ class _CompactSubscriptionDropdownState
 
   double max(double a, double b) {
     return a > b ? a : b;
+  }
+}
+
+/// 面板里的一行「特别关注」用户。
+///
+/// 反馈自绘、不用 `InkWell`：玻璃面板底下没有 Material（原先那层
+/// `Material(elevation: 4)` 已经被玻璃壳换掉），而且水波画在最近的祖先 Material
+/// 上、会穿透中间的 ClipRRect，在圆角面板的四角露出直角。取值与
+/// `glass_menu.dart` 里的菜单行保持一致，两种面板的手感才是同一套。
+class _DropdownRow extends StatefulWidget {
+  const _DropdownRow({
+    required this.item,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final SubscriptionDropdownItem item;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  State<_DropdownRow> createState() => _DropdownRowState();
+}
+
+class _DropdownRowState extends State<_DropdownRow> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final item = widget.item;
+    final bool isSelected = widget.selected;
+
+    final Widget avatar = item.avatarUrl.isEmpty
+        ? CircleAvatar(
+            radius: 14,
+            backgroundColor: isSelected
+                ? cs.primary
+                : cs.surfaceContainerHighest,
+            child: Icon(
+              Icons.cloud,
+              color: isSelected ? cs.onPrimary : cs.onSurfaceVariant,
+              size: 14,
+            ),
+          )
+        : CircleAvatar(
+            radius: 14,
+            backgroundColor: Colors.transparent,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: CachedNetworkImage(
+                imageUrl: item.avatarUrl,
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: CircleAvatar(
+                    radius: 14,
+                    backgroundColor: Colors.white,
+                  ),
+                ),
+                errorWidget: (context, url, error) => CircleAvatar(
+                  radius: 14,
+                  backgroundImage: const NetworkImage(
+                    CommonConstants.defaultAvatarUrl,
+                  ),
+                  onBackgroundImageError: (exception, stackTrace) =>
+                      const Icon(Icons.person, size: 14),
+                ),
+                httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
+                fit: BoxFit.cover,
+              ),
+            ),
+          );
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: GlassPressable(
+        onTap: widget.onTap,
+        onLongPress: item.onLongPress,
+        // 整行缩放会让面板看着在抖；行的反馈只用底色
+        scale: 1.0,
+        builder: (context, pressed) => AnimatedContainer(
+          duration: GlassTokens.pressDuration,
+          curve: Curves.easeOut,
+          height: 44,
+          margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: pressed
+                ? cs.onSurface.withValues(alpha: 0.10)
+                : _hovered
+                ? cs.onSurface.withValues(alpha: 0.05)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              avatar,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  item.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14.5,
+                    color: isSelected ? cs.primary : cs.onSurface,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  ),
+                ),
+              ),
+              if (isSelected) ...[
+                const SizedBox(width: 12),
+                Icon(Icons.check, size: 18, color: cs.primary),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

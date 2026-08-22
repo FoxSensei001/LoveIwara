@@ -2,6 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/routes/app_router.dart';
+import 'package:i_iwara/app/ui/pages/dev/liquid_glass_lab_page.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/link_input_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
@@ -244,6 +246,22 @@ class GlobalDrawerColumns extends StatelessWidget {
                           icon: Icons.link_outlined,
                           title: slang.t.settings.jumpLink,
                           onTap: () => LinkInputDialogWidget.show(),
+                        ),
+                        // 临时调试入口：liquid_glass_easy 能力速览（未接 i18n，看完可整条删）
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.science_outlined,
+                          title: '液态玻璃实验室',
+                          // 抽屉挂在 Navigator 之外，context 里没有 Navigator，
+                          // 只能走 router 的 rootNavigatorKey。
+                          onTap: () {
+                            AppService.switchGlobalDrawer();
+                            rootNavigatorKey.currentState?.push(
+                              MaterialPageRoute<void>(
+                                builder: (_) => const LiquidGlassLabPage(),
+                              ),
+                            );
+                          },
                         ),
 
                         const SizedBox(height: 16),

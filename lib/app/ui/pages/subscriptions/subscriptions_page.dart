@@ -37,6 +37,7 @@ import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/batch_download_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -166,12 +167,12 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     }
   }
 
-  List<PopupMenuEntry<String>> _buildTopBarMenuItems({
+  List<GlassMenuEntry> _buildTopBarMenuItems({
     required BuildContext context,
     required bool isWide,
   }) {
     final t = slang.Translations.of(context);
-    final List<PopupMenuEntry<String>> items = [];
+    final List<GlassMenuEntry> items = [];
 
     void addItem({
       required String value,
@@ -179,12 +180,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
       required String label,
     }) {
       items.add(
-        PopupMenuItem<String>(
-          value: value,
-          child: Row(
-            children: [Icon(icon), const SizedBox(width: 12), Text(label)],
-          ),
-        ),
+        GlassMenuOption<String>(value: value, icon: icon, label: label),
       );
     }
 
@@ -217,7 +213,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
         label: isMultiSelect ? t.common.exitEditMode : t.common.editMode,
       );
     }
-    items.add(const PopupMenuDivider());
+    items.add(const GlassMenuSeparator());
     addItem(
       value: _menuActionTogglePagination,
       icon: mediaListController.isPaginated.value
@@ -298,21 +294,19 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
             onPressed: () => batchController?.toggleMultiSelect(),
           ),
         ),
-        SizedBox(
-          width: GlassTokens.groupIconButtonSize,
-          height: GlassTokens.groupIconButtonSize,
-          child: PopupMenuButton<String>(
-            padding: EdgeInsets.zero,
-            icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
-            position: PopupMenuPosition.under,
-            // 往下挪一点，别压住玻璃胶囊本身
-            offset: const Offset(0, 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            onSelected: _handleTopBarMenuAction,
-            itemBuilder: (context) =>
-                _buildTopBarMenuItems(context: context, isWide: isWide),
+        Builder(
+          builder: (anchorContext) => GlassIconButton(
+            icon: const Icon(Icons.more_vert),
+            onPressed: () async {
+              final action = await showGlassMenu<String>(
+                anchorContext: anchorContext,
+                entries: _buildTopBarMenuItems(
+                  context: anchorContext,
+                  isWide: isWide,
+                ),
+              );
+              if (action != null) _handleTopBarMenuAction(action);
+            },
           ),
         ),
       ],
@@ -886,54 +880,69 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   /// 翻页（见 [GlassFlipLabel]），不是等滑完才换字。
   Widget _buildTabDropdown(BuildContext context, List<GlassSegmentItem> items) {
     final colorScheme = Theme.of(context).colorScheme;
-    final index = _tabController.index;
-    return PopupMenuButton<int>(
-      initialValue: index,
-      onSelected: (newIndex) => _tabController.animateTo(newIndex),
-      position: PopupMenuPosition.under,
-      // 往下挪一点，别压住玻璃胶囊本身
-      offset: const Offset(0, 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: SizedBox(
-        height: GlassTokens.pillHeight,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 14, right: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              GlassFlipLabel(
-                progress: _tabController.animation!,
-                labels: [for (final item in items) item.label],
-                style: TextStyle(
-                  color: colorScheme.onSurface,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Icon(
-                Icons.arrow_drop_down,
-                size: 22,
-                color: colorScheme.onSurface,
-              ),
-            ],
+    // 菜单走 [showGlassMenu]，材质跟着外层胶囊的档位走；Builder 是为了拿到
+    // 触发位自身的 context 去量落点。
+    return Builder(
+      builder: (anchorContext) => GlassPressable(
+        onTap: () => _openTabMenu(anchorContext, items),
+        // 触发位是胶囊的全部内容，按下缩放会把整只胶囊带得一起抖；
+        // 反馈改成整只胶囊压深一档（换掉 PopupMenuButton 原本的水波）。
+        scale: 1.0,
+        builder: (context, pressed) => AnimatedContainer(
+          duration: GlassTokens.pressDuration,
+          curve: Curves.easeOut,
+          height: GlassTokens.pillHeight,
+          decoration: BoxDecoration(
+            color: pressed
+                ? colorScheme.onSurface.withValues(alpha: 0.06)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(GlassTokens.pillHeight / 2),
           ),
-        ),
-      ),
-      itemBuilder: (context) => [
-        for (var i = 0; i < items.length; i++)
-          PopupMenuItem<int>(
-            value: i,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 14, right: 8),
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(items[i].label),
-                if (i == index) ...[
-                  const Spacer(),
-                  Icon(Icons.check, size: 18, color: colorScheme.primary),
-                ],
+                GlassFlipLabel(
+                  progress: _tabController.animation!,
+                  labels: [for (final item in items) item.label],
+                  style: TextStyle(
+                    color: colorScheme.onSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_drop_down,
+                  size: 22,
+                  color: colorScheme.onSurface,
+                ),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openTabMenu(
+    BuildContext anchorContext,
+    List<GlassSegmentItem> items,
+  ) async {
+    final index = _tabController.index;
+    final selected = await showGlassMenu<int>(
+      anchorContext: anchorContext,
+      entries: [
+        for (var i = 0; i < items.length; i++)
+          GlassMenuOption<int>(
+            value: i,
+            label: items[i].label,
+            selected: i == index,
+          ),
       ],
     );
+    if (selected != null && mounted) {
+      _tabController.animateTo(selected);
+    }
   }
 
   Widget _buildLoggedInView(BuildContext context) {

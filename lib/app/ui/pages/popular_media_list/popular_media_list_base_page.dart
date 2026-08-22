@@ -19,6 +19,7 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/saved_search_con
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/batch_download_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -361,71 +362,74 @@ class PopularMediaListPageBaseState<
   /// 翻页（见 [GlassFlipLabel]），不是等滑完才换字。
   Widget _buildTabDropdown(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final index = _currentTabIndex.value;
 
-    return PopupMenuButton<int>(
-      initialValue: index,
-      onSelected: (newIndex) => _tabController.animateTo(newIndex),
-      position: PopupMenuPosition.under,
-      // 不设置 tooltip 时 PopupMenuButton 会用系统默认文案包一层 Tooltip，
-      // 默认长按触发且渲染在 Overlay 里，不受玻璃胶囊的裁剪/阴影约束，
-      // 长按会看到气泡探出卡片外——传空字符串让 Tooltip 直接不生成。
-      tooltip: '',
-      // 往下挪一点，别压住玻璃胶囊本身
-      offset: const Offset(0, 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      // 按下时 InkWell 的水波/高亮默认是直角矩形，不受外层 GlassSurface
-      // 的 ClipRRect 约束（水波画在最近的祖先 Material 上，会穿透中间的
-      // ClipRRect），直角会在圆角胶囊的四角处露出来；这里让它直接按胶囊
-      // 的圆角整形，形状本身就贴合，不再需要额外裁剪。
-      borderRadius: BorderRadius.circular(GlassTokens.pillHeight / 2),
-      child: SizedBox(
-        height: GlassTokens.pillHeight,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 14, right: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconTheme.merge(
-                data: IconThemeData(color: colorScheme.onSurface),
-                child: GlassFlipLabel(
-                  progress: _tabController.animation!,
-                  labels: [for (final sort in sorts) sort.label],
-                  icons: [for (final sort in sorts) sort.icon],
-                  style: TextStyle(
-                    color: colorScheme.onSurface,
-                    fontWeight: FontWeight.w600,
+    // 触发位只是胶囊里的无壳内容；菜单走 [showGlassMenu]，材质跟着外层胶囊
+    // 的档位走（玻璃胶囊 → 玻璃菜单）。Builder 是为了拿到**触发位自身**的
+    // context 去量落点。
+    return Builder(
+      builder: (anchorContext) => GlassPressable(
+        onTap: () => _openSortMenu(anchorContext),
+        // 触发位是胶囊的全部内容，按下缩放会把整只胶囊带得一起抖；
+        // 反馈改成整只胶囊压深一档（换掉 PopupMenuButton 原本的水波）。
+        scale: 1.0,
+        builder: (context, pressed) => AnimatedContainer(
+          duration: GlassTokens.pressDuration,
+          curve: Curves.easeOut,
+          height: GlassTokens.pillHeight,
+          decoration: BoxDecoration(
+            color: pressed
+                ? colorScheme.onSurface.withValues(alpha: 0.06)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(GlassTokens.pillHeight / 2),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.only(left: 14, right: 8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconTheme.merge(
+                  data: IconThemeData(color: colorScheme.onSurface),
+                  child: GlassFlipLabel(
+                    progress: _tabController.animation!,
+                    labels: [for (final sort in sorts) sort.label],
+                    icons: [for (final sort in sorts) sort.icon],
+                    style: TextStyle(
+                      color: colorScheme.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
-              ),
-              Icon(
-                Icons.arrow_drop_down,
-                size: 22,
-                color: colorScheme.onSurface,
-              ),
-            ],
+                Icon(
+                  Icons.arrow_drop_down,
+                  size: 22,
+                  color: colorScheme.onSurface,
+                ),
+              ],
+            ),
           ),
         ),
       ),
-      itemBuilder: (context) => sorts.asMap().entries.map((entry) {
-        return PopupMenuItem<int>(
-          value: entry.key,
-          child: Row(
-            children: [
-              if (entry.value.icon != null) ...[
-                entry.value.icon!,
-                const SizedBox(width: 8),
-              ],
-              Text(entry.value.label),
-              if (entry.key == index) ...[
-                const Spacer(),
-                Icon(Icons.check, size: 18, color: colorScheme.primary),
-              ],
-            ],
-          ),
-        );
-      }).toList(),
     );
+  }
+
+  Future<void> _openSortMenu(BuildContext anchorContext) async {
+    final index = _currentTabIndex.value;
+    final selected = await showGlassMenu<int>(
+      anchorContext: anchorContext,
+      entries: [
+        for (var i = 0; i < sorts.length; i++)
+          GlassMenuOption<int>(
+            value: i,
+            // Sort.icon 是个现成的 Widget，不是 IconData
+            leading: sorts[i].icon,
+            label: sorts[i].label,
+            selected: i == index,
+          ),
+      ],
+    );
+    if (selected != null && mounted) {
+      _tabController.animateTo(selected);
+    }
   }
 
   /// 左上角「我」圆钮：已登录显示头像（带未读红点），未登录显示占位图标。
@@ -508,8 +512,8 @@ class PopularMediaListPageBaseState<
     }
   }
 
-  List<PopupMenuEntry<String>> _buildTopBarMenuItems({required bool isWide}) {
-    final List<PopupMenuEntry<String>> items = [];
+  List<GlassMenuEntry> _buildTopBarMenuItems({required bool isWide}) {
+    final List<GlassMenuEntry> items = [];
 
     void addMenuItem({
       required String value,
@@ -517,12 +521,7 @@ class PopularMediaListPageBaseState<
       required String label,
     }) {
       items.add(
-        PopupMenuItem<String>(
-          value: value,
-          child: Row(
-            children: [Icon(icon), const SizedBox(width: 12), Text(label)],
-          ),
-        ),
+        GlassMenuOption<String>(value: value, icon: icon, label: label),
       );
     }
 
@@ -555,7 +554,7 @@ class PopularMediaListPageBaseState<
           ? t.common.exitEditMode
           : t.common.editMode,
     );
-    items.add(const PopupMenuDivider());
+    items.add(const GlassMenuSeparator());
     addMenuItem(
       value: _menuActionTogglePagination,
       icon: _mediaListController.isPaginated.value
@@ -573,6 +572,11 @@ class PopularMediaListPageBaseState<
     return Obx(() {
       final isMultiSelect = _batchSelectController.isMultiSelect.value;
       return GlassButtonGroup(
+        // 液态档下整只胶囊接跟手拉伸；宽度会随 isWide/isMultiSelect 动画
+        // 过渡，签名变化时 LiquidGlassSettledTouch 会先退回自然布局、
+        // 等过渡跑完再重新量出精确宽度并开 touch（见该类说明）。
+        touchFlex: true,
+        touchFlexSignature: '$isWide|$isMultiSelect',
         children: [
           GlassGroupSlot(
             visible: isWide,
@@ -602,22 +606,17 @@ class PopularMediaListPageBaseState<
               onPressed: _batchSelectController.toggleMultiSelect,
             ),
           ),
-          SizedBox(
-            width: GlassTokens.groupIconButtonSize,
-            height: GlassTokens.groupIconButtonSize,
-            child: PopupMenuButton<String>(
-              padding: EdgeInsets.zero,
-              icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
-              position: PopupMenuPosition.under,
-              // 同上：去掉默认长按 Tooltip，避免探出玻璃胶囊阴影之外
-              tooltip: '',
-              // 往下挪一点，别压住玻璃胶囊本身
-              offset: const Offset(0, 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              onSelected: _handleTopBarMenuAction,
-              itemBuilder: (context) => _buildTopBarMenuItems(isWide: isWide),
+          Builder(
+            builder: (anchorContext) => GlassIconButton(
+              icon: const Icon(Icons.more_vert),
+              onPressed: () async {
+                final action = await showGlassMenu<String>(
+                  anchorContext: anchorContext,
+                  entries: _buildTopBarMenuItems(isWide: isWide),
+                  touchFlex: true,
+                );
+                if (action != null) _handleTopBarMenuAction(action);
+              },
             ),
           ),
         ],
@@ -821,9 +820,13 @@ class PopularMediaListPageBaseState<
                                         items: segmentItems,
                                       ),
                                     )
-                                  : Obx(
+                                  // 不再是 Obx：当前项现在只在打开菜单那一刻读
+                                  // （_openSortMenu），触发位的文案由
+                                  // _tabController.animation 驱动。空 Obx 会
+                                  // 直接抛 ObxError。
+                                  : KeyedSubtree(
                                       key: const ValueKey('dropdown'),
-                                      () => _buildTabDropdown(context),
+                                      child: _buildTabDropdown(context),
                                     ),
                             );
                           }),
