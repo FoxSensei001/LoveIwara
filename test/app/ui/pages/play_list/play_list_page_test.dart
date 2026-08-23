@@ -635,14 +635,9 @@ Future<void> _openDeleteDialog(WidgetTester tester) async {
 }
 
 Future<void> _openDetailMenu(WidgetTester tester) async {
-  final popupFinder = find.byWidgetPredicate(
-    (widget) => widget is PopupMenuButton,
-  );
-  final dynamic popupState = tester.state(popupFinder);
-  popupState.showButtonMenu();
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 200));
-  await tester.pump(const Duration(milliseconds: 200));
+  // 收口后「更多」是玻璃圆钮 + showGlassMenu 独立路由，不再是 PopupMenuButton。
+  await tester.tap(find.byIcon(Icons.more_vert));
+  await tester.pumpAndSettle();
 }
 
 Future<void> _openOwnedDetailDeleteDialog(WidgetTester tester) async {

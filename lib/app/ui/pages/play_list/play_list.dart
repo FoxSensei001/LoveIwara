@@ -12,6 +12,7 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
@@ -160,60 +161,48 @@ class _PlayListPageState extends State<PlayListPage> {
         // 窄屏胶囊塞不下五个键，分页切换与帮助收进这里
         GlassGroupSlot(
           visible: !isWide,
-          child: SizedBox(
-            width: GlassTokens.groupIconButtonSize,
-            height: GlassTokens.groupIconButtonSize,
-            child: PopupMenuButton<String>(
-              padding: EdgeInsets.zero,
-              icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
-              position: PopupMenuPosition.under,
-              // 往下挪一点，别压住玻璃胶囊本身
-              offset: const Offset(0, 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              onSelected: (value) {
-                switch (value) {
-                  case _menuActionTogglePagination:
-                    _togglePaginationMode();
-                    break;
-                  case _menuActionHelp:
-                    _showHelpDialog();
-                    break;
-                }
-              },
-              itemBuilder: (context) => [
-                PopupMenuItem<String>(
-                  value: _menuActionTogglePagination,
-                  child: Row(
-                    children: [
-                      Icon(_isPaginated ? Icons.grid_view : Icons.view_stream),
-                      const SizedBox(width: 12),
-                      // 文案与图标一致：显示将要切换到的模式
-                      Text(
-                        _isPaginated
-                            ? t.common.pagination.waterfall
-                            : t.common.pagination.pagination,
-                      ),
-                    ],
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: _menuActionHelp,
-                  child: Row(
-                    children: [
-                      const Icon(Icons.help_outline),
-                      const SizedBox(width: 12),
-                      Text(t.playList.friendlyTips),
-                    ],
-                  ),
-                ),
-              ],
+          child: Builder(
+            builder: (anchorContext) => GlassIconButton(
+              icon: const Icon(Icons.more_vert),
+              tooltip: t.common.more,
+              onPressed: () => _openMoreMenu(anchorContext),
             ),
           ),
         ),
       ],
     );
+  }
+
+  /// 窄屏「更多」菜单：分页切换 + 帮助。
+  Future<void> _openMoreMenu(BuildContext anchorContext) async {
+    final t = slang.Translations.of(anchorContext);
+    final picked = await showGlassMenu<String>(
+      anchorContext: anchorContext,
+      entries: [
+        GlassMenuOption(
+          value: _menuActionTogglePagination,
+          icon: _isPaginated ? Icons.grid_view : Icons.view_stream,
+          // 文案与图标一致：显示将要切换到的模式
+          label: _isPaginated
+              ? t.common.pagination.waterfall
+              : t.common.pagination.pagination,
+        ),
+        GlassMenuOption(
+          value: _menuActionHelp,
+          icon: Icons.help_outline,
+          label: t.playList.friendlyTips,
+        ),
+      ],
+    );
+    if (picked == null) return;
+    switch (picked) {
+      case _menuActionTogglePagination:
+        _togglePaginationMode();
+        break;
+      case _menuActionHelp:
+        _showHelpDialog();
+        break;
+    }
   }
 
   /// 滚过一段后出现在右下角的「回到顶部」浮钮；分页模式下抬到分页栏之上。

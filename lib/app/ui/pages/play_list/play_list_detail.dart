@@ -13,6 +13,7 @@ import 'package:i_iwara/app/ui/widgets/glass/batch_confirm_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
@@ -234,86 +235,64 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
             tooltip: t.common.refresh,
             onPressed: _refreshList,
           ),
-          SizedBox(
-            width: GlassTokens.groupIconButtonSize,
-            height: GlassTokens.groupIconButtonSize,
-            child: PopupMenuButton<_PlaylistDetailMenuAction>(
-              padding: EdgeInsets.zero,
-              icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
-              position: PopupMenuPosition.under,
-              // 往下挪一点，别压住玻璃胶囊本身
-              offset: const Offset(0, 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              onSelected: (action) {
-                switch (action) {
-                  case _PlaylistDetailMenuAction.editTitle:
-                    _showEditTitleDialog();
-                    break;
-                  case _PlaylistDetailMenuAction.deletePlaylist:
-                    _showDeleteCurPlaylistConfirmDialog();
-                    break;
-                  case _PlaylistDetailMenuAction.share:
-                    _showShareDialog();
-                    break;
-                  case _PlaylistDetailMenuAction.copyLink:
-                    _copyPlaylistLink();
-                    break;
-                }
-              },
-              itemBuilder: (context) => [
-                if (widget.isMine)
-                  PopupMenuItem(
-                    value: _PlaylistDetailMenuAction.editTitle,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.edit),
-                        const SizedBox(width: 12),
-                        Text(t.common.editTitle),
-                      ],
-                    ),
-                  ),
-                if (widget.isMine)
-                  PopupMenuItem(
-                    value: _PlaylistDetailMenuAction.deletePlaylist,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.delete, color: Colors.red),
-                        const SizedBox(width: 12),
-                        Text(
-                          t.common.delete,
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                      ],
-                    ),
-                  ),
-                PopupMenuItem(
-                  value: _PlaylistDetailMenuAction.share,
-                  child: Row(
-                    children: [
-                      const Icon(Icons.share),
-                      const SizedBox(width: 12),
-                      Text(t.common.share),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: _PlaylistDetailMenuAction.copyLink,
-                  child: Row(
-                    children: [
-                      const Icon(Icons.copy),
-                      const SizedBox(width: 12),
-                      Text(t.galleryDetail.copyLink),
-                    ],
-                  ),
-                ),
-              ],
+          Builder(
+            builder: (anchorContext) => GlassIconButton(
+              icon: const Icon(Icons.more_vert),
+              tooltip: t.common.more,
+              onPressed: () => _openMoreMenu(anchorContext),
             ),
           ),
         ],
       ),
     );
+  }
+
+  /// 「更多」菜单：编辑标题 / 删除播放列表（均仅自己的列表）· 分享 · 复制链接。
+  Future<void> _openMoreMenu(BuildContext anchorContext) async {
+    final t = slang.Translations.of(anchorContext);
+    final action = await showGlassMenu<_PlaylistDetailMenuAction>(
+      anchorContext: anchorContext,
+      entries: [
+        if (widget.isMine)
+          GlassMenuOption(
+            value: _PlaylistDetailMenuAction.editTitle,
+            icon: Icons.edit,
+            label: t.common.editTitle,
+          ),
+        if (widget.isMine)
+          GlassMenuOption(
+            value: _PlaylistDetailMenuAction.deletePlaylist,
+            icon: Icons.delete,
+            label: t.common.delete,
+            destructive: true,
+          ),
+        GlassMenuOption(
+          value: _PlaylistDetailMenuAction.share,
+          icon: Icons.share,
+          label: t.common.share,
+        ),
+        GlassMenuOption(
+          value: _PlaylistDetailMenuAction.copyLink,
+          icon: Icons.copy,
+          label: t.galleryDetail.copyLink,
+        ),
+      ],
+    );
+    if (action == null) return;
+    switch (action) {
+      case _PlaylistDetailMenuAction.editTitle:
+        _showEditTitleDialog();
+        break;
+      case _PlaylistDetailMenuAction.deletePlaylist:
+        _showDeleteCurPlaylistConfirmDialog();
+        break;
+      case _PlaylistDetailMenuAction.share:
+        _showShareDialog();
+        break;
+      case _PlaylistDetailMenuAction.copyLink:
+        _copyPlaylistLink();
+        break;
+    }
   }
 
   /// 滚过一段后出现在右下角的「回到顶部」浮钮；分页模式下抬到分页栏之上。
