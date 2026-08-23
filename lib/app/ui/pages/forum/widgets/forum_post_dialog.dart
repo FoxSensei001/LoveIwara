@@ -19,7 +19,6 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class ForumPostDialog extends StatefulWidget {
   const ForumPostDialog({super.key, this.onSubmit, this.initCategoryId});
@@ -373,17 +372,12 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
   }
 
   void _showCategoryPicker() {
-    showModalBottomSheet(
+    showGlassDraggableBottomSheet(
       context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => DraggableScrollableSheet(
+      builder: (context) => GlassDraggableBottomSheet(
         initialChildSize: 0.6,
         minChildSize: 0.3,
         maxChildSize: 0.9,
-        expand: false,
         builder: (context, scrollController) => Column(
           children: [
             Padding(
@@ -398,9 +392,6 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
             Expanded(
               child: ListView.builder(
                 controller: scrollController,
-                padding: EdgeInsets.only(
-                  bottom: computeSheetBottomInset(context),
-                ),
                 itemCount: _categories?.length ?? 0,
                 itemBuilder: (context, index) {
                   final category = _categories![index];
