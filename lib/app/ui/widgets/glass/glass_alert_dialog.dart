@@ -20,7 +20,10 @@ class GlassDialogAction {
   });
 
   final String label;
-  final VoidCallback onPressed;
+
+  /// 传 `null` 表示这个动作暂时禁用（例如提交进行中）——原样透传给
+  /// `TextButton`/`FilledButton`，行为与它们直接传 `onPressed: null` 一致。
+  final VoidCallback? onPressed;
 
   /// 危险动作（删除/清空一类不可逆操作）：按钮用 `cs.error` 语义色。
   final bool destructive;
@@ -80,46 +83,52 @@ class GlassAlertDialog extends StatelessWidget {
           height: null,
           borderRadius: BorderRadius.circular(28),
           padding: const EdgeInsets.fromLTRB(24, 20, 20, 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: theme.textTheme.titleLarge,
-                    ),
-                  ),
-                  if (showCloseButton) ...[
-                    const SizedBox(width: 8),
-                    GlassIconButton(
-                      standalone: true,
-                      icon: const Icon(Icons.close),
-                      tooltip: t.common.close,
-                      onPressed: () => AppService.tryPop(),
-                    ),
-                  ],
-                ],
-              ),
-              if (body != null) ...[
-                const SizedBox(height: 16),
-                Flexible(child: body),
-              ],
-              if (actions.isNotEmpty) ...[
-                const SizedBox(height: 20),
+          // 传统档的 GlassSurface 不建 Material 祖先（液态档的两个后端各自
+          // 内部有一层，传统档没有）。弹窗正文常见 TextField / InkWell 一类
+          // 依赖 Material 的控件，没有这一层会直接抛
+          // "No Material widget found"（download_category_manage_page.dart /
+          // search_dialog.dart 的输入框弹窗曾经踩过）。这里补一层透明
+          // Material，不带颜色/阴影，纯粹补祖先，不影响玻璃材质的视觉。
+          child: Material(
+            type: MaterialType.transparency,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    for (int i = 0; i < actions.length; i++) ...[
-                      if (i > 0) const SizedBox(width: 8),
-                      _buildAction(cs, actions[i]),
+                    Expanded(
+                      child: Text(title, style: theme.textTheme.titleLarge),
+                    ),
+                    if (showCloseButton) ...[
+                      const SizedBox(width: 8),
+                      GlassIconButton(
+                        standalone: true,
+                        icon: const Icon(Icons.close),
+                        tooltip: t.common.close,
+                        onPressed: () => AppService.tryPop(),
+                      ),
                     ],
                   ],
                 ),
+                if (body != null) ...[
+                  const SizedBox(height: 16),
+                  Flexible(child: body),
+                ],
+                if (actions.isNotEmpty) ...[
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      for (int i = 0; i < actions.length; i++) ...[
+                        if (i > 0) const SizedBox(width: 8),
+                        _buildAction(cs, actions[i]),
+                      ],
+                    ],
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
