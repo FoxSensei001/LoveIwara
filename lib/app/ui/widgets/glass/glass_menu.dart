@@ -1,9 +1,12 @@
 import 'dart:math' as math;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
+import 'package:i_iwara/utils/vibrate_utils.dart';
 
 /// # 玻璃下拉弹窗
 ///
@@ -52,6 +55,33 @@ import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 ///
 /// 条目自己的淡入淡出（[_GlassMenuEntryReveal]）在玻璃**里面**，透明度层建在
 /// backdrop 采样之后，不影响折射。
+///
+/// ## 滑动取焦：按住不放，焦点跟着手指走
+///
+/// 参照 `sdegenaar/liquid_glass_widgets` 的 `GlassMenu`：**手指按在面板上就有
+/// 一块焦点底板贴上来，不抬手直接上下划，底板会滑到手指底下那一条上**，松手
+/// 即选中。它把「瞄准→点」拆成了「按下→挪→松手」——一次触摸就能改主意，
+/// 不用抬手重来，这在单手够不着的位置上尤其好使。
+///
+/// 落到本文件是这么分工的：
+///   - **底板**（[_GlassMenuPanelState._buildFocusPill]）是 [Stack] 里一块
+///     [AnimatedPositioned]，跟行的按压底色长得一模一样（同一个圆角、同一族
+///     底色），行高全是静态常量（[_entryTops]），不需要量。起手那一下直接落在
+///     手指底下（`duration: Duration.zero`），之后每换一条才滑过去。
+///   - **手势**走一层 [Listener]，它只旁听、不进手势竞技场，所以行自己的
+///     [GlassPressable] 照常处理普通点按。两条路按位移分家：抬手时位移没过
+///     [kTouchSlop] 的算点按（让 `GlassPressable` 出手），过了的算滑动取焦
+///     （这时 tap 已被竞技场判负，只剩这一条路），谁都不会选中两遍。
+///   - **底板亮起时行不再画自己的按压/悬停底色**，免得同一条上叠两层。
+///
+/// > 底板的显隐只压底色的 alpha，不套 `Opacity`——理由同上面那条折射告警。
+///
+/// ### 内容长到能滚起来时，滑动取焦整只让位
+///
+/// 参考实现里也是这么切的：同一个纵向拖拽不可能既滚列表又换焦点，抢起来两边
+/// 都别扭。所以面板一旦滚得动（[_GlassMenuPanelState._isScrollable]，拿
+/// [ScrollController] 实测而不是按行高估），按下去就不进滑动取焦这条路——
+/// 拖拽还给滚动，选中还给行自己的点按。
 
 /// 玻璃菜单里的一项（条目或分隔线）。
 sealed class GlassMenuEntry {
@@ -116,9 +146,11 @@ const double _screenMargin = 8;
 // ---- 静态量尺寸用的几何常量，必须与 _GlassMenuRow / _GlassMenuSeparatorLine
 // 的实际布局逐项对应，改了那边的 margin/padding 记得同步这里。----
 const double _rowMarginVertical = 1; // AnimatedContainer margin: vertical
+const double _rowMarginHorizontal = 6; // AnimatedContainer margin: horizontal
+const double _rowRadius = 12; // AnimatedContainer 的圆角，焦点底板要对齐它
 const double _rowTotalHeight = _rowHeight + _rowMarginVertical * 2;
 const double _rowHorizontalChrome =
-    6 * 2 /* margin */ + 12 * 2 /* padding */;
+    _rowMarginHorizontal * 2 /* margin */ + 12 * 2 /* padding */;
 const double _rowIconWidth = 20 + 12; // icon + gap
 const double _rowCheckWidth = 12 + 18; // gap + check icon
 const double _separatorHeight = 5 * 2 + 1; // padding + line
@@ -181,30 +213,71 @@ Alignment _revealOrigin({
   return Alignment(x, flipped ? 1.0 : -1.0);
 }
 
+/// 一条在面板内容里占的纵向高度。
+double _entryHeight(GlassMenuEntry entry) =>
+    entry is GlassMenuSeparator ? _separatorHeight : _rowTotalHeight;
+
+/// 每条在**滚动内容坐标系**里的纵向起点：面板自己的上下留白加在滚动容器外面，
+/// 所以第一条从 0 开始。
+///
+/// 行高全是静态常量（[_rowTotalHeight] / [_separatorHeight]），所以这里不像
+/// [_measureMenuPanelSize] 那样会量不出来，自定义 `leading` 的条目一样适用——
+/// 出入场的逐条点火（[_entryRevealStarts]）和滑动取焦的命中判定
+/// （`_GlassMenuPanelState._entryAt`）都吃这一份几何。
+List<double> _entryTops(List<GlassMenuEntry> entries) {
+  final List<double> tops = <double>[];
+  double y = 0;
+  for (final entry in entries) {
+    tops.add(y);
+    y += _entryHeight(entry);
+  }
+  return tops;
+}
+
 /// 每条的入场起点：按它在面板里的纵向位置折算——帘子扫到谁，谁才开始现身
 /// （Telegram `setBackScaleY` 里那套逐条点火）。翻到上方弹时帘子自下而上卷，
 /// 顺序跟着反过来。
-///
-/// 行高是静态的（[_rowTotalHeight] / [_separatorHeight]），所以这里不像
-/// [_measureMenuPanelSize] 那样会量不出来，自定义 `leading` 的条目一样适用。
 List<double> _entryRevealStarts(
   List<GlassMenuEntry> entries, {
   required bool flipped,
 }) {
-  final List<double> tops = <double>[];
-  double y = _panelVerticalPadding / 2;
-  for (final entry in entries) {
-    tops.add(y);
-    y += entry is GlassMenuSeparator ? _separatorHeight : _rowTotalHeight;
-  }
-  final double total = y + _panelVerticalPadding / 2;
+  if (entries.isEmpty) return const <double>[];
+  final List<double> tops = _entryTops(entries);
+  final double total =
+      tops.last + _entryHeight(entries.last) + _panelVerticalPadding;
   if (total <= 0) return List<double>.filled(entries.length, 0);
-  return <double>[
-    for (final double top in tops)
-      ((flipped ? total - top : top) / total).clamp(0.0, 1.0) *
-          _entryRevealSpan,
-  ];
+  final List<double> starts = <double>[];
+  for (final double top in tops) {
+    // tops 是内容坐标，折算成整块面板里的位置要补回上留白。
+    final double y = top + _panelVerticalPadding / 2;
+    starts.add(
+      ((flipped ? total - y : y) / total).clamp(0.0, 1.0) * _entryRevealSpan,
+    );
+  }
+  return starts;
 }
+
+// ---- 滑动取焦（见文件头「滑动取焦」一节）----
+
+/// 焦点底板滑到下一条要多久。比行自己的按压时值（[GlassTokens.pressDuration]，
+/// 120）长一档：它是在「走过去」，不是原地亮一下。
+const Duration _focusSlideDuration = Duration(milliseconds: 170);
+
+/// 焦点底板的显隐时长。
+const Duration _focusFadeDuration = Duration(milliseconds: 130);
+
+/// 手指横向可以荡出面板多远仍算留在这一条上。竖着划的时候手指本来就会左右飘，
+/// 卡死在面板边上会让焦点一闪一闪。
+const double _focusHorizontalSlack = 40;
+
+/// 手指纵向可以越过首/末条多远仍算吃着那一条。取得比面板自己的上下留白
+/// （[_panelVerticalPadding] 的一半，6）宽一点：划到最后一条上再往下多走一像素
+/// 就丢焦点太脆，而末条恰恰是最常划到的目标。越过这段才算划出去＝取消。
+const double _focusVerticalSlack = 12;
+
+/// 焦点底板满显时的底色浓度。取得比行自己的按压底色（0.10）深一档——滑动取焦
+/// 时它是唯一的反馈，得压得住。
+const double _focusFillAlpha = 0.12;
 
 /// 静态量出面板需要的精确尺寸。两个用处：
 ///   1. `touch` 一旦打开就要求精确尺寸（见 [LiquidGlassBox.touchFlex]），
@@ -565,12 +638,47 @@ class _GlassMenuPanel<T> extends StatefulWidget {
   State<_GlassMenuPanel<T>> createState() => _GlassMenuPanelState<T>();
 }
 
-class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>> {
+class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
+    with SingleTickerProviderStateMixin {
   /// 面板的「形」：从触发件那么大撑到成品尺寸。
   late final CurvedAnimation _shape;
 
   /// 面板的「质」：色调 / 描边 / 投影的透明度。
   late final CurvedAnimation _material;
+
+  // ---- 滑动取焦（见文件头「滑动取焦」一节）----
+
+  /// 内容的滚动位置。既用来实测面板滚不滚得动（[_isScrollable]），也是
+  /// [_entryAt] 的坐标基准——[Listener] 挂在滚动内容**里面**，拿到的
+  /// `localPosition` 天然就是内容坐标，不用再减一次 offset。
+  final ScrollController _scroll = ScrollController();
+
+  /// 内容层的 key，用来读它的实际宽度（[_contentWidth]）。
+  final GlobalKey _contentKey = GlobalKey();
+
+  /// 焦点底板的显隐（0 = 没有，1 = 满显）。
+  late final AnimationController _focusFade;
+
+  /// 手指当前落在哪一条上。null = 手指荡到面板外面或落在分隔线/禁用行上。
+  int? _focusIndex;
+
+  /// 底板画在哪一条上。焦点消失时**保留**上一条，让它原地淡出，而不是瞬移
+  /// 回顶上再消失。
+  int? _pillIndex;
+
+  /// 这次换位要不要滑过去：按下那一下直接落在手指底下，之后才是滑。
+  bool _pillSlides = false;
+
+  /// 正在滑动取焦。这期间行不画自己的按压/悬停底色，反馈统一交给底板。
+  bool _sliding = false;
+
+  /// 正在追的那根手指。多指同时按面板时只认第一根。
+  int? _pointer;
+  Offset _pointerDownAt = Offset.zero;
+
+  /// 已经选过了。滑动取焦在 `onPointerUp` 里出手，比手势竞技场清算 tap 早一步；
+  /// 万一两条路都走通，pop 两次会把底下的页面一起关掉，这道闸拦住。
+  bool _selected = false;
 
   @override
   void initState() {
@@ -590,17 +698,170 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>> {
       // 宽，是为了让「入场没跑完就被点掉」时两条曲线在同一个 v 上接得上。
       reverseCurve: const Interval(0, 0.5, curve: Curves.easeIn),
     );
+    _focusFade = AnimationController(
+      vsync: this,
+      duration: _focusFadeDuration,
+    );
   }
 
   @override
   void dispose() {
     _shape.dispose();
     _material.dispose();
+    _focusFade.dispose();
+    _scroll.dispose();
     super.dispose();
+  }
+
+  /// 所有选中都从这里出去：滑动取焦和行自己的点按共用一条出口，只放行一次。
+  void _select(T value) {
+    if (_selected) return;
+    _selected = true;
+    widget.onSelected(value);
+  }
+
+  // ---- 滑动取焦 ----
+
+  /// 内容已经超出可用高度、变成一条可滚的列表。
+  ///
+  /// 拿 [ScrollController] 实测而不是按行高估：估算要复刻一遍布局约束
+  /// （[_GlassMenuLayout.getConstraintsForChild]），差一像素就会把两种交互
+  /// 判反。滚得动的时候滑动取焦整只让位，理由见文件头。
+  bool get _isScrollable =>
+      _scroll.hasClients &&
+      _scroll.position.hasContentDimensions &&
+      _scroll.position.maxScrollExtent > 0;
+
+  /// 内容层的实际宽度，用来判断手指有没有横向荡出去。
+  double get _contentWidth =>
+      _contentKey.currentContext?.size?.width ?? double.infinity;
+
+  bool _isSelectable(GlassMenuEntry entry) =>
+      entry is GlassMenuOption<T> && entry.enabled;
+
+  /// 内容坐标 → 条目下标。落在分隔线、禁用行或面板外面时返回 null。
+  int? _entryAt(Offset local, double width) {
+    if (widget.entries.isEmpty) return null;
+    if (local.dx < -_focusHorizontalSlack ||
+        local.dx > width + _focusHorizontalSlack) {
+      return null;
+    }
+    final List<double> tops = _entryTops(widget.entries);
+    final double contentHeight =
+        tops.last + _entryHeight(widget.entries.last);
+    // 越过首/末条一小段仍按首/末条算（见 [_focusVerticalSlack]）。
+    double dy = local.dy;
+    if (dy < 0) {
+      if (dy < -_focusVerticalSlack) return null;
+      dy = 0;
+    } else if (dy >= contentHeight) {
+      if (dy > contentHeight + _focusVerticalSlack) return null;
+      dy = contentHeight - 1;
+    }
+    for (var i = 0; i < widget.entries.length; i++) {
+      final GlassMenuEntry entry = widget.entries[i];
+      if (dy < tops[i] || dy >= tops[i] + _entryHeight(entry)) continue;
+      return _isSelectable(entry) ? i : null;
+    }
+    return null;
+  }
+
+  void _setFocus(int? index, {required bool haptic}) {
+    if (index == _focusIndex) return;
+    if (index != null && haptic) {
+      VibrateUtils.vibrate(type: HapticFeedback.selectionClick);
+    }
+    setState(() {
+      _focusIndex = index;
+      // 只往非空的位置搬：焦点消失时底板留在原地淡出。
+      if (index != null) _pillIndex = index;
+    });
+    if (index == null) {
+      _focusFade.reverse();
+    } else {
+      _focusFade.forward();
+    }
+  }
+
+  void _handlePointerDown(PointerDownEvent event) {
+    if (_pointer != null || _selected || _isScrollable) return;
+    _pointer = event.pointer;
+    _pointerDownAt = event.localPosition;
+    setState(() {
+      _sliding = true;
+      // 起手不滑：底板直接落在手指底下。
+      _pillSlides = false;
+    });
+    _setFocus(_entryAt(event.localPosition, _contentWidth), haptic: false);
+  }
+
+  void _handlePointerMove(PointerMoveEvent event) {
+    if (event.pointer != _pointer) return;
+    _pillSlides = true;
+    _setFocus(_entryAt(event.localPosition, _contentWidth), haptic: true);
+  }
+
+  void _handlePointerUp(PointerUpEvent event) {
+    if (event.pointer != _pointer) return;
+    final int? target = _focusIndex;
+    // 位移没过 [kTouchSlop] 的是**普通点按**：行自己的 GlassPressable 会在
+    // 竞技场清算时出手（清算排在 Listener 之后），这里必须让开，否则一次点按
+    // 会选中两遍。过了 slop 的话 tap 早已被判负，只剩这条路。
+    final bool dragged =
+        (event.localPosition - _pointerDownAt).distance > kTouchSlop;
+    _endSlide();
+    if (!dragged || target == null) return;
+    final GlassMenuEntry entry = widget.entries[target];
+    if (entry is GlassMenuOption<T> && entry.enabled) {
+      VibrateUtils.vibrate();
+      _select(entry.value);
+    }
+  }
+
+  void _handlePointerCancel(PointerCancelEvent event) {
+    if (event.pointer != _pointer) return;
+    _endSlide();
+  }
+
+  void _endSlide() {
+    _pointer = null;
+    setState(() {
+      _sliding = false;
+      _focusIndex = null;
+    });
+    _focusFade.reverse();
+  }
+
+  /// 焦点底板：跟行的按压底色同一个圆角、同一族底色，位置按静态行高算
+  /// （[_entryTops]）。
+  Widget _buildFocusPill(BuildContext context, List<double> tops) {
+    final int? index = _pillIndex;
+    final double v = _focusFade.value;
+    if (index == null || index >= tops.length || v <= 0) {
+      return const SizedBox.shrink();
+    }
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    return AnimatedPositioned(
+      duration: _pillSlides ? _focusSlideDuration : Duration.zero,
+      curve: GlassTokens.motionCurve,
+      left: _rowMarginHorizontal,
+      right: _rowMarginHorizontal,
+      top: tops[index] + _rowMarginVertical,
+      height: _rowHeight,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          // 显隐只压底色的 alpha，不套 Opacity——透明度层会把液态档的折射
+          // 打断（见文件头）。
+          color: cs.onSurface.withValues(alpha: _focusFillAlpha * v),
+          borderRadius: BorderRadius.circular(_rowRadius),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final List<double> tops = _entryTops(widget.entries);
     final List<double> starts = _entryRevealStarts(
       widget.entries,
       flipped: widget.flipped,
@@ -616,11 +877,16 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>> {
         GlassMenuSeparator() => const _GlassMenuSeparatorLine(),
         GlassMenuOption<T>(:final value) => _GlassMenuRow(
           option: entry,
-          onTap: () => widget.onSelected(value),
+          slideActive: _sliding,
+          onTap: () => _select(value),
         ),
         // 条目泛型与菜单泛型对不上（调用方写错了）：渲染成不可点的
         // 行，而不是整张面板炸掉。
-        GlassMenuOption() => _GlassMenuRow(option: entry, onTap: null),
+        GlassMenuOption() => _GlassMenuRow(
+          option: entry,
+          slideActive: _sliding,
+          onTap: null,
+        ),
       };
       rows.add(
         _GlassMenuEntryReveal(
@@ -642,10 +908,36 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>> {
       // 也是这个顺序，反过来套 intrinsic 传不下去。
       child: IntrinsicWidth(
         child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: rows,
+          controller: _scroll,
+          // 钉死 clamping，不跟平台走。iOS 默认的 BouncingScrollPhysics 把
+          // `shouldAcceptUserOffset` 恒真，内容明明摆得下也照样吃掉纵向拖拽
+          // ——滑动取焦会一边换焦点、一边把内容拽出橡皮筋。clamping 在内容
+          // 摆得下时直接不装拖拽识别器，这条手势干干净净归滑动取焦；真滚起来
+          // 时也不回弹，正好配面板这块被裁过的玻璃。
+          physics: const ClampingScrollPhysics(),
+          // Listener 挂在滚动内容**里面**：拿到的 localPosition 直接就是内容
+          // 坐标，底板和命中判定共用一套几何，不用再跟 offset 对账。它只旁听、
+          // 不进手势竞技场，行自己的点按照常走（见文件头「滑动取焦」一节）。
+          child: Listener(
+            key: _contentKey,
+            onPointerDown: _handlePointerDown,
+            onPointerMove: _handlePointerMove,
+            onPointerUp: _handlePointerUp,
+            onPointerCancel: _handlePointerCancel,
+            child: Stack(
+              children: <Widget>[
+                // 底板在行底下：只有它随 _focusFade 每帧重画，行列不跟着。
+                AnimatedBuilder(
+                  animation: _focusFade,
+                  builder: (context, _) => _buildFocusPill(context, tops),
+                ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: rows,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -766,10 +1058,18 @@ class _GlassMenuSeparatorLine extends StatelessWidget {
 /// [AnimatedContainer] 走 [GlassTokens.pressDuration]——和玻璃按钮按下去
 /// 的那一下是同一段时值。
 class _GlassMenuRow extends StatefulWidget {
-  const _GlassMenuRow({required this.option, required this.onTap});
+  const _GlassMenuRow({
+    required this.option,
+    required this.onTap,
+    this.slideActive = false,
+  });
 
   final GlassMenuOption<dynamic> option;
   final VoidCallback? onTap;
+
+  /// 面板正在滑动取焦：底色让位给焦点底板，免得同一条上叠两层
+  /// （见文件头「滑动取焦」一节）。
+  final bool slideActive;
 
   @override
   State<_GlassMenuRow> createState() => _GlassMenuRowState();
@@ -805,17 +1105,20 @@ class _GlassMenuRowState extends State<_GlassMenuRow> {
           duration: GlassTokens.pressDuration,
           curve: Curves.easeOut,
           height: _rowHeight,
-          margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+          margin: const EdgeInsets.symmetric(
+            horizontal: _rowMarginHorizontal,
+            vertical: _rowMarginVertical,
+          ),
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: !enabled
+            color: !enabled || widget.slideActive
                 ? Colors.transparent
                 : pressed
                 ? cs.onSurface.withValues(alpha: 0.10)
                 : _hovered
                 ? cs.onSurface.withValues(alpha: 0.05)
                 : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(_rowRadius),
           ),
           child: Row(
             children: [
