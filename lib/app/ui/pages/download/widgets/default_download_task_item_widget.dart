@@ -12,6 +12,7 @@ import 'package:i_iwara/app/ui/pages/download/widgets/download_scale.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_status_colors.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/status_label_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:open_file/open_file.dart';
@@ -343,127 +344,86 @@ class DefaultDownloadTaskItem extends StatelessWidget {
 
   void _showMoreOptionsDialog(BuildContext context) {
     final t = slang.Translations.of(context);
-    showModalBottomSheet(
+    showGlassBottomSheet(
       context: context,
-      isScrollControlled: true,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.6,
-        minChildSize: 0.3,
-        maxChildSize: 0.9,
-        expand: false,
-        builder: (context, scrollController) => SafeArea(
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 标题
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 8.0,
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        t.common.more,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.close),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1),
-                // 可滚动的选项列表
-                Expanded(
-                  child: SingleChildScrollView(
-                    controller: scrollController,
-                    child: Column(
-                      children: [
-                        // 查看下载详情
-                        ListTile(
-                          leading: const Icon(Icons.info),
-                          title: Text(t.download.downloadDetail),
-                          onTap: () => showDownloadDetailDialog(context, task),
-                        ),
-                        // 复制下载链接
-                        ListTile(
-                          leading: const Icon(Icons.link),
-                          title: Text(t.download.copyDownloadUrl),
-                          onTap: () {
-                            Navigator.pop(context);
-                            _copyDownloadUrl(context);
-                          },
-                        ),
-                        // 移至分类
-                        ListTile(
-                          leading: const Icon(Icons.drive_file_move_outline),
-                          title: Text(t.download.category.moveTo),
-                          onTap: () {
-                            Navigator.pop(context);
-                            showMoveToCategorySheet(context, [task.id]);
-                          },
-                        ),
-                        if (task.status == DownloadStatus.completed) ...[
-                          ListTile(
-                            leading: const Icon(Icons.open_in_new),
-                            title: Text(t.download.openFile),
-                            onTap: () {
-                              Navigator.pop(context);
-                              _openFile(context);
-                            },
-                          ),
-                          if (Platform.isWindows ||
-                              Platform.isMacOS ||
-                              Platform.isLinux)
-                            ListTile(
-                              leading: const Icon(Icons.folder_open),
-                              title: Text(t.download.showInFolder),
-                              onTap: () {
-                                Navigator.pop(context);
-                                _showInFolder(context);
-                              },
-                            ),
-                        ],
-                        const Divider(height: 1),
-                        ListTile(
-                          leading: const Icon(Icons.delete, color: Colors.red),
-                          title: Text(
-                            t.download.deleteTask,
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                          onTap: () {
-                            Navigator.pop(context);
-                            _showDeleteConfirmDialog(context);
-                          },
-                        ),
-                        // 强制删除
-                        ListTile(
-                          leading: const Icon(Icons.delete, color: Colors.red),
-                          title: Text(
-                            t.download.forceDeleteTask,
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                          onTap: () {
-                            Navigator.pop(context);
-                            _showDeleteConfirmDialog(context, force: true);
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+      builder: (context) => GlassBottomSheet(
+        title: t.common.more,
+        scrollable: true,
+        maxHeightFactor: 0.85,
+        padding: const EdgeInsets.only(top: 12, bottom: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 查看下载详情
+            ListTile(
+              leading: const Icon(Icons.info),
+              title: Text(t.download.downloadDetail),
+              onTap: () => showDownloadDetailDialog(context, task),
             ),
-          ),
+            // 复制下载链接
+            ListTile(
+              leading: const Icon(Icons.link),
+              title: Text(t.download.copyDownloadUrl),
+              onTap: () {
+                Navigator.pop(context);
+                _copyDownloadUrl(context);
+              },
+            ),
+            // 移至分类
+            ListTile(
+              leading: const Icon(Icons.drive_file_move_outline),
+              title: Text(t.download.category.moveTo),
+              onTap: () {
+                Navigator.pop(context);
+                showMoveToCategorySheet(context, [task.id]);
+              },
+            ),
+            if (task.status == DownloadStatus.completed) ...[
+              ListTile(
+                leading: const Icon(Icons.open_in_new),
+                title: Text(t.download.openFile),
+                onTap: () {
+                  Navigator.pop(context);
+                  _openFile(context);
+                },
+              ),
+              if (Platform.isWindows ||
+                  Platform.isMacOS ||
+                  Platform.isLinux)
+                ListTile(
+                  leading: const Icon(Icons.folder_open),
+                  title: Text(t.download.showInFolder),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showInFolder(context);
+                  },
+                ),
+            ],
+            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: Text(
+                t.download.deleteTask,
+                style: const TextStyle(color: Colors.red),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteConfirmDialog(context);
+              },
+            ),
+            // 强制删除
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: Text(
+                t.download.forceDeleteTask,
+                style: const TextStyle(color: Colors.red),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteConfirmDialog(context, force: true);
+              },
+            ),
+          ],
         ),
       ),
     );
