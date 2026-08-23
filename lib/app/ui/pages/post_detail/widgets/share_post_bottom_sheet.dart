@@ -12,7 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 
 class SharePostBottomSheet extends StatefulWidget {
   final PostModel post;
@@ -32,36 +32,11 @@ class _SharePostBottomSheetState extends State<SharePostBottomSheet> {
     final t = slang.Translations.of(context);
     final url = ShareService.buildUrl('/post/${widget.post.id}');
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      // 底部弹窗自己让出系统手势条/导航条
-      padding: EdgeInsets.only(bottom: computeSheetBottomInset(context)),
+    return GlassBottomSheet(
+      title: t.share.sharePost,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 标题栏
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Text(
-                  t.share.sharePost,
-                  style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.titleLarge?.fontSize,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-          ),
           // 分享预览
           RepaintBoundary(
             key: _globalKey,
@@ -256,7 +231,6 @@ class _SharePostBottomSheetState extends State<SharePostBottomSheet> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
         ],
       ),
     );

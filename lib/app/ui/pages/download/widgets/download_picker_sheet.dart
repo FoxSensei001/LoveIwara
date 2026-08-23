@@ -10,6 +10,7 @@ import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.d
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 
 /// [showDownloadPickerSheet] 确认下载后的返回结果：选中的清晰度与分类。
 class DownloadPickerResult {
@@ -136,115 +137,99 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
       color: colorScheme.onSurfaceVariant,
     );
 
-    return SafeArea(
-      top: false,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
-        ),
-        padding: const EdgeInsets.fromLTRB(
-          UIConstants.pagePadding,
-          10,
-          UIConstants.pagePadding,
-          UIConstants.pagePadding,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 34,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 14),
-                decoration: BoxDecoration(
-                  color: colorScheme.onSurface.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(99),
-                ),
-              ),
-            ),
-            Text(
-              t.download.selectDownloadTitle,
-              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: UIConstants.sectionSpacing),
-            // 清晰度网格固定 2-3 行、分类胶囊行数不定（分类可以建很多个）——
-            // 用 Flexible + 滚动把这段"内容可能比屏幕高"的部分兜住，
-            // 让下面的确认按钮始终留在可见区域内，不会被顶出屏幕摸不到。
-            Flexible(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      t.download.qualitySectionLabel,
-                      style: sectionLabelStyle,
-                    ),
-                    const SizedBox(height: UIConstants.listSpacing),
-                    _buildQualityGrid(context, colorScheme, t),
-                    const SizedBox(height: UIConstants.sectionSpacing),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          t.download.saveToSectionLabel,
-                          style: sectionLabelStyle,
-                        ),
-                        InkWell(
-                          onTap: () => openDownloadCategoryManagePage(context),
-                          borderRadius: BorderRadius.circular(8),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 4,
-                              vertical: 2,
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.add,
-                                  size: 16,
+    return GlassBottomSheet(
+      showCloseButton: false,
+      maxHeightFactor: 0.85,
+      padding: const EdgeInsets.fromLTRB(
+        UIConstants.pagePadding,
+        10,
+        UIConstants.pagePadding,
+        UIConstants.pagePadding,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            t.download.selectDownloadTitle,
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: UIConstants.sectionSpacing),
+          // 清晰度网格固定 2-3 行、分类胶囊行数不定（分类可以建很多个）——
+          // 用 Flexible + 滚动把这段"内容可能比屏幕高"的部分兜住，
+          // 让下面的确认按钮始终留在可见区域内，不会被顶出屏幕摸不到。
+          Flexible(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    t.download.qualitySectionLabel,
+                    style: sectionLabelStyle,
+                  ),
+                  const SizedBox(height: UIConstants.listSpacing),
+                  _buildQualityGrid(context, colorScheme, t),
+                  const SizedBox(height: UIConstants.sectionSpacing),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        t.download.saveToSectionLabel,
+                        style: sectionLabelStyle,
+                      ),
+                      InkWell(
+                        onTap: () => openDownloadCategoryManagePage(context),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 2,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.add,
+                                size: 16,
+                                color: colorScheme.primary,
+                              ),
+                              const SizedBox(width: 2),
+                              Text(
+                                t.download.category.createShortcut,
+                                style: TextStyle(
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w600,
                                   color: colorScheme.primary,
                                 ),
-                                const SizedBox(width: 2),
-                                Text(
-                                  t.download.category.createShortcut,
-                                  style: TextStyle(
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w600,
-                                    color: colorScheme.primary,
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: UIConstants.listSpacing),
-                    _buildCategoryChips(context, t),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: UIConstants.sectionSpacing),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: _confirm,
-                icon: const Icon(Icons.download, size: 18),
-                label: Text(t.download.download),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
+                      ),
+                    ],
                   ),
+                  const SizedBox(height: UIConstants.listSpacing),
+                  _buildCategoryChips(context, t),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: UIConstants.sectionSpacing),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: _confirm,
+              icon: const Icon(Icons.download, size: 18),
+              label: Text(t.download.download),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -23,28 +23,15 @@ Future<void> showCommentActionsSheet({
   final colorScheme = Theme.of(context).colorScheme;
   return showModalBottomSheet<void>(
     context: context,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
     builder: (sheetContext) {
-      return Padding(
-        padding: EdgeInsets.only(
-          top: 8,
-          bottom: computeSheetBottomInset(sheetContext) + 8,
-        ),
+      return GlassBottomSheet(
+        showCloseButton: false,
+        padding: EdgeInsets.zero,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // 顶部拖拽把手
-            Container(
-              width: 32,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 8),
-              decoration: BoxDecoration(
-                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
             ListTile(
               leading: const Icon(Icons.copy),
               title: Text(t.common.copy),
