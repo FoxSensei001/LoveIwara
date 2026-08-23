@@ -6,6 +6,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/theme_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -401,19 +402,8 @@ class ThemeSettingsPage extends StatelessWidget {
     Color pickerColor =
         CommonConstants.dynamicLightColorScheme?.primary ?? Colors.orange;
     showAppDialog(
-      AlertDialog(
-        // 标题行关闭钮走全局约定的玻璃圆钮
-        title: Row(
-          children: [
-            Expanded(child: Text(t.settings.pickColor)),
-            GlassIconButton(
-              standalone: true,
-              icon: const Icon(Icons.close),
-              tooltip: t.common.close,
-              onPressed: () => AppService.tryPop(),
-            ),
-          ],
-        ),
+      GlassAlertDialog(
+        title: t.settings.pickColor,
         content: SingleChildScrollView(
           child: ColorPicker(
             pickerColor: pickerColor,
@@ -422,11 +412,13 @@ class ThemeSettingsPage extends StatelessWidget {
           ),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.common.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: t.common.confirm,
             onPressed: () {
               final hex = pickerColor
                   .toARGB32()
@@ -436,7 +428,6 @@ class ThemeSettingsPage extends StatelessWidget {
               themeService.addCustomThemeColor(hex);
               AppService.tryPop();
             },
-            child: Text(t.common.confirm),
           ),
         ],
       ),

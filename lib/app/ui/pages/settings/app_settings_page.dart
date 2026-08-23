@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -52,8 +53,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     final result = await showDialog<int>(
       context: context,
       builder: (dialogContext) {
-        return AlertDialog(
-          title: Text(slang.t.settings.autoDeleteHistoryDays),
+        return GlassAlertDialog(
+          title: slang.t.settings.autoDeleteHistoryDays,
           content: TextField(
             controller: controller,
             keyboardType: TextInputType.number,
@@ -63,11 +64,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             ),
           ),
           actions: [
-            TextButton(
+            GlassDialogAction(
+              label: slang.t.common.cancel,
+              emphasized: false,
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(slang.t.common.cancel),
             ),
-            TextButton(
+            GlassDialogAction(
+              label: slang.t.common.confirm,
               onPressed: () {
                 final parsed = int.tryParse(controller.text.trim());
                 if (parsed == null || parsed < 1) {
@@ -79,7 +82,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 }
                 Navigator.of(dialogContext).pop(parsed);
               },
-              child: Text(slang.t.common.confirm),
             ),
           ],
         );
@@ -102,8 +104,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text(slang.t.settings.language),
+        return GlassAlertDialog(
+          title: slang.t.settings.language,
           content: SizedBox(
             width: double.minPositive,
             child: Obx(
@@ -170,9 +172,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ),
             ),
           ),
-          actions: <Widget>[
-            TextButton(
-              child: Text(slang.t.common.cancel),
+          actions: <GlassDialogAction>[
+            GlassDialogAction(
+              label: slang.t.common.cancel,
+              emphasized: false,
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -196,8 +199,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
-            return AlertDialog(
-              title: Text(slang.t.settings.exportConfig),
+            return GlassAlertDialog(
+              title: slang.t.settings.exportConfig,
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,13 +221,14 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ],
               ),
               actions: [
-                TextButton(
+                GlassDialogAction(
+                  label: slang.t.common.cancel,
+                  emphasized: false,
                   onPressed: () => Navigator.of(dialogContext).pop(false),
-                  child: Text(slang.t.common.cancel),
                 ),
-                TextButton(
+                GlassDialogAction(
+                  label: slang.t.settings.exportConfig,
                   onPressed: () => Navigator.of(dialogContext).pop(true),
-                  child: Text(slang.t.settings.exportConfig),
                 ),
               ],
             );
@@ -250,17 +254,18 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
-        return AlertDialog(
-          title: Text(slang.t.settings.importConfig),
+        return GlassAlertDialog(
+          title: slang.t.settings.importConfig,
           content: Text(slang.t.settings.importConfigOverwriteWarning),
           actions: [
-            TextButton(
+            GlassDialogAction(
+              label: slang.t.common.cancel,
+              emphasized: false,
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: Text(slang.t.common.cancel),
             ),
-            TextButton(
+            GlassDialogAction(
+              label: slang.t.settings.importConfig,
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: Text(slang.t.settings.importConfig),
             ),
           ],
         );
@@ -287,13 +292,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     await showDialog<void>(
       context: context,
       builder: (dialogContext) {
-        return AlertDialog(
-          title: Text(slang.t.settings.importConfigRestartTitle),
+        return GlassAlertDialog(
+          title: slang.t.settings.importConfigRestartTitle,
           content: Text(slang.t.settings.importConfigRestartContent),
           actions: [
-            TextButton(
+            GlassDialogAction(
+              label: slang.t.common.confirm,
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(slang.t.common.confirm),
             ),
           ],
         );

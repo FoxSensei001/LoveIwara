@@ -5,6 +5,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -121,14 +122,13 @@ class _AITranslationSettingsWidgetState
 
   void _showValidationDialog() {
     showAppDialog(
-      AlertDialog(
-        // title: Text('需要验证'),
-        title: Text(slang.t.translation.needVerification),
+      GlassAlertDialog(
+        title: slang.t.translation.needVerification,
         content: Text(slang.t.translation.needVerificationContent),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.translation.confirm,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.translation.confirm),
           ),
         ],
       ),
@@ -816,8 +816,8 @@ class _AITranslationSettingsWidgetState
   void _showModelPickerDialog(List<String> models) {
     final searchText = ''.obs;
     showAppDialog(
-      AlertDialog(
-        title: Text(slang.t.translation.selectModel),
+      GlassAlertDialog(
+        title: slang.t.translation.selectModel,
         content: SizedBox(
           width: 400,
           height: 480,
@@ -879,9 +879,9 @@ class _AITranslationSettingsWidgetState
           ),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.translation.confirm,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.translation.confirm),
           ),
         ],
       ),

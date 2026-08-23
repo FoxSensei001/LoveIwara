@@ -5,6 +5,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
@@ -1094,20 +1095,6 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
     }
   }
 
-  /// 弹窗标题行：标题 + 玻璃关闭圆钮（全局统一约定）。
-  Widget _dialogTitleRow(String title) {
-    return Row(
-      children: [
-        Expanded(child: Text(title)),
-        GlassIconButton(
-          standalone: true,
-          icon: const Icon(Icons.close),
-          tooltip: slang.t.common.close,
-          onPressed: () => AppService.tryPop(),
-        ),
-      ],
-    );
-  }
 
   void _showAddBreakpointDialog() {
     final widthController = TextEditingController();
@@ -1115,8 +1102,8 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
     final formKey = GlobalKey<FormState>();
 
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(slang.t.layoutSettings.addBreakpoint),
+      GlassAlertDialog(
+        title: slang.t.layoutSettings.addBreakpoint,
         content: Form(
           key: formKey,
           child: Column(
@@ -1176,11 +1163,13 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
           ),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.layoutSettings.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.layoutSettings.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.layoutSettings.add,
             onPressed: () {
               if (formKey.currentState!.validate()) {
                 final width = int.parse(widthController.text);
@@ -1194,7 +1183,6 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
                 AppService.tryPop();
               }
             },
-            child: Text(slang.t.layoutSettings.add),
           ),
         ],
       ),
@@ -1207,8 +1195,8 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
     final formKey = GlobalKey<FormState>();
 
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(slang.t.layoutSettings.editBreakpoint),
+      GlassAlertDialog(
+        title: slang.t.layoutSettings.editBreakpoint,
         content: Form(
           key: formKey,
           child: Column(
@@ -1267,11 +1255,13 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
           ),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.layoutSettings.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.layoutSettings.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.layoutSettings.save,
             onPressed: () {
               if (formKey.currentState!.validate()) {
                 final newWidth = int.parse(widthController.text);
@@ -1286,7 +1276,6 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
                 AppService.tryPop();
               }
             },
-            child: Text(slang.t.layoutSettings.save),
           ),
         ],
       ),
@@ -1316,23 +1305,22 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
   /// 显示重置确认对话框
   void _showResetConfirmDialog() {
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(
-          slang.t.layoutSettings.confirmResetLayoutSettings,
-        ),
+      GlassAlertDialog(
+        title: slang.t.layoutSettings.confirmResetLayoutSettings,
         content: Text(slang.t.layoutSettings.confirmResetLayoutSettingsDesc),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.layoutSettings.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.layoutSettings.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.layoutSettings.resetToDefaults,
+            destructive: true,
             onPressed: () {
               _resetToDefaults();
               AppService.tryPop();
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.orange),
-            child: Text(slang.t.layoutSettings.resetToDefaults),
           ),
         ],
       ),
@@ -1361,25 +1349,26 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
 
   void _showDeleteBreakpointDialog(String width) {
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(slang.t.layoutSettings.confirmDeleteBreakpoint),
+      GlassAlertDialog(
+        title: slang.t.layoutSettings.confirmDeleteBreakpoint,
         content: Text(
           slang.t.layoutSettings.confirmDeleteBreakpointDesc(width: width),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.layoutSettings.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.layoutSettings.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.layoutSettings.delete,
+            destructive: true,
             onPressed: () {
               final breakpoints = _getSafeBreakpoints();
               breakpoints.remove(width);
               _updateBreakpointsWithSorting(breakpoints);
               AppService.tryPop();
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(slang.t.layoutSettings.delete),
           ),
         ],
       ),

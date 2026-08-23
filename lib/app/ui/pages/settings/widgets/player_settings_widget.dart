@@ -7,6 +7,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_con
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/video_gesture_guide.dart';
 import 'package:i_iwara/app/ui/widgets/anime4k_settings_widget.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_settings_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -261,21 +262,10 @@ class PlayerSettingsWidget extends StatelessWidget {
     Map<String, String>? optionLabels,
     Map<String, String>? optionDescriptions,
   }) async {
-    final t = slang.Translations.of(context);
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Expanded(child: Text(title)),
-            IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () => Navigator.pop(context),
-              tooltip: t.common.close,
-            ),
-          ],
-        ),
-        contentPadding: const EdgeInsets.only(top: 12, bottom: 16),
+      builder: (context) => GlassAlertDialog(
+        title: title,
         content: SizedBox(
           width: double.maxFinite,
           child: ConstrainedBox(

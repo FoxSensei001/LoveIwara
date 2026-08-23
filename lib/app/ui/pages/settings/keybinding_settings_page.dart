@@ -8,6 +8,7 @@ import 'package:i_iwara/app/services/player_keybinding/shortcut_action.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -571,17 +572,18 @@ class _KeybindingSettingsViewState extends State<KeybindingSettingsView> {
       final conflictName = _actionLabel(conflicts.first);
       final ok = await showDialog<bool>(
         context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text(_t.conflictTitle),
+        builder: (ctx) => GlassAlertDialog(
+          title: _t.conflictTitle,
           content: Text(_t.conflictMessage(action: conflictName)),
           actions: [
-            TextButton(
+            GlassDialogAction(
+              label: slang.t.common.cancel,
+              emphasized: false,
               onPressed: () => Navigator.pop(ctx, false),
-              child: Text(slang.t.common.cancel),
             ),
-            FilledButton(
+            GlassDialogAction(
+              label: _t.conflictContinue,
               onPressed: () => Navigator.pop(ctx, true),
-              child: Text(_t.conflictContinue),
             ),
           ],
         ),
@@ -611,17 +613,18 @@ class _KeybindingSettingsViewState extends State<KeybindingSettingsView> {
         final message = shadowMessage;
         final ok = await showDialog<bool>(
           context: context,
-          builder: (ctx) => AlertDialog(
-            title: Text(_t.shadowWarningTitle),
+          builder: (ctx) => GlassAlertDialog(
+            title: _t.shadowWarningTitle,
             content: Text(message),
             actions: [
-              TextButton(
+              GlassDialogAction(
+                label: slang.t.common.cancel,
+                emphasized: false,
                 onPressed: () => Navigator.pop(ctx, false),
-                child: Text(slang.t.common.cancel),
               ),
-              FilledButton(
+              GlassDialogAction(
+                label: _t.conflictContinue,
                 onPressed: () => Navigator.pop(ctx, true),
-                child: Text(_t.conflictContinue),
               ),
             ],
           ),
@@ -635,17 +638,18 @@ class _KeybindingSettingsViewState extends State<KeybindingSettingsView> {
   Future<void> _confirmResetAll(BuildContext context) async {
     final ok = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(_t.resetAll),
+      builder: (ctx) => GlassAlertDialog(
+        title: _t.resetAll,
         content: Text(_t.resetAllConfirm),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.cancel,
+            emphasized: false,
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text(slang.t.common.cancel),
           ),
-          FilledButton(
+          GlassDialogAction(
+            label: _t.resetAll,
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text(_t.resetAll),
           ),
         ],
       ),
@@ -811,8 +815,8 @@ class _KeybindingCaptureDialogState extends State<_KeybindingCaptureDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return AlertDialog(
-      title: Text(_t.pressNewShortcut),
+    return GlassAlertDialog(
+      title: _t.pressNewShortcut,
       // 用 Focus.onKeyEvent 并返回 handled，吞掉按键，避免 Esc 等被全局
       // Shortcuts/PopCoordinator 重复处理导致双重返回。鼠标键由全局指针路由处理。
       content: Focus(
@@ -864,9 +868,10 @@ class _KeybindingCaptureDialogState extends State<_KeybindingCaptureDialog> {
         ),
       ),
       actions: [
-        TextButton(
+        GlassDialogAction(
+          label: slang.t.common.cancel,
+          emphasized: false,
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(slang.t.common.cancel),
         ),
       ],
     );

@@ -5,6 +5,7 @@ import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -153,13 +154,13 @@ class _DeepLXTranslationSettingsWidgetState
   void _showValidationDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(slang.t.translation.needVerification),
+      builder: (context) => GlassAlertDialog(
+        title: slang.t.translation.needVerification,
         content: Text(slang.t.translation.needVerificationContent),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.translation.confirm,
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(slang.t.translation.confirm),
           ),
         ],
       ),
