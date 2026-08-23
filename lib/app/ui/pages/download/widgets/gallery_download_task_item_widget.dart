@@ -18,6 +18,7 @@ import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:path/path.dart' as path;
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 
 class GalleryDownloadTaskItem extends StatelessWidget {
   final DownloadTask task;
@@ -813,21 +814,23 @@ class GalleryDownloadTaskItem extends StatelessWidget {
       Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          AlertDialog(
-            title: Text(
-              force ? t.download.forceDeleteTask : t.download.deleteTask,
-            ),
+          GlassAlertDialog(
+            title: force ? t.download.forceDeleteTask : t.download.deleteTask,
             content: Text(
               force
                   ? t.download.forceDeleteTaskConfirmation
                   : t.download.deleteTaskConfirmation,
             ),
             actions: [
-              TextButton(
+              GlassDialogAction(
+                label: t.common.cancel,
+                emphasized: false,
                 onPressed: () => AppService.tryPop(),
-                child: Text(t.common.cancel),
               ),
-              TextButton(
+              GlassDialogAction(
+                label: t.common.confirm,
+                emphasized: false,
+                destructive: true,
                 onPressed: () {
                   AppService.tryPop();
                   DownloadService.to.deleteTask(
@@ -835,10 +838,6 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                     ignoreFileDeleteError: force,
                   );
                 },
-                child: Text(
-                  t.common.confirm,
-                  style: const TextStyle(color: Colors.red),
-                ),
               ),
             ],
           ),

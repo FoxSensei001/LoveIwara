@@ -11,6 +11,7 @@ import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_scale.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_status_colors.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/status_label_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:open_file/open_file.dart';
@@ -734,21 +735,23 @@ class DefaultDownloadTaskItem extends StatelessWidget {
       Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          AlertDialog(
-            title: Text(
-              force ? t.download.forceDeleteTask : t.download.deleteTask,
-            ),
+          GlassAlertDialog(
+            title: force ? t.download.forceDeleteTask : t.download.deleteTask,
             content: Text(
               force
                   ? t.download.forceDeleteTaskConfirmation
                   : t.download.deleteTaskConfirmation,
             ),
             actions: [
-              TextButton(
+              GlassDialogAction(
+                label: t.common.cancel,
+                emphasized: false,
                 onPressed: () => AppService.tryPop(),
-                child: Text(t.common.cancel),
               ),
-              TextButton(
+              GlassDialogAction(
+                label: t.common.confirm,
+                emphasized: false,
+                destructive: true,
                 onPressed: () {
                   AppService.tryPop();
                   DownloadService.to.deleteTask(
@@ -756,10 +759,6 @@ class DefaultDownloadTaskItem extends StatelessWidget {
                     ignoreFileDeleteError: force,
                   );
                 },
-                child: Text(
-                  t.common.confirm,
-                  style: const TextStyle(color: Colors.red),
-                ),
               ),
             ],
           ),

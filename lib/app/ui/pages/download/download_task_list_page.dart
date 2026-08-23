@@ -30,6 +30,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/ui/widgets/glass/batch_confirm_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
@@ -226,20 +227,22 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     // 2. 二次确认（明确告知数量与不可撤销）。
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: _dialogTitleRow(context, t.download.deleteByDate.confirmTitle),
+      builder: (context) => GlassAlertDialog(
+        title: t.download.deleteByDate.confirmTitle,
         content: Text(
           t.download.deleteByDate.confirmContent(count: tasks.length),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.common.cancel,
+            emphasized: false,
             onPressed: () => Navigator.pop(context, false),
-            child: Text(t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: t.common.confirm,
+            emphasized: false,
+            destructive: true,
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t.common.confirm),
           ),
         ],
       ),

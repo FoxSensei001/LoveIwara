@@ -5,6 +5,7 @@ import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
@@ -164,8 +165,8 @@ class _DownloadCategoryManagePageState
     final t = slang.Translations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: _dialogTitleRow(dialogContext, t.download.category.deleteTitle),
+      builder: (dialogContext) => GlassAlertDialog(
+        title: t.download.category.deleteTitle,
         content: Text(
           t.download.category.deleteConfirm(
             title: category.title,
@@ -173,14 +174,16 @@ class _DownloadCategoryManagePageState
           ),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.common.cancel,
+            emphasized: false,
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: t.common.delete,
+            emphasized: false,
+            destructive: true,
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t.common.delete),
           ),
         ],
       ),
@@ -521,21 +524,6 @@ class _DownloadCategoryManagePageState
   }
 }
 
-/// 弹窗标题行：标题 + 玻璃关闭圆钮（全局统一约定）。
-Widget _dialogTitleRow(BuildContext context, String title) {
-  return Row(
-    children: [
-      Expanded(child: Text(title)),
-      GlassIconButton(
-        standalone: true,
-        icon: const Icon(Icons.close),
-        tooltip: slang.Translations.of(context).common.close,
-        onPressed: () => Navigator.of(context).pop(),
-      ),
-    ],
-  );
-}
-
 /// 新建 / 重命名分类的输入弹窗。
 ///
 /// 独立成 StatefulWidget 是为了让 controller 的生命周期跟着弹窗本体走：
@@ -583,8 +571,8 @@ class _CategoryNameDialogState extends State<_CategoryNameDialog> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    return AlertDialog(
-      title: _dialogTitleRow(context, widget.dialogTitle),
+    return GlassAlertDialog(
+      title: widget.dialogTitle,
       content: TextField(
         controller: _controller,
         autofocus: true,
@@ -595,13 +583,15 @@ class _CategoryNameDialogState extends State<_CategoryNameDialog> {
         onSubmitted: _submit,
       ),
       actions: [
-        TextButton(
+        GlassDialogAction(
+          label: t.common.cancel,
+          emphasized: false,
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(t.common.cancel),
         ),
-        TextButton(
+        GlassDialogAction(
+          label: widget.confirmLabel,
+          emphasized: false,
           onPressed: () => _submit(_controller.text),
-          child: Text(widget.confirmLabel),
         ),
       ],
     );

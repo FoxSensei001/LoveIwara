@@ -4,6 +4,7 @@ import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/download_category_manage_page.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 
 /// 跳转到「管理分类」页面。下载分类选择器、下载清晰度弹窗、"更多"菜单里的
@@ -119,8 +120,8 @@ Future<({bool confirmed, String? categoryId})> showDownloadCategoryDialog(
   final ok = await showDialog<bool>(
     context: context,
     builder: (dialogContext) => StatefulBuilder(
-      builder: (context, setState) => AlertDialog(
-        title: Text(t.download.category.label),
+      builder: (context, setState) => GlassAlertDialog(
+        title: t.download.category.label,
         content: SizedBox(
           width: double.maxFinite,
           child: Column(
@@ -134,13 +135,14 @@ Future<({bool confirmed, String? categoryId})> showDownloadCategoryDialog(
           ),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.common.cancel,
+            emphasized: false,
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text(t.common.cancel),
           ),
-          FilledButton(
+          GlassDialogAction(
+            label: t.common.download,
             onPressed: () => Navigator.of(context).pop(true),
-            child: Text(t.common.download),
           ),
         ],
       ),
