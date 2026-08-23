@@ -14,6 +14,7 @@ class GlassPressable extends StatefulWidget {
     this.onLongPress,
     this.enabled = true,
     this.scale = GlassTokens.pressedScale,
+    this.tapHandledDeeper = false,
   });
 
   final Widget Function(BuildContext context, bool pressed) builder;
@@ -21,6 +22,20 @@ class GlassPressable extends StatefulWidget {
   final VoidCallback? onLongPress;
   final bool enabled;
   final double scale;
+
+  /// [onTap] 的**真正触发点在更深处**，这层不要再注册自己的 tap 识别器。
+  ///
+  /// 用在 [GlassSurface] 的 liquidWidgets + [GlassSurface.liquidTouch] 那条路上：
+  /// 形变层自带的 `GestureDetector` 比这层深，竞技场上稳赢，这层注册也是白注册
+  /// （详见 [GlassSurface] 里 `tapInsideLiquidBox` 那段）。
+  ///
+  /// 置真后这层只剩两件事：
+  ///   - **画按下反馈**——改用不进竞技场的 `Listener` 追踪按下状态。
+  ///     继续用 `GestureDetector` 的话，`onTapDown` 要等 100ms 的 deadline 才来、
+  ///     随后还会因判负回滚成 `onTapCancel`，快速点按几乎看不到反馈。
+  ///   - **对无障碍暴露「这是个按钮」**——[onTap] 仍会挂到 `Semantics.onTap`
+  ///     上（读屏的「激活」走这条），形变层那边则关掉语义避免出现两个节点。
+  final bool tapHandledDeeper;
 
   @override
   State<GlassPressable> createState() => _GlassPressableState();
@@ -38,6 +53,37 @@ class _GlassPressableState extends State<GlassPressable> {
   Widget build(BuildContext context) {
     final interactive =
         widget.enabled && (widget.onTap != null || widget.onLongPress != null);
+    final Widget scaled = AnimatedScale(
+      scale: _pressed ? widget.scale : 1.0,
+      duration: GlassTokens.pressDuration,
+      curve: Curves.easeOut,
+      child: widget.builder(context, _pressed),
+    );
+
+    if (interactive && widget.tapHandledDeeper) {
+      Widget result = scaled;
+      // 长按没有「更深的一层」接管，仍旧走识别器：它在 500ms 时自己宣布胜利，
+      // 能把里头那只 tap 挤掉。
+      if (widget.onLongPress != null) {
+        result = GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onLongPress: widget.onLongPress,
+          child: result,
+        );
+      }
+      return Semantics(
+        button: true,
+        onTap: widget.onTap,
+        child: Listener(
+          behavior: HitTestBehavior.opaque,
+          onPointerDown: (_) => _setPressed(true),
+          onPointerUp: (_) => _setPressed(false),
+          onPointerCancel: (_) => _setPressed(false),
+          child: result,
+        ),
+      );
+    }
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapDown: interactive ? (_) => _setPressed(true) : null,
@@ -45,22 +91,23 @@ class _GlassPressableState extends State<GlassPressable> {
       onTapCancel: interactive ? () => _setPressed(false) : null,
       onTap: interactive ? widget.onTap : null,
       onLongPress: interactive ? widget.onLongPress : null,
-      child: AnimatedScale(
-        scale: _pressed ? widget.scale : 1.0,
-        duration: GlassTokens.pressDuration,
-        curve: Curves.easeOut,
-        child: widget.builder(context, _pressed),
-      ),
+      child: scaled,
     );
   }
 }
 
 /// 玻璃体容器：胶囊或圆形，是全 App **唯一**的玻璃材质定义处。
 ///
-/// 材质有两套后端，由所处子树里有没有 `LiquidGlassScope` 决定：
-///   - 默认（传统档）：半透明底色 + 细描边 + 柔和投影，无 BackdropFilter。
-///   - `LiquidGlassScope(enabled: true)` 子树内（液态档）：`liquid_glass_easy`
-///     的真折射透镜（[LiquidGlassBox]）。两档尺寸语义一致，只换材质。
+/// 材质有**三套后端**，由所处子树里的 `LiquidGlassScope` 决定（见
+/// `liquid_glass_material.dart` 的 [GlassBackend]）：
+///   - [GlassBackend.plain]（默认）：半透明底色 + 细描边 + 柔和投影，
+///     无 BackdropFilter，零 shader 成本。
+///   - [GlassBackend.easyLens]：`liquid_glass_easy` 的真折射透镜
+///     （[LiquidGlassBox]）。玻璃菜单钉死在这一档。
+///   - [GlassBackend.liquidWidgets]：`liquid_glass_widgets` 的 `AdaptiveGlass`
+///     （[LiquidWidgetsGlassBox]）。页面 chrome 现在走这一档。
+///
+/// 三档**尺寸语义完全一致**，只换材质——换档不会动布局。
 ///
 /// 传 [onTap] 时整体可按（带缩放与底色加深）；不传时只做容器，
 /// 由子组件各自处理点击（例如 [GlassButtonGroup]）。
@@ -78,7 +125,7 @@ class GlassSurface extends StatelessWidget {
     this.tooltip,
     this.elevated = true,
     this.clipContent = false,
-    this.liquidTouch = false,
+    this.liquidTouch = true,
     this.materialize = 1.0,
   });
 
@@ -99,9 +146,22 @@ class GlassSurface extends StatelessWidget {
   final bool elevated;
   final bool clipContent;
 
-  /// 液态档下是否接入跟手形变（见 [LiquidGlassBox.touchFlex]）。传统档忽略
-  /// 此项。只在 [height] / [width] 已经是**钉死尺寸**时打开——见
-  /// [LiquidGlassBox.touchFlex] 上的约束说明，调用点自己保证。
+  /// 液态档下是否接入交互形变（按住并拖动时整只玻璃跟着手指走、松手弹回）。
+  /// 传统档忽略此项。
+  ///
+  /// **默认开**。2026-08-23 从 opt-in 翻成 opt-out：跟手形变是这套材质的基本
+  /// 手感之一，「一块玻璃按下去会不会动」不该由每个调用点各自决定——用户在
+  /// 订阅页 header 上按住下拉钮没反应、按住旁边的按钮组却会蠕动，读起来就是
+  /// 「有的是玻璃，有的是塑料」。只有确实不该动的地方才显式关掉。
+  ///
+  /// 两个液态档的实现不一样，**别混着记**：
+  ///   - [GlassBackend.liquidWidgets]（当前 chrome 档）：借
+  ///     `GlassButton.custom(transparent)` 的 `LiquidStretch`，**没有尺寸要求**，
+  ///     抱内容的玻璃也能开。
+  ///   - [GlassBackend.easyLens]：接的是 lens 的 `touch`，**要求 [height] /
+  ///     [width] 已经是钉死尺寸**（见 [LiquidGlassBox.touchFlex]）。抱内容的
+  ///     玻璃在这一档下会被本组件**自动降级为不开**——默认开了之后不能再指望
+  ///     每个调用点自己守这条约束，否则玻璃会被撑满可用空间。
   final bool liquidTouch;
 
   /// 材质的「在场程度」：0 = 玻璃还没长出来，1 = 正常。
@@ -133,26 +193,66 @@ class GlassSurface extends StatelessWidget {
     final radius =
         borderRadius ??
         BorderRadius.circular((height ?? GlassTokens.pillHeight) / 2);
-    final bool liquid = LiquidGlassScope.isEnabled(context);
+    final GlassBackend backend = LiquidGlassScope.of(context);
+
+    // easy 档的 touch 要求尺寸已经钉死（见 [LiquidGlassBox.touchFlex]）：抱内容
+    // 的玻璃开了它要么被撑满可用空间、要么在无界约束里静默失效。[liquidTouch]
+    // 默认开之后不能再指望每个调用点自己守这条，所以这里自己判——钉不死就降级
+    // 成不开。widgets 档没有这条约束。
+    final bool effectiveLiquidTouch =
+        liquidTouch &&
+        (backend != GlassBackend.easyLens ||
+            (height != null && (circle || width != null)));
+
+    // ⛔ liquidWidgets 档的跟手形变是**借** `GlassButton` 实现的，而它自带一层
+    // `onTap` 必填的 `GestureDetector`——在命中路径上比下面那层 [GlassPressable]
+    // 更深，竞技场上稳赢。所以「整只玻璃可按 + [liquidTouch]」时，点击必须交给
+    // 盒子内部发出去（[LiquidWidgetsGlassBox.onTap]），外层只留按下反馈与语义。
+    //
+    // 2026-08-23 真机报的「热门视频页 header 头像点不开全局抽屉」就是这一条：
+    // 身份圆钮是全站唯一同时给了 [onTap] 和 [liquidTouch] 的调用点，改档之后
+    // 那一下点击被形变层的空实现整只吃掉。把键放在胶囊**里头**的写法
+    // （[GlassButtonGroup]）不受影响——各键自己更深，照样赢得过形变层。
+    final bool tapInsideLiquidBox =
+        onTap != null &&
+        effectiveLiquidTouch &&
+        backend == GlassBackend.liquidWidgets;
 
     Color dim(Color c) => m >= 1 ? c : c.withValues(alpha: c.a * m);
 
     Widget buildBox(bool pressed) {
       Widget content = Padding(padding: padding, child: child);
-      if (liquid) {
-        // 液态档：裁切由 lens 自己按形状做掉，这里不再套 ClipOval/ClipRRect
-        // （多一层裁剪只会多一个 saveLayer，形状还未必对得上 shader 的角）。
-        return LiquidGlassBox(
-          height: height,
-          width: width,
-          circle: circle,
-          cornerRadius: radius.topLeft.x,
-          pressed: pressed,
-          elevated: elevated,
-          touchFlex: liquidTouch,
-          materialize: m,
-          child: content,
-        );
+      // 两个液态档的裁切都由 shader 自己按形状做掉，这里不再套
+      // ClipOval/ClipRRect（多一层裁剪只会多一个 saveLayer，形状还未必对得上
+      // shader 的角）。
+      switch (backend) {
+        case GlassBackend.easyLens:
+          return LiquidGlassBox(
+            height: height,
+            width: width,
+            circle: circle,
+            cornerRadius: radius.topLeft.x,
+            pressed: pressed,
+            elevated: elevated,
+            touchFlex: effectiveLiquidTouch,
+            materialize: m,
+            child: content,
+          );
+        case GlassBackend.liquidWidgets:
+          return LiquidWidgetsGlassBox(
+            height: height,
+            width: width,
+            circle: circle,
+            cornerRadius: radius.topLeft.x,
+            pressed: pressed,
+            elevated: elevated,
+            interactive: effectiveLiquidTouch,
+            onTap: tapInsideLiquidBox ? onTap : null,
+            materialize: m,
+            child: content,
+          );
+        case GlassBackend.plain:
+          break;
       }
       if (clipContent) {
         content = circle
@@ -189,6 +289,11 @@ class GlassSurface extends StatelessWidget {
       result = GlassPressable(
         onTap: onTap,
         onLongPress: onLongPress,
+        tapHandledDeeper: tapInsideLiquidBox,
+        // 形变层自己就有一下按压放大（[GlassTokens.widgetsInteractionScale] =
+        // 1.05），外面再叠 0.96 的缩小几乎正好抵消，读起来是「按了没反应」。
+        // 这一档的按下反馈由形变 + 底色变化负责，不再另外缩放。
+        scale: tapInsideLiquidBox ? 1.0 : GlassTokens.pressedScale,
         builder: (context, pressed) => buildBox(pressed),
       );
     }
@@ -439,7 +544,7 @@ class GlassButtonGroup extends StatelessWidget {
     required this.children,
     this.height = GlassTokens.pillHeight,
     this.spacing = 0,
-    this.touchFlex = false,
+    this.touchFlex = true,
     this.touchFlexSignature,
   });
 
@@ -447,15 +552,21 @@ class GlassButtonGroup extends StatelessWidget {
   final double height;
   final double spacing;
 
-  /// 液态档下是否给整只胶囊接入 [GlassTokens.liquidFlex]（长按跟手拉伸）。
-  /// 传统档忽略。胶囊宽度是「抱内容」算出来的、还会随按钮增删动画过渡，
-  /// 不满足 touch 的钉死尺寸要求——打开这项时走 [LiquidGlassSettledTouch]：
-  /// 过渡中自然退回不开 touch 的原有行为，静止下来才量出精确宽度并开 touch。
+  /// 液态档下是否给整只胶囊接入交互形变。传统档忽略。**默认开**，
+  /// 理由同 [GlassSurface.liquidTouch]。
+  ///
+  /// 走哪条路由取决于档位（见 [GlassSurface.liquidTouch]）：
+  ///   - [GlassBackend.liquidWidgets]：直接开，没有尺寸要求。
+  ///   - [GlassBackend.easyLens]：lens 的 `touch` 要求尺寸钉死，而胶囊宽度是
+  ///     「抱内容」算出来的、还会随按钮增删动画过渡——只能走
+  ///     [LiquidGlassSettledTouch]：过渡中退回不开 touch 的自然布局，
+  ///     等尺寸真的不动了才量一次并锁上。这条路要 [touchFlexSignature]，
+  ///     没给就**不开**（默认开之后不能拿 assert 去炸调用点）。
   final bool touchFlex;
 
   /// 影响胶囊里哪些子项可见（因而影响胶囊宽度）的外部状态摘要，例如
-  /// `'$isWide|$isMultiSelect'`。[touchFlex] 为 true 时必须传，见
-  /// [LiquidGlassSettledTouch.signature]。
+  /// `'$isWide|$isMultiSelect'`。只有 [GlassBackend.easyLens] 档需要，
+  /// 见 [LiquidGlassSettledTouch.signature]。
   final Object? touchFlexSignature;
 
   @override
@@ -488,11 +599,16 @@ class GlassButtonGroup extends StatelessWidget {
 
     if (!touchFlex) return buildSurface();
 
-    assert(
-      touchFlexSignature != null,
-      'GlassButtonGroup(touchFlex: true) 必须给 touchFlexSignature，'
-      '否则宽度一变就没法判断该不该重新量。',
-    );
+    // 只有 easy 的 lens 要求把尺寸钉死。widgets 档的交互态没有这条约束，
+    // 直接开就行——顺带整只绕开了「量一次再锁死」那条路：那条路一旦锁在
+    // 过渡途中就再也回不来（见 [LiquidGlassSettledTouch] 上那段实测记录）。
+    if (LiquidGlassScope.of(context) != GlassBackend.easyLens) {
+      return buildSurface(liquidTouch: true);
+    }
+
+    // 没给签名就不开——[touchFlex] 默认开之后，缺签名是「这个调用点没考虑过
+    // easy 档」而不是写错了，不该把页面炸掉。
+    if (touchFlexSignature == null) return buildSurface();
     return LiquidGlassSettledTouch(
       signature: touchFlexSignature ?? row.length,
       builder: (context, lockedSize) => buildSurface(

@@ -25,7 +25,6 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' show t;
 import 'package:i_iwara/common/enums/media_enums.dart';
@@ -34,6 +33,7 @@ import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/base_media_controller.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/identity_avatar_button.dart';
 
 // 定义抽象基类，包含泛型 T (媒体模型), C (特定媒体控制器), R (特定媒体仓库)
 abstract class PopularMediaListPageBase<
@@ -432,58 +432,6 @@ class PopularMediaListPageBaseState<
     }
   }
 
-  /// 左上角「我」圆钮：已登录显示头像（带未读红点），未登录显示占位图标。
-  Widget _buildAvatarButton(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Obx(() {
-      final user = userService.hasLoadedProfile
-          ? userService.currentUser.value
-          : null;
-      final count =
-          userService.notificationCount.value + userService.messagesCount.value;
-
-      return GlassSurface(
-        circle: true,
-        tooltip: t.common.me,
-        onTap: AppService.switchGlobalDrawer,
-        child: Stack(
-          alignment: Alignment.center,
-          clipBehavior: Clip.none,
-          children: [
-            if (user != null)
-              // 头像铺满圆钮（只留 1px 玻璃描边），不要一圈内边距
-              IgnorePointer(
-                child: AvatarWidget(
-                  user: user,
-                  size: GlassTokens.pillHeight - 2,
-                ),
-              )
-            else
-              Icon(
-                Icons.account_circle,
-                size: 26,
-                color: colorScheme.onSurface,
-              ),
-            if (count > 0)
-              Positioned(
-                right: 2,
-                top: 2,
-                child: Container(
-                  width: 9,
-                  height: 9,
-                  decoration: BoxDecoration(
-                    color: colorScheme.error,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: colorScheme.surface, width: 1.5),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      );
-    });
-  }
-
   static const String _menuActionOpenSearch = 'open_search';
   static const String _menuActionRefresh = 'refresh';
   static const String _menuActionScrollTop = 'scroll_top';
@@ -761,7 +709,7 @@ class PopularMediaListPageBaseState<
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  _buildAvatarButton(context),
+                  const IdentityAvatarButton(),
                   const SizedBox(width: 8),
                   // 「够不够摆下分段胶囊」读 Expanded 实际分到的宽度，不靠公式
                   // 预测右侧胶囊有几个键——批量模式的退出键会临时挤进来，公式

@@ -1,0 +1,122 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_floating_tab_bar.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+
+/// 浮动底栏（`liquid_glass_widgets` 的 `GlassTabBar.bottom` 包装）的行为契约。
+///
+/// 这里盯的不是观感，而是换实现时最容易悄悄丢掉的四件事：
+///   1. 同项重复点击也要回调（首页「再点一次当前栏目 = 回顶 + 重载」靠它）；
+///   2. 横向拖动能换项（新实现才有的能力，别被日后调参调没了）；
+///   3. 右侧圆钮是独立动作，不能被胶囊的手势吃掉；
+///   4. 整条只占一行高度，不自带安全区——底栏是 Stack 覆盖层，外边距由调用方给。
+void main() {
+  const items = [
+    GlassTabItem(icon: Icons.video_library, label: '视频'),
+    GlassTabItem(icon: Icons.photo_library, label: '图库'),
+    GlassTabItem(icon: Icons.subscriptions, label: '订阅'),
+    GlassTabItem(icon: Icons.forum, label: '社区'),
+  ];
+
+  const double barWidth = 360;
+
+  Future<List<int>> pumpBar(
+    WidgetTester tester, {
+    int currentIndex = 0,
+    VoidCallback? onAction,
+  }) async {
+    final taps = <int>[];
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: barWidth,
+              child: GlassFloatingTabBar(
+                currentIndex: currentIndex,
+                onTap: taps.add,
+                items: items,
+                action: GlassFloatingBarAction(
+                  icon: Icons.search,
+                  label: '搜索',
+                  onPressed: onAction ?? () {},
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    // 包内是弹簧动画，pumpAndSettle 可能一直不静止；固定推几帧就够看结构。
+    await tester.pump(const Duration(milliseconds: 400));
+    return taps;
+  }
+
+  /// 胶囊的可用宽度：整条减去右侧圆钮与它的间距。
+  double slotWidth() =>
+      (barWidth - GlassTokens.floatingActionSize - 12) / items.length;
+
+  /// 第 [index] 项中心的全局坐标。
+  Offset tabCenter(WidgetTester tester, int index) {
+    final Rect bar = tester.getRect(find.byType(GlassFloatingTabBar));
+    return Offset(
+      bar.left + slotWidth() * (index + 0.5),
+      bar.center.dy,
+    );
+  }
+
+  testWidgets('四项加圆钮都画得出来，且只占一行高度', (tester) async {
+    await pumpBar(tester);
+    expect(tester.takeException(), isNull);
+    for (final item in items) {
+      // 选中层与未选中层各画一趟，所以每个标题出现两次。
+      expect(find.text(item.label), findsWidgets);
+    }
+    expect(
+      tester.getSize(find.byType(GlassFloatingTabBar)).height,
+      GlassTokens.floatingTabBarHeight,
+      reason: '底栏自带了额外高度（安全区？），Stack 那边的让位就会算错',
+    );
+  });
+
+  testWidgets('点别的项 → 回调它的下标', (tester) async {
+    final taps = await pumpBar(tester);
+    await tester.tapAt(tabCenter(tester, 2));
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(taps, contains(2));
+  });
+
+  testWidgets('点当前项也要回调（同项 = 刷新）', (tester) async {
+    final taps = await pumpBar(tester, currentIndex: 1);
+    await tester.tapAt(tabCenter(tester, 1));
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(
+      taps,
+      contains(1),
+      reason: '同项被吞掉的话，「再点一次当前栏目回顶 + 重载」就没了',
+    );
+  });
+
+  testWidgets('横向拖动能换项', (tester) async {
+    final taps = await pumpBar(tester);
+    final TestGesture gesture = await tester.startGesture(tabCenter(tester, 0));
+    await tester.pump(const Duration(milliseconds: 16));
+    await gesture.moveTo(tabCenter(tester, 3));
+    await tester.pump(const Duration(milliseconds: 16));
+    await gesture.up();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(taps.last, 3);
+  });
+
+  testWidgets('右侧圆钮是独立动作，不算换项', (tester) async {
+    int actions = 0;
+    final taps = await pumpBar(tester, onAction: () => actions++);
+    final Rect bar = tester.getRect(find.byType(GlassFloatingTabBar));
+    await tester.tapAt(
+      Offset(bar.right - GlassTokens.floatingActionSize / 2, bar.center.dy),
+    );
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(actions, 1);
+    expect(taps, isEmpty, reason: '圆钮的点击漏进了胶囊的手势区');
+  });
+}

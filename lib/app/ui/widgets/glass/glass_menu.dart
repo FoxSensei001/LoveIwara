@@ -22,8 +22,17 @@ import 'package:i_iwara/utils/vibrate_utils.dart';
 ///
 /// 菜单是一条独立路由，挂在**根 Overlay** 上——它不在页面子树里，读不到页面的
 /// `LiquidGlassScope`。所以 [showGlassMenu] 在打开的那一刻就地读一次触发件的
-/// 档位（[LiquidGlassScope.isEnabled]），再在面板外面重新供上：**玻璃胶囊弹出
+/// 档位（[LiquidGlassScope.of]），再在面板外面重新供上：**玻璃胶囊弹出
 /// 玻璃菜单，传统胶囊弹出传统菜单**，一条链上不会出现两种材质。
+///
+/// ## ⛔ 菜单钉死在 easy 那一档，不跟着 chrome 走
+///
+/// 页面 chrome 从 2026-08-23 起换到了 `liquid_glass_widgets`
+/// （[kChromeGlassBackend]），**菜单没跟**——见 [panelGlassBackend]。理由是本文件
+/// 下面那整套「卷开」出入场和面板质感都是照 easy 的 lens 逐帧调出来的：
+/// 起手缩放绕锚点角、`materialize` 的 0 端「只剩折射与边缘光的清玻璃」、
+/// 条目错峰的 alpha 落在 backdrop 采样之后……换一套 shader 这些标定值全要
+/// 重来。用户也是分别评价的：chrome 那边换新包更好，菜单这边现状就很好。
 ///
 /// ## 与 `PopupMenuButton` 的行为差异
 ///
@@ -95,6 +104,7 @@ class GlassMenuOption<T> extends GlassMenuEntry {
     required this.label,
     this.icon,
     this.leading,
+    this.onLongPress,
     this.selected = false,
     this.destructive = false,
     this.enabled = true,
@@ -107,9 +117,21 @@ class GlassMenuOption<T> extends GlassMenuEntry {
   final IconData? icon;
 
   /// 行首的自定义控件，用在图标不是 [IconData] 的场合（排序项自带 `Widget` 图标、
-  /// 用户头像……）。给了它就顶掉 [icon]。它被包在一层 [IconTheme] 里，
-  /// 里面的 `Icon` 会自动跟着行的语义色走。
+  /// 用户头像……）。给了它就顶掉 [icon]。
+  ///
+  /// 它被塞进一个**固定 [_rowLeadingSize] 见方的槽位**并包一层 [IconTheme]
+  /// （里面的 `Icon` 自动跟行的语义色走）。固定槽位有两层意思：与纯图标行
+  /// 左对齐；以及让 [_measureMenuPanelSize] 能静态量出行宽——量不出来就开不了
+  /// 跟手形变（见那个函数的说明）。所以**别在 leading 里塞会自己撑开的控件**。
   final Widget? leading;
+
+  /// 长按这一条。给了它的菜单会**整只关掉滑动取焦**——同一次按住不可能既是
+  /// 「划过去换焦点」又是「按住不动触发长按」，两个手势抢起来两边都不准
+  /// （与「内容滚得动时让位」是同一条规矩，见 `_GlassMenuPanelState`）。
+  ///
+  /// 长按后菜单会关闭并返回 null——长按是**离开这张菜单去别处**的动作
+  /// （典型：长按用户跳作者主页），不是选中。
+  final VoidCallback? onLongPress;
 
   /// 当前生效项：文字/图标转主色，行尾出现对勾。
   final bool selected;
@@ -152,6 +174,12 @@ const double _rowTotalHeight = _rowHeight + _rowMarginVertical * 2;
 const double _rowHorizontalChrome =
     _rowMarginHorizontal * 2 /* margin */ + 12 * 2 /* padding */;
 const double _rowIconWidth = 20 + 12; // icon + gap
+
+/// [GlassMenuOption.leading] 的固定槽位边长。比纯图标（20）大一点点，让头像
+/// 一类内容不至于太小，光学中心又与图标行对齐；固定死是为了行宽能被
+/// [_measureMenuPanelSize] 静态量出来。
+const double _rowLeadingSize = 22;
+const double _rowLeadingWidth = _rowLeadingSize + 12; // leading + gap
 const double _rowCheckWidth = 12 + 18; // gap + check icon
 const double _separatorHeight = 5 * 2 + 1; // padding + line
 const double _panelVerticalPadding = 6 * 2;
@@ -291,10 +319,8 @@ const double _focusFillAlpha = 0.12;
 /// 写的，已改成这里的一次到位）。所以宁可牺牲一点精度，用 [TextPainter]
 /// 离线量出自然宽高，一次性把精确尺寸喂给 lens。
 ///
-/// 只支持纯 [GlassMenuOption.icon] 的条目；用了 [GlassMenuOption.leading]
-/// 自定义控件的条目没法脱离渲染树静态量宽，返回 null——调用方据此直接
-/// 不开 touch（退回"抱内容"的自然布局）、起手缩放也退回一组保守常数，
-/// 而不是硬套一个量不准的尺寸。
+/// [GlassMenuOption.leading] 也能量：它被塞进一个固定 [_rowLeadingSize] 见方的
+/// 槽位（见那个字段的说明），宽度贡献和纯图标一样是常数。
 Size? _measureMenuPanelSize({
   required BuildContext anchorContext,
   required List<GlassMenuEntry> entries,
@@ -314,7 +340,6 @@ Size? _measureMenuPanelSize({
       case GlassMenuSeparator():
         height += _separatorHeight;
       case GlassMenuOption(:final leading, :final label, :final icon, :final selected):
-        if (leading != null) return null;
         final painter = TextPainter(
           text: TextSpan(
             text: label,
@@ -330,7 +355,11 @@ Size? _measureMenuPanelSize({
           maxLines: 1,
         )..layout();
         double rowWidth = _rowHorizontalChrome + painter.width;
-        if (icon != null) rowWidth += _rowIconWidth;
+        if (leading != null) {
+          rowWidth += _rowLeadingWidth;
+        } else if (icon != null) {
+          rowWidth += _rowIconWidth;
+        }
         if (selected) rowWidth += _rowCheckWidth;
         painter.dispose();
         if (rowWidth > contentWidth) contentWidth = rowWidth;
@@ -362,16 +391,16 @@ Size? _measureMenuPanelSize({
 ///
 /// [anchorContext] 必须是**触发件自身**的 context（`Builder` 包一层最省事），
 /// 落点和材质档位都是从它身上量出来的。
-/// [touchFlex]：面板是否接入 [GlassTokens.liquidFlex]（长按跟手拉伸）。
-/// 只在液态档下有意义，传统档忽略。默认关闭——不是每个菜单都该动，
-/// 调用方按场景显式打开；实际能否生效还取决于 [_measureMenuPanelSize]
-/// 能不能静态量出尺寸（见其说明）。
+/// [touchFlex]：面板是否接入跟手形变（按住拖动时整块面板顺着手指拉伸、松手
+/// 弹回）。只在液态档下有意义，传统档忽略。**默认开**——跟手是这套材质的基本
+/// 手感，不该由每个调用点各自决定（同 [GlassSurface.liquidTouch]）。实际能否
+/// 生效还取决于 [_measureMenuPanelSize] 能不能静态量出尺寸（见其说明）。
 Future<T?> showGlassMenu<T>({
   required BuildContext anchorContext,
   required List<GlassMenuEntry> entries,
   double minWidth = _minPanelWidth,
   double maxWidth = _maxPanelWidth,
-  bool touchFlex = false,
+  bool touchFlex = true,
 }) {
   final anchorBox = anchorContext.findRenderObject();
   final navigator = Navigator.of(anchorContext, rootNavigator: true);
@@ -394,16 +423,23 @@ Future<T?> showGlassMenu<T>({
     maxWidth: maxWidth,
   );
 
+  // 关键：材质档位在这里就地取样，因为路由本身不在页面子树里。
+  final GlassBackend backend = panelGlassBackend(anchorContext);
+
   return navigator.push(
     _GlassMenuRoute<T>(
       entries: entries,
       anchorRect: anchorRect,
       minWidth: minWidth,
       maxWidth: maxWidth,
-      touchFlex: touchFlex && precomputedSize != null,
+      // 传统档整只不开：那一档本来就没有跟手形变，而开着会把面板从「有几行
+      // 就多高、多宽」改成静态量出来的钉死尺寸（[_measureMenuPanelSize] 是
+      // 用 TextPainter 离线量的，与真实排版有一两像素出入）。既然拿不到好处，
+      // 就别把这点误差引进去。
+      touchFlex:
+          touchFlex && precomputedSize != null && backend != GlassBackend.plain,
       precomputedSize: precomputedSize,
-      // 关键：材质档位在这里就地取样，因为路由本身不在页面子树里。
-      liquid: LiquidGlassScope.isEnabled(anchorContext),
+      backend: backend,
       capturedThemes: InheritedTheme.capture(
         from: anchorContext,
         to: navigator.context,
@@ -421,7 +457,7 @@ class _GlassMenuRoute<T> extends PopupRoute<T> {
     required this.anchorRect,
     required this.minWidth,
     required this.maxWidth,
-    required this.liquid,
+    required this.backend,
     required this.touchFlex,
     required this.precomputedSize,
     required this.capturedThemes,
@@ -432,7 +468,9 @@ class _GlassMenuRoute<T> extends PopupRoute<T> {
   final Rect anchorRect;
   final double minWidth;
   final double maxWidth;
-  final bool liquid;
+
+  /// 面板自己的材质档（已经过 [panelGlassBackend] 折算）。
+  final GlassBackend backend;
 
   /// 已经是 `precomputedSize != null` 之后的最终结果（见 [showGlassMenu]）。
   final bool touchFlex;
@@ -473,6 +511,7 @@ class _GlassMenuRoute<T> extends PopupRoute<T> {
     final Widget panel = _GlassMenuPanel<T>(
       entries: entries,
       onSelected: (value) => Navigator.of(context).pop(value),
+      onDismissed: () => Navigator.of(context).pop(),
       touchFlex: touchFlex,
       precomputedSize: precomputedSize,
       // 出入场长在面板内部而不是 buildTransitions 里，理由见该处注释。
@@ -490,7 +529,7 @@ class _GlassMenuRoute<T> extends PopupRoute<T> {
     );
     return capturedThemes.wrap(
       LiquidGlassScope(
-        enabled: liquid,
+        backend: backend,
         child: CustomSingleChildLayout(
           delegate: _GlassMenuLayout(
             anchorRect: anchorRect,
@@ -609,6 +648,7 @@ class _GlassMenuPanel<T> extends StatefulWidget {
   const _GlassMenuPanel({
     required this.entries,
     required this.onSelected,
+    required this.onDismissed,
     required this.animation,
     required this.revealOrigin,
     required this.revealBeginScale,
@@ -619,6 +659,10 @@ class _GlassMenuPanel<T> extends StatefulWidget {
 
   final List<GlassMenuEntry> entries;
   final ValueChanged<T> onSelected;
+
+  /// 关掉面板但不返回任何值（长按走这条，见 [GlassMenuOption.onLongPress]）。
+  final VoidCallback onDismissed;
+
   final bool touchFlex;
   final Size? precomputedSize;
 
@@ -720,6 +764,17 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
     widget.onSelected(value);
   }
 
+  /// 长按走的出口：关面板（返回 null）之后再跑 [action]。
+  ///
+  /// 顺序不能反——[action] 往往是一次跳转（长按用户去作者主页），先跳再关
+  /// 会让菜单的退场动画和路由推入叠在一起。
+  void _selectNothingThen(VoidCallback action) {
+    if (_selected) return;
+    _selected = true;
+    widget.onDismissed();
+    action();
+  }
+
   // ---- 滑动取焦 ----
 
   /// 内容已经超出可用高度、变成一条可滚的列表。
@@ -731,6 +786,15 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
       _scroll.hasClients &&
       _scroll.position.hasContentDimensions &&
       _scroll.position.maxScrollExtent > 0;
+
+  /// 有条目带 [GlassMenuOption.onLongPress]：滑动取焦整只让位。
+  ///
+  /// 与「滚得动时让位」同一条规矩——同一次按住不可能既是「划过去换焦点」
+  /// 又是「按住不动等长按」：焦点底板会在长按计时的这 500ms 里一直贴着，
+  /// 松手时两条路都认为该由自己出手。菜单只能二选一，谁被显式声明了就归谁。
+  bool get _hasLongPressEntry => widget.entries.any(
+    (e) => e is GlassMenuOption && e.onLongPress != null,
+  );
 
   /// 内容层的实际宽度，用来判断手指有没有横向荡出去。
   double get _contentWidth =>
@@ -784,7 +848,9 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
   }
 
   void _handlePointerDown(PointerDownEvent event) {
-    if (_pointer != null || _selected || _isScrollable) return;
+    if (_pointer != null || _selected || _isScrollable || _hasLongPressEntry) {
+      return;
+    }
     _pointer = event.pointer;
     _pointerDownAt = event.localPosition;
     setState(() {
@@ -875,10 +941,15 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
       final GlassMenuEntry entry = widget.entries[i];
       final Widget row = switch (entry) {
         GlassMenuSeparator() => const _GlassMenuSeparatorLine(),
-        GlassMenuOption<T>(:final value) => _GlassMenuRow(
+        GlassMenuOption<T>(:final value, :final onLongPress) => _GlassMenuRow(
           option: entry,
           slideActive: _sliding,
           onTap: () => _select(value),
+          // 长按是「离开这张菜单去别处」，不是选中：关掉面板并返回 null，
+          // 再把动作交出去（见 [GlassMenuOption.onLongPress]）。
+          onLongPress: onLongPress == null
+              ? null
+              : () => _selectNothingThen(onLongPress),
         ),
         // 条目泛型与菜单泛型对不上（调用方写错了）：渲染成不可点的
         // 行，而不是整张面板炸掉。
@@ -1061,11 +1132,13 @@ class _GlassMenuRow extends StatefulWidget {
   const _GlassMenuRow({
     required this.option,
     required this.onTap,
+    this.onLongPress,
     this.slideActive = false,
   });
 
   final GlassMenuOption<dynamic> option;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
   /// 面板正在滑动取焦：底色让位给焦点底板，免得同一条上叠两层
   /// （见文件头「滑动取焦」一节）。
@@ -1099,6 +1172,7 @@ class _GlassMenuRowState extends State<_GlassMenuRow> {
       child: GlassPressable(
         enabled: enabled,
         onTap: widget.onTap,
+        onLongPress: enabled ? widget.onLongPress : null,
         // 整行缩放会让面板看着在抖；行的反馈只用底色。
         scale: 1.0,
         builder: (context, pressed) => AnimatedContainer(
@@ -1123,9 +1197,14 @@ class _GlassMenuRowState extends State<_GlassMenuRow> {
           child: Row(
             children: [
               if (option.leading != null) ...[
-                IconTheme.merge(
-                  data: IconThemeData(size: 20, color: fg),
-                  child: option.leading!,
+                SizedBox.square(
+                  dimension: _rowLeadingSize,
+                  child: Center(
+                    child: IconTheme.merge(
+                      data: IconThemeData(size: 20, color: fg),
+                      child: option.leading!,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 12),
               ] else if (option.icon != null) ...[

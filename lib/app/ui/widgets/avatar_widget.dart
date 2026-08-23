@@ -12,6 +12,18 @@ class AvatarWidget extends StatelessWidget {
   final User? user;
   final double? size;
 
+  /// 在线绿点距头像外接方框右下角的内缩，默认 0（贴在圆周的 45° 上，
+  /// 也就是绝大多数列表里那个位置）。
+  ///
+  /// **只有把头像塞进一个会裁成圆形的容器时才需要给正值**——例如
+  /// header 上的玻璃身份圆钮：液态档的玻璃会按圆形裁掉 child，而 0 内缩时
+  /// 绿点整只落在圆外，会被裁没。算法见
+  /// [GlassTokens.circleBadgeInset]，调用点用它算出该传多少。
+  final double indicatorInset;
+
+  /// 在线绿点直径（含描边）。定位算内缩时要用同一个值。
+  static const double onlineIndicatorSize = 12;
+
   const AvatarWidget({
     super.key,
     this.avatarUrl,
@@ -19,6 +31,7 @@ class AvatarWidget extends StatelessWidget {
     this.onTap,
     this.user,
     this.size = 40,
+    this.indicatorInset = 0,
   });
 
   bool get _isOnline {
@@ -106,11 +119,11 @@ class AvatarWidget extends StatelessWidget {
             ),
             if (_isOnline)
               Positioned(
-                right: 0,
-                bottom: 0,
+                right: indicatorInset,
+                bottom: indicatorInset,
                 child: Container(
-                  width: 12,
-                  height: 12,
+                  width: onlineIndicatorSize,
+                  height: onlineIndicatorSize,
                   decoration: BoxDecoration(
                     color: Colors.green,
                     shape: BoxShape.circle,

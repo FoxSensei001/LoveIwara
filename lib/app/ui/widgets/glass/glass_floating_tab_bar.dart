@@ -1,342 +1,176 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+// 带前缀：两个玻璃包的公开面与本仓库自己的组件大面积重名（见
+// `liquid_glass_material.dart` 顶部那段说明），不加前缀会一片 ambiguous_import。
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lgw;
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 
+/// 浮动底栏里的一项。
 class GlassTabItem {
-  const GlassTabItem({required this.icon, required this.label, this.badge});
+  const GlassTabItem({
+    required this.icon,
+    required this.label,
+    this.activeIcon,
+    this.badge,
+  });
 
   final IconData icon;
+
+  /// 选中时换成的图标（一般是同一枚的实心版）。为 null 时选中态沿用 [icon]。
+  final IconData? activeIcon;
+
   final String label;
 
   /// 右上角角标（为 null 时不显示）。
   final Widget? badge;
 }
 
-/// 浮动在内容之上的玻璃 Tab 胶囊，可选在右侧并排一个独立圆钮（[trailing]）。
+/// 浮动底栏右侧那枚独立圆钮（搜索）。
 ///
-/// 本组件只负责「一行」的布局（不含底部安全区），调用方把它放进 Stack 的
-/// 底部 Positioned 并自行加上安全区边距。
+/// 它不是随便一个 `Widget`：底栏整体由 `liquid_glass_widgets` 画，这枚钮必须
+/// 交给它自己的 `extraButton` 才能与胶囊**共用同一层玻璃**（`LiquidGlassBlendGroup`），
+/// 两块玻璃靠近时边缘会互相融合而不是各画各的。所以这里只收「图标 + 动作」，
+/// 由本组件转成包里的 `GlassTabBarExtraButton`。
+class GlassFloatingBarAction {
+  const GlassFloatingBarAction({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+
+  /// 无障碍标签（这枚钮只有图标，屏幕阅读器念的是它）。
+  final String label;
+
+  final VoidCallback onPressed;
+}
+
+/// 浮动在内容之上的玻璃 Tab 胶囊，可选在右侧并排一枚独立圆钮（[action]）。
 ///
-/// 选中项由统一的滑动高亮块标记；支持「长按拾起」：长按后高亮块微放大并
-/// 跟随手指滑动（跨项有触感反馈），松手落在手指所在项——液态玻璃的跟手质感。
-class GlassFloatingTabBar extends StatefulWidget {
+/// # 它现在是 `liquid_glass_widgets` 的 `GlassTabBar.bottom`
+///
+/// 2026-08-23 从自绘（`GlassSurface` + `AnimatedPositioned` 高亮块 + 长按拾起）
+/// 换成包里的底部导航。换来的是自绘那版做不出的三件事：
+///
+///   1. **果冻指示器**：拖动时高亮块会被「拽」出挤压/回弹的形变（jelly physics），
+///      松手按速度吸附——甩得快能跨过好几项。
+///   2. **磁透镜**：指示器是一块真玻璃，浮在图标层**之上**，经过谁就把谁折射
+///      并微微放大（`MaskingQuality.high`），而不是在图标下面垫一块底色。
+///   3. **直接拖动**：不再需要「长按拾起」这一步——按住就能滑（自绘那版必须
+///      先长按，否则会和页面的横向手势打架；包里的手势是在自己这条 Row 上收的）。
+///
+/// # 放哪儿
+///
+/// 包的文档说「永远放进 `Scaffold.bottomNavigationBar`」——**本仓库不这么做**。
+/// 一旦挂上那个槽位，Scaffold 会给 body 套 `removePadding(removeBottom: true)`，
+/// shell 里所有页面的 `SafeArea(bottom: true)` 全部失效（历史上整套安全区失效
+/// 的总根因，见 `home_shell_scaffold.dart` 里那段注释）。这里改成 `Stack` 覆盖层，
+/// 所以本组件**只负责「一行」**：不含安全区、不含左右边距，调用方用
+/// [GlassTokens.floatingTabBarSideMargin] / [GlassTokens.floatingTabBarBottomMargin]
+/// 自己摆位。包里的 `horizontalPadding` / `verticalPadding` 因此一律传 0。
+///
+/// # 同项重复点击 = 刷新
+///
+/// 包是在 **`onTapDown`** 那一刻回调 [onTap] 的（不是抬手），并且**同项也回调**，
+/// 所以「再次点击当前栏目 → 回顶 + 重载」这条既有行为仍然成立。代价是：从当前
+/// 选中项按住再拖走，会先触发一次该栏目的刷新（按住超过 ~100ms 时 tap 识别器
+/// 才会先于拖拽发出 down）。调用方那边有 1s 节流兜底，不会连发。
+class GlassFloatingTabBar extends StatelessWidget {
   const GlassFloatingTabBar({
     super.key,
     required this.items,
     required this.currentIndex,
     required this.onTap,
-    this.trailing,
+    this.action,
     this.height = GlassTokens.floatingTabBarHeight,
   });
 
   final List<GlassTabItem> items;
   final int currentIndex;
   final ValueChanged<int> onTap;
-  final Widget? trailing;
+
+  /// 右侧并排的独立圆钮；为 null 时整条只有胶囊。
+  final GlassFloatingBarAction? action;
+
   final double height;
 
-  @override
-  State<GlassFloatingTabBar> createState() => _GlassFloatingTabBarState();
-}
-
-class _GlassFloatingTabBarState extends State<GlassFloatingTabBar>
-    with SingleTickerProviderStateMixin {
-  /// 各项之间的水平间距（高亮块两侧各让出这么多）。
-  static const double _itemMargin = 2;
-
-  /// 拾起 / 落位共用的过渡动画（两个阶段在时间上不重叠）。
-  late final AnimationController _slideController = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 220),
-  );
-  bool _dragging = false;
-
-  /// 拖拽中的小数下标（等宽槽位，直接按 x 线性换算）。
-  double? _dragT;
-
-  /// 拾起瞬间高亮所在的小数下标：长按后先从这里「追」到手指，避免瞬移。
-  double? _grabFrom;
-
-  /// 松手瞬间的小数下标；非 null 表示落位动画进行中。
-  double? _releaseFrom;
-  int _releaseTarget = 0;
-  int? _lastHapticIndex;
-
-  @override
-  void initState() {
-    super.initState();
-    // 拾起追赶 / 落位动画期间逐帧重建（高亮位置与图标颜色都依赖 _overrideT）
-    _slideController.addListener(() {
-      if (mounted && (_dragging || _releaseFrom != null)) setState(() {});
-    });
-    _slideController.addStatusListener((status) {
-      if (status == AnimationStatus.completed &&
-          mounted &&
-          _releaseFrom != null) {
-        setState(() => _releaseFrom = null);
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _slideController.dispose();
-    super.dispose();
-  }
-
-  /// 覆盖位置：
-  /// - 拖拽中：从拾起位置「追」向手指（追上后 1:1 跟手）；
-  /// - 落位中：从松手位置单调滑到目标项；
-  /// - 空闲：null（回落到 currentIndex 驱动的 AnimatedPositioned）。
-  double? get _overrideT {
-    if (_dragging && _dragT != null) {
-      final from = _grabFrom;
-      if (from == null) return _dragT;
-      final double f = Curves.easeOutCubic.transform(_slideController.value);
-      return from + (_dragT! - from) * f;
-    }
-    final from = _releaseFrom;
-    if (from != null) {
-      final double f = Curves.easeOutCubic.transform(_slideController.value);
-      return from + (_releaseTarget - from) * f;
-    }
-    return null;
-  }
-
-  double _positionForDx(double dx, double slotWidth) {
-    final double t = dx / slotWidth - 0.5;
-    return t.clamp(0.0, (widget.items.length - 1).toDouble());
-  }
-
-  void _handleLongPressStart(double dx, double slotWidth) {
-    HapticFeedback.mediumImpact();
-    _slideController.stop();
-    setState(() {
-      _dragging = true;
-      // 从当前视觉位置（可能正处于落位途中）出发追手指，而不是瞬移
-      _grabFrom = _overrideT ?? widget.currentIndex.toDouble();
-      _releaseFrom = null;
-      _dragT = _positionForDx(dx, slotWidth);
-      _lastHapticIndex = _dragT!.round();
-    });
-    _slideController.duration = const Duration(milliseconds: 220);
-    _slideController.forward(from: 0);
-  }
-
-  void _handleLongPressMove(double dx, double slotWidth) {
-    if (!_dragging) return;
-    final t = _positionForDx(dx, slotWidth);
-    final idx = t.round();
-    if (idx != _lastHapticIndex) {
-      _lastHapticIndex = idx;
-      HapticFeedback.selectionClick();
-    }
-    setState(() => _dragT = t);
-  }
-
-  void _finishDrag({required bool commit}) {
-    if (!_dragging) return;
-    // 从当前视觉位置（可能还在拾起追赶途中）出发落位
-    final double from = _overrideT ?? _dragT ?? widget.currentIndex.toDouble();
-    final int target = commit
-        ? (_dragT ?? from).round().clamp(0, widget.items.length - 1)
-        : widget.currentIndex;
-    setState(() {
-      _dragging = false;
-      _dragT = null;
-      _grabFrom = null;
-      _releaseFrom = from;
-      _releaseTarget = target;
-    });
-    _slideController.duration = const Duration(milliseconds: 260);
-    _slideController.forward(from: 0);
-    if (commit && target != widget.currentIndex) {
-      HapticFeedback.lightImpact();
-      widget.onTap(target);
-    }
-  }
-
-  /// 项 i 的「视觉选中强度」：空闲时选中项为 1，拖拽/落位中按距离插值。
-  double _strengthFor(int index) {
-    final double? t = _overrideT;
-    if (t == null) return index == widget.currentIndex ? 1.0 : 0.0;
-    return (1.0 - (t - index).abs()).clamp(0.0, 1.0);
-  }
-
-  Widget _buildThumb(ColorScheme cs, double slotWidth, double innerHeight) {
-    final double top = (widget.height - innerHeight) / 2;
-    final double width = slotWidth - _itemMargin * 2;
-    final decoration = BoxDecoration(
-      color: GlassTokens.selectedHighlight(cs),
-      borderRadius: BorderRadius.circular(innerHeight / 2),
-    );
-    // 拖拽中微放大，松手还原
-    final Widget thumb = AnimatedScale(
-      scale: _dragging ? 1.06 : 1.0,
-      duration: const Duration(milliseconds: 160),
-      curve: Curves.easeOut,
-      child: DecoratedBox(decoration: decoration),
-    );
-
-    final double? t = _overrideT;
-    if (t != null) {
-      return Positioned(
-        left: slotWidth * t + _itemMargin,
-        top: top,
-        width: width,
-        height: innerHeight,
-        child: thumb,
-      );
-    }
-    return AnimatedPositioned(
-      duration: GlassTokens.motionDuration,
-      curve: GlassTokens.motionCurve,
-      left: slotWidth * widget.currentIndex + _itemMargin,
-      top: top,
-      width: width,
-      height: innerHeight,
-      child: thumb,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final double innerHeight = widget.height - 8;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+  /// 图标 + 角标。角标是 `Positioned`，靠 [Icon] 撑出 Stack 的尺寸。
+  Widget _icon(GlassTabItem item, IconData data) {
+    final Widget icon = Icon(data);
+    if (item.badge == null) return icon;
+    return Stack(
+      clipBehavior: Clip.none,
       children: [
-        Expanded(
-          child: GlassSurface(
-            height: widget.height,
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final double slotWidth =
-                    constraints.maxWidth / widget.items.length;
-                // 长按拾起高亮块跟手滑动；轻点仍由子项的 GlassPressable 处理
-                return GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onLongPressStart: (d) =>
-                      _handleLongPressStart(d.localPosition.dx, slotWidth),
-                  onLongPressMoveUpdate: (d) =>
-                      _handleLongPressMove(d.localPosition.dx, slotWidth),
-                  onLongPressEnd: (_) => _finishDrag(commit: true),
-                  onLongPressCancel: () => _finishDrag(commit: false),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      _buildThumb(cs, slotWidth, innerHeight),
-                      Row(
-                        children: [
-                          for (var i = 0; i < widget.items.length; i++)
-                            Expanded(
-                              child: _GlassTab(
-                                item: widget.items[i],
-                                selected: i == widget.currentIndex,
-                                strength: _strengthFor(i),
-                                onTap: () => widget.onTap(i),
-                                height: widget.height,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-        if (widget.trailing != null) ...[
-          const SizedBox(width: 12),
-          widget.trailing!,
-        ],
+        icon,
+        Positioned(top: -4, right: -6, child: item.badge!),
       ],
     );
   }
-}
-
-class _GlassTab extends StatelessWidget {
-  const _GlassTab({
-    required this.item,
-    required this.selected,
-    required this.strength,
-    required this.onTap,
-    required this.height,
-  });
-
-  final GlassTabItem item;
-  final bool selected;
-
-  /// 视觉选中强度 0..1（拖拽跟手时按「离高亮块的距离」插值）。
-  final double strength;
-  final VoidCallback onTap;
-  final double height;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final Color fg = Color.lerp(cs.onSurfaceVariant, cs.primary, strength)!;
-    final double innerHeight = height - 8;
+    final GlassFloatingBarAction? action = this.action;
 
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: item.label,
-      child: GlassPressable(
-        scale: 0.94,
-        onTap: onTap,
-        builder: (context, pressed) => AnimatedContainer(
-          duration: GlassTokens.motionDuration,
-          curve: GlassTokens.motionCurve,
-          height: innerHeight,
-          margin: const EdgeInsets.symmetric(horizontal: 2),
-          decoration: BoxDecoration(
-            // 选中底色由统一的滑动高亮块负责，这里只画按下反馈
-            color: pressed
-                ? cs.onSurface.withValues(alpha: 0.06)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(innerHeight / 2),
+    return lgw.GlassTabBar.bottom(
+      tabs: [
+        for (final item in items)
+          lgw.GlassTab(
+            icon: _icon(item, item.icon),
+            activeIcon: item.activeIcon == null
+                ? null
+                : _icon(item, item.activeIcon!),
+            label: item.label,
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Icon(item.icon, size: 26, color: fg),
-                  if (item.badge != null)
-                    Positioned(top: -4, right: -6, child: item.badge!),
-                ],
-              ),
-              const SizedBox(height: 2),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    item.label,
-                    maxLines: 1,
-                    softWrap: false,
-                    style: TextStyle(
-                      fontSize: 11.5,
-                      height: 1.1,
-                      fontWeight: strength > 0.5
-                          ? FontWeight.w600
-                          : FontWeight.w500,
-                      color: fg,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+      ],
+      selectedIndex: items.isEmpty
+          ? 0
+          : currentIndex.clamp(0, items.length - 1),
+      onTabSelected: onTap,
+      extraButton: action == null
+          ? null
+          : lgw.GlassTabBarExtraButton(
+              icon: Icon(action.icon),
+              label: action.label,
+              onTap: action.onPressed,
+              // 圆钮的槽位高度恒等于栏高，直径小于栏高会被拉成椭圆
+              // （见 [GlassTokens.floatingActionSize] 的说明）。
+              size: height,
+              iconColor: cs.onSurface,
+            ),
+
+      // ---- 布局：外边距全部由调用方的 Stack 负责，这里只留「一行」 ----
+      horizontalPadding: 0,
+      verticalPadding: 0,
+      barHeight: height,
+      // 传 height / 2 而不是包的默认哨兵值（9999）：那个值会让圆钮从
+      // `LiquidOval` 退化成 `LiquidRoundedRectangle`，多一次无谓的裁剪。
+      barBorderRadius: height / 2,
+      // 与自绘那版的 `SizedBox(width: 12)` 同一口径。
+      spacing: 12,
+
+      // ---- 排版：沿用自绘那版标定过的字号 / 图标尺寸 ----
+      iconSize: 26,
+      labelFontSize: 11.5,
+      iconLabelSpacing: 2,
+      selectedIconColor: cs.primary,
+      unselectedIconColor: cs.onSurfaceVariant,
+      selectedLabelStyle: const TextStyle(
+        height: 1.1,
+        fontWeight: FontWeight.w600,
       ),
+      unselectedLabelStyle: const TextStyle(
+        height: 1.1,
+        fontWeight: FontWeight.w500,
+      ),
+
+      // ---- 材质：与全站 chrome 同一份玻璃（见 GlassTokens.widgetsGlass）----
+      settings: GlassTokens.widgetsGlass(
+        cs,
+        tint: GlassTokens.liquidTint(cs),
+      ),
+      quality: lgw.GlassQuality.premium,
+      indicatorColor: GlassTokens.tabIndicatorTint(cs),
     );
   }
 }

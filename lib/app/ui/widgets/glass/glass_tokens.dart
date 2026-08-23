@@ -1,16 +1,23 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_easy/liquid_glass_easy.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lgw;
 
 /// 「液态玻璃」风格的尺寸 / 颜色 token。
 ///
 /// 设计来源：docs/mockups/telegram_chat_list_design.md（本地设计稿，已 gitignore）。
 ///
-/// 材质有**两套后端**，由 `LiquidGlassScope` 决定用哪一套（见
-/// `liquid_glass_material.dart`）：
+/// 材质有**三套后端**，由 `LiquidGlassScope` 决定用哪一套（见
+/// `liquid_glass_material.dart` 的 `GlassBackend`）：
 ///   - 传统档：半透明纯色 + 描边 + 投影，无 BackdropFilter。全平台一致、最省。
 ///     取值见 [fill] / [stroke] / [shadow]。
-///   - 液态档：`liquid_glass_easy` 的真折射透镜。取值见本类下方「真·液态玻璃」段。
-/// 两档共用同一套**尺寸**与**动效**，所以切换后端不会改变布局，只改变材质。
+///   - easy 档：`liquid_glass_easy` 的真折射透镜。取值见下方「真·液态玻璃
+///     （liquid_glass_easy 后端）」段。浮出来的面板（菜单、下拉板）走这一档。
+///   - widgets 档：`liquid_glass_widgets` 的 `AdaptiveGlass`。取值见下方
+///     「真·液态玻璃（liquid_glass_widgets 后端）」段，刻意与 easy 档对齐同一
+///     套观感。页面常驻 chrome（header 胶囊、按钮组、浮动底栏）走这一档。
+/// 三档共用同一套**尺寸**与**动效**，所以切换后端不会改变布局，只改变材质。
 ///
 /// 「液态」的神在于**没有硬切**：任何 header 上的按钮组、分段胶囊、头像、
 /// 徽标发生形变都要有过渡而不是被瞬间替换。形变过渡的原语和取值参见
@@ -49,8 +56,13 @@ abstract final class GlassTokens {
   /// 浮动 Tab 栏左右边距。
   static const double floatingTabBarSideMargin = 16;
 
-  /// 浮动底栏旁的独立圆钮直径。
-  static const double floatingActionSize = 60;
+  /// 浮动底栏旁的独立圆钮（搜索）直径。
+  ///
+  /// 与 [floatingTabBarHeight] 相等**不是巧合**：底栏由
+  /// `liquid_glass_widgets` 的 `GlassTabBar.bottom` 画，它把这枚钮塞进一个
+  /// 「高度 = 栏高」的槽位里（`Positioned(top: 0, bottom: 0)`），直径小于栏高
+  /// 会被纵向拉成椭圆。改栏高时这里跟着走就行。
+  static const double floatingActionSize = floatingTabBarHeight;
 
   /// 浮动底栏旁独立圆钮（搜索）的中心距屏幕右缘的水平距离。
   /// 回顶浮钮等与它共轴时用 [floatingActionCoAxisRight] 反推各自的 `right`。
@@ -62,6 +74,38 @@ abstract final class GlassTokens {
   /// [isFloatingBarInsetActive]）。
   static double floatingActionCoAxisRight(double buttonSize) =>
       floatingActionAxisRight - buttonSize / 2;
+
+  /// **圆形**玻璃里挂角标（未读红点、在线绿点…）时，角标该距外接方框边缘
+  /// 留多少，才能整只落在圆内。
+  ///
+  /// ⚠️ 这不是审美参数，是**液态档的硬约束**：两个液态后端都会把 child 按
+  /// 自身形状裁掉（easy 的 lens 用 `ClipRRect`、widgets 的 `LiquidGlass` 用
+  /// `ClipPath`，且都没有关掉裁切的口子）。而角标习惯上挂在方框的**角**上
+  /// ——那个位置在内切圆之外，一进液态档就整只被裁没。传统档不裁，所以这个
+  /// bug 只在开了液态的页面上现形（2026-08-23：热门视频/图库、订阅、侧栏身份
+  /// 钮四处的绿点/红点缺角，正是这一条）。
+  ///
+  /// 角标按 45° 方向摆：圆心到角标中心的距离取 `(diameter - badgeSize) / 2`
+  /// 时角标恰好内切，再换算回「距 [boxSize] 方框边缘的内缩」。
+  ///
+  /// - [diameter]：玻璃圆的直径（裁切用的那个圆）。
+  /// - [badgeSize]：角标直径。
+  /// - [boxSize]：角标定位所依据的方框边长；默认与 [diameter] 相同。头像自己
+  ///   带的角标（[AvatarWidget] 的在线绿点）定位在**头像**的框上，比玻璃圆小
+  ///   一圈，要把头像尺寸传进来。
+  ///
+  /// 结果可能为负（本来就装得下），调用方按 0 截断即可。
+  static double circleBadgeInset({
+    required double diameter,
+    required double badgeSize,
+    double? boxSize,
+  }) {
+    final double box = boxSize ?? diameter;
+    return (box - badgeSize) / 2 - (diameter - badgeSize) / (2 * math.sqrt2);
+  }
+
+  /// 身份圆钮上未读红点的直径（[GlassAnimatedDot] 的默认值）。
+  static const double identityBadgeSize = 9;
 
   /// 页面列表需要在安全区之上额外让出的高度（浮动底栏 + 间距 + 少量呼吸）。
   static const double floatingBarReservedExtent =
@@ -143,12 +187,22 @@ abstract final class GlassTokens {
   static Color selectedHighlight(ColorScheme cs) =>
       cs.secondaryContainer.withValues(alpha: 0.9);
 
+  /// 浮动底栏那颗果冻指示器的色调。
+  ///
+  /// **不要拿 [selectedHighlight] 顶替**：那是一块「底色」（0.9 不透明度，垫在
+  /// 图标下面）；而这颗指示器本身是一块真玻璃，浮在图标层**之上**靠折射与放大
+  /// 标记选中项。给它 0.9 的填充等于把折射整个盖死，果冻感与磁透镜一起消失。
+  /// 这里只是在玻璃里掺一点品牌色，让选中项偏暖一档。
+  static Color tabIndicatorTint(ColorScheme cs) => cs.primary.withValues(
+    alpha: cs.brightness == Brightness.dark ? 0.16 : 0.12,
+  );
+
   /// 边缘渐变蒙层的基色。
   static Color scrimBase(ColorScheme cs) => cs.surface;
 
   // ---- 真·液态玻璃（liquid_glass_easy 后端）----
   //
-  // 这一段只在 `LiquidGlassScope(enabled: true)` 的子树里生效。调参前先读
+  // 这一段只在 `GlassBackend.easyLens` 的子树里生效。调参前先读
   // docs/liquid_glass_easy.md——尤其是「一块 lens = 一次 backdrop 采样」和
   // 「lens 不要放进滚动容器」两条。
 
@@ -203,6 +257,106 @@ abstract final class GlassTokens {
     opacity: (cs.brightness == Brightness.dark ? 0.40 : 0.14) * alphaScale,
     offset: const Offset(0, 2),
   );
+
+  // ---- 真·液态玻璃（liquid_glass_widgets 后端）----
+  //
+  // 第三档材质（[GlassBackend.liquidWidgets]）。取值刻意与上面 easy 那一段
+  // **对齐同一套观感**——同一份色调（[liquidTint]）、同一量级的模糊、同一条
+  // 投影。两档并存时差别应该只在**手感**（果冻指示器、按压高光、交互折射），
+  // 而不该读成「这个 App 里有两种玻璃」。
+
+  /// 玻璃底下的背景模糊。与 [liquidBlur] 的 sigma 同值。
+  static const double widgetsBlur = 14;
+
+  /// 玻璃「厚度」（shader 里的 3D 景深）。他们的默认值 30 在 44 高的小胶囊上
+  /// 会鼓成气泡边，压到 22 才是「一片玻璃」而不是「一颗水珠」。
+  static const double widgetsThickness = 22;
+
+  /// 折射率。与他们指示器的标定值（1.10）同一档，小胶囊上不会把字拽花。
+  static const double widgetsRefractiveIndex = 1.12;
+
+  /// 一块玻璃的完整参数。
+  ///
+  /// [materialize] 直接喂给他们的 `visibility`——那是这套 shader 自己的淡入
+  /// 通道（同时缩放厚度与色调），**不需要也不能**再套 `Opacity`，理由与
+  /// easy 档那条折射告警是同一条。
+  static lgw.LiquidGlassSettings widgetsGlass(
+    ColorScheme cs, {
+    required Color tint,
+    double materialize = 1,
+    bool elevated = true,
+  }) => lgw.LiquidGlassSettings(
+    glassColor: tint,
+    blur: widgetsBlur,
+    thickness: widgetsThickness,
+    refractiveIndex: widgetsRefractiveIndex,
+    saturation: liquidSaturation,
+    // 小胶囊上的色散只会在边缘留一圈彩虹边，关掉（他们自己的指示器也是 0）。
+    chromaticAberration: 0,
+    lightAngle: lgw.GlassDefaults.lightAngle,
+    lightIntensity: lgw.GlassDefaults.lightIntensity,
+    visibility: materialize,
+    // 他们的 AdaptiveGlass 只在浅色下画投影（深色背景吃掉投影是 iOS 26 的
+    // 口径），这里照给，深色下他们自己会跳过。
+    shadow: elevated
+        ? shadow(cs, alphaScale: materialize)
+        : const <BoxShadow>[],
+  );
+
+  // ---- 相邻玻璃的融合（metaball）----
+
+  /// 同一层玻璃里两块形状「开始互相吞并」的距离（逻辑像素）。
+  ///
+  /// 这是一个**手感旋钮**，要和调用点的间距一起看：
+  ///   - 浮动底栏：胶囊与搜索圆钮间距 12，包自己给 10 —— 静止态刚好不粘连，
+  ///     圆钮被拖近时长出液面颈部。
+  ///   - header 行：三块 chrome 之间间距 8（各页 `SizedBox(width: 8)`），
+  ///     照同一条口径取 8 —— 静止态是三块独立的玻璃，头像被按住往右拖、
+  ///     跟手形变把这 8px 吃掉时才融成一坨。
+  ///
+  /// 调大会让静止态就粘在一起（读起来是「一条被切了两刀的长胶囊」），
+  /// 调小则拖到贴住也不融合。改之前先确认间距有没有一起变。
+  static const double chromeBlend = 8;
+
+  /// 融合层的裁剪外扩：跟手形变会把玻璃推出布局边界，不外扩就会在 layer
+  /// 边缘出现一道硬切。与浮动底栏（`GlassTabBar.bottom` 内部）同值。
+  static const EdgeInsets chromeBlendClipExpansion = EdgeInsets.symmetric(
+    horizontal: 20,
+    vertical: 15,
+  );
+
+  // ---- 跟手形变（LiquidStretch）----
+  //
+  // easy 档那边对应的是 [liquidFlex]（lens 自己的 `touch`）；widgets 档这边
+  // 走 `GlassButton.custom(style: transparent)` 借出来的 `LiquidStretch`
+  // （见 [LiquidWidgetsGlassBox.interactive]）。两档表达的是同一件事：
+  // **按住并拖动时整只玻璃跟着手指走、松手弹回**。
+
+  /// 拖拽位移换算成形变量的系数。**这是一个手感旋钮**，三个参考点：
+  ///   - `0.5`：包给**单枚按钮**的默认值；
+  ///   - `0.15`：他们自己的 `GlassButtonGroup` 给成组宽胶囊的值，理由是
+  ///     「full stretch looks too dramatic on a wide pill」；
+  ///   - `0.35`：本 App 取值。真机比过——0.15 在 header 这条 340px 宽的工具条上
+  ///     几乎看不出来（用户报的就是"长按没有跟着动"），而它要替代的
+  ///     easy 档 `LiquidGlassFlex.subtle()` 本来能拉到 `maxPull = 60px`，
+  ///     0.15 明显比原来还弱。
+  static const double widgetsStretch = 0.35;
+
+  /// 按下时整只玻璃的膨胀倍数（iOS 26 那一下「吸气」）。
+  ///
+  /// 取包默认值 1.05。比 easy 档 `subtle()` 的 `holdScale = 0.015` 明显一些
+  /// ——真机上读起来是「碰一下胶囊会呼吸」，没有过；要更含蓄就往 1.02 调。
+  static const double widgetsInteractionScale = 1.05;
+
+  /// 拖拽阻尼：越大越「粘手」。取包默认值。
+  static const double widgetsStretchResistance = 0.01;
+
+  /// 分段指示器（趋势/最新/…那条滑块）的玻璃参数。
+  ///
+  /// 从他们标定过的 [lgw.AnimatedGlassIndicator.baseIndicatorSettings] 起手，
+  /// 只覆盖厚度——那份基线是照 iOS 26 逐项对过的，我们没有比它更好的依据。
+  static lgw.LiquidGlassSettings get widgetsIndicator =>
+      lgw.AnimatedGlassIndicator.baseIndicatorSettings;
 
   /// 跟手形变（`LiquidGlassLens.touch`）。用 `.subtle()`——按钮组胶囊/菜单面板
   /// 都是「工具条 / 大面板」而不是单枚按钮，官方文档明确建议这一档给这类容器用，

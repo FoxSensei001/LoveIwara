@@ -25,7 +25,6 @@ import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/models/saved_search_config.model.dart';
 import 'package:i_iwara/app/services/saved_search_config_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/saved_search_config_drawer.dart';
-import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 
 import 'package:i_iwara/app/services/tutorial_service.dart';
 
@@ -42,6 +41,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/identity_avatar_button.dart';
 
 class SubscriptionsPage extends StatefulWidget implements HomeWidgetInterface {
   static final globalKey = GlobalKey<SubscriptionsPageState>();
@@ -255,6 +255,13 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     final t = slang.Translations.of(context);
     final bool filterVisible = _isFilterSupportedTab;
     return GlassButtonGroup(
+      // 与热门视频/图库同一口径：整只胶囊接跟手形变（按住拖动时玻璃跟着手指
+      // 走、松手弹回）。签名要囊括**所有会改变胶囊宽度**的外部状态——
+      // 宽窄屏（搜索键）、批量态（退出键）、当前 tab 支不支持筛选（两枚筛选
+      // 键），以及特别关注选中项（触发位的文案宽度会变）。
+      touchFlex: true,
+      touchFlexSignature:
+          '$isWide|$isMultiSelect|$filterVisible|$selectedId',
       children: [
         GlassGroupSlot(
           visible: isWide,
@@ -333,54 +340,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
         userList: userDropdownItems,
         selectedUserId: selectedId,
         onUserSelected: _onUserSelected,
-        flat: true,
-      );
-    });
-  }
-
-  /// 左上角「我」圆钮：已登录显示头像（带未读红点），未登录显示占位图标。
-  ///
-  /// 和其他栏目（热门视频 / 图库 / 论坛 / 最新）保持同一位置同一形状：
-  /// **圆形** = 身份入口。右侧胶囊里那枚方形头像是特别关注筛选，别混淆。
-  Widget _buildAvatarButton(BuildContext context) {
-    final t = slang.Translations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-    return Obx(() {
-      final user = userService.hasLoadedProfile
-          ? userService.currentUser.value
-          : null;
-      final count =
-          userService.notificationCount.value + userService.messagesCount.value;
-
-      return GlassSurface(
-        circle: true,
-        tooltip: t.common.me,
-        onTap: AppService.switchGlobalDrawer,
-        child: Stack(
-          alignment: Alignment.center,
-          clipBehavior: Clip.none,
-          children: [
-            if (user != null)
-              // 头像铺满圆钮（只留 1px 玻璃描边），不要一圈内边距
-              IgnorePointer(
-                child: AvatarWidget(
-                  user: user,
-                  size: GlassTokens.pillHeight - 2,
-                ),
-              )
-            else
-              Icon(
-                Icons.account_circle,
-                size: 26,
-                color: colorScheme.onSurface,
-              ),
-            Positioned(
-              right: 2,
-              top: 2,
-              child: GlassAnimatedDot(visible: count > 0),
-            ),
-          ],
-        ),
       );
     });
   }
@@ -773,7 +732,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: [
-                    _buildAvatarButton(context),
+                    const IdentityAvatarButton(),
                     const SizedBox(width: 8),
                     _buildCenterCapsule(context, tabItems),
                     const SizedBox(width: 8),

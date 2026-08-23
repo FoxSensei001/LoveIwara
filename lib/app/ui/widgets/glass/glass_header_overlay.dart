@@ -26,6 +26,11 @@ import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 ///   （或自己 `GlassIconButton` + `showGlassMenu`），窄屏功能收进这里。
 ///   **不要再用 `PopupMenuButton`**——它吐出来的是块不透明的 Material 卡片，
 ///   跟玻璃胶囊接不上（见 `glass_menu.dart`）。
+/// - header 行里这几块玻璃之间一律留 `SizedBox(width: 8)`：`liquid: true` 时
+///   本组件会把整行收进一个 [GlassBlendGroup]，那 8px 正是
+///   [GlassTokens.chromeBlend] 标定的「刚好不粘连、拖近才融合」的距离。
+///   间距改了就要连着 blend 一起改，否则要么静止态就糊成一条，要么怎么拖
+///   都不融合。
 /// - [body] 外包一层 `NotificationListener<ScrollNotification>`
 ///   （`depth == 0` 且纵向、`pixels >= 300`）驱动回到顶部浮钮的显隐；
 ///   浮钮放进 [extra]，`bottom = padding.bottom + 16 + (分页模式 ? 46 : 0)`
@@ -49,9 +54,21 @@ class GlassHeaderOverlay extends StatelessWidget {
     this.solidExtent = 0,
     this.extra = const [],
     this.liquid = false,
+    this.blendHeader = true,
   });
 
-  /// 本页的浮层 chrome（[header] 与 [extra]）改用真折射透镜。
+  /// header 行里并排的几块玻璃是否收进**同一层**、靠近时互相吞并
+  /// （见 [GlassBlendGroup]）。只在 [liquid] 为真时有意义。
+  ///
+  /// 默认开：头像圆钮被按住往右拖时，跟手形变会把它与中间那只胶囊之间的
+  /// 8px 间隙吃掉并融成一坨——与浮动底栏上「搜索圆钮拖向栏目胶囊」是同一种
+  /// 语言。要关掉的只有一种情形：header 里有玻璃要做
+  /// [GlassSurface.materialize] 材质淡入（同一层玻璃只有一份材质，淡入在
+  /// 融合态下无效，debug 下有 assert 盯着）。
+  final bool blendHeader;
+
+  /// 本页的浮层 chrome（[header] 与 [extra]）改用真液态玻璃
+  /// （[kChromeGlassBackend]，当前是 `liquid_glass_widgets` 那一档）。
   ///
   /// 开关放在这里而不是让页面自己包 `LiquidGlassScope`，是因为 [extra] 里的
   /// 每一项都必须是 `Positioned`（Stack 的直接子级）——在外面包一层
@@ -87,7 +104,12 @@ class GlassHeaderOverlay extends StatelessWidget {
       children: [
         // 列表本体永远留在传统档：它是滚动容器，装不得 lens。
         Positioned.fill(
-          child: liquid ? LiquidGlassScope(enabled: false, child: body) : body,
+          child: liquid
+              ? LiquidGlassScope(
+                  backend: GlassBackend.plain,
+                  child: body,
+                )
+              : body,
         ),
         Positioned(
           top: 0,
@@ -104,11 +126,17 @@ class GlassHeaderOverlay extends StatelessWidget {
             left: 0,
             right: 0,
             height: headerHeight ?? GlassTokens.headerRowHeight,
-            child: header!,
+            // 融合层只能包**这一行**：它是一层玻璃 + 一次背景采样，包大了会
+            // 把整页都拖进同一次采样里。非液态档下它是纯透传。
+            child: blendHeader
+                ? GlassBlendGroup(child: header!)
+                : header!,
           ),
         ...extra,
       ],
     );
-    return liquid ? LiquidGlassScope(child: stack) : stack;
+    return liquid
+        ? LiquidGlassScope(backend: kChromeGlassBackend, child: stack)
+        : stack;
   }
 }
