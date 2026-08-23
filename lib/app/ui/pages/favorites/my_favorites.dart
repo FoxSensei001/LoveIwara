@@ -375,6 +375,7 @@ class _MyFavoritesState extends State<MyFavorites>
       headerExtent: headerExtent,
       headerTop: statusBarHeight,
       solidExtent: statusBarHeight,
+      liquid: true,
       body: TabBarView(
         controller: _tabController,
         physics: const ClampingScrollPhysics(),

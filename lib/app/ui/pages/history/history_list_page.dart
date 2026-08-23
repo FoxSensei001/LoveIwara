@@ -239,6 +239,7 @@ class _HistoryListPageState extends State<HistoryListPage>
       headerTop: statusBarHeight,
       headerHeight: headerHeight,
       solidExtent: statusBarHeight,
+      liquid: true,
       body: NotificationListener<ScrollNotification>(
         onNotification: (notification) {
           if (notification.depth == 0 &&

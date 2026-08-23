@@ -161,6 +161,7 @@ class _FriendsPageState extends State<FriendsPage>
 
     return Scaffold(
       body: GlassHeaderOverlay(
+        liquid: true,
         headerExtent: headerExtent,
         headerTop: statusBarHeight,
         solidExtent: statusBarHeight,

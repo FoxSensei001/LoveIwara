@@ -224,6 +224,7 @@ class _ThreadListPageState extends State<ThreadListPage>
 
     return Scaffold(
       body: GlassHeaderOverlay(
+        liquid: true,
         headerExtent: headerExtent,
         headerTop: statusBarHeight,
         solidExtent: statusBarHeight,

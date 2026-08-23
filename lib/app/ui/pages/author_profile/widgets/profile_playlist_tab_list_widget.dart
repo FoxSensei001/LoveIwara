@@ -93,6 +93,7 @@ class _ProfilePlaylistTabListWidgetState
       headerTop: widget.overlayTopInset,
       headerHeight: headerHeight,
       solidExtent: widget.scrimSolidExtent,
+      liquid: true,
       body: NotificationListener<ScrollNotification>(
         onNotification: (notification) {
           if (notification.metrics.axis == Axis.vertical) {

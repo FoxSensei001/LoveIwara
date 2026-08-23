@@ -167,6 +167,7 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
       headerTop: widget.overlayTopInset,
       headerHeight: headerHeight,
       solidExtent: widget.scrimSolidExtent,
+      liquid: true,
       body: NotificationListener<ScrollNotification>(
         // 改用滚动通知驱动「回到顶部」按钮的显隐：不再依赖自建 controller，
         // 无论列表最终挂在 PrimaryScrollController 还是后备 controller 上都成立。

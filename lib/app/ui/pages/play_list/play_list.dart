@@ -290,6 +290,7 @@ class _PlayListPageState extends State<PlayListPage> {
   ) {
     final t = slang.Translations.of(context);
     return GlassHeaderOverlay(
+      liquid: true,
       headerExtent: headerExtent,
       headerTop: statusBarHeight,
       solidExtent: statusBarHeight,

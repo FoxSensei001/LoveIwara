@@ -274,6 +274,7 @@ class _NotificationListPageState extends State<NotificationListPage> {
 
     return Scaffold(
       body: GlassHeaderOverlay(
+        liquid: true,
         headerExtent: headerExtent,
         headerTop: statusBarHeight,
         solidExtent: statusBarHeight,

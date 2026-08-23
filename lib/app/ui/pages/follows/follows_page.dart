@@ -269,6 +269,7 @@ class _FollowsPageState extends State<FollowsPage>
 
     return Scaffold(
       body: GlassHeaderOverlay(
+        liquid: true,
         headerExtent: headerExtent,
         headerTop: statusBarHeight,
         headerHeight: headerHeight,

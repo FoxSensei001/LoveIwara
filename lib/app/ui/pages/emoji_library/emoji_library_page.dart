@@ -63,6 +63,7 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
       ),
       child: Scaffold(
         body: GlassHeaderOverlay(
+          liquid: true,
           headerExtent: headerExtent,
           headerTop: statusBarHeight,
           solidExtent: statusBarHeight,

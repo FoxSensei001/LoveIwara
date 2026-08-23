@@ -401,6 +401,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
 
     return Scaffold(
       body: GlassHeaderOverlay(
+        liquid: true,
         headerExtent: headerExtent,
         headerTop: statusBarHeight,
         solidExtent: statusBarHeight,

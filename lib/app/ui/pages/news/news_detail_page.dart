@@ -443,6 +443,7 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
 
     return Scaffold(
       body: GlassHeaderOverlay(
+        liquid: true,
         headerExtent: headerExtent,
         headerTop: statusBarHeight,
         solidExtent: statusBarHeight,

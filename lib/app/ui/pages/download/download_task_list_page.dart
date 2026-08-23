@@ -359,6 +359,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
             onExit: _exitSelectionMode,
             child: DownloadScaleScope(
               child: GlassHeaderOverlay(
+                liquid: true,
                 headerExtent: headerExtent,
                 headerTop: statusBarHeight,
                 headerHeight: headerHeight,

@@ -149,6 +149,7 @@ class _BlockSettingsPageState extends State<BlockSettingsPage>
         headerExtent: headerExtent,
         headerTop: statusBarHeight,
         solidExtent: statusBarHeight,
+        liquid: true,
         body: TabBarView(
           controller: _tabController,
           physics: const ClampingScrollPhysics(),

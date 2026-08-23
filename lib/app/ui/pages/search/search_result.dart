@@ -1018,6 +1018,7 @@ class _SearchResultState extends State<SearchResult> {
           _ => -1,
         },
         child: GlassHeaderOverlay(
+          liquid: true,
           headerExtent: headerExtent,
           headerTop: statusBarHeight,
           solidExtent: statusBarHeight,

@@ -184,6 +184,7 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
       headerTop: widget.overlayTopInset,
       headerHeight: sortRowHeight,
       solidExtent: widget.scrimSolidExtent,
+      liquid: true,
       body: MediaListView<Video>(
         paddingTop: headerExtent,
         sourceList: videoListRepository,

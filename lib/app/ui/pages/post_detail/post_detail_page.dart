@@ -420,6 +420,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
       },
       child: Scaffold(
         body: GlassHeaderOverlay(
+          liquid: true,
           headerExtent: headerExtent,
           headerTop: statusBarHeight,
           solidExtent: statusBarHeight,

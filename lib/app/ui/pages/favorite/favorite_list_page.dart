@@ -269,6 +269,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
         headerExtent: headerExtent,
         headerTop: statusBarHeight,
         solidExtent: statusBarHeight,
+        liquid: true,
         body: NotificationListener<ScrollNotification>(
           onNotification: (notification) {
             if (notification.depth == 0 &&

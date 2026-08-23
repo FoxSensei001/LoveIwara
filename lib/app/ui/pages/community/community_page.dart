@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/iwara_news.model.dart';
-import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/community/community_header_state.dart';
 import 'package:i_iwara/app/ui/pages/forum/forum_page.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:i_iwara/app/ui/pages/news/news_page.dart';
-import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/fade_branch_container.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
@@ -16,7 +13,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_overflow_menu_button.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:shimmer/shimmer.dart';
+import 'package:i_iwara/app/ui/widgets/identity_avatar_button.dart';
 
 /// 社区栏目的目的地。
 ///
@@ -127,7 +124,6 @@ class CommunityPage extends StatefulWidget implements HomeWidgetInterface {
 
 class CommunityPageState extends State<CommunityPage> {
   final ConfigService _configService = Get.find<ConfigService>();
-  final UserService _userService = Get.find<UserService>();
 
   late CommunityDestination _destination;
 
@@ -241,72 +237,6 @@ class CommunityPageState extends State<CommunityPage> {
   };
 
   // ------------------------------------------------------------ header 行
-
-  /// 左上角「我」圆钮：登录中显示闪烁占位，已登录显示头像（带未读红点）。
-  Widget _buildAvatarButton(BuildContext context) {
-    final t = slang.Translations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-    return Obx(() {
-      final Widget inner;
-      if (_userService.isLogining.value) {
-        inner = KeyedSubtree(
-          key: const ValueKey('avatar-shimmer'),
-          child: Shimmer.fromColors(
-            baseColor: colorScheme.surfaceContainerHighest,
-            highlightColor: colorScheme.surface,
-            child: Container(
-              width: 26,
-              height: 26,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-        );
-      } else if (_userService.hasLoadedProfile &&
-          _userService.currentUser.value != null) {
-        inner = KeyedSubtree(
-          key: ValueKey('avatar-${_userService.currentUser.value?.id}'),
-          child: IgnorePointer(
-            child: AvatarWidget(
-              user: _userService.currentUser.value,
-              size: GlassTokens.pillHeight - 2,
-            ),
-          ),
-        );
-      } else {
-        inner = KeyedSubtree(
-          key: const ValueKey('avatar-placeholder'),
-          child: Icon(
-            Icons.account_circle,
-            size: 26,
-            color: colorScheme.onSurface,
-          ),
-        );
-      }
-      final count =
-          _userService.notificationCount.value +
-          _userService.messagesCount.value;
-      return GlassSurface(
-        circle: true,
-        tooltip: t.common.me,
-        onTap: AppService.switchGlobalDrawer,
-        child: Stack(
-          alignment: Alignment.center,
-          clipBehavior: Clip.none,
-          children: [
-            GlassShapeSwitcher(child: inner),
-            Positioned(
-              right: 2,
-              top: 2,
-              child: GlassAnimatedDot(visible: count > 0),
-            ),
-          ],
-        ),
-      );
-    });
-  }
 
   /// 中间的目的地下拉钮：论坛 ▾ / 更新 ▾ / 文章 ▾ / 广播 ▾。
   ///
@@ -603,6 +533,7 @@ class CommunityPageState extends State<CommunityPage> {
 
     return Scaffold(
       body: GlassHeaderOverlay(
+        liquid: true,
         headerExtent: headerExtent,
         headerTop: statusBarHeight,
         solidExtent: statusBarHeight,
@@ -614,7 +545,7 @@ class CommunityPageState extends State<CommunityPage> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              _buildAvatarButton(context),
+              const IdentityAvatarButton(),
               const SizedBox(width: 8),
               Expanded(
                 child: Align(

@@ -948,6 +948,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
                 // 左列：玻璃 header 悬浮在顶部，概览卡从它背后滚过
                 Expanded(
                   child: GlassHeaderOverlay(
+                    liquid: true,
                     headerExtent: headerExtent,
                     headerTop: paddingTop,
                     solidExtent: paddingTop,
@@ -982,6 +983,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
             // 相关图库分段行分别悬浮在顶部（分段行悬浮在列表之上，列表以
             // topInset 让位）。
             return GlassHeaderOverlay(
+              liquid: true,
               headerExtent: headerExtent,
               headerTop: paddingTop,
               solidExtent: paddingTop,

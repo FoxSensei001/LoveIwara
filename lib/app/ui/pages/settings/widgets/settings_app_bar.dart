@@ -83,6 +83,7 @@ class GlassSettingsScaffold extends StatelessWidget {
         headerExtent: headerExtent,
         headerTop: statusBarHeight,
         solidExtent: statusBarHeight,
+        liquid: true,
         // 视口铺满整个区域（不能在外面套 Padding，否则内容会在 header 下边缘
         // 被裁掉、永远滚不到 header 背后）；首屏留白交给列表自己的 spacer。
         body: CustomScrollView(

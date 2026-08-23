@@ -179,6 +179,7 @@ class _ProfileImageModelTabListWidgetState
       headerTop: widget.overlayTopInset,
       headerHeight: sortRowHeight,
       solidExtent: widget.scrimSolidExtent,
+      liquid: true,
       body: MediaListView<ImageModel>(
         paddingTop: headerExtent,
         sourceList: imageListRepository,
