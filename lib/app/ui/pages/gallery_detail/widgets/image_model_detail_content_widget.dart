@@ -13,6 +13,7 @@ import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/share_gallery_bottom_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 
 import '../../../../../common/enums/media_enums.dart';
@@ -438,9 +439,7 @@ class ImageModelDetailContent extends StatelessWidget {
               icon: Icons.share,
               label: slang.t.common.share,
               onTap: () {
-                showModalBottomSheet(
-                  backgroundColor: Colors.transparent,
-                  isScrollControlled: true,
+                showGlassBottomSheet(
                   builder: (context) {
                     // Ensure imageModelInfo is not null before accessing its properties
                     final info = controller.imageModelInfo.value;

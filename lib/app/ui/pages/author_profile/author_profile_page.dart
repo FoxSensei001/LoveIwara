@@ -20,6 +20,7 @@ import 'package:i_iwara/app/ui/pages/author_profile/widgets/profile_playlist_tab
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
@@ -714,9 +715,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                                 final username =
                                     profileController.author.value?.username;
                                 if (username != null) {
-                                  showModalBottomSheet(
-                                    backgroundColor: Colors.transparent,
-                                    isScrollControlled: true,
+                                  showGlassBottomSheet(
                                     builder: (context) => ShareUserBottomSheet(
                                       username: username,
                                       authorName:

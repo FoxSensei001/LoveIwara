@@ -104,10 +104,8 @@ class _TagSelectorWidgetState extends State<TagSelectorWidget> {
   }
 
   void _showTagSelectionDialog() {
-    showModalBottomSheet(
+    showGlassBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
       builder: (context) => TagSelectionDialog(
         selectedTags: widget.selectedTags,
         onTagsChanged: widget.onTagsChanged,
