@@ -52,18 +52,28 @@ class GlassAlertDialog extends StatelessWidget {
     this.actions = const [],
     this.showCloseButton = true,
     this.scrollable = false,
+    this.maxWidth = 400,
   });
 
-  final String title;
+  /// 传 `null` 跳过整个内建标题行（含右上角关闭钮）——用于标题位置需要放
+  /// 自定义内容（搜索框、额外的图标动作）的场合，这时 [showCloseButton]
+  /// 不再生效，调用方要自己在 [content] 里搭标题行和关闭键（关闭键仍应走
+  /// `GlassIconButton(standalone: true)`，约定不变，只是不再由本组件代建）。
+  final String? title;
   final Widget? content;
   final List<GlassDialogAction> actions;
 
   /// 标题行是否带右上角玻璃圆钮关闭键。约定统一走 [GlassIconButton]
-  /// （`standalone: true`），不要在调用点各写各的关闭图标。
+  /// （`standalone: true`），不要在调用点各写各的关闭图标。[title] 为 null
+  /// 时本项被忽略（整个标题行都不建）。
   final bool showCloseButton;
 
   /// 正文过长时是否允许内部滚动（对齐 `AlertDialog(scrollable: true)`）。
   final bool scrollable;
+
+  /// 面板最大宽度。默认 400 是「提示/确认」这类短内容的舒适宽度；
+  /// 标签浏览器、变量说明这类需要摆下一张列表或宽表格的内容可以调大。
+  final double maxWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +88,7 @@ class GlassAlertDialog extends StatelessWidget {
 
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 400),
+        constraints: BoxConstraints(maxWidth: maxWidth),
         child: GlassSurface(
           height: null,
           borderRadius: BorderRadius.circular(28),
@@ -95,22 +105,24 @@ class GlassAlertDialog extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(title, style: theme.textTheme.titleLarge),
-                    ),
-                    if (showCloseButton) ...[
-                      const SizedBox(width: 8),
-                      GlassIconButton(
-                        standalone: true,
-                        icon: const Icon(Icons.close),
-                        tooltip: t.common.close,
-                        onPressed: () => AppService.tryPop(),
+                if (title != null) ...[
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(title!, style: theme.textTheme.titleLarge),
                       ),
+                      if (showCloseButton) ...[
+                        const SizedBox(width: 8),
+                        GlassIconButton(
+                          standalone: true,
+                          icon: const Icon(Icons.close),
+                          tooltip: t.common.close,
+                          onPressed: () => AppService.tryPop(),
+                        ),
+                      ],
                     ],
-                  ],
-                ),
+                  ),
+                ],
                 if (body != null) ...[
                   const SizedBox(height: 16),
                   Flexible(child: body),
