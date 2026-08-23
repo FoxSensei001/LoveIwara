@@ -12,6 +12,8 @@ import 'package:i_iwara/app/ui/pages/settings/widgets/download_test_widget.dart'
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -1173,68 +1175,14 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     final t = slang.Translations.of(context);
     final variables = filenameTemplateService.getSupportedVariables();
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 600, maxHeight: 600),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // 标题栏
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      topRight: Radius.circular(16),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.help_outline,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 24,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          t.settings.downloadSettings.supportedVariables,
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onPrimaryContainer,
-                              ),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: Icon(
-                          Icons.close,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onPrimaryContainer,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // 内容区域
-                Flexible(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+    showAppDialog(
+      GlassAlertDialog(
+        title: t.settings.downloadSettings.supportedVariables,
+        maxWidth: 600,
+        scrollable: true,
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
                         Text(
                           t
                               .settings
@@ -1344,15 +1292,9 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 
