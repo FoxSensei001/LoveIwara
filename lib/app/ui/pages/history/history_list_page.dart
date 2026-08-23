@@ -9,6 +9,7 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/batch_confirm_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
@@ -749,21 +750,6 @@ class _HistoryListPageState extends State<HistoryListPage>
     }
   }
 
-  /// 弹窗标题行：标题 + 玻璃关闭圆钮（全局统一约定）。
-  Widget _dialogTitleRow(BuildContext context, String title) {
-    return Row(
-      children: [
-        Expanded(child: Text(title)),
-        GlassIconButton(
-          standalone: true,
-          icon: const Icon(Icons.close),
-          tooltip: slang.t.common.close,
-          onPressed: () => AppService.tryPop(),
-        ),
-      ],
-    );
-  }
-
   Future<void> _selectDateRange() async {
     final controller = _currentController;
     final DateTimeRange? picked = await showDateRangePicker(
@@ -815,25 +801,27 @@ class _HistoryListPageState extends State<HistoryListPage>
     }
     if (!mounted) return;
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(context, slang.t.common.confirmDelete),
+      GlassAlertDialog(
+        title: slang.t.common.confirmDelete,
         content: Text(
           slang.t.common.deleteRecordsInDateRangeConfirm(num: count),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.delete,
+            emphasized: false,
+            destructive: true,
             onPressed: () async {
               AppService.tryPop(); // 关闭确认框
               await controller.deleteRecordsInSelectedRange();
               _notifyFilterChanged();
               AppService.tryPop(); // 关闭筛选面板
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(slang.t.common.delete),
           ),
         ],
       ),
@@ -845,17 +833,21 @@ class _HistoryListPageState extends State<HistoryListPage>
     HistoryListController controller,
   ) {
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(context, slang.t.common.confirmDelete),
+      GlassAlertDialog(
+        title: slang.t.common.confirmDelete,
         content: Text(
           slang.t.common.areYouSureYouWantToDeleteSelectedItems(num: 1),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.delete,
+            emphasized: false,
+            destructive: true,
             onPressed: () async {
               AppService.tryPop();
               await controller.historyDatabaseRepository.deleteRecord(
@@ -868,8 +860,6 @@ class _HistoryListPageState extends State<HistoryListPage>
                 type: GlassToastType.success,
               );
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(slang.t.common.delete),
           ),
         ],
       ),
@@ -914,22 +904,24 @@ class _HistoryListPageState extends State<HistoryListPage>
     final itemType = controller.itemType;
 
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(context, slang.t.common.clearAllHistory),
+      GlassAlertDialog(
+        title: slang.t.common.clearAllHistory,
         content: Text(slang.t.common.clearAllHistoryConfirm),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.confirm,
+            emphasized: false,
+            destructive: true,
             onPressed: () async {
               await controller.clearHistoryByType(itemType);
               _notifyFilterChanged();
               AppService.tryPop();
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(slang.t.common.confirm),
           ),
         ],
       ),

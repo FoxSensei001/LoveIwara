@@ -6,6 +6,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/app/ui/pages/follows/controllers/follows_controller.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/user_card.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -93,32 +94,24 @@ class SpecialFollowsList extends StatelessWidget {
     final t = slang.Translations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Row(
-          children: [
-            Expanded(child: Text(t.common.removeSpecialFollow)),
-            GlassIconButton(
-              standalone: true,
-              icon: const Icon(Icons.close),
-              tooltip: t.common.close,
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-            ),
-          ],
-        ),
+      builder: (dialogContext) => GlassAlertDialog(
+        title: t.common.removeSpecialFollow,
         content: Text(
           t.common.removeSpecialFollowConfirm(
             name: user.name.isEmpty ? '@${user.username}' : user.name,
           ),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.common.cancel,
+            emphasized: false,
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: t.common.confirm,
+            emphasized: false,
+            destructive: true,
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t.common.confirm),
           ),
         ],
       ),

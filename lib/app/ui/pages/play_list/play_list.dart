@@ -9,6 +9,7 @@ import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_repository.
 import 'package:i_iwara/app/ui/pages/play_list/widgets/playlist_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
@@ -514,8 +515,8 @@ class _PlayListPageState extends State<PlayListPage> {
 
   void _showHelpDialog() {
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(context, '💡 ${slang.t.playList.friendlyTips}'),
+      GlassAlertDialog(
+        title: '💡 ${slang.t.playList.friendlyTips}',
         content: Text(
           '${slang.t.playList.dearUser}:\n\n'
           '⚠️ ${slang.t.playList.iwaraPlayListSystemIsNotPerfectYet}\n'
@@ -527,12 +528,10 @@ class _PlayListPageState extends State<PlayListPage> {
           style: const TextStyle(fontSize: 15, height: 1.5),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.playList.iUnderstand,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(
-              slang.t.playList.iUnderstand,
-              style: const TextStyle(fontSize: 16),
-            ),
           ),
         ],
       ),

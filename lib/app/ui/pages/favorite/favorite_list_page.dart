@@ -4,6 +4,7 @@ import 'package:i_iwara/app/models/favorite/favorite_folder.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -108,20 +109,22 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
     final t = slang.Translations.of(context);
     final result = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: _dialogTitleRow(context, t.favorite.deleteFolderTitle),
+      builder: (context) => GlassAlertDialog(
+        title: t.favorite.deleteFolderTitle,
         content: Text(
           t.favorite.deleteFolderConfirmWithTitle(title: folder.title),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.common.cancel,
+            emphasized: false,
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text(t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: t.common.confirm,
+            emphasized: false,
+            destructive: true,
             onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t.common.confirm),
           ),
         ],
       ),
@@ -187,22 +190,6 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
         confirmLabel: confirmLabel,
         initialValue: initialValue,
       ),
-    );
-  }
-
-  /// 弹窗标题行：标题 + 玻璃关闭圆钮（全局统一约定）。
-  static Widget _dialogTitleRow(BuildContext context, String title) {
-    final t = slang.Translations.of(context);
-    return Row(
-      children: [
-        Expanded(child: Text(title)),
-        GlassIconButton(
-          standalone: true,
-          icon: const Icon(Icons.close),
-          tooltip: t.common.close,
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ],
     );
   }
 
@@ -682,11 +669,8 @@ class _FolderNameDialogState extends State<_FolderNameDialog> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    return AlertDialog(
-      title: _FavoriteListPageState._dialogTitleRow(
-        context,
-        widget.dialogTitle,
-      ),
+    return GlassAlertDialog(
+      title: widget.dialogTitle,
       content: TextField(
         controller: _controller,
         autofocus: true,
@@ -697,13 +681,14 @@ class _FolderNameDialogState extends State<_FolderNameDialog> {
         onSubmitted: _submit,
       ),
       actions: [
-        TextButton(
+        GlassDialogAction(
+          label: t.common.cancel,
+          emphasized: false,
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(t.common.cancel),
         ),
-        TextButton(
+        GlassDialogAction(
+          label: widget.confirmLabel,
           onPressed: () => _submit(_controller.text),
-          child: Text(widget.confirmLabel),
         ),
       ],
     );

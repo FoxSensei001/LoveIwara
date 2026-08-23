@@ -10,6 +10,7 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_lis
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/batch_confirm_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
@@ -453,15 +454,18 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
 
   void _showShareDialog() {
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(context, slang.t.common.share),
+      GlassAlertDialog(
+        title: slang.t.common.share,
         content: Text(slang.t.common.areYouSureYouWantToShareThisPlaylist),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.share,
+            emphasized: false,
             onPressed: () {
               AppService.tryPop();
               ShareService.sharePlayListDetail(
@@ -469,7 +473,6 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
                 controller.playlistTitle.value,
               );
             },
-            child: Text(slang.t.common.share),
           ),
         ],
       ),
@@ -504,8 +507,8 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
     );
 
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(context, slang.t.common.editTitle),
+      GlassAlertDialog(
+        title: slang.t.common.editTitle,
         content: TextField(
           controller: textController,
           decoration: InputDecoration(
@@ -515,18 +518,19 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
           autofocus: true,
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.save,
             onPressed: () {
               if (textController.text.trim().isNotEmpty) {
                 controller.editTitle(textController.text.trim());
                 AppService.tryPop();
               }
             },
-            child: Text(slang.t.common.save),
           ),
         ],
       ),
