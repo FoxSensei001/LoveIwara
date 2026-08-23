@@ -7,6 +7,7 @@ import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/tag_controller.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 /// 通用标签选择器组件
@@ -143,17 +144,13 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    final screenHeight = MediaQuery.of(context).size.height;
 
-    return Container(
-      height: screenHeight * 0.8,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      // 底部弹窗自己让出系统手势条/导航条
-      padding: EdgeInsets.only(bottom: computeSheetBottomInset(context)),
+    return GlassBottomSheet(
+      maxHeightFactor: 0.8,
+      showCloseButton: false,
+      padding: EdgeInsets.zero,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           // 头部
           Container(
