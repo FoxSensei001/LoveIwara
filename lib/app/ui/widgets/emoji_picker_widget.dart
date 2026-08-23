@@ -111,74 +111,35 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
 
     if (_isLoading) {
       // 使用 Shimmer 骨架屏
-      if (widget.showOnlyTabs) {
-        if (widget.isRailMode) {
-          // Rail 模式：垂直头像骨架
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: 8,
-            itemBuilder: (context, index) {
-              return Container(
-                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+      // 当前唯一调用方 EmojiPickerSheet 里 showOnlyTabs 恒配合 isRailMode: true
+      // 使用，水平 TabBar 骨架分支已作为死代码删除。
+      if (widget.showOnlyTabs && widget.isRailMode) {
+        // Rail 模式：垂直头像骨架
+        return ListView.builder(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          itemCount: 8,
+          itemBuilder: (context, index) {
+            return Container(
+              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-              );
-            },
-          );
-        } else {
-          // 水平 TabBar：图标 + 文本骨架
-          return SizedBox(
-            height: 56,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              itemCount: 6,
-              separatorBuilder: (_, ___) => const SizedBox(width: 12),
-              itemBuilder: (context, index) {
-                return Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Container(
-                        width: 64,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          );
-        }
+              ),
+            );
+          },
+        );
       }
 
       // 内容网格骨架
@@ -243,191 +204,100 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
       );
     }
 
-    // 只显示标签页
-    if (widget.showOnlyTabs) {
-      if (widget.isRailMode) {
-        // Rail 模式：垂直布局，只显示头图
-        return ListView.builder(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          itemCount: _groups.length,
-          itemBuilder: (context, index) {
-            final group = _groups[index];
-            final isSelected = _tabController.index == index;
+    // 只显示标签页（同上，水平 TabBar 分支已作为死代码删除）
+    if (widget.showOnlyTabs && widget.isRailMode) {
+      // Rail 模式：垂直布局，只显示头图
+      return ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        itemCount: _groups.length,
+        itemBuilder: (context, index) {
+          final group = _groups[index];
+          final isSelected = _tabController.index == index;
 
-            return GestureDetector(
-              onTap: () {
-                _tabController.animateTo(index);
-              },
-              child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.primaryContainer
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // 头图
-                    if (group.coverUrl != null)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: CachedNetworkImage(
-                          imageUrl: group.coverUrl!,
-                          width: 40,
-                          height: 40,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Shimmer.fromColors(
-                            baseColor: Colors.grey[300]!,
-                            highlightColor: Colors.grey[100]!,
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ),
-                          errorWidget: (context, url, error) => Container(
+          return GestureDetector(
+            onTap: () {
+              _tabController.animateTo(index);
+            },
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primaryContainer
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 头图
+                  if (group.coverUrl != null)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: CachedNetworkImage(
+                        imageUrl: group.coverUrl!,
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Shimmer.fromColors(
+                          baseColor: Colors.grey[300]!,
+                          highlightColor: Colors.grey[100]!,
+                          child: Container(
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.surfaceContainerHighest,
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Center(
-                              child: Text(
-                                group.name.isNotEmpty ? group.name[0] : '?',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
                           ),
                         ),
-                      )
-                    else
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Center(
-                          child: Text(
-                            group.name.isNotEmpty ? group.name[0] : '?',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                        errorWidget: (context, url, error) => Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Center(
+                            child: Text(
+                              group.name.isNotEmpty ? group.name[0] : '?',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      } else {
-        // 原来的水平 TabBar 模式
-        return Container(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          child: TabBar(
-            controller: _tabController,
-            isScrollable: true,
-            indicatorSize: TabBarIndicatorSize.tab,
-            labelColor: Theme.of(context).colorScheme.primary,
-            unselectedLabelColor: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.7),
-            tabs: _groups.map((group) {
-              return Tab(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (group.coverUrl != null)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: CachedNetworkImage(
-                          imageUrl: group.coverUrl!,
-                          width: 20,
-                          height: 20,
-                          fit: BoxFit.cover,
-                          httpHeaders: const {
-                            'referer': CommonConstants.iwaraBaseUrl,
-                          },
-                          placeholder: (context, url) => Shimmer.fromColors(
-                            baseColor: Colors.grey[300]!,
-                            highlightColor: Colors.grey[100]!,
-                            child: Container(
-                              width: 20,
-                              height: 20,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          ),
-                          errorWidget: (context, url, error) => Container(
-                            width: 20,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Center(
-                              child: Text(
-                                group.name.isNotEmpty ? group.name[0] : '?',
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                    else
-                      Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: Text(
-                            group.name.isNotEmpty ? group.name[0] : '?',
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                        ),
+                    )
+                  else
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    const SizedBox(width: 6),
-                    Text(
-                      group.name,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                      child: Center(
+                        child: Text(
+                          group.name.isNotEmpty ? group.name[0] : '?',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-        );
-      }
+                ],
+              ),
+            ),
+          );
+        },
+      );
     }
 
     // 只显示内容
@@ -511,7 +381,9 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                         child: Center(
                           child: Icon(
                             Icons.broken_image,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ),
@@ -525,128 +397,13 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
       );
     }
 
-    // 完整显示（标签页 + 内容）
-    return Column(
-      children: [
-        // 标签栏
-        if (_groups.length > 1)
-          Container(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            child: TabBar(
-              controller: _tabController,
-              isScrollable: true,
-              tabs: _groups.map((group) {
-                return Tab(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (group.coverUrl != null)
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: CachedNetworkImage(
-                            imageUrl: group.coverUrl!,
-                            width: 20,
-                            height: 20,
-                            fit: BoxFit.cover,
-                            httpHeaders: const {
-                              'referer': CommonConstants.iwaraBaseUrl,
-                            },
-                            errorWidget: (context, url, error) => Text(
-                              group.name.isNotEmpty ? group.name[0] : '?',
-                              style: const TextStyle(fontSize: 12),
-                            ),
-                          ),
-                        )
-                      else
-                        Text(
-                          group.name.isNotEmpty ? group.name[0] : '?',
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      const SizedBox(width: 4),
-                      Text(group.name),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        // 表情包网格
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: _groups.asMap().entries.map((entry) {
-              final int pageIndex = entry.key;
-              final group = entry.value;
-              final images = _groupImages[group.groupId] ?? [];
-              if (images.isEmpty) {
-                return Center(
-                  child: Text(
-                    t.emoji.noEmojisInGroup,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                );
-              }
-
-              return GridView.builder(
-                padding: const EdgeInsets.all(8),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
-                ),
-                controller:
-                    widget.scrollController != null &&
-                        pageIndex == _currentTabIndex
-                    ? widget.scrollController
-                    : null,
-                itemCount: images.length,
-                itemBuilder: (context, index) {
-                  final image = images[index];
-                  return GestureDetector(
-                    onTap: () => widget.onEmojiSelected(image.url),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.outline.withValues(alpha: 0.2),
-                          width: 1,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(7),
-                        child: CachedNetworkImage(
-                          imageUrl: image.thumbnailUrl ?? image.url,
-                          fit: BoxFit.cover,
-                          httpHeaders: const {
-                            'referer': CommonConstants.iwaraBaseUrl,
-                          },
-                          placeholder: (context, url) => Shimmer.fromColors(
-                            baseColor: Colors.grey[300]!,
-                            highlightColor: Colors.grey[100]!,
-                            child: Container(color: Colors.white),
-                          ),
-                          errorWidget: (context, url, error) => Center(
-                            child: Icon(
-                              Icons.broken_image,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              );
-            }).toList(),
-          ),
-        ),
-      ],
+    // 兜底：唯一调用方 EmojiPickerSheet 恒传 showOnlyTabs 或 showOnlyContent
+    // 二选一，不会同时为 false；原先这里的"标签页+内容一体"横向 TabBar 布局
+    // 是死代码（永远走不到），已删除。保留断言便于未来误用时尽早暴露。
+    assert(
+      false,
+      'EmojiPickerWidget 需要 showOnlyTabs 或 showOnlyContent 至少一个为 true',
     );
+    return const SizedBox.shrink();
   }
 }
