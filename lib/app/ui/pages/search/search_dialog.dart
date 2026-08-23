@@ -22,6 +22,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 
 class SearchDialog extends StatelessWidget {
   final String userInputKeywords;
@@ -571,7 +572,6 @@ class _SearchControlsSection extends StatelessWidget {
     final t = slang.Translations.of(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final radius = BorderRadius.circular(12);
     const controlHeight = GlassTokens.pillHeight;
     final iconButtonConstraints = BoxConstraints.tightFor(
       width: controlHeight,
@@ -642,23 +642,6 @@ class _SearchControlsSection extends StatelessWidget {
             final seg = selectedSegment.value;
             final sort = selectedSort.value;
 
-            PopupMenuItem<SearchSegment> segmentMenuItem(
-              SearchSegment segment,
-              IconData icon,
-              String label,
-            ) {
-              return PopupMenuItem<SearchSegment>(
-                value: segment,
-                child: Row(
-                  children: [
-                    Icon(icon, size: 20),
-                    const SizedBox(width: 8),
-                    Text(label),
-                  ],
-                ),
-              );
-            }
-
             String segmentLabel(SearchSegment segment) {
               return switch (segment) {
                 SearchSegment.video => t.common.video,
@@ -715,48 +698,32 @@ class _SearchControlsSection extends StatelessWidget {
               }
             }
 
-            List<PopupMenuEntry<String>> buildSortMenuItems() {
+            List<GlassMenuEntry> buildSortMenuEntries() {
               if (seg == SearchSegment.oreno3d) {
                 return [
-                  PopupMenuItem<String>(
+                  GlassMenuOption<String>(
                     value: 'hot',
-                    child: Row(
-                      children: [
-                        const Icon(Icons.trending_up, size: 20),
-                        const SizedBox(width: 8),
-                        Text(t.oreno3d.sortTypes.hot),
-                      ],
-                    ),
+                    icon: Icons.trending_up,
+                    label: t.oreno3d.sortTypes.hot,
+                    selected: sort == 'hot',
                   ),
-                  PopupMenuItem<String>(
+                  GlassMenuOption<String>(
                     value: 'favorites',
-                    child: Row(
-                      children: [
-                        const Icon(Icons.favorite, size: 20),
-                        const SizedBox(width: 8),
-                        Text(t.oreno3d.sortTypes.favorites),
-                      ],
-                    ),
+                    icon: Icons.favorite,
+                    label: t.oreno3d.sortTypes.favorites,
+                    selected: sort == 'favorites',
                   ),
-                  PopupMenuItem<String>(
+                  GlassMenuOption<String>(
                     value: 'latest',
-                    child: Row(
-                      children: [
-                        const Icon(Icons.schedule, size: 20),
-                        const SizedBox(width: 8),
-                        Text(t.oreno3d.sortTypes.latest),
-                      ],
-                    ),
+                    icon: Icons.schedule,
+                    label: t.oreno3d.sortTypes.latest,
+                    selected: sort == 'latest',
                   ),
-                  PopupMenuItem<String>(
+                  GlassMenuOption<String>(
                     value: 'popularity',
-                    child: Row(
-                      children: [
-                        const Icon(Icons.star, size: 20),
-                        const SizedBox(width: 8),
-                        Text(t.oreno3d.sortTypes.popularity),
-                      ],
-                    ),
+                    icon: Icons.star,
+                    label: t.oreno3d.sortTypes.popularity,
+                    selected: sort == 'popularity',
                   ),
                 ];
               }
@@ -764,18 +731,36 @@ class _SearchControlsSection extends StatelessWidget {
               final options = FilterConfig.getSortOptionsForSegment(seg);
               return options
                   .map(
-                    (opt) => PopupMenuItem<String>(
+                    (opt) => GlassMenuOption<String>(
                       value: opt.value,
-                      child: Row(
-                        children: [
-                          Icon(sortIconFor(opt.value), size: 20),
-                          const SizedBox(width: 8),
-                          Text(opt.label),
-                        ],
-                      ),
+                      icon: sortIconFor(opt.value),
+                      label: opt.label,
+                      selected: opt.value == sort,
                     ),
                   )
                   .toList();
+            }
+
+            List<GlassMenuEntry> buildSegmentMenuEntries() {
+              const order = [
+                SearchSegment.video,
+                SearchSegment.image,
+                SearchSegment.user,
+                SearchSegment.playlist,
+                SearchSegment.post,
+                SearchSegment.forum,
+                SearchSegment.forum_posts,
+                SearchSegment.oreno3d,
+              ];
+              return [
+                for (final s in order)
+                  GlassMenuOption<SearchSegment>(
+                    value: s,
+                    icon: segmentIcon(s),
+                    label: segmentLabel(s),
+                    selected: s == seg,
+                  ),
+              ];
             }
 
             final sortOptions = FilterConfig.getSortOptionsForSegment(seg);
@@ -803,81 +788,56 @@ class _SearchControlsSection extends StatelessWidget {
             final filterCount = filters.length;
 
             Widget segmentButton() {
-              return PopupMenuButton<SearchSegment>(
-                shape: RoundedRectangleBorder(borderRadius: radius),
-                initialValue: seg,
-                onSelected: onSegmentChanged,
-                itemBuilder: (context) => [
-                  segmentMenuItem(
-                    SearchSegment.video,
-                    Icons.video_library,
-                    t.common.video,
-                  ),
-                  segmentMenuItem(
-                    SearchSegment.image,
-                    Icons.image,
-                    t.common.gallery,
-                  ),
-                  segmentMenuItem(
-                    SearchSegment.user,
-                    Icons.person,
-                    t.common.user,
-                  ),
-                  segmentMenuItem(
-                    SearchSegment.playlist,
-                    Icons.playlist_play,
-                    t.common.playlist,
-                  ),
-                  segmentMenuItem(
-                    SearchSegment.post,
-                    Icons.article,
-                    t.common.post,
-                  ),
-                  segmentMenuItem(
-                    SearchSegment.forum,
-                    Icons.forum,
-                    t.forum.forum,
-                  ),
-                  segmentMenuItem(
-                    SearchSegment.forum_posts,
-                    Icons.comment,
-                    t.forum.posts,
-                  ),
-                  segmentMenuItem(
-                    SearchSegment.oreno3d,
-                    Icons.view_in_ar,
-                    'Oreno3D',
-                  ),
-                ],
-                child: compact
-                    ? glassIconPill(
-                        icon: segmentIcon(seg),
-                        tooltip: segmentLabel(seg),
-                      )
-                    : glassLabelPill(
-                        icon: segmentIcon(seg),
-                        label: segmentLabel(seg),
-                        showDropdownArrow: true,
-                      ),
+              return Builder(
+                builder: (anchorContext) {
+                  Future<void> openMenu() async {
+                    final picked = await showGlassMenu<SearchSegment>(
+                      anchorContext: anchorContext,
+                      entries: buildSegmentMenuEntries(),
+                    );
+                    if (picked != null) onSegmentChanged(picked);
+                  }
+
+                  return compact
+                      ? glassIconPill(
+                          icon: segmentIcon(seg),
+                          tooltip: segmentLabel(seg),
+                          onTap: openMenu,
+                        )
+                      : glassLabelPill(
+                          icon: segmentIcon(seg),
+                          label: segmentLabel(seg),
+                          showDropdownArrow: true,
+                          onTap: openMenu,
+                        );
+                },
               );
             }
 
             Widget sortButton() {
-              return PopupMenuButton<String>(
-                shape: RoundedRectangleBorder(borderRadius: radius),
-                initialValue: sort,
-                onSelected: (v) => selectedSort.value = v,
-                itemBuilder: (context) => buildSortMenuItems(),
-                child: compact
-                    ? glassIconPill(
-                        icon: sortIconFor(sort),
-                        tooltip: '${t.common.sort}: $currentSortLabel',
-                      )
-                    : glassLabelPill(
-                        icon: sortIconFor(sort),
-                        label: currentSortLabel,
-                        showDropdownArrow: true,
-                      ),
+              return Builder(
+                builder: (anchorContext) {
+                  Future<void> openMenu() async {
+                    final picked = await showGlassMenu<String>(
+                      anchorContext: anchorContext,
+                      entries: buildSortMenuEntries(),
+                    );
+                    if (picked != null) selectedSort.value = picked;
+                  }
+
+                  return compact
+                      ? glassIconPill(
+                          icon: sortIconFor(sort),
+                          tooltip: '${t.common.sort}: $currentSortLabel',
+                          onTap: openMenu,
+                        )
+                      : glassLabelPill(
+                          icon: sortIconFor(sort),
+                          label: currentSortLabel,
+                          showDropdownArrow: true,
+                          onTap: openMenu,
+                        );
+                },
               );
             }
 

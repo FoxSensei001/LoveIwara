@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_field.dart';
 import 'package:i_iwara/app/ui/widgets/tag_selector_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -126,6 +127,8 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
         children: [
           // 头部：字段选择和删除按钮
           Row(
+            // 字段选择器现在带上方标签，删除按钮对齐到下拉框（底部）而非整列中线
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Expanded(
                 child: _buildFieldSelector(
@@ -191,79 +194,97 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
     List<FilterField> availableFields,
   ) {
     final t = slang.Translations.of(context);
-    return DropdownButtonFormField<String>(
-      initialValue: widget.filter.field,
-      decoration: InputDecoration(
-        labelText: t.searchFilter.field,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      ),
-      items: availableFields.map((field) {
-        return DropdownMenuItem<String>(
-          value: field.name,
-          child: Text(field.displayName),
-        );
-      }).toList(),
-      onChanged: (String? newFieldName) {
-        if (newFieldName != null) {
-          final newField = availableFields.firstWhere(
-            (f) => f.name == newFieldName,
-          );
-          final newOperators = FilterConfig.getOperatorsForType(newField.type);
-          final newOperator = newOperators.isNotEmpty
-              ? newOperators.first
-              : FilterOperator.EQUALS;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          t.searchFilter.field,
+          style: Theme.of(
+            context,
+          ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 8),
+        GlassDropdownField<String>(
+          value: widget.filter.field,
+          items: availableFields
+              .map(
+                (field) => GlassDropdownItem<String>(
+                  value: field.name,
+                  label: field.displayName,
+                ),
+              )
+              .toList(),
+          onChanged: (String? newFieldName) {
+            if (newFieldName != null) {
+              final newField = availableFields.firstWhere(
+                (f) => f.name == newFieldName,
+              );
+              final newOperators = FilterConfig.getOperatorsForType(
+                newField.type,
+              );
+              final newOperator = newOperators.isNotEmpty
+                  ? newOperators.first
+                  : FilterOperator.EQUALS;
 
-          dynamic defaultValue = '';
-          if (newField.type == FilterFieldType.BOOLEAN) {
-            defaultValue = 'true';
-          } else if (newField.type == FilterFieldType.STRING_ARRAY) {
-            defaultValue = <String>[];
-          } else if (newField.type == FilterFieldType.SELECT) {
-            defaultValue = newField.options?.isNotEmpty == true
-                ? newField.options!.first.value
-                : '';
-          } else if (newOperator == FilterOperator.RANGE) {
-            defaultValue = {'from': '', 'to': ''};
-          }
+              dynamic defaultValue = '';
+              if (newField.type == FilterFieldType.BOOLEAN) {
+                defaultValue = 'true';
+              } else if (newField.type == FilterFieldType.STRING_ARRAY) {
+                defaultValue = <String>[];
+              } else if (newField.type == FilterFieldType.SELECT) {
+                defaultValue = newField.options?.isNotEmpty == true
+                    ? newField.options!.first.value
+                    : '';
+              } else if (newOperator == FilterOperator.RANGE) {
+                defaultValue = {'from': '', 'to': ''};
+              }
 
-          widget.onUpdate(
-            widget.filter.id,
-            Filter(
-              id: widget.filter.id,
-              field: newFieldName,
-              operator: newOperator,
-              value: defaultValue,
-              locale: newField.isLocalizable ? 'en' : null,
-            ),
-          );
-        }
-      },
+              widget.onUpdate(
+                widget.filter.id,
+                Filter(
+                  id: widget.filter.id,
+                  field: newFieldName,
+                  operator: newOperator,
+                  value: defaultValue,
+                  locale: newField.isLocalizable ? 'en' : null,
+                ),
+              );
+            }
+          },
+        ),
+      ],
     );
   }
 
   Widget _buildLocaleSelector(BuildContext context) {
     final t = slang.Translations.of(context);
-    return DropdownButtonFormField<String>(
-      initialValue: widget.filter.locale ?? 'en',
-      decoration: InputDecoration(
-        labelText: t.searchFilter.language,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      ),
-      items: const [
-        DropdownMenuItem(value: 'en', child: Text('en')),
-        DropdownMenuItem(value: 'ja', child: Text('ja')),
-        DropdownMenuItem(value: 'zh', child: Text('zh')),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          t.searchFilter.language,
+          style: Theme.of(
+            context,
+          ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 8),
+        GlassDropdownField<String>(
+          value: widget.filter.locale ?? 'en',
+          items: const [
+            GlassDropdownItem<String>(value: 'en', label: 'en'),
+            GlassDropdownItem<String>(value: 'ja', label: 'ja'),
+            GlassDropdownItem<String>(value: 'zh', label: 'zh'),
+          ],
+          onChanged: (String? newLocale) {
+            if (newLocale != null) {
+              widget.onUpdate(
+                widget.filter.id,
+                widget.filter.copyWith(locale: newLocale),
+              );
+            }
+          },
+        ),
       ],
-      onChanged: (String? newLocale) {
-        if (newLocale != null) {
-          widget.onUpdate(
-            widget.filter.id,
-            widget.filter.copyWith(locale: newLocale),
-          );
-        }
-      },
     );
   }
 
@@ -273,33 +294,42 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
     List<FilterOperator> availableOperators,
   ) {
     final t = slang.Translations.of(context);
-    return DropdownButtonFormField<FilterOperator>(
-      initialValue: selectedOperator,
-      decoration: InputDecoration(
-        labelText: t.searchFilter.operator,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      ),
-      items: availableOperators.map((operator) {
-        return DropdownMenuItem<FilterOperator>(
-          value: operator,
-          child: Text(FilterConfig.getOperatorLabel(operator)),
-        );
-      }).toList(),
-      onChanged: (FilterOperator? newOperator) {
-        if (newOperator != null) {
-          dynamic value = widget.filter.value;
-          if (newOperator == FilterOperator.RANGE && value is! Map) {
-            value = {'from': '', 'to': ''};
-          } else if (newOperator != FilterOperator.RANGE && value is Map) {
-            value = '';
-          }
-          widget.onUpdate(
-            widget.filter.id,
-            widget.filter.copyWith(operator: newOperator, value: value),
-          );
-        }
-      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          t.searchFilter.operator,
+          style: Theme.of(
+            context,
+          ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 8),
+        GlassDropdownField<FilterOperator>(
+          value: selectedOperator,
+          items: availableOperators
+              .map(
+                (operator) => GlassDropdownItem<FilterOperator>(
+                  value: operator,
+                  label: FilterConfig.getOperatorLabel(operator),
+                ),
+              )
+              .toList(),
+          onChanged: (FilterOperator? newOperator) {
+            if (newOperator != null) {
+              dynamic value = widget.filter.value;
+              if (newOperator == FilterOperator.RANGE && value is! Map) {
+                value = {'from': '', 'to': ''};
+              } else if (newOperator != FilterOperator.RANGE && value is Map) {
+                value = '';
+              }
+              widget.onUpdate(
+                widget.filter.id,
+                widget.filter.copyWith(operator: newOperator, value: value),
+              );
+            }
+          },
+        ),
+      ],
     );
   }
 
@@ -560,18 +590,11 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
           ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          initialValue: filter.value?.toString() ?? 'true',
-          decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-          ),
+        GlassDropdownField<String>(
+          value: filter.value?.toString() ?? 'true',
           items: [
-            DropdownMenuItem(value: 'true', child: Text(t.searchFilter.yes)),
-            DropdownMenuItem(value: 'false', child: Text(t.searchFilter.no)),
+            GlassDropdownItem<String>(value: 'true', label: t.searchFilter.yes),
+            GlassDropdownItem<String>(value: 'false', label: t.searchFilter.no),
           ],
           onChanged: (String? value) {
             if (value != null) {
@@ -750,23 +773,16 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
           ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          initialValue: filter.value?.toString() ?? '',
-          decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-          ),
+        GlassDropdownField<String>(
+          value: filter.value?.toString() ?? '',
           items:
               field.options?.map((option) {
-                return DropdownMenuItem<String>(
+                return GlassDropdownItem<String>(
                   value: option.value,
-                  child: Text(option.label),
+                  label: option.label,
                 );
               }).toList() ??
-              [],
+              const [],
           onChanged: (String? value) {
             if (value != null) {
               widget.onUpdate(filter.id, filter.copyWith(value: value));

@@ -20,6 +20,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/responsive_dialog_widget.dart';
 
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/batch_select_controller.dart';
@@ -759,37 +760,27 @@ class _SearchResultState extends State<SearchResult> {
     );
   }
 
-  /// 分段入口：玻璃胶囊组里的 40×40 图标位 + 下拉菜单。
+  /// 分段入口：玻璃胶囊组里的图标位 + 玻璃下拉菜单。
   Widget _buildSegmentMenuButton(slang.Translations t, SearchSegment segment) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: GlassTokens.groupIconButtonSize,
-      height: GlassTokens.groupIconButtonSize,
-      child: PopupMenuButton<SearchSegment>(
-        padding: EdgeInsets.zero,
+    return Builder(
+      builder: (anchorContext) => GlassIconButton(
+        icon: Icon(_segmentIcon(segment)),
         tooltip: _segmentLabel(t, segment),
-        icon: Icon(_segmentIcon(segment), size: GlassTokens.iconSize),
-        position: PopupMenuPosition.under,
-        // 往下挪一点，别压住玻璃胶囊本身
-        offset: const Offset(0, 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        initialValue: segment,
-        onSelected: searchController.updateSegment,
-        itemBuilder: (context) => [
-          for (final seg in SearchSegment.values)
-            PopupMenuItem<SearchSegment>(
-              value: seg,
-              child: Row(
-                children: [
-                  Icon(_segmentIcon(seg), size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(_segmentLabel(t, seg))),
-                  if (seg == segment)
-                    Icon(Icons.check, size: 18, color: colorScheme.primary),
-                ],
-              ),
-            ),
-        ],
+        onPressed: () async {
+          final picked = await showGlassMenu<SearchSegment>(
+            anchorContext: anchorContext,
+            entries: [
+              for (final seg in SearchSegment.values)
+                GlassMenuOption<SearchSegment>(
+                  value: seg,
+                  icon: _segmentIcon(seg),
+                  label: _segmentLabel(t, seg),
+                  selected: seg == segment,
+                ),
+            ],
+          );
+          if (picked != null) searchController.updateSegment(picked);
+        },
       ),
     );
   }
@@ -800,7 +791,6 @@ class _SearchResultState extends State<SearchResult> {
     SearchSegment segment,
     String sort,
   ) {
-    final colorScheme = Theme.of(context).colorScheme;
     final List<(String, String)> entries;
     if (segment == SearchSegment.oreno3d) {
       entries = [
@@ -816,34 +806,25 @@ class _SearchResultState extends State<SearchResult> {
       ];
     }
 
-    return SizedBox(
-      width: GlassTokens.groupIconButtonSize,
-      height: GlassTokens.groupIconButtonSize,
-      child: PopupMenuButton<String>(
-        padding: EdgeInsets.zero,
+    return Builder(
+      builder: (anchorContext) => GlassIconButton(
+        icon: Icon(_sortIconFor(segment, sort)),
         tooltip: t.common.sort,
-        icon: Icon(_sortIconFor(segment, sort), size: GlassTokens.iconSize),
-        position: PopupMenuPosition.under,
-        // 往下挪一点，别压住玻璃胶囊本身
-        offset: const Offset(0, 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        initialValue: sort,
-        onSelected: searchController.updateSort,
-        itemBuilder: (context) => [
-          for (final (value, label) in entries)
-            PopupMenuItem<String>(
-              value: value,
-              child: Row(
-                children: [
-                  Icon(_sortIconFor(segment, value), size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(label)),
-                  if (value == sort)
-                    Icon(Icons.check, size: 18, color: colorScheme.primary),
-                ],
-              ),
-            ),
-        ],
+        onPressed: () async {
+          final picked = await showGlassMenu<String>(
+            anchorContext: anchorContext,
+            entries: [
+              for (final (value, label) in entries)
+                GlassMenuOption<String>(
+                  value: value,
+                  icon: _sortIconFor(segment, value),
+                  label: label,
+                  selected: value == sort,
+                ),
+            ],
+          );
+          if (picked != null) searchController.updateSort(picked);
+        },
       ),
     );
   }
@@ -874,27 +855,58 @@ class _SearchResultState extends State<SearchResult> {
       isMultiSelect = searchController.imageBatchController.isMultiSelect.value;
     }
 
-    PopupMenuItem<String> menuItem(String value, IconData icon, String label) {
-      return PopupMenuItem<String>(
-        value: value,
-        child: Row(
-          children: [Icon(icon), const SizedBox(width: 12), Text(label)],
-        ),
-      );
-    }
-
-    return SizedBox(
-      width: GlassTokens.groupIconButtonSize,
-      height: GlassTokens.groupIconButtonSize,
-      child: PopupMenuButton<String>(
-        padding: EdgeInsets.zero,
-        icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
-        position: PopupMenuPosition.under,
-        // 往下挪一点，别压住玻璃胶囊本身
-        offset: const Offset(0, 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        onSelected: (value) {
-          switch (value) {
+    return Builder(
+      builder: (anchorContext) => GlassIconButton(
+        icon: const Icon(Icons.more_vert),
+        tooltip: t.common.more,
+        onPressed: () async {
+          final picked = await showGlassMenu<String>(
+            anchorContext: anchorContext,
+            entries: [
+              if (toggleMultiSelect != null)
+                GlassMenuOption<String>(
+                  value: _menuActionToggleMultiSelect,
+                  icon: isMultiSelect ? Icons.close : Icons.checklist,
+                  label: isMultiSelect
+                      ? t.common.exitEditMode
+                      : t.common.editMode,
+                ),
+              GlassMenuOption<String>(
+                value: _menuActionRefresh,
+                icon: Icons.refresh,
+                label: t.common.refresh,
+              ),
+              GlassMenuOption<String>(
+                value: _menuActionTogglePagination,
+                icon: searchController.isPaginated.value
+                    ? Icons.grid_view
+                    : Icons.view_stream,
+                label: searchController.isPaginated.value
+                    ? t.common.pagination.waterfall
+                    : t.common.pagination.pagination,
+              ),
+              GlassMenuOption<String>(
+                value: _menuActionSavedSearch,
+                icon: Icons.bookmarks_outlined,
+                label: t.savedSearch.title,
+              ),
+              if (isBrowseMode) ...[
+                const GlassMenuSeparator(),
+                GlassMenuOption<String>(
+                  value: _menuActionTagInfo,
+                  icon: Icons.help_outline,
+                  label: t.common.tagInfo,
+                ),
+                GlassMenuOption<String>(
+                  value: _menuActionTranslate,
+                  icon: Icons.translate,
+                  label: t.common.translate,
+                ),
+              ],
+            ],
+          );
+          if (picked == null) return;
+          switch (picked) {
             case _menuActionToggleMultiSelect:
               toggleMultiSelect?.call();
               break;
@@ -916,34 +928,6 @@ class _SearchResultState extends State<SearchResult> {
               break;
           }
         },
-        itemBuilder: (context) => [
-          if (toggleMultiSelect != null)
-            menuItem(
-              _menuActionToggleMultiSelect,
-              isMultiSelect ? Icons.close : Icons.checklist,
-              isMultiSelect ? t.common.exitEditMode : t.common.editMode,
-            ),
-          menuItem(_menuActionRefresh, Icons.refresh, t.common.refresh),
-          menuItem(
-            _menuActionTogglePagination,
-            searchController.isPaginated.value
-                ? Icons.grid_view
-                : Icons.view_stream,
-            searchController.isPaginated.value
-                ? t.common.pagination.waterfall
-                : t.common.pagination.pagination,
-          ),
-          menuItem(
-            _menuActionSavedSearch,
-            Icons.bookmarks_outlined,
-            t.savedSearch.title,
-          ),
-          if (isBrowseMode) ...[
-            const PopupMenuDivider(),
-            menuItem(_menuActionTagInfo, Icons.help_outline, t.common.tagInfo),
-            menuItem(_menuActionTranslate, Icons.translate, t.common.translate),
-          ],
-        ],
       ),
     );
   }
