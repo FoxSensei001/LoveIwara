@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 
 /// 图库功能介绍弹窗
 class GalleryInfoDialog {
   static void show(BuildContext context) {
     showAppDialog(
-      AlertDialog(
-        title: Text(slang.t.galleryDetail.imageLibraryFunctionIntroduction),
+      GlassAlertDialog(
+        title: slang.t.galleryDetail.imageLibraryFunctionIntroduction,
         content: SingleChildScrollView(
           child: ListBody(
             children: [
@@ -63,8 +64,9 @@ class GalleryInfoDialog {
           ),
         ),
         actions: [
-          TextButton(
-            child: Text(slang.t.common.close),
+          GlassDialogAction(
+            label: slang.t.common.close,
+            emphasized: false,
             onPressed: () {
               AppService.tryPop();
             },

@@ -8,6 +8,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_builder_widget.dart';
@@ -606,8 +607,8 @@ class _SearchResultState extends State<SearchResult> {
     final controller = TextEditingController(text: defaultName);
     final name = await showAppDialog<String>(
       Builder(
-        builder: (dialogContext) => AlertDialog(
-          title: Text(t.savedSearch.namePromptTitle),
+        builder: (dialogContext) => GlassAlertDialog(
+          title: t.savedSearch.namePromptTitle,
           content: TextField(
             controller: controller,
             autofocus: true,
@@ -618,14 +619,15 @@ class _SearchResultState extends State<SearchResult> {
             onSubmitted: (v) => Navigator.of(dialogContext).pop(v.trim()),
           ),
           actions: [
-            TextButton(
+            GlassDialogAction(
+              label: t.common.cancel,
+              emphasized: false,
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(t.common.cancel),
             ),
-            TextButton(
+            GlassDialogAction(
+              label: t.common.save,
               onPressed: () =>
                   Navigator.of(dialogContext).pop(controller.text.trim()),
-              child: Text(t.common.save),
             ),
           ],
         ),

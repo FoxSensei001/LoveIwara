@@ -5,6 +5,7 @@ import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/saved_search_service.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -117,8 +118,8 @@ class SavedSearchDrawer extends StatelessWidget {
     final controller = TextEditingController(text: search.name);
     final newName = await showAppDialog<String>(
       Builder(
-        builder: (dialogContext) => AlertDialog(
-          title: Text(t.savedSearch.rename),
+        builder: (dialogContext) => GlassAlertDialog(
+          title: t.savedSearch.rename,
           content: TextField(
             controller: controller,
             autofocus: true,
@@ -129,14 +130,15 @@ class SavedSearchDrawer extends StatelessWidget {
             onSubmitted: (v) => Navigator.of(dialogContext).pop(v.trim()),
           ),
           actions: [
-            TextButton(
+            GlassDialogAction(
+              label: t.common.cancel,
+              emphasized: false,
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(t.common.cancel),
             ),
-            TextButton(
+            GlassDialogAction(
+              label: t.common.save,
               onPressed: () =>
                   Navigator.of(dialogContext).pop(controller.text.trim()),
-              child: Text(t.common.save),
             ),
           ],
         ),

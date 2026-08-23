@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/ui/pages/dev/liquid_glass_lab_page.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/link_input_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
@@ -682,8 +683,8 @@ class _SiteModeConfirmDialogState extends State<_SiteModeConfirmDialog> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    return AlertDialog(
-      title: Text(t.siteMode.dialogTitle),
+    return GlassAlertDialog(
+      title: t.siteMode.dialogTitle,
       content: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: 420,
@@ -729,18 +730,19 @@ class _SiteModeConfirmDialogState extends State<_SiteModeConfirmDialog> {
         ),
       ),
       actions: [
-        TextButton(
+        GlassDialogAction(
+          label: t.common.cancel,
+          emphasized: false,
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(t.common.cancel),
         ),
-        FilledButton(
+        GlassDialogAction(
+          label: t.common.confirm,
           onPressed: _selectedSite == widget.currentSite
               ? null
               : () async {
                   Navigator.of(context).pop();
                   await widget.onConfirm(_selectedSite);
                 },
-          child: Text(t.common.confirm),
         ),
       ],
     );
@@ -754,16 +756,17 @@ class LogoutDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(slang.t.auth.logout),
+    return GlassAlertDialog(
+      title: slang.t.auth.logout,
       content: Text(slang.t.auth.logoutConfirmation),
       actions: [
-        TextButton(
-          child: Text(slang.t.common.cancel),
+        GlassDialogAction(
+          label: slang.t.common.cancel,
+          emphasized: false,
           onPressed: () => Navigator.pop(context),
         ),
-        ElevatedButton(
-          child: Text(slang.t.common.confirm),
+        GlassDialogAction(
+          label: slang.t.common.confirm,
           onPressed: () async {
             Navigator.pop(context);
             try {

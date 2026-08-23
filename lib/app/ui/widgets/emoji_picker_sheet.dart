@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/emoji_picker_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
@@ -120,18 +121,8 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
   void _showSizePickerDialog(BuildContext context) {
     final t = Translations.of(context);
     showAppDialog(
-      AlertDialog(
-        title: Row(
-          children: [
-            Expanded(child: Text(t.emoji.size)),
-            GlassIconButton(
-              standalone: true,
-              icon: const Icon(Icons.close),
-              tooltip: t.common.close,
-              onPressed: () => AppService.tryPop(),
-            ),
-          ],
-        ),
+      GlassAlertDialog(
+        title: t.emoji.size,
         content: SizedBox(
           width: double.maxFinite,
           child: Column(

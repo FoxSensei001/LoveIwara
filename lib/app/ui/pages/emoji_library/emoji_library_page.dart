@@ -4,6 +4,7 @@ import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/emoji_library_service.dart';
 import 'package:i_iwara/app/ui/pages/emoji_library/emoji_group_detail_page.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
@@ -260,27 +261,12 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
     _loadData();
   }
 
-  /// 弹窗标题行：标题 + 玻璃关闭圆钮（全局统一约定）。
-  Widget _dialogTitleRow(Translations t, String title) {
-    return Row(
-      children: [
-        Expanded(child: Text(title)),
-        GlassIconButton(
-          standalone: true,
-          icon: const Icon(Icons.close),
-          tooltip: t.common.close,
-          onPressed: () => AppService.tryPop(),
-        ),
-      ],
-    );
-  }
-
   void _showCreateGroupDialog() {
     final t = Translations.of(context);
     final controller = TextEditingController();
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(t, t.emoji.createGroup),
+      GlassAlertDialog(
+        title: t.emoji.createGroup,
         content: TextField(
           controller: controller,
           autofocus: true,
@@ -290,11 +276,13 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
           ),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.emoji.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(t.emoji.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: t.emoji.create,
             onPressed: () {
               final name = controller.text.trim();
               if (name.isNotEmpty) {
@@ -304,7 +292,6 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
                 showGlassToast(t.common.success, type: GlassToastType.success);
               }
             },
-            child: Text(t.emoji.create),
           ),
         ],
       ),
@@ -315,19 +302,21 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
     final t = Translations.of(context);
     final controller = TextEditingController(text: group.name);
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(t, t.emoji.editGroupName),
+      GlassAlertDialog(
+        title: t.emoji.editGroupName,
         content: TextField(
           controller: controller,
           autofocus: true,
           decoration: InputDecoration(labelText: t.emoji.groupName),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.emoji.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(t.emoji.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: t.emoji.save,
             onPressed: () {
               final name = controller.text.trim();
               if (name.isNotEmpty) {
@@ -337,7 +326,6 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
                 showGlassToast(t.common.success, type: GlassToastType.success);
               }
             },
-            child: Text(t.emoji.save),
           ),
         ],
       ),
@@ -347,25 +335,25 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
   void _showDeleteGroupDialog(EmojiGroup group) {
     final t = Translations.of(context);
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(t, t.emoji.deleteGroup),
+      GlassAlertDialog(
+        title: t.emoji.deleteGroup,
         content: Text(t.emoji.confirmDeleteGroup),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.emoji.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(t.emoji.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: t.emoji.delete,
+            destructive: true,
+            emphasized: false,
             onPressed: () {
               _emojiService.deleteEmojiGroup(group.groupId);
               AppService.tryPop();
               _loadData();
               showGlassToast(t.common.success, type: GlassToastType.success);
             },
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
-            ),
-            child: Text(t.emoji.delete),
           ),
         ],
       ),

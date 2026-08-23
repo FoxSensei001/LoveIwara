@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/ui/widgets/glass/batch_confirm_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_overflow_menu_button.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -381,21 +382,6 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
     );
   }
 
-  /// 弹窗标题行：标题 + 玻璃关闭圆钮（全局统一约定）。
-  Widget _dialogTitleRow(Translations t, String title) {
-    return Row(
-      children: [
-        Expanded(child: Text(title)),
-        GlassIconButton(
-          standalone: true,
-          icon: const Icon(Icons.close),
-          tooltip: t.common.close,
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ],
-    );
-  }
-
   void _showImagePreview(EmojiImage image) {
     final t = Translations.of(context);
     showAppDialog(
@@ -551,24 +537,24 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
   void _showDeleteImageDialog(EmojiImage image) {
     final t = Translations.of(context);
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(t, t.emoji.deleteImage),
+      GlassAlertDialog(
+        title: t.emoji.deleteImage,
         content: Text(t.emoji.confirmDeleteImage),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.emoji.cancel,
+            emphasized: false,
             onPressed: () => Navigator.pop(context),
-            child: Text(t.emoji.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: t.emoji.delete,
+            destructive: true,
+            emphasized: false,
             onPressed: () {
               _emojiService.deleteEmojiImage(image.imageId);
               Navigator.pop(context);
               _loadImages();
             },
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
-            ),
-            child: Text(t.emoji.delete),
           ),
         ],
       ),
@@ -597,8 +583,8 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
   void _showAddImagesDialog() {
     final t = Translations.of(context);
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(t, t.emoji.addImage),
+      GlassAlertDialog(
+        title: t.emoji.addImage,
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -628,8 +614,8 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
     final t = Translations.of(context);
     final controller = TextEditingController();
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(t, t.emoji.addImageUrl),
+      GlassAlertDialog(
+        title: t.emoji.addImageUrl,
         content: TextField(
           controller: controller,
           autofocus: true,
@@ -639,11 +625,13 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
           ),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.emoji.cancel,
+            emphasized: false,
             onPressed: () => Navigator.pop(context),
-            child: Text(t.emoji.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: t.emoji.add,
             onPressed: () {
               final url = controller.text.trim();
               if (url.isNotEmpty) {
@@ -652,7 +640,6 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                 _loadImages();
               }
             },
-            child: Text(t.emoji.add),
           ),
         ],
       ),
@@ -663,8 +650,8 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
     final t = Translations.of(context);
     final controller = TextEditingController();
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(t, t.emoji.batchImport),
+      GlassAlertDialog(
+        title: t.emoji.batchImport,
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -687,11 +674,13 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
           ],
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.emoji.cancel,
+            emphasized: false,
             onPressed: () => Navigator.pop(context),
-            child: Text(t.emoji.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: t.emoji.import,
             onPressed: () {
               final jsonText = controller.text.trim();
               if (jsonText.isNotEmpty) {
@@ -716,7 +705,6 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                 }
               }
             },
-            child: Text(t.emoji.import),
           ),
         ],
       ),

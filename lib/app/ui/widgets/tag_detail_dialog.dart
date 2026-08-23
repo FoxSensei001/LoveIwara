@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/services/tag_localization_service.dart';
 import 'package:i_iwara/app/services/oreno3d_localization_service.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -32,8 +33,8 @@ Future<void> showTagDetailDialog(BuildContext context, Tag tag) {
     context: context,
     builder: (context) {
       final t = slang.Translations.of(context);
-      return AlertDialog(
-        title: Text(t.common.tagInfo),
+      return GlassAlertDialog(
+        title: t.common.tagInfo,
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,9 +56,10 @@ Future<void> showTagDetailDialog(BuildContext context, Tag tag) {
           ],
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.common.close,
+            emphasized: false,
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.common.close),
           ),
         ],
       );
@@ -84,8 +86,8 @@ Future<void> showOreno3dTagDetailDialog(
     context: context,
     builder: (context) {
       final t = slang.Translations.of(context);
-      return AlertDialog(
-        title: Text(t.common.tagInfo),
+      return GlassAlertDialog(
+        title: t.common.tagInfo,
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,9 +109,10 @@ Future<void> showOreno3dTagDetailDialog(
           ],
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.common.close,
+            emphasized: false,
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.common.close),
           ),
         ],
       );
@@ -123,23 +126,19 @@ Future<void> showTagLocalizationGuideDialog(BuildContext context) {
     context: context,
     builder: (context) {
       final t = slang.Translations.of(context);
-      return AlertDialog(
-        title: Row(
-          children: [
-            Icon(
-              Icons.translate,
-              size: 20,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            const SizedBox(width: 8),
-            Expanded(child: Text(t.common.tagLocalizationGuideTitle)),
-          ],
-        ),
+      return GlassAlertDialog(
+        title: t.common.tagLocalizationGuideTitle,
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Icon(
+                Icons.translate,
+                size: 20,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(height: 8),
               Text(
                 t.common.tagLocalizationGuideContent,
                 style: const TextStyle(fontSize: 14, height: 1.5),
@@ -150,9 +149,10 @@ Future<void> showTagLocalizationGuideDialog(BuildContext context) {
           ),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.common.close,
+            emphasized: false,
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.common.close),
           ),
         ],
       );

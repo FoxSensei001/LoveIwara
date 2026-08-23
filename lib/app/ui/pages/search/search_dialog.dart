@@ -18,6 +18,7 @@ import 'package:i_iwara/app/ui/pages/search/widgets/filter_builder_widget.dart';
 import 'package:i_iwara/app/models/saved_search.model.dart';
 import 'package:i_iwara/app/services/saved_search_service.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/saved_search_drawer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
@@ -245,8 +246,8 @@ class _SearchContentState extends State<_SearchContent> {
     final controller = TextEditingController(text: defaultName);
     final name = await showAppDialog<String>(
       Builder(
-        builder: (dialogContext) => AlertDialog(
-          title: Text(t.savedSearch.namePromptTitle),
+        builder: (dialogContext) => GlassAlertDialog(
+          title: t.savedSearch.namePromptTitle,
           content: TextField(
             controller: controller,
             autofocus: true,
@@ -257,14 +258,15 @@ class _SearchContentState extends State<_SearchContent> {
             onSubmitted: (v) => Navigator.of(dialogContext).pop(v.trim()),
           ),
           actions: [
-            TextButton(
+            GlassDialogAction(
+              label: t.common.cancel,
+              emphasized: false,
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(t.common.cancel),
             ),
-            TextButton(
+            GlassDialogAction(
+              label: t.common.save,
               onPressed: () =>
                   Navigator.of(dialogContext).pop(controller.text.trim()),
-              child: Text(t.common.save),
             ),
           ],
         ),
@@ -1202,25 +1204,22 @@ class _ClearHistoryButton extends StatelessWidget {
     showAppDialog(
       Builder(
         builder: (dialogContext) {
-          final colorScheme = Theme.of(dialogContext).colorScheme;
-          return AlertDialog(
-            title: Text(t.common.clear),
+          return GlassAlertDialog(
+            title: t.common.clear,
             content: Text(t.search.clearSearchHistoryConfirm),
             actions: [
-              TextButton(
+              GlassDialogAction(
+                label: t.common.cancel,
+                emphasized: false,
                 onPressed: () => Navigator.of(dialogContext).pop(),
-                child: Text(t.common.cancel),
               ),
-              FilledButton(
+              GlassDialogAction(
+                label: t.common.clear,
+                destructive: true,
                 onPressed: () {
                   Navigator.of(dialogContext).pop();
                   onClearHistory();
                 },
-                style: FilledButton.styleFrom(
-                  backgroundColor: colorScheme.error,
-                  foregroundColor: colorScheme.onError,
-                ),
-                child: Text(t.common.clear),
               ),
             ],
           );
