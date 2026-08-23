@@ -7,6 +7,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/shimmer_card.dart';
@@ -594,18 +595,20 @@ class _PaginationBarState extends State<PaginationBar>
                   ),
                 ),
               const SizedBox(height: 16),
-              TextField(
-                controller: _pageController,
-                keyboardType: TextInputType.number,
-                autofocus: true,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: slang.t.common.pagination.pageNumber,
+              GlassInputSurface(
+                child: TextField(
+                  controller: _pageController,
+                  keyboardType: TextInputType.number,
+                  autofocus: true,
+                  decoration: glassFieldDecoration(
+                    context,
+                    hint: slang.t.common.pagination.pageNumber,
+                  ),
+                  onSubmitted: (_) {
+                    Navigator.of(context).pop();
+                    _jumpToPage();
+                  },
                 ),
-                onSubmitted: (_) {
-                  Navigator.of(context).pop();
-                  _jumpToPage();
-                },
               ),
             ],
           ),
