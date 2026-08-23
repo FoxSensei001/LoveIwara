@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class SignInHeatMap extends StatelessWidget {
   final Map<DateTime, bool> signInStatus;
@@ -118,13 +119,14 @@ class SignInHeatMap extends StatelessWidget {
                     if (isSuccess == false && reason != null && reason.isNotEmpty) {
                       showDialog(
                         context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text(t.signIn.failureReason),
+                        builder: (context) => GlassAlertDialog(
+                          title: t.signIn.failureReason,
                           content: Text(reason),
                           actions: [
-                            TextButton(
+                            GlassDialogAction(
+                              label: t.common.close,
+                              emphasized: false,
                               onPressed: () => Navigator.pop(context),
-                              child: Text(t.common.close),
                             ),
                           ],
                         ),

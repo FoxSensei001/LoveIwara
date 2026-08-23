@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../i18n/strings.g.dart' as slang;
@@ -47,14 +48,8 @@ class VideoGestureGuideDialog extends StatelessWidget {
             _GuideEntry(Icons.rotate_right, g.mRotate),
           ];
 
-    return AlertDialog(
-      title: Row(
-        children: [
-          Icon(Icons.gesture, color: theme.colorScheme.primary),
-          const SizedBox(width: 8),
-          Expanded(child: Text(g.title)),
-        ],
-      ),
+    return GlassAlertDialog(
+      title: g.title,
       content: SizedBox(
         width: 420,
         child: SingleChildScrollView(
@@ -62,6 +57,11 @@ class VideoGestureGuideDialog extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Icon(Icons.gesture, color: theme.colorScheme.primary),
+              ),
+              const SizedBox(height: 8),
               _sectionTitle(theme, g.basicTitle),
               ...basic.map((e) => _row(theme, e)),
               const SizedBox(height: 14),
@@ -96,9 +96,10 @@ class VideoGestureGuideDialog extends StatelessWidget {
         ),
       ),
       actions: [
-        TextButton(
+        GlassDialogAction(
+          label: t.common.close,
+          emphasized: false,
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(t.common.close),
         ),
       ],
     );

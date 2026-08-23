@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/common/color_vision_filters.dart';
@@ -224,21 +224,8 @@ class ColorVisionSettingsWidget extends StatelessWidget {
       Builder(
         builder: (context) {
           final cs = Theme.of(context).colorScheme;
-          return AlertDialog(
-            // 标题行关闭钮走全局约定的玻璃圆钮
-            title: Row(
-              children: [
-                Icon(Icons.invert_colors, color: cs.primary),
-                const SizedBox(width: 8),
-                Expanded(child: Text(t.colorVisionAssist.title)),
-                GlassIconButton(
-                  standalone: true,
-                  icon: const Icon(Icons.close),
-                  tooltip: t.common.close,
-                  onPressed: () => AppService.tryPop(),
-                ),
-              ],
-            ),
+          return GlassAlertDialog(
+            title: t.colorVisionAssist.title,
             content: SizedBox(
               width: double.maxFinite,
               child: ConstrainedBox(
@@ -250,6 +237,11 @@ class ColorVisionSettingsWidget extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Icon(Icons.invert_colors, color: cs.primary),
+                      ),
+                      const SizedBox(height: 8),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: Text(

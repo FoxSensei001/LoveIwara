@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -276,8 +277,8 @@ class BottomToolbar extends StatelessWidget {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(t.videoDetail.seekTo),
+        return GlassAlertDialog(
+          title: t.videoDetail.seekTo,
           content: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
               return Column(
@@ -378,14 +379,16 @@ class BottomToolbar extends StatelessWidget {
             },
           ),
           actions: [
-            TextButton(
+            GlassDialogAction(
+              label: t.common.cancel,
+              emphasized: false,
               onPressed: () {
                 // 关闭对话框
                 Navigator.of(context).pop();
               },
-              child: Text(t.common.cancel),
             ),
-            ElevatedButton(
+            GlassDialogAction(
+              label: t.common.confirm,
               onPressed: () {
                 // 构建新的跳转时间
                 final Duration newPosition = Duration(
@@ -405,7 +408,6 @@ class BottomToolbar extends StatelessWidget {
                 // 关闭对话框
                 Navigator.of(context).pop();
               },
-              child: Text(t.common.confirm),
             ),
           ],
         );

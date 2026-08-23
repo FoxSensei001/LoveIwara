@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -236,20 +237,23 @@ class WelcomeStepWidget extends StatelessWidget {
 
   void _showLanguageDialog(BuildContext context, ConfigService configService) {
     showAppDialog(
-      AlertDialog(
-        title: Row(
-          children: [
-            const Icon(Icons.language),
-            const SizedBox(width: 8),
-            Text(slang.t.settings.language),
-          ],
-        ),
+      GlassAlertDialog(
+        title: slang.t.settings.language,
         content: SizedBox(
           width: double.minPositive,
-          child: Obx(
-            () => ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 360),
-              child: RadioGroup<String>(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Icon(Icons.language),
+              ),
+              const SizedBox(height: 12),
+              Obx(
+                () => ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 360),
+                  child: RadioGroup<String>(
                 groupValue: configService[ConfigKey.APPLICATION_LOCALE],
                 onChanged: (String? value) async {
                   if (value != null) {
@@ -290,14 +294,17 @@ class WelcomeStepWidget extends StatelessWidget {
                     );
                   }).toList(),
                 ),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ),
-        actions: <Widget>[
-          TextButton(
+        actions: <GlassDialogAction>[
+          GlassDialogAction(
+            label: slang.t.common.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(context: context),
-            child: Text(slang.t.common.cancel),
           ),
         ],
       ),

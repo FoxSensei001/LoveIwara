@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/theme_mode.model.dart';
 import 'package:i_iwara/app/services/theme_service.dart';
@@ -477,8 +478,8 @@ class ThemeStepWidget extends StatelessWidget {
     Color pickerColor =
         CommonConstants.dynamicLightColorScheme?.primary ?? Colors.orange;
     showAppDialog(
-      AlertDialog(
-        title: Text(slang.t.settings.pickColor),
+      GlassAlertDialog(
+        title: slang.t.settings.pickColor,
         content: SingleChildScrollView(
           child: ColorPicker(
             pickerColor: pickerColor,
@@ -487,11 +488,14 @@ class ThemeStepWidget extends StatelessWidget {
           ),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.confirm,
+            emphasized: false,
             onPressed: () {
               final hex = pickerColor
                   .toARGB32()
@@ -501,7 +505,6 @@ class ThemeStepWidget extends StatelessWidget {
               themeService.addCustomThemeColor(hex);
               AppService.tryPop();
             },
-            child: Text(slang.t.common.confirm),
           ),
         ],
       ),

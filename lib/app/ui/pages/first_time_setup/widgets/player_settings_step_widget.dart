@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -433,23 +434,25 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
   }) async {
     final controller = TextEditingController(text: initial);
     return showAppDialog<String>(
-      AlertDialog(
-        title: Text(title),
+      GlassAlertDialog(
+        title: title,
         content: TextField(
           controller: controller,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: const InputDecoration(border: OutlineInputBorder()),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.confirm,
+            emphasized: false,
             onPressed: () {
               Navigator.of(context).pop(controller.text.trim());
             },
-            child: Text(slang.t.common.confirm),
           ),
         ],
       ),

@@ -5,6 +5,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/shimmer_card.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -589,8 +590,8 @@ class _PaginationBarState extends State<PaginationBar>
     _pageController.clear();
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(slang.t.common.pagination.jumpToPage),
+      builder: (context) => GlassAlertDialog(
+        title: slang.t.common.pagination.jumpToPage,
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -617,16 +618,18 @@ class _PaginationBarState extends State<PaginationBar>
           ],
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.cancel,
+            emphasized: false,
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(slang.t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.pagination.jump,
+            emphasized: false,
             onPressed: () {
               Navigator.of(context).pop();
               _jumpToPage();
             },
-            child: Text(slang.t.common.pagination.jump),
           ),
         ],
       ),

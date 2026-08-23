@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/models/block_rule.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
@@ -49,8 +50,8 @@ class BlockedMediaOverlay extends StatelessWidget {
   void _showWhy(BuildContext context) {
     final t = slang.t.settings.blockSettings;
     showAppDialog(
-      AlertDialog(
-        title: Text(t.why),
+      GlassAlertDialog(
+        title: t.why,
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,16 +69,18 @@ class BlockedMediaOverlay extends StatelessWidget {
           ],
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.manageRules,
+            emphasized: false,
             onPressed: () {
               AppService.tryPop();
               NaviService.navigateToBlockSettingsPage();
             },
-            child: Text(t.manageRules),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.confirm,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.common.confirm),
           ),
         ],
       ),

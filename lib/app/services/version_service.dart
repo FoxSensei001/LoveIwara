@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/update_info.model.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
@@ -135,10 +136,8 @@ class VersionService extends GetxService {
     final changes = update.getLocalizedChanges(currentLocale);
 
     showAppDialog(
-      AlertDialog(
-        title: Text(
-          '${t.settings.newVersionAvailable}: ${latestVersion.value}',
-        ),
+      GlassAlertDialog(
+        title: '${t.settings.newVersionAvailable}: ${latestVersion.value}',
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -188,20 +187,22 @@ class VersionService extends GetxService {
           ),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.settings.ignoreThisVersion,
+            emphasized: false,
             onPressed: () {
               _configService[ConfigKey.IGNORED_VERSION] = latestVersion.value;
               AppService.tryPop();
             },
-            child: Text(t.settings.ignoreThisVersion),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: t.common.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(t.common.cancel),
           ),
-          ElevatedButton(
+          GlassDialogAction(
+            label: t.settings.update,
             onPressed: () => _openReleaseUrl(),
-            child: Text(t.settings.update),
           ),
         ],
       ),

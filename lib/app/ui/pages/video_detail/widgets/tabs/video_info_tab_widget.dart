@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/video_description_widget.dart';
@@ -1437,17 +1438,18 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
 
     final result = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.common.tips),
+      builder: (context) => GlassAlertDialog(
+        title: t.common.tips,
         content: Text(message),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.common.cancel,
+            emphasized: false,
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text(t.common.cancel),
           ),
-          FilledButton(
+          GlassDialogAction(
+            label: t.common.confirm,
             onPressed: () => Navigator.of(context).pop(true),
-            child: Text(t.common.confirm),
           ),
         ],
       ),
