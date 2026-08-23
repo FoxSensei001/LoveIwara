@@ -11,6 +11,7 @@ import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/error_widget.dart'
     show CommonErrorWidget;
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
@@ -1131,8 +1132,8 @@ class _NewsDetailSkeletonBlock extends StatelessWidget {
   }
 }
 
-/// 语言切换钮：与玻璃动作胶囊同尺寸的 40×40 菜单触发位（与其他页的
-/// 尾部 PopupMenuButton 同一口径），菜单里勾选当前语言。
+/// 语言切换钮：动作胶囊里的一枚无壳图标位（与组内其他键同尺寸），点开一张
+/// 玻璃菜单勾选当前语言。玻璃壳由外层的 [GlassButtonGroup] 提供。
 class _NewsDetailLanguageButton extends StatelessWidget {
   const _NewsDetailLanguageButton({
     required this.languages,
@@ -1146,44 +1147,31 @@ class _NewsDetailLanguageButton extends StatelessWidget {
   final String Function(IwaraNewsLanguage language) languageLabelBuilder;
   final Future<void> Function(IwaraNewsLanguage language) onSelected;
 
+  Future<void> _openMenu(BuildContext anchorContext) async {
+    final IwaraNewsLanguage? picked = await showGlassMenu<IwaraNewsLanguage>(
+      anchorContext: anchorContext,
+      entries: [
+        for (final entry in languages.entries)
+          GlassMenuOption<IwaraNewsLanguage>(
+            value: entry.key,
+            icon: Icons.translate_rounded,
+            label: languageLabelBuilder(entry.key),
+            selected: entry.key == currentLanguage,
+          ),
+      ],
+    );
+    if (picked == null) return;
+    await onSelected(picked);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: GlassTokens.groupIconButtonSize,
-      height: GlassTokens.groupIconButtonSize,
-      child: PopupMenuButton<IwaraNewsLanguage>(
-        initialValue: currentLanguage,
-        position: PopupMenuPosition.under,
-        // 往下挪一点，别压住玻璃胶囊本身
-        offset: const Offset(0, 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    // Builder：落点与材质档位从触发位自身的 context 量出。
+    return Builder(
+      builder: (anchorContext) => GlassIconButton(
+        icon: const Icon(Icons.translate_rounded),
         tooltip: languageLabelBuilder(currentLanguage),
-        onSelected: (language) {
-          onSelected(language);
-        },
-        itemBuilder: (context) => [
-          for (final entry in languages.entries)
-            PopupMenuItem<IwaraNewsLanguage>(
-              value: entry.key,
-              child: Row(
-                children: [
-                  const Icon(Icons.translate_rounded, size: 18),
-                  const SizedBox(width: 10),
-                  Expanded(child: Text(languageLabelBuilder(entry.key))),
-                  if (entry.key == currentLanguage) ...[
-                    const SizedBox(width: 8),
-                    Icon(Icons.check, size: 18, color: colorScheme.primary),
-                  ],
-                ],
-              ),
-            ),
-        ],
-        icon: Icon(
-          Icons.translate_rounded,
-          size: GlassTokens.iconSize,
-          color: colorScheme.onSurface,
-        ),
+        onPressed: () => _openMenu(anchorContext),
       ),
     );
   }

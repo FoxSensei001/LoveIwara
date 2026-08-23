@@ -24,6 +24,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -1624,54 +1625,59 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     List<GlassSegmentItem> items,
   ) {
     final colorScheme = Theme.of(context).colorScheme;
-    final index = primaryTC.index;
-    return PopupMenuButton<int>(
-      initialValue: index,
-      onSelected: (newIndex) => primaryTC.animateTo(newIndex),
-      position: PopupMenuPosition.under,
-      // 往下挪一点，别压住玻璃胶囊本身
-      offset: const Offset(0, 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: SizedBox(
-        height: GlassTokens.pillHeight,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 14, right: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              GlassFlipLabel(
-                progress: primaryTC.animation!,
-                labels: [for (final item in items) item.label],
-                style: TextStyle(
-                  color: colorScheme.onSurface,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Icon(
-                Icons.arrow_drop_down,
-                size: 22,
-                color: colorScheme.onSurface,
-              ),
-            ],
-          ),
-        ),
-      ),
-      itemBuilder: (context) => [
-        for (var i = 0; i < items.length; i++)
-          PopupMenuItem<int>(
-            value: i,
+    // Builder：落点与材质档位从触发位自身的 context 量出。
+    return Builder(
+      builder: (anchorContext) => GlassPressable(
+        onTap: () => _openPrimaryTabMenu(anchorContext, items),
+        // 内容套在常驻的 GlassCapsuleMorph 里，按下不再自缩，免得和胶囊的
+        // 宽度形变打架；反馈交给菜单弹出本身。
+        scale: 1.0,
+        builder: (context, pressed) => SizedBox(
+          height: GlassTokens.pillHeight,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 14, right: 8),
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(items[i].label),
-                if (i == index) ...[
-                  const Spacer(),
-                  Icon(Icons.check, size: 18, color: colorScheme.primary),
-                ],
+                GlassFlipLabel(
+                  progress: primaryTC.animation!,
+                  labels: [for (final item in items) item.label],
+                  style: TextStyle(
+                    color: colorScheme.onSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_drop_down,
+                  size: 22,
+                  color: colorScheme.onSurface,
+                ),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openPrimaryTabMenu(
+    BuildContext anchorContext,
+    List<GlassSegmentItem> items,
+  ) async {
+    final int index = primaryTC.index;
+    final int? picked = await showGlassMenu<int>(
+      anchorContext: anchorContext,
+      entries: [
+        for (var i = 0; i < items.length; i++)
+          GlassMenuOption<int>(
+            value: i,
+            label: items[i].label,
+            selected: i == index,
+          ),
       ],
     );
+    if (!mounted || picked == null) return;
+    primaryTC.animateTo(picked);
   }
 
   double _calculatePinnedHeaderHeight() {
