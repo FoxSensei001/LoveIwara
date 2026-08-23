@@ -618,3 +618,68 @@ class GlassButtonGroup extends StatelessWidget {
     );
   }
 }
+
+/// 装进 [GlassButtonGroup] 的变宽文字动作位，配 [GlassDialogAction] 一类
+/// 「取消/确认」按钮组使用。
+///
+/// [GlassIconButton] 是固定 40×40 的图标槽，文字按钮宽度天然随文案变化，
+/// 装不进那套尺寸约定，所以另起一个——手感（按下缩放、可用性变色、装进
+/// 玻璃胶囊后自带 `touchFlex` 长按蠕动）与 [GlassIconButton] 是同一族，只是
+/// 视觉换成「文字位」而不是「图标位」。不自带外壳：外壳统一由包住它的
+/// [GlassButtonGroup] 提供，多个动作键因此共处同一坨玻璃、按住能一起蠕动，
+/// 而不是各自一只独立胶囊。
+class GlassTextActionButton extends StatelessWidget {
+  const GlassTextActionButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.emphasized = false,
+    this.destructive = false,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+
+  /// 本组里的主动作：文字转主色 + 字重加粗。次要动作（取消一类）留默认。
+  final bool emphasized;
+
+  /// 破坏性动作（删除/清空一类不可逆操作）：文字转 `cs.error`。
+  final bool destructive;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final bool enabled = onPressed != null;
+    final Color base = destructive
+        ? cs.error
+        : (emphasized ? cs.primary : cs.onSurfaceVariant);
+
+    return GlassAnimatedColors(
+      colors: [enabled ? base : cs.onSurface.withValues(alpha: 0.38)],
+      builder: (context, c) => GlassPressable(
+        onTap: onPressed,
+        scale: 0.94,
+        builder: (context, pressed) => AnimatedContainer(
+          duration: GlassTokens.pressDuration,
+          curve: Curves.easeOut,
+          height: GlassTokens.pillHeight,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: pressed
+                ? cs.onSurface.withValues(alpha: 0.08)
+                : Colors.transparent,
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: c.first,
+              fontSize: 14.5,
+              fontWeight: emphasized ? FontWeight.w700 : FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -13,11 +13,14 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 /// 当外壳——`Colors.white` 是硬编码，暗色主题下这些弹窗全是一块刺眼的白板；
 /// 圆角、内边距、标题行、底部安全区（[computeSheetBottomInset]）也是各写各的。
 ///
-/// 2026-08-24 接上液态：面板挂在根 Navigator 上，读不到页面的
-/// `LiquidGlassScope`，这里显式钉死 [kChromeGlassBackend]（与页面 chrome
-/// 同一档）——`showModalBottomSheet` 的默认出入场是位移而不是透明度过渡，
-/// 没有 `showGlassMenu` 那条 Opacity 打断折射的坑，可以放心接。壳内嵌的
-/// `GlassIconButton`/[GlassComposerActions] 等自动跟着换档；壳内如果套了
+/// 2026-08-24 给内容接上液态：**面板背景本身不接**（用户明确要求——弹窗/
+/// 弹层的壳保持原样，不要变透明玻璃），只给壳里的内容（标题行按钮、动作行）
+/// 套一层 [LiquidGlassScope]（钉死 [kChromeGlassBackend]，与页面 chrome
+/// 同一档）。做法是把 scope 包在 `child`/`builder(...)` 外面、壳自己的
+/// `GlassSurface` 调用之外——壳的背景读的是它自己 build 时的祖先 scope
+/// （面板挂在根 Navigator 上，天然没有祖先，落回 plain，与收口前一致），
+/// 内容里的 `GlassIconButton`/`GlassButtonGroup`/[GlassComposerActions] 等
+/// 才会跟着换档、长出液态档的长按蠕动。壳内如果套了
 /// `ListView`/`SingleChildScrollView`，**列表 item 本身不能含 `GlassSurface`**
 /// （约束见 `liquid_glass_material.dart` 文件头）——本仓库现状是干净的，新增
 /// 调用点也要守这条。
@@ -126,29 +129,32 @@ class _GlassBottomSheetShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return LiquidGlassScope(
-      backend: kChromeGlassBackend,
-      child: GlassSurface(
-        height: null,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (showDragHandle) ...[
-              const SizedBox(height: 8),
-              Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: cs.onSurfaceVariant.withValues(alpha: 0.4),
-                  borderRadius: BorderRadius.circular(2),
-                ),
+    // ⛔ 只给「内容」（child——标题行按钮、动作行）接液态，壳自己的
+    // GlassSurface 留在 LiquidGlassScope 之外：它读的是这个 build 方法自己
+    // 所在位置的祖先 scope（面板挂在根 Navigator 上，天然没有祖先，落回
+    // plain），面板背景因此保持原样，不随内容按钮一起变成折射透镜。
+    return GlassSurface(
+      height: null,
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (showDragHandle) ...[
+            const SizedBox(height: 8),
+            Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: cs.onSurfaceVariant.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(2),
               ),
-              const SizedBox(height: 4),
-            ],
-            Flexible(child: child),
+            ),
+            const SizedBox(height: 4),
           ],
-        ),
+          Flexible(
+            child: LiquidGlassScope(backend: kChromeGlassBackend, child: child),
+          ),
+        ],
       ),
     );
   }
@@ -221,30 +227,34 @@ class GlassDraggableBottomSheet extends StatelessWidget {
       maxChildSize: maxChildSize,
       expand: false,
       snap: snap,
+      // 同 [_GlassBottomSheetShell]：只给内容接液态，壳自己的 GlassSurface
+      // 留在 LiquidGlassScope 之外，面板背景保持原样。
       builder: (context, scrollController) => SheetBottomSafeArea(
-        child: LiquidGlassScope(
-          backend: kChromeGlassBackend,
-          child: GlassSurface(
-            height: null,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 8),
-                Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+        child: GlassSurface(
+          height: null,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                const SizedBox(height: 4),
-                Expanded(child: builder(context, scrollController)),
-              ],
-            ),
+              ),
+              const SizedBox(height: 4),
+              Expanded(
+                child: LiquidGlassScope(
+                  backend: kChromeGlassBackend,
+                  child: builder(context, scrollController),
+                ),
+              ),
+            ],
           ),
         ),
       ),

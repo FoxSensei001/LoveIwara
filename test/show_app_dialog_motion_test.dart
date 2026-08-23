@@ -32,8 +32,16 @@ void main() {
     );
   }
 
-  double fadeOpacity(WidgetTester tester) =>
-      transitionAbove<FadeTransition>(tester).opacity.value;
+  // ⛔ 2026-08-24：这层不再是 FadeTransition——Opacity 会把液态 lens 的
+  // backdrop 采样隔断（见 glass_dialog_motion.dart 文件头）。入场是否渐进
+  // 改读 GlassDialogMotionScope 递下来的驱动动画：内容（典型是
+  // GlassAlertDialog）拿它驱动 GlassSurface.materialize，材质本身淡入，
+  // 不建 saveLayer。这里验证的是同一件事「入场不是瞬间的」，只是换了
+  // 不打断折射的实现方式。
+  double motionValue(WidgetTester tester) {
+    final content = tester.element(find.byKey(dialogKey));
+    return GlassDialogMotionScope.maybeOf(content)!.value;
+  }
 
   testWidgets('弹窗入场是渐进的，不是瞬间出现', (tester) async {
     final context = await pumpHost(tester);
@@ -45,15 +53,15 @@ void main() {
     );
 
     await tester.pump(); // 推入路由，动画从 0 起步
-    expect(fadeOpacity(tester), 0);
+    expect(motionValue(tester), 0);
 
     await tester.pump(GlassTokens.dialogEnterDuration ~/ 2);
-    final midway = fadeOpacity(tester);
+    final midway = motionValue(tester);
     expect(midway, greaterThan(0));
     expect(midway, lessThan(1));
 
     await tester.pumpAndSettle();
-    expect(fadeOpacity(tester), 1);
+    expect(motionValue(tester), 1);
   });
 
   testWidgets('弹窗出场同样有过渡，而不是直接消失', (tester) async {
@@ -70,7 +78,7 @@ void main() {
     await tester.pump();
     await tester.pump(GlassTokens.dialogExitDuration ~/ 2);
 
-    final midway = fadeOpacity(tester);
+    final midway = motionValue(tester);
     expect(midway, greaterThan(0));
     expect(midway, lessThan(1));
 
