@@ -22,7 +22,9 @@ import 'package:i_iwara/app/ui/pages/download/widgets/gallery_download_task_item
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:super_clipboard/super_clipboard.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_field.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -578,58 +580,12 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
         ),
         GlassGroupSlot(
           visible: !_isSelectionMode,
-          child: SizedBox(
-            width: GlassTokens.groupIconButtonSize,
-            height: GlassTokens.groupIconButtonSize,
-            child: PopupMenuButton<String>(
-              padding: EdgeInsets.zero,
-              icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
+          // "更多"菜单位：玻璃图标钮（放在按钮组里，非 standalone）+ 玻璃菜单
+          child: Builder(
+            builder: (anchorContext) => GlassIconButton(
+              icon: const Icon(Icons.more_vert),
               tooltip: t.download.moreOptions,
-              position: PopupMenuPosition.under,
-              // 往下挪一点，别压住玻璃胶囊本身
-              offset: const Offset(0, 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              onSelected: (value) {
-                switch (value) {
-                  case _menuActionManageCategory:
-                    _openCategoryManagePage();
-                  case _menuActionDeleteByDate:
-                    _showDeleteByDateDialog();
-                  case _menuActionResumeAll:
-                    DownloadService.to.resumeAll();
-                  case _menuActionPauseAll:
-                    DownloadService.to.pauseAll();
-                }
-              },
-              itemBuilder: (context) => [
-                // 窄屏胶囊塞不下批量播放控制，收进这里
-                if (!isWide) ...[
-                  _buildMenuItem(
-                    value: _menuActionResumeAll,
-                    icon: Icons.play_arrow_outlined,
-                    label: t.download.resumeAll,
-                  ),
-                  _buildMenuItem(
-                    value: _menuActionPauseAll,
-                    icon: Icons.pause_outlined,
-                    label: t.download.pauseAll,
-                  ),
-                  const PopupMenuDivider(),
-                ],
-                _buildMenuItem(
-                  value: _menuActionManageCategory,
-                  icon: Icons.folder_outlined,
-                  label: t.download.category.manageTitle,
-                ),
-                _buildMenuItem(
-                  value: _menuActionDeleteByDate,
-                  icon: Icons.auto_delete_outlined,
-                  label: t.download.deleteByDate.menuTitle,
-                  isDestructive: true,
-                ),
-              ],
+              onPressed: () => _openMoreMenu(anchorContext, isWide),
             ),
           ),
         ),
@@ -637,26 +593,51 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     );
   }
 
-  PopupMenuItem<String> _buildMenuItem({
-    required String value,
-    required IconData icon,
-    required String label,
-    bool isDestructive = false,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final color = isDestructive
-        ? colorScheme.error
-        : colorScheme.onSurfaceVariant;
-    return PopupMenuItem<String>(
-      value: value,
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: color),
-          const SizedBox(width: 12),
-          Text(label),
+  Future<void> _openMoreMenu(BuildContext anchorContext, bool isWide) async {
+    final t = slang.Translations.of(anchorContext);
+    final picked = await showGlassMenu<String>(
+      anchorContext: anchorContext,
+      entries: [
+        // 窄屏胶囊塞不下批量播放控制，收进这里
+        if (!isWide) ...[
+          GlassMenuOption(
+            value: _menuActionResumeAll,
+            icon: Icons.play_arrow_outlined,
+            label: t.download.resumeAll,
+          ),
+          GlassMenuOption(
+            value: _menuActionPauseAll,
+            icon: Icons.pause_outlined,
+            label: t.download.pauseAll,
+          ),
+          const GlassMenuSeparator(),
         ],
-      ),
+        GlassMenuOption(
+          value: _menuActionManageCategory,
+          icon: Icons.folder_outlined,
+          label: t.download.category.manageTitle,
+        ),
+        GlassMenuOption(
+          value: _menuActionDeleteByDate,
+          icon: Icons.auto_delete_outlined,
+          label: t.download.deleteByDate.menuTitle,
+          destructive: true,
+        ),
+      ],
     );
+    if (picked == null) return;
+    // 菜单是独立路由，选完这一帧触发件可能已不在树上，用到 State 前判 mounted。
+    if (!mounted) return;
+    switch (picked) {
+      case _menuActionManageCategory:
+        _openCategoryManagePage();
+      case _menuActionDeleteByDate:
+        _showDeleteByDateDialog();
+      case _menuActionResumeAll:
+        DownloadService.to.resumeAll();
+      case _menuActionPauseAll:
+        DownloadService.to.pauseAll();
+    }
   }
 
   void _openCategoryManagePage() => openDownloadCategoryManagePage(context);
@@ -1968,40 +1949,18 @@ class _DeleteByDateDialogState extends State<_DeleteByDateDialog> {
                     ),
                   ),
                 ),
-                DropdownButtonFormField<_DeleteByDateMode>(
-                  initialValue: _mode,
-                  decoration: InputDecoration(
-                    isDense: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                  ),
+                GlassDropdownField<_DeleteByDateMode>(
+                  value: _mode,
                   items: [
-                    DropdownMenuItem(
+                    GlassDropdownItem(
                       value: _DeleteByDateMode.range,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.date_range, size: 20),
-                          const SizedBox(width: 8),
-                          Text(t.download.deleteByDate.modeRange),
-                        ],
-                      ),
+                      icon: Icons.date_range,
+                      label: t.download.deleteByDate.modeRange,
                     ),
-                    DropdownMenuItem(
+                    GlassDropdownItem(
                       value: _DeleteByDateMode.days,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.history, size: 20),
-                          const SizedBox(width: 8),
-                          Text(t.download.deleteByDate.modeDays),
-                        ],
-                      ),
+                      icon: Icons.history,
+                      label: t.download.deleteByDate.modeDays,
                     ),
                   ],
                   onChanged: (value) {

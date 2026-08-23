@@ -5,6 +5,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/download_category_manage_page.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_field.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 
 /// 跳转到「管理分类」页面。下载分类选择器、下载清晰度弹窗、"更多"菜单里的
@@ -57,48 +58,54 @@ class _DownloadCategoryPickerState extends State<DownloadCategoryPicker> {
         ? widget.value
         : null;
 
-    return Row(
+    // GlassDropdownField 不带 labelText，标签放到下拉上方单独一行；
+    // 下拉与右侧齿轮管理入口仍并排一行，保持紧凑。
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(
-          child: DropdownButtonFormField<String?>(
-            // 以「分类集合 + 当前值」为 key：分类增删时重建并按 validValue 重新播种，
-            // 防止内部仍持有已删除的旧值导致 Dropdown 断言。
-            key: ValueKey(
-              '${categories.map((c) => c.id).join(',')}|$validValue',
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Text(
+            t.download.category.label,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-            initialValue: validValue,
-            isDense: true,
-            isExpanded: true,
-            decoration: InputDecoration(
-              labelText: t.download.category.label,
-              isDense: true,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
-              border: const OutlineInputBorder(),
-            ),
-            items: [
-              DropdownMenuItem<String?>(
-                value: null,
-                child: Text(t.download.category.uncategorized),
-              ),
-              ...categories.map(
-                (c) => DropdownMenuItem<String?>(
-                  value: c.id,
-                  child: Text(c.title, overflow: TextOverflow.ellipsis),
-                ),
-              ),
-            ],
-            onChanged: widget.onChanged,
           ),
         ),
-        const SizedBox(width: 4),
-        IconButton(
-          icon: Icon(isEmpty ? Icons.add : Icons.settings_outlined),
-          tooltip: t.download.category.manageTitle,
-          visualDensity: VisualDensity.compact,
-          onPressed: _openManage,
+        Row(
+          children: [
+            Expanded(
+              child: GlassDropdownField<String?>(
+                // 以「分类集合 + 当前值」为 key：分类增删时重建并按 validValue
+                // 重新播种，防止内部仍持有已删除的旧值导致断言。
+                key: ValueKey(
+                  '${categories.map((c) => c.id).join(',')}|$validValue',
+                ),
+                value: validValue,
+                items: [
+                  GlassDropdownItem<String?>(
+                    value: null,
+                    label: t.download.category.uncategorized,
+                  ),
+                  ...categories.map(
+                    (c) => GlassDropdownItem<String?>(
+                      value: c.id,
+                      label: c.title,
+                    ),
+                  ),
+                ],
+                onChanged: widget.onChanged,
+              ),
+            ),
+            const SizedBox(width: 4),
+            IconButton(
+              icon: Icon(isEmpty ? Icons.add : Icons.settings_outlined),
+              tooltip: t.download.category.manageTitle,
+              visualDensity: VisualDensity.compact,
+              onPressed: _openManage,
+            ),
+          ],
         ),
       ],
     );
