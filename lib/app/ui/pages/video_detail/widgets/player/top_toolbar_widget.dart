@@ -15,7 +15,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import '../../../../../../common/anime4k_presets.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 
 /// 顶部工具栏高度（窗口态）。设计常量，不是测量值，但必须只存在这一份 ——
 /// 任何要相对工具栏定位的图层都从这里取，否则改一处漏一处。
@@ -671,24 +671,16 @@ class _TopToolbarState extends State<TopToolbar> {
   // 为了简洁，这里省略了未修改的 modal 代码，实际使用时请保留原有的代码
 
   void showSettingsModal(BuildContext context) {
-    showModalBottomSheet(
+    showGlassDraggableBottomSheet(
       context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (BuildContext context) {
-        return DraggableScrollableSheet(
+        return GlassDraggableBottomSheet(
           initialChildSize: 0.8,
           minChildSize: 0.2,
           maxChildSize: 0.80,
-          expand: false,
           builder: (context, scrollController) {
             return SingleChildScrollView(
               controller: scrollController,
-              padding: EdgeInsets.only(
-                bottom: computeSheetBottomInset(context),
-              ),
               child: SettingsContent(
                 myVideoStateController: widget.myVideoStateController,
               ),

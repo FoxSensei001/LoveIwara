@@ -93,10 +93,8 @@ class _CommentItemState extends State<CommentItem> {
   }
 
   void _handleViewReplies() {
-    showModalBottomSheet(
+    showGlassDraggableBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => CommentRepliesBottomSheet(
         parentComment: widget.comment,
         authorUserId: widget.authorUserId,

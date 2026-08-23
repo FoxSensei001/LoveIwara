@@ -26,7 +26,6 @@ import '../comment/widgets/comment_section_widget.dart';
 import 'controllers/post_detail_controller.dart';
 import 'widgets/post_detail_shimmer.dart';
 import '../../widgets/iwara_site_badge.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class PostDetailPage extends StatefulWidget {
   final String postId;
@@ -94,42 +93,17 @@ class _PostDetailPageState extends State<PostDetailPage> {
   void showCommentModal(BuildContext context) {
     final bool isSmallScreen = MediaQuery.of(context).size.width <= 600;
     detailController.isCommentSheetVisible.value = true;
-    showModalBottomSheet(
+    showGlassDraggableBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        return DraggableScrollableSheet(
+        return GlassDraggableBottomSheet(
           initialChildSize: isSmallScreen ? 0.88 : 0.8,
           minChildSize: 0.25,
           maxChildSize: 0.95,
-          expand: false,
           builder: (context, scrollController) {
             final theme = Theme.of(context);
-            return Container(
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(20),
-                ),
-              ),
-              // 底部弹窗自己让出系统手势条/导航条
-              padding: EdgeInsets.only(
-                bottom: computeSheetBottomInset(context),
-              ),
-              child: Column(
+            return Column(
                 children: [
-                  Container(
-                    margin: const EdgeInsets.only(top: 10, bottom: 4),
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.onSurfaceVariant.withValues(
-                        alpha: 0.35,
-                      ),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
                   Padding(
                     padding: EdgeInsets.fromLTRB(
                       isSmallScreen ? 12 : 16,
@@ -227,7 +201,6 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     ),
                   ),
                 ],
-              ),
             );
           },
         );

@@ -165,3 +165,97 @@ Future<T?> showGlassBottomSheet<T>({
     builder: builder,
   );
 }
+
+/// [GlassBottomSheet] 的可拖拽缩放变体。
+///
+/// [GlassBottomSheet] 是钉死高度（+ 可选内部滚动）的壳，适合表单/选项这类
+/// 长度大致可预期的内容。评论列表一类**可能很长、用户会想拖大看更多**的内容
+/// 用它并不合适——2026-08-24 之前，这类弹层（评论回复列表、播放器设置面板）
+/// 各自手写了一份 `DraggableScrollableSheet` + `Container(color: colorScheme.surface)`
+/// 当外壳，和 [GlassBottomSheet] 收编前的裸 `showModalBottomSheet` 是同一个问题：
+/// 硬编码底色、圆角、拖拽条、安全区各写一份。
+///
+/// 这里只收口「壳」（玻璃材质 + 顶部圆角 + 拖拽条 + 安全区），**不**收口标题行——
+/// 各处标题行结构差异较大（有的带图标+计数+两枚动作钮，有的只是简单标题+关闭钮），
+/// 强行统一反而会丢信息。[builder] 拿到的 `scrollController` 必须接到内容的
+/// 可滚动组件上（`ListView(controller: scrollController)` 一类）——它由
+/// `DraggableScrollableSheet` 提供，滚动到底部与拖拽变高共用同一条手势链路，
+/// 这也是不能直接套 [GlassBottomSheet]（自己接 [SingleChildScrollView]）的原因。
+///
+/// 用 [showGlassDraggableBottomSheet] 打开。
+class GlassDraggableBottomSheet extends StatelessWidget {
+  const GlassDraggableBottomSheet({
+    super.key,
+    required this.builder,
+    this.initialChildSize = 0.6,
+    this.minChildSize = 0.3,
+    this.maxChildSize = 0.92,
+    this.snap = false,
+  });
+
+  /// 内容构建器，`scrollController` 必须接到正文的可滚动组件上。
+  final Widget Function(BuildContext context, ScrollController scrollController)
+  builder;
+
+  final double initialChildSize;
+  final double minChildSize;
+  final double maxChildSize;
+
+  /// 拖拽松手后是否吸附到 [DraggableScrollableSheet] 的 snap 位置。
+  final bool snap;
+
+  @override
+  Widget build(BuildContext context) {
+    return DraggableScrollableSheet(
+      initialChildSize: initialChildSize,
+      minChildSize: minChildSize,
+      maxChildSize: maxChildSize,
+      expand: false,
+      snap: snap,
+      builder: (context, scrollController) => SheetBottomSafeArea(
+        child: GlassSurface(
+          height: null,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Expanded(child: builder(context, scrollController)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 打开一块 [GlassDraggableBottomSheet]。同 [showGlassBottomSheet]，
+/// `backgroundColor: transparent` + `isScrollControlled: true` 固定搭配。
+Future<T?> showGlassDraggableBottomSheet<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+  bool isDismissible = true,
+  bool enableDrag = true,
+  bool useRootNavigator = true,
+}) {
+  return showModalBottomSheet<T>(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    isDismissible: isDismissible,
+    enableDrag: enableDrag,
+    useRootNavigator: useRootNavigator,
+    builder: builder,
+  );
+}
