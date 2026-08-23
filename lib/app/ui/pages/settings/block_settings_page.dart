@@ -12,6 +12,7 @@ import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -209,52 +210,44 @@ class _BlockSettingsPageState extends State<BlockSettingsPage>
           tooltip: _t.addRule,
           onPressed: () => _addRule(context),
         ),
-        SizedBox(
-          width: GlassTokens.groupIconButtonSize,
-          height: GlassTokens.groupIconButtonSize,
-          child: PopupMenuButton<String>(
-            padding: EdgeInsets.zero,
+        // 导入/导出二级菜单：Builder 包一层拿到触发件自身 context 作为
+        // showGlassMenu 的锚点；GlassIconButton 非 standalone，因为它就在
+        // 这个 GlassButtonGroup 的透明图标位里。
+        Builder(
+          builder: (anchorContext) => GlassIconButton(
+            icon: const Icon(Icons.import_export),
             tooltip: _t.importExport,
-            icon: const Icon(Icons.import_export, size: GlassTokens.iconSize),
-            position: PopupMenuPosition.under,
-            // 往下挪一点，别压住玻璃胶囊本身
-            offset: const Offset(0, 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            onSelected: (v) {
-              if (v == 'import') {
-                _import(context);
-              } else if (v == 'export') {
-                _export(context);
-              }
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'import',
-                child: Row(
-                  children: [
-                    const Icon(Icons.file_download_outlined, size: 20),
-                    const SizedBox(width: 12),
-                    Text(_t.importRules),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'export',
-                child: Row(
-                  children: [
-                    const Icon(Icons.file_upload_outlined, size: 20),
-                    const SizedBox(width: 12),
-                    Text(_t.exportRules),
-                  ],
-                ),
-              ),
-            ],
+            onPressed: () => _openImportExportMenu(anchorContext),
           ),
         ),
       ],
     );
+  }
+
+  /// 导入/导出玻璃菜单：对应原来 PopupMenuButton 的两条 item。
+  Future<void> _openImportExportMenu(BuildContext anchorContext) async {
+    final picked = await showGlassMenu<String>(
+      anchorContext: anchorContext,
+      entries: [
+        GlassMenuOption(
+          value: 'import',
+          icon: Icons.file_download_outlined,
+          label: _t.importRules,
+        ),
+        GlassMenuOption(
+          value: 'export',
+          icon: Icons.file_upload_outlined,
+          label: _t.exportRules,
+        ),
+      ],
+    );
+    if (picked == null) return;
+    if (!mounted) return;
+    if (picked == 'import') {
+      _import(context);
+    } else if (picked == 'export') {
+      _export(context);
+    }
   }
 
   /// 单个类型的规则列表（每条规则一张卡片）。

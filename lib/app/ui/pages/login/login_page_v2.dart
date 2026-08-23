@@ -12,6 +12,7 @@ import 'package:i_iwara/app/services/default_tag_blacklist_reminder.dart';
 import 'package:i_iwara/app/services/iwara_site_headers.dart';
 import 'package:i_iwara/app/services/storage_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart' show LogUtils;
@@ -342,24 +343,19 @@ class _HeaderBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SegmentedButton<_AuthFlow>(
-            segments: [
-              ButtonSegment<_AuthFlow>(
-                value: _AuthFlow.login,
-                label: Text(t.auth.login),
+          GlassSegmentedControl(
+            selectedIndex: _AuthFlow.values.indexOf(flow),
+            onChanged: (index) => onFlowChanged(_AuthFlow.values[index]),
+            items: [
+              GlassSegmentItem(
+                label: t.auth.login,
                 icon: const Icon(Icons.login),
               ),
-              ButtonSegment<_AuthFlow>(
-                value: _AuthFlow.register,
-                label: Text(t.auth.register),
+              GlassSegmentItem(
+                label: t.auth.register,
                 icon: const Icon(Icons.person_add),
               ),
             ],
-            selected: {flow},
-            showSelectedIcon: false,
-            onSelectionChanged: (value) {
-              onFlowChanged(value.first);
-            },
           ),
           IconButton(
             icon: const Icon(Icons.close),
