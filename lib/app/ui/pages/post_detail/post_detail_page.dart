@@ -9,6 +9,7 @@ import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/ui/pages/post_detail/widgets/post_detail_content_widget.dart';
 import 'package:i_iwara/app/ui/pages/post_detail/widgets/share_post_bottom_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -241,9 +242,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   void _showShareSheet() {
     final post = detailController.postInfo.value;
     if (post == null) return;
-    showModalBottomSheet(
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
+    showGlassBottomSheet(
       builder: (context) => SharePostBottomSheet(post: post),
       context: context,
     );

@@ -10,6 +10,7 @@ import 'package:i_iwara/app/ui/pages/forum/widgets/share_thread_bottom_sheet.dar
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_overflow_menu_button.dart';
@@ -279,9 +280,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
   void _showShareSheet() {
     final thread = _thread.value;
     if (thread == null) return;
-    showModalBottomSheet(
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
+    showGlassBottomSheet(
       builder: (context) => ShareThreadBottomSheet(thread: thread),
       context: context,
     );

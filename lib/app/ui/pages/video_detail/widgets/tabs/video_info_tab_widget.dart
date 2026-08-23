@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/video_description_widget.dart';
@@ -1375,9 +1376,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
 
   /// 处理分享操作
   void _handleShareAction(BuildContext context) {
-    showModalBottomSheet(
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
+    showGlassBottomSheet(
       builder: (context) => ShareVideoBottomSheet(
         videoId: widget.controller.videoInfo.value?.id ?? '',
         videoTitle: widget.controller.videoInfo.value?.title ?? '',
