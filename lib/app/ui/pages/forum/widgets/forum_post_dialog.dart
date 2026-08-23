@@ -15,6 +15,7 @@ import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/enhanced_emoji_text_field.dart';
 import 'package:i_iwara/app/ui/widgets/emoji_picker_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
@@ -182,23 +183,19 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
   }
 
   void _showMarkdownHelp() {
-    showModalBottomSheet(
+    showGlassDraggableBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => const MarkdownSyntaxHelp(),
     );
   }
 
   Future<void> _showRulesDialog() async {
-    final result = await showModalBottomSheet<bool>(
+    final result = await showGlassDraggableBottomSheet<bool>(
       context: context,
-      isScrollControlled: true,
-      builder: (context) => DraggableScrollableSheet(
+      builder: (context) => GlassDraggableBottomSheet(
         initialChildSize: 0.8,
         minChildSize: 0.5,
         maxChildSize: 0.95,
-        expand: false,
         builder: (context, scrollController) =>
             RulesAgreementDialog(scrollController: scrollController),
       ),
