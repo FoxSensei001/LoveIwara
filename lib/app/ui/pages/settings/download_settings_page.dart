@@ -14,6 +14,7 @@ import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 
+import 'package:i_iwara/app/ui/widgets/glass/glass_slider.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 
 class DownloadSettingsPage extends StatefulWidget {
@@ -613,7 +614,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                 color: Theme.of(context).textTheme.bodySmall?.color,
               ),
             ),
-            Slider(
+            GlassSlider(
               value: current.toDouble(),
               min: 1,
               max: 5,

@@ -6,6 +6,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_field.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -472,16 +473,8 @@ class _DeepLXTranslationSettingsWidgetState
           ],
         ),
         const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          initialValue: _selectedEndpointType,
-          isExpanded: true,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-          ),
+        GlassDropdownField<String>(
+          value: _selectedEndpointType,
           items: _endpointTypes.map((type) {
             String description;
             switch (type) {
@@ -497,14 +490,7 @@ class _DeepLXTranslationSettingsWidgetState
               default:
                 description = type;
             }
-            return DropdownMenuItem<String>(
-              value: type,
-              child: Text(
-                description,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-            );
+            return GlassDropdownItem(value: type, label: description);
           }).toList(),
           onChanged: (value) {
             if (value != null) {

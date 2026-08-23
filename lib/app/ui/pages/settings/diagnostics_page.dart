@@ -12,7 +12,9 @@ import 'package:i_iwara/app/services/logging/log_service.dart';
 import 'package:i_iwara/app/services/logging/log_models.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/storage_service.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_field.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -854,12 +856,11 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
     required bool value,
     ValueChanged<bool>? onChanged,
   }) {
-    return SwitchListTile.adaptive(
+    return GlassSwitchItem(
       value: value,
       onChanged: onChanged,
       title: Text(title),
-      subtitle: Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
-      contentPadding: const EdgeInsets.only(left: 12, right: 8),
+      subtitle: Text(subtitle),
     );
   }
 
@@ -874,18 +875,19 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
     return ListTile(
       title: Text(title),
       subtitle: Text(subtitle, style: theme.textTheme.bodySmall),
-      trailing: DropdownButton<String>(
+      trailing: GlassDropdownField<String>(
         value: options.contains(value) ? value : options.first,
+        enabled: onChanged != null,
         onChanged: onChanged == null
-            ? null
+            ? (_) {}
             : (next) {
                 if (next != null) {
                   onChanged(next);
                 }
               },
-        items: options
-            .map((e) => DropdownMenuItem<String>(value: e, child: Text(e)))
-            .toList(),
+        items: [
+          for (final e in options) GlassDropdownItem(value: e, label: e),
+        ],
       ),
     );
   }

@@ -6,6 +6,8 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_field.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_slider.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -596,20 +598,12 @@ class _AITranslationSettingsWidgetState
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: DropdownButton<String>(
-              isExpanded: true,
+            child: GlassDropdownField<String>(
               value: providers.contains(current) ? current : 'openai',
-              items: providers
-                  .map(
-                    (id) => DropdownMenuItem<String>(
-                      value: id,
-                      child: Text(
-                        labelFor(id),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  )
-                  .toList(),
+              items: [
+                for (final id in providers)
+                  GlassDropdownItem(value: id, label: labelFor(id)),
+              ],
               onChanged: (id) {
                 if (id == null) return;
                 configService[ConfigKey.AI_TRANSLATION_PROVIDER] = id;
@@ -645,21 +639,12 @@ class _AITranslationSettingsWidgetState
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: DropdownButton<String>(
-            isExpanded: true,
-            value: null,
-            hint: Text(slang.t.translation.selectProviderPreset),
-            items: _providerPresets
-                .map(
-                  (p) => DropdownMenuItem<String>(
-                    value: p.id,
-                    child: Text(
-                      _localizedPresetName(p),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                )
-                .toList(),
+          child: GlassDropdownField<String>(
+            hint: slang.t.translation.selectProviderPreset,
+            items: [
+              for (final p in _providerPresets)
+                GlassDropdownItem(value: p.id, label: _localizedPresetName(p)),
+            ],
             onChanged: (id) {
               if (id == null) return;
               final preset = _providerPresets.firstWhere((p) => p.id == id);
@@ -1720,7 +1705,7 @@ class _AITranslationSettingsWidgetState
         Obx(
           () => Column(
             children: [
-              Slider(
+              GlassSlider(
                 value: temperatureValue.value,
                 min: 0.0,
                 max: 2.0,
