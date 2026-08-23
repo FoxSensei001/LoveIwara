@@ -8,6 +8,8 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_field.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_slider.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -808,16 +810,17 @@ class _AITranslationSettingsWidgetState
           height: 480,
           child: Column(
             children: [
-              TextField(
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.search),
-                  hintText: slang.t.translation.searchModel,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  isDense: true,
+              GlassInputSurface(
+                borderRadius: 8,
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: TextField(
+                  decoration: glassFieldDecoration(
+                    context,
+                    hint: slang.t.translation.searchModel,
+                    icon: Icons.search,
+                  ).copyWith(isDense: true),
+                  onChanged: (v) => searchText.value = v.toLowerCase(),
                 ),
-                onChanged: (v) => searchText.value = v.toLowerCase(),
               ),
               const SizedBox(height: 8),
               Expanded(
@@ -1036,7 +1039,8 @@ class _AITranslationSettingsWidgetState
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Obx(
-        () => SwitchListTile(
+        () => GlassSwitchItem(
+          icon: Icons.translate,
           title: Text(
             slang.t.translation.enableAITranslation,
             style: Theme.of(context).textTheme.titleMedium,
@@ -1049,10 +1053,6 @@ class _AITranslationSettingsWidgetState
           ),
           value: _isAIEnabled.value,
           onChanged: _handleSwitchChange,
-          secondary: Icon(
-            Icons.translate,
-            color: Theme.of(context).colorScheme.primary,
-          ),
         ),
       ),
     );

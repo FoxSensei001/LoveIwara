@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -55,12 +57,17 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       builder: (dialogContext) {
         return GlassAlertDialog(
           title: slang.t.settings.autoDeleteHistoryDays,
-          content: TextField(
-            controller: controller,
-            keyboardType: TextInputType.number,
-            autofocus: true,
-            decoration: InputDecoration(
-              labelText: slang.t.settings.autoDeleteHistoryDays,
+          content: GlassInputSurface(
+            borderRadius: 8,
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              autofocus: true,
+              decoration: glassFieldDecoration(
+                dialogContext,
+                label: slang.t.settings.autoDeleteHistoryDays,
+              ),
             ),
           ),
           actions: [
@@ -335,7 +342,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     ),
                     const Divider(height: 1),
                     Obx(
-                      () => SwitchListTile(
+                      () => GlassSwitchItem(
                         title: Text(slang.t.settings.autoRecordHistory),
                         subtitle: Text(slang.t.settings.autoRecordHistoryDesc),
                         value: configService[ConfigKey.AUTO_RECORD_HISTORY_KEY],
@@ -354,7 +361,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                           configService[ConfigKey.AUTO_DELETE_HISTORY_DAYS];
                       return Column(
                         children: [
-                          SwitchListTile(
+                          GlassSwitchItem(
                             title: Text(slang.t.settings.autoDeleteHistory),
                             subtitle: Text(
                               slang.t.settings.autoDeleteHistoryDesc,
@@ -365,14 +372,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                       .AUTO_DELETE_HISTORY_ENABLED] =
                                   value;
                             },
-                            shape: enabled
-                                ? null
-                                : const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                      bottomLeft: Radius.circular(16),
-                                      bottomRight: Radius.circular(16),
-                                    ),
-                                  ),
                           ),
                           if (enabled)
                             ListTile(
@@ -421,7 +420,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     ),
                     const Divider(height: 1),
                     Obx(
-                      () => SwitchListTile(
+                      () => GlassSwitchItem(
                         title: Text(
                           slang.t.settings.activeBackgroundPrivacyMode,
                         ),
@@ -436,12 +435,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                   .ACTIVE_BACKGROUND_PRIVACY_MODE] =
                               value;
                         },
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(16),
-                            bottomRight: Radius.circular(16),
-                          ),
-                        ),
                       ),
                     ),
                   ],
@@ -466,7 +459,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       ),
                       const Divider(height: 1),
                       Obx(
-                        () => SwitchListTile(
+                        () => GlassSwitchItem(
                           title: Text(slang.t.settings.enableVibration),
                           subtitle: Text(slang.t.settings.enableVibrationDesc),
                           value: configService[ConfigKey.ENABLE_VIBRATION],
@@ -474,12 +467,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                             configService[ConfigKey.ENABLE_VIBRATION] = value;
                             CommonConstants.enableVibration = value;
                           },
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(16),
-                              bottomRight: Radius.circular(16),
-                            ),
-                          ),
                         ),
                       ),
                     ],
@@ -593,7 +580,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     ),
                     const Divider(height: 1),
                     Obx(
-                      () => SwitchListTile(
+                      () => GlassSwitchItem(
                         title: Text(
                           slang.t.settings.showUnprocessedMarkdownText,
                         ),
@@ -608,12 +595,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                   .SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY] =
                               value;
                         },
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(16),
-                            bottomRight: Radius.circular(16),
-                          ),
-                        ),
                       ),
                     ),
                   ],

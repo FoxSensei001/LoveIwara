@@ -13,6 +13,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/common/widgets/input/input_components.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
@@ -361,8 +362,8 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
               context,
               title: slang.t.personalProfile.notificationSettings,
               children: [
-                SwitchListTile(
-                  secondary: const Icon(Icons.comment_outlined),
+                GlassSwitchItem(
+                  icon: Icons.comment_outlined,
                   title: Text(
                     slang.t.personalProfile.contentCommentNotification,
                   ),
@@ -373,8 +374,8 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                   onChanged: (bool value) =>
                       _handleToggleNotification('comment', value),
                 ),
-                SwitchListTile(
-                  secondary: const Icon(Icons.reply_outlined),
+                GlassSwitchItem(
+                  icon: Icons.reply_outlined,
                   title: Text(slang.t.personalProfile.commentReplyNotification),
                   subtitle: Text(
                     slang.t.personalProfile.commentReplyNotificationDesc,
@@ -383,8 +384,8 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                   onChanged: (bool value) =>
                       _handleToggleNotification('reply', value),
                 ),
-                SwitchListTile(
-                  secondary: const Icon(Icons.alternate_email_outlined),
+                GlassSwitchItem(
+                  icon: Icons.alternate_email_outlined,
                   title: Text(slang.t.personalProfile.mentionNotification),
                   subtitle: Text(
                     slang.t.personalProfile.mentionNotificationDesc,

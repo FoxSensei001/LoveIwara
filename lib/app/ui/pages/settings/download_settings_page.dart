@@ -10,6 +10,8 @@ import 'package:i_iwara/app/services/download_notification_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/recommended_paths_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/download_test_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -666,8 +668,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
               ],
             ),
             Obx(
-              () => SwitchListTile(
-                contentPadding: EdgeInsets.zero,
+              () => GlassSwitchItem(
                 title: Text(
                   t
                       .settings
@@ -822,7 +823,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
 
             // 启用开关
             Obx(
-              () => SwitchListTile(
+              () => GlassSwitchItem(
                 title: Text(
                   t.settings.downloadSettings.enableCustomDownloadPath,
                 ),
@@ -865,25 +866,31 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                 child: Column(
                   children: [
                     const SizedBox(height: 8),
-                    TextField(
-                      controller: _customPathController,
-                      focusNode: _customPathFocusNode,
-                      enabled: isEnabled,
-                      maxLines: null,
-                      decoration: InputDecoration(
-                        labelText:
-                            t.settings.downloadSettings.customDownloadPathLabel,
-                        hintText:
-                            t.settings.downloadSettings.selectDownloadFolder,
-                        border: const OutlineInputBorder(),
-                        alignLabelWithHint: true,
+                    GlassInputSurface(
+                      borderRadius: 8,
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: TextField(
+                        controller: _customPathController,
+                        focusNode: _customPathFocusNode,
+                        enabled: isEnabled,
+                        maxLines: null,
+                        decoration: glassFieldDecoration(
+                          context,
+                          hint:
+                              t.settings.downloadSettings.selectDownloadFolder,
+                          label: t
+                              .settings
+                              .downloadSettings
+                              .customDownloadPathLabel,
+                        ).copyWith(alignLabelWithHint: true),
+                        onChanged: (value) {
+                          // 只有在不是从配置更新时才更新配置
+                          if (!_isUpdatingFromConfig) {
+                            configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] =
+                                value;
+                          }
+                        },
                       ),
-                      onChanged: (value) {
-                        // 只有在不是从配置更新时才更新配置
-                        if (!_isUpdatingFromConfig) {
-                          configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] = value;
-                        }
-                      },
                     ),
 
                     // 公共目录权限提示
@@ -1140,23 +1147,25 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     required ConfigKey configKey,
   }) {
     final t = slang.Translations.of(context);
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        border: const OutlineInputBorder(),
-        suffixIcon: IconButton(
-          icon: const Icon(Icons.refresh),
-          onPressed: () => _resetTemplate(controller, configKey),
-          tooltip: t.settings.downloadSettings.resetToDefault,
-        ),
+    return GlassInputSurface(
+      borderRadius: 8,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: TextField(
+        controller: controller,
+        decoration: glassFieldDecoration(context, hint: hint, label: label)
+            .copyWith(
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.refresh),
+                onPressed: () => _resetTemplate(controller, configKey),
+                tooltip: t.settings.downloadSettings.resetToDefault,
+              ),
+            ),
+        onChanged: (value) {
+          if (filenameTemplateService.validateTemplate(value)) {
+            configService[configKey] = value;
+          }
+        },
       ),
-      onChanged: (value) {
-        if (filenameTemplateService.validateTemplate(value)) {
-          configService[configKey] = value;
-        }
-      },
     );
   }
 

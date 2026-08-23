@@ -16,6 +16,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/utils/media_layout_utils.dart';
@@ -990,8 +991,8 @@ class _FilterSheet extends StatelessWidget {
               const SizedBox(height: 8),
               // 排序开关：创建时间/更新时间（倒序）
               Obx(
-                () => SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
+                () => GlassSwitchItem(
+                  icon: Icons.swap_vert,
                   title: Text(
                     controller.orderByUpdated.value
                         ? t.common.updatedAt
@@ -1000,7 +1001,6 @@ class _FilterSheet extends StatelessWidget {
                   subtitle: const Text('(DESC)'),
                   value: controller.orderByUpdated.value,
                   onChanged: onOrderChanged,
-                  secondary: const Icon(Icons.swap_vert),
                 ),
               ),
               const SizedBox(height: 8),

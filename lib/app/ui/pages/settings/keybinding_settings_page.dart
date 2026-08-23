@@ -8,6 +8,7 @@ import 'package:i_iwara/app/services/player_keybinding/shortcut_action.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
@@ -231,23 +232,24 @@ class _KeybindingSettingsViewState extends State<KeybindingSettingsView> {
   }
 
   Widget _buildSearchField(BuildContext context) {
-    return TextField(
-      controller: _searchController,
-      onChanged: (v) => setState(() => _query = v.trim().toLowerCase()),
-      decoration: InputDecoration(
-        isDense: true,
-        prefixIcon: const Icon(Icons.search, size: 20),
-        hintText: _t.searchHint,
-        suffixIcon: _query.isEmpty
-            ? null
-            : IconButton(
-                icon: const Icon(Icons.clear, size: 18),
-                onPressed: () {
-                  _searchController.clear();
-                  setState(() => _query = '');
-                },
-              ),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+    return GlassInputSurface(
+      borderRadius: 12,
+      child: TextField(
+        controller: _searchController,
+        onChanged: (v) => setState(() => _query = v.trim().toLowerCase()),
+        decoration: glassFieldDecoration(context, hint: _t.searchHint).copyWith(
+          isDense: true,
+          prefixIcon: const Icon(Icons.search, size: 20),
+          suffixIcon: _query.isEmpty
+              ? null
+              : IconButton(
+                  icon: const Icon(Icons.clear, size: 18),
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() => _query = '');
+                  },
+                ),
+        ),
       ),
     );
   }

@@ -5,7 +5,9 @@ import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_field.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -595,33 +597,34 @@ class _DeepLXTranslationSettingsWidgetState
           ],
         ),
         const SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          decoration: InputDecoration(
-            hintText: hintText,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
+        GlassInputSurface(
+          borderRadius: 12,
+          child: TextFormField(
+            controller: controller,
+            decoration: glassFieldDecoration(context, hint: hintText).copyWith(
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 8,
+              ),
+              helperText: helperText,
+              helperMaxLines: 2,
             ),
-            helperText: helperText,
-            helperMaxLines: 2,
+            validator: (value) {
+              if (configKey == ConfigKey.DEEPLX_BASE_URL &&
+                  (value == null || value.trim().isEmpty)) {
+                return slang.t.translation.serverAddress.isEmpty
+                    ? slang.t.translation.thisFieldCannotBeEmpty
+                    : slang.t.translation.serverAddress;
+              }
+              return null;
+            },
+            onChanged: (value) {
+              configService[configKey] = value;
+              if (configKey == ConfigKey.DEEPLX_BASE_URL) {
+                _onSettingsChanged(); // Reset status
+              }
+            },
           ),
-          validator: (value) {
-            if (configKey == ConfigKey.DEEPLX_BASE_URL &&
-                (value == null || value.trim().isEmpty)) {
-              return slang.t.translation.serverAddress.isEmpty
-                  ? slang.t.translation.thisFieldCannotBeEmpty
-                  : slang.t.translation.serverAddress;
-            }
-            return null;
-          },
-          onChanged: (value) {
-            configService[configKey] = value;
-            if (configKey == ConfigKey.DEEPLX_BASE_URL) {
-              _onSettingsChanged(); // Reset status
-            }
-          },
         ),
       ],
     );
@@ -648,30 +651,36 @@ class _DeepLXTranslationSettingsWidgetState
           ],
         ),
         const SizedBox(height: 8),
-        TextFormField(
-          controller: _apiKeyController,
-          obscureText: _obscureApiKey,
-          decoration: InputDecoration(
-            hintText: slang.t.translation.apiKeyOptionalHint,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-            suffixIcon: IconButton(
-              icon: Icon(
-                _obscureApiKey ? Icons.visibility : Icons.visibility_off,
-                size: 20,
-              ),
-              onPressed: () => setState(() => _obscureApiKey = !_obscureApiKey),
-            ),
-            helperText: slang.t.translation.apiKeyOptionalHelperText,
-            helperMaxLines: 2,
+        GlassInputSurface(
+          borderRadius: 12,
+          child: TextFormField(
+            controller: _apiKeyController,
+            obscureText: _obscureApiKey,
+            decoration:
+                glassFieldDecoration(
+                  context,
+                  hint: slang.t.translation.apiKeyOptionalHint,
+                ).copyWith(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureApiKey ? Icons.visibility : Icons.visibility_off,
+                      size: 20,
+                    ),
+                    onPressed: () =>
+                        setState(() => _obscureApiKey = !_obscureApiKey),
+                  ),
+                  helperText: slang.t.translation.apiKeyOptionalHelperText,
+                  helperMaxLines: 2,
+                ),
+            onChanged: (value) {
+              configService[ConfigKey.DEEPLX_API_KEY] = value;
+              _onSettingsChanged();
+            },
           ),
-          onChanged: (value) {
-            configService[ConfigKey.DEEPLX_API_KEY] = value;
-            _onSettingsChanged();
-          },
         ),
       ],
     );
@@ -698,38 +707,45 @@ class _DeepLXTranslationSettingsWidgetState
           ],
         ),
         const SizedBox(height: 8),
-        TextFormField(
-          controller: _dlSessionController,
-          obscureText: _obscureDlSession,
-          decoration: InputDecoration(
-            hintText: slang.t.translation.dlSessionHint,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-            suffixIcon: IconButton(
-              icon: Icon(
-                _obscureDlSession ? Icons.visibility : Icons.visibility_off,
-                size: 20,
-              ),
-              onPressed: () =>
-                  setState(() => _obscureDlSession = !_obscureDlSession),
-            ),
-            helperText: slang.t.translation.dlSessionHelperText,
-            helperMaxLines: 2,
+        GlassInputSurface(
+          borderRadius: 12,
+          child: TextFormField(
+            controller: _dlSessionController,
+            obscureText: _obscureDlSession,
+            decoration:
+                glassFieldDecoration(
+                  context,
+                  hint: slang.t.translation.dlSessionHint,
+                ).copyWith(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureDlSession
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                      size: 20,
+                    ),
+                    onPressed: () =>
+                        setState(() => _obscureDlSession = !_obscureDlSession),
+                  ),
+                  helperText: slang.t.translation.dlSessionHelperText,
+                  helperMaxLines: 2,
+                ),
+            validator: (value) {
+              if (_selectedEndpointType == 'Pro' &&
+                  (value == null || value.trim().isEmpty)) {
+                return slang.t.translation.proModeRequiresDlSession;
+              }
+              return null;
+            },
+            onChanged: (value) {
+              configService[ConfigKey.DEEPLX_DL_SESSION] = value;
+              _onSettingsChanged();
+            },
           ),
-          validator: (value) {
-            if (_selectedEndpointType == 'Pro' &&
-                (value == null || value.trim().isEmpty)) {
-              return slang.t.translation.proModeRequiresDlSession;
-            }
-            return null;
-          },
-          onChanged: (value) {
-            configService[ConfigKey.DEEPLX_DL_SESSION] = value;
-            _onSettingsChanged();
-          },
         ),
       ],
     );
@@ -955,7 +971,8 @@ class _DeepLXTranslationSettingsWidgetState
       elevation: 2,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: SwitchListTile(
+      child: GlassSwitchItem(
+        icon: Icons.translate,
         title: Text(
           slang.t.translation.enableDeepLXTranslation,
           style: Theme.of(context).textTheme.titleMedium,
@@ -968,10 +985,6 @@ class _DeepLXTranslationSettingsWidgetState
         ),
         value: _isDeepLXEnabled,
         onChanged: _handleSwitchChange,
-        secondary: Icon(
-          Icons.translate,
-          color: Theme.of(context).colorScheme.primary,
-        ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 
 class SettingItem extends StatefulWidget {
@@ -153,43 +154,39 @@ class _SettingItemState extends State<SettingItem> {
   }
 
   Widget _buildTextField() {
-    // TextField 代码保持不变
-    return TextField(
-      readOnly: widget.readOnly,
-      decoration:
-          widget.inputDecoration ??
-          InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(
-                color: _errorText == null
-                    ? Colors.grey.shade300
-                    : Colors.redAccent,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(
-                color: _errorText == null
-                    ? Theme.of(context).primaryColor
-                    : Colors.redAccent,
-                width: 2,
-              ),
-            ),
-            filled: true,
-            fillColor: widget.readOnly
-                ? Colors.grey.shade100
-                : Colors.transparent,
+    // 调用方显式给了 inputDecoration 就尊重原样（少数几处带自定义前后缀图标），
+    // 否则统一走玻璃壳：GlassInputSurface 提供边界，glassFieldDecoration 只管
+    // 内边距与错误态透传，不再各页各画一套 OutlineInputBorder。
+    if (widget.inputDecoration != null) {
+      return TextField(
+        readOnly: widget.readOnly,
+        decoration: widget.inputDecoration,
+        keyboardType: widget.keyboardType,
+        controller: _controller,
+        onChanged: _handleChanged,
+        style: widget.inputStyle ?? Theme.of(context).textTheme.titleMedium,
+      );
+    }
+    return GlassInputSurface(
+      borderRadius: 8,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      error: _errorText != null,
+      child: TextField(
+        readOnly: widget.readOnly,
+        decoration: glassFieldDecoration(
+          context,
+          errorText: null, // 错误文案由外层单独渲染，这里只借边框变色
+        ).copyWith(
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 8,
           ),
-      keyboardType: widget.keyboardType,
-      controller: _controller,
-      onChanged: _handleChanged,
-      style: widget.inputStyle ?? Theme.of(context).textTheme.titleMedium,
+        ),
+        keyboardType: widget.keyboardType,
+        controller: _controller,
+        onChanged: _handleChanged,
+        style: widget.inputStyle ?? Theme.of(context).textTheme.titleMedium,
+      ),
     );
   }
 

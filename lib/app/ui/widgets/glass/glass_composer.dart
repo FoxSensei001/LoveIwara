@@ -33,11 +33,15 @@ class GlassInputSurface extends StatelessWidget {
     required this.child,
     this.borderRadius = 22,
     this.padding = EdgeInsets.zero,
+    this.error = false,
   });
 
   final Widget child;
   final double borderRadius;
   final EdgeInsetsGeometry padding;
+
+  /// 校验失败：描边转错误色。壳本身不显示错误文案，那仍由调用方在下方渲染。
+  final bool error;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +51,10 @@ class GlassInputSurface extends StatelessWidget {
       decoration: BoxDecoration(
         color: GlassTokens.fill(cs),
         borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(color: GlassTokens.stroke(cs), width: 0.6),
+        border: Border.all(
+          color: error ? cs.error : GlassTokens.stroke(cs),
+          width: error ? 1.0 : 0.6,
+        ),
       ),
       child: child,
     );

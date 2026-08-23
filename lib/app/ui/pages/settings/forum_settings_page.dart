@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/signature_edit_sheet_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
@@ -41,7 +42,7 @@ class ForumSettingsPage extends StatelessWidget {
                     ),
                     const Divider(height: 1),
                     Obx(
-                      () => SwitchListTile(
+                      () => GlassSwitchItem(
                         title: Text(t.settings.disableForumReplyQuote),
                         subtitle: Text(t.settings.disableForumReplyQuoteDesc),
                         value:
@@ -52,12 +53,6 @@ class ForumSettingsPage extends StatelessWidget {
                                   .DISABLE_FORUM_REPLY_QUOTE_KEY] =
                               value;
                         },
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(16),
-                            bottomRight: Radius.circular(16),
-                          ),
-                        ),
                       ),
                     ),
                   ],
@@ -82,7 +77,7 @@ class ForumSettingsPage extends StatelessWidget {
                     ),
                     const Divider(height: 1),
                     Obx(
-                      () => SwitchListTile(
+                      () => GlassSwitchItem(
                         title: Text(t.settings.enableSignature),
                         subtitle: Text(t.settings.enableSignatureDesc),
                         value: configService[ConfigKey.ENABLE_SIGNATURE_KEY],

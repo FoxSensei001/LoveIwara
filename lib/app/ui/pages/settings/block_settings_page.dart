@@ -8,7 +8,9 @@ import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/content_block_service.dart';
 import 'package:i_iwara/app/services/conversation_service.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
@@ -899,25 +901,31 @@ class _RuleEditorSheetState extends State<_RuleEditorSheet> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextField(
-          controller: _valueController,
-          autofocus: true,
-          decoration: InputDecoration(
-            labelText: t.value,
-            hintText: isRegex ? t.regexHint : null,
-            errorText: _error,
-            border: const OutlineInputBorder(),
-            suffixIcon: isRegex
-                ? IconButton(
-                    icon: const Icon(Icons.help_outline),
-                    tooltip: t.regexHelp,
-                    onPressed: _showRegexHelp,
-                  )
-                : null,
+        GlassInputSurface(
+          borderRadius: 8,
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          error: _error != null,
+          child: TextField(
+            controller: _valueController,
+            autofocus: true,
+            decoration: glassFieldDecoration(
+              context,
+              label: t.value,
+              hint: isRegex ? t.regexHint : null,
+              errorText: _error,
+            ).copyWith(
+              suffixIcon: isRegex
+                  ? IconButton(
+                      icon: const Icon(Icons.help_outline),
+                      tooltip: t.regexHelp,
+                      onPressed: _showRegexHelp,
+                    )
+                  : null,
+            ),
+            onChanged: (_) {
+              if (_error != null) setState(() => _error = null);
+            },
           ),
-          onChanged: (_) {
-            if (_error != null) setState(() => _error = null);
-          },
         ),
         if (isRegex) ...[
           const SizedBox(height: 6),
@@ -936,8 +944,7 @@ class _RuleEditorSheetState extends State<_RuleEditorSheet> {
           ),
         ],
         const SizedBox(height: 4),
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
+        GlassSwitchItem(
           title: Text(t.caseSensitive),
           value: _caseSensitive,
           onChanged: (v) => setState(() => _caseSensitive = v),
@@ -1233,21 +1240,19 @@ class _UserSearchSheetState extends State<_UserSearchSheet> {
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    focusNode: _searchFocusNode,
-                    textInputAction: TextInputAction.search,
-                    onChanged: _onSearchChanged,
-                    onSubmitted: (_) => _triggerSearch(),
-                    decoration: InputDecoration(
-                      hintText: t.conversation.searchUsers,
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
+                  child: GlassInputSurface(
+                    borderRadius: 8,
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: TextField(
+                      controller: _searchController,
+                      focusNode: _searchFocusNode,
+                      textInputAction: TextInputAction.search,
+                      onChanged: _onSearchChanged,
+                      onSubmitted: (_) => _triggerSearch(),
+                      decoration: glassFieldDecoration(
+                        context,
+                        hint: t.conversation.searchUsers,
+                        icon: Icons.search,
                       ),
                     ),
                   ),

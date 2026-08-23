@@ -5,6 +5,7 @@ import 'package:i_iwara/app/models/theme_mode.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/theme_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
@@ -126,7 +127,7 @@ class ThemeSettingsPage extends StatelessWidget {
           ),
           const Divider(height: 1),
           Obx(
-            () => SwitchListTile(
+            () => GlassSwitchItem(
               title: Text(t.settings.useDynamicColor),
               subtitle: Text(t.settings.useDynamicColorDesc),
               value: themeService.useDynamicColor,

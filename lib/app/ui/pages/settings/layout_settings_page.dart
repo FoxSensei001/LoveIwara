@@ -5,6 +5,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -338,35 +339,37 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
                         const SizedBox(width: 8),
                         SizedBox(
                           width: 80,
-                          child: TextField(
-                            controller: _columnsController,
-                            textAlign: TextAlign.center,
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 12,
-                              ),
+                          child: GlassInputSurface(
+                            borderRadius: 8,
+                            child: TextField(
+                              controller: _columnsController,
+                              textAlign: TextAlign.center,
+                              keyboardType: TextInputType.number,
+                              decoration: glassFieldDecoration(context)
+                                  .copyWith(
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 12,
+                                    ),
+                                  ),
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                              onSubmitted: (value) {
+                                final newValue = int.tryParse(value);
+                                if (newValue != null &&
+                                    newValue > 0 &&
+                                    newValue <= 12) {
+                                  _configService[ConfigKey
+                                          .MANUAL_COLUMNS_COUNT] =
+                                      newValue;
+                                } else {
+                                  _columnsController.text =
+                                      _configService[ConfigKey
+                                              .MANUAL_COLUMNS_COUNT]
+                                          .toString();
+                                }
+                              },
                             ),
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.w600),
-                            onSubmitted: (value) {
-                              final newValue = int.tryParse(value);
-                              if (newValue != null &&
-                                  newValue > 0 &&
-                                  newValue <= 12) {
-                                _configService[ConfigKey.MANUAL_COLUMNS_COUNT] =
-                                    newValue;
-                              } else {
-                                _columnsController.text =
-                                    _configService[ConfigKey
-                                            .MANUAL_COLUMNS_COUNT]
-                                        .toString();
-                              }
-                            },
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -438,30 +441,32 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
                     const SizedBox(width: 6),
                     SizedBox(
                       width: 60,
-                      child: TextField(
-                        controller: _columnsController,
-                        textAlign: TextAlign.center,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 8,
+                      child: GlassInputSurface(
+                        borderRadius: 8,
+                        child: TextField(
+                          controller: _columnsController,
+                          textAlign: TextAlign.center,
+                          keyboardType: TextInputType.number,
+                          decoration: glassFieldDecoration(context).copyWith(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 8,
+                            ),
                           ),
+                          onSubmitted: (value) {
+                            final newValue = int.tryParse(value);
+                            if (newValue != null &&
+                                newValue > 0 &&
+                                newValue <= 12) {
+                              _configService[ConfigKey.MANUAL_COLUMNS_COUNT] =
+                                  newValue;
+                            } else {
+                              _columnsController.text =
+                                  _configService[ConfigKey.MANUAL_COLUMNS_COUNT]
+                                      .toString();
+                            }
+                          },
                         ),
-                        onSubmitted: (value) {
-                          final newValue = int.tryParse(value);
-                          if (newValue != null &&
-                              newValue > 0 &&
-                              newValue <= 12) {
-                            _configService[ConfigKey.MANUAL_COLUMNS_COUNT] =
-                                newValue;
-                          } else {
-                            _columnsController.text =
-                                _configService[ConfigKey.MANUAL_COLUMNS_COUNT]
-                                    .toString();
-                          }
-                        },
                       ),
                     ),
                     const SizedBox(width: 6),
@@ -1094,7 +1099,6 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
       return sortedBreakpoints.last.value;
     }
   }
-
 
   void _showAddBreakpointDialog() {
     final widthController = TextEditingController();

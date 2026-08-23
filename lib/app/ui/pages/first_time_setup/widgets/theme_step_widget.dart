@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/theme_mode.model.dart';
 import 'package:i_iwara/app/services/theme_service.dart';
@@ -157,14 +158,11 @@ class ThemeStepWidget extends StatelessWidget {
                         ?.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
-            SwitchListTile(
+            GlassSwitchItem(
               title: Text(slang.t.settings.useDynamicColor),
               subtitle: Text(slang.t.settings.dynamicColorDesc),
               value: themeService.useDynamicColor,
               onChanged: (value) => themeService.setUseDynamicColor(value),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: isNarrow ? 12 : 16,
-              ),
             ),
             Padding(
               padding: EdgeInsets.all(isNarrow ? 12 : 16),
