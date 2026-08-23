@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:i_iwara/app/services/logging/log_models.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class CrashRecoveryDialog {
@@ -10,10 +11,9 @@ class CrashRecoveryDialog {
     BuildContext context,
     CrashRecoveryResult crashInfo,
   ) async {
-    return showDialog(
-      context: context,
+    return showAppDialog(
+      _CrashRecoveryDialogWidget(crashInfo: crashInfo),
       barrierDismissible: false,
-      builder: (context) => _CrashRecoveryDialogWidget(crashInfo: crashInfo),
     );
   }
 }
