@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+
 class SignInHeatMap extends StatelessWidget {
   final Map<DateTime, bool> signInStatus;
   final int consecutiveSignIns;
@@ -15,16 +17,22 @@ class SignInHeatMap extends StatelessWidget {
     required this.failureReasons, // 新增参数
     DateTime? startDate,
     DateTime? endDate,
-  })  : startDate = startDate ?? DateTime.now().subtract(const Duration(days: 90)),
-        endDate = endDate ?? DateTime.now();
+  }) : startDate =
+           startDate ?? DateTime.now().subtract(const Duration(days: 90)),
+       endDate = endDate ?? DateTime.now();
 
   // 生成日期列表
   List<DateTime> _generateDateList() {
     List<DateTime> dates = [];
-    DateTime currentDate = DateTime(startDate.year, startDate.month, startDate.day);
+    DateTime currentDate = DateTime(
+      startDate.year,
+      startDate.month,
+      startDate.day,
+    );
     DateTime finalDate = DateTime(endDate.year, endDate.month, endDate.day);
 
-    while (currentDate.isBefore(finalDate) || currentDate.isAtSameMomentAs(finalDate)) {
+    while (currentDate.isBefore(finalDate) ||
+        currentDate.isAtSameMomentAs(finalDate)) {
       dates.add(currentDate);
       currentDate = currentDate.add(const Duration(days: 1));
     }
@@ -100,7 +108,8 @@ class SignInHeatMap extends StatelessWidget {
               ),
               itemBuilder: (context, index) {
                 DateTime date = dateList[index];
-                bool? isSuccess = signInStatus[DateTime(date.year, date.month, date.day)];
+                bool? isSuccess =
+                    signInStatus[DateTime(date.year, date.month, date.day)];
                 Color bgColor;
 
                 if (isSuccess == null) {
@@ -116,19 +125,22 @@ class SignInHeatMap extends StatelessWidget {
                   onTap: () {
                     // 当有破戒原因时显示提示框
                     String? reason = failureReasons[date];
-                    if (isSuccess == false && reason != null && reason.isNotEmpty) {
-                      showDialog(
-                        context: context,
-                        builder: (context) => GlassAlertDialog(
-                          title: t.signIn.failureReason,
-                          content: Text(reason),
-                          actions: [
-                            GlassDialogAction(
-                              label: t.common.close,
-                              emphasized: false,
-                              onPressed: () => Navigator.pop(context),
-                            ),
-                          ],
+                    if (isSuccess == false &&
+                        reason != null &&
+                        reason.isNotEmpty) {
+                      showAppDialog(
+                        Builder(
+                          builder: (context) => GlassAlertDialog(
+                            title: t.signIn.failureReason,
+                            content: Text(reason),
+                            actions: [
+                              GlassDialogAction(
+                                label: t.common.close,
+                                emphasized: false,
+                                onPressed: () => Navigator.pop(context),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     }

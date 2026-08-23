@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -274,144 +275,146 @@ class BottomToolbar extends StatelessWidget {
     int selectedMinutes = currentPosition.inMinutes.remainder(60);
     int selectedSeconds = currentPosition.inSeconds.remainder(60);
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return GlassAlertDialog(
-          title: t.videoDetail.seekTo,
-          content: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // 小时滑块
-                  if (totalHours > 0)
+    showAppDialog(
+      Builder(
+        builder: (BuildContext context) {
+          return GlassAlertDialog(
+            title: t.videoDetail.seekTo,
+            content: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 小时滑块
+                    if (totalHours > 0)
+                      Row(
+                        children: [
+                          Text(t.common.hour),
+                          Expanded(
+                            child: Slider(
+                              value: selectedHours.toDouble(),
+                              min: 0,
+                              max: totalHours.toDouble(),
+                              divisions: totalHours > 0 ? totalHours : 1,
+                              label: '$selectedHours ${t.common.hour}',
+                              onChanged: (double value) {
+                                setState(() {
+                                  selectedHours = value.round();
+                                  // 确保总时长不被超过
+                                  if (selectedHours == totalHours &&
+                                      (selectedMinutes > totalMinutes ||
+                                          (selectedMinutes == totalMinutes &&
+                                              selectedSeconds >
+                                                  totalSeconds))) {
+                                    selectedMinutes = totalMinutes;
+                                    selectedSeconds = totalSeconds;
+                                  }
+                                });
+                              },
+                            ),
+                          ),
+                          Text('$selectedHours'),
+                        ],
+                      ),
+                    // 分钟滑块
                     Row(
                       children: [
-                        Text(t.common.hour),
+                        Text(t.common.minute),
                         Expanded(
                           child: Slider(
-                            value: selectedHours.toDouble(),
+                            value: selectedMinutes.toDouble(),
                             min: 0,
-                            max: totalHours.toDouble(),
-                            divisions: totalHours > 0 ? totalHours : 1,
-                            label: '$selectedHours ${t.common.hour}',
+                            max: (selectedHours < totalHours)
+                                ? 59
+                                : totalMinutes.toDouble(),
+                            divisions: (selectedHours < totalHours)
+                                ? 59
+                                : (totalMinutes > 0 ? totalMinutes : 1),
+                            label: '$selectedMinutes ${t.common.minute}',
                             onChanged: (double value) {
                               setState(() {
-                                selectedHours = value.round();
+                                selectedMinutes = value.round();
                                 // 确保总时长不被超过
                                 if (selectedHours == totalHours &&
-                                    (selectedMinutes > totalMinutes ||
-                                        (selectedMinutes == totalMinutes &&
-                                            selectedSeconds > totalSeconds))) {
-                                  selectedMinutes = totalMinutes;
+                                    selectedMinutes == totalMinutes &&
+                                    selectedSeconds > totalSeconds) {
                                   selectedSeconds = totalSeconds;
                                 }
                               });
                             },
                           ),
                         ),
-                        Text('$selectedHours'),
+                        Text('$selectedMinutes'),
                       ],
                     ),
-                  // 分钟滑块
-                  Row(
-                    children: [
-                      Text(t.common.minute),
-                      Expanded(
-                        child: Slider(
-                          value: selectedMinutes.toDouble(),
-                          min: 0,
-                          max: (selectedHours < totalHours)
-                              ? 59
-                              : totalMinutes.toDouble(),
-                          divisions: (selectedHours < totalHours)
-                              ? 59
-                              : (totalMinutes > 0 ? totalMinutes : 1),
-                          label: '$selectedMinutes ${t.common.minute}',
-                          onChanged: (double value) {
-                            setState(() {
-                              selectedMinutes = value.round();
-                              // 确保总时长不被超过
-                              if (selectedHours == totalHours &&
-                                  selectedMinutes == totalMinutes &&
-                                  selectedSeconds > totalSeconds) {
-                                selectedSeconds = totalSeconds;
-                              }
-                            });
-                          },
+                    // 秒钟滑块
+                    Row(
+                      children: [
+                        Text(t.common.seconds),
+                        Expanded(
+                          child: Slider(
+                            value: selectedSeconds.toDouble(),
+                            min: 0,
+                            max:
+                                (selectedHours < totalHours ||
+                                    selectedMinutes < totalMinutes)
+                                ? 59
+                                : totalSeconds.toDouble(),
+                            divisions:
+                                (selectedHours < totalHours ||
+                                    selectedMinutes < totalMinutes)
+                                ? 59
+                                : (totalSeconds > 0 ? totalSeconds : 1),
+                            label: '$selectedSeconds ${t.common.seconds}',
+                            onChanged: (double value) {
+                              setState(() {
+                                selectedSeconds = value.round();
+                              });
+                            },
+                          ),
                         ),
-                      ),
-                      Text('$selectedMinutes'),
-                    ],
-                  ),
-                  // 秒钟滑块
-                  Row(
-                    children: [
-                      Text(t.common.seconds),
-                      Expanded(
-                        child: Slider(
-                          value: selectedSeconds.toDouble(),
-                          min: 0,
-                          max:
-                              (selectedHours < totalHours ||
-                                  selectedMinutes < totalMinutes)
-                              ? 59
-                              : totalSeconds.toDouble(),
-                          divisions:
-                              (selectedHours < totalHours ||
-                                  selectedMinutes < totalMinutes)
-                              ? 59
-                              : (totalSeconds > 0 ? totalSeconds : 1),
-                          label: '$selectedSeconds ${t.common.seconds}',
-                          onChanged: (double value) {
-                            setState(() {
-                              selectedSeconds = value.round();
-                            });
-                          },
-                        ),
-                      ),
-                      Text('$selectedSeconds'),
-                    ],
-                  ),
-                ],
-              );
-            },
-          ),
-          actions: [
-            GlassDialogAction(
-              label: t.common.cancel,
-              emphasized: false,
-              onPressed: () {
-                // 关闭对话框
-                Navigator.of(context).pop();
-              },
-            ),
-            GlassDialogAction(
-              label: t.common.confirm,
-              onPressed: () {
-                // 构建新的跳转时间
-                final Duration newPosition = Duration(
-                  hours: selectedHours,
-                  minutes: selectedMinutes,
-                  seconds: selectedSeconds,
+                        Text('$selectedSeconds'),
+                      ],
+                    ),
+                  ],
                 );
-
-                // 确保跳转时间不超过总时长
-                final Duration clampedPosition = newPosition > totalDuration
-                    ? totalDuration
-                    : newPosition;
-
-                // 执行跳转
-                myVideoStateController.player.seek(clampedPosition);
-
-                // 关闭对话框
-                Navigator.of(context).pop();
               },
             ),
-          ],
-        );
-      },
+            actions: [
+              GlassDialogAction(
+                label: t.common.cancel,
+                emphasized: false,
+                onPressed: () {
+                  // 关闭对话框
+                  Navigator.of(context).pop();
+                },
+              ),
+              GlassDialogAction(
+                label: t.common.confirm,
+                onPressed: () {
+                  // 构建新的跳转时间
+                  final Duration newPosition = Duration(
+                    hours: selectedHours,
+                    minutes: selectedMinutes,
+                    seconds: selectedSeconds,
+                  );
+
+                  // 确保跳转时间不超过总时长
+                  final Duration clampedPosition = newPosition > totalDuration
+                      ? totalDuration
+                      : newPosition;
+
+                  // 执行跳转
+                  myVideoStateController.player.seek(clampedPosition);
+
+                  // 关闭对话框
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 

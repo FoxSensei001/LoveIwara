@@ -7,6 +7,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/shimmer_card.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -561,9 +562,7 @@ class _PaginationBarState extends State<PaginationBar>
           );
         } else {
           showGlassToast(
-            slang.t.common.pagination.invalidPageNumber(
-              max: widget.totalPages,
-            ),
+            slang.t.common.pagination.invalidPageNumber(max: widget.totalPages),
             type: GlassToastType.error,
           );
         }
@@ -581,50 +580,51 @@ class _PaginationBarState extends State<PaginationBar>
   // 显示页面跳转对话框
   void _showJumpPageDialog() {
     _pageController.clear();
-    showDialog(
-      context: context,
-      builder: (context) => GlassAlertDialog(
-        title: slang.t.common.pagination.jumpToPage,
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (!widget.isTotalCountUnknown)
-              Text(
-                slang.t.common.pagination.pleaseEnterPageNumber(
-                  max: widget.totalPages,
+    showAppDialog(
+      Builder(
+        builder: (context) => GlassAlertDialog(
+          title: slang.t.common.pagination.jumpToPage,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!widget.isTotalCountUnknown)
+                Text(
+                  slang.t.common.pagination.pleaseEnterPageNumber(
+                    max: widget.totalPages,
+                  ),
                 ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _pageController,
+                keyboardType: TextInputType.number,
+                autofocus: true,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: slang.t.common.pagination.pageNumber,
+                ),
+                onSubmitted: (_) {
+                  Navigator.of(context).pop();
+                  _jumpToPage();
+                },
               ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _pageController,
-              keyboardType: TextInputType.number,
-              autofocus: true,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: slang.t.common.pagination.pageNumber,
-              ),
-              onSubmitted: (_) {
+            ],
+          ),
+          actions: [
+            GlassDialogAction(
+              label: slang.t.common.cancel,
+              emphasized: false,
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            GlassDialogAction(
+              label: slang.t.common.pagination.jump,
+              emphasized: false,
+              onPressed: () {
                 Navigator.of(context).pop();
                 _jumpToPage();
               },
             ),
           ],
         ),
-        actions: [
-          GlassDialogAction(
-            label: slang.t.common.cancel,
-            emphasized: false,
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          GlassDialogAction(
-            label: slang.t.common.pagination.jump,
-            emphasized: false,
-            onPressed: () {
-              Navigator.of(context).pop();
-              _jumpToPage();
-            },
-          ),
-        ],
       ),
     );
   }
