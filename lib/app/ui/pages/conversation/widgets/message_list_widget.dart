@@ -9,6 +9,7 @@ import 'package:i_iwara/app/ui/pages/conversation/widgets/conversation_message_b
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/comment_actions_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
@@ -23,7 +24,6 @@ import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class MessageListWidget extends StatefulWidget {
   final ConversationModel conversation;
@@ -148,30 +148,16 @@ class _MessageListWidgetState extends State<MessageListWidget> {
     }
 
     Future<void> showDeleteConfirmation() async {
-      await showModalBottomSheet(
+      await showGlassBottomSheet(
         context: context,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
         builder: (sheetContext) {
           final colorScheme = Theme.of(sheetContext).colorScheme;
-          return Padding(
-            padding: EdgeInsets.only(
-              top: 8,
-              bottom: computeSheetBottomInset(sheetContext) + 8,
-            ),
+          return GlassBottomSheet(
+            showCloseButton: false,
+            padding: EdgeInsets.zero,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: 32,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 8),
-                  decoration: BoxDecoration(
-                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
                 ListTile(
                   leading: Icon(Icons.delete_outline, color: colorScheme.error),
                   title: Text(

@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:url_launcher/url_launcher.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 
 class ErrorStateWidget extends StatelessWidget {
   final MyVideoStateController controller;
@@ -90,7 +90,8 @@ class ErrorStateWidget extends StatelessWidget {
   }
 
   // 构建可识别链接的文本组件
-  Widget _buildLinkableText(String text) {
+  Widget _buildLinkableText(String text, BuildContext context) {
+    final textColor = Theme.of(context).colorScheme.onSurface;
     // 正则表达式匹配URL
     final urlRegex = RegExp(
       r'https?://[^\s<>"{}|\\^`\[\]]+',
@@ -102,7 +103,7 @@ class ErrorStateWidget extends StatelessWidget {
       // 如果没有链接，返回普通的可选择文本
       return SelectableText(
         text,
-        style: const TextStyle(color: Colors.white, fontSize: 14),
+        style: TextStyle(color: textColor, fontSize: 14),
       );
     }
 
@@ -115,7 +116,7 @@ class ErrorStateWidget extends StatelessWidget {
       if (match.start > lastIndex) {
         spans.add(TextSpan(
           text: text.substring(lastIndex, match.start),
-          style: const TextStyle(color: Colors.white, fontSize: 14),
+          style: TextStyle(color: textColor, fontSize: 14),
         ));
       }
 
@@ -139,7 +140,7 @@ class ErrorStateWidget extends StatelessWidget {
     if (lastIndex < text.length) {
       spans.add(TextSpan(
         text: text.substring(lastIndex),
-        style: const TextStyle(color: Colors.white, fontSize: 14),
+        style: TextStyle(color: textColor, fontSize: 14),
       ));
     }
 
@@ -158,50 +159,25 @@ class ErrorStateWidget extends StatelessWidget {
 
   // 显示错误详情底部弹窗
   void _showErrorDetailSheet(BuildContext context) {
-    showModalBottomSheet(
+    showGlassBottomSheet(
       context: context,
-      backgroundColor: Colors.black87,
-      isScrollControlled: true,
-      // 边到边模式下 padding.bottom 可能为 0，统一走 computeSheetBottomInset。
-      builder: (context) => Container(
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 20,
-          bottom: computeSheetBottomInset(context) + 20,
-        ),
+      builder: (context) => GlassBottomSheet(
+        title: slang.t.common.detail,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                const Icon(Icons.error_outline, color: Colors.red, size: 24),
-                const SizedBox(width: 8),
-                Text(
-                  slang.t.common.detail,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.grey[900],
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: _buildLinkableText(controller.videoSourceErrorMessage.value!),
+              child: _buildLinkableText(
+                controller.videoSourceErrorMessage.value!,
+                context,
+              ),
             ),
             const SizedBox(height: 20),
             SizedBox(
