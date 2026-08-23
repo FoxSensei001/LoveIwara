@@ -8,6 +8,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/shimmer_card.dart';
@@ -704,9 +705,10 @@ class _PaginationBarState extends State<PaginationBar>
 
     // 「悬浮」模式：不用 BackdropFilter，改为从上方透明→底部半透明的渐变蒙层，
     // 控件本身是自带底色的玻璃胶囊，列表内容能从分页栏背后透出来。
+    final Widget result;
     if (widget.useBlurEffect) {
       const double fadeAbove = PaginationBar.fadeAboveExtent;
-      return Stack(
+      result = Stack(
         children: [
           Positioned.fill(
             child: LayoutBuilder(
@@ -727,8 +729,13 @@ class _PaginationBarState extends State<PaginationBar>
       );
     } else {
       // 直接返回常规内容
-      return barContent;
+      result = barContent;
     }
+
+    // 分页栏是浮在列表内容之上的固定底栏（不随列表滚动），与 header/浮动
+    // 底栏同属「chrome」——显式钉死液态档，让页码卡片/翻页键这些
+    // GlassSurface/GlassIconButton 跟 header 走同一档，不再落回传统。
+    return LiquidGlassScope(backend: kChromeGlassBackend, child: result);
   }
 
   /// 选择态下的分页栏内容：`‹ 页码 ›` + 动作行。
