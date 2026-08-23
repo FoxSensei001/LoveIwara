@@ -14,6 +14,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constan
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -385,10 +386,8 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
                               icon: const Icon(Icons.add_comment),
                               tooltip: slang.t.common.sendComment,
                               onPressed: () {
-                                showModalBottomSheet(
+                                showGlassBottomSheet(
                                   context: context,
-                                  isScrollControlled: true,
-                                  backgroundColor: Colors.transparent,
                                   builder: (context) => CommentInputBottomSheet(
                                     title: slang.t.common.sendComment,
                                     submitText: slang.t.common.send,

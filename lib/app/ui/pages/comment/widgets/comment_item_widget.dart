@@ -6,6 +6,7 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/comment_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/controllers/comment_controller.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_remove_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
@@ -287,10 +288,8 @@ class _CommentItemState extends State<CommentItem> {
       return;
     }
 
-    showModalBottomSheet(
+    showGlassBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => CommentInputBottomSheet(
         initialText: widget.comment.body,
         title: slang.t.common.editComment,
@@ -349,10 +348,8 @@ class _CommentItemState extends State<CommentItem> {
       return;
     }
 
-    showModalBottomSheet(
+    showGlassBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => CommentInputBottomSheet(
         title: slang.t.common.replyComment,
         submitText: slang.t.common.reply,

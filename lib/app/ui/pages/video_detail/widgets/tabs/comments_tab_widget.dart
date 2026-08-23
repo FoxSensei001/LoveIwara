@@ -6,6 +6,7 @@ import 'package:i_iwara/app/ui/pages/comment/controllers/comment_controller.dart
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_section_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/grid_speed_dial.dart';
 
@@ -131,10 +132,8 @@ class CommentsTabWidget extends StatelessWidget {
       LoginService.showLogin();
       return;
     }
-    showModalBottomSheet(
+    showGlassBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => CommentInputBottomSheet(
         title: t.common.sendComment,
         submitText: t.common.send,

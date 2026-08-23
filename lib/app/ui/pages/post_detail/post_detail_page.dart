@@ -168,10 +168,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
                               icon: const Icon(Icons.add_comment),
                               tooltip: slang.t.common.sendComment,
                               onPressed: () {
-                                showModalBottomSheet(
+                                showGlassBottomSheet(
                                   context: context,
-                                  isScrollControlled: true,
-                                  backgroundColor: Colors.transparent,
                                   builder: (context) => CommentInputBottomSheet(
                                     title: slang.t.common.sendComment,
                                     submitText: slang.t.common.send,

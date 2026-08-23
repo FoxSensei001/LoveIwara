@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/common/widgets/input/base_input_widget.dart';
 import 'package:i_iwara/app/ui/widgets/enhanced_emoji_text_field.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 /// 基础底部弹窗输入组件
 class BaseBottomSheetInput extends StatefulWidget {
@@ -76,28 +76,16 @@ class _BaseBottomSheetInputState extends State<BaseBottomSheetInput> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20.0)),
-      ),
+    // 外壳（背景 + 圆角 + 拖拽把手 + 安全区）统一走 GlassBottomSheet；
+    // 标题行仍自己用 GlassComposerHeader（带 titleIcon），所以关掉它的内建
+    // 标题参数（showCloseButton 无 title 时本就不生效，显式传 false 表意）。
+    // padding: EdgeInsets.zero —— 保留原来两段各自的内边距，改动最小、观感不变。
+    return GlassBottomSheet(
+      showCloseButton: false,
+      padding: EdgeInsets.zero,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 拖拽条：底部弹窗的通用抓手
-          Center(
-            child: Container(
-              margin: const EdgeInsets.only(top: 12, bottom: 4),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
           // 头部标题栏：标题 + 玻璃关闭圆钮
           Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 0),
@@ -108,14 +96,10 @@ class _BaseBottomSheetInputState extends State<BaseBottomSheetInput> {
             ),
           ),
           // 内容区域
-          // 底部弹窗自己负责让出键盘与系统安全区（导航条/手势条）。
+          // 外壳 GlassBottomSheet 已统一负责让出键盘与系统安全区（导航条/手势条），
+          // 这里不再叠加 computeSheetBottomInset，避免底部间距被重复撑开。
           Padding(
-            padding: EdgeInsets.fromLTRB(
-              16.0,
-              16.0,
-              16.0,
-              16.0 + computeSheetBottomInset(context),
-            ),
+            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0),
             child: BaseInputWidget(
               controller: _controller,
               title: widget.title,
@@ -164,10 +148,8 @@ class BottomSheetInputHelper {
   }) async {
     String? result;
 
-    await showModalBottomSheet<String>(
+    await showGlassBottomSheet<String>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => BaseBottomSheetInput(
         title: title,
         hintText: hintText,

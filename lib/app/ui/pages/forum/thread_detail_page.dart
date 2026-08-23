@@ -264,10 +264,8 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
       );
       return;
     }
-    showModalBottomSheet(
+    showGlassBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => ForumReplyBottomSheet(
         threadId: thread.id,
         onSubmit: () {

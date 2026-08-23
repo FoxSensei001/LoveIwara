@@ -8,6 +8,7 @@ import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_reply_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_edit_reply_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/comment_actions_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
@@ -307,10 +308,8 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
     if (!_ensureLoggedIn()) return;
     final replyTemplate =
         'Reply #${widget.comment.replyNum + 1}: @${widget.comment.user.username}\n---\n';
-    showModalBottomSheet(
+    showGlassBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => ForumReplyBottomSheet(
         threadId: widget.comment.threadId,
         initialContent: replyTemplate,

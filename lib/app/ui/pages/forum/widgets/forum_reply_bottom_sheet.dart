@@ -76,10 +76,8 @@ class _ForumReplyBottomSheetState extends State<ForumReplyBottomSheet> {
 使用示例：
 
 // 显示论坛回复底部弹窗
-showModalBottomSheet(
+showGlassBottomSheet(
   context: context,
-  isScrollControlled: true,
-  backgroundColor: Colors.transparent,
   builder: (context) => ForumReplyBottomSheet(
     threadId: 'thread_id',
     initialContent: 'Reply #1: @username\n---\n',

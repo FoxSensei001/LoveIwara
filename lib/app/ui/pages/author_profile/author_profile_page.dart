@@ -406,10 +406,8 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                               icon: const Icon(Icons.add_comment),
                               tooltip: t.common.sendComment,
                               onPressed: () {
-                                showModalBottomSheet(
+                                showGlassBottomSheet(
                                   context: context,
-                                  isScrollControlled: true,
-                                  backgroundColor: Colors.transparent,
                                   builder: (context) => CommentInputBottomSheet(
                                     title: t.common.sendComment,
                                     submitText: t.common.send,

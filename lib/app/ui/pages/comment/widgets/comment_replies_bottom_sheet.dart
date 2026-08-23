@@ -8,6 +8,7 @@ import 'comment_item_widget.dart';
 import 'comment_skeleton_item_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'comment_input_bottom_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
@@ -156,10 +157,8 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
   }
 
   void _showReplyDialog() {
-    showModalBottomSheet(
+    showGlassBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => CommentInputBottomSheet(
         title: slang.t.common.replyComment,
         submitText: slang.t.common.reply,

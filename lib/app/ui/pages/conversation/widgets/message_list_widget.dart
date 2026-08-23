@@ -72,10 +72,8 @@ class _MessageListWidgetState extends State<MessageListWidget> {
       );
 
   void _showMessageComposer() {
-    showModalBottomSheet(
+    showGlassBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => ConversationMessageBottomSheet(
         conversationId: widget.conversation.id,
         onSubmit: () {
