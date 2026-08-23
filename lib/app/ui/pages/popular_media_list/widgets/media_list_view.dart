@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/common/constants.dart' show CommonConstants;
 import 'package:i_iwara/utils/logger_utils.dart' show LogUtils;
 import 'package:loading_more_list/loading_more_list.dart';
@@ -611,10 +612,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
             _unknownTotalMaxPageIndex = currentPage;
             _indicatorStatus = IndicatorStatus.noMoreLoad;
           });
-          final messenger = ScaffoldMessenger.maybeOf(context);
-          messenger?.showSnackBar(
-            SnackBar(content: Text(slang.t.common.noMoreDatas)),
-          );
+          showGlassToast(slang.t.common.noMoreDatas);
           return;
         }
 

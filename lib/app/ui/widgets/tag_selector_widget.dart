@@ -8,6 +8,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/tag_controller.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 /// 通用标签选择器组件
@@ -209,13 +210,7 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
               children: [
                 IconButton(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(t.tagSelector.usageInstructions),
-                        duration: Duration(seconds: 2),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
+                    showGlassToast(t.tagSelector.usageInstructions);
                   },
                   icon: const Icon(Icons.help_outline, color: Colors.blue),
                   tooltip: t.tagSelector.usageInstructionsTooltip,

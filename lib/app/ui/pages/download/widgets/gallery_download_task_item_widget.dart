@@ -19,6 +19,7 @@ import 'package:path/path.dart' as path;
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 
 class GalleryDownloadTaskItem extends StatelessWidget {
   final DownloadTask task;
@@ -786,8 +787,9 @@ class GalleryDownloadTaskItem extends StatelessWidget {
     } catch (e) {
       LogUtils.e('打开文件夹失败', tag: 'GalleryDownloadTaskItem', error: e);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.download.errors.openFolderFailed)),
+        showGlassToast(
+          t.download.errors.openFolderFailed,
+          type: GlassToastType.error,
         );
       }
     }

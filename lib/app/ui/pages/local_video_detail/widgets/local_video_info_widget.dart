@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
@@ -363,11 +364,9 @@ class LocalVideoInfoWidget extends StatelessWidget {
   /// 复制路径到剪贴板
   void _copyPath(BuildContext context) {
     Clipboard.setData(ClipboardData(text: localPath));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(t.videoDetail.localInfo.pathCopiedToClipboard),
-        duration: const Duration(seconds: 2),
-      ),
+    showGlassToast(
+      t.videoDetail.localInfo.pathCopiedToClipboard,
+      type: GlassToastType.success,
     );
   }
 
@@ -378,21 +377,17 @@ class LocalVideoInfoWidget extends StatelessWidget {
       final result = await OpenFile.open(dir);
       if (result.type != ResultType.done) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                '${t.videoDetail.localInfo.openFolderFailed}: ${result.message}',
-              ),
-            ),
+          showGlassToast(
+            '${t.videoDetail.localInfo.openFolderFailed}: ${result.message}',
+            type: GlassToastType.error,
           );
         }
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${t.videoDetail.localInfo.openFolderFailed}: $e'),
-          ),
+        showGlassToast(
+          '${t.videoDetail.localInfo.openFolderFailed}: $e',
+          type: GlassToastType.error,
         );
       }
     }

@@ -254,18 +254,10 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
           final shouldShow =
               showFollowTipCount > 0 && random.nextDouble() < 0.5;
           if (shouldShow) {
-            final ctx = context;
-            if (ctx.mounted) {
-              ScaffoldMessenger.of(ctx).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    "🔔 ${t.common.followSuccessClickAgainToSpecialFollow}",
-                  ),
-                  duration: const Duration(seconds: 3),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            }
+            showGlassToast(
+              "🔔 ${t.common.followSuccessClickAgainToSpecialFollow}",
+              type: GlassToastType.success,
+            );
 
             final newCount = max(0, showFollowTipCount - 1);
             configService.setSetting(ConfigKey.SHOW_FOLLOW_TIP_COUNT, newCount);

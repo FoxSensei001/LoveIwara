@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class ExitConfirmUtil {
@@ -31,23 +32,9 @@ class ExitConfirmUtil {
   }
 
   static void _showExitTip(BuildContext context) {
-    final useFixedWidth = MediaQuery.sizeOf(context).width >= 520;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.info_outline, color: Colors.white),
-            const SizedBox(width: 8),
-            Text(slang.t.common.exitConfirmTip),
-          ],
-        ),
-        duration: const Duration(seconds: 2),
-        backgroundColor: Colors.orange,
-        behavior: SnackBarBehavior.floating,
-        margin: useFixedWidth ? null : const EdgeInsets.all(8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        width: useFixedWidth ? 400 : null,
-      ),
+    showGlassToast(
+      slang.t.common.exitConfirmTip,
+      type: GlassToastType.warning,
     );
   }
 }

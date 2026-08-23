@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/models/oreno3d_video.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/services/oreno3d_localization_service.dart';
 import 'package:i_iwara/app/services/search_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -397,10 +398,9 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
       if (detail == null) {
         // 视频不存在或获取失败
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(slang.t.oreno3d.messages.videoNotFoundOrDeleted),
-            ),
+          showGlassToast(
+            slang.t.oreno3d.messages.videoNotFoundOrDeleted,
+            type: GlassToastType.error,
           );
         }
         return;
@@ -412,10 +412,9 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
       if (iwaraId == null || iwaraId.isEmpty) {
         // 无法提取iwara ID，显示错误
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(slang.t.oreno3d.messages.unableToGetVideoPlayLink),
-            ),
+          showGlassToast(
+            slang.t.oreno3d.messages.unableToGetVideoPlayLink,
+            type: GlassToastType.error,
           );
         }
         return;
@@ -443,12 +442,9 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
 
       // 处理错误
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${slang.t.oreno3d.messages.getVideoDetailFailed}: $e',
-            ),
-          ),
+        showGlassToast(
+          '${slang.t.oreno3d.messages.getVideoDetailFailed}: $e',
+          type: GlassToastType.error,
         );
       }
     }

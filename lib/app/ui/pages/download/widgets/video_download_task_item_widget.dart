@@ -21,6 +21,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:path/path.dart' as path;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
 class VideoDownloadTaskItem extends StatelessWidget {
@@ -844,14 +845,16 @@ class VideoDownloadTaskItem extends StatelessWidget {
       await SystemClipboard.instance?.write([item]);
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.download.copyDownloadUrlSuccess)),
+        showGlassToast(
+          t.download.copyDownloadUrlSuccess,
+          type: GlassToastType.success,
         );
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.download.errors.copyDownloadUrlFailed)),
+        showGlassToast(
+          t.download.errors.copyDownloadUrlFailed,
+          type: GlassToastType.error,
         );
       }
     }
@@ -866,8 +869,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
       final file = File(filePath);
       if (!await file.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t.download.errors.fileNotFound)),
+          showGlassToast(
+            t.download.errors.fileNotFound,
+            type: GlassToastType.error,
           );
         }
         return;
@@ -884,8 +888,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
     } catch (e) {
       LogUtils.e('打开文件夹失败', tag: 'DownloadTaskItem', error: e);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.download.errors.openFolderFailed)),
+        showGlassToast(
+          t.download.errors.openFolderFailed,
+          type: GlassToastType.error,
         );
       }
     }
@@ -900,8 +905,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
       final file = File(filePath);
       if (!await file.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t.download.errors.fileNotFound)),
+          showGlassToast(
+            t.download.errors.fileNotFound,
+            type: GlassToastType.error,
           );
         }
         return;
@@ -912,22 +918,20 @@ class VideoDownloadTaskItem extends StatelessWidget {
       if (result.type != ResultType.done) {
         LogUtils.e('打开文件失败: ${result.message}', tag: 'DownloadTaskItem');
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                t.download.errors.openFolderFailedWithMessage(
-                  message: result.message,
-                ),
-              ),
+          showGlassToast(
+            t.download.errors.openFolderFailedWithMessage(
+              message: result.message,
             ),
+            type: GlassToastType.error,
           );
         }
       }
     } catch (e) {
       LogUtils.e('打开文件失败', tag: 'DownloadTaskItem', error: e);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.download.errors.openFolderFailed)),
+        showGlassToast(
+          t.download.errors.openFolderFailed,
+          type: GlassToastType.error,
         );
       }
     }
@@ -943,8 +947,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
       final file = File(filePath);
       if (!await file.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t.download.errors.fileNotFound)),
+          showGlassToast(
+            t.download.errors.fileNotFound,
+            type: GlassToastType.error,
           );
         }
         return;
@@ -974,14 +979,11 @@ class VideoDownloadTaskItem extends StatelessWidget {
     } catch (e) {
       LogUtils.e('本地播放失败', tag: 'DownloadTaskItem', error: e);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              t.download.errors.playLocallyFailedWithMessage(
-                message: e.toString(),
-              ),
-            ),
+        showGlassToast(
+          t.download.errors.playLocallyFailedWithMessage(
+            message: e.toString(),
           ),
+          type: GlassToastType.error,
         );
       }
     }

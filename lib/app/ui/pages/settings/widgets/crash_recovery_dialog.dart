@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/services/logging/log_models.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class CrashRecoveryDialog {
@@ -160,11 +161,10 @@ class _CrashRecoveryDialogWidgetState
   Future<void> _copySupportEmail() async {
     await Clipboard.setData(const ClipboardData(text: _supportEmail));
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(slang.t.crashRecoveryDialog.supportEmailCopied),
-        duration: const Duration(seconds: 1),
-      ),
+    showGlassToast(
+      slang.t.crashRecoveryDialog.supportEmailCopied,
+      type: GlassToastType.success,
+      duration: const Duration(seconds: 1),
     );
   }
 

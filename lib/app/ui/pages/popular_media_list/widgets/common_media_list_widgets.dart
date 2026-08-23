@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -554,32 +555,24 @@ class _PaginationBarState extends State<PaginationBar>
       } else {
         // 显示错误提示
         if (!hasValidLowerBound) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(slang.t.common.pagination.invalidInput),
-              duration: const Duration(seconds: 2),
-            ),
+          showGlassToast(
+            slang.t.common.pagination.invalidInput,
+            type: GlassToastType.error,
           );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                slang.t.common.pagination.invalidPageNumber(
-                  max: widget.totalPages,
-                ),
-              ),
-              duration: const Duration(seconds: 2),
+          showGlassToast(
+            slang.t.common.pagination.invalidPageNumber(
+              max: widget.totalPages,
             ),
+            type: GlassToastType.error,
           );
         }
       }
     } catch (e) {
       // 输入非数字时显示错误提示
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(slang.t.common.pagination.invalidInput),
-          duration: const Duration(seconds: 2),
-        ),
+      showGlassToast(
+        slang.t.common.pagination.invalidInput,
+        type: GlassToastType.error,
       );
     }
     _pageController.clear();

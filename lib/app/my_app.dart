@@ -494,15 +494,7 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
     }
 
     // 如果没有找到支持的视频文件，显示提示
-    final ctx = rootNavigatorKey.currentContext;
-    if (ctx != null) {
-      ScaffoldMessenger.of(ctx).showSnackBar(
-        SnackBar(
-          content: Text(t.mediaPlayer.noSupportedVideoFile),
-          duration: const Duration(seconds: 3),
-        ),
-      );
-    }
+    showGlassToast(t.mediaPlayer.noSupportedVideoFile);
   }
 
   Widget _shortCutsWrapper(BuildContext context, Widget child) {
