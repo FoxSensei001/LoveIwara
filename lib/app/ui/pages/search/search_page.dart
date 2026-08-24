@@ -18,6 +18,7 @@ import 'package:i_iwara/app/ui/pages/search/widgets/filter_builder_widget.dart';
 import 'package:i_iwara/app/models/saved_search.model.dart';
 import 'package:i_iwara/app/services/saved_search_service.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/saved_search_drawer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_saved_items_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -196,34 +197,10 @@ class _SearchPageState extends State<SearchPage> {
   Future<void> _promptSaveCurrentSearch() async {
     final t = slang.Translations.of(context);
     final defaultName = _buildDefaultSearchName();
-    final controller = TextEditingController(text: defaultName);
-    final name = await showAppDialog<String>(
-      Builder(
-        builder: (dialogContext) => GlassAlertDialog(
-          title: t.savedSearch.namePromptTitle,
-          content: TextField(
-            controller: controller,
-            autofocus: true,
-            decoration: InputDecoration(
-              labelText: t.savedSearch.nameLabel,
-              hintText: t.savedSearch.nameHint,
-            ),
-            onSubmitted: (v) => Navigator.of(dialogContext).pop(v.trim()),
-          ),
-          actions: [
-            GlassDialogAction(
-              label: t.common.cancel,
-              emphasized: false,
-              onPressed: () => Navigator.of(dialogContext).pop(),
-            ),
-            GlassDialogAction(
-              label: t.common.save,
-              onPressed: () =>
-                  Navigator.of(dialogContext).pop(controller.text.trim()),
-            ),
-          ],
-        ),
-      ),
+    final name = await showGlassPromptNameDialog(
+      title: t.savedSearch.namePromptTitle,
+      hint: t.savedSearch.nameHint,
+      initialText: defaultName,
     );
     if (name == null) return;
 

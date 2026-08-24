@@ -16,6 +16,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 
 /// 新闻页——社区栏目的「新闻」半边。
 ///
@@ -382,14 +383,17 @@ class NewsPageState extends State<NewsPage>
           ? GlassTokens.floatingActionCoAxisRight(GlassTokens.pillHeight)
           : 16,
       bottom: MediaQuery.paddingOf(context).bottom + 16,
-      child: GlassReveal(
-        visible: visible,
-        builder: (context, m) => GlassIconButton(
-          materialize: m,
-          standalone: true,
-          icon: const Icon(Icons.vertical_align_top),
-          tooltip: t.common.scrollToTop,
-          onPressed: scrollCurrentCategoryToTop,
+      child: LiquidGlassScope(
+        backend: kChromeGlassBackend,
+        child: GlassReveal(
+          visible: visible,
+          builder: (context, m) => GlassIconButton(
+            materialize: m,
+            standalone: true,
+            icon: const Icon(Icons.vertical_align_top),
+            tooltip: t.common.scrollToTop,
+            onPressed: scrollCurrentCategoryToTop,
+          ),
         ),
       ),
     );

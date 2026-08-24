@@ -8,7 +8,6 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_builder_widget.dart';
@@ -26,10 +25,10 @@ import 'package:i_iwara/app/ui/widgets/responsive_dialog_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
-import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/tag_detail_dialog.dart';
 import 'package:i_iwara/app/models/saved_search.model.dart';
 import 'package:i_iwara/app/services/saved_search_service.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_saved_items_drawer.dart';
 import 'widgets/saved_search_drawer.dart';
 
 class SearchResultController extends GetxController {
@@ -601,34 +600,10 @@ class _SearchResultState extends State<SearchResult> {
     _scaffoldKey.currentState?.closeEndDrawer();
 
     final defaultName = _buildDefaultSearchName();
-    final controller = TextEditingController(text: defaultName);
-    final name = await showAppDialog<String>(
-      Builder(
-        builder: (dialogContext) => GlassAlertDialog(
-          title: t.savedSearch.namePromptTitle,
-          content: TextField(
-            controller: controller,
-            autofocus: true,
-            decoration: InputDecoration(
-              labelText: t.savedSearch.nameLabel,
-              hintText: t.savedSearch.nameHint,
-            ),
-            onSubmitted: (v) => Navigator.of(dialogContext).pop(v.trim()),
-          ),
-          actions: [
-            GlassDialogAction(
-              label: t.common.cancel,
-              emphasized: false,
-              onPressed: () => Navigator.of(dialogContext).pop(),
-            ),
-            GlassDialogAction(
-              label: t.common.save,
-              onPressed: () =>
-                  Navigator.of(dialogContext).pop(controller.text.trim()),
-            ),
-          ],
-        ),
-      ),
+    final name = await showGlassPromptNameDialog(
+      title: t.savedSearch.namePromptTitle,
+      hint: t.savedSearch.nameHint,
+      initialText: defaultName,
     );
     if (name == null) return;
 
