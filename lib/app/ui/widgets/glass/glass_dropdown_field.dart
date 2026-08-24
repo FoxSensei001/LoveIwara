@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 
 /// [GlassDropdownField] 的一个候选项。
@@ -53,8 +54,16 @@ class GlassDropdownField<T> extends StatelessWidget {
       }
     }
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
+    // ⛔ 不用 `InkWell`：水波是 Material 的反馈语言，而这一行已经是玻璃底色 +
+    // 玻璃描边了；更要紧的是走 [GlassPressable] 才拿得到「长按也能打开、长按不
+    // 抬手直接划到某一条上松手选中」那条（见 [GlassTapArea.opensOverlay]）——
+    // 设置页的下拉与 header 上的下拉是同一件事，不该只有一半有这手感。
+    // 反馈换成整行压深一档（与 community_page 那只下拉触发位同一套）。
+    return GlassPressable(
+      enabled: enabled,
+      // 整行缩放会把表单里的一行带得抖起来；反馈只用底色。
+      scale: 1.0,
+      opensOverlay: true,
       onTap: enabled
           ? () async {
               final picked = await showGlassMenu<T>(
@@ -72,10 +81,12 @@ class GlassDropdownField<T> extends StatelessWidget {
               if (picked != null) onChanged(picked);
             }
           : null,
-      child: Container(
+      builder: (context, pressed) => AnimatedContainer(
+        duration: GlassTokens.pressDuration,
+        curve: Curves.easeOut,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: GlassTokens.fill(cs),
+          color: pressed ? GlassTokens.pressedFill(cs) : GlassTokens.fill(cs),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: GlassTokens.stroke(cs), width: 0.6),
         ),

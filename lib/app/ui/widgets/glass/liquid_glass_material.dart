@@ -448,7 +448,6 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
     this.pressed = false,
     this.elevated = true,
     this.interactive = false,
-    this.onTap,
     this.materialize = 1.0,
   });
 
@@ -484,17 +483,6 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
   /// （见 [GlassButtonGroup] 里那条分档说明）。
   final bool interactive;
 
-  /// 整只玻璃可按时的点击回调，**只在 [interactive] 为真时有意义**。
-  ///
-  /// 借来的 `GlassButton` 自带一层 `GestureDetector`（`onTap` 还是必填），它在
-  /// 命中路径上比 [GlassSurface] 外面那层 `GlassPressable` 更深、会先赢竞技场。
-  /// 所以这一档下「整只玻璃的点击」必须从这里发出去，指望外层是发不出来的
-  /// ——见 [GlassSurface] 里 `tapInsideLiquidBox` 那段。
-  ///
-  /// 传 null 时照旧给个空实现：把键放在胶囊**里头**的写法（[GlassButtonGroup]）
-  /// 各键自己更深，照样赢得过这一层。
-  final VoidCallback? onTap;
-
   /// 材质的「在场程度」，见 [GlassSurface.materialize]。这一档喂给他们的
   /// `visibility`——0 端是**真的什么都不剩**（不像 easy 档还留着一层清玻璃）。
   final double materialize;
@@ -521,13 +509,12 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
       return lgw.GlassButton.custom(
         style: lgw.GlassButtonStyle.transparent,
         shape: shape,
-        // 键都在胶囊**里头**自己处理点击（各自的 GestureDetector 在命中路径
-        // 上更深、先进竞技场，会先赢），这层只吃形变，给个空实现即可——
-        // 他们自己的 GlassButtonGroup 也是这么用的。
-        //
-        // 反过来，「整只玻璃可按」的调用点（如身份圆钮）没有更深的一层能赢
-        // 它，点击只能挂在这儿，见 [onTap]。
-        onTap: onTap ?? () {},
+        // 这层**只吃形变，不接点击**，给个空实现即可——他们自己的
+        // GlassButtonGroup 也是这么用的。所有点击（含「整只玻璃可按」的调用点，
+        // 如身份圆钮）都由 `GlassSurface` 塞进 [child] 那一层的 `GlassTapArea`
+        // 接住：内容层在这只识别器**里头**，竞技场清算时先赢，顺带把「手指移出
+        // 多远才算放弃」那条规矩收在一处（见 `glass_touch.dart`）。
+        onTap: () {},
         canRequestFocus: false,
         // 语义节点由外层统一发（[GlassPressable] 的 Semantics），这里不重复
         // 挂一个按钮。

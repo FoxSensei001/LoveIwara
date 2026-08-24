@@ -294,6 +294,9 @@ class CommunityPageState extends State<CommunityPage> {
       message: _destinationLabel(t, _destination),
       child: Builder(
         builder: (anchorContext) => GlassPressable(
+          // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+          // 松手选中（见 GlassTapArea.opensOverlay）。
+          opensOverlay: true,
           onTap: () => _openDestinationMenu(anchorContext),
           // 内容套在常驻的 GlassCapsuleMorph 里，按下不自缩，免得和胶囊的
           // 宽度形变打架；反馈交给菜单弹出本身。
@@ -473,6 +476,9 @@ class CommunityPageState extends State<CommunityPage> {
       builder: (anchorContext) => GlassIconButton(
         icon: const Icon(Icons.translate_rounded),
         tooltip: _languageLabel(current),
+        // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+        // 松手选中（见 GlassTapArea.opensOverlay）。
+        opensOverlay: true,
         onPressed: () => _openNewsLanguageMenu(anchorContext, current),
       ),
     );

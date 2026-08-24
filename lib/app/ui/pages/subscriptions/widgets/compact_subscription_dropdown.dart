@@ -196,6 +196,9 @@ class _CompactSubscriptionDropdownState
       // Builder：落点与材质档位都是从**触发位自身**的 context 量出来的。
       child: Builder(
         builder: (anchorContext) => GlassPressable(
+          // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+          // 松手选中（见 GlassTapArea.opensOverlay）。
+          opensOverlay: true,
           onTap: () => _openMenu(anchorContext),
           scale: 0.9,
           builder: (context, pressed) => AnimatedContainer(

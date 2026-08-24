@@ -585,6 +585,9 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
             builder: (anchorContext) => GlassIconButton(
               icon: const Icon(Icons.more_vert),
               tooltip: t.download.moreOptions,
+              // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+              // 松手选中（见 GlassTapArea.opensOverlay）。
+              opensOverlay: true,
               onPressed: () => _openMoreMenu(anchorContext, isWide),
             ),
           ),

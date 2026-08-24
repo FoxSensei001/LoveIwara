@@ -1587,6 +1587,9 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     // Builder：落点与材质档位从触发位自身的 context 量出。
     return Builder(
       builder: (anchorContext) => GlassPressable(
+        // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+        // 松手选中（见 GlassTapArea.opensOverlay）。
+        opensOverlay: true,
         onTap: () => _openPrimaryTabMenu(anchorContext, items),
         // 内容套在常驻的 GlassCapsuleMorph 里，按下不再自缩，免得和胶囊的
         // 宽度形变打架；反馈交给菜单弹出本身。

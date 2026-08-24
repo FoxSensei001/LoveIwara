@@ -88,6 +88,28 @@ void main() {
     );
   });
 
+  test('开菜单的钮都声明了 opensOverlay（零容忍）', () {
+    final offenders = <String>[];
+    for (final file in _dartFiles()) {
+      final rel = _rel(file);
+      if (_opensOverlayExemptFiles.contains(rel)) continue;
+      // 注释里提到 showGlassMenu 的（词汇表、类文档）不算调用点。
+      final source = file.readAsStringSync().replaceAll(_lineComment, '');
+      if (!_showsGlassMenu.hasMatch(source)) continue;
+      if (source.contains('opensOverlay: true')) continue;
+      offenders.add(rel);
+    }
+    expect(
+      offenders,
+      isEmpty,
+      reason:
+          '这些文件会弹出玻璃菜单，但触发钮没声明 opensOverlay: true——于是长按打不开菜单，\n'
+          '「按住 → 划到某一条 → 松手选中」那条也整只没有。组件没法预知 onTap 会干什么，\n'
+          '只能由调用点声明一次，见 GlassTapArea.opensOverlay：\n'
+          '${offenders.join('\n')}',
+    );
+  });
+
   test('裸 Material 按钮数量只降不升', () {
     _expectRatchet(
       pattern: _rawMaterialButton,
@@ -121,6 +143,14 @@ final _rawMaterialButton = RegExp(
   r'(?<![A-Za-z0-9_])(TextButton|ElevatedButton|FilledButton|OutlinedButton)'
   r'(\.[A-Za-z]+)?\(',
 );
+final _lineComment = RegExp(r'^[ \t]*//.*$', multiLine: true);
+final _showsGlassMenu = RegExp(r'(?<![A-Za-z0-9_])showGlassMenu(<[^>\n]*>)?\(');
+
+/// 玻璃菜单自己的实现文件，以及**不由玻璃按钮触发**的调用点。
+const _opensOverlayExemptFiles = <String>{
+  'lib/app/ui/widgets/glass/glass_menu.dart',
+};
+
 final _rawDialogRoute = RegExp(
   r'(?<![A-Za-z0-9_])(showDialog|showGeneralDialog)(<[^>\n]*>)?\(',
 );

@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 
 /// 按下反馈：缩放 + 对外暴露 pressed 状态。
 ///
 /// 所有玻璃按钮共用这一套手感：按下 0.96 缩放、120ms；松开 / 取消还原。
+///
+/// 点击与长按本身交给 [GlassTapArea]——「手指移出按钮多远才算放弃这一下」
+/// 那条规矩定义在那儿，这层不重复实现。
 class GlassPressable extends StatefulWidget {
   const GlassPressable({
     super.key,
@@ -15,6 +19,8 @@ class GlassPressable extends StatefulWidget {
     this.enabled = true,
     this.scale = GlassTokens.pressedScale,
     this.tapHandledDeeper = false,
+    this.stickyTouch = true,
+    this.opensOverlay = false,
   });
 
   final Widget Function(BuildContext context, bool pressed) builder;
@@ -23,19 +29,29 @@ class GlassPressable extends StatefulWidget {
   final bool enabled;
   final double scale;
 
-  /// [onTap] 的**真正触发点在更深处**，这层不要再注册自己的 tap 识别器。
+  /// [onTap] / [onLongPress] 的**真正触发点在更深处**，这层不要再注册识别器。
   ///
   /// 用在 [GlassSurface] 的 liquidWidgets + [GlassSurface.liquidTouch] 那条路上：
-  /// 形变层自带的 `GestureDetector` 比这层深，竞技场上稳赢，这层注册也是白注册
-  /// （详见 [GlassSurface] 里 `tapInsideLiquidBox` 那段）。
+  /// 那一档的跟手形变是借 `GlassButton` 实现的，而它自带一层 `GestureDetector`
+  /// 比这层深、竞技场上稳赢，所以点击改由 [GlassSurface] 把 [GlassTapArea] 塞进
+  /// **玻璃盒子里头**（比借来的那层还深）去发（详见 [GlassSurface] 里
+  /// `tapInsideLiquidBox` 那段）。
   ///
   /// 置真后这层只剩两件事：
-  ///   - **画按下反馈**——改用不进竞技场的 `Listener` 追踪按下状态。
-  ///     继续用 `GestureDetector` 的话，`onTapDown` 要等 100ms 的 deadline 才来、
-  ///     随后还会因判负回滚成 `onTapCancel`，快速点按几乎看不到反馈。
-  ///   - **对无障碍暴露「这是个按钮」**——[onTap] 仍会挂到 `Semantics.onTap`
-  ///     上（读屏的「激活」走这条），形变层那边则关掉语义避免出现两个节点。
+  ///   - **画按下反馈**——仍旧走 [GlassTapArea] 的 `onPressedChanged`（不进
+  ///     竞技场的 `Listener`，按下那一帧就到，也照样在手指走出容忍圈时撤掉）；
+  ///   - **对无障碍暴露「这是个按钮」**——[onTap] / [onLongPress] 挂到
+  ///     [Semantics] 上（读屏的「激活」走这条），深处那层则关掉语义避免出现
+  ///     两个节点。
   final bool tapHandledDeeper;
+
+  /// 见 [GlassTapArea.sticky]。默认开；只有「本来就要拿位移做别的事」的调用点
+  /// （玻璃菜单的滑动取焦）才关。
+  final bool stickyTouch;
+
+  /// 见 [GlassTapArea.opensOverlay]：这枚键的 [onTap] 是「吐出一张浮层」，
+  /// 于是长按也能打开、并且长按不抬手可以直接滑进面板选。
+  final bool opensOverlay;
 
   @override
   State<GlassPressable> createState() => _GlassPressableState();
@@ -60,37 +76,32 @@ class _GlassPressableState extends State<GlassPressable> {
       child: widget.builder(context, _pressed),
     );
 
-    if (interactive && widget.tapHandledDeeper) {
-      Widget result = scaled;
-      // 长按没有「更深的一层」接管，仍旧走识别器：它在 500ms 时自己宣布胜利，
-      // 能把里头那只 tap 挤掉。
-      if (widget.onLongPress != null) {
-        result = GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onLongPress: widget.onLongPress,
-          child: result,
-        );
-      }
+    // 不可用时仍然吃掉落在按钮上的点击（改造前那只 `behavior: opaque` 的
+    // `GestureDetector` 就是这么挡的），别把它漏给身下的东西。
+    if (!interactive) {
+      return Listener(behavior: HitTestBehavior.opaque, child: scaled);
+    }
+
+    if (widget.tapHandledDeeper) {
       return Semantics(
         button: true,
         onTap: widget.onTap,
-        child: Listener(
-          behavior: HitTestBehavior.opaque,
-          onPointerDown: (_) => _setPressed(true),
-          onPointerUp: (_) => _setPressed(false),
-          onPointerCancel: (_) => _setPressed(false),
-          child: result,
+        onLongPress: widget.onLongPress,
+        child: GlassTapArea(
+          onPressedChanged: _setPressed,
+          sticky: widget.stickyTouch,
+          excludeFromSemantics: true,
+          child: scaled,
         ),
       );
     }
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTapDown: interactive ? (_) => _setPressed(true) : null,
-      onTapUp: interactive ? (_) => _setPressed(false) : null,
-      onTapCancel: interactive ? () => _setPressed(false) : null,
-      onTap: interactive ? widget.onTap : null,
-      onLongPress: interactive ? widget.onLongPress : null,
+    return GlassTapArea(
+      onTap: widget.onTap,
+      onLongPress: widget.onLongPress,
+      onPressedChanged: _setPressed,
+      sticky: widget.stickyTouch,
+      opensOverlay: widget.opensOverlay,
       child: scaled,
     );
   }
@@ -127,11 +138,16 @@ class GlassSurface extends StatelessWidget {
     this.clipContent = false,
     this.liquidTouch = true,
     this.materialize = 1.0,
+    this.opensOverlay = false,
   });
 
   final Widget child;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
+
+  /// 见 [GlassTapArea.opensOverlay]：[onTap] 是「吐出一张浮层」，长按也能打开，
+  /// 且长按不抬手可以直接滑进面板取焦。
+  final bool opensOverlay;
 
   /// 玻璃体高度。传 null 表示**按内容自适应**（菜单面板一类高度不定的玻璃），
   /// 这时 [borderRadius] 必须显式给出——没有高度就推不出胶囊半径。
@@ -206,13 +222,20 @@ class GlassSurface extends StatelessWidget {
 
     // ⛔ liquidWidgets 档的跟手形变是**借** `GlassButton` 实现的，而它自带一层
     // `onTap` 必填的 `GestureDetector`——在命中路径上比下面那层 [GlassPressable]
-    // 更深，竞技场上稳赢。所以「整只玻璃可按 + [liquidTouch]」时，点击必须交给
-    // 盒子内部发出去（[LiquidWidgetsGlassBox.onTap]），外层只留按下反馈与语义。
+    // 更深，竞技场上稳赢。所以「整只玻璃可按 + [liquidTouch]」时，外层是发不出
+    // 点击的，识别器必须放到**比借来的那层还深**的地方去。
     //
     // 2026-08-23 真机报的「热门视频页 header 头像点不开全局抽屉」就是这一条：
     // 身份圆钮是全站唯一同时给了 [onTap] 和 [liquidTouch] 的调用点，改档之后
     // 那一下点击被形变层的空实现整只吃掉。把键放在胶囊**里头**的写法
     // （[GlassButtonGroup]）不受影响——各键自己更深，照样赢得过形变层。
+    //
+    // 2026-08-24 起改法从「把 onTap 交给 `GlassButton` 自己发」换成「把
+    // [GlassTapArea] 塞进玻璃**内容**那一层」：借来的那只识别器是框架默认的
+    // tap，走出 kTouchSlop（18px）就判负，而这套材质的手感恰恰要人按住拖着玩
+    // ——手指蠕动两下再抬手就没反应了。内容层在 `AdaptiveGlass` 里头、比
+    // `GlassButton` 更深，竞技场清算时先赢，「移出去多远才算放弃」这条规矩因此
+    // 全 App 只有 [GlassTapArea] 一个出处。
     final bool tapInsideLiquidBox =
         onTap != null &&
         effectiveLiquidTouch &&
@@ -222,6 +245,19 @@ class GlassSurface extends StatelessWidget {
 
     Widget buildBox(bool pressed) {
       Widget content = Padding(padding: padding, child: child);
+      if (tapInsideLiquidBox) {
+        // 塞在这儿是有讲究的：内容层随盒子的紧约束铺满整只玻璃，而它在借来的
+        // `GlassButton` 那只识别器**里头**——竞技场清算时更深者先赢，点击就落
+        // 在这层上。语义由外层 [GlassPressable] 统一发，这里关掉免得出现两个
+        // 按钮节点。
+        content = GlassTapArea(
+          onTap: onTap,
+          onLongPress: onLongPress,
+          opensOverlay: opensOverlay,
+          excludeFromSemantics: true,
+          child: content,
+        );
+      }
       // 两个液态档的裁切都由 shader 自己按形状做掉，这里不再套
       // ClipOval/ClipRRect（多一层裁剪只会多一个 saveLayer，形状还未必对得上
       // shader 的角）。
@@ -247,7 +283,6 @@ class GlassSurface extends StatelessWidget {
             pressed: pressed,
             elevated: elevated,
             interactive: effectiveLiquidTouch,
-            onTap: tapInsideLiquidBox ? onTap : null,
             materialize: m,
             child: content,
           );
@@ -287,6 +322,7 @@ class GlassSurface extends StatelessWidget {
       result = GlassPressable(
         onTap: onTap,
         onLongPress: onLongPress,
+        opensOverlay: opensOverlay,
         tapHandledDeeper: tapInsideLiquidBox,
         // 形变层自己就有一下按压放大（[GlassTokens.widgetsInteractionScale] =
         // 1.05），外面再叠 0.96 的缩小几乎正好抵消，读起来是「按了没反应」。
@@ -326,12 +362,17 @@ class GlassIconButton extends StatelessWidget {
     this.color,
     this.loading = false,
     this.materialize = 1.0,
+    this.opensOverlay = false,
   });
 
   final Widget icon;
   final VoidCallback? onPressed;
   final String? tooltip;
   final bool standalone;
+
+  /// 见 [GlassTapArea.opensOverlay]：[onPressed] 是「吐出一张浮层」（菜单 /
+  /// 下拉板），长按也能打开，且长按不抬手可以直接滑进面板取焦。
+  final bool opensOverlay;
   final double? size;
   final double iconSize;
   final bool showBadge;
@@ -414,6 +455,7 @@ class GlassIconButton extends StatelessWidget {
         circle: true,
         height: resolvedSize,
         onTap: effectiveOnPressed,
+        opensOverlay: opensOverlay,
         tooltip: tooltip,
         materialize: materialize,
         child: Center(child: iconWidget),
@@ -425,6 +467,7 @@ class GlassIconButton extends StatelessWidget {
     // 深色圆斑就是「玻璃上的脏印子」。反馈留 0.9 缩放 + 长按时整只胶囊的蠕动。
     Widget result = GlassPressable(
       onTap: effectiveOnPressed,
+      opensOverlay: opensOverlay,
       scale: 0.9,
       builder: (context, _) => SizedBox(
         width: resolvedSize,

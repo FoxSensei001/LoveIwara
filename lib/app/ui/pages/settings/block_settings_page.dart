@@ -217,6 +217,9 @@ class _BlockSettingsPageState extends State<BlockSettingsPage>
           builder: (anchorContext) => GlassIconButton(
             icon: const Icon(Icons.import_export),
             tooltip: _t.importExport,
+            // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+            // 松手选中（见 GlassTapArea.opensOverlay）。
+            opensOverlay: true,
             onPressed: () => _openImportExportMenu(anchorContext),
           ),
         ),

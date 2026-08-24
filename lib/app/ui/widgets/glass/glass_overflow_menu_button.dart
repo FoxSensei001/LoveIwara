@@ -98,6 +98,9 @@ class GlassOverflowMenuButton extends StatelessWidget {
         icon: const Icon(Icons.more_vert),
         tooltip: tooltip ?? MaterialLocalizations.of(context).showMenuTooltip,
         standalone: standalone,
+        // `⋮` 这枚位子存在的意义就是吐出一张菜单，所以长按也能打开，而且
+        // 长按不抬手可以直接划到某一条上松手选中（见 [GlassTapArea.opensOverlay]）。
+        opensOverlay: true,
         onPressed: () => _openMenu(anchorContext),
       ),
     );

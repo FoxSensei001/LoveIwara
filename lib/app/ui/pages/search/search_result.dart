@@ -766,6 +766,9 @@ class _SearchResultState extends State<SearchResult> {
       builder: (anchorContext) => GlassIconButton(
         icon: Icon(_segmentIcon(segment)),
         tooltip: _segmentLabel(t, segment),
+        // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+        // 松手选中（见 GlassTapArea.opensOverlay）。
+        opensOverlay: true,
         onPressed: () async {
           final picked = await showGlassMenu<SearchSegment>(
             anchorContext: anchorContext,
@@ -810,6 +813,9 @@ class _SearchResultState extends State<SearchResult> {
       builder: (anchorContext) => GlassIconButton(
         icon: Icon(_sortIconFor(segment, sort)),
         tooltip: t.common.sort,
+        // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+        // 松手选中（见 GlassTapArea.opensOverlay）。
+        opensOverlay: true,
         onPressed: () async {
           final picked = await showGlassMenu<String>(
             anchorContext: anchorContext,
@@ -859,6 +865,9 @@ class _SearchResultState extends State<SearchResult> {
       builder: (anchorContext) => GlassIconButton(
         icon: const Icon(Icons.more_vert),
         tooltip: t.common.more,
+        // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+        // 松手选中（见 GlassTapArea.opensOverlay）。
+        opensOverlay: true,
         onPressed: () async {
           final picked = await showGlassMenu<String>(
             anchorContext: anchorContext,

@@ -584,10 +584,12 @@ class _SearchControlsSection extends StatelessWidget {
       required IconData icon,
       required String label,
       bool showDropdownArrow = false,
+      bool opensOverlay = false,
       VoidCallback? onTap,
     }) {
       return GlassSurface(
         onTap: onTap,
+        opensOverlay: opensOverlay,
         padding: EdgeInsets.only(left: 14, right: showDropdownArrow ? 8 : 14),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -617,11 +619,13 @@ class _SearchControlsSection extends StatelessWidget {
     Widget glassIconPill({
       required IconData icon,
       String? tooltip,
+      bool opensOverlay = false,
       VoidCallback? onTap,
     }) {
       return GlassSurface(
         width: controlHeight,
         onTap: onTap,
+        opensOverlay: opensOverlay,
         tooltip: tooltip,
         child: Center(
           child: Icon(
@@ -800,15 +804,19 @@ class _SearchControlsSection extends StatelessWidget {
                   }
 
                   return compact
+                      // 菜单的触发钮：长按也能打开，且长按不抬手可以直接划到
+                      // 某一条上松手选中（见 GlassTapArea.opensOverlay）。
                       ? glassIconPill(
                           icon: segmentIcon(seg),
                           tooltip: segmentLabel(seg),
+                          opensOverlay: true,
                           onTap: openMenu,
                         )
                       : glassLabelPill(
                           icon: segmentIcon(seg),
                           label: segmentLabel(seg),
                           showDropdownArrow: true,
+                          opensOverlay: true,
                           onTap: openMenu,
                         );
                 },
@@ -827,15 +835,18 @@ class _SearchControlsSection extends StatelessWidget {
                   }
 
                   return compact
+                      // 菜单的触发钮，同上。
                       ? glassIconPill(
                           icon: sortIconFor(sort),
                           tooltip: '${t.common.sort}: $currentSortLabel',
+                          opensOverlay: true,
                           onTap: openMenu,
                         )
                       : glassLabelPill(
                           icon: sortIconFor(sort),
                           label: currentSortLabel,
                           showDropdownArrow: true,
+                          opensOverlay: true,
                           onTap: openMenu,
                         );
                 },

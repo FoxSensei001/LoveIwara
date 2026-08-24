@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
 
@@ -431,9 +433,40 @@ Future<T?> showGlassMenu<T>({
   // 关键：材质档位在这里就地取样，因为路由本身不在页面子树里。
   final GlassBackend backend = panelGlassBackend(anchorContext);
 
+  // 手指接力：长按触发钮打开菜单时手指还按着，把这根手指接过来，面板就能直接
+  // 进「滑动取焦」——按住不抬手划到某一条、松手即选中。普通点按（抬手才触发）
+  // 认领不到，见 [GlassPointerHandoff]。**必须在同步前缀里领**，一旦 await 过
+  // 窗口就关了。
+  final GlassPointerHandoffSession? handoff = GlassPointerHandoff.claim();
+
+  // 接了手指就必须走浮层档：路由一 push，`Navigator` 会把这根手指整只取消掉，
+  // 接力当场断掉（详见 [_GlassMenuOverlayHost] 的类注释）。
+  if (handoff != null) {
+    return _showGlassMenuOverlay<T>(
+      navigator: navigator,
+      // 浮层不在路由栈上，页面被换掉时不会自己消失，得盯着锚点那条路由，
+      // 见 [_GlassMenuOverlayHostState._watchAnchorRoute]。
+      anchorRoute: ModalRoute.of(anchorContext),
+      entries: entries,
+      anchorRect: anchorRect,
+      minWidth: minWidth,
+      maxWidth: maxWidth,
+      backend: backend,
+      touchFlex:
+          touchFlex && precomputedSize != null && backend != GlassBackend.plain,
+      precomputedSize: precomputedSize,
+      capturedThemes: InheritedTheme.capture(
+        from: anchorContext,
+        to: navigator.context,
+      ),
+      handoff: handoff,
+    );
+  }
+
   return navigator.push(
     _GlassMenuRoute<T>(
       entries: entries,
+      handoff: handoff,
       anchorRect: anchorRect,
       minWidth: minWidth,
       maxWidth: maxWidth,
@@ -456,6 +489,262 @@ Future<T?> showGlassMenu<T>({
   );
 }
 
+/// 把菜单挂到根 `Overlay` 上（而不是 push 成路由），只给手指接力那条路用。
+/// 理由见 [_GlassMenuOverlayHost] 的类注释。
+Future<T?> _showGlassMenuOverlay<T>({
+  required NavigatorState navigator,
+  required ModalRoute<Object?>? anchorRoute,
+  required List<GlassMenuEntry> entries,
+  required Rect anchorRect,
+  required double minWidth,
+  required double maxWidth,
+  required GlassBackend backend,
+  required bool touchFlex,
+  required Size? precomputedSize,
+  required CapturedThemes capturedThemes,
+  required GlassPointerHandoffSession handoff,
+}) {
+  final OverlayState? overlay = navigator.overlay;
+  if (overlay == null) return Future<T?>.value();
+  final Completer<T?> completer = Completer<T?>();
+  late final OverlayEntry entry;
+  entry = OverlayEntry(
+    builder: (context) => _GlassMenuOverlayHost<T>(
+      anchorRoute: anchorRoute,
+      entries: entries,
+      anchorRect: anchorRect,
+      minWidth: minWidth,
+      maxWidth: maxWidth,
+      backend: backend,
+      touchFlex: touchFlex,
+      precomputedSize: precomputedSize,
+      capturedThemes: capturedThemes,
+      handoff: handoff,
+      onClosed: (value) {
+        entry.remove();
+        entry.dispose();
+        if (!completer.isCompleted) completer.complete(value);
+      },
+    ),
+  );
+  overlay.insert(entry);
+  return completer.future;
+}
+
+/// 面板的身子：路由档与浮层档（[_GlassMenuOverlayHost]）**共用同一份**。
+///
+/// 两条路只在「谁托着它、怎么关」上不同，长相与交互一律走这儿，免得日后改了
+/// 一边忘了另一边。
+Widget _buildGlassMenuBody<T>({
+  required BuildContext context,
+  required Animation<double> animation,
+  required List<GlassMenuEntry> entries,
+  required Rect anchorRect,
+  required double minWidth,
+  required double maxWidth,
+  required GlassBackend backend,
+  required bool touchFlex,
+  required Size? precomputedSize,
+  required CapturedThemes capturedThemes,
+  required GlassPointerHandoffSession? handoff,
+  required ValueChanged<T> onSelected,
+  required VoidCallback onDismissed,
+}) {
+  final Size screen = MediaQuery.sizeOf(context);
+  final bool flipped = _opensUpward(
+    anchorRect: anchorRect,
+    screenHeight: screen.height,
+  );
+  final Widget panel = _GlassMenuPanel<T>(
+    entries: entries,
+    onSelected: onSelected,
+    onDismissed: onDismissed,
+    handoff: handoff,
+    touchFlex: touchFlex,
+    precomputedSize: precomputedSize,
+    // 出入场长在面板内部而不是 buildTransitions 里，理由见该处注释。
+    animation: animation,
+    revealOrigin: _revealOrigin(
+      anchorRect: anchorRect,
+      screen: screen,
+      flipped: flipped,
+    ),
+    revealBeginScale: _revealBeginScale(
+      anchor: anchorRect,
+      panel: precomputedSize,
+    ),
+    flipped: flipped,
+  );
+  return capturedThemes.wrap(
+    LiquidGlassScope(
+      backend: backend,
+      child: CustomSingleChildLayout(
+        delegate: _GlassMenuLayout(
+          anchorRect: anchorRect,
+          minWidth: minWidth,
+          maxWidth: maxWidth,
+          padding: MediaQuery.paddingOf(context),
+        ),
+        child: panel,
+      ),
+    ),
+  );
+}
+
+/// 浮层档的宿主：**手指接力时不能走路由**。
+///
+/// ⛔ `Navigator` 每次 push / pop 之后都会把**当前所有还按着的手指整只取消掉**
+/// （`NavigatorState._cancelActivePointers`，框架里那条 TODO 挂着
+/// flutter#4770）。取消之后 `GestureBinding` 把这根手指的命中路径删了，后续的
+/// move / up 连派发都不派发——也就是说，只要菜单是 push 出来的，「长按弹出、
+/// 手指不抬起接着划」这条路在框架层面就是死的：面板刚一出现，手指就已经废了。
+///
+/// 所以长按接力开出来的菜单挂在 `Overlay` 上而不是路由上：插一条 `OverlayEntry`
+/// 不经过 `Navigator`，手指还活着，触发钮那层 `Listener` 能继续把落点转发进来。
+/// 普通点按打开的仍旧走路由（那时手指早抬了，没有接力可言），两条路的**身子是
+/// 同一份**（[_buildGlassMenuBody]），差别只有这三样：出入场自己起一个
+/// controller、屏障自己画、关闭走 completer 而不是 `Navigator.pop`。
+class _GlassMenuOverlayHost<T> extends StatefulWidget {
+  const _GlassMenuOverlayHost({
+    required this.anchorRoute,
+    required this.entries,
+    required this.anchorRect,
+    required this.minWidth,
+    required this.maxWidth,
+    required this.backend,
+    required this.touchFlex,
+    required this.precomputedSize,
+    required this.capturedThemes,
+    required this.handoff,
+    required this.onClosed,
+  });
+
+  /// 触发钮所在的那条路由，用来在页面被换掉时把浮层一并收走。
+  final ModalRoute<Object?>? anchorRoute;
+
+  final List<GlassMenuEntry> entries;
+  final Rect anchorRect;
+  final double minWidth;
+  final double maxWidth;
+  final GlassBackend backend;
+  final bool touchFlex;
+  final Size? precomputedSize;
+  final CapturedThemes capturedThemes;
+  final GlassPointerHandoffSession handoff;
+
+  /// 退场动画跑完之后回调，带上选中的值（没选就是 null）。
+  final ValueChanged<T?> onClosed;
+
+  @override
+  State<_GlassMenuOverlayHost<T>> createState() =>
+      _GlassMenuOverlayHostState<T>();
+}
+
+class _GlassMenuOverlayHostState<T> extends State<_GlassMenuOverlayHost<T>>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  bool _closing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: _enterDuration(widget.entries.length),
+      reverseDuration: _exitDuration,
+    );
+    _controller.forward();
+    _watchAnchorRoute();
+  }
+
+  /// ⛔ 浮层不在路由栈上——页面被 pop / 被别的页面盖住时，它**不会**跟着消失，
+  /// 会孤零零地浮在下一个页面上（iOS 边缘侧滑返回最容易撞上）。所以盯着触发钮
+  /// 那条路由的两条动画：自己在退场（[ModalRoute.animation] 反跑）或者被别人盖
+  /// 住（[ModalRoute.secondaryAnimation] 正跑），都立刻收摊。
+  void _watchAnchorRoute() {
+    final ModalRoute<Object?>? route = widget.anchorRoute;
+    if (route == null) return;
+    void check() {
+      if (_closing) return;
+      final bool leaving =
+          route.animation?.status == AnimationStatus.reverse ||
+          route.animation?.status == AnimationStatus.dismissed ||
+          route.secondaryAnimation?.status == AnimationStatus.forward;
+      if (leaving) _close(null);
+    }
+
+    _anchorStatusListener = (_) => check();
+    route.animation?.addStatusListener(_anchorStatusListener!);
+    route.secondaryAnimation?.addStatusListener(_anchorStatusListener!);
+  }
+
+  AnimationStatusListener? _anchorStatusListener;
+
+  @override
+  void dispose() {
+    final AnimationStatusListener? listener = _anchorStatusListener;
+    if (listener != null) {
+      widget.anchorRoute?.animation?.removeStatusListener(listener);
+      widget.anchorRoute?.secondaryAnimation?.removeStatusListener(listener);
+    }
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _close(T? value) async {
+    if (_closing) return;
+    _closing = true;
+    await _controller.reverse();
+    if (!mounted) return;
+    widget.onClosed(value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget content = Stack(
+        children: [
+          // 屏障：与 PopupRoute 那档一致——不压暗，只负责「点空白处关掉」。
+          // 它是在手指按下**之后**才插进来的，接不到这根手指，不会跟接力打架。
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => _close(null),
+            ),
+          ),
+          _buildGlassMenuBody<T>(
+            context: context,
+            animation: _controller.view,
+            entries: widget.entries,
+            anchorRect: widget.anchorRect,
+            minWidth: widget.minWidth,
+            maxWidth: widget.maxWidth,
+            backend: widget.backend,
+            touchFlex: widget.touchFlex,
+            precomputedSize: widget.precomputedSize,
+            capturedThemes: widget.capturedThemes,
+            handoff: widget.handoff,
+            onSelected: _close,
+            onDismissed: () => _close(null),
+          ),
+        ],
+      );
+
+    // 路由那档由 `PopupRoute` 自己吃返回键；浮层没有路由，得自己接一层。
+    // `BackButtonListener` 找不到 `Router` 会**直接抛**（不是返回 null），
+    // 而挂在裸 `Navigator` 上的 App（以及大部分 widget test）本来就没有
+    // Router——所以先探一下再决定包不包。
+    if (Router.maybeOf(context) == null) return content;
+    return BackButtonListener(
+      onBackButtonPressed: () async {
+        if (_closing) return false;
+        await _close(null);
+        return true;
+      },
+      child: content,
+    );
+  }
+}
+
 class _GlassMenuRoute<T> extends PopupRoute<T> {
   _GlassMenuRoute({
     required this.entries,
@@ -467,7 +756,11 @@ class _GlassMenuRoute<T> extends PopupRoute<T> {
     required this.precomputedSize,
     required this.capturedThemes,
     required this.barrierLabel,
+    this.handoff,
   });
+
+  /// 从触发钮接过来的那根手指（长按打开时才有），见 [GlassPointerHandoff]。
+  final GlassPointerHandoffSession? handoff;
 
   final List<GlassMenuEntry> entries;
   final Rect anchorRect;
@@ -508,43 +801,20 @@ class _GlassMenuRoute<T> extends PopupRoute<T> {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
   ) {
-    final Size screen = MediaQuery.sizeOf(context);
-    final bool flipped = _opensUpward(
-      anchorRect: anchorRect,
-      screenHeight: screen.height,
-    );
-    final Widget panel = _GlassMenuPanel<T>(
+    return _buildGlassMenuBody<T>(
+      context: context,
+      animation: animation,
       entries: entries,
-      onSelected: (value) => Navigator.of(context).pop(value),
-      onDismissed: () => Navigator.of(context).pop(),
+      anchorRect: anchorRect,
+      minWidth: minWidth,
+      maxWidth: maxWidth,
+      backend: backend,
       touchFlex: touchFlex,
       precomputedSize: precomputedSize,
-      // 出入场长在面板内部而不是 buildTransitions 里，理由见该处注释。
-      animation: animation,
-      revealOrigin: _revealOrigin(
-        anchorRect: anchorRect,
-        screen: screen,
-        flipped: flipped,
-      ),
-      revealBeginScale: _revealBeginScale(
-        anchor: anchorRect,
-        panel: precomputedSize,
-      ),
-      flipped: flipped,
-    );
-    return capturedThemes.wrap(
-      LiquidGlassScope(
-        backend: backend,
-        child: CustomSingleChildLayout(
-          delegate: _GlassMenuLayout(
-            anchorRect: anchorRect,
-            minWidth: minWidth,
-            maxWidth: maxWidth,
-            padding: MediaQuery.paddingOf(context),
-          ),
-          child: panel,
-        ),
-      ),
+      capturedThemes: capturedThemes,
+      handoff: handoff,
+      onSelected: (value) => Navigator.of(context).pop(value),
+      onDismissed: () => Navigator.of(context).pop(),
     );
   }
 
@@ -660,7 +930,11 @@ class _GlassMenuPanel<T> extends StatefulWidget {
     required this.flipped,
     this.touchFlex = false,
     this.precomputedSize,
+    this.handoff,
   });
+
+  /// 从触发钮接过来的那根手指，见 [GlassPointerHandoff]。
+  final GlassPointerHandoffSession? handoff;
 
   final List<GlassMenuEntry> entries;
   final ValueChanged<T> onSelected;
@@ -748,15 +1022,77 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
       reverseCurve: const Interval(0, 0.5, curve: Curves.easeIn),
     );
     _focusFade = AnimationController(vsync: this, duration: _focusFadeDuration);
+    _attachHandoff();
   }
 
   @override
   void dispose() {
+    widget.handoff?.detach();
     _shape.dispose();
     _material.dispose();
     _focusFade.dispose();
     _scroll.dispose();
     super.dispose();
+  }
+
+  // ---- 手指接力（长按触发钮打开的那一路，见 [GlassPointerHandoff]）----
+
+  /// 这根手指是从触发钮接过来的，面板自己的 [Listener] 一个事件也收不到。
+  bool _handoffActive = false;
+
+  /// 挂上接力。**要等第一帧**：坐标要靠内容层的 `RenderBox` 换算，而它这会儿
+  /// 还没布局；[GlassPointerHandoffSession.position] 存着最后一次落点，所以
+  /// 晚一帧挂上也不会丢起手焦点。
+  void _attachHandoff() {
+    final GlassPointerHandoffSession? session = widget.handoff;
+    if (session == null || session.finished) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || session.finished) return;
+      _handoffActive = true;
+      setState(() {
+        _sliding = true;
+        // 起手不滑：底板直接落在手指底下（与按面板那条路同一个规矩）。
+        _pillSlides = false;
+      });
+      final Offset? at = session.position;
+      if (at != null) _focusAtGlobal(at, haptic: false);
+      session.attach(
+        onMove: (position) => _focusAtGlobal(position, haptic: true),
+        onRelease: _handleHandoffRelease,
+      );
+    });
+  }
+
+  /// 全局坐标 → 内容坐标 → 焦点。内容层的 `RenderBox` 自带滚动偏移与出入场的
+  /// 那两层 `Transform`，换算出来的正好是 [_entryAt] 要的那套坐标。
+  void _focusAtGlobal(Offset global, {required bool haptic}) {
+    if (!mounted || _selected) return;
+    final RenderObject? box = _contentKey.currentContext?.findRenderObject();
+    if (box is! RenderBox || !box.attached || !box.hasSize) return;
+    final Offset local = box.globalToLocal(global);
+    if (!_pillSlides && _focusIndex != null) _pillSlides = true;
+    _setFocus(_entryAt(local, _contentWidth), haptic: haptic);
+  }
+
+  void _handleHandoffRelease(Offset? global) {
+    _handoffActive = false;
+    if (!mounted) return;
+    final int? target = _focusIndex;
+    // 取消（[global] 为 null）不算选中；松手时人还悬在触发钮上（没落到任何一条）
+    // 也不关面板——那就退回一张普通打开着的菜单，再点一下就是了。
+    if (global == null || target == null) {
+      setState(() {
+        _sliding = false;
+        _focusIndex = null;
+      });
+      _focusFade.reverse();
+      return;
+    }
+    final GlassMenuEntry entry = widget.entries[target];
+    if (entry is GlassMenuOption<T> && entry.enabled) {
+      VibrateUtils.vibrate();
+      _select(entry.value);
+    }
   }
 
   /// 所有选中都从这里出去：滑动取焦和行自己的点按共用一条出口，只放行一次。
@@ -848,7 +1184,11 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
   }
 
   void _handlePointerDown(PointerDownEvent event) {
-    if (_pointer != null || _selected || _isScrollable || _hasLongPressEntry) {
+    if (_pointer != null ||
+        _selected ||
+        _handoffActive ||
+        _isScrollable ||
+        _hasLongPressEntry) {
       return;
     }
     _pointer = event.pointer;
@@ -1171,6 +1511,11 @@ class _GlassMenuRowState extends State<_GlassMenuRow> {
         enabled: enabled,
         onTap: widget.onTap,
         onLongPress: enabled ? widget.onLongPress : null,
+        // ⛔ 这一处**必须**关掉「黏手」的容忍圈（见 [GlassTapArea.sticky]）：
+        // 上面那套滑动取焦正是靠 tap 在 kTouchSlop 处自行判负来和点按分家的
+        // （见 `_handlePointerUp` 里那段），黏上之后一次滑动取焦会连带触发行
+        // 自己的点击 —— 同一项被选中两遍。
+        stickyTouch: false,
         // 整行缩放会让面板看着在抖；行的反馈只用底色。
         scale: 1.0,
         builder: (context, pressed) => AnimatedContainer(

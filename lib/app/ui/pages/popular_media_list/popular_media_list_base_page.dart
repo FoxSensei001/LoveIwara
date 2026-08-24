@@ -368,6 +368,9 @@ class PopularMediaListPageBaseState<
     // context 去量落点。
     return Builder(
       builder: (anchorContext) => GlassPressable(
+        // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+        // 松手选中（见 GlassTapArea.opensOverlay）。
+        opensOverlay: true,
         onTap: () => _openSortMenu(anchorContext),
         // 触发位是胶囊的全部内容，按下缩放会把整只胶囊带得一起抖；
         // 反馈改成整只胶囊压深一档（换掉 PopupMenuButton 原本的水波）。
@@ -557,6 +560,9 @@ class PopularMediaListPageBaseState<
           Builder(
             builder: (anchorContext) => GlassIconButton(
               icon: const Icon(Icons.more_vert),
+              // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+              // 松手选中（见 GlassTapArea.opensOverlay）。
+              opensOverlay: true,
               onPressed: () async {
                 final action = await showGlassMenu<String>(
                   anchorContext: anchorContext,

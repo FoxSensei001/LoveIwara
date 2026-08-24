@@ -166,6 +166,9 @@ class _PlayListPageState extends State<PlayListPage> {
             builder: (anchorContext) => GlassIconButton(
               icon: const Icon(Icons.more_vert),
               tooltip: t.common.more,
+              // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+              // 松手选中（见 GlassTapArea.opensOverlay）。
+              opensOverlay: true,
               onPressed: () => _openMoreMenu(anchorContext),
             ),
           ),
