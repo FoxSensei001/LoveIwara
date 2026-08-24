@@ -488,9 +488,7 @@ class ForumPageState extends State<ForumPage> {
 
   /// 论坛搜索。由社区 header 上的搜索键调用。
   void openSearchDialog() {
-    NaviService.navigateToSearchPage(
-      initialSegment: SearchSegment.forum,
-    );
+    NaviService.navigateToSearchPage(initialSegment: SearchSegment.forum);
   }
 
   /// 滚过一段后出现在右下角的「回到顶部」浮钮；「最近」分页模式下抬到分页栏之上。
@@ -508,8 +506,10 @@ class ForumPageState extends State<ForumPage> {
             (_isPaginated.value && _selectedRailIndex == 0
                 ? PaginationBar.barHeight
                 : 0),
-        child: LiquidGlassScope(
-          backend: chromeGlassBackend(context),
+        // group: false —— 浮钮走 GlassReveal 的 materialize 淡入，材质淡入
+        // 在融合层里无效（见 GlassChromeLayer 最后一段）。
+        child: GlassChromeLayer(
+          group: false,
           child: ValueListenableBuilder<bool>(
             valueListenable: _showBackToTop,
             builder: (context, visible, _) => GlassReveal(

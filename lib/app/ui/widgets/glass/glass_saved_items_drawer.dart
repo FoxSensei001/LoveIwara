@@ -126,15 +126,13 @@ Future<void> showGlassRightDrawer({
   return showGeneralDialog(
     context: targetContext,
     barrierDismissible: true,
-    barrierLabel:
-        MaterialLocalizations.of(targetContext).modalBarrierDismissLabel,
+    barrierLabel: MaterialLocalizations.of(
+      targetContext,
+    ).modalBarrierDismissLabel,
     barrierColor: Colors.black54,
     transitionDuration: const Duration(milliseconds: 250),
     pageBuilder: (ctx, animation, secondaryAnimation) {
-      return Align(
-        alignment: Alignment.centerRight,
-        child: builder(ctx),
-      );
+      return Align(alignment: Alignment.centerRight, child: builder(ctx));
     },
     transitionBuilder: (ctx, animation, secondaryAnimation, child) {
       return SlideTransition(
@@ -209,9 +207,7 @@ class GlassSavedItemsDrawer<T> extends StatelessWidget {
               if (list.isEmpty) {
                 return Padding(
                   padding: EdgeInsets.only(top: headerExtent),
-                  child: Center(
-                    child: MyEmptyWidget(message: emptyMessage),
-                  ),
+                  child: Center(child: MyEmptyWidget(message: emptyMessage)),
                 );
               }
               return ReorderableListView.builder(
@@ -323,8 +319,7 @@ class GlassSavedItemsDrawer<T> extends StatelessWidget {
             top: 0,
             left: 0,
             right: 0,
-            child: LiquidGlassScope(
-              backend: chromeGlassBackend(context),
+            child: GlassChromeLayer(
               child: Padding(
                 padding: EdgeInsets.fromLTRB(20, statusBarHeight + 16, 12, 4),
                 child: Row(
@@ -372,8 +367,9 @@ class GlassSavedItemsDrawer<T> extends StatelessWidget {
             bottom: 0,
             left: 0,
             right: 0,
-            child: LiquidGlassScope(
-              backend: chromeGlassBackend(context),
+            // group: false —— 只有一块玻璃（排序提示胶囊），分组省不出东西。
+            child: GlassChromeLayer(
+              group: false,
               child: Padding(
                 padding: EdgeInsets.fromLTRB(20, 8, 20, 16 + safeBottom),
                 child: Center(

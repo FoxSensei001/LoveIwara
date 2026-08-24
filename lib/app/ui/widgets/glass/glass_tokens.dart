@@ -363,6 +363,16 @@ abstract final class GlassTokens {
   /// 调小则拖到贴住也不融合。改之前先确认间距有没有一起变。
   static const double chromeBlend = 8;
 
+  /// 同一层玻璃里两块 chrome 之间该留的间距。
+  ///
+  /// 与 [chromeBlend] 是**同一个数**，不是巧合：融合的阈值就是「间距」本身
+  /// ——静止态刚好不粘连，被按住拖近了才长出液面颈部。所以两者必须一起改。
+  ///
+  /// 收口成常量是因为它以前只写在 `GlassHeaderOverlay` 的文档里、靠各页手抄
+  /// `SizedBox(width: 8)`。抄漏的地方（分页栏的翻页键原本是 4）在收进同一层
+  /// 之后会直接糊成一坨——间距不再只是留白，它是材质的参数。
+  static const double chromeGap = chromeBlend;
+
   /// 融合层的裁剪外扩：跟手形变会把玻璃推出布局边界，不外扩就会在 layer
   /// 边缘出现一道硬切。与浮动底栏（`GlassTabBar.bottom` 内部）同值。
   static const EdgeInsets chromeBlendClipExpansion = EdgeInsets.symmetric(

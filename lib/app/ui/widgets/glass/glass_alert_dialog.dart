@@ -110,8 +110,10 @@ class GlassAlertDialog extends StatelessWidget {
     // （见 `glass_dialog_motion.dart`），本组件只管结构。面板背景仍是不透明
     // `Material`（不是 `GlassSurface`），不受 scope 影响，透底问题不会回来。
     final closeButton = showCloseButton
-        ? LiquidGlassScope(
-            backend: chromeGlassBackend(context),
+        // group: false —— 单独一枚圆钮，收进层里省不出 backdrop 采样，
+        // 却会吃掉它按下时的底色加深（同一层玻璃只有一份材质）。
+        ? GlassChromeLayer(
+            group: false,
             child: GlassIconButton(
               standalone: true,
               icon: const Icon(Icons.close),
@@ -123,8 +125,10 @@ class GlassAlertDialog extends StatelessWidget {
 
     final actionGroup = actions.isEmpty
         ? null
-        : LiquidGlassScope(
-            backend: chromeGlassBackend(context),
+        // group: false —— 动作行整只就是一块玻璃（GlassButtonGroup 的胶囊），
+        // 同上。
+        : GlassChromeLayer(
+            group: false,
             child: GlassButtonGroup(
               children: [
                 for (final action in actions)

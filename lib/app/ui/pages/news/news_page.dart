@@ -383,8 +383,10 @@ class NewsPageState extends State<NewsPage>
           ? GlassTokens.floatingActionCoAxisRight(GlassTokens.pillHeight)
           : 16,
       bottom: MediaQuery.paddingOf(context).bottom + 16,
-      child: LiquidGlassScope(
-        backend: chromeGlassBackend(context),
+      // group: false —— 浮钮走 GlassReveal 的 materialize 淡入，材质淡入
+      // 在融合层里无效（见 GlassChromeLayer 最后一段）。
+      child: GlassChromeLayer(
+        group: false,
         child: GlassReveal(
           visible: visible,
           builder: (context, m) => GlassIconButton(

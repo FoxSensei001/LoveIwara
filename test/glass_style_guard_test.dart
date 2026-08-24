@@ -159,7 +159,7 @@ void main() {
           'GlassMaterialMode）。谁把液态档写成字面量，谁就绕过了那个开关——'
           '用户关掉模糊之后这块玻璃还在采样背景，而且改了不会重建。\n'
           '  · 页面 chrome（header 胶囊 / 浮动底栏 / 浮钮 / 动作坞）：\n'
-          '    LiquidGlassScope(backend: chromeGlassBackend(context))\n'
+          '    GlassChromeLayer(child: ...)\n'
           '  · 浮出面板（菜单 / 下拉板）：panelGlassBackend(anchorContext)\n'
           '  · 确实要在液态子树里局部关掉：GlassBackend.plain（这个不受限）\n'
           '${offenders.join('\n')}',
@@ -185,9 +185,54 @@ void main() {
       fix: '改用 showAppDialog（液态档与出入场都供在那条路由上）',
     );
   });
+
+  test('一簇 chrome 走 GlassChromeLayer，不裸供 chrome 档（零容忍）', () {
+    final offenders = <String>[];
+    for (final file in _dartFiles()) {
+      if (_chromeScopeExempt.contains(_rel(file))) continue;
+      final source = file.readAsStringSync().replaceAll(_lineComment, '');
+      for (final match in _bareChromeScope.allMatches(source)) {
+        final line =
+            '\n'.allMatches(source.substring(0, match.start)).length + 1;
+        offenders.add('${_rel(file)}:$line');
+      }
+    }
+    expect(
+      offenders,
+      isEmpty,
+      reason:
+          '裸 LiquidGlassScope(chromeGlassBackend(...)) 供出来的一簇 chrome，'
+          '里头**每块玻璃各占一层**——每层是一次 backdrop 采样加一次整屏 '
+          'resolve。2026-08-24 真机实测：一行 chrome 从一层拆成三层要多花 '
+          '3ms 光栅、jank 从 3.7% 升到 16.9%（而把画质从 premium 砍到 minimal '
+          '只省 0.3ms——层数才是这套材质唯一值得优化的量）。\n'
+          '改用 GlassChromeLayer：它供档的同时把这一簇收进同一层。簇里有玻璃'
+          '要做 materialize 材质淡入的，传 group: false（那种本来也只有一块'
+          '玻璃，不亏）。\n'
+          '${offenders.join('\n')}',
+    );
+  });
 }
 
 final _rawAlertDialog = RegExp(r'AlertDialog\(');
+
+/// 裸供 chrome 档：`LiquidGlassScope(backend: chromeGlassBackend(...))`。
+/// 换行随格式化器变，所以按「两个记号之间不跨越右括号」匹配。
+final _bareChromeScope = RegExp(
+  r'LiquidGlassScope\(\s*backend:\s*chromeGlassBackend\(',
+);
+
+/// 允许裸供 chrome 档的三处，各有各的理由：
+///   - `liquid_glass_material.dart`：`GlassChromeLayer` 自己就在这儿实现。
+///   - `glass_header_overlay.dart`：它供的是**整个 Stack**（子项必须是
+///     `Positioned`，中间插一层就失去定位），融合层单独包在 header 那一行上。
+///   - `identity_avatar_button.dart`：单块玻璃的供档件，可能长在别人的簇里，
+///     自己再起一层就多一层。
+const _chromeScopeExempt = <String>{
+  'lib/app/ui/widgets/glass/liquid_glass_material.dart',
+  'lib/app/ui/widgets/glass/glass_header_overlay.dart',
+  'lib/app/ui/widgets/identity_avatar_button.dart',
+};
 final _opacityWrapper = RegExp(
   r'(?<![A-Za-z0-9_])(AnimatedOpacity|FadeTransition|Opacity)\(',
 );

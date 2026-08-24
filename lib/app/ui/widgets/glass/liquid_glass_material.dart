@@ -8,6 +8,7 @@ import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 // 组件重名，不加前缀会一片 ambiguous_import。
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lgw;
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/utils/glass_perf_knobs.dart';
 
 // 真·液态玻璃后端的接线层：两个第三方包 + 传统档，共三档材质。
 //
@@ -359,9 +360,18 @@ class GlassBlendGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!enabled ||
+        !GlassPerfKnobs.blend ||
         LiquidGlassScope.of(context) != GlassBackend.liquidWidgets) {
       return child;
     }
+    // ⛔ 融合组里再套一个融合组＝凭空多一层玻璃（多一次 backdrop 采样、多一次
+    // 整屏 resolve），而这正是本类要省掉的东西。外层那一层已经把这片子树收进
+    // 去了，这里直接透传。
+    //
+    // 会撞上这条的是「一簇 chrome 里嵌了另一簇」的写法——例如
+    // [GlassChromeLayer] 包的 Row 里放了一枚自带 chrome 供档的
+    // `IdentityAvatarButton`。调用点不该为此操心，所以由本类自己挡掉。
+    if (GlassBlendGroup.isJoinable(context)) return child;
     final cs = Theme.of(context).colorScheme;
     return lgw.AdaptiveLiquidGlassLayer(
       quality: lgw.GlassQuality.premium,
@@ -371,6 +381,102 @@ class GlassBlendGroup extends StatelessWidget {
       // 完全一致，融合前后材质不该有肉眼差别。
       settings: GlassTokens.widgetsGlass(cs, tint: GlassTokens.widgetsTint(cs)),
       child: _GlassBlendScope(joinable: true, child: child),
+    );
+  }
+}
+
+/// 一簇**浮层 chrome** 的统一入口：供 chrome 档 + 把这一簇收进**同一层玻璃**。
+///
+/// # 为什么必须收口（2026-08-24 真机实测）
+///
+/// 液态档的代价**不在 shader，在层数**。OnePlus Pad（120Hz，预算 8.33ms）上
+/// 用 `tool/glass_bench.py` 逐项归因，同一套滚动场景的光栅中位数：
+///
+/// | 变体 | raster p50 | Δ | jank% |
+/// |---|---|---|---|
+/// | 基线（真玻璃） | 8.05 | — | 3.7% |
+/// | 画质 premium → standard | 8.00 | -0.05 | 1.3% |
+/// | 画质 premium → minimal | 8.37 | +0.32 | 4.4% |
+/// | **关掉 header 的融合层** | **11.07** | **+3.02** | **16.9%** |
+/// | 关掉跟手形变 | 8.25 | +0.20 | 1.8% |
+/// | 关掉渐进蒙层 | 8.44 | +0.39 | 2.9% |
+/// | 假玻璃 | 5.84 | -2.21 | 0% |
+///
+/// 读法：**把画质从 premium 一路砍到 minimal 一共只省 0.3ms**（换句话说，
+/// 「加一档省电画质」这个直觉是错的，省不出东西来）；而把一行 chrome 从
+/// 一层拆成三层就要多花 3ms。原因是每一层独立玻璃 = 一次 `BackdropGroup` +
+/// 一次 `BackdropFilterLayer`，在移动 GPU 上就是一次整屏 resolve——固定开销，
+/// 跟这块玻璃多大、shader 多复杂关系不大。
+///
+/// 所以「一屏上有几层独立玻璃」是这套材质**唯一**值得优化的量。本组件就是
+/// 那个收口点：页面别再自己写 `LiquidGlassScope(backend: chromeGlassBackend(...))`
+/// ——那样写出来的一簇 chrome 里，每块玻璃各占一层。
+/// `test/glass_style_guard_test.dart` 里有闸门盯着裸写法的数量。
+///
+/// # 用法
+///
+/// ```dart
+/// GlassChromeLayer(
+///   child: Row(children: [
+///     GlassIconButton(standalone: true, ...),
+///     SizedBox(width: GlassTokens.chromeGap),
+///     GlassSurface(...),
+///   ]),
+/// )
+/// ```
+///
+/// 同一簇里的玻璃之间一律留 [GlassTokens.chromeGap]——那正是
+/// [GlassTokens.chromeBlend] 标定的「静止态刚好不粘连、拖近才融合」的距离。
+/// 间距比它小就会在静止态糊成一坨。
+///
+/// # 什么时候传 `group: false`
+///
+/// 判据只有一条：**这一簇里有几块玻璃**。
+///
+///   - **≥2 块 → 分组**（默认）。这是唯一能省出东西的情形：n 块玻璃从 n 层
+///     收成 1 层。分页栏是最肥的一处，见下方实测。
+///   - **只有 1 块 → `group: false`**。一块玻璃收不收进层里都是一层，省不出
+///     采样；而分组是**有代价**的——同一层玻璃只有一份材质，会连带关掉：
+///       1. [GlassSurface.materialize]（材质淡入）——走 [GlassReveal] 的浮钮、
+///          [GlassSelectionDock] 全靠它，debug 下有 assert 盯着；
+///       2. 按下时的底色加深（按下反馈只剩跟手形变）；
+///       3. 嵌套折射镜头——[GlassSegmentedControl] 的果冻指示器在融合层底下
+///          会主动跳过玻璃那一趟（见 [GlassBlendGroup.isInside]）。
+///     单块玻璃白白付这三笔，没有道理。
+///
+/// # 实测：分页栏收进一层值多少（OnePlus Pad，120Hz，分页模式）
+///
+/// | 场景 | 分组前 raster p50 | 分组后 | jank% 前 → 后 |
+/// |---|---|---|---|
+/// | 滚动 | 11.21 | **7.21** | 19.3% → 1.9% |
+/// | 切 tab | 28.95 | **10.71** | 87.6% → 2.2% |
+///
+/// 光栅线程的 `Canvas::saveLayer` 从每帧 28.1 次降到 16.0 次（假玻璃档是
+/// 4.0）。切 tab 那一栏差得离谱是因为过渡期间两页的分页栏同时在场，层数翻倍。
+class GlassChromeLayer extends StatelessWidget {
+  const GlassChromeLayer({
+    super.key,
+    required this.child,
+    this.group = true,
+    this.blend = GlassTokens.chromeBlend,
+  });
+
+  final Widget child;
+
+  /// 是否把这一簇收进同一层玻璃。只有「簇里有玻璃要做材质淡入」时才关，
+  /// 见类注释最后一段。
+  final bool group;
+
+  /// 两块形状开始互相吞并的距离，见 [GlassTokens.chromeBlend]。
+  final double blend;
+
+  @override
+  Widget build(BuildContext context) {
+    return LiquidGlassScope(
+      backend: chromeGlassBackend(context),
+      child: group && GlassPerfKnobs.chromeGroup
+          ? GlassBlendGroup(blend: blend, child: child)
+          : child,
     );
   }
 }
@@ -770,7 +876,10 @@ class LiquidWidgetsPlainBox extends StatelessWidget {
     if (clipContent) {
       content = circle
           ? ClipOval(child: content)
-          : ClipRRect(borderRadius: BorderRadius.circular(radius), child: content);
+          : ClipRRect(
+              borderRadius: BorderRadius.circular(radius),
+              child: content,
+            );
     }
 
     return AnimatedContainer(
@@ -1147,4 +1256,3 @@ class _RenderGlassOuterConstraintsTarget extends RenderProxyBox {
     return constraints.constrain(child.getDryLayout(inner));
   }
 }
-

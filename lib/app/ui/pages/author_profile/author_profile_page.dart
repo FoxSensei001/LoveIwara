@@ -268,30 +268,26 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
       left: 0,
       right: 0,
       height: GlassTokens.headerRowHeight,
-      child: LiquidGlassScope(
-        backend: chromeGlassBackend(context),
-        child: GlassBlendGroup(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                GlassIconButton(
-                  standalone: true,
-                  icon: const Icon(Icons.arrow_back),
-                  tooltip: t.common.back,
-                  onPressed: AppService.tryPop,
-                ),
-                const Spacer(),
-                // 有可选项时显示胶囊，没有时收成 0 宽——用 GlassShapeSwitcher
-                // 让整块 action group 淡入淡出+宽度过渡（未登录访客切换到已登录、
-                // 或作者信息延迟加载时都会命中这次形变）。
-                Obx(
-                  () => GlassShapeSwitcher(
-                    child: _buildHeaderActionGroup(context),
-                  ),
-                ),
-              ],
-            ),
+      child: GlassChromeLayer(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.arrow_back),
+                tooltip: t.common.back,
+                onPressed: AppService.tryPop,
+              ),
+              const Spacer(),
+              // 有可选项时显示胶囊，没有时收成 0 宽——用 GlassShapeSwitcher
+              // 让整块 action group 淡入淡出+宽度过渡（未登录访客切换到已登录、
+              // 或作者信息延迟加载时都会命中这次形变）。
+              Obx(
+                () =>
+                    GlassShapeSwitcher(child: _buildHeaderActionGroup(context)),
+              ),
+            ],
           ),
         ),
       ),
@@ -375,8 +371,9 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
             MediaQuery.paddingOf(context).bottom +
             16 +
             (_isPaginated.value ? PaginationBar.barHeight : 0),
-        child: LiquidGlassScope(
-          backend: chromeGlassBackend(context),
+        // group: false —— 浮钮走 GlassReveal 的 materialize 淡入。
+        child: GlassChromeLayer(
+          group: false,
           child: ValueListenableBuilder<bool>(
             valueListenable: _showBackToTop,
             builder: (context, visible, _) => GlassReveal(
@@ -1456,8 +1453,13 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
             // `GlassHeaderOverlay(liquid: true)`）在同一屏上，材质必须一致：
             // 这里就地供一层 chrome 档。它浮在 TabBarView 之上、不在任何滚动
             // 容器里，可以放 lens。
-            child: LiquidGlassScope(
-              backend: chromeGlassBackend(context),
+            // group: false —— 这一簇只有一块玻璃（主 Tab 胶囊），收进层里
+            // 省不出 backdrop 采样，反倒会把两样东西关掉：胶囊自己的按下底色，
+            // 以及分段控件那条果冻指示器的**玻璃透镜**那一趟（嵌套镜头在融合层
+            // 底下会被「照亮」，所以 GlassSegmentedControl 处在层里时会主动跳过
+            // 它，见 GlassBlendGroup.isInside）。
+            child: GlassChromeLayer(
+              group: false,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                 // 空间够就平铺分段胶囊，不够（露不出 2.5 个完整段）退化成
@@ -1549,8 +1551,10 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
           ),
           // 批量动作：瀑布流模式下的底部玻璃坞；分页模式下动作行由分页栏
           // 自己承载（见 BatchSelectionScope），底部不会出现第二条玻璃。
-          LiquidGlassScope(
-            backend: chromeGlassBackend(context),
+          // group: false —— 坞是单块玻璃且走 materialize 淡入，材质淡入在
+          // 融合层里无效（见 GlassChromeLayer 最后一段）。
+          GlassChromeLayer(
+            group: false,
             child: Obx(() => GlassSelectionDock(paginated: _isPaginated.value)),
           ),
         ],

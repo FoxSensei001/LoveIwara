@@ -252,7 +252,10 @@ class GlassSelectionBarContent extends StatelessWidget {
                   enabled: hasSelection,
                 ),
               for (final action in actions.skip(1)) ...[
-                SizedBox(width: standaloneButtons ? 6 : 2),
+                // 带壳那一档间距走 chromeGap：分页栏里这一排是收在同一层
+                // 玻璃里的（见 GlassChromeLayer），间距小于融合阈值会让几枚
+                // 圆钮在静止态就糊成一条。无壳那档只是图标间的留白，不受限。
+                SizedBox(width: standaloneButtons ? GlassTokens.chromeGap : 2),
                 GlassIconButton(
                   standalone: standaloneButtons,
                   size: standaloneButtons ? 36 : null,
@@ -263,7 +266,7 @@ class GlassSelectionBarContent extends StatelessWidget {
                   onPressed: hasSelection ? action.onPressed : null,
                 ),
               ],
-              const SizedBox(width: 6),
+              SizedBox(width: standaloneButtons ? GlassTokens.chromeGap : 6),
               if (!standaloneButtons) ...[_Divider(), const SizedBox(width: 2)],
               GlassIconButton(
                 standalone: standaloneButtons,

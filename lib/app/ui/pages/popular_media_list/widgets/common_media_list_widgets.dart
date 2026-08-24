@@ -733,9 +733,14 @@ class _PaginationBarState extends State<PaginationBar>
     }
 
     // 分页栏是浮在列表内容之上的固定底栏（不随列表滚动），与 header/浮动
-    // 底栏同属「chrome」——显式钉死液态档，让页码卡片/翻页键这些
-    // GlassSurface/GlassIconButton 跟 header 走同一档，不再落回传统。
-    return LiquidGlassScope(backend: chromeGlassBackend(context), child: result);
+    // 底栏同属「chrome」——走 [GlassChromeLayer]：既钉死液态档（页码卡片/
+    // 翻页键这些 GlassSurface/GlassIconButton 跟 header 同一档），也把整条栏
+    // 收进**同一层玻璃**。
+    //
+    // 收进同一层是性能项，不是观感项：这条栏最多时有 5 块独立玻璃（首页/
+    // 上一页/页码/下一页/末页），拆开画就是 5 次 backdrop 采样、5 次整屏
+    // resolve。实测每多一层要 ~1ms 光栅（见 [GlassChromeLayer] 的归因表）。
+    return GlassChromeLayer(child: result);
   }
 
   /// 选择态下的分页栏内容：`‹ 页码 ›` + 动作行。
@@ -833,7 +838,7 @@ class _PaginationBarState extends State<PaginationBar>
                 enabled: widget.currentPage > 0 && !widget.isLoading,
                 onPressed: () => widget.onPageChanged(widget.currentPage - 1),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: GlassTokens.chromeGap),
               _buildPageNumberPill(
                 context,
                 text: '${widget.currentPage + 1}',
@@ -845,7 +850,7 @@ class _PaginationBarState extends State<PaginationBar>
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: GlassTokens.chromeGap),
               _wrapWithTooltipIfNeeded(
                 widget.canGoNext,
                 child: _buildNavButton(
@@ -988,13 +993,13 @@ class _PaginationBarState extends State<PaginationBar>
                 enabled: widget.currentPage > 0 && !widget.isLoading,
                 onPressed: () => widget.onPageChanged(0),
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: GlassTokens.chromeGap),
               _buildNavButton(
                 icon: Icons.chevron_left,
                 enabled: widget.currentPage > 0 && !widget.isLoading,
                 onPressed: () => widget.onPageChanged(widget.currentPage - 1),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: GlassTokens.chromeGap),
               _buildPageNumberPill(
                 context,
                 text: '${widget.currentPage + 1} / ${widget.totalPages}',
@@ -1006,7 +1011,7 @@ class _PaginationBarState extends State<PaginationBar>
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: GlassTokens.chromeGap),
               _buildNavButton(
                 icon: Icons.chevron_right,
                 enabled:
@@ -1014,7 +1019,7 @@ class _PaginationBarState extends State<PaginationBar>
                     !widget.isLoading,
                 onPressed: () => widget.onPageChanged(widget.currentPage + 1),
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: GlassTokens.chromeGap),
               _buildNavButton(
                 icon: Icons.last_page,
                 enabled:
