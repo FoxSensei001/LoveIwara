@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:i_iwara/utils/frame_perf_probe.dart';
 import 'dart:io';
 import 'dart:ui' show Canvas, PaintingStyle, Picture, PictureRecorder, Rect;
 
@@ -101,6 +102,8 @@ void main() {
       if (glassMaterialMode.value == GlassMaterialMode.liquid) {
         unawaited(warmUpLiquidGlassShaders());
       }
+
+      FramePerfProbe.start();
 
       runApp(
         RestartApp.scope(
