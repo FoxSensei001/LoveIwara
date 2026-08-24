@@ -9,7 +9,10 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 ///   1. 同项重复点击也要回调（首页「再点一次当前栏目 = 回顶 + 重载」靠它）；
 ///   2. 横向拖动能换项（新实现才有的能力，别被日后调参调没了）；
 ///   3. 右侧圆钮是独立动作，不能被胶囊的手势吃掉；
-///   4. 整条只占一行高度，不自带安全区——底栏是 Stack 覆盖层，外边距由调用方给。
+///   4. 整条只占一行高度，不自带安全区——底栏是 Stack 覆盖层，外边距由调用方给；
+///   5. **换项只在抬手那一刻回调**：按住不放不换页（那段时间是留给拖动的），
+///      按住再拖走也绝不能先回调一次按下那一项——包内部是在 `onTapDown`
+///      抢跑的，本组件把它压到手势结束才落地。
 void main() {
   const items = [
     GlassTabItem(icon: Icons.video_library, label: '视频'),
@@ -118,5 +121,36 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     expect(actions, 1);
     expect(taps, isEmpty, reason: '圆钮的点击漏进了胶囊的手势区');
+  });
+
+  testWidgets('按住不放不换页，抬手才回调', (tester) async {
+    final taps = await pumpBar(tester);
+    final TestGesture gesture = await tester.startGesture(tabCenter(tester, 2));
+    // 按下满 kPressTimeout（100ms）——包内部的 tap 识别器就是在这一刻抢跑的。
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(
+      taps,
+      isEmpty,
+      reason: '手指还按着就换页了，这段时间本该留给拖动',
+    );
+
+    await gesture.up();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(taps, [2], reason: '抬手要落地，且只落一次');
+  });
+
+  testWidgets('按住 → 拖走 → 抬手：只回调终点，不回调按下那一项', (tester) async {
+    final taps = await pumpBar(tester, currentIndex: 0);
+    final TestGesture gesture = await tester.startGesture(tabCenter(tester, 0));
+    await tester.pump(const Duration(milliseconds: 300)); // 先按住超过抢跑窗口
+    await gesture.moveTo(tabCenter(tester, 3));
+    await tester.pump(const Duration(milliseconds: 16));
+    await gesture.up();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(
+      taps,
+      [3],
+      reason: '按下那一项被抢跑回调了的话，会先白刷新/白跳一次再换到终点',
+    );
   });
 }

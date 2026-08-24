@@ -224,31 +224,37 @@ class ThemeSettingsPage extends StatelessWidget {
                 const SizedBox(width: 8),
                 Obx(() {
                   final disabled = themeService.useDynamicColor;
-                  return Opacity(
-                    opacity: disabled ? 0.5 : 1.0,
-                    child: GlassButtonGroup(
-                      children: [
-                        GlassIconButton(
-                          icon: const Icon(Icons.add),
-                          // 禁用时把 tooltip 换成原因说明，而不是沿用「选择颜色」——
-                          // 悬浮/长按能读到「为什么点不动」，不是死按钮。
-                          tooltip: disabled
-                              ? t.settings.customColorsDisabledByDynamicColor
-                              : t.settings.pickColor,
-                          onPressed: () {
-                            if (disabled) {
-                              // 按钮仍可点：点击即给出原因提示，而不是静默无反应。
-                              showGlassToast(
-                                t.settings.customColorsDisabledByDynamicColor,
-                                type: GlassToastType.info,
-                              );
-                              return;
-                            }
-                            _showColorPicker(context, themeService);
-                          },
-                        ),
-                      ],
-                    ),
+                  // ⛔ 不用 Opacity 压半透明来表达「不可用」：那会 saveLayer
+                  // 把玻璃隔离，禁用期间整枚键的折射是断的（见 GlassReveal
+                  // 那条原语）。置灰由图标色表达，且走 GlassAnimatedColors
+                  // 平滑推移——onSurface 38% 是全站「不可用」的统一取值。
+                  return GlassButtonGroup(
+                    children: [
+                      GlassIconButton(
+                        icon: const Icon(Icons.add),
+                        color: disabled
+                            ? Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.38)
+                            : null,
+                        // 禁用时把 tooltip 换成原因说明，而不是沿用「选择颜色」——
+                        // 悬浮/长按能读到「为什么点不动」，不是死按钮。
+                        tooltip: disabled
+                            ? t.settings.customColorsDisabledByDynamicColor
+                            : t.settings.pickColor,
+                        onPressed: () {
+                          if (disabled) {
+                            // 按钮仍可点：点击即给出原因提示，而不是静默无反应。
+                            showGlassToast(
+                              t.settings.customColorsDisabledByDynamicColor,
+                              type: GlassToastType.info,
+                            );
+                            return;
+                          }
+                          _showColorPicker(context, themeService);
+                        },
+                      ),
+                    ],
                   );
                 }),
               ],

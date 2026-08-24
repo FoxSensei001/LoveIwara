@@ -49,7 +49,9 @@ class GlassInputSurface extends StatelessWidget {
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: GlassTokens.fill(cs),
+        color: cs.surfaceContainerHighest.withValues(
+          alpha: cs.brightness == Brightness.dark ? 0.45 : 0.55,
+        ),
         borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(
           color: error ? cs.error : GlassTokens.stroke(cs),

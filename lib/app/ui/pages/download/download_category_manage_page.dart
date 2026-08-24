@@ -13,6 +13,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 
 /// 下载分类管理页（玻璃化）：新建 / 重命名 / 删除 / 拖拽排序。
 ///
@@ -300,22 +301,14 @@ class _DownloadCategoryManagePageState
       bottom: computeBottomSafeInset(MediaQuery.of(context)) + 16,
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => IgnorePointer(
-          ignoring: !visible,
-          child: AnimatedSlide(
-            duration: GlassTokens.motionDuration,
-            curve: GlassTokens.motionCurve,
-            offset: visible ? Offset.zero : const Offset(0, 0.4),
-            child: AnimatedOpacity(
-              duration: GlassTokens.motionDuration,
-              opacity: visible ? 1 : 0,
-              child: GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.vertical_align_top),
-                tooltip: t.common.scrollToTop,
-                onPressed: _scrollToTop,
-              ),
-            ),
+        builder: (context, visible, _) => GlassReveal(
+          visible: visible,
+          builder: (context, m) => GlassIconButton(
+            materialize: m,
+            standalone: true,
+            icon: const Icon(Icons.vertical_align_top),
+            tooltip: t.common.scrollToTop,
+            onPressed: _scrollToTop,
           ),
         ),
       ),

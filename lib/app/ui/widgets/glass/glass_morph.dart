@@ -871,3 +871,74 @@ class _GlassFlipLabelState extends State<GlassFlipLabel> {
     );
   }
 }
+
+/// # 第十原语：浮现——一块玻璃整只出现 / 消失
+///
+/// 词汇表里前九个原语讲的是「已经在场的玻璃怎么变」，这一个讲「玻璃怎么来、
+/// 怎么走」。
+///
+/// ⛔ **不能用 `Opacity` / `AnimatedOpacity` / `FadeTransition`。** α∈(0,1) 时
+/// `RenderOpacity` 会 `saveLayer` 把子树隔离出去，而液态档的玻璃靠 backdrop
+/// 采样吃身后的像素——层里什么都没有，折射在整段淡入淡出里是断的，读起来就是
+/// 「按钮先出现、玻璃质感后补上」（详见 `liquid_glass_material.dart` 文件头
+/// 那段真机实锤）。
+///
+/// 收口前，全站 24 个页面各自复制粘贴了同一坨
+/// `IgnorePointer + AnimatedSlide + AnimatedOpacity + GlassIconButton`
+/// 当「回到顶部」浮钮——它们**已经是新液态玻璃按钮了**，却因为最外面这层
+/// `AnimatedOpacity` 而每次显隐都被打回磨砂。这个原语把那坨收成一处：
+///
+///   - **位移**继续用 `AnimatedSlide`（纯 `Transform`，不建层，安全）；
+///   - **材质**改走 [GlassSurface.materialize]——压的是玻璃自身的色调 / 描边 /
+///     投影透明度，图层结构全程不变，折射一帧都不断；
+///   - 不可见时 [IgnorePointer] 兜住点击。
+///
+/// 用法（[builder] 拿到的 `materialize` 直接透传给玻璃件）：
+///
+/// ```dart
+/// GlassReveal(
+///   visible: showBackToTop,
+///   builder: (context, m) => GlassIconButton(
+///     standalone: true,
+///     materialize: m,
+///     icon: const Icon(Icons.vertical_align_top),
+///     onPressed: _scrollToTop,
+///   ),
+/// )
+/// ```
+class GlassReveal extends StatelessWidget {
+  const GlassReveal({
+    super.key,
+    required this.visible,
+    required this.builder,
+    this.slideFrom = const Offset(0, 0.4),
+  });
+
+  /// 玻璃是否在场。
+  final bool visible;
+
+  /// 内容构建器，`materialize` 取值 0→1，直接透传给玻璃件的 `materialize`。
+  final Widget Function(BuildContext context, double materialize) builder;
+
+  /// 出场起点相对自身尺寸的偏移（默认从下方 0.4 个身位滑上来）。
+  /// 传 [Offset.zero] 表示只做材质淡入、不带位移。
+  final Offset slideFrom;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      ignoring: !visible,
+      child: AnimatedSlide(
+        duration: GlassTokens.motionDuration,
+        curve: GlassTokens.motionCurve,
+        offset: visible ? Offset.zero : slideFrom,
+        child: TweenAnimationBuilder<double>(
+          duration: GlassTokens.motionDuration,
+          curve: GlassTokens.motionCurve,
+          tween: Tween<double>(begin: 0, end: visible ? 1 : 0),
+          builder: (context, m, _) => builder(context, m),
+        ),
+      ),
+    );
+  }
+}

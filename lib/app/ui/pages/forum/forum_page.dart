@@ -28,6 +28,7 @@ import 'package:i_iwara/app/ui/pages/forum/forum_skeleton_page.dart';
 import 'package:i_iwara/app/ui/pages/community/community_header_state.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 
 /// 论坛页——社区栏目的「论坛」半边。
 ///
@@ -42,11 +43,7 @@ class ForumPage extends StatefulWidget {
   /// 由 [CommunityPage] 持有、本页写入：header 上论坛专属按钮的当前形态。
   final ValueNotifier<ForumHeaderState>? headerState;
 
-  const ForumPage({
-    super.key,
-    this.contentResetVersion = 0,
-    this.headerState,
-  });
+  const ForumPage({super.key, this.contentResetVersion = 0, this.headerState});
 
   @override
   State<ForumPage> createState() => ForumPageState();
@@ -520,22 +517,14 @@ class ForumPageState extends State<ForumPage> {
             (_isPaginated.value && _selectedRailIndex == 0 ? 46 : 0),
         child: ValueListenableBuilder<bool>(
           valueListenable: _showBackToTop,
-          builder: (context, visible, _) => IgnorePointer(
-            ignoring: !visible,
-            child: AnimatedSlide(
-              duration: GlassTokens.motionDuration,
-              curve: GlassTokens.motionCurve,
-              offset: visible ? Offset.zero : const Offset(0, 0.4),
-              child: AnimatedOpacity(
-                duration: GlassTokens.motionDuration,
-                opacity: visible ? 1 : 0,
-                child: GlassIconButton(
-                  standalone: true,
-                  icon: const Icon(Icons.vertical_align_top),
-                  tooltip: t.common.scrollToTop,
-                  onPressed: _scrollCurrentListToTop,
-                ),
-              ),
+          builder: (context, visible, _) => GlassReveal(
+            visible: visible,
+            builder: (context, m) => GlassIconButton(
+              materialize: m,
+              standalone: true,
+              icon: const Icon(Icons.vertical_align_top),
+              tooltip: t.common.scrollToTop,
+              onPressed: _scrollCurrentListToTop,
             ),
           ),
         ),
@@ -1154,8 +1143,7 @@ class ForumPageState extends State<ForumPage> {
                   visible: _sitewideHasProcessed,
                   showOriginal: _sitewideShowOriginal,
                   padding: const EdgeInsets.only(right: 8),
-                  onChanged: (v) =>
-                      setState(() => _sitewideShowOriginal = v),
+                  onChanged: (v) => setState(() => _sitewideShowOriginal = v),
                 ),
                 _buildGhostAction(
                   icon: Icons.open_in_full,

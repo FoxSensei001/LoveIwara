@@ -274,9 +274,7 @@ class GlassSurface extends StatelessWidget {
             color: dim(GlassTokens.stroke(cs)),
             width: GlassTokens.strokeWidth,
           ),
-          boxShadow: elevated
-              ? GlassTokens.shadow(cs, alphaScale: m)
-              : null,
+          boxShadow: elevated ? GlassTokens.shadow(cs, alphaScale: m) : null,
         ),
         child: content,
       );
@@ -327,6 +325,7 @@ class GlassIconButton extends StatelessWidget {
     this.badgeLabel,
     this.color,
     this.loading = false,
+    this.materialize = 1.0,
   });
 
   final Widget icon;
@@ -350,6 +349,11 @@ class GlassIconButton extends StatelessWidget {
   /// 复位由状态源负责：接 Rx / setState 的传 [loading]，没有状态源的用
   /// [GlassAsyncIconButton]。
   final bool loading;
+
+  /// 材质的「在场程度」，透传给 [GlassSurface.materialize]（仅 [standalone]
+  /// 有壳时有意义）。玻璃的淡入淡出走这里，**不要**在外面包 `Opacity` /
+  /// `AnimatedOpacity`——见 [GlassSurface.materialize] 与 [GlassReveal]。
+  final double materialize;
 
   @override
   Widget build(BuildContext context) {
@@ -411,23 +415,20 @@ class GlassIconButton extends StatelessWidget {
         height: resolvedSize,
         onTap: effectiveOnPressed,
         tooltip: tooltip,
+        materialize: materialize,
         child: Center(child: iconWidget),
       );
     }
 
+    // 组内变体（standalone == false）：外壳由 [GlassButtonGroup] 提供。
+    // ⛔ 按下时不自绘暗底，理由同 [GlassTextActionButton]——胶囊里再叠一个
+    // 深色圆斑就是「玻璃上的脏印子」。反馈留 0.9 缩放 + 长按时整只胶囊的蠕动。
     Widget result = GlassPressable(
       onTap: effectiveOnPressed,
       scale: 0.9,
-      builder: (context, pressed) => AnimatedContainer(
-        duration: GlassTokens.pressDuration,
+      builder: (context, _) => SizedBox(
         width: resolvedSize,
         height: resolvedSize,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: pressed
-              ? cs.onSurface.withValues(alpha: 0.08)
-              : Colors.transparent,
-        ),
         child: Center(child: iconWidget),
       ),
     );
@@ -635,6 +636,7 @@ class GlassTextActionButton extends StatelessWidget {
     required this.onPressed,
     this.emphasized = false,
     this.destructive = false,
+    this.loading = false,
   });
 
   final String label;
@@ -646,10 +648,18 @@ class GlassTextActionButton extends StatelessWidget {
   /// 破坏性动作（删除/清空一类不可逆操作）：文字转 `cs.error`。
   final bool destructive;
 
+  /// 这枚动作正在执行：文字**原位**换成转圈、按钮置灰不可按。
+  ///
+  /// 与 [GlassSubmitButton] 同一套表达（`AnimatedSwitcher` 交叉过渡 +
+  /// `AnimatedSize` 让胶囊宽度平滑伸缩），不要在调用点自己往 label 里塞
+  /// `CircularProgressIndicator`——收口前那些裸 `TextButton` 就是各塞各的，
+  /// 尺寸会跳。
+  final bool loading;
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final bool enabled = onPressed != null;
+    final bool enabled = onPressed != null && !loading;
     final Color base = destructive
         ? cs.error
         : (emphasized ? cs.primary : cs.onSurfaceVariant);
@@ -657,25 +667,48 @@ class GlassTextActionButton extends StatelessWidget {
     return GlassAnimatedColors(
       colors: [enabled ? base : cs.onSurface.withValues(alpha: 0.38)],
       builder: (context, c) => GlassPressable(
-        onTap: onPressed,
+        onTap: enabled ? onPressed : null,
         scale: 0.94,
-        builder: (context, pressed) => AnimatedContainer(
-          duration: GlassTokens.pressDuration,
-          curve: Curves.easeOut,
+        // ⛔ 按下时**不自绘暗底**。装进 [GlassButtonGroup] 之后，这枚键身下
+        // 已经有一整块玻璃了，再补一层 `onSurface 8%` 的矩形/圆形色块，读起来
+        // 不是「按下去了」而是「玻璃上多了一块脏印子」——长按时停留得久，尤其
+        // 明显（2026-08-24 用户在「跳转到指定页面」弹窗上指出）。
+        // 反馈并没有丢：点按是 [GlassPressable] 的 0.94 缩放，长按是整只胶囊
+        // 的跟手蠕动（[GlassButtonGroup.touchFlex] 默认开）——而「长按」正是
+        // 暗底最碍眼的那一档，它本来就该让位给蠕动。
+        builder: (context, _) => Container(
           height: GlassTokens.pillHeight,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: pressed
-                ? cs.onSurface.withValues(alpha: 0.08)
-                : Colors.transparent,
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              color: c.first,
-              fontSize: 14.5,
-              fontWeight: emphasized ? FontWeight.w700 : FontWeight.w600,
+          // 文字 ↔ 转圈原位交叉过渡，胶囊宽度跟着平滑伸缩
+          child: AnimatedSize(
+            duration: GlassTokens.motionDuration,
+            curve: GlassTokens.motionCurve,
+            child: AnimatedSwitcher(
+              duration: GlassTokens.motionDuration,
+              switchInCurve: GlassTokens.motionCurve,
+              switchOutCurve: GlassTokens.motionCurve.flipped,
+              child: loading
+                  ? SizedBox(
+                      key: const ValueKey('glass-action-loading'),
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.2,
+                        valueColor: AlwaysStoppedAnimation<Color>(c.first),
+                      ),
+                    )
+                  : Text(
+                      label,
+                      key: const ValueKey('glass-action-label'),
+                      style: TextStyle(
+                        color: c.first,
+                        fontSize: 14.5,
+                        fontWeight: emphasized
+                            ? FontWeight.w700
+                            : FontWeight.w600,
+                      ),
+                    ),
             ),
           ),
         ),

@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/gestures.dart' show kTouchSlop;
 import 'package:flutter/material.dart';
 // 带前缀：两个玻璃包的公开面与本仓库自己的组件大面积重名（见
 // `liquid_glass_material.dart` 顶部那段说明），不加前缀会一片 ambiguous_import。
@@ -69,13 +72,22 @@ class GlassFloatingBarAction {
 /// [GlassTokens.floatingTabBarSideMargin] / [GlassTokens.floatingTabBarBottomMargin]
 /// 自己摆位。包里的 `horizontalPadding` / `verticalPadding` 因此一律传 0。
 ///
-/// # 同项重复点击 = 刷新
+/// # 落地时机：抬手才换页，按住只留给拖动
 ///
-/// 包是在 **`onTapDown`** 那一刻回调 [onTap] 的（不是抬手），并且**同项也回调**，
-/// 所以「再次点击当前栏目 → 回顶 + 重载」这条既有行为仍然成立。代价是：从当前
-/// 选中项按住再拖走，会先触发一次该栏目的刷新（按住超过 ~100ms 时 tap 识别器
-/// 才会先于拖拽发出 down）。调用方那边有 1s 节流兜底，不会连发。
-class GlassFloatingTabBar extends StatelessWidget {
+/// 包是在 **`onTapDown`** 那一刻回调 `onTabSelected` 的。tap 识别器和横向拖拽在
+/// 同一个竞技场里，`onTapDown` 会在**按下满 ~100ms**（`kPressTimeout`）时抢先发出
+/// ——也就是说「按住准备滑」这个动作，在手指还没动之前页面就已经换掉了：整棵分支
+/// 子树重建，指示器又被新的 `selectedIndex` 拽回去和手指打架，于是滑动时灵时不灵；
+/// 从当前项按住再滑还会白刷新一次。
+///
+/// 所以本组件把「换页」这一下从**按下**挪到**抬手**：按住期间只把下标记下来，手指
+/// 一旦走出 [kTouchSlop]（这一下已经被判成拖动）就把它作废，改等拖动结束时包给出
+/// 的最终下标。按下的即时反馈没有丢——果冻厚度是包内部那个 raw `Listener` 在
+/// pointer down 那一帧点亮的，不经过这里。
+///
+/// 快速点击感受不到差别（按下到抬手不过几十毫秒），**同项也回调**这条也没变，所以
+/// 「再次点击当前栏目 → 回顶 + 重载」仍然成立。
+class GlassFloatingTabBar extends StatefulWidget {
   const GlassFloatingTabBar({
     super.key,
     required this.items,
@@ -87,12 +99,83 @@ class GlassFloatingTabBar extends StatelessWidget {
 
   final List<GlassTabItem> items;
   final int currentIndex;
+
+  /// 换项回调：**抬手**那一刻才回调（同项也回调），见类文档「落地时机」。
   final ValueChanged<int> onTap;
 
   /// 右侧并排的独立圆钮；为 null 时整条只有胶囊。
   final GlassFloatingBarAction? action;
 
   final double height;
+
+  @override
+  State<GlassFloatingTabBar> createState() => _GlassFloatingTabBarState();
+}
+
+class _GlassFloatingTabBarState extends State<GlassFloatingTabBar> {
+  /// 包已经报了换项、但这一下手势还没结束——先记着，别急着换页。
+  int? _pending;
+
+  /// [_pending] 是手指还按着时记下的（`onTapDown` 抢跑那一次），而不是手势结束
+  /// 后包给出的最终结果。
+  bool _pendingFromPress = false;
+
+  bool _pointerDown = false;
+
+  /// 本次手势里手指是否已经走出 [kTouchSlop]——走出去了就按拖动算。
+  bool _movedBeyondSlop = false;
+
+  Offset _downPosition = Offset.zero;
+
+  bool _commitScheduled = false;
+
+  void _handleTabSelected(int index) {
+    _pending = index;
+    _pendingFromPress = _pointerDown;
+    if (_pointerDown) return; // 按住期间只记着，等抬手再落地
+    _scheduleCommit();
+  }
+
+  /// 落地推迟一个微任务：抬手时 raw `Listener` 先于手势识别器收到事件，而拖动的
+  /// 最终下标是紧随其后在同一轮派发里由竞技场清算出来的。等一个微任务，拿到的就
+  /// 是这一轮的最后一个下标（拖动结果会覆盖按下时记的那个）。
+  void _scheduleCommit() {
+    if (_commitScheduled) return;
+    _commitScheduled = true;
+    scheduleMicrotask(_commit);
+  }
+
+  void _commit() {
+    _commitScheduled = false;
+    if (!mounted || _pointerDown) return;
+    final int? index = _pending;
+    final bool fromPress = _pendingFromPress;
+    _pending = null;
+    _pendingFromPress = false;
+    if (index == null) return;
+    // 按下时抢跑记的那个下标，遇上手指真的拖走了就作废：最终落到哪一项，包会在
+    // 拖动结束时另报一次（那时 `_pointerDown` 已经是 false，直接落地）。
+    if (fromPress && _movedBeyondSlop) return;
+    widget.onTap(index);
+  }
+
+  void _handlePointerDown(PointerDownEvent event) {
+    _pointerDown = true;
+    _movedBeyondSlop = false;
+    _downPosition = event.position;
+  }
+
+  void _handlePointerMove(PointerMoveEvent event) {
+    if (_movedBeyondSlop) return;
+    if ((event.position - _downPosition).distance > kTouchSlop) {
+      _movedBeyondSlop = true;
+    }
+  }
+
+  void _handlePointerRelease(PointerEvent event) {
+    _pointerDown = false;
+    _scheduleCommit();
+  }
 
   /// 图标 + 角标。角标是 `Positioned`，靠 [Icon] 撑出 Stack 的尺寸。
   Widget _icon(GlassTabItem item, IconData data) {
@@ -110,67 +193,77 @@ class GlassFloatingTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final GlassFloatingBarAction? action = this.action;
+    final GlassFloatingBarAction? action = widget.action;
+    final List<GlassTabItem> items = widget.items;
+    final double height = widget.height;
 
-    return lgw.GlassTabBar.bottom(
-      tabs: [
-        for (final item in items)
-          lgw.GlassTab(
-            icon: _icon(item, item.icon),
-            activeIcon: item.activeIcon == null
-                ? null
-                : _icon(item, item.activeIcon!),
-            label: item.label,
-          ),
-      ],
-      selectedIndex: items.isEmpty
-          ? 0
-          : currentIndex.clamp(0, items.length - 1),
-      onTabSelected: onTap,
-      extraButton: action == null
-          ? null
-          : lgw.GlassTabBarExtraButton(
-              icon: Icon(action.icon),
-              label: action.label,
-              onTap: action.onPressed,
-              // 圆钮的槽位高度恒等于栏高，直径小于栏高会被拉成椭圆
-              // （见 [GlassTokens.floatingActionSize] 的说明）。
-              size: height,
-              iconColor: cs.onSurface,
+    // raw `Listener` 只是旁听手指的起落（不进竞技场、不改命中测试），用来判断
+    // 包报上来的下标该立刻落地还是先压着——见类文档「落地时机」。
+    return Listener(
+      onPointerDown: _handlePointerDown,
+      onPointerMove: _handlePointerMove,
+      onPointerUp: _handlePointerRelease,
+      onPointerCancel: _handlePointerRelease,
+      child: lgw.GlassTabBar.bottom(
+        tabs: [
+          for (final item in items)
+            lgw.GlassTab(
+              icon: _icon(item, item.icon),
+              activeIcon: item.activeIcon == null
+                  ? null
+                  : _icon(item, item.activeIcon!),
+              label: item.label,
             ),
+        ],
+        selectedIndex: items.isEmpty
+            ? 0
+            : widget.currentIndex.clamp(0, items.length - 1),
+        onTabSelected: _handleTabSelected,
+        extraButton: action == null
+            ? null
+            : lgw.GlassTabBarExtraButton(
+                icon: Icon(action.icon),
+                label: action.label,
+                onTap: action.onPressed,
+                // 圆钮的槽位高度恒等于栏高，直径小于栏高会被拉成椭圆
+                // （见 [GlassTokens.floatingActionSize] 的说明）。
+                size: height,
+                iconColor: cs.onSurface,
+              ),
 
-      // ---- 布局：外边距全部由调用方的 Stack 负责，这里只留「一行」 ----
-      horizontalPadding: 0,
-      verticalPadding: 0,
-      barHeight: height,
-      // 传 height / 2 而不是包的默认哨兵值（9999）：那个值会让圆钮从
-      // `LiquidOval` 退化成 `LiquidRoundedRectangle`，多一次无谓的裁剪。
-      barBorderRadius: height / 2,
-      // 与自绘那版的 `SizedBox(width: 12)` 同一口径。
-      spacing: 12,
+        // ---- 布局：外边距全部由调用方的 Stack 负责，这里只留「一行」 ----
+        horizontalPadding: 0,
+        verticalPadding: 0,
+        barHeight: height,
+        // 传 height / 2 而不是包的默认哨兵值（9999）：那个值会让圆钮从
+        // `LiquidOval` 退化成 `LiquidRoundedRectangle`，多一次无谓的裁剪。
+        barBorderRadius: height / 2,
+        // 与自绘那版的 `SizedBox(width: 12)` 同一口径。
+        spacing: 12,
 
-      // ---- 排版：沿用自绘那版标定过的字号 / 图标尺寸 ----
-      iconSize: 26,
-      labelFontSize: 11.5,
-      iconLabelSpacing: 2,
-      selectedIconColor: cs.primary,
-      unselectedIconColor: cs.onSurfaceVariant,
-      selectedLabelStyle: const TextStyle(
-        height: 1.1,
-        fontWeight: FontWeight.w600,
-      ),
-      unselectedLabelStyle: const TextStyle(
-        height: 1.1,
-        fontWeight: FontWeight.w500,
-      ),
+        // ---- 排版：沿用自绘那版标定过的字号 / 图标尺寸 ----
+        iconSize: 26,
+        labelFontSize: 11.5,
+        iconLabelSpacing: 2,
+        selectedIconColor: cs.primary,
+        unselectedIconColor: cs.onSurfaceVariant,
+        selectedLabelStyle: const TextStyle(
+          height: 1.1,
+          fontWeight: FontWeight.w600,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          height: 1.1,
+          fontWeight: FontWeight.w500,
+        ),
 
-      // ---- 材质：与全站 chrome 同一份玻璃（见 GlassTokens.widgetsGlass）----
-      settings: GlassTokens.widgetsGlass(
-        cs,
-        tint: GlassTokens.liquidTint(cs),
+        // ---- 材质：与全站 chrome 同一份玻璃（见 GlassTokens.widgetsGlass）----
+        settings: GlassTokens.widgetsGlass(
+          cs,
+          tint: GlassTokens.widgetsTint(cs),
+        ),
+        quality: lgw.GlassQuality.premium,
+        indicatorColor: GlassTokens.tabIndicatorTint(cs),
       ),
-      quality: lgw.GlassQuality.premium,
-      indicatorColor: GlassTokens.tabIndicatorTint(cs),
     );
   }
 }

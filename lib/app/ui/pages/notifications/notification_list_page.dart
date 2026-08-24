@@ -15,6 +15,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 
 class NotificationListPage extends StatefulWidget {
   const NotificationListPage({super.key});
@@ -244,22 +245,14 @@ class _NotificationListPageState extends State<NotificationListPage> {
       bottom: MediaQuery.paddingOf(context).bottom + 16,
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => IgnorePointer(
-          ignoring: !visible,
-          child: AnimatedSlide(
-            duration: GlassTokens.motionDuration,
-            curve: GlassTokens.motionCurve,
-            offset: visible ? Offset.zero : const Offset(0, 0.4),
-            child: AnimatedOpacity(
-              duration: GlassTokens.motionDuration,
-              opacity: visible ? 1 : 0,
-              child: GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.vertical_align_top),
-                tooltip: slang.t.common.scrollToTop,
-                onPressed: _scrollToTop,
-              ),
-            ),
+        builder: (context, visible, _) => GlassReveal(
+          visible: visible,
+          builder: (context, m) => GlassIconButton(
+            materialize: m,
+            standalone: true,
+            icon: const Icon(Icons.vertical_align_top),
+            tooltip: slang.t.common.scrollToTop,
+            onPressed: _scrollToTop,
           ),
         ),
       ),

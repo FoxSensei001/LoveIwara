@@ -15,6 +15,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 
 /// 新闻页——社区栏目的「新闻」半边。
 ///
@@ -74,7 +75,6 @@ class NewsPageState extends State<NewsPage>
   late final PageController _pageController;
   late IwaraNewsCategoryType _selectedCategory;
   IwaraNewsLanguage? _selectedLanguage;
-
 
   _NewsFeedState get _currentFeed => _feeds[_selectedCategory]!;
   bool get _showBackToTop =>
@@ -382,22 +382,14 @@ class NewsPageState extends State<NewsPage>
           ? GlassTokens.floatingActionCoAxisRight(GlassTokens.pillHeight)
           : 16,
       bottom: MediaQuery.paddingOf(context).bottom + 16,
-      child: IgnorePointer(
-        ignoring: !visible,
-        child: AnimatedSlide(
-          duration: GlassTokens.motionDuration,
-          curve: GlassTokens.motionCurve,
-          offset: visible ? Offset.zero : const Offset(0, 0.4),
-          child: AnimatedOpacity(
-            duration: GlassTokens.motionDuration,
-            opacity: visible ? 1 : 0,
-            child: GlassIconButton(
-              standalone: true,
-              icon: const Icon(Icons.vertical_align_top),
-              tooltip: t.common.scrollToTop,
-              onPressed: scrollCurrentCategoryToTop,
-            ),
-          ),
+      child: GlassReveal(
+        visible: visible,
+        builder: (context, m) => GlassIconButton(
+          materialize: m,
+          standalone: true,
+          icon: const Icon(Icons.vertical_align_top),
+          tooltip: t.common.scrollToTop,
+          onPressed: scrollCurrentCategoryToTop,
         ),
       ),
     );

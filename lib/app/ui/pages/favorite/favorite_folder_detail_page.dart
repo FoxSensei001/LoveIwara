@@ -24,6 +24,7 @@ import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 
 /// 本地收藏夹详情：夹内作品列表（玻璃化 + 瀑布/分页双模式）。
 class FavoriteFolderDetailPage extends StatefulWidget {
@@ -142,22 +143,14 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
           (_isPaginated ? PaginationBar.barHeight : 0),
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => IgnorePointer(
-          ignoring: !visible,
-          child: AnimatedSlide(
-            duration: GlassTokens.motionDuration,
-            curve: GlassTokens.motionCurve,
-            offset: visible ? Offset.zero : const Offset(0, 0.4),
-            child: AnimatedOpacity(
-              duration: GlassTokens.motionDuration,
-              opacity: visible ? 1 : 0,
-              child: GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.vertical_align_top),
-                tooltip: t.common.scrollToTop,
-                onPressed: _scrollToTop,
-              ),
-            ),
+        builder: (context, visible, _) => GlassReveal(
+          visible: visible,
+          builder: (context, m) => GlassIconButton(
+            materialize: m,
+            standalone: true,
+            icon: const Icon(Icons.vertical_align_top),
+            tooltip: t.common.scrollToTop,
+            onPressed: _scrollToTop,
           ),
         ),
       ),

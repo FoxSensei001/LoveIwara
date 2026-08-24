@@ -105,10 +105,7 @@ class GlassHeaderOverlay extends StatelessWidget {
         // 列表本体永远留在传统档：它是滚动容器，装不得 lens。
         Positioned.fill(
           child: liquid
-              ? LiquidGlassScope(
-                  backend: GlassBackend.plain,
-                  child: body,
-                )
+              ? LiquidGlassScope(backend: GlassBackend.plain, child: body)
               : body,
         ),
         Positioned(
@@ -128,9 +125,7 @@ class GlassHeaderOverlay extends StatelessWidget {
             height: headerHeight ?? GlassTokens.headerRowHeight,
             // 融合层只能包**这一行**：它是一层玻璃 + 一次背景采样，包大了会
             // 把整页都拖进同一次采样里。非液态档下它是纯透传。
-            child: blendHeader
-                ? GlassBlendGroup(child: header!)
-                : header!,
+            child: blendHeader ? GlassBlendGroup(child: header!) : header!,
           ),
         ...extra,
       ],

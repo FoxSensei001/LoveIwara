@@ -41,6 +41,7 @@ import '../video_detail/controllers/related_media_controller.dart';
 import 'controllers/gallery_detail_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'widgets/gallery_image_scroller_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 
 String _galleryCoverHeroTag(String imageModelId) =>
     'gallery_cover:$imageModelId';
@@ -211,22 +212,14 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
       bottom: MediaQuery.paddingOf(context).bottom + 16,
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => IgnorePointer(
-          ignoring: !visible,
-          child: AnimatedSlide(
-            duration: GlassTokens.motionDuration,
-            curve: GlassTokens.motionCurve,
-            offset: visible ? Offset.zero : const Offset(0, 0.4),
-            child: AnimatedOpacity(
-              duration: GlassTokens.motionDuration,
-              opacity: visible ? 1 : 0,
-              child: GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.vertical_align_top),
-                tooltip: t.common.scrollToTop,
-                onPressed: _scrollToTop,
-              ),
-            ),
+        builder: (context, visible, _) => GlassReveal(
+          visible: visible,
+          builder: (context, m) => GlassIconButton(
+            materialize: m,
+            standalone: true,
+            icon: const Icon(Icons.vertical_align_top),
+            tooltip: t.common.scrollToTop,
+            onPressed: _scrollToTop,
           ),
         ),
       ),
@@ -316,103 +309,102 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
           snap: true,
           builder: (context, scrollController) {
             return Column(
-                children: [
-                  // 顶部标题栏
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          slang.t.common.commentList,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Spacer(),
-                        // 排序 / 发评论合成一只玻璃胶囊
-                        GlassButtonGroup(
-                          children: [
-                            Obx(
-                              () => GlassIconButton(
-                                onPressed: () {
-                                  commentController.toggleSortOrder();
-                                },
-                                icon: Icon(
-                                  commentController.sortOrder.value
-                                      ? Icons
-                                            .arrow_downward_rounded // 倒序图标
-                                      : Icons.arrow_upward_rounded, // 正序图标
-                                ),
-                                tooltip: commentController.sortOrder.value
-                                    ? slang.t.common.createTimeDesc
-                                    : slang.t.common.createTimeAsc,
-                              ),
-                            ),
-                            // 添加评论按钮
-                            GlassIconButton(
-                              icon: const Icon(Icons.add_comment),
-                              tooltip: slang.t.common.sendComment,
-                              onPressed: () {
-                                showGlassBottomSheet(
-                                  context: context,
-                                  builder: (context) => CommentInputBottomSheet(
-                                    title: slang.t.common.sendComment,
-                                    submitText: slang.t.common.send,
-                                    onSubmit: (text) async {
-                                      if (text.trim().isEmpty) {
-                                        showGlassToast(
-                                          slang.t.errors.commentCanNotBeEmpty,
-                                          type: GlassToastType.error,
-                                          position: GlassToastPosition.bottom,
-                                        );
-                                        return;
-                                      }
-                                      final UserService userService =
-                                          Get.find();
-                                      if (!userService.isAuthenticated) {
-                                        showGlassToast(
-                                          slang.t.errors.pleaseLoginFirst,
-                                          type: GlassToastType.error,
-                                          position: GlassToastPosition.bottom,
-                                        );
-                                        LoginService.showLogin();
-                                        return;
-                                      }
-                                      await commentController.postComment(text);
-                                    },
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                        const SizedBox(width: 8),
-                        // 关闭按钮：弹层关闭键一律玻璃圆钮
-                        GlassIconButton(
-                          standalone: true,
-                          icon: const Icon(Icons.close),
-                          tooltip: slang.t.common.close,
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ],
-                    ),
+              children: [
+                // 顶部标题栏
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
                   ),
-                  // 评论列表
-                  Expanded(
-                    child: Obx(
-                      () => CommentSection(
-                        controller: commentController,
-                        authorUserId:
-                            detailController.imageModelInfo.value?.user?.id,
-                        scrollController: scrollController,
+                  child: Row(
+                    children: [
+                      Text(
+                        slang.t.common.commentList,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
+                      const Spacer(),
+                      // 排序 / 发评论合成一只玻璃胶囊
+                      GlassButtonGroup(
+                        children: [
+                          Obx(
+                            () => GlassIconButton(
+                              onPressed: () {
+                                commentController.toggleSortOrder();
+                              },
+                              icon: Icon(
+                                commentController.sortOrder.value
+                                    ? Icons
+                                          .arrow_downward_rounded // 倒序图标
+                                    : Icons.arrow_upward_rounded, // 正序图标
+                              ),
+                              tooltip: commentController.sortOrder.value
+                                  ? slang.t.common.createTimeDesc
+                                  : slang.t.common.createTimeAsc,
+                            ),
+                          ),
+                          // 添加评论按钮
+                          GlassIconButton(
+                            icon: const Icon(Icons.add_comment),
+                            tooltip: slang.t.common.sendComment,
+                            onPressed: () {
+                              showGlassBottomSheet(
+                                context: context,
+                                builder: (context) => CommentInputBottomSheet(
+                                  title: slang.t.common.sendComment,
+                                  submitText: slang.t.common.send,
+                                  onSubmit: (text) async {
+                                    if (text.trim().isEmpty) {
+                                      showGlassToast(
+                                        slang.t.errors.commentCanNotBeEmpty,
+                                        type: GlassToastType.error,
+                                        position: GlassToastPosition.bottom,
+                                      );
+                                      return;
+                                    }
+                                    final UserService userService = Get.find();
+                                    if (!userService.isAuthenticated) {
+                                      showGlassToast(
+                                        slang.t.errors.pleaseLoginFirst,
+                                        type: GlassToastType.error,
+                                        position: GlassToastPosition.bottom,
+                                      );
+                                      LoginService.showLogin();
+                                      return;
+                                    }
+                                    await commentController.postComment(text);
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(width: 8),
+                      // 关闭按钮：弹层关闭键一律玻璃圆钮
+                      GlassIconButton(
+                        standalone: true,
+                        icon: const Icon(Icons.close),
+                        tooltip: slang.t.common.close,
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                ),
+                // 评论列表
+                Expanded(
+                  child: Obx(
+                    () => CommentSection(
+                      controller: commentController,
+                      authorUserId:
+                          detailController.imageModelInfo.value?.user?.id,
+                      scrollController: scrollController,
                     ),
                   ),
-                ],
+                ),
+              ],
             );
           },
         );
@@ -907,8 +899,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
             errorMessage: errorMessage,
           );
 
-          final double headerExtent =
-              paddingTop + GlassTokens.headerRowHeight;
+          final double headerExtent = paddingTop + GlassTokens.headerRowHeight;
 
           if (isWide) {
             return Row(

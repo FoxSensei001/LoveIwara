@@ -339,7 +339,12 @@ Size? _measureMenuPanelSize({
     switch (entry) {
       case GlassMenuSeparator():
         height += _separatorHeight;
-      case GlassMenuOption(:final leading, :final label, :final icon, :final selected):
+      case GlassMenuOption(
+        :final leading,
+        :final label,
+        :final icon,
+        :final selected,
+      ):
         final painter = TextPainter(
           text: TextSpan(
             text: label,
@@ -742,10 +747,7 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
       // 宽，是为了让「入场没跑完就被点掉」时两条曲线在同一个 v 上接得上。
       reverseCurve: const Interval(0, 0.5, curve: Curves.easeIn),
     );
-    _focusFade = AnimationController(
-      vsync: this,
-      duration: _focusFadeDuration,
-    );
+    _focusFade = AnimationController(vsync: this, duration: _focusFadeDuration);
   }
 
   @override
@@ -792,9 +794,8 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
   /// 与「滚得动时让位」同一条规矩——同一次按住不可能既是「划过去换焦点」
   /// 又是「按住不动等长按」：焦点底板会在长按计时的这 500ms 里一直贴着，
   /// 松手时两条路都认为该由自己出手。菜单只能二选一，谁被显式声明了就归谁。
-  bool get _hasLongPressEntry => widget.entries.any(
-    (e) => e is GlassMenuOption && e.onLongPress != null,
-  );
+  bool get _hasLongPressEntry =>
+      widget.entries.any((e) => e is GlassMenuOption && e.onLongPress != null);
 
   /// 内容层的实际宽度，用来判断手指有没有横向荡出去。
   double get _contentWidth =>
@@ -811,8 +812,7 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
       return null;
     }
     final List<double> tops = _entryTops(widget.entries);
-    final double contentHeight =
-        tops.last + _entryHeight(widget.entries.last);
+    final double contentHeight = tops.last + _entryHeight(widget.entries.last);
     // 越过首/末条一小段仍按首/末条算（见 [_focusVerticalSlack]）。
     double dy = local.dy;
     if (dy < 0) {
@@ -1020,11 +1020,9 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
       builder: (context, child) {
         final double p = _shape.value;
         final double sx =
-            widget.revealBeginScale.dx +
-            (1 - widget.revealBeginScale.dx) * p;
+            widget.revealBeginScale.dx + (1 - widget.revealBeginScale.dx) * p;
         final double sy =
-            widget.revealBeginScale.dy +
-            (1 - widget.revealBeginScale.dy) * p;
+            widget.revealBeginScale.dy + (1 - widget.revealBeginScale.dy) * p;
         return Transform(
           alignment: widget.revealOrigin,
           transform: Matrix4.diagonal3Values(sx, sy, 1),

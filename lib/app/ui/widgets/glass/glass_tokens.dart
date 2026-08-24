@@ -169,19 +169,37 @@ abstract final class GlassTokens {
 
   /// 玻璃体内侧细描边。
   static Color stroke(ColorScheme cs) => cs.outlineVariant.withValues(
-    alpha: cs.brightness == Brightness.dark ? 0.45 : 0.35,
+    alpha: cs.brightness == Brightness.dark ? 0.55 : 0.45,
   );
 
   /// 玻璃体外投影。[alphaScale] 供材质淡入用（见 [GlassSurface.materialize]）。
-  static List<BoxShadow> shadow(ColorScheme cs, {double alphaScale = 1}) => [
-    BoxShadow(
-      color: Colors.black.withValues(
-        alpha: (cs.brightness == Brightness.dark ? 0.40 : 0.10) * alphaScale,
+  ///
+  /// 2026-08-24 整体收窄：旧值（16px 模糊 + 1px 扩散）比两个液态包自己标定的
+  /// 投影重了好几圈——`liquid_glass_widgets` 的 Apple 基线只是「6% 不透明度 /
+  /// 8px 模糊、零扩散」（见 `LiquidGlassSettings.shadowElevation` dartdoc）。
+  /// 扩散半径尤其是罪魁：它把阴影的外轮廓整只推大，在 44 高的小胶囊上格外
+  /// 显眼，这里直接去掉，只留模糊。
+  static List<BoxShadow> shadow(ColorScheme cs, {double alphaScale = 1}) {
+    final isDark = cs.brightness == Brightness.dark;
+    return [
+      // 接触阴影（近处轮廓）
+      BoxShadow(
+        color: Colors.black.withValues(
+          alpha: (isDark ? 0.32 : 0.10) * alphaScale,
+        ),
+        blurRadius: 3,
+        offset: const Offset(0, 1),
       ),
-      blurRadius: 12,
-      offset: const Offset(0, 2),
-    ),
-  ];
+      // 悬浮扩散阴影（外层弥散光）
+      BoxShadow(
+        color: Colors.black.withValues(
+          alpha: (isDark ? 0.22 : 0.08) * alphaScale,
+        ),
+        blurRadius: 8,
+        offset: const Offset(0, 2),
+      ),
+    ];
+  }
 
   /// 选中态高亮底色（Tab / 分段）。
   static Color selectedHighlight(ColorScheme cs) =>
@@ -206,13 +224,36 @@ abstract final class GlassTokens {
   // docs/liquid_glass_easy.md——尤其是「一块 lens = 一次 backdrop 采样」和
   // 「lens 不要放进滚动容器」两条。
 
-  /// 玻璃色调。**比传统档的 [fill] 透明得多**：0.80 的底色会把折射整个盖住，
-  /// 玻璃就退化成一块磨砂板。但也不能一路降到 0.15——header 胶囊里的字要压在
-  /// 滚动而过的封面图上，太透就读不清了。0.42/0.38 是「明显能看见背后在流动、
-  /// 同时文字还立得住」的折中值，是本套材质里最该按真机效果回调的一个数。
-  static Color liquidTint(ColorScheme cs) => cs.surfaceContainerLow.withValues(
-    alpha: cs.brightness == Brightness.dark ? 0.38 : 0.42,
-  );
+  /// chrome（按钮 / 按钮组 / 浮动底栏）那一档的玻璃色调。
+  ///
+  /// **刻意比浮出面板的 [liquidTint] 透明得多**：面板要托住整页文字，chrome
+  /// 只托几枚图标，透明度可以给到真玻璃的量级。0.45 那档（面板的值）套到
+  /// 胶囊上就是一块奶白塑料片，折射与边缘光全被盖死。
+  static Color widgetsTint(ColorScheme cs) {
+    final bool isDark = cs.brightness == Brightness.dark;
+    // 深色模式反过来用**黑**：白纱（[widgetsWhiten]）在全暗背景上等于不生效，
+    // 玻璃压到亮图片上时里头的浅色图标会糊掉，压暗的活只能由色调来干。
+    // 包自己的 `backerColor`（Apple 的 dimming layer）看着更对口，但它在
+    // **融合层那条路上被整只跳过**（会破坏 metaball 形变），而 header 一整行
+    // 恰好都在融合层里——两条路会长得不一样，所以不用它。
+    return isDark
+        ? Colors.black.withValues(alpha: 0.24)
+        : Colors.white.withValues(alpha: 0.10);
+  }
+
+  /// chrome 按下时的玻璃色调：与 [pressedFill] 同一口径（压深 8%）。
+  static Color widgetsPressedTint(ColorScheme cs) {
+    final Color base = widgetsTint(cs);
+    return Color.alphaBlend(cs.onSurface.withValues(alpha: 0.08), base);
+  }
+
+  /// 浮出面板那一档的玻璃色调：使用清透的微白高光，避免灰色/纯色背景下发脏变浑浊。
+  static Color liquidTint(ColorScheme cs) {
+    final isDark = cs.brightness == Brightness.dark;
+    return isDark
+        ? Colors.white.withValues(alpha: 0.10)
+        : Colors.white.withValues(alpha: 0.45);
+  }
 
   /// 按下时的玻璃色调：与 [pressedFill] 同一口径（压深 8%）。
   static Color liquidPressedTint(ColorScheme cs) =>
@@ -225,8 +266,8 @@ abstract final class GlassTokens {
     sigmaY: 14,
   );
 
-  /// 轻微提饱和：真玻璃会把透过来的颜色压得更艳一点。
-  static const double liquidSaturation = 1.12;
+  /// 保持自然饱和度：避免提饱和导致灰色背景偏色发浑。
+  static const double liquidSaturation = 1.0;
 
   /// 描边宽度。比传统档的 [strokeWidth]（0.6）粗——液态档的描边不是一条线，
   /// 而是 shader 画的边缘光带，太细就看不出「厚度」。
@@ -241,20 +282,35 @@ abstract final class GlassTokens {
   );
 
   /// 描边模式：Apple 风 SDF 边缘光（会从背景取色），而不是固定色描边。
+  ///
+  /// 2026-08-24 先调亮又回调：把 `ambientIntensity` 拉到 1.8、外加
+  /// `borderSolidity`/`lightSpread` 一起加大，结果是整圈边框被**均匀**点亮成
+  /// 一条纯白描边——[OpticalBorder.ambientIntensity] 的定位就是「不看光照
+  /// 方向、把整圈都垫亮」，[borderSolidity] 越高越会把这圈亮压向不透明的
+  /// 实色，两个一起加等于把「会从背景取色的光学高光」硬生生做成了纯色边框，
+  /// 真机上读出来是「上下左右一样白」，反而丢了液态玻璃该有的方向性——
+  /// 真实观感应该是**上沿（迎光侧）一条亮高光，左右两侧接近一条素描边**。
+  /// 现在只留一点点 ambient 垫光（1.0 默认基本读不出，给到 1.2 勉强够看），
+  /// [borderSolidity] 退回 0（保持半透明、继续从背景取色），[lightSpread]
+  /// 退回包默认 0.5（亮带收回到迎光那一侧，不再环绕大半圈）。
   static const LiquidGlassBorderType liquidBorderType = OpticalBorder(
     borderSaturation: 1.4,
-    ambientIntensity: 1.0,
+    ambientIntensity: 1.2,
   );
 
   /// 接触阴影。与传统档的 [shadow] 表达同一件事（玻璃浮在内容之上），
   /// 但它长在 lens 的形变盒里，按下时会跟着一起胀/回弹。
   /// [alphaScale] 供材质淡入用（见 [GlassSurface.materialize]）。
+  ///
+  /// 2026-08-24 收窄：blur 16 是包自己默认值（3.5）的 4 倍多，且这是全 App
+  /// **唯一**一处投影（[LiquidGlassBox] 不再叠外层 [shadow] 了，见调用点
+  /// 注释），不用再兼顾「反正外面还有一层」。
   static LiquidGlassShadow liquidShadow(
     ColorScheme cs, {
     double alphaScale = 1,
   }) => LiquidGlassShadow(
-    blur: 12,
-    opacity: (cs.brightness == Brightness.dark ? 0.40 : 0.14) * alphaScale,
+    blur: 7,
+    opacity: (cs.brightness == Brightness.dark ? 0.28 : 0.16) * alphaScale,
     offset: const Offset(0, 2),
   );
 
@@ -265,15 +321,119 @@ abstract final class GlassTokens {
   // 投影。两档并存时差别应该只在**手感**（果冻指示器、按压高光、交互折射），
   // 而不该读成「这个 App 里有两种玻璃」。
 
-  /// 玻璃底下的背景模糊。与 [liquidBlur] 的 sigma 同值。
-  static const double widgetsBlur = 14;
+  /// 玻璃底下的背景模糊。
+  ///
+  /// 2026-08-24 从 14 压到 9：14 配上原来那份近乎不透明的白色 [liquidTint]，
+  /// 胶囊身后**什么都透不出来**，读起来是一块塑料片而不是玻璃——「边框难看」
+  /// 的一半原因在这儿：身子不透明的时候，边上剩下的那条线怎么画都像 Material
+  /// 的 OutlinedButton 描边。Apple 的玻璃是**看得见背后在动**的。
+  static const double widgetsBlur = 12;
 
   /// 玻璃「厚度」（shader 里的 3D 景深）。他们的默认值 30 在 44 高的小胶囊上
   /// 会鼓成气泡边，压到 22 才是「一片玻璃」而不是「一颗水珠」。
   static const double widgetsThickness = 22;
 
-  /// 折射率。与他们指示器的标定值（1.10）同一档，小胶囊上不会把字拽花。
-  static const double widgetsRefractiveIndex = 1.12;
+  /// 折射率。
+  ///
+  /// 2026-08-24 从 1.12 提到 1.34：折射只作用在**身后被采样的背景**上（不碰
+  /// 胶囊里的图标文字），所以「把字拽花」的顾虑不成立。液态玻璃边缘那圈会
+  /// 「动」的观感——背景在边上被挤压、拉出一条随内容变化的亮暗带——正是这个
+  /// 数给的。1.12 太低，边上几乎不发生挤压，只好靠画一条死描边冒充边框。
+  static const double widgetsRefractiveIndex = 1.34;
+
+  /// 边缘「整圈发亮」的强度（仅 Premium/Impeller 路径生效）。
+  ///
+  /// 2026-08-24 先拉到 0.45 又退回默认 0：[lgw.LiquidGlassSettings.ambientRim]
+  /// 的定位就是「不管光照朝向，整圈都垫亮」，真机上读出来是四条边一样白，
+  /// 反而丢了液态玻璃该有的方向性——真实观感应该是**迎光那一侧（上沿）一条
+  /// 亮高光，其余侧接近一条素描边**，这条由 [lgw.LiquidGlassSettings
+  /// .fresnelStrength] 的物理 Fresnel 项自己算，包的默认值 1.0 已经是满格，
+  /// 不用另外设。别再碰这个字段——上一次调它就是这次「边框纯白」反馈的根因。
+  static const double widgetsAmbientRim = 0.0;
+
+  /// 光源方向（弧度）。shader 里方向向量取 `(cos θ, -sin θ)`，π/2 正好是
+  /// **正上方**。
+  ///
+  /// 包的默认值是 135°（左上 45°）——那是给大块面板用的，套在胶囊上会同时
+  /// 点亮**四条边**：迎光项吃到上沿和左沿（两者与左上光的夹角都是 45°），
+  /// 背光项还带 0.8 的补偿把下沿和右沿也点亮，读出来就是「整圈一样白、
+  /// 没有方向」。改成正上方之后，左右两侧的法线与光垂直、拿不到高光，
+  /// 「上沿一条亮边、两侧素」的层次才立得起来。
+  static const double widgetsLightAngle = 1.5707963267948966; // pi / 2
+
+  /// 边缘「新月形暗带」（meniscus）强度。
+  ///
+  /// 真玻璃的边比中间厚，光穿过更多材料会衰减，所以**边缘先有一条暗带，
+  /// 亮高光才压在这条暗带上**——这条暗带就是「左右两侧那条实线」的来源。
+  /// 包里这项默认 0（等于没有暗带），配上我们几乎纯白的 [liquidTint]，
+  /// 白底页面上整只胶囊就只剩一圈同样亮的白，读起来「边框是纯白高亮、
+  /// 没有方向」。
+  ///
+  /// shader 里这条按迎光/背光分权重（`dirScale` 在迎光侧 0.6、背光侧 1.4），
+  /// 所以调它只会压暗左右/下沿，上沿的迎光高光基本不受影响——正是我们要的
+  /// 「上沿亮、两侧一条线」。
+  static const double widgetsEdgeAbsorption = 0.12;
+
+  /// 「易读性白纱」（iOS 26 浅色模式玻璃的关键一味）。
+  ///
+  /// 这是**跟"提高色调不透明度"完全不同的一件事**：色调是往玻璃里掺一层不透明
+  /// 的白，掺够了折射就没了；白纱是 shader 在渲染的**最后一步**把成品往白色
+  /// 推（`mix(glass, white, w)`），而且亮度加权（[whitenGated]）——身后偏亮的
+  /// 像素被推到纯白、暗的文字图标原样保留，所以**背后的内容仍然看得见轮廓，
+  /// 只是整体发白**，折射与边缘光一条都不丢。
+  ///
+  /// 更关键的是顺序：shader 在白纱**之后**才画边缘光与 Fresnel，所以身子被
+  /// 推得再白，那圈亮边依然是脆的——这正是 iOS 26 顶/底栏「一层白纱 + 一圈
+  /// 清晰亮边」的做法。
+  static double widgetsWhiten(ColorScheme cs) =>
+      cs.brightness == Brightness.dark ? 0.10 : 0.45;
+
+  /// 白纱是否按亮度加权。浅色下必须开（只推亮的、留住暗的文字）；深色下背景
+  /// 整片是暗的，加权会把白纱整只算成 0，改成均匀薄薄一层。
+  static bool widgetsWhitenGated(ColorScheme cs) =>
+      cs.brightness != Brightness.dark;
+
+  /// 边缘细线（rim）的宽度，逻辑像素。1.0 是 iOS 26 那条 hairline 的口径。
+  static const double widgetsRimWidth = 1.0;
+
+  /// 边缘细线的**方向性高光**。
+  ///
+  /// 只补 shader 补不上的那一件事：迎光高光的颜色由背景取样得来
+  /// （`getHighlightColor`），白底页面上取到的就是白，白高光压在白玻璃上读
+  /// 不出来。这里画的是**同一条高光的下限**——一条恒定的白，保证上沿在任何
+  /// 背景下都有一道亮边。
+  ///
+  /// ⛔ 这条线只用白，**绝不掺黑**。2026-08-24 试过「上白下黑」，真机上读成
+  /// Material 的 OutlinedButton 描边，用户直接判丑：玻璃的暗边是**折射与
+  /// 新月暗带**（[widgetsEdgeAbsorption]）算出来的、随背景变化的软带，不是
+  /// 一条画死的黑线。左右两侧那条「实线」交给 shader，这里不画。
+  ///
+  /// 竖直渐变，t=0 是上沿、t=1 是下沿；越往下越淡，到腰线以下基本没有。
+  static LinearGradient widgetsRimGradient(
+    ColorScheme cs, {
+    double alphaScale = 1,
+  }) {
+    final bool isDark = cs.brightness == Brightness.dark;
+    double a(double v) => v * alphaScale;
+    return LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: isDark
+          ? [
+              Colors.white.withValues(alpha: a(0.72)),
+              Colors.white.withValues(alpha: a(0.38)),
+              Colors.white.withValues(alpha: a(0.22)),
+              Colors.white.withValues(alpha: a(0.18)),
+            ]
+          : [
+              Colors.white.withValues(alpha: a(0.95)),
+              Colors.white.withValues(alpha: a(0.60)),
+              Colors.white.withValues(alpha: a(0.40)),
+              Colors.white.withValues(alpha: a(0.34)),
+            ],
+      stops: const [0.0, 0.28, 0.62, 1.0],
+    );
+  }
 
   /// 一块玻璃的完整参数。
   ///
@@ -293,14 +453,19 @@ abstract final class GlassTokens {
     saturation: liquidSaturation,
     // 小胶囊上的色散只会在边缘留一圈彩虹边，关掉（他们自己的指示器也是 0）。
     chromaticAberration: 0,
-    lightAngle: lgw.GlassDefaults.lightAngle,
+    lightAngle: widgetsLightAngle,
     lightIntensity: lgw.GlassDefaults.lightIntensity,
+    ambientRim: widgetsAmbientRim,
+    whitenStrength: widgetsWhiten(cs),
+    whitenGated: widgetsWhitenGated(cs),
+    edgeAbsorption: widgetsEdgeAbsorption,
     visibility: materialize,
-    // 他们的 AdaptiveGlass 只在浅色下画投影（深色背景吃掉投影是 iOS 26 的
-    // 口径），这里照给，深色下他们自己会跳过。
-    shadow: elevated
-        ? shadow(cs, alphaScale: materialize)
-        : const <BoxShadow>[],
+    // 用包自带的 Apple 标定投影（`shadowElevation` 的 1.0 档 = 6% 不透明度 /
+    // 8px 模糊，无扩散），而不是我们那份更重的 [shadow]——那份现在只留给
+    // 深色模式的手动补偿（见 LiquidWidgetsGlassBox），两边都用会在浅色下
+    // 叠成双份投影。他们的 AdaptiveGlass 只在浅色下画这条，深色下自己跳过
+    // （深色背景吃掉投影是 iOS 26 的口径）。
+    shadowElevation: elevated ? materialize : 0.0,
   );
 
   // ---- 相邻玻璃的融合（metaball）----

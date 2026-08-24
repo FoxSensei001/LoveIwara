@@ -28,6 +28,25 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 // 不要包列表本体（约束 2）——`GlassHeaderOverlay.liquid` 已经替你把 `body`
 // 单独关回传统档了。
 //
+// # ⛔ 别在调用点自己包 —— 三个「收口点」已经替你包好了
+//
+// 2026-08-24 之前是「谁想要液态谁自己包一层 scope」。听起来灵活，实际后果是
+// **漏供不报错**：弹窗里明明已经换成 `GlassIconButton`/`GlassButtonGroup`/
+// `GlassComposer*` 这些新组件，却因为读不到祖先 scope 而静默落回传统档，连
+// `liquidTouch` 的长按蠕动一起没了。编译过、analyze 干净、单测全绿，只能靠人
+// 一张张点开界面发现——同一件事被用户反复报障。
+//
+// 现在供档点收敛成三个，**所有实例都必然经过其中之一**：
+//
+//   1. 页面 chrome → `GlassHeaderOverlay(liquid: true)`
+//   2. 弹窗 → `GlassDialogRoute`（即 `showAppDialog`，见 `glass_dialog_motion.dart`）
+//   3. 弹层 → `showGlassBottomSheet` / `showGlassDraggableBottomSheet`
+//
+// 所以：**新写弹窗一律走 `showAppDialog`，新写弹层一律走那两个 show 函数**，
+// 里头的玻璃件不用做任何事就有档。裸 `showDialog`/`showModalBottomSheet` 开出来
+// 的还是传统档——`test/glass_style_guard_test.dart` 用棘轮基线盯着这两个裸入口
+// 和裸 Material 按钮的数量，只许降不许升。
+//
 // # ⚠️ `Opacity` 会把折射打断（已被真机实锤，两个后端都吃这一条）
 //
 // lens 靠 backdrop 采样吃身后的像素，而 `Opacity`（0 < α < 1 时）会 `saveLayer`
@@ -254,7 +273,7 @@ class GlassBlendGroup extends StatelessWidget {
       clipExpansion: clipExpansion,
       // 层里所有形状共用这一份（见类注释里那条代价）。取值与单块玻璃
       // 完全一致，融合前后材质不该有肉眼差别。
-      settings: GlassTokens.widgetsGlass(cs, tint: GlassTokens.liquidTint(cs)),
+      settings: GlassTokens.widgetsGlass(cs, tint: GlassTokens.widgetsTint(cs)),
       child: _GlassBlendScope(joinable: true, child: child),
     );
   }
@@ -361,10 +380,8 @@ class LiquidGlassBox extends StatelessWidget {
         // end 会让 TweenAnimationBuilder 每帧都被当成「目标变了」而重启，
         // 120ms 的按压过渡反过来把材质淡入拖成一条追不上的尾巴。
         final Color base = tint ?? GlassTokens.liquidTint(cs);
-        final Color color = m >= 1
-            ? base
-            : base.withValues(alpha: base.a * m);
-        return SizedBox(
+        final Color color = m >= 1 ? base : base.withValues(alpha: base.a * m);
+        Widget lens = SizedBox(
           height: height,
           width: circle ? height : width,
           child: LiquidGlassLens(
@@ -389,6 +406,12 @@ class LiquidGlassBox extends StatelessWidget {
             child: child,
           ),
         );
+        // ⛔ 不再叠外层 DecoratedBox 投影：`LiquidGlassAppearance.shadow`
+        // 上面已经喂了 [GlassTokens.liquidShadow]，那是包自带的接触阴影环
+        // （随形变一起胀缩），[elevated] 已经在那一路生效。这里再套一层
+        // `boxShadow: GlassTokens.shadow(...)` 曾经是货真价实的双重投影——
+        // 两条阴影同时画在同一圈轮廓上，读起来自然「特别大」。
+        return lens;
       },
     );
   }
@@ -537,19 +560,23 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
         'GlassBlendGroup(enabled: false)。',
       );
       return wrapInteractive(
-        SizedBox(
-          height: height,
-          width: circle ? height : width,
-          child: lgw.AdaptiveGlass(
-            shape: shape,
-            quality: lgw.GlassQuality.premium,
-            // 占位：grouped 下真正生效的是祖先 layer 的那一份。
-            settings: const lgw.LiquidGlassSettings(),
-            useOwnLayer: false,
-            allowElevation: elevated,
-            // 只吃最外一层：胶囊**里头**的玻璃（果冻指示器等）不该和自己的
-            // 外壳融成一坨。
-            child: GlassBlendGroup.exclude(child: child),
+        _GlassRim(
+          shape: shape,
+          materialize: 1,
+          child: SizedBox(
+            height: height,
+            width: circle ? height : width,
+            child: lgw.AdaptiveGlass(
+              shape: shape,
+              quality: lgw.GlassQuality.premium,
+              // 占位：grouped 下真正生效的是祖先 layer 的那一份。
+              settings: const lgw.LiquidGlassSettings(),
+              useOwnLayer: false,
+              allowElevation: elevated,
+              // 只吃最外一层：胶囊**里头**的玻璃（果冻指示器等）不该和自己的
+              // 外壳融成一坨。
+              child: GlassBlendGroup.exclude(child: child),
+            ),
           ),
         ),
       );
@@ -560,32 +587,53 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(
         end: pressed
-            ? GlassTokens.liquidPressedTint(cs)
-            : GlassTokens.liquidTint(cs),
+            ? GlassTokens.widgetsPressedTint(cs)
+            : GlassTokens.widgetsTint(cs),
       ),
       duration: GlassTokens.pressDuration,
       curve: Curves.easeOut,
       child: child,
       builder: (context, tint, child) {
-        final Widget glass = SizedBox(
-          height: height,
-          width: circle ? height : width,
-          child: lgw.AdaptiveGlass(
-            shape: shape,
-            // premium 才有完整的 SDF 折射与高光——正是这一档的存在理由。
-            // 非 Impeller 环境由 AdaptiveGlass 自己降级，不用我们判断。
-            quality: lgw.GlassQuality.premium,
-            settings: GlassTokens.widgetsGlass(
-              cs,
-              tint: tint ?? GlassTokens.liquidTint(cs),
-              materialize: m,
-              elevated: elevated,
+        final Widget glass = _GlassRim(
+          shape: shape,
+          materialize: m,
+          child: SizedBox(
+            height: height,
+            width: circle ? height : width,
+            child: lgw.AdaptiveGlass(
+              shape: shape,
+              // premium 才有完整的 SDF 折射与高光——正是这一档的存在理由。
+              // 非 Impeller 环境由 AdaptiveGlass 自己降级，不用我们判断。
+              quality: lgw.GlassQuality.premium,
+              settings: GlassTokens.widgetsGlass(
+                cs,
+                tint: tint ?? GlassTokens.widgetsTint(cs),
+                materialize: m,
+                elevated: elevated,
+              ),
+              allowElevation: elevated,
+              child: child!,
             ),
-            allowElevation: elevated,
-            child: child!,
           ),
         );
-        return wrapInteractive(glass);
+        Widget result = wrapInteractive(glass);
+        // `widgetsGlass()` 已经把 `shadowElevation` 喂给 AdaptiveGlass 自己的
+        // 投影通道，但那条通道**只在浅色模式画**（深色背景吃掉投影是 iOS 26
+        // 的口径，包自己在深色下会跳过）。这里补的就是那条缺口——只在深色
+        // 模式叠一层手动投影，浅色模式不再叠：两边都画曾经是双重投影，
+        // 也是「阴影特别大」的另一个根因（跟 [LiquidGlassBox] 那条是同一个
+        // 模式，见其注释）。
+        if (elevated && cs.brightness == Brightness.dark) {
+          result = DecoratedBox(
+            decoration: BoxDecoration(
+              shape: circle ? BoxShape.circle : BoxShape.rectangle,
+              borderRadius: circle ? null : BorderRadius.circular(radius),
+              boxShadow: GlassTokens.shadow(cs, alphaScale: m),
+            ),
+            child: result,
+          );
+        }
+        return result;
       },
     );
   }
@@ -753,4 +801,78 @@ Future<void> warmUpLiquidGlassShaders() async {
   } catch (_) {
     // 同上：预热失败只是第一块玻璃会晚一点成形，不该影响启动。
   }
+}
+
+/// 玻璃的**边缘细线**：上沿一条亮高光、左右与下沿一条暗实线。
+///
+/// 为什么要自己画，而不是把 shader 的边缘光调亮：见
+/// [GlassTokens.widgetsRimGradient] 的注释——shader 那圈光从背景取色，白底
+/// 页面上取到的是白，压在同样发白的玻璃上等于没画。这条线是唯一在**任何**
+/// 背景下都读得出「这里有一块玻璃、它有边」的东西。
+///
+/// 形状直接取自同一个 [lgw.LiquidShape]（它本身是 `OutlinedBorder`），所以
+/// 线与 shader 画的轮廓严丝合缝，不会出现「描边比玻璃大一圈」。
+///
+/// ⚠️ 融合态（[GlassBlendGroup]）下每块玻璃仍画自己那条线：静止态两块本来就
+/// 分开，读起来没问题；只有被按住往邻居拖、两块真的长出液面颈部的那一瞬间，
+/// 两条线会在颈部交叉。要跟着 metaball 一起融，线就得由 shader 自己画——
+/// 而 shader 那圈光正是白底上读不出来的那一条（见上）。这里选了「静止态正确」。
+class _GlassRim extends StatelessWidget {
+  const _GlassRim({
+    required this.shape,
+    required this.materialize,
+    required this.child,
+  });
+
+  final lgw.LiquidShape shape;
+  final double materialize;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    if (materialize <= 0) return child;
+    return CustomPaint(
+      foregroundPainter: _GlassRimPainter(
+        shape: shape,
+        gradient: GlassTokens.widgetsRimGradient(cs, alphaScale: materialize),
+        width: GlassTokens.widgetsRimWidth,
+      ),
+      child: child,
+    );
+  }
+}
+
+class _GlassRimPainter extends CustomPainter {
+  const _GlassRimPainter({
+    required this.shape,
+    required this.gradient,
+    required this.width,
+  });
+
+  final lgw.LiquidShape shape;
+  final LinearGradient gradient;
+  final double width;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty) return;
+    final Rect rect = Offset.zero & size;
+    final Path path = shape.getOuterPath(rect);
+    // 画 2 倍宽再按形状裁掉外半边：线就正好贴在轮廓**内侧**，外缘由裁剪
+    // 抗锯齿收口，不会像居中描边那样溢出玻璃半个像素。
+    final Paint paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = width * 2
+      ..isAntiAlias = true
+      ..shader = gradient.createShader(rect);
+    canvas.save();
+    canvas.clipPath(path);
+    canvas.drawPath(path, paint);
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_GlassRimPainter old) =>
+      old.shape != shape || old.gradient != gradient || old.width != width;
 }

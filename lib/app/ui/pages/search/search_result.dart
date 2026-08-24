@@ -1066,17 +1066,16 @@ class _SearchResultState extends State<SearchResult> {
                     (searchController.isPaginated.value ? 46 : 0),
                 child: ValueListenableBuilder<bool>(
                   valueListenable: _showBackToTop,
-                  builder: (context, visible, _) => IgnorePointer(
-                    ignoring: !visible,
-                    child: AnimatedOpacity(
-                      duration: GlassTokens.motionDuration,
-                      opacity: visible ? 1 : 0,
-                      child: GlassIconButton(
-                        standalone: true,
-                        icon: const Icon(Icons.vertical_align_top),
-                        tooltip: t.common.scrollToTop,
-                        onPressed: searchController.scrollToTop,
-                      ),
+                  builder: (context, visible, _) => GlassReveal(
+                    visible: visible,
+                    // 这处历来没有位移，只做材质淡入
+                    slideFrom: Offset.zero,
+                    builder: (context, m) => GlassIconButton(
+                      materialize: m,
+                      standalone: true,
+                      icon: const Icon(Icons.vertical_align_top),
+                      tooltip: t.common.scrollToTop,
+                      onPressed: searchController.scrollToTop,
                     ),
                   ),
                 ),

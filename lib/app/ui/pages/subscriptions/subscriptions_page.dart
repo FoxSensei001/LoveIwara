@@ -260,8 +260,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
       // 宽窄屏（搜索键）、批量态（退出键）、当前 tab 支不支持筛选（两枚筛选
       // 键），以及特别关注选中项（触发位的文案宽度会变）。
       touchFlex: true,
-      touchFlexSignature:
-          '$isWide|$isMultiSelect|$filterVisible|$selectedId',
+      touchFlexSignature: '$isWide|$isMultiSelect|$filterVisible|$selectedId',
       children: [
         GlassGroupSlot(
           visible: isWide,
@@ -365,22 +364,14 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
             (mediaListController.isPaginated.value
                 ? PaginationBar.barHeight
                 : 0),
-        child: IgnorePointer(
-          ignoring: !visible,
-          child: AnimatedSlide(
-            duration: GlassTokens.motionDuration,
-            curve: GlassTokens.motionCurve,
-            offset: visible ? Offset.zero : const Offset(0, 0.4),
-            child: AnimatedOpacity(
-              duration: GlassTokens.motionDuration,
-              opacity: visible ? 1 : 0,
-              child: GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.vertical_align_top),
-                tooltip: t.common.scrollToTop,
-                onPressed: mediaListController.scrollToTop,
-              ),
-            ),
+        child: GlassReveal(
+          visible: visible,
+          builder: (context, m) => GlassIconButton(
+            materialize: m,
+            standalone: true,
+            icon: const Icon(Icons.vertical_align_top),
+            tooltip: t.common.scrollToTop,
+            onPressed: mediaListController.scrollToTop,
           ),
         ),
       );

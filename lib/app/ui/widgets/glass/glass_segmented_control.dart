@@ -113,7 +113,10 @@ class GlassSegmentedControl extends StatefulWidget {
     }
     widths.sort((a, b) => b.compareTo(a));
 
-    final double effectiveMin = minVisibleItems.clamp(1, widths.length.toDouble());
+    final double effectiveMin = minVisibleItems.clamp(
+      1,
+      widths.length.toDouble(),
+    );
     final int fullCount = effectiveMin.floor();
     final double frac = effectiveMin - fullCount;
     double total = 0;

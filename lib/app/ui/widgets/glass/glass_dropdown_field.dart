@@ -4,7 +4,11 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 
 /// [GlassDropdownField] 的一个候选项。
 class GlassDropdownItem<T> {
-  const GlassDropdownItem({required this.value, required this.label, this.icon});
+  const GlassDropdownItem({
+    required this.value,
+    required this.label,
+    this.icon,
+  });
 
   final T value;
   final String label;

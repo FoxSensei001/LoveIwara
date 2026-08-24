@@ -1150,28 +1150,25 @@ class _PaginationBarState extends State<PaginationBar>
     required bool enabled,
     required VoidCallback onPressed,
   }) {
-    // 可用↔置灰要过渡：翻到第一页/最后一页时按钮直接掉一半透明度会「闪」，
-    // 与按钮自身的图标色过渡（GlassIconButton → GlassAnimatedColors）同步。
-    return AnimatedOpacity(
-      duration: GlassTokens.motionDuration,
-      curve: GlassTokens.motionCurve,
-      opacity: enabled ? 1.0 : 0.45,
-      child: GlassIconButton(
-        standalone: true,
-        size: 36,
-        iconSize: 18,
-        icon: Icon(icon),
-        color: enabled
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.onSurface,
-        onPressed: enabled
-            ? () {
-                // 添加触感反馈
-                HapticFeedback.lightImpact();
-                onPressed();
-              }
-            : null,
-      ),
+    // 可用↔置灰的过渡交给按钮自己的 GlassAnimatedColors（图标色平滑推移）。
+    // ⛔ 不要在外面套 AnimatedOpacity 压半透明：那会 saveLayer 把玻璃隔离，
+    // 置灰期间整枚键的折射是断的（见 GlassReveal 那条原语）。置灰的语义由
+    // 颜色表达——onSurface 38% 是全站「不可用」的统一取值。
+    return GlassIconButton(
+      standalone: true,
+      size: 36,
+      iconSize: 18,
+      icon: Icon(icon),
+      color: enabled
+          ? Theme.of(context).colorScheme.primary
+          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
+      onPressed: enabled
+          ? () {
+              // 添加触感反馈
+              HapticFeedback.lightImpact();
+              onPressed();
+            }
+          : null,
     );
   }
 }
