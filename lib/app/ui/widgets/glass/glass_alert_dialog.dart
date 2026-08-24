@@ -110,27 +110,33 @@ class GlassAlertDialog extends StatelessWidget {
     // （见 `glass_dialog_motion.dart`），本组件只管结构。面板背景仍是不透明
     // `Material`（不是 `GlassSurface`），不受 scope 影响，透底问题不会回来。
     final closeButton = showCloseButton
-        ? GlassIconButton(
-            standalone: true,
-            icon: const Icon(Icons.close),
-            tooltip: t.common.close,
-            onPressed: () => AppService.tryPop(),
+        ? LiquidGlassScope(
+            backend: kChromeGlassBackend,
+            child: GlassIconButton(
+              standalone: true,
+              icon: const Icon(Icons.close),
+              tooltip: t.common.close,
+              onPressed: () => AppService.tryPop(),
+            ),
           )
         : null;
 
     final actionGroup = actions.isEmpty
         ? null
-        : GlassButtonGroup(
-            children: [
-              for (final action in actions)
-                GlassTextActionButton(
-                  label: action.label,
-                  onPressed: action.onPressed,
-                  emphasized: action.emphasized,
-                  destructive: action.destructive,
-                  loading: action.loading,
-                ),
-            ],
+        : LiquidGlassScope(
+            backend: kChromeGlassBackend,
+            child: GlassButtonGroup(
+              children: [
+                for (final action in actions)
+                  GlassTextActionButton(
+                    label: action.label,
+                    onPressed: action.onPressed,
+                    emphasized: action.emphasized,
+                    destructive: action.destructive,
+                    loading: action.loading,
+                  ),
+              ],
+            ),
           );
 
     return Center(

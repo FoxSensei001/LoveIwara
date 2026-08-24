@@ -678,6 +678,104 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
   }
 }
 
+/// 传统档（plain）的玻璃体容器，支持长按蠕动与跟手拉伸形变（[interactive]）。
+///
+/// 材质走半透明底色 + 细描边 + 投影，0 Backdrop Shader 采样成本。
+/// 当 [interactive] 为真时，外层借用 `GlassButton.custom(style: transparent)`
+/// 接入跟手形变（LiquidStretch），长按蠕动手感与液态档一致，同时保持极致流畅。
+class LiquidWidgetsPlainBox extends StatelessWidget {
+  const LiquidWidgetsPlainBox({
+    super.key,
+    required this.child,
+    this.height = GlassTokens.pillHeight,
+    this.width,
+    this.circle = false,
+    this.cornerRadius,
+    this.pressed = false,
+    this.elevated = true,
+    this.interactive = false,
+    this.materialize = 1.0,
+    this.clipContent = false,
+  });
+
+  final Widget child;
+  final double? height;
+  final double? width;
+  final bool circle;
+  final double? cornerRadius;
+  final bool pressed;
+  final bool elevated;
+  final bool interactive;
+  final double materialize;
+  final bool clipContent;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final double m = materialize.clamp(0.0, 1.0);
+    final double radius = circle
+        ? height! / 2
+        : (cornerRadius ?? (height ?? GlassTokens.pillHeight) / 2);
+
+    final _GlassOuterConstraints outerConstraints = _GlassOuterConstraints();
+
+    final lgw.LiquidShape shape = circle
+        ? const lgw.LiquidOval()
+        : lgw.LiquidRoundedSuperellipse(borderRadius: radius);
+
+    Color dim(Color c) => m >= 1 ? c : c.withValues(alpha: c.a * m);
+
+    Widget content = child;
+    if (clipContent) {
+      content = circle
+          ? ClipOval(child: content)
+          : ClipRRect(borderRadius: BorderRadius.circular(radius), child: content);
+    }
+
+    Widget glass = AnimatedContainer(
+      duration: GlassTokens.pressDuration,
+      curve: Curves.easeOut,
+      height: height,
+      width: circle ? height : width,
+      decoration: BoxDecoration(
+        color: dim(
+          pressed ? GlassTokens.pressedFill(cs) : GlassTokens.fill(cs),
+        ),
+        shape: circle ? BoxShape.circle : BoxShape.rectangle,
+        borderRadius: circle ? null : BorderRadius.circular(radius),
+        border: Border.all(
+          color: dim(GlassTokens.stroke(cs)),
+          width: GlassTokens.strokeWidth,
+        ),
+        boxShadow: elevated ? GlassTokens.shadow(cs, alphaScale: m) : null,
+      ),
+      child: content,
+    );
+
+    if (!interactive) return glass;
+
+    return _GlassOuterConstraintsSource(
+      relay: outerConstraints,
+      child: lgw.GlassButton.custom(
+        style: lgw.GlassButtonStyle.transparent,
+        shape: shape,
+        onTap: () {},
+        canRequestFocus: false,
+        excludeFromSemantics: true,
+        ambientBaseLight: 0,
+        quality: lgw.GlassQuality.premium,
+        stretch: GlassTokens.widgetsStretch,
+        interactionScale: GlassTokens.widgetsInteractionScale,
+        resistance: GlassTokens.widgetsStretchResistance,
+        child: _GlassOuterConstraintsTarget(
+          relay: outerConstraints,
+          child: glass,
+        ),
+      ),
+    );
+  }
+}
+
 /// 给「抱内容、宽度会随外部状态过渡」的液态玻璃接入跟手形变，同时避开
 /// [LiquidGlassBox.touchFlex] 的钉死尺寸要求。
 ///

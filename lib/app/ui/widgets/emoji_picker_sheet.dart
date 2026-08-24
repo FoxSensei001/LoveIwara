@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/emoji_picker_widget.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
@@ -9,7 +9,6 @@ import 'package:i_iwara/app/services/emoji_library_service.dart';
 import 'package:get/get.dart' hide Translations;
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
-import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class EmojiPickerSheet extends StatefulWidget {
   final Function(String imageUrl, EmojiSize size) onEmojiSelected;
@@ -79,31 +78,45 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
     widget.onSizeChanged(size);
   }
 
-  /// 尺寸选择钮：玻璃胶囊，点按弹出全站通用的选项弹窗（[_showSizePickerDialog]），
-  /// 而不是原生 `DropdownButton` 那种跟全站弹窗动效/样式完全脱节的系统菜单。
-  ///
-  /// 走 [GlassSurface] 而不是手搓 `Container` + `GlassTokens.fill/stroke`：
-  /// 手搓的那份画的永远是传统档的静态底色，接不上 [_buildHeaderActions] 供的
-  /// 液态 scope，也就没有长按蠕动——旁边两枚圆钮会动、它不会动。
+  /// 尺寸选择钮：玻璃胶囊，点按弹出贴近触发件的玻璃菜单（[showGlassMenu]），
+  /// 拥有长按开菜单 + 手指接力选中能力，与播放器倍速菜单保持一致的交互体验。
   Widget _buildSizePill(BuildContext context, ColorScheme cs) {
-    return GlassSurface(
-      height: 36,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      onTap: () => _showSizePickerDialog(context),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            _selectedSize.displayName,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: cs.onSurface,
+    return Builder(
+      builder: (anchorContext) => GlassSurface(
+        height: 36,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        opensOverlay: true,
+        onTap: () async {
+          final picked = await showGlassMenu<EmojiSize>(
+            anchorContext: anchorContext,
+            entries: [
+              for (final size in EmojiSize.values)
+                GlassMenuOption<EmojiSize>(
+                  value: size,
+                  label: size.displayName,
+                  selected: size == _selectedSize,
+                ),
+            ],
+          );
+          if (picked != null) {
+            _handleSizeChanged(picked);
+          }
+        },
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              _selectedSize.displayName,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: cs.onSurface,
+              ),
             ),
-          ),
-          const SizedBox(width: 2),
-          Icon(Icons.expand_more, size: 18, color: cs.onSurfaceVariant),
-        ],
+            const SizedBox(width: 2),
+            Icon(Icons.expand_more, size: 18, color: cs.onSurfaceVariant),
+          ],
+        ),
       ),
     );
   }
@@ -136,44 +149,6 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
           onPressed: () => Navigator.pop(context),
         ),
       ],
-    );
-  }
-
-  /// 尺寸选择弹窗：走全站统一的 [showAppDialog]（标题行 + 玻璃关闭圆钮 +
-  /// 选项列表勾选态），与色觉辅助档位选择弹窗（[ColorVisionSettingsWidget]）
-  /// 同一套配方。
-  void _showSizePickerDialog(BuildContext context) {
-    final t = Translations.of(context);
-    showAppDialog(
-      GlassAlertDialog(
-        title: t.emoji.size,
-        content: SizedBox(
-          width: double.maxFinite,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: EmojiSize.values.map((size) {
-              final selected = size == _selectedSize;
-              final cs = Theme.of(context).colorScheme;
-              return ListTile(
-                title: Text(
-                  size.displayName,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: selected ? cs.primary : null,
-                  ),
-                ),
-                trailing: selected
-                    ? Icon(Icons.check_circle, color: cs.primary)
-                    : Icon(Icons.radio_button_unchecked, color: cs.outline),
-                onTap: () {
-                  _handleSizeChanged(size);
-                  AppService.tryPop();
-                },
-              );
-            }).toList(),
-          ),
-        ),
-      ),
     );
   }
 
@@ -387,49 +362,51 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
 
               // 表情包选择器主体区域
               Expanded(
-                child: Row(
-                  children: [
-                    // 左侧分组导航 rail
-                    if (_groups.isNotEmpty)
-                      Container(
-                        width: 80,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHighest
-                              .withValues(alpha: 0.3),
-                          border: Border(
-                            right: BorderSide(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.outline.withValues(alpha: 0.2),
-                              width: 1,
+                child: RepaintBoundary(
+                  child: Row(
+                    children: [
+                      // 左侧分组导航 rail
+                      if (_groups.isNotEmpty)
+                        Container(
+                          width: 80,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerHighest
+                                .withValues(alpha: 0.3),
+                            border: Border(
+                              right: BorderSide(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.outline.withValues(alpha: 0.2),
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: 16,
+                            ), // 底部留出 padding
+                            child: EmojiPickerWidget(
+                              onEmojiSelected: _handleEmojiSelected,
+                              showOnlyTabs: true, // 只显示标签页，不显示内容
+                              isRailMode: true, // 新增参数，表示 rail 模式
+                              tabController:
+                                  _tabController, // 传递共享的 TabController
                             ),
                           ),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                            bottom: 16,
-                          ), // 底部留出 padding
-                          child: EmojiPickerWidget(
-                            onEmojiSelected: _handleEmojiSelected,
-                            showOnlyTabs: true, // 只显示标签页，不显示内容
-                            isRailMode: true, // 新增参数，表示 rail 模式
-                            tabController:
-                                _tabController, // 传递共享的 TabController
-                          ),
+                      // 右侧表情包内容区域
+                      Expanded(
+                        child: EmojiPickerWidget(
+                          onEmojiSelected: _handleEmojiSelected,
+                          showOnlyContent: true, // 只显示内容，不显示标签页
+                          scrollController: scrollController,
+                          tabController: _tabController, // 传递共享的 TabController
                         ),
                       ),
-                    // 右侧表情包内容区域
-                    Expanded(
-                      child: EmojiPickerWidget(
-                        onEmojiSelected: _handleEmojiSelected,
-                        showOnlyContent: true, // 只显示内容，不显示标签页
-                        scrollController: scrollController,
-                        tabController: _tabController, // 传递共享的 TabController
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],

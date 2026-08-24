@@ -217,8 +217,12 @@ Future<T?> showGlassBottomSheet<T>({
     isDismissible: isDismissible,
     enableDrag: enableDrag,
     useRootNavigator: useRootNavigator,
-    builder: (context) =>
-        LiquidGlassScope(backend: kChromeGlassBackend, child: builder(context)),
+    builder: (context) => RepaintBoundary(
+      child: LiquidGlassScope(
+        backend: GlassBackend.plain,
+        child: builder(context),
+      ),
+    ),
   );
 }
 
@@ -317,7 +321,11 @@ Future<T?> showGlassDraggableBottomSheet<T>({
     isDismissible: isDismissible,
     enableDrag: enableDrag,
     useRootNavigator: useRootNavigator,
-    builder: (context) =>
-        LiquidGlassScope(backend: kChromeGlassBackend, child: builder(context)),
+    builder: (context) => RepaintBoundary(
+      child: LiquidGlassScope(
+        backend: GlassBackend.plain,
+        child: builder(context),
+      ),
+    ),
   );
 }

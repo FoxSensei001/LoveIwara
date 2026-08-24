@@ -48,16 +48,17 @@ class GlobalDrawerColumns extends StatelessWidget {
               Expanded(
                 child: Stack(
                   children: [
-                    ListView(
-                      // 底部留白让最后一项能完整滚到悬浮按钮上方
-                      padding: EdgeInsets.only(
-                        top: 8,
-                        bottom:
-                            _kActionBottomMargin +
-                            GlassTokens.pillHeight +
-                            bottomInset,
-                      ),
-                      children: [
+                    RepaintBoundary(
+                      child: ListView(
+                        // 底部留白让最后一项能完整滚到悬浮按钮上方
+                        padding: EdgeInsets.only(
+                          top: 8,
+                          bottom:
+                              _kActionBottomMargin +
+                              GlassTokens.pillHeight +
+                              bottomInset,
+                        ),
+                        children: [
                         _buildSectionHeader(
                           context,
                           slang.t.settings.interaction,
@@ -251,6 +252,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                         const SizedBox(height: 16),
                       ],
                     ),
+                  ),
                     // 渐变承托：列表全程透出，仅在按钮背后逐渐压暗（不随滚动变化）
                     Positioned(
                       left: 0,
@@ -302,12 +304,10 @@ class GlobalDrawerColumns extends StatelessWidget {
   }
 
   Widget _buildFloatingActions(BuildContext context) {
-    // 抽屉挂在 Navigator 之外，够不到任何页面的 LiquidGlassScope，默认会
-    // 掉回传统档。这排悬浮键仿宽屏侧栏身份钮的 forceLiquid 做法，自己包一层
-    // 液态 scope——底下衬的渐变遮罩已经不是纯色，不会重蹈社区页头「液态钮
-    // 在纯白底上几乎看不见」那次真机翻车（见 IdentityAvatarButton dartdoc）。
+    // 抽屉底部动作栏位于不透明渐变承托之上，使用 GlassBackend.plain（0 Shader 成本）
+    // 避免在抽屉滑出时对整个滑动子树和主页面进行高开销的 Backdrop 采样。
     return LiquidGlassScope(
-      backend: kChromeGlassBackend,
+      backend: GlassBackend.plain,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -442,113 +442,115 @@ class GlobalDrawerColumns extends StatelessWidget {
     final user = userService.currentUser.value;
     final headerUrl = CommonConstants.userProfileHeaderUrl(user?.header?.id);
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: () {
-          AppService.switchGlobalDrawer();
-          if (!userService.isAuthenticated) {
-            LoginService.showLogin();
-          } else if (user == null) {
-            // 已认证但资料尚未加载完成：跳转需要 username，先提示稍候而非 NPE。
-            showGlassToast(
-              slang.t.auth.loginSuccessProfilePending,
-              type: GlassToastType.warning,
-            );
-          } else {
-            NaviService.navigateToAuthorProfilePage(user.username);
-          }
-        },
-        child: Container(
-          height: 160 + MediaQuery.paddingOf(context).top,
-          width: double.infinity,
-          decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: CachedNetworkImage(
-                  imageUrl: headerUrl,
-                  fit: BoxFit.cover,
-                  errorWidget: (context, url, error) =>
-                      Container(color: Theme.of(context).primaryColor),
-                  httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
-                ),
-              ),
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black.withValues(alpha: 0.1),
-                        Colors.black.withValues(alpha: 0.6),
-                      ],
-                    ),
+    return RepaintBoundary(
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () {
+            AppService.switchGlobalDrawer();
+            if (!userService.isAuthenticated) {
+              LoginService.showLogin();
+            } else if (user == null) {
+              // 已认证但资料尚未加载完成：跳转需要 username，先提示稍候而非 NPE。
+              showGlassToast(
+                slang.t.auth.loginSuccessProfilePending,
+                type: GlassToastType.warning,
+              );
+            } else {
+              NaviService.navigateToAuthorProfilePage(user.username);
+            }
+          },
+          child: Container(
+            height: 160 + MediaQuery.paddingOf(context).top,
+            width: double.infinity,
+            decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: CachedNetworkImage(
+                    imageUrl: headerUrl,
+                    fit: BoxFit.cover,
+                    errorWidget: (context, url, error) =>
+                        Container(color: Theme.of(context).primaryColor),
+                    httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
                   ),
                 ),
-              ),
-              Positioned(
-                left: 16,
-                right: 16,
-                bottom: 16,
-                child: Row(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
-                      ),
-                      child: AvatarWidget(user: user, size: 60),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (userService.hasLoadedProfile) ...[
-                            buildUserName(
-                              context,
-                              user,
-                              fontSize: 18,
-                              bold: true,
-                              defaultNameColor: Colors.white,
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '@${user!.username}',
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.8),
-                                fontSize: 13,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ] else ...[
-                            Text(
-                              slang.t.auth.notLoggedIn,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              slang.t.auth.clickToLogin,
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.8),
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withValues(alpha: 0.1),
+                          Colors.black.withValues(alpha: 0.6),
                         ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+                Positioned(
+                  left: 16,
+                  right: 16,
+                  bottom: 16,
+                  child: Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: AvatarWidget(user: user, size: 60),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (userService.hasLoadedProfile) ...[
+                              buildUserName(
+                                context,
+                                user,
+                                fontSize: 18,
+                                bold: true,
+                                defaultNameColor: Colors.white,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '@${user!.username}',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.8),
+                                  fontSize: 13,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ] else ...[
+                              Text(
+                                slang.t.auth.notLoggedIn,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                slang.t.auth.clickToLogin,
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.8),
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

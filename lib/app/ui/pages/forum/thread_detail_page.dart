@@ -363,7 +363,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
         bottom:
             MediaQuery.paddingOf(context).bottom +
             16 +
-            (isPaginated.value ? 46 : 0),
+            (isPaginated.value ? PaginationBar.barHeight : 0),
         child: ValueListenableBuilder<bool>(
           valueListenable: _showBackToTop,
           builder: (context, visible, _) => GlassReveal(

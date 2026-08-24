@@ -179,7 +179,7 @@ class ForumPageState extends State<ForumPage> {
   }
 
   /// 当前可见列表回到顶部（“最近”或某个分类，二者同一时刻只挂载其一）。
-  void _scrollCurrentListToTop() {
+  void scrollCurrentListToTop() {
     for (final controller in [
       _recentThreadsScrollController,
       _categoryScrollController,
@@ -193,6 +193,8 @@ class ForumPageState extends State<ForumPage> {
       }
     }
   }
+
+  void _scrollCurrentListToTop() => scrollCurrentListToTop();
 
   void _updateBackToTop() {
     bool show = false;
@@ -514,7 +516,9 @@ class ForumPageState extends State<ForumPage> {
         bottom:
             MediaQuery.paddingOf(context).bottom +
             16 +
-            (_isPaginated.value && _selectedRailIndex == 0 ? 46 : 0),
+            (_isPaginated.value && _selectedRailIndex == 0
+                ? PaginationBar.barHeight
+                : 0),
         child: ValueListenableBuilder<bool>(
           valueListenable: _showBackToTop,
           builder: (context, visible, _) => GlassReveal(
@@ -543,7 +547,19 @@ class ForumPageState extends State<ForumPage> {
       fit: StackFit.expand,
       children: [
         // 内容铺满整个半边，自己用 effectivePaddingTop 让出 header
-        Positioned.fill(child: _buildBody(context, effectivePaddingTop)),
+        Positioned.fill(
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              if (notification.metrics.axis == Axis.vertical &&
+                  notification.depth == 0) {
+                final show = notification.metrics.pixels >= _backToTopOffset;
+                if (_showBackToTop.value != show) _showBackToTop.value = show;
+              }
+              return false;
+            },
+            child: _buildBody(context, effectivePaddingTop),
+          ),
+        ),
         _buildScrollToTopFab(context),
       ],
     );

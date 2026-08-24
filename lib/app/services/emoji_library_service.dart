@@ -56,14 +56,27 @@ class EmojiImage {
 class EmojiLibraryService extends GetxService {
   late final DatabaseService _databaseService;
 
+  List<EmojiGroup>? _cachedGroups;
+  final Map<int, List<EmojiImage>> _cachedImages = {};
+
   @override
   void onInit() {
     super.onInit();
     _databaseService = Get.find<DatabaseService>();
   }
 
+  /// 清除全部内存缓存
+  void clearCache() {
+    _cachedGroups = null;
+    _cachedImages.clear();
+  }
+
   // 获取所有表情包分组
-  List<EmojiGroup> getEmojiGroups() {
+  List<EmojiGroup> getEmojiGroups({bool forceRefresh = false}) {
+    if (!forceRefresh && _cachedGroups != null) {
+      return _cachedGroups!;
+    }
+
     final db = _databaseService.database;
     final stmt = db.prepare('''
       SELECT * FROM EmojiGroups 
@@ -73,11 +86,13 @@ class EmojiLibraryService extends GetxService {
     final result = stmt.select([]);
     stmt.close();
     
-    return result.map((row) => EmojiGroup.fromMap(row)).toList();
+    _cachedGroups = result.map((row) => EmojiGroup.fromMap(row)).toList();
+    return _cachedGroups!;
   }
 
   // 创建新的表情包分组
   int createEmojiGroup(String name) {
+    clearCache();
     final db = _databaseService.database;
     
     // 获取当前最大排序值
@@ -106,6 +121,7 @@ class EmojiLibraryService extends GetxService {
 
   // 更新表情包分组名称
   void updateEmojiGroupName(int groupId, String name) {
+    clearCache();
     final db = _databaseService.database;
     final stmt = db.prepare('''
       UPDATE EmojiGroups 
@@ -119,6 +135,7 @@ class EmojiLibraryService extends GetxService {
 
   // 删除表情包分组（级联删除所有图片）
   void deleteEmojiGroup(int groupId) {
+    clearCache();
     final db = _databaseService.database;
     final stmt = db.prepare('DELETE FROM EmojiGroups WHERE group_id = ?');
     
@@ -127,7 +144,11 @@ class EmojiLibraryService extends GetxService {
   }
 
   // 获取指定分组的表情图片
-  List<EmojiImage> getEmojiImages(int groupId) {
+  List<EmojiImage> getEmojiImages(int groupId, {bool forceRefresh = false}) {
+    if (!forceRefresh && _cachedImages.containsKey(groupId)) {
+      return _cachedImages[groupId]!;
+    }
+
     final db = _databaseService.database;
     final stmt = db.prepare('''
       SELECT * FROM EmojiImages 
@@ -138,7 +159,9 @@ class EmojiLibraryService extends GetxService {
     final result = stmt.select([groupId]);
     stmt.close();
     
-    return result.map((row) => EmojiImage.fromMap(row)).toList();
+    final images = result.map((row) => EmojiImage.fromMap(row)).toList();
+    _cachedImages[groupId] = images;
+    return images;
   }
 
   // 获取分组的图片数量
@@ -157,6 +180,7 @@ class EmojiLibraryService extends GetxService {
 
   // 添加表情图片到分组
   void addEmojiImage(int groupId, String url, {String? thumbnailUrl}) {
+    clearCache();
     final db = _databaseService.database;
     
     // 检查URL是否已存在（去重）
@@ -185,6 +209,7 @@ class EmojiLibraryService extends GetxService {
 
   // 批量添加表情图片
   void addEmojiImagesBatch(int groupId, List<String> urls) {
+    clearCache();
     final db = _databaseService.database;
     
     db.execute('BEGIN TRANSACTION');
@@ -201,6 +226,7 @@ class EmojiLibraryService extends GetxService {
 
   // 删除表情图片
   void deleteEmojiImage(int imageId) {
+    clearCache();
     final db = _databaseService.database;
     
     // 获取图片信息
@@ -225,6 +251,7 @@ class EmojiLibraryService extends GetxService {
 
   // 更新表情包分组排序
   void updateEmojiGroupOrder(int groupId, int newSortOrder) {
+    clearCache();
     final db = _databaseService.database;
     final stmt = db.prepare('''
       UPDATE EmojiGroups 
@@ -238,6 +265,7 @@ class EmojiLibraryService extends GetxService {
 
   // 批量更新表情包分组排序
   void updateEmojiGroupsOrder(List<EmojiGroup> groups) {
+    clearCache();
     final db = _databaseService.database;
     
     db.execute('BEGIN TRANSACTION');

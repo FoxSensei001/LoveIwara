@@ -204,7 +204,6 @@ class GlassSurface extends StatelessWidget {
       height != null || borderRadius != null,
       'GlassSurface(height: null) 必须给 borderRadius——没有高度推不出胶囊半径。',
     );
-    final cs = Theme.of(context).colorScheme;
     final double m = materialize.clamp(0.0, 1.0);
     final radius =
         borderRadius ??
@@ -239,7 +238,8 @@ class GlassSurface extends StatelessWidget {
     final bool tapInsideLiquidBox =
         onTap != null &&
         effectiveLiquidTouch &&
-        backend == GlassBackend.liquidWidgets;
+        (backend == GlassBackend.liquidWidgets ||
+            backend == GlassBackend.plain);
 
     Color dim(Color c) => m >= 1 ? c : c.withValues(alpha: c.a * m);
 
@@ -318,32 +318,19 @@ class GlassSurface extends StatelessWidget {
             child: content,
           );
         case GlassBackend.plain:
-          break;
+          return LiquidWidgetsPlainBox(
+            height: height,
+            width: width,
+            circle: circle,
+            cornerRadius: radius.topLeft.x,
+            pressed: pressed,
+            elevated: elevated,
+            interactive: effectiveLiquidTouch,
+            materialize: m,
+            clipContent: clipContent,
+            child: content,
+          );
       }
-      if (clipContent) {
-        content = circle
-            ? ClipOval(child: content)
-            : ClipRRect(borderRadius: radius, child: content);
-      }
-      return AnimatedContainer(
-        duration: GlassTokens.pressDuration,
-        curve: Curves.easeOut,
-        height: height,
-        width: circle ? height : width,
-        decoration: BoxDecoration(
-          color: dim(
-            pressed ? GlassTokens.pressedFill(cs) : GlassTokens.fill(cs),
-          ),
-          shape: circle ? BoxShape.circle : BoxShape.rectangle,
-          borderRadius: circle ? null : radius,
-          border: Border.all(
-            color: dim(GlassTokens.stroke(cs)),
-            width: GlassTokens.strokeWidth,
-          ),
-          boxShadow: elevated ? GlassTokens.shadow(cs, alphaScale: m) : null,
-        ),
-        child: content,
-      );
     }
 
     Widget result;

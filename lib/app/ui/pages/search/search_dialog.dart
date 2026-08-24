@@ -401,52 +401,54 @@ class _SearchContentState extends State<_SearchContent> {
     double width = MediaQuery.of(context).size.width;
     bool isWide = width > 600;
 
-    Widget searchContent = SingleChildScrollView(
-      controller: _scrollController,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _SearchInputSection(
-            controller: _controller,
-            focusNode: _focusNode,
-            searchPlaceholder: _searchPlaceholder,
-            searchErrorText: _searchErrorText,
-            onChanged: (value) => _searchErrorText.value = '',
-            onSubmitted: _handleSubmit,
-            onClear: () {
-              _controller.clear();
-              _searchErrorText.value = '';
-              _searchPlaceholder.value = '';
-              _focusNode.requestFocus();
-            },
-          ),
-          _SearchControlsSection(
-            selectedSegment: _selectedSegment,
-            onSegmentChanged: (segment) {
-              _selectedSegment.value = segment;
-              _selectedSort.value = FilterConfig.getDefaultSortForSegment(
-                segment,
-              );
-            },
-            onSearch: () => _handleSubmit(_controller.text),
-            filters: _filters,
-            onFiltersChanged: (filters) => _filters.assignAll(filters),
-            selectedSort: _selectedSort,
-            onOpenSavedSearch: _openSavedSearchDrawer,
-            onBrowseOreno3d: _openOreno3dPicker,
-          ),
-          _buildOreno3dSection(),
-          _SearchHistorySection(
-            userPreferenceService: userPreferenceService,
-            onRemoveHistoryItem: _removeHistoryItem,
-            onClearHistory: _clearHistory,
-            onHistoryItemTap: (record) {
-              _controller.text = record.keyword;
-              _handleSubmit(record.keyword);
-            },
-          ),
-          const SizedBox(height: 24),
-        ],
+    Widget searchContent = RepaintBoundary(
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _SearchInputSection(
+              controller: _controller,
+              focusNode: _focusNode,
+              searchPlaceholder: _searchPlaceholder,
+              searchErrorText: _searchErrorText,
+              onChanged: (value) => _searchErrorText.value = '',
+              onSubmitted: _handleSubmit,
+              onClear: () {
+                _controller.clear();
+                _searchErrorText.value = '';
+                _searchPlaceholder.value = '';
+                _focusNode.requestFocus();
+              },
+            ),
+            _SearchControlsSection(
+              selectedSegment: _selectedSegment,
+              onSegmentChanged: (segment) {
+                _selectedSegment.value = segment;
+                _selectedSort.value = FilterConfig.getDefaultSortForSegment(
+                  segment,
+                );
+              },
+              onSearch: () => _handleSubmit(_controller.text),
+              filters: _filters,
+              onFiltersChanged: (filters) => _filters.assignAll(filters),
+              selectedSort: _selectedSort,
+              onOpenSavedSearch: _openSavedSearchDrawer,
+              onBrowseOreno3d: _openOreno3dPicker,
+            ),
+            _buildOreno3dSection(),
+            _SearchHistorySection(
+              userPreferenceService: userPreferenceService,
+              onRemoveHistoryItem: _removeHistoryItem,
+              onClearHistory: _clearHistory,
+              onHistoryItemTap: (record) {
+                _controller.text = record.keyword;
+                _handleSubmit(record.keyword);
+              },
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
 

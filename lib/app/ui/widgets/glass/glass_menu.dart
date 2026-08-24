@@ -262,21 +262,29 @@ Offset _revealBeginScale({required Rect anchor, required Size? panel}) {
   );
 }
 
-/// 面板形变绕哪个角转：横向按触发件在屏幕左/中/右三档取一档，纵向按面板翻没
-/// 翻到上方取顶/底。硬取 topCenter 的话，靠右的「更多」菜单会看着像是从屏幕
-/// 中间冒出来的。
+/// 面板形变绕哪个角转：
+/// - 纵向：翻到上方（[flipped] 为真）时展开原点在面板底边（1.0），自下而上从按钮处卷开；
+///   在下方（[flipped] 为假）时展开原点在面板顶边（-1.0），自上而下从按钮处卷开。
+/// - 横向：精确根据触发件中心横坐标相对于面板最终布局位置的比例折算，
+///   使展开原点始终对准屏幕上的触发件。
 Alignment _revealOrigin({
   required Rect anchorRect,
   required Size screen,
   required bool flipped,
+  required Size? panelSize,
 }) {
-  final double cx = anchorRect.center.dx;
-  final double x = screen.width <= 0
-      ? 0
-      : (cx < screen.width * 0.35
-            ? -1.0
-            : (cx > screen.width * 0.65 ? 1.0 : 0.0));
-  return Alignment(x, flipped ? 1.0 : -1.0);
+  final double screenWidth = screen.width;
+  final double panelWidth = panelSize?.width ?? _minPanelWidth;
+  final double layoutX = anchorRect.left.clamp(
+    _screenMargin,
+    math.max(_screenMargin, screenWidth - panelWidth - _screenMargin),
+  );
+  final double anchorCenterX = anchorRect.center.dx;
+  final double ratioX = panelWidth > 0
+      ? ((anchorCenterX - layoutX) / panelWidth).clamp(0.0, 1.0)
+      : 0.5;
+  final double alignX = (ratioX * 2.0 - 1.0).clamp(-1.0, 1.0);
+  return Alignment(alignX, flipped ? 1.0 : -1.0);
 }
 
 /// 一条在面板内容里占的纵向高度。
@@ -647,9 +655,12 @@ Widget _buildGlassMenuBody<T>({
   required VoidCallback onDismissed,
 }) {
   final Size screen = MediaQuery.sizeOf(context);
+  final EdgeInsets padding = MediaQuery.paddingOf(context);
   final bool flipped = _opensUpward(
     anchorRect: anchorRect,
     screenHeight: screen.height,
+    padding: padding,
+    panelHeight: precomputedSize?.height,
   );
   final Widget panel = _GlassMenuPanel<T>(
     entries: entries,
@@ -664,6 +675,7 @@ Widget _buildGlassMenuBody<T>({
       anchorRect: anchorRect,
       screen: screen,
       flipped: flipped,
+      panelSize: precomputedSize,
     ),
     revealBeginScale: _revealBeginScale(
       anchor: anchorRect,
@@ -931,15 +943,21 @@ class _GlassMenuRoute<T> extends PopupRoute<T> {
   }
 }
 
-/// 下方剩余空间连两行都摆不下时翻到上方弹。
+/// 下方剩余空间放不下整张面板时翻到上方弹。
 ///
-/// 只是个**给动画用的**粗判：真正的落点由 [_GlassMenuLayout] 按面板实测高度
-/// 算。两者用同一个阈值，所以除非面板高度正好卡在边界上，缩放锚点不会跟落点
-/// 打架。
-bool _opensUpward({required Rect anchorRect, required double screenHeight}) {
-  final double below = screenHeight - anchorRect.bottom - _anchorGap;
-  final double above = anchorRect.top - _anchorGap;
-  return below < _rowHeight * 2 && above > below;
+/// 与 [_GlassMenuLayout.getPositionForChild] 使用完全同一套判定，
+/// 保证动画形变的原点（[revealOrigin]）与最终落点方向永远一致。
+bool _opensUpward({
+  required Rect anchorRect,
+  required double screenHeight,
+  required EdgeInsets padding,
+  required double? panelHeight,
+}) {
+  final double belowTop = anchorRect.bottom + _anchorGap;
+  final double effectiveHeight = panelHeight ?? (_rowHeight * 3);
+  final bool fitsBelow =
+      belowTop + effectiveHeight <= screenHeight - padding.bottom;
+  return !fitsBelow;
 }
 
 /// 面板落点：触发件正下方、左对齐、夹进屏幕；下方摆不下就翻到上方。

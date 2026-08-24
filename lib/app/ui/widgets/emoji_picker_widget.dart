@@ -49,33 +49,34 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
     if (widget.tabController != null) {
       _tabController = widget.tabController!;
       _isExternalController = true;
-      _loadData();
-    } else {
-      // 否则创建自己的 TabController
-      _loadData();
+    }
+    _loadData();
+  }
+
+  void _onTabChanged() {
+    if (!mounted) return;
+    if (_tabController.index != _currentTabIndex && !_tabController.indexIsChanging) {
+      setState(() {
+        _currentTabIndex = _tabController.index;
+      });
     }
   }
 
-  void _loadData() async {
+  void _loadData() {
     try {
       _groups = _emojiService.getEmojiGroups();
       if (_groups.isNotEmpty) {
         if (!_isExternalController) {
           _tabController = TabController(length: _groups.length, vsync: this);
         }
-        _currentTabIndex = _tabController.index;
-        _tabController.addListener(() {
-          if (mounted) {
-            setState(() {
-              _currentTabIndex = _tabController.index;
-            });
-          }
-        });
+        _currentTabIndex = _tabController.index.clamp(0, _groups.length - 1);
+        _tabController.removeListener(_onTabChanged);
+        _tabController.addListener(_onTabChanged);
 
-        for (final group in _groups) {
-          _groupImages[group.groupId] = _emojiService.getEmojiImages(
-            group.groupId,
-          );
+        // 如果不是仅显示标签页，按需预加载当前选中的分组
+        if (!widget.showOnlyTabs && _groups.isNotEmpty) {
+          final initialGroupId = _groups[_currentTabIndex].groupId;
+          _groupImages[initialGroupId] = _emojiService.getEmojiImages(initialGroupId);
         }
       } else {
         if (!_isExternalController) {
@@ -98,6 +99,9 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
 
   @override
   void dispose() {
+    if (_groups.isNotEmpty || !_isExternalController) {
+      _tabController.removeListener(_onTabChanged);
+    }
     // 只有非外部控制器才需要释放
     if (!_isExternalController) {
       _tabController.dispose();
@@ -207,96 +211,98 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
     // 只显示标签页（同上，水平 TabBar 分支已作为死代码删除）
     if (widget.showOnlyTabs && widget.isRailMode) {
       // Rail 模式：垂直布局，只显示头图
-      return ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        itemCount: _groups.length,
-        itemBuilder: (context, index) {
-          final group = _groups[index];
-          final isSelected = _tabController.index == index;
+      return RepaintBoundary(
+        child: ListView.builder(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          itemCount: _groups.length,
+          itemBuilder: (context, index) {
+            final group = _groups[index];
+            final isSelected = _tabController.index == index;
 
-          return GestureDetector(
-            onTap: () {
-              _tabController.animateTo(index);
-            },
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? Theme.of(context).colorScheme.primaryContainer
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // 头图
-                  if (group.coverUrl != null)
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: CachedNetworkImage(
-                        imageUrl: group.coverUrl!,
-                        width: 40,
-                        height: 40,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => Shimmer.fromColors(
-                          baseColor: Colors.grey[300]!,
-                          highlightColor: Colors.grey[100]!,
-                          child: Container(
+            return GestureDetector(
+              onTap: () {
+                _tabController.animateTo(index);
+              },
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.primaryContainer
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 头图
+                    if (group.coverUrl != null)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: CachedNetworkImage(
+                          imageUrl: group.coverUrl!,
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Container(
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Center(
-                            child: Text(
-                              group.name.isNotEmpty ? group.name[0] : '?',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                            child: Center(
+                              child: Text(
+                                group.name.isNotEmpty ? group.name[0] : '?',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    )
-                  else
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Center(
-                        child: Text(
-                          group.name.isNotEmpty ? group.name[0] : '?',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                      )
+                    else
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Center(
+                          child: Text(
+                            group.name.isNotEmpty ? group.name[0] : '?',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       );
     }
 
@@ -307,7 +313,10 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
         children: _groups.asMap().entries.map((entry) {
           final int pageIndex = entry.key;
           final group = entry.value;
-          final images = _groupImages[group.groupId] ?? [];
+          final images = _groupImages.putIfAbsent(
+            group.groupId,
+            () => _emojiService.getEmojiImages(group.groupId),
+          );
           if (images.isEmpty) {
             return Center(
               child: Column(
@@ -335,63 +344,65 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
             );
           }
 
-          return GridView.builder(
-            padding: const EdgeInsets.all(8),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-            ),
-            controller:
-                widget.scrollController != null && pageIndex == _currentTabIndex
-                ? widget.scrollController
-                : null,
-            itemCount: images.length,
-            itemBuilder: (context, index) {
-              final image = images[index];
-              return GestureDetector(
-                onTap: () => widget.onEmojiSelected(image.url),
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.outline.withValues(alpha: 0.2),
-                      width: 1,
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(7),
-                    child: CachedNetworkImage(
-                      imageUrl: image.thumbnailUrl ?? image.url,
-                      fit: BoxFit.cover,
-                      httpHeaders: const {
-                        'referer': CommonConstants.iwaraBaseUrl,
-                      },
-                      placeholder: (context, url) => Shimmer.fromColors(
-                        baseColor: Colors.grey[300]!,
-                        highlightColor: Colors.grey[100]!,
-                        child: Container(color: Colors.white),
-                      ),
-                      errorWidget: (context, url, error) => Container(
+          return RepaintBoundary(
+            child: GridView.builder(
+              padding: const EdgeInsets.all(8),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+              ),
+              controller:
+                  widget.scrollController != null && pageIndex == _currentTabIndex
+                  ? widget.scrollController
+                  : null,
+              itemCount: images.length,
+              itemBuilder: (context, index) {
+                final image = images[index];
+                return GestureDetector(
+                  onTap: () => widget.onEmojiSelected(image.url),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
                         color: Theme.of(
                           context,
-                        ).colorScheme.surfaceContainerHighest,
-                        child: Center(
-                          child: Icon(
-                            Icons.broken_image,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
+                        ).colorScheme.outline.withValues(alpha: 0.2),
+                        width: 1,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(7),
+                      child: CachedNetworkImage(
+                        imageUrl: image.thumbnailUrl ?? image.url,
+                        fit: BoxFit.cover,
+                        httpHeaders: const {
+                          'referer': CommonConstants.iwaraBaseUrl,
+                        },
+                        placeholder: (context, url) => Shimmer.fromColors(
+                          baseColor: Colors.grey[300]!,
+                          highlightColor: Colors.grey[100]!,
+                          child: Container(color: Colors.white),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
+                          child: Center(
+                            child: Icon(
+                              Icons.broken_image,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           );
         }).toList(),
       );

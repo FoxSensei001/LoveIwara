@@ -189,7 +189,9 @@ class _ThreadListPageState extends State<ThreadListPage>
         bottom:
             MediaQuery.paddingOf(context).bottom +
             16 +
-            (_forumListController.isPaginated.value ? 46 : 0),
+            (_forumListController.isPaginated.value
+                ? PaginationBar.barHeight
+                : 0),
         child: ValueListenableBuilder<bool>(
           valueListenable: _showBackToTop,
           builder: (context, visible, _) => GlassReveal(

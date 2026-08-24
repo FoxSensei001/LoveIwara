@@ -552,6 +552,10 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
   }
 
   Widget _buildDrawer() {
-    return Drawer(child: SizedBox.expand(child: GlobalDrawerColumns()));
+    return Drawer(
+      child: SizedBox.expand(
+        child: RepaintBoundary(child: GlobalDrawerColumns()),
+      ),
+    );
   }
 }

@@ -441,6 +441,12 @@ class CommunityPageState extends State<CommunityPage> {
                                 ForumPage.globalKey.currentState?.refreshAll(),
                             showsLoading: true,
                           ),
+                          GlassMenuAction(
+                            icon: Icons.vertical_align_top,
+                            label: t.common.scrollToTop,
+                            onSelected: () => ForumPage.globalKey.currentState
+                                ?.scrollCurrentListToTop(),
+                          ),
                         ]
                       : [
                           GlassMenuAction(
