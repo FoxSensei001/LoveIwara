@@ -269,7 +269,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
       right: 0,
       height: GlassTokens.headerRowHeight,
       child: LiquidGlassScope(
-        backend: kChromeGlassBackend,
+        backend: chromeGlassBackend(context),
         child: GlassBlendGroup(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -376,7 +376,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
             16 +
             (_isPaginated.value ? PaginationBar.barHeight : 0),
         child: LiquidGlassScope(
-          backend: kChromeGlassBackend,
+          backend: chromeGlassBackend(context),
           child: ValueListenableBuilder<bool>(
             valueListenable: _showBackToTop,
             builder: (context, visible, _) => GlassReveal(
@@ -1457,7 +1457,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
             // 这里就地供一层 chrome 档。它浮在 TabBarView 之上、不在任何滚动
             // 容器里，可以放 lens。
             child: LiquidGlassScope(
-              backend: kChromeGlassBackend,
+              backend: chromeGlassBackend(context),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                 // 空间够就平铺分段胶囊，不够（露不出 2.5 个完整段）退化成
@@ -1550,7 +1550,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
           // 批量动作：瀑布流模式下的底部玻璃坞；分页模式下动作行由分页栏
           // 自己承载（见 BatchSelectionScope），底部不会出现第二条玻璃。
           LiquidGlassScope(
-            backend: kChromeGlassBackend,
+            backend: chromeGlassBackend(context),
             child: Obx(() => GlassSelectionDock(paginated: _isPaginated.value)),
           ),
         ],

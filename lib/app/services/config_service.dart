@@ -294,6 +294,8 @@ enum ConfigKey {
   CURRENT_PRESET_INDEX_KEY,
   CURRENT_CUSTOM_HEX_KEY,
   CUSTOM_THEME_COLORS_KEY,
+  ENABLE_LIQUID_GLASS_KEY, // 玻璃质感：true=真液态玻璃（模糊/折射），false=轻量半透明
+  GLASS_MATERIAL_INTRO_SHOWN, // 玻璃质感的一次性提醒是否已经露过面（引导页问过也算）
   RECORD_AND_RESTORE_VIDEO_PROGRESS,
   USE_AI_TRANSLATION,
   AI_TRANSLATION_BASE_URL,
@@ -489,6 +491,10 @@ extension ConfigKeyExtension on ConfigKey {
         return 'current_custom_hex';
       case ConfigKey.CUSTOM_THEME_COLORS_KEY:
         return 'custom_theme_colors';
+      case ConfigKey.ENABLE_LIQUID_GLASS_KEY:
+        return 'enable_liquid_glass';
+      case ConfigKey.GLASS_MATERIAL_INTRO_SHOWN:
+        return 'glass_material_intro_shown';
       case ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS:
         return 'record_and_restore_video_progress';
       case ConfigKey.USE_AI_TRANSLATION:
@@ -755,6 +761,10 @@ extension ConfigKeyExtension on ConfigKey {
         return '';
       case ConfigKey.CUSTOM_THEME_COLORS_KEY:
         return <String>[];
+      case ConfigKey.ENABLE_LIQUID_GLASS_KEY:
+        return true;
+      case ConfigKey.GLASS_MATERIAL_INTRO_SHOWN:
+        return false;
       case ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS:
         return true;
       case ConfigKey.USE_AI_TRANSLATION:

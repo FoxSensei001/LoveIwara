@@ -324,7 +324,7 @@ class GlassSavedItemsDrawer<T> extends StatelessWidget {
             left: 0,
             right: 0,
             child: LiquidGlassScope(
-              backend: kChromeGlassBackend,
+              backend: chromeGlassBackend(context),
               child: Padding(
                 padding: EdgeInsets.fromLTRB(20, statusBarHeight + 16, 12, 4),
                 child: Row(
@@ -373,7 +373,7 @@ class GlassSavedItemsDrawer<T> extends StatelessWidget {
             left: 0,
             right: 0,
             child: LiquidGlassScope(
-              backend: kChromeGlassBackend,
+              backend: chromeGlassBackend(context),
               child: Padding(
                 padding: EdgeInsets.fromLTRB(20, 8, 20, 16 + safeBottom),
                 child: Center(

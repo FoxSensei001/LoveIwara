@@ -9,6 +9,7 @@ import 'package:i_iwara/app/services/version_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/keybinding_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_action.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
+import 'package:i_iwara/app/services/glass_material_intro.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/global_drawer_content_widget.dart';
 import 'package:i_iwara/app/ui/widgets/privacy_over_lay_widget.dart';
@@ -132,6 +133,9 @@ class _MyAppState extends State<MyApp> {
     PopCoordinator.init();
     Get.find<VersionService>().doAutoCheckUpdate();
     Get.find<DeepLinkService>().markReady();
+    // 玻璃质感的一次性提醒：自己会等到「没有链接在路上、没有别的弹窗、人确实
+    // 站在首页」才弹，等不到就留到下次启动（见 GlassMaterialIntro 的类文档）。
+    GlassMaterialIntro.scheduleAfterStartup();
     _ensureNetworkAndUserServiceReady();
 
     // 首次设置检查现在由 GoRouter redirect 处理，不需要手动跳转

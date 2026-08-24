@@ -62,11 +62,11 @@ void main() {
     );
 
     // GlassIconButton 内部不暴露 scope，改为在关闭钮的祖先链上找
-    // LiquidGlassScope，确认它确实被显式设成了 kChromeGlassBackend。
+    // LiquidGlassScope，确认它确实被显式设成了 chromeGlassBackend(context)。
     final closeButtonContext = tester.element(
       find.widgetWithIcon(GlassIconButton, Icons.close),
     );
-    expect(LiquidGlassScope.of(closeButtonContext), kChromeGlassBackend);
+    expect(LiquidGlassScope.of(closeButtonContext), GlassBackend.liquidWidgets);
   });
 
   testWidgets('动作行渲染成 GlassButtonGroup + GlassTextActionButton，不是裸 TextButton/FilledButton', (
@@ -102,7 +102,7 @@ void main() {
 
     // 按钮组确实接了液态档，长按蠕动才有意义。
     final groupContext = tester.element(find.byType(GlassButtonGroup));
-    expect(LiquidGlassScope.of(groupContext), kChromeGlassBackend);
+    expect(LiquidGlassScope.of(groupContext), GlassBackend.liquidWidgets);
 
     await tester.tap(find.text('取消'));
     await tester.pump();

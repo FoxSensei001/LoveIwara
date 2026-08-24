@@ -735,7 +735,7 @@ class _PaginationBarState extends State<PaginationBar>
     // 分页栏是浮在列表内容之上的固定底栏（不随列表滚动），与 header/浮动
     // 底栏同属「chrome」——显式钉死液态档，让页码卡片/翻页键这些
     // GlassSurface/GlassIconButton 跟 header 走同一档，不再落回传统。
-    return LiquidGlassScope(backend: kChromeGlassBackend, child: result);
+    return LiquidGlassScope(backend: chromeGlassBackend(context), child: result);
   }
 
   /// 选择态下的分页栏内容：`‹ 页码 ›` + 动作行。

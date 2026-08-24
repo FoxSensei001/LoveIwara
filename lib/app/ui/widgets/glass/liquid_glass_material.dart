@@ -97,15 +97,81 @@ enum GlassBackend {
   liquidWidgets,
 }
 
-/// 页面级 chrome（header 胶囊、浮动底栏、浮钮、动作坞）默认用哪一档液态玻璃。
+/// 全局玻璃材质开关：整个 App 的玻璃是「假玻璃」还是「真玻璃」。
 ///
-/// 2026-08-23 从 [GlassBackend.easyLens] 换到 [GlassBackend.liquidWidgets]：
-/// 两边并排比过，**按钮组胶囊与分段控件的手感在 widgets 这一档明显更好**；
-/// 菜单面板则相反，钉死在 easy（见 `glass_menu.dart` 的 `_menuBackend`）。
-/// 要整体回退就改这一个常量，不用去翻各页。
-const GlassBackend kChromeGlassBackend = GlassBackend.liquidWidgets;
+/// 用户在**主题设置**里选（见 `theme_settings_page.dart`），存
+/// `ConfigKey.ENABLE_LIQUID_GLASS_KEY`，运行时改立刻生效、不用重启。
+enum GlassMaterialMode {
+  /// 假玻璃：全站钉死 [GlassBackend.plain]——半透明底色 + 细描边 + 投影，
+  /// 不采样背景、不加载任何 shader。低端机 / 省电 / 不喜欢模糊的人选这个。
+  plain,
 
-/// **浮出面板**（菜单、下拉板）该用的档位：恒为 [GlassBackend.easyLens]。
+  /// 真玻璃：chrome 走 [GlassBackend.liquidWidgets]，浮出面板走
+  /// [GlassBackend.easyLens]（各自为什么是这一档，见 [chromeGlassBackend]
+  /// 与 [panelGlassBackend]）。
+  liquid,
+}
+
+/// 当前全局材质档。**别直接读它来决定一块玻璃怎么画**——那样改了不会重建；
+/// 要在 build 里读就走 [chromeGlassBackend] / [panelGlassBackend] /
+/// [GlassMaterialScope.of]（它们会顺带把这个 Element 登记为依赖）。
+///
+/// 启动时由 [applyGlassMaterialFromConfig] 从配置表灌一次。
+final ValueNotifier<GlassMaterialMode> glassMaterialMode =
+    ValueNotifier<GlassMaterialMode>(GlassMaterialMode.liquid);
+
+/// 把 [glassMaterialMode] 沿整棵树下发，并让读到它的 Element 在用户切档时重建。
+///
+/// 挂在 `runApp` 的最外层（见 `main.dart`）——**必须在 Navigator / Overlay 之上**，
+/// 否则弹窗、菜单、toast 这些挂在根 Overlay 上的浮层读不到，切档后只有页面变、
+/// 浮层不变（这正是液态档当初漏供的老坑，见 `glass_menu.dart` 的注释）。
+///
+/// 没有祖先 scope 时（单测、离屏渲染）退化成直接读 [glassMaterialMode] 的当前值：
+/// 值是对的，只是不会自动重建。
+class GlassMaterialScope
+    extends InheritedNotifier<ValueNotifier<GlassMaterialMode>> {
+  GlassMaterialScope({super.key, required super.child})
+    : super(notifier: glassMaterialMode);
+
+  static GlassMaterialMode of(BuildContext context) {
+    final scope = context
+        .dependOnInheritedWidgetOfExactType<GlassMaterialScope>();
+    return scope?.notifier?.value ?? glassMaterialMode.value;
+  }
+
+  /// 当前是不是真玻璃档。
+  static bool isLiquid(BuildContext context) =>
+      of(context) == GlassMaterialMode.liquid;
+}
+
+/// 页面级 chrome（header 胶囊、浮动底栏、浮钮、动作坞）该用哪一档玻璃。
+///
+/// 真玻璃档下是 [GlassBackend.liquidWidgets]：2026-08-23 从
+/// [GlassBackend.easyLens] 换过来的——两边并排比过，**按钮组胶囊与分段控件的
+/// 手感在 widgets 这一档明显更好**；菜单面板则相反，钉死在 easy
+/// （见 `glass_menu.dart` 的 `_menuBackend`）。
+///
+/// 假玻璃档下恒为 [GlassBackend.plain]。
+///
+/// ⛔ 这里收的是**全站唯一的 chrome 供档点**：页面别再写
+/// `LiquidGlassScope(backend: GlassBackend.liquidWidgets)` 之类的字面量，
+/// 否则全局开关关不掉它（`test/glass_style_guard_test.dart` 里有闸门）。
+GlassBackend chromeGlassBackend(BuildContext context) =>
+    GlassMaterialScope.isLiquid(context)
+    ? GlassBackend.liquidWidgets
+    : GlassBackend.plain;
+
+/// 启动时把配置表里的玻璃开关灌进 [glassMaterialMode]。
+///
+/// 放在 `ConfigService` 一就绪就调（见 `app_startup.dart`）：shader 预热和第一帧
+/// chrome 都要读它，晚一步就会先渲染成真玻璃再跳回假玻璃。
+void applyGlassMaterialFromConfig(bool enableLiquidGlass) {
+  glassMaterialMode.value = enableLiquidGlass
+      ? GlassMaterialMode.liquid
+      : GlassMaterialMode.plain;
+}
+
+/// **浮出面板**（菜单、下拉板）该用的档位：真玻璃档下恒为 [GlassBackend.easyLens]。
 ///
 /// 为什么钉死在 easy：面板的出入场与质感（尤其 `showGlassMenu` 那套「卷开」）
 /// 是照 easy 的 lens 逐帧标定出来的，换 shader 等于全部重来；而用户是分别
@@ -128,8 +194,14 @@ const GlassBackend kChromeGlassBackend = GlassBackend.liquidWidgets;
 /// 面板挂在**根 Overlay** 上，不在任何滚动容器里，那条「lens 不能进滚动容器」
 /// 的硬约束对它根本不适用——触发件上不了 lens 不构成面板也上不了的理由。
 /// 所以现在无条件给液态档：全站的下拉是同一种面板，与触发件长什么样无关。
+///
+/// 唯一能把它按回传统档的是**全局材质开关**（[GlassMaterialMode.plain]）——
+/// 那是用户自己选的「假玻璃」，不是某个触发件的局部状态。
 GlassBackend panelGlassBackend(BuildContext anchorContext) =>
-    debugPanelGlassBackendOverride ?? GlassBackend.easyLens;
+    debugPanelGlassBackendOverride ??
+    (GlassMaterialScope.isLiquid(anchorContext)
+        ? GlassBackend.easyLens
+        : GlassBackend.plain);
 
 /// 测试专用：把 [panelGlassBackend] 的返回值钉在某一档，用完记得置回 null。
 ///

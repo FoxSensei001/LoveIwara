@@ -422,9 +422,11 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     // 浮动底栏是整个 App 里最该「真的是玻璃」的一块：它常驻在滚动内容之上，
     // 身后一直有东西在流动。它本身不在任何滚动容器里，正是折射透镜的适用场景。
     //
-    // 这里不再套 [LiquidGlassScope]：底栏整只（胶囊 + 果冻指示器 + 右侧圆钮）
-    // 都由 `liquid_glass_widgets` 自己画，内部没有 `GlassSurface`，档位开关
-    // 管不到它——材质取值仍与全站 chrome 同源（`GlassTokens.widgetsGlass`）。
+    // 这里不套 [LiquidGlassScope]：液态档下底栏整只（胶囊 + 果冻指示器 + 右侧
+    // 圆钮）都由 `liquid_glass_widgets` 自己画，内部没有 `GlassSurface`，套了
+    // 也没用——材质取值与全站 chrome 同源（`GlassTokens.widgetsGlass`）。
+    // 全局材质开关（真玻璃 / 假玻璃）由 [GlassFloatingTabBar] 自己认：假玻璃档
+    // 下它整只换成自绘的传统胶囊，不再有任何背景采样。
     return GlassFloatingTabBar(
       currentIndex: currentDisplayIndex,
       onTap: (index) => _handleNavigationTap(index, displayOrder),

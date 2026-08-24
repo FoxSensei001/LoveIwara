@@ -68,7 +68,7 @@ class GlassHeaderOverlay extends StatelessWidget {
   final bool blendHeader;
 
   /// 本页的浮层 chrome（[header] 与 [extra]）改用真液态玻璃
-  /// （[kChromeGlassBackend]，当前是 `liquid_glass_widgets` 那一档）。
+  /// （[chromeGlassBackend]，真玻璃档下是 `liquid_glass_widgets` 那一档）。
   ///
   /// 开关放在这里而不是让页面自己包 `LiquidGlassScope`，是因为 [extra] 里的
   /// 每一项都必须是 `Positioned`（Stack 的直接子级）——在外面包一层
@@ -131,7 +131,7 @@ class GlassHeaderOverlay extends StatelessWidget {
       ],
     );
     return liquid
-        ? LiquidGlassScope(backend: kChromeGlassBackend, child: stack)
+        ? LiquidGlassScope(backend: chromeGlassBackend(context), child: stack)
         : stack;
   }
 }

@@ -509,7 +509,7 @@ class ForumPageState extends State<ForumPage> {
                 ? PaginationBar.barHeight
                 : 0),
         child: LiquidGlassScope(
-          backend: kChromeGlassBackend,
+          backend: chromeGlassBackend(context),
           child: ValueListenableBuilder<bool>(
             valueListenable: _showBackToTop,
             builder: (context, visible, _) => GlassReveal(

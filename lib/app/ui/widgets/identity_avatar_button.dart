@@ -42,7 +42,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 /// # ⛔ 材质要跟着所在页面走，不能自作主张开液态
 ///
 /// 「长按跟手形变」只有液态档才有，所以一度让本组件自带
-/// `LiquidGlassScope(kChromeGlassBackend)`，好让四个入口都有形变。
+/// `LiquidGlassScope(chromeGlassBackend(context))`，好让四个入口都有形变。
 /// **2026-08-23 真机上被否掉**：社区页 header 其余控件还是传统档，而液态圆钮
 /// 压在那一片近乎纯白的低对比背景上**几乎什么都显不出来**——传统档的
 /// [GlassTokens.fill] 明显更实，两者并排读起来是「左边那枚按钮不见了，只剩
@@ -167,6 +167,6 @@ class IdentityAvatarButton extends StatelessWidget {
     });
 
     if (!forceLiquid) return button;
-    return LiquidGlassScope(backend: kChromeGlassBackend, child: button);
+    return LiquidGlassScope(backend: chromeGlassBackend(context), child: button);
   }
 }

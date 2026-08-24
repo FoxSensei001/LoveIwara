@@ -34,7 +34,7 @@ import 'package:i_iwara/utils/vibrate_utils.dart';
 /// ## ⛔ 菜单钉死在 easy 那一档，不跟着 chrome 走
 ///
 /// 页面 chrome 从 2026-08-23 起换到了 `liquid_glass_widgets`
-/// （[kChromeGlassBackend]），**菜单没跟**——见 [panelGlassBackend]。理由是本文件
+/// （[chromeGlassBackend]），**菜单没跟**——见 [panelGlassBackend]。理由是本文件
 /// 下面那整套「卷开」出入场和面板质感都是照 easy 的 lens 逐帧调出来的：
 /// 起手缩放绕锚点角、`materialize` 的 0 端「只剩折射与边缘光的清玻璃」、
 /// 条目错峰的 alpha 落在 backdrop 采样之后……换一套 shader 这些标定值全要

@@ -147,6 +147,37 @@ class ThemeStepWidget extends StatelessWidget {
               isNarrow: isNarrow,
               onTap: () => themeService.setThemeMode(AppThemeMode.dark),
             ),
+            // 玻璃质感：与「设置 → 主题设置」里那一项、以及老用户看到的一次性
+            // 提醒（`GlassMaterialIntro`）是同一个开关，三处必须给同一份选择。
+            Padding(
+              padding: EdgeInsets.all(isNarrow ? 12 : 16),
+              child: Text(
+                slang.t.settings.glassEffect,
+                style:
+                    (isNarrow
+                            ? theme.textTheme.titleSmall
+                            : theme.textTheme.titleMedium)
+                        ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+            _buildThemeOption(
+              context: context,
+              title: slang.t.settings.liquidGlassEffect,
+              subtitle: slang.t.settings.liquidGlassEffectDesc,
+              icon: Icons.blur_on,
+              isSelected: themeService.enableLiquidGlass,
+              isNarrow: isNarrow,
+              onTap: () => themeService.setLiquidGlassEnabled(true),
+            ),
+            _buildThemeOption(
+              context: context,
+              title: slang.t.settings.plainGlassEffect,
+              subtitle: slang.t.settings.plainGlassEffectDesc,
+              icon: Icons.filter_b_and_w,
+              isSelected: !themeService.enableLiquidGlass,
+              isNarrow: isNarrow,
+              onTap: () => themeService.setLiquidGlassEnabled(false),
+            ),
             Padding(
               padding: EdgeInsets.all(isNarrow ? 12 : 16),
               child: Text(

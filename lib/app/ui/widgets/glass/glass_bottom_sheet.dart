@@ -15,7 +15,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 ///
 /// 2026-08-24 给内容接上液态：**面板背景本身不接**（用户明确要求——弹窗/
 /// 弹层的壳保持原样，不要变透明玻璃），只给壳里的内容（标题行按钮、动作行）
-/// 套一层 [LiquidGlassScope]（钉死 [kChromeGlassBackend]，与页面 chrome
+/// 套一层 [LiquidGlassScope]（钉死 [chromeGlassBackend]，与页面 chrome
 /// 同一档）。做法是把 scope 包在 `child`/`builder(...)` 外面、壳自己的
 /// `GlassSurface` 调用之外——壳的背景读的是它自己 build 时的祖先 scope
 /// （面板挂在根 Navigator 上，天然没有祖先，落回 plain，与收口前一致），

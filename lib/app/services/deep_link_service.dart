@@ -114,6 +114,13 @@ class DeepLinkService extends GetxService {
   /// 应用冷启动恒为主站（见 [AppService.syncSiteModeFromConfig]），所以一条 AI 站
   /// 链接进来一定要切站，而切站要重启整棵树——用户会看到应用"自己重开了一次"。
   /// 启动阶段先问一次这里，就能直接以正确的站点起步，把那次重启省掉。
+  /// 冷启动是不是被一条链接拉起来的、而且那条链接还没处理完。
+  ///
+  /// 一次性提醒（[GlassMaterialIntro]）要看它：链接是在 [markReady] 之后延迟
+  /// 1.5s 才导航的，这段时间里首页看着一切正常，弹窗一旦这时候冒出来，紧接着
+  /// 就会被链接目标页盖住 / 打断。
+  bool get hasPendingInitialLink => _pendingInitialLink != null;
+
   IwaraSite? get pendingInitialLinkSite {
     final uri = _pendingInitialLink;
     if (uri == null || !canHandleInternally(uri)) {

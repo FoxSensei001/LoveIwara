@@ -111,7 +111,7 @@ class GlassAlertDialog extends StatelessWidget {
     // `Material`（不是 `GlassSurface`），不受 scope 影响，透底问题不会回来。
     final closeButton = showCloseButton
         ? LiquidGlassScope(
-            backend: kChromeGlassBackend,
+            backend: chromeGlassBackend(context),
             child: GlassIconButton(
               standalone: true,
               icon: const Icon(Icons.close),
@@ -124,7 +124,7 @@ class GlassAlertDialog extends StatelessWidget {
     final actionGroup = actions.isEmpty
         ? null
         : LiquidGlassScope(
-            backend: kChromeGlassBackend,
+            backend: chromeGlassBackend(context),
             child: GlassButtonGroup(
               children: [
                 for (final action in actions)

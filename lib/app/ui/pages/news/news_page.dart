@@ -384,7 +384,7 @@ class NewsPageState extends State<NewsPage>
           : 16,
       bottom: MediaQuery.paddingOf(context).bottom + 16,
       child: LiquidGlassScope(
-        backend: kChromeGlassBackend,
+        backend: chromeGlassBackend(context),
         child: GlassReveal(
           visible: visible,
           builder: (context, m) => GlassIconButton(

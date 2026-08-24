@@ -139,6 +139,33 @@ void main() {
     );
   });
 
+  test('没有硬编码的液态档（全局开关能一把关掉，零容忍）', () {
+    final offenders = <String>[];
+    for (final file in _dartFiles()) {
+      if (_rel(file) == _glassBackendSourceOfTruth) continue;
+      // 注释里提到档位名字的（词汇表、类文档）不算供档点。
+      final source = file.readAsStringSync().replaceAll(_lineComment, '');
+      for (final match in _hardcodedLiquidBackend.allMatches(source)) {
+        final line =
+            '\n'.allMatches(source.substring(0, match.start)).length + 1;
+        offenders.add('${_rel(file)}:$line ${match.group(0)}');
+      }
+    }
+    expect(
+      offenders,
+      isEmpty,
+      reason:
+          '玻璃质感现在是用户在主题设置里选的（真玻璃 / 假玻璃，见 '
+          'GlassMaterialMode）。谁把液态档写成字面量，谁就绕过了那个开关——'
+          '用户关掉模糊之后这块玻璃还在采样背景，而且改了不会重建。\n'
+          '  · 页面 chrome（header 胶囊 / 浮动底栏 / 浮钮 / 动作坞）：\n'
+          '    LiquidGlassScope(backend: chromeGlassBackend(context))\n'
+          '  · 浮出面板（菜单 / 下拉板）：panelGlassBackend(anchorContext)\n'
+          '  · 确实要在液态子树里局部关掉：GlassBackend.plain（这个不受限）\n'
+          '${offenders.join('\n')}',
+    );
+  });
+
   test('裸 Material 按钮数量只降不升', () {
     _expectRatchet(
       pattern: _rawMaterialButton,
@@ -196,6 +223,16 @@ const _opensOverlayExemptFiles = <String>{
   'lib/app/ui/pages/download/widgets/video_download_task_item_widget.dart',
   'lib/app/ui/pages/download/widgets/gallery_download_task_item_widget.dart',
 };
+
+/// 硬编码的液态档供档点：`backend: GlassBackend.liquidWidgets` 之类。
+/// 比较（`== GlassBackend.easyLens`）不算——那是组件内部按当前档分支，不是供档。
+final _hardcodedLiquidBackend = RegExp(
+  r'backend:\s*GlassBackend\.(liquidWidgets|easyLens)',
+);
+
+/// 全局材质开关与两个供档函数的定义处——液态档字面量只该出现在这里。
+const _glassBackendSourceOfTruth =
+    'lib/app/ui/widgets/glass/liquid_glass_material.dart';
 
 final _rawDialogRoute = RegExp(
   r'(?<![A-Za-z0-9_])(showDialog|showGeneralDialog)(<[^>\n]*>)?\(',

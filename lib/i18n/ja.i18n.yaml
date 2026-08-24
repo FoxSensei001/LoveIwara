@@ -618,6 +618,16 @@ settings:
   defaultBrowserDesc: システム設定でデフォルトリンク設定項目を開き、iwara.tvサイトリンクを追加してください
   themeMode: テーマモード
   themeModeDesc: この設定はアプリのテーマモードを決定します
+  glassEffect: ガラスの質感
+  glassEffectDesc: すべてのガラス要素（ヘッダーのカプセル、フローティングタブバー、メニュー、ダイアログのボタン）に使う素材を決めます
+  liquidGlassEffect: リキッドガラス
+  liquidGlassEffectDesc: 本物のぼかしと屈折を使う素材。見た目は最高ですが、低スペック端末ではコマ落ちや電池消費が増えることがあります
+  plainGlassEffect: 軽量な半透明
+  plainGlassEffectDesc: 半透明の下地と輪郭線だけでぼかしなし。動作と電池持ちが最も良好です
+  glassEffectIntroTitle: 新しいガラスの質感を試す
+  glassEffectIntroContent: このバージョンからヘッダー・タブバー・メニューがリキッドガラス（本物のぼかしと屈折）になりました。端末で重いと感じる場合やシンプルな見た目が好みなら、今すぐ軽量な半透明に切り替えられます。
+  glassEffectIntroHint: 後からでも「設定 → テーマ設定 → ガラスの質感」でいつでも変更できます。
+  glassEffectIntroDone: これでOK
   dynamicColor: ダイナミックカラー
   dynamicColorDesc: この設定はアプリがダイナミックカラーを使用するかどうかを決定します
   useDynamicColor: ダイナミックカラーを使用

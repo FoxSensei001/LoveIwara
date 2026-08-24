@@ -94,11 +94,21 @@ void main() {
       // 液态玻璃的 shader 异步加载：不预热的话，冷启动首屏第一块玻璃会先渲染
       // 成磨砂、加载完再切成折射，肉眼能看见这一下材质跳变。不 await——加载失败
       // 只是退回磨砂，不该拖住启动。
-      unawaited(warmUpLiquidGlassShaders());
+      //
+      // 用户在主题设置里选了「假玻璃」时整段跳过：那一档一块 lens 都不会建，
+      // 预热等于白花一次 shader 编译和这份显存。切回真玻璃时会在设置页那一刻
+      // 补预热（见 `ThemeService.setLiquidGlassEnabled`）。
+      if (glassMaterialMode.value == GlassMaterialMode.liquid) {
+        unawaited(warmUpLiquidGlassShaders());
+      }
 
       runApp(
         RestartApp.scope(
-          child: TranslationProvider(child: const AppStartupShell()),
+          // 玻璃材质开关挂在最外层：Navigator / 根 Overlay 都在它下面，
+          // 页面、弹窗、菜单、toast 才会在切档时一起重建。
+          child: GlassMaterialScope(
+            child: TranslationProvider(child: const AppStartupShell()),
+          ),
         ),
       );
 

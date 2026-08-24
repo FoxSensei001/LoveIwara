@@ -33,6 +33,8 @@ class ThemeSettingsPage extends StatelessWidget {
             delegate: SliverChildListDelegate([
               _buildThemeModeSection(context, themeService),
               const SizedBox(height: 16),
+              _buildGlassEffectSection(context, themeService),
+              const SizedBox(height: 16),
               _buildDynamicColorSection(context, themeService),
               const SizedBox(height: 16),
               _buildPresetColorsSection(context, themeService),
@@ -100,6 +102,69 @@ class ThemeSettingsPage extends StatelessWidget {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  /// 玻璃质感：真液态玻璃（模糊 + 折射） ↔ 轻量半透明。
+  ///
+  /// 换的是全局材质档（`glassMaterialMode`），全站 chrome、菜单、弹窗按钮一起
+  /// 变，立刻生效不用重启。
+  Widget _buildGlassEffectSection(
+    BuildContext context,
+    ThemeService themeService,
+  ) {
+    return Card(
+      elevation: 2,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t.settings.glassEffect,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  t.settings.glassEffectDesc,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          Obx(() {
+            final bool enabled = themeService.enableLiquidGlass;
+            return Column(
+              children: [
+                GlassChoiceItem<bool>(
+                  value: true,
+                  groupValue: enabled,
+                  onChanged: themeService.setLiquidGlassEnabled,
+                  title: Text(t.settings.liquidGlassEffect),
+                  subtitle: Text(t.settings.liquidGlassEffectDesc),
+                ),
+                GlassChoiceItem<bool>(
+                  value: false,
+                  groupValue: enabled,
+                  onChanged: themeService.setLiquidGlassEnabled,
+                  title: Text(t.settings.plainGlassEffect),
+                  subtitle: Text(t.settings.plainGlassEffectDesc),
+                ),
+              ],
+            );
+          }),
         ],
       ),
     );
