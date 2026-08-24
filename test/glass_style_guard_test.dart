@@ -88,6 +88,35 @@ void main() {
     );
   });
 
+  test('没有 Material 的下拉 / 弹出菜单（已清零，零容忍）', () {
+    final offenders = <String>[];
+    for (final file in _dartFiles()) {
+      if (_isExempt(file)) continue;
+      // 注释里提到这些名字的（词汇表、"原来是 PopupMenuButton" 这类说明）
+      // 不算调用点。
+      final source = file.readAsStringSync().replaceAll(_lineComment, '');
+      for (final match in _materialPopup.allMatches(source)) {
+        final line =
+            '\n'.allMatches(source.substring(0, match.start)).length + 1;
+        offenders.add('${_rel(file)}:$line ${match.group(1)}');
+      }
+    }
+    expect(
+      offenders,
+      isEmpty,
+      reason:
+          '全站的下拉 / 弹出菜单已在 2026-08-24 统一到 showGlassMenu：\n'
+          '  · 触发钮：GlassIconButton / GlassPressable（都要 opensOverlay: true）\n'
+          '  · 条目：GlassMenuOption（分组标题 GlassMenuSectionHeader、\n'
+          '    分隔线 GlassMenuSeparator、副标题 GlassMenuOption.description）\n'
+          '  · 表单里的下拉：GlassDropdownField\n'
+          '  · 右键菜单：showGlassMenu(globalAnchor: 指针位置 & Size.zero)\n'
+          'Material 的那套吐出来是块不透明卡片，既没有折射也没有长按蠕动，\n'
+          '和玻璃触发件接不上（见 glass_menu.dart 文件头）：\n'
+          '${offenders.join('\n')}',
+    );
+  });
+
   test('开菜单的钮都声明了 opensOverlay（零容忍）', () {
     final offenders = <String>[];
     for (final file in _dartFiles()) {
@@ -144,11 +173,28 @@ final _rawMaterialButton = RegExp(
   r'(\.[A-Za-z]+)?\(',
 );
 final _lineComment = RegExp(r'^[ \t]*//.*$', multiLine: true);
+
+/// Material 那套下拉 / 弹出菜单。`showMenuTooltip` 一类的标识符不会命中：
+/// 名字后面必须紧跟 `(` 或 `<`。
+final _materialPopup = RegExp(
+  r'(?<![A-Za-z0-9_])(PopupMenuButton|PopupMenuItem|CheckedPopupMenuItem|'
+  r'PopupMenuDivider|PopupMenuEntry|DropdownButton|DropdownButtonFormField|'
+  r'DropdownMenuItem|DropdownMenu|showMenu)\s*[(<]',
+);
 final _showsGlassMenu = RegExp(r'(?<![A-Za-z0-9_])showGlassMenu(<[^>\n]*>)?\(');
 
 /// 玻璃菜单自己的实现文件，以及**不由玻璃按钮触发**的调用点。
 const _opensOverlayExemptFiles = <String>{
   'lib/app/ui/widgets/glass/glass_menu.dart',
+  // 触发钮是 Material 的 ElevatedButton / ActionIconButtonScaffold（关注按钮
+  // 本身没有玻璃化，只有它吐出来的面板换了）。没有 GlassTapArea 就接不了
+  // 「长按不抬手直接划进面板」那条手指接力，普通点按照常。
+  'lib/app/ui/widgets/follow_button_widget.dart',
+  // 同上：右键上下文菜单由 GestureDetector.onSecondaryTapUp 触发，
+  // 桌面端右键本来就没有「长按」这一说。
+  'lib/app/ui/pages/download/widgets/default_download_task_item_widget.dart',
+  'lib/app/ui/pages/download/widgets/video_download_task_item_widget.dart',
+  'lib/app/ui/pages/download/widgets/gallery_download_task_item_widget.dart',
 };
 
 final _rawDialogRoute = RegExp(
@@ -159,8 +205,6 @@ final _rawDialogRoute = RegExp(
 const _exemptFiles = <String>{
   'lib/app/ui/widgets/glass/glass_alert_dialog.dart',
   'lib/app/ui/widgets/glass/glass_dialog_motion.dart',
-  // 液态玻璃实验台：并排比对新旧控件是它的用途
-  'lib/app/ui/pages/dev/liquid_glass_lab_page.dart',
 };
 
 /// 当前欠账快照（2026-08-24）。**只许降，不许升。**
@@ -251,7 +295,6 @@ const _rawMaterialButtonBaseline = <String, int>{
 
 /// 当前欠账快照（2026-08-24）。**只许降，不许升。**
 const _rawDialogRouteBaseline = <String, int>{
-  'lib/app/ui/pages/download/download_category_manage_page.dart': 2,
   'lib/app/ui/pages/download/download_task_list_page.dart': 2,
   'lib/app/ui/pages/download/widgets/download_category_picker.dart': 1,
   'lib/app/ui/pages/favorite/favorite_folder_detail_page.dart': 1,

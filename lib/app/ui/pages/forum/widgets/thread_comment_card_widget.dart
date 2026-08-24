@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -72,7 +74,8 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
   void initState() {
     super.initState();
     _translationController = MarkdownTranslationController();
-    _showOriginal = _configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
+    _showOriginal =
+        _configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
   }
 
   @override
@@ -161,30 +164,20 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                 ),
               );
             }),
-            // 收紧语言选择器（内部是默认 48 触摸目标的 IconButton）到胶囊高度
+            // 语言选择器自己不带尺寸，尺寸由这只槽位说了算
             SizedBox(
               width: 34,
               height: _actionPillHeight,
-              child: IconButtonTheme(
-                data: IconButtonThemeData(
-                  style: IconButton.styleFrom(
-                    fixedSize: const Size(34, _actionPillHeight),
-                    padding: EdgeInsets.zero,
-                    alignment: Alignment.center,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                ),
-                child: TranslationLanguageSelector(
-                  compact: true,
-                  extrimCompact: true,
-                  selectedLanguage: _configService.currentTranslationSort,
-                  onLanguageSelected: (sort) {
-                    _configService.updateTranslationLanguage(sort);
-                    if (_translationController.hasTranslation) {
-                      _handleTranslation();
-                    }
-                  },
-                ),
+              child: TranslationLanguageSelector(
+                compact: true,
+                extrimCompact: true,
+                selectedLanguage: _configService.currentTranslationSort,
+                onLanguageSelected: (sort) {
+                  _configService.updateTranslationLanguage(sort);
+                  if (_translationController.hasTranslation) {
+                    _handleTranslation();
+                  }
+                },
               ),
             ),
             const SizedBox(width: 2),
@@ -220,35 +213,33 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
         child: SizedBox(
           width: _actionPillHeight,
           height: _actionPillHeight,
-          child: PopupMenuButton<String>(
-            icon: Icon(
-              Icons.more_horiz,
-              size: 18,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            padding: EdgeInsets.zero,
-            position: PopupMenuPosition.under,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            constraints: const BoxConstraints(minWidth: 140),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'edit',
-                child: Row(
-                  children: [
-                    const Icon(Icons.edit, size: 16),
-                    const SizedBox(width: 8),
-                    Text(t.common.edit, style: const TextStyle(fontSize: 14)),
+          // 菜单走全站统一的玻璃面板（原来是 PopupMenuButton）。
+          child: Builder(
+            builder: (anchorContext) => GlassPressable(
+              // 长按也能打开，且长按不抬手可以直接划到某一条上松手选中
+              // （见 GlassTapArea.opensOverlay）。
+              opensOverlay: true,
+              onTap: () async {
+                final action = await showGlassMenu<String>(
+                  anchorContext: anchorContext,
+                  entries: [
+                    GlassMenuOption<String>(
+                      value: 'edit',
+                      icon: Icons.edit,
+                      label: t.common.edit,
+                    ),
                   ],
+                );
+                if (action == 'edit') _handleEdit();
+              },
+              builder: (context, pressed) => Center(
+                child: Icon(
+                  Icons.more_horiz,
+                  size: 18,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
-            ],
-            onSelected: (value) {
-              if (value == 'edit') {
-                _handleEdit();
-              }
-            },
+            ),
           ),
         ),
       ),

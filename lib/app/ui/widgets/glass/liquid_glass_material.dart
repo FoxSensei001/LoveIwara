@@ -1,4 +1,7 @@
+import 'dart:ui' show clampDouble;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 // 带前缀：两个包的公开面里 LiquidGlassScope / GlassSegmentedControl /
 // GlassButtonGroup / GlassIconButton / GlassToast 等一大批名字与本仓库自己的
@@ -102,20 +105,41 @@ enum GlassBackend {
 /// 要整体回退就改这一个常量，不用去翻各页。
 const GlassBackend kChromeGlassBackend = GlassBackend.liquidWidgets;
 
-/// 从触发件那儿取样出**浮出面板**（菜单、下拉板）该用的档位。
+/// **浮出面板**（菜单、下拉板）该用的档位：恒为 [GlassBackend.easyLens]。
 ///
-/// 规则只有一条：**chrome 那一档折回 easy**。页面 chrome 换到
-/// `liquid_glass_widgets` 之后，面板没跟着换——它们的出入场与质感（尤其
-/// `showGlassMenu` 那套「卷开」）是照 easy 的 lens 逐帧标定出来的，换 shader
-/// 等于全部重来；而用户是分别评价的：chrome 换新包更好，面板现状就很好。
+/// 为什么钉死在 easy：面板的出入场与质感（尤其 `showGlassMenu` 那套「卷开」）
+/// 是照 easy 的 lens 逐帧标定出来的，换 shader 等于全部重来；而用户是分别
+/// 评价的——chrome 换 `liquid_glass_widgets` 更好，面板现状就很好。
 ///
-/// 传统档原样透传——传统胶囊仍然吐传统面板，一条链上不会出现两种材质。
-GlassBackend panelGlassBackend(BuildContext anchorContext) {
-  final GlassBackend anchor = LiquidGlassScope.of(anchorContext);
-  return anchor == GlassBackend.plain
-      ? GlassBackend.plain
-      : GlassBackend.easyLens;
-}
+/// # ⛔ 为什么不再跟触发件的档位走（2026-08-24）
+///
+/// 本函数原先是「传统触发件吐传统面板」：`LiquidGlassScope.of(anchorContext)`
+/// 是 plain 就返回 plain。那条规矩写在只有 header 玻璃胶囊会弹菜单的年代，
+/// 读起来也合理——一条链上不该出现两种材质。
+///
+/// 但下拉收口到玻璃菜单之后，触发件绝大多数**不在**任何 chrome scope 里：
+/// 列表行里的 `⋮`、播放器工具栏的清晰度/倍速、设置页的
+/// [GlassDropdownField]、关注按钮……它们身处滚动容器或视频浮层，本来就上不了
+/// lens。于是「跟着触发件走」的结果是：**这些新换的菜单全部静默落回传统档**
+/// ——没有折射、没有长按蠕动，除了圆角以外跟旧的 `PopupMenuButton` 看不出
+/// 区别。改造做了，用户看到的还是老样子（2026-08-24 的反馈原话：
+/// 「我看都没有长按蠕动效果啊」）。
+///
+/// 面板挂在**根 Overlay** 上，不在任何滚动容器里，那条「lens 不能进滚动容器」
+/// 的硬约束对它根本不适用——触发件上不了 lens 不构成面板也上不了的理由。
+/// 所以现在无条件给液态档：全站的下拉是同一种面板，与触发件长什么样无关。
+GlassBackend panelGlassBackend(BuildContext anchorContext) =>
+    debugPanelGlassBackendOverride ?? GlassBackend.easyLens;
+
+/// 测试专用：把 [panelGlassBackend] 的返回值钉在某一档，用完记得置回 null。
+///
+/// 存在的理由只有一个——**液态面板在测试里 `pumpAndSettle` 不会停**：跟手形变
+/// 在手指按住期间会一直跑（这正是它该有的样子），而 Skia 路径下
+/// `LiquidGlassView` 还挂着一条按帧抓背景的长跑 ticker。测「按住不放上下划」
+/// 那一族交互的用例因此必须先把面板钉回 [GlassBackend.plain]——它们测的是
+/// 焦点逻辑，不是材质。
+@visibleForTesting
+GlassBackend? debugPanelGlassBackendOverride;
 
 /// 给子树指定玻璃后端（见文件头）。
 ///
@@ -495,6 +519,11 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
         ? height! / 2
         : (cornerRadius ?? (height ?? GlassTokens.pillHeight) / 2);
 
+    // 形变层会吃掉父级的尺寸约束，这只信使负责把它递到玻璃身上
+    // （见 `wrapInteractive` 上那段）。每次 build 新建一只，渲染对象在换新
+    // 信使时会把上一份约束接过去，所以重建那一帧不会丢尺寸。
+    final _GlassOuterConstraints outerConstraints = _GlassOuterConstraints();
+
     // 圆用 LiquidOval；胶囊 / 圆角矩形用 superellipse——半径拉满时它就是
     // Apple 那种「肩部平滑过渡」的胶囊，与 easy 档的 continuousRoundedRectangle
     // 是同一个形状语言，换档时轮廓不跳。
@@ -504,33 +533,56 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
 
     /// 只借形变，不借玻璃：transparent 档的 GlassButton 整只跳过
     /// AdaptiveGlass，留下的正好是 LiquidStretch + GlassGlow（见 [interactive]）。
+    ///
+    /// ⛔ 借来的这层会**把父级给的 min / tight 约束吃掉**：`GlassButton` 内部
+    /// 用 `SizedBox(width: null) → Align(widthFactor: 1)` 抱内容，而
+    /// `RenderPositionedBox` 是拿 `constraints.loosen()` 去量孩子的——外面
+    /// `ConstrainedBox(minWidth: 68)` / `Expanded` / `SizedBox(width: x)` 定下
+    /// 的尺寸只落在 Align 自己身上，玻璃缩到「贴着文字」的自然宽度，于是
+    /// **占位是长条、画出来的玻璃却短一截**。传统档（`AnimatedContainer`）没有
+    /// 这一层，一直是老老实实吃 min 的——换档就变形，正好违背
+    /// [GlassSurface] 「三档尺寸语义完全一致」那条约定。
+    ///
+    /// 2026-08-24 真机报的「宽屏分页栏中间的页码长条变成了圆的、加载光环还留
+    /// 在原来那条长条上」就是这一条：光环画在 `GlassSurface` 的外框（68 宽）
+    /// 上，玻璃自己却只有文字那么宽。
+    ///
+    /// 修法是把外层约束**原样递进玻璃那一层**（[_GlassOuterConstraints]），
+    /// 而不是一处处给调用点补 `width:`——凡是「抱内容 + 有形变 + 父级给了
+    /// 尺寸」的玻璃都吃这一条，逐个补漏必然再漏。
     Widget wrapInteractive(Widget glass) {
       if (!interactive) return glass;
-      return lgw.GlassButton.custom(
-        style: lgw.GlassButtonStyle.transparent,
-        shape: shape,
-        // 这层**只吃形变，不接点击**，给个空实现即可——他们自己的
-        // GlassButtonGroup 也是这么用的。所有点击（含「整只玻璃可按」的调用点，
-        // 如身份圆钮）都由 `GlassSurface` 塞进 [child] 那一层的 `GlassTapArea`
-        // 接住：内容层在这只识别器**里头**，竞技场清算时先赢，顺带把「手指移出
-        // 多远才算放弃」那条规矩收在一处（见 `glass_touch.dart`）。
-        onTap: () {},
-        canRequestFocus: false,
-        // 语义节点由外层统一发（[GlassPressable] 的 Semantics），这里不重复
-        // 挂一个按钮。
-        excludeFromSemantics: true,
-        // 别再给我们的玻璃叠一层提亮：色调只有 GlassTokens 一个出处。
-        ambientBaseLight: 0,
-        // 下面那块玻璃恒是 premium，这里必须报同一档：GlassButton 只在
-        // 「premium + 有形变」时才**跳过** RepaintBoundary。不报的话它按主题
-        // 默认档（standard）走，会在形变层与玻璃之间垫一层缓存纹理——按住
-        // 拉伸时缩放的是那张位图（他们自己注释里写的 bilinear 伪影），融合态
-        // 下更麻烦：夹在 layer 与 grouped 形状之间多一层合成。
-        quality: lgw.GlassQuality.premium,
-        stretch: GlassTokens.widgetsStretch,
-        interactionScale: GlassTokens.widgetsInteractionScale,
-        resistance: GlassTokens.widgetsStretchResistance,
-        child: glass,
+      return _GlassOuterConstraintsSource(
+        relay: outerConstraints,
+        child: lgw.GlassButton.custom(
+          style: lgw.GlassButtonStyle.transparent,
+          shape: shape,
+          // 这层**只吃形变，不接点击**，给个空实现即可——他们自己的
+          // GlassButtonGroup 也是这么用的。所有点击（含「整只玻璃可按」的调用点，
+          // 如身份圆钮）都由 `GlassSurface` 塞进 [child] 那一层的 `GlassTapArea`
+          // 接住：内容层在这只识别器**里头**，竞技场清算时先赢，顺带把「手指移出
+          // 多远才算放弃」那条规矩收在一处（见 `glass_touch.dart`）。
+          onTap: () {},
+          canRequestFocus: false,
+          // 语义节点由外层统一发（[GlassPressable] 的 Semantics），这里不重复
+          // 挂一个按钮。
+          excludeFromSemantics: true,
+          // 别再给我们的玻璃叠一层提亮：色调只有 GlassTokens 一个出处。
+          ambientBaseLight: 0,
+          // 下面那块玻璃恒是 premium，这里必须报同一档：GlassButton 只在
+          // 「premium + 有形变」时才**跳过** RepaintBoundary。不报的话它按主题
+          // 默认档（standard）走，会在形变层与玻璃之间垫一层缓存纹理——按住
+          // 拉伸时缩放的是那张位图（他们自己注释里写的 bilinear 伪影），融合态
+          // 下更麻烦：夹在 layer 与 grouped 形状之间多一层合成。
+          quality: lgw.GlassQuality.premium,
+          stretch: GlassTokens.widgetsStretch,
+          interactionScale: GlassTokens.widgetsInteractionScale,
+          resistance: GlassTokens.widgetsStretchResistance,
+          child: _GlassOuterConstraintsTarget(
+            relay: outerConstraints,
+            child: glass,
+          ),
+        ),
       );
     }
 
@@ -804,6 +856,195 @@ Future<void> warmUpLiquidGlassShaders() async {
 /// 分开，读起来没问题；只有被按住往邻居拖、两块真的长出液面颈部的那一瞬间，
 /// 两条线会在颈部交叉。要跟着 metaball 一起融，线就得由 shader 自己画——
 /// 而 shader 那圈光正是白底上读不出来的那一条（见上）。这里选了「静止态正确」。
+/// 把「形变层外面的约束」递给「形变层里面的玻璃」的一只信使。
+///
+/// # 为什么需要它
+///
+/// [LiquidWidgetsGlassBox] 的跟手形变是借 `GlassButton.custom(transparent)`
+/// 实现的（见 `wrapInteractive`），而那只 widget 内部是
+/// `SizedBox(width: null) → Align(widthFactor: 1)`：`RenderPositionedBox` 拿
+/// `constraints.loosen()` 去量孩子，**父级定下的 min / tight 尺寸只落在 Align
+/// 自己身上，传不到玻璃**。于是「抱内容 + 有形变」的玻璃在
+/// `ConstrainedBox(minWidth: …)` / `Expanded` / `SizedBox(width: …)` 底下会缩成
+/// 贴着内容的自然宽度——占位是长条，画出来的玻璃却短一截。
+///
+/// 传统档（`AnimatedContainer`）从来都是老实吃 min 的，所以这是**换档才有的
+/// 形变**，违背 [GlassSurface] 「三档尺寸语义完全一致」那条约定。
+///
+/// # 怎么做的
+///
+/// [_GlassOuterConstraintsSource] 挂在形变层**外面**，布局时把自己收到的约束
+/// 记下来；[_GlassOuterConstraintsTarget] 挂在形变层**里面**（紧贴玻璃），
+/// 布局时把记下来的 min 补回自己的约束里。两者靠同一只信使对象通信——布局是
+/// 深度优先，外层必然先于内层量到，所以内层读到的永远是本帧的值。
+///
+/// 用渲染对象而不是 `LayoutBuilder`：`LayoutBuilder` 不支持内在尺寸计算，
+/// 而玻璃件确实会长在 `IntrinsicHeight` 底下（侧边导航栏的 trailing 就是），
+/// 那会直接抛。
+class _GlassOuterConstraints {
+  BoxConstraints? value;
+  _RenderGlassOuterConstraintsTarget? target;
+
+  void record(BoxConstraints constraints) {
+    if (value == constraints) return;
+    value = constraints;
+    // 中间隔着 Align 的 `loosen()`：外层约束变了，内层收到的约束可能一模一样，
+    // 不主动叫醒它就会沿用上一帧的尺寸。这一下在 `invokeLayoutCallback` 里发，
+    // 是布局期间允许改动子树的唯一合法姿势。
+    target?.markNeedsLayout();
+  }
+
+  /// 换新信使时把上一份约束接过来：widget 每帧重建，但渲染对象是持久的，
+  /// 内层不一定会跟着重新布局。
+  void adoptFrom(_GlassOuterConstraints old) {
+    value ??= old.value;
+  }
+}
+
+class _GlassOuterConstraintsSource extends SingleChildRenderObjectWidget {
+  const _GlassOuterConstraintsSource({
+    required this.relay,
+    required super.child,
+  });
+
+  final _GlassOuterConstraints relay;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderGlassOuterConstraintsSource(relay);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderGlassOuterConstraintsSource renderObject,
+  ) {
+    renderObject.relay = relay;
+  }
+}
+
+class _RenderGlassOuterConstraintsSource extends RenderProxyBox {
+  _RenderGlassOuterConstraintsSource(this._relay);
+
+  _GlassOuterConstraints _relay;
+
+  set relay(_GlassOuterConstraints value) {
+    if (identical(_relay, value)) return;
+    value.adoptFrom(_relay);
+    _relay = value;
+  }
+
+  @override
+  void performLayout() {
+    // 记录这一下可能要叫醒内层（见 [_GlassOuterConstraints.record]），所以得
+    // 走 invokeLayoutCallback——布局期间改动子树只有这一个合法入口。
+    invokeLayoutCallback<BoxConstraints>(_relay.record);
+    super.performLayout();
+  }
+}
+
+class _GlassOuterConstraintsTarget extends SingleChildRenderObjectWidget {
+  const _GlassOuterConstraintsTarget({
+    required this.relay,
+    required super.child,
+  });
+
+  final _GlassOuterConstraints relay;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderGlassOuterConstraintsTarget(relay);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderGlassOuterConstraintsTarget renderObject,
+  ) {
+    renderObject.relay = relay;
+  }
+}
+
+class _RenderGlassOuterConstraintsTarget extends RenderProxyBox {
+  _RenderGlassOuterConstraintsTarget(this._relay) {
+    _relay.target = this;
+  }
+
+  _GlassOuterConstraints _relay;
+
+  set relay(_GlassOuterConstraints value) {
+    if (identical(_relay, value)) {
+      _relay.target = this;
+      return;
+    }
+    value.adoptFrom(_relay);
+    if (identical(_relay.target, this)) _relay.target = null;
+    _relay = value;
+    _relay.target = this;
+    markNeedsLayout();
+  }
+
+  @override
+  void detach() {
+    if (identical(_relay.target, this)) _relay.target = null;
+    super.detach();
+  }
+
+  @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+    _relay.target = this;
+  }
+
+  /// 把外层的 min 补回来。只补 min：max 一路是原样传下来的（`loosen()` 只动
+  /// 下界），补过头会把玻璃撑出父级。
+  BoxConstraints _withOuterMinimums(BoxConstraints constraints) {
+    final BoxConstraints? outer = _relay.value;
+    if (outer == null) return constraints;
+    final double outerMinWidth = outer.minWidth.isFinite ? outer.minWidth : 0;
+    final double outerMinHeight = outer.minHeight.isFinite
+        ? outer.minHeight
+        : 0;
+    final double minWidth = clampDouble(
+      outerMinWidth,
+      constraints.minWidth,
+      constraints.maxWidth,
+    );
+    final double minHeight = clampDouble(
+      outerMinHeight,
+      constraints.minHeight,
+      constraints.maxHeight,
+    );
+    if (minWidth == constraints.minWidth &&
+        minHeight == constraints.minHeight) {
+      return constraints;
+    }
+    return BoxConstraints(
+      minWidth: minWidth,
+      maxWidth: constraints.maxWidth,
+      minHeight: minHeight,
+      maxHeight: constraints.maxHeight,
+    );
+  }
+
+  @override
+  void performLayout() {
+    final RenderBox? child = this.child;
+    if (child == null) {
+      size = _withOuterMinimums(constraints).smallest;
+      return;
+    }
+    child.layout(_withOuterMinimums(constraints), parentUsesSize: true);
+    size = constraints.constrain(child.size);
+  }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    final RenderBox? child = this.child;
+    final BoxConstraints inner = _withOuterMinimums(constraints);
+    if (child == null) return inner.smallest;
+    return constraints.constrain(child.getDryLayout(inner));
+  }
+}
+
 class _GlassRim extends StatelessWidget {
   const _GlassRim({
     required this.shape,

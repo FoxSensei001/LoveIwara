@@ -74,7 +74,28 @@ void main() {
     expect(p.height, isNotNull);
   });
 
-  testWidgets('传统档：不开，面板仍按内容抱着走', (tester) async {
+  // 触发件在传统档里（列表行的 `⋮`、播放器工具栏、设置页下拉——绝大多数下拉
+  // 都是这种）也照样吐液态面板。2026-08-24 之前面板跟着触发件的档位走，于是这
+  // 些新换的菜单全部静默落回传统档：没折射、没长按蠕动，跟旧的
+  // PopupMenuButton 看不出区别（见 panelGlassBackend 的说明）。
+  testWidgets('触发件是传统档：面板照样是液态的，跟手形变照样开', (tester) async {
+    await openMenu(
+      tester,
+      entries: <GlassMenuEntry>[
+        const GlassMenuOption<String>(value: 'a', label: '刷新'),
+        const GlassMenuOption<String>(value: 'b', label: '回到顶部'),
+      ],
+    );
+    final GlassSurface p = panel(tester);
+    expect(p.liquidTouch, isTrue);
+    // 跟手形变要求精确尺寸，静态量出来喂给 lens（见 _measureMenuPanelSize）。
+    expect(p.width, isNotNull);
+    expect(p.height, isNotNull);
+  });
+
+  testWidgets('钉回传统档时才不开跟手形变（测试专用逃生口）', (tester) async {
+    debugPanelGlassBackendOverride = GlassBackend.plain;
+    addTearDown(() => debugPanelGlassBackendOverride = null);
     await openMenu(
       tester,
       entries: <GlassMenuEntry>[
@@ -151,6 +172,9 @@ void main() {
     });
 
     testWidgets('有长按条目时滑动取焦整只让位（两个手势不能抢同一次按住）', (tester) async {
+      // 按住不放期间液态面板一直在跑跟手形变，pumpAndSettle 等不到静止。
+      debugPanelGlassBackendOverride = GlassBackend.plain;
+      addTearDown(() => debugPanelGlassBackendOverride = null);
       await openMenu(
         tester,
         entries: <GlassMenuEntry>[

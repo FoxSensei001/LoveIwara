@@ -243,8 +243,39 @@ class GlassSurface extends StatelessWidget {
 
     Color dim(Color c) => m >= 1 ? c : c.withValues(alpha: c.a * m);
 
+    /// 「在场程度」压的不只是材质，**内容也得跟着退场**。
+    ///
+    /// ⛔ 不这么做的后果是「玻璃没了、图标还在」：2026-08-24 用户报的
+    /// 「右下角回到顶部浮钮一直挂着、样式是老的、点了还穿透到列表」正是这个
+    /// ——[GlassReveal] 把 [materialize] 压到 0，玻璃确实一点不剩，可里头那枚
+    /// `vertical_align_top` 图标仍旧全黑地画在屏幕上，读起来就是「一枚没穿
+    /// 玻璃的老式图标钮」；而它外面的 `IgnorePointer` 又让这一下点空。
+    ///
+    /// 压法走**颜色通道**（把 alpha 乘进图标 / 文字的颜色里），不是 `Opacity`
+    /// ——后者会 `saveLayer` 把子树隔离出去，把液态档的折射打断（见
+    /// [materialize] 的说明）。颜色通道不建图层，折射一帧都不会断。
+    ///
+    /// 覆盖不到的只有「自带显式颜色的非图标内容」（比如写死 color 的 `Text`、
+    /// 图片、头像）：那种内容要真正退场，请让调用方在 0 端别建这块玻璃
+    /// ——[GlassReveal] 已经替所有调用点这么做了。
+    Widget dimContent(Widget content) {
+      if (m >= 1) return content;
+      Widget result = IconTheme.merge(
+        data: IconThemeData(opacity: m),
+        child: content,
+      );
+      final Color? textColor = DefaultTextStyle.of(context).style.color;
+      if (textColor != null) {
+        result = DefaultTextStyle.merge(
+          style: TextStyle(color: dim(textColor)),
+          child: result,
+        );
+      }
+      return result;
+    }
+
     Widget buildBox(bool pressed) {
-      Widget content = Padding(padding: padding, child: child);
+      Widget content = Padding(padding: padding, child: dimContent(child));
       if (tapInsideLiquidBox) {
         // 塞在这儿是有讲究的：内容层随盒子的紧约束铺满整只玻璃，而它在借来的
         // `GlassButton` 那只识别器**里头**——竞技场清算时更深者先赢，点击就落

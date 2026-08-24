@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_floating_tab_bar.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lgw;
 
 /// 浮动底栏（`liquid_glass_widgets` 的 `GlassTabBar.bottom` 包装）的行为契约。
 ///
@@ -12,7 +13,10 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 ///   4. 整条只占一行高度，不自带安全区——底栏是 Stack 覆盖层，外边距由调用方给；
 ///   5. **换项只在抬手那一刻回调**：按住不放不换页（那段时间是留给拖动的），
 ///      按住再拖走也绝不能先回调一次按下那一项——包内部是在 `onTapDown`
-///      抢跑的，本组件把它压到手势结束才落地。
+///      抢跑的，本组件把它压到手势结束才落地；
+///   6. **但高亮不推迟**：按住不动时焦点必须当场跟到手指底下那一项（推迟的只有
+///      换页）。包里指示器只认外面传进来的 `selectedIndex`，所以这条要盯的是
+///      喂给包的那个下标，而不是 `currentIndex`。
 void main() {
   const items = [
     GlassTabItem(icon: Icons.video_library, label: '视频'),
@@ -58,6 +62,10 @@ void main() {
   /// 胶囊的可用宽度：整条减去右侧圆钮与它的间距。
   double slotWidth() =>
       (barWidth - GlassTokens.floatingActionSize - 12) / items.length;
+
+  /// 真正喂给包的选中下标——指示器与图标高亮都只认它。
+  int visualIndex(WidgetTester tester) =>
+      tester.widget<lgw.GlassTabBar>(find.byType(lgw.GlassTabBar)).selectedIndex;
 
   /// 第 [index] 项中心的全局坐标。
   Offset tabCenter(WidgetTester tester, int index) {
@@ -152,5 +160,71 @@ void main() {
       [3],
       reason: '按下那一项被抢跑回调了的话，会先白刷新/白跳一次再换到终点',
     );
+  });
+
+  testWidgets('按住不动：焦点当场跟到按下那一项，但还没换页', (tester) async {
+    final taps = await pumpBar(tester, currentIndex: 0);
+    expect(visualIndex(tester), 0);
+
+    final TestGesture gesture = await tester.startGesture(tabCenter(tester, 2));
+    // 按下满 kPressTimeout（100ms）：包在这一刻报出下标，高亮该立刻过去。
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(
+      visualIndex(tester),
+      2,
+      reason: '按住不动焦点还赖在原来那项——只有手指左右挪动（拖拽接管坐标）才跟过来',
+    );
+    expect(taps, isEmpty, reason: '高亮可以先走，换页必须等抬手');
+
+    await gesture.up();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(taps, [2]);
+    expect(visualIndex(tester), 2);
+  });
+
+  testWidgets('按住 → 拖走 → 抬手：焦点落在终点那一项', (tester) async {
+    await pumpBar(tester, currentIndex: 0);
+    final TestGesture gesture = await tester.startGesture(tabCenter(tester, 0));
+    await tester.pump(const Duration(milliseconds: 300));
+    await gesture.moveTo(tabCenter(tester, 3));
+    await tester.pump(const Duration(milliseconds: 16));
+    await gesture.up();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(visualIndex(tester), 3);
+  });
+
+  testWidgets('抢先点亮之后，路由换到别处仍以路由为准', (tester) async {
+    final taps = <int>[];
+    Widget bar(int currentIndex) => MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: SizedBox(
+            width: barWidth,
+            child: GlassFloatingTabBar(
+              currentIndex: currentIndex,
+              onTap: taps.add,
+              items: items,
+              // 与 [pumpBar] 同构：`tabCenter` 是按「带圆钮」的胶囊宽度算的。
+              action: GlassFloatingBarAction(
+                icon: Icons.search,
+                label: '搜索',
+                onPressed: () {},
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(bar(0));
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.tapAt(tabCenter(tester, 2));
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(taps, [2]);
+
+    // 外面（路由）最终落到了另一项：本组件不能拿按下时抢先点亮的那份压着它。
+    await tester.pumpWidget(bar(1));
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(visualIndex(tester), 1);
   });
 }

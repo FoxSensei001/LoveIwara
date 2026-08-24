@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:shimmer/shimmer.dart';
@@ -236,7 +237,7 @@ class _FilledLikeButtonState extends State<FilledLikeButton> {
 class SplitFilledButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
-  final List<PopupMenuEntry<String>> menuItems;
+  final List<GlassMenuEntry> menuItems;
   final Function(String)? onMenuItemSelected;
   final bool isDisabled;
   final IconData? icon; // 左侧按钮的图标
@@ -328,30 +329,30 @@ class SplitFilledButton extends StatelessWidget {
           // =======================
           // 3. 右侧：下拉菜单按钮
           // =======================
-          // 保留一层透明 Material：PopupMenuButton 的水波纹需要 Material 祖先，
-          // 外层 GlassSurface 已 clipContent，水波纹会被正确裁到胶囊边界内。
-          Material(
-            color: Colors.transparent,
-            child: PopupMenuButton<String>(
-              tooltip: '',
+          // 菜单走全站统一的玻璃面板（原来是 PopupMenuButton：一层透明 Material
+          // 撑着水波纹、吐出一块不透明卡片）。
+          Builder(
+            builder: (anchorContext) => GlassPressable(
               enabled: isEnabled,
-              offset: const Offset(0, 48),
-              padding: EdgeInsets.zero,
-              itemBuilder: (context) => menuItems,
-              onSelected: onMenuItemSelected,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              // 使用 child 自定义触发区域
-              child: Container(
+              // 长按也能打开，且长按不抬手可以直接划到某一条上松手选中
+              // （见 GlassTapArea.opensOverlay）。
+              opensOverlay: true,
+              scale: 1.0,
+              onTap: () async {
+                final picked = await showGlassMenu<String>(
+                  anchorContext: anchorContext,
+                  entries: menuItems,
+                );
+                if (picked != null) onMenuItemSelected?.call(picked);
+              },
+              builder: (context, pressed) => AnimatedContainer(
+                duration: GlassTokens.pressDuration,
+                curve: Curves.easeOut,
+                color: pressed ? pressedOverlay : Colors.transparent,
                 // 水平 Padding 稍微调小一点，视觉更紧凑
                 padding: internalPadding.copyWith(left: 8, right: 12),
                 alignment: Alignment.center,
-                child: Icon(
-                  Icons.more_horiz,
-                  size: 16,
-                  color: contentColor,
-                ),
+                child: Icon(Icons.more_horiz, size: 16, color: contentColor),
               ),
             ),
           ),

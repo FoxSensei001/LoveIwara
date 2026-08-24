@@ -23,9 +23,13 @@ import 'package:i_iwara/utils/vibrate_utils.dart';
 /// ## 材质是从触发件那儿「带过去」的
 ///
 /// 菜单是一条独立路由，挂在**根 Overlay** 上——它不在页面子树里，读不到页面的
-/// `LiquidGlassScope`。所以 [showGlassMenu] 在打开的那一刻就地读一次触发件的
-/// 档位（[LiquidGlassScope.of]），再在面板外面重新供上：**玻璃胶囊弹出
-/// 玻璃菜单，传统胶囊弹出传统菜单**，一条链上不会出现两种材质。
+/// `LiquidGlassScope`。所以 [showGlassMenu] 在打开的那一刻就地取一次面板该用的
+/// 档位（[panelGlassBackend]）再在面板外面重新供上。
+///
+/// 那个档**恒为液态**，不跟触发件走：绝大多数触发件（列表行的 `⋮`、播放器
+/// 工具栏、设置页的下拉）身处滚动容器或视频浮层，本来就上不了 lens；跟着它们
+/// 走的结果是这些菜单全部静默落回传统档，改造等于没做。理由详见
+/// [panelGlassBackend]。
 ///
 /// ## ⛔ 菜单钉死在 easy 那一档，不跟着 chrome 走
 ///
@@ -104,6 +108,7 @@ class GlassMenuOption<T> extends GlassMenuEntry {
   const GlassMenuOption({
     required this.value,
     required this.label,
+    this.description,
     this.icon,
     this.leading,
     this.onLongPress,
@@ -116,6 +121,12 @@ class GlassMenuOption<T> extends GlassMenuEntry {
   final T value;
 
   final String label;
+
+  /// 标题下面那行小字。给了它这一条就长高一档（[_rowHeightWithDescription]），
+  /// 用在「选项本身需要解释」的场合——播放器的 Anime4K 预设是典型：光看
+  /// 「Mode A」猜不出它做什么。别拿它当副标题堆长句，一行放不下会被截断。
+  final String? description;
+
   final IconData? icon;
 
   /// 行首的自定义控件，用在图标不是 [IconData] 的场合（排序项自带 `Widget` 图标、
@@ -149,11 +160,25 @@ class GlassMenuSeparator extends GlassMenuEntry {
   const GlassMenuSeparator();
 }
 
+/// 一组条目的小标题（不可选中、不参与滑动取焦）。
+///
+/// 替掉此前各处用 `PopupMenuItem(enabled: false, child: Text(...))` 硬凑出来的
+/// 那种「假条目标题」——那种写法在玻璃菜单里会变成一条能取焦却什么都不做的
+/// 空行。
+class GlassMenuSectionHeader extends GlassMenuEntry {
+  const GlassMenuSectionHeader(this.label);
+
+  final String label;
+}
+
 /// 面板圆角。比胶囊（22）小一档：面板是「一块板」，胶囊是「一颗药」。
 const double _panelRadius = 20;
 
 /// 单行高度。比 Material 的 48 略矮，配 44 的胶囊读起来是同一族尺寸。
 const double _rowHeight = 44;
+
+/// 带 [GlassMenuOption.description] 的行高。两行文字（14.5 + 11.5）加上下留白。
+const double _rowHeightWithDescription = 60;
 
 /// 面板宽度区间。下限保证短文案（「刷新」）不会缩成一条，上限防止长用户名
 /// 把面板拉到半个屏幕宽。
@@ -173,6 +198,17 @@ const double _rowMarginVertical = 1; // AnimatedContainer margin: vertical
 const double _rowMarginHorizontal = 6; // AnimatedContainer margin: horizontal
 const double _rowRadius = 12; // AnimatedContainer 的圆角，焦点底板要对齐它
 const double _rowTotalHeight = _rowHeight + _rowMarginVertical * 2;
+const double _rowTotalHeightWithDescription =
+    _rowHeightWithDescription + _rowMarginVertical * 2;
+
+/// [GlassMenuSectionHeader] 一行占的高度（上下留白 + 一行 12 号字）。
+const double _sectionHeaderHeight = 30;
+
+/// 副标题字号；量宽（[_measureMenuPanelSize]）与渲染（[_GlassMenuRow]）共用。
+const double _descriptionFontSize = 11.5;
+
+/// 分组小标题字号，同上。
+const double _sectionHeaderFontSize = 12;
 const double _rowHorizontalChrome =
     _rowMarginHorizontal * 2 /* margin */ + 12 * 2 /* padding */;
 const double _rowIconWidth = 20 + 12; // icon + gap
@@ -244,8 +280,12 @@ Alignment _revealOrigin({
 }
 
 /// 一条在面板内容里占的纵向高度。
-double _entryHeight(GlassMenuEntry entry) =>
-    entry is GlassMenuSeparator ? _separatorHeight : _rowTotalHeight;
+double _entryHeight(GlassMenuEntry entry) => switch (entry) {
+  GlassMenuSeparator() => _separatorHeight,
+  GlassMenuSectionHeader() => _sectionHeaderHeight,
+  GlassMenuOption(:final description) =>
+    description == null ? _rowTotalHeight : _rowTotalHeightWithDescription,
+};
 
 /// 每条在**滚动内容坐标系**里的纵向起点：面板自己的上下留白加在滚动容器外面，
 /// 所以第一条从 0 开始。
@@ -300,10 +340,23 @@ const Duration _focusFadeDuration = Duration(milliseconds: 130);
 /// 卡死在面板边上会让焦点一闪一闪。
 const double _focusHorizontalSlack = 40;
 
-/// 手指纵向可以越过首/末条多远仍算吃着那一条。取得比面板自己的上下留白
-/// （[_panelVerticalPadding] 的一半，6）宽一点：划到最后一条上再往下多走一像素
-/// 就丢焦点太脆，而末条恰恰是最常划到的目标。越过这段才算划出去＝取消。
+/// 手指纵向可以越过首/末条多远仍算吃着那一条——**还没吃着任何一条时**用这一档。
+///
+/// 取得比面板自己的上下留白（[_panelVerticalPadding] 的一半，6）宽一点即可：
+/// 这一档主要管手指接力刚开始那会儿，人还按在触发钮上、悬在面板外头。这时候
+/// 不能给太宽，否则「长按开菜单、原地松手」会直接选中最靠近触发钮的那一条
+/// ——那一条往往是删除一类的破坏性动作。
 const double _focusVerticalSlack = 12;
+
+/// 已经吃着某一条之后，手指纵向可以飘出去多远仍算咬着它。
+///
+/// 与横向的 [_focusHorizontalSlack] 同一个量级，理由也一样：**长按本来就会飘**。
+/// 手指按在首条上不动地等一秒，实际落点会晃十几二十像素；而首条上方只剩面板
+/// 那 6px 留白，飘上去一点就出界。出界之后是个死区：位移已经过了 [kTouchSlop]，
+/// 行自己的点按早被判负（那是滑动取焦故意要的，见 `_handlePointerUp`），而焦点
+/// 又没了 —— 松手两条路都不出手，这一下**整个被吞掉**。2026-08-24 用户报的
+/// 「长按第一条松开没反应，第二条却可以」就是它（第二条是末条，下方有的是余量）。
+const double _focusStickySlack = 40;
 
 /// 焦点底板满显时的底色浓度。取得比行自己的按压底色（0.10）深一档——滑动取焦
 /// 时它是唯一的反馈，得压得住。
@@ -335,42 +388,78 @@ Size? _measureMenuPanelSize({
   final TextScaler scaler = MediaQuery.textScalerOf(anchorContext);
   final TextStyle baseStyle = DefaultTextStyle.of(anchorContext).style;
 
+  double measureText(String text, TextStyle style) {
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: baseStyle.merge(style)),
+      textDirection: direction,
+      textScaler: scaler,
+      maxLines: 1,
+    )..layout();
+    final double width = painter.width;
+    painter.dispose();
+    return width;
+  }
+
   double contentWidth = 0;
   double height = _panelVerticalPadding;
   for (final entry in entries) {
     switch (entry) {
       case GlassMenuSeparator():
         height += _separatorHeight;
+      case GlassMenuSectionHeader(:final label):
+        final double rowWidth =
+            _rowHorizontalChrome +
+            measureText(
+              label,
+              const TextStyle(
+                fontSize: _sectionHeaderFontSize,
+                fontWeight: FontWeight.w700,
+              ),
+            );
+        if (rowWidth > contentWidth) contentWidth = rowWidth;
+        height += _sectionHeaderHeight;
       case GlassMenuOption(
         :final leading,
         :final label,
+        :final description,
         :final icon,
         :final selected,
       ):
-        final painter = TextPainter(
-          text: TextSpan(
-            text: label,
-            style: baseStyle.merge(
+        // 行首那一格（图标 / leading 槽位）两行共用，只算一次。
+        double lead = 0;
+        if (leading != null) {
+          lead = _rowLeadingWidth;
+        } else if (icon != null) {
+          lead = _rowIconWidth;
+        }
+        double rowWidth =
+            _rowHorizontalChrome +
+            lead +
+            measureText(
+              label,
               TextStyle(
                 fontSize: 14.5,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
               ),
-            ),
-          ),
-          textDirection: direction,
-          textScaler: scaler,
-          maxLines: 1,
-        )..layout();
-        double rowWidth = _rowHorizontalChrome + painter.width;
-        if (leading != null) {
-          rowWidth += _rowLeadingWidth;
-        } else if (icon != null) {
-          rowWidth += _rowIconWidth;
-        }
+            );
         if (selected) rowWidth += _rowCheckWidth;
-        painter.dispose();
+        if (description != null) {
+          // 副标题与标题左对齐（在同一个 Expanded 里），所以它的行宽算法只差
+          // 字号；对勾也压在同一行右侧，一并计入。
+          final double descWidth =
+              _rowHorizontalChrome +
+              lead +
+              measureText(
+                description,
+                const TextStyle(fontSize: _descriptionFontSize),
+              ) +
+              (selected ? _rowCheckWidth : 0);
+          if (descWidth > rowWidth) rowWidth = descWidth;
+        }
         if (rowWidth > contentWidth) contentWidth = rowWidth;
-        height += _rowTotalHeight;
+        height += description == null
+            ? _rowTotalHeight
+            : _rowTotalHeightWithDescription;
     }
   }
 
@@ -402,9 +491,13 @@ Size? _measureMenuPanelSize({
 /// 弹回）。只在液态档下有意义，传统档忽略。**默认开**——跟手是这套材质的基本
 /// 手感，不该由每个调用点各自决定（同 [GlassSurface.liquidTouch]）。实际能否
 /// 生效还取决于 [_measureMenuPanelSize] 能不能静态量出尺寸（见其说明）。
+/// [globalAnchor]：用它**顶掉**从 [anchorContext] 量出来的落点（全局坐标）。
+/// 右键上下文菜单专用——那时候没有「触发件」，面板该贴着指针弹出来，传一个
+/// 指针位置的零尺寸 `Rect` 即可（面板会从那一点撑开）。
 Future<T?> showGlassMenu<T>({
   required BuildContext anchorContext,
   required List<GlassMenuEntry> entries,
+  Rect? globalAnchor,
   double minWidth = _minPanelWidth,
   double maxWidth = _maxPanelWidth,
   bool touchFlex = true,
@@ -412,15 +505,18 @@ Future<T?> showGlassMenu<T>({
   final anchorBox = anchorContext.findRenderObject();
   final navigator = Navigator.of(anchorContext, rootNavigator: true);
   final overlayBox = navigator.overlay?.context.findRenderObject();
-  if (anchorBox is! RenderBox || overlayBox is! RenderBox) {
+  if (overlayBox is! RenderBox) return Future<T?>.value();
+  if (globalAnchor == null && anchorBox is! RenderBox) {
     return Future<T?>.value();
   }
 
-  final Offset topLeft = anchorBox.localToGlobal(
-    Offset.zero,
-    ancestor: overlayBox,
-  );
-  final Rect anchorRect = topLeft & anchorBox.size;
+  final Rect anchorRect = globalAnchor != null
+      ? overlayBox.globalToLocal(globalAnchor.topLeft) & globalAnchor.size
+      : (anchorBox as RenderBox).localToGlobal(
+              Offset.zero,
+              ancestor: overlayBox,
+            ) &
+            anchorBox.size;
 
   final Size? precomputedSize = _measureMenuPanelSize(
     anchorContext: anchorContext,
@@ -702,32 +798,32 @@ class _GlassMenuOverlayHostState<T> extends State<_GlassMenuOverlayHost<T>>
   @override
   Widget build(BuildContext context) {
     final Widget content = Stack(
-        children: [
-          // 屏障：与 PopupRoute 那档一致——不压暗，只负责「点空白处关掉」。
-          // 它是在手指按下**之后**才插进来的，接不到这根手指，不会跟接力打架。
-          Positioned.fill(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => _close(null),
-            ),
+      children: [
+        // 屏障：与 PopupRoute 那档一致——不压暗，只负责「点空白处关掉」。
+        // 它是在手指按下**之后**才插进来的，接不到这根手指，不会跟接力打架。
+        Positioned.fill(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => _close(null),
           ),
-          _buildGlassMenuBody<T>(
-            context: context,
-            animation: _controller.view,
-            entries: widget.entries,
-            anchorRect: widget.anchorRect,
-            minWidth: widget.minWidth,
-            maxWidth: widget.maxWidth,
-            backend: widget.backend,
-            touchFlex: widget.touchFlex,
-            precomputedSize: widget.precomputedSize,
-            capturedThemes: widget.capturedThemes,
-            handoff: widget.handoff,
-            onSelected: _close,
-            onDismissed: () => _close(null),
-          ),
-        ],
-      );
+        ),
+        _buildGlassMenuBody<T>(
+          context: context,
+          animation: _controller.view,
+          entries: widget.entries,
+          anchorRect: widget.anchorRect,
+          minWidth: widget.minWidth,
+          maxWidth: widget.maxWidth,
+          backend: widget.backend,
+          touchFlex: widget.touchFlex,
+          precomputedSize: widget.precomputedSize,
+          capturedThemes: widget.capturedThemes,
+          handoff: widget.handoff,
+          onSelected: _close,
+          onDismissed: () => _close(null),
+        ),
+      ],
+    );
 
     // 路由那档由 `PopupRoute` 自己吃返回键；浮层没有路由，得自己接一层。
     // `BackButtonListener` 找不到 `Router` 会**直接抛**（不是返回 null），
@@ -1140,28 +1236,44 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
   bool _isSelectable(GlassMenuEntry entry) =>
       entry is GlassMenuOption<T> && entry.enabled;
 
-  /// 内容坐标 → 条目下标。落在分隔线、禁用行或面板外面时返回 null。
+  /// 内容坐标 → 条目下标。落在禁用行或面板外面时返回 null。
+  ///
+  /// 两处「粘」都只在**已经吃着某一条**之后才生效（[_focusIndex] 非空）：
+  ///   - 纵向越界的容差放宽到 [_focusStickySlack]；
+  ///   - 划过分隔线时保持原焦点。分隔线是条 11px 的发丝线，不是落点，但从它
+  ///     上面**路过**不该把焦点丢掉——丢了就等于把这一下吞掉（见
+  ///     [_focusStickySlack]）。按下时**直接**落在分隔线上仍然不亮底板：那是
+  ///     人主动选了个非目标，与路过是两回事。
   int? _entryAt(Offset local, double width) {
     if (widget.entries.isEmpty) return null;
     if (local.dx < -_focusHorizontalSlack ||
         local.dx > width + _focusHorizontalSlack) {
       return null;
     }
+    final int? current = _focusIndex;
+    final double verticalSlack = current == null
+        ? _focusVerticalSlack
+        : _focusStickySlack;
     final List<double> tops = _entryTops(widget.entries);
     final double contentHeight = tops.last + _entryHeight(widget.entries.last);
-    // 越过首/末条一小段仍按首/末条算（见 [_focusVerticalSlack]）。
+    // 越过首/末条一小段仍按首/末条算。
     double dy = local.dy;
     if (dy < 0) {
-      if (dy < -_focusVerticalSlack) return null;
+      if (dy < -verticalSlack) return null;
       dy = 0;
     } else if (dy >= contentHeight) {
-      if (dy > contentHeight + _focusVerticalSlack) return null;
+      if (dy > contentHeight + verticalSlack) return null;
       dy = contentHeight - 1;
     }
     for (var i = 0; i < widget.entries.length; i++) {
       final GlassMenuEntry entry = widget.entries[i];
       if (dy < tops[i] || dy >= tops[i] + _entryHeight(entry)) continue;
-      return _isSelectable(entry) ? i : null;
+      if (_isSelectable(entry)) return i;
+      // 分组标题 / 分隔线：路过不丢焦点；禁用行仍旧一律不给（那是「这条现在
+      // 不能选」，粘上去只会让人以为选中了）。
+      final bool passThrough =
+          entry is GlassMenuSeparator || entry is GlassMenuSectionHeader;
+      return passThrough ? current : null;
     }
     return null;
   }
@@ -1281,6 +1393,9 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
       final GlassMenuEntry entry = widget.entries[i];
       final Widget row = switch (entry) {
         GlassMenuSeparator() => const _GlassMenuSeparatorLine(),
+        GlassMenuSectionHeader(:final label) => _GlassMenuSectionHeaderRow(
+          label: label,
+        ),
         GlassMenuOption<T>(:final value, :final onLongPress) => _GlassMenuRow(
           option: entry,
           slideActive: _sliding,
@@ -1448,6 +1563,39 @@ class _GlassMenuEntryReveal extends StatelessWidget {
   }
 }
 
+/// 一组条目的小标题行。不接任何手势——它不是条目，只是块牌子。
+class _GlassMenuSectionHeaderRow extends StatelessWidget {
+  const _GlassMenuSectionHeaderRow({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return SizedBox(
+      height: _sectionHeaderHeight,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: _rowMarginHorizontal + 12,
+        ),
+        child: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: _sectionHeaderFontSize,
+              fontWeight: FontWeight.w700,
+              color: cs.onSurfaceVariant,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _GlassMenuSeparatorLine extends StatelessWidget {
   const _GlassMenuSeparatorLine();
 
@@ -1521,7 +1669,9 @@ class _GlassMenuRowState extends State<_GlassMenuRow> {
         builder: (context, pressed) => AnimatedContainer(
           duration: GlassTokens.pressDuration,
           curve: Curves.easeOut,
-          height: _rowHeight,
+          height: option.description == null
+              ? _rowHeight
+              : _rowHeightWithDescription,
           margin: const EdgeInsets.symmetric(
             horizontal: _rowMarginHorizontal,
             vertical: _rowMarginVertical,
@@ -1555,17 +1705,40 @@ class _GlassMenuRowState extends State<_GlassMenuRow> {
                 const SizedBox(width: 12),
               ],
               Expanded(
-                child: Text(
-                  option.label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14.5,
-                    color: fg,
-                    fontWeight: option.selected
-                        ? FontWeight.w600
-                        : FontWeight.w500,
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      option.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14.5,
+                        color: fg,
+                        fontWeight: option.selected
+                            ? FontWeight.w600
+                            : FontWeight.w500,
+                      ),
+                    ),
+                    if (option.description != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          option.description!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: _descriptionFontSize,
+                            height: 1.2,
+                            color: enabled
+                                ? cs.onSurfaceVariant
+                                : cs.onSurface.withValues(alpha: 0.38),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
               if (option.selected) ...[

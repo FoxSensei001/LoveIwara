@@ -57,6 +57,13 @@ class GlassBottomSheet extends StatelessWidget {
 
   final EdgeInsetsGeometry padding;
 
+  /// 标题行左右不许贴边的下限——正文常见「不要横向内边距，让 [ListTile]
+  /// 自己那圈 16 撑距离」的写法（下载任务「更多」菜单等），但标题行没有那圈
+  /// 自带内边距，跟着 [padding] 的横向值一起归零就会贴到弹层边框上。标题行
+  /// 因此**不直接吃 [padding] 的横向值**，改吃这个下限与它的较大者——
+  /// 正文自己的横向内边距、成因不变。
+  static const double _minTitleHorizontalInset = 16;
+
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
@@ -68,14 +75,40 @@ class GlassBottomSheet extends StatelessWidget {
       body = SingleChildScrollView(child: body);
     }
 
-    Widget content = Padding(
-      padding: padding,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (title != null) ...[
-            Row(
+    final EdgeInsets resolvedPadding = padding.resolve(
+      Directionality.of(context),
+    );
+    final double titleLeft = resolvedPadding.left < _minTitleHorizontalInset
+        ? _minTitleHorizontalInset
+        : resolvedPadding.left;
+    final double titleRight = resolvedPadding.right < _minTitleHorizontalInset
+        ? _minTitleHorizontalInset
+        : resolvedPadding.right;
+
+    // 正文的内边距：有标题时顶部已经由标题行自己的间距占掉，这里不再重复。
+    final EdgeInsets bodyPadding = EdgeInsets.fromLTRB(
+      resolvedPadding.left,
+      title != null ? 0 : resolvedPadding.top,
+      resolvedPadding.right,
+      resolvedPadding.bottom,
+    );
+    // Flexible 只能直接挂在 Column 底下——Padding 包一层会触发
+    // "Incorrect use of ParentDataWidget"，所以内边距得包在 Flexible **里面**。
+    final Widget paddedBody = Padding(padding: bodyPadding, child: body);
+
+    Widget content = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (title != null) ...[
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              titleLeft,
+              resolvedPadding.top,
+              titleRight,
+              0,
+            ),
+            child: Row(
               children: [
                 Expanded(
                   child: Text(title!, style: theme.textTheme.titleLarge),
@@ -91,11 +124,11 @@ class GlassBottomSheet extends StatelessWidget {
                 ],
               ],
             ),
-            const SizedBox(height: 12),
-          ],
-          if (maxHeightFactor != null) Flexible(child: body) else body,
+          ),
+          const SizedBox(height: 12),
         ],
-      ),
+        if (maxHeightFactor != null) Flexible(child: paddedBody) else paddedBody,
+      ],
     );
 
     return SheetBottomSafeArea(

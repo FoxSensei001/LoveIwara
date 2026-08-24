@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 
 /// 玻璃菜单的「滑动取焦」：按住不放上下划，焦点底板跟着手指换条，松手即选中。
 /// 内容长到能滚起来时这套整只让位（拖拽还给滚动）。
 void main() {
+  // 面板钉回传统档：液态面板在手指按住期间会一直跑跟手形变，
+  // `pumpAndSettle` 永远等不到静止（见 [debugPanelGlassBackendOverride]）。
+  // 本文件测的是焦点逻辑，与材质无关。
+  setUp(() => debugPanelGlassBackendOverride = GlassBackend.plain);
+  tearDown(() => debugPanelGlassBackendOverride = null);
+
   /// 弹出一张菜单，返回它最终选中的值（可选中项标题即 value）。
   Future<Future<String?>> openMenu(
     WidgetTester tester, {
@@ -119,6 +126,49 @@ void main() {
       await gesture.up();
       await tester.pumpAndSettle();
       expect(await result, 'opt3');
+    });
+
+    // 2026-08-24 用户报障：「长按第一条松开没反应，第二条却可以」。
+    // 死区是两条叠出来的——位移一过 kTouchSlop，行自己的点按就被判负（那是
+    // 滑动取焦故意要的），此时若焦点又丢了，松手两条路都不出手，这一下整个被
+    // 吞掉。首条上方只剩面板 6px 留白，长按时手指自然飘一下就出界；末条下方
+    // 有的是余量，所以只有首条中招。
+    testWidgets('按住首条、手指往上飘出面板一点再松手：仍然选中首条', (tester) async {
+      final result = await openMenu(tester, entries: options(3));
+      final Rect first = tester.getRect(find.text('Option 0'));
+      final gesture = await tester.startGesture(first.center);
+      await tester.pumpAndSettle();
+      await gesture.moveTo(Offset(first.center.dx, first.center.dy - 30));
+      await tester.pumpAndSettle();
+      expect(pill(), findsOneWidget);
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(await result, 'opt0');
+    });
+
+    // 分隔线是条 11px 的发丝线，不是落点，但从它上面**路过**不该丢焦点
+    // ——丢了同样落进上面那个死区（关注按钮那张菜单正好在两条之间夹了一条）。
+    testWidgets('手指飘到分隔线上再松手：焦点粘着原来那一条', (tester) async {
+      final result = await openMenu(
+        tester,
+        entries: <GlassMenuEntry>[
+          const GlassMenuOption<String>(value: 'opt0', label: 'Option 0'),
+          const GlassMenuSeparator(),
+          const GlassMenuOption<String>(value: 'opt1', label: 'Option 1'),
+        ],
+      );
+      final Rect first = tester.getRect(find.text('Option 0'));
+      final gesture = await tester.startGesture(first.center);
+      await tester.pumpAndSettle();
+      // 往下 25px：跨出首条、落在分隔线上（首条 44 高，分隔线 11 高）
+      await gesture.moveTo(Offset(first.center.dx, first.center.dy + 25));
+      await tester.pumpAndSettle();
+      expect(pill(), findsOneWidget);
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(await result, 'opt0');
     });
 
     testWidgets('划出面板再松手＝取消，什么也不选', (tester) async {

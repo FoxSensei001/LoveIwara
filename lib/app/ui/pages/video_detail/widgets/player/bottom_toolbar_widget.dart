@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -528,46 +530,57 @@ class BottomToolbar extends StatelessWidget {
         }
       }
 
-      return PopupMenuButton<String>(
-        initialValue: currentResolution,
-        tooltip: t.videoDetail.switchResolution,
-        onSelected: applyResolution,
-        itemBuilder: (BuildContext context) {
-          return uniqueResolutions.map((VideoResolution resolution) {
-            final isSelected = resolution.label == currentResolution;
-            return PopupMenuItem<String>(
-              value: resolution.label,
-              child: Row(
-                children: [
-                  SvgPicture.asset(
-                    _getResolutionIconAsset(resolution.label),
-                    colorFilter: ColorFilter.mode(
-                      Theme.of(context).iconTheme.color!,
-                      BlendMode.srcIn,
+      // 清晰度面板走全站统一的玻璃菜单（原来是 Material 的 PopupMenuButton，
+      // 吐出来的是块不透明卡片，跟全站已换成玻璃的下拉不是一套）。
+      return Tooltip(
+        message: t.videoDetail.switchResolution,
+        child: Builder(
+          builder: (anchorContext) => GlassPressable(
+            // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到
+            // 某一条上松手选中（见 GlassTapArea.opensOverlay）。
+            opensOverlay: true,
+            onTap: () async {
+              final picked = await showGlassMenu<String>(
+                anchorContext: anchorContext,
+                entries: [
+                  for (final resolution in uniqueResolutions)
+                    GlassMenuOption<String>(
+                      value: resolution.label,
+                      label: CommonUtils.getQualityDisplayLabel(
+                        t,
+                        resolution.label,
+                      ),
+                      leading: SvgPicture.asset(
+                        _getResolutionIconAsset(resolution.label),
+                        colorFilter: ColorFilter.mode(
+                          // leading 槽位外面套了一层跟着行语义色走的 IconTheme，
+                          // SVG 不吃 IconTheme，得自己取一次当前色。
+                          IconTheme.of(anchorContext).color ?? Colors.white,
+                          BlendMode.srcIn,
+                        ),
+                        width: 20,
+                        height: 20,
+                      ),
+                      selected: resolution.label == currentResolution,
                     ),
-                    width: 24,
-                    height: 24,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(CommonUtils.getQualityDisplayLabel(t, resolution.label)),
-                  if (isSelected) ...[
-                    const Spacer(),
-                    const Icon(Icons.check, color: Colors.blue),
-                  ],
                 ],
+              );
+              if (picked != null) applyResolution(picked);
+            },
+            builder: (context, pressed) => Container(
+              width: touchSize,
+              height: touchSize,
+              alignment: Alignment.center,
+              child: SvgPicture.asset(
+                _getResolutionIconAsset(currentResolution),
+                colorFilter: const ColorFilter.mode(
+                  Colors.white,
+                  BlendMode.srcIn,
+                ),
+                width: iconSize,
+                height: iconSize,
               ),
-            );
-          }).toList();
-        },
-        child: Container(
-          width: touchSize,
-          height: touchSize,
-          alignment: Alignment.center,
-          child: SvgPicture.asset(
-            _getResolutionIconAsset(currentResolution),
-            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-            width: iconSize,
-            height: iconSize,
+            ),
           ),
         ),
       );
@@ -644,26 +657,29 @@ class BottomToolbar extends StatelessWidget {
         ),
       );
 
-      return PopupMenuButton<double>(
-        initialValue: currentSpeed,
-        tooltip: t.videoDetail.switchPlaybackSpeed,
-        onSelected: applySpeed,
-        itemBuilder: (BuildContext context) {
-          return speeds.map((double speed) {
-            return PopupMenuItem<double>(
-              value: speed,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('${_formatPlaybackSpeed(speed)}x'),
-                  if (speed == currentSpeed)
-                    const Icon(Icons.check, color: Colors.blue),
+      return Tooltip(
+        message: t.videoDetail.switchPlaybackSpeed,
+        child: Builder(
+          builder: (anchorContext) => GlassPressable(
+            // 同上：长按开菜单 + 手指接力（见 GlassTapArea.opensOverlay）。
+            opensOverlay: true,
+            onTap: () async {
+              final picked = await showGlassMenu<double>(
+                anchorContext: anchorContext,
+                entries: [
+                  for (final speed in speeds)
+                    GlassMenuOption<double>(
+                      value: speed,
+                      label: '${_formatPlaybackSpeed(speed)}x',
+                      selected: speed == currentSpeed,
+                    ),
                 ],
-              ),
-            );
-          }).toList();
-        },
-        child: speedButtonChild,
+              );
+              if (picked != null) applySpeed(picked);
+            },
+            builder: (context, pressed) => speedButtonChild,
+          ),
+        ),
       );
     });
   }

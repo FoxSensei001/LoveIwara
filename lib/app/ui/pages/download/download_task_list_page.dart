@@ -791,76 +791,100 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     final uncategorizedCount = DownloadService.to.uncategorizedCount.value;
     final activeFilter = _effectiveCategoryFilter;
 
-    return SizedBox(
-      height: _categoryStripHeight,
-      child: Listener(
-        // 鼠标悬浮在分类条上滚动滚轮时，把纵向滚轮增量转成横向滑动。
-        // 仅当分类条确有横向可滚动空间时才接管事件，否则交还底层纵向列表。
-        onPointerSignal: (event) {
-          if (event is PointerScrollEvent &&
-              _categoryStripController.hasClients) {
-            final maxExtent = _categoryStripController.position.maxScrollExtent;
-            if (maxExtent <= 0) return;
-            final delta = event.scrollDelta.dy != 0
-                ? event.scrollDelta.dy
-                : event.scrollDelta.dx;
-            GestureBinding.instance.pointerSignalResolver.register(event, (e) {
-              if (!_categoryStripController.hasClients) return;
-              final target = (_categoryStripController.offset + delta).clamp(
-                0.0,
-                _categoryStripController.position.maxScrollExtent,
-              );
-              _categoryStripController.jumpTo(target);
-            });
-          }
-        },
-        child: ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-          child: ListView(
-            controller: _categoryStripController,
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            children: [
-              // 管理 / 新建入口放在最前：无分类时用更醒目的「管理分类」标签。
-              _buildCategoryChip(
-                label: categories.isEmpty
-                    ? t.download.category.manageTitle
-                    : t.download.category.manage,
-                icon: categories.isEmpty
-                    ? Icons.create_new_folder_outlined
-                    : Icons.settings_outlined,
-                selected: false,
-                onTap: _openCategoryManagePage,
-              ),
-              _buildCategoryChip(
-                label: t.common.all,
-                selected: activeFilter == 'all',
-                onTap: () => _onCategorySelected('all'),
-              ),
-              // 「未分类」仅在已有分类时才有意义（无分类时等同「全部」）。
-              if (categories.isNotEmpty)
+    // 整条分类条收进**一只共享的玻璃胶囊**（呼应 header 第一行按钮组的做法），
+    // 不再是每枚标签各自顶一块手绘 fill/stroke/shadow——那份手绘从不读
+    // LiquidGlassScope，液态档铺到这一页时第一行胶囊换了新材质，第二行分类条
+    // 却纹丝不动，读起来是「同一个 header 两种质感」。
+    //
+    // ⛔ 不能反过来给**每枚标签**各包一只 GlassSurface：胶囊会跟着 ListView
+    // 一起横向滚动，liquid_glass_easy 的 lens 一旦身处滚动容器，Android 的
+    // 拉伸回弹会把它隔进独立合成层、边缘渲染成纯黑（同一条硬约束见
+    // liquid_glass_material.dart 文件头）。这里改用 [GlassSegmentedControl]
+    // 同款结构：**一只静止的玻璃壳**扣在最外层，横向滚动的只是壳里的内容——
+    // 壳本身不随内容一起滚，不会撞上这条约束。
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: GlassSurface(
+        height: _categoryStripHeight,
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        clipContent: true,
+        child: Listener(
+          // 鼠标悬浮在分类条上滚动滚轮时，把纵向滚轮增量转成横向滑动。
+          // 仅当分类条确有横向可滚动空间时才接管事件，否则交还底层纵向列表。
+          onPointerSignal: (event) {
+            if (event is PointerScrollEvent &&
+                _categoryStripController.hasClients) {
+              final maxExtent =
+                  _categoryStripController.position.maxScrollExtent;
+              if (maxExtent <= 0) return;
+              final delta = event.scrollDelta.dy != 0
+                  ? event.scrollDelta.dy
+                  : event.scrollDelta.dx;
+              GestureBinding.instance.pointerSignalResolver.register(event, (
+                e,
+              ) {
+                if (!_categoryStripController.hasClients) return;
+                final target = (_categoryStripController.offset + delta)
+                    .clamp(
+                      0.0,
+                      _categoryStripController.position.maxScrollExtent,
+                    );
+                _categoryStripController.jumpTo(target);
+              });
+            }
+          },
+          child: ScrollConfiguration(
+            behavior: ScrollConfiguration.of(
+              context,
+            ).copyWith(scrollbars: false),
+            child: ListView(
+              controller: _categoryStripController,
+              scrollDirection: Axis.horizontal,
+              // 玻璃壳自己已经留了 4 的内缩，标签不用再叠一层列表级内边距。
+              padding: EdgeInsets.zero,
+              children: [
+                // 管理 / 新建入口放在最前：无分类时用更醒目的「管理分类」标签。
                 _buildCategoryChip(
-                  label: t.download.category.uncategorized,
-                  count: uncategorizedCount,
-                  selected: activeFilter == 'uncategorized',
-                  onTap: () => _onCategorySelected('uncategorized'),
+                  label: categories.isEmpty
+                      ? t.download.category.manageTitle
+                      : t.download.category.manage,
+                  icon: categories.isEmpty
+                      ? Icons.create_new_folder_outlined
+                      : Icons.settings_outlined,
+                  selected: false,
+                  onTap: _openCategoryManagePage,
                 ),
-              for (final c in categories)
                 _buildCategoryChip(
-                  label: c.title,
-                  count: c.itemCount ?? 0,
-                  selected: activeFilter == c.id,
-                  onTap: () => _onCategorySelected(c.id),
+                  label: t.common.all,
+                  selected: activeFilter == 'all',
+                  onTap: () => _onCategorySelected('all'),
                 ),
-            ],
+                // 「未分类」仅在已有分类时才有意义（无分类时等同「全部」）。
+                if (categories.isNotEmpty)
+                  _buildCategoryChip(
+                    label: t.download.category.uncategorized,
+                    count: uncategorizedCount,
+                    selected: activeFilter == 'uncategorized',
+                    onTap: () => _onCategorySelected('uncategorized'),
+                  ),
+                for (final c in categories)
+                  _buildCategoryChip(
+                    label: c.title,
+                    count: c.itemCount ?? 0,
+                    selected: activeFilter == c.id,
+                    onTap: () => _onCategorySelected(c.id),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  /// 单枚分类标签：玻璃胶囊，选中态换高亮底色（底色 / 文字色都带过渡，
-  /// 切分类时是「同一枚标签亮起来」，不是瞬间换一块颜色）。
+  /// 单枚分类标签：不再自带玻璃壳（壳已收进 [_buildCategoryStripContent] 那只
+  /// 共享胶囊），这里只画「选中 / 按下」两级色块——底色 / 文字色都带过渡，
+  /// 切分类时是「同一枚标签亮起来」，不是瞬间换一块颜色。
   Widget _buildCategoryChip({
     required String label,
     required bool selected,
@@ -888,14 +912,9 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
               color: selected
                   ? GlassTokens.selectedHighlight(cs)
                   : (pressed
-                        ? GlassTokens.pressedFill(cs)
-                        : GlassTokens.fill(cs)),
+                        ? cs.onSurface.withValues(alpha: 0.08)
+                        : Colors.transparent),
               borderRadius: BorderRadius.circular(_categoryChipHeight / 2),
-              border: Border.all(
-                color: GlassTokens.stroke(cs),
-                width: GlassTokens.strokeWidth,
-              ),
-              boxShadow: GlassTokens.shadow(cs),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,

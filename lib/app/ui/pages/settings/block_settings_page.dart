@@ -540,42 +540,40 @@ class _RuleTile extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Switch(value: rule.enabled, onChanged: onToggle),
-              PopupMenuButton<String>(
-                tooltip: '',
-                icon: const Icon(Icons.more_vert),
-                onSelected: (v) {
-                  if (v == 'edit') onEdit();
-                  if (v == 'delete') onDelete();
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 'edit',
-                    child: Row(
-                      children: [
-                        const Icon(Icons.edit_outlined, size: 18),
-                        const SizedBox(width: 10),
-                        Text(t.editRule),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: 'delete',
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.delete_outline,
-                          size: 18,
-                          color: scheme.error,
+              // 菜单走全站统一的玻璃面板（原来是 PopupMenuButton）。
+              Builder(
+                builder: (anchorContext) => GlassPressable(
+                  // 长按也能打开，且长按不抬手可以直接划到某一条上松手选中
+                  // （见 GlassTapArea.opensOverlay）。
+                  opensOverlay: true,
+                  onTap: () async {
+                    final action = await showGlassMenu<String>(
+                      anchorContext: anchorContext,
+                      entries: [
+                        GlassMenuOption<String>(
+                          value: 'edit',
+                          icon: Icons.edit_outlined,
+                          label: t.editRule,
                         ),
-                        const SizedBox(width: 10),
-                        Text(
-                          t.deleteRule,
-                          style: TextStyle(color: scheme.error),
+                        GlassMenuOption<String>(
+                          value: 'delete',
+                          icon: Icons.delete_outline,
+                          label: t.deleteRule,
+                          destructive: true,
                         ),
                       ],
-                    ),
+                    );
+                    if (action == 'edit') {
+                      onEdit();
+                    } else if (action == 'delete') {
+                      onDelete();
+                    }
+                  },
+                  builder: (context, pressed) => const SizedBox.square(
+                    dimension: 40,
+                    child: Icon(Icons.more_vert),
                   ),
-                ],
+                ),
               ),
             ],
           ),
@@ -905,20 +903,21 @@ class _RuleEditorSheetState extends State<_RuleEditorSheet> {
           child: TextField(
             controller: _valueController,
             autofocus: true,
-            decoration: glassFieldDecoration(
-              context,
-              label: t.value,
-              hint: isRegex ? t.regexHint : null,
-              errorText: _error,
-            ).copyWith(
-              suffixIcon: isRegex
-                  ? IconButton(
-                      icon: const Icon(Icons.help_outline),
-                      tooltip: t.regexHelp,
-                      onPressed: _showRegexHelp,
-                    )
-                  : null,
-            ),
+            decoration:
+                glassFieldDecoration(
+                  context,
+                  label: t.value,
+                  hint: isRegex ? t.regexHint : null,
+                  errorText: _error,
+                ).copyWith(
+                  suffixIcon: isRegex
+                      ? IconButton(
+                          icon: const Icon(Icons.help_outline),
+                          tooltip: t.regexHelp,
+                          onPressed: _showRegexHelp,
+                        )
+                      : null,
+                ),
             onChanged: (_) {
               if (_error != null) setState(() => _error = null);
             },

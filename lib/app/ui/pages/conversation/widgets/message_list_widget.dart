@@ -9,6 +9,7 @@ import 'package:i_iwara/app/ui/pages/conversation/widgets/conversation_message_b
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/comment_actions_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -333,21 +334,39 @@ class _MessageListWidgetState extends State<MessageListWidget> {
     return AvatarWidget(user: user, size: 40);
   }
 
+  /// 输入胶囊上下各让出的外边距；[_composerExtent] 与列表底部留白都按它算。
+  static const double _composerVerticalMargin = 6.0;
+
+  /// 浮动输入条自身占用的高度（不含底部安全区）。
+  static double get _composerExtent =>
+      GlassTokens.pillHeight + _composerVerticalMargin * 2;
+
+  /// 浮在列表之上的「写消息」胶囊。
+  ///
+  /// 它是 chrome，不占列表的位置：整只挂在 [GlassHeaderOverlay.extra] 里贴着
+  /// 区域底边，消息从它背后透过去；列表则用 [_composerExtent] + 安全区的底部
+  /// 留白把最后一条消息顶到它上面。
+  ///
+  /// ⚠️ SafeArea 必须 `top: false`：本页没有 AppBar 也没有别的 SafeArea 消费过
+  /// MediaQuery，默认的 `top: true` 会把整个状态栏高度原样垫在胶囊**上方**
+  /// ——原先「发送按钮上方一大片空白」就是这么来的。
   Widget _buildBottomBar(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return SafeArea(
-      // 底部安全区交给 SafeArea 就够了。原先这里又手动加了一次
-      // MediaQuery.padding.bottom，而这个 context 是 State.context、
-      // 取自 SafeArea「之上」，拿到的是尚未被消费的原始值 —— 等于算了两遍。
-      // 之前看不出来，是因为 Shell 的 Scaffold 把 padding.bottom 抹成了 0；
-      // 现在底栏隐藏时 bottomNavigationBar 真的为 null，这里就会露出双倍间距。
+      top: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12.0, 6.0, 12.0, 6.0),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 12.0,
+          vertical: _composerVerticalMargin,
+        ),
         child: SizedBox(
           width: double.infinity,
           child: GlassSurface(
             height: GlassTokens.pillHeight,
             onTap: _showMessageComposer,
+            // 点它是「吐出一张浮层」（写消息的底部弹层），按住不放也该开——
+            // 见 GlassTapArea.opensOverlay。
+            opensOverlay: true,
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
@@ -373,75 +392,95 @@ class _MessageListWidgetState extends State<MessageListWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    final EdgeInsets viewPadding = MediaQuery.of(context).padding;
+    final double statusBarHeight = viewPadding.top;
     final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
     final double listTopPadding = headerExtent + 8;
 
+    // 输入胶囊是浮层，不再从 Column 里切走一块：消息列表占满整块区域的上下高度，
+    // 只用底部留白把最后一条消息顶到胶囊上方（正如顶部用 listTopPadding 让开
+    // header）。留白必须和 _buildBottomBar 里的 SafeArea 用同一份 padding.bottom。
+    final double bottomSafeArea = viewPadding.bottom;
+    final double composerExtent = bottomSafeArea + _composerExtent;
+    final double listBottomPadding = composerExtent + 8;
+
     return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: GlassHeaderOverlay(
-              headerExtent: headerExtent,
-              headerTop: statusBarHeight,
-              solidExtent: statusBarHeight,
-              liquid: true,
-              body: RefreshIndicator(
-                // 指示器从 header 下方弹出
-                displacement: headerExtent,
-                onRefresh: () => _messageListRepository.refresh(true),
-                child: LoadingMoreCustomScrollView(
-                  controller: _scrollController,
-                  reverse: true,
-                  physics: const ClampingScrollPhysics(),
-                  slivers: [
-                    LoadingMoreSliverList<MessageModel>(
-                      SliverListConfig<MessageModel>(
-                        sourceList: _messageListRepository,
-                        itemBuilder: (context, message, index) {
-                          return _buildMessageItem(context, message);
-                        },
-                        indicatorBuilder: (context, status) =>
-                            myLoadingMoreIndicator(
-                          context,
-                          status,
-                          isSliver: true,
-                          loadingMoreBase: _messageListRepository,
-                        ),
-                        padding: EdgeInsets.fromLTRB(
-                          12.0,
-                          listTopPadding,
-                          12.0,
-                          8.0,
-                        ),
-                      ),
-                    ),
-                  ],
+      body: GlassHeaderOverlay(
+        headerExtent: headerExtent,
+        headerTop: statusBarHeight,
+        solidExtent: statusBarHeight,
+        liquid: true,
+        body: RefreshIndicator(
+          // 指示器从 header 下方弹出
+          displacement: headerExtent,
+          onRefresh: () => _messageListRepository.refresh(true),
+          child: LoadingMoreCustomScrollView(
+            controller: _scrollController,
+            reverse: true,
+            physics: const ClampingScrollPhysics(),
+            slivers: [
+              LoadingMoreSliverList<MessageModel>(
+                SliverListConfig<MessageModel>(
+                  sourceList: _messageListRepository,
+                  itemBuilder: (context, message, index) {
+                    return _buildMessageItem(context, message);
+                  },
+                  indicatorBuilder: (context, status) =>
+                      myLoadingMoreIndicator(
+                    context,
+                    status,
+                    isSliver: true,
+                    loadingMoreBase: _messageListRepository,
+                  ),
+                  padding: EdgeInsets.fromLTRB(
+                    12.0,
+                    listTopPadding,
+                    12.0,
+                    listBottomPadding,
+                  ),
                 ),
               ),
-              // header 行：左 返回圆钮（窄屏才有）/ 中 标题胶囊 / 右 动作胶囊
-              header: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    if (widget.fromNarrowScreen) ...[
-                      GlassIconButton(
-                        standalone: true,
-                        icon: const Icon(Icons.arrow_back),
-                        tooltip: t.common.back,
-                        onPressed: () => AppService.tryPop(),
-                      ),
-                      const SizedBox(width: 8),
-                    ],
-                    Expanded(child: _buildTitlePill(context)),
-                    const SizedBox(width: 8),
-                    _buildActionGroup(context),
-                  ],
+            ],
+          ),
+        ),
+        // header 行：左 返回圆钮（窄屏才有）/ 中 标题胶囊 / 右 动作胶囊
+        header: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              if (widget.fromNarrowScreen) ...[
+                GlassIconButton(
+                  standalone: true,
+                  icon: const Icon(Icons.arrow_back),
+                  tooltip: t.common.back,
+                  onPressed: () => AppService.tryPop(),
                 ),
-              ),
+                const SizedBox(width: 8),
+              ],
+              Expanded(child: _buildTitlePill(context)),
+              const SizedBox(width: 8),
+              _buildActionGroup(context),
+            ],
+          ),
+        ),
+        // 底部浮层：先蒙层后胶囊——消息滚到胶囊背后时溶进底边，
+        // 与 header 那侧的 EdgeFadeScrim.top 是同一套语言。
+        extra: [
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: EdgeFadeScrim.bottom(
+              height: composerExtent + GlassTokens.bottomFadeExtent,
+              solidExtent: bottomSafeArea,
             ),
           ),
-          _buildBottomBar(context),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: _buildBottomBar(context),
+          ),
         ],
       ),
     );

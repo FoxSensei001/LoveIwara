@@ -7,6 +7,7 @@ import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -463,53 +464,44 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                     ),
                   ),
                   if (folder.id != 'default')
-                    PopupMenuButton<String>(
-                      icon: Icon(
-                        Icons.more_vert,
-                        size: 20,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                      padding: EdgeInsets.zero,
-                      position: PopupMenuPosition.under,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      onSelected: (value) {
-                        if (value == 'edit') {
-                          _editFolder(folder);
-                        } else if (value == 'delete') {
-                          _deleteFolder(folder);
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: 'edit',
-                          child: Row(
-                            children: [
-                              const Icon(Icons.edit, size: 18),
-                              const SizedBox(width: 8),
-                              Text(t.common.edit),
-                            ],
-                          ),
-                        ),
-                        PopupMenuItem(
-                          value: 'delete',
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.delete,
-                                size: 18,
-                                color: Colors.red,
+                    // 菜单走全站统一的玻璃面板（原来是 PopupMenuButton）。
+                    Builder(
+                      builder: (anchorContext) => GlassPressable(
+                        // 长按也能打开，且长按不抬手可以直接划到某一条上松手
+                        // 选中（见 GlassTapArea.opensOverlay）。
+                        opensOverlay: true,
+                        onTap: () async {
+                          final action = await showGlassMenu<String>(
+                            anchorContext: anchorContext,
+                            entries: [
+                              GlassMenuOption<String>(
+                                value: 'edit',
+                                icon: Icons.edit,
+                                label: t.common.edit,
                               ),
-                              const SizedBox(width: 8),
-                              Text(
-                                t.common.delete,
-                                style: const TextStyle(color: Colors.red),
+                              GlassMenuOption<String>(
+                                value: 'delete',
+                                icon: Icons.delete,
+                                label: t.common.delete,
+                                destructive: true,
                               ),
                             ],
+                          );
+                          if (action == 'edit') {
+                            _editFolder(folder);
+                          } else if (action == 'delete') {
+                            _deleteFolder(folder);
+                          }
+                        },
+                        builder: (context, pressed) => SizedBox.square(
+                          dimension: 40,
+                          child: Icon(
+                            Icons.more_vert,
+                            size: 20,
+                            color: colorScheme.onSurfaceVariant,
                           ),
                         ),
-                      ],
+                      ),
                     ),
                 ],
               ),

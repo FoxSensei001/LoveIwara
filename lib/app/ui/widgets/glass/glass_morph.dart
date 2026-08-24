@@ -891,7 +891,23 @@ class _GlassFlipLabelState extends State<GlassFlipLabel> {
 ///   - **位移**继续用 `AnimatedSlide`（纯 `Transform`，不建层，安全）；
 ///   - **材质**改走 [GlassSurface.materialize]——压的是玻璃自身的色调 / 描边 /
 ///     投影透明度，图层结构全程不变，折射一帧都不断；
-///   - 不可见时 [IgnorePointer] 兜住点击。
+///   - 不可见时 [IgnorePointer] 兜住点击；
+///   - **退场跑完就整只不建**（见下）。
+///
+/// ## ⛔ 「压材质」不等于「不在场」
+///
+/// [GlassSurface.materialize] 压的是**材质**：底色、描边、投影。里头的内容
+/// （图标、文字）不归它管——2026-08-24 用户报的「右下角回到顶部浮钮在很多列表
+/// 里一直挂着、样式是老的、点了还穿透到列表」就是这一条：`materialize` 已经
+/// 是 0、玻璃一点不剩，可那枚图标仍旧全黑地画着，而 [IgnorePointer] 又让这一下
+/// 点空——**看得见、点不着、还不是玻璃**。
+///
+/// 现在两头都堵上：
+///
+///   1. 过渡途中由 [GlassSurface] 把 `materialize` 一并压进图标 / 文字的颜色
+///      （颜色通道，不建图层，折射不断）；
+///   2. 退场动画跑完（`materialize` 归 0 且 [visible] 为假）本原语**整只不建
+///      child**——「不在场」就该是真的什么都没有，而不是一个透明的壳。
 ///
 /// 用法（[builder] 拿到的 `materialize` 直接透传给玻璃件）：
 ///
@@ -936,7 +952,12 @@ class GlassReveal extends StatelessWidget {
           duration: GlassTokens.motionDuration,
           curve: GlassTokens.motionCurve,
           tween: Tween<double>(begin: 0, end: visible ? 1 : 0),
-          builder: (context, m, _) => builder(context, m),
+          // 退场跑完就整只不建：留着一个 materialize == 0 的壳，等于在屏幕上
+          // 留一枚点不着的裸图标（见类注释）。首帧 visible == false 时也走这
+          // 一支，所以「还没滚动就已经挂在那儿」的浮钮从一开始就不存在。
+          builder: (context, m, _) => m == 0 && !visible
+              ? const SizedBox.shrink()
+              : builder(context, m),
         ),
       ),
     );

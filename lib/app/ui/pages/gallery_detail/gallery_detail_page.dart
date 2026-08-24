@@ -13,7 +13,6 @@ import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/image_model_detail_c
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
-import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
@@ -766,75 +765,60 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
   /// 窄屏：分段胶囊行悬浮在相关列表之上（列表用 topInset 让位）。
   static const double _relatedTabsRowHeight = GlassTokens.pillHeight + 16;
 
+  /// 走 [GlassHeaderOverlay] 而不是手绘 `Stack + Positioned.fill`——不是抠好看，
+  /// 是接液态档的**必经之路**：这块 Stack 挂在外层 `ExtendedNestedScrollView`
+  /// 的 `body:` 上，而外层页面自己的 `GlassHeaderOverlay(liquid: true)`
+  /// 会把整个 `body` 强制按回 [GlassBackend.plain]（列表是滚动容器，装不得
+  /// lens，见该组件类文档）。分段胶囊虽然悬浮在列表**之上**、是货真价实的
+  /// chrome，但它人在 `body` 子树里，跟着一起被摁回了传统档——`GlassSegmentedControl`
+  /// 已经是「最新组件」，材质却始终没换过，2026-08-24 用户真机点开就是这个。
+  ///
+  /// 嵌一层自己的 `GlassHeaderOverlay(liquid: true)` 才能重新供上液态 scope
+  /// （子树里最近的 [LiquidGlassScope] 生效，会盖过外层那次强制 plain）——
+  /// 与 `profile_post_tab_list_widget.dart` 等各 tab 各自嵌一层的做法同源。
   Widget _buildNarrowRelatedArea(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Positioned.fill(
-          child: _buildRelatedTabBarView(
-            context,
-            topInset: _relatedTabsRowHeight,
-          ),
+    return GlassHeaderOverlay(
+      liquid: true,
+      headerExtent: _relatedTabsRowHeight,
+      headerHeight: _relatedTabsRowHeight,
+      header: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: _buildRelatedSegmentedControl(context),
         ),
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          height: _relatedTabsRowHeight,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: _buildRelatedSegmentedControl(context),
-            ),
-          ),
-        ),
-      ],
+      ),
+      body: _buildRelatedTabBarView(context, topInset: _relatedTabsRowHeight),
     );
   }
 
   /// 宽屏右列：相关图库（分段胶囊 + 瀑布流）。
   ///
-  /// 和窄屏的 [_buildNarrowRelatedArea] 同一套路：列表铺满整列、用 topInset 让位，
-  /// 分段行浮在它之上，卡片上滑时从胶囊背后穿过去。
-  ///
-  /// 与窄屏的差别在顶部那段状态栏：左列的状态栏留白是 SliverAppBar 自己吃掉的，
-  /// 右列没有 AppBar，得自己让出 `padding.top` 并补一条 EdgeFadeScrim 托底
-  /// （对应左列 header 的 flexibleSpace），否则卡片会滑进状态栏底下糊成一团。
+  /// 同 [_buildNarrowRelatedArea]：走 [GlassHeaderOverlay] 而不是手绘
+  /// `Stack + EdgeFadeScrim`。这一列本身不在左列那只 `GlassHeaderOverlay`
+  /// 里头——它是宽屏 `Row` 里的另一个孩子，够不着左列供的液态 scope，分段
+  /// 胶囊此前是彻头彻尾的**传统档**（不是被摁回去，是压根没供过）。改用
+  /// `GlassHeaderOverlay(liquid: true)` 自建一份 scope，顺带把手写的
+  /// `EdgeFadeScrim.top` 换成组件自带的那份（`headerExtent` / `solidExtent`
+  /// 语义与原手写代码一致，读起来更少一份要跟着改的重复）。
   /// 分段行按 headerRowHeight 居中，与左列 header 上的胶囊同一水平线。
   Widget _buildWideSideColumn(BuildContext context) {
     final double statusBarHeight = MediaQuery.paddingOf(context).top;
     final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Positioned.fill(
-          child: _buildRelatedTabBarView(context, topInset: headerExtent),
+    return GlassHeaderOverlay(
+      liquid: true,
+      headerExtent: headerExtent,
+      headerTop: statusBarHeight,
+      solidExtent: statusBarHeight,
+      header: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: _buildRelatedSegmentedControl(context),
         ),
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: EdgeFadeScrim.top(
-            height: headerExtent + GlassTokens.headerFadeExtent,
-            solidExtent: statusBarHeight,
-          ),
-        ),
-        Positioned(
-          top: statusBarHeight,
-          left: 0,
-          right: 0,
-          height: GlassTokens.headerRowHeight,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: _buildRelatedSegmentedControl(context),
-            ),
-          ),
-        ),
-      ],
+      ),
+      body: _buildRelatedTabBarView(context, topInset: headerExtent),
     );
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:get/get.dart';
@@ -225,36 +226,45 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 发表帖子按钮
+              // 发表帖子按钮：与「回到顶部」共处同一只浮钮列，裸
+              // FloatingActionButton 在这摞玻璃浮钮里格外扎眼——换成
+              // GlassIconButton(standalone: true) 才是这套材质的收口写法
+              // （见 profile_playlist_tab_list_widget.dart 那颗回顶浮钮）。
               Obx(() {
-                if (_userService.currentUser.value?.id == widget.userId) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: FloatingActionButton(
-                      heroTag: 'createPost',
-                      onPressed: _showCreatePostDialog,
-                      child: const Icon(Icons.add),
-                    ),
-                  );
+                if (_userService.currentUser.value?.id != widget.userId) {
+                  return const SizedBox.shrink();
                 }
-                return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: GlassIconButton(
+                    standalone: true,
+                    icon: const Icon(Icons.add),
+                    tooltip: t.common.createPost,
+                    onPressed: _showCreatePostDialog,
+                  ),
+                );
               }),
-              // 返回顶部按钮
+              // 返回顶部按钮：GlassReveal 负责材质淡入 + 位移，
+              // 不能用 Obx 直接 `?: SizedBox()` 瞬间切换——那样玻璃是
+              // 硬切出现的，没有其余三个 tab 共有的那段淡入。
               Obx(
-                () => _showBackToTop.value
-                    ? FloatingActionButton(
-                        heroTag: 'backToTop',
-                        onPressed: () {
-                          if (!scrollTarget.hasClients) return;
-                          scrollTarget.animateTo(
-                            0,
-                            duration: const Duration(milliseconds: 500),
-                            curve: Curves.easeInOut,
-                          );
-                        },
-                        child: const Icon(Icons.arrow_upward),
-                      )
-                    : const SizedBox(),
+                () => GlassReveal(
+                  visible: _showBackToTop.value,
+                  builder: (context, m) => GlassIconButton(
+                    materialize: m,
+                    standalone: true,
+                    icon: const Icon(Icons.vertical_align_top),
+                    tooltip: t.common.scrollToTop,
+                    onPressed: () {
+                      if (!scrollTarget.hasClients) return;
+                      scrollTarget.animateTo(
+                        0,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOutCubic,
+                      );
+                    },
+                  ),
+                ),
               ),
             ],
           ),

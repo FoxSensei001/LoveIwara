@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
@@ -72,7 +74,8 @@ class _CommentItemState extends State<CommentItem> {
   void initState() {
     super.initState();
     _translationController = MarkdownTranslationController();
-    _showOriginal = _configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
+    _showOriginal =
+        _configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
   }
 
   @override
@@ -189,31 +192,21 @@ class _CommentItemState extends State<CommentItem> {
                 ),
               );
             }),
-            // 收紧语言选择器（内部是默认 48 触摸目标的 IconButton）到胶囊高度
+            // 语言选择器自己不带尺寸，尺寸由这只槽位说了算
             Obx(
               () => SizedBox(
                 width: 34,
                 height: _actionPillHeight,
-                child: IconButtonTheme(
-                  data: IconButtonThemeData(
-                    style: IconButton.styleFrom(
-                      fixedSize: const Size(34, _actionPillHeight),
-                      padding: EdgeInsets.zero,
-                      alignment: Alignment.center,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                  ),
-                  child: TranslationLanguageSelector(
-                    compact: true,
-                    extrimCompact: true,
-                    selectedLanguage: _configService.currentTranslationSort,
-                    onLanguageSelected: (sort) {
-                      _configService.updateTranslationLanguage(sort);
-                      if (_translationController.hasTranslation) {
-                        _handleTranslation();
-                      }
-                    },
-                  ),
+                child: TranslationLanguageSelector(
+                  compact: true,
+                  extrimCompact: true,
+                  selectedLanguage: _configService.currentTranslationSort,
+                  onLanguageSelected: (sort) {
+                    _configService.updateTranslationLanguage(sort);
+                    if (_translationController.hasTranslation) {
+                      _handleTranslation();
+                    }
+                  },
                 ),
               ),
             ),
@@ -312,10 +305,7 @@ class _CommentItemState extends State<CommentItem> {
             if (!mounted) return;
             if (result.isSuccess) {
               widget.onCommentEdited?.call(
-                widget.comment.copyWith(
-                  body: text,
-                  updatedAt: DateTime.now(),
-                ),
+                widget.comment.copyWith(body: text, updatedAt: DateTime.now()),
               );
               showGlassToast(
                 slang.t.common.commentUpdated,
@@ -399,72 +389,55 @@ class _CommentItemState extends State<CommentItem> {
         child: SizedBox(
           width: _actionPillHeight,
           height: _actionPillHeight,
-          child: PopupMenuButton<String>(
-            icon: Icon(
-              Icons.more_horiz,
-              size: 18,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            padding: EdgeInsets.zero,
-            position: PopupMenuPosition.under,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            constraints: const BoxConstraints(minWidth: 140),
-            itemBuilder: (context) => [
-              if (hasReplyOption)
-                PopupMenuItem(
-                  value: 'reply',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.reply, size: 16),
-                      const SizedBox(width: 8),
-                      Text(
-                        t.common.reply,
-                        style: const TextStyle(fontSize: 14),
+          // 菜单走全站统一的玻璃面板（原来是 PopupMenuButton，吐出来是块不透明
+          // 的 Material 卡片）。Builder 是为了拿到触发钮自身的 context 量落点。
+          child: Builder(
+            builder: (anchorContext) => GlassPressable(
+              // 长按也能打开，且长按不抬手可以直接划到某一条上松手选中
+              // （见 GlassTapArea.opensOverlay）。
+              opensOverlay: true,
+              onTap: () async {
+                final action = await showGlassMenu<String>(
+                  anchorContext: anchorContext,
+                  entries: [
+                    if (hasReplyOption)
+                      GlassMenuOption<String>(
+                        value: 'reply',
+                        icon: Icons.reply,
+                        label: t.common.reply,
+                      ),
+                    if (isOwner) ...[
+                      GlassMenuOption<String>(
+                        value: 'edit',
+                        icon: Icons.edit,
+                        label: t.common.edit,
+                      ),
+                      GlassMenuOption<String>(
+                        value: 'delete',
+                        icon: Icons.delete,
+                        label: t.common.delete,
+                        destructive: true,
                       ),
                     ],
-                  ),
+                  ],
+                );
+                switch (action) {
+                  case 'reply':
+                    _showReplyDialog();
+                  case 'edit':
+                    _showEditDialog();
+                  case 'delete':
+                    _showDeleteConfirmDialog();
+                }
+              },
+              builder: (context, pressed) => Center(
+                child: Icon(
+                  Icons.more_horiz,
+                  size: 18,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
-              if (isOwner) ...[
-                PopupMenuItem(
-                  value: 'edit',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.edit, size: 16),
-                      const SizedBox(width: 8),
-                      Text(t.common.edit, style: const TextStyle(fontSize: 14)),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'delete',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.delete, size: 16),
-                      const SizedBox(width: 8),
-                      Text(
-                        t.common.delete,
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ],
-            onSelected: (value) {
-              switch (value) {
-                case 'reply':
-                  _showReplyDialog();
-                  break;
-                case 'edit':
-                  _showEditDialog();
-                  break;
-                case 'delete':
-                  _showDeleteConfirmDialog();
-                  break;
-              }
-            },
+              ),
+            ),
           ),
         ),
       ),

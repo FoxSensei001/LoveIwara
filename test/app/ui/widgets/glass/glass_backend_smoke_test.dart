@@ -60,7 +60,10 @@ void main() {
   _segmentedTests();
   _stretchTests();
 
-  testWidgets('传统档下面板仍是传统档', (tester) async {
+  // 面板不跟触发件的档位走：传统档的触发件（列表行的 `⋮`、播放器工具栏、
+  // 设置页下拉）也照样吐液态面板，否则那些菜单会静默落回老样子
+  // （见 panelGlassBackend 的说明）。
+  testWidgets('传统档的触发件也吐液态面板', (tester) async {
     late GlassBackend sampled;
     await tester.pumpWidget(
       MaterialApp(
@@ -72,7 +75,7 @@ void main() {
         ),
       ),
     );
-    expect(sampled, GlassBackend.plain);
+    expect(sampled, GlassBackend.easyLens);
   });
 }
 

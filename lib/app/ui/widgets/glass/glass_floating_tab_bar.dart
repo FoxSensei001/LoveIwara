@@ -82,8 +82,20 @@ class GlassFloatingBarAction {
 ///
 /// 所以本组件把「换页」这一下从**按下**挪到**抬手**：按住期间只把下标记下来，手指
 /// 一旦走出 [kTouchSlop]（这一下已经被判成拖动）就把它作废，改等拖动结束时包给出
-/// 的最终下标。按下的即时反馈没有丢——果冻厚度是包内部那个 raw `Listener` 在
-/// pointer down 那一帧点亮的，不经过这里。
+/// 的最终下标。
+///
+/// # 但「焦点」必须当场跟过去
+///
+/// 推迟的只能是**换页**，不能是**高亮**。包里指示器的落点只有一个来源：外面传进来的
+/// `selectedIndex`（`didUpdateWidget` 里比对后弹过去）；按住期间既然我们压着不换页，
+/// `selectedIndex` 就一直是旧的那一项，于是「按住订阅不动，焦点还赖在视频上，手指
+/// 左右挪一下才跟过来」——挪动那下之所以有效，是横向拖拽接管了指示器坐标，跟
+/// `selectedIndex` 根本不是一条路。
+///
+/// 所以这里把「视觉选中」和「路由选中」拆开：按下报上来的下标立刻记进 [_pressedIndex]
+/// 并喂给包（指示器带弹簧弹过去、图标/文字当场换成选中色），路由该换页还是等抬手。
+/// 这不会把开头那个「按下就换页」的毛病带回来：换的只是本组件自己的一个 int，分支
+/// 子树不重建，拖动期间也只有拖拽在写指示器坐标。
 ///
 /// 快速点击感受不到差别（按下到抬手不过几十毫秒），**同项也回调**这条也没变，所以
 /// 「再次点击当前栏目 → 回顶 + 重载」仍然成立。
@@ -129,11 +141,33 @@ class _GlassFloatingTabBarState extends State<GlassFloatingTabBar> {
 
   bool _commitScheduled = false;
 
+  /// 手指底下这一项：页面还没换（换页要等抬手），但高亮/指示器已经先跟过去了。
+  /// 为 null 表示「以路由为准」。见类文档「但『焦点』必须当场跟过去」。
+  int? _pressedIndex;
+
+  /// 喂给包的 `selectedIndex`：按住期间跟手指，其余时候跟路由。
+  int get _visualIndex => _pressedIndex ?? widget.currentIndex;
+
+  @override
+  void didUpdateWidget(covariant GlassFloatingTabBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 路由真的换过去了（或者被别处改到了另一项）→ 抢先点亮的那份作废，交还给路由。
+    if (widget.currentIndex != oldWidget.currentIndex) {
+      _pressedIndex = null;
+    }
+  }
+
   void _handleTabSelected(int index) {
     _pending = index;
     _pendingFromPress = _pointerDown;
+    _setPressedIndex(index);
     if (_pointerDown) return; // 按住期间只记着，等抬手再落地
     _scheduleCommit();
+  }
+
+  void _setPressedIndex(int? index) {
+    if (_pressedIndex == index) return;
+    setState(() => _pressedIndex = index);
   }
 
   /// 落地推迟一个微任务：抬手时 raw `Listener` 先于手势识别器收到事件，而拖动的
@@ -155,7 +189,12 @@ class _GlassFloatingTabBarState extends State<GlassFloatingTabBar> {
     if (index == null) return;
     // 按下时抢跑记的那个下标，遇上手指真的拖走了就作废：最终落到哪一项，包会在
     // 拖动结束时另报一次（那时 `_pointerDown` 已经是 false，直接落地）。
-    if (fromPress && _movedBeyondSlop) return;
+    if (fromPress && _movedBeyondSlop) {
+      // 走到这儿说明这一下被判成拖动、却没等来拖动结束的下标（手势被上层抢走 /
+      // 中途取消）。既然页面不会换，抢先点亮的那项也得退回路由那一项。
+      _setPressedIndex(null);
+      return;
+    }
     widget.onTap(index);
   }
 
@@ -215,9 +254,10 @@ class _GlassFloatingTabBarState extends State<GlassFloatingTabBar> {
               label: item.label,
             ),
         ],
+        // 按住期间这里跟的是手指（[_visualIndex]），不是路由——换页还在等抬手。
         selectedIndex: items.isEmpty
             ? 0
-            : widget.currentIndex.clamp(0, items.length - 1),
+            : _visualIndex.clamp(0, items.length - 1),
         onTabSelected: _handleTabSelected,
         extraButton: action == null
             ? null
