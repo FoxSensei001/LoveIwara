@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 
 /// GlassDraggableBottomSheet 只收口「壳」：玻璃材质 + 顶部圆角 + 拖拽把手 +
 /// 安全区，内容的滚动交给它透传出来的 `scrollController`。这里只测接线
@@ -43,11 +42,11 @@ void main() {
     return captured;
   }
 
-  testWidgets('能正常 build：玻璃壳 + 内容都画出来了，无异常', (tester) async {
+  testWidgets('能正常 build：壳 + 内容都画出来了，无异常', (tester) async {
     await pumpSheet(tester);
     expect(tester.takeException(), isNull);
-    // 壳复用 GlassSurface（全 App 唯一的玻璃材质定义处）。
-    expect(find.byType(GlassSurface), findsOneWidget);
+    // 壳使用 Material 保证非透明底色。
+    expect(find.byType(Material), findsWidgets);
     // 内容跟着一起渲染。
     expect(find.text('item 0'), findsOneWidget);
   });

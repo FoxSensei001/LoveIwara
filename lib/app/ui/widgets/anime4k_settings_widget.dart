@@ -6,6 +6,7 @@ import 'package:i_iwara/common/anime4k_presets.dart';
 import '../pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 
 /// 通用的 Anime4K 设置组件
 class Anime4KSettingsWidget extends StatelessWidget {
@@ -195,14 +196,9 @@ class Anime4KSettingsWidget extends StatelessWidget {
         configService[ConfigKey.ANIME4K_PRESET_ID] as String;
 
     await showAppDialog<String>(
-      AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.tune, color: Theme.of(context).primaryColor),
-            const SizedBox(width: 8),
-            Text(slang.t.anime4k.preset),
-          ],
-        ),
+      GlassAlertDialog(
+        title: slang.t.anime4k.preset,
+        maxWidth: 560,
         content: SizedBox(
           width: double.maxFinite,
           child: ConstrainedBox(
@@ -317,10 +313,10 @@ class Anime4KSettingsWidget extends StatelessWidget {
           ),
         ),
         actions: [
-          TextButton.icon(
+          GlassDialogAction(
+            label: slang.t.common.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            icon: const Icon(Icons.close),
-            label: Text(slang.t.common.cancel),
           ),
         ],
       ),

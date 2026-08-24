@@ -12,6 +12,7 @@ import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/i18n/strings.g.dart' show t;
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 
 /// 头部行占位（不含状态栏）：上边距 16 + 玻璃圆钮 44 + 下留白 4。
 /// 列表用 paddingTop 让出「状态栏 + 这段」的高度，让卡片可以从玻璃
@@ -383,36 +384,46 @@ class SavedSearchConfigDrawer extends StatelessWidget {
             ),
           ),
           // 顶部玻璃控件行：标题 + 保存当前筛选 + 关闭
+          //
+          // ⭐ 抽屉挂在 Navigator 之外，够不到页面的 LiquidGlassScope，也不经过
+          // 弹窗/弹层那两条会自动供档的路由——不自己包一层，这几枚键会静默落回
+          // 传统档（同 GlobalDrawerContent 的悬浮键，做法一致）。
+          // ⛔ scope 只包这一行和下面的底部提示胶囊，**不包列表**：列表项自己
+          // 也是 GlassSurface，而它在 ReorderableListView 里，lens 不该进滚动
+          // 容器（见 liquid_glass_material.dart 约束 2）。
           Positioned(
             top: 0,
             left: 0,
             right: 0,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(20, statusBarHeight + 16, 12, 4),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      t.savedSearchConfig.title,
-                      style: textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
+            child: LiquidGlassScope(
+              backend: kChromeGlassBackend,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(20, statusBarHeight + 16, 12, 4),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        t.savedSearchConfig.title,
+                        style: textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                  ),
-                  GlassIconButton(
-                    standalone: true,
-                    icon: const Icon(Icons.bookmark_add_outlined),
-                    tooltip: t.savedSearchConfig.addCurrent,
-                    onPressed: onAddCurrent,
-                  ),
-                  const SizedBox(width: 8),
-                  GlassIconButton(
-                    standalone: true,
-                    icon: const Icon(Icons.close),
-                    tooltip: t.common.close,
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
+                    GlassIconButton(
+                      standalone: true,
+                      icon: const Icon(Icons.bookmark_add_outlined),
+                      tooltip: t.savedSearchConfig.addCurrent,
+                      onPressed: onAddCurrent,
+                    ),
+                    const SizedBox(width: 8),
+                    GlassIconButton(
+                      standalone: true,
+                      icon: const Icon(Icons.close),
+                      tooltip: t.common.close,
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -432,28 +443,31 @@ class SavedSearchConfigDrawer extends StatelessWidget {
             bottom: 0,
             left: 0,
             right: 0,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(20, 8, 20, 16 + safeBottom),
-              child: Center(
-                child: GlassSurface(
-                  height: 32,
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.drag_indicator,
-                        size: 14,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        t.savedSearchConfig.reorderHint,
-                        style: textTheme.bodySmall?.copyWith(
+            child: LiquidGlassScope(
+              backend: kChromeGlassBackend,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(20, 8, 20, 16 + safeBottom),
+                child: Center(
+                  child: GlassSurface(
+                    height: 32,
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.drag_indicator,
+                          size: 14,
                           color: colorScheme.onSurfaceVariant,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 6),
+                        Text(
+                          t.savedSearchConfig.reorderHint,
+                          style: textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

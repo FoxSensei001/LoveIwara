@@ -56,7 +56,8 @@ class BaseDialogInput extends StatefulWidget {
 
 class _BaseDialogInputState extends State<BaseDialogInput> {
   late TextEditingController _controller;
-  final GlobalKey<EnhancedEmojiTextFieldState> _emojiTextFieldKey = GlobalKey<EnhancedEmojiTextFieldState>();
+  final GlobalKey<EnhancedEmojiTextFieldState> _emojiTextFieldKey =
+      GlobalKey<EnhancedEmojiTextFieldState>();
 
   @override
   void initState() {
@@ -86,6 +87,7 @@ class _BaseDialogInputState extends State<BaseDialogInput> {
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      // 液态档由 [GlassDialogRoute] 在路由层供，这里不用自己包。
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -117,59 +119,14 @@ class _BaseDialogInputState extends State<BaseDialogInput> {
               initialContent: widget.initialContent,
               enabled: widget.enabled,
               focusNode: widget.focusNode,
-              emojiTextFieldKey: widget.showEmojiPicker ? _emojiTextFieldKey : null,
+              emojiTextFieldKey: widget.showEmojiPicker
+                  ? _emojiTextFieldKey
+                  : null,
               submitText: widget.submitText,
             ),
           ],
         ),
       ),
     );
-  }
-}
-
-/// 显示对话框输入框的便捷方法
-class DialogInputHelper {
-  static Future<String?> showInput({
-    required BuildContext context,
-    required String title,
-    required String hintText,
-    int maxLength = 1000,
-    int maxLines = 5,
-    bool showEmojiPicker = false,
-    bool showTranslation = true,
-    bool showMarkdownHelp = true,
-    bool showPreview = true,
-    bool showRulesAgreement = false,
-    String? initialContent,
-    String? submitText,
-    String? cancelText,
-    IconData? titleIcon,
-  }) async {
-    String? result;
-    
-    await showDialog<String>(
-      context: context,
-      builder: (context) => BaseDialogInput(
-        title: title,
-        hintText: hintText,
-        maxLength: maxLength,
-        maxLines: maxLines,
-        showEmojiPicker: showEmojiPicker,
-        showTranslation: showTranslation,
-        showMarkdownHelp: showMarkdownHelp,
-        showPreview: showPreview,
-        showRulesAgreement: showRulesAgreement,
-        initialContent: initialContent,
-        submitText: submitText,
-        cancelText: cancelText,
-        titleIcon: titleIcon,
-        onSubmit: (text) {
-          result = text;
-          Navigator.of(context).pop();
-        },
-      ),
-    );
-    
-    return result;
   }
 }

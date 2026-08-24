@@ -5,6 +5,9 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/ui/pages/dev/liquid_glass_lab_page.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/link_input_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
@@ -19,9 +22,8 @@ import '../../services/login_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
-/// 底部悬浮圆按钮尺寸与留白（渐变高度、列表底部留白都由此派生）
-const double _kActionButtonSize = 44;
-const double _kActionIconSize = 24;
+/// 底部悬浮按钮留白（渐变高度、列表底部留白都由此派生）。
+/// 按钮尺寸本身交给 [GlassTokens.pillHeight]，不再本地重复定义。
 const double _kActionBottomMargin = 16;
 const double _kActionFadeExtent = 48;
 
@@ -54,7 +56,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                         top: 8,
                         bottom:
                             _kActionBottomMargin +
-                            _kActionButtonSize +
+                            GlassTokens.pillHeight +
                             bottomInset,
                       ),
                       children: [
@@ -275,7 +277,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                       bottom: 0,
                       height:
                           _kActionBottomMargin +
-                          _kActionButtonSize +
+                          GlassTokens.pillHeight +
                           _kActionFadeExtent +
                           bottomInset,
                       child: IgnorePointer(
@@ -290,7 +292,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                       left: 16,
                       right: 16,
                       bottom: _kActionBottomMargin + bottomInset,
-                      height: _kActionButtonSize,
+                      height: GlassTokens.pillHeight,
                       child: _buildFloatingActions(context),
                     ),
                   ],
@@ -319,43 +321,53 @@ class GlobalDrawerColumns extends StatelessWidget {
   }
 
   Widget _buildFloatingActions(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _DrawerCircleButton(
-              icon: Icons.settings_outlined,
-              onTap: () {
-                AppService.switchGlobalDrawer();
-                NaviService.navigateToSettingsPage();
-              },
-            ),
-            const SizedBox(width: 8),
-            Obx(() {
-              final site = appService.currentSiteMode;
-              return _DrawerCircleButton(
-                icon: site.isAi ? Icons.auto_awesome : Icons.public,
-                onTap: () => _showSiteModeDialog(
-                  context,
-                  initialSite: _alternateSite(site),
-                ),
-              );
-            }),
-          ],
-        ),
-        // 未登录时右侧留空，左侧位置不变
-        Obx(
-          () => userService.hasLoadedProfile
-              ? _DrawerCircleButton(
-                  icon: Icons.logout_outlined,
-                  onTap: () => _showLogoutDialog(context),
-                )
-              : const SizedBox.shrink(),
-        ),
-      ],
+    // 抽屉挂在 Navigator 之外，够不到任何页面的 LiquidGlassScope，默认会
+    // 掉回传统档。这排悬浮键仿宽屏侧栏身份钮的 forceLiquid 做法，自己包一层
+    // 液态 scope——底下衬的渐变遮罩已经不是纯色，不会重蹈社区页头「液态钮
+    // 在纯白底上几乎看不见」那次真机翻车（见 IdentityAvatarButton dartdoc）。
+    return LiquidGlassScope(
+      backend: kChromeGlassBackend,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // 设置 + 站点切换是同一档「工具位」，收进一只玻璃胶囊。
+          // ⛔ 不给 tooltip：抽屉挂在 Navigator 之外，这棵子树里够不到
+          // Overlay，Tooltip 一弹就是「No Overlay widget found」。
+          GlassButtonGroup(
+            children: [
+              GlassIconButton(
+                icon: const Icon(Icons.settings_outlined),
+                onPressed: () {
+                  AppService.switchGlobalDrawer();
+                  NaviService.navigateToSettingsPage();
+                },
+              ),
+              Obx(() {
+                final site = appService.currentSiteMode;
+                return GlassIconButton(
+                  icon: Icon(site.isAi ? Icons.auto_awesome : Icons.public),
+                  onPressed: () => _showSiteModeDialog(
+                    context,
+                    initialSite: _alternateSite(site),
+                  ),
+                );
+              }),
+            ],
+          ),
+          // 退出登录是独立的破坏性动作，不与工具位共处一只胶囊；
+          // 未登录时右侧留空，左侧位置不变。
+          Obx(
+            () => userService.hasLoadedProfile
+                ? GlassIconButton(
+                    standalone: true,
+                    icon: const Icon(Icons.logout_outlined),
+                    onPressed: () => _showLogoutDialog(context),
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -616,38 +628,6 @@ class GlobalDrawerColumns extends StatelessWidget {
     showAppDialog(
       LogoutDialog(userService: userService),
       barrierDismissible: true,
-    );
-  }
-}
-
-class _DrawerCircleButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _DrawerCircleButton({required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return SizedBox.square(
-      dimension: _kActionButtonSize,
-      child: IconButton.filledTonal(
-        onPressed: onTap,
-        iconSize: _kActionIconSize,
-        icon: Icon(icon),
-        style: IconButton.styleFrom(
-          backgroundColor: colorScheme.surfaceContainerHighest,
-          foregroundColor: colorScheme.onSurfaceVariant,
-          hoverColor: colorScheme.primary.withValues(alpha: 0.08),
-          focusColor: colorScheme.primary.withValues(alpha: 0.08),
-          highlightColor: colorScheme.primary.withValues(alpha: 0.12),
-          padding: EdgeInsets.zero,
-          fixedSize: const Size.square(_kActionButtonSize),
-          minimumSize: const Size.square(_kActionButtonSize),
-          maximumSize: const Size.square(_kActionButtonSize),
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
-      ),
     );
   }
 }

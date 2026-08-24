@@ -10,6 +10,7 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 
 class LinkInputDialogWidget extends StatefulWidget {
   const LinkInputDialogWidget({super.key});
@@ -266,32 +267,36 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    TextButton(
-                      onPressed: () => AppService.tryPop(),
-                      child: Text(slang.t.common.cancel),
-                    ),
-                    const SizedBox(width: 8),
-                    FilledButton(
-                      onPressed: () {
-                        if (formKey.currentState!.validate()) {
-                          // 如果只有一个链接，直接处理
-                          if (extractedLinks.length == 1) {
-                            AppService.tryPop();
-                            _processUserLink(extractedLinks[0]);
-                          }
-                          // 如果有多个链接但用户点击了确定，处理第一个链接
-                          else if (extractedLinks.length > 1) {
-                            AppService.tryPop();
-                            _processUserLink(extractedLinks[0]);
-                          }
-                          // 如果没有提取到链接但验证通过（不太可能发生），处理原始输入
-                          else if (textController.text.isNotEmpty) {
-                            AppService.tryPop();
-                            _processUserLink(textController.text.trim());
-                          }
-                        }
-                      },
-                      child: Text(slang.t.common.confirm),
+                    GlassButtonGroup(
+                      children: [
+                        GlassTextActionButton(
+                          label: slang.t.common.cancel,
+                          onPressed: () => AppService.tryPop(),
+                        ),
+                        GlassTextActionButton(
+                          label: slang.t.common.confirm,
+                          emphasized: true,
+                          onPressed: () {
+                            if (formKey.currentState!.validate()) {
+                              // 如果只有一个链接，直接处理
+                              if (extractedLinks.length == 1) {
+                                AppService.tryPop();
+                                _processUserLink(extractedLinks[0]);
+                              }
+                              // 如果有多个链接但用户点击了确定，处理第一个链接
+                              else if (extractedLinks.length > 1) {
+                                AppService.tryPop();
+                                _processUserLink(extractedLinks[0]);
+                              }
+                              // 如果没有提取到链接但验证通过（不太可能发生），处理原始输入
+                              else if (textController.text.isNotEmpty) {
+                                AppService.tryPop();
+                                _processUserLink(textController.text.trim());
+                              }
+                            }
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -343,16 +348,19 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
   // 显示不支持的链接对话框
   void _showUnsupportedLinkDialog(String link) {
     showAppDialog(
-      _CustomDialogWithScrollView(
+      GlassAlertDialog(
         title: slang.t.linkInputDialog.unsupportedLinkDialogTitle,
+        scrollable: true,
+        maxWidth: 520,
         content: Text(slang.t.linkInputDialog.unsupportedLinkDialogContent),
         actions: [
-          TextButton(
-            child: Text(slang.t.common.cancel),
+          GlassDialogAction(
+            label: slang.t.common.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
           ),
-          ElevatedButton(
-            child: Text(slang.t.linkInputDialog.openInBrowser),
+          GlassDialogAction(
+            label: slang.t.linkInputDialog.openInBrowser,
             onPressed: () {
               AppService.tryPop();
               _confirmBrowserOpen(link);
@@ -367,8 +375,10 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
   // 二次确认是否用浏览器打开
   void _confirmBrowserOpen(String link) {
     showAppDialog(
-      _CustomDialogWithScrollView(
+      GlassAlertDialog(
         title: slang.t.linkInputDialog.confirmOpenBrowserDialogTitle,
+        scrollable: true,
+        maxWidth: 520,
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -398,12 +408,13 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
           ],
         ),
         actions: [
-          TextButton(
-            child: Text(slang.t.common.cancel),
+          GlassDialogAction(
+            label: slang.t.common.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
           ),
-          ElevatedButton(
-            child: Text(slang.t.common.confirm),
+          GlassDialogAction(
+            label: slang.t.common.confirm,
             onPressed: () {
               AppService.tryPop(closeAll: true);
               _openInBrowser(link);
@@ -427,86 +438,5 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
         position: GlassToastPosition.top,
       );
     }
-  }
-}
-
-// 自定义使用CustomScrollView的对话框
-class _CustomDialogWithScrollView extends StatelessWidget {
-  final String title;
-  final dynamic content;
-  final List<Widget> actions;
-
-  const _CustomDialogWithScrollView({
-    required this.title,
-    required this.content,
-    required this.actions,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-      clipBehavior: Clip.antiAlias,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: 520,
-          maxHeight: MediaQuery.sizeOf(context).height * 0.8,
-        ),
-        child: CustomScrollView(
-          shrinkWrap: true,
-          slivers: [
-            // 标题行：标题 + 玻璃关闭圆钮（全局统一约定）
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 12, 4),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                    GlassIconButton(
-                      standalone: true,
-                      icon: const Icon(Icons.close),
-                      tooltip: slang.t.common.close,
-                      onPressed: () => AppService.tryPop(),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // 内容
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-                child: content is String ? Text(content) : content,
-              ),
-            ),
-
-            // 按钮
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 0, 20, 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    ...actions.map(
-                      (action) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: action,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

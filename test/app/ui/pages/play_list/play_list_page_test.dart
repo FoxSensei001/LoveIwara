@@ -21,6 +21,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -121,7 +122,9 @@ void main() {
 
         expect(find.text(t.common.confirmDelete), findsOneWidget);
 
-        await tester.tap(find.widgetWithText(TextButton, t.common.delete).last);
+        await tester.tap(
+          find.widgetWithText(GlassTextActionButton, t.common.delete).last,
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
         await tester.pump(const Duration(milliseconds: 300));
@@ -158,11 +161,13 @@ void main() {
 
         await _openDeleteDialog(tester);
 
-        await tester.tap(find.widgetWithText(TextButton, t.common.delete).last);
+        await tester.tap(
+          find.widgetWithText(GlassTextActionButton, t.common.delete).last,
+        );
         await tester.pump();
 
-        final cancelButton = tester.widget<TextButton>(
-          find.widgetWithText(TextButton, t.common.cancel),
+        final cancelButton = tester.widget<GlassTextActionButton>(
+          find.widgetWithText(GlassTextActionButton, t.common.cancel),
         );
         expect(cancelButton.onPressed, isNull);
         expect(find.byType(CircularProgressIndicator), findsWidgets);
@@ -235,7 +240,9 @@ void main() {
 
       expect(find.text(t.common.confirmDelete), findsOneWidget);
 
-      await tester.tap(find.widgetWithText(TextButton, t.common.delete).last);
+      await tester.tap(
+        find.widgetWithText(GlassTextActionButton, t.common.delete).last,
+      );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));
@@ -371,11 +378,13 @@ void main() {
 
         await _openOwnedDetailDeleteDialog(tester);
 
-        await tester.tap(find.widgetWithText(TextButton, t.common.delete).last);
+        await tester.tap(
+          find.widgetWithText(GlassTextActionButton, t.common.delete).last,
+        );
         await tester.pump();
 
-        final cancelButton = tester.widget<TextButton>(
-          find.widgetWithText(TextButton, t.common.cancel),
+        final cancelButton = tester.widget<GlassTextActionButton>(
+          find.widgetWithText(GlassTextActionButton, t.common.cancel),
         );
         expect(cancelButton.onPressed, isNull);
         expect(find.byType(CircularProgressIndicator), findsWidgets);
@@ -421,7 +430,9 @@ void main() {
 
       await _openOwnedDetailDeleteDialog(tester);
 
-      await tester.tap(find.widgetWithText(TextButton, t.common.delete).last);
+      await tester.tap(
+        find.widgetWithText(GlassTextActionButton, t.common.delete).last,
+      );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));
@@ -432,11 +443,11 @@ void main() {
       expect(find.text(t.common.confirmDelete), findsOneWidget);
       expect(find.byType(CircularProgressIndicator), findsNothing);
 
-      final cancelButton = tester.widget<TextButton>(
-        find.widgetWithText(TextButton, t.common.cancel),
+      final cancelButton = tester.widget<GlassTextActionButton>(
+        find.widgetWithText(GlassTextActionButton, t.common.cancel),
       );
-      final deleteButton = tester.widget<TextButton>(
-        find.widgetWithText(TextButton, t.common.delete).last,
+      final deleteButton = tester.widget<GlassTextActionButton>(
+        find.widgetWithText(GlassTextActionButton, t.common.delete).last,
       );
       expect(cancelButton.onPressed, isNotNull);
       expect(deleteButton.onPressed, isNotNull);
@@ -489,7 +500,9 @@ void main() {
       await tester.pumpAndSettle();
 
       await _openOwnedDetailDeleteDialog(tester);
-      await tester.tap(find.widgetWithText(TextButton, t.common.delete).last);
+      await tester.tap(
+        find.widgetWithText(GlassTextActionButton, t.common.delete).last,
+      );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));

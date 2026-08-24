@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 
 /// 弹窗出入场的动画风格。
 ///
@@ -69,7 +70,31 @@ class GlassDialogTransition extends StatelessWidget {
       reverseCurve: GlassTokens.dialogExitCurve,
     );
 
-    final scoped = GlassDialogMotionScope(animation: curved, child: child);
+    // ⭐ 液态档在**路由这一层**统一供上，弹窗内容不用（也不该）各自去包。
+    //
+    // 2026-08-24 之前是「谁想要谁自己包一层 `LiquidGlassScope`」，结果只有
+    // `GlassAlertDialog` 包了：其余每一张弹窗——发帖、编辑标题、私信、标题全文、
+    // 标签黑名单——里头明明已经是 `GlassIconButton`/`GlassButtonGroup`/
+    // `GlassComposer*` 这些新组件，却因为读不到祖先 scope 而**静默落回传统档**
+    // （`LiquidGlassScope.of` 无祖先时返回 `plain`），连 `liquidTouch` 的长按
+    // 蠕动一起没了。「新组件 + 忘了供档 = 看起来还是老样式」，而且不报错、
+    // 不 lint，只能靠人一张张点开发现。把供档挪到所有弹窗**唯一**都会经过的
+    // 这条路由上，这类漏网从此不可能再发生。
+    //
+    // 配套的 [_DialogScrollBehavior]：折射透镜有条硬约束是「不能放进滚动
+    // 容器」——Android 的拉伸回弹（`StretchingOverscrollIndicator`）会把滚动
+    // 内容隔离进独立合成层，lens 在两端渲染成纯黑（见
+    // `liquid_glass_material.dart` 文件头约束 2）。而弹窗正文十有八九裹在
+    // `SingleChildScrollView` 里（发帖弹窗就是），逐个手工规避等于回到老路。
+    // 这里直接把弹窗子树的拉伸回弹关掉，约束自动成立：没有那层拉伸，
+    // 就没有那次图层隔离。弹窗是一张卡片，本来也不需要橡皮筋手感。
+    final Widget scoped = GlassDialogMotionScope(
+      animation: curved,
+      child: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(overscroll: false),
+        child: LiquidGlassScope(backend: kChromeGlassBackend, child: child),
+      ),
+    );
 
     return switch (_resolve(context)) {
       GlassDialogMotion.scale => ScaleTransition(

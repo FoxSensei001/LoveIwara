@@ -8,6 +8,8 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 
 /// 搜索类型枚举
 enum SearchType { all, video, image, user, playlist, forum, post }
@@ -266,30 +268,21 @@ class _GoogleSearchBottomSheetState extends State<GoogleSearchBottomSheet> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    OutlinedButton.icon(
-                      icon: const Icon(Icons.link),
-                      label: Text(t.search.openLinkJump),
-                      onPressed: () {
-                        LinkInputDialogWidget.show();
-                      },
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
+                    GlassButtonGroup(
+                      children: [
+                        GlassTextActionButton(
+                          label: t.search.openLinkJump,
+                          onPressed: () {
+                            LinkInputDialogWidget.show();
+                          },
                         ),
-                      ),
+                      ],
                     ),
                     const SizedBox(height: 8),
-                    FilledButton.icon(
-                      icon: const Icon(Icons.search),
-                      label: Text(t.search.googleSearchButton),
+                    GlassSubmitButton(
+                      label: t.search.googleSearchButton,
+                      icon: Icons.search,
                       onPressed: _performGoogleSearch,
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                      ),
                     ),
                   ],
                 );
@@ -297,31 +290,22 @@ class _GoogleSearchBottomSheetState extends State<GoogleSearchBottomSheet> {
                 // 宽屏使用水平布局
                 return Row(
                   children: [
-                    OutlinedButton.icon(
-                      icon: const Icon(Icons.link),
-                      label: Text(t.search.openLinkJump),
-                      onPressed: () {
-                        LinkInputDialogWidget.show();
-                      },
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
+                    GlassButtonGroup(
+                      children: [
+                        GlassTextActionButton(
+                          label: t.search.openLinkJump,
+                          onPressed: () {
+                            LinkInputDialogWidget.show();
+                          },
                         ),
-                      ),
+                      ],
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: FilledButton.icon(
-                        icon: const Icon(Icons.search),
-                        label: Text(t.search.googleSearchButton),
+                      child: GlassSubmitButton(
+                        label: t.search.googleSearchButton,
+                        icon: Icons.search,
                         onPressed: _performGoogleSearch,
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
-                        ),
                       ),
                     ),
                   ],

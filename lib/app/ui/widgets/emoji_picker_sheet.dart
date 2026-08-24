@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/emoji_picker_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -82,36 +81,61 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
 
   /// 尺寸选择钮：玻璃胶囊，点按弹出全站通用的选项弹窗（[_showSizePickerDialog]），
   /// 而不是原生 `DropdownButton` 那种跟全站弹窗动效/样式完全脱节的系统菜单。
+  ///
+  /// 走 [GlassSurface] 而不是手搓 `Container` + `GlassTokens.fill/stroke`：
+  /// 手搓的那份画的永远是传统档的静态底色，接不上 [_buildHeaderActions] 供的
+  /// 液态 scope，也就没有长按蠕动——旁边两枚圆钮会动、它不会动。
   Widget _buildSizePill(BuildContext context, ColorScheme cs) {
-    return GestureDetector(
+    return GlassSurface(
+      height: 36,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       onTap: () => _showSizePickerDialog(context),
-      child: Container(
-        height: 36,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: BoxDecoration(
-          color: GlassTokens.fill(cs),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: GlassTokens.stroke(cs),
-            width: GlassTokens.strokeWidth,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              _selectedSize.displayName,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: cs.onSurface,
-              ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            _selectedSize.displayName,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: cs.onSurface,
             ),
-            const SizedBox(width: 2),
-            Icon(Icons.expand_more, size: 18, color: cs.onSurfaceVariant),
-          ],
-        ),
+          ),
+          const SizedBox(width: 2),
+          Icon(Icons.expand_more, size: 18, color: cs.onSurfaceVariant),
+        ],
       ),
+    );
+  }
+
+  /// 标题行的动作区：尺寸胶囊 / 设置 / 关闭。
+  ///
+  /// 液态档由 `showGlassBottomSheet` 在路由层供——本弹层是自建壳
+  /// （`DraggableScrollableSheet` + 自己的 `Container`），不走 `GlassBottomSheet`，
+  /// 所以必须从那个入口打开，裸 `showModalBottomSheet` 开出来会整只落回传统档。
+  Widget _buildHeaderActions(BuildContext context, ColorScheme cs) {
+    final t = Translations.of(context);
+    return Row(
+      children: [
+        _buildSizePill(context, cs),
+        const Spacer(),
+        GlassIconButton(
+          standalone: true,
+          icon: const Icon(Icons.settings),
+          tooltip: t.settings.settings,
+          onPressed: () {
+            Navigator.pop(context);
+            NaviService.navigateToEmojiLibraryPage();
+          },
+        ),
+        const SizedBox(width: 8),
+        GlassIconButton(
+          standalone: true,
+          icon: const Icon(Icons.close),
+          tooltip: t.common.close,
+          onPressed: () => Navigator.pop(context),
+        ),
+      ],
     );
   }
 
@@ -155,8 +179,6 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
 
   @override
   Widget build(BuildContext context) {
-    final t = Translations.of(context);
-
     return DraggableScrollableSheet(
       initialChildSize: 0.7,
       minChildSize: 0.4,
@@ -194,7 +216,9 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
                           width: 40,
                           height: 4,
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurfaceVariant
                                 .withValues(alpha: 0.4),
                             borderRadius: BorderRadius.circular(2),
                           ),
@@ -354,29 +378,7 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
                     // 标题行：左上角尺寸选择钮（打开全站通用弹窗，而不是原生
                     // DropdownButton 那种孤立的系统菜单）/ 右侧玻璃圆钮，
                     // 与全站其它弹窗标题行动作键同一约定
-                    Row(
-                      children: [
-                        _buildSizePill(context, cs),
-                        const Spacer(),
-                        // 设置按钮
-                        GlassIconButton(
-                          standalone: true,
-                          icon: const Icon(Icons.settings),
-                          tooltip: t.settings.settings,
-                          onPressed: () {
-                            Navigator.pop(context);
-                            NaviService.navigateToEmojiLibraryPage();
-                          },
-                        ),
-                        const SizedBox(width: 8),
-                        GlassIconButton(
-                          standalone: true,
-                          icon: const Icon(Icons.close),
-                          tooltip: t.common.close,
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ],
-                    ),
+                    _buildHeaderActions(context, cs),
                   ],
                 ),
               ),

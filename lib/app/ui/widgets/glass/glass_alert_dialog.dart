@@ -3,8 +3,8 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_dialog_motion.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
-import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 
 /// [GlassAlertDialog] 正文下方一个动作按钮的描述。
 ///
@@ -20,6 +20,7 @@ class GlassDialogAction {
     required this.onPressed,
     this.destructive = false,
     this.emphasized = true,
+    this.loading = false,
   });
 
   final String label;
@@ -34,22 +35,18 @@ class GlassDialogAction {
   /// 是否是本弹窗的主动作：转主色 + 字重加粗。次要动作（取消一类）传 false
   /// 留默认色。列表里最多应该有一个 emphasized 动作。
   final bool emphasized;
+
+  /// 这枚动作正在执行：文字原位换成转圈、按钮置灰。见
+  /// [GlassTextActionButton.loading]。
+  final bool loading;
 }
 
 /// `AlertDialog` 的收口替代品——统一标题行 / 关闭钮 / 动作按钮的结构与配色。
 ///
-/// 2026-08-24 给内容接上液态：**面板背景本身不接**——`GlassSurface` 调用
-/// 留在 scope 之外，读的是弹窗自己所在位置的祖先 `LiquidGlassScope`（挂在
-/// 根 Navigator 上，天然没有祖先，落回 plain，背景与收口前一致）。只有
-/// 标题行的关闭钮、动作行的 [GlassButtonGroup] 显式钉死
-/// [kChromeGlassBackend]（与页面 header chrome 同一档），长出液态档的长按
-/// 蠕动。此前面板整体留在传统档是因为 `GlassDialogRoute` 的出入场是
-/// `FadeTransition`——套液态 lens 会复现 `showGlassMenu` 那次「文字先到、
-/// 玻璃后补」的闪烁；[GlassDialogTransition] 现在已经不含任何透明度层，
-/// 换成 [GlassDialogMotionScope] 把驱动动画递下来，这里读它驱动
-/// `GlassSurface.materialize`（材质自身淡入，不建 saveLayer——面板背景虽然
-/// 留在传统档，这条淡入照样安全、也照样接）。调用点不用跟着改，
-/// `showAppDialog`/[showGlassAlertDialog] 照常打开。
+/// 液态档由 [GlassDialogRoute] 在路由层统一供（见 `glass_dialog_motion.dart`），
+/// 本组件不自己包 scope。面板背景是不透明 `Material`，不是 `GlassSurface`，
+/// 所以「弹窗背景不要变透明玻璃」这条要求照旧成立；变的只是标题行关闭钮和
+/// 动作行按钮组的材质与手感。
 ///
 /// 动作行（[actions]）走 [GlassButtonGroup] + `GlassTextActionButton`——多个
 /// 动作键共处同一坨玻璃，按住会一起蠕动（[GlassButtonGroup.touchFlex]
@@ -92,104 +89,89 @@ class GlassAlertDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
     Widget? body = content;
     if (scrollable && body != null) {
       body = SingleChildScrollView(child: body);
     }
+    if (body != null) {
+      // ⛔ [content] 显式关回传统档，别跟着路由那层液态 scope 走。
+      //
+      // 这条边界是 2026-08-24 用户在真机上纠正过的：弹窗**面板和正文**不该
+      // 变成折射玻璃，只有关闭钮和动作行按钮组该换。而 [content] 是调用方
+      // 给的任意内容——标签浏览器、变量说明这类还会往里塞
+      // `ListView`/`SingleChildScrollView`，正是 lens 最不该进的地方。
+      // 路由层供档是为了让「弹窗里的按钮」不再漏，不是为了把正文一起卷进来。
+      body = LiquidGlassScope(backend: GlassBackend.plain, child: body);
+    }
 
-    // 弹窗挂在根 Navigator 上，读不到入场动画就当静止态（materialize 恒为
-    // 1）——单测、或未来别的路由实现之外套一层 GlassAlertDialog 时不会崩。
-    final Animation<double>? motion = GlassDialogMotionScope.maybeOf(context);
-
-    // ⛔ 只给「标题行的关闭钮」和「动作行的按钮组」接液态，别的一律不碰：
-    //   - 面板背景（下面的 GlassSurface 调用）留在 scope 之外，读的是弹窗
-    //     自己所在位置的祖先 scope（挂在根 Navigator 上，天然没有祖先，
-    //     落回 plain，背景与收口前一致）；
-    //   - [body] 是调用方给的任意内容，可能含 `ListView`/`SingleChildScrollView`
-    //     （标签浏览器、变量说明这类列表型对话框）——lens 不该进滚动容器，
-    //     scope 不能连它一起裹进去，只精确包这两处按钮。
+    // 液态档不在这里供了——[GlassDialogRoute] 已经在路由层给整张弹窗供上
+    // （见 `glass_dialog_motion.dart`），本组件只管结构。面板背景仍是不透明
+    // `Material`（不是 `GlassSurface`），不受 scope 影响，透底问题不会回来。
     final closeButton = showCloseButton
-        ? LiquidGlassScope(
-            backend: kChromeGlassBackend,
-            child: GlassIconButton(
-              standalone: true,
-              icon: const Icon(Icons.close),
-              tooltip: t.common.close,
-              onPressed: () => AppService.tryPop(),
-            ),
+        ? GlassIconButton(
+            standalone: true,
+            icon: const Icon(Icons.close),
+            tooltip: t.common.close,
+            onPressed: () => AppService.tryPop(),
           )
         : null;
 
     final actionGroup = actions.isEmpty
         ? null
-        : LiquidGlassScope(
-            backend: kChromeGlassBackend,
-            child: GlassButtonGroup(
-              children: [
-                for (final action in actions)
-                  GlassTextActionButton(
-                    label: action.label,
-                    onPressed: action.onPressed,
-                    emphasized: action.emphasized,
-                    destructive: action.destructive,
-                  ),
-              ],
-            ),
+        : GlassButtonGroup(
+            children: [
+              for (final action in actions)
+                GlassTextActionButton(
+                  label: action.label,
+                  onPressed: action.onPressed,
+                  emphasized: action.emphasized,
+                  destructive: action.destructive,
+                  loading: action.loading,
+                ),
+            ],
           );
-
-    Widget buildSurface(double materialize) => GlassSurface(
-      height: null,
-      borderRadius: BorderRadius.circular(28),
-      padding: const EdgeInsets.fromLTRB(24, 20, 20, 16),
-      materialize: materialize,
-      // 传统档的 GlassSurface 不建 Material 祖先（液态档的两个后端各自
-      // 内部有一层，传统档没有）。弹窗正文常见 TextField / InkWell 一类
-      // 依赖 Material 的控件，没有这一层会直接抛
-      // "No Material widget found"（download_category_manage_page.dart /
-      // search_dialog.dart 的输入框弹窗曾经踩过）。这里补一层透明
-      // Material，不带颜色/阴影，纯粹补祖先，不影响玻璃材质的视觉。
-      child: Material(
-        type: MaterialType.transparency,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (title != null) ...[
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(title!, style: theme.textTheme.titleLarge),
-                  ),
-                  if (closeButton != null) ...[
-                    const SizedBox(width: 8),
-                    closeButton,
-                  ],
-                ],
-              ),
-            ],
-            if (body != null) ...[
-              const SizedBox(height: 16),
-              Flexible(child: body),
-            ],
-            if (actionGroup != null) ...[
-              const SizedBox(height: 20),
-              Align(alignment: Alignment.centerRight, child: actionGroup),
-            ],
-          ],
-        ),
-      ),
-    );
 
     return Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth),
-        child: motion == null
-            ? buildSurface(1.0)
-            : AnimatedBuilder(
-                animation: motion,
-                builder: (context, _) => buildSurface(motion.value),
-              ),
+        child: Material(
+          color: cs.surface,
+          borderRadius: BorderRadius.circular(28),
+          clipBehavior: Clip.antiAlias,
+          elevation: 6,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 20, 20, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (title != null) ...[
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(title!, style: theme.textTheme.titleLarge),
+                      ),
+                      if (closeButton != null) ...[
+                        const SizedBox(width: 8),
+                        closeButton,
+                      ],
+                    ],
+                  ),
+                ],
+                if (body != null) ...[
+                  const SizedBox(height: 16),
+                  Flexible(child: body),
+                ],
+                if (actionGroup != null) ...[
+                  const SizedBox(height: 20),
+                  Align(alignment: Alignment.centerRight, child: actionGroup),
+                ],
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

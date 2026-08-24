@@ -167,27 +167,33 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
             const SizedBox(width: 8),
             // 选择态下标题胶囊改报「已选 N 项」：单壳常驻、只换内容
             Expanded(
-              child: Obx(
-                () => GlassCapsuleMorph(
-                  child: controller.isMultiSelect.value
-                      ? SizedBox(
-                          key: const ValueKey('selection'),
-                          width: 168,
-                          child: GlassSelectionSummary(
-                            selectedCount: controller.selectedVideos.length,
-                            allSelected: false,
-                            onToggleAll: null,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                // 不套 Align 的话 Expanded 给的是紧约束，胶囊会被撑满整个
+                // 中间区域而不是抱住标题文字（对齐 my_favorites / author_profile
+                // 等页同款胶囊的写法）。
+                child: Obx(
+                  () => GlassCapsuleMorph(
+                    child: controller.isMultiSelect.value
+                        ? SizedBox(
+                            key: const ValueKey('selection'),
+                            width: 168,
+                            child: GlassSelectionSummary(
+                              selectedCount: controller.selectedVideos.length,
+                              allSelected: false,
+                              onToggleAll: null,
+                            ),
+                          )
+                        : KeyedSubtree(
+                            key: const ValueKey('title'),
+                            child: GlassTitlePill(
+                              flat: true,
+                              title: controller.playlistTitle.value.isEmpty
+                                  ? null
+                                  : controller.playlistTitle.value,
+                            ),
                           ),
-                        )
-                      : KeyedSubtree(
-                          key: const ValueKey('title'),
-                          child: GlassTitlePill(
-                            flat: true,
-                            title: controller.playlistTitle.value.isEmpty
-                                ? null
-                                : controller.playlistTitle.value,
-                          ),
-                        ),
+                  ),
                 ),
               ),
             ),
@@ -306,22 +312,14 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
           (_isPaginated ? PaginationBar.barHeight : 0),
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => IgnorePointer(
-          ignoring: !visible,
-          child: AnimatedSlide(
-            duration: GlassTokens.motionDuration,
-            curve: GlassTokens.motionCurve,
-            offset: visible ? Offset.zero : const Offset(0, 0.4),
-            child: AnimatedOpacity(
-              duration: GlassTokens.motionDuration,
-              opacity: visible ? 1 : 0,
-              child: GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.vertical_align_top),
-                tooltip: t.common.scrollToTop,
-                onPressed: _scrollToTop,
-              ),
-            ),
+        builder: (context, visible, _) => GlassReveal(
+          visible: visible,
+          builder: (context, m) => GlassIconButton(
+            materialize: m,
+            standalone: true,
+            icon: const Icon(Icons.vertical_align_top),
+            tooltip: t.common.scrollToTop,
+            onPressed: _scrollToTop,
           ),
         ),
       ),
@@ -409,26 +407,6 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
       extData: extData,
       innerPlaylistContext: playlistContext,
       initialVideoInfo: initialVideoInfo,
-    );
-  }
-
-  /// 弹窗标题行：标题 + 玻璃关闭圆钮（全局统一约定）。
-  Widget _dialogTitleRow(
-    BuildContext context,
-    String title, {
-    bool enabled = true,
-  }) {
-    final t = slang.Translations.of(context);
-    return Row(
-      children: [
-        Expanded(child: Text(title)),
-        GlassIconButton(
-          standalone: true,
-          icon: const Icon(Icons.close),
-          tooltip: t.common.close,
-          onPressed: enabled ? () => AppService.tryPop() : null,
-        ),
-      ],
     );
   }
 
@@ -561,23 +539,24 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
       Obx(
         () => PopScope(
           canPop: !isLoading.value,
-          child: AlertDialog(
-            title: _dialogTitleRow(
-              context,
-              slang.t.common.confirmDelete,
-              enabled: !isLoading.value,
-            ),
+          child: GlassAlertDialog(
+            title: slang.t.common.confirmDelete,
+            showCloseButton: !isLoading.value,
             content: Text(
               slang.t.favorite.removeItemConfirmWithTitle(
                 title: controller.playlistTitle.value,
               ),
             ),
             actions: [
-              TextButton(
+              GlassDialogAction(
+                label: slang.t.common.cancel,
+                emphasized: false,
                 onPressed: isLoading.value ? null : () => AppService.tryPop(),
-                child: Text(slang.t.common.cancel),
               ),
-              TextButton(
+              GlassDialogAction(
+                label: slang.t.common.delete,
+                destructive: true,
+                loading: isLoading.value,
                 onPressed: isLoading.value
                     ? null
                     : () async {
@@ -593,14 +572,6 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
                         }
                         isLoading.value = false;
                       },
-                style: TextButton.styleFrom(foregroundColor: Colors.red),
-                child: isLoading.value
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                    : Text(slang.t.common.delete),
               ),
             ],
           ),

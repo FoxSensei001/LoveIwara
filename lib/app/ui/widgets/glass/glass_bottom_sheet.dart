@@ -93,10 +93,7 @@ class GlassBottomSheet extends StatelessWidget {
             ),
             const SizedBox(height: 12),
           ],
-          if (maxHeightFactor != null)
-            Flexible(child: body)
-          else
-            body,
+          if (maxHeightFactor != null) Flexible(child: body) else body,
         ],
       ),
     );
@@ -121,7 +118,10 @@ class GlassBottomSheet extends StatelessWidget {
 /// fill/stroke——顶部单独圆角是 [GlassSurface.borderRadius] 已支持的口子，
 /// 液态档要跟进也只用改这一处。
 class _GlassBottomSheetShell extends StatelessWidget {
-  const _GlassBottomSheetShell({required this.child, required this.showDragHandle});
+  const _GlassBottomSheetShell({
+    required this.child,
+    required this.showDragHandle,
+  });
 
   final Widget child;
   final bool showDragHandle;
@@ -129,13 +129,13 @@ class _GlassBottomSheetShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    // ⛔ 只给「内容」（child——标题行按钮、动作行）接液态，壳自己的
-    // GlassSurface 留在 LiquidGlassScope 之外：它读的是这个 build 方法自己
-    // 所在位置的祖先 scope（面板挂在根 Navigator 上，天然没有祖先，落回
-    // plain），面板背景因此保持原样，不随内容按钮一起变成折射透镜。
-    return GlassSurface(
-      height: null,
+    // 面板背景使用不透明的 Material 底色（surfaceContainerLow），
+    // 避免半透明玻璃导致下层被遮挡的内容透出来。
+    // 内部按钮通过 LiquidGlassScope 接入液态档。
+    return Material(
+      color: cs.surface,
       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -151,9 +151,10 @@ class _GlassBottomSheetShell extends StatelessWidget {
             ),
             const SizedBox(height: 4),
           ],
-          Flexible(
-            child: LiquidGlassScope(backend: kChromeGlassBackend, child: child),
-          ),
+          // 液态档由 [showGlassBottomSheet] 在路由层统一供（见那里的注释），
+          // 壳自己不再包——包在壳里的话，自建壳的弹层（表情选择器一类）
+          // 就漏掉了。
+          Flexible(child: child),
         ],
       ),
     );
@@ -163,6 +164,12 @@ class _GlassBottomSheetShell extends StatelessWidget {
 /// 打开一块 [GlassBottomSheet]。`backgroundColor: transparent` +
 /// `isScrollControlled: true` 是固定搭配（壳自己画背景、自己算高度），
 /// 不用在调用点重复传。
+///
+/// ⭐ 液态档在**这一层**供，不在 [GlassBottomSheet] 壳里：弹层内容不一定用
+/// 我们的壳（表情选择器就是自建 `DraggableScrollableSheet` + 自己的
+/// `Container`），供在壳里那些就全漏了，里头的新组件会静默落回传统档。
+/// 供在路由上，「走了这个入口就一定有档」。壳自己的背景不受影响——它画的是
+/// 不透明 `Material`，不是 `GlassSurface`。
 Future<T?> showGlassBottomSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
@@ -177,7 +184,8 @@ Future<T?> showGlassBottomSheet<T>({
     isDismissible: isDismissible,
     enableDrag: enableDrag,
     useRootNavigator: useRootNavigator,
-    builder: builder,
+    builder: (context) =>
+        LiquidGlassScope(backend: kChromeGlassBackend, child: builder(context)),
   );
 }
 
@@ -230,9 +238,10 @@ class GlassDraggableBottomSheet extends StatelessWidget {
       // 同 [_GlassBottomSheetShell]：只给内容接液态，壳自己的 GlassSurface
       // 留在 LiquidGlassScope 之外，面板背景保持原样。
       builder: (context, scrollController) => SheetBottomSafeArea(
-        child: GlassSurface(
-          height: null,
+        child: Material(
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          clipBehavior: Clip.antiAlias,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -248,12 +257,8 @@ class GlassDraggableBottomSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              Expanded(
-                child: LiquidGlassScope(
-                  backend: kChromeGlassBackend,
-                  child: builder(context, scrollController),
-                ),
-              ),
+              // 同上：液态档由 [showGlassDraggableBottomSheet] 在路由层供。
+              Expanded(child: builder(context, scrollController)),
             ],
           ),
         ),
@@ -263,7 +268,8 @@ class GlassDraggableBottomSheet extends StatelessWidget {
 }
 
 /// 打开一块 [GlassDraggableBottomSheet]。同 [showGlassBottomSheet]，
-/// `backgroundColor: transparent` + `isScrollControlled: true` 固定搭配。
+/// `backgroundColor: transparent` + `isScrollControlled: true` 固定搭配，
+/// 液态档同样供在这一层。
 Future<T?> showGlassDraggableBottomSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
@@ -278,6 +284,7 @@ Future<T?> showGlassDraggableBottomSheet<T>({
     isDismissible: isDismissible,
     enableDrag: enableDrag,
     useRootNavigator: useRootNavigator,
-    builder: builder,
+    builder: (context) =>
+        LiquidGlassScope(backend: kChromeGlassBackend, child: builder(context)),
   );
 }

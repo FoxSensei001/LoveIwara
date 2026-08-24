@@ -25,6 +25,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:i_iwara/app/models/user_notifications.model.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 
 class PersonalProfilePage extends StatefulWidget {
   const PersonalProfilePage({super.key});
@@ -47,8 +49,8 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
   @override
   void initState() {
     super.initState();
-    _showOriginalDescription = Get.find<ConfigService>()[ConfigKey
-        .SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
+    _showOriginalDescription =
+        Get.find<ConfigService>()[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
     _fetchData();
   }
 
@@ -332,9 +334,8 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                               visible: _descriptionHasProcessedContent,
                               showOriginal: _showOriginalDescription,
                               padding: const EdgeInsets.only(right: 8),
-                              onChanged: (v) => setState(
-                                () => _showOriginalDescription = v,
-                              ),
+                              onChanged: (v) =>
+                                  setState(() => _showOriginalDescription = v),
                             ),
                             Text(
                               slang.t.personalProfile.clickToEdit,
@@ -829,65 +830,34 @@ class _EditNicknameDialogState extends State<_EditNicknameDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return AlertDialog(
-      // 标题行：标题 + 玻璃关闭圆钮（全局统一约定）
-      title: Row(
-        children: [
-          Expanded(child: Text(slang.t.personalProfile.editNickname)),
-          GlassIconButton(
-            standalone: true,
-            icon: const Icon(Icons.close),
-            tooltip: slang.t.common.close,
-            onPressed: _isSaving ? null : () => AppService.tryPop(),
-          ),
-        ],
-      ),
-      content: Container(
-        decoration: BoxDecoration(
-          color: GlassTokens.fill(colorScheme),
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(
-            color: GlassTokens.stroke(colorScheme),
-            width: GlassTokens.strokeWidth,
-          ),
-        ),
+    return GlassAlertDialog(
+      title: slang.t.personalProfile.editNickname,
+      showCloseButton: !_isSaving,
+      // 手搓的 GlassTokens.fill/stroke 容器换成 GlassInputSurface：
+      // 输入壳全站只有这一个定义处，别处再写一份就会各自漂移。
+      content: GlassInputSurface(
         child: TextField(
           controller: _controller,
           autofocus: true,
           enabled: !_isSaving,
           onSubmitted: (_) => _submit(),
-          decoration: InputDecoration(
-            hintText: slang.t.personalProfile.nicknameCannotBeEmpty,
-            hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
-            border: InputBorder.none,
-            focusedBorder: InputBorder.none,
-            enabledBorder: InputBorder.none,
-            prefixIcon: Icon(
-              Icons.person_outline,
-              color: colorScheme.onSurfaceVariant,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 12,
-            ),
+          decoration: glassFieldDecoration(
+            context,
+            hint: slang.t.personalProfile.nicknameCannotBeEmpty,
+            icon: Icons.person_outline,
           ),
         ),
       ),
       actions: [
-        TextButton(
+        GlassDialogAction(
+          label: slang.t.common.cancel,
+          emphasized: false,
           onPressed: _isSaving ? null : () => AppService.tryPop(),
-          child: Text(slang.t.common.cancel),
         ),
-        TextButton(
+        GlassDialogAction(
+          label: slang.t.common.save,
+          loading: _isSaving,
           onPressed: _isSaving ? null : _submit,
-          child: _isSaving
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : Text(slang.t.common.save),
         ),
       ],
     );

@@ -23,6 +23,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 
 class SearchDialog extends StatelessWidget {
   final String userInputKeywords;
@@ -882,15 +883,12 @@ class _SearchControlsSection extends StatelessWidget {
                 );
               }
 
-              return FilledButton.icon(
+              // 主色实心胶囊走 GlassSubmitButton：高度就是 GlassTokens.pillHeight，
+              // 按下缩放/配色与全站主动作键同一族，不再是裸 FilledButton。
+              return GlassSubmitButton(
+                label: t.common.search,
+                icon: Icons.search,
                 onPressed: onSearch,
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size(0, controlHeight),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  shape: const StadiumBorder(),
-                ),
-                icon: const Icon(Icons.search, size: 20),
-                label: Text(t.common.search),
               );
             }
 
@@ -961,13 +959,17 @@ class _SearchControlsSection extends StatelessWidget {
       title: t.searchFilter.filterSettings,
       maxWidth: 800,
       headerActions: [
-        FilledButton(
-          onPressed: () {
-            onFiltersChanged(tempFilters.map((f) => f.copyWith()).toList());
-            AppService.tryPop();
-          },
-          style: FilledButton.styleFrom(visualDensity: VisualDensity.compact),
-          child: Text(t.common.confirm),
+        GlassButtonGroup(
+          children: [
+            GlassTextActionButton(
+              label: t.common.confirm,
+              emphasized: true,
+              onPressed: () {
+                onFiltersChanged(tempFilters.map((f) => f.copyWith()).toList());
+                AppService.tryPop();
+              },
+            ),
+          ],
         ),
       ],
       content: FilterBuilderWidget(
@@ -1149,13 +1151,14 @@ class _ClearHistoryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
 
-    return TextButton.icon(
-      onPressed: () => _confirmClear(context, t),
-      icon: const Icon(Icons.delete_outline, size: 18),
-      label: Text(t.common.clear),
-      style: TextButton.styleFrom(
-        foregroundColor: Theme.of(context).colorScheme.error,
-      ),
+    return GlassButtonGroup(
+      children: [
+        GlassTextActionButton(
+          label: t.common.clear,
+          destructive: true,
+          onPressed: () => _confirmClear(context, t),
+        ),
+      ],
     );
   }
 

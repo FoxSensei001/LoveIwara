@@ -175,27 +175,24 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
                 ),
                 Row(
                   children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        widget.onTagsChanged(_currentSelectedTags);
-                        Navigator.of(context).pop();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Theme.of(
-                          context,
-                        ).colorScheme.onPrimary,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
+                    GlassButtonGroup(
+                      children: [
+                        GlassTextActionButton(
+                          label: t.common.confirm,
+                          emphasized: true,
+                          onPressed: () {
+                            widget.onTagsChanged(_currentSelectedTags);
+                            Navigator.of(context).pop();
+                          },
                         ),
-                      ),
-                      child: Text(t.common.confirm),
+                      ],
                     ),
                     const SizedBox(width: 8),
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                    GlassIconButton(
+                      standalone: true,
                       icon: const Icon(Icons.close),
+                      tooltip: t.common.close,
+                      onPressed: () => Navigator.of(context).pop(),
                     ),
                   ],
                 ),
@@ -209,30 +206,29 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                IconButton(
-                  onPressed: () {
-                    showGlassToast(t.tagSelector.usageInstructions);
-                  },
-                  icon: const Icon(Icons.help_outline, color: Colors.blue),
-                  tooltip: t.tagSelector.usageInstructionsTooltip,
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  onPressed: _showRemoveTagDialog,
-                  icon: const Icon(
-                    Icons.remove_circle_outline,
-                    color: Colors.red,
-                  ),
-                  tooltip: t.tagSelector.removeTagTooltip,
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  onPressed: _showAddTagDialog,
-                  icon: const Icon(
-                    Icons.add_circle_outline,
-                    color: Colors.green,
-                  ),
-                  tooltip: t.tagSelector.addTagTooltip,
+                GlassButtonGroup(
+                  children: [
+                    GlassIconButton(
+                      icon: const Icon(Icons.help_outline),
+                      color: Colors.blue,
+                      tooltip: t.tagSelector.usageInstructionsTooltip,
+                      onPressed: () {
+                        showGlassToast(t.tagSelector.usageInstructions);
+                      },
+                    ),
+                    GlassIconButton(
+                      icon: const Icon(Icons.remove_circle_outline),
+                      color: Colors.red,
+                      tooltip: t.tagSelector.removeTagTooltip,
+                      onPressed: _showRemoveTagDialog,
+                    ),
+                    GlassIconButton(
+                      icon: const Icon(Icons.add_circle_outline),
+                      color: Colors.green,
+                      tooltip: t.tagSelector.addTagTooltip,
+                      onPressed: _showAddTagDialog,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -562,30 +558,30 @@ class _RemoveTagDialogState extends State<RemoveTagDialog> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              ElevatedButton(
-                onPressed: selectedIds.isEmpty
-                    ? null
-                    : () {
-                        widget.onRemoveIds(selectedIds.toList());
-                        Navigator.of(context).pop();
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                  foregroundColor: Theme.of(context).colorScheme.onError,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
+              GlassButtonGroup(
+                children: [
+                  GlassTextActionButton(
+                    label: t.tagSelector.delete,
+                    destructive: true,
+                    onPressed: selectedIds.isEmpty
+                        ? null
+                        : () {
+                            widget.onRemoveIds(selectedIds.toList());
+                            Navigator.of(context).pop();
+                          },
                   ),
-                ),
-                child: Text(t.tagSelector.delete),
+                ],
               ),
             ],
           ),
           const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
+          // 「取消选择 / 全选」收进同一坨玻璃胶囊，按住会一起蠕动
+          Align(
+            alignment: Alignment.centerLeft,
+            child: GlassButtonGroup(
+              children: [
+                GlassTextActionButton(
+                  label: t.tagSelector.cancelSelection,
                   onPressed: selectedIds.isEmpty
                       ? null
                       : () {
@@ -593,12 +589,12 @@ class _RemoveTagDialogState extends State<RemoveTagDialog> {
                             selectedIds.clear();
                           });
                         },
-                  child: Text(t.tagSelector.cancelSelection),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: OutlinedButton(
+                GlassTextActionButton(
+                  label:
+                      selectedIds.length == widget.videoSearchTagHistory.length
+                      ? t.tagSelector.cancelSelectAll
+                      : t.tagSelector.selectAll,
                   onPressed: widget.videoSearchTagHistory.isEmpty
                       ? null
                       : () {
@@ -613,14 +609,9 @@ class _RemoveTagDialogState extends State<RemoveTagDialog> {
                             }
                           });
                         },
-                  child: Text(
-                    selectedIds.length == widget.videoSearchTagHistory.length
-                        ? t.tagSelector.cancelSelectAll
-                        : t.tagSelector.selectAll,
-                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           const SizedBox(height: 12),
           Align(
@@ -631,49 +622,47 @@ class _RemoveTagDialogState extends State<RemoveTagDialog> {
               alignment: WrapAlignment.start,
               children: widget.videoSearchTagHistory.map((tag) {
                 return FilterChip(
-                      label: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(TagLocalizationService.displayName(tag.id)),
-                          if (tag.type == MediaRating.ECCHI.value ||
-                              tag.sensitive) ...[
-                            const SizedBox(width: 4),
-                            Icon(
-                              tag.type == MediaRating.ECCHI.value
-                                  ? Icons.local_offer
-                                  : Icons.warning,
-                              size: 12,
-                              color: Colors.red,
-                            ),
-                          ],
-                        ],
-                      ),
-                      selected: selectedIds.contains(tag.id),
-                      onSelected: (bool selected) {
-                        setState(() {
-                          if (selected) {
-                            selectedIds.add(tag.id);
-                          } else {
-                            selectedIds.remove(tag.id);
-                          }
-                        });
-                      },
-                      selectedColor: Theme.of(
-                        context,
-                      ).colorScheme.errorContainer,
-                      checkmarkColor: Theme.of(
-                        context,
-                      ).colorScheme.onErrorContainer,
-                      backgroundColor: Theme.of(context).colorScheme.surface,
-                      side: BorderSide(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.outline.withValues(alpha: 0.3),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
+                  label: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(TagLocalizationService.displayName(tag.id)),
+                      if (tag.type == MediaRating.ECCHI.value ||
+                          tag.sensitive) ...[
+                        const SizedBox(width: 4),
+                        Icon(
+                          tag.type == MediaRating.ECCHI.value
+                              ? Icons.local_offer
+                              : Icons.warning,
+                          size: 12,
+                          color: Colors.red,
+                        ),
+                      ],
+                    ],
+                  ),
+                  selected: selectedIds.contains(tag.id),
+                  onSelected: (bool selected) {
+                    setState(() {
+                      if (selected) {
+                        selectedIds.add(tag.id);
+                      } else {
+                        selectedIds.remove(tag.id);
+                      }
+                    });
+                  },
+                  selectedColor: Theme.of(context).colorScheme.errorContainer,
+                  checkmarkColor: Theme.of(
+                    context,
+                  ).colorScheme.onErrorContainer,
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                  side: BorderSide(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.outline.withValues(alpha: 0.3),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
         ],
       ),
     );

@@ -24,6 +24,7 @@ import 'package:i_iwara/app/utils/markdown_formatter.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 import 'package:i_iwara/app/ui/widgets/emoji_preview_dialog.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 
 class CustomMarkdownBody extends StatefulWidget {
   final String data;
@@ -474,8 +475,8 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
 
     final shouldContinue = await showAppDialog<bool>(
       Builder(
-        builder: (dialogContext) => AlertDialog(
-          title: Text(t.common.externalLinkWarning),
+        builder: (dialogContext) => GlassAlertDialog(
+          title: t.common.externalLinkWarning,
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -517,24 +518,15 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
             ),
           ),
           actions: [
-            TextButton(
+            GlassDialogAction(
+              label: t.common.cancelExternalLink,
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              style: TextButton.styleFrom(
-                foregroundColor: Theme.of(dialogContext).colorScheme.primary,
-              ),
-              child: Text(
-                t.common.cancelExternalLink,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
             ),
-            FilledButton.icon(
+            // 打开外链是这张弹窗里「有风险」的那一侧，走 destructive 语义色
+            GlassDialogAction(
+              label: t.common.continueToExternalLink,
+              destructive: true,
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              style: FilledButton.styleFrom(
-                backgroundColor: Theme.of(dialogContext).colorScheme.error,
-                foregroundColor: Theme.of(dialogContext).colorScheme.onError,
-              ),
-              icon: const Icon(Icons.open_in_new, size: 18),
-              label: Text(t.common.continueToExternalLink),
             ),
           ],
         ),
@@ -577,22 +569,19 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
         builder: (dialogContext) {
           final colorScheme = Theme.of(dialogContext).colorScheme;
 
-          Widget buildSiteButton(IwaraSite site) {
+          GlassDialogAction buildSiteButton(IwaraSite site) {
             final label = site == IwaraSite.ai
                 ? t.siteMode.aiSite
                 : t.siteMode.mainSite;
 
-            return FilledButton.icon(
+            return GlassDialogAction(
+              label: t.siteMode.openInSite(site: label),
               onPressed: () => Navigator.of(dialogContext).pop(site),
-              icon: Icon(
-                site == IwaraSite.ai ? Icons.auto_awesome : Icons.public,
-              ),
-              label: Text(t.siteMode.openInSite(site: label)),
             );
           }
 
-          return AlertDialog(
-            title: Text(t.siteMode.chooseLinkTargetTitle),
+          return GlassAlertDialog(
+            title: t.siteMode.chooseLinkTargetTitle,
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -624,18 +613,13 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
               ),
             ),
             actions: [
-              TextButton(
+              GlassDialogAction(
+                label: t.common.cancel,
+                emphasized: false,
                 onPressed: () => Navigator.of(dialogContext).pop(),
-                child: Text(t.common.cancel),
               ),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  buildSiteButton(IwaraSite.main),
-                  buildSiteButton(IwaraSite.ai),
-                ],
-              ),
+              buildSiteButton(IwaraSite.main),
+              buildSiteButton(IwaraSite.ai),
             ],
           );
         },

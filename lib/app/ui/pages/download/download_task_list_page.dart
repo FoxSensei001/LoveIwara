@@ -650,22 +650,14 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       bottom: computeBottomSafeInset(MediaQuery.of(context)) + 16,
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => IgnorePointer(
-          ignoring: !visible,
-          child: AnimatedSlide(
-            duration: GlassTokens.motionDuration,
-            curve: GlassTokens.motionCurve,
-            offset: visible ? Offset.zero : const Offset(0, 0.4),
-            child: AnimatedOpacity(
-              duration: GlassTokens.motionDuration,
-              opacity: visible ? 1 : 0,
-              child: GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.vertical_align_top),
-                tooltip: t.common.scrollToTop,
-                onPressed: _scrollToTop,
-              ),
-            ),
+        builder: (context, visible, _) => GlassReveal(
+          visible: visible,
+          builder: (context, m) => GlassIconButton(
+            materialize: m,
+            standalone: true,
+            icon: const Icon(Icons.vertical_align_top),
+            tooltip: t.common.scrollToTop,
+            onPressed: _scrollToTop,
           ),
         ),
       ),
@@ -1080,10 +1072,13 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
             ),
             if (hasActiveFilter) ...[
               const SizedBox(height: 16),
-              TextButton.icon(
-                onPressed: _clearFilters,
-                icon: const Icon(Icons.filter_alt_off),
-                label: Text(t.download.clearFilters),
+              GlassButtonGroup(
+                children: [
+                  GlassTextActionButton(
+                    label: t.download.clearFilters,
+                    onPressed: _clearFilters,
+                  ),
+                ],
               ),
             ],
           ],
@@ -1271,15 +1266,19 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              TextButton(
-                onPressed: () => DownloadService.to.resumeRestoredTasks(),
-                child: Text(t.download.restoredPaused.resume),
-              ),
-              IconButton(
-                icon: const Icon(Icons.close, size: 18),
-                tooltip: t.download.restoredPaused.dismiss,
-                visualDensity: VisualDensity.compact,
-                onPressed: () => DownloadService.to.dismissRestoredPaused(),
+              GlassButtonGroup(
+                children: [
+                  GlassTextActionButton(
+                    label: t.download.restoredPaused.resume,
+                    emphasized: true,
+                    onPressed: () => DownloadService.to.resumeRestoredTasks(),
+                  ),
+                  GlassIconButton(
+                    icon: const Icon(Icons.close),
+                    tooltip: t.download.restoredPaused.dismiss,
+                    onPressed: () => DownloadService.to.dismissRestoredPaused(),
+                  ),
+                ],
               ),
             ],
           ),
@@ -1608,20 +1607,23 @@ class _DownloadFilterSheetState extends State<_DownloadFilterSheet> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TextButton.icon(
-                  onPressed: () => setState(() {
-                    _status = DownloadStatusFilter.all;
-                    _type = DownloadTypeFilter.all;
-                  }),
-                  icon: const Icon(Icons.filter_alt_off),
-                  label: Text(t.searchFilter.clearAll),
-                ),
-                const SizedBox(width: 12),
-                FilledButton(
-                  onPressed: () => Navigator.of(
-                    context,
-                  ).pop(_DownloadFilterSelection(status: _status, type: _type)),
-                  child: Text(t.common.confirm),
+                GlassButtonGroup(
+                  children: [
+                    GlassTextActionButton(
+                      label: t.searchFilter.clearAll,
+                      onPressed: () => setState(() {
+                        _status = DownloadStatusFilter.all;
+                        _type = DownloadTypeFilter.all;
+                      }),
+                    ),
+                    GlassTextActionButton(
+                      label: t.common.confirm,
+                      emphasized: true,
+                      onPressed: () => Navigator.of(context).pop(
+                        _DownloadFilterSelection(status: _status, type: _type),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -1788,20 +1790,25 @@ void showDownloadDetailDialog(BuildContext context, DownloadTask task) async {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  TextButton(
-                    onPressed: () async {
-                      final item = DataWriterItem();
-                      item.add(Formats.plainText(prettyJson));
-                      await SystemClipboard.instance?.write([item]);
+                  GlassButtonGroup(
+                    children: [
+                      GlassTextActionButton(
+                        label: t.download.copy,
+                        emphasized: true,
+                        onPressed: () async {
+                          final item = DataWriterItem();
+                          item.add(Formats.plainText(prettyJson));
+                          await SystemClipboard.instance?.write([item]);
 
-                      if (context.mounted) {
-                        showGlassToast(
-                          t.download.copySuccess,
-                          type: GlassToastType.success,
-                        );
-                      }
-                    },
-                    child: Text(t.download.copy),
+                          if (context.mounted) {
+                            showGlassToast(
+                              t.download.copySuccess,
+                              type: GlassToastType.success,
+                            );
+                          }
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -2036,15 +2043,18 @@ class _DeleteByDateDialogState extends State<_DeleteByDateDialog> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(t.common.cancel),
-                    ),
-                    const SizedBox(width: 8),
-                    TextButton(
-                      onPressed: _canConfirm ? _onConfirm : null,
-                      style: TextButton.styleFrom(foregroundColor: Colors.red),
-                      child: Text(t.common.delete),
+                    GlassButtonGroup(
+                      children: [
+                        GlassTextActionButton(
+                          label: t.common.cancel,
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        GlassTextActionButton(
+                          label: t.common.delete,
+                          destructive: true,
+                          onPressed: _canConfirm ? _onConfirm : null,
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -2128,7 +2138,10 @@ class _DeleteProgressDialogState extends State<_DeleteProgressDialog> {
     final t = slang.Translations.of(context);
     return PopScope(
       canPop: false,
-      child: AlertDialog(
+      // 进行中的进度弹窗：没有标题行也没有动作键（不许中途关），
+      // 但壳仍走 GlassAlertDialog，配色/圆角/出入场与全站一致。
+      child: GlassAlertDialog(
+        title: null,
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

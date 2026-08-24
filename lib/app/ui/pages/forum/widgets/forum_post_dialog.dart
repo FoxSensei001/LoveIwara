@@ -129,10 +129,10 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
   }
 
   void _showEmojiPicker() {
-    showModalBottomSheet(
+    // 走 showGlassBottomSheet 而不是裸 showModalBottomSheet：液态档供在那条
+    // 路由上，裸开的弹层里所有玻璃件都会静默落回传统档。
+    showGlassBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => EmojiPickerSheet(
         initialSize: _selectedEmojiSize,
         onEmojiSelected: (imageUrl, size) {
