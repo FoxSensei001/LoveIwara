@@ -599,23 +599,19 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
         'GlassBlendGroup(enabled: false)。',
       );
       return wrapInteractive(
-        _GlassRim(
-          shape: shape,
-          materialize: 1,
-          child: SizedBox(
-            height: height,
-            width: circle ? height : width,
-            child: lgw.AdaptiveGlass(
-              shape: shape,
-              quality: lgw.GlassQuality.premium,
-              // 占位：grouped 下真正生效的是祖先 layer 的那一份。
-              settings: const lgw.LiquidGlassSettings(),
-              useOwnLayer: false,
-              allowElevation: elevated,
-              // 只吃最外一层：胶囊**里头**的玻璃（果冻指示器等）不该和自己的
-              // 外壳融成一坨。
-              child: GlassBlendGroup.exclude(child: child),
-            ),
+        SizedBox(
+          height: height,
+          width: circle ? height : width,
+          child: lgw.AdaptiveGlass(
+            shape: shape,
+            quality: lgw.GlassQuality.premium,
+            // 占位：grouped 下真正生效的是祖先 layer 的那一份。
+            settings: const lgw.LiquidGlassSettings(),
+            useOwnLayer: false,
+            allowElevation: elevated,
+            // 只吃最外一层：胶囊**里头**的玻璃（果冻指示器等）不该和自己的
+            // 外壳融成一坨。
+            child: GlassBlendGroup.exclude(child: child),
           ),
         ),
       );
@@ -633,46 +629,25 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
       curve: Curves.easeOut,
       child: child,
       builder: (context, tint, child) {
-        final Widget glass = _GlassRim(
-          shape: shape,
-          materialize: m,
-          child: SizedBox(
-            height: height,
-            width: circle ? height : width,
-            child: lgw.AdaptiveGlass(
-              shape: shape,
-              // premium 才有完整的 SDF 折射与高光——正是这一档的存在理由。
-              // 非 Impeller 环境由 AdaptiveGlass 自己降级，不用我们判断。
-              quality: lgw.GlassQuality.premium,
-              settings: GlassTokens.widgetsGlass(
-                cs,
-                tint: tint ?? GlassTokens.widgetsTint(cs),
-                materialize: m,
-                elevated: elevated,
-              ),
-              allowElevation: elevated,
-              child: child!,
+        final Widget glass = SizedBox(
+          height: height,
+          width: circle ? height : width,
+          child: lgw.AdaptiveGlass(
+            shape: shape,
+            // premium 才有完整的 SDF 折射与高光——正是这一档的存在理由。
+            // 非 Impeller 环境由 AdaptiveGlass 自己降级，不用我们判断。
+            quality: lgw.GlassQuality.premium,
+            settings: GlassTokens.widgetsGlass(
+              cs,
+              tint: tint ?? GlassTokens.widgetsTint(cs),
+              materialize: m,
+              elevated: elevated,
             ),
+            allowElevation: elevated,
+            child: child!,
           ),
         );
-        Widget result = wrapInteractive(glass);
-        // `widgetsGlass()` 已经把 `shadowElevation` 喂给 AdaptiveGlass 自己的
-        // 投影通道，但那条通道**只在浅色模式画**（深色背景吃掉投影是 iOS 26
-        // 的口径，包自己在深色下会跳过）。这里补的就是那条缺口——只在深色
-        // 模式叠一层手动投影，浅色模式不再叠：两边都画曾经是双重投影，
-        // 也是「阴影特别大」的另一个根因（跟 [LiquidGlassBox] 那条是同一个
-        // 模式，见其注释）。
-        if (elevated && cs.brightness == Brightness.dark) {
-          result = DecoratedBox(
-            decoration: BoxDecoration(
-              shape: circle ? BoxShape.circle : BoxShape.rectangle,
-              borderRadius: circle ? null : BorderRadius.circular(radius),
-              boxShadow: GlassTokens.shadow(cs, alphaScale: m),
-            ),
-            child: result,
-          );
-        }
-        return result;
+        return wrapInteractive(glass);
       },
     );
   }
@@ -717,12 +692,6 @@ class LiquidWidgetsPlainBox extends StatelessWidget {
         ? height! / 2
         : (cornerRadius ?? (height ?? GlassTokens.pillHeight) / 2);
 
-    final _GlassOuterConstraints outerConstraints = _GlassOuterConstraints();
-
-    final lgw.LiquidShape shape = circle
-        ? const lgw.LiquidOval()
-        : lgw.LiquidRoundedSuperellipse(borderRadius: radius);
-
     Color dim(Color c) => m >= 1 ? c : c.withValues(alpha: c.a * m);
 
     Widget content = child;
@@ -732,7 +701,7 @@ class LiquidWidgetsPlainBox extends StatelessWidget {
           : ClipRRect(borderRadius: BorderRadius.circular(radius), child: content);
     }
 
-    Widget glass = AnimatedContainer(
+    return AnimatedContainer(
       duration: GlassTokens.pressDuration,
       curve: Curves.easeOut,
       height: height,
@@ -750,28 +719,6 @@ class LiquidWidgetsPlainBox extends StatelessWidget {
         boxShadow: elevated ? GlassTokens.shadow(cs, alphaScale: m) : null,
       ),
       child: content,
-    );
-
-    if (!interactive) return glass;
-
-    return _GlassOuterConstraintsSource(
-      relay: outerConstraints,
-      child: lgw.GlassButton.custom(
-        style: lgw.GlassButtonStyle.transparent,
-        shape: shape,
-        onTap: () {},
-        canRequestFocus: false,
-        excludeFromSemantics: true,
-        ambientBaseLight: 0,
-        quality: lgw.GlassQuality.premium,
-        stretch: GlassTokens.widgetsStretch,
-        interactionScale: GlassTokens.widgetsInteractionScale,
-        resistance: GlassTokens.widgetsStretchResistance,
-        child: _GlassOuterConstraintsTarget(
-          relay: outerConstraints,
-          child: glass,
-        ),
-      ),
     );
   }
 }
@@ -940,20 +887,6 @@ Future<void> warmUpLiquidGlassShaders() async {
   }
 }
 
-/// 玻璃的**边缘细线**：上沿一条亮高光、左右与下沿一条暗实线。
-///
-/// 为什么要自己画，而不是把 shader 的边缘光调亮：见
-/// [GlassTokens.widgetsRimGradient] 的注释——shader 那圈光从背景取色，白底
-/// 页面上取到的是白，压在同样发白的玻璃上等于没画。这条线是唯一在**任何**
-/// 背景下都读得出「这里有一块玻璃、它有边」的东西。
-///
-/// 形状直接取自同一个 [lgw.LiquidShape]（它本身是 `OutlinedBorder`），所以
-/// 线与 shader 画的轮廓严丝合缝，不会出现「描边比玻璃大一圈」。
-///
-/// ⚠️ 融合态（[GlassBlendGroup]）下每块玻璃仍画自己那条线：静止态两块本来就
-/// 分开，读起来没问题；只有被按住往邻居拖、两块真的长出液面颈部的那一瞬间，
-/// 两条线会在颈部交叉。要跟着 metaball 一起融，线就得由 shader 自己画——
-/// 而 shader 那圈光正是白底上读不出来的那一条（见上）。这里选了「静止态正确」。
 /// 把「形变层外面的约束」递给「形变层里面的玻璃」的一只信使。
 ///
 /// # 为什么需要它
@@ -1143,62 +1076,3 @@ class _RenderGlassOuterConstraintsTarget extends RenderProxyBox {
   }
 }
 
-class _GlassRim extends StatelessWidget {
-  const _GlassRim({
-    required this.shape,
-    required this.materialize,
-    required this.child,
-  });
-
-  final lgw.LiquidShape shape;
-  final double materialize;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    if (materialize <= 0) return child;
-    return CustomPaint(
-      foregroundPainter: _GlassRimPainter(
-        shape: shape,
-        gradient: GlassTokens.widgetsRimGradient(cs, alphaScale: materialize),
-        width: GlassTokens.widgetsRimWidth,
-      ),
-      child: child,
-    );
-  }
-}
-
-class _GlassRimPainter extends CustomPainter {
-  const _GlassRimPainter({
-    required this.shape,
-    required this.gradient,
-    required this.width,
-  });
-
-  final lgw.LiquidShape shape;
-  final LinearGradient gradient;
-  final double width;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (size.isEmpty) return;
-    final Rect rect = Offset.zero & size;
-    final Path path = shape.getOuterPath(rect);
-    // 画 2 倍宽再按形状裁掉外半边：线就正好贴在轮廓**内侧**，外缘由裁剪
-    // 抗锯齿收口，不会像居中描边那样溢出玻璃半个像素。
-    final Paint paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = width * 2
-      ..isAntiAlias = true
-      ..shader = gradient.createShader(rect);
-    canvas.save();
-    canvas.clipPath(path);
-    canvas.drawPath(path, paint);
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(_GlassRimPainter old) =>
-      old.shape != shape || old.gradient != gradient || old.width != width;
-}
