@@ -11,7 +11,6 @@ import 'package:i_iwara/app/ui/pages/forum/widgets/forum_post_dialog.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/thread_list_item_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
-import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
@@ -486,21 +485,10 @@ class ForumPageState extends State<ForumPage> {
     );
   }
 
-  /// 论坛搜索弹窗。由社区 header 上的搜索键调用。
+  /// 论坛搜索。由社区 header 上的搜索键调用。
   void openSearchDialog() {
-    showAppDialog(
-      SearchDialog(
-        userInputKeywords: '',
-        initialSegment: SearchSegment.forum,
-        onSearch: (searchInfo, segment, filters, sort) {
-          NaviService.toSearchPage(
-            searchInfo: searchInfo,
-            segment: segment,
-            filters: filters,
-            sort: sort,
-          );
-        },
-      ),
+    NaviService.navigateToSearchPage(
+      initialSegment: SearchSegment.forum,
     );
   }
 

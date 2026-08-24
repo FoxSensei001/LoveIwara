@@ -16,7 +16,6 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
-import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:loading_more_list/loading_more_list.dart';
@@ -111,19 +110,8 @@ class _ThreadListPageState extends State<ThreadListPage>
   }
 
   void _openSearchDialog() {
-    showAppDialog(
-      SearchDialog(
-        userInputKeywords: '',
-        initialSegment: SearchSegment.forum,
-        onSearch: (searchInfo, segment, filters, sort) {
-          NaviService.toSearchPage(
-            searchInfo: searchInfo,
-            segment: segment,
-            filters: filters,
-            sort: sort,
-          );
-        },
-      ),
+    NaviService.navigateToSearchPage(
+      initialSegment: SearchSegment.forum,
     );
   }
 

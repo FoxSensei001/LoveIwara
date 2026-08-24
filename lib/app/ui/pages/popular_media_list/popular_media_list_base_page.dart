@@ -24,7 +24,6 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' show t;
 import 'package:i_iwara/common/enums/media_enums.dart';
@@ -140,21 +139,10 @@ class PopularMediaListPageBaseState<
     }
   }
 
-  // 打开搜索对话框
+  // 打开搜索页面
   void _openSearchDialog() {
-    showAppDialog(
-      SearchDialog(
-        userInputKeywords: '',
-        initialSegment: widget.searchSegment,
-        onSearch: (searchInfo, segment, filters, sort) {
-          NaviService.toSearchPage(
-            searchInfo: searchInfo,
-            segment: segment,
-            filters: filters,
-            sort: sort,
-          );
-        },
-      ),
+    NaviService.navigateToSearchPage(
+      initialSegment: widget.searchSegment,
     );
   }
 

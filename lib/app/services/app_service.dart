@@ -487,6 +487,26 @@ class NaviService {
     appRouter.push('/sign_in');
   }
 
+  /// 跳转到搜索配置/历史页
+  static void navigateToSearchPage({
+    String userInputKeywords = '',
+    SearchSegment initialSegment = SearchSegment.video,
+    List<Filter>? initialFilters,
+    String? initialSort,
+    Function(String, SearchSegment, List<Filter>, String)? onSearch,
+  }) {
+    appRouter.push(
+      '/search',
+      extra: SearchPageExtra(
+        userInputKeywords: userInputKeywords,
+        initialSegment: initialSegment,
+        initialFilters: initialFilters,
+        initialSort: initialSort,
+        onSearch: onSearch,
+      ),
+    );
+  }
+
   /// 跳转到搜索结果页
   static void toSearchPage({
     required String searchInfo,

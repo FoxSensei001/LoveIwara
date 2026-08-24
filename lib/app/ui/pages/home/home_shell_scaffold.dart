@@ -9,12 +9,10 @@ import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/services/pop_coordinator.dart';
 import 'package:i_iwara/app/ui/widgets/animated_navigation_rail_slot.dart';
 import 'package:i_iwara/app/ui/pages/community/community_page.dart';
-import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_floating_tab_bar.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/vibrate_utils.dart';
@@ -464,20 +462,7 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
       // subscription / video 及未知栏目统一默认视频分段
       _ => SearchSegment.video,
     };
-    showAppDialog(
-      SearchDialog(
-        userInputKeywords: '',
-        initialSegment: segment,
-        onSearch: (searchInfo, segment, filters, sort) {
-          NaviService.toSearchPage(
-            searchInfo: searchInfo,
-            segment: segment,
-            filters: filters,
-            sort: sort,
-          );
-        },
-      ),
-    );
+    NaviService.navigateToSearchPage(initialSegment: segment);
   }
 
   Widget _buildNavigationRail(

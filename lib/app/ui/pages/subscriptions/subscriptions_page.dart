@@ -21,7 +21,6 @@ import 'package:i_iwara/app/models/sort.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
-import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/models/saved_search_config.model.dart';
 import 'package:i_iwara/app/services/saved_search_config_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/saved_search_config_drawer.dart';
@@ -381,7 +380,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     });
   }
 
-  // 打开搜索对话框
+  // 打开搜索页面
   void _openSearchDialog() {
     SearchSegment segment;
     switch (_tabController.index) {
@@ -398,19 +397,8 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
         segment = SearchSegment.video;
     }
 
-    showAppDialog(
-      SearchDialog(
-        userInputKeywords: '',
-        initialSegment: segment,
-        onSearch: (searchInfo, segment, filters, sort) {
-          NaviService.toSearchPage(
-            searchInfo: searchInfo,
-            segment: segment,
-            filters: filters,
-            sort: sort,
-          );
-        },
-      ),
+    NaviService.navigateToSearchPage(
+      initialSegment: segment,
     );
   }
 

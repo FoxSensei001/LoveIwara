@@ -26,8 +26,6 @@ import 'package:i_iwara/app/ui/widgets/responsive_dialog_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
-
-import 'search_dialog.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/tag_detail_dialog.dart';
 import 'package:i_iwara/app/models/saved_search.model.dart';
@@ -544,16 +542,14 @@ class _SearchResultState extends State<SearchResult> {
     );
   }
 
-  // 显示搜索对话框（关键词取页面本地文本，见 _buildSearchPill 的注释）
+  // 打开搜索页面（关键词取页面本地文本，见 _buildSearchPill 的注释）
   void _showSearchDialog() {
-    showAppDialog(
-      SearchDialog(
-        userInputKeywords: _searchController.text,
-        initialSegment: searchController.selectedSegment.value,
-        initialSort: searchController.selectedSort.value,
-        initialFilters: searchController.filters.toList(),
-        onSearch: _handleSearchResult,
-      ),
+    NaviService.navigateToSearchPage(
+      userInputKeywords: _searchController.text,
+      initialSegment: searchController.selectedSegment.value,
+      initialSort: searchController.selectedSort.value,
+      initialFilters: searchController.filters.toList(),
+      onSearch: _handleSearchResult,
     );
   }
 

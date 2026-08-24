@@ -36,6 +36,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/video_detail_page_v2.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/video_gesture_guide_page.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/gallery_detail_page.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/author_profile_page.dart';
+import 'package:i_iwara/app/ui/pages/search/search_page.dart';
 import 'package:i_iwara/app/ui/pages/search/search_result.dart';
 import 'package:i_iwara/app/ui/pages/play_list/play_list_detail.dart';
 import 'package:i_iwara/app/ui/widgets/fade_branch_container.dart';
@@ -492,6 +493,25 @@ final GoRouter appRouter = GoRouter(
                   IwaraDeepLinkUtils.resolveAuthorProfileInitialTabIndex(
                     state.uri.queryParameters['tab'],
                   ),
+            );
+          },
+        ),
+
+        // 搜索配置页
+        GoRoute(
+          path: '/search',
+          name: 'search',
+          pageBuilder: (context, state) {
+            final extra = state.extra as SearchPageExtra?;
+            return buildAdaptiveSwipeablePage(
+              state,
+              SearchPage(
+                userInputKeywords: extra?.userInputKeywords ?? '',
+                initialSegment: extra?.initialSegment ?? SearchSegment.video,
+                initialFilters: extra?.initialFilters,
+                initialSort: extra?.initialSort,
+                onSearch: extra?.onSearch,
+              ),
             );
           },
         ),
@@ -1315,6 +1335,22 @@ class ForumThreadDetailExtra {
   final ForumThreadModel? initialThread;
 
   const ForumThreadDetailExtra({this.initialThread});
+}
+
+class SearchPageExtra {
+  final String userInputKeywords;
+  final SearchSegment initialSegment;
+  final List<Filter>? initialFilters;
+  final String? initialSort;
+  final Function(String, SearchSegment, List<Filter>, String)? onSearch;
+
+  const SearchPageExtra({
+    this.userInputKeywords = '',
+    this.initialSegment = SearchSegment.video,
+    this.initialFilters,
+    this.initialSort,
+    this.onSearch,
+  });
 }
 
 class SearchResultExtra {
