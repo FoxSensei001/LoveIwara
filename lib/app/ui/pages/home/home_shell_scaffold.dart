@@ -546,9 +546,22 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     final bool showAvatar = !_isAtHomeRoot;
     return GlassShapeSwitcher(
       child: showAvatar
-          ? KeyedSubtree(
-              key: const ValueKey('rail_identity_avatar'),
-              child: const IdentityAvatarButton(forceLiquid: true),
+          ? const KeyedSubtree(
+              key: ValueKey('rail_identity_avatar'),
+              // ⛔ 这里**不传 forceLiquid**：侧栏是实心面，lens 在上面没有东西
+              // 可折射，而每一层液态玻璃都要一次整屏 resolve。2026-08-24 真机实测
+              // （视频详情页，播放中静置）：这一枚 44px 圆钮就是全页唯一的玻璃，
+              // 开着它 raster 8.23ms / 14.0 saveLayer 每帧，关掉 6.08ms / 8.0
+              // ——**一枚看不出效果的按钮吃掉 2.1ms**。
+              //
+              // 「看不出效果」不是推测：真/假玻璃两张截图逐像素比过，液态档下
+              // 这枚钮的壳几乎不可见（纯白 rail 折射不出东西），反倒是传统档的
+              // GlassTokens.fill 还能看出一圈柔和的壳。这正是 IdentityAvatarButton
+              // 类注释里早就记过的失效模式，当初据此让社区页跟随页面档位，只有
+              // 侧栏这一枚留了 forceLiquid——现在它也归队。
+              //
+              // 代价：这一枚失去长按跟手形变。它在实心面上本来也读不出液态感。
+              child: IdentityAvatarButton(),
             )
           : KeyedSubtree(
               key: const ValueKey('rail_identity_settings'),

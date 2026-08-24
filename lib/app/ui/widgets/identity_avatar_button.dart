@@ -51,9 +51,19 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 ///
 /// 所以默认**跟随祖先 [LiquidGlassScope]**：已经液态化的页面（热门视频 /
 /// 图库、订阅）自然拿到折射与形变，传统档页面（社区）保持与邻居一致。
-/// 只有宽屏侧栏那枚要显式传 [forceLiquid]——它压在 `NavigationRail` 的实心
-/// 面上，本来就不在任何液态子树里，而那份「折射出 rail 的底色」是早就
-/// 定下来的观感。
+///
+/// # ⛔ [forceLiquid] 现在没有调用点了（2026-08-24）
+///
+/// 宽屏侧栏那枚曾经传 true，理由是「折射出 rail 的底色」。真机量下来这份观感
+/// 是不存在的：rail 是实心面，lens 没有东西可折射，两档并排比像素——**液态档
+/// 下那层壳几乎不可见**，反倒传统档的 [GlassTokens.fill] 还能看出一圈柔和的壳
+/// （和上一段社区页那次是同一个失效模式）。而代价是实打实的：视频详情页上
+/// 那一枚就是全页唯一的玻璃，开着它 raster 8.23ms / 每帧 14.0 个 saveLayer，
+/// 关掉 6.08ms / 8.0 ——**一枚看不出效果的按钮吃掉 2.1ms**（每层液态玻璃 =
+/// 一次 `BackdropGroup` + 一次整屏 resolve，见 `GlassChromeLayer` 的归因表）。
+///
+/// 参数先留着：将来真有「压在会动的内容之上、却不在液态子树里」的入口时用得上。
+/// **实心面上不要开**。
 class IdentityAvatarButton extends StatelessWidget {
   const IdentityAvatarButton({
     super.key,
@@ -167,6 +177,9 @@ class IdentityAvatarButton extends StatelessWidget {
     });
 
     if (!forceLiquid) return button;
-    return LiquidGlassScope(backend: chromeGlassBackend(context), child: button);
+    return LiquidGlassScope(
+      backend: chromeGlassBackend(context),
+      child: button,
+    );
   }
 }
