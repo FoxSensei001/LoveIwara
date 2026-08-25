@@ -1,0 +1,3009 @@
+{
+  "schema": 1,
+  "batch": 3,
+  "count": 120,
+  "contract": {
+    "output": "写成同名 .out.json，结构 {\"batch\":N,\"entries\":[{\"key\":...,\"decision\":...,\"names\":{...},\"reason\":...,\"ref\":[...]}]}",
+    "rules": [
+      "key 与条数必须与输入完全一致，不得增删、不得改写 key",
+      "type=translate：为 need 里的每个语言给出译名，写进 names；known 里的不要改",
+      "type=adjudicate：decision 取 keep（保留 current）或 replace（用 names 覆盖）；replace 时 names 必须给出要改的语言",
+      "没有把握一律 keep / 保留原文，不要编。宁可留日文也不要给一个错的中文名",
+      "candidates 来自 Danbooru 的既有别名，是线索不是答案——它可能是日文写法、旧译名，甚至是别的角色",
+      "每条都要给 reason（一句话），replace 必须给 ref（可访问的来源 URL）",
+      "同名不同人的词条（不同 origin 的同一个日文名）必须给出不同译名，不要合并"
+    ]
+  },
+  "entries": [
+    {
+      "dataset": "iwara",
+      "key": "groping",
+      "type": "adjudicate",
+      "source": "groping",
+      "current": {
+        "zh-CN": "抚摸",
+        "zh-TW": "撫摸",
+        "ja": "愛撫",
+        "en": "Groping"
+      },
+      "candidates": [
+        "爱抚"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/groping",
+        "otherNames": [
+          "揉む",
+          "爱抚",
+          "愛撫"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "guro",
+      "type": "adjudicate",
+      "source": "guro",
+      "current": {
+        "zh-CN": "猎奇",
+        "zh-TW": "獵奇",
+        "ja": "グロ",
+        "en": "Guro"
+      },
+      "candidates": [
+        "内臓"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/guro",
+        "otherNames": [
+          "グロ",
+          "内臓",
+          "R-18G",
+          "gore",
+          "tw_gore"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "hagiwara_yukiho",
+      "type": "adjudicate",
+      "source": "hagiwara yukiho",
+      "current": {
+        "zh-CN": "萩原雪步",
+        "zh-TW": "萩原雪步",
+        "ja": "萩原雪歩",
+        "en": "Yukiho Hagiwara"
+      },
+      "candidates": [
+        "萩原雪歩"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/hagiwara_yukiho",
+        "otherNames": [
+          "萩原雪歩"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "hakase_fuyuki",
+      "type": "adjudicate",
+      "source": "hakase fuyuki",
+      "current": {
+        "zh-CN": "叶加濑冬雪",
+        "zh-TW": "葉加瀨冬雪",
+        "ja": "葉加瀬冬雪",
+        "en": "Fuyuki Hakase"
+      },
+      "candidates": [
+        "葉加瀬冬雪"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/hakase_fuyuki",
+        "otherNames": [
+          "葉加瀬冬雪",
+          "はかせレポート",
+          "はかせとワンドロ"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "hakos_baelz",
+      "type": "adjudicate",
+      "source": "hakos baelz",
+      "current": {
+        "zh-CN": "哈可斯·贝莉丝",
+        "zh-TW": "哈可斯·貝莉絲",
+        "ja": "ハコス・ベールズ",
+        "en": "Hakos Baelz"
+      },
+      "candidates": [
+        "哈珂斯·贝尔丝"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/hakos_baelz",
+        "otherNames": [
+          "ハコス・ベールズ",
+          "illustrayBAE",
+          "ベーアート",
+          "BaelzBrush",
+          "HakosBaelz",
+          "ベールズ",
+          "哈珂斯·贝尔丝"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "highschool_of_the_dead",
+      "type": "adjudicate",
+      "source": "highschool of the dead",
+      "current": {
+        "zh-CN": "学园默示录",
+        "zh-TW": "學園默示錄",
+        "ja": "学園黙示録 HIGHSCHOOL OF THE DEAD",
+        "en": "Highschool of the Dead"
+      },
+      "candidates": [
+        "学園黙示録",
+        "学園黙示録_HIGHSCHOOL_OF_THE_DEAD"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/highschool_of_the_dead",
+        "otherNames": [
+          "学園黙示録",
+          "学園黙示録_HIGHSCHOOL_OF_THE_DEAD",
+          "ハイスクール・オブ・ザ・デッド",
+          "HOTD",
+          "H.O.T.D.",
+          "スクデッド"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "higuchi_kaede",
+      "type": "adjudicate",
+      "source": "higuchi kaede",
+      "current": {
+        "zh-CN": "樋口枫",
+        "zh-TW": "樋口楓",
+        "ja": "樋口楓",
+        "en": "Kaede Higuchi"
+      },
+      "candidates": [
+        "樋口楓"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/higuchi_kaede",
+        "otherNames": [
+          "樋口楓",
+          "でろあーと",
+          "DeroArt",
+          "nizima_樋口楓FAコンテスト"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "hook",
+      "type": "adjudicate",
+      "source": "hook",
+      "current": {
+        "zh-CN": "虎克",
+        "zh-TW": "虎克",
+        "ja": "フック",
+        "en": "Hook"
+      },
+      "candidates": [
+        "钩子"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/hook",
+        "otherNames": [
+          "钩子"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "huge_ass",
+      "type": "adjudicate",
+      "source": "huge ass",
+      "current": {
+        "zh-CN": "巨臀",
+        "zh-TW": "巨臀",
+        "ja": "巨尻",
+        "en": "Huge Ass"
+      },
+      "candidates": [
+        "巨尻",
+        "爆尻",
+        "超尻"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/huge_ass",
+        "otherNames": [
+          "特盛り下半身",
+          "巨尻",
+          "デカ尻",
+          "爆尻",
+          "超尻",
+          "huge_butt"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "huge_breasts",
+      "type": "adjudicate",
+      "source": "huge breasts",
+      "current": {
+        "zh-CN": "巨乳",
+        "zh-TW": "巨乳",
+        "ja": "巨乳",
+        "en": "Huge Breasts"
+      },
+      "candidates": [
+        "桃髪爆乳",
+        "橙髪爆乳",
+        "爆乳",
+        "爆乳化",
+        "着衣爆乳",
+        "茶髪爆乳",
+        "金髪爆乳",
+        "黒髪爆乳"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/huge_breasts",
+        "otherNames": [
+          "爆乳",
+          "폭유",
+          "爆乳化",
+          "hugeboobs",
+          "hugebreasts",
+          "黒髪爆乳",
+          "着衣爆乳",
+          "ずっしり乳",
+          "金髪爆乳",
+          "桃髪爆乳",
+          "おっぱいオバケ",
+          "ロリ爆乳",
+          "茶髪爆乳",
+          "橙髪爆乳",
+          "Nカップ"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "huge_penis",
+      "type": "adjudicate",
+      "source": "huge penis",
+      "current": {
+        "zh-CN": "巨根",
+        "zh-TW": "巨根",
+        "ja": "巨根",
+        "en": "Huge Penis"
+      },
+      "candidates": [
+        "爆根",
+        "超根"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/huge_penis",
+        "otherNames": [
+          "爆根",
+          "超根",
+          "極上の竿",
+          "巨根ショタ",
+          "ロリ巨根"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "igawa_asagi",
+      "type": "adjudicate",
+      "source": "igawa asagi",
+      "current": {
+        "zh-CN": "井河阿萨姬",
+        "zh-TW": "井河阿薩姬",
+        "ja": "井河アサギ",
+        "en": "Asagi Igawa"
+      },
+      "candidates": [
+        "井河姉妹"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/igawa_asagi",
+        "otherNames": [
+          "井河アサギ",
+          "井河姉妹"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "igawa_sakura",
+      "type": "adjudicate",
+      "source": "igawa sakura",
+      "current": {
+        "zh-CN": "井河樱",
+        "zh-TW": "井河櫻",
+        "ja": "井河さくら",
+        "en": "Sakura Igawa"
+      },
+      "candidates": [
+        "井河姉妹"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/igawa_sakura",
+        "otherNames": [
+          "井河さくら",
+          "井河姉妹"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "inoue_takina",
+      "type": "adjudicate",
+      "source": "inoue takina",
+      "current": {
+        "zh-CN": "井之上泷奈",
+        "zh-TW": "井之上瀧奈",
+        "ja": "井ノ上たきな",
+        "en": "Takina Inoue"
+      },
+      "candidates": [
+        "井上泷奈",
+        "蒲焼太郎"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/inoue_takina",
+        "otherNames": [
+          "井ノ上たきな",
+          "ちさたき",
+          "蒲焼太郎",
+          "たきちさ",
+          "井上泷奈"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "jersey",
+      "type": "adjudicate",
+      "source": "jersey",
+      "current": {
+        "zh-CN": "运动衫",
+        "zh-TW": "運動衫",
+        "ja": "ジャージ",
+        "en": "Jersey"
+      },
+      "candidates": [
+        "球衣"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/jersey",
+        "otherNames": [
+          "球衣",
+          "ジャージ",
+          "ジャージ+ブルマ"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "kagura_mea",
+      "type": "adjudicate",
+      "source": "kagura mea",
+      "current": {
+        "zh-CN": "神乐めあ",
+        "zh-TW": "神樂めあ",
+        "ja": "神楽めあ",
+        "en": "Kagura Mea"
+      },
+      "candidates": [
+        "神乐Mea"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/kagura_mea",
+        "otherNames": [
+          "神楽めあ",
+          "めあArt",
+          "神乐Mea"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "kaguya_luna",
+      "type": "adjudicate",
+      "source": "kaguya luna",
+      "current": {
+        "zh-CN": "辉夜月",
+        "zh-TW": "輝夜月",
+        "ja": "輝夜月",
+        "en": "Kaguya Luna"
+      },
+      "candidates": [
+        "輝夜月"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/kaguya_luna",
+        "otherNames": [
+          "輝夜月",
+          "首を絞めたハム太郎"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "kasane_teto",
+      "type": "adjudicate",
+      "source": "kasane teto",
+      "current": {
+        "zh-CN": "重音Teto",
+        "zh-TW": "重音Teto",
+        "ja": "重音テト",
+        "en": "Kasane Teto"
+      },
+      "candidates": [
+        "重音teto",
+        "零钻"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/kasane_teto",
+        "otherNames": [
+          "重音テト",
+          "teto",
+          "kasaneteto",
+          "tetokasane",
+          "重音teto",
+          "レイテト",
+          "テトの日",
+          "ミクテト",
+          "零钻"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "kidnapping",
+      "type": "adjudicate",
+      "source": "kidnapping",
+      "current": {
+        "zh-CN": "绑架",
+        "zh-TW": "綁架",
+        "ja": "誘拐",
+        "en": "Kidnapping"
+      },
+      "candidates": [
+        "拉致",
+        "誘拐"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/kidnapping",
+        "otherNames": [
+          "誘拐",
+          "拉致",
+          "お持ち帰り"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "zundamon",
+      "type": "adjudicate",
+      "source": "zundamon",
+      "current": {
+        "zh-CN": "ずんだもん",
+        "zh-TW": "ずんだもん",
+        "ja": "ずんだもん",
+        "en": "Zundamon"
+      },
+      "candidates": [
+        "俊达萌"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/zundamon",
+        "otherNames": [
+          "ずんだもん",
+          "俊达萌"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "king",
+      "type": "adjudicate",
+      "source": "king",
+      "current": {
+        "zh-CN": "KING",
+        "zh-TW": "KING",
+        "ja": "KING",
+        "en": "KING"
+      },
+      "candidates": [
+        "王"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/king",
+        "otherNames": [
+          "王",
+          "왕"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "kingdom_hearts",
+      "type": "adjudicate",
+      "source": "kingdom hearts",
+      "current": {
+        "zh-CN": "王国之心",
+        "zh-TW": "王國之心",
+        "ja": "キングダム ハーツ",
+        "en": "Kingdom Hearts"
+      },
+      "candidates": [
+        "王国心"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/kingdom_hearts",
+        "otherNames": [
+          "王国心",
+          "キングダムハーツ",
+          "KingdomHearts",
+          "KH"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "kitakami_futaba",
+      "type": "adjudicate",
+      "source": "kitakami futaba",
+      "current": {
+        "zh-CN": "北上双叶",
+        "zh-TW": "北上雙葉",
+        "ja": "北上双葉",
+        "en": "Futaba Kitakami"
+      },
+      "candidates": [
+        "北上双葉"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/kitakami_futaba",
+        "otherNames": [
+          "北上双葉",
+          "ふたばあーと"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "kitsune",
+      "type": "adjudicate",
+      "source": "kitsune",
+      "current": {
+        "zh-CN": "狐娘",
+        "zh-TW": "狐娘",
+        "ja": "狐娘",
+        "en": "Kitsune"
+      },
+      "candidates": [
+        "妖狐"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/kitsune",
+        "otherNames": [
+          "妖狐",
+          "化け狐"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "kizuna_akari",
+      "type": "adjudicate",
+      "source": "kizuna akari",
+      "current": {
+        "zh-CN": "紲星灯",
+        "zh-TW": "紲星燈",
+        "ja": "紲星あかり",
+        "en": "Kizuna Akari"
+      },
+      "candidates": [
+        "绁星灯"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/kizuna_akari",
+        "otherNames": [
+          "紲星あかり",
+          "绁星灯"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "komi_shouko",
+      "type": "adjudicate",
+      "source": "komi shouko",
+      "current": {
+        "zh-CN": "古见硝子",
+        "zh-TW": "古見硝子",
+        "ja": "古見硝子",
+        "en": "Shouko Komi"
+      },
+      "candidates": [
+        "古見硝子"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/komi_shouko",
+        "otherNames": [
+          "古見硝子",
+          "こみしょうこ",
+          "Komi_Shōko"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "lamb",
+      "type": "adjudicate",
+      "source": "lamb",
+      "current": {
+        "zh-CN": "羊灵",
+        "zh-TW": "羊靈",
+        "ja": "羊",
+        "en": "Lamb"
+      },
+      "candidates": [
+        "子羊",
+        "羊羔"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/lamb",
+        "otherNames": [
+          "어린양",
+          "羊羔",
+          "子羊"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "lifting_person",
+      "type": "adjudicate",
+      "source": "lifting person",
+      "current": {
+        "zh-CN": "抱起",
+        "zh-TW": "抱起",
+        "ja": "持ち上げ",
+        "en": "Lifting Person"
+      },
+      "candidates": [
+        "被抬起的人"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/lifting_person",
+        "otherNames": [
+          "持ち上げる",
+          "被抬起的人"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "lila_decyrus",
+      "type": "adjudicate",
+      "source": "lila decyrus",
+      "current": {
+        "zh-CN": "莉拉·德希雅斯",
+        "zh-TW": "莉拉·德希雅斯",
+        "ja": "リラ・ディザイアス",
+        "en": "Lila Decyrus"
+      },
+      "candidates": [
+        "莉拉·德西亚斯"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/lila_decyrus",
+        "otherNames": [
+          "リラ・ディザイアス",
+          "莉拉·德西亚斯"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "lily_black",
+      "type": "adjudicate",
+      "source": "lily black",
+      "current": {
+        "zh-CN": "黑莉莉",
+        "zh-TW": "黑莉莉",
+        "ja": "リリーブラック",
+        "en": "Lily Black"
+      },
+      "candidates": [
+        "莉莉黑"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/lily_black",
+        "otherNames": [
+          "リリーブラック",
+          "릴리블랙",
+          "莉莉黑"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "lily_white",
+      "type": "adjudicate",
+      "source": "lily white",
+      "current": {
+        "zh-CN": "白莉莉",
+        "zh-TW": "白莉莉",
+        "ja": "リリーホワイト",
+        "en": "Lily White"
+      },
+      "candidates": [
+        "莉莉白",
+        "莉莉霍瓦特"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/lily_white",
+        "otherNames": [
+          "リリーホワイト",
+          "릴리화이트",
+          "莉莉白",
+          "莉莉霍瓦特"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "little_witch_academia",
+      "type": "adjudicate",
+      "source": "little witch academia",
+      "current": {
+        "zh-CN": "小魔女学园",
+        "zh-TW": "小魔女學園",
+        "ja": "リトルウィッチアカデミア",
+        "en": "Little Witch Academia"
+      },
+      "candidates": [
+        "小魔女学院"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/little_witch_academia",
+        "otherNames": [
+          "リトルウィッチアカデミア",
+          "little_witch_academia",
+          "LWA",
+          "littlewitchacademia",
+          "LWA_jp",
+          "小魔女学院"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "loincloth",
+      "type": "adjudicate",
+      "source": "loincloth",
+      "current": {
+        "zh-CN": "兜裆布",
+        "zh-TW": "兜襠布",
+        "ja": "褌",
+        "en": "Loincloth"
+      },
+      "candidates": [
+        "腰布"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/loincloth",
+        "otherNames": [
+          "腰布",
+          "前掛け"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "love_potion",
+      "type": "adjudicate",
+      "source": "love potion",
+      "current": {
+        "zh-CN": "媚药",
+        "zh-TW": "媚藥",
+        "ja": "媚薬",
+        "en": "Love Potion"
+      },
+      "candidates": [
+        "恋爱药剂",
+        "爱情魔药"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/love_potion",
+        "otherNames": [
+          "惚れ薬",
+          "爱情魔药",
+          "恋爱药剂"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "lucia_elowen",
+      "type": "adjudicate",
+      "source": "lucia elowen",
+      "current": {
+        "zh-CN": "卢西娅·艾洛温",
+        "zh-TW": "盧西亞·艾洛溫",
+        "ja": "ルシア・エローウェン",
+        "en": "Lucia Elowen"
+      },
+      "candidates": [
+        "卢西娅・艾洛温",
+        "盧西婭・艾洛溫"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/lucia_elowen",
+        "otherNames": [
+          "リュシア",
+          "リュシア(ゼンゼロ)",
+          "リュシア・エロウェン",
+          "卢西娅・艾洛温",
+          "盧西婭・艾洛溫",
+          "リュシア・エロ",
+          "卢西娅ウェン",
+          "루시아_엘로웬",
+          "luciazzz"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "lynx",
+      "type": "adjudicate",
+      "source": "lynx",
+      "current": {
+        "zh-CN": "玲可",
+        "zh-TW": "玲可",
+        "ja": "リンクス",
+        "en": "Lynx"
+      },
+      "candidates": [
+        "猞猁"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/lynx",
+        "otherNames": [
+          "オオヤマネコ",
+          "猞猁"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "mating_press",
+      "type": "adjudicate",
+      "source": "mating press",
+      "current": {
+        "zh-CN": "压榨体位",
+        "zh-TW": "壓榨體位",
+        "ja": "メイティングプレス",
+        "en": "Mating Press"
+      },
+      "candidates": [
+        "种付位"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/mating_press",
+        "otherNames": [
+          "種付けプレス",
+          "种付位"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "may",
+      "type": "adjudicate",
+      "source": "may",
+      "current": {
+        "zh-CN": "小遥",
+        "zh-TW": "小遙",
+        "ja": "ハルカ",
+        "en": "May"
+      },
+      "candidates": [
+        "5月"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/may",
+        "otherNames": [
+          "5月"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "medium_breasts",
+      "type": "adjudicate",
+      "source": "medium breasts",
+      "current": {
+        "zh-CN": "美乳",
+        "zh-TW": "美乳",
+        "ja": "美乳",
+        "en": "Medium Breasts"
+      },
+      "candidates": [
+        "普乳",
+        "普通乳"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/medium_breasts",
+        "otherNames": [
+          "普通乳",
+          "普乳"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "meme",
+      "type": "adjudicate",
+      "source": "meme",
+      "current": {
+        "zh-CN": "迷因",
+        "zh-TW": "迷因",
+        "ja": "ミーム",
+        "en": "Meme"
+      },
+      "candidates": [
+        "梗",
+        "模因",
+        "沙雕",
+        "网络模因"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/meme",
+        "otherNames": [
+          "海外ミーム",
+          "インターネットミーム",
+          "ミーム",
+          "沙雕",
+          "梗",
+          "模因",
+          "网络模因"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "merun_morino",
+      "type": "adjudicate",
+      "source": "merun morino",
+      "current": {
+        "zh-CN": "森野麦仑",
+        "zh-TW": "森野麥侖",
+        "ja": "森野めるん",
+        "en": "Merun Morino"
+      },
+      "candidates": [
+        "森野莓洛"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/merun_morino",
+        "otherNames": [
+          "森野めるん",
+          "森野莓洛",
+          "morino_merun",
+          "MerunFanArt",
+          "MerunLIVE",
+          "MerunMorino"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "messy_hair",
+      "type": "adjudicate",
+      "source": "messy hair",
+      "current": {
+        "zh-CN": "凌乱头发",
+        "zh-TW": "凌亂頭髮",
+        "ja": "乱れ髪",
+        "en": "Messy Hair"
+      },
+      "candidates": [
+        "乱发",
+        "寝癖",
+        "没打理的头发"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/messy_hair",
+        "otherNames": [
+          "くせ毛",
+          "ボサボサ",
+          "ボサ髪",
+          "寝癖",
+          "寝ぐせ",
+          "モジャモジャ",
+          "乱发",
+          "没打理的头发"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "metroid",
+      "type": "adjudicate",
+      "source": "metroid",
+      "current": {
+        "zh-CN": "银河战士",
+        "zh-TW": "銀河戰士",
+        "ja": "メトロイド",
+        "en": "Metroid"
+      },
+      "candidates": [
+        "密特罗德"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/metroid",
+        "otherNames": [
+          "メトロイド",
+          "メトロイドシリーズ",
+          "密特罗德",
+          "密特羅德"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "micro_bikini",
+      "type": "adjudicate",
+      "source": "micro bikini",
+      "current": {
+        "zh-CN": "极小比基尼",
+        "zh-TW": "極小比基尼",
+        "ja": "マイクロビキニ",
+        "en": "Micro Bikini"
+      },
+      "candidates": [
+        "微型比基尼",
+        "迷你比基尼"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/micro_bikini",
+        "otherNames": [
+          "マイクロビキニ",
+          "艦これマイクロビキニ部",
+          "プリキュアマイクロビキニ部",
+          "乳首ビキニ",
+          "ニプルフックビキニ",
+          "乳首キニ",
+          "マイクロビキニーソ",
+          "微型比基尼",
+          "迷你比基尼"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "zombie",
+      "type": "adjudicate",
+      "source": "zombie",
+      "current": {
+        "zh-CN": "僵尸",
+        "zh-TW": "殭屍",
+        "ja": "ゾンビ",
+        "en": "Zombie"
+      },
+      "candidates": [
+        "丧尸"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/zombie",
+        "otherNames": [
+          "🧟",
+          "ゾンビ",
+          "丧尸"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "miside",
+      "type": "adjudicate",
+      "source": "miside",
+      "current": {
+        "zh-CN": "MiSide",
+        "zh-TW": "MiSide",
+        "ja": "MiSide",
+        "en": "MiSide"
+      },
+      "candidates": [
+        "米塔miside"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/miside",
+        "otherNames": [
+          "MiSide",
+          "ミサイド",
+          "米塔miside"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "mococo_abyssgard",
+      "type": "adjudicate",
+      "source": "mococo abyssgard",
+      "current": {
+        "zh-CN": "摩科科·阿比斯加德",
+        "zh-TW": "摩科科·阿比斯加德",
+        "ja": "モココ・アビスガード",
+        "en": "Mococo Abyssgard"
+      },
+      "candidates": [
+        "茸茸·阿比斯加德"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/mococo_abyssgard",
+        "otherNames": [
+          "モココ・アビスガード",
+          "FUWAMOCO",
+          "FWMCpix",
+          "フワモコ",
+          "茸茸·阿比斯加德"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "moona_hoshinova",
+      "type": "adjudicate",
+      "source": "moona hoshinova",
+      "current": {
+        "zh-CN": "慕娜·星诺瓦",
+        "zh-TW": "慕娜·星諾瓦",
+        "ja": "ムーナ・ホシノヴァ",
+        "en": "Moona Hoshinova"
+      },
+      "candidates": [
+        "暮娜·惑星诺瓦"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/moona_hoshinova",
+        "otherNames": [
+          "Moona_Hoshinova",
+          "MoonaHoshinova",
+          "HoshinovArt",
+          "ムーナ・ホシノヴァ",
+          "ムーナ",
+          "ムーナホシノヴァー",
+          "暮娜·惑星诺瓦"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "multiple_boys",
+      "type": "adjudicate",
+      "source": "multiple boys",
+      "current": {
+        "zh-CN": "多个男孩",
+        "zh-TW": "多個男孩",
+        "ja": "複数男",
+        "en": "Multiple Boys"
+      },
+      "candidates": [
+        "群像"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/multiple_boys",
+        "otherNames": [
+          "群像"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "multiple_girls",
+      "type": "adjudicate",
+      "source": "multiple girls",
+      "current": {
+        "zh-CN": "多个女孩",
+        "zh-TW": "多個女孩",
+        "ja": "複数女",
+        "en": "Multiple Girls"
+      },
+      "candidates": [
+        "群像"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/multiple_girls",
+        "otherNames": [
+          "群像"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "multiple_views",
+      "type": "adjudicate",
+      "source": "multiple views",
+      "current": {
+        "zh-CN": "多视角",
+        "zh-TW": "多視角",
+        "ja": "複数アングル",
+        "en": "Multiple Views"
+      },
+      "candidates": [
+        "3面図",
+        "三视图",
+        "三面図",
+        "多视图",
+        "摸鱼页",
+        "组合页"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/multiple_views",
+        "otherNames": [
+          "三面図",
+          "3面図",
+          "マルチシーン",
+          "multiple_angles",
+          "三视图",
+          "多视图",
+          "组合页",
+          "摸鱼页"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "muscular",
+      "type": "adjudicate",
+      "source": "muscular",
+      "current": {
+        "zh-CN": "强壮",
+        "zh-TW": "強壯",
+        "ja": "マッシブ",
+        "en": "Muscular"
+      },
+      "candidates": [
+        "大腿筋",
+        "筋肉",
+        "肌肉发达"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/muscular",
+        "otherNames": [
+          "筋肉",
+          "筋肉質",
+          "玉つき筋肉ショタ",
+          "大腿筋",
+          "蹴られたくない剛脚",
+          "肌肉发达"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "mutilation",
+      "type": "adjudicate",
+      "source": "mutilation",
+      "current": {
+        "zh-CN": "残肢",
+        "zh-TW": "殘肢",
+        "ja": "切断",
+        "en": "Mutilation"
+      },
+      "candidates": [
+        "性器破壊"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/mutilation",
+        "otherNames": [
+          "性器破壊"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "mutual_masturbation",
+      "type": "adjudicate",
+      "source": "mutual masturbation",
+      "current": {
+        "zh-CN": "互相抚慰",
+        "zh-TW": "互相撫慰",
+        "ja": "相互オナニー",
+        "en": "Mutual Masturbation"
+      },
+      "candidates": [
+        "互相手淫"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/mutual_masturbation",
+        "otherNames": [
+          "相互オナニー",
+          "互相手淫"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "nakiri_ayame",
+      "type": "adjudicate",
+      "source": "nakiri ayame",
+      "current": {
+        "zh-CN": "百鬼绫目",
+        "zh-TW": "百鬼綾目",
+        "ja": "百鬼あやめ",
+        "en": "Nakiri Ayame"
+      },
+      "candidates": [
+        "百鬼絵巻",
+        "百鬼綾目"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/nakiri_ayame",
+        "otherNames": [
+          "百鬼あやめ",
+          "百鬼絵巻",
+          "百鬼綾目"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "nanashi_mumei",
+      "type": "adjudicate",
+      "source": "nanashi mumei",
+      "current": {
+        "zh-CN": "七诗Mumei",
+        "zh-TW": "七詩Mumei",
+        "ja": "七詩ムメイ",
+        "en": "Nanashi Mumei"
+      },
+      "candidates": [
+        "七诗无铭"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/nanashi_mumei",
+        "otherNames": [
+          "七詩ムメイ",
+          "watchMEI",
+          "memeMEI",
+          "drawMEI",
+          "drawingMEI",
+          "ムメ絵",
+          "NanashiMumei",
+          "七诗无铭"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "naughty_face",
+      "type": "adjudicate",
+      "source": "naughty face",
+      "current": {
+        "zh-CN": "恶作剧脸",
+        "zh-TW": "惡作劇臉",
+        "ja": "いたずら顔",
+        "en": "Naughty Face"
+      },
+      "candidates": [
+        "调皮脸"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/naughty_face",
+        "otherNames": [
+          "调皮脸",
+          "ニヤニヤ"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "necrophilia",
+      "type": "adjudicate",
+      "source": "necrophilia",
+      "current": {
+        "zh-CN": "恋尸癖",
+        "zh-TW": "戀屍癖",
+        "ja": "ネクロフィリア",
+        "en": "Necrophilia"
+      },
+      "candidates": [
+        "屍姦",
+        "死姦"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/necrophilia",
+        "otherNames": [
+          "屍姦",
+          "死姦"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "nekomiya_mana",
+      "type": "adjudicate",
+      "source": "nekomiya mana",
+      "current": {
+        "zh-CN": "猫宫Mana",
+        "zh-TW": "貓宮Mana",
+        "ja": "猫宮まな",
+        "en": "Nekomiya Mana"
+      },
+      "candidates": [
+        "猫又",
+        "猫宫又奈"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/nekomiya_mana",
+        "otherNames": [
+          "猫宫又奈",
+          "NekomiyaMana",
+          "猫宮又奈",
+          "猫又(绝区零)"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "nekopara",
+      "type": "adjudicate",
+      "source": "nekopara",
+      "current": {
+        "zh-CN": "巧克力与香子兰",
+        "zh-TW": "巧克力與香子蘭",
+        "ja": "ネコパラ",
+        "en": "Nekopara"
+      },
+      "candidates": [
+        "猫娘乐园"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/nekopara",
+        "otherNames": [
+          "貓娘樂園",
+          "猫娘乐园",
+          "ネコぱら"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "nerissa_ravencroft",
+      "type": "adjudicate",
+      "source": "nerissa ravencroft",
+      "current": {
+        "zh-CN": "涅莉萨·雷文克罗夫特",
+        "zh-TW": "涅莉薩·雷文克羅夫特",
+        "ja": "ネリッサ・レイヴンクロフト",
+        "en": "Nerissa Ravencroft"
+      },
+      "candidates": [
+        "纳瑞莎·雷文克罗夫特"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/nerissa_ravencroft",
+        "otherNames": [
+          "RavenCrafts",
+          "ネリッサ・レイヴンクロフト",
+          "DepravenCrafts",
+          "NerissaRavencroft",
+          "纳瑞莎·雷文克罗夫特"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "netorare",
+      "type": "adjudicate",
+      "source": "netorare",
+      "current": {
+        "zh-CN": "寝取",
+        "zh-TW": "寢取",
+        "ja": "寝取られ",
+        "en": "Netorare"
+      },
+      "candidates": [
+        "戴绿帽",
+        "逆NTR"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/netorare",
+        "otherNames": [
+          "寝取られ",
+          "NTR",
+          "逆NTR",
+          "寝取り",
+          "寝取らせ",
+          "ntr",
+          "BSS",
+          "戴绿帽"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "nipple_penetration",
+      "type": "adjudicate",
+      "source": "nipple penetration",
+      "current": {
+        "zh-CN": "乳头穿入",
+        "zh-TW": "乳頭穿入",
+        "ja": "乳頭挿入",
+        "en": "Nipple Penetration"
+      },
+      "candidates": [
+        "乳头奸",
+        "乳首姦"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/nipple_penetration",
+        "otherNames": [
+          "ニプルファック",
+          "乳首姦",
+          "ニップルファック",
+          "乳头奸"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "nipple_slip",
+      "type": "adjudicate",
+      "source": "nipple slip",
+      "current": {
+        "zh-CN": "露点",
+        "zh-TW": "露點",
+        "ja": "乳首ポロリ",
+        "en": "Nipple Slip"
+      },
+      "candidates": [
+        "乳头走光"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/nipple_slip",
+        "otherNames": [
+          "胸チラ",
+          "乳首チラ",
+          "ハミ乳首",
+          "乳头走光"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "no_bra",
+      "type": "adjudicate",
+      "source": "no bra",
+      "current": {
+        "zh-CN": "不穿胸罩",
+        "zh-TW": "不穿胸罩",
+        "ja": "ノーブラ",
+        "en": "No Bra"
+      },
+      "candidates": [
+        "没戴胸罩"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/no_bra",
+        "otherNames": [
+          "ノーブラ",
+          "つけてない",
+          "はいてないしつけてない",
+          "きてない",
+          "没戴胸罩"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "no_panties",
+      "type": "adjudicate",
+      "source": "no panties",
+      "current": {
+        "zh-CN": "不穿内裤",
+        "zh-TW": "不穿內褲",
+        "ja": "ノーパン",
+        "en": "No Panties"
+      },
+      "candidates": [
+        "没穿内裤"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/no_panties",
+        "otherNames": [
+          "はいてない",
+          "穿いてない",
+          "ノーパン",
+          "はいてないしつけてない",
+          "ノーパン前垂れ",
+          "きてない",
+          "没穿内裤",
+          "直穿き"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "no_shoes",
+      "type": "adjudicate",
+      "source": "no shoes",
+      "current": {
+        "zh-CN": "光脚",
+        "zh-TW": "光腳",
+        "ja": "裸足",
+        "en": "No Shoes"
+      },
+      "candidates": [
+        "没穿鞋",
+        "生靴下"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/no_shoes",
+        "otherNames": [
+          "ソックス足裏",
+          "生靴下",
+          "没穿鞋"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "old_man",
+      "type": "adjudicate",
+      "source": "old man",
+      "current": {
+        "zh-CN": "老人",
+        "zh-TW": "老人",
+        "ja": "老人",
+        "en": "Old Man"
+      },
+      "candidates": [
+        "爺",
+        "老爺"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/old_man",
+        "otherNames": [
+          "オッサン",
+          "おじさん",
+          "おっさん",
+          "おじいさん",
+          "じじい",
+          "爺",
+          "老爺"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "oppai_loli",
+      "type": "adjudicate",
+      "source": "oppai loli",
+      "current": {
+        "zh-CN": "巨乳萝莉",
+        "zh-TW": "巨乳蘿莉",
+        "ja": "巨乳ロリ",
+        "en": "Oppai Loli"
+      },
+      "candidates": [
+        "巨乳小学生"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/oppai_loli",
+        "otherNames": [
+          "ロリ巨乳",
+          "ロリ爆乳",
+          "巨乳小学生",
+          "ロリ超乳",
+          "ガキ巨乳",
+          "トランジスタグラマー"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "orgasm_denial",
+      "type": "adjudicate",
+      "source": "orgasm denial",
+      "current": {
+        "zh-CN": "高潮控制",
+        "zh-TW": "高潮控制",
+        "ja": "イキ止め",
+        "en": "Orgasm Denial"
+      },
+      "candidates": [
+        "射精禁止",
+        "射精管理"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/orgasm_denial",
+        "otherNames": [
+          "絶頂禁止",
+          "射精禁止",
+          "射精管理",
+          "絶頂管理",
+          "寸止め"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "pale_skin",
+      "type": "adjudicate",
+      "source": "pale skin",
+      "current": {
+        "zh-CN": "白皙皮肤",
+        "zh-TW": "白皙肌膚",
+        "ja": "白皙の肌",
+        "en": "Pale Skin"
+      },
+      "candidates": [
+        "色白"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/pale_skin",
+        "otherNames": [
+          "色白"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "panties_aside",
+      "type": "adjudicate",
+      "source": "panties aside",
+      "current": {
+        "zh-CN": "拨开内裤",
+        "zh-TW": "撥開內褲",
+        "ja": "パンツずらし",
+        "en": "Panties Aside"
+      },
+      "candidates": [
+        "内裤侧拉"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/panties_aside",
+        "otherNames": [
+          "股布ずらし",
+          "ずらし挿入",
+          "内裤侧拉"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "pantyshot",
+      "type": "adjudicate",
+      "source": "pantyshot",
+      "current": {
+        "zh-CN": "裙底风光",
+        "zh-TW": "裙底風光",
+        "ja": "パンチラショット",
+        "en": "Panty Shot"
+      },
+      "candidates": [
+        "内裤走光"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/pantyshot",
+        "otherNames": [
+          "パンチラ",
+          "しゃがみパンチラ",
+          "内裤走光",
+          "ダイナミックパンチラ",
+          "パンティラ",
+          "座りパンチラ"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "parody",
+      "type": "adjudicate",
+      "source": "parody",
+      "current": {
+        "zh-CN": "原作",
+        "zh-TW": "原作",
+        "ja": "パロディ",
+        "en": "Parody"
+      },
+      "candidates": [
+        "模仿"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/parody",
+        "otherNames": [
+          "パロディ",
+          "パロディー",
+          "模仿",
+          "패러디"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "pavolia_reine",
+      "type": "adjudicate",
+      "source": "pavolia reine",
+      "current": {
+        "zh-CN": "帕沃莉亚·雷妮",
+        "zh-TW": "帕沃莉亞·雷妮",
+        "ja": "パヴォリア・レイネ",
+        "en": "Pavolia Reine"
+      },
+      "candidates": [
+        "帕沃莉亚·蕾内"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/pavolia_reine",
+        "otherNames": [
+          "パヴォリア・レイネ",
+          "Reinessance",
+          "PavoliART",
+          "POGVOLIA",
+          "Pavolia_Reine",
+          "帕沃莉亚·蕾内"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "pegasus",
+      "type": "adjudicate",
+      "source": "pegasus",
+      "current": {
+        "zh-CN": "佩加索斯",
+        "zh-TW": "佩加索斯",
+        "ja": "ペガサス",
+        "en": "Pegasus"
+      },
+      "candidates": [
+        "天马",
+        "飞马"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/pegasus",
+        "otherNames": [
+          "飞马",
+          "天马",
+          "ペガサス"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "pegging",
+      "type": "adjudicate",
+      "source": "pegging",
+      "current": {
+        "zh-CN": "女用假阳具插入",
+        "zh-TW": "女用假陽具插入",
+        "ja": "ペギング",
+        "en": "Pegging"
+      },
+      "candidates": [
+        "逆肛交"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/pegging",
+        "otherNames": [
+          "逆アナル",
+          "逆肛交",
+          "GB"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "penis_awe",
+      "type": "adjudicate",
+      "source": "penis awe",
+      "current": {
+        "zh-CN": "巨根崇拜",
+        "zh-TW": "巨根崇拜",
+        "ja": "巨根崇拝",
+        "en": "Penis Awe"
+      },
+      "candidates": [
+        "阴茎敬畏"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/penis_awe",
+        "otherNames": [
+          "見せ槍",
+          "阴茎敬畏"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "pink_eyes",
+      "type": "adjudicate",
+      "source": "pink eyes",
+      "current": {
+        "zh-CN": "粉瞳",
+        "zh-TW": "粉瞳",
+        "ja": "ピンク色の目",
+        "en": "Pink Eyes"
+      },
+      "candidates": [
+        "桃眼",
+        "粉眼",
+        "粉色眼睛"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/pink_eyes",
+        "otherNames": [
+          "ピンク目",
+          "ピンク眼",
+          "桃眼",
+          "粉眼",
+          "粉色眼睛"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "pokephilia",
+      "type": "adjudicate",
+      "source": "pokephilia",
+      "current": {
+        "zh-CN": "宝可梦人兽",
+        "zh-TW": "寶可夢人獸",
+        "ja": "ポケフィリア",
+        "en": "Pokephilia"
+      },
+      "candidates": [
+        "人类X宝可梦",
+        "宝可梦奸"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/pokephilia",
+        "otherNames": [
+          "ポケ姦",
+          "ポケモン×人間",
+          "人間♂×ポケモン♀",
+          "サナユウ",
+          "宝可梦奸",
+          "人类X宝可梦"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "polka_dot",
+      "type": "adjudicate",
+      "source": "polka dot",
+      "current": {
+        "zh-CN": "波点",
+        "zh-TW": "波點",
+        "ja": "水玉模様",
+        "en": "Polka Dot"
+      },
+      "candidates": [
+        "水玉"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/polka_dot",
+        "otherNames": [
+          "水玉"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "prison",
+      "type": "adjudicate",
+      "source": "prison",
+      "current": {
+        "zh-CN": "监狱",
+        "zh-TW": "監獄",
+        "ja": "刑務所",
+        "en": "Prison"
+      },
+      "candidates": [
+        "牢屋",
+        "監獄"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/prison",
+        "otherNames": [
+          "牢屋",
+          "監獄"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "prison_school",
+      "type": "adjudicate",
+      "source": "prison school",
+      "current": {
+        "zh-CN": "监狱学园",
+        "zh-TW": "監獄學園",
+        "ja": "監獄学園",
+        "en": "Prison School"
+      },
+      "candidates": [
+        "監獄学園"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/prison_school",
+        "otherNames": [
+          "監獄学園",
+          "プリズンスクール"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "prostitution",
+      "type": "adjudicate",
+      "source": "prostitution",
+      "current": {
+        "zh-CN": "卖淫",
+        "zh-TW": "賣淫",
+        "ja": "売春",
+        "en": "Prostitution"
+      },
+      "candidates": [
+        "売春",
+        "娼婦",
+        "援交",
+        "援助交際"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/prostitution",
+        "otherNames": [
+          "売春",
+          "娼婦",
+          "風俗",
+          "援助交際",
+          "援交",
+          "パパ活",
+          "デリヘル",
+          "コールガール",
+          "デリバリーヘルス"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "public_nudity",
+      "type": "adjudicate",
+      "source": "public nudity",
+      "current": {
+        "zh-CN": "公共场所裸露",
+        "zh-TW": "公共場所裸露",
+        "ja": "公共の場での露出",
+        "en": "Public Nudity"
+      },
+      "candidates": [
+        "公开露出",
+        "野外露出"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/public_nudity",
+        "otherNames": [
+          "野外露出",
+          "야외노출",
+          "公开露出"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "public_use",
+      "type": "adjudicate",
+      "source": "public use",
+      "current": {
+        "zh-CN": "公众便器",
+        "zh-TW": "公眾便器",
+        "ja": "共有便器",
+        "en": "Public Use"
+      },
+      "candidates": [
+        "公用肉便器"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/public_use",
+        "otherNames": [
+          "公用肉便器"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "punishment",
+      "type": "adjudicate",
+      "source": "punishment",
+      "current": {
+        "zh-CN": "惩罚",
+        "zh-TW": "懲罰",
+        "ja": "お仕置き",
+        "en": "Punishment"
+      },
+      "candidates": [
+        "罰"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/punishment",
+        "otherNames": [
+          "罰"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "purple_eyes",
+      "type": "adjudicate",
+      "source": "purple eyes",
+      "current": {
+        "zh-CN": "紫瞳",
+        "zh-TW": "紫瞳",
+        "ja": "紫色の目",
+        "en": "Purple Eyes"
+      },
+      "candidates": [
+        "紫目",
+        "紫眼",
+        "紫色眼睛",
+        "紫髪紫眼",
+        "茶髪紫眼",
+        "金髪紫眼",
+        "黒髪紫眼"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/purple_eyes",
+        "otherNames": [
+          "紫目",
+          "紫眼",
+          "黒髪紫眼",
+          "銀髪紫眼",
+          "銀髪紫目",
+          "紫髪紫眼",
+          "紫色眼睛",
+          "金髪紫眼",
+          "茶髪紫眼"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "rabbit_girl",
+      "type": "adjudicate",
+      "source": "rabbit girl",
+      "current": {
+        "zh-CN": "兔女郎",
+        "zh-TW": "兔女郎",
+        "ja": "バニーガール",
+        "en": "Bunny Girl"
+      },
+      "candidates": [
+        "兎娘",
+        "兔娘"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/rabbit_girl",
+        "otherNames": [
+          "兔娘",
+          "兎娘",
+          "ウサギ娘",
+          "うさぎ娘",
+          "bunny_girl",
+          "bunnygirl",
+          "rabbitgirl"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "raccoon_girl",
+      "type": "adjudicate",
+      "source": "raccoon girl",
+      "current": {
+        "zh-CN": "浣熊娘",
+        "zh-TW": "浣熊娘",
+        "ja": "アライグマ娘",
+        "en": "Raccoon Girl"
+      },
+      "candidates": [
+        "狸娘"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/raccoon_girl",
+        "otherNames": [
+          "アライグマ娘",
+          "狸娘"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "raora_panthera",
+      "type": "adjudicate",
+      "source": "raora panthera",
+      "current": {
+        "zh-CN": "拉欧拉·潘瑟拉",
+        "zh-TW": "拉歐拉·潘瑟拉",
+        "ja": "ラオラ・パンテーラ",
+        "en": "Raora Panthera"
+      },
+      "candidates": [
+        "拉欧拉·潘特拉"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/raora_panthera",
+        "otherNames": [
+          "ラオーラ・パンテーラ",
+          "RaorArt",
+          "CiaoRaora",
+          "4Raora",
+          "RaraWara",
+          "RaoraPanthera",
+          "拉欧拉·潘特拉"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "razor",
+      "type": "adjudicate",
+      "source": "razor",
+      "current": {
+        "zh-CN": "雷泽",
+        "zh-TW": "雷澤",
+        "ja": "レザー",
+        "en": "Razor"
+      },
+      "candidates": [
+        "剃刀"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/razor",
+        "otherNames": [
+          "剃刀",
+          "かみそり",
+          "カミソリ"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "record_of_lodoss_war",
+      "type": "adjudicate",
+      "source": "record of lodoss war",
+      "current": {
+        "zh-CN": "罗德斯岛战记",
+        "zh-TW": "羅德斯島戰記",
+        "ja": "ロードス島戦記",
+        "en": "Record of Lodoss War"
+      },
+      "candidates": [
+        "罗德岛战记"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/record_of_lodoss_war",
+        "otherNames": [
+          "ロードス島戦記",
+          "罗德岛战记"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "recording",
+      "type": "adjudicate",
+      "source": "recording",
+      "current": {
+        "zh-CN": "录制",
+        "zh-TW": "錄製",
+        "ja": "録画",
+        "en": "Recording"
+      },
+      "candidates": [
+        "录像中"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/recording",
+        "otherNames": [
+          "●REC",
+          "錄像中",
+          "录像中"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "red_eyes",
+      "type": "adjudicate",
+      "source": "red eyes",
+      "current": {
+        "zh-CN": "红瞳",
+        "zh-TW": "紅瞳",
+        "ja": "赤い目",
+        "en": "Red Eyes"
+      },
+      "candidates": [
+        "白发红眼",
+        "白髪赤目",
+        "白髪赤眼",
+        "白髮紅眼",
+        "红眼",
+        "红色眼睛",
+        "赤目",
+        "赤眼",
+        "赤瞳",
+        "金髪赤目",
+        "金髪赤眼",
+        "银发赤眼",
+        "黑发红眼",
+        "黑发赤眼",
+        "黑髮紅眼",
+        "黑髮赤眼",
+        "黒髪赤眼"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/red_eyes",
+        "otherNames": [
+          "赤目",
+          "赤眼",
+          "赤瞳",
+          "赤い目",
+          "붉은눈",
+          "빨간눈",
+          "銀髪赤眼",
+          "銀髮赤眼",
+          "银发赤眼",
+          "은발적안",
+          "白髮紅眼",
+          "白发红眼",
+          "白髪赤眼",
+          "黒髪赤眼",
+          "黑髮赤眼",
+          "黑发赤眼",
+          "흑발적안",
+          "黑髮紅眼",
+          "黑发红眼",
+          "金髪赤眼",
+          "白髪赤目",
+          "金髪赤目",
+          "红眼",
+          "红色眼睛"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "reverse_ryona",
+      "type": "adjudicate",
+      "source": "reverse ryona",
+      "current": {
+        "zh-CN": "逆猎奇",
+        "zh-TW": "逆獵奇",
+        "ja": "逆リョナ",
+        "en": "Reverse Ryona"
+      },
+      "candidates": [
+        "男性受虐"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/reverse_ryona",
+        "otherNames": [
+          "逆リョナ",
+          "男リョナ",
+          "男性受虐"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "reverse_spitroast",
+      "type": "adjudicate",
+      "source": "reverse spitroast",
+      "current": {
+        "zh-CN": "逆烤肉串",
+        "zh-TW": "逆烤肉串",
+        "ja": "逆串刺し",
+        "en": "Reverse Spitroast"
+      },
+      "candidates": [
+        "逆位串烧性爱"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/reverse_spitroast",
+        "otherNames": [
+          "ダブル騎乗位",
+          "トライアングル騎乗位",
+          "逆位串烧性爱"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "rindo_chihaya",
+      "type": "adjudicate",
+      "source": "rindo chihaya",
+      "current": {
+        "zh-CN": "龙胆千早",
+        "zh-TW": "龍膽千早",
+        "ja": "竜胆千早",
+        "en": "Rindo Chihaya"
+      },
+      "candidates": [
+        "轮堂千速"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/rindo_chihaya",
+        "otherNames": [
+          "輪堂千速",
+          "もはやちはや",
+          "絵っちはや",
+          "轮堂千速"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "rindou_mikoto",
+      "type": "adjudicate",
+      "source": "rindou mikoto",
+      "current": {
+        "zh-CN": "龙胆尊",
+        "zh-TW": "龍膽尊",
+        "ja": "竜胆尊",
+        "en": "Rindou Mikoto"
+      },
+      "candidates": [
+        "SKB部",
+        "尊春画",
+        "尊絵巻",
+        "竜胆尊"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/rindou_mikoto",
+        "otherNames": [
+          "竜胆尊",
+          "尊絵巻",
+          "尊春画",
+          "SKB部"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "rozaliya_olenyeva",
+      "type": "adjudicate",
+      "source": "rozaliya olenyeva",
+      "current": {
+        "zh-CN": "萝莎莉娅·阿琳",
+        "zh-TW": "蘿莎莉婭·阿琳",
+        "ja": "ロザリア・アリーン",
+        "en": "Rozaliya Olenyeva"
+      },
+      "candidates": [
+        "萝萨莉娅"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/rozaliya_olenyeva",
+        "otherNames": [
+          "萝萨莉娅",
+          "ロザリア・アーリン",
+          "ロザリア・アリーン",
+          "ロザリア"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "ryona",
+      "type": "adjudicate",
+      "source": "ryona",
+      "current": {
+        "zh-CN": "猎奇受虐 (Ryona)",
+        "zh-TW": "獵奇受虐 (Ryona)",
+        "ja": "リョナ",
+        "en": "Ryona"
+      },
+      "candidates": [
+        "女性受虐"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/ryona",
+        "otherNames": [
+          "リョナ",
+          "ソフトリョナ",
+          "女性受虐"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "saber_alter",
+      "type": "adjudicate",
+      "source": "saber alter",
+      "current": {
+        "zh-CN": "黑Saber",
+        "zh-TW": "黑Saber",
+        "ja": "セイバーオルタ",
+        "en": "Saber Alter"
+      },
+      "candidates": [
+        "阿尔托莉雅·潘德拉贡〔Alter〕",
+        "阿爾托莉亞.潘德拉剛〔Alter〕"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/saber_alter",
+        "otherNames": [
+          "セイバーオルタ",
+          "アルトリア・オルタ",
+          "阿尔托莉雅·潘德拉贡〔Alter〕",
+          "알트리아_펜드래곤(얼터)",
+          "세이버_얼터",
+          "阿爾托莉亞.潘德拉剛〔Alter〕"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "sakamata_chloe",
+      "type": "adjudicate",
+      "source": "sakamata chloe",
+      "current": {
+        "zh-CN": "沙花叉克萝耶",
+        "zh-TW": "沙花叉克羅耶",
+        "ja": "沙花叉クロヱ",
+        "en": "Sakamata Chloe"
+      },
+      "candidates": [
+        "沙花叉克萝伊"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/sakamata_chloe",
+        "otherNames": [
+          "沙花叉クロヱ",
+          "またまたさかまた",
+          "さかまた飼育日記",
+          "飼育日記",
+          "沙花叉クロエ",
+          "沙花叉克萝伊"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "sasaki_chie",
+      "type": "adjudicate",
+      "source": "sasaki chie",
+      "current": {
+        "zh-CN": "佐佐木千枝",
+        "zh-TW": "佐佐木千枝",
+        "ja": "佐々木千枝",
+        "en": "Sasaki Chie"
+      },
+      "candidates": [
+        "佐々木千枝"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/sasaki_chie",
+        "otherNames": [
+          "佐々木千枝",
+          "千枝ちゃんは合法"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "scat",
+      "type": "adjudicate",
+      "source": "scat",
+      "current": {
+        "zh-CN": "排泄",
+        "zh-TW": "排泄",
+        "ja": "スカトロ",
+        "en": "Scat"
+      },
+      "candidates": [
+        "大便",
+        "糞"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/scat",
+        "otherNames": [
+          "うんこ",
+          "スカトロ",
+          "糞",
+          "大便"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "seed",
+      "type": "adjudicate",
+      "source": "seed",
+      "current": {
+        "zh-CN": "种子",
+        "zh-TW": "種子",
+        "ja": "シード",
+        "en": "Seed"
+      },
+      "candidates": [
+        "種",
+        "種子"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/seed",
+        "otherNames": [
+          "種子",
+          "種"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "selfcest",
+      "type": "adjudicate",
+      "source": "selfcest",
+      "current": {
+        "zh-CN": "自交",
+        "zh-TW": "自交",
+        "ja": "自己愛",
+        "en": "Selfcest"
+      },
+      "candidates": [
+        "同一CP",
+        "水仙",
+        "自分姦",
+        "自攻自受"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/selfcest",
+        "otherNames": [
+          "同一CP",
+          "水仙",
+          "自攻自受",
+          "自分姦"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "senki_zesshou_symphogear",
+      "type": "adjudicate",
+      "source": "senki zesshou symphogear",
+      "current": {
+        "zh-CN": "战姬绝唱Symphogear",
+        "zh-TW": "戰姬絕唱Symphogear",
+        "ja": "戦姫絶唱シンフォギア",
+        "en": "Senki Zesshou Symphogear"
+      },
+      "candidates": [
+        "战姬绝唱SYMPHOGEAR"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/senki_zesshou_symphogear",
+        "otherNames": [
+          "戦姫絶唱シンフォギア",
+          "戦姫絶唱シンフォギアG",
+          "戦姫絶唱シンフォギアGX",
+          "戦姫絶唱シンフォギアAXZ",
+          "戦姫絶唱シンフォギアXV",
+          "シンフォギア",
+          "Symphogear",
+          "SymphogearXD",
+          "戰姬絕唱SYMPHOGEAR",
+          "战姬绝唱SYMPHOGEAR"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "sex_machine",
+      "type": "adjudicate",
+      "source": "sex machine",
+      "current": {
+        "zh-CN": "性爱机器",
+        "zh-TW": "性愛機器",
+        "ja": "セックスマシン",
+        "en": "Sex Machine"
+      },
+      "candidates": [
+        "機械姦"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/sex_machine",
+        "otherNames": [
+          "機械姦"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "sex_toy",
+      "type": "adjudicate",
+      "source": "sex toy",
+      "current": {
+        "zh-CN": "性玩具",
+        "zh-TW": "性玩具",
+        "ja": "大人のおもちゃ",
+        "en": "Sex Toy"
+      },
+      "candidates": [
+        "性爱玩具",
+        "成人玩具"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/sex_toy",
+        "otherNames": [
+          "性爱玩具",
+          "成人玩具",
+          "大人のおもちゃ",
+          "アダルトグッズ"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "shibari",
+      "type": "adjudicate",
+      "source": "shibari",
+      "current": {
+        "zh-CN": "日式绑缚",
+        "zh-TW": "日式綁縛",
+        "ja": "縛り",
+        "en": "Shibari"
+      },
+      "candidates": [
+        "束缚",
+        "紧缚",
+        "緊縛",
+        "緊縛労働",
+        "绳缚",
+        "野外緊縛"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/shibari",
+        "otherNames": [
+          "縛り",
+          "菱縄縛り",
+          "緊縛",
+          "紧缚",
+          "긴박",
+          "緊縛労働",
+          "野外緊縛",
+          "束缚",
+          "绳缚"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "shiori_novella",
+      "type": "adjudicate",
+      "source": "shiori novella",
+      "current": {
+        "zh-CN": "诗织·诺维拉",
+        "zh-TW": "詩織·諾維拉",
+        "ja": "シオリ・ノヴェラ",
+        "en": "Shiori Novella"
+      },
+      "candidates": [
+        "诗织·诺薇拉"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/shiori_novella",
+        "otherNames": [
+          "シオリ・ノヴェラ",
+          "ShiorinSketch",
+          "ShiorinFix",
+          "ShioriNovella",
+          "诗织·诺薇拉"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "shiraishi_kyouka",
+      "type": "adjudicate",
+      "source": "shiraishi kyouka",
+      "current": {
+        "zh-CN": "白石杏花",
+        "zh-TW": "白石杏花",
+        "ja": "白石杏花",
+        "en": "Shiraishi Kyouka"
+      },
+      "candidates": [
+        "白石杏珪"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/shiraishi_kyouka",
+        "otherNames": [
+          "白石杏珪"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "shortstack",
+      "type": "adjudicate",
+      "source": "shortstack",
+      "current": {
+        "zh-CN": "矮小丰满",
+        "zh-TW": "矮小豐滿",
+        "ja": "トランジスタグラマー",
+        "en": "Shortstack"
+      },
+      "candidates": [
+        "粗矮体型"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/shortstack",
+        "otherNames": [
+          "ショートスタック",
+          "粗矮体型"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "shy",
+      "type": "adjudicate",
+      "source": "shy",
+      "current": {
+        "zh-CN": "害羞",
+        "zh-TW": "害羞",
+        "ja": "恥ずかしい",
+        "en": "Shy"
+      },
+      "candidates": [
+        "含羞"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/shy",
+        "otherNames": [
+          "人見知り",
+          "はにかみ",
+          "恥ずかしがる",
+          "含羞"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "sinon",
+      "type": "adjudicate",
+      "source": "sinon",
+      "current": {
+        "zh-CN": "诗乃",
+        "zh-TW": "詩乃",
+        "ja": "シノン",
+        "en": "Sinon"
+      },
+      "candidates": [
+        "朝田詩乃"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/sinon",
+        "otherNames": [
+          "シノン",
+          "シノン(SAO)",
+          "朝田詩乃"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "skinsuit",
+      "type": "adjudicate",
+      "source": "skinsuit",
+      "current": {
+        "zh-CN": "紧身衣",
+        "zh-TW": "緊身衣",
+        "ja": "スキンスーツ",
+        "en": "Skinsuit"
+      },
+      "candidates": [
+        "皮化",
+        "皮物"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/skinsuit",
+        "otherNames": [
+          "皮モノ",
+          "皮物",
+          "皮もの",
+          "皮化"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "small_penis",
+      "type": "adjudicate",
+      "source": "small penis",
+      "current": {
+        "zh-CN": "小阴茎",
+        "zh-TW": "小陰莖",
+        "ja": "短小",
+        "en": "Small Penis"
+      },
+      "candidates": [
+        "短小"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/small_penis",
+        "otherNames": [
+          "短小",
+          "粗チン"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "sparkle",
+      "type": "adjudicate",
+      "source": "sparkle",
+      "current": {
+        "zh-CN": "花火",
+        "zh-TW": "花火",
+        "ja": "花火",
+        "en": "Sparkle"
+      },
+      "candidates": [
+        "闪闪发光"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/sparkle",
+        "otherNames": [
+          "kirakiradeshita",
+          "闪闪发光",
+          "キラキラ"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "spitroast",
+      "type": "adjudicate",
+      "source": "spitroast",
+      "current": {
+        "zh-CN": "串烤(双管齐下)",
+        "zh-TW": "串烤(雙管齊下)",
+        "ja": "スピットロースト",
+        "en": "Spitroast"
+      },
+      "candidates": [
+        "串烧性爱"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/spitroast",
+        "otherNames": [
+          "串刺しセックス",
+          "串刺しファック",
+          "串烧性爱"
+        ]
+      }
+    }
+  ]
+}

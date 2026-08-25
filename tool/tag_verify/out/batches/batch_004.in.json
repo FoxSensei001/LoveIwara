@@ -1,0 +1,782 @@
+{
+  "schema": 1,
+  "batch": 4,
+  "count": 30,
+  "contract": {
+    "output": "写成同名 .out.json，结构 {\"batch\":N,\"entries\":[{\"key\":...,\"decision\":...,\"names\":{...},\"reason\":...,\"ref\":[...]}]}",
+    "rules": [
+      "key 与条数必须与输入完全一致，不得增删、不得改写 key",
+      "type=translate：为 need 里的每个语言给出译名，写进 names；known 里的不要改",
+      "type=adjudicate：decision 取 keep（保留 current）或 replace（用 names 覆盖）；replace 时 names 必须给出要改的语言",
+      "没有把握一律 keep / 保留原文，不要编。宁可留日文也不要给一个错的中文名",
+      "candidates 来自 Danbooru 的既有别名，是线索不是答案——它可能是日文写法、旧译名，甚至是别的角色",
+      "每条都要给 reason（一句话），replace 必须给 ref（可访问的来源 URL）",
+      "同名不同人的词条（不同 origin 的同一个日文名）必须给出不同译名，不要合并"
+    ]
+  },
+  "entries": [
+    {
+      "dataset": "iwara",
+      "key": "spread_pussy",
+      "type": "adjudicate",
+      "source": "spread pussy",
+      "current": {
+        "zh-CN": "掰开阴户",
+        "zh-TW": "掰開陰戶",
+        "ja": "マンコ開き",
+        "en": "Spread Pussy"
+      },
+      "candidates": [
+        "掰开小穴",
+        "掰开阴部",
+        "阴道扩张"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/spread_pussy",
+        "otherNames": [
+          "くぱぁ",
+          "掰开小穴",
+          "掰开阴部",
+          "阴道扩张"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "stella_sora",
+      "type": "adjudicate",
+      "source": "stella sora",
+      "current": {
+        "zh-CN": "Stella Sora",
+        "zh-TW": "Stella Sora",
+        "ja": "Stella Sora",
+        "en": "Stella Sora"
+      },
+      "candidates": [
+        "星塔旅人"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/stella_sora",
+        "otherNames": [
+          "ステラソラ",
+          "StellaSora",
+          "스텔라소라",
+          "星塔旅人"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "stomach_bulge",
+      "type": "adjudicate",
+      "source": "stomach bulge",
+      "current": {
+        "zh-CN": "腹部凸起 (子宫凸)",
+        "zh-TW": "腹部凸起 (子宮凸)",
+        "ja": "ぽっこりお腹",
+        "en": "Stomach Bulge"
+      },
+      "candidates": [
+        "腹部隆起"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/stomach_bulge",
+        "otherNames": [
+          "ボコォ",
+          "腹ボコ",
+          "腹部隆起"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "stomping",
+      "type": "adjudicate",
+      "source": "stomping",
+      "current": {
+        "zh-CN": "践踏",
+        "zh-TW": "踐踏",
+        "ja": "踏みつけ",
+        "en": "Stomping"
+      },
+      "candidates": [
+        "踩踏"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/stomping",
+        "otherNames": [
+          "踏みつけ",
+          "踏み付け",
+          "踏み潰し",
+          "踩踏"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "strangling",
+      "type": "adjudicate",
+      "source": "strangling",
+      "current": {
+        "zh-CN": "掐脖/绞杀",
+        "zh-TW": "掐脖/絞殺",
+        "ja": "首絞め",
+        "en": "Strangling"
+      },
+      "candidates": [
+        "掐脖子",
+        "絞殺",
+        "絞首",
+        "绞首"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/strangling",
+        "otherNames": [
+          "絞殺",
+          "首絞め",
+          "絞首",
+          "首絞めックス",
+          "绞首",
+          "掐脖子"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "street_fighter",
+      "type": "adjudicate",
+      "source": "street fighter",
+      "current": {
+        "zh-CN": "街头霸王",
+        "zh-TW": "街頭霸王",
+        "ja": "ストリートファイター",
+        "en": "Street Fighter"
+      },
+      "candidates": [
+        "街霸"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/street_fighter",
+        "otherNames": [
+          "ストリートファイター",
+          "ストファイ",
+          "ストリートファイターシリーズ",
+          "StreetFighter",
+          "SF",
+          "街頭霸王",
+          "街霸"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "taker_pov",
+      "type": "adjudicate",
+      "source": "taker pov",
+      "current": {
+        "zh-CN": "受方视角",
+        "zh-TW": "受方視角",
+        "ja": "受け視点",
+        "en": "Taker POV"
+      },
+      "candidates": [
+        "挨草视角"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/taker_pov",
+        "otherNames": [
+          "正面向き前傾ペニス",
+          "挨草视角"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "teacher",
+      "type": "adjudicate",
+      "source": "teacher",
+      "current": {
+        "zh-CN": "教师",
+        "zh-TW": "教師",
+        "ja": "教師",
+        "en": "Teacher"
+      },
+      "candidates": [
+        "先生"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/teacher",
+        "otherNames": [
+          "教師",
+          "先生",
+          "女教師"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "tekken",
+      "type": "adjudicate",
+      "source": "tekken",
+      "current": {
+        "zh-CN": "铁拳",
+        "zh-TW": "鐵拳",
+        "ja": "鉄拳",
+        "en": "Tekken"
+      },
+      "candidates": [
+        "鉄拳"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/tekken",
+        "otherNames": [
+          "鉄拳"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "tengen_toppa_gurren_lagann",
+      "type": "adjudicate",
+      "source": "tengen toppa gurren lagann",
+      "current": {
+        "zh-CN": "天元突破红莲螺岩",
+        "zh-TW": "天元突破紅蓮螺巖",
+        "ja": "天元突破グレンラガン",
+        "en": "Tengen Toppa Gurren Lagann"
+      },
+      "candidates": [
+        "天元突破紅蓮螺岩"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/tengen_toppa_gurren_lagann",
+        "otherNames": [
+          "天元突破グレンラガン",
+          "グレンラガン",
+          "天元突破紅蓮螺岩"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "the_owl_house",
+      "type": "adjudicate",
+      "source": "the owl house",
+      "current": {
+        "zh-CN": "奇幻猫头鹰小屋",
+        "zh-TW": "奇幻貓頭鷹小屋",
+        "ja": "アウルハウス",
+        "en": "The Owl House"
+      },
+      "candidates": [
+        "猫头鹰魔法社"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/the_owl_house",
+        "otherNames": [
+          "The_Owl_House",
+          "TheOwlHouse",
+          "theowlhouse",
+          "TOH",
+          "アウルハウス",
+          "猫头鹰魔法社"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "thick_thighs",
+      "type": "adjudicate",
+      "source": "thick thighs",
+      "current": {
+        "zh-CN": "粗大腿",
+        "zh-TW": "粗大腿",
+        "ja": "太もも",
+        "en": "Thick Thighs"
+      },
+      "candidates": [
+        "大根足",
+        "粗壮的大腿"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/thick_thighs",
+        "otherNames": [
+          "ぶっともも",
+          "thickthighs",
+          "大根足",
+          "粗壮的大腿",
+          "挟まれたい太もも"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "tiktok",
+      "type": "adjudicate",
+      "source": "tiktok",
+      "current": {
+        "zh-CN": "TikTok",
+        "zh-TW": "TikTok",
+        "ja": "TikTok",
+        "en": "TikTok"
+      },
+      "candidates": [
+        "抖音"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/tiktok",
+        "otherNames": [
+          "抖音",
+          "ティックトック"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "torn_clothes",
+      "type": "adjudicate",
+      "source": "torn clothes",
+      "current": {
+        "zh-CN": "爆衣",
+        "zh-TW": "爆衣",
+        "ja": "衣服破れ",
+        "en": "Torn Clothes"
+      },
+      "candidates": [
+        "中破",
+        "撕裂的衣服",
+        "破损的衣服"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/torn_clothes",
+        "otherNames": [
+          "服ビリ",
+          "尻破れ",
+          "破れ",
+          "撕裂的衣服",
+          "胸破れ",
+          "中破",
+          "破损的衣服"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "transformation",
+      "type": "adjudicate",
+      "source": "transformation",
+      "current": {
+        "zh-CN": "变身",
+        "zh-TW": "變身",
+        "ja": "変身",
+        "en": "Transformation"
+      },
+      "candidates": [
+        "状态变化",
+        "状態変化"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/transformation",
+        "otherNames": [
+          "状態変化",
+          "狀態變化",
+          "状态变化",
+          "變化",
+          "變形",
+          "상태변화",
+          "tf",
+          "TFTuesday"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "triple_penetration",
+      "type": "adjudicate",
+      "source": "triple penetration",
+      "current": {
+        "zh-CN": "三重穿入",
+        "zh-TW": "三重穿入",
+        "ja": "トリプルペネトレーション",
+        "en": "Triple Penetration"
+      },
+      "candidates": [
+        "三穴"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/triple_penetration",
+        "otherNames": [
+          "三穴"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "tsukuyomi_shirabe",
+      "type": "adjudicate",
+      "source": "tsukuyomi shirabe",
+      "current": {
+        "zh-CN": "月读调",
+        "zh-TW": "月讀調",
+        "ja": "月読調",
+        "en": "Shirabe Tsukuyomi"
+      },
+      "candidates": [
+        "月読調"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/tsukuyomi_shirabe",
+        "otherNames": [
+          "月読調"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "twin_braids",
+      "type": "adjudicate",
+      "source": "twin braids",
+      "current": {
+        "zh-CN": "双辫",
+        "zh-TW": "雙辮",
+        "ja": "おさげ",
+        "en": "Twin Braids"
+      },
+      "candidates": [
+        "双发辫"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/twin_braids",
+        "otherNames": [
+          "双发辫"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "ukinami_yuzuha",
+      "type": "adjudicate",
+      "source": "ukinami yuzuha",
+      "current": {
+        "zh-CN": "雨波柚羽",
+        "zh-TW": "雨波柚羽",
+        "ja": "雨波ユズハ",
+        "en": "Yuzuha Ukinami"
+      },
+      "candidates": [
+        "浮波柚叶",
+        "浮波柚葉",
+        "浮波柚葉役"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/ukinami_yuzuha",
+        "otherNames": [
+          "浮波柚葉",
+          "浮波柚葉役",
+          "浮波柚叶",
+          "Yuzuali",
+          "UkinamiYuzuha"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "vibrator",
+      "type": "adjudicate",
+      "source": "vibrator",
+      "current": {
+        "zh-CN": "跳蛋",
+        "zh-TW": "跳蛋",
+        "ja": "バイブレーター",
+        "en": "Vibrator"
+      },
+      "candidates": [
+        "按摩棒",
+        "震动器"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/vibrator",
+        "otherNames": [
+          "按摩棒",
+          "ローター",
+          "バイブ",
+          "バイブ椅子",
+          "震动器"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "virgin",
+      "type": "adjudicate",
+      "source": "virgin",
+      "current": {
+        "zh-CN": "处女",
+        "zh-TW": "處女",
+        "ja": "処女",
+        "en": "Virgin"
+      },
+      "candidates": [
+        "処女"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/virgin",
+        "otherNames": [
+          "処女"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "vshojo",
+      "type": "adjudicate",
+      "source": "vshojo",
+      "current": {
+        "zh-CN": "VShojo",
+        "zh-TW": "VShojo",
+        "ja": "VShojo",
+        "en": "VShojo"
+      },
+      "candidates": [
+        "V少女"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/vshojo",
+        "otherNames": [
+          "VSHOJOART",
+          "VSJArtContest",
+          "VSJHalloweenArt",
+          "VShojoJapan",
+          "VShojoNext",
+          "VShojoNova",
+          "VShojoArt",
+          "V少女"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "wedgie",
+      "type": "adjudicate",
+      "source": "wedgie",
+      "current": {
+        "zh-CN": "拉内裤",
+        "zh-TW": "拉內褲",
+        "ja": "パンツの食い込み",
+        "en": "Wedgie"
+      },
+      "candidates": [
+        "内裤陷入",
+        "勒裆"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/wedgie",
+        "otherNames": [
+          "食い込み",
+          "内裤陷入",
+          "勒裆"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "yaoi",
+      "type": "adjudicate",
+      "source": "yaoi",
+      "current": {
+        "zh-CN": "耽美",
+        "zh-TW": "耽美",
+        "ja": "やおい",
+        "en": "Yaoi"
+      },
+      "candidates": [
+        "創作bl",
+        "同志",
+        "基友",
+        "男同",
+        "男同性恋",
+        "腐",
+        "腐魂"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/yaoi",
+        "otherNames": [
+          "BL",
+          "腐向け",
+          "黒バス【腐】",
+          "腐",
+          "腐向け【腐】",
+          "やおい",
+          "ホモ",
+          "ゲイ",
+          "FE腐向け",
+          "創作bl",
+          "腐向けKTR",
+          "あんさん腐るスターズ!",
+          "ゼルダの伝説【腐】",
+          "イナゴ[腐]",
+          "ス腐ラトゥーン",
+          "ゲイ向け",
+          "腐向けHSR",
+          "腐魂",
+          "mdlstBL",
+          "ジー腐アクス",
+          "男同性恋",
+          "男同",
+          "同志",
+          "基友",
+          "gay",
+          "gay_art"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "yukihana_lamy",
+      "type": "adjudicate",
+      "source": "yukihana lamy",
+      "current": {
+        "zh-CN": "雪花拉米",
+        "zh-TW": "雪花拉米",
+        "ja": "雪花ラミィ",
+        "en": "Yukihana Lamy"
+      },
+      "candidates": [
+        "雪原冬花",
+        "雪花菈米"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/yukihana_lamy",
+        "otherNames": [
+          "雪花ラミィ",
+          "らみあ~と",
+          "らみあ〜と",
+          "らみあーと",
+          "LamyArt",
+          "Lamyme",
+          "雪原冬花",
+          "ししらみ",
+          "まがまがーず",
+          "雪花菈米"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "yukishiro_mahiro",
+      "type": "adjudicate",
+      "source": "yukishiro mahiro",
+      "current": {
+        "zh-CN": "雪城真寻",
+        "zh-TW": "雪城真尋",
+        "ja": "雪城眞尋",
+        "en": "Mahiro Yukishiro"
+      },
+      "candidates": [
+        "雪城眞尋"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/yukishiro_mahiro",
+        "otherNames": [
+          "雪城眞尋",
+          "まひろあーと"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "yuzuki_choco",
+      "type": "adjudicate",
+      "source": "yuzuki choco",
+      "current": {
+        "zh-CN": "愈月巧可",
+        "zh-TW": "愈月巧可",
+        "ja": "癒月ちょこ",
+        "en": "Yuzuki Choco"
+      },
+      "candidates": [
+        "癒月巧可"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/yuzuki_choco",
+        "otherNames": [
+          "癒月ちょこ",
+          "しょこらーと",
+          "癒月巧可"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "yuzuriha_maimai",
+      "type": "adjudicate",
+      "source": "yuzuriha maimai",
+      "current": {
+        "zh-CN": "楪舞舞",
+        "zh-TW": "楪舞舞",
+        "ja": "楪舞々",
+        "en": "Maimai Yuzuriha"
+      },
+      "candidates": [
+        "楪舞々"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/yuzuriha_maimai",
+        "otherNames": [
+          "楪舞々"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "mind_control",
+      "type": "adjudicate",
+      "source": "mind control",
+      "current": {
+        "zh-CN": "心灵控制",
+        "zh-TW": "心靈控制",
+        "ja": "精神操作",
+        "en": "Mind Control"
+      },
+      "candidates": [
+        "洗脑",
+        "洗脳",
+        "洗脳装置",
+        "精神控制"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/mind_control",
+        "otherNames": [
+          "洗脳",
+          "マインドコントロール",
+          "洗脳装置",
+          "洗脑",
+          "精神控制"
+        ]
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "kikirara_vivi",
+      "type": "adjudicate",
+      "source": "kikirara vivi",
+      "current": {
+        "zh-CN": "绮绮罗罗·薇薇",
+        "zh-TW": "綺綺羅羅·薇薇",
+        "ja": "綺々羅々ヴィヴィ",
+        "en": "Kikirara Vivi"
+      },
+      "candidates": [
+        "绮绮罗罗薇薇"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/kikirara_vivi",
+        "otherNames": [
+          "綺々羅々ヴィヴィ",
+          "ヴィヴィメイク",
+          "绮绮罗罗薇薇"
+        ]
+      }
+    }
+  ]
+}
