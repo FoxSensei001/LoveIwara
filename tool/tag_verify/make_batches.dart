@@ -25,6 +25,9 @@ const _defaultSize = 120;
 const _langs = ['zh-CN', 'zh-TW', 'ja', 'en'];
 final _paren = RegExp(r'[（(][^）)]*[）)]');
 
+/// 假名（不含 `・`，它是分隔符，「催眠・洗脑」这类是合格中文）。
+final _kana = RegExp(r'[぀-ゟ゠-ヺー-ヿ]');
+
 Map<String, dynamic> _json(String p) =>
     jsonDecode(File(p).readAsStringSync()) as Map<String, dynamic>;
 
@@ -111,6 +114,32 @@ void main(List<String> args) {
           for (final l in _langs)
             if ('${cur[l] ?? ''}'.trim().isNotEmpty) l: '${cur[l]}',
         },
+        'evidence': evidence,
+      });
+    }
+
+    // 「已有译名，但中文位上写的还是日文」——多为上一轮按「没把握就保留原文」
+    // 留下的片假名人名。用户口径是这类也要音译成纯中文，否则界面照旧显示日文，
+    // 正是最初报障的那个现象。这类条目 missing 为空，走不到上面的补译分支，
+    // 必须单独收进队列。
+    final kanaLangs = _langs
+        .where((l) => l.startsWith('zh') && _kana.hasMatch('${cur[l] ?? ''}'))
+        .toList();
+    if (kanaLangs.isNotEmpty && !decidedOreno.contains(key)) {
+      tasks.add({
+        'dataset': 'oreno3d',
+        'key': key,
+        'type': 'translate',
+        'source': source,
+        'origin': entry['origin'],
+        'workCount': entry['workCount'],
+        'need': kanaLangs,
+        'known': {
+          for (final l in _langs)
+            if (!kanaLangs.contains(l) && '${cur[l] ?? ''}'.trim().isNotEmpty)
+              l: '${cur[l]}',
+        },
+        'note': '当前中文位仍是日文原文，请音译成纯中文（不要回填罗马音）',
         'evidence': evidence,
       });
     }
