@@ -396,8 +396,8 @@
     "zh-TW": "歌幡明治"
    },
    "prev": {
-    "zh-CN": "歌幡Meiji",
-    "zh-TW": "歌幡Meiji"
+    "zh-CN": "歌幡明治",
+    "zh-TW": "歌幡明治"
    },
    "src": "manual",
    "by": "dev",
@@ -532,8 +532,8 @@
     "zh-TW": "闇音連理"
    },
    "prev": {
-    "zh-CN": "闇音Renri",
-    "zh-TW": "闇音Renri"
+    "zh-CN": "闇音连理",
+    "zh-TW": "闇音連理"
    },
    "src": "manual",
    "by": "dev",
@@ -566,8 +566,8 @@
     "zh-TW": "暗鳴妮維"
    },
    "prev": {
-    "zh-CN": "暗鸣Nui",
-    "zh-TW": "暗鳴Nui"
+    "zh-CN": "暗鸣妮维",
+    "zh-TW": "暗鳴妮維"
    },
    "src": "manual",
    "by": "dev",
@@ -720,8 +720,8 @@
     "zh-TW": "海月雲蘿亞"
    },
    "prev": {
-    "zh-CN": "海月云Roa",
-    "zh-TW": "海月雲Roa"
+    "zh-CN": "海月云萝亚",
+    "zh-TW": "海月雲蘿亞"
    },
    "src": "manual",
    "by": "dev",
@@ -747,6 +747,108 @@
    ],
    "at": "2026-08-25",
    "note": "契约里「绝不要把罗马音塞回中文译名」举的反面例子就是这一条（雨海Ruka），但它本身一直留在词库里没改。"
+  },
+  "characters/2152": {
+   "n": {
+    "zh-CN": "零子",
+    "zh-TW": "零子"
+   },
+   "prev": {
+    "zh-CN": "Zero子",
+    "zh-TW": "Zero子"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/2152"
+   ],
+   "at": "2026-08-25",
+   "note": "ゼロ 即「零」。不用罗马音/日文原文顶替中文译名。"
+  },
+  "characters/2503": {
+   "n": {
+    "zh-CN": "NAGI波哟",
+    "zh-TW": "NAGI波喲"
+   },
+   "prev": {
+    "zh-CN": "NAGIぽよ",
+    "zh-TW": "NAGIぽよ"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/2503"
+   ],
+   "at": "2026-08-25",
+   "note": "ぽよ 按通行音译；NAGI 本就是拉丁艺名部分，保留。不用罗马音/日文原文顶替中文译名。"
+  },
+  "characters/2598": {
+   "n": {
+    "zh-CN": "坎萨琳",
+    "zh-TW": "坎薩琳"
+   },
+   "prev": {
+    "zh-CN": "Kanzarin",
+    "zh-TW": "Kanzarin"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/2598"
+   ],
+   "at": "2026-08-25",
+   "note": "片假名艺名按通行音译。不用罗马音/日文原文顶替中文译名。"
+  },
+  "characters/4900": {
+   "n": {
+    "zh-CN": "甘利芽衣",
+    "zh-TW": "甘利芽衣"
+   },
+   "prev": {
+    "zh-CN": "あまりめい",
+    "zh-TW": "あまりめい"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/4900"
+   ],
+   "at": "2026-08-25",
+   "note": "按 amari mei 的常用汉字写法。不用罗马音/日文原文顶替中文译名。"
+  },
+  "characters/4904": {
+   "n": {
+    "zh-CN": "凛音",
+    "zh-TW": "凜音"
+   },
+   "prev": {
+    "zh-CN": "りんね",
+    "zh-TW": "りんね"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/4904"
+   ],
+   "at": "2026-08-25",
+   "note": "りんね 按通行汉字写法。不用罗马音/日文原文顶替中文译名。"
+  },
+  "characters/5032": {
+   "n": {
+    "zh-CN": "宾娜",
+    "zh-TW": "賓娜"
+   },
+   "prev": {
+    "zh-CN": "Binah",
+    "zh-TW": "Binah"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/5032"
+   ],
+   "at": "2026-08-25",
+   "note": "Binah（生命之树第三球「理解」）的通行中文音译。不用罗马音/日文原文顶替中文译名。"
   }
  }
 }
