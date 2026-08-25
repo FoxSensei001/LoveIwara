@@ -2,13 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/tag_dictionary_refresh.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -70,7 +68,11 @@ class Oreno3dLocalizationService extends GetxService {
   static Oreno3dLocalizationService get to =>
       Get.find<Oreno3dLocalizationService>();
 
-  final Dio _dio = Dio();
+  late final TagDictionaryFetcher _fetcher = TagDictionaryFetcher(
+    url: CommonConstants.oreno3dTagsLocalizationCdnUrl,
+    cacheFileName: 'oreno3d_tags.min.json',
+    logTag: 'Oreno3d本地化',
+  );
 
   final Map<String, _OrenoEntry> _origins = {};
   final Map<String, _OrenoEntry> _characters = {};
@@ -80,6 +82,12 @@ class Oreno3dLocalizationService extends GetxService {
   final Map<String, String> _byJaName = {};
 
   final RxInt dataVersion = 0.obs;
+
+  /// 当前内存里这份词库的身份（版本 / 内容指纹 / 条目数）。
+  final Rxn<DictionarySnapshot> snapshot = Rxn<DictionarySnapshot>();
+
+  /// 最近一次成功从 CDN 刷新的时间；从未成功过为 null。
+  final Rxn<DateTime> lastRefreshedAt = Rxn<DateTime>();
 
   String? _loadedLocaleKey;
   bool _cdnRefreshScheduled = false;
@@ -176,57 +184,51 @@ class Oreno3dLocalizationService extends GetxService {
     unawaited(_refreshFromCdn());
   }
 
-  Future<void> _refreshFromCdn() async {
-    try {
-      final response = await _dio.get<String>(
-        CommonConstants.oreno3dTagsLocalizationCdnUrl,
-        options: Options(
-          responseType: ResponseType.plain,
-          receiveTimeout: const Duration(seconds: 20),
-          sendTimeout: const Duration(seconds: 20),
-        ),
-      );
-      final content = response.data;
-      if (content == null || content.isEmpty) return;
+  /// 从 CDN 刷新词库。判据与 iwara 侧共用（见 tag_dictionary_refresh.dart）：
+  /// 有内容指纹按指纹判，没有则退回条目数——后者判不出「只改了译名」。
+  Future<bool> _refreshFromCdn() async {
+    final content = await _fetcher.fetch();
+    if (content == null) return false;
 
-      final count = _peekCount(content);
-      if (count == null || count == 0) return;
+    final incoming = peekSnapshot(content, _countEntries);
+    if (incoming == null) return false;
 
-      final loaded = _origins.length + _characters.length + _tags.length;
-      if (count != loaded) {
-        _rebuild(content, currentLocaleKey());
-      }
-
-      final file = await _cacheFile();
-      await file.writeAsString(content, flush: true);
-      LogUtils.i('Oreno3d 词库已从 CDN 刷新（$count 条）', 'Oreno3d本地化');
-    } catch (e) {
-      LogUtils.w('从 CDN 刷新 Oreno3d 词库失败: $e', 'Oreno3d本地化');
+    final changed = shouldRebuild(snapshot.value, incoming);
+    if (changed) {
+      _rebuild(content, currentLocaleKey());
+      Get.forceAppUpdate();
     }
+    await _fetcher.writeCache(content);
+    lastRefreshedAt.value = DateTime.now();
+    LogUtils.i(
+      'Oreno3d 词库已从 CDN 刷新（$incoming，${changed ? '已应用' : '无变化'}）',
+      'Oreno3d本地化',
+    );
+    return changed;
   }
 
-  Future<File> _cacheFile() async {
-    final dir = await getApplicationSupportDirectory();
-    return File(p.join(dir.path, 'oreno3d_tags.min.json'));
-  }
+  /// 用户主动检查词库更新。返回是否有变化。
+  Future<bool> checkForUpdate() => _refreshFromCdn();
 
-  int? _peekCount(String content) {
-    try {
-      final decoded = jsonDecode(content) as Map<String, dynamic>;
-      int total = 0;
-      for (final key in const ['origins', 'characters', 'tags']) {
-        final m = decoded[key] as Map<String, dynamic>?;
-        total += m?.length ?? 0;
-      }
-      return total;
-    } catch (_) {
-      return null;
+  static int _countEntries(Map<String, dynamic> decoded) {
+    var total = 0;
+    for (final key in const ['origins', 'characters', 'tags']) {
+      total += (decoded[key] as Map?)?.length ?? 0;
     }
+    return total;
   }
+
+  Future<File> _cacheFile() => _fetcher.cacheFile();
+
 
   void _rebuild(String content, String localeKey) {
     try {
       final decoded = jsonDecode(content) as Map<String, dynamic>;
+      snapshot.value = DictionarySnapshot(
+        version: (decoded['version'] as num?)?.toInt() ?? 1,
+        rev: decoded['rev'] as String?,
+        count: _countEntries(decoded),
+      );
 
       void fill(String category, Map<String, _OrenoEntry> target) {
         target.clear();

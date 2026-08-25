@@ -2,14 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/tag_dictionary_refresh.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -50,13 +48,24 @@ class _SlimTag {
 class TagLocalizationService extends GetxService {
   static TagLocalizationService get to => Get.find<TagLocalizationService>();
 
-  final Dio _dio = Dio();
+  late final TagDictionaryFetcher _fetcher = TagDictionaryFetcher(
+    url: CommonConstants.iwaraTagsLocalizationCdnUrl,
+    cacheFileName: 'iwara_tags.min.json',
+    logTag: '标签本地化',
+  );
 
   /// id -> 精简条目（仅当前语言）。
   final Map<String, _SlimTag> _entries = {};
 
   /// 数据版本号；每次词库加载/刷新/换语言后自增，便于 `Obx` 监听重建。
   final RxInt dataVersion = 0.obs;
+
+  /// 当前内存里这份词库的身份（版本 / 内容指纹 / 条目数）。
+  /// 供设置页展示，也是判断「远端那份要不要顶掉它」的依据。
+  final Rxn<DictionarySnapshot> snapshot = Rxn<DictionarySnapshot>();
+
+  /// 最近一次成功从 CDN 刷新的时间；从未成功过为 null。
+  final Rxn<DateTime> lastRefreshedAt = Rxn<DateTime>();
 
   /// 当前 [_entries] 对应的语言 key，用于判断是否需要重建。
   String? _loadedLocaleKey;
@@ -180,52 +189,41 @@ class TagLocalizationService extends GetxService {
     unawaited(_refreshFromCdn());
   }
 
-  Future<void> _refreshFromCdn() async {
-    try {
-      final response = await _dio.get<String>(
-        CommonConstants.iwaraTagsLocalizationCdnUrl,
-        options: Options(
-          responseType: ResponseType.plain,
-          receiveTimeout: const Duration(seconds: 20),
-          sendTimeout: const Duration(seconds: 20),
-        ),
-      );
-      final content = response.data;
-      if (content == null || content.isEmpty) return;
+  /// 从 CDN 刷新词库。
+  ///
+  /// [manual] 为 true 时是用户主动触发（设置页的「检查更新」），
+  /// 会返回是否真的发生了变化，供界面给出反馈。
+  Future<bool> _refreshFromCdn({bool manual = false}) async {
+    final content = await _fetcher.fetch();
+    if (content == null) return false;
 
-      // 先校验能否解析出标签数量，避免把坏数据写入缓存。
-      final count = _peekCount(content);
-      if (count == null || count == 0) return;
+    // 先校验能否解析出条目，避免把坏数据写入缓存。
+    final incoming = peekSnapshot(content, _countTags);
+    if (incoming == null) return false;
 
-      // 仅当条目数变化时才覆盖内存（简单的「是否更新」启发式）。
-      if (count != _entries.length) {
-        _rebuild(content, currentLocaleKey());
-      }
-
-      final file = await _cacheFile();
-      await file.writeAsString(content, flush: true);
-      LogUtils.i('标签词库已从 CDN 刷新（$count 条）', '标签本地化');
-    } catch (e) {
-      // 网络失败属正常情况，已有兜底数据，静默即可。
-      LogUtils.w('从 CDN 刷新标签词库失败: $e', '标签本地化');
+    final changed = shouldRebuild(snapshot.value, incoming);
+    if (changed) {
+      _rebuild(content, currentLocaleKey());
+      // 词库变了但多数展示控件不监听 dataVersion，主动刷一次界面。
+      Get.forceAppUpdate();
     }
+    // 即使本次没重建也要写缓存——下次冷启动会读到新的那份。
+    await _fetcher.writeCache(content);
+    lastRefreshedAt.value = DateTime.now();
+    LogUtils.i(
+      '标签词库已从 CDN 刷新（$incoming，${changed ? '已应用' : '无变化'}）',
+      '标签本地化',
+    );
+    return changed;
   }
 
-  Future<File> _cacheFile() async {
-    final dir = await getApplicationSupportDirectory();
-    return File(p.join(dir.path, 'iwara_tags.min.json'));
-  }
+  /// 用户主动检查词库更新。返回是否有变化。
+  Future<bool> checkForUpdate() => _refreshFromCdn(manual: true);
 
-  /// 仅探测词库条目数（用于「是否更新」判断），不构建完整映射。
-  int? _peekCount(String content) {
-    try {
-      final decoded = jsonDecode(content) as Map<String, dynamic>;
-      final tags = decoded['tags'] as Map<String, dynamic>?;
-      return tags?.length;
-    } catch (_) {
-      return null;
-    }
-  }
+  static int _countTags(Map<String, dynamic> decoded) =>
+      (decoded['tags'] as Map?)?.length ?? 0;
+
+  Future<File> _cacheFile() => _fetcher.cacheFile();
 
   /// 解析原始 JSON，只为 [localeKey] 物化译名，重建精简映射。
   void _rebuild(String content, String localeKey) {
@@ -233,6 +231,11 @@ class TagLocalizationService extends GetxService {
       final decoded = jsonDecode(content) as Map<String, dynamic>;
       final tags = decoded['tags'] as Map<String, dynamic>?;
       if (tags == null || tags.isEmpty) return;
+      snapshot.value = DictionarySnapshot(
+        version: (decoded['version'] as num?)?.toInt() ?? 1,
+        rev: decoded['rev'] as String?,
+        count: tags.length,
+      );
 
       final next = <String, _SlimTag>{};
       tags.forEach((id, value) {
