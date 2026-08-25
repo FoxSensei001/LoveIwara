@@ -79,5 +79,6 @@ android/build/
 # 本地设计稿（含个人信息，不入库）
 /docs/mockups/
 
-# 标签审计的可再生产物（跑一次 tool/tag_audit/audit.dart 就能重建）
+# 标签审计与核实的可再生产物（跑一次对应脚本就能重建，含 Danbooru 查询缓存）
 /tool/tag_audit/out/
+/tool/tag_verify/out/
