@@ -78,3 +78,6 @@ android/build/
 
 # 本地设计稿（含个人信息，不入库）
 /docs/mockups/
+
+# 标签审计的可再生产物（跑一次 tool/tag_audit/audit.dart 就能重建）
+/tool/tag_audit/out/
