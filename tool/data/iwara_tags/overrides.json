@@ -1,4 +1,181 @@
 {
   "schema": 1,
-  "entries": {}
+  "entries": {
+    "azuma_seren": {
+      "n": {
+        "zh-CN": "东雪莲",
+        "zh-TW": "東雪蓮",
+        "ja": "東雪蓮",
+        "en": "Seren Azuma"
+      },
+      "prev": {
+        "zh-CN": "东云塞莲",
+        "zh-TW": "東雲塞蓮",
+        "ja": "東雲せれん",
+        "en": "Seren Azuma"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/azuma_seren",
+        "https://zh.moegirl.org.cn/东雪莲"
+      ],
+      "note": "原机翻「东云塞莲」有误，实际为虚拟主播「东雪莲」（東雪蓮 / Seren Azuma）。"
+    },
+    "chen": {
+      "n": {
+        "zh-CN": "橙",
+        "zh-TW": "橙",
+        "ja": "橙"
+      },
+      "prev": {
+        "zh-CN": "陈",
+        "zh-TW": "陳",
+        "ja": "チェン"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/chen",
+        "https://thwiki.cc/橙"
+      ],
+      "note": "东方Project角色「橙」（Chen）被机翻误作姓氏「陈」，修正为「橙」。"
+    },
+    "elizabeth_rose_bloodflame": {
+      "n": {
+        "zh-CN": "伊丽莎白·露丝·布拉德弗雷姆",
+        "zh-TW": "伊麗莎白·露絲·布拉德弗雷姆"
+      },
+      "prev": {
+        "zh-CN": "伊丽莎白·罗斯·血焰",
+        "zh-TW": "伊麗莎白·羅斯·血焰"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/elizabeth_rose_bloodflame",
+        "https://zh.moegirl.org.cn/伊丽莎白·露丝·布拉德弗雷姆"
+      ],
+      "note": "原机翻将 Bloodflame 意译为「血焰」，修正为通用官方音译「伊丽莎白·露丝·布拉德弗雷姆」。"
+    },
+    "gigi_murin": {
+      "n": {
+        "zh-CN": "琪琪·沐林",
+        "zh-TW": "琪琪·沐林"
+      },
+      "prev": {
+        "zh-CN": "吉吉·莫琳",
+        "zh-TW": "吉吉·莫琳"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/gigi_murin",
+        "https://zh.moegirl.org.cn/琪琪·沐林"
+      ],
+      "note": "原机翻「吉吉·莫琳」不准确，修正为 Hololive 官方常用译名「琪琪·沐林」。"
+    },
+    "hakos_baelz": {
+      "n": {
+        "zh-CN": "哈珂斯·贝尔丝",
+        "zh-TW": "哈珂斯·貝爾絲"
+      },
+      "prev": {
+        "zh-CN": "哈可斯·贝莉丝",
+        "zh-TW": "哈可斯·貝莉絲"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/hakos_baelz",
+        "https://zh.moegirl.org.cn/哈珂斯·贝尔丝"
+      ],
+      "note": "原机翻「哈可斯·贝莉丝」不标准，修正为 Hololive 官方常用译名「哈珂斯·贝尔丝」。"
+    },
+    "lila_decyrus": {
+      "n": {
+        "zh-CN": "莉拉·德西亚斯",
+        "zh-TW": "莉拉·德西亞斯"
+      },
+      "prev": {
+        "zh-CN": "莉拉·德希雅斯",
+        "zh-TW": "莉拉·德希雅斯"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/lila_decyrus",
+        "https://zh.moegirl.org.cn/莉拉·德西亚斯"
+      ],
+      "note": "《莱莎的炼金工房》官方中文译名为「莉拉·德西亚斯」，修正原有音译错误。"
+    },
+    "lily_black": {
+      "n": {
+        "zh-CN": "莉莉黑",
+        "zh-TW": "莉莉黑"
+      },
+      "prev": {
+        "zh-CN": "黑莉莉",
+        "zh-TW": "黑莉莉"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/lily_black",
+        "https://thwiki.cc/莉莉霍瓦特"
+      ],
+      "note": "东方Project角色形态通译为「莉莉黑」（Lily Black），修正原倒装直译「黑莉莉」。"
+    },
+    "lily_white": {
+      "n": {
+        "zh-CN": "莉莉白",
+        "zh-TW": "莉莉白"
+      },
+      "prev": {
+        "zh-CN": "白莉莉",
+        "zh-TW": "白莉莉"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/lily_white",
+        "https://thwiki.cc/莉莉霍瓦特"
+      ],
+      "note": "东方Project官方角色译名为「莉莉白」（Lily White），修正原倒装直译「白莉莉」。"
+    },
+    "zundamon": {
+      "n": {
+        "zh-CN": "俊达萌",
+        "zh-TW": "俊達萌"
+      },
+      "prev": {
+        "zh-CN": "ずんだもん",
+        "zh-TW": "ずんだもん"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/zundamon",
+        "https://zh.moegirl.org.cn/俊达萌"
+      ],
+      "note": "补全官方中文译名「俊达萌」（ずんだもん / Zundamon）。"
+    },
+    "merun_morino": {
+      "n": {
+        "zh-CN": "森野莓洛",
+        "zh-TW": "森野莓洛"
+      },
+      "prev": {
+        "zh-CN": "森野麦仑",
+        "zh-TW": "森野麥侖"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/merun_morino",
+        "https://space.bilibili.com/1529124446"
+      ],
+      "note": "原机翻「森野麦仑」不准确，修正为其在 Bilibili 官方账号使用的官方译名「森野莓洛」。"
+    }
+  }
 }

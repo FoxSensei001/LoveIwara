@@ -1,0 +1,688 @@
+{
+  "batch": 2,
+  "entries": [
+    {
+      "key": "ayase_momo",
+      "decision": "keep",
+      "reason": "现有译名「绫濑桃」完全正确，候选仅为日文汉字写法。"
+    },
+    {
+      "key": "azuma_seren",
+      "decision": "replace",
+      "names": {
+        "zh-CN": "东雪莲",
+        "zh-TW": "東雪蓮",
+        "ja": "東雪蓮",
+        "en": "Seren Azuma"
+      },
+      "reason": "原机翻「东云塞莲」有误，实际为虚拟主播「东雪莲」（東雪蓮 / Seren Azuma）。",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/azuma_seren",
+        "https://zh.moegirl.org.cn/东雪莲"
+      ]
+    },
+    {
+      "key": "bare_legs",
+      "decision": "keep",
+      "reason": "现有译名「裸腿」准确贴切，无需替换。"
+    },
+    {
+      "key": "bathing",
+      "decision": "keep",
+      "reason": "现有译名「洗澡」准确贴切，无需替换。"
+    },
+    {
+      "key": "bdsm",
+      "decision": "keep",
+      "reason": "现有译名「BDSM」为国际通用专有名词，无需替换为单一道具名。"
+    },
+    {
+      "key": "between_breasts",
+      "decision": "keep",
+      "reason": "现有译名「乳沟交」准确表达含义，保留现有译名。"
+    },
+    {
+      "key": "bikini_armor",
+      "decision": "keep",
+      "reason": "现有译名「比基尼铠甲」准确贴切，无需替换。"
+    },
+    {
+      "key": "bit_gag",
+      "decision": "keep",
+      "reason": "现有译名「马衔塞」准确专业，保留现有译名。"
+    },
+    {
+      "key": "black_cat",
+      "decision": "keep",
+      "reason": "现有译名「黑猫」准确，候选仅为日文汉字。"
+    },
+    {
+      "key": "blackmail",
+      "decision": "keep",
+      "reason": "现有译名「敲诈/威胁」准确，候选仅为日文汉字。"
+    },
+    {
+      "key": "bleach",
+      "decision": "keep",
+      "reason": "现有译名「死神」为通用且最广为人知的官方/民间译名，保留现有译名。"
+    },
+    {
+      "key": "blindfold",
+      "decision": "keep",
+      "reason": "现有译名「眼罩 (蒙眼)」准确，保留现有译名。"
+    },
+    {
+      "key": "body_control",
+      "decision": "keep",
+      "reason": "现有译名「身体控制」准确，保留现有译名。"
+    },
+    {
+      "key": "body_modification",
+      "decision": "keep",
+      "reason": "现有译名「身体改造」准确，无需替换。"
+    },
+    {
+      "key": "body_writing",
+      "decision": "keep",
+      "reason": "现有译名「人体涂鸦」准确贴切，无需替换。"
+    },
+    {
+      "key": "bondage",
+      "decision": "keep",
+      "reason": "现有译名「束缚」准确规范，保留现有译名。"
+    },
+    {
+      "key": "bottomless",
+      "decision": "keep",
+      "reason": "现有译名「不穿下装」准确贴切，无需替换。"
+    },
+    {
+      "key": "bouncing_ass",
+      "decision": "keep",
+      "reason": "现有译名「摇臀」简洁准确，无需替换为口语化候选。"
+    },
+    {
+      "key": "braces",
+      "decision": "keep",
+      "reason": "现有译名「牙套」准确，候选仅为日文汉字。"
+    },
+    {
+      "key": "breast_expansion",
+      "decision": "keep",
+      "reason": "现有译名「乳房膨胀」准确，无需替换。"
+    },
+    {
+      "key": "brown_eyes",
+      "decision": "keep",
+      "reason": "现有译名「棕眼」简洁明确，无需替换。"
+    },
+    {
+      "key": "bukkake",
+      "decision": "keep",
+      "reason": "现有译名「颜射」为常见通用译名，保留现有译名。"
+    },
+    {
+      "key": "butt_crack",
+      "decision": "keep",
+      "reason": "现有译名「股沟」规范准确，无需替换为口语词。"
+    },
+    {
+      "key": "cat_tail",
+      "decision": "keep",
+      "reason": "现有译名「猫尾」准确，候选为日文写法。"
+    },
+    {
+      "key": "censored",
+      "decision": "keep",
+      "reason": "现有译名「有码」为视频站点标准通用称呼，保留现有译名。"
+    },
+    {
+      "key": "chastity_cage",
+      "decision": "keep",
+      "reason": "现有译名「贞操笼」准确对应原文，无需替换。"
+    },
+    {
+      "key": "chen",
+      "decision": "replace",
+      "names": {
+        "zh-CN": "橙",
+        "zh-TW": "橙",
+        "ja": "橙"
+      },
+      "reason": "东方Project角色「橙」（Chen）被机翻误作姓氏「陈」，修正为「橙」。",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/chen",
+        "https://thwiki.cc/橙"
+      ]
+    },
+    {
+      "key": "clothed_sex",
+      "decision": "keep",
+      "reason": "现有译名「着衣性交」规范准确，候选为生硬词汇。"
+    },
+    {
+      "key": "clueless",
+      "decision": "keep",
+      "reason": "现有保留英文原名「Clueless」，语义可能包含作品名/情境标签，没有把握一律保留现有值。"
+    },
+    {
+      "key": "code_geass",
+      "decision": "keep",
+      "reason": "现有译名「反叛的鲁路修」准确且通用，无需替换。"
+    },
+    {
+      "key": "contortion",
+      "decision": "keep",
+      "reason": "现有译名「身体折叠」形象准确，保留现有译名。"
+    },
+    {
+      "key": "convenient_censoring",
+      "decision": "keep",
+      "reason": "现有译名「便利遮挡」准确，保留现有译名。"
+    },
+    {
+      "key": "covered_nipples",
+      "decision": "keep",
+      "reason": "现有译名「遮盖乳头」完全正确，候选属于误导。"
+    },
+    {
+      "key": "crossdressing",
+      "decision": "keep",
+      "reason": "现有译名「异装」标准规范，保留现有译名。"
+    },
+    {
+      "key": "crossover",
+      "decision": "keep",
+      "reason": "现有译名「跨界」准确对应 Crossover，保留现有译名。"
+    },
+    {
+      "key": "cum_inflation",
+      "decision": "keep",
+      "reason": "现有译名「精液膨胀」准确描述特征，无需替换。"
+    },
+    {
+      "key": "curvy",
+      "decision": "keep",
+      "reason": "现有译名「凹凸有致」优雅准确，无需替换。"
+    },
+    {
+      "key": "dawn",
+      "decision": "keep",
+      "reason": "本标签在 iwara 上指代《宝可梦》角色「小光」（Dawn/ヒカリ），保留角色译名，不使用通用名词替换。"
+    },
+    {
+      "key": "defeat",
+      "decision": "keep",
+      "reason": "现有译名「战败」准确贴切，无需替换。"
+    },
+    {
+      "key": "defloration",
+      "decision": "keep",
+      "reason": "现有译名「破处」通俗准确，保留现有译名。"
+    },
+    {
+      "key": "demon",
+      "decision": "keep",
+      "reason": "现有译名「恶魔」准确规范，保留现有译名。"
+    },
+    {
+      "key": "dialogue",
+      "decision": "keep",
+      "reason": "现有译名「对话」准确，候选「字幕」有歧义。"
+    },
+    {
+      "key": "diary",
+      "decision": "keep",
+      "reason": "现有译名「日记」完全准确，候选仅为日文写法。"
+    },
+    {
+      "key": "doctor",
+      "decision": "keep",
+      "reason": "现有译名「博士」准确对应 Doctor，保留现有译名。"
+    },
+    {
+      "key": "doggystyle",
+      "decision": "keep",
+      "reason": "现有译名「后入式」为最常用体位译名，保留现有译名。"
+    },
+    {
+      "key": "doremy_sweet",
+      "decision": "keep",
+      "reason": "现有译名「哆来咪·苏威特」准确规范，无需替换。"
+    },
+    {
+      "key": "double_penetration",
+      "decision": "keep",
+      "reason": "现有译名「双重插入」准确清晰，保留现有译名。"
+    },
+    {
+      "key": "downblouse",
+      "decision": "keep",
+      "reason": "现有译名「窥视胸部」准确描述视角情境，保留现有译名。"
+    },
+    {
+      "key": "drill_hair",
+      "decision": "keep",
+      "reason": "现有译名「螺旋发型」准确描述发型，无需替换。"
+    },
+    {
+      "key": "drugs",
+      "decision": "keep",
+      "reason": "现有译名「药物」准确规范，保留现有译名。"
+    },
+    {
+      "key": "dusk",
+      "decision": "keep",
+      "reason": "本标签在 iwara 上指代《明日方舟》角色「夕」（Dusk/シー），保留角色译名，不使用通用名词替换。"
+    },
+    {
+      "key": "elizabeth_rose_bloodflame",
+      "decision": "replace",
+      "names": {
+        "zh-CN": "伊丽莎白·露丝·布拉德弗雷姆",
+        "zh-TW": "伊麗莎白·露絲·布拉德弗雷姆"
+      },
+      "reason": "原机翻将 Bloodflame 意译为「血焰」，修正为通用官方音译「伊丽莎白·露丝·布拉德弗雷姆」。",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/elizabeth_rose_bloodflame",
+        "https://zh.moegirl.org.cn/伊丽莎白·露丝·布拉德弗雷姆"
+      ]
+    },
+    {
+      "key": "embarrassed",
+      "decision": "keep",
+      "reason": "现有译名「害羞」准确形象，保留现有译名。"
+    },
+    {
+      "key": "family",
+      "decision": "keep",
+      "reason": "现有译名「家庭」准确，候选仅为日文写法。"
+    },
+    {
+      "key": "feet",
+      "decision": "keep",
+      "reason": "现有译名「脚」准确，候选仅为日文汉字。"
+    },
+    {
+      "key": "femdom",
+      "decision": "keep",
+      "reason": "现有译名「女性支配」为 Femdom 的标准专业译名，保留现有译名。"
+    },
+    {
+      "key": "feminization",
+      "decision": "keep",
+      "reason": "现有译名「女性化」准确对应 Feminization，保留现有译名。"
+    },
+    {
+      "key": "fern",
+      "decision": "keep",
+      "reason": "本标签在 iwara 上指代《葬送的芙莉莲》角色「菲伦」（Fern/フェルン），保留角色译名，不使用植物名词覆盖。"
+    },
+    {
+      "key": "firefly",
+      "decision": "keep",
+      "reason": "本标签在 iwara 上指代《崩坏：星穹铁道》角色「流萤」（Firefly/ホタル），保留角色译名，不使用普通名词覆盖。"
+    },
+    {
+      "key": "fishnets",
+      "decision": "keep",
+      "reason": "现有译名「网袜」准确常用，保留现有译名。"
+    },
+    {
+      "key": "flat_chest",
+      "decision": "keep",
+      "reason": "现有译名「贫乳」为二次元通用术语，保留现有译名。"
+    },
+    {
+      "key": "forced_exposure",
+      "decision": "keep",
+      "reason": "现有译名「强迫露出」准确规范，候选仅为日文写法。"
+    },
+    {
+      "key": "fox_tail",
+      "decision": "keep",
+      "reason": "现有译名「狐狸尾巴」准确通俗，候选为日文写法。"
+    },
+    {
+      "key": "frozen",
+      "decision": "keep",
+      "reason": "现有译名「冰雪奇缘」为对应动画作品名，保留现有译名，不使用通用名词替换。"
+    },
+    {
+      "key": "futaba_minato",
+      "decision": "keep",
+      "reason": "现有译名「双叶凑音」完全正确，候选仅为繁体/日文写法。"
+    },
+    {
+      "key": "futami_ami",
+      "decision": "keep",
+      "reason": "现有译名「双海亚美」完全正确，候选仅为日文写法。"
+    },
+    {
+      "key": "futanari",
+      "decision": "keep",
+      "reason": "现有译名「扶他」为二次元通用术语，保留现有译名。"
+    },
+    {
+      "key": "fuwawa_abyssgard",
+      "decision": "keep",
+      "reason": "现有译名「芙哇哇·阿比斯加德」为官方音译，候选「软软」为意译俗称。"
+    },
+    {
+      "key": "ganaha_hibiki",
+      "decision": "keep",
+      "reason": "现有译名「我那霸响」完全正确，候选仅为日文汉字写法。"
+    },
+    {
+      "key": "gaping",
+      "decision": "keep",
+      "reason": "现有译名「大开」准确对应 Gaping，保留现有译名。"
+    },
+    {
+      "key": "giantess",
+      "decision": "keep",
+      "reason": "现有译名「女巨人」准确规范，保留现有译名。"
+    },
+    {
+      "key": "gigantic_breasts",
+      "decision": "keep",
+      "reason": "现有译名「超级巨乳」准确清晰，保留现有译名。"
+    },
+    {
+      "key": "gigi_murin",
+      "decision": "replace",
+      "names": {
+        "zh-CN": "琪琪·沐林",
+        "zh-TW": "琪琪·沐林"
+      },
+      "reason": "原机翻「吉吉·莫琳」不准确，修正为 Hololive 官方常用译名「琪琪·沐林」。",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/gigi_murin",
+        "https://zh.moegirl.org.cn/琪琪·沐林"
+      ]
+    },
+    {
+      "key": "glory_hole",
+      "decision": "keep",
+      "reason": "现有译名「荣耀之洞」为该词通用直译，保留现有译名。"
+    },
+    {
+      "key": "glowing_eyes",
+      "decision": "keep",
+      "reason": "现有译名「发光眼睛」准确直观，保留现有译名。"
+    },
+    {
+      "key": "glowing_tattoo",
+      "decision": "keep",
+      "reason": "现有译名「发光纹身」准确规范，保留现有译名。"
+    },
+    {
+      "key": "gokkun",
+      "decision": "keep",
+      "reason": "现有译名「吞精」为最通用标准译名，保留现有译名。"
+    },
+    {
+      "key": "groping",
+      "decision": "keep",
+      "reason": "现有译名「抚摸」准确贴切，保留现有译名。"
+    },
+    {
+      "key": "guro",
+      "decision": "keep",
+      "reason": "现有译名「猎奇」为 ACG 领域对应 Guro 的标准通译，保留现有译名。"
+    },
+    {
+      "key": "hagiwara_yukiho",
+      "decision": "keep",
+      "reason": "现有译名「萩原雪步」完全正确，候选仅为日文汉字写法。"
+    },
+    {
+      "key": "hakase_fuyuki",
+      "decision": "keep",
+      "reason": "现有译名「叶加濑冬雪」完全正确，候选仅为日文写法。"
+    },
+    {
+      "key": "hakos_baelz",
+      "decision": "replace",
+      "names": {
+        "zh-CN": "哈珂斯·贝尔丝",
+        "zh-TW": "哈珂斯·貝爾絲"
+      },
+      "reason": "原机翻「哈可斯·贝莉丝」不标准，修正为 Hololive 官方常用译名「哈珂斯·贝尔丝」。",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/hakos_baelz",
+        "https://zh.moegirl.org.cn/哈珂斯·贝尔丝"
+      ]
+    },
+    {
+      "key": "highschool_of_the_dead",
+      "decision": "keep",
+      "reason": "现有译名「学园默示录」完全准确，候选仅为日文写法。"
+    },
+    {
+      "key": "higuchi_kaede",
+      "decision": "keep",
+      "reason": "现有译名「樋口枫」完全正确，候选仅为日文汉字写法。"
+    },
+    {
+      "key": "hook",
+      "decision": "keep",
+      "reason": "本标签在 iwara 上指代《崩坏：星穹铁道》角色「虎克」（Hook/フック），保留角色译名，不使用道具名词覆盖。"
+    },
+    {
+      "key": "huge_ass",
+      "decision": "keep",
+      "reason": "现有译名「巨臀」准确规范，保留现有译名。"
+    },
+    {
+      "key": "huge_breasts",
+      "decision": "keep",
+      "reason": "现有译名「巨乳」为标准常用译名，保留现有译名。"
+    },
+    {
+      "key": "huge_penis",
+      "decision": "keep",
+      "reason": "现有译名「巨根」为标准常用译名，保留现有译名。"
+    },
+    {
+      "key": "igawa_asagi",
+      "decision": "keep",
+      "reason": "现有译名「井河阿萨姬」完全正确，候选为姐妹合集标签。"
+    },
+    {
+      "key": "igawa_sakura",
+      "decision": "keep",
+      "reason": "现有译名「井河樱」完全正确，候选为姐妹合集标签。"
+    },
+    {
+      "key": "inoue_takina",
+      "decision": "keep",
+      "reason": "现有译名「井之上泷奈」为官方准确译名，候选「井上泷奈」为误写。"
+    },
+    {
+      "key": "jersey",
+      "decision": "keep",
+      "reason": "现有译名「运动衫」准确贴切，无需替换。"
+    },
+    {
+      "key": "kagura_mea",
+      "decision": "keep",
+      "reason": "现有译名保留常用平假名写法「神乐めあ」，完全可用，保持现有译名。"
+    },
+    {
+      "key": "kaguya_luna",
+      "decision": "keep",
+      "reason": "现有译名「辉夜月」完全正确，候选仅为日文汉字写法。"
+    },
+    {
+      "key": "kasane_teto",
+      "decision": "keep",
+      "reason": "现有译名「重音Teto」为标准通用译名。"
+    },
+    {
+      "key": "kidnapping",
+      "decision": "keep",
+      "reason": "现有译名「绑架」准确规范，候选仅为日文汉字。"
+    },
+    {
+      "key": "kikirara_vivi",
+      "decision": "keep",
+      "reason": "现有译名「绮绮罗罗·薇薇」准确规范，候选仅缺少间隔号。"
+    },
+    {
+      "key": "king",
+      "decision": "keep",
+      "reason": "本标签在 iwara 上指代热门歌曲《KING》或同名角色，保留大写「KING」，不使用通用名词替换。"
+    },
+    {
+      "key": "kingdom_hearts",
+      "decision": "keep",
+      "reason": "现有译名「王国之心」为官方标准译名，候选为缩写。"
+    },
+    {
+      "key": "kitakami_futaba",
+      "decision": "keep",
+      "reason": "现有译名「北上双叶」完全正确，候选仅为日文写法。"
+    },
+    {
+      "key": "kitsune",
+      "decision": "keep",
+      "reason": "现有译名「狐娘」符合二次元萌属性称呼，保留现有译名。"
+    },
+    {
+      "key": "kizuna_akari",
+      "decision": "keep",
+      "reason": "现有译名「紲星灯」完全正确，候选仅为简繁异体字。"
+    },
+    {
+      "key": "komi_shouko",
+      "decision": "keep",
+      "reason": "现有译名「古见硝子」完全正确，候选仅为日文汉字写法。"
+    },
+    {
+      "key": "lamb",
+      "decision": "keep",
+      "reason": "本标签在 iwara 上指代《英雄联盟》角色「羊灵」（Lamb），保留角色译名，不使用动物名词替换。"
+    },
+    {
+      "key": "lifting_person",
+      "decision": "keep",
+      "reason": "现有译名「抱起」简明准确，无需替换为累赘候选。"
+    },
+    {
+      "key": "lila_decyrus",
+      "decision": "replace",
+      "names": {
+        "zh-CN": "莉拉·德西亚斯",
+        "zh-TW": "莉拉·德西亞斯"
+      },
+      "reason": "《莱莎的炼金工房》官方中文译名为「莉拉·德西亚斯」，修正原有音译错误。",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/lila_decyrus",
+        "https://zh.moegirl.org.cn/莉拉·德西亚斯"
+      ]
+    },
+    {
+      "key": "lily_black",
+      "decision": "replace",
+      "names": {
+        "zh-CN": "莉莉黑",
+        "zh-TW": "莉莉黑"
+      },
+      "reason": "东方Project角色形态通译为「莉莉黑」（Lily Black），修正原倒装直译「黑莉莉」。",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/lily_black",
+        "https://thwiki.cc/莉莉霍瓦特"
+      ]
+    },
+    {
+      "key": "lily_white",
+      "decision": "replace",
+      "names": {
+        "zh-CN": "莉莉白",
+        "zh-TW": "莉莉白"
+      },
+      "reason": "东方Project官方角色译名为「莉莉白」（Lily White），修正原倒装直译「白莉莉」。",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/lily_white",
+        "https://thwiki.cc/莉莉霍瓦特"
+      ]
+    },
+    {
+      "key": "little_witch_academia",
+      "decision": "keep",
+      "reason": "现有译名「小魔女学园」为官方正式译名。"
+    },
+    {
+      "key": "loincloth",
+      "decision": "keep",
+      "reason": "现有译名「兜裆布」准确地道，保留现有译名。"
+    },
+    {
+      "key": "zundamon",
+      "decision": "replace",
+      "names": {
+        "zh-CN": "俊达萌",
+        "zh-TW": "俊達萌"
+      },
+      "reason": "补全官方中文译名「俊达萌」（ずんだもん / Zundamon）。",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/zundamon",
+        "https://zh.moegirl.org.cn/俊达萌"
+      ]
+    },
+    {
+      "key": "lucia_elowen",
+      "decision": "keep",
+      "reason": "现有译名「卢西娅·艾洛温」准确规范，候选仅为标点差异。"
+    },
+    {
+      "key": "lynx",
+      "decision": "keep",
+      "reason": "本标签在 iwara 上指代《崩坏：星穹铁道》角色「玲可」（Lynx/リンクス），保留角色译名，不使用动物名词覆盖。"
+    },
+    {
+      "key": "mating_press",
+      "decision": "keep",
+      "reason": "现有译名「压榨体位」准确对应 Mating Press，保留现有译名。"
+    },
+    {
+      "key": "may",
+      "decision": "keep",
+      "reason": "本标签在 iwara 上指代《宝可梦》角色「小遥」（May/ハルカ），保留角色译名，不使用月份名词覆盖。"
+    },
+    {
+      "key": "medium_breasts",
+      "decision": "keep",
+      "reason": "现有译名「美乳」常用贴切，保留现有译名。"
+    },
+    {
+      "key": "meme",
+      "decision": "keep",
+      "reason": "现有译名「迷因」准确规范，保留现有译名。"
+    },
+    {
+      "key": "merun_morino",
+      "decision": "replace",
+      "names": {
+        "zh-CN": "森野莓洛",
+        "zh-TW": "森野莓洛"
+      },
+      "reason": "原机翻「森野麦仑」不准确，修正为其在 Bilibili 官方账号使用的官方译名「森野莓洛」。",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/merun_morino",
+        "https://space.bilibili.com/1529124446"
+      ]
+    },
+    {
+      "key": "messy_hair",
+      "decision": "keep",
+      "reason": "现有译名「凌乱头发」准确直观，保留现有译名。"
+    },
+    {
+      "key": "metroid",
+      "decision": "keep",
+      "reason": "现有译名「银河战士」为经典常用通译，保留现有译名。"
+    }
+  ]
+}
