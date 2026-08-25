@@ -50,8 +50,15 @@ void main(List<String> args) {
     return ((doc['entries'] as Map?) ?? const {}).keys.map((e) => '$e').toSet();
   }
 
-  final decidedOreno = decided('tool/data/oreno3d_tags/overrides.json');
-  final decidedIwara = decided('tool/data/iwara_tags/overrides.json');
+  // overrides 记「改过的」，reviewed 记「看过并判定保留的」——两者都不该再入队。
+  final decidedOreno = {
+    ...decided('tool/data/oreno3d_tags/overrides.json'),
+    ...decided('tool/data/oreno3d_tags/reviewed.json'),
+  };
+  final decidedIwara = {
+    ...decided('tool/data/iwara_tags/overrides.json'),
+    ...decided('tool/data/iwara_tags/reviewed.json'),
+  };
 
   // ---------------- oreno3d ----------------
   final oRaw = _json('tool/data/oreno3d_tags/oreno3d_tags.json');

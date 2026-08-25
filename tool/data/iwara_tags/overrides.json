@@ -262,6 +262,200 @@
         "https://zh.moegirl.org.cn/足立レイ"
       ],
       "note": "将混杂罗马音的「足立Rei」替换为通用标准中文译名「足立零」。"
+    },
+    "nanashi_mumei": {
+      "n": {
+        "zh-CN": "七诗无铭",
+        "zh-TW": "七詩無銘"
+      },
+      "prev": {
+        "zh-CN": "七诗Mumei",
+        "zh-TW": "七詩Mumei"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/nanashi_mumei",
+        "https://zh.moegirl.org.cn/七诗无铭"
+      ],
+      "note": "修正原译名混杂英文/罗马音「七诗Mumei」，使用标准官方译名「七诗无铭」。"
+    },
+    "nekomiya_mana": {
+      "n": {
+        "zh-CN": "猫宫又奈",
+        "zh-TW": "貓宮又奈"
+      },
+      "prev": {
+        "zh-CN": "猫宫Mana",
+        "zh-TW": "貓宮Mana"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/nekomiya_mana",
+        "https://zh.moegirl.org.cn/猫宫又奈"
+      ],
+      "note": "《绝区零》角色官方中文译名为「猫宫又奈」，修正原机翻混杂罗马音「猫宫Mana」。"
+    },
+    "pavolia_reine": {
+      "n": {
+        "zh-CN": "帕沃莉亚·蕾内",
+        "zh-TW": "帕沃莉亞·蕾內"
+      },
+      "prev": {
+        "zh-CN": "帕沃莉亚·雷妮",
+        "zh-TW": "帕沃莉亞·雷妮"
+      },
+      "src": "ai-batch",
+      "by": "batch_003",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/pavolia_reine",
+        "https://zh.moegirl.org.cn/帕沃莉亚·蕾内"
+      ],
+      "note": "原译名「帕沃莉亚·雷妮」音译不准确，修正为 Hololive 官方及通用译名「帕沃莉亚·蕾内」。"
+    },
+    "raora_panthera": {
+      "n": {
+        "zh-CN": "拉欧拉·潘特拉",
+        "zh-TW": "拉歐拉·潘特拉"
+      },
+      "prev": {
+        "zh-CN": "拉欧拉·潘瑟拉",
+        "zh-TW": "拉歐拉·潘瑟拉"
+      },
+      "src": "ai-batch",
+      "by": "batch_003",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/raora_panthera",
+        "https://zh.moegirl.org.cn/拉欧拉·潘特拉"
+      ],
+      "note": "修正为 Hololive 官方常用译名「拉欧拉·潘特拉」。"
+    },
+    "rindo_chihaya": {
+      "n": {
+        "zh-CN": "轮堂千速",
+        "zh-TW": "輪堂千速",
+        "ja": "輪堂千速"
+      },
+      "prev": {
+        "zh-CN": "龙胆千早",
+        "zh-TW": "龍膽千早",
+        "ja": "竜胆千早"
+      },
+      "src": "ai-batch",
+      "by": "batch_003",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/rindo_chihaya",
+        "https://zh.moegirl.org.cn/轮堂千速"
+      ],
+      "note": "原机翻将「輪堂千速」误翻为「龙胆千早」，修正为 Hololive 官方正式汉字名「轮堂千速」。"
+    },
+    "shiori_novella": {
+      "n": {
+        "zh-CN": "诗织·诺薇拉",
+        "zh-TW": "詩織·諾薇拉"
+      },
+      "prev": {
+        "zh-CN": "诗织·诺维拉",
+        "zh-TW": "詩織·諾維拉"
+      },
+      "src": "ai-batch",
+      "by": "batch_003",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/shiori_novella",
+        "https://zh.moegirl.org.cn/诗织·诺薇拉"
+      ],
+      "note": "修正为 Hololive 官方常用译名「诗织·诺薇拉」。"
+    },
+    "shiraishi_kyouka": {
+      "n": {
+        "zh-CN": "白石杏珪",
+        "zh-TW": "白石杏珪",
+        "ja": "白石杏珪"
+      },
+      "prev": {
+        "zh-CN": "白石杏花",
+        "zh-TW": "白石杏花",
+        "ja": "白石杏花"
+      },
+      "src": "ai-batch",
+      "by": "batch_003",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/shiraishi_kyouka"
+      ],
+      "note": "原机翻「白石杏花」有误，角色原名汉字确为「白石杏珪」（出自《Energy Kyouka!!》）。"
+    },
+    "stella_sora": {
+      "n": {
+        "zh-CN": "星塔旅人",
+        "zh-TW": "星塔旅人",
+        "ja": "ステラソラ"
+      },
+      "prev": {
+        "zh-CN": "Stella Sora",
+        "zh-TW": "Stella Sora",
+        "ja": "Stella Sora"
+      },
+      "src": "ai-batch",
+      "by": "batch_003",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/stella_sora",
+        "https://zh.moegirl.org.cn/星塔旅人"
+      ],
+      "note": "原词条保留英文未翻译，修正为悠星官方游戏译名「星塔旅人」，日文为「ステラソラ」。"
+    },
+    "ukinami_yuzuha": {
+      "n": {
+        "zh-CN": "浮波柚叶",
+        "zh-TW": "浮波柚葉",
+        "ja": "浮波柚葉"
+      },
+      "prev": {
+        "zh-CN": "雨波柚羽",
+        "zh-TW": "雨波柚羽",
+        "ja": "雨波ユズハ"
+      },
+      "src": "ai-batch",
+      "by": "batch_003",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/ukinami_yuzuha",
+        "https://zh.moegirl.org.cn/浮波柚叶"
+      ],
+      "note": "原机翻「雨波柚羽」有误，修正为《绝区零》官方正式译名「浮波柚叶」。"
+    },
+    "yukihana_lamy": {
+      "n": {
+        "zh-CN": "雪花菈米",
+        "zh-TW": "雪花菈米"
+      },
+      "prev": {
+        "zh-CN": "雪花拉米",
+        "zh-TW": "雪花拉米"
+      },
+      "src": "ai-batch",
+      "by": "batch_003",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/yukihana_lamy",
+        "https://zh.moegirl.org.cn/雪花菈米"
+      ],
+      "note": "修正为 Hololive 官方常用译名「雪花菈米」。"
+    },
+    "yuzuki_choco": {
+      "n": {
+        "zh-CN": "愈月巧可",
+        "zh-TW": "癒月巧可"
+      },
+      "prev": {
+        "zh-CN": "愈月巧可",
+        "zh-TW": "愈月巧可"
+      },
+      "src": "ai-batch",
+      "by": "batch_003",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/yuzuki_choco",
+        "https://zh.moegirl.org.cn/愈月巧可"
+      ],
+      "note": "修正繁体中文为标准字形「癒月巧可」。"
     }
   }
 }

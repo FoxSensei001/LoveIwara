@@ -164,6 +164,16 @@ void main(List<String> args) {
           problems.add('$k 的 decision 必须是 keep 或 replace，得到「$decision」');
           continue;
         }
+        if (decision == 'keep') {
+          // keep 也必须落盘。不记的话这些条目每次重新出批都会回到队列，
+          // 被反复裁决，循环永远不收敛。
+          merges.add({
+            'target': 'reviewed',
+            'dataset': task['dataset'],
+            'key': k,
+            'reason': reason,
+          });
+        }
         if (decision == 'replace') {
           if (names.isEmpty) problems.add('$k decision=replace 却没给 names');
           final refs = ((got['ref'] as List?) ?? const []).map((e) => '$e').toList();
@@ -224,20 +234,33 @@ void main(List<String> args) {
     'localized:iwara': 'tool/data/iwara_tags/iwara_tags_localized.json',
     'overrides:oreno3d': 'tool/data/oreno3d_tags/overrides.json',
     'overrides:iwara': 'tool/data/iwara_tags/overrides.json',
+    'reviewed:oreno3d': 'tool/data/oreno3d_tags/reviewed.json',
+    'reviewed:iwara': 'tool/data/iwara_tags/reviewed.json',
   };
-  final docs = <String, Map<String, dynamic>>{
-    for (final e in files.entries) e.key: _json(File(e.value)),
-  };
-  var nLoc = 0, nOv = 0;
+  final docs = <String, Map<String, dynamic>>{};
+  for (final e in files.entries) {
+    final f = File(e.value);
+    if (!f.existsSync()) {
+      f.writeAsStringSync('{"schema": 1, "entries": {}}');
+    }
+    docs[e.key] = _json(f);
+  }
+  var nLoc = 0, nOv = 0, nRev = 0;
 
   for (final a in accepted) {
     for (final m in (a['merges'] as List).cast<Map<String, dynamic>>()) {
       final id = '${m['target']}:${m['dataset']}';
       final doc = docs[id]!;
       final key = m['key'] as String;
-      final names = (m['names'] as Map).cast<String, dynamic>();
+      final names =
+          ((m['names'] as Map?) ?? const {}).cast<String, dynamic>();
 
-      if (m['target'] == 'localized') {
+      if (m['target'] == 'reviewed') {
+        final entries = (doc['entries'] as Map).cast<String, dynamic>();
+        entries[key] = {'decision': 'keep', 'by': a['batch'], 'note': m['reason']};
+        doc['entries'] = entries;
+        nRev++;
+      } else if (m['target'] == 'localized') {
         final cur = (doc[key] as Map?)?.cast<String, dynamic>() ??
             <String, dynamic>{'_src': m['source'] ?? key};
         cur.addAll(names);
@@ -263,7 +286,8 @@ void main(List<String> args) {
   for (final e in files.entries) {
     File(e.value).writeAsStringSync(enc.convert(docs[e.key]));
   }
-  stdout.writeln('\n已合并：译名层 $nLoc 条，人工修正层 $nOv 条');
+  stdout.writeln('\n已合并：译名层 $nLoc 条，人工修正层 $nOv 条，'
+      '判为保留并记账 $nRev 条');
   stdout.writeln('别忘了重跑 build_localized_min.dart 出包，并跑一遍闸门测试。');
 }
 
