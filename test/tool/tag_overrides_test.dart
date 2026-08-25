@@ -14,31 +14,44 @@ void main() {
     // 背景：迁移前 2554 个 oreno3d 词条只有 2515 个不同日文名，
     // 38 组同名词条共享同一份译名 —— 斯普拉遁的 ホタル 与星铁的 ホタル
     // 被迫叫同一个中文名，结构上无法分别修正。
-    test('译名词典按 type/id 主键，条目数与原始词条数一一对应', () {
+    late Set<String> rawKeys;
+    late Map<String, dynamic> loc;
+
+    setUp(() {
       final raw = jsonDecode(
         File('tool/data/oreno3d_tags/oreno3d_tags.json').readAsStringSync(),
       ) as Map<String, dynamic>;
-      final loc = jsonDecode(
+      loc = jsonDecode(
         File('tool/data/oreno3d_tags/oreno3d_tags_localized.json')
             .readAsStringSync(),
       ) as Map<String, dynamic>;
+      rawKeys = {
+        for (final cat in ['origins', 'characters', 'tags'])
+          for (final e in (raw[cat] as List)) '$cat/${(e as Map)['id']}',
+      };
+    });
 
-      final keys = <String>{};
-      for (final cat in ['origins', 'characters', 'tags']) {
-        for (final e in (raw[cat] as List)) {
-          keys.add('$cat/${(e as Map)['id']}');
-        }
-      }
-
-      expect(loc.keys.every((k) => keys.contains(k)), isTrue,
-          reason: '译名词典里出现了原始数据中不存在的主键');
-      expect(loc.length, keys.length,
-          reason: '每个词条都必须有独立条目，不能再出现多个 id 共享一份译名');
+    test('译名词典按 type/id 主键，且不含原始数据里不存在的条目', () {
+      final unknown = loc.keys.where((k) => !rawKeys.contains(k)).toList();
+      expect(unknown, isEmpty,
+          reason: '译名词典里有 ${unknown.length} 条主键在原始数据中不存在'
+              '（上游删了词条？）：${unknown.take(10).join(', ')}');
 
       // 同名但不同 id 的两条，必须是两个可分别修改的独立条目。
       expect(loc.containsKey('characters/2215'), isTrue); // スプラトゥーン の ホタル
       expect(loc.containsKey('characters/3872'), isTrue); // 崩壊:スターレイル の ホタル
       expect(identical(loc['characters/2215'], loc['characters/3872']), isFalse);
+    });
+
+    test('每个词条都有自己的译名条目（新抓到的词条必须补译后才发布）', () {
+      // 这条红了通常不是代码坏了，而是重抓带回了新词条：
+      // 它们在 App 里会原样显示日文名，正是「词库过期」那类用户可见问题。
+      final untranslated = rawKeys.where((k) => !loc.containsKey(k)).toList()
+        ..sort();
+      expect(untranslated, isEmpty,
+          reason: '有 ${untranslated.length} 条词条还没有译名，'
+              '发布前需要补译（见 changes_*.json 增量清单）：'
+              '${untranslated.take(10).join(', ')}');
     });
   });
 

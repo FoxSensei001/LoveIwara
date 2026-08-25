@@ -1,0 +1,861 @@
+{
+  "schema": 1,
+  "source": "danbooru wiki_pages.other_names",
+  "total": 26,
+  "hit": 25,
+  "originConfirmed": 6,
+  "results": [
+    {
+      "key": "characters/1188",
+      "ja": "毒島冴子",
+      "origin": "学園黙示録 HIGHSCHOOL OF THE DEAD",
+      "found": true,
+      "confidence": "medium",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "busujima_saeko",
+        "url": "https://danbooru.donmai.us/wiki_pages/busujima_saeko",
+        "otherNames": [
+          "毒島冴子",
+          "毒岛冴子"
+        ],
+        "originHints": [],
+        "originMatched": false
+      },
+      "candidates": {
+        "zh-CN": [
+          "毒岛冴子"
+        ],
+        "zh-TW": [
+          "毒島冴子"
+        ],
+        "enFromTag": "Busujima Saeko",
+        "preferredZh": "毒岛冴子"
+      }
+    },
+    {
+      "key": "characters/2488",
+      "ja": "ナナミ",
+      "origin": "パニシング：グレイレイブン",
+      "found": true,
+      "confidence": "medium",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "nanami_(e.o.)",
+        "url": "https://danbooru.donmai.us/wiki_pages/nanami_(e.o.)",
+        "otherNames": [
+          "ナナミ",
+          "ナナミ(EO)"
+        ],
+        "originHints": [
+          "EO",
+          "e.o."
+        ],
+        "originMatched": false
+      },
+      "candidates": {
+        "ja": [
+          "ナナミ",
+          "ナナミ(EO)"
+        ],
+        "enFromTag": "Nanami",
+        "preferredZh": null
+      }
+    },
+    {
+      "key": "characters/2800",
+      "ja": "乾心寿",
+      "origin": "その着せ替え人形は恋をする",
+      "found": true,
+      "confidence": "medium",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "inui_shinju",
+        "url": "https://danbooru.donmai.us/wiki_pages/inui_shinju",
+        "otherNames": [
+          "乾心寿"
+        ],
+        "originHints": [],
+        "originMatched": false
+      },
+      "candidates": {
+        "zhAny": [
+          "乾心寿"
+        ],
+        "enFromTag": "Inui Shinju",
+        "preferredZh": "乾心寿"
+      }
+    },
+    {
+      "key": "characters/3138",
+      "ja": "龍ヶ崎リン",
+      "origin": "Vtuber",
+      "found": true,
+      "confidence": "medium",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "ryugasaki_rene",
+        "url": "https://danbooru.donmai.us/wiki_pages/ryugasaki_rene",
+        "otherNames": [
+          "龍ヶ崎リン",
+          "Rart"
+        ],
+        "originHints": [],
+        "originMatched": false
+      },
+      "candidates": {
+        "ja": [
+          "龍ヶ崎リン"
+        ],
+        "en": [
+          "Rart"
+        ],
+        "enFromTag": "Ryugasaki Rene",
+        "preferredZh": null
+      }
+    },
+    {
+      "key": "characters/3218",
+      "ja": "ゼニス・グレイラット",
+      "origin": "無職転生",
+      "found": true,
+      "confidence": "medium",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "zenith_greyrat",
+        "url": "https://danbooru.donmai.us/wiki_pages/zenith_greyrat",
+        "otherNames": [
+          "ゼニス・グレイラット"
+        ],
+        "originHints": [],
+        "originMatched": false
+      },
+      "candidates": {
+        "ja": [
+          "ゼニス・グレイラット"
+        ],
+        "enFromTag": "Zenith Greyrat",
+        "preferredZh": null
+      }
+    },
+    {
+      "key": "characters/4080",
+      "ja": "マキアート",
+      "origin": "ドールズフロントライン2：エクシリウム（ドルフロ2：追放）",
+      "found": true,
+      "confidence": "high",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "makiatto_(girls'_frontline_2)",
+        "url": "https://danbooru.donmai.us/wiki_pages/makiatto_(girls'_frontline_2)",
+        "otherNames": [
+          "玛绮朵(少女前线2)",
+          "玛绮朵",
+          "マキアート(ドールズフロントライン2)",
+          "マキアート",
+          "Macqiato",
+          "Makiatto",
+          "마키아토(소녀전선2)",
+          "마키아토"
+        ],
+        "originHints": [
+          "少女前线2",
+          "ドールズフロントライン2",
+          "소녀전선2",
+          "girls'_frontline_2"
+        ],
+        "originMatched": true
+      },
+      "candidates": {
+        "ja": [
+          "マキアート(ドールズフロントライン2)",
+          "マキアート"
+        ],
+        "zh-CN": [
+          "玛绮朵(少女前线2)"
+        ],
+        "zhAny": [
+          "玛绮朵"
+        ],
+        "en": [
+          "Macqiato",
+          "Makiatto"
+        ],
+        "enFromTag": "Makiatto",
+        "preferredZh": "玛绮朵"
+      }
+    },
+    {
+      "key": "characters/4247",
+      "ja": "ココナ(心夏)",
+      "origin": "Strinova(ストリノヴァ/卡拉彼丘)",
+      "found": true,
+      "confidence": "low",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "kokona_(blue_archive)",
+        "url": "https://danbooru.donmai.us/wiki_pages/kokona_(blue_archive)",
+        "otherNames": [
+          "春原ココナ",
+          "ココナ(ブルアカ)",
+          "스노하라코코나",
+          "코코나",
+          "ココナ",
+          "kokona",
+          "cocona",
+          "春原心奈"
+        ],
+        "originHints": [
+          "ブルアカ",
+          "blue_archive"
+        ],
+        "originMatched": false,
+        "matchedVia": "ココナ"
+      },
+      "candidates": {
+        "ja": [
+          "春原ココナ",
+          "ココナ(ブルアカ)",
+          "ココナ"
+        ],
+        "zhAny": [
+          "春原心奈"
+        ],
+        "en": [
+          "kokona",
+          "cocona"
+        ],
+        "enFromTag": "Kokona",
+        "preferredZh": "春原心奈"
+      }
+    },
+    {
+      "key": "characters/4368",
+      "ja": "マリヤ・ミハイロヴナ・九条",
+      "origin": "時々ボソッとロシア語でデレる隣のアーリャさん",
+      "found": true,
+      "confidence": "medium",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "mariya_mikhailovna_kujou",
+        "url": "https://danbooru.donmai.us/wiki_pages/mariya_mikhailovna_kujou",
+        "otherNames": [
+          "マリヤ・ミハイロヴナ・九条",
+          "玛利亚·米哈伊罗夫纳·九条",
+          "玛利亚"
+        ],
+        "originHints": [],
+        "originMatched": false
+      },
+      "candidates": {
+        "ja": [
+          "マリヤ・ミハイロヴナ・九条"
+        ],
+        "zh-CN": [
+          "玛利亚·米哈伊罗夫纳·九条"
+        ],
+        "zhAny": [
+          "玛利亚"
+        ],
+        "enFromTag": "Mariya Mikhailovna Kujou",
+        "preferredZh": "玛利亚"
+      }
+    },
+    {
+      "key": "characters/4473",
+      "ja": "八奈見杏菜",
+      "origin": "負けヒロインが多すぎる!",
+      "found": true,
+      "confidence": "medium",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "yanami_anna",
+        "url": "https://danbooru.donmai.us/wiki_pages/yanami_anna",
+        "otherNames": [
+          "八奈見杏菜"
+        ],
+        "originHints": [],
+        "originMatched": false
+      },
+      "candidates": {
+        "zhAny": [
+          "八奈見杏菜"
+        ],
+        "enFromTag": "Yanami Anna",
+        "preferredZh": "八奈見杏菜"
+      }
+    },
+    {
+      "key": "characters/4873",
+      "ja": "ミツモト・ダイア",
+      "origin": "麻雀ファイトガール",
+      "found": true,
+      "confidence": "medium",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "mitsumoto_dia",
+        "url": "https://danbooru.donmai.us/wiki_pages/mitsumoto_dia",
+        "otherNames": [
+          "ミツモト・ダイア",
+          "三元・大恋愛"
+        ],
+        "originHints": [],
+        "originMatched": false
+      },
+      "candidates": {
+        "ja": [
+          "ミツモト・ダイア"
+        ],
+        "zh-TW": [
+          "三元・大恋愛"
+        ],
+        "enFromTag": "Mitsumoto Dia",
+        "preferredZh": null
+      }
+    },
+    {
+      "key": "characters/4995",
+      "ja": "クルカイ",
+      "origin": "ドールズフロントライン2：エクシリウム（ドルフロ2：追放）",
+      "found": true,
+      "confidence": "high",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "klukai_(girls'_frontline_2)",
+        "url": "https://danbooru.donmai.us/wiki_pages/klukai_(girls'_frontline_2)",
+        "otherNames": [
+          "可露凯(少女前线2)",
+          "可露凯",
+          "可露凱(少女前線2)",
+          "可露凱",
+          "クルカイ(ドールズフロントライン2)",
+          "クルカイ",
+          "Klukai",
+          "Klukay",
+          "클루카이(소녀전선2)",
+          "클루카이"
+        ],
+        "originHints": [
+          "少女前线2",
+          "少女前線2",
+          "ドールズフロントライン2",
+          "소녀전선2",
+          "girls'_frontline_2"
+        ],
+        "originMatched": true
+      },
+      "candidates": {
+        "ja": [
+          "クルカイ(ドールズフロントライン2)",
+          "クルカイ"
+        ],
+        "zh-CN": [
+          "可露凯(少女前线2)"
+        ],
+        "zh-TW": [
+          "可露凱(少女前線2)"
+        ],
+        "zhAny": [
+          "可露凯",
+          "可露凱"
+        ],
+        "en": [
+          "Klukai",
+          "Klukay"
+        ],
+        "enFromTag": "Klukai",
+        "preferredZh": "可露凯"
+      }
+    },
+    {
+      "key": "characters/5006",
+      "ja": "シュウ",
+      "origin": "アークナイツ",
+      "found": true,
+      "confidence": "medium",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "chi_you_(megami_tensei)",
+        "url": "https://danbooru.donmai.us/wiki_pages/chi_you_(megami_tensei)",
+        "otherNames": [
+          "シュウ"
+        ],
+        "originHints": [
+          "megami_tensei"
+        ],
+        "originMatched": false
+      },
+      "candidates": {
+        "ja": [
+          "シュウ"
+        ],
+        "enFromTag": "Chi You",
+        "preferredZh": null
+      }
+    },
+    {
+      "key": "characters/5132",
+      "ja": "ロッシ",
+      "origin": "アークナイツ：エンドフィールド",
+      "found": true,
+      "confidence": "high",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "rossi_(arknights)",
+        "url": "https://danbooru.donmai.us/wiki_pages/rossi_(arknights)",
+        "otherNames": [
+          "ロッシ(エンドフィールド)",
+          "rossi",
+          "ロッシ",
+          "洛茜娜·狼珀·卢皮诺",
+          "洛茜",
+          "洛西"
+        ],
+        "originHints": [
+          "エンドフィールド",
+          "arknights"
+        ],
+        "originMatched": true
+      },
+      "candidates": {
+        "ja": [
+          "ロッシ(エンドフィールド)",
+          "ロッシ"
+        ],
+        "zhAny": [
+          "洛茜娜·狼珀·卢皮诺",
+          "洛茜",
+          "洛西"
+        ],
+        "en": [
+          "rossi"
+        ],
+        "enFromTag": "Rossi",
+        "preferredZh": "洛茜"
+      }
+    },
+    {
+      "key": "characters/5169",
+      "ja": "ノルムー",
+      "origin": "ゼンレスゾーンゼロ(ゼンゼロ)",
+      "found": true,
+      "confidence": "medium",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "norma_hollowell",
+        "url": "https://danbooru.donmai.us/wiki_pages/norma_hollowell",
+        "otherNames": [
+          "ノルムー",
+          "ノルムー・ホローウェル",
+          "Norma"
+        ],
+        "originHints": [],
+        "originMatched": false
+      },
+      "candidates": {
+        "ja": [
+          "ノルムー",
+          "ノルムー・ホローウェル"
+        ],
+        "en": [
+          "Norma"
+        ],
+        "enFromTag": "Norma Hollowell",
+        "preferredZh": null
+      }
+    },
+    {
+      "key": "characters/5182",
+      "ja": "ヴェリナ",
+      "origin": "ゼンレスゾーンゼロ(ゼンゼロ)",
+      "found": true,
+      "confidence": "high",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "velina_airgid",
+        "url": "https://danbooru.donmai.us/wiki_pages/velina_airgid",
+        "otherNames": [
+          "ヴェリナ(ゼンゼロ)",
+          "ヴェリナ",
+          "维琳娜",
+          "ヴェリナ・エガード"
+        ],
+        "originHints": [
+          "ゼンゼロ"
+        ],
+        "originMatched": true
+      },
+      "candidates": {
+        "ja": [
+          "ヴェリナ(ゼンゼロ)",
+          "ヴェリナ",
+          "ヴェリナ・エガード"
+        ],
+        "zh-CN": [
+          "维琳娜"
+        ],
+        "enFromTag": "Velina Airgid",
+        "preferredZh": "维琳娜"
+      }
+    },
+    {
+      "key": "characters/5183",
+      "ja": "レミエール・ダン(ラミル)",
+      "origin": "ゼンレスゾーンゼロ(ゼンゼロ)",
+      "found": true,
+      "confidence": "low",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "remielle_dan",
+        "url": "https://danbooru.donmai.us/wiki_pages/remielle_dan",
+        "otherNames": [
+          "蕾米埃尔·丹",
+          "レミエール・ダン",
+          "拉米尔",
+          "ラミル",
+          "Ramiel",
+          "remielle",
+          "蕾米埃尔"
+        ],
+        "originHints": [],
+        "originMatched": false,
+        "matchedVia": "レミエール・ダン"
+      },
+      "candidates": {
+        "ja": [
+          "レミエール・ダン",
+          "ラミル"
+        ],
+        "zhAny": [
+          "蕾米埃尔·丹",
+          "拉米尔",
+          "蕾米埃尔"
+        ],
+        "en": [
+          "Ramiel",
+          "remielle"
+        ],
+        "enFromTag": "Remielle Dan",
+        "preferredZh": "拉米尔"
+      }
+    },
+    {
+      "key": "characters/5202",
+      "ja": "穂穂",
+      "origin": "鳴潮(Wuthering Waves)",
+      "found": true,
+      "confidence": "medium",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "suisui_(wuthering_waves)",
+        "url": "https://danbooru.donmai.us/wiki_pages/suisui_(wuthering_waves)",
+        "otherNames": [
+          "Suisui",
+          "穗穗",
+          "穂穂",
+          "수수"
+        ],
+        "originHints": [
+          "wuthering_waves"
+        ],
+        "originMatched": false
+      },
+      "candidates": {
+        "zhAny": [
+          "穗穗",
+          "穂穂"
+        ],
+        "en": [
+          "Suisui"
+        ],
+        "enFromTag": "Suisui",
+        "preferredZh": "穗穗"
+      }
+    },
+    {
+      "key": "characters/5216",
+      "ja": "オデット",
+      "origin": "原神",
+      "found": true,
+      "confidence": "high",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "odette_(genshin_impact)",
+        "url": "https://danbooru.donmai.us/wiki_pages/odette_(genshin_impact)",
+        "otherNames": [
+          "Odette",
+          "奥黛塔",
+          "オデット",
+          "오데트",
+          "オデット(原神)"
+        ],
+        "originHints": [
+          "原神",
+          "genshin_impact"
+        ],
+        "originMatched": true
+      },
+      "candidates": {
+        "ja": [
+          "オデット",
+          "オデット(原神)"
+        ],
+        "zhAny": [
+          "奥黛塔"
+        ],
+        "en": [
+          "Odette"
+        ],
+        "enFromTag": "Odette",
+        "preferredZh": "奥黛塔"
+      }
+    },
+    {
+      "key": "characters/5224",
+      "ja": "清宵",
+      "origin": "鳴潮(Wuthering Waves)",
+      "found": true,
+      "confidence": "medium",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "qingxiao_(wuthering_waves)",
+        "url": "https://danbooru.donmai.us/wiki_pages/qingxiao_(wuthering_waves)",
+        "otherNames": [
+          "Qingxiao",
+          "清宵",
+          "청초"
+        ],
+        "originHints": [
+          "wuthering_waves"
+        ],
+        "originMatched": false
+      },
+      "candidates": {
+        "zhAny": [
+          "清宵"
+        ],
+        "en": [
+          "Qingxiao"
+        ],
+        "enFromTag": "Qingxiao",
+        "preferredZh": "清宵"
+      }
+    },
+    {
+      "key": "characters/680",
+      "ja": "松浦果南",
+      "origin": "ラブライブ!サンシャイン!!",
+      "found": true,
+      "confidence": "medium",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "matsuura_kanan",
+        "url": "https://danbooru.donmai.us/wiki_pages/matsuura_kanan",
+        "otherNames": [
+          "松浦果南",
+          "火曜日ご機嫌いかが果南",
+          "Kanan_Matsuura"
+        ],
+        "originHints": [],
+        "originMatched": false
+      },
+      "candidates": {
+        "ja": [
+          "火曜日ご機嫌いかが果南"
+        ],
+        "zhAny": [
+          "松浦果南"
+        ],
+        "en": [
+          "Kanan_Matsuura"
+        ],
+        "enFromTag": "Matsuura Kanan",
+        "preferredZh": "松浦果南"
+      }
+    },
+    {
+      "key": "characters/779",
+      "ja": "ジャベリン",
+      "origin": "アズールレーン",
+      "found": true,
+      "confidence": "high",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "javelin_(azur_lane)",
+        "url": "https://danbooru.donmai.us/wiki_pages/javelin_(azur_lane)",
+        "otherNames": [
+          "标枪(碧蓝航线)",
+          "ジャベリン(アズールレーン)",
+          "ジャベリン",
+          "ジャベリン改(アズールレーン)"
+        ],
+        "originHints": [
+          "碧蓝航线",
+          "アズールレーン",
+          "azur_lane"
+        ],
+        "originMatched": true
+      },
+      "candidates": {
+        "ja": [
+          "ジャベリン(アズールレーン)",
+          "ジャベリン",
+          "ジャベリン改(アズールレーン)"
+        ],
+        "zh-CN": [
+          "标枪(碧蓝航线)"
+        ],
+        "enFromTag": "Javelin",
+        "preferredZh": "标枪"
+      }
+    },
+    {
+      "key": "origins/854",
+      "ja": "白銀の城",
+      "origin": null,
+      "found": true,
+      "confidence": "high",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "silver_palace",
+        "url": "https://danbooru.donmai.us/wiki_pages/silver_palace",
+        "otherNames": [
+          "白银之城",
+          "白銀之城",
+          "SilverPalace",
+          "白銀の城",
+          "실버팰리스"
+        ],
+        "originHints": [],
+        "originMatched": false
+      },
+      "candidates": {
+        "ja": [
+          "白銀の城"
+        ],
+        "zh-CN": [
+          "白银之城"
+        ],
+        "zh-TW": [
+          "白銀之城"
+        ],
+        "en": [
+          "SilverPalace"
+        ],
+        "enFromTag": "Silver Palace",
+        "preferredZh": "白银之城"
+      }
+    },
+    {
+      "key": "origins/855",
+      "ja": "Arcaea",
+      "origin": null,
+      "found": true,
+      "confidence": "high",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "arcaea",
+        "url": "https://danbooru.donmai.us/wiki_pages/arcaea",
+        "otherNames": [
+          "Arcaea",
+          "アーケア",
+          "韵律源点",
+          "arcaea_art"
+        ],
+        "originHints": [],
+        "originMatched": false
+      },
+      "candidates": {
+        "ja": [
+          "アーケア"
+        ],
+        "zhAny": [
+          "韵律源点"
+        ],
+        "en": [
+          "Arcaea",
+          "arcaea_art"
+        ],
+        "enFromTag": "Arcaea",
+        "preferredZh": "韵律源点"
+      }
+    },
+    {
+      "key": "origins/856",
+      "ja": "ブラック・ブレット",
+      "origin": null,
+      "found": true,
+      "confidence": "high",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "black_bullet",
+        "url": "https://danbooru.donmai.us/wiki_pages/black_bullet",
+        "otherNames": [
+          "ブラック・ブレット"
+        ],
+        "originHints": [],
+        "originMatched": false
+      },
+      "candidates": {
+        "ja": [
+          "ブラック・ブレット"
+        ],
+        "enFromTag": "Black Bullet",
+        "preferredZh": null
+      }
+    },
+    {
+      "key": "origins/857",
+      "ja": "ウォーハンマー40,000",
+      "origin": null,
+      "found": true,
+      "confidence": "high",
+      "exactJaMatch": true,
+      "danbooru": {
+        "title": "warhammer_40k",
+        "url": "https://danbooru.donmai.us/wiki_pages/warhammer_40k",
+        "otherNames": [
+          "Warhammer40k",
+          "40K",
+          "WH40K",
+          "ウォーハンマー40,000",
+          "ウォーハンマー40k",
+          "warhammer",
+          "warhammer40000",
+          "warhammer_40000",
+          "战锤40k",
+          "战锤"
+        ],
+        "originHints": [],
+        "originMatched": false
+      },
+      "candidates": {
+        "ja": [
+          "ウォーハンマー40,000",
+          "ウォーハンマー40k"
+        ],
+        "zh-CN": [
+          "战锤40k",
+          "战锤"
+        ],
+        "en": [
+          "Warhammer40k",
+          "40K",
+          "WH40K",
+          "warhammer",
+          "warhammer40000",
+          "warhammer_40000"
+        ],
+        "enFromTag": "Warhammer 40k",
+        "preferredZh": "战锤"
+      }
+    },
+    {
+      "key": "origins/858",
+      "ja": "クロスファイア",
+      "origin": null,
+      "found": false,
+      "confidence": "none"
+    }
+  ]
+}
