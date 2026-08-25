@@ -41326,5 +41326,1685 @@
     "zh-CN": "空澄赛娜",
     "zh-TW": "空澄賽娜",
     "en": "Sena Asumi"
+  },
+  "characters/5215": {
+    "_src": "ザイヒ",
+    "ja": "ザイヒ",
+    "zh-CN": "赛希",
+    "zh-TW": "賽希",
+    "en": "Xaihi"
+  },
+  "characters/3920": {
+    "_src": "篁",
+    "ja": "篁",
+    "zh-CN": "篁",
+    "zh-TW": "篁",
+    "en": "Huang"
+  },
+  "characters/3917": {
+    "_src": "狩野色",
+    "ja": "狩野色",
+    "zh-CN": "狩野色",
+    "zh-TW": "狩野色",
+    "en": "Iro Kano"
+  },
+  "characters/2199": {
+    "_src": "アルティア",
+    "ja": "アルティア",
+    "zh-CN": "阿尔蒂雅",
+    "zh-TW": "阿爾蒂雅",
+    "en": "Aridya"
+  },
+  "characters/2198": {
+    "_src": "カーラ",
+    "ja": "カーラ",
+    "zh-CN": "卡拉",
+    "zh-TW": "卡拉",
+    "en": "Carla"
+  },
+  "characters/3513": {
+    "_src": "エブラナ",
+    "ja": "エブラナ",
+    "zh-CN": "爱布拉娜",
+    "zh-TW": "愛布拉娜",
+    "en": "Eblana"
+  },
+  "characters/2197": {
+    "_src": "山田テュテュル",
+    "ja": "山田テュテュル",
+    "zh-CN": "山田啾啾露",
+    "zh-TW": "山田啾啾露",
+    "en": "Tuturu Yamada"
+  },
+  "characters/3914": {
+    "_src": "篠田はじめ",
+    "ja": "篠田はじめ",
+    "zh-CN": "篠田初",
+    "zh-TW": "篠田初",
+    "en": "Hajime Shinoda"
+  },
+  "characters/2195": {
+    "_src": "ミレーヌ・ラファ・ホルファート",
+    "ja": "ミレーヌ・ラファ・ホルファート",
+    "zh-CN": "米莲·拉法·霍尔法特",
+    "zh-TW": "米蓮·拉法·霍爾法特",
+    "en": "Mylene Rafa Holfort"
+  },
+  "characters/1755": {
+    "_src": "御剣風蘭",
+    "ja": "御剣風蘭",
+    "zh-CN": "御剑风兰",
+    "zh-TW": "御劍風蘭",
+    "en": "Furan Mitsurugi"
+  },
+  "characters/1754": {
+    "_src": "兼志谷シタラ",
+    "ja": "兼志谷シタラ",
+    "zh-CN": "兼志谷设乐",
+    "zh-TW": "兼志谷設樂",
+    "en": "Sitara Kaneshiya"
+  },
+  "characters/2184": {
+    "_src": "うるティ",
+    "ja": "うるティ",
+    "zh-CN": "润媞",
+    "zh-TW": "潤媞",
+    "en": "Ulti"
+  },
+  "characters/1657": {
+    "_src": "小早川紗枝",
+    "ja": "小早川紗枝",
+    "zh-CN": "小早川纱枝",
+    "zh-TW": "小早川紗枝",
+    "en": "Sae Kobayakawa"
+  },
+  "characters/2182": {
+    "_src": "Es",
+    "ja": "Es",
+    "zh-CN": "Es",
+    "zh-TW": "Es",
+    "en": "Es"
+  },
+  "characters/5234": {
+    "_src": "伊草ハルカ",
+    "ja": "伊草ハルカ",
+    "zh-CN": "伊草遥香",
+    "zh-TW": "伊草遙香",
+    "en": "Haruka Igusa"
+  },
+  "characters/3901": {
+    "_src": "クリスティーナ",
+    "ja": "クリスティーナ",
+    "zh-CN": "克里斯蒂娜",
+    "zh-TW": "克莉絲蒂娜",
+    "en": "Christina"
+  },
+  "characters/3894": {
+    "_src": "サテライザー=エル=ブリジット",
+    "ja": "サテライザー=エル=ブリジット",
+    "zh-CN": "莎缇莱萨·L·布丽姬",
+    "zh-TW": "莎緹萊薩·L·布麗姬",
+    "en": "Satellizer L. Bridget"
+  },
+  "characters/1658": {
+    "_src": "ミミ",
+    "ja": "ミミ",
+    "zh-CN": "美美",
+    "zh-TW": "美美",
+    "en": "Mimi"
+  },
+  "characters/3531": {
+    "_src": "タリム",
+    "ja": "タリム",
+    "zh-CN": "塔莉姆",
+    "zh-TW": "塔莉姆",
+    "en": "Talim"
+  },
+  "characters/1659": {
+    "_src": "ミソギ",
+    "ja": "ミソギ",
+    "zh-CN": "未奏希",
+    "zh-TW": "未奏希",
+    "en": "Misogi"
+  },
+  "characters/1858": {
+    "_src": "双葉・リリー・ラムセス",
+    "ja": "双葉・リリー・ラムセス",
+    "zh-CN": "双叶·莉莉·拉美西斯",
+    "zh-TW": "雙葉·莉莉·拉美西斯",
+    "en": "Futaba Lili Ramses"
+  },
+  "characters/2167": {
+    "_src": "オーリム博士",
+    "ja": "オーリム博士",
+    "zh-CN": "奥琳博士",
+    "zh-TW": "奧琳博士",
+    "en": "Professor Sada"
+  },
+  "characters/3879": {
+    "_src": "御神楽ミレイ",
+    "ja": "御神楽ミレイ",
+    "zh-CN": "御神乐米蕾",
+    "zh-TW": "御神樂米蕾",
+    "en": "Mirei Mikagura"
+  },
+  "characters/3878": {
+    "_src": "リリスモン",
+    "ja": "リリスモン",
+    "zh-CN": "莉莉斯兽",
+    "zh-TW": "莉莉斯獸",
+    "en": "Lilithmon"
+  },
+  "characters/3869": {
+    "_src": "初月",
+    "ja": "初月",
+    "zh-CN": "初月",
+    "zh-TW": "初月",
+    "en": "Hatsuzuki"
+  },
+  "characters/5240": {
+    "_src": "プラマニクス",
+    "ja": "プラマニクス",
+    "zh-CN": "初雪",
+    "zh-TW": "初雪",
+    "en": "Pramanix"
+  },
+  "characters/354": {
+    "_src": "モチヅキ",
+    "ja": "モチヅキ",
+    "zh-CN": "望月",
+    "zh-TW": "望月",
+    "en": "Mochizuki"
+  },
+  "characters/3860": {
+    "_src": "武元うるか",
+    "ja": "武元うるか",
+    "zh-CN": "武元润香",
+    "zh-TW": "武元潤香",
+    "en": "Uruka Takemoto"
+  },
+  "characters/5242": {
+    "_src": "ミア",
+    "ja": "ミア",
+    "zh-CN": "米娅",
+    "zh-TW": "米婭",
+    "en": "Mia"
+  },
+  "characters/3859": {
+    "_src": "小美浪あすみ",
+    "ja": "小美浪あすみ",
+    "zh-CN": "小美浪爱澄",
+    "zh-TW": "小美浪愛澄",
+    "en": "Asumi Kominami"
+  },
+  "characters/3858": {
+    "_src": "古橋文乃",
+    "ja": "古橋文乃",
+    "zh-CN": "古桥文乃",
+    "zh-TW": "古橋文乃",
+    "en": "Fumino Furuhashi"
+  },
+  "characters/860": {
+    "_src": "フレズヴェルク",
+    "ja": "フレズヴェルク",
+    "zh-CN": "魔鹫",
+    "zh-TW": "魔鷲",
+    "en": "Hresvelgr"
+  },
+  "characters/3855": {
+    "_src": "新田由比",
+    "ja": "新田由比",
+    "zh-CN": "新田由比",
+    "zh-TW": "新田由比",
+    "en": "Yui Nitta"
+  },
+  "characters/5248": {
+    "_src": "プリカ",
+    "ja": "プリカ",
+    "zh-CN": "普莉卡",
+    "zh-TW": "普莉卡",
+    "en": "Prika"
+  },
+  "characters/5250": {
+    "_src": "マックス・インメルマン",
+    "ja": "マックス・インメルマン",
+    "zh-CN": "马克斯·殷麦曼",
+    "zh-TW": "馬克斯·殷麥曼",
+    "en": "Max Immelmann"
+  },
+  "characters/2150": {
+    "_src": "篠原まり",
+    "ja": "篠原まり",
+    "zh-CN": "筱原真理",
+    "zh-TW": "篠原真理",
+    "en": "Mari Shinohara"
+  },
+  "characters/2149": {
+    "_src": "三笠",
+    "ja": "三笠",
+    "zh-CN": "三笠",
+    "zh-TW": "三笠",
+    "en": "Mikasa"
+  },
+  "characters/1697": {
+    "_src": "タイリクオオカミ",
+    "ja": "タイリクオオカミ",
+    "zh-CN": "灰狼",
+    "zh-TW": "灰狼",
+    "en": "Gray Wolf"
+  },
+  "characters/866": {
+    "_src": "アンダイン",
+    "ja": "アンダイン",
+    "zh-CN": "安黛因",
+    "zh-TW": "安黛因",
+    "en": "Undyne"
+  },
+  "characters/864": {
+    "_src": "メルラン・プリズムリバー",
+    "ja": "メルラン・プリズムリバー",
+    "zh-CN": "梅露兰·普莉兹姆利巴",
+    "zh-TW": "梅露蘭·普莉茲姆利巴",
+    "en": "Merlin Prismriver"
+  },
+  "characters/2134": {
+    "_src": "つくし",
+    "ja": "つくし",
+    "zh-CN": "筑紫",
+    "zh-TW": "築紫",
+    "en": "Tsukushi"
+  },
+  "characters/2124": {
+    "_src": "カヒリ",
+    "ja": "カヒリ",
+    "zh-CN": "卡希丽",
+    "zh-TW": "卡希麗",
+    "en": "Kahili"
+  },
+  "characters/1528": {
+    "_src": "八九寺真宵",
+    "ja": "八九寺真宵",
+    "zh-CN": "八九寺真宵",
+    "zh-TW": "八九寺真宵",
+    "en": "Mayoi Hachikuji"
+  },
+  "characters/2123": {
+    "_src": "エメラルドキャッツアイ",
+    "ja": "エメラルドキャッツアイ",
+    "zh-CN": "祖母绿猫眼石",
+    "zh-TW": "祖母綠貓眼石",
+    "en": "Emerald Cat's Eye"
+  },
+  "characters/3846": {
+    "_src": "ミスティーク",
+    "ja": "ミスティーク",
+    "zh-CN": "魔形女",
+    "zh-TW": "魔形女",
+    "en": "Mystique"
+  },
+  "characters/546": {
+    "_src": "蔵土縁紗夢",
+    "ja": "蔵土縁紗夢",
+    "zh-CN": "藏土缘纱梦",
+    "zh-TW": "藏土緣紗夢",
+    "en": "Jam Kuradoberi"
+  },
+  "characters/3566": {
+    "_src": "千夜",
+    "ja": "千夜",
+    "zh-CN": "千夜",
+    "zh-TW": "千夜",
+    "en": "Chiya"
+  },
+  "characters/2116": {
+    "_src": "ユエ",
+    "ja": "ユエ",
+    "zh-CN": "月",
+    "zh-TW": "月",
+    "en": "Yue"
+  },
+  "characters/1254": {
+    "_src": "セルベリア・ブレス",
+    "ja": "セルベリア・ブレス",
+    "zh-CN": "塞露贝利亚·布蕾斯",
+    "zh-TW": "塞露貝利亞·布蕾斯",
+    "en": "Selvaria Bles"
+  },
+  "characters/3569": {
+    "_src": "珊瑚",
+    "ja": "珊瑚",
+    "zh-CN": "珊瑚",
+    "zh-TW": "珊瑚",
+    "en": "Sango"
+  },
+  "characters/2105": {
+    "_src": "Five-seveN",
+    "ja": "Five-seveN",
+    "zh-CN": "Five-seveN",
+    "zh-TW": "Five-seveN",
+    "en": "Five-seveN"
+  },
+  "characters/1199": {
+    "_src": "リッパー",
+    "ja": "リッパー",
+    "zh-CN": "开膛手",
+    "zh-TW": "開膛手",
+    "en": "Ripper"
+  },
+  "characters/1251": {
+    "_src": "海老原菜帆",
+    "ja": "海老原菜帆",
+    "zh-CN": "海老原菜帆",
+    "zh-TW": "海老原菜帆",
+    "en": "Naho Ebihara"
+  },
+  "characters/3841": {
+    "_src": "シン",
+    "ja": "シン",
+    "zh-CN": "森",
+    "zh-TW": "森",
+    "en": "Sin"
+  },
+  "characters/1250": {
+    "_src": "船見結衣",
+    "ja": "船見結衣",
+    "zh-CN": "船见结衣",
+    "zh-TW": "船見結衣",
+    "en": "Yui Funami"
+  },
+  "characters/2093": {
+    "_src": "フィオナ・ジルマン(祭司)",
+    "ja": "フィオナ・ジルマン(祭司)",
+    "zh-CN": "菲欧娜·吉尔曼(祭司)",
+    "zh-TW": "菲歐娜·吉爾曼(祭司)",
+    "en": "Fiona Gilman (Priestess)"
+  },
+  "characters/1074": {
+    "_src": "美獣イザベラ",
+    "ja": "美獣イザベラ",
+    "zh-CN": "美兽伊莎贝拉",
+    "zh-TW": "美獸伊莎貝拉",
+    "en": "Isabella"
+  },
+  "characters/594": {
+    "_src": "リリス",
+    "ja": "リリス",
+    "zh-CN": "莉莉丝",
+    "zh-TW": "莉莉絲",
+    "en": "Lilith"
+  },
+  "characters/951": {
+    "_src": "乙倉悠貴",
+    "ja": "乙倉悠貴",
+    "zh-CN": "乙仓悠贵",
+    "zh-TW": "乙倉悠貴",
+    "en": "Yuuki Otokura"
+  },
+  "characters/3833": {
+    "_src": "クルミ・S・坂崎",
+    "ja": "クルミ・S・坂崎",
+    "zh-CN": "胡桃·S·坂崎",
+    "zh-TW": "胡桃·S·坂崎",
+    "en": "Kurumi S. Sakazaki"
+  },
+  "characters/1242": {
+    "_src": "ザビ子",
+    "ja": "ザビ子",
+    "zh-CN": "扎比子",
+    "zh-TW": "扎比子",
+    "en": "Zabiko"
+  },
+  "characters/3828": {
+    "_src": "Heywood L.E.(ヘイウッド)",
+    "ja": "Heywood L.E.(ヘイウッド)",
+    "zh-CN": "海伍德·L·E",
+    "zh-TW": "海伍德·L·E",
+    "en": "Heywood L.E."
+  },
+  "characters/3825": {
+    "_src": "夜語トバリ",
+    "ja": "夜語トバリ",
+    "zh-CN": "夜语托巴里",
+    "zh-TW": "夜語托巴里",
+    "en": "Tobari Yogatari"
+  },
+  "characters/3586": {
+    "_src": "Roxanne Wolf",
+    "ja": "Roxanne Wolf",
+    "zh-CN": "罗克珊·沃尔夫",
+    "zh-TW": "羅克珊·沃爾夫",
+    "en": "Roxanne Wolf"
+  },
+  "characters/3587": {
+    "_src": "AK74M",
+    "ja": "AK74M",
+    "zh-CN": "AK-74M",
+    "zh-TW": "AK-74M",
+    "en": "AK-74M"
+  },
+  "characters/950": {
+    "_src": "氷川いおな(キュアフォーチュン)",
+    "ja": "氷川いおな(キュアフォーチュン)",
+    "zh-CN": "冰川伊绪奈(命运天使)",
+    "zh-TW": "冰川伊緒奈(命運天使)",
+    "en": "Iona Hikawa (Cure Fortune)"
+  },
+  "characters/1497": {
+    "_src": "ミルドレッド・アヴァロン",
+    "ja": "ミルドレッド・アヴァロン",
+    "zh-CN": "米尔德里德·阿瓦隆",
+    "zh-TW": "米爾德里德·阿瓦隆",
+    "en": "Mildred Avallone"
+  },
+  "characters/3824": {
+    "_src": "八雲樹",
+    "ja": "八雲樹",
+    "zh-CN": "八云树",
+    "zh-TW": "八雲樹",
+    "en": "Itsuki Yakumo"
+  },
+  "characters/3823": {
+    "_src": "弥生",
+    "ja": "弥生",
+    "zh-CN": "弥生",
+    "zh-TW": "彌生",
+    "en": "Yayoi"
+  },
+  "characters/3822": {
+    "_src": "姫熊りぼん",
+    "ja": "姫熊りぼん",
+    "zh-CN": "姬熊结璃",
+    "zh-TW": "姬熊結璃",
+    "en": "Ribon Himekuma"
+  },
+  "characters/206": {
+    "_src": "舞風",
+    "ja": "舞風",
+    "zh-CN": "舞风",
+    "zh-TW": "舞風",
+    "en": "Maikaze"
+  },
+  "characters/2059": {
+    "_src": "足立甜花",
+    "ja": "足立甜花",
+    "zh-CN": "足立甜花",
+    "zh-TW": "足立甜花",
+    "en": "Tenka Adachi"
+  },
+  "characters/2058": {
+    "_src": "コマコ・セメノビッチ",
+    "ja": "コマコ・セメノビッチ",
+    "zh-CN": "科玛科·谢苗诺维奇",
+    "zh-TW": "科瑪科·謝苗諾維奇",
+    "en": "Komako Semenovich"
+  },
+  "characters/2057": {
+    "_src": "狭山千恵",
+    "ja": "狭山千恵",
+    "zh-CN": "狭山千惠",
+    "zh-TW": "狹山千惠",
+    "en": "Chie Sayama"
+  },
+  "characters/609": {
+    "_src": "西園寺琴歌",
+    "ja": "西園寺琴歌",
+    "zh-CN": "西园寺琴歌",
+    "zh-TW": "西園寺琴歌",
+    "en": "Kotoka Saionji"
+  },
+  "characters/1241": {
+    "_src": "アクィラ",
+    "ja": "アクィラ",
+    "zh-CN": "天鹰",
+    "zh-TW": "天鷹",
+    "en": "Aquila"
+  },
+  "characters/3602": {
+    "_src": "ヒメ",
+    "ja": "ヒメ",
+    "zh-CN": "小姬",
+    "zh-TW": "小姬",
+    "en": "Pearl"
+  },
+  "characters/3801": {
+    "_src": "アウラ・ベラ・フィオーラ",
+    "ja": "アウラ・ベラ・フィオーラ",
+    "zh-CN": "亚乌菈·贝拉·菲欧拉",
+    "zh-TW": "亞烏菈·貝拉·菲歐拉",
+    "en": "Aura Bella Fiora"
+  },
+  "characters/1680": {
+    "_src": "阿良々木火憐",
+    "ja": "阿良々木火憐",
+    "zh-CN": "阿良良木火怜",
+    "zh-TW": "阿良良木火憐",
+    "en": "Karen Araragi"
+  },
+  "characters/2045": {
+    "_src": "モントピリア",
+    "ja": "モントピリア",
+    "zh-CN": "蒙彼利埃",
+    "zh-TW": "蒙彼利埃",
+    "en": "Montpelier"
+  },
+  "characters/1498": {
+    "_src": "リーゼロッテ・アッヒェンバッハ",
+    "ja": "リーゼロッテ・アッヒェンバッハ",
+    "zh-CN": "莉泽洛特·阿亨巴赫",
+    "zh-TW": "莉澤洛特·阿亨巴赫",
+    "en": "Lieselotte Achenbach"
+  },
+  "characters/618": {
+    "_src": "レン",
+    "ja": "レン",
+    "zh-CN": "莲",
+    "zh-TW": "蓮",
+    "en": "Len"
+  },
+  "characters/2037": {
+    "_src": "水波レナ",
+    "ja": "水波レナ",
+    "zh-CN": "水波玲奈",
+    "zh-TW": "水波玲奈",
+    "en": "Rena Minami"
+  },
+  "characters/1235": {
+    "_src": "黒歌",
+    "ja": "黒歌",
+    "zh-CN": "黑歌",
+    "zh-TW": "黑歌",
+    "en": "Kuroka"
+  },
+  "characters/1865": {
+    "_src": "イチコ",
+    "ja": "イチコ",
+    "zh-CN": "一子",
+    "zh-TW": "一子",
+    "en": "Ichiko"
+  },
+  "characters/2034": {
+    "_src": "円城命",
+    "ja": "円城命",
+    "zh-CN": "圆城命",
+    "zh-TW": "圓城命",
+    "en": "Mikoto Enjou"
+  },
+  "characters/3613": {
+    "_src": "レヴィ・エリファ",
+    "ja": "レヴィ・エリファ",
+    "zh-CN": "利维·艾莉法",
+    "zh-TW": "利維·艾莉法",
+    "en": "Levi Elipha"
+  },
+  "characters/3795": {
+    "_src": "玉蘭",
+    "ja": "玉蘭",
+    "zh-CN": "玉兰",
+    "zh-TW": "玉蘭",
+    "en": "Yulan"
+  },
+  "characters/2030": {
+    "_src": "マダラスカンク",
+    "ja": "マダラスカンク",
+    "zh-CN": "斑臭鼬",
+    "zh-TW": "斑臭鼬",
+    "en": "Spotted Skunk"
+  },
+  "characters/2025": {
+    "_src": "エリー",
+    "ja": "エリー",
+    "zh-CN": "艾丽",
+    "zh-TW": "艾麗",
+    "en": "Elly"
+  },
+  "characters/3617": {
+    "_src": "天宮紫水",
+    "ja": "天宮紫水",
+    "zh-CN": "天宫紫水",
+    "zh-TW": "天宮紫水",
+    "en": "Shisui Amamiya"
+  },
+  "characters/1229": {
+    "_src": "桐崎千棘",
+    "ja": "桐崎千棘",
+    "zh-CN": "桐崎千棘",
+    "zh-TW": "桐崎千棘",
+    "en": "Chitoge Kirisaki"
+  },
+  "characters/1228": {
+    "_src": "ジャンヌ・ダルク",
+    "ja": "ジャンヌ・ダルク",
+    "zh-CN": "贞德",
+    "zh-TW": "貞德",
+    "en": "Jeanne d'Arc"
+  },
+  "characters/3790": {
+    "_src": "メリア",
+    "ja": "メリア",
+    "zh-CN": "梅莉亚",
+    "zh-TW": "梅莉亞",
+    "en": "Melia"
+  },
+  "characters/629": {
+    "_src": "伊26",
+    "ja": "伊26",
+    "zh-CN": "伊26",
+    "zh-TW": "伊26",
+    "en": "I-26"
+  },
+  "characters/3785": {
+    "_src": "阿久女イク",
+    "ja": "阿久女イク",
+    "zh-CN": "阿久女育",
+    "zh-TW": "阿久女育",
+    "en": "Iku Acme"
+  },
+  "characters/1224": {
+    "_src": "ティオ・プラトー",
+    "ja": "ティオ・プラトー",
+    "zh-CN": "缇欧·普拉托",
+    "zh-TW": "緹歐·普拉托",
+    "en": "Tio Plato"
+  },
+  "characters/3783": {
+    "_src": "天帝フォルテ",
+    "ja": "天帝フォルテ",
+    "zh-CN": "天帝芙尔特",
+    "zh-TW": "天帝芙爾特",
+    "en": "Forte Tentei"
+  },
+  "characters/3627": {
+    "_src": "ジャッカル",
+    "ja": "ジャッカル",
+    "zh-CN": "豺狼",
+    "zh-TW": "豺狼",
+    "en": "Jackal"
+  },
+  "characters/3628": {
+    "_src": "白河月愛",
+    "ja": "白河月愛",
+    "zh-CN": "白河月爱",
+    "zh-TW": "白河月愛",
+    "en": "Runa Shirakawa"
+  },
+  "characters/847": {
+    "_src": "ロム",
+    "ja": "ロム",
+    "zh-CN": "萝姆",
+    "zh-TW": "羅姆",
+    "en": "Rom"
+  },
+  "characters/1998": {
+    "_src": "小鳥遊ひな",
+    "ja": "小鳥遊ひな",
+    "zh-CN": "小鸟游雏",
+    "zh-TW": "小鳥遊雛",
+    "en": "Hina Takanashi"
+  },
+  "characters/1997": {
+    "_src": "フィナーナ竜宮",
+    "ja": "フィナーナ竜宮",
+    "zh-CN": "菲娜娜·龙宫",
+    "zh-TW": "菲娜娜·龍宮",
+    "en": "Finana Ryugu"
+  },
+  "characters/3636": {
+    "_src": "ステイシス子",
+    "ja": "ステイシス子",
+    "zh-CN": "史缇希斯娘",
+    "zh-TW": "史緹希斯娘",
+    "en": "Stasis-ko"
+  },
+  "characters/632": {
+    "_src": "伊13",
+    "ja": "伊13",
+    "zh-CN": "伊13",
+    "zh-TW": "伊13",
+    "en": "I-13"
+  },
+  "characters/1521": {
+    "_src": "真宮寺さくら",
+    "ja": "真宮寺さくら",
+    "zh-CN": "真宫寺樱",
+    "zh-TW": "真宮寺櫻",
+    "en": "Sakura Shinguuji"
+  },
+  "characters/1994": {
+    "_src": "ベアトリス",
+    "ja": "ベアトリス",
+    "zh-CN": "碧翠丝",
+    "zh-TW": "碧翠絲",
+    "en": "Beatrice"
+  },
+  "characters/1992": {
+    "_src": "ハンジ・ゾエ",
+    "ja": "ハンジ・ゾエ",
+    "zh-CN": "韩吉·佐耶",
+    "zh-TW": "漢吉·佐耶",
+    "en": "Hange Zoe"
+  },
+  "characters/3642": {
+    "_src": "的場アオイ",
+    "ja": "的場アオイ",
+    "zh-CN": "的场葵",
+    "zh-TW": "的場葵",
+    "en": "Aoi Matoba"
+  },
+  "characters/3643": {
+    "_src": "天ヶ瀬むゆ",
+    "ja": "天ヶ瀬むゆ",
+    "zh-CN": "天濑梦愈",
+    "zh-TW": "天瀨夢愈",
+    "en": "Muyu Amagase"
+  },
+  "characters/1720": {
+    "_src": "小泉真昼",
+    "ja": "小泉真昼",
+    "zh-CN": "小泉真昼",
+    "zh-TW": "小泉真晝",
+    "en": "Mahiru Koizumi"
+  },
+  "characters/3645": {
+    "_src": "先斗寧",
+    "ja": "先斗寧",
+    "zh-CN": "先斗宁",
+    "zh-TW": "先斗寧",
+    "en": "Nei Ponto"
+  },
+  "characters/3774": {
+    "_src": "バベル・タニット(サンドロアマスター)",
+    "ja": "バベル・タニット(サンドロアマスター)",
+    "zh-CN": "芭别尔·塔尼特",
+    "zh-TW": "芭別爾·塔尼特",
+    "en": "Babel Tanit"
+  },
+  "characters/651": {
+    "_src": "リルカ・エレニアック",
+    "ja": "リルカ・エレニアック",
+    "zh-CN": "莉露卡·埃莱妮亚克",
+    "zh-TW": "莉露卡·埃萊妮亞克",
+    "en": "Lilka Eleniak"
+  },
+  "characters/3648": {
+    "_src": "卑弥呼",
+    "ja": "卑弥呼",
+    "zh-CN": "卑弥呼",
+    "zh-TW": "卑彌呼",
+    "en": "Himiko"
+  },
+  "characters/3649": {
+    "_src": "ベアトリクス・アメルハウザー",
+    "ja": "ベアトリクス・アメルハウザー",
+    "zh-CN": "贝阿特丽克斯·阿梅尔豪瑟",
+    "zh-TW": "貝阿特麗克斯·阿梅爾豪瑟",
+    "en": "Beatrix Amerhauser"
+  },
+  "characters/3650": {
+    "_src": "奥野田美宵",
+    "ja": "奥野田美宵",
+    "zh-CN": "奥野田美宵",
+    "zh-TW": "奧野田美宵",
+    "en": "Miyoi Okunoda"
+  },
+  "characters/1970": {
+    "_src": "ミレリア=Q=メルロマルク",
+    "ja": "ミレリア=Q=メルロマルク",
+    "zh-CN": "米蕾莉亚·Q·梅洛马格",
+    "zh-TW": "米蕾莉亞·Q·梅洛馬格",
+    "en": "Mirelia Q Melromarc"
+  },
+  "characters/377": {
+    "_src": "クーナ",
+    "ja": "クーナ",
+    "zh-CN": "库娜",
+    "zh-TW": "庫娜",
+    "en": "Quna"
+  },
+  "characters/3654": {
+    "_src": "五十鈴百合",
+    "ja": "五十鈴百合",
+    "zh-CN": "五十铃百合",
+    "zh-TW": "五十鈴百合",
+    "en": "Yuri Isuzu"
+  },
+  "characters/1965": {
+    "_src": "ギャル子",
+    "ja": "ギャル子",
+    "zh-CN": "辣妹子",
+    "zh-TW": "辣妹子",
+    "en": "Galko"
+  },
+  "characters/3760": {
+    "_src": "カティア",
+    "ja": "カティア",
+    "zh-CN": "卡蒂亚",
+    "zh-TW": "卡蒂亞",
+    "en": "Katya"
+  },
+  "characters/1958": {
+    "_src": "櫻歌ミコ",
+    "ja": "櫻歌ミコ",
+    "zh-CN": "樱歌美子",
+    "zh-TW": "櫻歌美子",
+    "en": "Miko Ouka"
+  },
+  "characters/657": {
+    "_src": "テスラ",
+    "ja": "テスラ",
+    "zh-CN": "特斯拉",
+    "zh-TW": "特斯拉",
+    "en": "Tesla"
+  },
+  "characters/1515": {
+    "_src": "沙耶",
+    "ja": "沙耶",
+    "zh-CN": "沙耶",
+    "zh-TW": "沙耶",
+    "en": "Saya"
+  },
+  "characters/1951": {
+    "_src": "Fukase",
+    "ja": "Fukase",
+    "zh-CN": "Fukase",
+    "zh-TW": "Fukase",
+    "en": "Fukase"
+  },
+  "characters/1950": {
+    "_src": "タマモヴィッチ・コヤンスカヤ(闇のコヤンスカヤ)",
+    "ja": "タマモヴィッチ・コヤンスカヤ(闇のコヤンスカヤ)",
+    "zh-CN": "玉藻维奇·高扬斯卡娅(暗之高扬斯卡娅)",
+    "zh-TW": "玉藻維奇·高揚斯卡婭(暗之高揚斯卡婭)",
+    "en": "Tamamovitch Koyanskaya (Koyanskaya of Dark)"
+  },
+  "characters/3662": {
+    "_src": "天内理子",
+    "ja": "天内理子",
+    "zh-CN": "天内理子",
+    "zh-TW": "天內理子",
+    "en": "Riko Amanai"
+  },
+  "characters/662": {
+    "_src": "楊貴妃",
+    "ja": "楊貴妃",
+    "zh-CN": "杨贵妃",
+    "zh-TW": "楊貴妃",
+    "en": "Yang Guifei"
+  },
+  "characters/3743": {
+    "_src": "サリナ",
+    "ja": "サリナ",
+    "zh-CN": "莎莉娜",
+    "zh-TW": "莎莉娜",
+    "en": "Zarina"
+  },
+  "characters/3666": {
+    "_src": "ヴェプリー",
+    "ja": "ヴェプリー",
+    "zh-CN": "维普蕾",
+    "zh-TW": "維普蕾",
+    "en": "Vepley"
+  },
+  "characters/1512": {
+    "_src": "ワルキューレ(量産型)",
+    "ja": "ワルキューレ(量産型)",
+    "zh-CN": "瓦尔基里(量产型)",
+    "zh-TW": "瓦爾基麗(量產型)",
+    "en": "Valkyrie (Mass Production)"
+  },
+  "characters/664": {
+    "_src": "マイコニド",
+    "ja": "マイコニド",
+    "zh-CN": "蕈人娘",
+    "zh-TW": "蕈人娘",
+    "en": "Myconid"
+  },
+  "characters/1208": {
+    "_src": "ベビー5",
+    "ja": "ベビー5",
+    "zh-CN": "Baby-5",
+    "zh-TW": "Baby-5",
+    "en": "Baby 5"
+  },
+  "characters/709": {
+    "_src": "安土桃",
+    "ja": "安土桃",
+    "zh-CN": "安土桃",
+    "zh-TW": "安土桃",
+    "en": "Momo Azuchi"
+  },
+  "characters/1869": {
+    "_src": "リリー・ブルームメルヘン",
+    "ja": "リリー・ブルームメルヘン",
+    "zh-CN": "莉莉·布鲁姆梅尔亨",
+    "zh-TW": "莉莉·布魯姆梅爾亨",
+    "en": "Lily Bloommerchen"
+  },
+  "characters/1927": {
+    "_src": "堀裕子",
+    "ja": "堀裕子",
+    "zh-CN": "堀裕子",
+    "zh-TW": "堀裕子",
+    "en": "Yuuko Hori"
+  },
+  "characters/3674": {
+    "_src": "アンネリリーゼ・アウラ・リーゼロッテ・リア・ゴッドフリート",
+    "ja": "アンネリリーゼ・アウラ・リーゼロッテ・リア・ゴッドフリート",
+    "zh-CN": "安妮莉莉丝·奥拉·莉泽洛特·莉亚·戈德弗里德",
+    "zh-TW": "安妮莉莉絲·奧拉·莉澤洛特·莉亞·戈德弗里德",
+    "en": "Anneliese Aura Lieselotte Lia Godfried"
+  },
+  "characters/1924": {
+    "_src": "フート",
+    "ja": "フート",
+    "zh-CN": "富特",
+    "zh-TW": "富特",
+    "en": "Foote"
+  },
+  "characters/3678": {
+    "_src": "ローズ・オリアナ",
+    "ja": "ローズ・オリアナ",
+    "zh-CN": "萝丝·奥利阿纳",
+    "zh-TW": "蘿絲·奧利阿納",
+    "en": "Rose Oriana"
+  },
+  "characters/1923": {
+    "_src": "ニャル子",
+    "ja": "ニャル子",
+    "zh-CN": "奈亚子",
+    "zh-TW": "奈亞子",
+    "en": "Nyaruko"
+  },
+  "characters/3681": {
+    "_src": "キラ・クシャナ",
+    "ja": "キラ・クシャナ",
+    "zh-CN": "琪拉·库夏娜",
+    "zh-TW": "琪拉·庫夏娜",
+    "en": "Kira Kushana"
+  },
+  "characters/1207": {
+    "_src": "カリファ",
+    "ja": "カリファ",
+    "zh-CN": "卡莉法",
+    "zh-TW": "卡莉法",
+    "en": "Kalifa"
+  },
+  "characters/671": {
+    "_src": "ニバス",
+    "ja": "ニバス",
+    "zh-CN": "尼巴斯",
+    "zh-TW": "尼巴斯",
+    "en": "Nibas"
+  },
+  "characters/1689": {
+    "_src": "神楽坂明日菜",
+    "ja": "神楽坂明日菜",
+    "zh-CN": "神乐坂明日菜",
+    "zh-TW": "神樂坂明日菜",
+    "en": "Asuna Kagurazaka"
+  },
+  "characters/3686": {
+    "_src": "夕暮",
+    "ja": "夕暮",
+    "zh-CN": "夕暮",
+    "zh-TW": "夕暮",
+    "en": "Yuugure"
+  },
+  "characters/3687": {
+    "_src": "初春",
+    "ja": "初春",
+    "zh-CN": "初春",
+    "zh-TW": "初春",
+    "en": "Hatsuharu"
+  },
+  "characters/1730": {
+    "_src": "白河彩音",
+    "ja": "白河彩音",
+    "zh-CN": "白河彩音",
+    "zh-TW": "白河彩音",
+    "en": "Ayane Shirakawa"
+  },
+  "characters/676": {
+    "_src": "菱川六花(キュアダイヤモンド)",
+    "ja": "菱川六花(キュアダイヤモンド)",
+    "zh-CN": "菱川六花(钻石天使)",
+    "zh-TW": "菱川六花(鑽石天使)",
+    "en": "Rikka Hishikawa (Cure Diamond)"
+  },
+  "characters/3726": {
+    "_src": "灰妲",
+    "ja": "灰妲",
+    "zh-CN": "灰妲",
+    "zh-TW": "灰妲",
+    "en": "DaDa"
+  },
+  "characters/3691": {
+    "_src": "バンビエッタ・バスターバイン",
+    "ja": "バンビエッタ・バスターバイン",
+    "zh-CN": "邦比爱塔·芭丝塔拜茵",
+    "zh-TW": "邦比愛塔·芭絲塔拜茵",
+    "en": "Bambietta Basterbine"
+  },
+  "characters/3692": {
+    "_src": "トール",
+    "ja": "トール",
+    "zh-CN": "托尔",
+    "zh-TW": "托爾",
+    "en": "Thor"
+  },
+  "characters/677": {
+    "_src": "スナネコ",
+    "ja": "スナネコ",
+    "zh-CN": "沙漠猫",
+    "zh-TW": "沙漠貓",
+    "en": "Sand Cat"
+  },
+  "characters/1903": {
+    "_src": "麻宮アテナ",
+    "ja": "麻宮アテナ",
+    "zh-CN": "麻宫雅典娜",
+    "zh-TW": "麻宮雅典娜",
+    "en": "Athena Asamiya"
+  },
+  "characters/1897": {
+    "_src": "古月娜(Gu Yuena)",
+    "ja": "古月娜(Gu Yuena)",
+    "zh-CN": "古月娜",
+    "zh-TW": "古月娜",
+    "en": "Gu Yuena"
+  },
+  "characters/1890": {
+    "_src": "姫柊雪菜",
+    "ja": "姫柊雪菜",
+    "zh-CN": "姬柊雪菜",
+    "zh-TW": "姬柊雪菜",
+    "en": "Yukina Himeragi"
+  },
+  "characters/1889": {
+    "_src": "春日部つくし",
+    "ja": "春日部つくし",
+    "zh-CN": "春日部筑紫",
+    "zh-TW": "春日部築紫",
+    "en": "Tsukushi Kasukabe"
+  },
+  "characters/1887": {
+    "_src": "明石",
+    "ja": "明石",
+    "zh-CN": "明石",
+    "zh-TW": "明石",
+    "en": "Akashi"
+  },
+  "characters/1876": {
+    "_src": "ドレミー・スイート",
+    "ja": "ドレミー・スイート",
+    "zh-CN": "哆来咪·苏伊特",
+    "zh-TW": "哆來咪·蘇伊特",
+    "en": "Doremy Sweet"
+  },
+  "characters/3722": {
+    "_src": "レオナ",
+    "ja": "レオナ",
+    "zh-CN": "莉安娜·哈迪兰",
+    "zh-TW": "莉安娜·哈迪蘭",
+    "en": "Leona Heidern"
+  },
+  "characters/1009": {
+    "_src": "有原翼",
+    "ja": "有原翼",
+    "zh-CN": "有原翼",
+    "zh-TW": "有原翼",
+    "en": "Tsubasa Arihara"
+  },
+  "characters/693": {
+    "_src": "速吸",
+    "ja": "速吸",
+    "zh-CN": "速吸",
+    "zh-TW": "速吸",
+    "en": "Hayasui"
+  },
+  "characters/1508": {
+    "_src": "クレア・ハーヴェイ",
+    "ja": "クレア・ハーヴェイ",
+    "zh-CN": "克蕾亚·哈维",
+    "zh-TW": "克蕾亞·哈維",
+    "en": "Claire Harvey"
+  },
+  "characters/3712": {
+    "_src": "ヨッシー",
+    "ja": "ヨッシー",
+    "zh-CN": "小吉",
+    "zh-TW": "小吉",
+    "en": "Yoshi"
+  },
+  "characters/1509": {
+    "_src": "Poppy",
+    "ja": "Poppy",
+    "zh-CN": "波比",
+    "zh-TW": "波比",
+    "en": "Poppy"
+  },
+  "characters/3146": {
+    "_src": "死衾の乙女フィア",
+    "ja": "死衾の乙女フィア",
+    "zh-CN": "死眠少女菲雅",
+    "zh-TW": "死眠少女菲雅",
+    "en": "Fia, Deathbed Companion"
+  },
+  "characters/3708": {
+    "_src": "香山睡",
+    "ja": "香山睡",
+    "zh-CN": "香山睡",
+    "zh-TW": "香山睡",
+    "en": "Nemuri Kayama"
+  },
+  "characters/3706": {
+    "_src": "リサリサ",
+    "ja": "リサリサ",
+    "zh-CN": "莉莎莉莎",
+    "zh-TW": "莉莎莉莎",
+    "en": "Lisa Lisa"
+  },
+  "characters/3715": {
+    "_src": "夜よいち",
+    "ja": "夜よいち",
+    "zh-CN": "夜宵一",
+    "zh-TW": "夜宵一",
+    "en": "Yoichi Yoru"
+  },
+  "characters/3717": {
+    "_src": "浜波",
+    "ja": "浜波",
+    "zh-CN": "滨波",
+    "zh-TW": "濱波",
+    "en": "Hamanami"
+  },
+  "characters/3705": {
+    "_src": "ヤリ子先輩",
+    "ja": "ヤリ子先輩",
+    "zh-CN": "滥交子学姐",
+    "zh-TW": "濫交子學姐",
+    "en": "Yariko-senpai"
+  },
+  "characters/3719": {
+    "_src": "貂蝉",
+    "ja": "貂蝉",
+    "zh-CN": "貂蝉",
+    "zh-TW": "貂蟬",
+    "en": "Diaochan"
+  },
+  "characters/3721": {
+    "_src": "レントラー",
+    "ja": "レントラー",
+    "zh-CN": "伦琴猫",
+    "zh-TW": "倫琴貓",
+    "en": "Luxray"
+  },
+  "characters/3704": {
+    "_src": "ジャングル戦士クッキー",
+    "ja": "ジャングル戦士クッキー",
+    "zh-CN": "丛林战士饼干",
+    "zh-TW": "叢林戰士餅乾",
+    "en": "Tiger Lily Cookie"
+  },
+  "characters/3697": {
+    "_src": "緋田美琴",
+    "ja": "緋田美琴",
+    "zh-CN": "绯田美琴",
+    "zh-TW": "緋田美琴",
+    "en": "Mikoto Aketa"
+  },
+  "characters/3724": {
+    "_src": "蔵鋒",
+    "ja": "蔵鋒",
+    "zh-CN": "藏锋",
+    "zh-TW": "藏鋒",
+    "en": "Zangfeng"
+  },
+  "characters/1507": {
+    "_src": "ロング・アイランド",
+    "ja": "ロング・アイランド",
+    "zh-CN": "长岛",
+    "zh-TW": "長島",
+    "en": "Long Island"
+  },
+  "characters/3690": {
+    "_src": "Ixy",
+    "ja": "Ixy",
+    "zh-CN": "Ixy",
+    "zh-TW": "Ixy",
+    "en": "Ixy"
+  },
+  "characters/3727": {
+    "_src": "カタラ",
+    "ja": "カタラ",
+    "zh-CN": "卡塔拉",
+    "zh-TW": "卡塔拉",
+    "en": "Katara"
+  },
+  "characters/369": {
+    "_src": "ルナ",
+    "ja": "ルナ",
+    "zh-CN": "露娜",
+    "zh-TW": "露娜",
+    "en": "Loona"
+  },
+  "characters/3685": {
+    "_src": "深海棲艦",
+    "ja": "深海棲艦",
+    "zh-CN": "深海栖舰",
+    "zh-TW": "深海棲艦",
+    "en": "Abyssal Fleet"
+  },
+  "characters/3682": {
+    "_src": "イネース",
+    "ja": "イネース",
+    "zh-CN": "伊内丝",
+    "zh-TW": "伊妮絲",
+    "en": "Ines"
+  },
+  "characters/3733": {
+    "_src": "レビィ・マクガーデン",
+    "ja": "レビィ・マクガーデン",
+    "zh-CN": "蕾比·马库加登",
+    "zh-TW": "蕾比·馬庫加登",
+    "en": "Levy McGarden"
+  },
+  "characters/3735": {
+    "_src": "にこママ",
+    "ja": "にこママ",
+    "zh-CN": "妮可妈妈",
+    "zh-TW": "妮可媽媽",
+    "en": "Nico's Mother"
+  },
+  "characters/3736": {
+    "_src": "ことりママ",
+    "ja": "ことりママ",
+    "zh-CN": "小鸟妈妈",
+    "zh-TW": "小鳥媽媽",
+    "en": "Kotori's Mother"
+  },
+  "characters/3737": {
+    "_src": "穂乃果ママ",
+    "ja": "穂乃果ママ",
+    "zh-CN": "穗乃果妈妈",
+    "zh-TW": "穗乃果媽媽",
+    "en": "Honoka's Mother"
+  },
+  "characters/3738": {
+    "_src": "真姫ママ",
+    "ja": "真姫ママ",
+    "zh-CN": "真姬妈妈",
+    "zh-TW": "真姬媽媽",
+    "en": "Maki's Mother"
+  },
+  "characters/3739": {
+    "_src": "ロクサーヌ",
+    "ja": "ロクサーヌ",
+    "zh-CN": "杜鹃",
+    "zh-TW": "杜鵑",
+    "en": "Roxanne"
+  },
+  "characters/1504": {
+    "_src": "サクナヒメ",
+    "ja": "サクナヒメ",
+    "zh-CN": "佐久名公主",
+    "zh-TW": "佐久名公主",
+    "en": "Sakuna"
+  },
+  "characters/3740": {
+    "_src": "サシャ・ブラウス",
+    "ja": "サシャ・ブラウス",
+    "zh-CN": "莎夏·布劳斯",
+    "zh-TW": "莎夏·布勞斯",
+    "en": "Sasha Blouse"
+  },
+  "characters/3670": {
+    "_src": "ビューネイ",
+    "ja": "ビューネイ",
+    "zh-CN": "魔龙公波奈",
+    "zh-TW": "魔龍公波奈",
+    "en": "Byunei"
+  },
+  "characters/3668": {
+    "_src": "餅月ひまり",
+    "ja": "餅月ひまり",
+    "zh-CN": "饼月向日葵",
+    "zh-TW": "餅月向日葵",
+    "en": "Himari Mochizuki"
+  },
+  "characters/3664": {
+    "_src": "美竹蘭",
+    "ja": "美竹蘭",
+    "zh-CN": "美竹兰",
+    "zh-TW": "美竹蘭",
+    "en": "Ran Mitake"
+  },
+  "characters/3663": {
+    "_src": "シャロン・ダシルヴァ",
+    "ja": "シャロン・ダシルヴァ",
+    "zh-CN": "莎伦·达席尔瓦",
+    "zh-TW": "莎倫·達席爾瓦",
+    "en": "Sharon Da Silva"
+  },
+  "characters/3748": {
+    "_src": "ビチ子",
+    "ja": "ビチ子",
+    "zh-CN": "碧池子",
+    "zh-TW": "碧池子",
+    "en": "Bichiko"
+  },
+  "characters/3661": {
+    "_src": "佐々城三幸",
+    "ja": "佐々城三幸",
+    "zh-CN": "佐佐城三幸",
+    "zh-TW": "佐佐城三幸",
+    "en": "Miyuki Sasaki"
+  },
+  "characters/3751": {
+    "_src": "バカ子",
+    "ja": "バカ子",
+    "zh-CN": "笨蛋子",
+    "zh-TW": "笨蛋子",
+    "en": "Bakako"
+  },
+  "characters/3753": {
+    "_src": "クロ子",
+    "ja": "クロ子",
+    "zh-CN": "黑子",
+    "zh-TW": "黑子",
+    "en": "Kuroko"
+  },
+  "characters/3754": {
+    "_src": "ユル子",
+    "ja": "ユル子",
+    "zh-CN": "宽松子",
+    "zh-TW": "寬鬆子",
+    "en": "Yuruko"
+  },
+  "characters/3755": {
+    "_src": "リリ",
+    "ja": "リリ",
+    "zh-CN": "莉莉",
+    "zh-TW": "莉莉",
+    "en": "Lily"
+  },
+  "characters/1503": {
+    "_src": "マツリカ",
+    "ja": "マツリカ",
+    "zh-CN": "茉莉",
+    "zh-TW": "茉莉",
+    "en": "Mina"
+  },
+  "characters/3658": {
+    "_src": "ティア",
+    "ja": "ティア",
+    "zh-CN": "缇雅",
+    "zh-TW": "緹雅",
+    "en": "Tia"
+  },
+  "characters/3759": {
+    "_src": "解体者アザズ",
+    "ja": "解体者アザズ",
+    "zh-CN": "解体者阿萨兹",
+    "zh-TW": "解體者阿薩茲",
+    "en": "Azaz the Dismantler"
+  },
+  "characters/1516": {
+    "_src": "ピーシェ",
+    "ja": "ピーシェ",
+    "zh-CN": "碧雪",
+    "zh-TW": "碧雪",
+    "en": "Peashy"
+  },
+  "characters/1501": {
+    "_src": "Annie",
+    "ja": "Annie",
+    "zh-CN": "安妮",
+    "zh-TW": "安妮",
+    "en": "Annie"
+  },
+  "characters/3761": {
+    "_src": "涼海ネモ",
+    "ja": "涼海ネモ",
+    "zh-CN": "凉海尼莫",
+    "zh-TW": "涼海尼莫",
+    "en": "Nemo Suzumi"
+  },
+  "characters/3762": {
+    "_src": "プケプケ",
+    "ja": "プケプケ",
+    "zh-CN": "毒妖鸟",
+    "zh-TW": "毒妖鳥",
+    "en": "Pukei-Pukei"
+  },
+  "characters/3763": {
+    "_src": "ナルガクルガ",
+    "ja": "ナルガクルガ",
+    "zh-CN": "迅龙",
+    "zh-TW": "迅龍",
+    "en": "Nargacuga"
+  },
+  "characters/3764": {
+    "_src": "エリン",
+    "ja": "エリン",
+    "zh-CN": "艾琳",
+    "zh-TW": "艾琳",
+    "en": "Erin"
+  },
+  "characters/3766": {
+    "_src": "明石薫",
+    "ja": "明石薫",
+    "zh-CN": "明石熏",
+    "zh-TW": "明石薰",
+    "en": "Kaoru Akashi"
+  },
+  "characters/3767": {
+    "_src": "野上葵",
+    "ja": "野上葵",
+    "zh-CN": "野上葵",
+    "zh-TW": "野上葵",
+    "en": "Aoi Nogami"
+  },
+  "characters/3768": {
+    "_src": "三宮紫穂",
+    "ja": "三宮紫穂",
+    "zh-CN": "三宫紫穗",
+    "zh-TW": "三宮紫穗",
+    "en": "Shiho Sannomiya"
+  },
+  "characters/3655": {
+    "_src": "秋山好子",
+    "ja": "秋山好子",
+    "zh-CN": "秋山好子",
+    "zh-TW": "秋山好子",
+    "en": "Yoshiko Akiyama"
+  },
+  "characters/3652": {
+    "_src": "マージ・シンプソン(Marge Simpson)",
+    "ja": "マージ・シンプソン(Marge Simpson)",
+    "zh-CN": "玛琦·辛普森",
+    "zh-TW": "瑪姬·辛普森",
+    "en": "Marge Simpson"
+  },
+  "characters/3770": {
+    "_src": "スクルド",
+    "ja": "スクルド",
+    "zh-CN": "诗蔻蒂",
+    "zh-TW": "詩蔻蒂",
+    "en": "Skuld"
+  },
+  "characters/3651": {
+    "_src": "妖刀姬",
+    "ja": "妖刀姬",
+    "zh-CN": "妖刀姬",
+    "zh-TW": "妖刀姬",
+    "en": "Yoto Hime"
+  },
+  "characters/3647": {
+    "_src": "メイクラックモン",
+    "ja": "メイクラックモン",
+    "zh-CN": "缅因裂纹兽",
+    "zh-TW": "緬因裂紋獸",
+    "en": "Meicrackmon"
+  },
+  "characters/3646": {
+    "_src": "菊之丞(お菊)",
+    "ja": "菊之丞(お菊)",
+    "zh-CN": "菊之丞(小菊)",
+    "zh-TW": "菊之丞(小菊)",
+    "en": "Kikunojo (O-Kiku)"
+  },
+  "characters/3640": {
+    "_src": "山葉由芽",
+    "ja": "山葉由芽",
+    "zh-CN": "山叶由芽",
+    "zh-TW": "山葉由芽",
+    "en": "Yume Yamaba"
+  },
+  "characters/3776": {
+    "_src": "テラコマリ・ガンデスブラッド",
+    "ja": "テラコマリ・ガンデスブラッド",
+    "zh-CN": "黛拉可玛莉·岗德森布莱德",
+    "zh-TW": "黛拉可瑪莉·崗德森布萊德",
+    "en": "Terakomari Gandesblood"
+  },
+  "characters/3777": {
+    "_src": "以津真天",
+    "ja": "以津真天",
+    "zh-CN": "以津真天",
+    "zh-TW": "以津真天",
+    "en": "Itsumade"
+  },
+  "characters/3639": {
+    "_src": "ナギ",
+    "ja": "ナギ",
+    "zh-CN": "薙",
+    "zh-TW": "薙",
+    "en": "Nagi"
+  },
+  "characters/3638": {
+    "_src": "ザリア",
+    "ja": "ザリア",
+    "zh-CN": "查莉娅",
+    "zh-TW": "札莉雅",
+    "en": "Zarya"
+  },
+  "characters/3780": {
+    "_src": "志音アヤ",
+    "ja": "志音アヤ",
+    "zh-CN": "志音绫",
+    "zh-TW": "志音綾",
+    "en": "Aya Shion"
+  },
+  "characters/3781": {
+    "_src": "野村にむ",
+    "ja": "野村にむ",
+    "zh-CN": "野村尼姆",
+    "zh-TW": "野村尼姆",
+    "en": "Nimu Nomura"
+  },
+  "characters/1523": {
+    "_src": "いろは",
+    "ja": "いろは",
+    "zh-CN": "伊吕波",
+    "zh-TW": "伊呂波",
+    "en": "Iroha"
+  },
+  "characters/3626": {
+    "_src": "玉波",
+    "ja": "玉波",
+    "zh-CN": "玉波",
+    "zh-TW": "玉波",
+    "en": "Tamanami"
+  },
+  "characters/3784": {
+    "_src": "サンセット=リフィル",
+    "ja": "サンセット=リフィル",
+    "zh-CN": "落日·莉菲尔",
+    "zh-TW": "落日·莉菲爾",
+    "en": "Sunset Refill"
+  },
+  "characters/3624": {
+    "_src": "ブルーマリー",
+    "ja": "ブルーマリー",
+    "zh-CN": "布鲁·玛丽",
+    "zh-TW": "布魯·瑪莉",
+    "en": "Blue Mary"
+  },
+  "characters/3786": {
+    "_src": "アーキテクト",
+    "ja": "アーキテクト",
+    "zh-CN": "建筑师",
+    "zh-TW": "建築師",
+    "en": "Architect"
+  },
+  "characters/3623": {
+    "_src": "ヴァンプ・オブ・ヴァンパイア",
+    "ja": "ヴァンプ・オブ・ヴァンパイア",
+    "zh-CN": "吸血鬼贵妇",
+    "zh-TW": "吸血鬼貴婦",
+    "en": "Vampire Vamp"
+  },
+  "characters/3789": {
+    "_src": "美々野くるみ(ミルキィローズ)",
+    "ja": "美々野くるみ(ミルキィローズ)",
+    "zh-CN": "美美野来未(妙奇露丝)",
+    "zh-TW": "美美野來未(妙奇露絲)",
+    "en": "Kurumi Mimino (Milky Rose)"
+  },
+  "characters/3622": {
+    "_src": "ウェンディー",
+    "ja": "ウェンディー",
+    "zh-CN": "温蒂",
+    "zh-TW": "溫蒂",
+    "en": "Wendy"
+  },
+  "characters/3616": {
+    "_src": "ラビー",
+    "ja": "ラビー",
+    "zh-CN": "拉比",
+    "zh-TW": "拉比",
+    "en": "Lavie"
+  },
+  "characters/3792": {
+    "_src": "戦闘教官アレイン",
+    "ja": "戦闘教官アレイン",
+    "zh-CN": "战斗教官阿莱茵",
+    "zh-TW": "戰鬥教官阿萊茵",
+    "en": "Fighting Master Alleyne"
+  },
+  "characters/3615": {
+    "_src": "新島冴",
+    "ja": "新島冴",
+    "zh-CN": "新岛冴",
+    "zh-TW": "新島冴",
+    "en": "Sae Niijima"
+  },
+  "characters/1499": {
+    "_src": "朱鷺宮神依",
+    "ja": "朱鷺宮神依",
+    "zh-CN": "朱鹭宫神依",
+    "zh-TW": "朱鷺宮神依",
+    "en": "Kamui Tokinomiya"
+  },
+  "characters/3797": {
+    "_src": "キュアマジェスティ(プリンセス・エル)",
+    "ja": "キュアマジェスティ(プリンセス・エル)",
+    "zh-CN": "庄严天使(艾儿公主)",
+    "zh-TW": "莊嚴天使(艾兒公主)",
+    "en": "Cure Majesty (Princess Ellee)"
+  },
+  "characters/3609": {
+    "_src": "デミ・バーボン(バーメイド)",
+    "ja": "デミ・バーボン(バーメイド)",
+    "zh-CN": "黛米·波本(调酒师)",
+    "zh-TW": "黛米·波本(調酒師)",
+    "en": "Demi Bourbon (Barmaid)"
+  },
+  "characters/3607": {
+    "_src": "骨魅むくろ",
+    "ja": "骨魅むくろ",
+    "zh-CN": "骨魅骸",
+    "zh-TW": "骨魅骸",
+    "en": "Mukuro Honemi"
   }
 }
