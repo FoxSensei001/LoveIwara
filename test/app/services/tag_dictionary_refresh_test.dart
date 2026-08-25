@@ -16,20 +16,22 @@ String _doc({
   required int version,
   String? rev,
   required Map<String, String> names,
-}) =>
-    jsonEncode({
-      'version': version,
-      if (rev != null) 'rev': rev,
-      'count': names.length,
-      'tags': {
-        for (final e in names.entries)
-          e.key: {
-            'y': 'general',
-            's': 0,
-            'n': {'zh-CN': e.value},
-          }
-      },
-    });
+}) {
+  final doc = <String, dynamic>{
+    'version': version,
+    'count': names.length,
+    'tags': {
+      for (final e in names.entries)
+        e.key: {
+          'y': 'general',
+          's': 0,
+          'n': {'zh-CN': e.value},
+        }
+    },
+  };
+  if (rev != null) doc['rev'] = rev;
+  return jsonEncode(doc);
+}
 
 void main() {
   group('peekSnapshot', () {
