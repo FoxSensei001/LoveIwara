@@ -1,0 +1,1095 @@
+{
+ "schema": 1,
+ "entries": {
+  "asmr": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「ASMR」为国际通用术语，且分类为普通名词，按规则予以保留。"
+  },
+  "akatsuki_kirika": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「晓切歌」为《战姬绝唱》官方正式角色名。"
+  },
+  "amputee": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「肢体残缺」准确表达标签含义，且分类为普通名词，按规则予以保留。"
+  },
+  "anal_tail": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「尾巴肛塞」准确对应道具标签，且分类为普通名词，按规则予以保留。"
+  },
+  "annie_leonhart": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有简繁译名「阿妮·雷恩哈特」/「亞妮·雷恩哈特」符合《进击的巨人》两岸官方正式译名。"
+  },
+  "araragi_karen": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「阿良良木火怜」为《物语系列》官方正式角色名。"
+  },
+  "armor": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「盔甲」准确对应通用服装标签，且分类为普通名词，按规则予以保留。"
+  },
+  "addiction": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「上瘾」准确，且分类为普通名词，按规则予以保留。"
+  },
+  "ass_focus": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「聚焦屁股」准确，且分类为普通名词，按规则予以保留。"
+  },
+  "ass_shake": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「摇臀」通顺准确，且分类为普通名词，按规则予以保留。"
+  },
+  "assisted_exposure": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「强迫露出」准确，候选「曝光身体」为直译误译，按规则保留现有译名。"
+  },
+  "audience": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「观众」准确对应普通动作/场景标签，且分类为普通名词，按规则予以保留。"
+  },
+  "ayase_momo": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「绫濑桃」为《胆大党》官方正式角色名。"
+  },
+  "bare_legs": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「裸腿」准确，且分类为普通名词，按规则予以保留。"
+  },
+  "bathing": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「洗澡」准确，且分类为普通名词，按规则予以保留。"
+  },
+  "bdsm": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「BDSM」为通用专有名词，且分类为普通名词，按规则予以保留。"
+  },
+  "between_breasts": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「乳沟交」准确表达含义，且分类为普通名词，按规则予以保留。"
+  },
+  "bikini_armor": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「比基尼铠甲」规范准确，且分类为普通名词，按规则予以保留。"
+  },
+  "bit_gag": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「马衔塞」准确对应道具术语，且分类为普通名词，按规则予以保留。"
+  },
+  "black_cat": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「黑猫」准确，且分类为普通名词，按规则予以保留。"
+  },
+  "blackmail": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「敲诈/威胁」准确全面，且分类为普通名词，按规则予以保留。"
+  },
+  "bleach": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「死神」为最广泛使用的通称译名，无需替换为候选「境·界」。"
+  },
+  "blindfold": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「眼罩 (蒙眼)」准确表达标签含义，候选仅为同义表达。"
+  },
+  "body_control": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「身体控制」准确规范，保留现有译名。"
+  },
+  "body_modification": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「身体改造」为标准常用术语，保留现有译名。"
+  },
+  "body_writing": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「人体涂鸦」准确直观，保留现有译名。"
+  },
+  "bondage": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「束缚」为标准通用译名，保留现有译名。"
+  },
+  "bottomless": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「不穿下装」准确贴切，保留现有译名。"
+  },
+  "bouncing_ass": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「摇臀」准确直观，保留现有译名。"
+  },
+  "braces": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「牙套」准确规范，候选为日文汉字。"
+  },
+  "breast_expansion": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「乳房膨胀」准确规范，保留现有译名。"
+  },
+  "brown_eyes": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「棕眼」简明准确，保留现有译名。"
+  },
+  "bukkake": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「颜射」为标准常用通译，保留现有译名。"
+  },
+  "butt_crack": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「股沟」为标准解剖学与通用术语，保留现有译名。"
+  },
+  "cat_tail": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「猫尾」简明准确，候选为日文汉字写法。"
+  },
+  "censored": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「有码」为标准常用词汇，保留现有译名。"
+  },
+  "chastity_cage": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「贞操笼」准确规范，保留现有译名。"
+  },
+  "clothed_sex": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「着衣性交」准确贴切，保留现有译名。"
+  },
+  "clueless": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "本标签在 iwara 上对应热门 MMD 舞蹈曲目《Clueless》，保留原名，不使用通用词汇替换。"
+  },
+  "code_geass": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「反叛的鲁路修」完全准确规范，保留现有译名。"
+  },
+  "contortion": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「身体折叠」准确形象，保留现有译名。"
+  },
+  "convenient_censoring": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「便利遮挡」准确贴切，保留现有译名。"
+  },
+  "covered_nipples": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「遮盖乳头」准确规范，候选描述偏离标签本义。"
+  },
+  "crossdressing": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「异装」简明准确，保留现有译名。"
+  },
+  "crossover": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「跨界」准确规范，保留现有译名。"
+  },
+  "cum_inflation": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「精液膨胀」准确直观，保留现有译名。"
+  },
+  "curvy": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「凹凸有致」准确描述身材曲线，保留现有译名。"
+  },
+  "dawn": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "本标签在 iwara 上指代《宝可梦》角色「小光」（Dawn/ヒカリ），保留角色译名，不使用通用词替换。"
+  },
+  "defeat": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「战败」简明准确，保留现有译名。"
+  },
+  "defloration": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「破处」准确规范，保留现有译名。"
+  },
+  "demon": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「恶魔」简明准确，保留现有译名。"
+  },
+  "dialogue": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「对话」准确规范，保留现有译名。"
+  },
+  "diary": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「日记」准确规范，候选仅为日文写法。"
+  },
+  "doctor": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「博士」准确规范，保留现有译名。"
+  },
+  "doggystyle": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「后入式」为标准体位术语，保留现有译名。"
+  },
+  "doremy_sweet": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「哆来咪·苏威特」准确规范，候选仅为同音异译。"
+  },
+  "double_penetration": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「双重插入」准确规范，保留现有译名。"
+  },
+  "downblouse": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「窥视胸部」准确直观，保留现有译名。"
+  },
+  "drill_hair": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「螺旋发型」准确直观，保留现有译名。"
+  },
+  "drugs": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「药物」准确规范，保留现有译名。"
+  },
+  "dusk": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "本标签在 iwara 上指代《明日方舟》角色「夕」（Dusk/シー），保留角色译名，不使用通用词替换。"
+  },
+  "embarrassed": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「害羞」准确形象，保留现有译名。"
+  },
+  "family": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「家庭」简明准确，保留现有译名。"
+  },
+  "feet": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「脚」简明准确，保留现有译名。"
+  },
+  "femdom": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「女性支配」为标准领域术语，保留现有译名。"
+  },
+  "feminization": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「女性化」准确规范，保留现有译名。"
+  },
+  "fern": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "本标签在 iwara 上指代《葬送的芙莉莲》角色「菲伦」（Fern/フェルン），保留角色译名，不使用植物名词覆盖。"
+  },
+  "firefly": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "本标签在 iwara 上指代《崩坏：星穹铁道》角色「流萤」（Firefly/ホタル），保留角色译名，不使用昆虫名词覆盖。"
+  },
+  "fishnets": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「网袜」准确规范，保留现有译名。"
+  },
+  "flat_chest": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「贫乳」为二次元萌属性标准通译，保留现有译名。"
+  },
+  "forced_exposure": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「强迫露出」准确规范，保留现有译名。"
+  },
+  "fox_tail": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「狐狸尾巴」准确直观，保留现有译名。"
+  },
+  "frozen": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "本标签在 iwara 上指代动画电影《冰雪奇缘》（Frozen），保留作品译名，不使用通用名词替换。"
+  },
+  "futaba_minato": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「双叶凑音」完全正确，候选仅为日文汉字写法。"
+  },
+  "futami_ami": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「双海亚美」完全正确，候选仅为日文汉字写法。"
+  },
+  "futanari": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「扶他」为标准常用术语，保留现有译名。"
+  },
+  "fuwawa_abyssgard": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「芙哇哇·阿比斯加德」为官方音译，候选「软软」为意译昵称。"
+  },
+  "ganaha_hibiki": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「我那霸响」完全正确，候选仅为日文写法。"
+  },
+  "gaping": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「大开」准确对应 Gaping，保留现有译名。"
+  },
+  "giantess": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「女巨人」准确规范，保留现有译名。"
+  },
+  "gigantic_breasts": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「超级巨乳」准确贴切，保留现有译名。"
+  },
+  "glory_hole": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「荣耀之洞」准确规范，保留现有译名。"
+  },
+  "glowing_eyes": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「发光眼睛」准确直观，保留现有译名。"
+  },
+  "glowing_tattoo": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「发光纹身」准确直观，保留现有译名。"
+  },
+  "gokkun": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「吞精」为标准常用通译，保留现有译名。"
+  },
+  "groping": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「抚摸」准确规范，保留现有译名。"
+  },
+  "guro": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「猎奇」为 Guro 标准通用译名，保留现有译名。"
+  },
+  "hagiwara_yukiho": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「萩原雪步」完全正确，候选仅为日文汉字写法。"
+  },
+  "hakase_fuyuki": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「叶加濑冬雪」完全正确，候选仅为繁体/日文汉字写法。"
+  },
+  "highschool_of_the_dead": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「学园默示录」完全准确规范，候选仅为日文写法。"
+  },
+  "higuchi_kaede": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「樋口枫」完全正确，候选仅为繁体/日文汉字写法。"
+  },
+  "hook": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "本标签在 iwara 上指代《崩坏：星穹铁道》角色「虎克」（Hook/フック），保留角色译名，不使用工具名词覆盖。"
+  },
+  "huge_ass": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「巨臀」准确规范，保留现有译名。"
+  },
+  "huge_breasts": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「巨乳」为标准常用通译，保留现有译名。"
+  },
+  "huge_penis": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「巨根」为标准常用通译，保留现有译名。"
+  },
+  "igawa_asagi": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「井河阿萨姬」完全正确，候选为姐妹合集标签。"
+  },
+  "igawa_sakura": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「井河樱」完全正确，候选为姐妹合集标签。"
+  },
+  "inoue_takina": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「井之上泷奈」为官方准确译名，候选「井上泷奈」为误写。"
+  },
+  "jersey": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「运动衫」准确贴切，保留现有译名。"
+  },
+  "kagura_mea": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名保留常用平假名写法「神乐めあ」，完全可用，保持现有译名。"
+  },
+  "kaguya_luna": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「辉夜月」完全正确，候选仅为日文汉字写法。"
+  },
+  "kasane_teto": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「重音Teto」为标准通用译名，保留现有译名。"
+  },
+  "kidnapping": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「绑架」准确规范，候选仅为日文汉字写法。"
+  },
+  "kikirara_vivi": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「绮绮罗罗·薇薇」准确规范，候选仅缺少间隔号。"
+  },
+  "king": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "本标签在 iwara 上指代热门歌曲《KING》或同名角色，保留大写「KING」，不使用通用名词替换。"
+  },
+  "kingdom_hearts": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「王国之心」为官方正式译名，候选为略称。"
+  },
+  "kitakami_futaba": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「北上双叶」完全正确，候选仅为日文写法。"
+  },
+  "kitsune": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「狐娘」符合二次元萌属性称呼，保留现有译名。"
+  },
+  "kizuna_akari": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「紲星灯」完全正确，候选仅为简繁异体字。"
+  },
+  "komi_shouko": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「古见硝子」完全正确，候选仅为日文汉字写法。"
+  },
+  "lamb": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "本标签在 iwara 上指代《英雄联盟》角色「羊灵」（Lamb），保留角色译名，不使用动物名词替换。"
+  },
+  "lifting_person": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「抱起」简明准确，无需替换为累赘候选。"
+  },
+  "little_witch_academia": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「小魔女学园」为官方正式译名，保留现有译名。"
+  },
+  "loincloth": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「兜裆布」准确地道，保留现有译名。"
+  },
+  "love_potion": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「媚药」准确贴切，保留现有译名。"
+  },
+  "lucia_elowen": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「卢西娅·艾洛温」准确规范，使用中文标准间隔号。"
+  },
+  "lynx": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "本标签在 iwara 上指代《崩坏：星穹铁道》角色「玲可」（Lynx/リンクス），保留角色译名，不使用动物名词覆盖。"
+  },
+  "mating_press": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「压榨体位」准确对应 Mating Press，保留现有译名。"
+  },
+  "may": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "本标签在 iwara 上指代《宝可梦》角色「小遥」（May/ハルカ），保留角色译名，不使用月份名词覆盖。"
+  },
+  "zombie": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「僵尸」标准规范，保留现有译名。"
+  },
+  "meme": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「迷因」准确规范，保留现有译名。"
+  },
+  "messy_hair": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「凌乱头发」准确直观，保留现有译名。"
+  },
+  "metroid": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「银河战士」为经典常用通译，保留现有译名。"
+  },
+  "micro_bikini": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「极小比基尼」准确规范，保留现有译名。"
+  },
+  "mind_control": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「心灵控制」准确规范，保留现有译名。"
+  },
+  "miside": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "保持游戏原名「MiSide」，候选仅为角色名与作品名混合。"
+  },
+  "mococo_abyssgard": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「摩科科·阿比斯加德」为官方音译，候选「茸茸」为意译昵称。"
+  },
+  "moona_hoshinova": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「慕娜·星诺瓦」准确规范，保留现有译名。"
+  },
+  "multiple_boys": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「多个男孩」简明准确，保留现有译名。"
+  },
+  "multiple_girls": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「多个女孩」简明准确，保留现有译名。"
+  },
+  "multiple_views": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「多视角」简明准确，保留现有译名。"
+  },
+  "muscular": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「强壮」简明准确，保留现有译名。"
+  },
+  "mutilation": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「残肢」准确规范，保留现有译名。"
+  },
+  "mutual_masturbation": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「互相抚慰」准确规范，保留现有译名。"
+  },
+  "nakiri_ayame": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「百鬼绫目」完全正确，候选为日文汉字及画集标签。"
+  },
+  "naughty_face": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「恶作剧脸」准确形象，保留现有译名。"
+  },
+  "necrophilia": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「恋尸癖」为标准医学与心理学术语，保留现有译名。"
+  },
+  "nekopara": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「巧克力与香子兰」为该作品经典通用译名，保留现有译名。"
+  },
+  "nerissa_ravencroft": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「涅莉萨·雷文克罗夫特」准确规范，保留现有译名。"
+  },
+  "netorare": {
+   "decision": "keep",
+   "by": "batch_002(recovered)",
+   "note": "现有译名「寝取」为标准常用术语，保留现有译名。"
+  },
+  "nipple_penetration": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「乳头穿入」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "nipple_slip": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「露点」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "no_bra": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「不穿胸罩」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "no_panties": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「不穿内裤」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "no_shoes": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「光脚」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "old_man": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「老人」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "oppai_loli": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「巨乳萝莉」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "orgasm_denial": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「高潮控制」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "pale_skin": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「白皙皮肤」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "panties_aside": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「拨开内裤」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "pantyshot": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「裙底风光」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "parody": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「原作」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "pegasus": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「佩加索斯」准确且符合角色/作品指代习惯，Danbooru 候选为通用词，保留现有译名。"
+  },
+  "pegging": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「女用假阳具插入」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "penis_awe": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「巨根崇拜」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "pink_eyes": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「粉瞳」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "pokephilia": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「宝可梦人兽」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "polka_dot": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「波点」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "prison": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「监狱」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "prison_school": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「监狱学园」准确无误，候选仅为日文汉字写法。"
+  },
+  "prostitution": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「卖淫」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "public_nudity": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「公共场所裸露」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "public_use": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「公众便器」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "punishment": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「惩罚」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "purple_eyes": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「紫瞳」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "rabbit_girl": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「兔女郎」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "raccoon_girl": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「浣熊娘」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "razor": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "iwara 标签常指《原神》角色「雷泽」，Danbooru 普通名词分类不适用，保留角色译名。"
+  },
+  "record_of_lodoss_war": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「罗德斯岛战记」准确无误，候选为常用简称/异译。"
+  },
+  "recording": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「录制」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "red_eyes": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「红瞳」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "reverse_ryona": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「逆猎奇」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "reverse_spitroast": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「逆烤肉串」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "rindou_mikoto": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「龙胆尊」准确无误，候选均为同人相关标签或日文写法。"
+  },
+  "rozaliya_olenyeva": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「萝莎莉娅·阿琳」为《崩坏3》官方全名，准确无误。"
+  },
+  "ryona": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「猎奇受虐 (Ryona)」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "saber_alter": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「黑Saber」通俗准确，保留常用称呼。"
+  },
+  "sakamata_chloe": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「沙花叉克萝耶」为官方及萌百标准译名，候选为音译异体。"
+  },
+  "sasaki_chie": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「佐佐木千枝」准确无误，候选仅为日文汉字写法。"
+  },
+  "scat": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「排泄」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "seed": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「种子」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "selfcest": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「自交」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "senki_zesshou_symphogear": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「战姬绝唱Symphogear」准确无误，候选仅为英文字母大小写差异。"
+  },
+  "sex_machine": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「性爱机器」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "sex_toy": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「性玩具」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "shibari": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「日式绑缚」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "shortstack": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「矮小丰满」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "shy": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「害羞」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "sinon": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「诗乃」准确对应角色网名/通称 Sinon，无需替换为全名。"
+  },
+  "skinsuit": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「紧身衣」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "small_penis": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「小阴茎」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "sparkle": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "iwara 标签常指《崩坏：星穹铁道》角色「花火」，Danbooru 普通名词分类不适用，保留角色译名。"
+  },
+  "spitroast": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「串烤(双管齐下)」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "spread_pussy": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「掰开阴户」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "stomach_bulge": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「腹部凸起 (子宫凸)」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "stomping": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「践踏」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "strangling": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「掐脖/绞杀」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "street_fighter": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「街头霸王」为官方全名，准确无误。"
+  },
+  "taker_pov": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「受方视角」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "teacher": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「教师」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "tekken": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「铁拳」准确无误，候选仅为日文汉字写法。"
+  },
+  "tengen_toppa_gurren_lagann": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「天元突破红莲螺岩」准确无误，候选为繁简混杂写法。"
+  },
+  "the_owl_house": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「奇幻猫头鹰小屋」为官方正式译名，准确无误。"
+  },
+  "thick_thighs": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「粗大腿」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "tiktok": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "TikTok 为国际版官方专有名词，无需替换为「抖音」。"
+  },
+  "torn_clothes": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「爆衣」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "transformation": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「变身」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "triple_penetration": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「三重穿入」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "tsukuyomi_shirabe": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「月读调」准确无误，候选仅为日文汉字写法。"
+  },
+  "twin_braids": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「双辫」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "vibrator": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「跳蛋」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "virgin": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「处女」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "vshojo": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "VShojo 为 VTuber 企划官方专有名词，无需替换为非官方直译「V少女」。"
+  },
+  "wedgie": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「拉内裤」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "yaoi": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「耽美」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  },
+  "yukishiro_mahiro": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「雪城真寻」准确无误，候选仅为日文汉字写法。"
+  },
+  "yuzuriha_maimai": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「楪舞舞」中文规范展开叠字准确无误，候选仅为日文汉字写法。"
+  },
+  "medium_breasts": {
+   "decision": "keep",
+   "by": "batch_003(recovered)",
+   "note": "现有译名「美乳」准确符合站内使用语境，Danbooru 候选属于 general 分类，予以保留。"
+  }
+ }
+}

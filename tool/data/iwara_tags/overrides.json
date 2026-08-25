@@ -1,0 +1,461 @@
+{
+  "schema": 1,
+  "entries": {
+    "azuma_seren": {
+      "n": {
+        "zh-CN": "东雪莲",
+        "zh-TW": "東雪蓮",
+        "ja": "東雪蓮",
+        "en": "Seren Azuma"
+      },
+      "prev": {
+        "zh-CN": "东云塞莲",
+        "zh-TW": "東雲塞蓮",
+        "ja": "東雲せれん",
+        "en": "Seren Azuma"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/azuma_seren",
+        "https://zh.moegirl.org.cn/东雪莲"
+      ],
+      "note": "原机翻「东云塞莲」有误，实际为虚拟主播「东雪莲」（東雪蓮 / Seren Azuma）。"
+    },
+    "chen": {
+      "n": {
+        "zh-CN": "橙",
+        "zh-TW": "橙",
+        "ja": "橙"
+      },
+      "prev": {
+        "zh-CN": "陈",
+        "zh-TW": "陳",
+        "ja": "チェン"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/chen",
+        "https://thwiki.cc/橙"
+      ],
+      "note": "东方Project角色「橙」（Chen）被机翻误作姓氏「陈」，修正为「橙」。"
+    },
+    "elizabeth_rose_bloodflame": {
+      "n": {
+        "zh-CN": "伊丽莎白·露丝·布拉德弗雷姆",
+        "zh-TW": "伊麗莎白·露絲·布拉德弗雷姆"
+      },
+      "prev": {
+        "zh-CN": "伊丽莎白·罗斯·血焰",
+        "zh-TW": "伊麗莎白·羅斯·血焰"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/elizabeth_rose_bloodflame",
+        "https://zh.moegirl.org.cn/伊丽莎白·露丝·布拉德弗雷姆"
+      ],
+      "note": "原机翻将 Bloodflame 意译为「血焰」，修正为通用官方音译「伊丽莎白·露丝·布拉德弗雷姆」。"
+    },
+    "gigi_murin": {
+      "n": {
+        "zh-CN": "琪琪·沐林",
+        "zh-TW": "琪琪·沐林"
+      },
+      "prev": {
+        "zh-CN": "吉吉·莫琳",
+        "zh-TW": "吉吉·莫琳"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/gigi_murin",
+        "https://zh.moegirl.org.cn/琪琪·沐林"
+      ],
+      "note": "原机翻「吉吉·莫琳」不准确，修正为 Hololive 官方常用译名「琪琪·沐林」。"
+    },
+    "hakos_baelz": {
+      "n": {
+        "zh-CN": "哈珂斯·贝尔丝",
+        "zh-TW": "哈珂斯·貝爾絲"
+      },
+      "prev": {
+        "zh-CN": "哈可斯·贝莉丝",
+        "zh-TW": "哈可斯·貝莉絲"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/hakos_baelz",
+        "https://zh.moegirl.org.cn/哈珂斯·贝尔丝"
+      ],
+      "note": "原机翻「哈可斯·贝莉丝」不标准，修正为 Hololive 官方常用译名「哈珂斯·贝尔丝」。"
+    },
+    "lila_decyrus": {
+      "n": {
+        "zh-CN": "莉拉·德西亚斯",
+        "zh-TW": "莉拉·德西亞斯"
+      },
+      "prev": {
+        "zh-CN": "莉拉·德希雅斯",
+        "zh-TW": "莉拉·德希雅斯"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/lila_decyrus",
+        "https://zh.moegirl.org.cn/莉拉·德西亚斯"
+      ],
+      "note": "《莱莎的炼金工房》官方中文译名为「莉拉·德西亚斯」，修正原有音译错误。"
+    },
+    "lily_black": {
+      "n": {
+        "zh-CN": "莉莉黑",
+        "zh-TW": "莉莉黑"
+      },
+      "prev": {
+        "zh-CN": "黑莉莉",
+        "zh-TW": "黑莉莉"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/lily_black",
+        "https://thwiki.cc/莉莉霍瓦特"
+      ],
+      "note": "东方Project角色形态通译为「莉莉黑」（Lily Black），修正原倒装直译「黑莉莉」。"
+    },
+    "lily_white": {
+      "n": {
+        "zh-CN": "莉莉白",
+        "zh-TW": "莉莉白"
+      },
+      "prev": {
+        "zh-CN": "白莉莉",
+        "zh-TW": "白莉莉"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/lily_white",
+        "https://thwiki.cc/莉莉霍瓦特"
+      ],
+      "note": "东方Project官方角色译名为「莉莉白」（Lily White），修正原倒装直译「白莉莉」。"
+    },
+    "zundamon": {
+      "n": {
+        "zh-CN": "俊达萌",
+        "zh-TW": "俊達萌"
+      },
+      "prev": {
+        "zh-CN": "ずんだもん",
+        "zh-TW": "ずんだもん"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/zundamon",
+        "https://zh.moegirl.org.cn/俊达萌"
+      ],
+      "note": "补全官方中文译名「俊达萌」（ずんだもん / Zundamon）。"
+    },
+    "merun_morino": {
+      "n": {
+        "zh-CN": "森野莓洛",
+        "zh-TW": "森野莓洛"
+      },
+      "prev": {
+        "zh-CN": "森野麦仑",
+        "zh-TW": "森野麥侖"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/merun_morino",
+        "https://space.bilibili.com/1529124446"
+      ],
+      "note": "原机翻「森野麦仑」不准确，修正为其在 Bilibili 官方账号使用的官方译名「森野莓洛」。"
+    },
+    "anby_demara": {
+      "n": {
+        "zh-CN": "安比·德玛拉",
+        "zh-TW": "安比·德瑪拉"
+      },
+      "prev": {
+        "zh-CN": "安比·德马拉",
+        "zh-TW": "安比·德馬拉"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/anby_demara"
+      ],
+      "note": "《绝区零》角色 Anby Demara 的米哈游官方中文名为「安比·德玛拉/安比·德瑪拉」，修正姓氏译字。"
+    },
+    "astra_yao": {
+      "n": {
+        "zh-CN": "耀嘉音",
+        "zh-TW": "耀嘉音",
+        "ja": "アストラ・ヤオ"
+      },
+      "prev": {
+        "zh-CN": "姚",
+        "zh-TW": "姚",
+        "ja": "姚"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/astra_yao"
+      ],
+      "note": "《绝区零》角色 Astra Yao 官方中文名为「耀嘉音」，日文名为「アストラ・ヤオ」，替换原先不完整的单字机翻「姚」。"
+    },
+    "amagai_ruka": {
+      "n": {
+        "zh-CN": "雨海琉夏",
+        "zh-TW": "雨海琉夏",
+        "ja": "雨海ルカ"
+      },
+      "prev": {
+        "zh-CN": "天海琉夏",
+        "zh-TW": "天海琉夏",
+        "ja": "天海琉夏"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/amagai_ruka"
+      ],
+      "note": "角色为 VTuber「雨海ルカ」，修正姓氏「天海」误译及日文假名写法，避免使用含罗马音的候选名「雨海Ruka」。"
+    },
+    "aoki_lapis": {
+      "n": {
+        "zh-CN": "苍姬拉碧斯",
+        "zh-TW": "蒼姬拉碧斯"
+      },
+      "prev": {
+        "zh-CN": "苍姬Lapis",
+        "zh-TW": "蒼姬Lapis"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/aoki_lapis",
+        "https://zh.moegirl.org.cn/苍姬拉碧斯"
+      ],
+      "note": "将混杂英文字母的「苍姬Lapis」替换为标准中文译名「苍姬拉碧斯」。"
+    },
+    "adachi_rei": {
+      "n": {
+        "zh-CN": "足立零",
+        "zh-TW": "足立零"
+      },
+      "prev": {
+        "zh-CN": "足立Rei",
+        "zh-TW": "足立Rei"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/adachi_rei",
+        "https://zh.moegirl.org.cn/足立レイ"
+      ],
+      "note": "将混杂罗马音的「足立Rei」替换为通用标准中文译名「足立零」。"
+    },
+    "nanashi_mumei": {
+      "n": {
+        "zh-CN": "七诗无铭",
+        "zh-TW": "七詩無銘"
+      },
+      "prev": {
+        "zh-CN": "七诗Mumei",
+        "zh-TW": "七詩Mumei"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/nanashi_mumei",
+        "https://zh.moegirl.org.cn/七诗无铭"
+      ],
+      "note": "修正原译名混杂英文/罗马音「七诗Mumei」，使用标准官方译名「七诗无铭」。"
+    },
+    "nekomiya_mana": {
+      "n": {
+        "zh-CN": "猫宫又奈",
+        "zh-TW": "貓宮又奈"
+      },
+      "prev": {
+        "zh-CN": "猫宫Mana",
+        "zh-TW": "貓宮Mana"
+      },
+      "src": "ai-batch",
+      "by": "batch_002",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/nekomiya_mana",
+        "https://zh.moegirl.org.cn/猫宫又奈"
+      ],
+      "note": "《绝区零》角色官方中文译名为「猫宫又奈」，修正原机翻混杂罗马音「猫宫Mana」。"
+    },
+    "pavolia_reine": {
+      "n": {
+        "zh-CN": "帕沃莉亚·蕾内",
+        "zh-TW": "帕沃莉亞·蕾內"
+      },
+      "prev": {
+        "zh-CN": "帕沃莉亚·雷妮",
+        "zh-TW": "帕沃莉亞·雷妮"
+      },
+      "src": "ai-batch",
+      "by": "batch_003",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/pavolia_reine",
+        "https://zh.moegirl.org.cn/帕沃莉亚·蕾内"
+      ],
+      "note": "原译名「帕沃莉亚·雷妮」音译不准确，修正为 Hololive 官方及通用译名「帕沃莉亚·蕾内」。"
+    },
+    "raora_panthera": {
+      "n": {
+        "zh-CN": "拉欧拉·潘特拉",
+        "zh-TW": "拉歐拉·潘特拉"
+      },
+      "prev": {
+        "zh-CN": "拉欧拉·潘瑟拉",
+        "zh-TW": "拉歐拉·潘瑟拉"
+      },
+      "src": "ai-batch",
+      "by": "batch_003",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/raora_panthera",
+        "https://zh.moegirl.org.cn/拉欧拉·潘特拉"
+      ],
+      "note": "修正为 Hololive 官方常用译名「拉欧拉·潘特拉」。"
+    },
+    "rindo_chihaya": {
+      "n": {
+        "zh-CN": "轮堂千速",
+        "zh-TW": "輪堂千速",
+        "ja": "輪堂千速"
+      },
+      "prev": {
+        "zh-CN": "龙胆千早",
+        "zh-TW": "龍膽千早",
+        "ja": "竜胆千早"
+      },
+      "src": "ai-batch",
+      "by": "batch_003",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/rindo_chihaya",
+        "https://zh.moegirl.org.cn/轮堂千速"
+      ],
+      "note": "原机翻将「輪堂千速」误翻为「龙胆千早」，修正为 Hololive 官方正式汉字名「轮堂千速」。"
+    },
+    "shiori_novella": {
+      "n": {
+        "zh-CN": "诗织·诺薇拉",
+        "zh-TW": "詩織·諾薇拉"
+      },
+      "prev": {
+        "zh-CN": "诗织·诺维拉",
+        "zh-TW": "詩織·諾維拉"
+      },
+      "src": "ai-batch",
+      "by": "batch_003",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/shiori_novella",
+        "https://zh.moegirl.org.cn/诗织·诺薇拉"
+      ],
+      "note": "修正为 Hololive 官方常用译名「诗织·诺薇拉」。"
+    },
+    "shiraishi_kyouka": {
+      "n": {
+        "zh-CN": "白石杏珪",
+        "zh-TW": "白石杏珪",
+        "ja": "白石杏珪"
+      },
+      "prev": {
+        "zh-CN": "白石杏花",
+        "zh-TW": "白石杏花",
+        "ja": "白石杏花"
+      },
+      "src": "ai-batch",
+      "by": "batch_003",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/shiraishi_kyouka"
+      ],
+      "note": "原机翻「白石杏花」有误，角色原名汉字确为「白石杏珪」（出自《Energy Kyouka!!》）。"
+    },
+    "stella_sora": {
+      "n": {
+        "zh-CN": "星塔旅人",
+        "zh-TW": "星塔旅人",
+        "ja": "ステラソラ"
+      },
+      "prev": {
+        "zh-CN": "Stella Sora",
+        "zh-TW": "Stella Sora",
+        "ja": "Stella Sora"
+      },
+      "src": "ai-batch",
+      "by": "batch_003",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/stella_sora",
+        "https://zh.moegirl.org.cn/星塔旅人"
+      ],
+      "note": "原词条保留英文未翻译，修正为悠星官方游戏译名「星塔旅人」，日文为「ステラソラ」。"
+    },
+    "ukinami_yuzuha": {
+      "n": {
+        "zh-CN": "浮波柚叶",
+        "zh-TW": "浮波柚葉",
+        "ja": "浮波柚葉"
+      },
+      "prev": {
+        "zh-CN": "雨波柚羽",
+        "zh-TW": "雨波柚羽",
+        "ja": "雨波ユズハ"
+      },
+      "src": "ai-batch",
+      "by": "batch_003",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/ukinami_yuzuha",
+        "https://zh.moegirl.org.cn/浮波柚叶"
+      ],
+      "note": "原机翻「雨波柚羽」有误，修正为《绝区零》官方正式译名「浮波柚叶」。"
+    },
+    "yukihana_lamy": {
+      "n": {
+        "zh-CN": "雪花菈米",
+        "zh-TW": "雪花菈米"
+      },
+      "prev": {
+        "zh-CN": "雪花拉米",
+        "zh-TW": "雪花拉米"
+      },
+      "src": "ai-batch",
+      "by": "batch_003",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/yukihana_lamy",
+        "https://zh.moegirl.org.cn/雪花菈米"
+      ],
+      "note": "修正为 Hololive 官方常用译名「雪花菈米」。"
+    },
+    "yuzuki_choco": {
+      "n": {
+        "zh-CN": "愈月巧可",
+        "zh-TW": "癒月巧可"
+      },
+      "prev": {
+        "zh-CN": "愈月巧可",
+        "zh-TW": "愈月巧可"
+      },
+      "src": "ai-batch",
+      "by": "batch_003",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/yuzuki_choco",
+        "https://zh.moegirl.org.cn/愈月巧可"
+      ],
+      "note": "修正繁体中文为标准字形「癒月巧可」。"
+    }
+  }
+}

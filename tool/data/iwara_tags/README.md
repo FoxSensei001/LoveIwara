@@ -10,7 +10,8 @@
 - [iwara_tags_localized.json](iwara_tags_localized.json)：由 AI 翻译生成的格式化多语言映射文件（包含 A-Z 字母排序的美化排版）。
 - [iwara_tags_localized.min.json](iwara_tags_localized.min.json)：去除了所有换行、空格及无用空白的最轻量压缩版映射文件，最大化节省网络与前端加载空间效率。
 - [iwara_tags.min.json](iwara_tags.min.json)：**App / CDN 实际消费的合并产物**。把原始元数据（`type` / `sensitive`）与四语言译名合并为一份紧凑文件，供客户端做「展示本地化」与「本地搜索」。
-- [build_localized_min.dart](build_localized_min.dart)：合并脚本，由前两个文件生成 `iwara_tags.min.json`，并同步一份到打包资源 `assets/data/iwara_tags.min.json`。
+- [overrides.json](overrides.json)：**人工修正层**，永远压过 AI 译名，重译不碰它。译名走 `n`，元数据（`type` / `sensitive`）走 `meta`。详见 [tool/tag_overrides](../../tag_overrides/README.md)。
+- [build_localized_min.dart](build_localized_min.dart)：合并脚本（原始元数据 → AI 译名 → overrides），生成 `iwara_tags.min.json` 并同步一份到打包资源 `assets/data/iwara_tags.min.json`。
 
 ---
 
@@ -44,7 +45,11 @@
 }
 ```
 
-> 修改了 `iwara_tags_localized.json` 后，请重跑 `dart run tool/data/iwara_tags/build_localized_min.dart` 以同步 `iwara_tags.min.json` 与打包资源，再提交。
+> **人工修正请写进 `overrides.json`，不要直接改 `iwara_tags_localized.json`**——后者是 AI 产出，随时可能被整批重译覆盖。
+> 改完任一文件后重跑 `dart run tool/data/iwara_tags/build_localized_min.dart` 同步 min 文件与打包资源，再提交。
+>
+> 产物顶层新增 `rev`（内容指纹）且 `version` 升到 2：只改译名、条数不变时 `rev` 也会变，
+> 供运行时替换掉现有「条目数变了才重建」的启发式。旧版 App 忽略这两个字段，向后兼容。
 
 ---
 

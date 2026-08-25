@@ -7,9 +7,12 @@
 
 - [fetch_oreno3d_tags.dart](fetch_oreno3d_tags.dart)：抓取脚本，逆向 oreno3d 列表页 HTML，产出合并 JSON 快照。
 - [oreno3d_tags.json](oreno3d_tags.json)：抓取下来的原始快照（809 原作 / 1579 角色 / 166 标签）。
-- [oreno3d_tags_localized.json](oreno3d_tags_localized.json)：AI 产出的四语言译名映射（`日文原名 -> {zh-CN, zh-TW, ja, en}`），人类可读版。
+- [oreno3d_tags_localized.json](oreno3d_tags_localized.json)：AI 产出的四语言译名映射，主键为 **`type/id`**（如 `characters/3872`），条目内 `_src` 保留日文原名作锚点。
+- [overrides.json](overrides.json)：**人工修正层**，永远压过 AI 译名，重抓 / 重译都不碰它。详见 [tool/tag_overrides](../../tag_overrides/README.md)。
+- [oreno3d_tags_localized.legacy_by_name.json](oreno3d_tags_localized.legacy_by_name.json)：迁移前的旧格式（日文原名主键）备份，仅供追溯。
+- [migrate_localized_to_id.dart](migrate_localized_to_id.dart)：一次性迁移脚本（日文原名主键 → `type/id` 主键），已执行完毕。
 - [oreno3d_tags.min.json](oreno3d_tags.min.json)：**App / CDN 实际消费的合并产物**。把原始元数据与译名合并、按 `id` 分三类（origins/characters/tags）索引。
-- [build_localized_min.dart](build_localized_min.dart)：合并脚本，生成 `oreno3d_tags.min.json` 并同步一份到打包资源 `assets/data/oreno3d_tags.min.json`。
+- [build_localized_min.dart](build_localized_min.dart)：合并脚本（原始元数据 → AI 译名 → overrides），生成 `oreno3d_tags.min.json` 并同步一份到打包资源 `assets/data/oreno3d_tags.min.json`。
 
 ## App 集成（展示本地化）
 
@@ -29,7 +32,19 @@
 - 用户可收藏原作/角色/标签（`UserPreferenceService.oreno3dFavorites`，持久化于 sqlite），在搜索弹窗的 oreno3d 段作为快捷区出现。
 - 「收藏标签管理」页（`/favorite_tags`，全局抽屉进入）以分类 Tab 维护 Iwara 标签（复用 `videoSearchTagHistory`）与 Oreno3d 原作/角色/标签收藏。
 
-> 修改了 `oreno3d_tags_localized.json` 后，请重跑 `dart run tool/data/oreno3d_tags/build_localized_min.dart` 同步 min 文件与打包资源，再提交。
+> **人工修正请写进 `overrides.json`，不要直接改 `oreno3d_tags_localized.json`**——后者是 AI 产出，随时可能被整批重译覆盖。
+> 改完任一文件后重跑 `dart run tool/data/oreno3d_tags/build_localized_min.dart` 同步 min 文件与打包资源，再提交。
+
+### 为什么主键是 `type/id` 而不是日文原名
+
+2554 个词条只有 2515 个不同的日文名：**38 组同名词条**（跨作品的同名角色，如
+スプラトゥーン 的 `ホタル` 与 崩壊:スターレイル 的 `ホタル`）在旧结构里共享同一份译名，
+**结构上就无法分别翻译**——两个 ホタル 被迫都叫「流萤」。
+另外上游一改名，按名字挂的译名会直接变成孤儿且无人察觉。
+
+迁移已完成且无损（2554 → 2554，零缺失零孤儿）。那 38 组现在各自独立，
+可以分别修改；它们也是编辑工作单里优先级最高的一批，见
+[tool/tag_audit](../../tag_audit/README.md)。
 
 ## 数据模型（已逆向确认）
 

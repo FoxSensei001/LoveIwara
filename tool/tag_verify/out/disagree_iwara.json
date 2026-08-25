@@ -1,0 +1,2385 @@
+{
+ "排版差异": [
+  {
+   "key": "kasane_teto",
+   "existing": "重音Teto",
+   "best": "重音teto",
+   "all": [
+    "重音teto",
+    "零钻"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/kasane_teto"
+  },
+  {
+   "key": "kikirara_vivi",
+   "existing": "绮绮罗罗·薇薇",
+   "best": "绮绮罗罗薇薇",
+   "all": [
+    "绮绮罗罗薇薇"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/kikirara_vivi"
+  },
+  {
+   "key": "lucia_elowen",
+   "existing": "卢西娅·艾洛温",
+   "best": "卢西娅・艾洛温",
+   "all": [
+    "卢西娅・艾洛温",
+    "盧西婭・艾洛溫"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/lucia_elowen"
+  },
+  {
+   "key": "senki_zesshou_symphogear",
+   "existing": "战姬绝唱Symphogear",
+   "best": "战姬绝唱SYMPHOGEAR",
+   "all": [
+    "战姬绝唱SYMPHOGEAR"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/senki_zesshou_symphogear"
+  }
+ ],
+ "近似变体": [
+  {
+   "key": "akatsuki_kirika",
+   "existing": "晓切歌",
+   "best": "暁切歌",
+   "all": [
+    "暁切歌"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/akatsuki_kirika"
+  },
+  {
+   "key": "anby_demara",
+   "existing": "安比·德马拉",
+   "best": "安比·德玛拉",
+   "all": [
+    "安比·德玛拉"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/anby_demara"
+  },
+  {
+   "key": "annie_leonhart",
+   "existing": "阿妮·雷恩哈特",
+   "best": "阿妮·莱昂哈特",
+   "all": [
+    "阿妮·莱昂哈特"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/annie_leonhart"
+  },
+  {
+   "key": "araragi_karen",
+   "existing": "阿良良木火怜",
+   "best": "阿良々木火憐",
+   "all": [
+    "阿良々木火憐"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/araragi_karen"
+  },
+  {
+   "key": "armor",
+   "existing": "盔甲",
+   "best": "铠甲",
+   "all": [
+    "甲冑",
+    "鎧",
+    "铠甲"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/armor"
+  },
+  {
+   "key": "bare_legs",
+   "existing": "裸腿",
+   "best": "露腿",
+   "all": [
+    "光腿",
+    "生脚",
+    "露腿"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/bare_legs"
+  },
+  {
+   "key": "bikini_armor",
+   "existing": "比基尼铠甲",
+   "best": "比基尼盔甲",
+   "all": [
+    "比基尼盔甲"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/bikini_armor"
+  },
+  {
+   "key": "black_cat",
+   "existing": "黑猫",
+   "best": "黒猫",
+   "all": [
+    "黒猫"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/black_cat"
+  },
+  {
+   "key": "body_modification",
+   "existing": "身体改造",
+   "best": "人体改造",
+   "all": [
+    "人体改造",
+    "肉体改造"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/body_modification"
+  },
+  {
+   "key": "body_writing",
+   "existing": "人体涂鸦",
+   "best": "身体涂鸦",
+   "all": [
+    "身体涂鸦"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/body_writing"
+  },
+  {
+   "key": "censored",
+   "existing": "有码",
+   "best": "打码",
+   "all": [
+    "打码",
+    "遮盖"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/censored"
+  },
+  {
+   "key": "chastity_cage",
+   "existing": "贞操笼",
+   "best": "贞操锁",
+   "all": [
+    "貞操具",
+    "貞操装置",
+    "贞操锁"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/chastity_cage"
+  },
+  {
+   "key": "clothed_sex",
+   "existing": "着衣性交",
+   "best": "着衣交尾",
+   "all": [
+    "着衣交尾"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/clothed_sex"
+  },
+  {
+   "key": "code_geass",
+   "existing": "反叛的鲁路修",
+   "best": "反叛的鲁鲁修",
+   "all": [
+    "反叛的鲁鲁修",
+    "叛逆的鲁鲁修"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/code_geass"
+  },
+  {
+   "key": "convenient_censoring",
+   "existing": "便利遮挡",
+   "best": "便捷遮挡",
+   "all": [
+    "便捷遮挡",
+    "刚好挡住",
+    "剛好擋住",
+    "巧妙遮擋",
+    "物件遮擋"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/convenient_censoring"
+  },
+  {
+   "key": "defloration",
+   "existing": "破处",
+   "best": "破瓜",
+   "all": [
+    "処女",
+    "処女喪失",
+    "破瓜"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/defloration"
+  },
+  {
+   "key": "demon",
+   "existing": "恶魔",
+   "best": "悪魔",
+   "all": [
+    "女魔王",
+    "小悪魔",
+    "悪魔",
+    "魔族",
+    "魔王",
+    "魔神"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/demon"
+  },
+  {
+   "key": "diary",
+   "existing": "日记",
+   "best": "日記",
+   "all": [
+    "日記",
+    "日記帳"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/diary"
+  },
+  {
+   "key": "doremy_sweet",
+   "existing": "哆来咪·苏威特",
+   "best": "哆来咪·苏伊特",
+   "all": [
+    "哆来咪·苏伊特"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/doremy_sweet"
+  },
+  {
+   "key": "drill_hair",
+   "existing": "螺旋发型",
+   "best": "螺旋卷发",
+   "all": [
+    "罗马卷",
+    "螺旋卷发",
+    "钻头卷发"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/drill_hair"
+  },
+  {
+   "key": "family",
+   "existing": "家庭",
+   "best": "家族",
+   "all": [
+    "一家",
+    "家族"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/family"
+  },
+  {
+   "key": "femdom",
+   "existing": "女性支配",
+   "best": "女性主导",
+   "all": [
+    "女性上位",
+    "女性主导"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/femdom"
+  },
+  {
+   "key": "flat_chest",
+   "existing": "贫乳",
+   "best": "無乳",
+   "all": [
+    "平胸",
+    "無乳"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/flat_chest"
+  },
+  {
+   "key": "forced_exposure",
+   "existing": "强迫露出",
+   "best": "強制露出",
+   "all": [
+    "強制露出"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/forced_exposure"
+  },
+  {
+   "key": "fox_tail",
+   "existing": "狐狸尾巴",
+   "best": "狐尻尾",
+   "all": [
+    "狐尻尾"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/fox_tail"
+  },
+  {
+   "key": "futaba_minato",
+   "existing": "双叶凑音",
+   "best": "双葉湊音",
+   "all": [
+    "双葉湊音"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/futaba_minato"
+  },
+  {
+   "key": "futami_ami",
+   "existing": "双海亚美",
+   "best": "双海亜美",
+   "all": [
+    "双海亜美"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/futami_ami"
+  },
+  {
+   "key": "futanari",
+   "existing": "扶他",
+   "best": "扶她",
+   "all": [
+    "扶她"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/futanari"
+  },
+  {
+   "key": "ganaha_hibiki",
+   "existing": "我那霸响",
+   "best": "我那覇響",
+   "all": [
+    "我那覇響"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/ganaha_hibiki"
+  },
+  {
+   "key": "gokkun",
+   "existing": "吞精",
+   "best": "饮精",
+   "all": [
+    "饮精"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/gokkun"
+  },
+  {
+   "key": "hagiwara_yukiho",
+   "existing": "萩原雪步",
+   "best": "萩原雪歩",
+   "all": [
+    "萩原雪歩"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/hagiwara_yukiho"
+  },
+  {
+   "key": "hakase_fuyuki",
+   "existing": "叶加濑冬雪",
+   "best": "葉加瀬冬雪",
+   "all": [
+    "葉加瀬冬雪"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/hakase_fuyuki"
+  },
+  {
+   "key": "hakos_baelz",
+   "existing": "哈可斯·贝莉丝",
+   "best": "哈珂斯·贝尔丝",
+   "all": [
+    "哈珂斯·贝尔丝"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/hakos_baelz"
+  },
+  {
+   "key": "higuchi_kaede",
+   "existing": "樋口枫",
+   "best": "樋口楓",
+   "all": [
+    "樋口楓"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/higuchi_kaede"
+  },
+  {
+   "key": "huge_ass",
+   "existing": "巨臀",
+   "best": "巨尻",
+   "all": [
+    "巨尻",
+    "爆尻",
+    "超尻"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/huge_ass"
+  },
+  {
+   "key": "huge_breasts",
+   "existing": "巨乳",
+   "best": "爆乳",
+   "all": [
+    "桃髪爆乳",
+    "橙髪爆乳",
+    "爆乳",
+    "爆乳化",
+    "着衣爆乳",
+    "茶髪爆乳",
+    "金髪爆乳",
+    "黒髪爆乳"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/huge_breasts"
+  },
+  {
+   "key": "huge_penis",
+   "existing": "巨根",
+   "best": "爆根",
+   "all": [
+    "爆根",
+    "超根"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/huge_penis"
+  },
+  {
+   "key": "igawa_sakura",
+   "existing": "井河樱",
+   "best": "井河姉妹",
+   "all": [
+    "井河姉妹"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/igawa_sakura"
+  },
+  {
+   "key": "kaguya_luna",
+   "existing": "辉夜月",
+   "best": "輝夜月",
+   "all": [
+    "輝夜月"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/kaguya_luna"
+  },
+  {
+   "key": "kingdom_hearts",
+   "existing": "王国之心",
+   "best": "王国心",
+   "all": [
+    "王国心"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/kingdom_hearts"
+  },
+  {
+   "key": "kitakami_futaba",
+   "existing": "北上双叶",
+   "best": "北上双葉",
+   "all": [
+    "北上双葉"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/kitakami_futaba"
+  },
+  {
+   "key": "kizuna_akari",
+   "existing": "紲星灯",
+   "best": "绁星灯",
+   "all": [
+    "绁星灯"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/kizuna_akari"
+  },
+  {
+   "key": "komi_shouko",
+   "existing": "古见硝子",
+   "best": "古見硝子",
+   "all": [
+    "古見硝子"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/komi_shouko"
+  },
+  {
+   "key": "lamb",
+   "existing": "羊灵",
+   "best": "羊羔",
+   "all": [
+    "子羊",
+    "羊羔"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/lamb"
+  },
+  {
+   "key": "lila_decyrus",
+   "existing": "莉拉·德希雅斯",
+   "best": "莉拉·德西亚斯",
+   "all": [
+    "莉拉·德西亚斯"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/lila_decyrus"
+  },
+  {
+   "key": "little_witch_academia",
+   "existing": "小魔女学园",
+   "best": "小魔女学院",
+   "all": [
+    "小魔女学院"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/little_witch_academia"
+  },
+  {
+   "key": "medium_breasts",
+   "existing": "美乳",
+   "best": "普乳",
+   "all": [
+    "普乳",
+    "普通乳"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/medium_breasts"
+  },
+  {
+   "key": "meme",
+   "existing": "迷因",
+   "best": "模因",
+   "all": [
+    "梗",
+    "模因",
+    "沙雕",
+    "网络模因"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/meme"
+  },
+  {
+   "key": "merun_morino",
+   "existing": "森野麦仑",
+   "best": "森野莓洛",
+   "all": [
+    "森野莓洛"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/merun_morino"
+  },
+  {
+   "key": "micro_bikini",
+   "existing": "极小比基尼",
+   "best": "迷你比基尼",
+   "all": [
+    "微型比基尼",
+    "迷你比基尼"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/micro_bikini"
+  },
+  {
+   "key": "mind_control",
+   "existing": "心灵控制",
+   "best": "精神控制",
+   "all": [
+    "洗脑",
+    "洗脳",
+    "洗脳装置",
+    "精神控制"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/mind_control"
+  },
+  {
+   "key": "multiple_views",
+   "existing": "多视角",
+   "best": "多视图",
+   "all": [
+    "3面図",
+    "三视图",
+    "三面図",
+    "多视图",
+    "摸鱼页",
+    "组合页"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/multiple_views"
+  },
+  {
+   "key": "mutual_masturbation",
+   "existing": "互相抚慰",
+   "best": "互相手淫",
+   "all": [
+    "互相手淫"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/mutual_masturbation"
+  },
+  {
+   "key": "nakiri_ayame",
+   "existing": "百鬼绫目",
+   "best": "百鬼綾目",
+   "all": [
+    "百鬼絵巻",
+    "百鬼綾目"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/nakiri_ayame"
+  },
+  {
+   "key": "nerissa_ravencroft",
+   "existing": "涅莉萨·雷文克罗夫特",
+   "best": "纳瑞莎·雷文克罗夫特",
+   "all": [
+    "纳瑞莎·雷文克罗夫特"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/nerissa_ravencroft"
+  },
+  {
+   "key": "nipple_penetration",
+   "existing": "乳头穿入",
+   "best": "乳头奸",
+   "all": [
+    "乳头奸",
+    "乳首姦"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/nipple_penetration"
+  },
+  {
+   "key": "no_bra",
+   "existing": "不穿胸罩",
+   "best": "没戴胸罩",
+   "all": [
+    "没戴胸罩"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/no_bra"
+  },
+  {
+   "key": "no_panties",
+   "existing": "不穿内裤",
+   "best": "没穿内裤",
+   "all": [
+    "没穿内裤"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/no_panties"
+  },
+  {
+   "key": "old_man",
+   "existing": "老人",
+   "best": "老爺",
+   "all": [
+    "爺",
+    "老爺"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/old_man"
+  },
+  {
+   "key": "pavolia_reine",
+   "existing": "帕沃莉亚·雷妮",
+   "best": "帕沃莉亚·蕾内",
+   "all": [
+    "帕沃莉亚·蕾内"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/pavolia_reine"
+  },
+  {
+   "key": "pink_eyes",
+   "existing": "粉瞳",
+   "best": "粉眼",
+   "all": [
+    "桃眼",
+    "粉眼",
+    "粉色眼睛"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/pink_eyes"
+  },
+  {
+   "key": "pokephilia",
+   "existing": "宝可梦人兽",
+   "best": "宝可梦奸",
+   "all": [
+    "人类X宝可梦",
+    "宝可梦奸"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/pokephilia"
+  },
+  {
+   "key": "purple_eyes",
+   "existing": "紫瞳",
+   "best": "紫眼",
+   "all": [
+    "紫目",
+    "紫眼",
+    "紫色眼睛",
+    "紫髪紫眼",
+    "茶髪紫眼",
+    "金髪紫眼",
+    "黒髪紫眼"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/purple_eyes"
+  },
+  {
+   "key": "raora_panthera",
+   "existing": "拉欧拉·潘瑟拉",
+   "best": "拉欧拉·潘特拉",
+   "all": [
+    "拉欧拉·潘特拉"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/raora_panthera"
+  },
+  {
+   "key": "red_eyes",
+   "existing": "红瞳",
+   "best": "赤瞳",
+   "all": [
+    "白发红眼",
+    "白髪赤目",
+    "白髪赤眼",
+    "白髮紅眼",
+    "红眼",
+    "红色眼睛",
+    "赤目",
+    "赤眼",
+    "赤瞳",
+    "金髪赤目",
+    "金髪赤眼",
+    "银发赤眼",
+    "黑发红眼",
+    "黑发赤眼",
+    "黑髮紅眼",
+    "黑髮赤眼",
+    "黒髪赤眼"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/red_eyes"
+  },
+  {
+   "key": "rindou_mikoto",
+   "existing": "龙胆尊",
+   "best": "竜胆尊",
+   "all": [
+    "SKB部",
+    "尊春画",
+    "尊絵巻",
+    "竜胆尊"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/rindou_mikoto"
+  },
+  {
+   "key": "rozaliya_olenyeva",
+   "existing": "萝莎莉娅·阿琳",
+   "best": "萝萨莉娅",
+   "all": [
+    "萝萨莉娅"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/rozaliya_olenyeva"
+  },
+  {
+   "key": "sakamata_chloe",
+   "existing": "沙花叉克萝耶",
+   "best": "沙花叉克萝伊",
+   "all": [
+    "沙花叉克萝伊"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/sakamata_chloe"
+  },
+  {
+   "key": "sasaki_chie",
+   "existing": "佐佐木千枝",
+   "best": "佐々木千枝",
+   "all": [
+    "佐々木千枝"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/sasaki_chie"
+  },
+  {
+   "key": "seed",
+   "existing": "种子",
+   "best": "種子",
+   "all": [
+    "種",
+    "種子"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/seed"
+  },
+  {
+   "key": "shiori_novella",
+   "existing": "诗织·诺维拉",
+   "best": "诗织·诺薇拉",
+   "all": [
+    "诗织·诺薇拉"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/shiori_novella"
+  },
+  {
+   "key": "shiraishi_kyouka",
+   "existing": "白石杏花",
+   "best": "白石杏珪",
+   "all": [
+    "白石杏珪"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/shiraishi_kyouka"
+  },
+  {
+   "key": "shy",
+   "existing": "害羞",
+   "best": "含羞",
+   "all": [
+    "含羞"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/shy"
+  },
+  {
+   "key": "spread_pussy",
+   "existing": "掰开阴户",
+   "best": "掰开阴部",
+   "all": [
+    "掰开小穴",
+    "掰开阴部",
+    "阴道扩张"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/spread_pussy"
+  },
+  {
+   "key": "stomping",
+   "existing": "践踏",
+   "best": "踩踏",
+   "all": [
+    "踩踏"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/stomping"
+  },
+  {
+   "key": "taker_pov",
+   "existing": "受方视角",
+   "best": "挨草视角",
+   "all": [
+    "挨草视角"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/taker_pov"
+  },
+  {
+   "key": "tekken",
+   "existing": "铁拳",
+   "best": "鉄拳",
+   "all": [
+    "鉄拳"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/tekken"
+  },
+  {
+   "key": "tengen_toppa_gurren_lagann",
+   "existing": "天元突破红莲螺岩",
+   "best": "天元突破紅蓮螺岩",
+   "all": [
+    "天元突破紅蓮螺岩"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/tengen_toppa_gurren_lagann"
+  },
+  {
+   "key": "ukinami_yuzuha",
+   "existing": "雨波柚羽",
+   "best": "浮波柚葉",
+   "all": [
+    "浮波柚叶",
+    "浮波柚葉",
+    "浮波柚葉役"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/ukinami_yuzuha"
+  },
+  {
+   "key": "virgin",
+   "existing": "处女",
+   "best": "処女",
+   "all": [
+    "処女"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/virgin"
+  },
+  {
+   "key": "yukihana_lamy",
+   "existing": "雪花拉米",
+   "best": "雪花菈米",
+   "all": [
+    "雪原冬花",
+    "雪花菈米"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/yukihana_lamy"
+  },
+  {
+   "key": "yukishiro_mahiro",
+   "existing": "雪城真寻",
+   "best": "雪城眞尋",
+   "all": [
+    "雪城眞尋"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/yukishiro_mahiro"
+  },
+  {
+   "key": "yuzuki_choco",
+   "existing": "愈月巧可",
+   "best": "癒月巧可",
+   "all": [
+    "癒月巧可"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/yuzuki_choco"
+  },
+  {
+   "key": "yuzuriha_maimai",
+   "existing": "楪舞舞",
+   "best": "楪舞々",
+   "all": [
+    "楪舞々"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/yuzuriha_maimai"
+  },
+  {
+   "key": "zombie",
+   "existing": "僵尸",
+   "best": "丧尸",
+   "all": [
+    "丧尸"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/zombie"
+  }
+ ],
+ "夹罗马音": [
+  {
+   "key": "adachi_rei",
+   "existing": "足立Rei",
+   "best": "足立零",
+   "all": [
+    "足立零",
+    "零钻"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/adachi_rei"
+  },
+  {
+   "key": "aoki_lapis",
+   "existing": "苍姬Lapis",
+   "best": "苍姬拉碧斯",
+   "all": [
+    "苍姬拉碧斯",
+    "钻石娘"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/aoki_lapis"
+  },
+  {
+   "key": "asmr",
+   "existing": "ASMR",
+   "best": "音声作品",
+   "all": [
+    "音声",
+    "音声作品"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/asmr"
+  },
+  {
+   "key": "bdsm",
+   "existing": "BDSM",
+   "best": "拘束具",
+   "all": [
+    "拘束具"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/bdsm"
+  },
+  {
+   "key": "clueless",
+   "existing": "Clueless",
+   "best": "無知",
+   "all": [
+    "無知"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/clueless"
+  },
+  {
+   "key": "king",
+   "existing": "KING",
+   "best": "王",
+   "all": [
+    "王"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/king"
+  },
+  {
+   "key": "nanashi_mumei",
+   "existing": "七诗Mumei",
+   "best": "七诗无铭",
+   "all": [
+    "七诗无铭"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/nanashi_mumei"
+  },
+  {
+   "key": "nekomiya_mana",
+   "existing": "猫宫Mana",
+   "best": "猫宫又奈",
+   "all": [
+    "猫又",
+    "猫宫又奈"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/nekomiya_mana"
+  },
+  {
+   "key": "ryona",
+   "existing": "猎奇受虐 (Ryona)",
+   "best": "女性受虐",
+   "all": [
+    "女性受虐"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/ryona"
+  },
+  {
+   "key": "stella_sora",
+   "existing": "Stella Sora",
+   "best": "星塔旅人",
+   "all": [
+    "星塔旅人"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/stella_sora"
+  },
+  {
+   "key": "tiktok",
+   "existing": "TikTok",
+   "best": "抖音",
+   "all": [
+    "抖音"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/tiktok"
+  }
+ ],
+ "完全不同": [
+  {
+   "key": "addiction",
+   "existing": "上瘾",
+   "best": "中毒",
+   "all": [
+    "中毒",
+    "嗜癖"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/addiction"
+  },
+  {
+   "key": "amagai_ruka",
+   "existing": "天海琉夏",
+   "best": "雨海Ruka",
+   "all": [
+    "雨海Ruka"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/amagai_ruka"
+  },
+  {
+   "key": "amputee",
+   "existing": "肢体残缺",
+   "best": "欠損少女",
+   "all": [
+    "四肢欠損",
+    "截肢",
+    "欠損",
+    "欠損少女",
+    "隻脚"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/amputee"
+  },
+  {
+   "key": "anal_tail",
+   "existing": "尾巴肛塞",
+   "best": "肛塞尾巴",
+   "all": [
+    "肛塞尾巴"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/anal_tail"
+  },
+  {
+   "key": "ass_focus",
+   "existing": "聚焦屁股",
+   "best": "臀部特写",
+   "all": [
+    "臀部特写"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/ass_focus"
+  },
+  {
+   "key": "ass_shake",
+   "existing": "摇臀",
+   "best": "摇晃屁股",
+   "all": [
+    "摇晃屁股"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/ass_shake"
+  },
+  {
+   "key": "assisted_exposure",
+   "existing": "强迫露出",
+   "best": "曝光身体",
+   "all": [
+    "曝光身体"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/assisted_exposure"
+  },
+  {
+   "key": "astra_yao",
+   "existing": "姚",
+   "best": "耀嘉音",
+   "all": [
+    "耀嘉音"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/astra_yao"
+  },
+  {
+   "key": "audience",
+   "existing": "观众",
+   "best": "観客",
+   "all": [
+    "観客",
+    "観衆"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/audience"
+  },
+  {
+   "key": "ayase_momo",
+   "existing": "绫濑桃",
+   "best": "綾瀬桃",
+   "all": [
+    "綾瀬桃"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/ayase_momo"
+  },
+  {
+   "key": "azuma_seren",
+   "existing": "东云塞莲",
+   "best": "东雪莲",
+   "all": [
+    "东雪莲"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/azuma_seren"
+  },
+  {
+   "key": "bathing",
+   "existing": "洗澡",
+   "best": "入浴",
+   "all": [
+    "入浴"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/bathing"
+  },
+  {
+   "key": "between_breasts",
+   "existing": "乳沟交",
+   "best": "胸部夹住",
+   "all": [
+    "胸部夹住"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/between_breasts"
+  },
+  {
+   "key": "bit_gag",
+   "existing": "马衔塞",
+   "best": "口衔",
+   "all": [
+    "口衔",
+    "口銜"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/bit_gag"
+  },
+  {
+   "key": "blackmail",
+   "existing": "敲诈/威胁",
+   "best": "強要",
+   "all": [
+    "強要",
+    "恐喝"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/blackmail"
+  },
+  {
+   "key": "bleach",
+   "existing": "死神",
+   "best": "境·界",
+   "all": [
+    "境·界"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/bleach"
+  },
+  {
+   "key": "blindfold",
+   "existing": "眼罩 (蒙眼)",
+   "best": "蒙眼布",
+   "all": [
+    "蒙眼布"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/blindfold"
+  },
+  {
+   "key": "body_control",
+   "existing": "身体控制",
+   "best": "肉体操作",
+   "all": [
+    "肉体操作"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/body_control"
+  },
+  {
+   "key": "bondage",
+   "existing": "束缚",
+   "best": "緊縛",
+   "all": [
+    "捆绑",
+    "捆绑play",
+    "緊縛"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/bondage"
+  },
+  {
+   "key": "bottomless",
+   "existing": "不穿下装",
+   "best": "側面全裸",
+   "all": [
+    "下身裸体",
+    "側面全裸"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/bottomless"
+  },
+  {
+   "key": "bouncing_ass",
+   "existing": "摇臀",
+   "best": "晃动的屁股",
+   "all": [
+    "晃动的屁股"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/bouncing_ass"
+  },
+  {
+   "key": "braces",
+   "existing": "牙套",
+   "best": "歯列矯正",
+   "all": [
+    "歯列矯正"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/braces"
+  },
+  {
+   "key": "breast_expansion",
+   "existing": "乳房膨胀",
+   "best": "膨乳",
+   "all": [
+    "膨乳"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/breast_expansion"
+  },
+  {
+   "key": "brown_eyes",
+   "existing": "棕眼",
+   "best": "棕色眼睛",
+   "all": [
+    "棕色眼睛",
+    "茶目",
+    "茶髪茶眼"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/brown_eyes"
+  },
+  {
+   "key": "bukkake",
+   "existing": "颜射",
+   "best": "射满身",
+   "all": [
+    "射满身",
+    "精浴"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/bukkake"
+  },
+  {
+   "key": "butt_crack",
+   "existing": "股沟",
+   "best": "屁股缝",
+   "all": [
+    "屁股缝"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/butt_crack"
+  },
+  {
+   "key": "cat_tail",
+   "existing": "猫尾",
+   "best": "猫尻尾",
+   "all": [
+    "猫尻尾"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/cat_tail"
+  },
+  {
+   "key": "chen",
+   "existing": "陈",
+   "best": "大人橙",
+   "all": [
+    "大人橙",
+    "橙"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/chen"
+  },
+  {
+   "key": "contortion",
+   "existing": "身体折叠",
+   "best": "柔术",
+   "all": [
+    "扭曲",
+    "柔术"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/contortion"
+  },
+  {
+   "key": "covered_nipples",
+   "existing": "遮盖乳头",
+   "best": "勃起乳首",
+   "all": [
+    "乳头凸起",
+    "勃起乳首"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/covered_nipples"
+  },
+  {
+   "key": "crossdressing",
+   "existing": "异装",
+   "best": "女装男子",
+   "all": [
+    "女装男子",
+    "異性装"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/crossdressing"
+  },
+  {
+   "key": "crossover",
+   "existing": "跨界",
+   "best": "联动",
+   "all": [
+    "乱入",
+    "双厨狂喜",
+    "梦幻共演",
+    "联动"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/crossover"
+  },
+  {
+   "key": "cum_inflation",
+   "existing": "精液膨胀",
+   "best": "储精罐",
+   "all": [
+    "储精罐"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/cum_inflation"
+  },
+  {
+   "key": "curvy",
+   "existing": "凹凸有致",
+   "best": "魔鬼身材",
+   "all": [
+    "女神的女体",
+    "好身材女性",
+    "魔鬼身材"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/curvy"
+  },
+  {
+   "key": "dawn",
+   "existing": "小光",
+   "best": "破晓",
+   "all": [
+    "破晓",
+    "黎明"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/dawn"
+  },
+  {
+   "key": "defeat",
+   "existing": "战败",
+   "best": "全滅",
+   "all": [
+    "全滅"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/defeat"
+  },
+  {
+   "key": "dialogue",
+   "existing": "对话",
+   "best": "字幕",
+   "all": [
+    "字幕"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/dialogue"
+  },
+  {
+   "key": "doctor",
+   "existing": "博士",
+   "best": "女医",
+   "all": [
+    "医者",
+    "女医"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/doctor"
+  },
+  {
+   "key": "doggystyle",
+   "existing": "后入式",
+   "best": "後背位",
+   "all": [
+    "後背位",
+    "背後位"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/doggystyle"
+  },
+  {
+   "key": "double_penetration",
+   "existing": "双重插入",
+   "best": "2穴",
+   "all": [
+    "2穴",
+    "二穴"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/double_penetration"
+  },
+  {
+   "key": "downblouse",
+   "existing": "窥视胸部",
+   "best": "胸部走光",
+   "all": [
+    "胸部走光"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/downblouse"
+  },
+  {
+   "key": "drugs",
+   "existing": "药物",
+   "best": "麻薬",
+   "all": [
+    "麻薬"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/drugs"
+  },
+  {
+   "key": "dusk",
+   "existing": "夕",
+   "best": "黄昏",
+   "all": [
+    "黄昏"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/dusk"
+  },
+  {
+   "key": "elizabeth_rose_bloodflame",
+   "existing": "伊丽莎白·罗斯·血焰",
+   "best": "伊丽莎白·露丝·布拉德弗雷姆",
+   "all": [
+    "伊丽莎白·露丝·布拉德弗雷姆"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/elizabeth_rose_bloodflame"
+  },
+  {
+   "key": "embarrassed",
+   "existing": "害羞",
+   "best": "赤面",
+   "all": [
+    "尴尬",
+    "恥",
+    "羞恥",
+    "赤面"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/embarrassed"
+  },
+  {
+   "key": "feet",
+   "existing": "脚",
+   "best": "足",
+   "all": [
+    "足"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/feet"
+  },
+  {
+   "key": "feminization",
+   "existing": "女性化",
+   "best": "雌堕",
+   "all": [
+    "雌堕"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/feminization"
+  },
+  {
+   "key": "fern",
+   "existing": "菲伦",
+   "best": "羊歯",
+   "all": [
+    "羊歯"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/fern"
+  },
+  {
+   "key": "firefly",
+   "existing": "流萤",
+   "best": "萤火虫",
+   "all": [
+    "萤火虫",
+    "蛍"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/firefly"
+  },
+  {
+   "key": "fishnets",
+   "existing": "网袜",
+   "best": "渔网服饰",
+   "all": [
+    "渔网",
+    "渔网服饰"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/fishnets"
+  },
+  {
+   "key": "frozen",
+   "existing": "冰雪奇缘",
+   "best": "凍結",
+   "all": [
+    "凍結"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/frozen"
+  },
+  {
+   "key": "fuwawa_abyssgard",
+   "existing": "芙哇哇·阿比斯加德",
+   "best": "软软·阿比斯加德",
+   "all": [
+    "软软·阿比斯加德"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/fuwawa_abyssgard"
+  },
+  {
+   "key": "gaping",
+   "existing": "大开",
+   "best": "扩张",
+   "all": [
+    "扩张"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/gaping"
+  },
+  {
+   "key": "giantess",
+   "existing": "女巨人",
+   "best": "巨女",
+   "all": [
+    "巨大娘",
+    "巨大少女",
+    "巨女"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/giantess"
+  },
+  {
+   "key": "gigantic_breasts",
+   "existing": "超级巨乳",
+   "best": "着衣超乳",
+   "all": [
+    "接地系超乳",
+    "着衣超乳",
+    "超乳",
+    "超乳化"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/gigantic_breasts"
+  },
+  {
+   "key": "gigi_murin",
+   "existing": "吉吉·莫琳",
+   "best": "琪琪·沐林",
+   "all": [
+    "琪琪·沐林"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/gigi_murin"
+  },
+  {
+   "key": "glory_hole",
+   "existing": "荣耀之洞",
+   "best": "裆部墙洞",
+   "all": [
+    "寻欢洞",
+    "裆部墙洞"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/glory_hole"
+  },
+  {
+   "key": "glowing_eyes",
+   "existing": "发光眼睛",
+   "best": "发光的眼睛",
+   "all": [
+    "发光的眼睛",
+    "眼光"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/glowing_eyes"
+  },
+  {
+   "key": "glowing_tattoo",
+   "existing": "发光纹身",
+   "best": "发光的纹身",
+   "all": [
+    "发光的纹身"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/glowing_tattoo"
+  },
+  {
+   "key": "groping",
+   "existing": "抚摸",
+   "best": "爱抚",
+   "all": [
+    "爱抚"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/groping"
+  },
+  {
+   "key": "guro",
+   "existing": "猎奇",
+   "best": "内臓",
+   "all": [
+    "内臓"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/guro"
+  },
+  {
+   "key": "highschool_of_the_dead",
+   "existing": "学园默示录",
+   "best": "学園黙示録",
+   "all": [
+    "学園黙示録",
+    "学園黙示録_HIGHSCHOOL_OF_THE_DEAD"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/highschool_of_the_dead"
+  },
+  {
+   "key": "hook",
+   "existing": "虎克",
+   "best": "钩子",
+   "all": [
+    "钩子"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/hook"
+  },
+  {
+   "key": "igawa_asagi",
+   "existing": "井河阿萨姬",
+   "best": "井河姉妹",
+   "all": [
+    "井河姉妹"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/igawa_asagi"
+  },
+  {
+   "key": "inoue_takina",
+   "existing": "井之上泷奈",
+   "best": "井上泷奈",
+   "all": [
+    "井上泷奈",
+    "蒲焼太郎"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/inoue_takina"
+  },
+  {
+   "key": "jersey",
+   "existing": "运动衫",
+   "best": "球衣",
+   "all": [
+    "球衣"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/jersey"
+  },
+  {
+   "key": "kagura_mea",
+   "existing": "神乐めあ",
+   "best": "神乐Mea",
+   "all": [
+    "神乐Mea"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/kagura_mea"
+  },
+  {
+   "key": "kidnapping",
+   "existing": "绑架",
+   "best": "誘拐",
+   "all": [
+    "拉致",
+    "誘拐"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/kidnapping"
+  },
+  {
+   "key": "kitsune",
+   "existing": "狐娘",
+   "best": "妖狐",
+   "all": [
+    "妖狐"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/kitsune"
+  },
+  {
+   "key": "lifting_person",
+   "existing": "抱起",
+   "best": "被抬起的人",
+   "all": [
+    "被抬起的人"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/lifting_person"
+  },
+  {
+   "key": "lily_black",
+   "existing": "黑莉莉",
+   "best": "莉莉黑",
+   "all": [
+    "莉莉黑"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/lily_black"
+  },
+  {
+   "key": "lily_white",
+   "existing": "白莉莉",
+   "best": "莉莉白",
+   "all": [
+    "莉莉白",
+    "莉莉霍瓦特"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/lily_white"
+  },
+  {
+   "key": "loincloth",
+   "existing": "兜裆布",
+   "best": "腰布",
+   "all": [
+    "腰布"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/loincloth"
+  },
+  {
+   "key": "love_potion",
+   "existing": "媚药",
+   "best": "爱情魔药",
+   "all": [
+    "恋爱药剂",
+    "爱情魔药"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/love_potion"
+  },
+  {
+   "key": "lynx",
+   "existing": "玲可",
+   "best": "猞猁",
+   "all": [
+    "猞猁"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/lynx"
+  },
+  {
+   "key": "mating_press",
+   "existing": "压榨体位",
+   "best": "种付位",
+   "all": [
+    "种付位"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/mating_press"
+  },
+  {
+   "key": "may",
+   "existing": "小遥",
+   "best": "5月",
+   "all": [
+    "5月"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/may"
+  },
+  {
+   "key": "messy_hair",
+   "existing": "凌乱头发",
+   "best": "没打理的头发",
+   "all": [
+    "乱发",
+    "寝癖",
+    "没打理的头发"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/messy_hair"
+  },
+  {
+   "key": "metroid",
+   "existing": "银河战士",
+   "best": "密特罗德",
+   "all": [
+    "密特罗德"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/metroid"
+  },
+  {
+   "key": "miside",
+   "existing": "MiSide",
+   "best": "米塔miside",
+   "all": [
+    "米塔miside"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/miside"
+  },
+  {
+   "key": "mococo_abyssgard",
+   "existing": "摩科科·阿比斯加德",
+   "best": "茸茸·阿比斯加德",
+   "all": [
+    "茸茸·阿比斯加德"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/mococo_abyssgard"
+  },
+  {
+   "key": "moona_hoshinova",
+   "existing": "慕娜·星诺瓦",
+   "best": "暮娜·惑星诺瓦",
+   "all": [
+    "暮娜·惑星诺瓦"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/moona_hoshinova"
+  },
+  {
+   "key": "multiple_boys",
+   "existing": "多个男孩",
+   "best": "群像",
+   "all": [
+    "群像"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/multiple_boys"
+  },
+  {
+   "key": "multiple_girls",
+   "existing": "多个女孩",
+   "best": "群像",
+   "all": [
+    "群像"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/multiple_girls"
+  },
+  {
+   "key": "muscular",
+   "existing": "强壮",
+   "best": "筋肉",
+   "all": [
+    "大腿筋",
+    "筋肉",
+    "肌肉发达"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/muscular"
+  },
+  {
+   "key": "mutilation",
+   "existing": "残肢",
+   "best": "性器破壊",
+   "all": [
+    "性器破壊"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/mutilation"
+  },
+  {
+   "key": "naughty_face",
+   "existing": "恶作剧脸",
+   "best": "调皮脸",
+   "all": [
+    "调皮脸"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/naughty_face"
+  },
+  {
+   "key": "necrophilia",
+   "existing": "恋尸癖",
+   "best": "死姦",
+   "all": [
+    "屍姦",
+    "死姦"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/necrophilia"
+  },
+  {
+   "key": "nekopara",
+   "existing": "巧克力与香子兰",
+   "best": "猫娘乐园",
+   "all": [
+    "猫娘乐园"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/nekopara"
+  },
+  {
+   "key": "netorare",
+   "existing": "寝取",
+   "best": "逆NTR",
+   "all": [
+    "戴绿帽",
+    "逆NTR"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/netorare"
+  },
+  {
+   "key": "nipple_slip",
+   "existing": "露点",
+   "best": "乳头走光",
+   "all": [
+    "乳头走光"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/nipple_slip"
+  },
+  {
+   "key": "no_shoes",
+   "existing": "光脚",
+   "best": "生靴下",
+   "all": [
+    "没穿鞋",
+    "生靴下"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/no_shoes"
+  },
+  {
+   "key": "oppai_loli",
+   "existing": "巨乳萝莉",
+   "best": "巨乳小学生",
+   "all": [
+    "巨乳小学生"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/oppai_loli"
+  },
+  {
+   "key": "orgasm_denial",
+   "existing": "高潮控制",
+   "best": "射精管理",
+   "all": [
+    "射精禁止",
+    "射精管理"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/orgasm_denial"
+  },
+  {
+   "key": "pale_skin",
+   "existing": "白皙皮肤",
+   "best": "色白",
+   "all": [
+    "色白"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/pale_skin"
+  },
+  {
+   "key": "panties_aside",
+   "existing": "拨开内裤",
+   "best": "内裤侧拉",
+   "all": [
+    "内裤侧拉"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/panties_aside"
+  },
+  {
+   "key": "pantyshot",
+   "existing": "裙底风光",
+   "best": "内裤走光",
+   "all": [
+    "内裤走光"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/pantyshot"
+  },
+  {
+   "key": "parody",
+   "existing": "原作",
+   "best": "模仿",
+   "all": [
+    "模仿"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/parody"
+  },
+  {
+   "key": "pegasus",
+   "existing": "佩加索斯",
+   "best": "天马",
+   "all": [
+    "天马",
+    "飞马"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/pegasus"
+  },
+  {
+   "key": "pegging",
+   "existing": "女用假阳具插入",
+   "best": "逆肛交",
+   "all": [
+    "逆肛交"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/pegging"
+  },
+  {
+   "key": "penis_awe",
+   "existing": "巨根崇拜",
+   "best": "阴茎敬畏",
+   "all": [
+    "阴茎敬畏"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/penis_awe"
+  },
+  {
+   "key": "polka_dot",
+   "existing": "波点",
+   "best": "水玉",
+   "all": [
+    "水玉"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/polka_dot"
+  },
+  {
+   "key": "prison",
+   "existing": "监狱",
+   "best": "牢屋",
+   "all": [
+    "牢屋",
+    "監獄"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/prison"
+  },
+  {
+   "key": "prison_school",
+   "existing": "监狱学园",
+   "best": "監獄学園",
+   "all": [
+    "監獄学園"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/prison_school"
+  },
+  {
+   "key": "prostitution",
+   "existing": "卖淫",
+   "best": "援助交際",
+   "all": [
+    "売春",
+    "娼婦",
+    "援交",
+    "援助交際"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/prostitution"
+  },
+  {
+   "key": "public_nudity",
+   "existing": "公共场所裸露",
+   "best": "公开露出",
+   "all": [
+    "公开露出",
+    "野外露出"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/public_nudity"
+  },
+  {
+   "key": "public_use",
+   "existing": "公众便器",
+   "best": "公用肉便器",
+   "all": [
+    "公用肉便器"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/public_use"
+  },
+  {
+   "key": "punishment",
+   "existing": "惩罚",
+   "best": "罰",
+   "all": [
+    "罰"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/punishment"
+  },
+  {
+   "key": "rabbit_girl",
+   "existing": "兔女郎",
+   "best": "兔娘",
+   "all": [
+    "兎娘",
+    "兔娘"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/rabbit_girl"
+  },
+  {
+   "key": "raccoon_girl",
+   "existing": "浣熊娘",
+   "best": "狸娘",
+   "all": [
+    "狸娘"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/raccoon_girl"
+  },
+  {
+   "key": "razor",
+   "existing": "雷泽",
+   "best": "剃刀",
+   "all": [
+    "剃刀"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/razor"
+  },
+  {
+   "key": "record_of_lodoss_war",
+   "existing": "罗德斯岛战记",
+   "best": "罗德岛战记",
+   "all": [
+    "罗德岛战记"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/record_of_lodoss_war"
+  },
+  {
+   "key": "recording",
+   "existing": "录制",
+   "best": "录像中",
+   "all": [
+    "录像中"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/recording"
+  },
+  {
+   "key": "reverse_ryona",
+   "existing": "逆猎奇",
+   "best": "男性受虐",
+   "all": [
+    "男性受虐"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/reverse_ryona"
+  },
+  {
+   "key": "reverse_spitroast",
+   "existing": "逆烤肉串",
+   "best": "逆位串烧性爱",
+   "all": [
+    "逆位串烧性爱"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/reverse_spitroast"
+  },
+  {
+   "key": "rindo_chihaya",
+   "existing": "龙胆千早",
+   "best": "轮堂千速",
+   "all": [
+    "轮堂千速"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/rindo_chihaya"
+  },
+  {
+   "key": "saber_alter",
+   "existing": "黑Saber",
+   "best": "阿尔托莉雅·潘德拉贡〔Alter〕",
+   "all": [
+    "阿尔托莉雅·潘德拉贡〔Alter〕",
+    "阿爾托莉亞.潘德拉剛〔Alter〕"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/saber_alter"
+  },
+  {
+   "key": "scat",
+   "existing": "排泄",
+   "best": "大便",
+   "all": [
+    "大便",
+    "糞"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/scat"
+  },
+  {
+   "key": "selfcest",
+   "existing": "自交",
+   "best": "自分姦",
+   "all": [
+    "同一CP",
+    "水仙",
+    "自分姦",
+    "自攻自受"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/selfcest"
+  },
+  {
+   "key": "sex_machine",
+   "existing": "性爱机器",
+   "best": "機械姦",
+   "all": [
+    "機械姦"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/sex_machine"
+  },
+  {
+   "key": "sex_toy",
+   "existing": "性玩具",
+   "best": "性爱玩具",
+   "all": [
+    "性爱玩具",
+    "成人玩具"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/sex_toy"
+  },
+  {
+   "key": "shibari",
+   "existing": "日式绑缚",
+   "best": "緊縛",
+   "all": [
+    "束缚",
+    "紧缚",
+    "緊縛",
+    "緊縛労働",
+    "绳缚",
+    "野外緊縛"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/shibari"
+  },
+  {
+   "key": "shortstack",
+   "existing": "矮小丰满",
+   "best": "粗矮体型",
+   "all": [
+    "粗矮体型"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/shortstack"
+  },
+  {
+   "key": "sinon",
+   "existing": "诗乃",
+   "best": "朝田詩乃",
+   "all": [
+    "朝田詩乃"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/sinon"
+  },
+  {
+   "key": "skinsuit",
+   "existing": "紧身衣",
+   "best": "皮化",
+   "all": [
+    "皮化",
+    "皮物"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/skinsuit"
+  },
+  {
+   "key": "small_penis",
+   "existing": "小阴茎",
+   "best": "短小",
+   "all": [
+    "短小"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/small_penis"
+  },
+  {
+   "key": "sparkle",
+   "existing": "花火",
+   "best": "闪闪发光",
+   "all": [
+    "闪闪发光"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/sparkle"
+  },
+  {
+   "key": "spitroast",
+   "existing": "串烤(双管齐下)",
+   "best": "串烧性爱",
+   "all": [
+    "串烧性爱"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/spitroast"
+  },
+  {
+   "key": "stomach_bulge",
+   "existing": "腹部凸起 (子宫凸)",
+   "best": "腹部隆起",
+   "all": [
+    "腹部隆起"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/stomach_bulge"
+  },
+  {
+   "key": "strangling",
+   "existing": "掐脖/绞杀",
+   "best": "掐脖子",
+   "all": [
+    "掐脖子",
+    "絞殺",
+    "絞首",
+    "绞首"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/strangling"
+  },
+  {
+   "key": "street_fighter",
+   "existing": "街头霸王",
+   "best": "街霸",
+   "all": [
+    "街霸"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/street_fighter"
+  },
+  {
+   "key": "teacher",
+   "existing": "教师",
+   "best": "先生",
+   "all": [
+    "先生"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/teacher"
+  },
+  {
+   "key": "the_owl_house",
+   "existing": "奇幻猫头鹰小屋",
+   "best": "猫头鹰魔法社",
+   "all": [
+    "猫头鹰魔法社"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/the_owl_house"
+  },
+  {
+   "key": "thick_thighs",
+   "existing": "粗大腿",
+   "best": "粗壮的大腿",
+   "all": [
+    "大根足",
+    "粗壮的大腿"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/thick_thighs"
+  },
+  {
+   "key": "torn_clothes",
+   "existing": "爆衣",
+   "best": "中破",
+   "all": [
+    "中破",
+    "撕裂的衣服",
+    "破损的衣服"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/torn_clothes"
+  },
+  {
+   "key": "transformation",
+   "existing": "变身",
+   "best": "状态变化",
+   "all": [
+    "状态变化",
+    "状態変化"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/transformation"
+  },
+  {
+   "key": "triple_penetration",
+   "existing": "三重穿入",
+   "best": "三穴",
+   "all": [
+    "三穴"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/triple_penetration"
+  },
+  {
+   "key": "tsukuyomi_shirabe",
+   "existing": "月读调",
+   "best": "月読調",
+   "all": [
+    "月読調"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/tsukuyomi_shirabe"
+  },
+  {
+   "key": "twin_braids",
+   "existing": "双辫",
+   "best": "双发辫",
+   "all": [
+    "双发辫"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/twin_braids"
+  },
+  {
+   "key": "vibrator",
+   "existing": "跳蛋",
+   "best": "按摩棒",
+   "all": [
+    "按摩棒",
+    "震动器"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/vibrator"
+  },
+  {
+   "key": "vshojo",
+   "existing": "VShojo",
+   "best": "V少女",
+   "all": [
+    "V少女"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/vshojo"
+  },
+  {
+   "key": "wedgie",
+   "existing": "拉内裤",
+   "best": "内裤陷入",
+   "all": [
+    "内裤陷入",
+    "勒裆"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/wedgie"
+  },
+  {
+   "key": "yaoi",
+   "existing": "耽美",
+   "best": "創作bl",
+   "all": [
+    "創作bl",
+    "同志",
+    "基友",
+    "男同",
+    "男同性恋",
+    "腐",
+    "腐魂"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/yaoi"
+  },
+  {
+   "key": "zundamon",
+   "existing": "ずんだもん",
+   "best": "俊达萌",
+   "all": [
+    "俊达萌"
+   ],
+   "url": "https://danbooru.donmai.us/wiki_pages/zundamon"
+  }
+ ]
+}

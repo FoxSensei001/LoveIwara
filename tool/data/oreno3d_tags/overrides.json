@@ -1,0 +1,394 @@
+{
+  "schema": 1,
+  "entries": {
+    "characters/2215": {
+      "n": {
+        "zh-CN": "小萤",
+        "zh-TW": "小螢"
+      },
+      "prev": {
+        "zh-CN": "流萤",
+        "zh-TW": "流螢"
+      },
+      "src": "manual",
+      "by": "dev",
+      "ref": [
+        "https://oreno3d.com/characters/2215"
+      ],
+      "at": "2026-08-25",
+      "note": "スプラトゥーン 的 ホタル（小萤/Marie），与崩壊:スターレイル 的 ホタル（流萤）同名不同人。迁移前两者共享译名，都被显示为「流萤」。"
+    },
+    "characters/3904": {
+      "n": {
+        "zh-CN": "知更鸟",
+        "zh-TW": "知更鳥"
+      },
+      "prev": {
+        "zh-CN": "罗宾",
+        "zh-TW": "羅賓"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/robin_(honkai:_star_rail)"
+      ],
+      "note": "《崩坏：星穹铁道》官方中文名为「知更鸟」，现有译名「罗宾」为错误直译。"
+    },
+    "tags/195": {
+      "n": {
+        "zh-CN": "乳头奸",
+        "zh-TW": "乳頭姦"
+      },
+      "prev": {
+        "zh-CN": "乳交",
+        "zh-TW": "乳交"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/nipple_penetration"
+      ],
+      "note": "「ニプルファック」特指乳头插入/乳头奸（Nipple penetration/fuck），现有译名「乳交」通常指Titfuck/Paizuri，修正为「乳头奸」。"
+    },
+    "characters/4393": {
+      "n": {
+        "zh-CN": "凯撒·金",
+        "zh-TW": "凱撒·金",
+        "en": "Caesar King"
+      },
+      "prev": {
+        "zh-CN": "西萨王",
+        "zh-TW": "西薩王",
+        "en": "King Caesar"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/caesar_king_(zenless_zone_zero)"
+      ],
+      "note": "《绝区零》角色 Caesar King 的官方中文名为「凯撒·金」，现有译名「西萨王」为特摄怪兽误译。"
+    },
+    "characters/5068": {
+      "n": {
+        "zh-CN": "琳奈",
+        "zh-TW": "琳奈",
+        "en": "Lynae"
+      },
+      "prev": {
+        "zh-CN": "凛音",
+        "zh-TW": "凜音",
+        "en": "Linne"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/lynae_(wuthering_waves)"
+      ],
+      "note": "《鸣潮》官方中文名为「琳奈」（英文 Lynae），现有译名「凛音」为错误音译。"
+    },
+    "characters/855": {
+      "n": {
+        "zh-CN": "贝奇",
+        "zh-TW": "貝奇",
+        "en": "Bache"
+      },
+      "prev": {
+        "zh-CN": "徽章",
+        "zh-TW": "徽章",
+        "en": "Badge"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/bache_(azur_lane)"
+      ],
+      "note": "《碧蓝航线》弗莱彻级驱逐舰 Bache 官方中文译名为「贝奇」，现有译名「徽章」为英语badge的机翻误译。"
+    },
+    "characters/5010": {
+      "n": {
+        "zh-CN": "奈芙尔",
+        "zh-TW": "奈芙爾",
+        "en": "Nefer"
+      },
+      "prev": {
+        "zh-CN": "奈菲儿",
+        "zh-TW": "奈菲爾",
+        "en": "Nefer"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/nefer_(genshin_impact)"
+      ],
+      "note": "《原神》角色 Nefer 官方中文名为「奈芙尔」，现有译名「奈菲儿」为音译偏差。"
+    },
+    "characters/4961": {
+      "n": {
+        "zh-CN": "海瑟音",
+        "zh-TW": "海瑟音",
+        "en": "Hysilens"
+      },
+      "prev": {
+        "zh-CN": "塞伦斯",
+        "zh-TW": "塞倫斯",
+        "en": "Sirens"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/hysilens_(honkai:_star_rail)"
+      ],
+      "note": "《崩坏：星穹铁道》官方中文名为「海瑟音」（英文 Hysilens），现有译名「塞伦斯」为错误音译。"
+    },
+    "characters/3882": {
+      "n": {
+        "zh-CN": "仲正一花",
+        "zh-TW": "仲正一花",
+        "en": "Ichika Nakamasa"
+      },
+      "prev": {
+        "zh-CN": "仲正一夏",
+        "zh-TW": "仲正一夏",
+        "en": "Ichika Nakamasa"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/ichika_(blue_archive)"
+      ],
+      "note": "《蔚蓝档案》官方中文名为「仲正一花」，现有译名「仲正一夏」为错误音译。"
+    },
+    "characters/3249": {
+      "n": {
+        "zh-CN": "希露瓦",
+        "zh-TW": "希露瓦",
+        "en": "Serval"
+      },
+      "prev": {
+        "zh-CN": "塞巴尔",
+        "zh-TW": "塞巴爾",
+        "en": "Seval"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/serval_landau"
+      ],
+      "note": "《崩坏：星穹铁道》官方中文名为「希露瓦」（英文 Serval），现有译名「塞巴尔」为错误音译。"
+    },
+    "characters/1451": {
+      "n": {
+        "zh-CN": "里诺",
+        "zh-TW": "里諾",
+        "en": "Reno"
+      },
+      "prev": {
+        "zh-CN": "璃乃",
+        "zh-TW": "璃乃",
+        "en": "Rino"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/reno_(azur_lane)"
+      ],
+      "note": "《碧蓝航线》亚特兰大级轻巡洋舰 Reno 官方中文译名为「里诺」，现有译名「璃乃」与其他作品角色混淆。"
+    },
+    "characters/4781": {
+      "n": {
+        "zh-CN": "莱万汀",
+        "zh-TW": "萊萬汀"
+      },
+      "prev": {
+        "zh-CN": "雷瓦汀",
+        "zh-TW": "雷瓦汀"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/laevatain_(arknights)"
+      ],
+      "note": "《明日方舟：终末地》官方中文名为「莱万汀」，现有译名「雷瓦汀」为错误音译。"
+    },
+    "characters/3280": {
+      "n": {
+        "zh-CN": "夏洛蒂",
+        "zh-TW": "夏洛蒂"
+      },
+      "prev": {
+        "zh-CN": "夏洛特",
+        "zh-TW": "夏洛特"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/charlotte_(genshin_impact)"
+      ],
+      "note": "《原神》枫丹角色 Charlotte 官方中文名为「夏洛蒂」，现有译名「夏洛特」为普通人名误译。"
+    },
+    "characters/4975": {
+      "n": {
+        "zh-CN": "席德",
+        "zh-TW": "席德",
+        "en": "Seed"
+      },
+      "prev": {
+        "zh-CN": "SEED",
+        "zh-TW": "SEED",
+        "en": "Seed"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/seed_(zenless_zone_zero)"
+      ],
+      "note": "《绝区零》官方中文名为「席德」，现有译名「SEED」未做角色中文汉化。"
+    },
+    "characters/1163": {
+      "n": {
+        "zh-CN": "阿纳斯塔西娅",
+        "zh-TW": "阿納斯塔西婭"
+      },
+      "prev": {
+        "zh-CN": "安娜斯塔西娅",
+        "zh-TW": "安娜斯塔西婭"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/anastasia_(fate)"
+      ],
+      "note": "《Fate/Grand Order》官方正式译名为「阿纳斯塔西娅」，现有译名「安娜斯塔西娅」为非官方异译。"
+    },
+    "characters/2918": {
+      "n": {
+        "zh-CN": "奥古斯特·冯·帕塞瓦尔",
+        "zh-TW": "奧古斯特·馮·帕塞瓦爾"
+      },
+      "prev": {
+        "zh-CN": "奥古斯都·冯·帕塞瓦尔",
+        "zh-TW": "奧古斯都·馮·帕塞瓦爾"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/august_von_parseval_(azur_lane)"
+      ],
+      "note": "《碧蓝航线》官方中文名为「奥古斯特·冯·帕塞瓦尔」，现有译名「奥古斯都」为德语人名误译。"
+    },
+    "characters/3976": {
+      "n": {
+        "zh-CN": "寻梦者",
+        "zh-TW": "尋夢者",
+        "en": "Dreamseeker"
+      },
+      "prev": {
+        "zh-CN": "追梦人",
+        "zh-TW": "追夢人",
+        "en": "Dreamer"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/female_dreamseeker_(honkai_impact)"
+      ],
+      "note": "《崩坏3》第二部主角官方中文名为「寻梦者」（英文 Dreamseeker），现有译名「追梦人」为字面机翻误译。"
+    },
+    "origins/308": {
+      "n": {
+        "zh-CN": "灵魂行者",
+        "zh-TW": "靈魂行者"
+      },
+      "prev": {
+        "zh-CN": "灵魂武器",
+        "zh-TW": "靈魂行者"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/soulworker"
+      ],
+      "note": "游戏官方中文正名为「灵魂行者」，现有简中译名「灵魂武器」为机翻直译错误。"
+    },
+    "origins/799": {
+      "n": {
+        "zh-CN": "哭泣少女乐队",
+        "zh-TW": "少女樂團吶喊吧",
+        "en": "Girls Band Cry"
+      },
+      "prev": {
+        "zh-CN": "少女乐队哭泣",
+        "zh-TW": "少女樂團哭泣",
+        "en": "Girls Band Cry"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/girls_band_cry"
+      ],
+      "note": "官方及社区通用中文译名为「哭泣少女乐队」（台湾引进为「少女樂團吶喊吧」），现有译名「少女乐队哭泣」为生硬字面机翻。"
+    },
+    "origins/231": {
+      "n": {
+        "zh-TW": "悠悠哉哉少女日和"
+      },
+      "prev": {
+        "zh-TW": "悠悠哉哉少女劍客"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/non_non_biyori"
+      ],
+      "note": "繁体中文官方正版译名为「悠悠哉哉少女日和」（尖端出版），现有繁中「悠悠哉哉少女劍客」为严重机翻错词。"
+    },
+    "origins/803": {
+      "n": {
+        "zh-CN": "优米雅的炼金工房",
+        "zh-TW": "優米雅的鍊金工房"
+      },
+      "prev": {
+        "zh-CN": "尤米亚的炼金工房",
+        "zh-TW": "尤米亞的鍊金工房"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/atelier_yumia"
+      ],
+      "note": "光荣特库摩官方中文正式定名为「优米雅的炼金工房」（繁中「優米雅的鍊金工房」），现有译名「尤米亚」为早期非官方音译。"
+    },
+    "origins/77": {
+      "n": {
+        "zh-CN": "地狱客栈",
+        "zh-TW": "地獄旅館"
+      },
+      "prev": {
+        "zh-CN": "哈斯宾酒店",
+        "zh-TW": "哈斯賓酒店"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/hazbin_hotel"
+      ],
+      "note": "中文圈公认通用译名为「地狱客栈」（繁体「地獄旅館」），现有译名「哈斯宾酒店」为生硬音译。"
+    },
+    "origins/853": {
+      "n": {
+        "zh-CN": "星塔旅人",
+        "zh-TW": "星塔旅人"
+      },
+      "prev": {
+        "zh-CN": "Stella Sora",
+        "zh-TW": "Stella Sora"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/stella_sora"
+      ],
+      "note": "《ステラソラ》（Stella Sora）为悠星（Yostar）开发的游戏，官方中文名为《星塔旅人》，替换原先占位的英文名。"
+    }
+  }
+}

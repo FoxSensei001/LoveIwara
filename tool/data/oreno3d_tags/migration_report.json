@@ -1,0 +1,161 @@
+{
+  "entriesBefore": 2515,
+  "entriesAfter": 2554,
+  "unmatched": [],
+  "orphans": [],
+  "collisions": {
+    "オリジナル": [
+      "origins/9",
+      "characters/48"
+    ],
+    "すーぱーそに子": [
+      "origins/20",
+      "characters/102"
+    ],
+    "ブラック★ロックシューター": [
+      "origins/83",
+      "characters/406"
+    ],
+    "シャンティ": [
+      "origins/103",
+      "characters/490"
+    ],
+    "一騎当千": [
+      "origins/126",
+      "tags/11"
+    ],
+    "ヒカリ": [
+      "characters/1",
+      "characters/648"
+    ],
+    "ニア": [
+      "characters/3",
+      "characters/3936"
+    ],
+    "プリンツ・オイゲン": [
+      "characters/9",
+      "characters/121"
+    ],
+    "島風": [
+      "characters/12",
+      "characters/1457"
+    ],
+    "ビスマルク": [
+      "characters/39",
+      "characters/207"
+    ],
+    "グラーフ・ツェッペリン": [
+      "characters/40",
+      "characters/381"
+    ],
+    "白露": [
+      "characters/43",
+      "characters/3562"
+    ],
+    "夕立": [
+      "characters/45",
+      "characters/722"
+    ],
+    "愛宕": [
+      "characters/55",
+      "characters/108"
+    ],
+    "高雄": [
+      "characters/68",
+      "characters/315"
+    ],
+    "霞": [
+      "characters/82",
+      "characters/262"
+    ],
+    "長門": [
+      "characters/109",
+      "characters/734"
+    ],
+    "大鳳": [
+      "characters/122",
+      "characters/1846"
+    ],
+    "ポーラ": [
+      "characters/149",
+      "characters/1907"
+    ],
+    "瑞鶴": [
+      "characters/159",
+      "characters/221"
+    ],
+    "ブローニャ": [
+      "characters/279",
+      "characters/2163"
+    ],
+    "ゼーレ": [
+      "characters/283",
+      "characters/2179"
+    ],
+    "メイ": [
+      "characters/302",
+      "characters/1938"
+    ],
+    "翔鶴": [
+      "characters/364",
+      "characters/1239"
+    ],
+    "クラーラ": [
+      "characters/372",
+      "characters/2454"
+    ],
+    "21号": [
+      "characters/422",
+      "characters/2011"
+    ],
+    "武蔵": [
+      "characters/428",
+      "characters/2839"
+    ],
+    "不知火": [
+      "characters/463",
+      "characters/2497"
+    ],
+    "ザラ": [
+      "characters/791",
+      "characters/2079"
+    ],
+    "加賀": [
+      "characters/903",
+      "characters/1477"
+    ],
+    "赤城": [
+      "characters/1068",
+      "characters/2782"
+    ],
+    "アリサ": [
+      "characters/1540",
+      "characters/3310"
+    ],
+    "能代": [
+      "characters/1649",
+      "characters/1980"
+    ],
+    "ジェーナス": [
+      "characters/1853",
+      "characters/2805"
+    ],
+    "杏仁ミル": [
+      "characters/2036",
+      "characters/3546"
+    ],
+    "ホタル": [
+      "characters/2215",
+      "characters/3872"
+    ],
+    "ルーシー": [
+      "characters/2490",
+      "characters/4273"
+    ],
+    "アリス": [
+      "characters/2676",
+      "characters/4956",
+      "characters/5061"
+    ]
+  }
+}

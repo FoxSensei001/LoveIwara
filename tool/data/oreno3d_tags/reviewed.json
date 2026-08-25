@@ -1,0 +1,495 @@
+{
+ "schema": 1,
+ "entries": {
+  "tags/183": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「羞耻」准确对应「羞恥」，候选「尴尬」不够贴切。"
+  },
+  "tags/203": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「群交」规范准确，候选「男女女男」仅为特例别名。"
+  },
+  "tags/163": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「肛门责弄」准确表达「責め」（玩弄）含义，候选「肛交」过于笼统。"
+  },
+  "tags/69": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「褐肤」符合 ACG 领域对「褐色肌」的通用称呼，候选为各种细分组合词。"
+  },
+  "tags/209": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「骑乘位」准确对应性体位标签「女性上位」，候选为性格行为别名。"
+  },
+  "tags/210": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「异种交」准确对应「異種姦」，候选多为兽交等具体子分类。"
+  },
+  "tags/189": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「交尾体位/播种冲刺」已准确表达「種付けプレス」含义，予以保留。"
+  },
+  "tags/178": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「口爆」通俗准确，符合中文圈常用表达习惯。"
+  },
+  "tags/204": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「轮奸」与日文原词「輪姦」完全对应。"
+  },
+  "tags/79": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「晒黑/黑皮」准确表达日晒肤色含义。"
+  },
+  "origins/13": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「偶像大师 灰姑娘女孩」官方规范，无需改动。"
+  },
+  "tags/83": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「微胖」准确对应「ぽっちゃり」（微丰满），候选「肥胖体型」过于偏重。"
+  },
+  "origins/29": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有简繁译名「尼尔：机械纪元」/「尼爾：自動人形」均为两岸官方正式译名，标点规范。"
+  },
+  "tags/185": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「绅士之手」准确对应 MMD/3D 圈内常用术语「紳士ハンド」。"
+  },
+  "tags/45": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「快乐堕」准确对应「快楽堕ち」，候选「恶堕」为上位通用分类。"
+  },
+  "tags/44": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「大姐姐与正太」准确对应「おねショタ」，候选「姉弟」概念错误。"
+  },
+  "tags/68": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「伪娘」准确对应「男の娘」，候选为 Danbooru 映射到 1boy 的无关词。"
+  },
+  "origins/241": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「偶像大师 百万现场」规范准确，无需改动。"
+  },
+  "origins/115": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「偶像大师 闪耀色彩」规范准确，无需改动。"
+  },
+  "tags/87": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「死库水/竞技泳装」通俗易懂，符合使用习惯。"
+  },
+  "tags/176": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「掰穴」准确地道，符合圈内常用习惯。"
+  },
+  "characters/51": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「吕500」准确对应《舰队Collection》角色「呂500」。"
+  },
+  "tags/187": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「睡眠奸」准确规范，符合使用习惯。"
+  },
+  "tags/205": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「猎奇 / 凌辱 (Ryona)」完整表达了「リョナ」特定题材含义。"
+  },
+  "tags/171": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「逆推」准确对应「逆レイプ」，候选均为通用强奸词。"
+  },
+  "origins/95": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有简繁译名「街头霸王」/「快打旋風」均为两岸官方正式译名。"
+  },
+  "tags/52": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「痴汉」完全对应日文原词「痴漢」。"
+  },
+  "characters/2432": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「阿蕾奇诺(仆人)」与角色通用称号一致，候选为其本名别名。"
+  },
+  "origins/61": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有简繁译名「女友伴身边」/「臨時女友」均为两岸官方正式译名。"
+  },
+  "characters/103": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「阿尔托莉雅·潘德拉贡(Lancer)」为官方全称，候选「狮子王」为剧情别称。"
+  },
+  "characters/36": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「金刚」准确对应《舰队Collection》角色「金剛」。"
+  },
+  "tags/198": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「膝窝交」准确表达「膝裏コキ」部位与含义。"
+  },
+  "origins/726": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「不时轻声地以俄语遮羞的邻座艾莉同学」为官方正式出版译名。"
+  },
+  "tags/186": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「排泄物」准确概括题材分类。"
+  },
+  "tags/63": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「诱拐」与日文原词完全对应。"
+  },
+  "origins/15": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「超级马力欧」/「超級瑪利歐」为任天堂两岸官方正式中文名。"
+  },
+  "origins/228": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「死神」为最广泛使用的通称译名，候选「境·界」为引进曾用名。"
+  },
+  "origins/236": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「不要欺负我，长瀞同学」为官方正规译名，标点规范。"
+  },
+  "characters/813": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「绫波」为角色原名与通用名，候选「柚」为国服和谐改名。"
+  },
+  "origins/147": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有简繁译名「火焰纹章 风花雪月」/「聖火降魔錄 風花雪月」均为任天堂两岸官方正式译名。"
+  },
+  "origins/45": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有简繁译名「我的青春恋爱喜剧果然有问题」/「果然我的青春戀愛喜劇搞錯了。」均为两岸正规官方译名。"
+  },
+  "characters/774": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有简繁译名「阿卡丽」/「阿卡莉」完全符合《英雄联盟》官方两岸正式译名。"
+  },
+  "origins/70": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「数码宝贝」为知名度最高的官方/通用译名，候选「数码兽」为另一种通称。"
+  },
+  "origins/213": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「甘城辉煌游乐园」为通行的正规引进译名。"
+  },
+  "origins/171": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「巧克力与香子兰」为中文圈流传最广的知名通称译名。"
+  },
+  "characters/166": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「静谧的哈桑」为 FGO 官方正式从者译名。"
+  },
+  "origins/670": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「梦想成为魔法少女」为正规官方引进译名。"
+  },
+  "origins/740": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「黑神话：悟空」标点规范，为官方正式定名。"
+  },
+  "origins/336": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「Love Live! 虹咲学园学园偶像同好会」为官方完整正式译名。"
+  },
+  "origins/69": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「魔法少女奈叶」为官方通用正式译名。"
+  },
+  "origins/43": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「我的妹妹哪有这么可爱！」为官方正式译名，候选「俺妹」仅为简称。"
+  },
+  "origins/25": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「战姬绝唱Symphogear」规范准确，大小写标准。"
+  },
+  "characters/2314": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「布丽姬」符合《罪恶装备》官方与社区通用译名。"
+  },
+  "origins/348": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「反叛的鲁路修」为主流通用正规译名。"
+  },
+  "characters/1837": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "《少女前线》角色名为枪械型号「UMP45」，各语言保持一致无需改动。"
+  },
+  "origins/235": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「魔法科高中的劣等生」为官方正规出版译名。"
+  },
+  "origins/284": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有简繁译名「咯咯咯的鬼太郎」/「鬼太郎」准确对应官方译名。"
+  },
+  "origins/224": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「圣剑传说3」为官方正式定名。"
+  },
+  "characters/1119": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「迦摩」为 FGO 官方正式从者译名。"
+  },
+  "origins/24": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「Go! Princess 光之美少女」为官方规范译名。"
+  },
+  "origins/371": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有简繁译名「火焰纹章 觉醒」/「聖火降魔錄 覺醒」均为官方正式定名。"
+  },
+  "origins/135": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「尼尔：人工生命」为官方重制版正式定名，候选「尼尔伪装者」为 Gestalt 或旧民间译名。"
+  },
+  "origins/515": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「王国之心」为官方正式定名。"
+  },
+  "origins/801": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「转生恶役千金大叔」为通行动画引进译名。"
+  },
+  "origins/248": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有简繁译名「异度神剑」/「異度神劍」为任天堂官方正式中文名。"
+  },
+  "origins/510": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「小魔女学园」为官方正式译名。"
+  },
+  "origins/447": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「斩！赤红之瞳」为官方正式译名，标点规范。"
+  },
+  "origins/530": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「JoJo的奇妙冒险」为官方通用正式译名。"
+  },
+  "origins/847": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「哀鸿：城破十日记」为该独立游戏官方正式中文名，标点规范。"
+  },
+  "origins/327": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「强袭魔女」为官方正式译名。"
+  },
+  "origins/420": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「小魔女DoReMi」为官方正式译名，大小写规范。"
+  },
+  "origins/738": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「鹿乃子乃子乃子虎视眈眈」为官方正规译名，候选漏字。"
+  },
+  "origins/742": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「擅长逃跑的殿下」为官方正版正式译名，候选「擅长逃跑的少主」为民间旧译。"
+  },
+  "origins/792": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有简繁译名「吹响！上低音号」/「吹響吧！上低音號」均为官方正式译名，标点规范。"
+  },
+  "origins/417": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「闪跃吧！星梦☆频道」为官方正式引进译名。"
+  },
+  "origins/805": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「重返未来：1999」为官方正式游戏定名，标点规范。"
+  },
+  "origins/394": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「平凡职业造就世界最强」为官方正式出版译名。"
+  },
+  "origins/353": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名保留官方作品原名「CLANNAD」，候选仅为主题曲名/俗称。"
+  },
+  "origins/271": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「异世界魔王与召唤少女的奴隶魔术」为官方完整正式译名。"
+  },
+  "origins/745": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「反派千金等级99」为官方正式引进译名。"
+  },
+  "origins/700": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有简繁译名「影之诗F」/「闇影詩章F」均为官方正式定名。"
+  },
+  "origins/850": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「蓝色星原：旅谣」为官方游戏正式定名，标点规范。"
+  },
+  "origins/768": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「幽游白书」/「幽遊白書」为官方通用正式译名。"
+  },
+  "origins/848": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「不/存在的你，和我」准确对应原名结构，标点规范。"
+  },
+  "origins/840": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「四月是你的谎言」为官方正式译名。"
+  },
+  "origins/332": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「我，要成为双马尾。」为官方正式出版译名，标点规范。"
+  },
+  "origins/796": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有简繁译名「怪物猎人：荒野」/「魔物獵人 荒野」均为 Capcom 官方两岸正式定名。"
+  },
+  "origins/758": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「Love Live! Superstar!!」为官方正式定名。"
+  },
+  "origins/721": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「星光闪亮☆光之美少女」为官方正式作品名，候选「星奈光」为主角角色名而非作品名。"
+  },
+  "origins/266": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「恋姬†无双」准确规范对应原名。"
+  },
+  "origins/374": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「少女☆歌剧 Revue Starlight」为官方正式定名。"
+  },
+  "origins/403": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「摇滚少女!!」为官方正式引进译名。"
+  },
+  "origins/672": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「忍者杀手」为官方正式译名。"
+  },
+  "origins/662": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有简繁译名「冲呀！饼干人：王国」/「薑餅人王國」均为游戏官方两岸正式运营定名。"
+  },
+  "origins/625": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有简繁译名「火焰纹章 英雄」/「聖火降魔錄 英雄雲集」均为任天堂官方正式译名。"
+  },
+  "origins/438": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「Apex英雄」为官方正式中文名。"
+  },
+  "origins/254": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「零之轨迹」为 Falcom 官方正式中文译名。"
+  },
+  "origins/571": {
+   "decision": "keep",
+   "by": "batch_001",
+   "note": "现有译名「战国†恋姬」准确规范对应原名。"
+  }
+ }
+}
