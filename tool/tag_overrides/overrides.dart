@@ -202,6 +202,29 @@ Map<String, Override> parseOverrides(String jsonText) {
   );
 }
 
+/// 产物的构建时间戳：内容没变就沿用旧值，变了才盖当前时间。
+///
+/// App 靠它回答「缓存那份和打包那份谁更新」——`rev` 是内容指纹，只答一不一样，
+/// 答不了先后。而无脑写当前时间会让每次重跑构建都产生一条无意义的 git diff，
+/// 所以以 [rev] 是否变化为准。
+///
+/// [existingPath] 是上一次的产物路径；不存在或读不出来就用当前时间。
+String buildStamp(String existingPath, String rev) {
+  try {
+    final file = File(existingPath);
+    if (file.existsSync()) {
+      final old = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
+      final stamp = old['builtAt'];
+      if (old['rev'] == rev && stamp is String && stamp.isNotEmpty) {
+        return stamp;
+      }
+    }
+  } catch (_) {
+    // 旧产物损坏/格式不符：当作没有，盖新时间。
+  }
+  return DateTime.now().toUtc().toIso8601String();
+}
+
 /// 内容指纹：同样的内容永远得到同样的 rev，任何一个字变了 rev 就变。
 ///
 /// 用途是让 App 判断「词库到底有没有更新」。

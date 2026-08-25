@@ -100,7 +100,14 @@ void main() {
     'characters': characters,
     'tags': tags,
   };
-  final out = {'version': 2, 'rev': contentRev(payload), ...payload};
+  final rev = contentRev(payload);
+  // builtAt 放在指纹载荷之外：它是「谁更新」的判据，不该反过来改变指纹。
+  final out = {
+    'version': 2,
+    'rev': rev,
+    'builtAt': buildStamp('$base/oreno3d_tags.min.json', rev),
+    ...payload,
+  };
   final encoded = jsonEncode(out);
 
   File('$base/oreno3d_tags.min.json').writeAsStringSync(encoded);

@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import 'package:i_iwara/app/services/config_service.dart';
@@ -159,24 +157,11 @@ class Oreno3dLocalizationService extends GetxService {
     _rebuild(raw, currentLocaleKey());
   }
 
-  Future<String?> _readSource() async {
-    try {
-      final file = await _cacheFile();
-      if (await file.exists()) {
-        final content = await file.readAsString();
-        if (content.isNotEmpty) return content;
-      }
-    } catch (e) {
-      LogUtils.w('读取 Oreno3d 词库缓存失败，回退到打包资源: $e', 'Oreno3d本地化');
-    }
-    try {
-      return await rootBundle
-          .loadString(CommonConstants.oreno3dTagsLocalizationAsset);
-    } catch (e) {
-      LogUtils.e('加载打包 Oreno3d 词库失败', tag: 'Oreno3d本地化', error: e);
-      return null;
-    }
-  }
+  /// 读取词库原始 JSON 文本：缓存的 CDN 快照与打包资源之间取更新的那份。
+  Future<String?> _readSource() => _fetcher.readFreshest(
+        assetKey: CommonConstants.oreno3dTagsLocalizationAsset,
+        countEntries: _countEntries,
+      );
 
   void _scheduleCdnRefresh() {
     if (_cdnRefreshScheduled) return;
@@ -218,7 +203,6 @@ class Oreno3dLocalizationService extends GetxService {
     return total;
   }
 
-  Future<File> _cacheFile() => _fetcher.cacheFile();
 
 
   void _rebuild(String content, String localeKey) {
@@ -228,6 +212,7 @@ class Oreno3dLocalizationService extends GetxService {
         version: (decoded['version'] as num?)?.toInt() ?? 1,
         rev: decoded['rev'] as String?,
         count: _countEntries(decoded),
+        builtAt: DateTime.tryParse('${decoded['builtAt'] ?? ''}')?.toUtc(),
       );
 
       void fill(String category, Map<String, _OrenoEntry> target) {
