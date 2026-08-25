@@ -136,7 +136,15 @@ void main(List<String> args) {
             problems.add('$k 改动了 known 里的 $l（不该动）');
           }
         }
-        merges.add({'target': 'localized', 'dataset': task['dataset'], 'key': k, 'names': names});
+        // known 里的值来自原始数据（如日文原名），是权威的——
+        // 只写 agent 返回的语言会让新词条漏掉 ja。
+        merges.add({
+          'target': 'localized',
+          'dataset': task['dataset'],
+          'key': k,
+          'names': {...known.map((a, b) => MapEntry(a, '$b')), ...names},
+          'source': task['source'],
+        });
       } else {
         final decision = '${got['decision'] ?? ''}';
         if (decision != 'keep' && decision != 'replace') {
@@ -218,7 +226,7 @@ void main(List<String> args) {
 
       if (m['target'] == 'localized') {
         final cur = (doc[key] as Map?)?.cast<String, dynamic>() ??
-            <String, dynamic>{'_src': key};
+            <String, dynamic>{'_src': m['source'] ?? key};
         cur.addAll(names);
         doc[key] = cur;
         nLoc++;

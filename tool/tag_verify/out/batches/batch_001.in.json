@@ -11,7 +11,10 @@
       "没有把握一律 keep / 保留原文，不要编。宁可留日文也不要给一个错的中文名",
       "candidates 来自 Danbooru 的既有别名，是线索不是答案——它可能是日文写法、旧译名，甚至是别的角色",
       "每条都要给 reason（一句话），replace 必须给 ref（可访问的来源 URL）",
-      "同名不同人的词条（不同 origin 的同一个日文名）必须给出不同译名，不要合并"
+      "同名不同人的词条（不同 origin 的同一个日文名）必须给出不同译名，不要合并",
+      "条目带 warning 字段时**必须先读它再做判断**——它说明这条证据有已知的误导方向",
+      "evidence.danbooruCategory 说明 Danbooru 那条 tag 讲的是什么：character=角色、copyright=作品、general=普通名词。iwara 是角色向站点，general 分类的候选常常与本标签的实际所指无关",
+      "绝不要把罗马音塞回中文译名（「天海琉夏」->「雨海Ruka」这种方向是错的）"
     ]
   },
   "entries": [
@@ -646,35 +649,6 @@
     },
     {
       "dataset": "oreno3d",
-      "key": "characters/3904",
-      "type": "adjudicate",
-      "source": "ロビン",
-      "origin": "崩壊:スターレイル",
-      "workCount": 441,
-      "current": {
-        "zh-CN": "罗宾",
-        "zh-TW": "羅賓",
-        "ja": "ロビン",
-        "en": "Robin"
-      },
-      "candidates": [
-        "知更鸟"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/robin_(honkai:_star_rail)",
-        "otherNames": [
-          "知更鸟",
-          "知更鳥",
-          "ロビン(スターレイル)",
-          "RobinHSR",
-          "Robin",
-          "ロビン",
-          "robifly"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
       "key": "tags/176",
       "type": "adjudicate",
       "source": "くぱぁ",
@@ -698,33 +672,6 @@
           "掰开小穴",
           "掰开阴部",
           "阴道扩张"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "tags/195",
-      "type": "adjudicate",
-      "source": "ニプルファック",
-      "origin": null,
-      "workCount": 346,
-      "current": {
-        "zh-CN": "乳交",
-        "zh-TW": "乳交",
-        "ja": "ニプルファック",
-        "en": "Nipple fuck"
-      },
-      "candidates": [
-        "乳头奸",
-        "乳首姦"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/nipple_penetration",
-        "otherNames": [
-          "ニプルファック",
-          "乳首姦",
-          "ニップルファック",
-          "乳头奸"
         ]
       }
     },
@@ -1056,34 +1003,6 @@
     },
     {
       "dataset": "oreno3d",
-      "key": "characters/5183",
-      "type": "translate",
-      "source": "レミエール・ダン(ラミル)",
-      "origin": "ゼンレスゾーンゼロ(ゼンゼロ)",
-      "workCount": 135,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "レミエール・ダン(ラミル)"
-      },
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/remielle_dan",
-        "otherNames": [
-          "蕾米埃尔·丹",
-          "レミエール・ダン",
-          "拉米尔",
-          "ラミル",
-          "Ramiel",
-          "remielle",
-          "蕾米埃尔"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
       "key": "tags/186",
       "type": "adjudicate",
       "source": "スカトロ",
@@ -1246,31 +1165,6 @@
     },
     {
       "dataset": "oreno3d",
-      "key": "characters/5182",
-      "type": "translate",
-      "source": "ヴェリナ",
-      "origin": "ゼンレスゾーンゼロ(ゼンゼロ)",
-      "workCount": 87,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "ヴェリナ"
-      },
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/velina_airgid",
-        "otherNames": [
-          "ヴェリナ(ゼンゼロ)",
-          "ヴェリナ",
-          "维琳娜",
-          "ヴェリナ・エガード"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
       "key": "origins/147",
       "type": "adjudicate",
       "source": "ファイアーエムブレム風花雪月",
@@ -1296,33 +1190,6 @@
           "fireemblemthreehouses",
           "火焰纹章风花雪月",
           "fe风花雪月"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/4393",
-      "type": "adjudicate",
-      "source": "キング・シーザー",
-      "origin": "ゼンレスゾーンゼロ(ゼンゼロ)",
-      "workCount": 82,
-      "current": {
-        "zh-CN": "西萨王",
-        "zh-TW": "西薩王",
-        "ja": "キング・シーザー",
-        "en": "King Caesar"
-      },
-      "candidates": [
-        "凯撒·金"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/caesar_king_(zenless_zone_zero)",
-        "otherNames": [
-          "凯撒·金",
-          "キング・シーザー",
-          "CaesarKing",
-          "シーザー(ゼンゼロ)",
-          "caesar_king"
         ]
       }
     },
@@ -1356,34 +1223,6 @@
     },
     {
       "dataset": "oreno3d",
-      "key": "characters/5068",
-      "type": "adjudicate",
-      "source": "リンネー",
-      "origin": "鳴潮(Wuthering Waves)",
-      "workCount": 80,
-      "current": {
-        "zh-CN": "凛音",
-        "zh-TW": "凜音",
-        "ja": "リンネー",
-        "en": "Linne"
-      },
-      "candidates": [
-        "琳奈"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/lynae_(wuthering_waves)",
-        "otherNames": [
-          "琳奈",
-          "リンネー",
-          "リンネー(鳴潮)",
-          "Lynae",
-          "Lychi",
-          "Lynchi"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
       "key": "characters/774",
       "type": "adjudicate",
       "source": "Akali",
@@ -1405,32 +1244,6 @@
           "아칼리",
           "アカリ",
           "阿卡利"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/855",
-      "type": "adjudicate",
-      "source": "バッチ",
-      "origin": "アズールレーン",
-      "workCount": 68,
-      "current": {
-        "zh-CN": "徽章",
-        "zh-TW": "徽章",
-        "ja": "バッチ",
-        "en": "Badge"
-      },
-      "candidates": [
-        "贝奇"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/bache_(azur_lane)",
-        "otherNames": [
-          "バッチ(アズールレーン)",
-          "バッチ",
-          "贝奇",
-          "배시"
         ]
       }
     },
@@ -1488,36 +1301,6 @@
     },
     {
       "dataset": "oreno3d",
-      "key": "characters/5010",
-      "type": "adjudicate",
-      "source": "ネフェル",
-      "origin": "原神",
-      "workCount": 48,
-      "current": {
-        "zh-CN": "奈菲儿",
-        "zh-TW": "奈菲爾",
-        "ja": "ネフェル",
-        "en": "Nefer"
-      },
-      "candidates": [
-        "奈芙尔",
-        "湮沙的秘闻"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/nefer_(genshin_impact)",
-        "otherNames": [
-          "奈芙尔",
-          "Nefer",
-          "湮沙的秘闻",
-          "ネフェル",
-          "ネフェル(原神)",
-          "네페르",
-          "nefhoda"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
       "key": "origins/171",
       "type": "adjudicate",
       "source": "ネコぱら",
@@ -1538,63 +1321,6 @@
           "貓娘樂園",
           "猫娘乐园",
           "ネコぱら"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/4961",
-      "type": "adjudicate",
-      "source": "セイレンス",
-      "origin": "崩壊:スターレイル",
-      "workCount": 43,
-      "current": {
-        "zh-CN": "塞伦斯",
-        "zh-TW": "塞倫斯",
-        "ja": "セイレンス",
-        "en": "Sirens"
-      },
-      "candidates": [
-        "海瑟音"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/hysilens_(honkai:_star_rail)",
-        "otherNames": [
-          "セイレンス(スターレイル)",
-          "セイレンス",
-          "海瑟音",
-          "hysilens"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/3882",
-      "type": "adjudicate",
-      "source": "仲正イチカ",
-      "origin": "ブルーアーカイブ",
-      "workCount": 38,
-      "current": {
-        "zh-CN": "仲正一夏",
-        "zh-TW": "仲正一夏",
-        "ja": "仲正イチカ",
-        "en": "Ichika Nakamasa"
-      },
-      "candidates": [
-        "一花",
-        "仲正一花"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/ichika_(blue_archive)",
-        "otherNames": [
-          "仲正イチカ",
-          "Nakamasa_Ichika",
-          "仲正一花",
-          "一花",
-          "イチカ(ブルーアーカイブ)",
-          "이치카",
-          "イチカ",
-          "ichika"
         ]
       }
     },
@@ -1621,33 +1347,6 @@
           "アサシン(フラグメンツ)",
           "assassin_(fate/prototype_fragments)",
           "静谧哈桑"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/3249",
-      "type": "adjudicate",
-      "source": "セーバル",
-      "origin": "崩壊:スターレイル",
-      "workCount": 33,
-      "current": {
-        "zh-CN": "塞巴尔",
-        "zh-TW": "塞巴爾",
-        "ja": "セーバル",
-        "en": "Seval"
-      },
-      "candidates": [
-        "希露瓦"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/serval_landau",
-        "otherNames": [
-          "セーバル",
-          "서벌",
-          "希露瓦",
-          "セーバル・ランドゥー",
-          "セーバル(スターレイル)"
         ]
       }
     },
@@ -1792,59 +1491,6 @@
     },
     {
       "dataset": "oreno3d",
-      "key": "characters/1451",
-      "type": "adjudicate",
-      "source": "リノ",
-      "origin": "アズールレーン",
-      "workCount": 24,
-      "current": {
-        "zh-CN": "璃乃",
-        "zh-TW": "璃乃",
-        "ja": "リノ",
-        "en": "Rino"
-      },
-      "candidates": [
-        "里诺"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/reno_(azur_lane)",
-        "otherNames": [
-          "リノ(アズールレーン)",
-          "リノ",
-          "里诺"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/4781",
-      "type": "adjudicate",
-      "source": "レーヴァテイン",
-      "origin": "アークナイツ：エンドフィールド",
-      "workCount": 21,
-      "current": {
-        "zh-CN": "雷瓦汀",
-        "zh-TW": "雷瓦汀",
-        "ja": "レーヴァテイン",
-        "en": "Laevatein"
-      },
-      "candidates": [
-        "莱万汀",
-        "萊萬汀"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/laevatain_(arknights)",
-        "otherNames": [
-          "レーヴァテイン(エンドフィールド)",
-          "莱万汀",
-          "萊萬汀",
-          "レーヴァテイン",
-          "레바테인"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
       "key": "origins/25",
       "type": "adjudicate",
       "source": "戦姫絶唱シンフォギア",
@@ -1910,34 +1556,6 @@
     },
     {
       "dataset": "oreno3d",
-      "key": "characters/3280",
-      "type": "adjudicate",
-      "source": "シャルロット",
-      "origin": "原神",
-      "workCount": 19,
-      "current": {
-        "zh-CN": "夏洛特",
-        "zh-TW": "夏洛特",
-        "ja": "シャルロット",
-        "en": "Charlotte"
-      },
-      "candidates": [
-        "夏洛蒂",
-        "朗镜索真"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/charlotte_(genshin_impact)",
-        "otherNames": [
-          "夏洛蒂",
-          "Charlotte",
-          "朗镜索真",
-          "シャルロット(原神)",
-          "シャルロット"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
       "key": "origins/348",
       "type": "adjudicate",
       "source": "コードギアス",
@@ -1963,109 +1581,6 @@
           "コードギアスR2",
           "叛逆的鲁鲁修",
           "反叛的鲁鲁修"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/5216",
-      "type": "translate",
-      "source": "オデット",
-      "origin": "原神",
-      "workCount": 18,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "オデット"
-      },
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/odette_(genshin_impact)",
-        "otherNames": [
-          "Odette",
-          "奥黛塔",
-          "オデット",
-          "오데트",
-          "オデット(原神)"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/5202",
-      "type": "translate",
-      "source": "穂穂",
-      "origin": "鳴潮(Wuthering Waves)",
-      "workCount": 17,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "穂穂"
-      },
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/suisui_(wuthering_waves)",
-        "otherNames": [
-          "Suisui",
-          "穗穗",
-          "穂穂",
-          "수수"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/5132",
-      "type": "translate",
-      "source": "ロッシ",
-      "origin": "アークナイツ：エンドフィールド",
-      "workCount": 17,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "ロッシ"
-      },
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/rossi_(arknights)",
-        "otherNames": [
-          "ロッシ(エンドフィールド)",
-          "rossi",
-          "ロッシ",
-          "洛茜娜·狼珀·卢皮诺",
-          "洛茜",
-          "洛西"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/4975",
-      "type": "adjudicate",
-      "source": "シード",
-      "origin": "ゼンレスゾーンゼロ(ゼンゼロ)",
-      "workCount": 17,
-      "current": {
-        "zh-CN": "SEED",
-        "zh-TW": "SEED",
-        "ja": "シード",
-        "en": "Seed"
-      },
-      "candidates": [
-        "席德"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/seed_(zenless_zone_zero)",
-        "otherNames": [
-          "シード(ゼンゼロ)",
-          "シード",
-          "席德"
         ]
       }
     },
@@ -2121,32 +1636,6 @@
     },
     {
       "dataset": "oreno3d",
-      "key": "characters/1163",
-      "type": "adjudicate",
-      "source": "アナスタシア",
-      "origin": "FGO（Fate/Grand Order）",
-      "workCount": 15,
-      "current": {
-        "zh-CN": "安娜斯塔西娅",
-        "zh-TW": "安娜斯塔西婭",
-        "ja": "アナスタシア",
-        "en": "Anastasia"
-      },
-      "candidates": [
-        "阿纳斯塔西娅"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/anastasia_(fate)",
-        "otherNames": [
-          "アナスタシア(Fate)",
-          "アナスタシア・ニコラエヴナ・ロマノヴァ(Fate)",
-          "アナスタシア",
-          "阿纳斯塔西娅"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
       "key": "origins/284",
       "type": "adjudicate",
       "source": "ゲゲゲの鬼太郎",
@@ -2177,178 +1666,27 @@
     },
     {
       "dataset": "oreno3d",
-      "key": "characters/2918",
+      "key": "origins/224",
       "type": "adjudicate",
-      "source": "アウグスト・フォン・パーセヴァル",
-      "origin": "アズールレーン",
-      "workCount": 14,
+      "source": "聖剣伝説3",
+      "origin": null,
+      "workCount": 12,
       "current": {
-        "zh-CN": "奥古斯都·冯·帕塞瓦尔",
-        "zh-TW": "奧古斯都·馮·帕塞瓦爾",
-        "ja": "アウグスト・フォン・パーセヴァル",
-        "en": "August von Parseval"
+        "zh-CN": "圣剑传说3",
+        "zh-TW": "聖劍傳說3",
+        "ja": "聖剣伝説3",
+        "en": "Trials of Mana"
       },
       "candidates": [
-        "奥古斯特·冯·帕塞瓦尔奥古斯特·冯·帕塞瓦尔"
+        "聖剣3",
+        "聖剣伝説3ToM"
       ],
       "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/august_von_parseval_(azur_lane)",
+        "url": "https://danbooru.donmai.us/wiki_pages/seiken_densetsu_3",
         "otherNames": [
-          "アウグスト・フォン・パーセヴァル(アズールレーン)",
-          "アウグスト・フォン・パーセヴァル",
-          "奥古斯特·冯·帕塞瓦尔奥古斯特·冯·帕塞瓦尔"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/2800",
-      "type": "translate",
-      "source": "乾心寿",
-      "origin": "その着せ替え人形は恋をする",
-      "workCount": 13,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "乾心寿"
-      },
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/inui_shinju",
-        "otherNames": [
-          "乾心寿"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/779",
-      "type": "translate",
-      "source": "ジャベリン",
-      "origin": "アズールレーン",
-      "workCount": 13,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "ジャベリン"
-      },
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/javelin_(azur_lane)",
-        "otherNames": [
-          "标枪(碧蓝航线)",
-          "ジャベリン(アズールレーン)",
-          "ジャベリン",
-          "ジャベリン改(アズールレーン)"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/5224",
-      "type": "translate",
-      "source": "清宵",
-      "origin": "鳴潮(Wuthering Waves)",
-      "workCount": 13,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "清宵"
-      },
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/qingxiao_(wuthering_waves)",
-        "otherNames": [
-          "Qingxiao",
-          "清宵",
-          "청초"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/4995",
-      "type": "translate",
-      "source": "クルカイ",
-      "origin": "ドールズフロントライン2：エクシリウム（ドルフロ2：追放）",
-      "workCount": 13,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "クルカイ"
-      },
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/klukai_(girls'_frontline_2)",
-        "otherNames": [
-          "可露凯(少女前线2)",
-          "可露凯",
-          "可露凱(少女前線2)",
-          "可露凱",
-          "クルカイ(ドールズフロントライン2)",
-          "クルカイ",
-          "Klukai",
-          "Klukay",
-          "클루카이(소녀전선2)",
-          "클루카이"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/5169",
-      "type": "translate",
-      "source": "ノルムー",
-      "origin": "ゼンレスゾーンゼロ(ゼンゼロ)",
-      "workCount": 13,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "ノルムー"
-      },
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/norma_hollowell",
-        "otherNames": [
-          "ノルムー",
-          "ノルムー・ホローウェル",
-          "Norma"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/3976",
-      "type": "adjudicate",
-      "source": "夢追い人",
-      "origin": "崩壊3rd",
-      "workCount": 13,
-      "current": {
-        "zh-CN": "追梦人",
-        "zh-TW": "追夢人",
-        "ja": "夢追い人",
-        "en": "Dreamer"
-      },
-      "candidates": [
-        "寻梦者"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/female_dreamseeker_(honkai_impact)",
-        "otherNames": [
-          "寻梦者",
-          "夢追い人",
-          "夢追い人(崩壊3rd)",
-          "Dreamseeker"
+          "聖剣伝説3",
+          "聖剣3",
+          "聖剣伝説3ToM"
         ]
       }
     },
@@ -2378,32 +1716,6 @@
           "愛欲の魔王",
           "カーマデーヴァ",
           "伽摩(Fate)"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "origins/224",
-      "type": "adjudicate",
-      "source": "聖剣伝説3",
-      "origin": null,
-      "workCount": 12,
-      "current": {
-        "zh-CN": "圣剑传说3",
-        "zh-TW": "聖劍傳說3",
-        "ja": "聖剣伝説3",
-        "en": "Trials of Mana"
-      },
-      "candidates": [
-        "聖剣3",
-        "聖剣伝説3ToM"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/seiken_densetsu_3",
-        "otherNames": [
-          "聖剣伝説3",
-          "聖剣3",
-          "聖剣伝説3ToM"
         ]
       }
     },
@@ -2440,194 +1752,6 @@
     },
     {
       "dataset": "oreno3d",
-      "key": "characters/2488",
-      "type": "translate",
-      "source": "ナナミ",
-      "origin": "パニシング：グレイレイブン",
-      "workCount": 10,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "ナナミ"
-      },
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/nanami_(e.o.)",
-        "otherNames": [
-          "ナナミ",
-          "ナナミ(EO)"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/4368",
-      "type": "translate",
-      "source": "マリヤ・ミハイロヴナ・九条",
-      "origin": "時々ボソッとロシア語でデレる隣のアーリャさん",
-      "workCount": 10,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "マリヤ・ミハイロヴナ・九条"
-      },
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/mariya_mikhailovna_kujou",
-        "otherNames": [
-          "マリヤ・ミハイロヴナ・九条",
-          "玛利亚·米哈伊罗夫纳·九条",
-          "玛利亚"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/680",
-      "type": "translate",
-      "source": "松浦果南",
-      "origin": "ラブライブ!サンシャイン!!",
-      "workCount": 10,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "松浦果南"
-      },
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/matsuura_kanan",
-        "otherNames": [
-          "松浦果南",
-          "火曜日ご機嫌いかが果南",
-          "Kanan_Matsuura"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/4873",
-      "type": "translate",
-      "source": "ミツモト・ダイア",
-      "origin": "麻雀ファイトガール",
-      "workCount": 10,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "ミツモト・ダイア"
-      },
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/mitsumoto_dia",
-        "otherNames": [
-          "ミツモト・ダイア",
-          "三元・大恋愛"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/1188",
-      "type": "translate",
-      "source": "毒島冴子",
-      "origin": "学園黙示録 HIGHSCHOOL OF THE DEAD",
-      "workCount": 10,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "毒島冴子"
-      },
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/busujima_saeko",
-        "otherNames": [
-          "毒島冴子",
-          "毒岛冴子"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/4473",
-      "type": "translate",
-      "source": "八奈見杏菜",
-      "origin": "負けヒロインが多すぎる!",
-      "workCount": 10,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "八奈見杏菜"
-      },
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/yanami_anna",
-        "otherNames": [
-          "八奈見杏菜"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "origins/308",
-      "type": "adjudicate",
-      "source": "ソウルワーカー",
-      "origin": null,
-      "workCount": 10,
-      "current": {
-        "zh-CN": "灵魂武器",
-        "zh-TW": "靈魂行者",
-        "ja": "ソウルワーカー",
-        "en": "Soulworker"
-      },
-      "candidates": [
-        "灵魂行者"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/soulworker",
-        "otherNames": [
-          "소울워커",
-          "Soulworker",
-          "ソウルワーカー",
-          "灵魂行者"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/3138",
-      "type": "translate",
-      "source": "龍ヶ崎リン",
-      "origin": "Vtuber",
-      "workCount": 10,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "龍ヶ崎リン"
-      },
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/ryugasaki_rene",
-        "otherNames": [
-          "龍ヶ崎リン",
-          "Rart"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
       "key": "origins/371",
       "type": "adjudicate",
       "source": "ファイアーエムブレム覚醒",
@@ -2648,108 +1772,6 @@
           "FireEmblemAwakening",
           "ファイアーエムブレム覚醒",
           "FE覚醒"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/3218",
-      "type": "translate",
-      "source": "ゼニス・グレイラット",
-      "origin": "無職転生",
-      "workCount": 10,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "ゼニス・グレイラット"
-      },
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/zenith_greyrat",
-        "otherNames": [
-          "ゼニス・グレイラット"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/5006",
-      "type": "translate",
-      "source": "シュウ",
-      "origin": "アークナイツ",
-      "workCount": 10,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "シュウ"
-      },
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/chi_you_(megami_tensei)",
-        "otherNames": [
-          "シュウ"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/4247",
-      "type": "translate",
-      "source": "ココナ(心夏)",
-      "origin": "Strinova(ストリノヴァ/卡拉彼丘)",
-      "workCount": 10,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "ココナ(心夏)"
-      },
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/kokona_(blue_archive)",
-        "otherNames": [
-          "春原ココナ",
-          "ココナ(ブルアカ)",
-          "스노하라코코나",
-          "코코나",
-          "ココナ",
-          "kokona",
-          "cocona",
-          "春原心奈"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "characters/4080",
-      "type": "translate",
-      "source": "マキアート",
-      "origin": "ドールズフロントライン2：エクシリウム（ドルフロ2：追放）",
-      "workCount": 10,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "マキアート"
-      },
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/makiatto_(girls'_frontline_2)",
-        "otherNames": [
-          "玛绮朵(少女前线2)",
-          "玛绮朵",
-          "マキアート(ドールズフロントライン2)",
-          "マキアート",
-          "Macqiato",
-          "Makiatto",
-          "마키아토(소녀전선2)",
-          "마키아토"
         ]
       }
     },
@@ -2780,130 +1802,29 @@
     },
     {
       "dataset": "oreno3d",
-      "key": "origins/799",
+      "key": "origins/447",
       "type": "adjudicate",
-      "source": "ガールズバンドクライ",
-      "origin": null,
-      "workCount": 9,
-      "current": {
-        "zh-CN": "少女乐队哭泣",
-        "zh-TW": "少女樂團哭泣",
-        "ja": "ガールズバンドクライ",
-        "en": "Girls Band Cry"
-      },
-      "candidates": [
-        "哭泣少女乐队"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/girls_band_cry",
-        "otherNames": [
-          "ガールズバンドクライ",
-          "ガルクラ",
-          "GirlsBandCry",
-          "トゲトゲ美術部",
-          "哭泣少女乐队",
-          "gbc",
-          "ガルクラお絵描き60分一本勝負"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "origins/248",
-      "type": "adjudicate",
-      "source": "ゼノブレイド",
+      "source": "アカメが斬る!",
       "origin": null,
       "workCount": 7,
       "current": {
-        "zh-CN": "异度神剑",
-        "zh-TW": "異度神劍",
-        "ja": "ゼノブレイド",
-        "en": "Xenoblade Chronicles"
+        "zh-CN": "斩！赤红之瞳",
+        "zh-TW": "斬！赤紅之瞳",
+        "ja": "アカメが斬る!",
+        "en": "Akame ga Kill!"
       },
       "candidates": [
-        "異度神劍"
+        "斩!赤红之瞳",
+        "斩赤红之瞳"
       ],
       "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/xenoblade_chronicles_(series)",
+        "url": "https://danbooru.donmai.us/wiki_pages/akame_ga_kill!",
         "otherNames": [
-          "ゼノブレイドシリーズ",
-          "ゼノブレイド",
-          "Xenoblade",
-          "異度神劍"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "origins/231",
-      "type": "adjudicate",
-      "source": "のんのんびより",
-      "origin": null,
-      "workCount": 7,
-      "current": {
-        "zh-CN": "悠哉日常大王",
-        "zh-TW": "悠悠哉哉少女劍客",
-        "ja": "のんのんびより",
-        "en": "Non Non Biyori"
-      },
-      "candidates": [
-        "悠悠哉哉少女日和"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/non_non_biyori",
-        "otherNames": [
-          "のんのんびより",
-          "悠悠哉哉少女日和"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "origins/801",
-      "type": "adjudicate",
-      "source": "悪役令嬢転生おじさん",
-      "origin": null,
-      "workCount": 7,
-      "current": {
-        "zh-CN": "转生恶役千金大叔",
-        "zh-TW": "轉生惡役千金大叔",
-        "ja": "悪役令嬢転生おじさん",
-        "en": "Akuyaku Reijou Tensei Oji-san"
-      },
-      "candidates": [
-        "大叔转生恶役大小姐"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/akuyaku_reijou_tensei_ojisan",
-        "otherNames": [
-          "悪役令嬢転生おじさん",
-          "大叔转生恶役大小姐"
-        ]
-      }
-    },
-    {
-      "dataset": "oreno3d",
-      "key": "origins/515",
-      "type": "adjudicate",
-      "source": "キングダムハーツ",
-      "origin": null,
-      "workCount": 7,
-      "current": {
-        "zh-CN": "王国之心",
-        "zh-TW": "王國之心",
-        "ja": "キングダムハーツ",
-        "en": "Kingdom Hearts"
-      },
-      "candidates": [
-        "王国心"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/kingdom_hearts",
-        "otherNames": [
-          "王国心",
-          "キングダムハーツ",
-          "KingdomHearts",
-          "KH"
+          "アカメが斬る!",
+          "アカメが斬る",
+          "斩!赤红之瞳",
+          "斩赤红之瞳",
+          "УбийцаАкаме"
         ]
       }
     },
@@ -2937,29 +1858,77 @@
     },
     {
       "dataset": "oreno3d",
-      "key": "origins/447",
+      "key": "origins/515",
       "type": "adjudicate",
-      "source": "アカメが斬る!",
+      "source": "キングダムハーツ",
       "origin": null,
       "workCount": 7,
       "current": {
-        "zh-CN": "斩！赤红之瞳",
-        "zh-TW": "斬！赤紅之瞳",
-        "ja": "アカメが斬る!",
-        "en": "Akame ga Kill!"
+        "zh-CN": "王国之心",
+        "zh-TW": "王國之心",
+        "ja": "キングダムハーツ",
+        "en": "Kingdom Hearts"
       },
       "candidates": [
-        "斩!赤红之瞳",
-        "斩赤红之瞳"
+        "王国心"
       ],
       "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/akame_ga_kill!",
+        "url": "https://danbooru.donmai.us/wiki_pages/kingdom_hearts",
         "otherNames": [
-          "アカメが斬る!",
-          "アカメが斬る",
-          "斩!赤红之瞳",
-          "斩赤红之瞳",
-          "УбийцаАкаме"
+          "王国心",
+          "キングダムハーツ",
+          "KingdomHearts",
+          "KH"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/801",
+      "type": "adjudicate",
+      "source": "悪役令嬢転生おじさん",
+      "origin": null,
+      "workCount": 7,
+      "current": {
+        "zh-CN": "转生恶役千金大叔",
+        "zh-TW": "轉生惡役千金大叔",
+        "ja": "悪役令嬢転生おじさん",
+        "en": "Akuyaku Reijou Tensei Oji-san"
+      },
+      "candidates": [
+        "大叔转生恶役大小姐"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/akuyaku_reijou_tensei_ojisan",
+        "otherNames": [
+          "悪役令嬢転生おじさん",
+          "大叔转生恶役大小姐"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/248",
+      "type": "adjudicate",
+      "source": "ゼノブレイド",
+      "origin": null,
+      "workCount": 7,
+      "current": {
+        "zh-CN": "异度神剑",
+        "zh-TW": "異度神劍",
+        "ja": "ゼノブレイド",
+        "en": "Xenoblade Chronicles"
+      },
+      "candidates": [
+        "異度神劍"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/xenoblade_chronicles_(series)",
+        "otherNames": [
+          "ゼノブレイドシリーズ",
+          "ゼノブレイド",
+          "Xenoblade",
+          "異度神劍"
         ]
       }
     },
@@ -3026,27 +1995,28 @@
     },
     {
       "dataset": "oreno3d",
-      "key": "origins/420",
+      "key": "origins/738",
       "type": "adjudicate",
-      "source": "おジャ魔女どれみ",
+      "source": "しかのこのこのここしたんたん",
       "origin": null,
       "workCount": 5,
       "current": {
-        "zh-CN": "小魔女DoReMi",
-        "zh-TW": "小魔女DoReMi",
-        "ja": "おジャ魔女どれみ",
-        "en": "Ojamajo Doremi"
+        "zh-CN": "鹿乃子乃子乃子虎视眈眈",
+        "zh-TW": "鹿乃子乃子乃子虎視眈眈",
+        "ja": "しかのこのこのここしたんたん",
+        "en": "My Deer Friend Nokotan"
       },
       "candidates": [
-        "小魔女doremi"
+        "鹿乃子乃子虎视眈眈"
       ],
       "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/ojamajo_doremi",
+        "url": "https://danbooru.donmai.us/wiki_pages/shikanoko_nokonoko_koshitantan",
         "otherNames": [
-          "おジャ魔女どれみ",
-          "小魔女doremi",
-          "OjamajoDoremi",
-          "MagicalDoremi"
+          "しかのこのこのここしたんたん",
+          "鹿乃子乃子虎视眈眈",
+          "鹿乃子乃子虎視眈眈",
+          "My_Deer_Friend_Nokotan",
+          "しかのこ"
         ]
       }
     },
@@ -3078,28 +2048,27 @@
     },
     {
       "dataset": "oreno3d",
-      "key": "origins/738",
+      "key": "origins/420",
       "type": "adjudicate",
-      "source": "しかのこのこのここしたんたん",
+      "source": "おジャ魔女どれみ",
       "origin": null,
       "workCount": 5,
       "current": {
-        "zh-CN": "鹿乃子乃子乃子虎视眈眈",
-        "zh-TW": "鹿乃子乃子乃子虎視眈眈",
-        "ja": "しかのこのこのここしたんたん",
-        "en": "My Deer Friend Nokotan"
+        "zh-CN": "小魔女DoReMi",
+        "zh-TW": "小魔女DoReMi",
+        "ja": "おジャ魔女どれみ",
+        "en": "Ojamajo Doremi"
       },
       "candidates": [
-        "鹿乃子乃子虎视眈眈"
+        "小魔女doremi"
       ],
       "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/shikanoko_nokonoko_koshitantan",
+        "url": "https://danbooru.donmai.us/wiki_pages/ojamajo_doremi",
         "otherNames": [
-          "しかのこのこのここしたんたん",
-          "鹿乃子乃子虎视眈眈",
-          "鹿乃子乃子虎視眈眈",
-          "My_Deer_Friend_Nokotan",
-          "しかのこ"
+          "おジャ魔女どれみ",
+          "小魔女doremi",
+          "OjamajoDoremi",
+          "MagicalDoremi"
         ]
       }
     },
@@ -3159,6 +2128,82 @@
     },
     {
       "dataset": "oreno3d",
+      "key": "origins/271",
+      "type": "adjudicate",
+      "source": "異世界魔王と召喚少女の奴隷魔術",
+      "origin": null,
+      "workCount": 3,
+      "current": {
+        "zh-CN": "异世界魔王与召唤少女的奴隶魔术",
+        "zh-TW": "異世界魔王與召喚少女的奴隸魔術",
+        "ja": "異世界魔王と召喚少女の奴隷魔術",
+        "en": "How NOT to Summon a Demon Lord"
+      },
+      "candidates": [
+        "異世界魔王"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/isekai_maou_to_shoukan_shoujo_no_dorei_majutsu",
+        "otherNames": [
+          "異世界魔王と召喚少女の奴隷魔術",
+          "異世界魔王"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/745",
+      "type": "adjudicate",
+      "source": "悪役令嬢レベル99",
+      "origin": null,
+      "workCount": 3,
+      "current": {
+        "zh-CN": "反派千金等级99",
+        "zh-TW": "反派千金等級99",
+        "ja": "悪役令嬢レベル99",
+        "en": "Villainess Level 99"
+      },
+      "candidates": [
+        "恶役千金LV99"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/akuyaku_reijou_level_99:_watashi_wa_ura-boss_desu_ga_maou_dewa_arimasen",
+        "otherNames": [
+          "恶役千金LV99",
+          "悪役令嬢レベル99",
+          "悪役令嬢レベル99~私は裏ボスですが魔王ではありません~"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/353",
+      "type": "adjudicate",
+      "source": "CLANNAD",
+      "origin": null,
+      "workCount": 3,
+      "current": {
+        "zh-CN": "CLANNAD",
+        "zh-TW": "CLANNAD",
+        "ja": "CLANNAD",
+        "en": "CLANNAD"
+      },
+      "candidates": [
+        "团子大家族"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/clannad",
+        "otherNames": [
+          "CLANNAD",
+          "clannad",
+          "クラナド",
+          "小鎮家族",
+          "团子大家族"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
       "key": "origins/394",
       "type": "adjudicate",
       "source": "ありふれた職業で世界最強",
@@ -3188,27 +2233,31 @@
     },
     {
       "dataset": "oreno3d",
-      "key": "origins/854",
-      "type": "translate",
-      "source": "白銀の城",
+      "key": "origins/417",
+      "type": "adjudicate",
+      "source": "キラッとプリ☆チャン",
       "origin": null,
       "workCount": 3,
-      "need": [
-        "zh-CN",
-        "zh-TW",
-        "en"
-      ],
-      "known": {
-        "ja": "白銀の城"
+      "current": {
+        "zh-CN": "闪跃吧！星梦☆频道",
+        "zh-TW": "閃躍吧！星夢☆頻道",
+        "ja": "キラッとプリ☆チャン",
+        "en": "Kiratto Pri Chan"
       },
+      "candidates": [
+        "美妙频道"
+      ],
       "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/silver_palace",
+        "url": "https://danbooru.donmai.us/wiki_pages/kiratto_pri_chan",
         "otherNames": [
-          "白银之城",
-          "白銀之城",
-          "SilverPalace",
-          "白銀の城",
-          "실버팰리스"
+          "キラッとプリ☆チャン",
+          "キラっとプリ☆チャン",
+          "腐リチャン",
+          "prichan",
+          "반짝이는프리채널",
+          "星夢頻道",
+          "美妙频道",
+          "プリチャン"
         ]
       }
     },
@@ -3246,85 +2295,1064 @@
     },
     {
       "dataset": "oreno3d",
-      "key": "origins/803",
-      "type": "adjudicate",
-      "source": "ユミアのアトリエ",
+      "key": "origins/855",
+      "type": "translate",
+      "source": "Arcaea",
       "origin": null,
-      "workCount": 3,
-      "current": {
-        "zh-CN": "尤米亚的炼金工房",
-        "zh-TW": "尤米亞的鍊金工房",
-        "ja": "ユミアのアトリエ",
-        "en": "Atelier Yumia"
-      },
-      "candidates": [
-        "优米雅的炼金工房:追忆之炼金术士与幻创之地"
+      "workCount": 2,
+      "need": [
+        "zh-CN",
+        "zh-TW",
+        "en"
       ],
+      "known": {
+        "ja": "Arcaea"
+      },
       "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/atelier_yumia",
+        "url": "https://danbooru.donmai.us/wiki_pages/arcaea",
         "otherNames": [
-          "优米雅的炼金工房:追忆之炼金术士与幻创之地",
-          "ユミアのアトリエ",
-          "AtelierYumia",
-          "ユミア"
+          "Arcaea",
+          "アーケア",
+          "韵律源点",
+          "arcaea_art"
         ]
       }
     },
     {
       "dataset": "oreno3d",
-      "key": "origins/77",
+      "key": "origins/700",
       "type": "adjudicate",
-      "source": "ハズビンホテル",
+      "source": "シャドウバースF",
       "origin": null,
-      "workCount": 3,
+      "workCount": 2,
       "current": {
-        "zh-CN": "哈斯宾酒店",
-        "zh-TW": "哈斯賓酒店",
-        "ja": "ハズビンホテル",
-        "en": "Hazbin Hotel"
+        "zh-CN": "影之诗F",
+        "zh-TW": "闇影詩章F",
+        "ja": "シャドウバースF",
+        "en": "Shadowverse Flame"
       },
       "candidates": [
-        "地狱客栈"
+        "影之诗f"
       ],
       "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/hazbin_hotel",
+        "url": "https://danbooru.donmai.us/wiki_pages/shadowverse_flame",
         "otherNames": [
-          "ハズビン・ホテル",
-          "ハズビンホテル",
-          "地獄旅館",
-          "地狱客栈",
-          "HazbinHotel",
-          "HazbinHotelFanart",
-          "ハズビンホテルへようこそ"
+          "シャドウバースF",
+          "影之诗f"
         ]
       }
     },
     {
       "dataset": "oreno3d",
-      "key": "origins/353",
-      "type": "adjudicate",
-      "source": "CLANNAD",
+      "key": "origins/857",
+      "type": "translate",
+      "source": "ウォーハンマー40,000",
       "origin": null,
-      "workCount": 3,
-      "current": {
-        "zh-CN": "CLANNAD",
-        "zh-TW": "CLANNAD",
-        "ja": "CLANNAD",
-        "en": "CLANNAD"
-      },
-      "candidates": [
-        "团子大家族"
+      "workCount": 1,
+      "need": [
+        "zh-CN",
+        "zh-TW",
+        "en"
       ],
+      "known": {
+        "ja": "ウォーハンマー40,000"
+      },
       "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/clannad",
+        "url": "https://danbooru.donmai.us/wiki_pages/warhammer_40k",
         "otherNames": [
-          "CLANNAD",
-          "clannad",
-          "クラナド",
-          "小鎮家族",
-          "团子大家族"
+          "Warhammer40k",
+          "40K",
+          "WH40K",
+          "ウォーハンマー40,000",
+          "ウォーハンマー40k",
+          "warhammer",
+          "warhammer40000",
+          "warhammer_40000",
+          "战锤40k",
+          "战锤"
         ]
       }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/856",
+      "type": "translate",
+      "source": "ブラック・ブレット",
+      "origin": null,
+      "workCount": 1,
+      "need": [
+        "zh-CN",
+        "zh-TW",
+        "en"
+      ],
+      "known": {
+        "ja": "ブラック・ブレット"
+      },
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/black_bullet",
+        "otherNames": [
+          "ブラック・ブレット"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/853",
+      "type": "adjudicate",
+      "source": "ステラソラ",
+      "origin": null,
+      "workCount": 1,
+      "current": {
+        "zh-CN": "Stella Sora",
+        "zh-TW": "Stella Sora",
+        "ja": "ステラソラ",
+        "en": "Stella Sora"
+      },
+      "candidates": [
+        "星塔旅人"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/stella_sora",
+        "otherNames": [
+          "ステラソラ",
+          "StellaSora",
+          "스텔라소라",
+          "星塔旅人"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/850",
+      "type": "adjudicate",
+      "source": "アズールプロミリア",
+      "origin": null,
+      "workCount": 1,
+      "current": {
+        "zh-CN": "蓝色星原：旅谣",
+        "zh-TW": "藍色星原：旅謠",
+        "ja": "アズールプロミリア",
+        "en": "Azur Promilia"
+      },
+      "candidates": [
+        "蓝色星原旅谣",
+        "藍色星原旅謠"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/azur_promilia",
+        "otherNames": [
+          "AzurPromilia",
+          "アズールプロミリア",
+          "アズプロ",
+          "아주르프로밀리아",
+          "蓝色星原旅谣",
+          "藍色星原旅謠"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/662",
+      "type": "adjudicate",
+      "source": "クッキーランキングダム",
+      "origin": null,
+      "workCount": 1,
+      "current": {
+        "zh-CN": "冲呀！饼干人：王国",
+        "zh-TW": "薑餅人王國",
+        "ja": "クッキーランキングダム",
+        "en": "Cookie Run: Kingdom"
+      },
+      "candidates": [
+        "冲呀饼干人王国",
+        "冲呀饼干人王国上线",
+        "姜饼人王国",
+        "饼干人王国"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/cookie_run:_kingdom",
+        "otherNames": [
+          "CRK",
+          "CookieRunKingdom",
+          "쿠키런킹덤",
+          "クッキーランキングダム",
+          "冲呀饼干人王国",
+          "冲呀饼干人王国上线",
+          "cookie_run_kingdom",
+          "薑餅人王國",
+          "姜饼人王国",
+          "饼干人王国"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/848",
+      "type": "adjudicate",
+      "source": "存在/しないあなた、と私",
+      "origin": null,
+      "workCount": 1,
+      "current": {
+        "zh-CN": "不/存在的你，和我",
+        "zh-TW": "不/存在的你，和我",
+        "ja": "存在/しないあなた、と私",
+        "en": "The NOexistenceN of you AND me"
+      },
+      "candidates": [
+        "不/存在的你,和我"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/the_noexistencen_of_you_and_me",
+        "otherNames": [
+          "NONAND",
+          "存在/しないあなた、と私",
+          "不/存在的你,和我",
+          "The_NOexistenceN_of_you_AND_me"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/840",
+      "type": "adjudicate",
+      "source": "四月は君の嘘",
+      "origin": null,
+      "workCount": 1,
+      "current": {
+        "zh-CN": "四月是你的谎言",
+        "zh-TW": "四月是你的謊言",
+        "ja": "四月は君の嘘",
+        "en": "Your Lie in April"
+      },
+      "candidates": [
+        "君嘘",
+        "没有你的四月"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/shigatsu_wa_kimi_no_uso",
+        "otherNames": [
+          "四月は君の嘘",
+          "君嘘",
+          "没有你的四月"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/796",
+      "type": "adjudicate",
+      "source": "モンスターハンターワイルズ",
+      "origin": null,
+      "workCount": 1,
+      "current": {
+        "zh-CN": "怪物猎人：荒野",
+        "zh-TW": "魔物獵人 荒野",
+        "ja": "モンスターハンターワイルズ",
+        "en": "Monster Hunter Wilds"
+      },
+      "candidates": [
+        "怪物猎人:荒野"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/monster_hunter_wilds",
+        "otherNames": [
+          "MHWILDS",
+          "MHWs",
+          "モンハンワイルズ",
+          "モンスターハンターワイルズ",
+          "怪物猎人:荒野"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/768",
+      "type": "adjudicate",
+      "source": "幽☆遊☆白書",
+      "origin": null,
+      "workCount": 1,
+      "current": {
+        "zh-CN": "幽游白书",
+        "zh-TW": "幽遊白書",
+        "ja": "幽☆遊☆白書",
+        "en": "YuYu Hakusho"
+      },
+      "candidates": [
+        "幽白"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/yu_yu_hakusho",
+        "otherNames": [
+          "幽白",
+          "幽遊白書",
+          "幽☆遊☆白書"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/758",
+      "type": "adjudicate",
+      "source": "ラブライブ!スーパースター!!",
+      "origin": null,
+      "workCount": 1,
+      "current": {
+        "zh-CN": "Love Live! Superstar!!",
+        "zh-TW": "Love Live! Superstar!!",
+        "ja": "ラブライブ!スーパースター!!",
+        "en": "Love Live! Superstar!!"
+      },
+      "candidates": [
+        "Liella応援"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/love_live!_superstar!!",
+        "otherNames": [
+          "ハロー!!!ラブライブ!",
+          "Hello!!!_Love_Live!",
+          "ラブライブ!スーパースター!!",
+          "Liella!",
+          "Liella",
+          "リエラ",
+          "Liella応援",
+          "ラブライブスーパースター",
+          "スパスタ3期",
+          "スパスタ2期"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/721",
+      "type": "adjudicate",
+      "source": "スター☆トゥインクルプリキュア",
+      "origin": null,
+      "workCount": 1,
+      "current": {
+        "zh-CN": "星光闪亮☆光之美少女",
+        "zh-TW": "星光閃亮☆光之美少女",
+        "ja": "スター☆トゥインクルプリキュア",
+        "en": "Star☆Twinkle PreCure"
+      },
+      "candidates": [
+        "星奈光"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/star_twinkle_precure",
+        "otherNames": [
+          "スタートゥインクルプリキュア",
+          "スター☆トゥインクルプリキュア",
+          "スタプリ",
+          "星奈光"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/672",
+      "type": "adjudicate",
+      "source": "ニンジャスレイヤー",
+      "origin": null,
+      "workCount": 1,
+      "current": {
+        "zh-CN": "忍者杀手",
+        "zh-TW": "忍者殺手",
+        "ja": "ニンジャスレイヤー",
+        "en": "Ninja Slayer"
+      },
+      "candidates": [
+        "忍殺"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/ninja_slayer",
+        "otherNames": [
+          "ニンジャスレイヤー",
+          "忍殺",
+          "NINJASLAYER",
+          "忍殺腐向け"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/625",
+      "type": "adjudicate",
+      "source": "ファイアーエムブレムヒーローズ",
+      "origin": null,
+      "workCount": 1,
+      "current": {
+        "zh-CN": "火焰纹章 英雄",
+        "zh-TW": "聖火降魔錄 英雄雲集",
+        "ja": "ファイアーエムブレムヒーローズ",
+        "en": "Fire Emblem Heroes"
+      },
+      "candidates": [
+        "神装英雄"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/fire_emblem_heroes",
+        "otherNames": [
+          "ファイアーエムブレムヒーローズ",
+          "FEヒーローズ",
+          "FEH",
+          "FEHeroes",
+          "FireEmblemHeroes",
+          "描けば出るFEH",
+          "神装英雄"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/571",
+      "type": "adjudicate",
+      "source": "戦国†恋姫",
+      "origin": null,
+      "workCount": 1,
+      "current": {
+        "zh-CN": "战国†恋姬",
+        "zh-TW": "戰國†戀姬",
+        "ja": "戦国†恋姫",
+        "en": "Sengoku Koihime"
+      },
+      "candidates": [
+        "戦国恋姫"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/sengoku_koihime_~otome_kenran_sengoku_emaki~",
+        "otherNames": [
+          "戦国†恋姫",
+          "戦国恋姫"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/438",
+      "type": "adjudicate",
+      "source": "ApexLegends",
+      "origin": null,
+      "workCount": 1,
+      "current": {
+        "zh-CN": "Apex英雄",
+        "zh-TW": "Apex英雄",
+        "ja": "Apex Legends",
+        "en": "Apex Legends"
+      },
+      "candidates": [
+        "apex英雄"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/apex_legends",
+        "otherNames": [
+          "ApexLegends",
+          "Apex_Legends",
+          "APEX",
+          "エーペックス",
+          "ApexLegendsFanart",
+          "エーペックスレジェンズ",
+          "ApexLedgends",
+          "レジェンドと共に",
+          "Apexイラスト",
+          "apexfanart",
+          "Apexモバイル",
+          "APEXファンアート",
+          "apex英雄",
+          "ケモエペ",
+          "ApexLegendsファンアート",
+          "エイペックスレジェンズ"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/403",
+      "type": "adjudicate",
+      "source": "SHOWBYROCK!!",
+      "origin": null,
+      "workCount": 1,
+      "current": {
+        "zh-CN": "摇滚少女!!",
+        "zh-TW": "搖滾少女!!",
+        "ja": "SHOW BY ROCK!!",
+        "en": "Show by Rock!!"
+      },
+      "candidates": [
+        "SB69新曲制作応援"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/show_by_rock!!",
+        "otherNames": [
+          "SHOWBYROCK!!",
+          "SB69",
+          "BL69",
+          "SB69ファン創作",
+          "SB69新曲制作応援"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/374",
+      "type": "adjudicate",
+      "source": "少女☆歌劇レヴュースタァライト",
+      "origin": null,
+      "workCount": 1,
+      "current": {
+        "zh-CN": "少女☆歌剧 Revue Starlight",
+        "zh-TW": "少女☆歌劇 Revue Starlight",
+        "ja": "少女☆歌劇レヴュースタァライト",
+        "en": "Revue Starlight"
+      },
+      "candidates": [
+        "少女歌剧",
+        "少女歌劇"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/shoujo_kageki_revue_starlight",
+        "otherNames": [
+          "少女☆歌劇レヴュースタァライト",
+          "スタァライト",
+          "少女☆歌劇レヴュー・スタァライト",
+          "レヴュースタァライト",
+          "少女歌剧",
+          "少女歌劇",
+          "RevueStarlight"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/332",
+      "type": "adjudicate",
+      "source": "俺、ツインテールになります。",
+      "origin": null,
+      "workCount": 1,
+      "current": {
+        "zh-CN": "我，要成为双马尾。",
+        "zh-TW": "我，要成為雙馬尾。",
+        "ja": "俺、ツインテールになります。",
+        "en": "Gonna be the Twin-Tail!!"
+      },
+      "candidates": [
+        "我,要成为双马尾",
+        "我要成为双马尾"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/ore_twintail_ni_narimasu",
+        "otherNames": [
+          "俺、ツインテールになります。",
+          "俺、ツインテールになります",
+          "俺ツイ",
+          "我,要成为双马尾",
+          "我要成为双马尾"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/266",
+      "type": "adjudicate",
+      "source": "恋姫†無双",
+      "origin": null,
+      "workCount": 1,
+      "current": {
+        "zh-CN": "恋姬†无双",
+        "zh-TW": "戀姬†無雙",
+        "ja": "恋姫†無双",
+        "en": "Koihime Musou"
+      },
+      "candidates": [
+        "恋姫夢想",
+        "恋姫無双",
+        "恋姬无双"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/koihime_musou",
+        "otherNames": [
+          "恋姫†無双",
+          "恋姫無双",
+          "戀姬無雙",
+          "恋姬无双",
+          "연희무쌍",
+          "恋姫夢想",
+          "モバ恋姫"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/254",
+      "type": "adjudicate",
+      "source": "零の軌跡",
+      "origin": null,
+      "workCount": 1,
+      "current": {
+        "zh-CN": "零之轨迹",
+        "zh-TW": "零之軌跡",
+        "ja": "零の軌跡",
+        "en": "Trails from Zero"
+      },
+      "candidates": [
+        "英雄伝説VII"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/zero_no_kiseki",
+        "otherNames": [
+          "零の軌跡",
+          "軌跡シリーズ",
+          "英雄伝説VII"
+        ]
+      }
+    },
+    {
+      "dataset": "oreno3d",
+      "key": "origins/858",
+      "type": "translate",
+      "source": "クロスファイア",
+      "origin": null,
+      "workCount": 1,
+      "need": [
+        "zh-CN",
+        "zh-TW",
+        "en"
+      ],
+      "known": {
+        "ja": "クロスファイア"
+      },
+      "evidence": null
+    },
+    {
+      "dataset": "iwara",
+      "key": "ass_shake",
+      "type": "adjudicate",
+      "source": "ass shake",
+      "current": {
+        "zh-CN": "摇臀",
+        "zh-TW": "搖臀",
+        "ja": "尻揺れ",
+        "en": "Ass Shake"
+      },
+      "candidates": [
+        "摇晃屁股"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/ass_shake",
+        "otherNames": [
+          "お尻ふりふり",
+          "摇晃屁股"
+        ],
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
+    },
+    {
+      "dataset": "iwara",
+      "key": "addiction",
+      "type": "adjudicate",
+      "source": "addiction",
+      "current": {
+        "zh-CN": "上瘾",
+        "zh-TW": "上癮",
+        "ja": "中毒",
+        "en": "Addiction"
+      },
+      "candidates": [
+        "中毒",
+        "嗜癖"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/addiction",
+        "otherNames": [
+          "嗜癖",
+          "しへき",
+          "中毒",
+          "ちゅうどく"
+        ],
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
+    },
+    {
+      "dataset": "iwara",
+      "key": "akatsuki_kirika",
+      "type": "adjudicate",
+      "source": "akatsuki kirika",
+      "current": {
+        "zh-CN": "晓切歌",
+        "zh-TW": "曉切歌",
+        "ja": "暁切歌",
+        "en": "Kirika Akatsuki"
+      },
+      "candidates": [
+        "暁切歌"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/akatsuki_kirika",
+        "otherNames": [
+          "暁切歌"
+        ],
+        "danbooruCategory": "character"
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "amagai_ruka",
+      "type": "adjudicate",
+      "source": "amagai ruka",
+      "current": {
+        "zh-CN": "天海琉夏",
+        "zh-TW": "天海琉夏",
+        "ja": "天海琉夏",
+        "en": "Ruka Amagai"
+      },
+      "candidates": [
+        "雨海Ruka"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/amagai_ruka",
+        "otherNames": [
+          "雨海ルカ",
+          "描いていルカ",
+          "雨海Ruka"
+        ],
+        "danbooruCategory": "character"
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "amputee",
+      "type": "adjudicate",
+      "source": "amputee",
+      "current": {
+        "zh-CN": "肢体残缺",
+        "zh-TW": "肢體殘缺",
+        "ja": "欠損",
+        "en": "Amputee"
+      },
+      "candidates": [
+        "四肢欠損",
+        "截肢",
+        "欠損",
+        "欠損少女",
+        "隻脚"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/amputee",
+        "otherNames": [
+          "欠損",
+          "隻脚",
+          "アクロトモフィリア",
+          "欠損少女",
+          "四肢欠損",
+          "截肢"
+        ],
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
+    },
+    {
+      "dataset": "iwara",
+      "key": "anal_tail",
+      "type": "adjudicate",
+      "source": "anal tail",
+      "current": {
+        "zh-CN": "尾巴肛塞",
+        "zh-TW": "尾巴肛塞",
+        "ja": "尻尾プラグ",
+        "en": "Anal Tail"
+      },
+      "candidates": [
+        "肛塞尾巴"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/anal_tail",
+        "otherNames": [
+          "アナル尻尾",
+          "tail_plug",
+          "肛塞尾巴"
+        ],
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
+    },
+    {
+      "dataset": "iwara",
+      "key": "anby_demara",
+      "type": "adjudicate",
+      "source": "anby demara",
+      "current": {
+        "zh-CN": "安比·德马拉",
+        "zh-TW": "安比·德馬拉",
+        "ja": "アンビー・デマラ",
+        "en": "Anby Demara"
+      },
+      "candidates": [
+        "安比·德玛拉"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/anby_demara",
+        "otherNames": [
+          "アンビー・デマラ",
+          "安比·德玛拉",
+          "AnbyDemara",
+          "アンビー・デマラ绝区零",
+          "Anby"
+        ],
+        "danbooruCategory": "character"
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "annie_leonhart",
+      "type": "adjudicate",
+      "source": "annie leonhart",
+      "current": {
+        "zh-CN": "阿妮·雷恩哈特",
+        "zh-TW": "亞妮·雷恩哈特",
+        "ja": "アニ・レオンハート",
+        "en": "Annie Leonhart"
+      },
+      "candidates": [
+        "阿妮·莱昂哈特"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/annie_leonhart",
+        "otherNames": [
+          "阿妮·莱昂哈特",
+          "アニ・レオンハート"
+        ],
+        "danbooruCategory": "character"
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "aoki_lapis",
+      "type": "adjudicate",
+      "source": "aoki lapis",
+      "current": {
+        "zh-CN": "苍姬Lapis",
+        "zh-TW": "蒼姬Lapis",
+        "ja": "蒼姫ラピス",
+        "en": "Aoki Lapis"
+      },
+      "candidates": [
+        "苍姬拉碧斯",
+        "钻石娘"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/aoki_lapis",
+        "otherNames": [
+          "蒼姫ラピス",
+          "苍姬拉碧斯",
+          "钻石娘"
+        ],
+        "danbooruCategory": "character"
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "araragi_karen",
+      "type": "adjudicate",
+      "source": "araragi karen",
+      "current": {
+        "zh-CN": "阿良良木火怜",
+        "zh-TW": "阿良良木火憐",
+        "ja": "阿良々木火憐",
+        "en": "Karen Araragi"
+      },
+      "candidates": [
+        "阿良々木火憐"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/araragi_karen",
+        "otherNames": [
+          "阿良々木火憐",
+          "12月3日は火憐ダーの日"
+        ],
+        "danbooruCategory": "character"
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "armor",
+      "type": "adjudicate",
+      "source": "armor",
+      "current": {
+        "zh-CN": "盔甲",
+        "zh-TW": "盔甲",
+        "ja": "鎧",
+        "en": "Armor"
+      },
+      "candidates": [
+        "甲冑",
+        "鎧",
+        "铠甲"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/armor",
+        "otherNames": [
+          "鎧",
+          "甲冑",
+          "アーマー",
+          "铠甲"
+        ],
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
+    },
+    {
+      "dataset": "iwara",
+      "key": "asmr",
+      "type": "adjudicate",
+      "source": "asmr",
+      "current": {
+        "zh-CN": "ASMR",
+        "zh-TW": "ASMR",
+        "ja": "ASMR",
+        "en": "ASMR"
+      },
+      "candidates": [
+        "音声",
+        "音声作品"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/asmr",
+        "otherNames": [
+          "ASMR",
+          "asmr",
+          "音声作品",
+          "音声"
+        ],
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
+    },
+    {
+      "dataset": "iwara",
+      "key": "ass_focus",
+      "type": "adjudicate",
+      "source": "ass focus",
+      "current": {
+        "zh-CN": "聚焦屁股",
+        "zh-TW": "聚焦屁股",
+        "ja": "尻フォーカス",
+        "en": "Ass Focus"
+      },
+      "candidates": [
+        "臀部特写"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/ass_focus",
+        "otherNames": [
+          "尻アングル",
+          "臀部特写"
+        ],
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
+    },
+    {
+      "dataset": "iwara",
+      "key": "adachi_rei",
+      "type": "adjudicate",
+      "source": "adachi rei",
+      "current": {
+        "zh-CN": "足立Rei",
+        "zh-TW": "足立Rei",
+        "ja": "足立レイ",
+        "en": "Adachi Rei"
+      },
+      "candidates": [
+        "足立零",
+        "零钻"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/adachi_rei",
+        "otherNames": [
+          "足立レイ",
+          "足立零",
+          "レイテト",
+          "零钻"
+        ],
+        "danbooruCategory": "character"
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "assisted_exposure",
+      "type": "adjudicate",
+      "source": "assisted exposure",
+      "current": {
+        "zh-CN": "强迫露出",
+        "zh-TW": "強迫露出",
+        "ja": "強制露出",
+        "en": "Assisted Exposure"
+      },
+      "candidates": [
+        "曝光身体"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/assisted_exposure",
+        "otherNames": [
+          "脱がす",
+          "脱がせる",
+          "水着剥ぎ",
+          "曝光身体"
+        ],
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
+    },
+    {
+      "dataset": "iwara",
+      "key": "astra_yao",
+      "type": "adjudicate",
+      "source": "astra yao",
+      "current": {
+        "zh-CN": "姚",
+        "zh-TW": "姚",
+        "ja": "姚",
+        "en": "Astra Yao"
+      },
+      "candidates": [
+        "耀嘉音"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/astra_yao",
+        "otherNames": [
+          "耀嘉音",
+          "アストラ・ヤオ",
+          "astralyn",
+          "アストラ"
+        ],
+        "danbooruCategory": "character"
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "audience",
+      "type": "adjudicate",
+      "source": "audience",
+      "current": {
+        "zh-CN": "观众",
+        "zh-TW": "觀眾",
+        "ja": "観客",
+        "en": "Audience"
+      },
+      "candidates": [
+        "観客",
+        "観衆"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/audience",
+        "otherNames": [
+          "観客",
+          "観衆"
+        ],
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
     }
   ]
 }

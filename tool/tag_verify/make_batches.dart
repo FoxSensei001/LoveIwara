@@ -41,6 +41,18 @@ void main(List<String> args) {
   final size = int.tryParse(_opt(args, '--size') ?? '') ?? _defaultSize;
   final tasks = <Map<String, dynamic>>[];
 
+  // 已经在 overrides.json 里有决定的条目不再入队——否则每次重新出批，
+  // 上一轮判过的又会回到队列里被重复裁决。
+  Set<String> decided(String path) {
+    final f = File(path);
+    if (!f.existsSync()) return {};
+    final doc = jsonDecode(f.readAsStringSync()) as Map<String, dynamic>;
+    return ((doc['entries'] as Map?) ?? const {}).keys.map((e) => '$e').toSet();
+  }
+
+  final decidedOreno = decided('tool/data/oreno3d_tags/overrides.json');
+  final decidedIwara = decided('tool/data/iwara_tags/overrides.json');
+
   // ---------------- oreno3d ----------------
   final oRaw = _json('tool/data/oreno3d_tags/oreno3d_tags.json');
   final oLoc = _json('tool/data/oreno3d_tags/oreno3d_tags_localized.json');
@@ -93,7 +105,7 @@ void main(List<String> args) {
       });
     }
 
-    if (r['verdict'] == 'disagree') {
+    if (r['verdict'] == 'disagree' && !decidedOreno.contains(key)) {
       final pool = _cleanPool(
           (r['candidates'] as Map?)?.cast<String, dynamic>(), source);
       if (pool.isEmpty) continue;
@@ -120,12 +132,15 @@ void main(List<String> args) {
   for (final r in (iEv['results'] as List).cast<Map<String, dynamic>>()) {
     if (r['verdict'] != 'disagree') continue;
     final key = r['key'] as String;
+    if (decidedIwara.contains(key)) continue;
     final source = key.replaceAll('_', ' ');
     final cur = (iLoc[key] as Map?)?.cast<String, dynamic>() ?? const {};
     final pool = _cleanPool(
         (r['candidates'] as Map?)?.cast<String, dynamic>(), source);
     if (pool.isEmpty) continue;
-    tasks.add({
+    final ev = _evidence(r);
+    final warn = _categoryWarning('iwara', ev);
+    final task = <String, dynamic>{
       'dataset': 'iwara',
       'key': key,
       'type': 'adjudicate',
@@ -135,8 +150,10 @@ void main(List<String> args) {
           if ('${cur[l] ?? ''}'.trim().isNotEmpty) l: '${cur[l]}',
       },
       'candidates': pool,
-      'evidence': _evidence(r),
-    });
+      'evidence': ev,
+    };
+    if (warn != null) task['warning'] = warn;
+    tasks.add(task);
   }
 
   // 热门的先做：错在热门词条上影响面更大。
@@ -179,7 +196,26 @@ void main(List<String> args) {
 Map<String, dynamic>? _evidence(Map<String, dynamic> r) {
   final d = (r['danbooru'] as Map?)?.cast<String, dynamic>();
   if (d == null) return null;
-  return {'url': d['url'], 'otherNames': d['otherNames']};
+  return {
+    'url': d['url'],
+    'otherNames': d['otherNames'],
+    if (d['category'] != null) 'danbooruCategory': d['category'],
+  };
+}
+
+/// iwara 是 MMD / 3D **角色**视频站。当 Danbooru 上同名 tag 是 `general` 分类时，
+/// 它讲的是普通名词，而 iwara 上这个标签十有八九指的是同名角色：
+///   firefly -> 流萤（星铁），Danbooru 上是「萤火虫」
+///   fern    -> 菲伦（葬送的芙莉莲），Danbooru 上是「蕨类植物」
+///   dawn    -> 小光（宝可梦），Danbooru 上是「黎明」
+/// 这类候选**不能**拿去覆盖角色译名。这不是靠提示词叮嘱能保证的事，
+/// 所以把分类和这段警告一起塞进每条任务里。
+String? _categoryWarning(String dataset, Map<String, dynamic>? evidence) {
+  if (dataset != 'iwara') return null;
+  if (evidence?['danbooruCategory'] != 'general') return null;
+  return 'Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。'
+      'iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——'
+      '若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。';
 }
 
 const _contract = {
@@ -196,6 +232,11 @@ const _contract = {
         '它可能是日文写法、旧译名，甚至是别的角色',
     '每条都要给 reason（一句话），replace 必须给 ref（可访问的来源 URL）',
     '同名不同人的词条（不同 origin 的同一个日文名）必须给出不同译名，不要合并',
+    '条目带 warning 字段时**必须先读它再做判断**——它说明这条证据有已知的误导方向',
+    'evidence.danbooruCategory 说明 Danbooru 那条 tag 讲的是什么：'
+        'character=角色、copyright=作品、general=普通名词。'
+        'iwara 是角色向站点，general 分类的候选常常与本标签的实际所指无关',
+    '绝不要把罗马音塞回中文译名（「天海琉夏」->「雨海Ruka」这种方向是错的）',
   ],
 };
 

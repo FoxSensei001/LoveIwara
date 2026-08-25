@@ -20,6 +20,20 @@ import '../tag_audit/cjk_variants.dart';
 const _ua =
     'LoveIwara-tag-verify/0.1 (+https://github.com/FoxSensei001/LoveIwara)';
 const _wiki = 'https://danbooru.donmai.us/wiki_pages.json';
+const _tags = 'https://danbooru.donmai.us/tags.json';
+
+/// Danbooru 的 tag 分类。**这是判断「候选译名到底在讲什么」的关键**：
+/// iwara 是 MMD/3D 角色视频站，`firefly` / `fern` / `dawn` 这些标签挂的是同名角色
+/// （流萤 / 菲伦 / 小光），而 Danbooru 上它们是 general 分类的**普通名词**
+/// （萤火虫 / 蕨类植物 / 黎明）。不带分类信息就无法区分，
+/// 只看 other_names 会把正确的角色译名「修正」成通用词。
+const _category = {
+  0: 'general',
+  1: 'artist',
+  3: 'copyright',
+  4: 'character',
+  5: 'meta',
+};
 const _delay = Duration(milliseconds: 300);
 const _cachePath = 'tool/tag_verify/out/danbooru_cache_iwara.json';
 
@@ -73,7 +87,8 @@ String? preferredZh(Map<String, List<String>> b) {
 }
 
 Future<Map<String, dynamic>?> _fetch(
-    HttpClient client, Uri uri, String cacheKey, Map<String, dynamic> cache) async {
+    HttpClient client, Uri uri, String cacheKey, Map<String, dynamic> cache,
+    {Map<String, dynamic> Function(Map<String, dynamic>)? pick}) async {
   if (cache.containsKey(cacheKey)) {
     return (cache[cacheKey] as Map?)?.cast<String, dynamic>();
   }
@@ -88,10 +103,12 @@ Future<Map<String, dynamic>?> _fetch(
         final list = jsonDecode(body) as List<dynamic>;
         if (list.isNotEmpty) {
           final first = (list.first as Map).cast<String, dynamic>();
-          result = {
-            'title': first['title'],
-            'other_names': first['other_names'],
-          };
+          result = pick != null
+              ? pick(first)
+              : {
+                  'title': first['title'],
+                  'other_names': first['other_names'],
+                };
         }
         break;
       }
@@ -191,6 +208,17 @@ Future<void> main(List<String> args) async {
       hit++;
       final others =
           ((page['other_names'] as List?) ?? const []).map((e) => '$e').toList();
+      final catRaw = await _fetch(
+        client,
+        Uri.parse(_tags).replace(queryParameters: {
+          'search[name_matches]': id,
+          'limit': '1',
+        }),
+        'cat:$id',
+        cache,
+        pick: (m) => {'category': m['category'], 'post_count': m['post_count']},
+      );
+      final category = _category[catRaw?['category']] ?? 'unknown';
       final buckets = bucketNames(others);
       // 按标题精确命中就是同一个 tag，证据最硬；靠别名命中则弱一档。
       final confidence = via == 'title' ? 'high' : 'medium';
@@ -228,6 +256,8 @@ Future<void> main(List<String> args) async {
           'title': page['title'],
           'url': 'https://danbooru.donmai.us/wiki_pages/${page['title']}',
           'otherNames': others,
+          'category': category,
+          'postCount': catRaw?['post_count'],
         },
         'candidates': {...buckets, 'preferredZh': preferredZh(buckets)},
       });

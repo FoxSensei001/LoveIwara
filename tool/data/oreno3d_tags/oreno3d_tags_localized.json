@@ -17878,135 +17878,157 @@
     "_src": "X動画"
   },
   "characters/5183": {
-    "_src": "characters/5183",
+    "_src": "レミエール・ダン(ラミル)",
     "zh-CN": "蕾米埃尔·丹(拉米尔)",
     "zh-TW": "蕾米埃爾·丹(拉米爾)",
-    "en": "Remielle Dan (Ramil)"
+    "en": "Remielle Dan (Ramil)",
+    "ja": "レミエール・ダン(ラミル)"
   },
   "characters/5182": {
-    "_src": "characters/5182",
+    "_src": "ヴェリナ",
     "zh-CN": "维琳娜",
     "zh-TW": "維琳娜",
-    "en": "Velina"
+    "en": "Velina",
+    "ja": "ヴェリナ"
   },
   "characters/5216": {
-    "_src": "characters/5216",
+    "_src": "オデット",
     "zh-CN": "奥黛塔",
     "zh-TW": "奧黛塔",
-    "en": "Odette"
+    "en": "Odette",
+    "ja": "オデット"
   },
   "characters/5202": {
-    "_src": "characters/5202",
+    "_src": "穂穂",
     "zh-CN": "穗穗",
     "zh-TW": "穗穗",
-    "en": "SuiSui"
+    "en": "SuiSui",
+    "ja": "穂穂"
   },
   "characters/5132": {
-    "_src": "characters/5132",
+    "_src": "ロッシ",
     "zh-CN": "洛茜",
     "zh-TW": "洛茜",
-    "en": "Rossi"
+    "en": "Rossi",
+    "ja": "ロッシ"
   },
   "characters/2800": {
-    "_src": "characters/2800",
+    "_src": "乾心寿",
     "zh-CN": "乾心寿",
     "zh-TW": "乾心壽",
-    "en": "Shinju Inui"
+    "en": "Shinju Inui",
+    "ja": "乾心寿"
   },
   "characters/779": {
-    "_src": "characters/779",
+    "_src": "ジャベリン",
     "zh-CN": "标枪",
     "zh-TW": "標槍",
-    "en": "Javelin"
+    "en": "Javelin",
+    "ja": "ジャベリン"
   },
   "characters/5224": {
-    "_src": "characters/5224",
+    "_src": "清宵",
     "zh-CN": "清宵",
     "zh-TW": "清宵",
-    "en": "Qingxiao"
+    "en": "Qingxiao",
+    "ja": "清宵"
   },
   "characters/4995": {
-    "_src": "characters/4995",
+    "_src": "クルカイ",
     "zh-CN": "可露凯",
     "zh-TW": "可露凱",
-    "en": "Klukai"
+    "en": "Klukai",
+    "ja": "クルカイ"
   },
   "characters/5169": {
-    "_src": "characters/5169",
+    "_src": "ノルムー",
     "zh-CN": "诺姆",
     "zh-TW": "諾姆",
-    "en": "Norma"
+    "en": "Norma",
+    "ja": "ノルムー"
   },
   "characters/2488": {
-    "_src": "characters/2488",
+    "_src": "ナナミ",
     "zh-CN": "七实",
     "zh-TW": "七實",
-    "en": "Nanami"
+    "en": "Nanami",
+    "ja": "ナナミ"
   },
   "characters/4368": {
-    "_src": "characters/4368",
+    "_src": "マリヤ・ミハイロヴナ・九条",
     "zh-CN": "玛利亚·米哈伊洛芙娜·九条",
     "zh-TW": "瑪利亞·米哈伊洛芙娜·九條",
-    "en": "Mariya Mikhailovna Kujou"
+    "en": "Mariya Mikhailovna Kujou",
+    "ja": "マリヤ・ミハイロヴナ・九条"
   },
   "characters/680": {
-    "_src": "characters/680",
+    "_src": "松浦果南",
     "zh-CN": "松浦果南",
     "zh-TW": "松浦果南",
-    "en": "Kanan Matsuura"
+    "en": "Kanan Matsuura",
+    "ja": "松浦果南"
   },
   "characters/4873": {
-    "_src": "characters/4873",
+    "_src": "ミツモト・ダイア",
     "zh-CN": "光本黛亚",
     "zh-TW": "光本黛亞",
-    "en": "Daia Mitsumoto"
+    "en": "Daia Mitsumoto",
+    "ja": "ミツモト・ダイア"
   },
   "characters/1188": {
-    "_src": "characters/1188",
+    "_src": "毒島冴子",
     "zh-CN": "毒岛冴子",
     "zh-TW": "毒島冴子",
-    "en": "Saeko Busujima"
+    "en": "Saeko Busujima",
+    "ja": "毒島冴子"
   },
   "characters/4473": {
-    "_src": "characters/4473",
+    "_src": "八奈見杏菜",
     "zh-CN": "八奈见杏菜",
     "zh-TW": "八奈見杏菜",
-    "en": "Anna Yanami"
+    "en": "Anna Yanami",
+    "ja": "八奈見杏菜"
   },
   "characters/3138": {
-    "_src": "characters/3138",
+    "_src": "龍ヶ崎リン",
     "zh-CN": "龙之崎凛",
     "zh-TW": "龍之崎凜",
-    "en": "Rene Ryugasaki"
+    "en": "Rene Ryugasaki",
+    "ja": "龍ヶ崎リン"
   },
   "characters/3218": {
-    "_src": "characters/3218",
+    "_src": "ゼニス・グレイラット",
     "zh-CN": "塞妮丝·格雷拉特",
     "zh-TW": "塞妮絲·格雷拉特",
-    "en": "Zenith Greyrat"
+    "en": "Zenith Greyrat",
+    "ja": "ゼニス・グレイラット"
   },
   "characters/5006": {
-    "_src": "characters/5006",
+    "_src": "シュウ",
     "zh-CN": "黍",
     "zh-TW": "黍",
-    "en": "Shu"
+    "en": "Shu",
+    "ja": "シュウ"
   },
   "characters/4247": {
-    "_src": "characters/4247",
+    "_src": "ココナ(心夏)",
     "zh-CN": "心夏",
     "zh-TW": "心夏",
-    "en": "Kokona"
+    "en": "Kokona",
+    "ja": "ココナ(心夏)"
   },
   "characters/4080": {
-    "_src": "characters/4080",
+    "_src": "マキアート",
     "zh-CN": "玛奇朵",
     "zh-TW": "瑪奇朵",
-    "en": "Macchiato"
+    "en": "Macchiato",
+    "ja": "マキアート"
   },
   "origins/854": {
-    "_src": "origins/854",
+    "_src": "白銀の城",
     "zh-CN": "白银之城",
     "zh-TW": "白銀之城",
-    "en": "Labrynth"
+    "en": "Labrynth",
+    "ja": "白銀の城"
   }
 }
