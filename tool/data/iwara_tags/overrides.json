@@ -176,6 +176,40 @@
         "https://space.bilibili.com/1529124446"
       ],
       "note": "原机翻「森野麦仑」不准确，修正为其在 Bilibili 官方账号使用的官方译名「森野莓洛」。"
+    },
+    "anby_demara": {
+      "n": {
+        "zh-CN": "安比·德玛拉",
+        "zh-TW": "安比·德瑪拉"
+      },
+      "prev": {
+        "zh-CN": "安比·德马拉",
+        "zh-TW": "安比·德馬拉"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/anby_demara"
+      ],
+      "note": "《绝区零》角色 Anby Demara 的米哈游官方中文名为「安比·德玛拉/安比·德瑪拉」，修正姓氏译字。"
+    },
+    "astra_yao": {
+      "n": {
+        "zh-CN": "耀嘉音",
+        "zh-TW": "耀嘉音",
+        "ja": "アストラ・ヤオ"
+      },
+      "prev": {
+        "zh-CN": "姚",
+        "zh-TW": "姚",
+        "ja": "姚"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/astra_yao"
+      ],
+      "note": "《绝区零》角色 Astra Yao 官方中文名为「耀嘉音」，日文名为「アストラ・ヤオ」，替换原先不完整的单字机翻「姚」。"
     }
   }
 }

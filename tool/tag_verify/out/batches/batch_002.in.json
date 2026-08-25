@@ -20,206 +20,6 @@
   "entries": [
     {
       "dataset": "iwara",
-      "key": "ayase_momo",
-      "type": "adjudicate",
-      "source": "ayase momo",
-      "current": {
-        "zh-CN": "绫濑桃",
-        "zh-TW": "綾瀨桃",
-        "ja": "綾瀬桃",
-        "en": "Momo Ayase"
-      },
-      "candidates": [
-        "綾瀬桃"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/ayase_momo",
-        "otherNames": [
-          "綾瀬桃"
-        ],
-        "danbooruCategory": "character"
-      }
-    },
-    {
-      "dataset": "iwara",
-      "key": "azuma_seren",
-      "type": "adjudicate",
-      "source": "azuma seren",
-      "current": {
-        "zh-CN": "东云塞莲",
-        "zh-TW": "東雲塞蓮",
-        "ja": "東雲せれん",
-        "en": "Seren Azuma"
-      },
-      "candidates": [
-        "东雪莲"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/azuma_seren",
-        "otherNames": [
-          "東雪蓮",
-          "东雪莲"
-        ],
-        "danbooruCategory": "character"
-      }
-    },
-    {
-      "dataset": "iwara",
-      "key": "bare_legs",
-      "type": "adjudicate",
-      "source": "bare legs",
-      "current": {
-        "zh-CN": "裸腿",
-        "zh-TW": "裸腿",
-        "ja": "生足",
-        "en": "Bare Legs"
-      },
-      "candidates": [
-        "光腿",
-        "生脚",
-        "露腿"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/bare_legs",
-        "otherNames": [
-          "生脚",
-          "露腿",
-          "光腿"
-        ],
-        "danbooruCategory": "general"
-      },
-      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
-    },
-    {
-      "dataset": "iwara",
-      "key": "bathing",
-      "type": "adjudicate",
-      "source": "bathing",
-      "current": {
-        "zh-CN": "洗澡",
-        "zh-TW": "洗澡",
-        "ja": "入浴",
-        "en": "Bathing"
-      },
-      "candidates": [
-        "入浴"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/bathing",
-        "otherNames": [
-          "入浴",
-          "水浴び"
-        ],
-        "danbooruCategory": "general"
-      },
-      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
-    },
-    {
-      "dataset": "iwara",
-      "key": "bdsm",
-      "type": "adjudicate",
-      "source": "bdsm",
-      "current": {
-        "zh-CN": "BDSM",
-        "zh-TW": "BDSM",
-        "ja": "BDSM",
-        "en": "BDSM"
-      },
-      "candidates": [
-        "拘束具"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/bdsm",
-        "otherNames": [
-          "ボンデージ",
-          "ボンテージ",
-          "ドM",
-          "ドMホイホイ",
-          "ドSホイホイ",
-          "拘束具",
-          "SM"
-        ],
-        "danbooruCategory": "general"
-      },
-      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
-    },
-    {
-      "dataset": "iwara",
-      "key": "between_breasts",
-      "type": "adjudicate",
-      "source": "between breasts",
-      "current": {
-        "zh-CN": "乳沟交",
-        "zh-TW": "乳溝交",
-        "ja": "パイズリ",
-        "en": "Between Breasts"
-      },
-      "candidates": [
-        "胸部夹住"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/between_breasts",
-        "otherNames": [
-          "おっぱいポケット",
-          "乳挟み",
-          "胸部夹住"
-        ],
-        "danbooruCategory": "general"
-      },
-      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
-    },
-    {
-      "dataset": "iwara",
-      "key": "bikini_armor",
-      "type": "adjudicate",
-      "source": "bikini armor",
-      "current": {
-        "zh-CN": "比基尼铠甲",
-        "zh-TW": "比基尼鎧甲",
-        "ja": "ビキニアーマー",
-        "en": "Bikini Armor"
-      },
-      "candidates": [
-        "比基尼盔甲"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/bikini_armor",
-        "otherNames": [
-          "ビキニアーマー",
-          "比基尼盔甲"
-        ],
-        "danbooruCategory": "general"
-      },
-      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
-    },
-    {
-      "dataset": "iwara",
-      "key": "bit_gag",
-      "type": "adjudicate",
-      "source": "bit gag",
-      "current": {
-        "zh-CN": "马衔塞",
-        "zh-TW": "馬銜塞",
-        "ja": "轡",
-        "en": "Bit Gag"
-      },
-      "candidates": [
-        "口衔",
-        "口銜"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/bit_gag",
-        "otherNames": [
-          "口衔",
-          "口銜",
-          "ビットギャグ"
-        ],
-        "danbooruCategory": "general"
-      },
-      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
-    },
-    {
-      "dataset": "iwara",
       "key": "black_cat",
       "type": "adjudicate",
       "source": "black cat",
@@ -672,37 +472,6 @@
         "danbooruCategory": "general"
       },
       "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
-    },
-    {
-      "dataset": "iwara",
-      "key": "chen",
-      "type": "adjudicate",
-      "source": "chen",
-      "current": {
-        "zh-CN": "陈",
-        "zh-TW": "陳",
-        "ja": "チェン",
-        "en": "Chen"
-      },
-      "candidates": [
-        "大人橙",
-        "橙"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/chen",
-        "otherNames": [
-          "橙",
-          "첸",
-          "ゆっくりちぇん",
-          "ちぇん種",
-          "大人橙",
-          "ちちぇん",
-          "橙(東方Project)",
-          "ちぇえええええええええん",
-          "おねえ橙"
-        ],
-        "danbooruCategory": "character"
-      }
     },
     {
       "dataset": "iwara",
@@ -1367,35 +1136,6 @@
     },
     {
       "dataset": "iwara",
-      "key": "elizabeth_rose_bloodflame",
-      "type": "adjudicate",
-      "source": "elizabeth rose bloodflame",
-      "current": {
-        "zh-CN": "伊丽莎白·罗斯·血焰",
-        "zh-TW": "伊麗莎白·羅斯·血焰",
-        "ja": "エリザベス・ローズ・ブラッドフレイム",
-        "en": "Elizabeth Rose Bloodflame"
-      },
-      "candidates": [
-        "伊丽莎白·露丝·布拉德弗雷姆"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/elizabeth_rose_bloodflame",
-        "otherNames": [
-          "エリザベス・ローズ・ブラッドフレイム",
-          "BloodflameArt",
-          "BloodflameHub",
-          "BloodflameJests",
-          "BloodflameLive",
-          "ERB",
-          "ElizabethRoseBloodflame",
-          "伊丽莎白·露丝·布拉德弗雷姆"
-        ],
-        "danbooruCategory": "character"
-      }
-    },
-    {
-      "dataset": "iwara",
       "key": "embarrassed",
       "type": "adjudicate",
       "source": "embarrassed",
@@ -1927,35 +1667,6 @@
     },
     {
       "dataset": "iwara",
-      "key": "gigi_murin",
-      "type": "adjudicate",
-      "source": "gigi murin",
-      "current": {
-        "zh-CN": "吉吉·莫琳",
-        "zh-TW": "吉吉·莫琳",
-        "ja": "ジジ・ムリン",
-        "en": "Gigi Murin"
-      },
-      "candidates": [
-        "琪琪·沐林"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/gigi_murin",
-        "otherNames": [
-          "ジジ・ムリン",
-          "rkggk",
-          "gigiez",
-          "gremurins",
-          "LFGIGI",
-          "GigiMurin",
-          "autofister",
-          "琪琪·沐林"
-        ],
-        "danbooruCategory": "character"
-      }
-    },
-    {
-      "dataset": "iwara",
       "key": "glory_hole",
       "type": "adjudicate",
       "source": "glory hole",
@@ -2150,34 +1861,6 @@
           "葉加瀬冬雪",
           "はかせレポート",
           "はかせとワンドロ"
-        ],
-        "danbooruCategory": "character"
-      }
-    },
-    {
-      "dataset": "iwara",
-      "key": "hakos_baelz",
-      "type": "adjudicate",
-      "source": "hakos baelz",
-      "current": {
-        "zh-CN": "哈可斯·贝莉丝",
-        "zh-TW": "哈可斯·貝莉絲",
-        "ja": "ハコス・ベールズ",
-        "en": "Hakos Baelz"
-      },
-      "candidates": [
-        "哈珂斯·贝尔丝"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/hakos_baelz",
-        "otherNames": [
-          "ハコス・ベールズ",
-          "illustrayBAE",
-          "ベーアート",
-          "BaelzBrush",
-          "HakosBaelz",
-          "ベールズ",
-          "哈珂斯·贝尔丝"
         ],
         "danbooruCategory": "character"
       }
@@ -2781,79 +2464,6 @@
     },
     {
       "dataset": "iwara",
-      "key": "lila_decyrus",
-      "type": "adjudicate",
-      "source": "lila decyrus",
-      "current": {
-        "zh-CN": "莉拉·德希雅斯",
-        "zh-TW": "莉拉·德希雅斯",
-        "ja": "リラ・ディザイアス",
-        "en": "Lila Decyrus"
-      },
-      "candidates": [
-        "莉拉·德西亚斯"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/lila_decyrus",
-        "otherNames": [
-          "リラ・ディザイアス",
-          "莉拉·德西亚斯"
-        ],
-        "danbooruCategory": "character"
-      }
-    },
-    {
-      "dataset": "iwara",
-      "key": "lily_black",
-      "type": "adjudicate",
-      "source": "lily black",
-      "current": {
-        "zh-CN": "黑莉莉",
-        "zh-TW": "黑莉莉",
-        "ja": "リリーブラック",
-        "en": "Lily Black"
-      },
-      "candidates": [
-        "莉莉黑"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/lily_black",
-        "otherNames": [
-          "リリーブラック",
-          "릴리블랙",
-          "莉莉黑"
-        ],
-        "danbooruCategory": "character"
-      }
-    },
-    {
-      "dataset": "iwara",
-      "key": "lily_white",
-      "type": "adjudicate",
-      "source": "lily white",
-      "current": {
-        "zh-CN": "白莉莉",
-        "zh-TW": "白莉莉",
-        "ja": "リリーホワイト",
-        "en": "Lily White"
-      },
-      "candidates": [
-        "莉莉白",
-        "莉莉霍瓦特"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/lily_white",
-        "otherNames": [
-          "リリーホワイト",
-          "릴리화이트",
-          "莉莉白",
-          "莉莉霍瓦特"
-        ],
-        "danbooruCategory": "character"
-      }
-    },
-    {
-      "dataset": "iwara",
       "key": "little_witch_academia",
       "type": "adjudicate",
       "source": "little witch academia",
@@ -2905,26 +2515,29 @@
     },
     {
       "dataset": "iwara",
-      "key": "zundamon",
+      "key": "love_potion",
       "type": "adjudicate",
-      "source": "zundamon",
+      "source": "love potion",
       "current": {
-        "zh-CN": "ずんだもん",
-        "zh-TW": "ずんだもん",
-        "ja": "ずんだもん",
-        "en": "Zundamon"
+        "zh-CN": "媚药",
+        "zh-TW": "媚藥",
+        "ja": "媚薬",
+        "en": "Love Potion"
       },
       "candidates": [
-        "俊达萌"
+        "恋爱药剂",
+        "爱情魔药"
       ],
       "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/zundamon",
+        "url": "https://danbooru.donmai.us/wiki_pages/love_potion",
         "otherNames": [
-          "ずんだもん",
-          "俊达萌"
+          "惚れ薬",
+          "爱情魔药",
+          "恋爱药剂"
         ],
-        "danbooruCategory": "character"
-      }
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
     },
     {
       "dataset": "iwara",
@@ -3007,22 +2620,24 @@
     },
     {
       "dataset": "iwara",
-      "key": "may",
+      "key": "zombie",
       "type": "adjudicate",
-      "source": "may",
+      "source": "zombie",
       "current": {
-        "zh-CN": "小遥",
-        "zh-TW": "小遙",
-        "ja": "ハルカ",
-        "en": "May"
+        "zh-CN": "僵尸",
+        "zh-TW": "殭屍",
+        "ja": "ゾンビ",
+        "en": "Zombie"
       },
       "candidates": [
-        "5月"
+        "丧尸"
       ],
       "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/may",
+        "url": "https://danbooru.donmai.us/wiki_pages/zombie",
         "otherNames": [
-          "5月"
+          "🧟",
+          "ゾンビ",
+          "丧尸"
         ],
         "danbooruCategory": "general"
       },
@@ -3087,33 +2702,6 @@
     },
     {
       "dataset": "iwara",
-      "key": "merun_morino",
-      "type": "adjudicate",
-      "source": "merun morino",
-      "current": {
-        "zh-CN": "森野麦仑",
-        "zh-TW": "森野麥侖",
-        "ja": "森野めるん",
-        "en": "Merun Morino"
-      },
-      "candidates": [
-        "森野莓洛"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/merun_morino",
-        "otherNames": [
-          "森野めるん",
-          "森野莓洛",
-          "morino_merun",
-          "MerunFanArt",
-          "MerunLIVE",
-          "MerunMorino"
-        ],
-        "danbooruCategory": "character"
-      }
-    },
-    {
-      "dataset": "iwara",
       "key": "messy_hair",
       "type": "adjudicate",
       "source": "messy hair",
@@ -3167,6 +2755,433 @@
           "密特羅德"
         ],
         "danbooruCategory": "copyright"
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "micro_bikini",
+      "type": "adjudicate",
+      "source": "micro bikini",
+      "current": {
+        "zh-CN": "极小比基尼",
+        "zh-TW": "極小比基尼",
+        "ja": "マイクロビキニ",
+        "en": "Micro Bikini"
+      },
+      "candidates": [
+        "微型比基尼",
+        "迷你比基尼"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/micro_bikini",
+        "otherNames": [
+          "マイクロビキニ",
+          "艦これマイクロビキニ部",
+          "プリキュアマイクロビキニ部",
+          "乳首ビキニ",
+          "ニプルフックビキニ",
+          "乳首キニ",
+          "マイクロビキニーソ",
+          "微型比基尼",
+          "迷你比基尼"
+        ],
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
+    },
+    {
+      "dataset": "iwara",
+      "key": "mind_control",
+      "type": "adjudicate",
+      "source": "mind control",
+      "current": {
+        "zh-CN": "心灵控制",
+        "zh-TW": "心靈控制",
+        "ja": "精神操作",
+        "en": "Mind Control"
+      },
+      "candidates": [
+        "洗脑",
+        "洗脳",
+        "洗脳装置",
+        "精神控制"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/mind_control",
+        "otherNames": [
+          "洗脳",
+          "マインドコントロール",
+          "洗脳装置",
+          "洗脑",
+          "精神控制"
+        ],
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
+    },
+    {
+      "dataset": "iwara",
+      "key": "miside",
+      "type": "adjudicate",
+      "source": "miside",
+      "current": {
+        "zh-CN": "MiSide",
+        "zh-TW": "MiSide",
+        "ja": "MiSide",
+        "en": "MiSide"
+      },
+      "candidates": [
+        "米塔miside"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/miside",
+        "otherNames": [
+          "MiSide",
+          "ミサイド",
+          "米塔miside"
+        ],
+        "danbooruCategory": "copyright"
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "mococo_abyssgard",
+      "type": "adjudicate",
+      "source": "mococo abyssgard",
+      "current": {
+        "zh-CN": "摩科科·阿比斯加德",
+        "zh-TW": "摩科科·阿比斯加德",
+        "ja": "モココ・アビスガード",
+        "en": "Mococo Abyssgard"
+      },
+      "candidates": [
+        "茸茸·阿比斯加德"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/mococo_abyssgard",
+        "otherNames": [
+          "モココ・アビスガード",
+          "FUWAMOCO",
+          "FWMCpix",
+          "フワモコ",
+          "茸茸·阿比斯加德"
+        ],
+        "danbooruCategory": "character"
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "moona_hoshinova",
+      "type": "adjudicate",
+      "source": "moona hoshinova",
+      "current": {
+        "zh-CN": "慕娜·星诺瓦",
+        "zh-TW": "慕娜·星諾瓦",
+        "ja": "ムーナ・ホシノヴァ",
+        "en": "Moona Hoshinova"
+      },
+      "candidates": [
+        "暮娜·惑星诺瓦"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/moona_hoshinova",
+        "otherNames": [
+          "Moona_Hoshinova",
+          "MoonaHoshinova",
+          "HoshinovArt",
+          "ムーナ・ホシノヴァ",
+          "ムーナ",
+          "ムーナホシノヴァー",
+          "暮娜·惑星诺瓦"
+        ],
+        "danbooruCategory": "character"
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "multiple_boys",
+      "type": "adjudicate",
+      "source": "multiple boys",
+      "current": {
+        "zh-CN": "多个男孩",
+        "zh-TW": "多個男孩",
+        "ja": "複数男",
+        "en": "Multiple Boys"
+      },
+      "candidates": [
+        "群像"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/multiple_boys",
+        "otherNames": [
+          "群像"
+        ],
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
+    },
+    {
+      "dataset": "iwara",
+      "key": "multiple_girls",
+      "type": "adjudicate",
+      "source": "multiple girls",
+      "current": {
+        "zh-CN": "多个女孩",
+        "zh-TW": "多個女孩",
+        "ja": "複数女",
+        "en": "Multiple Girls"
+      },
+      "candidates": [
+        "群像"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/multiple_girls",
+        "otherNames": [
+          "群像"
+        ],
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
+    },
+    {
+      "dataset": "iwara",
+      "key": "multiple_views",
+      "type": "adjudicate",
+      "source": "multiple views",
+      "current": {
+        "zh-CN": "多视角",
+        "zh-TW": "多視角",
+        "ja": "複数アングル",
+        "en": "Multiple Views"
+      },
+      "candidates": [
+        "3面図",
+        "三视图",
+        "三面図",
+        "多视图",
+        "摸鱼页",
+        "组合页"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/multiple_views",
+        "otherNames": [
+          "三面図",
+          "3面図",
+          "マルチシーン",
+          "multiple_angles",
+          "三视图",
+          "多视图",
+          "组合页",
+          "摸鱼页"
+        ],
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
+    },
+    {
+      "dataset": "iwara",
+      "key": "muscular",
+      "type": "adjudicate",
+      "source": "muscular",
+      "current": {
+        "zh-CN": "强壮",
+        "zh-TW": "強壯",
+        "ja": "マッシブ",
+        "en": "Muscular"
+      },
+      "candidates": [
+        "大腿筋",
+        "筋肉",
+        "肌肉发达"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/muscular",
+        "otherNames": [
+          "筋肉",
+          "筋肉質",
+          "玉つき筋肉ショタ",
+          "大腿筋",
+          "蹴られたくない剛脚",
+          "肌肉发达"
+        ],
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
+    },
+    {
+      "dataset": "iwara",
+      "key": "mutilation",
+      "type": "adjudicate",
+      "source": "mutilation",
+      "current": {
+        "zh-CN": "残肢",
+        "zh-TW": "殘肢",
+        "ja": "切断",
+        "en": "Mutilation"
+      },
+      "candidates": [
+        "性器破壊"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/mutilation",
+        "otherNames": [
+          "性器破壊"
+        ],
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
+    },
+    {
+      "dataset": "iwara",
+      "key": "mutual_masturbation",
+      "type": "adjudicate",
+      "source": "mutual masturbation",
+      "current": {
+        "zh-CN": "互相抚慰",
+        "zh-TW": "互相撫慰",
+        "ja": "相互オナニー",
+        "en": "Mutual Masturbation"
+      },
+      "candidates": [
+        "互相手淫"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/mutual_masturbation",
+        "otherNames": [
+          "相互オナニー",
+          "互相手淫"
+        ],
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
+    },
+    {
+      "dataset": "iwara",
+      "key": "nakiri_ayame",
+      "type": "adjudicate",
+      "source": "nakiri ayame",
+      "current": {
+        "zh-CN": "百鬼绫目",
+        "zh-TW": "百鬼綾目",
+        "ja": "百鬼あやめ",
+        "en": "Nakiri Ayame"
+      },
+      "candidates": [
+        "百鬼絵巻",
+        "百鬼綾目"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/nakiri_ayame",
+        "otherNames": [
+          "百鬼あやめ",
+          "百鬼絵巻",
+          "百鬼綾目"
+        ],
+        "danbooruCategory": "character"
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "nanashi_mumei",
+      "type": "adjudicate",
+      "source": "nanashi mumei",
+      "current": {
+        "zh-CN": "七诗Mumei",
+        "zh-TW": "七詩Mumei",
+        "ja": "七詩ムメイ",
+        "en": "Nanashi Mumei"
+      },
+      "candidates": [
+        "七诗无铭"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/nanashi_mumei",
+        "otherNames": [
+          "七詩ムメイ",
+          "watchMEI",
+          "memeMEI",
+          "drawMEI",
+          "drawingMEI",
+          "ムメ絵",
+          "NanashiMumei",
+          "七诗无铭"
+        ],
+        "danbooruCategory": "character"
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "naughty_face",
+      "type": "adjudicate",
+      "source": "naughty face",
+      "current": {
+        "zh-CN": "恶作剧脸",
+        "zh-TW": "惡作劇臉",
+        "ja": "いたずら顔",
+        "en": "Naughty Face"
+      },
+      "candidates": [
+        "调皮脸"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/naughty_face",
+        "otherNames": [
+          "调皮脸",
+          "ニヤニヤ"
+        ],
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
+    },
+    {
+      "dataset": "iwara",
+      "key": "necrophilia",
+      "type": "adjudicate",
+      "source": "necrophilia",
+      "current": {
+        "zh-CN": "恋尸癖",
+        "zh-TW": "戀屍癖",
+        "ja": "ネクロフィリア",
+        "en": "Necrophilia"
+      },
+      "candidates": [
+        "屍姦",
+        "死姦"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/necrophilia",
+        "otherNames": [
+          "屍姦",
+          "死姦"
+        ],
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
+    },
+    {
+      "dataset": "iwara",
+      "key": "nekomiya_mana",
+      "type": "adjudicate",
+      "source": "nekomiya mana",
+      "current": {
+        "zh-CN": "猫宫Mana",
+        "zh-TW": "貓宮Mana",
+        "ja": "猫宮まな",
+        "en": "Nekomiya Mana"
+      },
+      "candidates": [
+        "猫又",
+        "猫宫又奈"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/nekomiya_mana",
+        "otherNames": [
+          "猫宫又奈",
+          "NekomiyaMana",
+          "猫宮又奈",
+          "猫又(绝区零)"
+        ],
+        "danbooruCategory": "character"
       }
     }
   ]

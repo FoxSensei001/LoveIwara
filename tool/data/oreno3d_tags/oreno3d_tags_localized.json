@@ -18030,5 +18030,33 @@
     "zh-TW": "白銀之城",
     "en": "Labrynth",
     "ja": "白銀の城"
+  },
+  "origins/855": {
+    "_src": "Arcaea",
+    "ja": "Arcaea",
+    "zh-CN": "韵律源点",
+    "zh-TW": "韻律源點",
+    "en": "Arcaea"
+  },
+  "origins/857": {
+    "_src": "ウォーハンマー40,000",
+    "ja": "ウォーハンマー40,000",
+    "zh-CN": "战锤40000",
+    "zh-TW": "戰鎚40000",
+    "en": "Warhammer 40,000"
+  },
+  "origins/856": {
+    "_src": "ブラック・ブレット",
+    "ja": "ブラック・ブレット",
+    "zh-CN": "黑色子弹",
+    "zh-TW": "黑色子彈",
+    "en": "Black Bullet"
+  },
+  "origins/858": {
+    "_src": "クロスファイア",
+    "ja": "クロスファイア",
+    "zh-CN": "穿越火线",
+    "zh-TW": "穿越火線",
+    "en": "CrossFire"
   }
 }

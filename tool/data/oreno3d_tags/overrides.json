@@ -373,6 +373,22 @@
         "https://danbooru.donmai.us/wiki_pages/hazbin_hotel"
       ],
       "note": "中文圈公认通用译名为「地狱客栈」（繁体「地獄旅館」），现有译名「哈斯宾酒店」为生硬音译。"
+    },
+    "origins/853": {
+      "n": {
+        "zh-CN": "星塔旅人",
+        "zh-TW": "星塔旅人"
+      },
+      "prev": {
+        "zh-CN": "Stella Sora",
+        "zh-TW": "Stella Sora"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/stella_sora"
+      ],
+      "note": "《ステラソラ》（Stella Sora）为悠星（Yostar）开发的游戏，官方中文名为《星塔旅人》，替换原先占位的英文名。"
     }
   }
 }
