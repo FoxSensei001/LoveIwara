@@ -1,11 +1,13 @@
 {
   "schema": 1,
   "batch": 3,
+  "inputFingerprint": "8f99e62498a4fb38",
   "count": 87,
   "contract": {
-    "output": "写成同名 .out.json，结构 {\"batch\":N,\"entries\":[{\"key\":...,\"decision\":...,\"names\":{...},\"reason\":...,\"ref\":[...]}]}",
+    "output": "写成同名 .out.json，结构 {\"batch\":N,\"inputFingerprint\":\"<原样抄输入里的那串>\",\"entries\":[{\"key\":...,\"decision\":...,\"names\":{...},\"reason\":...,\"ref\":[...]}]}",
     "rules": [
       "key 与条数必须与输入完全一致，不得增删、不得改写 key",
+      "inputFingerprint 必须从输入里原样抄到输出——它用来确认你处理的是这一代的输入",
       "type=translate：为 need 里的每个语言给出译名，写进 names；known 里的不要改",
       "type=adjudicate：decision 取 keep（保留 current）或 replace（用 names 覆盖）；replace 时 names 必须给出要改的语言",
       "没有把握一律 keep / 保留原文，不要编。宁可留日文也不要给一个错的中文名",

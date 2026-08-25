@@ -172,10 +172,15 @@ void main(List<String> args) {
     n++;
     final slice =
         tasks.sublist(i, i + size > tasks.length ? tasks.length : i + size);
+    // 批次文件名跨代复用，所以给每份输入按 key 集合算一个指纹，
+    // 要求输出原样回带。否则上一代的 .out.json 会被拿来比这一代的 .in.json，
+    // 报出「漏了 120 条 / 凭空多出 120 条」这种把人引向错误方向的信息。
+    final fingerprint = _fingerprint(slice.map((e) => '${e['key']}').toList());
     File('${outDir.path}/batch_${n.toString().padLeft(3, '0')}.in.json')
         .writeAsStringSync(enc.convert({
       'schema': 1,
       'batch': n,
+      'inputFingerprint': fingerprint,
       'count': slice.length,
       'contract': _contract,
       'entries': slice,
@@ -218,12 +223,25 @@ String? _categoryWarning(String dataset, Map<String, dynamic>? evidence) {
       '若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。';
 }
 
+/// 按 key 集合算的稳定指纹（与顺序无关）。
+String _fingerprint(List<String> keys) {
+  final sorted = [...keys]..sort();
+  var hash = 0xcbf29ce484222325;
+  for (final b in utf8.encode(sorted.join('\n'))) {
+    hash ^= b;
+    hash = (hash * 0x100000001b3) & 0xFFFFFFFFFFFFFFFF;
+  }
+  return BigInt.from(hash).toUnsigned(64).toRadixString(16).padLeft(16, '0');
+}
+
 const _contract = {
   'output': '写成同名 .out.json，结构 '
-      '{"batch":N,"entries":[{"key":...,"decision":...,"names":{...},'
+      '{"batch":N,"inputFingerprint":"<原样抄输入里的那串>",'
+      '"entries":[{"key":...,"decision":...,"names":{...},'
       '"reason":...,"ref":[...]}]}',
   'rules': [
     'key 与条数必须与输入完全一致，不得增删、不得改写 key',
+    'inputFingerprint 必须从输入里原样抄到输出——它用来确认你处理的是这一代的输入',
     'type=translate：为 need 里的每个语言给出译名，写进 names；known 里的不要改',
     'type=adjudicate：decision 取 keep（保留 current）或 replace（用 names 覆盖）；'
         'replace 时 names 必须给出要改的语言',

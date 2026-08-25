@@ -73,6 +73,19 @@ void main(List<String> args) {
       continue;
     }
 
+    // 先核对代际：批次文件名会跨代复用，指纹对不上说明这份 out 对应的是
+    // 另一次生成的输入，此时报「漏了 N 条」只会把人引向错误方向。
+    final wantFp = input['inputFingerprint'];
+    final gotFp = output['inputFingerprint'];
+    if (wantFp != null && gotFp != wantFp) {
+      rejected.add(Reject(name, [
+        '这份 .out.json 对应的不是当前的 .in.json'
+            '（输入指纹 $wantFp，输出回带 ${gotFp ?? '缺失'}）。'
+            '批次已重新生成过，请用当前的 .in.json 重跑。'
+      ]));
+      continue;
+    }
+
     final inEntries = <String, Map<String, dynamic>>{
       for (final e in (input['entries'] as List).cast<Map<String, dynamic>>())
         e['key'] as String: e,
