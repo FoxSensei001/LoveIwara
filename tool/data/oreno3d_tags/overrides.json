@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "entries": {
+    "characters/2215": {
+      "n": { "zh-CN": "小萤", "zh-TW": "小螢" },
+      "prev": { "zh-CN": "流萤", "zh-TW": "流螢" },
+      "src": "manual",
+      "by": "dev",
+      "ref": ["https://oreno3d.com/characters/2215"],
+      "at": "2026-08-25",
+      "note": "スプラトゥーン 的 ホタル（小萤/Marie），与崩壊:スターレイル 的 ホタル（流萤）同名不同人。迁移前两者共享译名，都被显示为「流萤」。"
+    }
+  }
+}
