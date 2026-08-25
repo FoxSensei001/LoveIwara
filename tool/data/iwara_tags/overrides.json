@@ -210,6 +210,58 @@
         "https://danbooru.donmai.us/wiki_pages/astra_yao"
       ],
       "note": "《绝区零》角色 Astra Yao 官方中文名为「耀嘉音」，日文名为「アストラ・ヤオ」，替换原先不完整的单字机翻「姚」。"
+    },
+    "amagai_ruka": {
+      "n": {
+        "zh-CN": "雨海琉夏",
+        "zh-TW": "雨海琉夏",
+        "ja": "雨海ルカ"
+      },
+      "prev": {
+        "zh-CN": "天海琉夏",
+        "zh-TW": "天海琉夏",
+        "ja": "天海琉夏"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/amagai_ruka"
+      ],
+      "note": "角色为 VTuber「雨海ルカ」，修正姓氏「天海」误译及日文假名写法，避免使用含罗马音的候选名「雨海Ruka」。"
+    },
+    "aoki_lapis": {
+      "n": {
+        "zh-CN": "苍姬拉碧斯",
+        "zh-TW": "蒼姬拉碧斯"
+      },
+      "prev": {
+        "zh-CN": "苍姬Lapis",
+        "zh-TW": "蒼姬Lapis"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/aoki_lapis",
+        "https://zh.moegirl.org.cn/苍姬拉碧斯"
+      ],
+      "note": "将混杂英文字母的「苍姬Lapis」替换为标准中文译名「苍姬拉碧斯」。"
+    },
+    "adachi_rei": {
+      "n": {
+        "zh-CN": "足立零",
+        "zh-TW": "足立零"
+      },
+      "prev": {
+        "zh-CN": "足立Rei",
+        "zh-TW": "足立Rei"
+      },
+      "src": "ai-batch",
+      "by": "batch_001",
+      "ref": [
+        "https://danbooru.donmai.us/wiki_pages/adachi_rei",
+        "https://zh.moegirl.org.cn/足立レイ"
+      ],
+      "note": "将混杂罗马音的「足立Rei」替换为通用标准中文译名「足立零」。"
     }
   }
 }

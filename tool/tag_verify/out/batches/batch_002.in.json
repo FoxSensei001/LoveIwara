@@ -20,78 +20,6 @@
   "entries": [
     {
       "dataset": "iwara",
-      "key": "black_cat",
-      "type": "adjudicate",
-      "source": "black cat",
-      "current": {
-        "zh-CN": "黑猫",
-        "zh-TW": "黑貓",
-        "ja": "黒猫",
-        "en": "Black Cat"
-      },
-      "candidates": [
-        "黒猫"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/black_cat",
-        "otherNames": [
-          "黒猫"
-        ],
-        "danbooruCategory": "general"
-      },
-      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
-    },
-    {
-      "dataset": "iwara",
-      "key": "blackmail",
-      "type": "adjudicate",
-      "source": "blackmail",
-      "current": {
-        "zh-CN": "敲诈/威胁",
-        "zh-TW": "敲詐/威脅",
-        "ja": "脅迫",
-        "en": "Blackmail"
-      },
-      "candidates": [
-        "強要",
-        "恐喝"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/blackmail",
-        "otherNames": [
-          "恐喝",
-          "強要"
-        ],
-        "danbooruCategory": "general"
-      },
-      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
-    },
-    {
-      "dataset": "iwara",
-      "key": "bleach",
-      "type": "adjudicate",
-      "source": "bleach",
-      "current": {
-        "zh-CN": "死神",
-        "zh-TW": "死神",
-        "ja": "BLEACH",
-        "en": "Bleach"
-      },
-      "candidates": [
-        "境·界"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/bleach",
-        "otherNames": [
-          "BLEACH",
-          "境·界",
-          "ブリーチ"
-        ],
-        "danbooruCategory": "copyright"
-      }
-    },
-    {
-      "dataset": "iwara",
       "key": "blindfold",
       "type": "adjudicate",
       "source": "blindfold",
@@ -2620,6 +2548,29 @@
     },
     {
       "dataset": "iwara",
+      "key": "may",
+      "type": "adjudicate",
+      "source": "may",
+      "current": {
+        "zh-CN": "小遥",
+        "zh-TW": "小遙",
+        "ja": "ハルカ",
+        "en": "May"
+      },
+      "candidates": [
+        "5月"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/may",
+        "otherNames": [
+          "5月"
+        ],
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
+    },
+    {
+      "dataset": "iwara",
       "key": "zombie",
       "type": "adjudicate",
       "source": "zombie",
@@ -2638,31 +2589,6 @@
           "🧟",
           "ゾンビ",
           "丧尸"
-        ],
-        "danbooruCategory": "general"
-      },
-      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
-    },
-    {
-      "dataset": "iwara",
-      "key": "medium_breasts",
-      "type": "adjudicate",
-      "source": "medium breasts",
-      "current": {
-        "zh-CN": "美乳",
-        "zh-TW": "美乳",
-        "ja": "美乳",
-        "en": "Medium Breasts"
-      },
-      "candidates": [
-        "普乳",
-        "普通乳"
-      ],
-      "evidence": {
-        "url": "https://danbooru.donmai.us/wiki_pages/medium_breasts",
-        "otherNames": [
-          "普通乳",
-          "普乳"
         ],
         "danbooruCategory": "general"
       },
@@ -3183,6 +3109,87 @@
         ],
         "danbooruCategory": "character"
       }
+    },
+    {
+      "dataset": "iwara",
+      "key": "nekopara",
+      "type": "adjudicate",
+      "source": "nekopara",
+      "current": {
+        "zh-CN": "巧克力与香子兰",
+        "zh-TW": "巧克力與香子蘭",
+        "ja": "ネコパラ",
+        "en": "Nekopara"
+      },
+      "candidates": [
+        "猫娘乐园"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/nekopara",
+        "otherNames": [
+          "貓娘樂園",
+          "猫娘乐园",
+          "ネコぱら"
+        ],
+        "danbooruCategory": "copyright"
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "nerissa_ravencroft",
+      "type": "adjudicate",
+      "source": "nerissa ravencroft",
+      "current": {
+        "zh-CN": "涅莉萨·雷文克罗夫特",
+        "zh-TW": "涅莉薩·雷文克羅夫特",
+        "ja": "ネリッサ・レイヴンクロフト",
+        "en": "Nerissa Ravencroft"
+      },
+      "candidates": [
+        "纳瑞莎·雷文克罗夫特"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/nerissa_ravencroft",
+        "otherNames": [
+          "RavenCrafts",
+          "ネリッサ・レイヴンクロフト",
+          "DepravenCrafts",
+          "NerissaRavencroft",
+          "纳瑞莎·雷文克罗夫特"
+        ],
+        "danbooruCategory": "character"
+      }
+    },
+    {
+      "dataset": "iwara",
+      "key": "netorare",
+      "type": "adjudicate",
+      "source": "netorare",
+      "current": {
+        "zh-CN": "寝取",
+        "zh-TW": "寢取",
+        "ja": "寝取られ",
+        "en": "Netorare"
+      },
+      "candidates": [
+        "戴绿帽",
+        "逆NTR"
+      ],
+      "evidence": {
+        "url": "https://danbooru.donmai.us/wiki_pages/netorare",
+        "otherNames": [
+          "寝取られ",
+          "NTR",
+          "逆NTR",
+          "寝取り",
+          "寝取らせ",
+          "ntr",
+          "BSS",
+          "戴绿帽"
+        ],
+        "danbooruCategory": "general"
+      },
+      "warning": "Danbooru 上这个 tag 是 general（普通名词）分类，candidates 描述的是那个普通名词。iwara 是角色向站点，本标签很可能指的是**同名角色**而非普通名词——若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。"
     }
   ]
 }
