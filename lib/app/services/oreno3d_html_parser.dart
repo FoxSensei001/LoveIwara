@@ -141,7 +141,16 @@ class Oreno3dHtmlParser {
     }
   }
 
-  /// 提取标签列表
+  /// 提取列表卡片上的标签。
+  ///
+  /// 卡片上的标签是**纯文本节点、逐行排列**，整个 `<article>` 里只有一个 `<a>`
+  /// （视频链接），所以这里拿不到 id，只能按文本切分——这也是搜索结果卡片
+  /// 只能按日文名兜底本地化（`localizeByName`）的原因。
+  ///
+  /// ⚠️ 必须按**换行**切，不能按空白切：词条名里带空格的有 7 个
+  /// （`PiNK CAT`、`Apple Pie`、`kiss me 愛してる`…），
+  /// 按 `\s+` 切会把 `PiNK CAT` 拆成 `PiNK` 和 `CAT` 两个碎片，
+  /// 两个都查不到译名，在界面上表现为「翻译坏了」。
   static List<String> _extractTags(Element? tagsElement) {
     if (tagsElement == null) return [];
 
@@ -152,13 +161,11 @@ class Oreno3dHtmlParser {
       return [];
     }
 
-    // 使用换行符和空格分割标签
-    final tagsList = textContent
-        .split(RegExp(r'\s+'))
+    return textContent
+        .split('\n')
+        .map((tag) => tag.trim())
         .where((tag) => tag.isNotEmpty)
         .toList();
-
-    return tagsList;
   }
 
   /// 提取分页信息
