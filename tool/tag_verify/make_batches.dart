@@ -5,7 +5,10 @@
 ///   - `adjudicate`：现有译名与 Danbooru 证据不一致，需要裁决保留还是替换
 ///
 /// 契约（与 tool/tag_verify/README.md 一致，收回时由 ingest.dart 强制校验）：
-///   - 每批默认 120 条，agent 读 `batch_XXX.in.json` 写 `batch_XXX.out.json`
+///   - 每批默认 120 条，agent 读 `batch_XXX.in.json`，
+///     **拷贝 `batch_XXX.tpl.json` 为 `batch_XXX.out.json` 后就地填值**
+///     （模板里 key 与条数已经排好，agent 不再有机会重排 key —— 实测它会整块丢掉
+///     输入中间的一段再拿别处的 key 凑数，提示词拦不住，把动作删掉才拦得住）
 ///   - **agent 永远不碰主词库**，合并只由 ingest.dart 做
 ///   - key 与条数必须与输入完全一致，不得增删
 ///   - 没有把握就 keep / 保留原文，不要编
@@ -170,7 +173,9 @@ void main(List<String> args) {
   final outDir = Directory('tool/tag_verify/out/batches')
     ..createSync(recursive: true);
   for (final f in outDir.listSync()) {
-    if (f.path.endsWith('.in.json')) f.deleteSync();
+    if (f.path.endsWith('.in.json') || f.path.endsWith('.tpl.json')) {
+      f.deleteSync();
+    }
   }
 
   const enc = JsonEncoder.withIndent('  ');
@@ -183,14 +188,34 @@ void main(List<String> args) {
     // 要求输出原样回带。否则上一代的 .out.json 会被拿来比这一代的 .in.json，
     // 报出「漏了 120 条 / 凭空多出 120 条」这种把人引向错误方向的信息。
     final fingerprint = _fingerprint(slice.map((e) => '${e['key']}').toList());
-    File('${outDir.path}/batch_${n.toString().padLeft(3, '0')}.in.json')
-        .writeAsStringSync(enc.convert({
+    final stem = 'batch_${n.toString().padLeft(3, '0')}';
+    File('${outDir.path}/$stem.in.json').writeAsStringSync(enc.convert({
       'schema': 1,
       'batch': n,
       'inputFingerprint': fingerprint,
       'count': slice.length,
       'contract': _contract,
       'entries': slice,
+    }));
+
+    // 同时出一份「填空模板」：key 已按输入顺序排好、条数已对，agent 只需就地填值。
+    //
+    // 这不是锦上添花。实测 agent 会整块丢掉输入中间的一段（如第 60-78 位），
+    // 再从别的批次和凭空编造的 key 里补齐条数——**条数对得上，key 全错**。
+    // 提示词里写「不得增删 key」拦不住这个：它不是不知道规则，是自己重排了一遍 key。
+    // 模板把「重排 key」这个动作从流程里删掉，这一类错误就无从发生。
+    File('${outDir.path}/$stem.tpl.json').writeAsStringSync(enc.convert({
+      'batch': n,
+      'inputFingerprint': fingerprint,
+      'entries': [
+        for (final t in slice)
+          {
+            'key': t['key'],
+            if (t['type'] == 'adjudicate') 'decision': '',
+            'names': {for (final l in (t['need'] as List? ?? const [])) l: ''},
+            'reason': '',
+          },
+      ],
     }));
   }
 
@@ -201,7 +226,7 @@ void main(List<String> args) {
   stdout.writeln('共 ${tasks.length} 条待判断 -> $n 个批次（每批 $size）');
   byType.forEach((k, v) => stdout.writeln('  $k  $v'));
   stdout.writeln('输出目录 ${outDir.path}');
-  stdout.writeln('\n跑完把结果写成同名的 .out.json，然后：');
+  stdout.writeln('\n每批先 cp batch_XXX.tpl.json batch_XXX.out.json 再就地填值，然后：');
   stdout.writeln('  dart run tool/tag_verify/ingest.dart');
 }
 
