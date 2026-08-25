@@ -26,7 +26,42 @@ const _ua = 'LoveIwara-tag-verify/0.1 (+https://github.com/FoxSensei001/LoveIwar
 const _endpoint = 'https://danbooru.donmai.us/wiki_pages.json';
 
 /// 礼貌限速：Danbooru 允许更快，但没必要——这是低频离线任务。
-const _delay = Duration(milliseconds: 350);
+const _delay = Duration(milliseconds: 300);
+
+/// 查询缓存：全量跑 2580 条要十几分钟，中途挂掉不该从头再来。
+/// 键是实际发出的查询词，值是 Danbooru 的首条结果（查不到则记 null）。
+class _Cache {
+  final File file;
+  final Map<String, dynamic> data;
+  var _dirty = 0;
+
+  _Cache(this.file, this.data);
+
+  factory _Cache.load(String path) {
+    final f = File(path);
+    if (!f.existsSync()) return _Cache(f, {});
+    try {
+      return _Cache(f, jsonDecode(f.readAsStringSync()) as Map<String, dynamic>);
+    } catch (_) {
+      return _Cache(f, {});
+    }
+  }
+
+  bool has(String k) => data.containsKey(k);
+  Map<String, dynamic>? get(String k) =>
+      (data[k] as Map?)?.cast<String, dynamic>();
+
+  void put(String k, Map<String, dynamic>? v) {
+    data[k] = v;
+    if (++_dirty >= 25) flush();
+  }
+
+  void flush() {
+    file.parent.createSync(recursive: true);
+    file.writeAsStringSync(jsonEncode(data));
+    _dirty = 0;
+  }
+}
 
 final _kana = RegExp(r'[ぁ-ゟァ-ヺー-ヿ]');
 final _han = RegExp(r'[一-鿿]');
@@ -138,6 +173,18 @@ List<String> _queryVariants(String name) {
   return variants;
 }
 
+Future<Map<String, dynamic>?> _queryCached(
+    HttpClient client, _Cache cache, String name) async {
+  if (cache.has(name)) return cache.get(name);
+  final pages = await _query(client, name);
+  final first = pages.isEmpty ? null : (pages.first as Map).cast<String, dynamic>();
+  cache.put(name, first == null
+      ? null
+      : {'title': first['title'], 'other_names': first['other_names']});
+  await Future<void>.delayed(_delay);
+  return cache.get(name);
+}
+
 Future<List<dynamic>> _query(HttpClient client, String name) async {
   final uri = Uri.parse(_endpoint).replace(queryParameters: {
     'search[other_names_match]': name,
@@ -189,8 +236,10 @@ Future<void> main(List<String> args) async {
     keys = keysArg.split(',').map((e) => e.trim()).where(byKey.containsKey).toList();
   } else if (args.contains('--missing')) {
     keys = byKey.keys.where((k) => !loc.containsKey(k)).toList();
+  } else if (args.contains('--all')) {
+    keys = byKey.keys.toList();
   } else {
-    stderr.writeln('要么 --missing，要么 --keys a,b,c');
+    stderr.writeln('要么 --all / --missing，要么 --keys a,b,c');
     exitCode = 64;
     return;
   }
@@ -201,10 +250,13 @@ Future<void> main(List<String> args) async {
 
   stdout.writeln('待核实 ${keys.length} 条');
 
+  final cache = _Cache.load('tool/tag_verify/out/danbooru_cache.json');
   final client = HttpClient();
   final results = <Map<String, dynamic>>[];
   var hit = 0;
   var originConfirmed = 0;
+  final verdicts = <String, int>{};
+  final quiet = args.contains('--quiet');
 
   for (var i = 0; i < keys.length; i++) {
     final key = keys[i];
@@ -212,31 +264,33 @@ Future<void> main(List<String> args) async {
     final name = entry['name'] as String;
     final origin = entry['origin'] as String?;
 
-    List<dynamic> pages = const [];
+    Map<String, dynamic>? page;
     var matchedVia = name;
     for (final v in _queryVariants(name)) {
-      pages = await _query(client, v);
-      await Future<void>.delayed(_delay);
-      if (pages.isNotEmpty) {
+      page = await _queryCached(client, cache, v);
+      if (page != null) {
         matchedVia = v;
         break;
       }
     }
 
-    if (pages.isEmpty) {
+    if (page == null) {
       results.add({
         'key': key,
         'ja': name,
         'origin': origin,
         'found': false,
+        'verdict': 'no_evidence',
         'confidence': 'none',
       });
-      stdout.writeln('  ${(i + 1).toString().padLeft(3)}/${keys.length} '
-          '${key.padRight(18)} $name  -> 查不到，需 AI 判断');
+      verdicts['no_evidence'] = (verdicts['no_evidence'] ?? 0) + 1;
+      if (!quiet) {
+        stdout.writeln('  ${(i + 1).toString().padLeft(4)}/${keys.length} '
+            '${key.padRight(18)} $name  -> 查不到，需 AI 判断');
+      }
       continue;
     }
 
-    final page = (pages.first as Map).cast<String, dynamic>();
     final title = '${page['title']}';
     final others = ((page['other_names'] as List?) ?? const [])
         .map((e) => '$e')
@@ -258,6 +312,10 @@ Future<void> main(List<String> args) async {
             _loose(h).contains(_loose(origin)));
 
     // 只有日文原名精确出现在 other_names 里，才认为查的是同一个对象。
+
+    hit++;
+    if (okOrigin) originConfirmed++;
+
     final exact = others.contains(matchedVia);
     // 靠退回变体（去括注 / 括注内别名）命中的，证据比全名命中弱：
     // 「ココナ(心夏)」用「心夏」去查，可能撞上另一个同字角色。
@@ -269,14 +327,40 @@ Future<void> main(List<String> args) async {
             ? (viaFallback && !okOrigin ? 'low' : 'high')
             : (viaFallback ? 'low' : 'medium');
 
-    hit++;
-    if (okOrigin) originConfirmed++;
+    // 与词库里现有译名比对——这才是「AI 当年认错了多少人」的信号来源。
+    final existingZh =
+        ((loc[key] as Map?)?['zh-CN'] as String?)?.trim() ?? '';
+    final zhPool = <String>{...buckets.zhCN, ...buckets.zhAny};
+    final zhPoolClean = zhPool
+        .map((e) => e.replaceAll(RegExp(r'[（(][^）)]*[）)]'), '').trim())
+        .where((e) => e.isNotEmpty)
+        .toSet();
+    String verdict;
+    if (existingZh.isEmpty) {
+      verdict = 'untranslated';
+    } else if (confidence != 'high') {
+      // 证据不够硬就不下判断。典型反例：斯普拉遁的 ホタル 查 Danbooru 会命中
+      // 星铁那个 ホタル 的页面（归属对不上 → medium），此时说「译名一致」是假的一致。
+      verdict = 'weak_evidence';
+    } else if (zhPoolClean.isEmpty) {
+      verdict = 'no_zh_evidence';
+    } else if (zhPoolClean.contains(existingZh) || zhPool.contains(existingZh)) {
+      verdict = 'agree';
+    } else if (zhPoolClean.any((c) => existingZh.contains(c) || c.contains(existingZh))) {
+      // 「玛绮朵」vs「玛绮朵(少女前线2)」这类包含关系算一致。
+      verdict = 'agree_loose';
+    } else {
+      verdict = 'disagree';
+    }
+    verdicts[verdict] = (verdicts[verdict] ?? 0) + 1;
 
     results.add({
       'key': key,
       'ja': name,
       'origin': origin,
       'found': true,
+      'existingZh': existingZh,
+      'verdict': verdict,
       'confidence': confidence,
       'exactJaMatch': exact,
       'danbooru': {
@@ -297,11 +381,17 @@ Future<void> main(List<String> args) async {
     final zh = buckets.zhCN.isNotEmpty
         ? buckets.zhCN.first
         : (buckets.zhAny.isNotEmpty ? buckets.zhAny.first : '—');
-    stdout.writeln('  ${(i + 1).toString().padLeft(3)}/${keys.length} '
-        '${key.padRight(18)} ${name.padRight(22)} -> $zh  '
-        '[$confidence${okOrigin ? ', 归属已核' : ''}]');
+    if (!quiet) {
+      stdout.writeln('  ${(i + 1).toString().padLeft(4)}/${keys.length} '
+          '${key.padRight(18)} ${name.padRight(22)} -> $zh  '
+          '[$confidence${okOrigin ? ', 归属已核' : ''}]');
+    } else if ((i + 1) % 200 == 0) {
+      stdout.writeln('  进度 ${i + 1}/${keys.length}  '
+          '（命中 $hit，分歧 ${verdicts['disagree'] ?? 0}）');
+    }
   }
   client.close();
+  cache.flush();
 
   final outDir = Directory('tool/tag_verify/out')..createSync(recursive: true);
   final f = File('${outDir.path}/evidence.json');
@@ -311,10 +401,18 @@ Future<void> main(List<String> args) async {
     'total': results.length,
     'hit': hit,
     'originConfirmed': originConfirmed,
+    'verdicts': verdicts,
     'results': results,
   }));
 
   stdout.writeln('\n查得到 $hit/${keys.length}，其中归属也对得上 $originConfirmed 条');
+  if (verdicts.isNotEmpty) {
+    stdout.writeln('与现有译名比对：');
+    for (final e in verdicts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value))) {
+      stdout.writeln('  ${e.key.padRight(16)} ${e.value}');
+    }
+  }
   stdout.writeln('剩下 ${keys.length - hit} 条需要 AI 判断');
   stdout.writeln('证据 -> ${f.path}');
 }
