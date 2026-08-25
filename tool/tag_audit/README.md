@@ -21,7 +21,7 @@ dart run tool/tag_audit/audit.dart --top 50   # 顺便在终端打印前 50 条
 | 信号 | 权重 | 含义 | 谁能修 |
 |---|---|---|---|
 | `name_collision` | 1000 | 多个词条共享同一个日文原名，**且译名至今仍然完全相同**（尚未拆解） | 人工拆，修一组少一组 |
-| `parser_split_risk` | 700 | 原名含空白，列表页解析器按 `\s+` 切碎 | 修解析器 |
+| `parser_split_risk` | 700 | **tags 类别**原名含空白，列表页解析器按 `\s+` 切碎 | 修解析器 |
 | `stuffed_translation` | 500 | 原名不含并列符，译名却塞了多个候选（`/`、`、`、`・`） | 人工定夺 |
 | `kana_left_in_zh` | 300 | 中文译名里残留假名 | 补译 |
 | `script_mismatch` | 250 | zh-TW 里混进简体字 / zh-CN 里混进繁体字 | 改字 |
@@ -46,6 +46,22 @@ dart run tool/tag_audit/audit.dart --top 50   # 顺便在终端打印前 50 条
 简繁检测用 `cjk_variants.dart` 的两张「独用字」表（各 285 字），只收对方字集里几乎不出现的高频字，
 两岸共用字（美、里、骨、鹿、黑、云、干、面、后…）一律不收——否则会把正常译名全判成简繁混用。
 两张表的交集必须为空。
+
+## 卡片解析器：已用真实 HTML 确认的事实
+
+抓 `https://oreno3d.com/tags/33` 验证过卡片 DOM：
+
+- 卡片上的标签是**纯文本节点、逐行排列**，整个 `<article>` 里只有一个 `<a>`（视频链接）。
+  **没有 id、没有链接**——所以「改解析器让列表页也带 id」这条路不存在，
+  `localizeByName` 按日文名兜底是卡片上唯一可行的方案。
+- 卡片只显示 **tags 类别**（166 条），origins / characters 根本不上卡片。
+  所以 `ONE PIECE`、`DEAD OR ALIVE` 这些含空格的 origins **不会**被切碎——
+  真正受影响的只有 tags 类别里含空白的 7 条（`PiNK CAT`、`Apple Pie`、`kiss me 愛してる`…）。
+- 38 组同名冲突里只有 1 组（`一騎当千`）涉及 tags 类别，
+  所以卡片上的译名歧义几乎不存在。
+
+修法是把 `_extractTags` 的 `split(RegExp(r'\s+'))` 换成按换行切分再 trim，
+不需要 id 也能修好。（属于运行时改动，不在本工具目录内。）
 
 ## 已知未覆盖
 

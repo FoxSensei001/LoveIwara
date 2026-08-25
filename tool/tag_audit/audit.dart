@@ -234,7 +234,12 @@ List<Finding> _auditOreno3d(String root) {
       extra['cross_origin'] = origins.length > 1;
     }
 
-    if (RegExp(r'\s').hasMatch(name)) signals.add('parser_split_risk');
+    // 只有 tags 类别会出现在搜索结果卡片上（origins / characters 不上卡片），
+    // 而卡片解析器是唯一按空白切分的地方。已用真实 HTML 确认：
+    // 卡片里的标签是纯文本、逐行排列、无链接无 id。
+    if (cat == 'tags' && RegExp(r'\s').hasMatch(name)) {
+      signals.add('parser_split_risk');
+    }
 
     signals.addAll(_langSignals(
       source: name,
