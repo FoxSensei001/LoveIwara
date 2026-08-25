@@ -166,33 +166,86 @@ void main(List<String> args) {
   }
 
   // ---------------- iwara ----------------
+  //
+  // ⚠️ 这里**遍历原始标签表**，而不是遍历证据结果。
+  // 老实现只走 `iEv['results']` 且只处理 `disagree`，有两个后果：
+  //   1. 未补译的新标签压根不进队列——重抓带回 273 条时一条都排不出来；
+  //   2. 「拉不到 Danbooru 证据」会变成排队的阻塞条件，而证据只是线索，
+  //      不该决定一个词条要不要被翻译（agent 自己也能联网核实）。
+  // 现在证据是可选附加项：有就带上，没有就留空。
   final iLoc = _json('tool/data/iwara_tags/iwara_tags_localized.json');
   final iEv = _json('tool/tag_verify/out/evidence_iwara.json');
-  for (final r in (iEv['results'] as List).cast<Map<String, dynamic>>()) {
-    if (r['verdict'] != 'disagree') continue;
-    final key = r['key'] as String;
-    if (decidedIwara.contains(key)) continue;
+  final iEvByKey = <String, Map<String, dynamic>>{
+    for (final r in (iEv['results'] as List).cast<Map<String, dynamic>>())
+      '${r['key']}': r,
+  };
+  final iRaw = _json('tool/data/iwara_tags/iwara_tags.json');
+
+  for (final e in (iRaw['tags'] as List).cast<Map<String, dynamic>>()) {
+    final key = '${e['id']}';
     final source = key.replaceAll('_', ' ');
-    final cur = (iLoc[key] as Map?)?.cast<String, dynamic>() ?? const {};
-    final pool = _cleanPool(
-        (r['candidates'] as Map?)?.cast<String, dynamic>(), source);
-    if (pool.isEmpty) continue;
-    final ev = _evidence(r);
+    final cur = (iLoc[key] as Map?)?.cast<String, dynamic>();
+    final r = iEvByKey[key];
+    final ev = r == null ? null : _evidence(r);
     final warn = _categoryWarning('iwara', ev);
-    final task = <String, dynamic>{
-      'dataset': 'iwara',
-      'key': key,
-      'type': 'adjudicate',
-      'source': source,
-      'current': {
-        for (final l in _langs)
-          if ('${cur[l] ?? ''}'.trim().isNotEmpty) l: '${cur[l]}',
-      },
-      'candidates': pool,
-      'evidence': ev,
-    };
-    if (warn != null) task['warning'] = warn;
-    tasks.add(task);
+
+    Map<String, dynamic> mk(String type) {
+      final t = <String, dynamic>{
+        'dataset': 'iwara',
+        'key': key,
+        'type': type,
+        'source': source,
+        'tagType': e['type'],
+        'evidence': ?ev,
+      };
+      if (warn != null) t['warning'] = warn;
+      return t;
+    }
+
+    if (cur == null) {
+      tasks.add(mk('translate')
+        ..['need'] = _langs.toList()
+        ..['known'] = const <String, String>{});
+      continue;
+    }
+
+    final missing =
+        _langs.where((l) => '${cur[l] ?? ''}'.trim().isEmpty).toList();
+    if (missing.isNotEmpty) {
+      tasks.add(mk('translate')
+        ..['need'] = missing
+        ..['known'] = {
+          for (final l in _langs)
+            if ('${cur[l] ?? ''}'.trim().isNotEmpty) l: '${cur[l]}',
+        });
+    }
+
+    // 与 oreno3d 侧同一条：中文位上写的还是日文，等于没译。
+    final kanaLangs = _langs
+        .where((l) => l.startsWith('zh') && _kana.hasMatch('${cur[l] ?? ''}'))
+        .toList();
+    if (kanaLangs.isNotEmpty && !decidedIwara.contains(key)) {
+      tasks.add(mk('translate')
+        ..['need'] = kanaLangs
+        ..['known'] = {
+          for (final l in _langs)
+            if (!kanaLangs.contains(l) && '${cur[l] ?? ''}'.trim().isNotEmpty)
+              l: '${cur[l]}',
+        }
+        ..['note'] = '当前中文位仍是日文原文，请音译成纯中文（不要回填罗马音）');
+    }
+
+    if (r != null && r['verdict'] == 'disagree' && !decidedIwara.contains(key)) {
+      final pool = _cleanPool(
+          (r['candidates'] as Map?)?.cast<String, dynamic>(), source);
+      if (pool.isEmpty) continue;
+      tasks.add(mk('adjudicate')
+        ..['current'] = {
+          for (final l in _langs)
+            if ('${cur[l] ?? ''}'.trim().isNotEmpty) l: '${cur[l]}',
+        }
+        ..['candidates'] = pool);
+    }
   }
 
   // 热门的先做：错在热门词条上影响面更大。
