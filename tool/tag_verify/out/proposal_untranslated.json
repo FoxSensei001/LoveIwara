@@ -1,0 +1,273 @@
+{
+  "schema": 1,
+  "target": "tool/data/oreno3d_tags/oreno3d_tags_localized.json",
+  "total": 26,
+  "entries": {
+    "characters/1188": {
+      "ja": "毒島冴子",
+      "zh-CN": "毒岛冴子",
+      "en": "Busujima Saeko",
+      "_src": "毒島冴子",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/busujima_saeko",
+      "_confidence": "medium",
+      "_missing": [
+        "zh-TW"
+      ]
+    },
+    "characters/2488": {
+      "ja": "ナナミ",
+      "en": "Nanami",
+      "_src": "ナナミ",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/nanami_(e.o.)",
+      "_confidence": "medium",
+      "_missing": [
+        "zh-CN",
+        "zh-TW"
+      ]
+    },
+    "characters/2800": {
+      "ja": "乾心寿",
+      "en": "Inui Shinju",
+      "_src": "乾心寿",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/inui_shinju",
+      "_confidence": "medium",
+      "_missing": [
+        "zh-CN",
+        "zh-TW"
+      ]
+    },
+    "characters/3138": {
+      "ja": "龍ヶ崎リン",
+      "en": "Ryugasaki Rene",
+      "_src": "龍ヶ崎リン",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/ryugasaki_rene",
+      "_confidence": "medium",
+      "_missing": [
+        "zh-CN",
+        "zh-TW"
+      ]
+    },
+    "characters/3218": {
+      "ja": "ゼニス・グレイラット",
+      "en": "Zenith Greyrat",
+      "_src": "ゼニス・グレイラット",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/zenith_greyrat",
+      "_confidence": "medium",
+      "_missing": [
+        "zh-CN",
+        "zh-TW"
+      ]
+    },
+    "characters/4080": {
+      "ja": "マキアート",
+      "zh-CN": "玛绮朵",
+      "zh-TW": "玛绮朵",
+      "en": "Makiatto",
+      "_src": "マキアート",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/makiatto_(girls'_frontline_2)",
+      "_confidence": "high"
+    },
+    "characters/4247": {
+      "ja": "ココナ(心夏)",
+      "zh-CN": "春原心奈",
+      "zh-TW": "春原心奈",
+      "en": "Kokona",
+      "_src": "ココナ(心夏)",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/kokona_(blue_archive)",
+      "_confidence": "low"
+    },
+    "characters/4368": {
+      "ja": "マリヤ・ミハイロヴナ・九条",
+      "zh-CN": "玛利亚·米哈伊罗夫纳·九条",
+      "zh-TW": "玛利亚",
+      "en": "Mariya Mikhailovna Kujou",
+      "_src": "マリヤ・ミハイロヴナ・九条",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/mariya_mikhailovna_kujou",
+      "_confidence": "medium"
+    },
+    "characters/4473": {
+      "ja": "八奈見杏菜",
+      "en": "Yanami Anna",
+      "_src": "八奈見杏菜",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/yanami_anna",
+      "_confidence": "medium",
+      "_missing": [
+        "zh-CN",
+        "zh-TW"
+      ]
+    },
+    "characters/4873": {
+      "ja": "ミツモト・ダイア",
+      "zh-TW": "三元・大恋愛",
+      "en": "Mitsumoto Dia",
+      "_src": "ミツモト・ダイア",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/mitsumoto_dia",
+      "_confidence": "medium",
+      "_missing": [
+        "zh-CN"
+      ]
+    },
+    "characters/4995": {
+      "ja": "クルカイ",
+      "zh-CN": "可露凯",
+      "zh-TW": "可露凱",
+      "en": "Klukai",
+      "_src": "クルカイ",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/klukai_(girls'_frontline_2)",
+      "_confidence": "high"
+    },
+    "characters/5006": {
+      "ja": "シュウ",
+      "en": "Chi You",
+      "_src": "シュウ",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/chi_you_(megami_tensei)",
+      "_confidence": "medium",
+      "_missing": [
+        "zh-CN",
+        "zh-TW"
+      ]
+    },
+    "characters/5132": {
+      "ja": "ロッシ",
+      "zh-CN": "洛茜",
+      "zh-TW": "洛茜",
+      "en": "Rossi",
+      "_src": "ロッシ",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/rossi_(arknights)",
+      "_confidence": "high"
+    },
+    "characters/5169": {
+      "ja": "ノルムー",
+      "en": "Norma Hollowell",
+      "_src": "ノルムー",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/norma_hollowell",
+      "_confidence": "medium",
+      "_missing": [
+        "zh-CN",
+        "zh-TW"
+      ]
+    },
+    "characters/5182": {
+      "ja": "ヴェリナ",
+      "zh-CN": "维琳娜",
+      "en": "Velina Airgid",
+      "_src": "ヴェリナ",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/velina_airgid",
+      "_confidence": "high",
+      "_missing": [
+        "zh-TW"
+      ]
+    },
+    "characters/5183": {
+      "ja": "レミエール・ダン(ラミル)",
+      "zh-CN": "拉米尔",
+      "zh-TW": "拉米尔",
+      "en": "Remielle Dan",
+      "_src": "レミエール・ダン(ラミル)",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/remielle_dan",
+      "_confidence": "low"
+    },
+    "characters/5202": {
+      "ja": "穂穂",
+      "zh-CN": "穗穗",
+      "zh-TW": "穗穗",
+      "en": "Suisui",
+      "_src": "穂穂",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/suisui_(wuthering_waves)",
+      "_confidence": "medium"
+    },
+    "characters/5216": {
+      "ja": "オデット",
+      "zh-CN": "奥黛塔",
+      "zh-TW": "奥黛塔",
+      "en": "Odette",
+      "_src": "オデット",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/odette_(genshin_impact)",
+      "_confidence": "high"
+    },
+    "characters/5224": {
+      "ja": "清宵",
+      "en": "Qingxiao",
+      "_src": "清宵",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/qingxiao_(wuthering_waves)",
+      "_confidence": "medium",
+      "_missing": [
+        "zh-CN",
+        "zh-TW"
+      ]
+    },
+    "characters/680": {
+      "ja": "松浦果南",
+      "en": "Matsuura Kanan",
+      "_src": "松浦果南",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/matsuura_kanan",
+      "_confidence": "medium",
+      "_missing": [
+        "zh-CN",
+        "zh-TW"
+      ]
+    },
+    "characters/779": {
+      "ja": "ジャベリン",
+      "zh-CN": "标枪",
+      "en": "Javelin",
+      "_src": "ジャベリン",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/javelin_(azur_lane)",
+      "_confidence": "high",
+      "_missing": [
+        "zh-TW"
+      ]
+    },
+    "origins/854": {
+      "ja": "白銀の城",
+      "zh-CN": "白银之城",
+      "zh-TW": "白銀之城",
+      "en": "Silver Palace",
+      "_src": "白銀の城",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/silver_palace",
+      "_confidence": "high"
+    },
+    "origins/855": {
+      "ja": "Arcaea",
+      "zh-CN": "韵律源点",
+      "zh-TW": "韵律源点",
+      "en": "Arcaea",
+      "_src": "Arcaea",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/arcaea",
+      "_confidence": "high"
+    },
+    "origins/856": {
+      "ja": "ブラック・ブレット",
+      "en": "Black Bullet",
+      "_src": "ブラック・ブレット",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/black_bullet",
+      "_confidence": "high",
+      "_missing": [
+        "zh-CN",
+        "zh-TW"
+      ]
+    },
+    "origins/857": {
+      "ja": "ウォーハンマー40,000",
+      "zh-CN": "战锤",
+      "en": "Warhammer 40k",
+      "_src": "ウォーハンマー40,000",
+      "_evidence": "https://danbooru.donmai.us/wiki_pages/warhammer_40k",
+      "_confidence": "high",
+      "_missing": [
+        "zh-TW"
+      ]
+    },
+    "origins/858": {
+      "ja": "クロスファイア",
+      "_src": "クロスファイア",
+      "_evidence": null,
+      "_confidence": "none",
+      "_missing": [
+        "zh-CN",
+        "zh-TW",
+        "en"
+      ]
+    }
+  }
+}
