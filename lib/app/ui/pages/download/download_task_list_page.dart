@@ -800,7 +800,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   /// 不封顶**的东西，不是几个平级视图，用 tab 展示既名不副实，多起来还得横着
   /// 拨才知道有哪些（2026-08-26 用户原话：「tab 不是用来展示这种效果的」）。
   /// 现在走 [GlassDropdownPill]：当前分类亮在胶囊上，点开是一张列全的玻璃
-  /// 菜单（带计数 + 选中标记），末尾常驻「管理分类」——入口不再占着一整行，
+  /// 菜单（带计数 + 选中标记），顶上常驻「管理分类」——入口不再占着一整行，
   /// 也不会被分类数量挤走。
   ///
   /// 一个分类都没有时，胶囊本身就是「管理分类」入口（不带 ▾，点了直接进管理
@@ -844,7 +844,10 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     return t.common.all;
   }
 
-  /// 分类菜单：全部 / 未分类 / 各分类（带计数）+ 末尾的「管理分类」。
+  /// 分类菜单：置顶的「管理分类」+ 全部 / 未分类 / 各分类（带计数）。
+  ///
+  /// 「管理分类」在最上面而不是压在末尾：分类多起来之后它会被挤到要滚动才够得着
+  /// 的位置，而它恰恰是「分类还没建好」时最需要的那一条。
   Future<void> _openCategoryMenu(BuildContext anchorContext) async {
     final t = slang.Translations.of(context);
     final categories = DownloadService.to.categories;
@@ -852,6 +855,12 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     final picked = await showGlassMenu<String>(
       anchorContext: anchorContext,
       entries: [
+        GlassMenuOption<String>(
+          value: _menuValueManageCategory,
+          label: t.download.category.manageTitle,
+          icon: Icons.settings_outlined,
+        ),
+        const GlassMenuSeparator(),
         GlassMenuOption<String>(
           value: 'all',
           label: t.common.all,
@@ -864,19 +873,15 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
               '${DownloadService.to.uncategorizedCount.value}',
           selected: active == 'uncategorized',
         ),
-        const GlassMenuSeparator(),
+        // 一个分类都没有时不留这条分隔线（正常进不来：无分类时胶囊本身就是
+        // 「管理分类」入口，根本不弹菜单）。
+        if (categories.isNotEmpty) const GlassMenuSeparator(),
         for (final c in categories)
           GlassMenuOption<String>(
             value: c.id,
             label: '${c.title} · ${c.itemCount ?? 0}',
             selected: active == c.id,
           ),
-        const GlassMenuSeparator(),
-        GlassMenuOption<String>(
-          value: _menuValueManageCategory,
-          label: t.download.category.manageTitle,
-          icon: Icons.settings_outlined,
-        ),
       ],
     );
     if (!mounted || picked == null) return;
@@ -1222,6 +1227,11 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
           height: 56,
           borderRadius: BorderRadius.circular(16),
           padding: const EdgeInsets.symmetric(horizontal: 12),
+          // 这条是**信息条**，不是控件：整只按下去没有任何事情发生。跟手形变
+          // 默认开是为了「一块玻璃按下去会动」这条手感（见 GlassSurface.
+          // liquidTouch），但在这里它反过来骗人——按住条子本身整块放大、松手
+          // 弹回，看着像点中了什么，实际能点的只有右边那两个键。
+          liquidTouch: false,
           child: Row(
             children: [
               Icon(Icons.pause_circle_outline, size: 20, color: cs.primary),
