@@ -279,7 +279,43 @@ void main() {
           '${offenders.join('\n')}',
     );
   });
+
+  test('选择器弹窗一律走 GlassPickerDialog（已清零，零容忍）', () {
+    final offenders = <String>[];
+    for (final file in _dartFiles()) {
+      if (_rel(file) == _pickerDialogSourceOfTruth) continue;
+      final source = file.readAsStringSync().replaceAll(_lineComment, '');
+      if (!_headerScrim.hasMatch(source)) continue;
+      if (!_dialogShell.hasMatch(source)) continue;
+      offenders.add(_rel(file));
+    }
+    expect(
+      offenders,
+      isEmpty,
+      reason:
+          '「列表从顶部玻璃控件行背后滚过去」的弹窗配方（Dialog + Stack + '
+          'EdgeFadeScrim.headerOverlay + paddingTop）原本被抄了四份，每份都在'
+          '文件顶部手写 `_kXxxRowHeight = 8 + 44` 去猜自己有多高。猜错了没有'
+          '任何信号：玻璃输入框实测 48 而不是 44（prefixIcon 的 48 点击区顶着），'
+          '于是每多一行输入框，8px 的尾部留白就被吃掉 4——本地收藏 / 播放列表'
+          '两张各两行输入框，留白正好归零，列表首屏直接顶在控件底缘上'
+          '（2026-08-26 报障「毫无空隙」）。\n'
+          '改用 GlassPickerDialog：header 高度由它实测下发，横向留白统一走'
+          'GlassPickerDialog.hPadding，字号放大 / 加减一行都不用再改常数。\n'
+          '${offenders.join('\n')}',
+    );
+  });
 }
+
+/// 选择器弹窗骨架的定义处——这套配方只该出现在这里。
+const _pickerDialogSourceOfTruth =
+    'lib/app/ui/widgets/glass/glass_picker_dialog.dart';
+
+/// 「header 悬浮在列表之上」的顶部蒙层。
+final _headerScrim = RegExp(r'EdgeFadeScrim\.headerOverlay\(');
+
+/// 弹窗外壳：`Dialog(` / `Dialog.fullscreen(`（GlassDialog 之类前缀不算）。
+final _dialogShell = RegExp(r'(?<![A-Za-z0-9_])Dialog(\.[A-Za-z]+)?\(');
 
 /// `EdgeFadeScrim.top(height: <1>, solidExtent: <2>` —— 两个具名参数之间可能
 /// 隔着换行与缩进，但不跨过右括号。

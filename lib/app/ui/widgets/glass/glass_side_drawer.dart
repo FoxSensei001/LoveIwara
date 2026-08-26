@@ -4,13 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_measured_box.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
-/// 头部行占位（不含状态栏）：上边距 16 + 玻璃圆钮 44 + 下留白 4。
-const double _kHeaderExtent = 16 + GlassTokens.pillHeight + 4;
+/// header 行的**预估**占位（不含状态栏）：上边距 16 + 玻璃圆钮 44 + 下留白 4。
+///
+/// 只用于首帧，真实高度由 [GlassMeasuredBox] 量出来——原来这里还按副标题
+/// 额外加 18，而实测带副标题的标题行仍是 44（标题 28 + 副标题 16 正好填满
+/// 圆钮那 44），于是有副标题的抽屉白多出 18px 的空档。
+const double _kHeaderExtentEstimate = 16 + GlassTokens.pillHeight + 4;
+
+/// 抽屉里 header 与内容共用的横向留白。header 原来是「左 20 右 12」、内容是
+/// 16，三条线各走各的；对齐到同一个数。
+const double _kDrawerHPadding = 16;
+
+/// header 底缘与内容之间的呼吸位。
+const double _kDrawerHeaderTailSpacing = 8;
 
 /// 宽屏（PC / 平板）下侧边抽屉的固定宽度。
 ///
@@ -176,10 +188,7 @@ class _GlassSideDrawerHostState extends State<_GlassSideDrawerHost>
                     ? _settleFrom *
                           (1 - Curves.easeOutCubic.transform(_settle.value))
                     : (_settle.isCompleted ? 0 : _dragOffset);
-                return Transform.translate(
-                  offset: Offset(dx, 0),
-                  child: child,
-                );
+                return Transform.translate(offset: Offset(dx, 0), child: child);
               },
               child: SizedBox(width: width, child: widget.builder(context)),
             ),
@@ -195,7 +204,7 @@ class _GlassSideDrawerHostState extends State<_GlassSideDrawerHost>
 /// 内容铺满整只抽屉，靠 [bodyBuilder] 拿到的 padding 让出 header 高度，滚动时
 /// 从玻璃 header 背后经过；上下各一条渐变蒙层收边——与页面上的
 /// `GlassHeaderOverlay` 是同一套观感。
-class GlassSideDrawerShell extends StatelessWidget {
+class GlassSideDrawerShell extends StatefulWidget {
   const GlassSideDrawerShell({
     super.key,
     required this.title,
@@ -222,15 +231,35 @@ class GlassSideDrawerShell extends StatelessWidget {
   final Widget? footer;
 
   @override
+  State<GlassSideDrawerShell> createState() => _GlassSideDrawerShellState();
+}
+
+class _GlassSideDrawerShellState extends State<GlassSideDrawerShell> {
+  /// header 行的实测高度（含状态栏与上下留白）。首帧用预估值。
+  double? _headerHeight;
+
+  void _onHeaderMeasured(Size size) {
+    if (_headerHeight != null && (size.height - _headerHeight!).abs() < 0.5) {
+      return;
+    }
+    setState(() => _headerHeight = size.height);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    final String title = widget.title;
+    final String? subtitle = widget.subtitle;
+    final List<Widget> headerActions = widget.headerActions;
+    final Widget? footer = widget.footer;
+
     final double statusBarHeight = MediaQuery.paddingOf(context).top;
     final double safeBottom = MediaQuery.paddingOf(context).bottom;
     final double headerExtent =
-        statusBarHeight + _kHeaderExtent + (subtitle == null ? 0 : 18);
+        _headerHeight ?? (statusBarHeight + _kHeaderExtentEstimate);
 
     return Drawer(
       // 宽度由外面的 [_GlassSideDrawerHost] 定，这里撑满即可
@@ -250,20 +279,25 @@ class GlassSideDrawerShell extends StatelessWidget {
             child: Column(
               children: [
                 Expanded(
-                  child: bodyBuilder(
+                  child: widget.bodyBuilder(
                     context,
                     EdgeInsets.fromLTRB(
-                      16,
-                      headerExtent + 8,
-                      16,
+                      _kDrawerHPadding,
+                      headerExtent + _kDrawerHeaderTailSpacing,
+                      _kDrawerHPadding,
                       footer == null ? safeBottom + 24 : 8,
                     ),
                   ),
                 ),
                 if (footer != null)
                   Padding(
-                    padding: EdgeInsets.fromLTRB(16, 0, 16, safeBottom + 12),
-                    child: footer!,
+                    padding: EdgeInsets.fromLTRB(
+                      _kDrawerHPadding,
+                      0,
+                      _kDrawerHPadding,
+                      safeBottom + 12,
+                    ),
+                    child: footer,
                   ),
               ],
             ),
@@ -287,48 +321,56 @@ class GlassSideDrawerShell extends StatelessWidget {
             top: 0,
             left: 0,
             right: 0,
-            child: GlassChromeLayer(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(20, statusBarHeight + 16, 12, 4),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          if (subtitle != null)
+            child: GlassMeasuredBox(
+              onSize: _onHeaderMeasured,
+              child: GlassChromeLayer(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    _kDrawerHPadding,
+                    statusBarHeight + 16,
+                    _kDrawerHPadding,
+                    4,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
                             Text(
-                              subtitle!,
+                              title,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                        ],
+                            if (subtitle != null)
+                              Text(
+                                subtitle,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
-                    ),
-                    for (final action in headerActions) ...[
+                      for (final action in headerActions) ...[
+                        const SizedBox(width: 8),
+                        action,
+                      ],
                       const SizedBox(width: 8),
-                      action,
+                      GlassIconButton(
+                        standalone: true,
+                        icon: const Icon(Icons.close),
+                        tooltip: t.common.close,
+                        onPressed: () => Navigator.of(context).maybePop(),
+                      ),
                     ],
-                    const SizedBox(width: 8),
-                    GlassIconButton(
-                      standalone: true,
-                      icon: const Icon(Icons.close),
-                      tooltip: t.common.close,
-                      onPressed: () => Navigator.of(context).maybePop(),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),

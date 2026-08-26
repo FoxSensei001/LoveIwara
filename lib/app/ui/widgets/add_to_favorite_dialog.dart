@@ -4,23 +4,11 @@ import 'package:i_iwara/app/models/favorite/favorite_folder.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
-import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_picker_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:waterfall_flow/waterfall_flow.dart';
-
-// 头部各行的显式尺寸——列表要用 paddingTop 让出这些高度,让内容可以从
-// header 背后滚过去。padding + 44 圆钮/输入框 = 每行实际占位。
-const double _kPickerTitleRowHeight = 16 + 44 + 4;
-const double _kPickerSearchRowHeight = 8 + 44;
-const double _kPickerCreateRowHeight = 10 + 44;
-const double _kPickerHeaderTailSpacing = 8;
-const double _kPickerHeaderExtent = _kPickerTitleRowHeight +
-    _kPickerSearchRowHeight +
-    _kPickerCreateRowHeight +
-    _kPickerHeaderTailSpacing;
 
 /// 加载指示器与状态图标共用的固定占位尺寸——只要行内右侧图标槽位不改高度,
 /// WaterfallFlow 就不会因为「点击某项时它高度变了 2px」把后面的卡片重新排到
@@ -172,172 +160,74 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
     }
   }
 
-  /// 玻璃胶囊输入框容器：半透明底色 + 细描边，与全局玻璃控件一致。
-  Widget _buildGlassField(BuildContext context, {required Widget child}) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      decoration: BoxDecoration(
-        color: GlassTokens.fill(colorScheme),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: GlassTokens.stroke(colorScheme), width: 0.6),
-      ),
-      child: child,
-    );
-  }
-
-  InputDecoration _fieldDecoration(
-    BuildContext context, {
-    required String hint,
-    required IconData icon,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
-      border: InputBorder.none,
-      focusedBorder: InputBorder.none,
-      prefixIcon: Icon(icon, color: colorScheme.onSurfaceVariant),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-      clipBehavior: Clip.antiAlias,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: 600,
-          maxHeight: 800,
+    return GlassPickerDialog(
+      title: t.favorite.localizeFavorite,
+      titleActions: [
+        GlassIconButton(
+          standalone: true,
+          icon: const Icon(Icons.folder_open),
+          tooltip: t.favorite.myFavorites,
+          onPressed: () {
+            AppService.tryPop();
+            NaviService.navigateToLocalFavoritePage();
+          },
         ),
-        child: Stack(
-          children: [
-            // 主体:列表铺满整个区域,用 paddingTop 让出 header 高度,让内容
-            // 可以从上方玻璃 header 背后滚过去(液态玻璃改造:与首页/作者页/搜索页
-            // 统一使用 GlassHeaderOverlay 同款 Stack + EdgeFadeScrim.top 模式)。
-            Positioned.fill(child: _buildBody(context, t, colorScheme)),
-            // 顶部渐变蒙层:header 高度区间恒定不透明,再向下平滑淡出,让底层列表
-            // 滚到 header 附近时自然「溶」进边缘。
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: EdgeFadeScrim.headerOverlay(
-                headerExtent: _kPickerHeaderExtent,
-                plateauExtent: _kPickerTitleRowHeight,
+      ],
+      rows: [
+        // 搜索
+        GlassPickerRow.field(
+          child: GlassPickerField(
+            controller: _searchController,
+            hintText: t.favorite.searchFolders,
+            icon: Icons.search,
+            onChanged: _filterFolders,
+          ),
+        ),
+        // 新建：玻璃输入 + 主色圆钮
+        GlassPickerRow.field(
+          child: Row(
+            children: [
+              Expanded(
+                child: GlassPickerField(
+                  controller: _newFolderController,
+                  enabled: !_isCreating,
+                  hintText: t.favorite.newFolderName,
+                  icon: Icons.create_new_folder_outlined,
+                  onSubmitted: (_) => _createNewFolder(),
+                ),
               ),
-            ),
-            // 顶部玻璃控件行:标题 / 我的收藏入口 / 关闭钮 / 搜索 / 新建。
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: Column(
-                children: [
-                  // 标题行:标题 + 我的收藏入口 + 玻璃关闭圆钮
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 16, 4),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            t.favorite.localizeFavorite,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(fontWeight: FontWeight.w600),
-                          ),
+              const SizedBox(width: 10),
+              _isCreating
+                  ? const SizedBox(
+                      width: GlassPickerDialog.fieldRowHeight,
+                      height: GlassPickerDialog.fieldRowHeight,
+                      child: Center(
+                        child: SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(strokeWidth: 2),
                         ),
-                        GlassIconButton(
-                          standalone: true,
-                          icon: const Icon(Icons.folder_open),
-                          tooltip: t.favorite.myFavorites,
-                          onPressed: () {
-                            AppService.tryPop();
-                            NaviService.navigateToLocalFavoritePage();
-                          },
-                        ),
-                        const SizedBox(width: 8),
-                        GlassIconButton(
-                          standalone: true,
-                          icon: const Icon(Icons.close),
-                          onPressed: () => AppService.tryPop(),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // 搜索
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                    child: _buildGlassField(
-                      context,
-                      child: TextField(
-                        controller: _searchController,
-                        decoration: _fieldDecoration(
-                          context,
-                          hint: t.favorite.searchFolders,
-                          icon: Icons.search,
-                        ),
-                        onChanged: _filterFolders,
+                      ),
+                    )
+                  : IconButton.filled(
+                      onPressed: _createNewFolder,
+                      icon: const Icon(Icons.add),
+                      constraints: const BoxConstraints.tightFor(
+                        width: GlassPickerDialog.fieldRowHeight,
+                        height: GlassPickerDialog.fieldRowHeight,
                       ),
                     ),
-                  ),
-                  // 新建：玻璃输入 + 主色圆钮
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: _buildGlassField(
-                            context,
-                            child: TextField(
-                              controller: _newFolderController,
-                              enabled: !_isCreating,
-                              decoration: _fieldDecoration(
-                                context,
-                                hint: t.favorite.newFolderName,
-                                icon: Icons.create_new_folder_outlined,
-                              ),
-                              onSubmitted: (_) => _createNewFolder(),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        _isCreating
-                            ? const SizedBox(
-                                width: 44,
-                                height: 44,
-                                child: Center(
-                                  child: SizedBox(
-                                    width: 22,
-                                    height: 22,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : IconButton.filled(
-                                onPressed: _createNewFolder,
-                                icon: const Icon(Icons.add),
-                                constraints: const BoxConstraints.tightFor(
-                                  width: 44,
-                                  height: 44,
-                                ),
-                              ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
+      ],
+      bodyBuilder: (context, headerExtent) =>
+          _buildBody(context, t, colorScheme, headerExtent),
     );
   }
 
@@ -345,10 +235,11 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
     BuildContext context,
     slang.Translations t,
     ColorScheme colorScheme,
+    double headerExtent,
   ) {
     if (_error != null) {
       return Padding(
-        padding: const EdgeInsets.only(top: _kPickerHeaderExtent),
+        padding: EdgeInsets.only(top: headerExtent),
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -378,22 +269,27 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
       );
     }
     if (_isLoading && _folders.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.only(top: _kPickerHeaderExtent),
-        child: Center(child: CircularProgressIndicator()),
+      return Padding(
+        padding: EdgeInsets.only(top: headerExtent),
+        child: const Center(child: CircularProgressIndicator()),
       );
     }
     if (_filteredFolders.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.only(top: _kPickerHeaderExtent),
-        child: Center(child: MyEmptyWidget()),
+      return Padding(
+        padding: EdgeInsets.only(top: headerExtent),
+        child: const Center(child: MyEmptyWidget()),
       );
     }
     return WaterfallFlow.builder(
-      // paddingTop 只让出 header 本身：蒙层的尾巴还会往下压一小段，但走到
-      // header 底缘时已经淡到峰值的两成出头，首屏条目是从渐变里「溶」出来的，
-      // 不是被一条硬边切开（与页面档同一条曲线，见 EdgeFadeScrim.headerOverlay）。
-      padding: const EdgeInsets.fromLTRB(12, _kPickerHeaderExtent, 12, 12),
+      // headerExtent 由 GlassPickerDialog 实测下发（已含 8px 尾部留白）：
+      // 蒙层的尾巴还会往下压一小段，但走到 header 底缘时已经淡到峰值的两成
+      // 出头，首屏条目是从渐变里「溶」出来的，不是被一条硬边切开。
+      padding: EdgeInsets.fromLTRB(
+        GlassPickerDialog.hPadding,
+        headerExtent,
+        GlassPickerDialog.hPadding,
+        12,
+      ),
       gridDelegate: const SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisSpacing: 8,

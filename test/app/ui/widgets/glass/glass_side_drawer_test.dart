@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_measured_box.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_side_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
@@ -104,9 +105,7 @@ void main() {
           title: '筛选',
           subtitle: '改动即时生效',
           onReset: onReset,
-          children: const [
-            GlassFilterSection(title: '分区', child: Text('内容')),
-          ],
+          children: const [GlassFilterSection(title: '分区', child: Text('内容'))],
         ),
       );
       await tester.pumpAndSettle();
@@ -120,6 +119,31 @@ void main() {
       expect(find.text('内容'), findsOneWidget);
     });
 
+    // header 高度原来是文件顶部手写的常数，还按「有副标题就 +18」加了一截，
+    // 而实测带副标题的标题行仍是 44（标题 28 + 副标题 16 正好填满圆钮那 44）——
+    // 于是有副标题的抽屉白多出 18px 空档，横向又是「header 左 20 右 12、内容
+    // 16」三条线各走各的。现在高度由 GlassMeasuredBox 量出来、留白统一，
+    // 与选择器弹窗（GlassPickerDialog）同一套规矩。
+    testWidgets('header 底缘与内容之间只留一档呼吸位（副标题不会白多出一截）', (tester) async {
+      await openShell(tester);
+      final double headerBottom = tester
+          .getRect(find.byType(GlassMeasuredBox))
+          .bottom;
+      final double contentTop = tester
+          .getRect(find.byType(GlassFilterSection))
+          .top;
+      expect(contentTop - headerBottom, moreOrLessEquals(8, epsilon: 0.5));
+    });
+
+    testWidgets('标题与内容左对齐在同一条线上', (tester) async {
+      await openShell(tester);
+      final double titleLeft = tester.getRect(find.text('筛选')).left;
+      final double contentLeft = tester
+          .getRect(find.byType(GlassFilterSection))
+          .left;
+      expect(contentLeft, moreOrLessEquals(titleLeft, epsilon: 0.5));
+    });
+
     testWidgets('抽屉贴右：左边缘落在「屏宽 - 抽屉宽」上', (tester) async {
       await openShell(tester);
       final rect = tester.getRect(find.byType(Drawer));
@@ -131,7 +155,9 @@ void main() {
       await openShell(tester);
       final reset = tester.widget<GlassIconButton>(
         find.byWidgetPredicate(
-          (w) => w is GlassIconButton && w.icon is Icon &&
+          (w) =>
+              w is GlassIconButton &&
+              w.icon is Icon &&
               (w.icon as Icon).icon == Icons.restart_alt,
         ),
       );

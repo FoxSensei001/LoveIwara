@@ -4,31 +4,17 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/oreno3d_favorite.model.dart';
 import 'package:i_iwara/app/services/oreno3d_localization_service.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_picker_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-
-// header 各行的显式尺寸--列表要用 paddingTop 让出这些高度，让内容可以从
-// header 背后滚过去（与 add_video_to_playlist_dialog 同一套弹窗玻璃配方）。
-const double _kTitleRowHeight = 16 + 44 + 4;
-const double _kSegmentRowHeight = 8 + 44;
-const double _kSearchRowHeight = 8 + 44;
-const double _kHeaderTailSpacing = 8;
-const double _kHeaderExtent =
-    _kTitleRowHeight +
-    _kSegmentRowHeight +
-    _kSearchRowHeight +
-    _kHeaderTailSpacing;
 
 /// Oreno3d 实体选择器（离线，从本地词库检索原作/角色/标签）。
 ///
 /// - 顶部三选一切换类别（原作 / 角色 / 标签）+ 搜索框（匹配译名/原文/id）。
 /// - 每行可点击触发 [onSelected]（搜索场景=浏览该实体），右侧爱心独立切换收藏。
 ///
-/// 弹窗本体走「弹窗玻璃标准配方」：圆角 28 + Stack + EdgeFadeScrim +
-/// 标题行关闭玻璃圆钮 + 玻璃分段胶囊 + 玻璃输入胶囊。
+/// 弹窗本体走 [GlassPickerDialog]：圆角 28 + 顶部渐变蒙层 + 标题行关闭玻璃
+/// 圆钮 + 玻璃分段胶囊 + 玻璃输入胶囊。
 class Oreno3dTagPickerDialog extends StatefulWidget {
   /// 初始类别：`origin` / `character` / `tag`。
   final String initialType;
@@ -79,139 +65,62 @@ class _Oreno3dTagPickerDialogState extends State<Oreno3dTagPickerDialog> {
     }
   }
 
-  /// 玻璃胶囊输入框容器：半透明底色 + 细描边，与全局玻璃控件一致。
-  Widget _buildGlassField(BuildContext context, {required Widget child}) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      decoration: BoxDecoration(
-        color: GlassTokens.fill(colorScheme),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: GlassTokens.stroke(colorScheme), width: 0.6),
-      ),
-      child: child,
-    );
-  }
-
-  InputDecoration _fieldDecoration(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return InputDecoration(
-      hintText: slang.t.favoriteTags.searchHint,
-      hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
-      border: InputBorder.none,
-      focusedBorder: InputBorder.none,
-      prefixIcon: Icon(Icons.search, color: colorScheme.onSurfaceVariant),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
 
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-      clipBehavior: Clip.antiAlias,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: 720,
-          minWidth: 320,
-          maxHeight: 760,
-        ),
-        child: Stack(
-          children: [
-            // 主体：列表铺满整个区域，用 paddingTop 让出 header 高度，
-            // 让条目可以从上方玻璃 header 背后滚过去。
-            Positioned.fill(child: _buildBody(context)),
-            // 顶部渐变蒙层：header 高度区间恒定不透明，再向下平滑淡出
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: EdgeFadeScrim.headerOverlay(
-                headerExtent: _kHeaderExtent,
-                plateauExtent: _kTitleRowHeight,
-              ),
-            ),
-            // 顶部玻璃控件行：标题 / 关闭 / 类别分段 / 搜索
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: Column(
-                children: [
-                  // 标题行：标题 + 玻璃关闭圆钮
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 16, 4),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            t.favoriteTags.pickerTitle,
-                            style: Theme.of(context).textTheme.titleLarge
-                                ?.copyWith(fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                        GlassIconButton(
-                          standalone: true,
-                          icon: const Icon(Icons.close),
-                          tooltip: t.common.close,
-                          onPressed: () => Navigator.of(context).pop(),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // 类别切换：玻璃分段胶囊（内容尺寸，段多时自身可横滚）
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: GlassSegmentedControl(
-                        items: [
-                          GlassSegmentItem(label: t.oreno3d.origin),
-                          GlassSegmentItem(label: t.oreno3d.characters),
-                          GlassSegmentItem(label: t.oreno3d.tags),
-                        ],
-                        selectedIndex: _typeValues.indexOf(_type),
-                        onChanged: (index) =>
-                            setState(() => _type = _typeValues[index]),
-                      ),
-                    ),
-                  ),
-                  // 搜索：本地词库检索，输入即过滤
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                    child: _buildGlassField(
-                      context,
-                      child: TextField(
-                        controller: _controller,
-                        decoration: _fieldDecoration(context),
-                        onChanged: (v) => setState(() => _query = v),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+    return GlassPickerDialog(
+      title: t.favoriteTags.pickerTitle,
+      onClose: () => Navigator.of(context).pop(),
+      constraints: const BoxConstraints(
+        maxWidth: 720,
+        minWidth: 320,
+        maxHeight: 760,
       ),
+      rows: [
+        // 类别切换：玻璃分段胶囊（内容尺寸，段多时自身可横滚）
+        GlassPickerRow(
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: GlassSegmentedControl(
+              items: [
+                GlassSegmentItem(label: t.oreno3d.origin),
+                GlassSegmentItem(label: t.oreno3d.characters),
+                GlassSegmentItem(label: t.oreno3d.tags),
+              ],
+              selectedIndex: _typeValues.indexOf(_type),
+              onChanged: (index) => setState(() => _type = _typeValues[index]),
+            ),
+          ),
+        ),
+        // 搜索：本地词库检索，输入即过滤
+        GlassPickerRow.field(
+          child: GlassPickerField(
+            controller: _controller,
+            hintText: t.favoriteTags.searchHint,
+            icon: Icons.search,
+            onChanged: (v) => setState(() => _query = v),
+          ),
+        ),
+      ],
+      bodyBuilder: _buildBody,
     );
   }
 
-  Widget _buildBody(BuildContext context) {
+  Widget _buildBody(BuildContext context, double headerExtent) {
     final t = slang.Translations.of(context);
     final results = _results;
     if (results.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.only(top: _kHeaderExtent),
+        padding: EdgeInsets.only(top: headerExtent),
         child: Center(child: Text(t.common.noData)),
       );
     }
     return ListView.builder(
-      // paddingTop 只让出 header 本身：蒙层的尾巴还会往下压一小段，但走到
-      // header 底缘时已经淡到峰值的两成出头，首屏条目是从渐变里「溶」出来的，
-      // 不是被一条硬边切开（与页面档同一条曲线，见 EdgeFadeScrim.headerOverlay）。
-      padding: const EdgeInsets.only(top: _kHeaderExtent, bottom: 12),
+      // headerExtent 由 GlassPickerDialog 实测下发（已含 8px 尾部留白）：
+      // 蒙层的尾巴还会往下压一小段，但走到 header 底缘时已经淡到峰值的两成
+      // 出头，首屏条目是从渐变里「溶」出来的，不是被一条硬边切开。
+      padding: EdgeInsets.only(top: headerExtent, bottom: 12),
       itemCount: results.length,
       itemBuilder: (context, index) {
         final e = results[index];
