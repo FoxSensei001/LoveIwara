@@ -78,3 +78,8 @@ android/build/
 
 # 本地设计稿（含个人信息，不入库）
 /docs/mockups/
+
+# 标签词库跑批的中间产物（danbooru 缓存 / evidence / batch_*.json，7MB+，可重跑）
+# 只忽略产物目录，这两个工具日后真加了脚本仍然入库。
+/tool/tag_audit/out/
+/tool/tag_verify/out/
