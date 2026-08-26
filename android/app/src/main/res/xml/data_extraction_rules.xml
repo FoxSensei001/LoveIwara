@@ -9,6 +9,7 @@
         <exclude domain="sharedpref" path="FlutterSecureStorageConfiguration.xml" />
         <exclude domain="sharedpref" path="FlutterSecureStorageConfiguration:FlutterSecureStorage.xml" />
         <exclude domain="file" path="secure_fallback.key" />
+        <exclude domain="file" path="install_marker" />
     </cloud-backup>
     <device-transfer>
         <exclude domain="sharedpref" path="FlutterSecureStorage.xml" />
@@ -16,5 +17,6 @@
         <exclude domain="sharedpref" path="FlutterSecureStorageConfiguration.xml" />
         <exclude domain="sharedpref" path="FlutterSecureStorageConfiguration:FlutterSecureStorage.xml" />
         <exclude domain="file" path="secure_fallback.key" />
+        <exclude domain="file" path="install_marker" />
     </device-transfer>
 </data-extraction-rules>

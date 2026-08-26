@@ -38,11 +38,43 @@ class VersionService extends GetxService {
     return this;
   }
 
+  /// 自动检查之间至少隔这么久。
+  ///
+  /// 这个节流本来就该有——`LAST_CHECK_UPDATE_TIME` 一直在写，却从来没有人读，
+  /// 于是只要有新版且用户没点过「忽略此版本」，**每次冷启动都会被弹一次**。
+  /// 手动检查（设置 → 关于）不受这里限制。
+  static const Duration autoCheckInterval = Duration(hours: 24);
+
+  /// 纯判断：这次启动该不该自动查更新。抽出来是为了能单测。
+  @visibleForTesting
+  static bool shouldAutoCheck({
+    required bool autoCheckEnabled,
+    required bool firstTimeSetupCompleted,
+    required int lastCheckMs,
+    required int nowMs,
+  }) {
+    if (!autoCheckEnabled) return false;
+    // 首次引导还没走完：更新弹窗和引导页挂在同一个 root navigator 上，
+    // 这时候弹就是直接盖在引导流程上。留到引导做完之后的那次启动。
+    if (!firstTimeSetupCompleted) return false;
+    if (lastCheckMs <= 0) return true;
+    final int elapsed = nowMs - lastCheckMs;
+    // 用户把系统时间往回调过——别因为一个未来的时间戳把自己锁死。
+    if (elapsed < 0) return true;
+    return elapsed >= autoCheckInterval.inMilliseconds;
+  }
+
   /// 自动检查更新
   void doAutoCheckUpdate() async {
-    if (_configService[ConfigKey.AUTO_CHECK_UPDATE]) {
-      checkUpdate(showDialog: true);
-    }
+    final bool due = shouldAutoCheck(
+      autoCheckEnabled: _configService[ConfigKey.AUTO_CHECK_UPDATE] == true,
+      firstTimeSetupCompleted:
+          _configService[ConfigKey.FIRST_TIME_SETUP_COMPLETED] == true,
+      lastCheckMs: _configService[ConfigKey.LAST_CHECK_UPDATE_TIME] ?? 0,
+      nowMs: DateTime.now().millisecondsSinceEpoch,
+    );
+    if (!due) return;
+    checkUpdate(showDialog: true);
   }
 
   /// 检查更新
@@ -68,7 +100,7 @@ class VersionService extends GetxService {
             latestVersion.value,
           );
 
-          await _fetchUpdateInfo(remoteVersion);
+          _applyUpdateInfo(yaml, remoteVersion);
 
           if (hasUpdate.value) {
             if (updateInfo.value != null) {
@@ -98,26 +130,21 @@ class VersionService extends GetxService {
     }
   }
 
-  /// 获取更新日志
-  Future<void> _fetchUpdateInfo(String version) async {
+  /// 从**已经拉下来的**那份 yaml 里取出对应版本的更新日志。
+  ///
+  /// 以前这里会拿同一个 URL 再 GET 一次，等于每次检查更新都请求两遍。
+  void _applyUpdateInfo(dynamic yaml, String version) {
     try {
-      final response = await _dio.get(
-        _configService[ConfigKey.REMOTE_REPO_UPDATE_LOGS_YAML_URL],
-      );
+      final updates = yaml['updates'] as YamlList;
 
-      if (response.statusCode == 200) {
-        final yaml = loadYaml(response.data);
-        final updates = yaml['updates'] as YamlList;
-
-        for (var update in updates) {
-          if (update['version'] == version) {
-            updateInfo.value = UpdateInfo.fromYaml(update);
-            break;
-          }
+      for (var update in updates) {
+        if (update['version'] == version) {
+          updateInfo.value = UpdateInfo.fromYaml(update);
+          break;
         }
       }
     } catch (e) {
-      LogUtils.e('获取更新日志失败', error: e, tag: 'VersionService');
+      LogUtils.e('解析更新日志失败', error: e, tag: 'VersionService');
     }
   }
 

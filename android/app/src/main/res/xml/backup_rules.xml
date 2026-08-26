@@ -10,4 +10,8 @@
     <exclude domain="sharedpref" path="FlutterSecureStorageConfiguration:FlutterSecureStorage.xml" />
     <!-- 降级加密兜底的本地密钥（SecureFallbackCipher，位于 files/ 根目录） -->
     <exclude domain="file" path="secure_fallback.key" />
+    <!-- 安装标记：必须留在备份之外。它的「不在」正是 RestoredInstallGuard 判定
+         「这份配置是还原来的」的唯一依据；一旦被备份带走，首次引导和玻璃质感提醒
+         会在换机后永远不再出现。 -->
+    <exclude domain="file" path="install_marker" />
 </full-backup-content>
