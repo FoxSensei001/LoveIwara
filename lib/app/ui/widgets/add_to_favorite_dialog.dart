@@ -22,12 +22,6 @@ const double _kPickerHeaderExtent = _kPickerTitleRowHeight +
     _kPickerCreateRowHeight +
     _kPickerHeaderTailSpacing;
 
-/// header 蒙层「淡出段」的高度:比 `GlassTokens.headerFadeExtent`(24)再短一点,
-/// 因为弹窗四周有 clip,过长的半透明淡出会把第一排卡片糊上一层白;20 只作为
-/// 「卡片钻进 header 背后」的过渡带,列表首屏起始位置放在这段之后,视觉上就
-/// 不会看到蒙层压在卡片上。
-const double _kPickerHeaderFadeExtent = 20;
-
 /// 加载指示器与状态图标共用的固定占位尺寸——只要行内右侧图标槽位不改高度,
 /// WaterfallFlow 就不会因为「点击某项时它高度变了 2px」把后面的卡片重新排到
 /// 另一列,进而导致整片列表看起来错位。20 与状态图标 `size: 20` 对齐。
@@ -232,9 +226,9 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
               top: 0,
               left: 0,
               right: 0,
-              child: EdgeFadeScrim.top(
-                height: _kPickerHeaderExtent + _kPickerHeaderFadeExtent,
-                solidExtent: _kPickerHeaderExtent,
+              child: EdgeFadeScrim.headerOverlay(
+                headerExtent: _kPickerHeaderExtent,
+                plateauExtent: _kPickerTitleRowHeight,
               ),
             ),
             // 顶部玻璃控件行:标题 / 我的收藏入口 / 关闭钮 / 搜索 / 新建。
@@ -396,14 +390,10 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
       );
     }
     return WaterfallFlow.builder(
-      // paddingTop 落在渐变蒙层完全淡出之后,让第一排卡片不会被 header 的
-      // 半透明淡出段糊住(向上滚动时卡片会经过淡出段自然溶进 header)。
-      padding: const EdgeInsets.fromLTRB(
-        12,
-        _kPickerHeaderExtent + _kPickerHeaderFadeExtent,
-        12,
-        12,
-      ),
+      // paddingTop 只让出 header 本身：蒙层的尾巴还会往下压一小段，但走到
+      // header 底缘时已经淡到峰值的两成出头，首屏条目是从渐变里「溶」出来的，
+      // 不是被一条硬边切开（与页面档同一条曲线，见 EdgeFadeScrim.headerOverlay）。
+      padding: const EdgeInsets.fromLTRB(12, _kPickerHeaderExtent, 12, 12),
       gridDelegate: const SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisSpacing: 8,

@@ -7,8 +7,10 @@ import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 ///
 /// - [body]：铺满整个区域的列表；调用方自己用 `paddingTop = headerExtent`
 ///   让出首屏位置（视口不能在外面套 Padding，否则内容滚不到 header 背后）。
-/// - 顶部渐变蒙层从 0 覆盖到 [headerExtent] + [GlassTokens.headerFadeExtent]，
-///   平台段为 [solidExtent]（一般是状态栏高度，没有状态栏传 0）。
+/// - 顶部渐变蒙层从 0 覆盖到 [headerExtent] 再往下一段尾巴（长度按
+///   [GlassTokens.scrimFadeTail] 的标定比例算，标准单行 header 正好是
+///   [GlassTokens.headerFadeExtent] 24）。平台段为 [solidExtent]（一般是状态栏
+///   高度，没有状态栏传 0）——**只盖状态栏**，header 行本身是淡出的一部分。
 /// - [header]：放在 [headerTop] 处的一行玻璃控件（可为 null，只要蒙层 + 留白）。
 ///
 /// # 详情 / 二级列表页标准配方
@@ -112,9 +114,9 @@ class GlassHeaderOverlay extends StatelessWidget {
           top: 0,
           left: 0,
           right: 0,
-          child: EdgeFadeScrim.top(
-            height: headerExtent + GlassTokens.headerFadeExtent,
-            solidExtent: solidExtent,
+          child: EdgeFadeScrim.headerOverlay(
+            headerExtent: headerExtent,
+            plateauExtent: solidExtent,
           ),
         ),
         if (header != null)

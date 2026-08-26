@@ -10,13 +10,46 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 /// 曲线：[0, solidExtent] 为平台段（恒为 peakAlpha），之后用 smoothstep
 /// （两端斜率为 0 的 S 曲线）衰减到 0，并细分成多段 stop —— 线性分段会在
 /// 拐点处出现肉眼可见的「台阶」，这里有意避免。
+///
+/// # 平台段只盖「必须恒定可读」的那一截
+///
+/// 顶部蒙层请一律用 [EdgeFadeScrim.headerOverlay]，别自己拼
+/// `height: headerExtent + 一个小常数, solidExtent: headerExtent`：那样平台段
+/// 占掉整条蒙层的八成，header 里每一行的不透明度完全一样，渐变只发生在 header
+/// 之外那十几像素里——观感就是「标题和内容之间硬切了一刀」，而不是过渡
+/// （2026-08-26 用户报障的四张选择器弹窗全是这么写的）。平台段应当只盖状态栏
+/// （页面）或标题行（弹窗），header 剩下的高度是淡出的一部分。
 class EdgeFadeScrim extends StatelessWidget {
   const EdgeFadeScrim.top({
     super.key,
     required this.height,
     required this.solidExtent,
     this.peakAlpha = 0.72,
-  }) : _isTop = true;
+  }) : _isTop = true,
+       assert(
+         solidExtent <= height * 0.6,
+         '顶部蒙层的平台段超过总高的六成：渐变会被压成一条硬边。'
+         '平台段只盖状态栏 / 标题行，用 EdgeFadeScrim.headerOverlay 算高度。',
+       );
+
+  /// 浮层 header 的蒙层：只给「header 总高」与「平台段」，尾巴按
+  /// [GlassTokens.scrimFadeTail] 的标定比例算，页面 / 弹窗共用同一条曲线。
+  ///
+  /// - [headerExtent]：从区域顶部到 header 最后一行底缘的距离（列表让位的高度）。
+  /// - [plateauExtent]：恒定不透明的那一截——页面传状态栏高度，弹窗传标题行高度。
+  ///
+  /// 蒙层实际高度（列表若要「完全避开」渐变才需要用到）见 [overlayHeight]。
+  EdgeFadeScrim.headerOverlay({
+    super.key,
+    required double headerExtent,
+    required double plateauExtent,
+    this.peakAlpha = 0.72,
+  }) : height = overlayHeight(
+         headerExtent: headerExtent,
+         plateauExtent: plateauExtent,
+       ),
+       solidExtent = plateauExtent,
+       _isTop = true;
 
   const EdgeFadeScrim.bottom({
     super.key,
@@ -29,6 +62,12 @@ class EdgeFadeScrim extends StatelessWidget {
   final double solidExtent;
   final double peakAlpha;
   final bool _isTop;
+
+  /// [EdgeFadeScrim.headerOverlay] 的总高 = header 高 + 按比例算出的尾巴。
+  static double overlayHeight({
+    required double headerExtent,
+    required double plateauExtent,
+  }) => headerExtent + GlassTokens.scrimFadeTail(headerExtent - plateauExtent);
 
   static const int _segments = 16;
 

@@ -40,12 +40,32 @@ abstract final class GlassTokens {
   /// 顶部 header 行高度（不含状态栏）。
   static const double headerRowHeight = 56;
 
-  /// header 行下方再多渐隐多少距离。
+  /// header 行下方再多渐隐多少距离（标准页面档：header 行 56 时的尾巴长度）。
   ///
   /// 只是给「卡片钻进 header 背后」留一条软边，不是一整片背景：2026-08-20
   /// 从 56 收到 24——56 那会儿蒙层的尾巴整整拖出 header 一大截，在内容上糊出
   /// 一条肉眼可见的白/黑带，读起来像 header 的阴影漏了出去。
+  ///
+  /// header 更高（多行）的场合别照抄这个数，用 [scrimFadeTail] 按比例算。
   static const double headerFadeExtent = 24;
+
+  /// 蒙层尾巴 ÷「可淡出高度」的标定比例。
+  ///
+  /// 「可淡出高度」＝ header 总高 − 平台段（恒定不透明那一截：页面是状态栏，
+  /// 弹窗是标题行）。整条淡出 = 可淡出高度 + 尾巴，其中尾巴占 24/56 ——
+  /// 这不是拍脑袋，是从标准页面档（可淡出 56、尾巴 [headerFadeExtent] 24）
+  /// 反解出来的：按这个比例，smoothstep 走到 **header 底缘**时恰好衰减到峰值
+  /// 的两成出头（绝对不透明度 ≈0.16），剩下那一点由伸进内容区的尾巴收干净。
+  ///
+  /// 换句话说，页面和弹窗、单行和多行 header 从此是同一条过渡曲线，只是被
+  /// 整体拉长/压短。**不要**给多行 header 配一段固定的短尾巴：那样平台段会
+  /// 吃掉整个 header，两行的不透明度完全一样，只在 header 之外才突然开始渐变
+  /// ——就是 2026-08-26 用户报的「阴影很突兀、像硬切一刀」。
+  static const double scrimFadeTailRatio = headerFadeExtent / headerRowHeight;
+
+  /// 按 [scrimFadeTailRatio] 算蒙层伸进内容区的尾巴长度。
+  static double scrimFadeTail(double fadeableExtent) =>
+      math.max(0, fadeableExtent) * scrimFadeTailRatio;
 
   /// 浮动 Tab 栏高度。
   static const double floatingTabBarHeight = 64;

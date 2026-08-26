@@ -22,10 +22,6 @@ const double _kHeaderExtent =
     _kSearchRowHeight +
     _kHeaderTailSpacing;
 
-/// header 蒙层「淡出段」高度：弹窗四周有 clip，过长的半透明淡出会把
-/// 第一排条目糊白，20 只作为「条目钻进 header 背后」的过渡带。
-const double _kHeaderFadeExtent = 20;
-
 /// Oreno3d 实体选择器（离线，从本地词库检索原作/角色/标签）。
 ///
 /// - 顶部三选一切换类别（原作 / 角色 / 标签）+ 搜索框（匹配译名/原文/id）。
@@ -131,9 +127,9 @@ class _Oreno3dTagPickerDialogState extends State<Oreno3dTagPickerDialog> {
               top: 0,
               left: 0,
               right: 0,
-              child: EdgeFadeScrim.top(
-                height: _kHeaderExtent + _kHeaderFadeExtent,
-                solidExtent: _kHeaderExtent,
+              child: EdgeFadeScrim.headerOverlay(
+                headerExtent: _kHeaderExtent,
+                plateauExtent: _kTitleRowHeight,
               ),
             ),
             // 顶部玻璃控件行：标题 / 关闭 / 类别分段 / 搜索
@@ -212,11 +208,10 @@ class _Oreno3dTagPickerDialogState extends State<Oreno3dTagPickerDialog> {
       );
     }
     return ListView.builder(
-      // paddingTop 落在渐变蒙层完全淡出之后，首屏条目不被半透明段糊住
-      padding: const EdgeInsets.only(
-        top: _kHeaderExtent + _kHeaderFadeExtent,
-        bottom: 12,
-      ),
+      // paddingTop 只让出 header 本身：蒙层的尾巴还会往下压一小段，但走到
+      // header 底缘时已经淡到峰值的两成出头，首屏条目是从渐变里「溶」出来的，
+      // 不是被一条硬边切开（与页面档同一条曲线，见 EdgeFadeScrim.headerOverlay）。
+      padding: const EdgeInsets.only(top: _kHeaderExtent, bottom: 12),
       itemCount: results.length,
       itemBuilder: (context, index) {
         final e = results[index];

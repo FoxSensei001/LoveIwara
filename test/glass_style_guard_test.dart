@@ -241,6 +241,51 @@ void main() {
           '${offenders.join('\n')}',
     );
   });
+
+  test('顶部蒙层的平台段不许盖住整个 header（零容忍）', () {
+    final offenders = <String>[];
+    for (final file in _dartFiles()) {
+      // 注释里会出现示范写法，先剥掉
+      final source = file.readAsStringSync().replaceAll(_lineComment, '');
+      for (final match in _topScrim.allMatches(source)) {
+        final height = match.group(1)!.trim();
+        final plateau = match.group(2)!.trim();
+        // 平台段的表达式整个出现在 height 里（`height: X + 尾巴,
+        // solidExtent: X`）＝平台段就是整个 header，剩给渐变的只有那截尾巴。
+        if (!_containsToken(height, plateau)) continue;
+        final line =
+            '\n'.allMatches(source.substring(0, match.start)).length + 1;
+        offenders.add('${_rel(file)}:$line');
+      }
+    }
+    expect(
+      offenders,
+      isEmpty,
+      reason:
+          '顶部渐变蒙层的平台段（solidExtent）只该盖「必须恒定可读」的那一截——'
+          '页面是状态栏，弹窗是标题行。写成 `height: headerExtent + 20, '
+          'solidExtent: headerExtent` 时，平台段占掉八成，header 里每一行的'
+          '不透明度完全一样，渐变只发生在 header 之外那 20px 里：用户看到的是'
+          '「标题和内容之间硬切了一刀」，而不是过渡（2026-08-26 报障）。\n'
+          '改用 EdgeFadeScrim.headerOverlay(headerExtent:, plateauExtent:)，'
+          '尾巴按 GlassTokens.scrimFadeTail 的标定比例算，页面与弹窗共用同一'
+          '条曲线。\n'
+          '${offenders.join('\n')}',
+    );
+  });
+}
+
+/// `EdgeFadeScrim.top(height: <1>, solidExtent: <2>` —— 两个具名参数之间可能
+/// 隔着换行与缩进，但不跨过右括号。
+final _topScrim = RegExp(
+  r'EdgeFadeScrim\.top\(\s*height:\s*([^,)]+),\s*solidExtent:\s*([^,)]+)',
+);
+
+/// [haystack] 里是否作为**完整标识符**出现过 [needle]（避免 `statusBar` 命中
+/// `statusBarHeight` 这类前缀重名）。
+bool _containsToken(String haystack, String needle) {
+  final escaped = RegExp.escape(needle);
+  return RegExp('(?<![A-Za-z0-9_])$escaped(?![A-Za-z0-9_])').hasMatch(haystack);
 }
 
 /// 「玻璃件」的判定范围：玻璃组件库本体，以及玻璃化的设置行/分区。
