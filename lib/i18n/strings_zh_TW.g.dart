@@ -755,6 +755,49 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get activeBackgroundPrivacyMode => '隱私模式';
 	@override String get activeBackgroundPrivacyModeDesc => '禁止截圖、後台執行時隱藏畫面...';
 	@override String get privacy => '隱私';
+	@override String get appLock => '應用程式鎖';
+	@override String get appLockEnabled => '啟用應用程式鎖';
+	@override String get appLockEnabledDesc => '開啟應用程式時需要使用 PIN 或生物辨識';
+	@override String get appLockEnabledSummary => '已開啟 · PIN 保護';
+	@override String get appLockDisabledSummary => '未開啟';
+	@override String get appLockTimeout => '離開應用程式後鎖定';
+	@override String get appLockTimeoutDesc => '應用程式進入背景多久後需要重新驗證';
+	@override String get appLockAfterScreenOff => '鎖定螢幕後鎖定';
+	@override String get appLockAfterScreenOffDesc => '系統鎖定螢幕後，再次進入應用程式時需要重新驗證';
+	@override String get appLockTimeoutDisabled => '停用';
+	@override String get appLockImmediately => '立即';
+	@override String appLockSeconds({required Object seconds}) => '${seconds} 秒';
+	@override String appLockMinutes({required Object minutes}) => '${minutes} 分鐘';
+	@override String get appLockUseBiometrics => '使用生物辨識';
+	@override String get appLockUseBiometricsDesc => '使用指紋或臉部辨識解鎖';
+	@override String get appLockBiometricsUnavailable => '此裝置沒有可用的生物辨識';
+	@override String get appLockSetPin => '設定 PIN';
+	@override String get appLockEnterPin => '輸入 PIN';
+	@override String get appLockConfirmPin => '確認 PIN';
+	@override String get appLockCurrentPin => '輸入目前 PIN';
+	@override String get appLockNewPin => '輸入新 PIN';
+	@override String get appLockPinRequirements => 'PIN 必須為 4–8 位數字';
+	@override String get appLockPinsDoNotMatch => '兩次輸入的 PIN 不一致';
+	@override String get appLockInvalidPin => 'PIN 錯誤';
+	@override String get appLockSetupFailed => '無法安全儲存 PIN';
+	@override String get appLockDisable => '輸入 PIN 以關閉應用程式鎖';
+	@override String get appLockChangePin => '修改 PIN';
+	@override String get appLockNow => '立即鎖定';
+	@override String get appLockUnlock => '解鎖';
+	@override String get appLockLockedTitle => '已鎖定';
+	@override String get appLockLockedDesc => '請驗證身分以繼續使用';
+	@override String get appLockAuthenticateReason => '驗證身分以解鎖';
+	@override String get appLockEnableBiometricsReason => '驗證身分以啟用生物解鎖';
+	@override String get appLockBiometricFailed => '未能完成生物驗證';
+	@override String appLockTooManyAttempts({required Object seconds}) => '嘗試次數過多，請在 ${seconds} 秒後重試';
+	@override String get appLockCredentialUnavailableTitle => '無法讀取應用鎖憑證';
+	@override String get appLockCredentialUnavailableDesc => '系統安全儲存暫時不可用或憑證已損毀。應用保持鎖定狀態。可以先重試；若始終失敗，可以重置應用鎖——重置會關閉應用鎖並清除已儲存的 PIN。';
+	@override String get appLockRetry => '重試';
+	@override String get appLockReset => '重置應用鎖';
+	@override String get appLockResetConfirmTitle => '重置應用鎖？';
+	@override String get appLockResetConfirmDesc => '將關閉應用鎖並清除已儲存的 PIN 與生物驗證設定。之後可以重新設定。';
+	@override String get appLockRetrySucceeded => '已重新讀取到憑證，請輸入 PIN';
+	@override String get appLockRetryFailed => '仍然無法讀取憑證';
 	@override String get forum => '論壇';
 	@override String get news => '新聞';
 	@override String get community => '社群';
@@ -4034,6 +4077,49 @@ extension on TranslationsZhTw {
 			'settings.activeBackgroundPrivacyMode' => '隱私模式',
 			'settings.activeBackgroundPrivacyModeDesc' => '禁止截圖、後台執行時隱藏畫面...',
 			'settings.privacy' => '隱私',
+			'settings.appLock' => '應用程式鎖',
+			'settings.appLockEnabled' => '啟用應用程式鎖',
+			'settings.appLockEnabledDesc' => '開啟應用程式時需要使用 PIN 或生物辨識',
+			'settings.appLockEnabledSummary' => '已開啟 · PIN 保護',
+			'settings.appLockDisabledSummary' => '未開啟',
+			'settings.appLockTimeout' => '離開應用程式後鎖定',
+			'settings.appLockTimeoutDesc' => '應用程式進入背景多久後需要重新驗證',
+			'settings.appLockAfterScreenOff' => '鎖定螢幕後鎖定',
+			'settings.appLockAfterScreenOffDesc' => '系統鎖定螢幕後，再次進入應用程式時需要重新驗證',
+			'settings.appLockTimeoutDisabled' => '停用',
+			'settings.appLockImmediately' => '立即',
+			'settings.appLockSeconds' => ({required Object seconds}) => '${seconds} 秒',
+			'settings.appLockMinutes' => ({required Object minutes}) => '${minutes} 分鐘',
+			'settings.appLockUseBiometrics' => '使用生物辨識',
+			'settings.appLockUseBiometricsDesc' => '使用指紋或臉部辨識解鎖',
+			'settings.appLockBiometricsUnavailable' => '此裝置沒有可用的生物辨識',
+			'settings.appLockSetPin' => '設定 PIN',
+			'settings.appLockEnterPin' => '輸入 PIN',
+			'settings.appLockConfirmPin' => '確認 PIN',
+			'settings.appLockCurrentPin' => '輸入目前 PIN',
+			'settings.appLockNewPin' => '輸入新 PIN',
+			'settings.appLockPinRequirements' => 'PIN 必須為 4–8 位數字',
+			'settings.appLockPinsDoNotMatch' => '兩次輸入的 PIN 不一致',
+			'settings.appLockInvalidPin' => 'PIN 錯誤',
+			'settings.appLockSetupFailed' => '無法安全儲存 PIN',
+			'settings.appLockDisable' => '輸入 PIN 以關閉應用程式鎖',
+			'settings.appLockChangePin' => '修改 PIN',
+			'settings.appLockNow' => '立即鎖定',
+			'settings.appLockUnlock' => '解鎖',
+			'settings.appLockLockedTitle' => '已鎖定',
+			'settings.appLockLockedDesc' => '請驗證身分以繼續使用',
+			'settings.appLockAuthenticateReason' => '驗證身分以解鎖',
+			'settings.appLockEnableBiometricsReason' => '驗證身分以啟用生物解鎖',
+			'settings.appLockBiometricFailed' => '未能完成生物驗證',
+			'settings.appLockTooManyAttempts' => ({required Object seconds}) => '嘗試次數過多，請在 ${seconds} 秒後重試',
+			'settings.appLockCredentialUnavailableTitle' => '無法讀取應用鎖憑證',
+			'settings.appLockCredentialUnavailableDesc' => '系統安全儲存暫時不可用或憑證已損毀。應用保持鎖定狀態。可以先重試；若始終失敗，可以重置應用鎖——重置會關閉應用鎖並清除已儲存的 PIN。',
+			'settings.appLockRetry' => '重試',
+			'settings.appLockReset' => '重置應用鎖',
+			'settings.appLockResetConfirmTitle' => '重置應用鎖？',
+			'settings.appLockResetConfirmDesc' => '將關閉應用鎖並清除已儲存的 PIN 與生物驗證設定。之後可以重新設定。',
+			'settings.appLockRetrySucceeded' => '已重新讀取到憑證，請輸入 PIN',
+			'settings.appLockRetryFailed' => '仍然無法讀取憑證',
 			'settings.forum' => '論壇',
 			'settings.news' => '新聞',
 			'settings.community' => '社群',
@@ -4435,6 +4521,8 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.variableAuthor' => '作者名稱',
 			'settings.downloadSettings.variableUsername' => '作者使用者名稱',
 			'settings.downloadSettings.variableQuality' => '影片品質',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.variableFilename' => '原始檔案名稱',
 			'settings.downloadSettings.variableId' => '內容ID',
 			'settings.downloadSettings.variableCount' => '圖庫圖片數量',
@@ -4478,8 +4566,6 @@ extension on TranslationsZhTw {
 			'oreno3d.errors.resourceNotFound' => '請求的資源不存在',
 			'oreno3d.errors.accessDenied' => '訪問被拒絕，可能需要驗證或權限',
 			'oreno3d.errors.serverError' => '伺服器內部錯誤',
-			_ => null,
-		} ?? switch (path) {
 			'oreno3d.errors.serviceUnavailable' => '服務暫時不可用',
 			'oreno3d.errors.requestCancelled' => '請求已取消',
 			'oreno3d.errors.connectionError' => '網路連接錯誤，請檢查網路設定',
@@ -4949,6 +5035,8 @@ extension on TranslationsZhTw {
 			'download.selectDownloadTitle' => '選擇下載',
 			'download.qualitySectionLabel' => '清晰度',
 			'download.saveToSectionLabel' => '儲存到',
+			_ => null,
+		} ?? switch (path) {
 			'download.lastUsedBadge' => '上次選擇',
 			'download.pickedBadge' => '已選擇',
 			'download.forceDeleteTask' => '強制刪除任務',
@@ -4992,8 +5080,6 @@ extension on TranslationsZhTw {
 			'download.failed' => '失敗',
 			'download.completed' => '已完成',
 			'download.downloadDetail' => '下載詳情',
-			_ => null,
-		} ?? switch (path) {
 			'download.copy' => '複製',
 			'download.copySuccess' => '已複製',
 			'download.waiting' => '等待中',
@@ -5463,6 +5549,8 @@ extension on TranslationsZhTw {
 			'linkInputDialog.supportedLinksHint' => ({required Object webName}) => '支援智慧識別多個${webName}連結，並快速跳轉到應用內對應頁面(連結與其他文字之間用空格隔開)',
 			'linkInputDialog.inputHint' => ({required Object webName}) => '請輸入${webName}連結',
 			'linkInputDialog.validatorEmptyLink' => '請輸入連結',
+			_ => null,
+		} ?? switch (path) {
 			'linkInputDialog.validatorNoIwaraLink' => ({required Object webName}) => '未檢測到有效的${webName}連結',
 			'linkInputDialog.multipleLinksDetected' => '檢測到多個連結，請選擇一個：',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => '不是有效的${webName}連結',
@@ -5506,8 +5594,6 @@ extension on TranslationsZhTw {
 			'log.logSizeLimit' => '大小上限:',
 			'log.usageRate' => '使用率:',
 			'log.exceedLimit' => '超出限制',
-			_ => null,
-		} ?? switch (path) {
 			'log.remaining' => '剩餘',
 			'log.currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit' => '日誌空間已超出限制，建議立即清理舊日誌或增加空間限制',
 			'log.currentLogSizeAlmostExceededPleaseCleanOldLogs' => '日誌空間即將用盡，建議清理舊日誌',

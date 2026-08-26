@@ -271,6 +271,12 @@ enum ConfigKey {
   PROXY_URL,
   RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN,
   ACTIVE_BACKGROUND_PRIVACY_MODE,
+  APP_LOCK_ENABLED,
+  APP_LOCK_TIMEOUT_SECONDS,
+  APP_LOCK_AFTER_SCREEN_OFF,
+  APP_LOCK_BIOMETRICS_ENABLED,
+  APP_LOCK_FAILED_ATTEMPTS,
+  APP_LOCK_BLOCKED_UNTIL_MS,
   DEFAULT_LANGUAGE_KEY,
   APP_SITE_MODE, // 应用站点模式：main / ai
   USER_TARGET_LANGUAGE_KEY,
@@ -448,6 +454,18 @@ extension ConfigKeyExtension on ConfigKey {
         return 'render_vertical_video_in_vertical_screen';
       case ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE:
         return 'active_background_privacy_mode';
+      case ConfigKey.APP_LOCK_ENABLED:
+        return 'app_lock_enabled';
+      case ConfigKey.APP_LOCK_TIMEOUT_SECONDS:
+        return 'app_lock_timeout_seconds';
+      case ConfigKey.APP_LOCK_AFTER_SCREEN_OFF:
+        return 'app_lock_after_screen_off';
+      case ConfigKey.APP_LOCK_BIOMETRICS_ENABLED:
+        return 'app_lock_biometrics_enabled';
+      case ConfigKey.APP_LOCK_FAILED_ATTEMPTS:
+        return 'app_lock_failed_attempts';
+      case ConfigKey.APP_LOCK_BLOCKED_UNTIL_MS:
+        return 'app_lock_blocked_until_ms';
       case ConfigKey.DEFAULT_LANGUAGE_KEY:
         return 'default_language';
       case ConfigKey.APP_SITE_MODE:
@@ -718,6 +736,18 @@ extension ConfigKeyExtension on ConfigKey {
         return true;
       case ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE:
         return false;
+      case ConfigKey.APP_LOCK_ENABLED:
+        return false;
+      case ConfigKey.APP_LOCK_TIMEOUT_SECONDS:
+        return -1;
+      case ConfigKey.APP_LOCK_AFTER_SCREEN_OFF:
+        return false;
+      case ConfigKey.APP_LOCK_BIOMETRICS_ENABLED:
+        return false;
+      case ConfigKey.APP_LOCK_FAILED_ATTEMPTS:
+        return 0;
+      case ConfigKey.APP_LOCK_BLOCKED_UNTIL_MS:
+        return 0;
       case ConfigKey.DEFAULT_LANGUAGE_KEY:
         return 'zh-CN';
       case ConfigKey.APP_SITE_MODE:

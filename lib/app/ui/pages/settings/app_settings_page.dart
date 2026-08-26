@@ -7,6 +7,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/app_lock_settings_section.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -444,6 +445,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   ],
                 ),
               ),
+              const AppLockSettingsSection(),
               if (VibrateUtils.hasVibrator())
                 Card(
                   elevation: 2,

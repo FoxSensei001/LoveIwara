@@ -608,6 +608,49 @@ settings:
   activeBackgroundPrivacyMode: 隱私模式
   activeBackgroundPrivacyModeDesc: 禁止截圖、後台執行時隱藏畫面...
   privacy: 隱私
+  appLock: 應用程式鎖
+  appLockEnabled: 啟用應用程式鎖
+  appLockEnabledDesc: 開啟應用程式時需要使用 PIN 或生物辨識
+  appLockEnabledSummary: 已開啟 · PIN 保護
+  appLockDisabledSummary: 未開啟
+  appLockTimeout: 離開應用程式後鎖定
+  appLockTimeoutDesc: 應用程式進入背景多久後需要重新驗證
+  appLockAfterScreenOff: 鎖定螢幕後鎖定
+  appLockAfterScreenOffDesc: 系統鎖定螢幕後，再次進入應用程式時需要重新驗證
+  appLockTimeoutDisabled: 停用
+  appLockImmediately: 立即
+  appLockSeconds: '${seconds} 秒'
+  appLockMinutes: '${minutes} 分鐘'
+  appLockUseBiometrics: 使用生物辨識
+  appLockUseBiometricsDesc: 使用指紋或臉部辨識解鎖
+  appLockBiometricsUnavailable: 此裝置沒有可用的生物辨識
+  appLockSetPin: 設定 PIN
+  appLockEnterPin: 輸入 PIN
+  appLockConfirmPin: 確認 PIN
+  appLockCurrentPin: 輸入目前 PIN
+  appLockNewPin: 輸入新 PIN
+  appLockPinRequirements: PIN 必須為 4–8 位數字
+  appLockPinsDoNotMatch: 兩次輸入的 PIN 不一致
+  appLockInvalidPin: PIN 錯誤
+  appLockSetupFailed: 無法安全儲存 PIN
+  appLockDisable: 輸入 PIN 以關閉應用程式鎖
+  appLockChangePin: 修改 PIN
+  appLockNow: 立即鎖定
+  appLockUnlock: 解鎖
+  appLockLockedTitle: 已鎖定
+  appLockLockedDesc: 請驗證身分以繼續使用
+  appLockAuthenticateReason: 驗證身分以解鎖
+  appLockEnableBiometricsReason: 驗證身分以啟用生物解鎖
+  appLockBiometricFailed: 未能完成生物驗證
+  appLockTooManyAttempts: '嘗試次數過多，請在 ${seconds} 秒後重試'
+  appLockCredentialUnavailableTitle: 無法讀取應用鎖憑證
+  appLockCredentialUnavailableDesc: 系統安全儲存暫時不可用或憑證已損毀。應用保持鎖定狀態。可以先重試；若始終失敗，可以重置應用鎖——重置會關閉應用鎖並清除已儲存的 PIN。
+  appLockRetry: 重試
+  appLockReset: 重置應用鎖
+  appLockResetConfirmTitle: 重置應用鎖？
+  appLockResetConfirmDesc: 將關閉應用鎖並清除已儲存的 PIN 與生物驗證設定。之後可以重新設定。
+  appLockRetrySucceeded: 已重新讀取到憑證，請輸入 PIN
+  appLockRetryFailed: 仍然無法讀取憑證
   forum: 論壇
   news: 新聞
   community: 社群

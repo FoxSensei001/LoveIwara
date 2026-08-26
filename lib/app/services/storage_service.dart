@@ -20,6 +20,46 @@ enum SecureWriteFallback {
 /// 一次安全写入实际落到的位置。
 enum SecureWriteResult { secure, encryptedFallback, skipped }
 
+/// 一次安全读取的结局。
+///
+/// `null` 一个值表达不了两件完全相反的事：**这台设备上确实没有这条数据**
+/// （全新安装、备份还原后密钥没跟过来）与**这条数据读不出来**（Keystore
+/// 瞬时异常、密文损坏、JSON 解不开）。调用方按前者做"没有就当没开过"的
+/// 兜底时，后者会被一起吞掉——应用锁因此在 Keystore 抽风的那次启动直接
+/// 变成未锁状态（fail-open）。
+enum SecureReadStatus {
+  /// 读到了合法数据。
+  found,
+
+  /// 安全存储与降级副本里都没有这个键。
+  missing,
+
+  /// 读取过程出错 / 数据损坏。**不能**当作"没有"。
+  failed,
+}
+
+/// [StorageService.readSecureDataDetailed] 的返回值。
+class SecureReadResult<T> {
+  const SecureReadResult.found(this.value)
+    : status = SecureReadStatus.found,
+      error = null;
+  const SecureReadResult.missing()
+    : status = SecureReadStatus.missing,
+      value = null,
+      error = null;
+  const SecureReadResult.failed(this.error)
+    : status = SecureReadStatus.failed,
+      value = null;
+
+  final SecureReadStatus status;
+  final T? value;
+  final Object? error;
+
+  bool get isFound => status == SecureReadStatus.found;
+  bool get isMissing => status == SecureReadStatus.missing;
+  bool get isFailed => status == SecureReadStatus.failed;
+}
+
 /// 安全存储健康状态（诊断页展示用）。
 enum SecureStorageHealth {
   /// 探测通过，正常使用 Keystore/Keychain。
@@ -379,29 +419,50 @@ class StorageService {
   }
 
   Future<String?> readSecureData(String key) async {
+    return (await readSecureDataDetailed(key)).value;
+  }
+
+  /// 与 [readSecureData] 同一条链路，但把"没有"和"读不出来"分开告诉调用方。
+  ///
+  /// 只有真正需要 fail-closed 的调用方（应用锁凭据）才要用它；其余场景
+  /// 继续用 [readSecureData]，行为完全不变。
+  Future<SecureReadResult<String>> readSecureDataDetailed(String key) async {
     if (_useSecureStorage) {
+      Object? readError;
       try {
         final value = await _secureStorage.read(key: key);
-        if (value != null) return value;
+        if (value != null) return SecureReadResult.found(value);
         // 安全存储无此数据 → 尝试降级副本（健康且可信时迁移回安全存储）。
-        return await _readFallback(
-          key,
-          migrateToSecure: !secureStorageUntrusted,
+        return _fallbackResult(
+          await _readFallback(key, migrateToSecure: !secureStorageUntrusted),
         );
       } catch (e) {
+        readError = e;
         // 损坏特征 → 清空自愈，本条数据尝试从降级副本恢复；
         // 修复点：自愈成功后安全存储保持启用（原实现自愈完仍整会话降级）。
         if (await _tryHealCorruption(e, 'read:$key')) {
-          return await _readFallback(
+          final healed = await _readFallback(
             key,
             migrateToSecure: !secureStorageUntrusted,
           );
+          // 自愈会把安全存储整个清空——降级副本里没有的话，这条数据是被
+          // 我们自己删掉的，不是"这台设备上从来没有过"。
+          if (healed != null) return SecureReadResult.found(healed);
+          return SecureReadResult.failed(readError);
         }
         _disableSecureStorage(e, 'read:$key');
-        return await _readFallback(key, migrateToSecure: false);
+        final fallback = await _readFallback(key, migrateToSecure: false);
+        if (fallback != null) return SecureReadResult.found(fallback);
+        return SecureReadResult.failed(readError);
       }
     }
-    return await _readFallback(key, migrateToSecure: false);
+    return _fallbackResult(await _readFallback(key, migrateToSecure: false));
+  }
+
+  SecureReadResult<String> _fallbackResult(String? value) {
+    return value == null
+        ? const SecureReadResult<String>.missing()
+        : SecureReadResult<String>.found(value);
   }
 
   /// 读取普通存储中的副本：降级加密封皮（enc1:）或历史明文遗留。
@@ -462,19 +523,41 @@ class StorageService {
     await _removeFallbackCopy(key);
   }
 
-  Future<void> writeSecureObject(String key, Map<String, dynamic> value) async {
+  Future<SecureWriteResult> writeSecureObject(
+    String key,
+    Map<String, dynamic> value,
+  ) async {
     final string = json.encode(value);
-    await writeSecureData(key, string);
+    return writeSecureData(key, string);
   }
 
   Future<Map<String, dynamic>?> readSecureObject(String key) async {
-    try {
-      final string = await readSecureData(key);
-      if (string == null) return null;
-      return json.decode(string) as Map<String, dynamic>;
-    } catch (e) {
-      LogUtils.e('读取安全存储对象失败', tag: _tag, error: e);
-      return null;
+    return (await readSecureObjectDetailed(key)).value;
+  }
+
+  /// [readSecureObject] 的分状态版本，见 [SecureReadResult]。
+  ///
+  /// JSON 解不开算 [SecureReadStatus.failed]（数据在，只是坏了），不是
+  /// [SecureReadStatus.missing]。
+  Future<SecureReadResult<Map<String, dynamic>>> readSecureObjectDetailed(
+    String key,
+  ) async {
+    final raw = await readSecureDataDetailed(key);
+    switch (raw.status) {
+      case SecureReadStatus.missing:
+        return const SecureReadResult<Map<String, dynamic>>.missing();
+      case SecureReadStatus.failed:
+        LogUtils.e('读取安全存储对象失败', tag: _tag, error: raw.error);
+        return SecureReadResult<Map<String, dynamic>>.failed(raw.error);
+      case SecureReadStatus.found:
+        try {
+          return SecureReadResult<Map<String, dynamic>>.found(
+            json.decode(raw.value!) as Map<String, dynamic>,
+          );
+        } catch (e) {
+          LogUtils.e('安全存储对象解析失败', tag: _tag, error: e);
+          return SecureReadResult<Map<String, dynamic>>.failed(e);
+        }
     }
   }
 

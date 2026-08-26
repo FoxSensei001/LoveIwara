@@ -755,6 +755,49 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get activeBackgroundPrivacyMode => 'プライバシーモード';
 	@override String get activeBackgroundPrivacyModeDesc => 'スクリーンショットを禁止し、バックグラウンド実行時に画面を隠す...';
 	@override String get privacy => 'プライバシー';
+	@override String get appLock => 'アプリロック';
+	@override String get appLockEnabled => 'アプリロックを有効にする';
+	@override String get appLockEnabledDesc => 'アプリを開くときに PIN または生体認証を要求します';
+	@override String get appLockEnabledSummary => 'オン · PIN で保護';
+	@override String get appLockDisabledSummary => 'オフ';
+	@override String get appLockTimeout => 'アプリを離れた後にロック';
+	@override String get appLockTimeoutDesc => 'バックグラウンド移行後、再認証を要求するまでの時間';
+	@override String get appLockAfterScreenOff => '画面ロック後にロック';
+	@override String get appLockAfterScreenOffDesc => '端末の画面ロック後、アプリに戻るときに再認証を要求します';
+	@override String get appLockTimeoutDisabled => '無効';
+	@override String get appLockImmediately => 'すぐに';
+	@override String appLockSeconds({required Object seconds}) => '${seconds} 秒';
+	@override String appLockMinutes({required Object minutes}) => '${minutes} 分';
+	@override String get appLockUseBiometrics => '生体認証を使用';
+	@override String get appLockUseBiometricsDesc => '指紋認証または顔認証でロックを解除します';
+	@override String get appLockBiometricsUnavailable => 'この端末で利用できる生体認証がありません';
+	@override String get appLockSetPin => 'PIN を設定';
+	@override String get appLockEnterPin => 'PIN を入力';
+	@override String get appLockConfirmPin => 'PIN を確認';
+	@override String get appLockCurrentPin => '現在の PIN を入力';
+	@override String get appLockNewPin => '新しい PIN を入力';
+	@override String get appLockPinRequirements => 'PIN は 4～8 桁の数字にしてください';
+	@override String get appLockPinsDoNotMatch => 'PIN が一致しません';
+	@override String get appLockInvalidPin => 'PIN が正しくありません';
+	@override String get appLockSetupFailed => 'PIN を安全に保存できませんでした';
+	@override String get appLockDisable => 'アプリロックを無効にするには PIN を入力してください';
+	@override String get appLockChangePin => 'PIN を変更';
+	@override String get appLockNow => '今すぐロック';
+	@override String get appLockUnlock => 'ロック解除';
+	@override String get appLockLockedTitle => 'ロックされています';
+	@override String get appLockLockedDesc => '続行するには認証してください';
+	@override String get appLockAuthenticateReason => 'ロックを解除するために認証してください';
+	@override String get appLockEnableBiometricsReason => '生体認証によるロック解除を有効にするために認証してください';
+	@override String get appLockBiometricFailed => '生体認証を完了できませんでした';
+	@override String appLockTooManyAttempts({required Object seconds}) => '試行回数が多すぎます。${seconds} 秒後に再試行してください';
+	@override String get appLockCredentialUnavailableTitle => 'アプリロックの認証情報を読み取れません';
+	@override String get appLockCredentialUnavailableDesc => 'システムのセキュアストレージが一時的に利用できないか、認証情報が破損しています。アプリはロックされたままです。まず再試行してください。それでも失敗する場合はアプリロックをリセットできます（アプリロックが無効になり、保存済みの PIN が削除されます）。';
+	@override String get appLockRetry => '再試行';
+	@override String get appLockReset => 'アプリロックをリセット';
+	@override String get appLockResetConfirmTitle => 'アプリロックをリセットしますか？';
+	@override String get appLockResetConfirmDesc => 'アプリロックを無効にし、保存済みの PIN と生体認証設定を削除します。後で再設定できます。';
+	@override String get appLockRetrySucceeded => '認証情報を読み取れました。PIN を入力してください。';
+	@override String get appLockRetryFailed => '認証情報を読み取れませんでした';
 	@override String get forum => 'フォーラム';
 	@override String get news => 'ニュース';
 	@override String get community => 'コミュニティ';
@@ -4034,6 +4077,49 @@ extension on TranslationsJa {
 			'settings.activeBackgroundPrivacyMode' => 'プライバシーモード',
 			'settings.activeBackgroundPrivacyModeDesc' => 'スクリーンショットを禁止し、バックグラウンド実行時に画面を隠す...',
 			'settings.privacy' => 'プライバシー',
+			'settings.appLock' => 'アプリロック',
+			'settings.appLockEnabled' => 'アプリロックを有効にする',
+			'settings.appLockEnabledDesc' => 'アプリを開くときに PIN または生体認証を要求します',
+			'settings.appLockEnabledSummary' => 'オン · PIN で保護',
+			'settings.appLockDisabledSummary' => 'オフ',
+			'settings.appLockTimeout' => 'アプリを離れた後にロック',
+			'settings.appLockTimeoutDesc' => 'バックグラウンド移行後、再認証を要求するまでの時間',
+			'settings.appLockAfterScreenOff' => '画面ロック後にロック',
+			'settings.appLockAfterScreenOffDesc' => '端末の画面ロック後、アプリに戻るときに再認証を要求します',
+			'settings.appLockTimeoutDisabled' => '無効',
+			'settings.appLockImmediately' => 'すぐに',
+			'settings.appLockSeconds' => ({required Object seconds}) => '${seconds} 秒',
+			'settings.appLockMinutes' => ({required Object minutes}) => '${minutes} 分',
+			'settings.appLockUseBiometrics' => '生体認証を使用',
+			'settings.appLockUseBiometricsDesc' => '指紋認証または顔認証でロックを解除します',
+			'settings.appLockBiometricsUnavailable' => 'この端末で利用できる生体認証がありません',
+			'settings.appLockSetPin' => 'PIN を設定',
+			'settings.appLockEnterPin' => 'PIN を入力',
+			'settings.appLockConfirmPin' => 'PIN を確認',
+			'settings.appLockCurrentPin' => '現在の PIN を入力',
+			'settings.appLockNewPin' => '新しい PIN を入力',
+			'settings.appLockPinRequirements' => 'PIN は 4～8 桁の数字にしてください',
+			'settings.appLockPinsDoNotMatch' => 'PIN が一致しません',
+			'settings.appLockInvalidPin' => 'PIN が正しくありません',
+			'settings.appLockSetupFailed' => 'PIN を安全に保存できませんでした',
+			'settings.appLockDisable' => 'アプリロックを無効にするには PIN を入力してください',
+			'settings.appLockChangePin' => 'PIN を変更',
+			'settings.appLockNow' => '今すぐロック',
+			'settings.appLockUnlock' => 'ロック解除',
+			'settings.appLockLockedTitle' => 'ロックされています',
+			'settings.appLockLockedDesc' => '続行するには認証してください',
+			'settings.appLockAuthenticateReason' => 'ロックを解除するために認証してください',
+			'settings.appLockEnableBiometricsReason' => '生体認証によるロック解除を有効にするために認証してください',
+			'settings.appLockBiometricFailed' => '生体認証を完了できませんでした',
+			'settings.appLockTooManyAttempts' => ({required Object seconds}) => '試行回数が多すぎます。${seconds} 秒後に再試行してください',
+			'settings.appLockCredentialUnavailableTitle' => 'アプリロックの認証情報を読み取れません',
+			'settings.appLockCredentialUnavailableDesc' => 'システムのセキュアストレージが一時的に利用できないか、認証情報が破損しています。アプリはロックされたままです。まず再試行してください。それでも失敗する場合はアプリロックをリセットできます（アプリロックが無効になり、保存済みの PIN が削除されます）。',
+			'settings.appLockRetry' => '再試行',
+			'settings.appLockReset' => 'アプリロックをリセット',
+			'settings.appLockResetConfirmTitle' => 'アプリロックをリセットしますか？',
+			'settings.appLockResetConfirmDesc' => 'アプリロックを無効にし、保存済みの PIN と生体認証設定を削除します。後で再設定できます。',
+			'settings.appLockRetrySucceeded' => '認証情報を読み取れました。PIN を入力してください。',
+			'settings.appLockRetryFailed' => '認証情報を読み取れませんでした',
 			'settings.forum' => 'フォーラム',
 			'settings.news' => 'ニュース',
 			'settings.community' => 'コミュニティ',
@@ -4435,6 +4521,8 @@ extension on TranslationsJa {
 			'settings.downloadSettings.variableAuthor' => '作者名',
 			'settings.downloadSettings.variableUsername' => '作者ユーザー名',
 			'settings.downloadSettings.variableQuality' => '動画品質',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.variableFilename' => '元のファイル名',
 			'settings.downloadSettings.variableId' => 'コンテンツID',
 			'settings.downloadSettings.variableCount' => 'ギャラリー画像数',
@@ -4478,8 +4566,6 @@ extension on TranslationsJa {
 			'oreno3d.errors.resourceNotFound' => '要求されたリソースが見つかりません',
 			'oreno3d.errors.accessDenied' => 'アクセスが拒否されました、認証または権限が必要な可能性があります',
 			'oreno3d.errors.serverError' => 'サーバー内部エラー',
-			_ => null,
-		} ?? switch (path) {
 			'oreno3d.errors.serviceUnavailable' => 'サービスが一時的に利用できません',
 			'oreno3d.errors.requestCancelled' => 'リクエストがキャンセルされました',
 			'oreno3d.errors.connectionError' => 'ネットワーク接続エラー、ネットワーク設定を確認してください',
@@ -4949,6 +5035,8 @@ extension on TranslationsJa {
 			'download.deleteTask' => 'タスクを削除',
 			'download.deleteTaskConfirmation' => 'このダウンロードタスクを削除しますか？\nタスクのファイルも削除されます。',
 			'download.forceDeleteTaskConfirmation' => 'このダウンロードタスクを強制削除しますか？\nファイルが使用中でも削除を試行し、タスクのファイルも削除されます。',
+			_ => null,
+		} ?? switch (path) {
 			'download.downloadingProgressForVideoTask' => ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s',
 			'download.downloadingOnlyDownloadedAndSpeed' => ({required Object downloaded, required Object speed}) => 'ダウンロード中 ${downloaded} • ${speed}MB/s',
 			'download.pausedForDownloadedAndTotal' => ({required Object downloaded, required Object total, required Object progress}) => '一時停止中 ${downloaded}/${total} (${progress}%)',
@@ -4992,8 +5080,6 @@ extension on TranslationsJa {
 			'download.errorDetailCopyHint' => '長押しでエラー詳細をコピー',
 			'download.restoredPaused.banner' => ({required Object num}) => '前回終了時に未完了だったタスク ${num} 件を一時停止しました',
 			'download.restoredPaused.resume' => 'すべて再開',
-			_ => null,
-		} ?? switch (path) {
 			'download.restoredPaused.dismiss' => '閉じる',
 			'download.emptyTaskList' => 'ダウンロードタスクがありません',
 			'download.noMatchingTasks' => '一致するタスクがありません',
@@ -5463,6 +5549,8 @@ extension on TranslationsJa {
 			'log.showLogStatsDesc' => '様々なタイプのログの統計情報を表示',
 			'log.logExtractFailed' => ({required Object error}) => 'ログ統計情報の取得に失敗しました: ${error}',
 			'log.clearAllLogs' => 'すべてのログをクリア',
+			_ => null,
+		} ?? switch (path) {
 			'log.clearAllLogsDesc' => 'すべてのログデータをクリア',
 			'log.confirmClearAllLogs' => '確認クリア',
 			'log.confirmClearAllLogsDesc' => 'すべてのログデータをクリアしますか？この操作は元に戻すことができません',
@@ -5506,8 +5594,6 @@ extension on TranslationsJa {
 			'emoji.medium' => '中',
 			'emoji.large' => '大',
 			'emoji.extraLarge' => '超大',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.copyEmojiLinkSuccess' => '絵文字リンクをコピーしました',
 			'emoji.preview' => '絵文字プレビュー',
 			'emoji.library' => '絵文字ライブラリ',

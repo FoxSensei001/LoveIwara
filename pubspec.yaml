@@ -96,6 +96,8 @@ dependencies:
   local_notifier: ^0.1.6
   liquid_glass_easy: ^4.1.1
   liquid_glass_widgets: ^0.30.2
+  local_auth: ^3.0.2
+  local_auth_android: ^2.0.8
 dev_dependencies:
   flutter_test:
     sdk: flutter

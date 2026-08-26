@@ -24,6 +24,11 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- 应用锁的生物识别解锁。local_auth 明确要求这个键：缺了它，系统会
+	     直接拒绝 Face ID（iPhone 上等于生物识别整个不可用）。Touch ID 不
+	     依赖它，但同一份文案两边共用。 -->
+	<key>NSFaceIDUsageDescription</key>
+	<string>Face ID is used to unlock Love Iwara when app lock is enabled.</string>
 	<!-- iPad 只有在禁用 Split View / Slide Over 多任务时，setPreferredOrientations
 	     才能可靠驱动播放器进入真实横屏全屏。 -->
 	<key>UIRequiresFullScreen</key>
