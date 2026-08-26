@@ -13,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/models/history_record.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
+import 'package:i_iwara/app/repositories/oreno3d_match_cache_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/oreno3d_client.dart' show Oreno3dClient;
 import 'package:i_iwara/app/utils/iwara_different_site_recovery.dart';
@@ -1509,7 +1510,19 @@ class MyVideoStateController extends GetxController
     }
   }
 
-  /// 通过视频标题和作者名匹配oreno3d视频信息
+  /// 匹配流程里最多为多少个候选项拉详情页做 ID 校验。
+  ///
+  /// 候选是按 [Oreno3dMatchUtil.candidateScore] 降序排的，分数低于
+  /// [Oreno3dMatchUtil.verifyGate] 的一个都不拉，所以真正用满 3 次的情况很少。
+  /// 配合 [Oreno3dMatchUtil.buildSearchQueries] 最多 3 条查询，单次匹配的网络
+  /// 请求上限是 3 搜索 + 3 详情。
+  static const int _maxOreno3dProbes = 3;
+
+  /// 通过视频标题和作者名匹配oreno3d视频信息。
+  ///
+  /// 流程：缓存 → 逐条查询 → 本地打分 → 只为高分候选拉详情页做 iwara ID 校验。
+  /// 匹配依据始终只有 iwara ID（打分只决定「值不值得为它发一次请求」），
+  /// 因此不存在误报。结论无论正负都会写入 [Oreno3dMatchCacheRepository]。
   Future<void> _tryMatchOreno3dVideo() async {
     // 如果已经匹配到oreno3d视频信息，则不进行匹配
     if (oreno3dVideoDetail.value != null ||
@@ -1535,47 +1548,76 @@ class MyVideoStateController extends GetxController
       // 检查是否已被销毁
       if (_isDisposed) return;
 
+      final cache = _oreno3dMatchCache();
       oreno3dClient = Oreno3dClient();
 
-      // oreno3d 不支持按 iwara ID 检索，只能用关键词搜索 + 详情页 iwara 链接做 ID 校验。
-      // 实测把整条 iwara 标题原样塞进去，会因 token 太多 / 含通用词被热门视频挤掉
-      // （参见 issue #95 + 后续观察），所以这里按显著度抽出**多个候选关键词**：
-      // 优先用最独特的 CJK 长词去搜，搜不到再回退到 ASCII 词对、最后才是完整标题。
-      // 第一个通过 iwara-ID 校验就立刻退出，避免无谓请求。
-      final keywordCandidates = Oreno3dMatchUtil.extractKeywordCandidates(
-        videoTitle,
-      );
+      // 跨查询去重：同一条 oreno3d 视频可能在多条查询下都进入候选列表。
+      final probedOreno3dIds = <String>{};
+      // 详情页校验次数。缓存那一次也算在内，否则「缓存失效再重搜」那条路会多打一次。
+      var probeCount = 0;
 
-      // 跨候选去重：同一条 oreno3d 视频可能在多个关键词下都进入候选列表，
-      // 没必要重复拉详情。
-      final verifiedOreno3dIds = <String>{};
-      // 单个候选关键词最多校验前若干个搜索结果，避免请求量爆炸。
-      const maxCandidatesPerKeyword = 3;
-      // 全局最多校验次数，限制最坏情况下的请求总量。
-      const maxTotalVerifications = 8;
-      var totalVerifications = 0;
-
-      bool matched = false;
-
-      keywordLoop:
-      for (final keyword in keywordCandidates) {
+      // 1. 先查缓存。命中正结果就直接按 ID 取详情，一次搜索都不用发。
+      final cached = cache?.lookup(currentIwaraId);
+      if (cached != null) {
+        if (cached.isMissingOnOreno3d) {
+          LogUtils.d(
+            '缓存记录 oreno3d 上没有该视频($currentIwaraId)，跳过匹配',
+            'MyVideoStateController',
+          );
+          return;
+        }
+        probedOreno3dIds.add(cached.oreno3dId!);
+        probeCount++;
+        final cachedDetail = await _probeOreno3dCandidate(
+          oreno3dClient,
+          cached.oreno3dId!,
+          currentIwaraId,
+        );
         if (_isDisposed) return;
-        if (totalVerifications >= maxTotalVerifications) break;
-        if (keyword.isEmpty) continue;
+        if (cachedDetail != null) {
+          oreno3dVideoDetail.value = cachedDetail;
+          LogUtils.d(
+            '命中 oreno3d 匹配缓存: ${cachedDetail.title}',
+            'MyVideoStateController',
+          );
+          return;
+        }
+        // 对面条目被删或换了 ID，缓存作废，往下重新搜。
+        cache?.forget(currentIwaraId);
+      }
+
+      // 2. 逐条查询。oreno3d 站内是 AND 语义，一条查询带多个词才够窄；
+      //    命中不了时它会返回整站热门榜，所以下面必须先打分再决定要不要拉详情。
+      final queries = Oreno3dMatchUtil.buildSearchQueries(
+        videoTitle,
+        authorName,
+      );
+      // 只要出现过网络故障，就不能把「没找到」写成负缓存——那是查不了，不是没有。
+      var hadNetworkFailure = false;
+      // 「确认没有」的前提是**真的搜过**。一次都没搜成（查询集为空、或每条查询都失败）
+      // 时写负缓存，等于凭空判定这条视频不在 oreno3d 上。
+      var searchSucceeded = false;
+
+      queryLoop:
+      for (final keyword in queries) {
+        if (_isDisposed) return;
+        if (probeCount >= _maxOreno3dProbes) break;
 
         Oreno3dSearchResult searchResult;
         try {
           searchResult = await oreno3dClient.searchVideos(keyword: keyword);
         } catch (e) {
-          // 单个候选搜索失败不应中断整个流程，继续尝试下一个。
+          // 单条查询失败不应中断整个流程，继续尝试下一条。
           if (_isDisposed) return;
+          hadNetworkFailure = true;
           LogUtils.d(
-            'oreno3d 搜索关键词"$keyword"失败，尝试下一个候选: $e',
+            'oreno3d 搜索"$keyword"失败，尝试下一条查询: $e',
             'MyVideoStateController',
           );
           continue;
         }
         if (_isDisposed) return;
+        searchSucceeded = true;
 
         final ranked = _rankOreno3dCandidates(
           searchResult.videos,
@@ -1583,40 +1625,53 @@ class MyVideoStateController extends GetxController
           authorName,
         );
 
-        var perKeywordVerifications = 0;
-        for (final video in ranked) {
+        for (final candidate in ranked) {
           if (_isDisposed) return;
-          if (perKeywordVerifications >= maxCandidatesPerKeyword) break;
-          if (totalVerifications >= maxTotalVerifications) break keywordLoop;
-          if (!verifiedOreno3dIds.add(video.id)) continue; // 已校验过
+          // 已按分数降序，遇到第一个不够格的就可以整条查询结束。
+          if (candidate.score < Oreno3dMatchUtil.verifyGate) break;
+          if (probeCount >= _maxOreno3dProbes) break queryLoop;
+          if (!probedOreno3dIds.add(candidate.video.id)) continue;
 
-          totalVerifications++;
-          perKeywordVerifications++;
-
-          final detail = await oreno3dClient.getVideoDetailParsed(video.id);
-
+          probeCount++;
+          final Oreno3dVideoDetail? detail;
+          try {
+            detail = await _probeOreno3dCandidate(
+              oreno3dClient,
+              candidate.video.id,
+              currentIwaraId,
+            );
+          } catch (e) {
+            if (_isDisposed) return;
+            hadNetworkFailure = true;
+            LogUtils.d(
+              'oreno3d 校验候选(${candidate.video.id})失败: $e',
+              'MyVideoStateController',
+            );
+            continue;
+          }
           if (_isDisposed) return;
           if (detail == null) continue;
 
-          if (detail.extractIwaraId() == currentIwaraId) {
-            oreno3dVideoDetail.value = detail;
-            LogUtils.d(
-              '成功匹配oreno3d视频(关键词="$keyword", 已通过iwara ID校验): ${detail.title}',
-              'MyVideoStateController',
-            );
-            matched = true;
-            break keywordLoop;
-          }
+          oreno3dVideoDetail.value = detail;
+          cache?.remember(currentIwaraId, detail.id);
+          LogUtils.d(
+            '成功匹配oreno3d视频(查询="$keyword", 已通过iwara ID校验): ${detail.title}',
+            'MyVideoStateController',
+          );
+          return;
         }
       }
 
-      if (!matched) {
-        LogUtils.d(
-          '未找到与当前iwara视频ID($currentIwaraId)匹配的oreno3d视频'
-              '(尝试关键词: ${keywordCandidates.length}个, 校验详情: $totalVerifications次)',
-          'MyVideoStateController',
-        );
+      if (searchSucceeded && !hadNetworkFailure) {
+        // 确认 oreno3d 上没有：写负缓存（带较短 TTL，见仓库注释）。
+        cache?.remember(currentIwaraId, null);
       }
+      LogUtils.d(
+        '未找到与当前iwara视频ID($currentIwaraId)匹配的oreno3d视频'
+            '(查询: ${queries.length}条, 校验详情: $probeCount次, '
+            '搜索成功: $searchSucceeded, 网络故障: $hadNetworkFailure)',
+        'MyVideoStateController',
+      );
     } catch (e) {
       if (!_isDisposed) {
         LogUtils.e(
@@ -1635,29 +1690,51 @@ class MyVideoStateController extends GetxController
     }
   }
 
-  /// 对 oreno3d 搜索结果按匹配优先级排序，返回最可能是同一视频的候选列表。
-  /// 排序依据：作者名是否一致（优先）+ 标题相似度。
-  /// 注意：这里只用于决定“先拉取哪些候选项的详情”，真正的匹配仍需用 iwara ID 校验。
-  List<Oreno3dVideo> _rankOreno3dCandidates(
+  /// 取匹配结果缓存仓库。数据库尚未初始化（例如部分测试环境）时返回 null，
+  /// 匹配流程照常跑，只是不走缓存。
+  Oreno3dMatchCacheRepository? _oreno3dMatchCache() {
+    try {
+      return Oreno3dMatchCacheRepository();
+    } catch (e) {
+      LogUtils.d('oreno3d 匹配缓存不可用，本次不使用缓存: $e', 'MyVideoStateController');
+      return null;
+    }
+  }
+
+  /// 拉一个候选项的详情页做 iwara ID 校验，对上了才返回解析结果。
+  /// 校验不通过（含 404）返回 null；网络故障向上抛，由调用方区分「没有」与「查不了」。
+  Future<Oreno3dVideoDetail?> _probeOreno3dCandidate(
+    Oreno3dClient client,
+    String oreno3dId,
+    String iwaraId,
+  ) {
+    return client.getVideoDetailIfIwaraIdMatches(oreno3dId, iwaraId);
+  }
+
+  /// 对 oreno3d 搜索结果按匹配优先级排序（分数降序）。
+  ///
+  /// 注意：这里只决定「先为哪些候选项发详情请求、以及值不值得发」，
+  /// 真正的匹配仍需用 iwara ID 校验。
+  List<_ScoredOreno3dCandidate> _rankOreno3dCandidates(
     List<Oreno3dVideo> videos,
     String videoTitle,
     String? authorName,
   ) {
-    final scored = videos.map((video) {
-      final authorMatch =
-          authorName != null &&
-          video.author.toLowerCase() == authorName.toLowerCase();
-      // 相似度比较使用原始标题（而非净化后的关键词），保证排序准确。
-      final similarity = Oreno3dMatchUtil.titleSimilarity(
-        videoTitle,
-        video.title,
-      );
-      // 作者一致的候选项优先级更高
-      final score = similarity + (authorMatch ? 1.0 : 0.0);
-      return MapEntry(video, score);
-    }).toList()..sort((a, b) => b.value.compareTo(a.value));
-
-    return scored.map((e) => e.key).toList();
+    final scored = videos
+        .map(
+          (video) => _ScoredOreno3dCandidate(
+            video,
+            Oreno3dMatchUtil.candidateScore(
+              iwaraTitle: videoTitle,
+              iwaraAuthor: authorName,
+              candidateTitle: video.title,
+              candidateAuthor: video.author,
+            ),
+          ),
+        )
+        .toList()
+      ..sort((a, b) => b.score.compareTo(a.score));
+    return scored;
   }
 
   // 设置亮度
@@ -4684,4 +4761,12 @@ class VideoResolution {
   final String url;
 
   VideoResolution({required this.label, required this.url});
+}
+
+/// oreno3d 搜索结果候选项 + 它的匹配分数（见 [Oreno3dMatchUtil.candidateScore]）。
+class _ScoredOreno3dCandidate {
+  const _ScoredOreno3dCandidate(this.video, this.score);
+
+  final Oreno3dVideo video;
+  final double score;
 }

@@ -4,6 +4,23 @@ import '../models/oreno3d_video.model.dart';
 import 'package:flutter/foundation.dart'; // Added for debugPrint
 
 class Oreno3dHtmlParser {
+  /// 详情页里指向 iwara 的「この動画を見る」链接。
+  /// 页面里只有正文视频带 iwara 链接（推荐位指向的是 oreno3d 站内），
+  /// 因此第一个匹配就是本条视频的来源。
+  static final RegExp _iwaraVideoLinkPattern = RegExp(
+    r'https?://(?:www\.)?iwara\.tv/video/([A-Za-z0-9]+)',
+  );
+
+  /// 只从详情页 HTML 里抠出 iwara 视频ID，**不建 DOM**。
+  ///
+  /// 匹配流程要为每个候选项校验「这条 oreno3d 视频是不是当前 iwara 视频」，
+  /// 而这一步只需要那一个 ID。走 [parseVideoDetail] 会为一份 86KB 的 HTML 建整棵
+  /// DOM（实测 3.56ms/次，手机上更久，且在主 isolate），正则只要 0.022ms。
+  /// 校验通过之后再对同一份 HTML 调用 [parseVideoDetail] 取完整信息。
+  static String? extractIwaraVideoId(String htmlContent) {
+    return _iwaraVideoLinkPattern.firstMatch(htmlContent)?.group(1);
+  }
+
   /// 解析搜索结果页面HTML，提取视频列表
   static Oreno3dSearchResult parseSearchResult(
     String htmlContent,

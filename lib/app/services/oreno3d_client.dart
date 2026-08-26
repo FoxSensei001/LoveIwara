@@ -284,6 +284,49 @@ class Oreno3dClient {
     }
   }
 
+  /// 拉取详情页，**只有**它指向的 iwara 视频ID 与 [expectedIwaraVideoId] 一致时
+  /// 才解析并返回详情；不一致返回 null。
+  ///
+  /// 用于匹配流程里的候选校验：那一步只需要确认「这条 oreno3d 视频是不是当前这条
+  /// iwara 视频」，为一份 86KB 的 HTML 建整棵 DOM（实测 3.56ms/次，手机上更久，
+  /// 且在主 isolate）纯属浪费。这里先用正则抠 ID（0.022ms），对上了才解析同一份 HTML。
+  ///
+  /// 视频不存在（404）时返回 null；其余网络错误按 [getVideoDetail] 的约定抛出。
+  Future<Oreno3dVideoDetail?> getVideoDetailIfIwaraIdMatches(
+    String videoId,
+    String expectedIwaraVideoId, {
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/movies/$videoId',
+        cancelToken: cancelToken,
+      );
+
+      // 视频被删/ID 不存在：不是错误，只是这条候选不作数。
+      if (response.statusCode == 404) return null;
+      if (response.statusCode != 200) {
+        throw DioException(
+          requestOptions: response.requestOptions,
+          response: response,
+          type: DioExceptionType.badResponse,
+          message:
+              '${slang.t.oreno3d.errors.requestFailed} ${response.statusCode}',
+        );
+      }
+
+      final htmlContent = response.data as String;
+      if (Oreno3dHtmlParser.extractIwaraVideoId(htmlContent) !=
+          expectedIwaraVideoId) {
+        return null;
+      }
+      return Oreno3dHtmlParser.parseVideoDetail(htmlContent, videoId);
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.cancel) rethrow;
+      throw _handleDioException(e);
+    }
+  }
+
   /// 下载图片或文件
   /// [url] 文件URL
   /// [savePath] 保存路径

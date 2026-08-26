@@ -2,167 +2,226 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:i_iwara/app/utils/oreno3d_match_util.dart';
 
 void main() {
-  group('Oreno3dMatchUtil.sanitizeKeyword', () {
-    test('removes hyphen/dash that breaks oreno3d search (issue #95)', () {
-      final result = Oreno3dMatchUtil.sanitizeKeyword("Furina - I'm ill");
-      expect(result.contains('-'), isFalse);
-      expect(result, "Furina I'm ill");
+  group('Oreno3dMatchUtil.queryTokens', () {
+    test('drops punctuation / brackets / emoji, keeps words', () {
+      // issue #95 的破句字符（连字符）与装饰符号都必须变成分隔符，
+      // 否则 oreno3d 站内搜索会被打宽、目标视频被热门榜挤掉。
+      final tokens = Oreno3dMatchUtil.queryTokens("Furina - I'm ill🥰【dance】");
+      expect(tokens, ['Furina', 'ill', 'dance']);
     });
 
-    test('strips various dash characters', () {
-      expect(Oreno3dMatchUtil.sanitizeKeyword('a–b—c―d‐e'), 'a b c d e');
+    test('splits katakana middle dot so each name is its own token', () {
+      // 「・」是分隔符而不是词的一部分：プリンツ・オイゲン 必须切成两个 token，
+      // 否则拼出来的查询在站内一条都匹配不到。
+      final tokens = Oreno3dMatchUtil.queryTokens('【MMD】プリンツ・オイゲンの誘惑Apple Pie');
+      expect(tokens, ['MMD', 'プリンツ', 'オイゲンの誘惑Apple', 'Pie']);
     });
 
-    test('collapses multiple spaces and trims', () {
-      expect(Oreno3dMatchUtil.sanitizeKeyword('  hello   world  '), 'hello world');
-    });
-
-    test('leaves clean keyword untouched', () {
-      expect(Oreno3dMatchUtil.sanitizeKeyword('Furina'), 'Furina');
-    });
-
-    test('strips brackets and emoji that taint tokenization', () {
-      // 含【】和 🥰 的标题：括号和 emoji 都应被替换为空格，token 不再粘连。
-      final input = '六一肏一个爱苪🥰【爱苪 绝区零 妄想天使 Aria ZZZ アリア ゼンゼロ 妄想エンジェル】';
-      final result = Oreno3dMatchUtil.sanitizeKeyword(input);
-      expect(result.contains('【'), isFalse);
-      expect(result.contains('】'), isFalse);
-      expect(result.contains('🥰'), isFalse);
-      // 连接处不再粘连
-      expect(result.contains('爱苪🥰'), isFalse);
-      expect(result.contains('爱苪【'), isFalse);
-      // 词本身仍保留
-      expect(result.contains('妄想エンジェル'), isTrue);
-      expect(result.contains('Aria ZZZ'), isTrue);
-    });
-
-    test('strips various bracket pairs and decorative symbols', () {
-      expect(
-        Oreno3dMatchUtil.sanitizeKeyword('a[b](c){d}（e）「f」『g』〈h〉《i》'),
-        'a b c d e f g h i',
-      );
-      expect(
-        Oreno3dMatchUtil.sanitizeKeyword('Furina ★dance♥ Genshin'),
-        'Furina dance Genshin',
-      );
-    });
-  });
-
-  group('Oreno3dMatchUtil.titleSimilarity', () {
-    test('empty words do not produce false full match (issue #95 bug)', () {
-      // 复刻旧实现的 bug 场景：含双空格的无关标题不应被判为高相似度
-      final sim = Oreno3dMatchUtil.titleSimilarity(
-        'Genshin Furina dance',
-        'Kantai  Umikaze', // 双空格
-      );
-      expect(sim, lessThan(0.5));
-    });
-
-    test('whitespace-only title returns 0', () {
-      expect(Oreno3dMatchUtil.titleSimilarity('hello world', ' '), 0.0);
-    });
-
-    test('empty title1 returns 0', () {
-      expect(Oreno3dMatchUtil.titleSimilarity('', 'anything'), 0.0);
-    });
-
-    test('identical titles return 1.0', () {
-      expect(Oreno3dMatchUtil.titleSimilarity('a b c', 'a b c'), 1.0);
-    });
-
-    test('partial overlap returns proportional score', () {
-      // 'a' 匹配, 'z' 不匹配 -> 1/2
-      expect(Oreno3dMatchUtil.titleSimilarity('a z', 'a b'), 0.5);
-    });
-
-    test('substring match counts (bidirectional contains)', () {
-      expect(Oreno3dMatchUtil.titleSimilarity('fur', 'furina'), 1.0);
-    });
-  });
-
-  group('Oreno3dMatchUtil.extractKeywordCandidates', () {
-    test('real-world ZZZ Aria title puts the most distinctive CJK word first',
+    test('keeps single-char CJK but drops single latin char and pure digits',
         () {
-      // 这是触发本次修复的 case：原本把整条标题塞给 oreno3d 会被热门视频
-      // 挤掉，目标视频 #337468 进不了前 5 候选；改用本方法后第一个候选
-      // 应当是最长的 CJK 词（妄想エンジェル），它在线上能让 #337468 排到 top 1。
-      final input =
-          '六一肏一个爱苪🥰【爱苪 绝区零 妄想天使 Aria ZZZ アリア ゼンゼロ 妄想エンジェル】';
-      final candidates = Oreno3dMatchUtil.extractKeywordCandidates(input);
-
-      // 第一个候选必须是最长的 CJK 词
-      expect(candidates.first, '妄想エンジェル');
-      // 至少要包含 "Aria ZZZ" 这个 ASCII 词对（实测能命中目标）
-      expect(candidates, contains('Aria ZZZ'));
-      // 候选数有上限，不会爆炸
-      expect(candidates.length, lessThanOrEqualTo(7));
-      // 最后一个候选是兜底的全标题净化版（命中率最差，但保留旧行为）
-      expect(candidates.last.contains('六一肏一个爱苪'), isTrue);
+      // 中日文单字仍有区分度；单个拉丁字母和纯数字（4K 里的 4、60fps 里的 60）
+      // 到处都是，只会把 AND 查询打宽。
+      final tokens = Oreno3dMatchUtil.queryTokens('a 雅 b 零 c 4 60 4K');
+      expect(tokens, ['雅', '零', '4K']);
     });
 
-    test('prioritizes content inside brackets over the prefix', () {
-      // 括号外的"个性化前缀"（六一肏一个爱苪）不应进入 CJK 长词候选——
-      // 那段没有空格分词、整段是一个超长 token，对 oreno3d 搜索毫无帮助。
-      final input =
-          '六一肏一个爱苪🥰【爱苪 绝区零 妄想天使 Aria ZZZ アリア ゼンゼロ 妄想エンジェル】';
-      final candidates = Oreno3dMatchUtil.extractKeywordCandidates(input);
+    test('folds full-width alphanumerics before tokenizing', () {
+      final tokens = Oreno3dMatchUtil.queryTokens('（ＭＭＤ）ｄａｎｃｅ');
+      expect(tokens, ['MMD', 'dance']);
+    });
 
-      // 不应把整条前缀作为单独候选去搜
-      expect(candidates, isNot(contains('六一肏一个爱苪')));
-      // 但括号里的词都应该在候选里出现（按 CJK 长度排，前 3 名）
-      final top3 = candidates.take(3).toList();
-      expect(top3, contains('妄想エンジェル'));
-      // 妄想天使 / 绝区零 二选一上榜（长度都 >= 3）
-      expect(
-        top3.any((c) => c == '妄想天使' || c == '绝区零'),
-        isTrue,
+
+    test('deduplicates repeated words (AND 查询里重复毫无作用)', () {
+      final tokens = Oreno3dMatchUtil.queryTokens('菲比 泳装 菲比 菲比');
+      expect(tokens, ['菲比', '泳装']);
+    });
+
+    test('title with no usable token yields empty list', () {
+      expect(Oreno3dMatchUtil.queryTokens('👾'), isEmpty);
+      expect(Oreno3dMatchUtil.queryTokens('   '), isEmpty);
+    });
+  });
+
+  group('Oreno3dMatchUtil.buildSearchQueries', () {
+    test('first query joins the whole title (AND narrows, one word does not)',
+        () {
+      // 站内实测是 AND 语义：把标题的词拼成一条查询才够窄；
+      // 一个词搜一次只会拿到按热度排的宽结果。
+      final queries = Oreno3dMatchUtil.buildSearchQueries(
+        "Furina - I'm ill",
+        'someone',
       );
+      expect(queries.first, "Furina ill");
     });
 
-    test('falls back to whole-title tokens when no brackets present', () {
-      final candidates = Oreno3dMatchUtil.extractKeywordCandidates(
-        'Furina dance 妄想エンジェル',
+    test('orders as title -> author -> two most distinctive tokens', () {
+      final queries = Oreno3dMatchUtil.buildSearchQueries(
+        '六一肏一个爱苪🥰【爱苪 绝区零 妄想天使 Aria ZZZ アリア ゼンゼロ 妄想エンジェル】',
+        '10yue',
       );
-      // CJK 长词排第一
-      expect(candidates.first, '妄想エンジェル');
-      // 完整标题作为最后兜底
-      expect(candidates.last, 'Furina dance 妄想エンジェル');
+      expect(queries.length, 3);
+      expect(queries[0], startsWith('六一肏一个爱苪'));
+      expect(queries[1], '10yue');
+      // 第三条是最显著的两个词：长且是 CJK 的优先。
+      expect(queries[2], '六一肏一个爱苪 妄想エンジェル');
     });
 
-    test('ASCII-only title yields ASCII pair candidates and full fallback', () {
-      final candidates =
-          Oreno3dMatchUtil.extractKeywordCandidates('Aria ZZZ HMV remix');
-      // 应当包含至少一个连续 ASCII 词对
+    test('caps the joined query by salience, keeping the distinctive tail', () {
+      // token 超过上限时丢的是「最不显著的」而不是「最后几个」——
+      // 标题里最有区分度的词常常正好排在末尾（本例的 妄想エンジェル）。
+      final queries = Oreno3dMatchUtil.buildSearchQueries(
+        '六一肏一个爱苪🥰【爱苪 绝区零 妄想天使 Aria ZZZ アリア ゼンゼロ 妄想エンジェル】',
+        null,
+      );
+      final firstTokens = queries.first.split(' ');
+      expect(firstTokens.length, 8);
+      expect(firstTokens, contains('妄想エンジェル'));
+      expect(firstTokens, isNot(contains('ZZZ'))); // 最短的拉丁词被丢掉
+      // 原有顺序保留，不能被显著度排序打乱。
+      expect(firstTokens.first, '六一肏一个爱苪');
+      expect(firstTokens.last, '妄想エンジェル');
+    });
+
+    test('never emits more than three queries', () {
+      final queries = Oreno3dMatchUtil.buildSearchQueries(
+        'aa bb cc dd ee ff gg hh ii jj',
+        'author',
+      );
+      expect(queries.length, lessThanOrEqualTo(3));
+    });
+
+    test('returns nothing to search when there is neither token nor author', () {
+      // 触发「一次都搜不成」的输入：纯 emoji 标题 + 没有作者名。
+      // 控制器据此**不**写负缓存——一次都没搜过，不能judge成「oreno3d 上没有」。
+      expect(Oreno3dMatchUtil.buildSearchQueries('👾', null), isEmpty);
+      expect(Oreno3dMatchUtil.buildSearchQueries('🥰🎉', '   '), isEmpty);
+    });
+
+    test('ties in salience keep the original order (sort 稳定性不可依赖)', () {
+      // 两个显著度相同的 token（同为 4 字 CJK）必须按标题里的先后排，
+      // 不能随 List.sort 的实现摇摆。
+      final tokens = Oreno3dMatchUtil.queryTokens('妄想天使 绝区零零 幻想少女 x');
+      expect(Oreno3dMatchUtil.distinctiveTokens(tokens, 2), [
+        '妄想天使',
+        '绝区零零',
+      ]);
+    });
+
+    test('deduplicates when the title is a single token', () {
+      final queries = Oreno3dMatchUtil.buildSearchQueries('妄想エンジェル', null);
+      expect(queries, ['妄想エンジェル']);
+    });
+
+    test('falls back to the author alone when the title has no usable token',
+        () {
+      // 「👾」这种纯 emoji 标题切不出任何 token，作者名是唯一线索。
+      final queries = Oreno3dMatchUtil.buildSearchQueries('👾', 'そこに田中');
+      expect(queries, ['そこに田中']);
+    });
+
+    test('skips a blank author instead of emitting an empty query', () {
+      final queries = Oreno3dMatchUtil.buildSearchQueries('Fukkireta', '   ');
+      expect(queries, ['Fukkireta']);
+      expect(queries.any((q) => q.trim().isEmpty), isFalse);
+    });
+  });
+
+  group('Oreno3dMatchUtil.titleAffinity', () {
+    test('identical titles score 1.0 despite case/width/space differences', () {
       expect(
-        candidates.any(
-          (c) => c == 'Aria ZZZ' || c == 'ZZZ HMV' || c == 'HMV remix',
+        Oreno3dMatchUtil.titleAffinity(
+          'Elysia  Mobius-Chocolate Cream',
+          'elysia Mobius - Chocolate Cream',
         ),
-        isTrue,
+        1.0,
       );
-      // 兜底必含完整标题
-      expect(candidates, contains('Aria ZZZ HMV remix'));
+      expect(
+        Oreno3dMatchUtil.titleAffinity('【ＭＭＤ】дance', '[MMD] дance'),
+        1.0,
+      );
     });
 
-    test('deduplicates candidates and keeps order', () {
-      // 单 CJK 词标题：第一候选（CJK 词）和最后兜底（完整标题）会相同，
-      // 应自动去重而非出现两次。
-      final candidates =
-          Oreno3dMatchUtil.extractKeywordCandidates('妄想エンジェル');
-      expect(candidates, ['妄想エンジェル']);
+    test('ranks the real match above hot-list noise for a CJK title', () {
+      // 回归护栏：旧实现按空格分词 + 双向 contains，中文标题整条是一个 token，
+      // 相似度只会得到 0 或 1，排序等于失效。这里必须给出连续的区分度。
+      const iwaraTitle = '风骚丈母娘(上)';
+      final real = Oreno3dMatchUtil.titleAffinity(iwaraTitle, '风骚丈母娘（上）');
+      final noise = Oreno3dMatchUtil.titleAffinity(iwaraTitle, '黒マスクお姉さんの裏バイト');
+      expect(real, 1.0);
+      expect(noise, lessThan(Oreno3dMatchUtil.verifyGate));
+      expect(real, greaterThan(noise));
     });
 
-    test('empty title returns empty list', () {
-      expect(Oreno3dMatchUtil.extractKeywordCandidates(''), isEmpty);
-      expect(Oreno3dMatchUtil.extractKeywordCandidates('   '), isEmpty);
+    test('partial overlap lands strictly between 0 and 1', () {
+      final score = Oreno3dMatchUtil.titleAffinity(
+        '蕾米埃尔 Remielle Part 2',
+        '蕾米埃尔 Remielle',
+      );
+      expect(score, greaterThan(0.0));
+      expect(score, lessThan(1.0));
     });
 
-    test('skips short single-char CJK tokens', () {
-      // 单字 CJK 区分度太低（如 "雅"、"零"），不应进入 CJK 候选；
-      // 但完整标题净化版兜底必须保留。
-      final candidates = Oreno3dMatchUtil.extractKeywordCandidates('a 雅 b 零 c');
-      expect(candidates, isNot(contains('雅')));
-      expect(candidates, isNot(contains('零')));
-      expect(candidates, contains('a 雅 b 零 c'));
+    test('empty or symbol-only input scores 0', () {
+      expect(Oreno3dMatchUtil.titleAffinity('', 'anything'), 0.0);
+      expect(Oreno3dMatchUtil.titleAffinity('🥰', 'anything'), 0.0);
+    });
+  });
+
+  group('Oreno3dMatchUtil.isSameAuthor', () {
+    test('tolerates case, width and stray whitespace', () {
+      expect(Oreno3dMatchUtil.isSameAuthor('Redgectx ', 'redgectx'), isTrue);
+      expect(Oreno3dMatchUtil.isSameAuthor('ＭＭＤ Guy', 'mmdguy'), isTrue);
+    });
+
+    test('different authors and null/blank are not the same', () {
+      expect(Oreno3dMatchUtil.isSameAuthor('10yue', 'muta81'), isFalse);
+      expect(Oreno3dMatchUtil.isSameAuthor(null, 'muta81'), isFalse);
+      expect(Oreno3dMatchUtil.isSameAuthor('  ', '  '), isFalse);
+    });
+  });
+
+  group('Oreno3dMatchUtil.candidateScore / verifyGate', () {
+    test('same author alone clears the gate even with an unlike title', () {
+      // 作者名抓自 iwara 且逐字相同，撞名概率远低于标题撞词，
+      // 因此「同作者」本身就值得为它拉一次详情页校验。
+      final score = Oreno3dMatchUtil.candidateScore(
+        iwaraTitle: 'ZZZ: 调教新艾利都的母猪们-蕾米埃尔（下）',
+        iwaraAuthor: '全民制作人',
+        candidateTitle: '完全无关的另一条作品',
+        candidateAuthor: '全民制作人',
+      );
+      expect(score, greaterThanOrEqualTo(Oreno3dMatchUtil.verifyGate));
+    });
+
+    test('hot-list noise stays below the gate so no detail page is fetched',
+        () {
+      // 站内一个词都命中不了时会返回整站热门榜；这些结果必须一条都进不了校验，
+      // 否则每次未命中都要白白拉三个 86KB 的详情页（issue #95 的观感来源）。
+      const iwaraTitle = '风骚丈母娘(上)';
+      const noise = ['♥がVIPルームでポールダンス', 'な◯じゃもちゃんに負かされる動画です', '黒マスクお姉さんの裏バイト'];
+      for (final title in noise) {
+        final score = Oreno3dMatchUtil.candidateScore(
+          iwaraTitle: iwaraTitle,
+          iwaraAuthor: '咕咕嘎嘎',
+          candidateTitle: title,
+          candidateAuthor: 'kem_kem',
+        );
+        expect(
+          score,
+          lessThan(Oreno3dMatchUtil.verifyGate),
+          reason: '热门榜噪声 "$title" 不应进入 ID 校验',
+        );
+      }
+    });
+
+    test('an exact title match clears the gate even without the author', () {
+      final score = Oreno3dMatchUtil.candidateScore(
+        iwaraTitle: 'Fukkireta',
+        iwaraAuthor: 'osuimono',
+        candidateTitle: 'Fukkireta',
+        candidateAuthor: '别的名字',
+      );
+      expect(score, greaterThanOrEqualTo(Oreno3dMatchUtil.verifyGate));
     });
   });
 }
