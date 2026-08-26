@@ -3325,6 +3325,9 @@ class _TranslationsFirstTimeSetupCommonZhCn implements TranslationsFirstTimeSetu
 
 	// Translations
 	@override String get settingsChangeableTip => '这些设置都可以在应用设置中随时修改';
+	@override String get previousStep => '上一步';
+	@override String get nextStep => '下一步';
+	@override String get finishSetup => '完成设置';
 	@override String get agreeAgreementSnackbar => '请先同意用户协议和社区规则';
 }
 
@@ -5735,6 +5738,9 @@ extension on TranslationsZhCn {
 			'firstTimeSetup.completion.checkboxTitle' => '我已阅读并同意用户协议和社区规则',
 			'firstTimeSetup.completion.checkboxSubtitle' => '不同意将无法使用本应用',
 			'firstTimeSetup.common.settingsChangeableTip' => '这些设置都可以在应用设置中随时修改',
+			'firstTimeSetup.common.previousStep' => '上一步',
+			'firstTimeSetup.common.nextStep' => '下一步',
+			'firstTimeSetup.common.finishSetup' => '完成设置',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => '请先同意用户协议和社区规则',
 			'proxyHelper.systemProxyDetected' => '检测到系统代理',
 			'proxyHelper.copied' => '已复制',

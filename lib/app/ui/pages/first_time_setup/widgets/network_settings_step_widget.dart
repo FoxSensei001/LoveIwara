@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/ui/pages/settings/widgets/proxy_config_widget.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/layouts.dart';
+import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/step_container.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/proxy_config_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class NetworkSettingsStepWidget extends StatefulWidget {
@@ -29,123 +31,30 @@ class _NetworkSettingsStepWidgetState extends State<NetworkSettingsStepWidget> {
 
   final Key _proxyConfigKey = const ValueKey<int>(0);
 
-  static String get _networkTipText => slang.t.firstTimeSetup.network.tip;
-
-  Widget _buildNetworkTip(ThemeData theme, {required bool isNarrow}) {
-    return Container(
-      padding: EdgeInsets.all(isNarrow ? 12 : 16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.secondaryContainer,
-        borderRadius: BorderRadius.circular(isNarrow ? 12 : 16),
-      ),
-      child: Row(
+  @override
+  Widget build(BuildContext context) {
+    return StepPageLayout(
+      subtitle: widget.subtitle,
+      description: widget.description,
+      content: GlassSettingSection(
         children: [
-          Icon(
-            Icons.wifi,
-            color: theme.colorScheme.onSecondaryContainer,
-            size: isNarrow ? 16 : 20,
-          ),
-          SizedBox(width: isNarrow ? 8 : 12),
-          Expanded(
-            child: Text(
-              _networkTipText,
-              style:
-                  (isNarrow
-                          ? theme.textTheme.bodySmall
-                          : theme.textTheme.bodyMedium)
-                      ?.copyWith(color: theme.colorScheme.onSecondaryContainer),
+          // 代理表单自己那层 Card（投影 + 12 圆角）在这里会变成「卡里套卡」，
+          // 所以关掉外壳，由本页统一的分组卡片承载；设置页仍走 wrapWithCard。
+          Padding(
+            padding: const EdgeInsets.all(StepMetrics.cardPadding),
+            child: ProxyConfigWidget(
+              key: _proxyConfigKey,
+              configService: configService,
+              showTitle: false,
+              padding: EdgeInsets.zero,
+              compactMode: true,
+              wrapWithCard: false,
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildProxyConfigContainer(ThemeData theme) {
-    return ProxyConfigWidget(
-      key: _proxyConfigKey,
-      configService: configService,
-      showTitle: false,
-      padding: EdgeInsets.all(0),
-      compactMode: true,
-      wrapWithCard: true,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return StepResponsiveScaffold(
-      desktopBuilder: (context, theme) => _buildDesktopLayout(context, theme),
-      mobileBuilder: (context, theme, isNarrow) =>
-          _buildMobileLayout(context, theme, isNarrow),
-    );
-  }
-
-  Widget _buildDesktopLayout(BuildContext context, ThemeData theme) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          flex: 1,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.subtitle,
-                style: theme.textTheme.displaySmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: theme.colorScheme.onSurface,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                widget.description,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 32),
-              _buildNetworkTip(theme, isNarrow: false),
-            ],
-          ),
-        ),
-        const SizedBox(width: 80),
-        Expanded(
-          flex: 1,
-          child: Column(
-            children: [
-              _buildProxyConfigContainer(theme),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMobileLayout(
-    BuildContext context,
-    ThemeData theme,
-    bool isNarrow,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: isNarrow ? 16 : 24,
-      children: [
-        Text(
-          widget.subtitle,
-          style:
-              (isNarrow
-                      ? theme.textTheme.titleMedium
-                      : theme.textTheme.headlineSmall)
-                  ?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.onSurface,
-                  ),
-        ),
-        _buildProxyConfigContainer(theme),
-        _buildNetworkTip(theme, isNarrow: isNarrow),
-      ],
+      // 「重启后才生效」是后果提醒，不是普通说明：用 warning 语气区分。
+      tip: StepTipBanner.warning(slang.t.firstTimeSetup.network.tip),
     );
   }
 }

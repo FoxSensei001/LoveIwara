@@ -11,7 +11,10 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 /// [GlassAnimatedDot]，底色与前景色同一段过渡（只动底色会读成「闪了一下」，
 /// 见 glass_morph.dart 顶部词汇表）。
 ///
-/// 目前只服务设置模块；其它页面要复用时再考虑挪进 `widgets/glass/`。
+/// 服务范围：设置模块，以及首次启动的设置向导
+/// （`pages/first_time_setup/`）——向导里那几步本来就是「提前问一遍的设置项」，
+/// 用同一套积木后，用户第二次在设置页看到它们不会觉得换了个 App。
+/// 还有别的页面要复用时再考虑挪进 `widgets/glass/`。
 
 /// 分组卡片容器：一组设置项外面那层圆角玻璃壳。
 ///
@@ -281,6 +284,13 @@ class GlassChoiceItem<T> extends StatelessWidget {
   final Widget title;
   final Widget? subtitle;
 
+  /// 行首图标（可选）。
+  ///
+  /// 同一张卡片里，带图标的行与不带图标的行混着排，文字会分成两条竖线
+  /// （分隔线的 48 缩进也只对得上其中一种）。所以只要卡片里别的行有图标，
+  /// 单选行就把图标补上。
+  final IconData? icon;
+
   const GlassChoiceItem({
     super.key,
     required this.value,
@@ -288,6 +298,7 @@ class GlassChoiceItem<T> extends StatelessWidget {
     required this.onChanged,
     required this.title,
     this.subtitle,
+    this.icon,
   });
 
   @override
@@ -297,6 +308,7 @@ class GlassChoiceItem<T> extends StatelessWidget {
     // 闭包里拿不到空提升，先落成局部非空变量。
     final ValueChanged<T>? cb = onChanged;
     return GlassSettingTile(
+      icon: icon,
       title: title,
       subtitle: subtitle,
       selected: selected,

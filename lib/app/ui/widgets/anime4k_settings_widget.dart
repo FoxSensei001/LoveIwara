@@ -188,6 +188,23 @@ class Anime4KSettingsWidget extends StatelessWidget {
     });
   }
 
+  /// 打开预设选择弹窗（不渲染任何行，只要弹窗）。
+  ///
+  /// 首次设置向导的播放器步用自己的设置行（与同卡片里的开关行同一套行高与
+  /// 留白），但弹窗要和播放器设置页共用同一份，所以这里把入口露出来。
+  static Future<void> showPresetDialog(BuildContext context) {
+    return const Anime4KSettingsWidget()._showPresetSelectionDialog(
+      context,
+      Get.find<ConfigService>(),
+    );
+  }
+
+  /// 当前预设的显示名（关闭时给出「关闭 Anime4K」）。
+  static String currentPresetLabel() {
+    final id = Get.find<ConfigService>()[ConfigKey.ANIME4K_PRESET_ID] as String;
+    return Anime4KPresets.getPresetById(id)?.name ?? slang.t.anime4k.disable;
+  }
+
   Future<void> _showPresetSelectionDialog(
     BuildContext context,
     ConfigService configService,

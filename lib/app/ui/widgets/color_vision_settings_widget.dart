@@ -90,6 +90,14 @@ class ColorVisionSettingsWidget extends StatelessWidget {
     };
   }
 
+  /// 某一档的显示名（供外部只想显示当前值、不想渲染整行时使用）。
+  static String labelFor(String id) => _optionLabels()[id] ?? id;
+
+  /// 当前档位的显示名。
+  static String currentLabel({
+    ConfigKey configKey = ConfigKey.COLOR_VISION_FILTER_ID,
+  }) => labelFor(Get.find<ConfigService>()[configKey] as String);
+
   static Map<String, String> _optionDescriptions() {
     final t = slang.t;
     return {

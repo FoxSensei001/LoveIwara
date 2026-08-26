@@ -2793,6 +2793,9 @@ class _TranslationsFirstTimeSetupCommonZhTw implements TranslationsFirstTimeSetu
 
 	// Translations
 	@override String get settingsChangeableTip => '這些設定可在應用設定中隨時修改';
+	@override String get previousStep => '上一步';
+	@override String get nextStep => '下一步';
+	@override String get finishSetup => '完成設定';
 	@override String get agreeAgreementSnackbar => '請先同意使用者協議與社群規則';
 }
 
@@ -4511,6 +4514,9 @@ extension on TranslationsZhTw {
 			'firstTimeSetup.completion.checkboxTitle' => '我已閱讀並同意使用者協議與社群規則',
 			'firstTimeSetup.completion.checkboxSubtitle' => '不同意將無法使用本應用',
 			'firstTimeSetup.common.settingsChangeableTip' => '這些設定可在應用設定中隨時修改',
+			'firstTimeSetup.common.previousStep' => '上一步',
+			'firstTimeSetup.common.nextStep' => '下一步',
+			'firstTimeSetup.common.finishSetup' => '完成設定',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => '請先同意使用者協議與社群規則',
 			'proxyHelper.systemProxyDetected' => '檢測到系統代理',
 			'proxyHelper.copied' => '已複製',
@@ -4984,11 +4990,11 @@ extension on TranslationsZhTw {
 			'download.downloadDetail' => '下載詳情',
 			'download.copy' => '複製',
 			'download.copySuccess' => '已複製',
+			_ => null,
+		} ?? switch (path) {
 			'download.waiting' => '等待中',
 			'download.paused' => '暫停中',
 			'download.downloadingOnlyDownloaded' => ({required Object downloaded}) => '下載中 ${downloaded}',
-			_ => null,
-		} ?? switch (path) {
 			'download.galleryDownloadCompletedWithName' => ({required Object galleryName}) => '圖庫下載完成: ${galleryName}',
 			'download.downloadCompletedWithName' => ({required Object fileName}) => '下載完成: ${fileName}',
 			'download.searchTasks' => '搜尋下載任務...',
@@ -5498,11 +5504,11 @@ extension on TranslationsZhTw {
 			'log.exceedLimit' => '超出限制',
 			'log.remaining' => '剩餘',
 			'log.currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit' => '日誌空間已超出限制，建議立即清理舊日誌或增加空間限制',
+			_ => null,
+		} ?? switch (path) {
 			'log.currentLogSizeAlmostExceededPleaseCleanOldLogs' => '日誌空間即將用盡，建議清理舊日誌',
 			'log.cleaningOldLogs' => '正在自動清理舊日誌...',
 			'log.logCleaningCompleted' => '日誌清理完成',
-			_ => null,
-		} ?? switch (path) {
 			'log.logCleaningProcessMayNotBeCompleted' => '日誌清理過程可能未完成',
 			'log.cleanExceededLogs' => '清理超出限制的日誌',
 			'log.noLogsToExport' => '沒有可匯出的日誌資料',

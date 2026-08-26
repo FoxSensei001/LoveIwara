@@ -9,7 +9,13 @@ class SetupStep {
   final IconData icon;
   final bool Function()? showStatus;
   final bool Function()? canProceed;
-  final Widget Function(BuildContext, bool, bool) builder;
+
+  /// 步骤主体。
+  ///
+  /// 断点不再由这里透传：版式与断点统一由
+  /// `widgets/shared/layouts.dart` 下发（`stepIsNarrow` / `stepIsDesktop`
+  /// 自己读 MediaQuery），传着传着传错常量的事不会再发生。
+  final WidgetBuilder builder;
 
   const SetupStep({
     required this.id,
@@ -43,7 +49,8 @@ class SetupStepManager {
   List<SetupStep> get steps => List.unmodifiable(_steps);
 
   /// 获取当前步骤
-  SetupStep? get currentStep => _currentIndex < _steps.length ? _steps[_currentIndex] : null;
+  SetupStep? get currentStep =>
+      _currentIndex < _steps.length ? _steps[_currentIndex] : null;
 
   /// 获取当前步骤索引
   int get currentIndex => _currentIndex;

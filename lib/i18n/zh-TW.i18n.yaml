@@ -1134,6 +1134,9 @@ firstTimeSetup:
     checkboxSubtitle: "不同意將無法使用本應用"
   common:
     settingsChangeableTip: "這些設定可在應用設定中隨時修改"
+    previousStep: "上一步"
+    nextStep: "下一步"
+    finishSetup: "完成設定"
     agreeAgreementSnackbar: "請先同意使用者協議與社群規則"
 
 proxyHelper:

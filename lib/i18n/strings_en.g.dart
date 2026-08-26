@@ -8037,6 +8037,15 @@ class TranslationsFirstTimeSetupCommonEn {
 	/// en: 'These settings can be changed anytime in Settings'
 	String get settingsChangeableTip => 'These settings can be changed anytime in Settings';
 
+	/// en: 'Previous step'
+	String get previousStep => 'Previous step';
+
+	/// en: 'Next step'
+	String get nextStep => 'Next step';
+
+	/// en: 'Finish setup'
+	String get finishSetup => 'Finish setup';
+
 	/// en: 'Please agree to the user agreement and community rules first'
 	String get agreeAgreementSnackbar => 'Please agree to the user agreement and community rules first';
 }
@@ -10580,6 +10589,9 @@ extension on Translations {
 			'firstTimeSetup.completion.checkboxTitle' => 'I have read and agree to the user agreement and community rules',
 			'firstTimeSetup.completion.checkboxSubtitle' => 'You cannot use the app if you disagree',
 			'firstTimeSetup.common.settingsChangeableTip' => 'These settings can be changed anytime in Settings',
+			'firstTimeSetup.common.previousStep' => 'Previous step',
+			'firstTimeSetup.common.nextStep' => 'Next step',
+			'firstTimeSetup.common.finishSetup' => 'Finish setup',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => 'Please agree to the user agreement and community rules first',
 			'proxyHelper.systemProxyDetected' => 'System proxy detected',
 			'proxyHelper.copied' => 'Copied',

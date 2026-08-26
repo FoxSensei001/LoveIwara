@@ -2473,6 +2473,9 @@ firstTimeSetup:
     checkboxSubtitle: "不同意の場合、アプリを利用できません"
   common:
     settingsChangeableTip: "これらの設定はいつでも設定画面で変更できます"
+    previousStep: "前のステップ"
+    nextStep: "次のステップ"
+    finishSetup: "設定を完了"
     agreeAgreementSnackbar: "まず利用規約とコミュニティルールに同意してください"
 
 proxyHelper:

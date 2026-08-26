@@ -2470,6 +2470,9 @@ firstTimeSetup:
     checkboxSubtitle: "You cannot use the app if you disagree"
   common:
     settingsChangeableTip: "These settings can be changed anytime in Settings"
+    previousStep: "Previous step"
+    nextStep: "Next step"
+    finishSetup: "Finish setup"
     agreeAgreementSnackbar: "Please agree to the user agreement and community rules first"
 
 proxyHelper:

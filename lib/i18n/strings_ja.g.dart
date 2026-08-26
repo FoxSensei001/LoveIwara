@@ -3325,6 +3325,9 @@ class _TranslationsFirstTimeSetupCommonJa implements TranslationsFirstTimeSetupC
 
 	// Translations
 	@override String get settingsChangeableTip => 'これらの設定はいつでも設定画面で変更できます';
+	@override String get previousStep => '前のステップ';
+	@override String get nextStep => '次のステップ';
+	@override String get finishSetup => '設定を完了';
 	@override String get agreeAgreementSnackbar => 'まず利用規約とコミュニティルールに同意してください';
 }
 
@@ -5735,6 +5738,9 @@ extension on TranslationsJa {
 			'firstTimeSetup.completion.checkboxTitle' => '利用規約とコミュニティルールに同意しました',
 			'firstTimeSetup.completion.checkboxSubtitle' => '不同意の場合、アプリを利用できません',
 			'firstTimeSetup.common.settingsChangeableTip' => 'これらの設定はいつでも設定画面で変更できます',
+			'firstTimeSetup.common.previousStep' => '前のステップ',
+			'firstTimeSetup.common.nextStep' => '次のステップ',
+			'firstTimeSetup.common.finishSetup' => '設定を完了',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => 'まず利用規約とコミュニティルールに同意してください',
 			'proxyHelper.systemProxyDetected' => 'システムプロキシを検出',
 			'proxyHelper.copied' => 'コピーしました',

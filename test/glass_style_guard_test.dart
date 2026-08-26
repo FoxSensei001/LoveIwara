@@ -455,7 +455,6 @@ const _rawMaterialButtonBaseline = <String, int>{
   'lib/app/ui/pages/emoji_library/emoji_group_detail_page.dart': 5,
   'lib/app/ui/pages/favorite/favorite_list_page.dart': 1,
   'lib/app/ui/pages/favorite_tags/favorite_tags_page.dart': 1,
-  'lib/app/ui/pages/first_time_setup/widgets/welcome_step_widget.dart': 1,
   'lib/app/ui/pages/forum/forum_page.dart': 2,
   'lib/app/ui/pages/gallery_detail/gallery_detail_page.dart': 3,
   'lib/app/ui/pages/gallery_detail/widgets/image_widget.dart': 6,

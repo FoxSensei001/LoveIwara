@@ -1,79 +1,59 @@
 import 'package:flutter/material.dart';
 
-/// 统一的 Step 容器样式：卡片外观、圆角与边框
-class StepSectionCard extends StatelessWidget {
-  final Widget child;
-  final bool isNarrow;
+import 'layouts.dart';
 
-  const StepSectionCard({super.key, required this.child, required this.isNarrow});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(isNarrow ? 16 : 20),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.2),
-        ),
-      ),
-      child: child,
-    );
-  }
-}
-
-/// 统一的分割线
-class StepDivider extends StatelessWidget {
-  const StepDivider({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Divider(
-      height: 1,
-      color: theme.colorScheme.outline.withValues(alpha: 0.2),
-    );
-  }
-}
-
-/// 顶部/底部的提示条
+/// 步骤底部的提示条。
+///
+/// 过去五个步骤各写各的：主题步用 `primaryContainer` + 调色板图标，
+/// 基础步用 `primaryContainer` + 灯泡，播放器步用 `primaryContainer` +
+/// 「更新」图标，网络步用 `secondaryContainer` + wifi，欢迎步干脆没有。
+/// 同一句「这些设置以后都能改」在四个步骤里长着四张脸。
+///
+/// 现在只有两种语气，且由这里决定长相：
+///
+///   - [StepTipBanner.info]（默认）：说明性提示，主题色底。
+///   - [StepTipBanner.warning]：需要用户留意的后果（如「重启后生效」），
+///     次要容器色底 —— 这是**有意**的区分，不是漏改。
 class StepTipBanner extends StatelessWidget {
-  final IconData icon;
   final String text;
-  final bool isNarrow;
-  final Color? backgroundColor;
-  final Color? foregroundColor;
+  final bool warning;
 
-  const StepTipBanner({
-    super.key,
-    required this.icon,
-    required this.text,
-    required this.isNarrow,
-    this.backgroundColor,
-    this.foregroundColor,
-  });
+  const StepTipBanner.info(this.text, {super.key}) : warning = false;
+
+  const StepTipBanner.warning(this.text, {super.key}) : warning = true;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final bg = backgroundColor ?? theme.colorScheme.primaryContainer;
-    final fg = foregroundColor ?? theme.colorScheme.onPrimaryContainer;
+    final cs = theme.colorScheme;
+    final isNarrow = stepIsNarrow(context);
+
+    final background = warning ? cs.secondaryContainer : cs.primaryContainer;
+    final foreground = warning
+        ? cs.onSecondaryContainer
+        : cs.onPrimaryContainer;
+    final icon = warning ? Icons.error_outline : Icons.lightbulb_outline;
+
     return Container(
-      padding: EdgeInsets.all(isNarrow ? 12 : 16),
+      padding: EdgeInsets.all(isNarrow ? 12 : StepMetrics.cardPadding),
       decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(isNarrow ? 12 : 16),
+        color: background,
+        borderRadius: BorderRadius.circular(StepMetrics.cardRadius),
       ),
       child: Row(
+        // 文案换行后图标要贴着第一行，不能跟着整段一起居中。
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 12,
         children: [
-          Icon(icon, color: fg, size: isNarrow ? 16 : 20),
-          SizedBox(width: isNarrow ? 8 : 12),
+          Icon(icon, color: foreground, size: 20),
           Expanded(
             child: Text(
               text,
-              style: (isNarrow ? theme.textTheme.bodySmall : theme.textTheme.bodyMedium)
-                  ?.copyWith(color: fg),
+              style:
+                  (isNarrow
+                          ? theme.textTheme.bodySmall
+                          : theme.textTheme.bodyMedium)
+                      ?.copyWith(color: foreground, height: 1.4),
             ),
           ),
         ],
@@ -81,5 +61,3 @@ class StepTipBanner extends StatelessWidget {
     );
   }
 }
-
-

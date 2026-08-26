@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/layouts.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
+/// 完成步。
+///
+/// 目前未注册进向导（见 `SetupStepFactory.buildStepsForPlatform`），
+/// 但版式跟着其它步骤一起走，重新启用时不用再对一遍齐。
 class CompletionStepWidget extends StatefulWidget {
   final String title;
   final String subtitle;
@@ -24,191 +29,80 @@ class CompletionStepWidget extends StatefulWidget {
 
 class _CompletionStepWidgetState extends State<CompletionStepWidget> {
   late ConfigService configService;
-  
-  // 本地状态
+
   late bool agreeToRules;
 
   @override
   void initState() {
     super.initState();
     configService = Get.find<ConfigService>();
-    _loadSettings();
-  }
-
-  void _loadSettings() {
     agreeToRules = configService[ConfigKey.RULES_AGREEMENT_KEY];
   }
 
-  Future<void> _updateAgreeToRules(bool? value) async {
-    final boolValue = value ?? false;
-    setState(() {
-      agreeToRules = boolValue;
-    });
-    await configService.setSetting(ConfigKey.RULES_AGREEMENT_KEY, boolValue);
+  Future<void> _updateAgreeToRules(bool value) async {
+    setState(() => agreeToRules = value);
+    await configService.setSetting(ConfigKey.RULES_AGREEMENT_KEY, value);
   }
 
   @override
   Widget build(BuildContext context) {
-    return StepResponsiveScaffold(
-      desktopBuilder: (context, theme) => _buildDesktopLayout(context, theme),
-      mobileBuilder: (context, theme, isNarrow) => _buildMobileLayout(context, theme, isNarrow),
-    );
-  }
-
-  Widget _buildDesktopLayout(BuildContext context, ThemeData theme) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          flex: 2,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.subtitle,
-                style: theme.textTheme.displayMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.onSurface,
-                ),
+    final theme = Theme.of(context);
+    return StepPageLayout(
+      subtitle: widget.subtitle,
+      description: widget.description,
+      hero: const _SuccessBadge(),
+      content: GlassSettingSection(
+        title: slang.t.firstTimeSetup.completion.agreementTitle,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              StepMetrics.cardPadding,
+              0,
+              StepMetrics.cardPadding,
+              StepMetrics.cardPadding,
+            ),
+            child: Text(
+              slang.t.firstTimeSetup.completion.agreementDesc,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                height: 1.5,
               ),
-              const SizedBox(height: 32),
-              _buildAgreementCard(theme, compact: false),
-              const SizedBox(height: 32),
-            ],
+            ),
           ),
-        ),
-        const SizedBox(width: 80),
-        Expanded(
-          flex: 1,
-          child: Center(
-            child: _buildSuccessIcon(theme, padding: 60, iconSize: 120),
+          GlassSwitchItem(
+            icon: Icons.gavel,
+            title: Text(slang.t.firstTimeSetup.completion.checkboxTitle),
+            subtitle: Text(slang.t.firstTimeSetup.completion.checkboxSubtitle),
+            value: agreeToRules,
+            onChanged: _updateAgreeToRules,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
+}
 
-  Widget _buildMobileLayout(BuildContext context, ThemeData theme, bool isNarrow) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: isNarrow ? 16 : 24,
-      children: [
-        _buildSuccessIcon(
-          theme,
-          padding: isNarrow ? 20 : 32,
-          iconSize: isNarrow ? 48 : 80,
-        ),
-        Text(
-          widget.subtitle,
-          style: (isNarrow ? theme.textTheme.headlineMedium : theme.textTheme.displaySmall)?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: theme.colorScheme.onSurface,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        _buildAgreementCard(theme, compact: true, isNarrow: isNarrow),
-      ],
-    );
-  }
+class _SuccessBadge extends StatelessWidget {
+  const _SuccessBadge();
 
-  // 私有复用组件
-  Widget _buildSuccessIcon(ThemeData theme, {required double padding, required double iconSize}) {
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final double size = stepIsDesktop(context)
+        ? 120
+        : (stepIsNarrow(context) ? 72 : 96);
     return Container(
-      padding: EdgeInsets.all(padding),
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            theme.colorScheme.primary,
-            theme.colorScheme.secondary,
-          ],
+          colors: [cs.primary, cs.secondary],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         shape: BoxShape.circle,
       ),
-      child: Icon(
-        Icons.check_circle,
-        size: iconSize,
-        color: Colors.white,
-      ),
-    );
-  }
-
-  Widget _buildAgreementCard(
-    ThemeData theme, {
-    required bool compact,
-    bool? isNarrow,
-  }) {
-    final bool narrow = isNarrow ?? false;
-    final double padding = compact ? (narrow ? 16 : 20) : 24;
-    final double borderRadius = compact ? (narrow ? 16 : 20) : 20;
-    final double iconSize = compact ? (narrow ? 20 : 24) : 28;
-    final double titleGap = compact ? (narrow ? 8 : 12) : 16;
-    final double afterHeaderGap = compact ? (narrow ? 12 : 16) : 16;
-
-    TextStyle? agreementTextStyle = compact
-        ? theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-            height: 1.4,
-          )
-        : theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-            height: 1.4,
-          );
-
-    return Container(
-      padding: EdgeInsets.all(padding),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.2),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.gavel,
-                color: theme.colorScheme.primary,
-                size: iconSize,
-              ),
-              SizedBox(width: titleGap),
-              Text(
-                slang.t.firstTimeSetup.completion.agreementTitle,
-                style: (compact
-                        ? (narrow ? theme.textTheme.titleSmall : theme.textTheme.titleMedium)
-                        : theme.textTheme.titleMedium)
-                    ?.copyWith(fontWeight: FontWeight.w600),
-              ),
-            ],
-          ),
-          SizedBox(height: afterHeaderGap),
-          Text(
-            slang.t.firstTimeSetup.completion.agreementDesc,
-            style: agreementTextStyle,
-          ),
-          SizedBox(height: compact ? (narrow ? 12 : 16) : 20),
-          CheckboxListTile(
-            title: Text(
-              slang.t.firstTimeSetup.completion.checkboxTitle,
-              style: compact && narrow ? theme.textTheme.bodySmall : null,
-            ),
-            subtitle: Text(
-              slang.t.firstTimeSetup.completion.checkboxSubtitle,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            value: agreeToRules,
-            onChanged: _updateAgreeToRules,
-            contentPadding: EdgeInsets.zero,
-            dense: compact && narrow,
-          ),
-        ],
-      ),
+      child: Icon(Icons.check, size: size * 0.5, color: cs.onPrimary),
     );
   }
 }

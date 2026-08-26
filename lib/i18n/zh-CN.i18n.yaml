@@ -2471,6 +2471,9 @@ firstTimeSetup:
     checkboxSubtitle: "不同意将无法使用本应用"
   common:
     settingsChangeableTip: "这些设置都可以在应用设置中随时修改"
+    previousStep: "上一步"
+    nextStep: "下一步"
+    finishSetup: "完成设置"
     agreeAgreementSnackbar: "请先同意用户协议和社区规则"
 
 proxyHelper:
