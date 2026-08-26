@@ -117,8 +117,9 @@ class _GlassTapAreaState extends State<GlassTapArea> {
     if (!widget.sticky) return null;
     final RenderObject? box = context.findRenderObject();
     if (box is! RenderBox || !box.attached || !box.hasSize) return null;
-    return (box.localToGlobal(Offset.zero) & box.size)
-        .inflate(GlassTokens.touchStaySlop);
+    return (box.localToGlobal(Offset.zero) & box.size).inflate(
+      GlassTokens.touchStaySlop,
+    );
   }
 
   bool _outOfRange(Offset position) {
@@ -204,7 +205,9 @@ class _GlassTapAreaState extends State<GlassTapArea> {
                 ),
           if (longPress != null)
             LongPressGestureRecognizer:
-                GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
+                GestureRecognizerFactoryWithHandlers<
+                  LongPressGestureRecognizer
+                >(
                   () => LongPressGestureRecognizer(debugOwner: this),
                   (recognizer) => recognizer..onLongPress = longPress,
                 ),
@@ -293,7 +296,10 @@ abstract final class GlassPointerHandoff {
   static GlassPointerHandoffSession? _offered;
 
   /// 在 [body] 执行期间挂出接力票。
-  static void offerDuring(GlassPointerHandoffSession session, VoidCallback body) {
+  static void offerDuring(
+    GlassPointerHandoffSession session,
+    VoidCallback body,
+  ) {
     final GlassPointerHandoffSession? previous = _offered;
     _offered = session;
     try {
@@ -362,5 +368,98 @@ class GlassPointerHandoffSession {
     final ValueChanged<Offset?>? onRelease = _onRelease;
     detach();
     onRelease?.call(position);
+  }
+}
+
+/// 「长按弹菜单」的手势层：把这根**还按着**的手指交给菜单。
+///
+/// 用在长按本身就是入口的地方（评论 / 楼层 / 私信正文、图库里的图片）——那儿
+/// 没有可按的钮，[GlassTapArea.opensOverlay] 那条（点按钮的顺带长按）用不上。
+/// 但「按住 → 不抬手直接划到某一条 → 松手选中」这条不该因此消失：菜单本来就
+/// 弹在手指底下，让人抬手再点一次是白丢一次机会。
+///
+/// 做法与 [GlassTapArea] 同源：长按到点的那一刻挂出接力票
+/// （[GlassPointerHandoff.offerDuring]），`showGlassMenu` 在它自己的同步前缀里
+/// 认领；之后这根手指的移动 / 抬手由本层转发给面板（面板收不到它——命中路径
+/// 在按下那一刻就定死了，那时面板还不存在）。
+class GlassLongPressMenuArea extends StatefulWidget {
+  const GlassLongPressMenuArea({
+    super.key,
+    required this.child,
+    this.onMenu,
+    this.onTap,
+    this.behavior,
+  });
+
+  /// 长按落点（全局坐标）。
+  ///
+  /// ⛔ 必须在这次回调的**同步前缀**里把菜单开出来——`showGlassMenu` 本身，或者
+  /// 包着它、在第一个 `await` 之前就调到它的 async 函数，都算。拖到 await 之后
+  /// 再开，接力票已经过期，长按就退化成「弹出来、抬手、再点一次」。
+  final void Function(Offset globalPosition)? onMenu;
+
+  /// 点按（与长按分家，由同一层的 tap 识别器发）。
+  final VoidCallback? onTap;
+
+  final HitTestBehavior? behavior;
+
+  final Widget child;
+
+  @override
+  State<GlassLongPressMenuArea> createState() => _GlassLongPressMenuAreaState();
+}
+
+class _GlassLongPressMenuAreaState extends State<GlassLongPressMenuArea> {
+  GlassPointerHandoffSession? _handoff;
+
+  void _handleStart(LongPressStartDetails details) {
+    final void Function(Offset)? open = widget.onMenu;
+    if (open == null) return;
+    // 长按到点了：这一下该有触感，否则「按住不动」到底有没有生效全靠盯着看。
+    VibrateUtils.vibrate();
+    final session = GlassPointerHandoffSession()..move(details.globalPosition);
+    GlassPointerHandoff.offerDuring(
+      session,
+      () => open(details.globalPosition),
+    );
+    // 没人认领（菜单是空的、或调用点把开面板拖到了 await 之后）就作废，
+    // 后面的移动 / 抬手不用再转发。
+    if (session.claimed && !session.finished) _handoff = session;
+  }
+
+  void _handleMove(LongPressMoveUpdateDetails details) {
+    _handoff?.move(details.globalPosition);
+  }
+
+  void _handleEnd(LongPressEndDetails details) {
+    _handoff?.release(details.globalPosition);
+    _handoff = null;
+  }
+
+  /// 长按还没成立就没了（手指划走 / 被别的识别器赢走）。成立之后走
+  /// [_handleEnd]，两条路不会同时发生。
+  void _handleCancel() {
+    _handoff?.release(null);
+    _handoff = null;
+  }
+
+  @override
+  void dispose() {
+    _handoff?.release(null);
+    _handoff = null;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: widget.behavior,
+      onTap: widget.onTap,
+      onLongPressStart: widget.onMenu == null ? null : _handleStart,
+      onLongPressMoveUpdate: widget.onMenu == null ? null : _handleMove,
+      onLongPressEnd: widget.onMenu == null ? null : _handleEnd,
+      onLongPressCancel: widget.onMenu == null ? null : _handleCancel,
+      child: widget.child,
+    );
   }
 }

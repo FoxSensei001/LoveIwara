@@ -1,92 +1,80 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
-/// 评论 / 论坛楼层 / 私信长按操作弹层：复制全文、选择复制、回复、翻译、删除。
+/// 评论 / 论坛楼层 / 私信长按操作菜单：复制全文、选择复制、回复、翻译、删除。
 ///
 /// 正文里的 SelectionArea 长按选中已被长按手势替代（见
 /// CustomMarkdownBody.onLongPress），「选择复制」在弹窗里补回自由选取能力。
 /// [onReply] / [onTranslate] / [onDelete] 为 null 时不显示对应项（锁定帖 /
 /// 子回复 / 对方消息不可删等场景）。
-Future<void> showCommentActionsSheet({
+///
+/// 面板贴着手指弹出（[globalPosition] 取长按落点，见 [showGlassMenu] 的
+/// globalAnchor）——原来吐的是底部 sheet，一条只有四五项的菜单从屏幕底下升上来，
+/// 既离手指远又和全站其它菜单不是一套东西。
+Future<void> showCommentActionsMenu({
   required BuildContext context,
+  required Offset globalPosition,
   required String text,
   VoidCallback? onReply,
   VoidCallback? onTranslate,
   VoidCallback? onDelete,
-}) {
+}) async {
   final t = slang.Translations.of(context);
-  final colorScheme = Theme.of(context).colorScheme;
-  return showModalBottomSheet<void>(
-    context: context,
-    backgroundColor: Colors.transparent,
-    isScrollControlled: true,
-    builder: (sheetContext) {
-      return GlassBottomSheet(
-        showCloseButton: false,
-        padding: EdgeInsets.zero,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.copy),
-              title: Text(t.common.copy),
-              onTap: () {
-                Navigator.of(sheetContext).pop();
-                Clipboard.setData(ClipboardData(text: text));
-                showGlassToast(
-                  t.common.copiedToClipboard,
-                  type: GlassToastType.success,
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.text_fields),
-              title: Text(t.common.selectCopy),
-              onTap: () {
-                Navigator.of(sheetContext).pop();
-                _showSelectCopyDialog(text);
-              },
-            ),
-            if (onReply != null)
-              ListTile(
-                leading: const Icon(Icons.reply),
-                title: Text(t.common.reply),
-                onTap: () {
-                  Navigator.of(sheetContext).pop();
-                  onReply();
-                },
-              ),
-            if (onTranslate != null)
-              ListTile(
-                leading: const Icon(Icons.translate),
-                title: Text(t.common.translate),
-                onTap: () {
-                  Navigator.of(sheetContext).pop();
-                  onTranslate();
-                },
-              ),
-            if (onDelete != null)
-              ListTile(
-                leading: Icon(Icons.delete_outline, color: colorScheme.error),
-                title: Text(
-                  t.common.delete,
-                  style: TextStyle(color: colorScheme.error),
-                ),
-                onTap: () {
-                  Navigator.of(sheetContext).pop();
-                  onDelete();
-                },
-              ),
-          ],
+  final action = await showGlassMenu<String>(
+    anchorContext: context,
+    globalAnchor: globalPosition & Size.zero,
+    entries: [
+      GlassMenuOption<String>(
+        value: 'copy',
+        icon: Icons.copy,
+        label: t.common.copy,
+      ),
+      GlassMenuOption<String>(
+        value: 'selectCopy',
+        icon: Icons.text_fields,
+        label: t.common.selectCopy,
+      ),
+      if (onReply != null)
+        GlassMenuOption<String>(
+          value: 'reply',
+          icon: Icons.reply,
+          label: t.common.reply,
         ),
-      );
-    },
+      if (onTranslate != null)
+        GlassMenuOption<String>(
+          value: 'translate',
+          icon: Icons.translate,
+          label: t.common.translate,
+        ),
+      if (onDelete != null) ...[
+        const GlassMenuSeparator(),
+        GlassMenuOption<String>(
+          value: 'delete',
+          icon: Icons.delete_outline,
+          label: t.common.delete,
+          destructive: true,
+        ),
+      ],
+    ],
   );
+  switch (action) {
+    case 'copy':
+      await Clipboard.setData(ClipboardData(text: text));
+      showGlassToast(t.common.copiedToClipboard, type: GlassToastType.success);
+    case 'selectCopy':
+      _showSelectCopyDialog(text);
+    case 'reply':
+      onReply!();
+    case 'translate':
+      onTranslate!();
+    case 'delete':
+      onDelete!();
+  }
 }
 
 /// 「选择复制」：弹出可自由选取的原文对话框。

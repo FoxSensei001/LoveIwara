@@ -13,7 +13,6 @@ import 'package:i_iwara/app/ui/pages/download/widgets/download_scale.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_status_colors.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/status_label_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:open_file/open_file.dart';
@@ -81,17 +80,20 @@ class DefaultDownloadTaskItem extends StatelessWidget {
     ].contains(extension);
   }
 
-  /// 右键上下文菜单：走全站统一的玻璃面板（原来是 Material 的 `showMenu`，
-  /// 吐出来是块不透明卡片）。面板贴着指针弹出——右键时没有「触发件」，
-  /// 落点用一个零尺寸的 `Rect` 给（见 [showGlassMenu] 的 globalAnchor）。
-  Future<void> _showContextMenu(
-    BuildContext context,
-    Offset globalPosition,
-  ) async {
+  /// 单个任务的操作菜单：右键和右侧的「更多」按钮共用这一份条目。
+  ///
+  /// 「更多」原来吐的是底部 sheet，和右键那条路长得不一样——同一堆操作两套
+  /// 观感。现在两条路都走全站统一的玻璃面板：右键时没有「触发件」，落点用
+  /// 指针处一个零尺寸的 `Rect` 给（[globalPosition]，见 [showGlassMenu] 的
+  /// globalAnchor）；「更多」按钮则贴着按钮自己弹，落点由 [context] 量出来。
+  Future<void> _showTaskMenu(
+    BuildContext context, {
+    Offset? globalPosition,
+  }) async {
     final t = slang.Translations.of(context);
     final action = await showGlassMenu<String>(
       anchorContext: context,
-      globalAnchor: globalPosition & Size.zero,
+      globalAnchor: globalPosition == null ? null : globalPosition & Size.zero,
       entries: [
         GlassMenuOption<String>(
           value: 'detail',
@@ -162,7 +164,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
     return DownloadActionButtonTheme(
       child: GestureDetector(
         onSecondaryTapUp: (details) =>
-            _showContextMenu(context, details.globalPosition),
+            _showTaskMenu(context, globalPosition: details.globalPosition),
         child: Card(
           margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           clipBehavior: Clip.hardEdge,
@@ -322,91 +324,6 @@ class DefaultDownloadTaskItem extends StatelessWidget {
     });
   }
 
-  void _showMoreOptionsDialog(BuildContext context) {
-    final t = slang.Translations.of(context);
-    showGlassBottomSheet(
-      context: context,
-      builder: (context) => GlassBottomSheet(
-        title: t.common.more,
-        scrollable: true,
-        maxHeightFactor: 0.85,
-        padding: const EdgeInsets.only(top: 12, bottom: 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // 查看下载详情
-            ListTile(
-              leading: const Icon(Icons.info),
-              title: Text(t.download.downloadDetail),
-              onTap: () => showDownloadDetailDialog(context, task),
-            ),
-            // 复制下载链接
-            ListTile(
-              leading: const Icon(Icons.link),
-              title: Text(t.download.copyDownloadUrl),
-              onTap: () {
-                Navigator.pop(context);
-                _copyDownloadUrl(context);
-              },
-            ),
-            // 移至分类
-            ListTile(
-              leading: const Icon(Icons.drive_file_move_outline),
-              title: Text(t.download.category.moveTo),
-              onTap: () {
-                Navigator.pop(context);
-                showMoveToCategorySheet(context, [task.id]);
-              },
-            ),
-            if (task.status == DownloadStatus.completed) ...[
-              ListTile(
-                leading: const Icon(Icons.open_in_new),
-                title: Text(t.download.openFile),
-                onTap: () {
-                  Navigator.pop(context);
-                  _openFile(context);
-                },
-              ),
-              if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
-                ListTile(
-                  leading: const Icon(Icons.folder_open),
-                  title: Text(t.download.showInFolder),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _showInFolder(context);
-                  },
-                ),
-            ],
-            const Divider(height: 1),
-            ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
-              title: Text(
-                t.download.deleteTask,
-                style: const TextStyle(color: Colors.red),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                _showDeleteConfirmDialog(context);
-              },
-            ),
-            // 强制删除
-            ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
-              title: Text(
-                t.download.forceDeleteTask,
-                style: const TextStyle(color: Colors.red),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                _showDeleteConfirmDialog(context, force: true);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildProgressStatusBar(BuildContext context) {
     final t = slang.Translations.of(context);
     final scale = DownloadUiScale.of(context);
@@ -467,10 +384,9 @@ class DefaultDownloadTaskItem extends StatelessWidget {
               ),
             ),
             // 更多操作按钮
-            IconButton(
-              icon: const Icon(Icons.more_horiz),
-              onPressed: () => _showMoreOptionsDialog(context),
+            DownloadMoreButton(
               tooltip: t.common.more,
+              onPressed: _showTaskMenu,
             ),
           ],
         ),

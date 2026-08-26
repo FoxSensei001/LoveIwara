@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -48,7 +49,9 @@ class CustomMarkdownBody extends StatefulWidget {
   final VoidCallback? onTap;
   // 长按正文的回调（如评论区长按弹操作菜单）。同样挂在 SelectionArea 内侧，
   // 会取代其长按选中文本的默认行为——调用方应在菜单里提供「选择复制」入口。
-  final VoidCallback? onLongPress;
+  // 参数是长按落点的全局坐标：菜单要贴着手指弹（见 showCommentActionsMenu），
+  // 拿不到落点就只能贴着整段正文弹，长评论下会离手指很远。
+  final void Function(Offset globalPosition)? onLongPress;
   // 内容处理状态变化回调：本文与格式化结果有差异时为 true。post-frame 触发，
   // 调用方可安全 setState。
   //
@@ -1177,10 +1180,12 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     );
     if (widget.onTap != null || widget.onLongPress != null) {
       // 必须挂在 SelectionArea 内侧（见 onTap / onLongPress 字段注释）
-      content = GestureDetector(
+      // 长按走 GlassLongPressMenuArea：除了给出落点，它还会把这根按着的
+      // 手指交给弹出来的菜单（按住不抬手直接划到某一条上松手即选中）。
+      content = GlassLongPressMenuArea(
         behavior: HitTestBehavior.translucent,
         onTap: widget.onTap,
-        onLongPress: widget.onLongPress,
+        onMenu: widget.onLongPress,
         child: content,
       );
     }

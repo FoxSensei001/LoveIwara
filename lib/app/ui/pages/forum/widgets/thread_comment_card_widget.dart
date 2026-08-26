@@ -9,7 +9,8 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_reply_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_edit_reply_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/comment_actions_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/comment_actions_menu.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
@@ -314,9 +315,11 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
   bool get _canReply => !widget.lockedThread;
 
   /// 长按（整行或正文文本上）弹出操作菜单：复制 / 选择复制 / 回复。
-  void _showActionsSheet() {
-    showCommentActionsSheet(
+  /// [globalPosition] 是长按落点，菜单贴着它弹。
+  void _showActionsMenu(Offset globalPosition) {
+    showCommentActionsMenu(
       context: context,
+      globalPosition: globalPosition,
       text: widget.comment.body,
       onReply: _canReply ? _handleReply : null,
     );
@@ -399,125 +402,130 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
       //（头像 / 名字 / 幽灵钮 / 菜单等内层手势优先，不受影响）
       child: Material(
         color: Colors.transparent,
-        child: InkWell(
-          onTap: canReply ? _handleReply : null,
-          onLongPress: _showActionsSheet,
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 头像列
-                MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    onTap: _navigateToProfile,
-                    child: AvatarWidget(user: comment.user, size: 36),
+        // 长按由外面这层接：一来 InkWell.onLongPress 给不出落点（菜单要贴着
+        // 手指弹），二来这层会把还按着的手指交给菜单，「按住 → 划到某一条 →
+        // 松手选中」才成立。InkWell 只留点按，不再注册长按识别器，两层不抢。
+        child: GlassLongPressMenuArea(
+          onMenu: _showActionsMenu,
+          child: InkWell(
+            onTap: canReply ? _handleReply : null,
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 头像列
+                  MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: _navigateToProfile,
+                      child: AvatarWidget(user: comment.user, size: 36),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                // 内容列
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 名字行：左侧「名字 + 身份徽标」为一组占满剩余宽度，
-                      // 楼号固定钉在行尾
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Flexible(
-                                  child: MouseRegion(
-                                    cursor: SystemMouseCursors.click,
-                                    child: GestureDetector(
-                                      onTap: _navigateToProfile,
-                                      child: buildUserName(
-                                        context,
-                                        comment.user,
-                                        fontSize: 14,
-                                        bold: true,
+                  const SizedBox(width: 10),
+                  // 内容列
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 名字行：左侧「名字 + 身份徽标」为一组占满剩余宽度，
+                        // 楼号固定钉在行尾
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Flexible(
+                                    child: MouseRegion(
+                                      cursor: SystemMouseCursors.click,
+                                      child: GestureDetector(
+                                        onTap: _navigateToProfile,
+                                        child: buildUserName(
+                                          context,
+                                          comment.user,
+                                          fontSize: 14,
+                                          bold: true,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                if (isThreadAuthor)
-                                  _buildIdentityChip(
-                                    t.common.author,
-                                    _authorAccent,
-                                  ),
-                                if (isMe)
-                                  _buildIdentityChip(
-                                    t.common.me,
-                                    colorScheme.primary,
-                                  ),
-                              ],
+                                  if (isThreadAuthor)
+                                    _buildIdentityChip(
+                                      t.common.author,
+                                      _authorAccent,
+                                    ),
+                                  if (isMe)
+                                    _buildIdentityChip(
+                                      t.common.me,
+                                      colorScheme.primary,
+                                    ),
+                                ],
+                              ),
                             ),
-                          ),
-                          // 楼号弱化为灰字，钉在行尾
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8),
-                            child: Text(
-                              '#${comment.replyNum + 1}',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: colorScheme.onSurfaceVariant.withValues(
-                                  alpha: 0.6,
+                            // 楼号弱化为灰字，钉在行尾
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: Text(
+                                '#${comment.replyNum + 1}',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: colorScheme.onSurfaceVariant
+                                      .withValues(alpha: 0.6),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      _buildMetaLine(context),
-                      const SizedBox(height: 8),
-                      // 正文；SelectionArea 会吞掉 tap 传不到整行的 InkWell，
-                      // 点按回复需经 onTap 显式透传进去
-                      CustomMarkdownBody(
-                        data: comment.body,
-                        originalData: comment.body,
-                        showTranslationButton: false,
-                        translationController: _translationController,
-                        padding: EdgeInsets.zero,
-                        onTap: canReply ? _handleReply : null,
-                        onLongPress: _showActionsSheet,
-                        initialShowUnprocessedText: _showOriginal,
-                        onProcessedContentChanged: (hasProcessed) {
-                          if (_hasProcessedContent == hasProcessed) return;
-                          setState(() => _hasProcessedContent = hasProcessed);
-                        },
-                      ),
-                      const SizedBox(height: 4),
-                      // 动作行：回复 …… 翻译 / 更多
-                      Row(
-                        children: [
-                          if (canReply)
-                            _buildGhostAction(
-                              context,
-                              icon: Icons.reply,
-                              label: t.common.reply,
-                              onTap: _handleReply,
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        _buildMetaLine(context),
+                        const SizedBox(height: 8),
+                        // 正文；SelectionArea 会吞掉 tap 传不到整行的 InkWell，
+                        // 点按回复需经 onTap 显式透传进去
+                        CustomMarkdownBody(
+                          data: comment.body,
+                          originalData: comment.body,
+                          showTranslationButton: false,
+                          translationController: _translationController,
+                          padding: EdgeInsets.zero,
+                          onTap: canReply ? _handleReply : null,
+                          onLongPress: _showActionsMenu,
+                          initialShowUnprocessedText: _showOriginal,
+                          onProcessedContentChanged: (hasProcessed) {
+                            if (_hasProcessedContent == hasProcessed) return;
+                            setState(() => _hasProcessedContent = hasProcessed);
+                          },
+                        ),
+                        const SizedBox(height: 4),
+                        // 动作行：回复 …… 翻译 / 更多
+                        Row(
+                          children: [
+                            if (canReply)
+                              _buildGhostAction(
+                                context,
+                                icon: Icons.reply,
+                                label: t.common.reply,
+                                onTap: _handleReply,
+                              ),
+                            const Spacer(),
+                            MarkdownOriginalTextToggle(
+                              visible: _hasProcessedContent,
+                              showOriginal: _showOriginal,
+                              pillSize: _actionPillHeight,
+                              padding: const EdgeInsets.only(right: 8),
+                              onChanged: (v) =>
+                                  setState(() => _showOriginal = v),
                             ),
-                          const Spacer(),
-                          MarkdownOriginalTextToggle(
-                            visible: _hasProcessedContent,
-                            showOriginal: _showOriginal,
-                            pillSize: _actionPillHeight,
-                            padding: const EdgeInsets.only(right: 8),
-                            onChanged: (v) => setState(() => _showOriginal = v),
-                          ),
-                          _buildTranslationControls(context),
-                          _buildActionMenu(context),
-                        ],
-                      ),
-                    ],
+                            _buildTranslationControls(context),
+                            _buildActionMenu(context),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

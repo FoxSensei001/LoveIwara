@@ -7,7 +7,7 @@ import 'package:i_iwara/app/services/conversation_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/conversation/widgets/conversation_message_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
-import 'package:i_iwara/app/ui/widgets/comment_actions_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/comment_actions_menu.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
@@ -68,9 +68,9 @@ class _MessageListWidgetState extends State<MessageListWidget> {
   }
 
   User get _otherParticipant => widget.conversation.participants.firstWhere(
-        (user) => user.id != _userService.currentUser.value?.id,
-        orElse: () => widget.conversation.participants.first,
-      );
+    (user) => user.id != _userService.currentUser.value?.id,
+    orElse: () => widget.conversation.participants.first,
+  );
 
   void _showMessageComposer() {
     showGlassBottomSheet(
@@ -182,9 +182,11 @@ class _MessageListWidgetState extends State<MessageListWidget> {
     }
 
     /// 长按消息正文：复制 / 选择复制 / 翻译 / 删除（仅自己发的消息）。
-    void showActionsSheet() {
-      showCommentActionsSheet(
+    /// [globalPosition] 是长按落点，菜单贴着它弹。
+    void showActionsMenu(Offset globalPosition) {
+      showCommentActionsMenu(
         context: context,
+        globalPosition: globalPosition,
         text: message.body,
         onTranslate: showMessageTranslationDialog,
         onDelete: isMe ? showDeleteConfirmation : null,
@@ -244,9 +246,7 @@ class _MessageListWidgetState extends State<MessageListWidget> {
                       const SizedBox(height: 2),
                       // 第二行只显示时间——翻译/删除移进长按操作菜单
                       Text(
-                        CommonUtils.formatFriendlyTimestamp(
-                          message.createdAt,
-                        ),
+                        CommonUtils.formatFriendlyTimestamp(message.createdAt),
                         style: TextStyle(
                           fontSize: 12,
                           color: Theme.of(context).hintColor,
@@ -304,7 +304,7 @@ class _MessageListWidgetState extends State<MessageListWidget> {
                               );
                             },
                             clickInternalLinkByUrlLaunch: false,
-                            onLongPress: showActionsSheet,
+                            onLongPress: showActionsMenu,
                           ),
                         ),
                       ),
@@ -425,8 +425,7 @@ class _MessageListWidgetState extends State<MessageListWidget> {
                   itemBuilder: (context, message, index) {
                     return _buildMessageItem(context, message);
                   },
-                  indicatorBuilder: (context, status) =>
-                      myLoadingMoreIndicator(
+                  indicatorBuilder: (context, status) => myLoadingMoreIndicator(
                     context,
                     status,
                     isSliver: true,
@@ -664,12 +663,11 @@ class _MessageBubblePainter extends CustomPainter {
     final Paint fillPaint = Paint()..color = fill;
     canvas.drawPath(path, fillPaint);
 
-    final Paint strokePaint =
-        Paint()
-          ..color = stroke
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 0.5
-          ..strokeJoin = StrokeJoin.round;
+    final Paint strokePaint = Paint()
+      ..color = stroke
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.5
+      ..strokeJoin = StrokeJoin.round;
     canvas.drawPath(path, strokePaint);
   }
 

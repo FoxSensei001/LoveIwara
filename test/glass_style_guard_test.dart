@@ -126,15 +126,21 @@ void main() {
       final source = file.readAsStringSync().replaceAll(_lineComment, '');
       if (!_showsGlassMenu.hasMatch(source)) continue;
       if (source.contains('opensOverlay: true')) continue;
+      // 长按本身就是入口的（评论正文、图库图片）：没有可按的钮，接力由
+      // GlassLongPressMenuArea 那层做，见它的类文档。
+      if (_usesLongPressMenuArea.hasMatch(source)) continue;
+      // 触发钮抽成了共用组件的：声明落在那个组件里，这里只要求它确实还在。
+      if (_declaresViaSharedTrigger(source)) continue;
       offenders.add(rel);
     }
     expect(
       offenders,
       isEmpty,
       reason:
-          '这些文件会弹出玻璃菜单，但触发钮没声明 opensOverlay: true——于是长按打不开菜单，\n'
-          '「按住 → 划到某一条 → 松手选中」那条也整只没有。组件没法预知 onTap 会干什么，\n'
-          '只能由调用点声明一次，见 GlassTapArea.opensOverlay：\n'
+          '这些文件会弹出玻璃菜单，但触发钮既没声明 opensOverlay: true、也没走\n'
+          'GlassLongPressMenuArea——于是长按打不开菜单，「按住 → 划到某一条 → 松手选中」\n'
+          '那条也整只没有。组件没法预知 onTap 会干什么，只能由调用点声明一次，\n'
+          '见 GlassTapArea.opensOverlay / GlassLongPressMenuArea：\n'
           '${offenders.join('\n')}',
     );
   });
@@ -339,19 +345,41 @@ final _materialPopup = RegExp(
   r'DropdownMenuItem|DropdownMenu|showMenu)\s*[(<]',
 );
 final _showsGlassMenu = RegExp(r'(?<![A-Za-z0-9_])showGlassMenu(<[^>\n]*>)?\(');
+final _usesLongPressMenuArea = RegExp(
+  r'(?<![A-Za-z0-9_])GlassLongPressMenuArea\s*\(',
+);
+
+/// 共用的菜单触发钮：调用点用了它，`opensOverlay` 就该在它自己那儿声明。
+///
+/// 这不是豁免——组件文件里那句要是被删了，用它的调用点照样算违规。
+const _sharedMenuTriggers = <String, String>{
+  'DownloadMoreButton': 'lib/app/ui/pages/download/widgets/download_scale.dart',
+};
+
+bool _declaresViaSharedTrigger(String source) {
+  for (final entry in _sharedMenuTriggers.entries) {
+    if (!RegExp('(?<![A-Za-z0-9_])${entry.key}\\s*\\(').hasMatch(source)) {
+      continue;
+    }
+    final trigger = File(entry.value);
+    if (trigger.existsSync() &&
+        trigger.readAsStringSync().contains('opensOverlay: true')) {
+      return true;
+    }
+  }
+  return false;
+}
 
 /// 玻璃菜单自己的实现文件，以及**不由玻璃按钮触发**的调用点。
 const _opensOverlayExemptFiles = <String>{
   'lib/app/ui/widgets/glass/glass_menu.dart',
+  // 只是菜单的实现（长按评论 / 楼层 / 私信正文都开它），触发钮在调用点：
+  // 那边走的是 GlassLongPressMenuArea，接力由它做。
+  'lib/app/ui/widgets/comment_actions_menu.dart',
   // 触发钮是 Material 的 ElevatedButton / ActionIconButtonScaffold（关注按钮
   // 本身没有玻璃化，只有它吐出来的面板换了）。没有 GlassTapArea 就接不了
   // 「长按不抬手直接划进面板」那条手指接力，普通点按照常。
   'lib/app/ui/widgets/follow_button_widget.dart',
-  // 同上：右键上下文菜单由 GestureDetector.onSecondaryTapUp 触发，
-  // 桌面端右键本来就没有「长按」这一说。
-  'lib/app/ui/pages/download/widgets/default_download_task_item_widget.dart',
-  'lib/app/ui/pages/download/widgets/video_download_task_item_widget.dart',
-  'lib/app/ui/pages/download/widgets/gallery_download_task_item_widget.dart',
 };
 
 /// 硬编码的液态档供档点：`backend: GlassBackend.liquidWidgets` 之类。
