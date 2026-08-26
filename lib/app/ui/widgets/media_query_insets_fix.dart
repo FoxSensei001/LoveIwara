@@ -19,8 +19,11 @@ double computeBottomSafeInset(MediaQueryData mq) {
 ///   `viewInsets.bottom` 在 Scaffold 之下会被抹成 0。所以键盘可见时不能再叠
 ///   安全区，否则输入框和键盘之间会多出一条导航条高度的空隙。
 ///
-/// 需要在滚动列表里用时，把返回值加到列表自身的 `padding.bottom`；
-/// 需要整体上抬时用 [SheetBottomSafeArea]。
+/// ⛔ 这段内边距必须让在**弹层自己的背景里面**（画背景那个
+/// `Material`/`Container` 的 `padding`，或它内部内容/列表的 `padding.bottom`），
+/// 不能在弹层外面套一层 `Padding` 把整块弹层往上抬：抬上去之后背景只铺到
+/// 导航条上沿，导航条那条带就只剩弹层遮罩，看起来像「弹层先隔了一条安全区
+/// 才出现」。收口示例见 `GlassBottomSheet` / `GlassDraggableBottomSheet`。
 double computeSheetBottomInset(BuildContext context) {
   final mq = MediaQuery.of(context);
   // 根 Scaffold 抹掉了 viewInsets，所以键盘是否可见要看未经处理的原始值。
@@ -31,30 +34,6 @@ double computeSheetBottomInset(BuildContext context) {
     return mq.viewInsets.bottom;
   }
   return computeBottomSafeInset(mq);
-}
-
-/// 给底部弹窗内容补上 [computeSheetBottomInset] 的底部内边距。
-///
-/// 只适用于「内容整体上抬」的弹窗；如果弹窗里是可滚动列表，优先把
-/// [computeSheetBottomInset] 加到列表自身的 `padding.bottom`，
-/// 这样背景仍然铺到屏幕底部，只有内容避开安全区。
-class SheetBottomSafeArea extends StatelessWidget {
-  final Widget child;
-
-  /// 额外附加的底部留白（安全区之上再留一段）。
-  final double extra;
-
-  const SheetBottomSafeArea({super.key, required this.child, this.extra = 0});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: computeSheetBottomInset(context) + extra,
-      ),
-      child: child,
-    );
-  }
 }
 
 class RawMediaQueryDataScope extends InheritedWidget {

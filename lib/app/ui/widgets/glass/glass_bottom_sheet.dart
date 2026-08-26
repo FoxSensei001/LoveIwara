@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
@@ -131,15 +133,27 @@ class GlassBottomSheet extends StatelessWidget {
       ],
     );
 
-    return SheetBottomSafeArea(
-      child: ConstrainedBox(
-        constraints: maxHeightFactor == null
-            ? const BoxConstraints()
-            : BoxConstraints(maxHeight: screenHeight * maxHeightFactor!),
-        child: _GlassBottomSheetShell(
-          showDragHandle: showDragHandle,
-          child: content,
-        ),
+    // 底部安全区（导航条/手势条）由壳在**背景里面**让位——不能在壳外面套
+    // `Padding`/`SheetBottomSafeArea`：那样壳的不透明 `Material` 只铺到导航条
+    // 上沿为止，导航条那条带就只剩下弹层遮罩，看起来像「弹层先隔了一条安全区
+    // 才出现」。约定见 [computeSheetBottomInset] 的注释。
+    final double bottomInset = computeSheetBottomInset(context);
+
+    return ConstrainedBox(
+      // 限高同步加上这条安全区：壳现在把它含在自己身子里，不加的话内容可用
+      // 高度会比收口前凭空少一条导航条。
+      constraints: maxHeightFactor == null
+          ? const BoxConstraints()
+          : BoxConstraints(
+              maxHeight: math.min(
+                screenHeight,
+                screenHeight * maxHeightFactor! + bottomInset,
+              ),
+            ),
+      child: _GlassBottomSheetShell(
+        showDragHandle: showDragHandle,
+        bottomInset: bottomInset,
+        child: content,
       ),
     );
   }
@@ -154,10 +168,15 @@ class _GlassBottomSheetShell extends StatelessWidget {
   const _GlassBottomSheetShell({
     required this.child,
     required this.showDragHandle,
+    required this.bottomInset,
   });
 
   final Widget child;
   final bool showDragHandle;
+
+  /// 底部系统安全区（导航条/手势条）高度。加在 [Material] **内部**，
+  /// 这样背景一直铺到屏幕底边，只有内容避开导航条。
+  final double bottomInset;
 
   @override
   Widget build(BuildContext context) {
@@ -187,7 +206,14 @@ class _GlassBottomSheetShell extends StatelessWidget {
           // 液态档由 [showGlassBottomSheet] 在路由层统一供（见那里的注释），
           // 壳自己不再包——包在壳里的话，自建壳的弹层（表情选择器一类）
           // 就漏掉了。
-          Flexible(child: child),
+          // 安全区包在 Flexible **里面**：Flexible 只能直接挂在 Column 底下，
+          // 外面再套 Padding 会触发 "Incorrect use of ParentDataWidget"。
+          Flexible(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: bottomInset),
+              child: child,
+            ),
+          ),
         ],
       ),
     );
@@ -273,31 +299,37 @@ class GlassDraggableBottomSheet extends StatelessWidget {
       expand: false,
       snap: snap,
       // 同 [_GlassBottomSheetShell]：只给内容接液态，壳自己的 GlassSurface
-      // 留在 LiquidGlassScope 之外，面板背景保持原样。
-      builder: (context, scrollController) => SheetBottomSafeArea(
-        child: Material(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 8),
-              Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                  borderRadius: BorderRadius.circular(2),
-                ),
+      // 留在 LiquidGlassScope 之外，面板背景保持原样；底部安全区也同样让在
+      // Material **里面**（壳外面套 Padding 的话，导航条那条带只剩弹层遮罩）。
+      builder: (context, scrollController) => Material(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(2),
               ),
-              const SizedBox(height: 4),
-              // 同上：液态档由 [showGlassDraggableBottomSheet] 在路由层供。
-              Expanded(child: builder(context, scrollController)),
-            ],
-          ),
+            ),
+            const SizedBox(height: 4),
+            // 同上：液态档由 [showGlassDraggableBottomSheet] 在路由层供。
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: computeSheetBottomInset(context),
+                ),
+                child: builder(context, scrollController),
+              ),
+            ),
+          ],
         ),
       ),
     );
