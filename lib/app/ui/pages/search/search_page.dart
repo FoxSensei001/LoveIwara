@@ -875,13 +875,8 @@ class _SearchPageState extends State<SearchPage> {
           color: GlassTokens.stroke(colorScheme),
           width: 0.8,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        // ⛔ 不吐外投影：玻璃件（半透明底 + GlassTokens.stroke）一律靠底色
+        // 与描边立起来，见 GlassTokens 里已删的 shadow token 注释。
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -330,7 +330,8 @@ class GlassSubmitButton extends StatelessWidget {
                   )
                 : animatedColors[0],
             borderRadius: BorderRadius.circular(GlassTokens.pillHeight / 2),
-            boxShadow: enabled ? GlassTokens.shadow(cs) : null,
+            // ⛔ 不加 boxShadow：可提交与否已经由底色/前景色分得很开，
+            // 再吐一圈外投影会把这枚胶囊读成一张浮起来的卡片。
           ),
           child: Center(
             // 标签 ↔ 转圈原位交叉过渡，胶囊宽度平滑伸缩

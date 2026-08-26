@@ -212,7 +212,47 @@ void main() {
           '${offenders.join('\n')}',
     );
   });
+
+  test('玻璃件不许再吐外投影（零容忍）', () {
+    final offenders = <String>[];
+    for (final file in _dartFiles()) {
+      final rel = _rel(file);
+      if (!_glassShadowScope.any(rel.startsWith)) continue;
+      final source = file.readAsStringSync().replaceAll(_lineComment, '');
+      for (final match in _outerShadow.allMatches(source)) {
+        final line =
+            '\n'.allMatches(source.substring(0, match.start)).length + 1;
+        offenders.add('$rel:$line');
+      }
+    }
+    expect(
+      offenders,
+      isEmpty,
+      reason:
+          '传统档（假玻璃）的玻璃体原本是「fill + stroke + 一圈 boxShadow」，'
+          '用户报的原话是「液态玻璃组件在 plain 模式的时候会有外散的阴影」——'
+          '玻璃是**贴在内容上的一层半透明膜**，再往外吐一圈黑影就读成了一张'
+          '浮起来的卡片，和液态档「内容从玻璃底下透出来」的观感正好相反。\n'
+          '2026-08-26 整只删除 GlassTokens.shadow 与全部调用点。要「立体感」'
+          '请调 GlassTokens.fill / GlassTokens.stroke。\n'
+          '两个液态档各有自己的投影通道（easy 档 GlassTokens.liquidShadow、'
+          'widgets 档 widgetsGlass 的 shadowElevation），都长在包内部，'
+          '不是这里的 boxShadow。\n'
+          '${offenders.join('\n')}',
+    );
+  });
 }
+
+/// 「玻璃件」的判定范围：玻璃组件库本体，以及玻璃化的设置行/分区。
+/// 页面里的普通内容卡片（新闻卡、头像光晕…）不在此列。
+const _glassShadowScope = <String>[
+  'lib/app/ui/widgets/glass/',
+  'lib/app/ui/pages/settings/widgets/glass_setting_tiles.dart',
+];
+
+/// `boxShadow:` 后面跟着任何非 null 的东西。`boxShadow: null` 是显式的
+/// 「这里没有投影」，放行。
+final _outerShadow = RegExp(r'boxShadow:\s*(?!null)');
 
 final _rawAlertDialog = RegExp(r'AlertDialog\(');
 

@@ -348,7 +348,6 @@ class _HistoryListPageState extends State<HistoryListPage>
                 color: GlassTokens.stroke(colorScheme),
                 width: GlassTokens.strokeWidth,
               ),
-              boxShadow: GlassTokens.shadow(colorScheme),
             ),
       child: TextField(
         controller: _searchController,

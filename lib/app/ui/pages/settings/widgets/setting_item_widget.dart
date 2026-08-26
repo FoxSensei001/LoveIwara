@@ -65,8 +65,8 @@ class _SettingItemState extends State<SettingItem> {
     return Container(
       padding: widget.padding,
       // 玻璃壳口径与 GlassSettingSection 一致：fill 底 + stroke 细描边，
-      // 不再用 box-shadow（玻璃组件的投影统一走 GlassTokens.shadow，行级
-      // 输入项不需要那么重的浮起感）。
+      // 不再用 box-shadow（玻璃件一律不吐外投影，见 GlassTokens 里
+      // 已删的 shadow token 注释）。
       decoration: BoxDecoration(
         color: widget.backgroundColor ?? GlassTokens.fill(Theme.of(context).colorScheme),
         borderRadius: BorderRadius.circular(16),

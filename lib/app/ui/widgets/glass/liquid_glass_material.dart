@@ -78,7 +78,7 @@ import 'package:i_iwara/utils/glass_perf_knobs.dart';
 
 /// 一块玻璃该由哪套 shader 画出来。由 [LiquidGlassScope] 按子树指定。
 enum GlassBackend {
-  /// 传统档：半透明底色 + 细描边 + 柔和投影，不采样背景，零 shader 成本。
+  /// 传统档：半透明底色 + 细描边（无外投影），不采样背景，零 shader 成本。
   /// 全 App 的默认值。
   plain,
 
@@ -103,7 +103,7 @@ enum GlassBackend {
 /// 用户在**主题设置**里选（见 `theme_settings_page.dart`），存
 /// `ConfigKey.ENABLE_LIQUID_GLASS_KEY`，运行时改立刻生效、不用重启。
 enum GlassMaterialMode {
-  /// 假玻璃：全站钉死 [GlassBackend.plain]——半透明底色 + 细描边 + 投影，
+  /// 假玻璃：全站钉死 [GlassBackend.plain]——半透明底色 + 细描边（无外投影），
   /// 不采样背景、不加载任何 shader。低端机 / 省电 / 不喜欢模糊的人选这个。
   plain,
 
@@ -611,7 +611,7 @@ class LiquidGlassBox extends StatelessWidget {
         // ⛔ 不再叠外层 DecoratedBox 投影：`LiquidGlassAppearance.shadow`
         // 上面已经喂了 [GlassTokens.liquidShadow]，那是包自带的接触阴影环
         // （随形变一起胀缩），[elevated] 已经在那一路生效。这里再套一层
-        // `boxShadow: GlassTokens.shadow(...)` 曾经是货真价实的双重投影——
+        // `boxShadow: 传统档那条已删的 shadow token` 曾经是货真价实的双重投影——
         // 两条阴影同时画在同一圈轮廓上，读起来自然「特别大」。
         return lens;
       },
@@ -632,7 +632,8 @@ class LiquidGlassBox extends StatelessWidget {
 ///      和磨砂，Windows/Linux 上不会开天窗（easy 档也有 `_skia` 变体，
 ///      但这一档的回退是包自己按渲染后端选的，不用我们操心）。
 ///   2. **投影只在浅色下画**（他们照 iOS 26 的口径，深色背景本来就吃掉投影）。
-///      我们照给 [GlassTokens.shadow]，深色下由他们自己跳过。
+///      走包自己的 `shadowElevation`（见 [GlassTokens.widgetsGlass]），
+///      深色下由他们自己跳过。
 ///   3. **淡入走 `visibility` 而不是压 alpha**：那是这套 shader 自带的通道，
 ///      同时缩放厚度与色调，比我们在外面调色更接近「玻璃在长出来」。
 ///
@@ -833,7 +834,7 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
 
 /// 传统档（plain）的玻璃体容器，支持长按蠕动与跟手拉伸形变（[interactive]）。
 ///
-/// 材质走半透明底色 + 细描边 + 投影，0 Backdrop Shader 采样成本。
+/// 材质走半透明底色 + 细描边，**不带外投影**，0 Backdrop Shader 采样成本。
 /// 当 [interactive] 为真时，外层借用 `GlassButton.custom(style: transparent)`
 /// 接入跟手形变（LiquidStretch），长按蠕动手感与液态档一致，同时保持极致流畅。
 class LiquidWidgetsPlainBox extends StatelessWidget {
@@ -897,7 +898,9 @@ class LiquidWidgetsPlainBox extends StatelessWidget {
           color: dim(GlassTokens.stroke(cs)),
           width: GlassTokens.strokeWidth,
         ),
-        boxShadow: elevated ? GlassTokens.shadow(cs, alphaScale: m) : null,
+        // ⛔ 不画外投影：传统档的玻璃是「贴在内容上的一层半透明膜」，
+        // [elevated] 在这一档下**故意不生效**（见 GlassTokens 里已删的
+        // shadow token 的注释）。它仍是构造参数，因为另外两档要用。
       ),
       child: content,
     );

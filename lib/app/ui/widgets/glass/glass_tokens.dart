@@ -10,8 +10,8 @@ import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lgw;
 ///
 /// 材质有**三套后端**，由 `LiquidGlassScope` 决定用哪一套（见
 /// `liquid_glass_material.dart` 的 `GlassBackend`）：
-///   - 传统档：半透明纯色 + 描边 + 投影，无 BackdropFilter。全平台一致、最省。
-///     取值见 [fill] / [stroke] / [shadow]。
+///   - 传统档：半透明纯色 + 描边，无 BackdropFilter、**无外投影**。全平台
+///     一致、最省。取值见 [fill] / [stroke]。
 ///   - easy 档：`liquid_glass_easy` 的真折射透镜。取值见下方「真·液态玻璃
 ///     （liquid_glass_easy 后端）」段。浮出来的面板（菜单、下拉板）走这一档。
 ///   - widgets 档：`liquid_glass_widgets` 的 `AdaptiveGlass`。取值见下方
@@ -186,34 +186,23 @@ abstract final class GlassTokens {
     alpha: cs.brightness == Brightness.dark ? 0.55 : 0.45,
   );
 
-  /// 玻璃体外投影。[alphaScale] 供材质淡入用（见 [GlassSurface.materialize]）。
+  /// ⛔ 传统档**不画外投影**。
   ///
-  /// 2026-08-24 整体收窄：旧值（16px 模糊 + 1px 扩散）比两个液态包自己标定的
-  /// 投影重了好几圈——`liquid_glass_widgets` 的 Apple 基线只是「6% 不透明度 /
-  /// 8px 模糊、零扩散」（见 `LiquidGlassSettings.shadowElevation` dartdoc）。
-  /// 扩散半径尤其是罪魁：它把阴影的外轮廓整只推大，在 44 高的小胶囊上格外
-  /// 显眼，这里直接去掉，只留模糊。
-  static List<BoxShadow> shadow(ColorScheme cs, {double alphaScale = 1}) {
-    final isDark = cs.brightness == Brightness.dark;
-    return [
-      // 接触阴影（近处轮廓）
-      BoxShadow(
-        color: Colors.black.withValues(
-          alpha: (isDark ? 0.32 : 0.10) * alphaScale,
-        ),
-        blurRadius: 3,
-        offset: const Offset(0, 1),
-      ),
-      // 悬浮扩散阴影（外层弥散光）
-      BoxShadow(
-        color: Colors.black.withValues(
-          alpha: (isDark ? 0.22 : 0.08) * alphaScale,
-        ),
-        blurRadius: 8,
-        offset: const Offset(0, 2),
-      ),
-    ];
-  }
+  /// 这里原本有一个 `shadow(ColorScheme)` token（两层 BoxShadow：3px 接触
+  /// 阴影 + 8px 弥散阴影），传统档的每一块玻璃、玻璃 toast、玻璃搜索框都往
+  /// 外面吐一圈黑影。2026-08-26 整只删除：用户报「假玻璃档下所有玻璃件都带
+  /// 一圈外散的阴影」——传统档的玻璃本来就是**贴在内容上的一层半透明膜**，
+  /// 靠 [fill] + [stroke] 立起来就够了；再补一圈外投影只会把它读成一张
+  /// 「浮在上面的卡片」，和液态档那种「内容从玻璃底下透出来」的观感正好相反。
+  ///
+  /// 两个液态档各有**自己**的投影通道，与本条无关，不要拿来顶替：
+  ///   - easy 档：[liquidShadow]（喂给 `LiquidGlassAppearance.shadow`，
+  ///     长在形变盒内、按下会跟着胀缩）。
+  ///   - widgets 档：[widgetsGlass] 的 `shadowElevation`（包自己按 iOS 26
+  ///     口径画，深色下自动跳过）。
+  ///
+  /// 要给传统档「立体感」请改 [fill] / [stroke]，**不要**再加 boxShadow。
+  /// 见 `test/glass_style_guard_test.dart` 的零容忍闸门。
 
   /// 选中态高亮底色（Tab / 分段）。
   static Color selectedHighlight(ColorScheme cs) =>
