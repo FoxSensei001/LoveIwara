@@ -1,871 +1,888 @@
 {
-  "schema": 1,
-  "entries": {
-    "characters/2215": {
-      "n": {
-        "zh-CN": "小萤",
-        "zh-TW": "小螢"
-      },
-      "prev": {
-        "zh-CN": "流萤",
-        "zh-TW": "流螢"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/2215"
-      ],
-      "at": "2026-08-25",
-      "note": "スプラトゥーン 的 ホタル（小萤/Marie），与崩壊:スターレイル 的 ホタル（流萤）同名不同人。迁移前两者共享译名，都被显示为「流萤」。"
-    },
-    "characters/3904": {
-      "n": {
-        "zh-CN": "知更鸟",
-        "zh-TW": "知更鳥"
-      },
-      "prev": {
-        "zh-CN": "罗宾",
-        "zh-TW": "羅賓"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/robin_(honkai:_star_rail)"
-      ],
-      "note": "《崩坏：星穹铁道》官方中文名为「知更鸟」，现有译名「罗宾」为错误直译。"
-    },
-    "tags/195": {
-      "n": {
-        "zh-CN": "乳头奸",
-        "zh-TW": "乳頭姦"
-      },
-      "prev": {
-        "zh-CN": "乳交",
-        "zh-TW": "乳交"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/nipple_penetration"
-      ],
-      "note": "「ニプルファック」特指乳头插入/乳头奸（Nipple penetration/fuck），现有译名「乳交」通常指Titfuck/Paizuri，修正为「乳头奸」。"
-    },
-    "characters/4393": {
-      "n": {
-        "zh-CN": "凯撒·金",
-        "zh-TW": "凱撒·金",
-        "en": "Caesar King"
-      },
-      "prev": {
-        "zh-CN": "西萨王",
-        "zh-TW": "西薩王",
-        "en": "King Caesar"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/caesar_king_(zenless_zone_zero)"
-      ],
-      "note": "《绝区零》角色 Caesar King 的官方中文名为「凯撒·金」，现有译名「西萨王」为特摄怪兽误译。"
-    },
-    "characters/5068": {
-      "n": {
-        "zh-CN": "琳奈",
-        "zh-TW": "琳奈",
-        "en": "Lynae"
-      },
-      "prev": {
-        "zh-CN": "凛音",
-        "zh-TW": "凜音",
-        "en": "Linne"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/lynae_(wuthering_waves)"
-      ],
-      "note": "《鸣潮》官方中文名为「琳奈」（英文 Lynae），现有译名「凛音」为错误音译。"
-    },
-    "characters/855": {
-      "n": {
-        "zh-CN": "贝奇",
-        "zh-TW": "貝奇",
-        "en": "Bache"
-      },
-      "prev": {
-        "zh-CN": "徽章",
-        "zh-TW": "徽章",
-        "en": "Badge"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/bache_(azur_lane)"
-      ],
-      "note": "《碧蓝航线》弗莱彻级驱逐舰 Bache 官方中文译名为「贝奇」，现有译名「徽章」为英语badge的机翻误译。"
-    },
-    "characters/5010": {
-      "n": {
-        "zh-CN": "奈芙尔",
-        "zh-TW": "奈芙爾",
-        "en": "Nefer"
-      },
-      "prev": {
-        "zh-CN": "奈菲儿",
-        "zh-TW": "奈菲爾",
-        "en": "Nefer"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/nefer_(genshin_impact)"
-      ],
-      "note": "《原神》角色 Nefer 官方中文名为「奈芙尔」，现有译名「奈菲儿」为音译偏差。"
-    },
-    "characters/4961": {
-      "n": {
-        "zh-CN": "海瑟音",
-        "zh-TW": "海瑟音",
-        "en": "Hysilens"
-      },
-      "prev": {
-        "zh-CN": "塞伦斯",
-        "zh-TW": "塞倫斯",
-        "en": "Sirens"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/hysilens_(honkai:_star_rail)"
-      ],
-      "note": "《崩坏：星穹铁道》官方中文名为「海瑟音」（英文 Hysilens），现有译名「塞伦斯」为错误音译。"
-    },
-    "characters/3882": {
-      "n": {
-        "zh-CN": "仲正一花",
-        "zh-TW": "仲正一花",
-        "en": "Ichika Nakamasa"
-      },
-      "prev": {
-        "zh-CN": "仲正一夏",
-        "zh-TW": "仲正一夏",
-        "en": "Ichika Nakamasa"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/ichika_(blue_archive)"
-      ],
-      "note": "《蔚蓝档案》官方中文名为「仲正一花」，现有译名「仲正一夏」为错误音译。"
-    },
-    "characters/3249": {
-      "n": {
-        "zh-CN": "希露瓦",
-        "zh-TW": "希露瓦",
-        "en": "Serval"
-      },
-      "prev": {
-        "zh-CN": "塞巴尔",
-        "zh-TW": "塞巴爾",
-        "en": "Seval"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/serval_landau"
-      ],
-      "note": "《崩坏：星穹铁道》官方中文名为「希露瓦」（英文 Serval），现有译名「塞巴尔」为错误音译。"
-    },
-    "characters/1451": {
-      "n": {
-        "zh-CN": "里诺",
-        "zh-TW": "里諾",
-        "en": "Reno"
-      },
-      "prev": {
-        "zh-CN": "璃乃",
-        "zh-TW": "璃乃",
-        "en": "Rino"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/reno_(azur_lane)"
-      ],
-      "note": "《碧蓝航线》亚特兰大级轻巡洋舰 Reno 官方中文译名为「里诺」，现有译名「璃乃」与其他作品角色混淆。"
-    },
-    "characters/4781": {
-      "n": {
-        "zh-CN": "莱万汀",
-        "zh-TW": "萊萬汀"
-      },
-      "prev": {
-        "zh-CN": "雷瓦汀",
-        "zh-TW": "雷瓦汀"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/laevatain_(arknights)"
-      ],
-      "note": "《明日方舟：终末地》官方中文名为「莱万汀」，现有译名「雷瓦汀」为错误音译。"
-    },
-    "characters/3280": {
-      "n": {
-        "zh-CN": "夏洛蒂",
-        "zh-TW": "夏洛蒂"
-      },
-      "prev": {
-        "zh-CN": "夏洛特",
-        "zh-TW": "夏洛特"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/charlotte_(genshin_impact)"
-      ],
-      "note": "《原神》枫丹角色 Charlotte 官方中文名为「夏洛蒂」，现有译名「夏洛特」为普通人名误译。"
-    },
-    "characters/4975": {
-      "n": {
-        "zh-CN": "席德",
-        "zh-TW": "席德",
-        "en": "Seed"
-      },
-      "prev": {
-        "zh-CN": "SEED",
-        "zh-TW": "SEED",
-        "en": "Seed"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/seed_(zenless_zone_zero)"
-      ],
-      "note": "《绝区零》官方中文名为「席德」，现有译名「SEED」未做角色中文汉化。"
-    },
-    "characters/1163": {
-      "n": {
-        "zh-CN": "阿纳斯塔西娅",
-        "zh-TW": "阿納斯塔西婭"
-      },
-      "prev": {
-        "zh-CN": "安娜斯塔西娅",
-        "zh-TW": "安娜斯塔西婭"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/anastasia_(fate)"
-      ],
-      "note": "《Fate/Grand Order》官方正式译名为「阿纳斯塔西娅」，现有译名「安娜斯塔西娅」为非官方异译。"
-    },
-    "characters/2918": {
-      "n": {
-        "zh-CN": "奥古斯特·冯·帕塞瓦尔",
-        "zh-TW": "奧古斯特·馮·帕塞瓦爾"
-      },
-      "prev": {
-        "zh-CN": "奥古斯都·冯·帕塞瓦尔",
-        "zh-TW": "奧古斯都·馮·帕塞瓦爾"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/august_von_parseval_(azur_lane)"
-      ],
-      "note": "《碧蓝航线》官方中文名为「奥古斯特·冯·帕塞瓦尔」，现有译名「奥古斯都」为德语人名误译。"
-    },
-    "characters/3976": {
-      "n": {
-        "zh-CN": "寻梦者",
-        "zh-TW": "尋夢者",
-        "en": "Dreamseeker"
-      },
-      "prev": {
-        "zh-CN": "追梦人",
-        "zh-TW": "追夢人",
-        "en": "Dreamer"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/female_dreamseeker_(honkai_impact)"
-      ],
-      "note": "《崩坏3》第二部主角官方中文名为「寻梦者」（英文 Dreamseeker），现有译名「追梦人」为字面机翻误译。"
-    },
-    "origins/308": {
-      "n": {
-        "zh-CN": "灵魂行者",
-        "zh-TW": "靈魂行者"
-      },
-      "prev": {
-        "zh-CN": "灵魂武器",
-        "zh-TW": "靈魂行者"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/soulworker"
-      ],
-      "note": "游戏官方中文正名为「灵魂行者」，现有简中译名「灵魂武器」为机翻直译错误。"
-    },
-    "origins/799": {
-      "n": {
-        "zh-CN": "哭泣少女乐队",
-        "zh-TW": "少女樂團吶喊吧",
-        "en": "Girls Band Cry"
-      },
-      "prev": {
-        "zh-CN": "少女乐队哭泣",
-        "zh-TW": "少女樂團哭泣",
-        "en": "Girls Band Cry"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/girls_band_cry"
-      ],
-      "note": "官方及社区通用中文译名为「哭泣少女乐队」（台湾引进为「少女樂團吶喊吧」），现有译名「少女乐队哭泣」为生硬字面机翻。"
-    },
-    "origins/231": {
-      "n": {
-        "zh-TW": "悠悠哉哉少女日和"
-      },
-      "prev": {
-        "zh-TW": "悠悠哉哉少女劍客"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/non_non_biyori"
-      ],
-      "note": "繁体中文官方正版译名为「悠悠哉哉少女日和」（尖端出版），现有繁中「悠悠哉哉少女劍客」为严重机翻错词。"
-    },
-    "origins/803": {
-      "n": {
-        "zh-CN": "优米雅的炼金工房",
-        "zh-TW": "優米雅的鍊金工房"
-      },
-      "prev": {
-        "zh-CN": "尤米亚的炼金工房",
-        "zh-TW": "尤米亞的鍊金工房"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/atelier_yumia"
-      ],
-      "note": "光荣特库摩官方中文正式定名为「优米雅的炼金工房」（繁中「優米雅的鍊金工房」），现有译名「尤米亚」为早期非官方音译。"
-    },
-    "origins/77": {
-      "n": {
-        "zh-CN": "地狱客栈",
-        "zh-TW": "地獄旅館"
-      },
-      "prev": {
-        "zh-CN": "哈斯宾酒店",
-        "zh-TW": "哈斯賓酒店"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/hazbin_hotel"
-      ],
-      "note": "中文圈公认通用译名为「地狱客栈」（繁体「地獄旅館」），现有译名「哈斯宾酒店」为生硬音译。"
-    },
-    "origins/853": {
-      "n": {
-        "zh-CN": "星塔旅人",
-        "zh-TW": "星塔旅人"
-      },
-      "prev": {
-        "zh-CN": "Stella Sora",
-        "zh-TW": "Stella Sora"
-      },
-      "src": "ai-batch",
-      "by": "batch_001",
-      "ref": [
-        "https://danbooru.donmai.us/wiki_pages/stella_sora"
-      ],
-      "note": "《ステラソラ》（Stella Sora）为悠星（Yostar）开发的游戏，官方中文名为《星塔旅人》，替换原先占位的英文名。"
-    },
-    "characters/169": {
-      "n": {
-        "zh-CN": "歌幡明治",
-        "zh-TW": "歌幡明治"
-      },
-      "prev": {
-        "zh-CN": "歌幡明治",
-        "zh-TW": "歌幡明治"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/169"
-      ],
-      "at": "2026-08-25",
-      "note": "メイジ 取常用汉字写法「明治」。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
-    },
-    "characters/1898": {
-      "n": {
-        "zh-CN": "欲音露可",
-        "zh-TW": "欲音露可"
-      },
-      "prev": {
-        "zh-CN": "欲音Ruko",
-        "zh-TW": "欲音Ruko"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/1898"
-      ],
-      "at": "2026-08-25",
-      "note": "ルコ 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
-    },
-    "characters/2417": {
-      "n": {
-        "zh-CN": "花园塞蕾娜",
-        "zh-TW": "花園塞蕾娜"
-      },
-      "prev": {
-        "zh-CN": "花园Serena",
-        "zh-TW": "花園Serena"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/2417"
-      ],
-      "at": "2026-08-25",
-      "note": "セレナ 按通行音译「塞蕾娜」。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
-    },
-    "characters/2648": {
-      "n": {
-        "zh-CN": "恶之六",
-        "zh-TW": "惡之六"
-      },
-      "prev": {
-        "zh-CN": "恶之roku",
-        "zh-TW": "惡之roku"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/2648"
-      ],
-      "at": "2026-08-25",
-      "note": "ろく 即「六」，ノ 按「之」处理。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
-    },
-    "characters/2653": {
-      "n": {
-        "zh-CN": "三叉露贝",
-        "zh-TW": "三叉露貝"
-      },
-      "prev": {
-        "zh-CN": "三叉rube",
-        "zh-TW": "三叉rube"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/2653"
-      ],
-      "at": "2026-08-25",
-      "note": "ルベ 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
-    },
-    "characters/2697": {
-      "n": {
-        "zh-CN": "雨晴哈乌",
-        "zh-TW": "雨晴哈烏"
-      },
-      "prev": {
-        "zh-CN": "雨晴Hau",
-        "zh-TW": "雨晴Hau"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/2697"
-      ],
-      "at": "2026-08-25",
-      "note": "はう 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
-    },
-    "characters/2911": {
-      "n": {
-        "zh-CN": "九重柯诺诺",
-        "zh-TW": "九重柯諾諾"
-      },
-      "prev": {
-        "zh-CN": "九重konono",
-        "zh-TW": "九重konono"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/2911"
-      ],
-      "at": "2026-08-25",
-      "note": "このの 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
-    },
-    "characters/2971": {
-      "n": {
-        "zh-CN": "不磨瓦特",
-        "zh-TW": "不磨瓦特"
-      },
-      "prev": {
-        "zh-CN": "不磨wat",
-        "zh-TW": "不磨wat"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/2971"
-      ],
-      "at": "2026-08-25",
-      "note": "わっと 即 Watt，按通行音译「瓦特」。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
-    },
-    "characters/3042": {
-      "n": {
-        "zh-CN": "闇音连理",
-        "zh-TW": "闇音連理"
-      },
-      "prev": {
-        "zh-CN": "闇音连理",
-        "zh-TW": "闇音連理"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/3042"
-      ],
-      "at": "2026-08-25",
-      "note": "レンリ 取常用汉字写法「連理」。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
-    },
-    "characters/3085": {
-      "n": {
-        "zh-CN": "舞鹤优香都",
-        "zh-TW": "舞鶴優香都"
-      },
-      "prev": {
-        "zh-CN": "舞鹤Yokato",
-        "zh-TW": "舞鶴Yokato"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/3085"
-      ],
-      "at": "2026-08-25",
-      "note": "よかと 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
-    },
-    "characters/3209": {
-      "n": {
-        "zh-CN": "暗鸣妮维",
-        "zh-TW": "暗鳴妮維"
-      },
-      "prev": {
-        "zh-CN": "暗鸣妮维",
-        "zh-TW": "暗鳴妮維"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/3209"
-      ],
-      "at": "2026-08-25",
-      "note": "ニュイ 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
-    },
-    "characters/3306": {
-      "n": {
-        "zh-CN": "杏户尤格",
-        "zh-TW": "杏戶尤格",
-        "en": "Yuge Anzudo"
-      },
-      "prev": {
-        "zh-CN": "杏户yuge",
-        "zh-TW": "杏戶yuge"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/3306"
-      ],
-      "at": "2026-08-25",
-      "note": "ゆげ 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。 另修 en：原值「Uge And」是错切的姓名。"
-    },
-    "characters/3448": {
-      "n": {
-        "zh-CN": "麻糬雏子",
-        "zh-TW": "麻糬雛子"
-      },
-      "prev": {
-        "zh-CN": "Mochi Hiyoko",
-        "zh-TW": "Mochi Hiyoko"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/3448"
-      ],
-      "at": "2026-08-25",
-      "note": "もち→麻糬（同 猫乃木もち→猫乃木麻糬），ひよこ 即「雏」。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
-    },
-    "characters/3471": {
-      "n": {
-        "zh-CN": "甲贺流忍者蓬蓬子",
-        "zh-TW": "甲賀流忍者蓬蓬子"
-      },
-      "prev": {
-        "zh-CN": "甲贺流忍者Ponpoko",
-        "zh-TW": "甲賀流忍者Ponpoko"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/3471"
-      ],
-      "at": "2026-08-25",
-      "note": "ぽんぽこ 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
-    },
-    "characters/3970": {
-      "n": {
-        "zh-CN": "猫雷喵露",
-        "zh-TW": "貓雷喵露"
-      },
-      "prev": {
-        "zh-CN": "猫雷Nyaru",
-        "zh-TW": "貓雷Nyaru"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/3970"
-      ],
-      "at": "2026-08-25",
-      "note": "にゃる 按通行音译，にゃ 取「喵」。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
-    },
-    "characters/4176": {
-      "n": {
-        "zh-CN": "灿鸟诺姆",
-        "zh-TW": "燦鳥諾姆"
-      },
-      "prev": {
-        "zh-CN": "灿鸟Nomu",
-        "zh-TW": "燦鳥Nomu"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/4176"
-      ],
-      "at": "2026-08-25",
-      "note": "ノム 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
-    },
-    "characters/4218": {
-      "n": {
-        "zh-CN": "娜娜比拉",
-        "zh-TW": "娜娜比拉"
-      },
-      "prev": {
-        "zh-CN": "Nanahira",
-        "zh-TW": "Nanahira"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/4218"
-      ],
-      "at": "2026-08-25",
-      "note": "ななひら 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
-    },
-    "characters/4351": {
-      "n": {
-        "zh-CN": "樱叶萝埃",
-        "zh-TW": "櫻葉蘿埃"
-      },
-      "prev": {
-        "zh-CN": "樱叶roe",
-        "zh-TW": "櫻葉roe"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/4351"
-      ],
-      "at": "2026-08-25",
-      "note": "ろえ 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
-    },
-    "characters/4599": {
-      "n": {
-        "zh-CN": "烟花芙瓦芙瓦",
-        "zh-TW": "煙花芙瓦芙瓦"
-      },
-      "prev": {
-        "zh-CN": "烟花fuwafuwa",
-        "zh-TW": "煙花fuwafuwa"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/4599"
-      ],
-      "at": "2026-08-25",
-      "note": "ふわふわ 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
-    },
-    "characters/4977": {
-      "n": {
-        "zh-CN": "海月云萝亚",
-        "zh-TW": "海月雲蘿亞"
-      },
-      "prev": {
-        "zh-CN": "海月云萝亚",
-        "zh-TW": "海月雲蘿亞"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/4977"
-      ],
-      "at": "2026-08-25",
-      "note": "ろあ 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
-    },
-    "characters/4937": {
-      "n": {
-        "zh-CN": "雨海琉夏",
-        "zh-TW": "雨海琉夏"
-      },
-      "prev": {
-        "zh-CN": "雨海Ruka",
-        "zh-TW": "雨海Ruka"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/4937"
-      ],
-      "at": "2026-08-25",
-      "note": "契约里「绝不要把罗马音塞回中文译名」举的反面例子就是这一条（雨海Ruka），但它本身一直留在词库里没改。"
-    },
-    "characters/2152": {
-      "n": {
-        "zh-CN": "零子",
-        "zh-TW": "零子"
-      },
-      "prev": {
-        "zh-CN": "Zero子",
-        "zh-TW": "Zero子"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/2152"
-      ],
-      "at": "2026-08-25",
-      "note": "ゼロ 即「零」。不用罗马音/日文原文顶替中文译名。"
-    },
-    "characters/2503": {
-      "n": {
-        "zh-CN": "NAGI波哟",
-        "zh-TW": "NAGI波喲"
-      },
-      "prev": {
-        "zh-CN": "NAGIぽよ",
-        "zh-TW": "NAGIぽよ"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/2503"
-      ],
-      "at": "2026-08-25",
-      "note": "ぽよ 按通行音译；NAGI 本就是拉丁艺名部分，保留。不用罗马音/日文原文顶替中文译名。"
-    },
-    "characters/2598": {
-      "n": {
-        "zh-CN": "坎萨琳",
-        "zh-TW": "坎薩琳"
-      },
-      "prev": {
-        "zh-CN": "Kanzarin",
-        "zh-TW": "Kanzarin"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/2598"
-      ],
-      "at": "2026-08-25",
-      "note": "片假名艺名按通行音译。不用罗马音/日文原文顶替中文译名。"
-    },
-    "characters/4900": {
-      "n": {
-        "zh-CN": "甘利芽衣",
-        "zh-TW": "甘利芽衣"
-      },
-      "prev": {
-        "zh-CN": "あまりめい",
-        "zh-TW": "あまりめい"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/4900"
-      ],
-      "at": "2026-08-25",
-      "note": "按 amari mei 的常用汉字写法。不用罗马音/日文原文顶替中文译名。"
-    },
-    "characters/4904": {
-      "n": {
-        "zh-CN": "凛音",
-        "zh-TW": "凜音"
-      },
-      "prev": {
-        "zh-CN": "りんね",
-        "zh-TW": "りんね"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/4904"
-      ],
-      "at": "2026-08-25",
-      "note": "りんね 按通行汉字写法。不用罗马音/日文原文顶替中文译名。"
-    },
-    "characters/5032": {
-      "n": {
-        "zh-CN": "宾娜",
-        "zh-TW": "賓娜"
-      },
-      "prev": {
-        "zh-CN": "Binah",
-        "zh-TW": "Binah"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/5032"
-      ],
-      "at": "2026-08-25",
-      "note": "Binah（生命之树第三球「理解」）的通行中文音译。不用罗马音/日文原文顶替中文译名。"
-    },
-    "characters/1208": {
-      "n": {
-        "zh-CN": "贝比5",
-        "zh-TW": "貝比5"
-      },
-      "prev": {
-        "zh-CN": "Baby-5",
-        "zh-TW": "Baby-5"
-      },
-      "src": "manual",
-      "by": "dev",
-      "ref": [
-        "https://oreno3d.com/characters/1208"
-      ],
-      "at": "2026-08-25",
-      "note": "《海贼王》官方中文译名「贝比5」；原值 Baby-5 是拉丁写法。"
-    }
+ "schema": 1,
+ "entries": {
+  "characters/2215": {
+   "n": {
+    "zh-CN": "小萤",
+    "zh-TW": "小螢"
+   },
+   "prev": {
+    "zh-CN": "流萤",
+    "zh-TW": "流螢"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/2215"
+   ],
+   "at": "2026-08-25",
+   "note": "スプラトゥーン 的 ホタル（小萤/Marie），与崩壊:スターレイル 的 ホタル（流萤）同名不同人。迁移前两者共享译名，都被显示为「流萤」。"
+  },
+  "characters/3904": {
+   "n": {
+    "zh-CN": "知更鸟",
+    "zh-TW": "知更鳥"
+   },
+   "prev": {
+    "zh-CN": "罗宾",
+    "zh-TW": "羅賓"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/robin_(honkai:_star_rail)"
+   ],
+   "note": "《崩坏：星穹铁道》官方中文名为「知更鸟」，现有译名「罗宾」为错误直译。"
+  },
+  "tags/195": {
+   "n": {
+    "zh-CN": "乳头奸",
+    "zh-TW": "乳頭姦"
+   },
+   "prev": {
+    "zh-CN": "乳交",
+    "zh-TW": "乳交"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/nipple_penetration"
+   ],
+   "note": "「ニプルファック」特指乳头插入/乳头奸（Nipple penetration/fuck），现有译名「乳交」通常指Titfuck/Paizuri，修正为「乳头奸」。"
+  },
+  "characters/4393": {
+   "n": {
+    "zh-CN": "凯撒·金",
+    "zh-TW": "凱撒·金",
+    "en": "Caesar King"
+   },
+   "prev": {
+    "zh-CN": "西萨王",
+    "zh-TW": "西薩王",
+    "en": "King Caesar"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/caesar_king_(zenless_zone_zero)"
+   ],
+   "note": "《绝区零》角色 Caesar King 的官方中文名为「凯撒·金」，现有译名「西萨王」为特摄怪兽误译。"
+  },
+  "characters/5068": {
+   "n": {
+    "zh-CN": "琳奈",
+    "zh-TW": "琳奈",
+    "en": "Lynae"
+   },
+   "prev": {
+    "zh-CN": "凛音",
+    "zh-TW": "凜音",
+    "en": "Linne"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/lynae_(wuthering_waves)"
+   ],
+   "note": "《鸣潮》官方中文名为「琳奈」（英文 Lynae），现有译名「凛音」为错误音译。"
+  },
+  "characters/855": {
+   "n": {
+    "zh-CN": "贝奇",
+    "zh-TW": "貝奇",
+    "en": "Bache"
+   },
+   "prev": {
+    "zh-CN": "徽章",
+    "zh-TW": "徽章",
+    "en": "Badge"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/bache_(azur_lane)"
+   ],
+   "note": "《碧蓝航线》弗莱彻级驱逐舰 Bache 官方中文译名为「贝奇」，现有译名「徽章」为英语badge的机翻误译。"
+  },
+  "characters/5010": {
+   "n": {
+    "zh-CN": "奈芙尔",
+    "zh-TW": "奈芙爾",
+    "en": "Nefer"
+   },
+   "prev": {
+    "zh-CN": "奈菲儿",
+    "zh-TW": "奈菲爾",
+    "en": "Nefer"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/nefer_(genshin_impact)"
+   ],
+   "note": "《原神》角色 Nefer 官方中文名为「奈芙尔」，现有译名「奈菲儿」为音译偏差。"
+  },
+  "characters/4961": {
+   "n": {
+    "zh-CN": "海瑟音",
+    "zh-TW": "海瑟音",
+    "en": "Hysilens"
+   },
+   "prev": {
+    "zh-CN": "塞伦斯",
+    "zh-TW": "塞倫斯",
+    "en": "Sirens"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/hysilens_(honkai:_star_rail)"
+   ],
+   "note": "《崩坏：星穹铁道》官方中文名为「海瑟音」（英文 Hysilens），现有译名「塞伦斯」为错误音译。"
+  },
+  "characters/3882": {
+   "n": {
+    "zh-CN": "仲正一花",
+    "zh-TW": "仲正一花",
+    "en": "Ichika Nakamasa"
+   },
+   "prev": {
+    "zh-CN": "仲正一夏",
+    "zh-TW": "仲正一夏",
+    "en": "Ichika Nakamasa"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/ichika_(blue_archive)"
+   ],
+   "note": "《蔚蓝档案》官方中文名为「仲正一花」，现有译名「仲正一夏」为错误音译。"
+  },
+  "characters/3249": {
+   "n": {
+    "zh-CN": "希露瓦",
+    "zh-TW": "希露瓦",
+    "en": "Serval"
+   },
+   "prev": {
+    "zh-CN": "塞巴尔",
+    "zh-TW": "塞巴爾",
+    "en": "Seval"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/serval_landau"
+   ],
+   "note": "《崩坏：星穹铁道》官方中文名为「希露瓦」（英文 Serval），现有译名「塞巴尔」为错误音译。"
+  },
+  "characters/1451": {
+   "n": {
+    "zh-CN": "里诺",
+    "zh-TW": "里諾",
+    "en": "Reno"
+   },
+   "prev": {
+    "zh-CN": "璃乃",
+    "zh-TW": "璃乃",
+    "en": "Rino"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/reno_(azur_lane)"
+   ],
+   "note": "《碧蓝航线》亚特兰大级轻巡洋舰 Reno 官方中文译名为「里诺」，现有译名「璃乃」与其他作品角色混淆。"
+  },
+  "characters/4781": {
+   "n": {
+    "zh-CN": "莱万汀",
+    "zh-TW": "萊萬汀"
+   },
+   "prev": {
+    "zh-CN": "雷瓦汀",
+    "zh-TW": "雷瓦汀"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/laevatain_(arknights)"
+   ],
+   "note": "《明日方舟：终末地》官方中文名为「莱万汀」，现有译名「雷瓦汀」为错误音译。"
+  },
+  "characters/3280": {
+   "n": {
+    "zh-CN": "夏洛蒂",
+    "zh-TW": "夏洛蒂"
+   },
+   "prev": {
+    "zh-CN": "夏洛特",
+    "zh-TW": "夏洛特"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/charlotte_(genshin_impact)"
+   ],
+   "note": "《原神》枫丹角色 Charlotte 官方中文名为「夏洛蒂」，现有译名「夏洛特」为普通人名误译。"
+  },
+  "characters/4975": {
+   "n": {
+    "zh-CN": "席德",
+    "zh-TW": "席德",
+    "en": "Seed"
+   },
+   "prev": {
+    "zh-CN": "SEED",
+    "zh-TW": "SEED",
+    "en": "Seed"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/seed_(zenless_zone_zero)"
+   ],
+   "note": "《绝区零》官方中文名为「席德」，现有译名「SEED」未做角色中文汉化。"
+  },
+  "characters/1163": {
+   "n": {
+    "zh-CN": "阿纳斯塔西娅",
+    "zh-TW": "阿納斯塔西婭"
+   },
+   "prev": {
+    "zh-CN": "安娜斯塔西娅",
+    "zh-TW": "安娜斯塔西婭"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/anastasia_(fate)"
+   ],
+   "note": "《Fate/Grand Order》官方正式译名为「阿纳斯塔西娅」，现有译名「安娜斯塔西娅」为非官方异译。"
+  },
+  "characters/2918": {
+   "n": {
+    "zh-CN": "奥古斯特·冯·帕塞瓦尔",
+    "zh-TW": "奧古斯特·馮·帕塞瓦爾"
+   },
+   "prev": {
+    "zh-CN": "奥古斯都·冯·帕塞瓦尔",
+    "zh-TW": "奧古斯都·馮·帕塞瓦爾"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/august_von_parseval_(azur_lane)"
+   ],
+   "note": "《碧蓝航线》官方中文名为「奥古斯特·冯·帕塞瓦尔」，现有译名「奥古斯都」为德语人名误译。"
+  },
+  "characters/3976": {
+   "n": {
+    "zh-CN": "寻梦者",
+    "zh-TW": "尋夢者",
+    "en": "Dreamseeker"
+   },
+   "prev": {
+    "zh-CN": "追梦人",
+    "zh-TW": "追夢人",
+    "en": "Dreamer"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/female_dreamseeker_(honkai_impact)"
+   ],
+   "note": "《崩坏3》第二部主角官方中文名为「寻梦者」（英文 Dreamseeker），现有译名「追梦人」为字面机翻误译。"
+  },
+  "origins/308": {
+   "n": {
+    "zh-CN": "灵魂行者",
+    "zh-TW": "靈魂行者"
+   },
+   "prev": {
+    "zh-CN": "灵魂武器",
+    "zh-TW": "靈魂行者"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/soulworker"
+   ],
+   "note": "游戏官方中文正名为「灵魂行者」，现有简中译名「灵魂武器」为机翻直译错误。"
+  },
+  "origins/799": {
+   "n": {
+    "zh-CN": "哭泣少女乐队",
+    "zh-TW": "少女樂團吶喊吧",
+    "en": "Girls Band Cry"
+   },
+   "prev": {
+    "zh-CN": "少女乐队哭泣",
+    "zh-TW": "少女樂團哭泣",
+    "en": "Girls Band Cry"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/girls_band_cry"
+   ],
+   "note": "官方及社区通用中文译名为「哭泣少女乐队」（台湾引进为「少女樂團吶喊吧」），现有译名「少女乐队哭泣」为生硬字面机翻。"
+  },
+  "origins/231": {
+   "n": {
+    "zh-TW": "悠悠哉哉少女日和"
+   },
+   "prev": {
+    "zh-TW": "悠悠哉哉少女劍客"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/non_non_biyori"
+   ],
+   "note": "繁体中文官方正版译名为「悠悠哉哉少女日和」（尖端出版），现有繁中「悠悠哉哉少女劍客」为严重机翻错词。"
+  },
+  "origins/803": {
+   "n": {
+    "zh-CN": "优米雅的炼金工房",
+    "zh-TW": "優米雅的鍊金工房"
+   },
+   "prev": {
+    "zh-CN": "尤米亚的炼金工房",
+    "zh-TW": "尤米亞的鍊金工房"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/atelier_yumia"
+   ],
+   "note": "光荣特库摩官方中文正式定名为「优米雅的炼金工房」（繁中「優米雅的鍊金工房」），现有译名「尤米亚」为早期非官方音译。"
+  },
+  "origins/77": {
+   "n": {
+    "zh-CN": "地狱客栈",
+    "zh-TW": "地獄旅館"
+   },
+   "prev": {
+    "zh-CN": "哈斯宾酒店",
+    "zh-TW": "哈斯賓酒店"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/hazbin_hotel"
+   ],
+   "note": "中文圈公认通用译名为「地狱客栈」（繁体「地獄旅館」），现有译名「哈斯宾酒店」为生硬音译。"
+  },
+  "origins/853": {
+   "n": {
+    "zh-CN": "星塔旅人",
+    "zh-TW": "星塔旅人"
+   },
+   "prev": {
+    "zh-CN": "Stella Sora",
+    "zh-TW": "Stella Sora"
+   },
+   "src": "ai-batch",
+   "by": "batch_001",
+   "ref": [
+    "https://danbooru.donmai.us/wiki_pages/stella_sora"
+   ],
+   "note": "《ステラソラ》（Stella Sora）为悠星（Yostar）开发的游戏，官方中文名为《星塔旅人》，替换原先占位的英文名。"
+  },
+  "characters/169": {
+   "n": {
+    "zh-CN": "歌幡明治",
+    "zh-TW": "歌幡明治"
+   },
+   "prev": {
+    "zh-CN": "歌幡明治",
+    "zh-TW": "歌幡明治"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/169"
+   ],
+   "at": "2026-08-25",
+   "note": "メイジ 取常用汉字写法「明治」。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
+  },
+  "characters/1898": {
+   "n": {
+    "zh-CN": "欲音露可",
+    "zh-TW": "欲音露可"
+   },
+   "prev": {
+    "zh-CN": "欲音Ruko",
+    "zh-TW": "欲音Ruko"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/1898"
+   ],
+   "at": "2026-08-25",
+   "note": "ルコ 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
+  },
+  "characters/2417": {
+   "n": {
+    "zh-CN": "花园塞蕾娜",
+    "zh-TW": "花園塞蕾娜"
+   },
+   "prev": {
+    "zh-CN": "花园Serena",
+    "zh-TW": "花園Serena"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/2417"
+   ],
+   "at": "2026-08-25",
+   "note": "セレナ 按通行音译「塞蕾娜」。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
+  },
+  "characters/2648": {
+   "n": {
+    "zh-CN": "恶之六",
+    "zh-TW": "惡之六"
+   },
+   "prev": {
+    "zh-CN": "恶之roku",
+    "zh-TW": "惡之roku"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/2648"
+   ],
+   "at": "2026-08-25",
+   "note": "ろく 即「六」，ノ 按「之」处理。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
+  },
+  "characters/2653": {
+   "n": {
+    "zh-CN": "三叉露贝",
+    "zh-TW": "三叉露貝"
+   },
+   "prev": {
+    "zh-CN": "三叉rube",
+    "zh-TW": "三叉rube"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/2653"
+   ],
+   "at": "2026-08-25",
+   "note": "ルベ 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
+  },
+  "characters/2697": {
+   "n": {
+    "zh-CN": "雨晴哈乌",
+    "zh-TW": "雨晴哈烏"
+   },
+   "prev": {
+    "zh-CN": "雨晴Hau",
+    "zh-TW": "雨晴Hau"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/2697"
+   ],
+   "at": "2026-08-25",
+   "note": "はう 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
+  },
+  "characters/2911": {
+   "n": {
+    "zh-CN": "九重柯诺诺",
+    "zh-TW": "九重柯諾諾"
+   },
+   "prev": {
+    "zh-CN": "九重konono",
+    "zh-TW": "九重konono"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/2911"
+   ],
+   "at": "2026-08-25",
+   "note": "このの 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
+  },
+  "characters/2971": {
+   "n": {
+    "zh-CN": "不磨瓦特",
+    "zh-TW": "不磨瓦特"
+   },
+   "prev": {
+    "zh-CN": "不磨wat",
+    "zh-TW": "不磨wat"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/2971"
+   ],
+   "at": "2026-08-25",
+   "note": "わっと 即 Watt，按通行音译「瓦特」。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
+  },
+  "characters/3042": {
+   "n": {
+    "zh-CN": "闇音连理",
+    "zh-TW": "闇音連理"
+   },
+   "prev": {
+    "zh-CN": "闇音连理",
+    "zh-TW": "闇音連理"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/3042"
+   ],
+   "at": "2026-08-25",
+   "note": "レンリ 取常用汉字写法「連理」。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
+  },
+  "characters/3085": {
+   "n": {
+    "zh-CN": "舞鹤优香都",
+    "zh-TW": "舞鶴優香都"
+   },
+   "prev": {
+    "zh-CN": "舞鹤Yokato",
+    "zh-TW": "舞鶴Yokato"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/3085"
+   ],
+   "at": "2026-08-25",
+   "note": "よかと 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
+  },
+  "characters/3209": {
+   "n": {
+    "zh-CN": "暗鸣妮维",
+    "zh-TW": "暗鳴妮維"
+   },
+   "prev": {
+    "zh-CN": "暗鸣妮维",
+    "zh-TW": "暗鳴妮維"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/3209"
+   ],
+   "at": "2026-08-25",
+   "note": "ニュイ 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
+  },
+  "characters/3306": {
+   "n": {
+    "zh-CN": "杏户尤格",
+    "zh-TW": "杏戶尤格",
+    "en": "Yuge Anzudo"
+   },
+   "prev": {
+    "zh-CN": "杏户yuge",
+    "zh-TW": "杏戶yuge"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/3306"
+   ],
+   "at": "2026-08-25",
+   "note": "ゆげ 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。 另修 en：原值「Uge And」是错切的姓名。"
+  },
+  "characters/3448": {
+   "n": {
+    "zh-CN": "麻糬雏子",
+    "zh-TW": "麻糬雛子"
+   },
+   "prev": {
+    "zh-CN": "Mochi Hiyoko",
+    "zh-TW": "Mochi Hiyoko"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/3448"
+   ],
+   "at": "2026-08-25",
+   "note": "もち→麻糬（同 猫乃木もち→猫乃木麻糬），ひよこ 即「雏」。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
+  },
+  "characters/3471": {
+   "n": {
+    "zh-CN": "甲贺流忍者蓬蓬子",
+    "zh-TW": "甲賀流忍者蓬蓬子"
+   },
+   "prev": {
+    "zh-CN": "甲贺流忍者Ponpoko",
+    "zh-TW": "甲賀流忍者Ponpoko"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/3471"
+   ],
+   "at": "2026-08-25",
+   "note": "ぽんぽこ 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
+  },
+  "characters/3970": {
+   "n": {
+    "zh-CN": "猫雷喵露",
+    "zh-TW": "貓雷喵露"
+   },
+   "prev": {
+    "zh-CN": "猫雷Nyaru",
+    "zh-TW": "貓雷Nyaru"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/3970"
+   ],
+   "at": "2026-08-25",
+   "note": "にゃる 按通行音译，にゃ 取「喵」。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
+  },
+  "characters/4176": {
+   "n": {
+    "zh-CN": "灿鸟诺姆",
+    "zh-TW": "燦鳥諾姆"
+   },
+   "prev": {
+    "zh-CN": "灿鸟Nomu",
+    "zh-TW": "燦鳥Nomu"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/4176"
+   ],
+   "at": "2026-08-25",
+   "note": "ノム 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
+  },
+  "characters/4218": {
+   "n": {
+    "zh-CN": "娜娜比拉",
+    "zh-TW": "娜娜比拉"
+   },
+   "prev": {
+    "zh-CN": "Nanahira",
+    "zh-TW": "Nanahira"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/4218"
+   ],
+   "at": "2026-08-25",
+   "note": "ななひら 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
+  },
+  "characters/4351": {
+   "n": {
+    "zh-CN": "樱叶萝埃",
+    "zh-TW": "櫻葉蘿埃"
+   },
+   "prev": {
+    "zh-CN": "樱叶roe",
+    "zh-TW": "櫻葉roe"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/4351"
+   ],
+   "at": "2026-08-25",
+   "note": "ろえ 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
+  },
+  "characters/4599": {
+   "n": {
+    "zh-CN": "烟花芙瓦芙瓦",
+    "zh-TW": "煙花芙瓦芙瓦"
+   },
+   "prev": {
+    "zh-CN": "烟花fuwafuwa",
+    "zh-TW": "煙花fuwafuwa"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/4599"
+   ],
+   "at": "2026-08-25",
+   "note": "ふわふわ 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
+  },
+  "characters/4977": {
+   "n": {
+    "zh-CN": "海月云萝亚",
+    "zh-TW": "海月雲蘿亞"
+   },
+   "prev": {
+    "zh-CN": "海月云萝亚",
+    "zh-TW": "海月雲蘿亞"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/4977"
+   ],
+   "at": "2026-08-25",
+   "note": "ろあ 按通行音译。不用罗马音顶替中文译名：词库同类词条压倒性是纯中文（改造前 129 条含假名的 Vtuber 里只有 10 条含拉丁，其中数条本就是拉丁艺名）。"
+  },
+  "characters/4937": {
+   "n": {
+    "zh-CN": "雨海琉夏",
+    "zh-TW": "雨海琉夏"
+   },
+   "prev": {
+    "zh-CN": "雨海Ruka",
+    "zh-TW": "雨海Ruka"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/4937"
+   ],
+   "at": "2026-08-25",
+   "note": "契约里「绝不要把罗马音塞回中文译名」举的反面例子就是这一条（雨海Ruka），但它本身一直留在词库里没改。"
+  },
+  "characters/2152": {
+   "n": {
+    "zh-CN": "零子",
+    "zh-TW": "零子"
+   },
+   "prev": {
+    "zh-CN": "Zero子",
+    "zh-TW": "Zero子"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/2152"
+   ],
+   "at": "2026-08-25",
+   "note": "ゼロ 即「零」。不用罗马音/日文原文顶替中文译名。"
+  },
+  "characters/2503": {
+   "n": {
+    "zh-CN": "NAGI波哟",
+    "zh-TW": "NAGI波喲"
+   },
+   "prev": {
+    "zh-CN": "NAGIぽよ",
+    "zh-TW": "NAGIぽよ"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/2503"
+   ],
+   "at": "2026-08-25",
+   "note": "ぽよ 按通行音译；NAGI 本就是拉丁艺名部分，保留。不用罗马音/日文原文顶替中文译名。"
+  },
+  "characters/2598": {
+   "n": {
+    "zh-CN": "坎萨琳",
+    "zh-TW": "坎薩琳"
+   },
+   "prev": {
+    "zh-CN": "Kanzarin",
+    "zh-TW": "Kanzarin"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/2598"
+   ],
+   "at": "2026-08-25",
+   "note": "片假名艺名按通行音译。不用罗马音/日文原文顶替中文译名。"
+  },
+  "characters/4900": {
+   "n": {
+    "zh-CN": "甘利芽衣",
+    "zh-TW": "甘利芽衣"
+   },
+   "prev": {
+    "zh-CN": "あまりめい",
+    "zh-TW": "あまりめい"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/4900"
+   ],
+   "at": "2026-08-25",
+   "note": "按 amari mei 的常用汉字写法。不用罗马音/日文原文顶替中文译名。"
+  },
+  "characters/4904": {
+   "n": {
+    "zh-CN": "凛音",
+    "zh-TW": "凜音"
+   },
+   "prev": {
+    "zh-CN": "りんね",
+    "zh-TW": "りんね"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/4904"
+   ],
+   "at": "2026-08-25",
+   "note": "りんね 按通行汉字写法。不用罗马音/日文原文顶替中文译名。"
+  },
+  "characters/5032": {
+   "n": {
+    "zh-CN": "宾娜",
+    "zh-TW": "賓娜"
+   },
+   "prev": {
+    "zh-CN": "Binah",
+    "zh-TW": "Binah"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/5032"
+   ],
+   "at": "2026-08-25",
+   "note": "Binah（生命之树第三球「理解」）的通行中文音译。不用罗马音/日文原文顶替中文译名。"
+  },
+  "characters/1208": {
+   "n": {
+    "zh-CN": "贝比5",
+    "zh-TW": "貝比5"
+   },
+   "prev": {
+    "zh-CN": "Baby-5",
+    "zh-TW": "Baby-5"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/1208"
+   ],
+   "at": "2026-08-25",
+   "note": "《海贼王》官方中文译名「贝比5」；原值 Baby-5 是拉丁写法。"
+  },
+  "characters/625": {
+   "n": {
+    "zh-CN": "神乐咪亚",
+    "zh-TW": "神樂咪亞"
+   },
+   "prev": {
+    "zh-CN": "神乐Mea",
+    "zh-TW": "神樂Mea"
+   },
+   "src": "manual",
+   "by": "dev",
+   "ref": [
+    "https://oreno3d.com/characters/625"
+   ],
+   "at": "2026-08-26",
+   "note": "同一人在两个词库里写法不一致：iwara 作「神乐めあ」（旧口径「没把握就保留原文」下判的 keep），oreno3d 作「神乐Mea」（罗马音）。按最终口径统一为纯中文音译。"
   }
+ }
 }
