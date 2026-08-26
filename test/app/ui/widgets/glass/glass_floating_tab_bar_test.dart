@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_floating_tab_bar.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lgw;
 
 /// 浮动底栏（`liquid_glass_widgets` 的 `GlassTabBar.bottom` 包装）的行为契约。
@@ -226,5 +227,51 @@ void main() {
     await tester.pumpWidget(bar(1));
     await tester.pump(const Duration(milliseconds: 400));
     expect(visualIndex(tester), 1);
+  });
+
+  // ---------------------------------------------------------------------------
+  // 假玻璃档（`GlassMaterialMode.plain`）：底栏**不跟全局材质开关**，仍是包里那条
+  // 真液态玻璃——全站唯一的例外，见 `GlassFloatingTabBar` 类文档。这里盯死它，
+  // 免得日后有人「顺手」把它收进材质开关（曾经有过一版自绘的假玻璃底栏）。
+  // ---------------------------------------------------------------------------
+  group('假玻璃档', () {
+    setUp(() => glassMaterialMode.value = GlassMaterialMode.plain);
+    tearDown(() => glassMaterialMode.value = GlassMaterialMode.liquid);
+
+    testWidgets('底栏仍是真液态玻璃（唯一的例外）', (tester) async {
+      await pumpBar(tester);
+      expect(
+        find.byType(lgw.GlassTabBar),
+        findsOneWidget,
+        reason: '底栏被收进全局材质开关了：果冻指示器与按住即滑会一起消失',
+      );
+    });
+
+    testWidgets('手感契约与真玻璃档同一份：按住跟焦点，抬手才换页', (tester) async {
+      final taps = await pumpBar(tester);
+      final TestGesture gesture = await tester.startGesture(
+        tabCenter(tester, 2),
+      );
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(visualIndex(tester), 2, reason: '按住第 2 项，焦点却没跟过去');
+      expect(taps, isEmpty, reason: '按住期间就换页 = 把留给拖动的那段时间吃掉了');
+      await gesture.moveTo(tabCenter(tester, 3));
+      await tester.pump(const Duration(milliseconds: 16));
+      await gesture.up();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(taps, [3]);
+    });
+
+    testWidgets('右侧圆钮是独立动作，不算换项', (tester) async {
+      var actions = 0;
+      final taps = await pumpBar(tester, onAction: () => actions++);
+      final Rect bar = tester.getRect(find.byType(GlassFloatingTabBar));
+      await tester.tapAt(
+        Offset(bar.right - GlassTokens.floatingActionSize / 2, bar.center.dy),
+      );
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(actions, 1);
+      expect(taps, isEmpty);
+    });
   });
 }

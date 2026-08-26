@@ -69,8 +69,9 @@ class ThemeService extends GetxService {
     Get.find<ConfigService>()[ConfigKey.ENABLE_LIQUID_GLASS_KEY] = enabled;
     applyGlassMaterialFromConfig(enabled);
 
-    // 冷启动时若是假玻璃档，shader 没预热过；这会儿现开真玻璃，第一块 lens 会
-    // 先渲染成磨砂再跳成折射。补一次预热把那一下跳变抹掉（失败也只是退回磨砂）。
+    // 启动时已经预热过一次（两档都热，见 `main.dart`），这里只是兜底重试：
+    // 那一次万一失败了（构建损坏 / 环境不支持），现开真玻璃时再试一次，
+    // 免得整屏 lens 都停在磨砂档。`ensureLoaded` 幂等，热过就是空转。
     if (enabled) {
       unawaited(warmUpLiquidGlassShaders());
     }

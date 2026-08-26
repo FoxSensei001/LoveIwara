@@ -5,11 +5,8 @@ import 'package:flutter/material.dart';
 // 带前缀：两个玻璃包的公开面与本仓库自己的组件大面积重名（见
 // `liquid_glass_material.dart` 顶部那段说明），不加前缀会一片 ambiguous_import。
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lgw;
-import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 
 /// 浮动底栏里的一项。
 class GlassTabItem {
@@ -73,6 +70,20 @@ class GlassFloatingBarAction {
 ///      并微微放大（`MaskingQuality.high`），而不是在图标下面垫一块底色。
 ///   3. **直接拖动**：不再需要「长按拾起」这一步——按住就能滑（自绘那版必须
 ///      先长按，否则会和页面的横向手势打架；包里的手势是在自己这条 Row 上收的）。
+///
+/// # ⭐ 唯一的例外：这一条**不跟全局材质开关**
+///
+/// 2026-08-26 用户拍板：主题设置选「轻量半透明」时，全站玻璃都退成半透明底色 +
+/// 描边，**只有这条底栏照旧用真液态玻璃**。理由是它就那么一条、永远在屏幕上，
+/// 果冻指示器与磁透镜是它整个交互的骨架（按住即滑、拖着换焦点全靠包内部那套
+/// 手势），换成自绘版等于把这块的手感整个抽掉。
+///
+/// 曾经有过一版自绘的假玻璃底栏（`_PlainFloatingTabBar`，`AnimatedPositioned`
+/// 高亮块 + 自己收 pointer 的滑动取焦），本次一并删除——两套实现意味着每加一条
+/// 手感都要写两遍，而这一条永远只会有一份。
+///
+/// 代价记在这儿，别当成漏网之鱼：假玻璃档下整个 App 只有这一块还在采样背景，
+/// 所以 shader 预热在**两档都要做**（见 `main.dart` 那段）。
 ///
 /// # 放哪儿
 ///
@@ -248,30 +259,7 @@ class _GlassFloatingTabBarState extends State<GlassFloatingTabBar> {
     final List<GlassTabItem> items = widget.items;
     final double height = widget.height;
 
-    // 假玻璃档：整只换成自绘那一版（[_PlainFloatingTabBar]）。
-    //
-    // 这块是**全站唯一一处 `GlassSurface` 管不到的 chrome**：胶囊、果冻指示器、
-    // 右侧圆钮都由 `liquid_glass_widgets` 自己画，[LiquidGlassScope] 对它没有
-    // 任何作用。用户在主题设置里关掉液态玻璃之后，整个 App 只剩它还在采样背景
-    // ——最显眼的那一条，还偏偏是关不掉的那一条。所以档位判断放在这里，而不是
-    // 让调用方去挑该建哪一个。
-    //
-    // 换掉之后必然少两件事：果冻指示器的挤压回弹、按住不放左右拖着换项。它们
-    // 都是液态材质自带的手感（拖动那条还依赖包内部的手势），假玻璃档下本来就
-    // 不该有；点按换项、同项也回调、角标、无障碍语义都保留。
-    if (!GlassMaterialScope.isLiquid(context)) {
-      return _withActionLongPress(
-        action: action,
-        height: height,
-        bar: _PlainFloatingTabBar(
-          items: items,
-          currentIndex: widget.currentIndex,
-          onTap: widget.onTap,
-          action: action,
-          height: height,
-        ),
-      );
-    }
+    // ⛔ 这里**不看全局材质开关**：底栏两档都是真液态玻璃，见类文档「唯一的例外」。
 
     // raw `Listener` 只是旁听手指的起落（不进竞技场、不改命中测试），用来判断
     // 包报上来的下标该立刻落地还是先压着——见类文档「落地时机」。
@@ -394,186 +382,6 @@ class _GlassFloatingTabBarState extends State<GlassFloatingTabBar> {
           ),
         ),
       ],
-    );
-  }
-}
-
-/// 浮动底栏的**假玻璃档**实现：传统 [GlassSurface] 胶囊 + 滑动高亮块 + 右侧圆钮。
-///
-/// 这是 2026-08-23 换包之前的那一版（`AnimatedPositioned` 高亮块），换包时被
-/// 整只删掉，现在因为全局材质开关又请了回来——差别是**不再有「长按拾起跟手
-/// 拖拽」**：那条当初是为了不和页面的横向手势打架才做成长按的，而假玻璃档
-/// 本来就是「省事优先」的一档，点按换项足够。
-class _PlainFloatingTabBar extends StatelessWidget {
-  const _PlainFloatingTabBar({
-    required this.items,
-    required this.currentIndex,
-    required this.onTap,
-    required this.action,
-    required this.height,
-  });
-
-  final List<GlassTabItem> items;
-  final int currentIndex;
-  final ValueChanged<int> onTap;
-  final GlassFloatingBarAction? action;
-  final double height;
-
-  /// 各项之间的水平间距（高亮块两侧各让出这么多）。
-  static const double _itemMargin = 2;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final double innerHeight = height - 8;
-    final GlassFloatingBarAction? action = this.action;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          child: GlassSurface(
-            height: height,
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final double slotWidth = items.isEmpty
-                    ? constraints.maxWidth
-                    : constraints.maxWidth / items.length;
-                return Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    if (items.isNotEmpty)
-                      AnimatedPositioned(
-                        duration: GlassTokens.motionDuration,
-                        curve: GlassTokens.motionCurve,
-                        left: slotWidth * currentIndex + _itemMargin,
-                        top: (height - innerHeight) / 2,
-                        width: slotWidth - _itemMargin * 2,
-                        height: innerHeight,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: GlassTokens.selectedHighlight(cs),
-                            borderRadius: BorderRadius.circular(
-                              innerHeight / 2,
-                            ),
-                          ),
-                        ),
-                      ),
-                    Row(
-                      children: [
-                        for (var i = 0; i < items.length; i++)
-                          Expanded(
-                            child: _PlainTab(
-                              item: items[i],
-                              selected: i == currentIndex,
-                              // 同项也回调：「再点一次当前栏目 → 回顶 + 重载」
-                              // 这条与液态档一致。
-                              onTap: () => onTap(i),
-                              height: height,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-        ),
-        if (action != null) ...[
-          const SizedBox(width: 12),
-          GlassIconButton(
-            standalone: true,
-            // 圆钮直径恒等于栏高，否则与胶囊不齐（见 GlassTokens.floatingActionSize）。
-            size: height,
-            iconSize: 26,
-            icon: Icon(action.icon),
-            tooltip: action.label,
-            onPressed: action.onPressed,
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-/// 假玻璃档下的一项：图标 + 文字 + 角标，选中底色由外面那块滑动高亮块负责。
-class _PlainTab extends StatelessWidget {
-  const _PlainTab({
-    required this.item,
-    required this.selected,
-    required this.onTap,
-    required this.height,
-  });
-
-  final GlassTabItem item;
-  final bool selected;
-  final VoidCallback onTap;
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final double innerHeight = height - 8;
-    final IconData icon = selected ? (item.activeIcon ?? item.icon) : item.icon;
-
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: item.label,
-      child: GlassPressable(
-        scale: 0.94,
-        onTap: onTap,
-        builder: (context, pressed) => GlassAnimatedColors(
-          colors: [
-            selected ? cs.primary : cs.onSurfaceVariant,
-            pressed ? cs.onSurface.withValues(alpha: 0.06) : Colors.transparent,
-          ],
-          builder: (context, c) => Container(
-            height: innerHeight,
-            margin: const EdgeInsets.symmetric(horizontal: 2),
-            decoration: BoxDecoration(
-              color: c[1],
-              borderRadius: BorderRadius.circular(innerHeight / 2),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    GlassAnimatedIcon(icon: Icon(icon, size: 26, color: c[0])),
-                    if (item.badge != null)
-                      Positioned(top: -4, right: -6, child: item.badge!),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      item.label,
-                      maxLines: 1,
-                      softWrap: false,
-                      style: TextStyle(
-                        fontSize: 11.5,
-                        height: 1.1,
-                        fontWeight: selected
-                            ? FontWeight.w600
-                            : FontWeight.w500,
-                        color: c[0],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

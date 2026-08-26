@@ -1900,8 +1900,8 @@ class TranslationsSettingsEn {
 	/// en: 'Glass Effect'
 	String get glassEffect => 'Glass Effect';
 
-	/// en: 'Chooses the material used by every glass control (header capsules, floating tab bar, menus, dialog buttons)'
-	String get glassEffectDesc => 'Chooses the material used by every glass control (header capsules, floating tab bar, menus, dialog buttons)';
+	/// en: 'Chooses the material used by glass controls (header capsules, menus, dialog buttons); the floating tab bar always stays liquid'
+	String get glassEffectDesc => 'Chooses the material used by glass controls (header capsules, menus, dialog buttons); the floating tab bar always stays liquid';
 
 	/// en: 'Liquid Glass'
 	String get liquidGlassEffect => 'Liquid Glass';
@@ -1918,8 +1918,8 @@ class TranslationsSettingsEn {
 	/// en: 'Try the new glass effect'
 	String get glassEffectIntroTitle => 'Try the new glass effect';
 
-	/// en: 'Headers, the tab bar and menus now use liquid glass — real blur and refraction. If it feels slow on your device, or you prefer something plainer, switch to lightweight translucency now.'
-	String get glassEffectIntroContent => 'Headers, the tab bar and menus now use liquid glass — real blur and refraction. If it feels slow on your device, or you prefer something plainer, switch to lightweight translucency now.';
+	/// en: 'Headers, the tab bar and menus now use liquid glass — real blur and refraction. If it feels slow on your device, or you prefer something plainer, switch to lightweight translucency now (the tab bar stays liquid either way).'
+	String get glassEffectIntroContent => 'Headers, the tab bar and menus now use liquid glass — real blur and refraction. If it feels slow on your device, or you prefer something plainer, switch to lightweight translucency now (the tab bar stays liquid either way).';
 
 	/// en: 'You can change this any time in Settings → Theme → Glass Effect.'
 	String get glassEffectIntroHint => 'You can change this any time in Settings → Theme → Glass Effect.';
@@ -8902,13 +8902,13 @@ extension on Translations {
 			'settings.themeMode' => 'Theme Mode',
 			'settings.themeModeDesc' => 'This configuration determines the theme mode of the app',
 			'settings.glassEffect' => 'Glass Effect',
-			'settings.glassEffectDesc' => 'Chooses the material used by every glass control (header capsules, floating tab bar, menus, dialog buttons)',
+			'settings.glassEffectDesc' => 'Chooses the material used by glass controls (header capsules, menus, dialog buttons); the floating tab bar always stays liquid',
 			'settings.liquidGlassEffect' => 'Liquid Glass',
 			'settings.liquidGlassEffectDesc' => 'Real blur and refraction. Looks best, but may drop frames and use a bit more power on low-end devices',
 			'settings.plainGlassEffect' => 'Lightweight Translucency',
 			'settings.plainGlassEffectDesc' => 'Translucent fills and outlines only, no blur. Best performance and battery life',
 			'settings.glassEffectIntroTitle' => 'Try the new glass effect',
-			'settings.glassEffectIntroContent' => 'Headers, the tab bar and menus now use liquid glass — real blur and refraction. If it feels slow on your device, or you prefer something plainer, switch to lightweight translucency now.',
+			'settings.glassEffectIntroContent' => 'Headers, the tab bar and menus now use liquid glass — real blur and refraction. If it feels slow on your device, or you prefer something plainer, switch to lightweight translucency now (the tab bar stays liquid either way).',
 			'settings.glassEffectIntroHint' => 'You can change this any time in Settings → Theme → Glass Effect.',
 			'settings.glassEffectIntroDone' => 'Keep it',
 			'settings.dynamicColor' => 'Dynamic Color',

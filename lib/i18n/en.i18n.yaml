@@ -620,13 +620,13 @@ settings:
   themeMode: Theme Mode
   themeModeDesc: This configuration determines the theme mode of the app
   glassEffect: Glass Effect
-  glassEffectDesc: Chooses the material used by every glass control (header capsules, floating tab bar, menus, dialog buttons)
+  glassEffectDesc: Chooses the material used by glass controls (header capsules, menus, dialog buttons); the floating tab bar always stays liquid
   liquidGlassEffect: Liquid Glass
   liquidGlassEffectDesc: Real blur and refraction. Looks best, but may drop frames and use a bit more power on low-end devices
   plainGlassEffect: Lightweight Translucency
   plainGlassEffectDesc: Translucent fills and outlines only, no blur. Best performance and battery life
   glassEffectIntroTitle: Try the new glass effect
-  glassEffectIntroContent: Headers, the tab bar and menus now use liquid glass — real blur and refraction. If it feels slow on your device, or you prefer something plainer, switch to lightweight translucency now.
+  glassEffectIntroContent: Headers, the tab bar and menus now use liquid glass — real blur and refraction. If it feels slow on your device, or you prefer something plainer, switch to lightweight translucency now (the tab bar stays liquid either way).
   glassEffectIntroHint: You can change this any time in Settings → Theme → Glass Effect.
   glassEffectIntroDone: Keep it
   dynamicColor: Dynamic Color

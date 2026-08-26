@@ -96,12 +96,10 @@ void main() {
       // 成磨砂、加载完再切成折射，肉眼能看见这一下材质跳变。不 await——加载失败
       // 只是退回磨砂，不该拖住启动。
       //
-      // 用户在主题设置里选了「假玻璃」时整段跳过：那一档一块 lens 都不会建，
-      // 预热等于白花一次 shader 编译和这份显存。切回真玻璃时会在设置页那一刻
-      // 补预热（见 `ThemeService.setLiquidGlassEnabled`）。
-      if (glassMaterialMode.value == GlassMaterialMode.liquid) {
-        unawaited(warmUpLiquidGlassShaders());
-      }
+      // ⛔ **两档都要预热**，别再按 [glassMaterialMode] 跳过：浮动底栏不跟全局
+      // 材质开关，假玻璃档下它仍是真液态玻璃（见 `GlassFloatingTabBar` 类文档
+      // 「唯一的例外」）。跳过的话首页第一帧那条底栏会先磨砂再跳成折射。
+      unawaited(warmUpLiquidGlassShaders());
 
       FramePerfProbe.start();
 

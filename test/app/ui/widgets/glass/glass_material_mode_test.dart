@@ -149,9 +149,10 @@ void main() {
     expect(find.byType(AnimatedContainer), findsWidgets);
   });
 
-  testWidgets('浮动底栏也跟着开关走（它是唯一一处 GlassSurface 管不到的 chrome）', (
-    tester,
-  ) async {
+  // ⭐ 2026-08-26 用户拍板：底栏是**唯一**不跟这个开关走的 chrome——假玻璃档下
+  // 它照旧是真液态玻璃（果冻指示器 / 磁透镜 / 按住即滑全靠包内部那套手势，换成
+  // 自绘版等于把这块的手感整个抽掉）。曾经的自绘版 `_PlainFloatingTabBar` 已删。
+  testWidgets('浮动底栏是唯一的例外：两档都用真液态玻璃', (tester) async {
     final taps = <int>[];
     Future<void> pumpBar(GlassMaterialMode mode) async {
       glassMaterialMode.value = mode;
@@ -190,11 +191,13 @@ void main() {
     expect(find.byType(lgw.GlassTabBar), findsOneWidget);
 
     await pumpBar(GlassMaterialMode.plain);
-    expect(find.byType(lgw.GlassTabBar), findsNothing);
-    expect(find.byType(lgw.AdaptiveGlass), findsNothing);
-    // 自绘那一版照常换项（同项也回调，首页的「再点一次 = 回顶」靠它）。
-    expect(find.text('订阅'), findsOneWidget);
-    await tester.tap(find.text('订阅'));
+    expect(
+      find.byType(lgw.GlassTabBar),
+      findsOneWidget,
+      reason: '底栏被收进材质开关了：果冻指示器与按住即滑会一起消失',
+    );
+    // 换项照常（同项也回调，首页的「再点一次 = 回顶」靠它）。
+    await tester.tap(find.text('订阅').first);
     await tester.pump(const Duration(milliseconds: 400));
     expect(taps, [2]);
   });
