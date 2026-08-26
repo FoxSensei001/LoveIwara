@@ -9,6 +9,7 @@ import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/google_search_panel_widget.dart';
+import 'package:i_iwara/app/ui/widgets/search_mode_menu.dart';
 import 'package:i_iwara/app/models/search_record.model.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
@@ -27,17 +28,6 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
-
-const List<SearchSegment> _kAllSearchSegments = [
-  SearchSegment.video,
-  SearchSegment.image,
-  SearchSegment.user,
-  SearchSegment.playlist,
-  SearchSegment.post,
-  SearchSegment.forum,
-  SearchSegment.forum_posts,
-  SearchSegment.oreno3d,
-];
 
 class SearchPage extends StatefulWidget {
   final String userInputKeywords;
@@ -258,32 +248,6 @@ class _SearchPageState extends State<SearchPage> {
         sort: search.sort,
       );
     }
-  }
-
-  String _getSegmentLabel(SearchSegment seg, slang.Translations t) {
-    return switch (seg) {
-      SearchSegment.video => t.common.video,
-      SearchSegment.image => t.common.gallery,
-      SearchSegment.user => t.common.user,
-      SearchSegment.playlist => t.common.playlist,
-      SearchSegment.post => t.common.post,
-      SearchSegment.forum => t.forum.forum,
-      SearchSegment.forum_posts => t.forum.posts,
-      SearchSegment.oreno3d => 'Oreno3D',
-    };
-  }
-
-  IconData _getSegmentIcon(SearchSegment seg) {
-    return switch (seg) {
-      SearchSegment.video => Icons.video_library_outlined,
-      SearchSegment.image => Icons.image_outlined,
-      SearchSegment.user => Icons.person_outline,
-      SearchSegment.playlist => Icons.playlist_play_outlined,
-      SearchSegment.post => Icons.article_outlined,
-      SearchSegment.forum => Icons.forum_outlined,
-      SearchSegment.forum_posts => Icons.comment_outlined,
-      SearchSegment.oreno3d => Icons.view_in_ar_outlined,
-    };
   }
 
   IconData _getSortIconFor(SearchSegment seg, String value) {
@@ -537,13 +501,13 @@ class _SearchPageState extends State<SearchPage> {
     final t = slang.Translations.of(context);
 
     return Obx(() {
-      final selectedIndex = _kAllSearchSegments.indexOf(_selectedSegment.value);
+      final selectedIndex = kSearchSegmentsByPriority.indexOf(_selectedSegment.value);
       final validIndex = selectedIndex >= 0 ? selectedIndex : 0;
 
-      final items = _kAllSearchSegments.map((s) {
+      final items = kSearchSegmentsByPriority.map((s) {
         return GlassSegmentItem(
-          label: _getSegmentLabel(s, t),
-          icon: Icon(_getSegmentIcon(s), size: 16),
+          label: searchSegmentLabel(s, t),
+          icon: Icon(searchSegmentIcon(s), size: 16),
         );
       }).toList();
 
@@ -553,7 +517,7 @@ class _SearchPageState extends State<SearchPage> {
           items: items,
           selectedIndex: validIndex,
           onChanged: (index) {
-            final nextSeg = _kAllSearchSegments[index];
+            final nextSeg = kSearchSegmentsByPriority[index];
             _selectedSegment.value = nextSeg;
             _selectedSort.value = FilterConfig.getDefaultSortForSegment(
               nextSeg,
@@ -931,14 +895,14 @@ class _SearchPageState extends State<SearchPage> {
 
           // 分段全展开选择器
           Obx(() {
-            final selectedIndex = _kAllSearchSegments.indexOf(
+            final selectedIndex = kSearchSegmentsByPriority.indexOf(
               _selectedSegment.value,
             );
             final validIndex = selectedIndex >= 0 ? selectedIndex : 0;
-            final items = _kAllSearchSegments.map((s) {
+            final items = kSearchSegmentsByPriority.map((s) {
               return GlassSegmentItem(
-                label: _getSegmentLabel(s, t),
-                icon: Icon(_getSegmentIcon(s), size: 16),
+                label: searchSegmentLabel(s, t),
+                icon: Icon(searchSegmentIcon(s), size: 16),
               );
             }).toList();
 
@@ -946,7 +910,7 @@ class _SearchPageState extends State<SearchPage> {
               items: items,
               selectedIndex: validIndex,
               onChanged: (index) {
-                final nextSeg = _kAllSearchSegments[index];
+                final nextSeg = kSearchSegmentsByPriority[index];
                 _selectedSegment.value = nextSeg;
                 _selectedSort.value = FilterConfig.getDefaultSortForSegment(
                   nextSeg,

@@ -502,6 +502,8 @@ Size? _measureMenuPanelSize({
 /// [globalAnchor]：用它**顶掉**从 [anchorContext] 量出来的落点（全局坐标）。
 /// 右键上下文菜单专用——那时候没有「触发件」，面板该贴着指针弹出来，传一个
 /// 指针位置的零尺寸 `Rect` 即可（面板会从那一点撑开）。
+/// [priorityNearAnchor]：[entries] 是按**优先级从高到低**给的，面板翻到触发件
+/// 上方时整列倒过来排（见 [_orderNearAnchor]）。
 Future<T?> showGlassMenu<T>({
   required BuildContext anchorContext,
   required List<GlassMenuEntry> entries,
@@ -509,6 +511,7 @@ Future<T?> showGlassMenu<T>({
   double minWidth = _minPanelWidth,
   double maxWidth = _maxPanelWidth,
   bool touchFlex = true,
+  bool priorityNearAnchor = false,
 }) {
   final anchorBox = anchorContext.findRenderObject();
   final navigator = Navigator.of(anchorContext, rootNavigator: true);
@@ -534,6 +537,17 @@ Future<T?> showGlassMenu<T>({
     maxWidth: maxWidth,
   );
 
+  // 排序在这儿定，不在面板里：面板量宽 / 量高都与顺序无关（宽取各行最大、
+  // 高是各行相加），所以先量后排是安全的。
+  final List<GlassMenuEntry> orderedEntries = priorityNearAnchor
+      ? _orderNearAnchor(
+          entries: entries,
+          anchorContext: anchorContext,
+          anchorRect: anchorRect,
+          panelHeight: precomputedSize?.height,
+        )
+      : entries;
+
   // 关键：材质档位在这里就地取样，因为路由本身不在页面子树里。
   final GlassBackend backend = panelGlassBackend(anchorContext);
 
@@ -551,7 +565,7 @@ Future<T?> showGlassMenu<T>({
       // 浮层不在路由栈上，页面被换掉时不会自己消失，得盯着锚点那条路由，
       // 见 [_GlassMenuOverlayHostState._watchAnchorRoute]。
       anchorRoute: ModalRoute.of(anchorContext),
-      entries: entries,
+      entries: orderedEntries,
       anchorRect: anchorRect,
       minWidth: minWidth,
       maxWidth: maxWidth,
@@ -569,7 +583,7 @@ Future<T?> showGlassMenu<T>({
 
   return navigator.push(
     _GlassMenuRoute<T>(
-      entries: entries,
+      entries: orderedEntries,
       handoff: handoff,
       anchorRect: anchorRect,
       minWidth: minWidth,
@@ -947,6 +961,34 @@ class _GlassMenuRoute<T> extends PopupRoute<T> {
 ///
 /// 与 [_GlassMenuLayout.getPositionForChild] 使用完全同一套判定，
 /// 保证动画形变的原点（[revealOrigin]）与最终落点方向永远一致。
+/// 「优先级最高的那条永远贴着触发件」。
+///
+/// 面板在触发件**下方**展开时，第一条离触发件最近，原样即可；翻到**上方**时
+/// 最近的变成了最后一条，于是整列倒过来。调用点因此不用自己判断「我在屏幕顶
+/// 还是屏幕底」——底部浮动栏那枚搜索钮和顶部 header 那枚用的是同一份顺序表，
+/// 弹出来却各自顺手（见 `search_mode_menu.dart`）。
+///
+/// 只对**纯选项**的菜单成立：分组标题 / 分隔线倒过来之后归属会错位，所以那种
+/// 菜单不该开这一条。
+List<GlassMenuEntry> _orderNearAnchor({
+  required List<GlassMenuEntry> entries,
+  required BuildContext anchorContext,
+  required Rect anchorRect,
+  required double? panelHeight,
+}) {
+  assert(
+    entries.every((e) => e is! GlassMenuSectionHeader && e is! GlassMenuSeparator),
+    'priorityNearAnchor 只能用在纯选项菜单上：分组标题 / 分隔线倒过来会错位。',
+  );
+  final bool flipped = _opensUpward(
+    anchorRect: anchorRect,
+    screenHeight: MediaQuery.sizeOf(anchorContext).height,
+    padding: MediaQuery.paddingOf(anchorContext),
+    panelHeight: panelHeight,
+  );
+  return flipped ? entries.reversed.toList() : entries;
+}
+
 bool _opensUpward({
   required Rect anchorRect,
   required double screenHeight,

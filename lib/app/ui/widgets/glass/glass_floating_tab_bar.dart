@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lgw;
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 
@@ -41,6 +42,7 @@ class GlassFloatingBarAction {
     required this.icon,
     required this.label,
     required this.onPressed,
+    this.onLongPress,
   });
 
   final IconData icon;
@@ -49,6 +51,13 @@ class GlassFloatingBarAction {
   final String label;
 
   final VoidCallback onPressed;
+
+  /// 长按这枚圆钮（用来吐一张玻璃菜单）。收到的 `anchorContext` 是**圆钮自己
+  /// 那块地方**的 context——`showGlassMenu` 就是从它身上量落点的。
+  ///
+  /// 到点会震一下，并且手指不用抬就能直接划进弹出来的面板选（走
+  /// [GlassTapArea.longPressOpensOverlay]）。
+  final void Function(BuildContext anchorContext)? onLongPress;
 }
 
 /// 浮动在内容之上的玻璃 Tab 胶囊，可选在右侧并排一枚独立圆钮（[action]）。
@@ -251,87 +260,143 @@ class _GlassFloatingTabBarState extends State<GlassFloatingTabBar> {
     // 都是液态材质自带的手感（拖动那条还依赖包内部的手势），假玻璃档下本来就
     // 不该有；点按换项、同项也回调、角标、无障碍语义都保留。
     if (!GlassMaterialScope.isLiquid(context)) {
-      return _PlainFloatingTabBar(
-        items: items,
-        currentIndex: widget.currentIndex,
-        onTap: widget.onTap,
+      return _withActionLongPress(
         action: action,
         height: height,
+        bar: _PlainFloatingTabBar(
+          items: items,
+          currentIndex: widget.currentIndex,
+          onTap: widget.onTap,
+          action: action,
+          height: height,
+        ),
       );
     }
 
     // raw `Listener` 只是旁听手指的起落（不进竞技场、不改命中测试），用来判断
     // 包报上来的下标该立刻落地还是先压着——见类文档「落地时机」。
-    return Listener(
-      onPointerDown: _handlePointerDown,
-      onPointerMove: _handlePointerMove,
-      onPointerUp: _handlePointerRelease,
-      onPointerCancel: _handlePointerRelease,
-      child: lgw.GlassTabBar.bottom(
-        tabs: [
-          for (final item in items)
-            lgw.GlassTab(
-              icon: _icon(item, item.icon),
-              activeIcon: item.activeIcon == null
-                  ? null
-                  : _icon(item, item.activeIcon!),
-              label: item.label,
-            ),
-        ],
-        // 按住期间这里跟的是手指（[_visualIndex]），不是路由——换页还在等抬手。
-        selectedIndex: items.isEmpty
-            ? 0
-            : _visualIndex.clamp(0, items.length - 1),
-        onTabSelected: _handleTabSelected,
-        extraButton: action == null
-            ? null
-            : lgw.GlassTabBarExtraButton(
-                icon: Icon(action.icon),
-                label: action.label,
-                onTap: action.onPressed,
-                // 圆钮的槽位高度恒等于栏高，直径小于栏高会被拉成椭圆
-                // （见 [GlassTokens.floatingActionSize] 的说明）。
-                size: height,
-                iconColor: cs.onSurface,
+    return _withActionLongPress(
+      action: action,
+      height: height,
+      bar: Listener(
+        onPointerDown: _handlePointerDown,
+        onPointerMove: _handlePointerMove,
+        onPointerUp: _handlePointerRelease,
+        onPointerCancel: _handlePointerRelease,
+        child: lgw.GlassTabBar.bottom(
+          tabs: [
+            for (final item in items)
+              lgw.GlassTab(
+                icon: _icon(item, item.icon),
+                activeIcon: item.activeIcon == null
+                    ? null
+                    : _icon(item, item.activeIcon!),
+                label: item.label,
               ),
+          ],
+          // 按住期间这里跟的是手指（[_visualIndex]），不是路由——换页还在等抬手。
+          selectedIndex: items.isEmpty
+              ? 0
+              : _visualIndex.clamp(0, items.length - 1),
+          onTabSelected: _handleTabSelected,
+          extraButton: action == null
+              ? null
+              : lgw.GlassTabBarExtraButton(
+                  icon: Icon(action.icon),
+                  label: action.label,
+                  onTap: action.onPressed,
+                  // 圆钮的槽位高度恒等于栏高，直径小于栏高会被拉成椭圆
+                  // （见 [GlassTokens.floatingActionSize] 的说明）。
+                  size: height,
+                  iconColor: cs.onSurface,
+                ),
 
-        // ---- 布局：外边距全部由调用方的 Stack 负责，这里只留「一行」 ----
-        horizontalPadding: 0,
-        verticalPadding: 0,
-        barHeight: height,
-        // 传 height / 2 而不是包的默认哨兵值（9999）：那个值会让圆钮从
-        // `LiquidOval` 退化成 `LiquidRoundedRectangle`，多一次无谓的裁剪。
-        barBorderRadius: height / 2,
-        // 与自绘那版的 `SizedBox(width: 12)` 同一口径。
-        spacing: 12,
+          // ---- 布局：外边距全部由调用方的 Stack 负责，这里只留「一行」 ----
+          horizontalPadding: 0,
+          verticalPadding: 0,
+          barHeight: height,
+          // 传 height / 2 而不是包的默认哨兵值（9999）：那个值会让圆钮从
+          // `LiquidOval` 退化成 `LiquidRoundedRectangle`，多一次无谓的裁剪。
+          barBorderRadius: height / 2,
+          // 与自绘那版的 `SizedBox(width: 12)` 同一口径。
+          spacing: 12,
 
-        // ---- 排版：沿用自绘那版标定过的字号 / 图标尺寸 ----
-        iconSize: 26,
-        labelFontSize: 11.5,
-        iconLabelSpacing: 2,
-        selectedIconColor: cs.primary,
-        unselectedIconColor: cs.onSurfaceVariant,
-        selectedLabelStyle: const TextStyle(
-          height: 1.1,
-          fontWeight: FontWeight.w600,
-        ),
-        unselectedLabelStyle: const TextStyle(
-          height: 1.1,
-          fontWeight: FontWeight.w500,
-        ),
+          // ---- 排版：沿用自绘那版标定过的字号 / 图标尺寸 ----
+          iconSize: 26,
+          labelFontSize: 11.5,
+          iconLabelSpacing: 2,
+          selectedIconColor: cs.primary,
+          unselectedIconColor: cs.onSurfaceVariant,
+          selectedLabelStyle: const TextStyle(
+            height: 1.1,
+            fontWeight: FontWeight.w600,
+          ),
+          unselectedLabelStyle: const TextStyle(
+            height: 1.1,
+            fontWeight: FontWeight.w500,
+          ),
 
-        // ---- 材质：与全站 chrome 同一份玻璃（见 GlassTokens.widgetsGlass）----
-        settings: GlassTokens.widgetsGlass(
-          cs,
-          tint: GlassTokens.widgetsTint(cs),
+          // ---- 材质：与全站 chrome 同一份玻璃（见 GlassTokens.widgetsGlass）----
+          settings: GlassTokens.widgetsGlass(
+            cs,
+            tint: GlassTokens.widgetsTint(cs),
+          ),
+          quality: lgw.GlassQuality.premium,
+          indicatorColor: GlassTokens.tabIndicatorTint(cs),
         ),
-        quality: lgw.GlassQuality.premium,
-        indicatorColor: GlassTokens.tabIndicatorTint(cs),
       ),
     );
   }
-}
 
+  /// 给右侧圆钮补上长按（[GlassFloatingBarAction.onLongPress]）。
+  ///
+  /// 液态档下这枚钮整只由 `liquid_glass_widgets` 画，而包里的
+  /// `GlassTabBarExtraButton` 只有 `onTap`——够不着。所以长按统一由这层**盖在
+  /// 它上面**的透明手势区来收，两档共用一条实现（假玻璃档那枚 `GlassIconButton`
+  /// 也不单独接），免得日后改了一边忘了另一边。
+  ///
+  /// 落点靠几何约定：两档的圆钮都恰好占这一行**最右边的 `height × height`
+  /// 方块**——液态档是包里的 `Positioned(right: 0, width: size)`，假玻璃档是
+  /// Row 末尾那枚直径等于栏高的圆钮。这个前提由 [GlassTokens.floatingActionSize]
+  /// 锁着（直径必须等于栏高，否则圆钮会被拉成椭圆）。
+  ///
+  /// `translucent`：这一层只旁听长按，**点按照旧穿下去**给真正的圆钮。长按到点
+  /// 时 `LongPressGestureRecognizer` 会在竞技场上直接宣布胜利（不必比谁更深），
+  /// 把身下那只 tap 判负——所以「长按弹菜单」不会顺带把搜索页也跳掉。
+  Widget _withActionLongPress({
+    required GlassFloatingBarAction? action,
+    required double height,
+    required Widget bar,
+  }) {
+    final void Function(BuildContext)? onLongPress = action?.onLongPress;
+    if (onLongPress == null) return bar;
+    return Stack(
+      // 约束原样传给底栏：Stack 默认会把约束放松成 loose，底栏就不再撑满
+      // 调用方给的宽度了。
+      fit: StackFit.passthrough,
+      children: [
+        bar,
+        Positioned(
+          right: 0,
+          top: 0,
+          bottom: 0,
+          width: height,
+          child: Builder(
+            builder: (anchorContext) => GlassTapArea(
+              behavior: HitTestBehavior.translucent,
+              // 语义（「搜索」按钮）由身下那枚真正的圆钮发，这层再挂一个就成了
+              // 两个节点。
+              excludeFromSemantics: true,
+              longPressOpensOverlay: true,
+              onLongPress: () => onLongPress(anchorContext),
+              child: const SizedBox.expand(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
 
 /// 浮动底栏的**假玻璃档**实现：传统 [GlassSurface] 胶囊 + 滑动高亮块 + 右侧圆钮。
 ///

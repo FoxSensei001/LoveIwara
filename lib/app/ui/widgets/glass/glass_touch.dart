@@ -48,6 +48,7 @@ class GlassTapArea extends StatefulWidget {
     this.excludeFromSemantics = false,
     this.sticky = true,
     this.opensOverlay = false,
+    this.longPressOpensOverlay = false,
   });
 
   final Widget child;
@@ -80,6 +81,18 @@ class GlassTapArea extends StatefulWidget {
   /// [onTap] 会干什么——等它跑完才知道的话副作用早发生了，所以只能由调用点
   /// 声明一次。
   final bool opensOverlay;
+
+  /// [opensOverlay] 的长按版：这枚键**点按干别的事**（跳页 / 提交），
+  /// 「吐出浮层」的是它显式的 [onLongPress]。
+  ///
+  /// 置真后长按那一下与 [opensOverlay] 完全同款：到点先震一下，再把
+  /// [onLongPress] 跑掉，并在它执行的同步窗口里挂出手指接力票——于是「按住 →
+  /// 不抬手划到某一条 → 松手选中」照样成立。
+  ///
+  /// 典型用户是搜索钮：点按直接进搜索页（页面自带的默认模式），长按弹出全部
+  /// 搜索模式让人挑一个（见 `search_mode_menu.dart`）。这时 [opensOverlay] 是
+  /// 错的——它说的是「[onTap] 吐浮层」，开了会让长按去跑跳页那一下。
+  final bool longPressOpensOverlay;
 
   /// 是否启用上面那套「按边界判」的容忍圈。
   ///
@@ -151,10 +164,11 @@ class _GlassTapAreaState extends State<GlassTapArea> {
     _handoff = null;
   }
 
-  /// 长按当作「打开浮层」那一下：跑 [GlassTapArea.onTap]，并在它执行的这段
-  /// **同步**窗口里挂出手指接力票——`showGlassMenu` 会在自己的同步前缀里认领。
-  void _openOverlayByLongPress() {
-    final VoidCallback? open = widget.onTap;
+  /// 长按当作「打开浮层」那一下：跑 [open]（[GlassTapArea.opensOverlay] 那路是
+  /// `onTap`、[GlassTapArea.longPressOpensOverlay] 那路是 `onLongPress`），并在
+  /// 它执行的这段**同步**窗口里挂出手指接力票——`showGlassMenu` 会在自己的同步
+  /// 前缀里认领。
+  void _openOverlayByLongPress(VoidCallback? open) {
     if (open == null || _pointer == null) return;
     // 长按到点了：Android/iOS 上这一下都该有触感，否则「按住不动」到底有没有
     // 生效全靠盯着屏幕看。
@@ -173,13 +187,18 @@ class _GlassTapAreaState extends State<GlassTapArea> {
 
   @override
   Widget build(BuildContext context) {
-    // 没有单独的长按行为、但这枚键就是浮层的触发钮 → 长按顶上，见
-    // [GlassTapArea.opensOverlay]。
-    final VoidCallback? longPress =
-        widget.onLongPress ??
-        (widget.opensOverlay && widget.onTap != null
-            ? _openOverlayByLongPress
-            : null);
+    // 长按有三种来路：
+    //   1. 显式的 [onLongPress] 就是浮层入口（[longPressOpensOverlay]）→ 震动
+    //      + 手指接力，与下面第 2 条同款；
+    //   2. 没有显式长按、但点按是浮层入口（[opensOverlay]）→ 长按顶上跑 onTap；
+    //   3. 其余的显式长按 → 原样跑，不震不接力（震动该由那件事自己决定）。
+    final VoidCallback? longPress = widget.onLongPress != null
+        ? (widget.longPressOpensOverlay
+              ? () => _openOverlayByLongPress(widget.onLongPress)
+              : widget.onLongPress)
+        : (widget.opensOverlay && widget.onTap != null
+              ? () => _openOverlayByLongPress(widget.onTap)
+              : null);
     final bool hasGesture = widget.onTap != null || longPress != null;
     if (!hasGesture && widget.onPressedChanged == null) return widget.child;
 

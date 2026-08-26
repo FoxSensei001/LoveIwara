@@ -125,7 +125,7 @@ void main() {
       // 注释里提到 showGlassMenu 的（词汇表、类文档）不算调用点。
       final source = file.readAsStringSync().replaceAll(_lineComment, '');
       if (!_showsGlassMenu.hasMatch(source)) continue;
-      if (source.contains('opensOverlay: true')) continue;
+      if (_declaresOverlayTrigger(source)) continue;
       // 长按本身就是入口的（评论正文、图库图片）：没有可按的钮，接力由
       // GlassLongPressMenuArea 那层做，见它的类文档。
       if (_usesLongPressMenuArea.hasMatch(source)) continue;
@@ -137,10 +137,11 @@ void main() {
       offenders,
       isEmpty,
       reason:
-          '这些文件会弹出玻璃菜单，但触发钮既没声明 opensOverlay: true、也没走\n'
-          'GlassLongPressMenuArea——于是长按打不开菜单，「按住 → 划到某一条 → 松手选中」\n'
-          '那条也整只没有。组件没法预知 onTap 会干什么，只能由调用点声明一次，\n'
-          '见 GlassTapArea.opensOverlay / GlassLongPressMenuArea：\n'
+          '这些文件会弹出玻璃菜单，但触发钮既没声明 opensOverlay: true /\n'
+          'longPressOpensOverlay: true、也没走 GlassLongPressMenuArea——于是长按打不开\n'
+          '菜单，「按住 → 划到某一条 → 松手选中」那条也整只没有。组件没法预知 onTap\n'
+          '会干什么，只能由调用点声明一次，见 GlassTapArea.opensOverlay /\n'
+          'GlassTapArea.longPressOpensOverlay / GlassLongPressMenuArea：\n'
           '${offenders.join('\n')}',
     );
   });
@@ -390,7 +391,23 @@ final _usesLongPressMenuArea = RegExp(
 /// 这不是豁免——组件文件里那句要是被删了，用它的调用点照样算违规。
 const _sharedMenuTriggers = <String, String>{
   'DownloadMoreButton': 'lib/app/ui/pages/download/widgets/download_scale.dart',
+  // 搜索钮：点按进搜索页，长按弹「搜索模式」菜单（longPressOpensOverlay）。
+  'SearchActionButton': 'lib/app/ui/widgets/search_mode_menu.dart',
 };
+
+/// 「这枚钮的长按会开浮层」的两种声明。
+///
+/// ⚠️ 必须按词边界匹配：`longPressOpensOverlay: true` 里**含着**
+/// `opensOverlay: true` 这个子串，用 `contains` 判的话只声明了长按那一种的文件
+/// 会被当成声明了点按那一种，闸门等于漏掉。
+final _declaresTapOverlay = RegExp(r'(?<![A-Za-z0-9_])opensOverlay:\s*true');
+final _declaresLongPressOverlay = RegExp(
+  r'(?<![A-Za-z0-9_])longPressOpensOverlay:\s*true',
+);
+
+bool _declaresOverlayTrigger(String source) =>
+    _declaresTapOverlay.hasMatch(source) ||
+    _declaresLongPressOverlay.hasMatch(source);
 
 bool _declaresViaSharedTrigger(String source) {
   for (final entry in _sharedMenuTriggers.entries) {
@@ -399,7 +416,7 @@ bool _declaresViaSharedTrigger(String source) {
     }
     final trigger = File(entry.value);
     if (trigger.existsSync() &&
-        trigger.readAsStringSync().contains('opensOverlay: true')) {
+        _declaresOverlayTrigger(trigger.readAsStringSync())) {
       return true;
     }
   }

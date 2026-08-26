@@ -22,6 +22,7 @@ import 'package:i_iwara/app/utils/exit_confirm_util.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/routes/home_shell_navigation.dart';
 import 'package:i_iwara/app/ui/widgets/identity_avatar_button.dart';
+import 'package:i_iwara/app/ui/widgets/search_mode_menu.dart';
 
 /// Home shell scaffold that wraps both tab pages and detail pages.
 /// Receives [Widget child] from go_router's ShellRoute.
@@ -438,12 +439,27 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
         icon: Icons.search,
         label: slang.t.common.search,
         onPressed: _openSearchForCurrentBranch,
+        // 长按：一次性列出全部搜索模式。菜单朝上开，所以优先级最高的那条落在
+        // 最下面、贴着手指（顺序由 showGlassMenu 的 priorityNearAnchor 负责，
+        // 见 showSearchModeMenu）。
+        onLongPress: (anchorContext) => showSearchModeMenu(
+          anchorContext: anchorContext,
+          current: _searchSegmentForCurrentBranch(),
+        ),
       ),
     );
   }
 
   /// 底部独立搜索钮：按当前栏目选择默认搜索分段，统一走全局搜索对话框 → 搜索结果页。
   void _openSearchForCurrentBranch() {
+    NaviService.navigateToSearchPage(
+      initialSegment: _searchSegmentForCurrentBranch(),
+    );
+  }
+
+  /// 当前栏目对应的默认搜索分段：点按搜索钮直接用它，长按弹出的模式菜单里它是
+  /// 打勾的那一条。
+  SearchSegment _searchSegmentForCurrentBranch() {
     final shell = appService.navigationShell;
     final branchIndex = shell?.currentIndex ?? appService.currentIndex;
     String? key;
@@ -464,7 +480,7 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
       // subscription / video 及未知栏目统一默认视频分段
       _ => SearchSegment.video,
     };
-    NaviService.navigateToSearchPage(initialSegment: segment);
+    return segment;
   }
 
   Widget _buildNavigationRail(

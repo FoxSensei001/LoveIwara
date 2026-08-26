@@ -41,6 +41,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/identity_avatar_button.dart';
+import 'package:i_iwara/app/ui/widgets/search_mode_menu.dart';
 
 class SubscriptionsPage extends StatefulWidget implements HomeWidgetInterface {
   static final globalKey = GlobalKey<SubscriptionsPageState>();
@@ -262,11 +263,10 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
       children: [
         GlassGroupSlot(
           visible: isWide,
-          child: GlassIconButton(
+          // 点按进搜索页（按当前子 tab 选默认分段），长按挑搜索模式。
+          child: SearchActionButton(
             key: _searchButtonKey,
-            icon: const Icon(Icons.search),
-            tooltip: t.common.search,
-            onPressed: _openSearchDialog,
+            segment: _searchSegmentForCurrentTab(),
           ),
         ),
         // 特别关注筛选：也是「按用户筛列表」，所以跟筛选/已保存筛选放一起
@@ -381,24 +381,19 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
 
   // 打开搜索页面
   void _openSearchDialog() {
-    SearchSegment segment;
-    switch (_tabController.index) {
-      case 0:
-        segment = SearchSegment.video;
-        break;
-      case 1:
-        segment = SearchSegment.image;
-        break;
-      case 2:
-        segment = SearchSegment.post;
-        break;
-      default:
-        segment = SearchSegment.video;
-    }
-
     NaviService.navigateToSearchPage(
-      initialSegment: segment,
+      initialSegment: _searchSegmentForCurrentTab(),
     );
+  }
+
+  /// 当前子 tab 对应的默认搜索分段：点按搜索钮直接用它，长按弹出的模式菜单里
+  /// 它是打勾的那一条。
+  SearchSegment _searchSegmentForCurrentTab() {
+    return switch (_tabController.index) {
+      1 => SearchSegment.image,
+      2 => SearchSegment.post,
+      _ => SearchSegment.video,
+    };
   }
 
   /// 打开筛选弹窗（标签 / 年月 / 排序，订阅流下额外含评级）。

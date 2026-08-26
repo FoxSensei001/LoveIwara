@@ -13,8 +13,10 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_overflow_menu_button.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/identity_avatar_button.dart';
+import 'package:i_iwara/app/ui/widgets/search_mode_menu.dart';
 
 /// 社区栏目的目的地。
 ///
@@ -387,10 +389,9 @@ class CommunityPageState extends State<CommunityPage> {
                 // 论坛：搜索（宽屏才直出，窄屏收进 ⋮）
                 GlassGroupSlot(
                   visible: isForum && isWide,
-                  child: GlassIconButton(
-                    icon: const Icon(Icons.search),
-                    tooltip: t.common.search,
-                    onPressed: _openForumSearch,
+                  // 点按进论坛搜索，长按挑搜索模式。
+                  child: const SearchActionButton(
+                    segment: SearchSegment.forum,
                   ),
                 ),
                 // 论坛：瀑布流 / 分页（只作用于「最近」列表）

@@ -21,6 +21,7 @@ class GlassPressable extends StatefulWidget {
     this.tapHandledDeeper = false,
     this.stickyTouch = true,
     this.opensOverlay = false,
+    this.longPressOpensOverlay = false,
   });
 
   final Widget Function(BuildContext context, bool pressed) builder;
@@ -52,6 +53,10 @@ class GlassPressable extends StatefulWidget {
   /// 见 [GlassTapArea.opensOverlay]：这枚键的 [onTap] 是「吐出一张浮层」，
   /// 于是长按也能打开、并且长按不抬手可以直接滑进面板选。
   final bool opensOverlay;
+
+  /// 见 [GlassTapArea.longPressOpensOverlay]：吐浮层的是 [onLongPress]
+  /// （点按干别的事），长按那一下照样震动 + 手指接力。
+  final bool longPressOpensOverlay;
 
   @override
   State<GlassPressable> createState() => _GlassPressableState();
@@ -102,6 +107,7 @@ class _GlassPressableState extends State<GlassPressable> {
       onPressedChanged: _setPressed,
       sticky: widget.stickyTouch,
       opensOverlay: widget.opensOverlay,
+      longPressOpensOverlay: widget.longPressOpensOverlay,
       child: scaled,
     );
   }
@@ -139,6 +145,7 @@ class GlassSurface extends StatelessWidget {
     this.liquidTouch = true,
     this.materialize = 1.0,
     this.opensOverlay = false,
+    this.longPressOpensOverlay = false,
   });
 
   final Widget child;
@@ -148,6 +155,9 @@ class GlassSurface extends StatelessWidget {
   /// 见 [GlassTapArea.opensOverlay]：[onTap] 是「吐出一张浮层」，长按也能打开，
   /// 且长按不抬手可以直接滑进面板取焦。
   final bool opensOverlay;
+
+  /// 见 [GlassTapArea.longPressOpensOverlay]：吐浮层的是 [onLongPress]。
+  final bool longPressOpensOverlay;
 
   /// 玻璃体高度。传 null 表示**按内容自适应**（菜单面板一类高度不定的玻璃），
   /// 这时 [borderRadius] 必须显式给出——没有高度就推不出胶囊半径。
@@ -285,6 +295,7 @@ class GlassSurface extends StatelessWidget {
           onTap: onTap,
           onLongPress: onLongPress,
           opensOverlay: opensOverlay,
+          longPressOpensOverlay: longPressOpensOverlay,
           excludeFromSemantics: true,
           child: content,
         );
@@ -341,6 +352,7 @@ class GlassSurface extends StatelessWidget {
         onTap: onTap,
         onLongPress: onLongPress,
         opensOverlay: opensOverlay,
+        longPressOpensOverlay: longPressOpensOverlay,
         tapHandledDeeper: tapInsideLiquidBox,
         // 形变层自己就有一下按压放大（[GlassTokens.widgetsInteractionScale] =
         // 1.05），外面再叠 0.96 的缩小几乎正好抵消，读起来是「按了没反应」。
@@ -371,6 +383,7 @@ class GlassIconButton extends StatelessWidget {
     super.key,
     required this.icon,
     required this.onPressed,
+    this.onLongPressed,
     this.tooltip,
     this.standalone = false,
     this.size,
@@ -381,16 +394,26 @@ class GlassIconButton extends StatelessWidget {
     this.loading = false,
     this.materialize = 1.0,
     this.opensOverlay = false,
+    this.longPressOpensOverlay = false,
   });
 
   final Widget icon;
   final VoidCallback? onPressed;
+
+  /// 长按这枚键的另一件事。给了它之后 [opensOverlay] 合成的那只长按就不再顶上
+  /// （显式的赢），所以「点按开菜单」的钮不要同时传这个。
+  final VoidCallback? onLongPressed;
+
   final String? tooltip;
   final bool standalone;
 
   /// 见 [GlassTapArea.opensOverlay]：[onPressed] 是「吐出一张浮层」（菜单 /
   /// 下拉板），长按也能打开，且长按不抬手可以直接滑进面板取焦。
   final bool opensOverlay;
+
+  /// 见 [GlassTapArea.longPressOpensOverlay]：吐浮层的是 [onLongPressed]，
+  /// 点按干别的事（搜索钮：点按进搜索页、长按挑搜索模式）。
+  final bool longPressOpensOverlay;
   final double? size;
   final double iconSize;
   final bool showBadge;
@@ -423,6 +446,7 @@ class GlassIconButton extends StatelessWidget {
     // loading 期间按钮一律不可按：重复点击刷新只会把同一份请求发两遍，
     // 而「灰掉」正是用户能读到的「已经在做了」。
     final VoidCallback? effectiveOnPressed = loading ? null : onPressed;
+    final VoidCallback? effectiveOnLongPressed = loading ? null : onLongPressed;
 
     // 可用↔置灰的颜色变化也要过渡：直接换 IconThemeData.color 会让图标瞬间
     // 跳成灰色，而同一个按钮的底色（GlassSurface 的 AnimatedContainer）却在
@@ -473,7 +497,9 @@ class GlassIconButton extends StatelessWidget {
         circle: true,
         height: resolvedSize,
         onTap: effectiveOnPressed,
+        onLongPress: effectiveOnLongPressed,
         opensOverlay: opensOverlay,
+        longPressOpensOverlay: longPressOpensOverlay,
         tooltip: tooltip,
         materialize: materialize,
         child: Center(child: iconWidget),
@@ -485,7 +511,9 @@ class GlassIconButton extends StatelessWidget {
     // 深色圆斑就是「玻璃上的脏印子」。反馈留 0.9 缩放 + 长按时整只胶囊的蠕动。
     Widget result = GlassPressable(
       onTap: effectiveOnPressed,
+      onLongPress: effectiveOnLongPressed,
       opensOverlay: opensOverlay,
+      longPressOpensOverlay: longPressOpensOverlay,
       scale: 0.9,
       builder: (context, _) => SizedBox(
         width: resolvedSize,

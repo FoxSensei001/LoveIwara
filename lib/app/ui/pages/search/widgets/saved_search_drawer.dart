@@ -4,6 +4,7 @@ import 'package:i_iwara/app/models/saved_search.model.dart';
 import 'package:i_iwara/app/services/saved_search_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_saved_items_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_side_drawer.dart';
+import 'package:i_iwara/app/ui/widgets/search_mode_menu.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -48,27 +49,9 @@ class SavedSearchDrawer extends StatelessWidget {
 
   SavedSearchService get _service => Get.find<SavedSearchService>();
 
-  /// 各搜索分类的展示名。
-  static String segmentLabel(SearchSegment segment) {
-    switch (segment) {
-      case SearchSegment.video:
-        return slang.t.common.video;
-      case SearchSegment.image:
-        return slang.t.common.gallery;
-      case SearchSegment.post:
-        return slang.t.common.post;
-      case SearchSegment.user:
-        return slang.t.common.user;
-      case SearchSegment.forum:
-        return slang.t.forum.forum;
-      case SearchSegment.forum_posts:
-        return slang.t.forum.posts;
-      case SearchSegment.oreno3d:
-        return 'Oreno3D';
-      case SearchSegment.playlist:
-        return slang.t.common.playlist;
-    }
-  }
+  /// 各搜索分类的展示名。全站唯一一份在 [searchSegmentLabel]。
+  static String segmentLabel(SearchSegment segment) =>
+      searchSegmentLabel(segment, slang.t);
 
   String _summaryOf(BuildContext context, SavedSearch search) {
     final t = slang.Translations.of(context);
